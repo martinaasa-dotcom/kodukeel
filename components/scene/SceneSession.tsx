@@ -452,8 +452,18 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     return (
       <div className="flex flex-col gap-5">
         <Card className="flex flex-col gap-2">
-          <h2 className="font-medium">{scene.place}</h2>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{scene.role}</p>
+          {/*
+            WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN.
+
+            This card was headed with the place, which the page above it
+            already prints as its lead, so the first two lines of the screen
+            were the same sentence twice. What the card is for is the role, so
+            the role leads it and there is no heading at all: the role is
+            forty words of prose, and a heading that long is a paragraph
+            wearing an `h2`, which is worse for somebody moving by headings
+            than having none.
+          */}
+          <p>{scene.role}</p>
           <p className="text-xs" style={{ color: "var(--ink-3)" }}>
             You will need {practises(scene).join(", ")}. They speak first, you answer, and the box
             you type into says what to say each time. The card above the conversation lists what to
