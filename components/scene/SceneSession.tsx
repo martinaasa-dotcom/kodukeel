@@ -8,7 +8,7 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { Card } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Speak } from "@/components/Speak";
-import type { Provenance as SceneProvenance } from "@/lib/scenes/line";
+import { isSaid, isSpokenEstonian, type Provenance as SceneProvenance } from "@/lib/scenes/line";
 import { conditionFor } from "@/lib/audio/conditions";
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
@@ -119,17 +119,15 @@ const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "bad", label: "Hard", blurb: "As bad as a Tuesday at a busy desk." },
 ];
 
-/**
- * The three kinds of line that are nobody speaking: what the other side did
- * where no Estonian could be built for it, time passing between two beats, and
- * the app stepping out of character to say what is wanted. None of them is a
- * bubble, because nobody said any of them.
- */
-const NOT_SAID = new Set<Provenance>(["unspoken", "meanwhile", "coach"]);
+/*
+  Both read off `lib/scenes/line.ts` rather than written out here, because this
+  was one of three copies of the same list and the day a line learned to be a
+  break in time or a hint from the app, two of them did not hear about it.
+*/
 /** Whether a line is Estonian the other side said, as opposed to a note or their English. */
-const spokenEstonian = (line: Line) => !NOT_SAID.has(line.provenance) && line.provenance !== "english";
+const spokenEstonian = (line: Line) => isSpokenEstonian(line.provenance);
 /** Whether a line was said at all, in either language. */
-const spoken = (line: Line) => !NOT_SAID.has(line.provenance);
+const spoken = (line: Line) => isSaid(line.provenance);
 
 /**
  * The line the learner is now answering: the other side's last move, which is

@@ -11988,6 +11988,26 @@ check("a learner who says they are lost is handed the word, never the question a
       session, /type Provenance = "attested"/,
       "the scene screen keeps its own copy of the provenance list, so it can fall behind the reply",
     );
+    /*
+      AND WHICH LINES ARE SPOKEN IS ONE DEFINITION, BECAUSE IT WAS THREE.
+
+      A reply is drawn by the screen, read by the fuzz harness and glossed by
+      the route, and each wrote out its own idea of which provenances are
+      Estonian somebody said. The day a line learned to be a break in time or
+      a hint from the app, the screen drew both as stage directions and the
+      harness reported the hint as an Estonian line with a digit in it, which
+      is what a list copied three times always does.
+    */
+    for (const file of ["components/scene/SceneSession.tsx", "app/api/scene/route.ts", "scripts/fuzz-scenes.ts"]) {
+      assert.match(
+        code(file), /isSpokenEstonian|isSaid/,
+        `${file} decides for itself which lines are spoken, so it can disagree with the others`,
+      );
+      assert.doesNotMatch(
+        code(file), /provenance !== "unspoken"/,
+        `${file} keeps its own copy of which lines are spoken`,
+      );
+    }
   }
   /*
     And the gate is not widened with it. A model composing inside the course

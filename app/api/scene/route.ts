@@ -7,7 +7,7 @@ import { reportError } from "@/lib/observability/report";
 import { openWithFallback, resolveProviders } from "@/lib/tutor/provider";
 import { MAX_TURNS, MAX_TURN_CHARS, knowing, readDraw, replay, sceneContext } from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
-import { sceneLine, type SpokenLine } from "@/lib/scenes/line";
+import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
 import { answerBeatId } from "@/lib/scenes/scripted";
@@ -316,7 +316,13 @@ export async function POST(request: Request) {
     reads the run and may call a model.
   */
   const glossedLines = async (lines: readonly SpokenLine[]) => {
-    const spoken = lines.filter((l) => l.provenance !== "unspoken" && l.provenance !== "english");
+    /*
+      Only lines somebody said in Estonian are glossed, off the one definition
+      of which those are: a hint from the app and a break in time are English
+      and would come back as a row of dictionary misses under a sentence
+      nobody spoke.
+    */
+    const spoken = lines.filter((l) => isSpokenEstonian(l.provenance));
     if (spoken.length === 0) return lines;
     const tokens = await glossSentences(spoken.map((l) => ({ et: l.text, form: null })));
     const byText = new Map(spoken.map((l, i) => [l.text, tokens[i]]));

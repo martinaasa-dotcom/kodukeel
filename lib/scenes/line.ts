@@ -118,6 +118,35 @@ export type Provenance =
    */
   | "coach";
 
+/**
+ * The kinds of line nobody says out loud.
+ *
+ * ONE LIST, BECAUSE THERE WERE THREE AND THEY DISAGREED. A reply is drawn by
+ * the screen, read by the fuzz harness and glossed by the route, and each had
+ * written out its own idea of which provenances are Estonian somebody spoke.
+ * The day a line learned to be a break in time or a hint from the app, the
+ * screen drew both as stage directions and the harness reported the hint as an
+ * Estonian line with a digit in it, which is what a list copied three times
+ * always does.
+ *
+ * `unspoken` is what the other side did, in English, where no Estonian could
+ * be built for it; `meanwhile` is time passing between two beats; `coach` is
+ * the app stepping out of character to say what is wanted. None is a bubble,
+ * none is read aloud, and none is offered to the report queue, because a
+ * reader reporting one would be reporting our own sentence.
+ */
+export const NOT_SAID: ReadonlySet<Provenance> = new Set<Provenance>(["unspoken", "meanwhile", "coach"]);
+
+/** Whether anybody said this line at all, in either language. */
+export function isSaid(provenance: Provenance): boolean {
+  return !NOT_SAID.has(provenance);
+}
+
+/** Whether this line is Estonian the other side said, as opposed to a note or their English. */
+export function isSpokenEstonian(provenance: Provenance): boolean {
+  return isSaid(provenance) && provenance !== "english";
+}
+
 export interface SpokenLine {
   readonly text: string;
   readonly provenance: Provenance;

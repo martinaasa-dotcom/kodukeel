@@ -24,7 +24,7 @@ import { replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
-import { sceneLine } from "../lib/scenes/line";
+import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
 
 const NASTY = [
@@ -102,7 +102,16 @@ async function main() {
               if (/\{\w+\}/.test(l.text)) bad(`${scene.id}: placeholder on screen: ${l.text}`);
               if (l.provenance === "unspoken" && /[õäöüšž]/i.test(l.text)) bad(`${scene.id}: Estonian in a stage direction: ${l.text}`);
               if (l.text === FALLBACK_PHRASE && last && last.reading !== "unrecognised" && last.reading !== "echo") bad(`${scene.id}: repair phrase at reading ${last.reading} for "${last.said}"`);
-              if (l.provenance !== "unspoken" && l.provenance !== "english" && /\d/.test(l.text) && !/^Kell /.test(l.text)) bad(`${scene.id}: digit in an Estonian line: ${l.text}`);
+              /*
+                A digit in a line somebody said in Estonian, other than the
+                clock time off the card. `datumLine` builds `Homme kell 10:30?`
+                and `Teisipäeval kell 14:00?`, which are the lines a beat says
+                out of the card's own values and are the reason a time may
+                appear at all: the check anchored on the start of the line and
+                so reported every one of them, 160 times in a run. What it is
+                really for is a number nobody dealt turning up in Estonian.
+              */
+              if (isSpokenEstonian(l.provenance) && /\d/.test(l.text) && !/\bkell \d/i.test(l.text)) bad(`${scene.id}: digit in an Estonian line: ${l.text}`);
             }
             // what the learner is now answering
             const move = [...lines].reverse().find((l) => !l.reaction);
