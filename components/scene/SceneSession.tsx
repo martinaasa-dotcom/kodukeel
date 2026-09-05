@@ -220,7 +220,25 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     is the thing the table exists to rehearse rather than a way to be marked
     down.
   */
-  const { hearing } = useAudioPrefs();
+  const { hearing, listenFirst } = useAudioPrefs();
+  /*
+    WHICH LINES THE LEARNER HAS ASKED TO SEE.
+
+    With `listenFirst` on, the other side's Estonian is spoken and its words
+    wait behind a press: in a shop you do not get the subtitles, and every line
+    here has been text and audio at once, so catching it the first time at
+    somebody else's speed was the one thing a rehearsal never rehearsed.
+
+    Keyed on the text rather than on an index, because a line said again is the
+    same line and should stay shown; the newest line is what is hidden, and the
+    set only ever grows, so nothing a learner has already read is taken back.
+    Revealing is free and is written down nowhere: the point is to try first,
+    not to be marked on it.
+  */
+  const [shown, setShown] = useState<ReadonlySet<string>>(new Set());
+  const reveal = useCallback((text: string) => {
+    setShown((was) => (was.has(text) ? was : new Set([...was, text])));
+  }, []);
 
   const log = useRef<HTMLDivElement>(null);
   /*
@@ -628,6 +646,34 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                 spoken(line) ? (
                   <div key={at} className="max-w-full">
                     <Card className="inline-block max-w-full">
+                      {listenFirst === "on" && spokenEstonian(line) && !shown.has(line.text) ? (
+                        /*
+                          Heard, not read. The speaker is the whole line, and
+                          the way out is beside it rather than hidden: a
+                          learner who cannot catch it has to be able to look,
+                          or the mode is a wall rather than an exercise.
+                        */
+                        <p className="flex items-center gap-3">
+                          <Speak
+                            text={line.text}
+                            voice={voice}
+                            condition={conditionFor(opened?.plays ?? 0, index, hearing, true)}
+                            rate={speed}
+                            size={18}
+                            autoplay={index === turns.length - 1 && at === turn.lines.length - 1}
+                            className="press inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => reveal(line.text)}
+                            className="tap-tint rounded-full px-3 py-1 text-sm"
+                            style={{ color: "var(--ink-2)" }}
+                          >
+                            Show the words
+                          </button>
+                        </p>
+                      ) : (
+                        <>
                       {/*
                         Spoken in the persona's voice (§6), in the room this
                         scene is heard in, and the newest line plays itself
@@ -676,6 +722,8 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                           />
                         )}
                       </p>
+                      )}
+                        </>
                       )}
                     </Card>
                     {/*

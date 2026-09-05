@@ -702,6 +702,58 @@ export interface CompletedReply {
 }
 
 /**
+ * WHICH MODEL A CONVERSATION IS COMPOSED WITH, WHICH IS THE HARDEST READING
+ * JOB IN THIS APP.
+ *
+ * Every other paid path here asks a model to do something bounded: translate a
+ * word, mark a form, read a photograph. A scene asks it to follow a
+ * conversation with a beginner, in a language most models are thin on, inside a
+ * closed word list, and write one line that is about what the person actually
+ * said. `runGate` then withholds the line whole if it reaches outside the list,
+ * and `npm run eval:scene` has measured that at between 43 and 70 percent
+ * withheld: on a free model, most of what it writes never reaches anybody, and
+ * the learner gets a stage direction instead of a conversation. **Comprehension
+ * is not a nicety on this path, it is most of what decides whether the module
+ * works at all.**
+ *
+ * So a deployment may point scenes at a better model than it uses for chat,
+ * and the shape is the one `visionProviders` already established: an override
+ * per provider, and **nothing by default**, because turning a conversation on
+ * must not move a free-model deployment onto a paid one behind the operator's
+ * back. A deployment that sets none of these is composed exactly as it was.
+ *
+ * The one thing this does beyond substituting a name is **order**. The chat
+ * chain is free first, which is the right policy when every link can do the
+ * job; here an operator who has named a model for scenes has said which one
+ * they want asked, and trying three free ones first would spend the turn's
+ * booking on the models they were choosing against. So a provider carrying an
+ * explicit scene model goes to the front, and everything else keeps its place
+ * behind as the fallback it already was.
+ */
+export function sceneProviders(): ProviderConfig[] {
+  const override: Record<ProviderName, string | undefined> = {
+    openrouter: process.env.OPENROUTER_SCENE_MODEL,
+    groq: process.env.GROQ_SCENE_MODEL,
+    gemini: process.env.GEMINI_SCENE_MODEL,
+    anthropic: process.env.ANTHROPIC_SCENE_MODEL,
+    openai: process.env.OPENAI_SCENE_MODEL,
+  };
+
+  const seen = new Set<string>();
+  const chosen: ProviderConfig[] = [];
+  const rest: ProviderConfig[] = [];
+  for (const config of resolveProviders()) {
+    const named = override[config.name]?.trim();
+    const model = named || config.model;
+    const key = `${config.name}:${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    (named ? chosen : rest).push({ ...config, model });
+  }
+  return [...chosen, ...rest];
+}
+
+/**
  * Which model each provider is asked to look at pictures with.
  *
  * It defaults to whatever the deployment already configured for chat, because

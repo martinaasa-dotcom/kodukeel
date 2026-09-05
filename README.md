@@ -278,6 +278,20 @@ deployment onto a paid model by itself. So add
 `OPENROUTER_VISION_MODEL="openai/gpt-4o"` (or `ANTHROPIC_VISION_MODEL` / `OPENAI_VISION_MODEL`) and
 it is used for scanning and nothing else. A page is roughly a third of a cent.
 
+**Situations** take the same key and, if you want them good, one more line. A scene asks a model to
+follow a conversation with a beginner, in a language most models are thin on, inside a closed word
+list, and write one line that answers what the person actually said. Anything reaching outside that
+list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 percent of composed
+lines withheld on a free model, which the learner meets as a stage direction instead of a
+conversation. Comprehension is most of what decides whether the module works.
+
+So `OPENROUTER_SCENE_MODEL` (or `GROQ_` / `GEMINI_` / `ANTHROPIC_` / `OPENAI_SCENE_MODEL`) points
+conversations at a better model than the rest of the app uses, and a provider you name here is asked
+*first* rather than after the free chain, since naming one is choosing it. Nothing is set by default,
+for the reason scanning sets nothing: opening a conversation must never move a free deployment onto
+a paid model by itself. A turn is one short answer, so this is the cheapest paid path in the app to
+run well.
+
 ## Deploying it as a real website
 
 Local mode needs nothing but a Postgres URL; hosting it for a class needs two more steps. The schema

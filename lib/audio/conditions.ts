@@ -42,6 +42,30 @@ export type Hearing = "on" | "off";
  */
 export const DEFAULT_HEARING: Hearing = "on";
 
+/**
+ * WHETHER A CONVERSATION IS HEARD BEFORE IT IS READ.
+ *
+ * In a shop you do not get the subtitles. Every line the other side says in a
+ * scene has been on the screen as text and in the ear at the same time, so the
+ * one thing that actually breaks down at a counter, catching it the first time
+ * at somebody's own speed, was the one thing a rehearsal never rehearsed. With
+ * this on, the line is spoken and the text waits behind a press.
+ *
+ * OFF BY DEFAULT, which is the ordinary rule about a missing row rather than
+ * the exception `DEFAULT_HEARING` makes: this is harder than what everybody
+ * has had, and a learner who arrives to find the words gone has been given a
+ * different app than the one they left. Revealing costs nothing and is not
+ * recorded: the point is to try first, not to be marked on it.
+ */
+export type ListenFirst = "on" | "off";
+
+export const DEFAULT_LISTEN_FIRST: ListenFirst = "off";
+
+/** An unset row and an unrecognised value both read as the default. */
+export function listenFirstFrom(value: string | null | undefined): ListenFirst {
+  return value === "on" ? "on" : "off";
+}
+
 /** An unset row and an unrecognised value both read as the default. */
 export function hearingFrom(value: string | null | undefined): Hearing {
   return value === "off" ? "off" : "on";

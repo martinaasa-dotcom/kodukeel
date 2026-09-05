@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AudioLines, Coffee, Ear, EarOff, Music, VolumeX } from "lucide-react";
-import { setAutoplay, setFeedbackSounds, setHearing, setVoice } from "@/app/actions";
-import { CONDITIONS, removesWords, type Hearing } from "@/lib/audio/conditions";
+import { AudioLines, BookOpen, Coffee, Ear, EarOff, Music, VolumeX } from "lucide-react";
+import { setAutoplay, setFeedbackSounds, setHearing, setListenFirst, setVoice } from "@/app/actions";
+import { CONDITIONS, removesWords, type Hearing, type ListenFirst } from "@/lib/audio/conditions";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
@@ -198,6 +198,65 @@ export function HearingPanel({ current }: { current: Hearing }) {
   return (
     <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 sm:grid-cols-2">
       {HEARING.map((o) => (
+        <ChoiceCard
+          key={o.value}
+          layout="stacked"
+          disabled={pending}
+          selected={value === o.value}
+          onSelect={() => pick(o.value)}
+          icon={<o.icon size={16} aria-hidden />}
+          title={o.label}
+          detail={o.detail}
+        />
+      ))}
+    </ChoiceGroup>
+  );
+}
+
+/**
+ * WHETHER A CONVERSATION IS HEARD BEFORE IT IS READ.
+ *
+ * Every line the other side says in a scene has been on the screen as text and
+ * in the ear at the same time, so the one thing that actually breaks down at a
+ * counter, catching it the first time at somebody else's speed, was the one
+ * thing a rehearsal never rehearsed. Off by default, which is the ordinary
+ * rule about a missing row rather than the exception the row above makes:
+ * this is harder than what everybody has had.
+ *
+ * The words are always one press away inside the scene, so nothing is locked
+ * behind it and nothing is recorded about whether somebody looked.
+ */
+const LISTEN_FIRST: { value: ListenFirst; label: string; detail: string; icon: typeof Coffee }[] = [
+  {
+    value: "off",
+    label: "Words and voice together",
+    detail: "Every line is written down as it is said, which is how a conversation has always read here.",
+    icon: BookOpen,
+  },
+  {
+    value: "on",
+    label: "Hear it first",
+    detail: "A line is spoken and its words wait behind a press, the way they do in a shop. You can always look.",
+    icon: Ear,
+  },
+];
+
+export function ListenFirstPanel({ current }: { current: ListenFirst }) {
+  const [value, setValue] = useState(current);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const pick = (next: ListenFirst) => {
+    setValue(next);
+    start(async () => {
+      await setListenFirst(next);
+      router.refresh();
+    });
+  };
+
+  return (
+    <ChoiceGroup ariaLabel="Whether a conversation is heard before it is read" className="grid gap-2 sm:grid-cols-2">
+      {LISTEN_FIRST.map((o) => (
         <ChoiceCard
           key={o.value}
           layout="stacked"

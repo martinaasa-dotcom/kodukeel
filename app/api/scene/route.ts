@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
-import { openWithFallback, resolveProviders } from "@/lib/tutor/provider";
+import { openWithFallback, sceneProviders } from "@/lib/tutor/provider";
 import { MAX_TURNS, MAX_TURN_CHARS, knowing, readDraw, replay, sceneContext } from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
@@ -442,7 +442,7 @@ export async function POST(request: Request) {
     other side answers with "ei tea", which is at least true.
   */
   if (asideWantsModel) {
-    const chain = resolveProviders();
+    const chain = sceneProviders();
     const decision = chain.length > 0 ? await authoriseCall(ownerId, "SCENE") : null;
     if (!decision?.allowed || !decision.reservation) {
       aside = shrug(context.lexicon);
@@ -485,7 +485,7 @@ export async function POST(request: Request) {
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const chain = resolveProviders();
+  const chain = sceneProviders();
   const decision = chain.length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
@@ -575,7 +575,7 @@ function personaOf(transcript: string): PersonaSpec | undefined {
  * `learnerNote` takes.
  */
 async function compose(
-  chain: ReturnType<typeof resolveProviders>,
+  chain: ReturnType<typeof sceneProviders>,
   input: {
     ownerId: string;
     /**

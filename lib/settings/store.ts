@@ -112,6 +112,14 @@ export const SETTING_KEYS = {
    */
   hearing: "hearing",
   /**
+   * Whether a conversation is heard before its words are shown. In a shop you
+   * do not get the subtitles, and every line in a scene has been text and
+   * audio at once, so the thing that actually breaks down at a counter was
+   * never rehearsed. Off by default, since it is harder than what everybody
+   * has had; revealing costs nothing and is never recorded.
+   */
+  listenFirst: "listenFirst",
+  /**
    * Which language a meaning is given in beside the English.
    *
    * English is the default and stays the default, because a missing row has to

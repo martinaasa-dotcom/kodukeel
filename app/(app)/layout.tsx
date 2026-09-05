@@ -16,7 +16,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom } from "@/lib/audio/conditions";
+import { hearingFrom, listenFirstFrom } from "@/lib/audio/conditions";
 
 // Not cached at build time: `configured` below is read from the environment,
 // and a notice baked in from the build machine's environment describes
@@ -64,6 +64,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     autoplay: autoplayFrom(settings[SETTING_KEYS.autoplayAudio]),
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
+    listenFirst: listenFirstFrom(settings[SETTING_KEYS.listenFirst]),
   };
   return (
     <AudioPrefsProvider value={audio}>
