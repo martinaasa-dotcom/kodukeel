@@ -1,6 +1,9 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { TutorError, type ProviderConfig, type UsageReport } from "./provider";
+import {
+  ANTHROPIC_THINKING, openAiCompatible, TutorError,
+  type ProviderConfig, type UsageReport,
+} from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -170,6 +173,15 @@ async function callForJson(
       body: JSON.stringify({
         model: config.model,
         max_tokens: maxTokens,
+        /*
+          Thinking off, for the reason `ANTHROPIC_THINKING` gives, and the
+          budgets here are what make it load-bearing rather than a saving: this
+          transport asks for one JSON object in as few as 400 tokens, thinking
+          tokens come out of that same ceiling, and a reply cut short is not a
+          shorter verdict, it is a `parseVerdict` returning null and a learner
+          getting no note at all with nothing on screen to say why.
+        */
+        thinking: ANTHROPIC_THINKING,
         // Identical on every call, so it is worth caching rather than re-reading.
         system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
         messages: [{ role: "user", content: user }],
@@ -191,12 +203,12 @@ async function callForJson(
       usage.measured = true;
     }
   } else {
-    const isOpenRouter = config.name === "openrouter";
-    // Same invariant as the anthropic branch above.
-    const key = isOpenRouter ? process.env.OPENROUTER_API_KEY! : process.env.OPENAI_API_KEY!;
-    const url = isOpenRouter
-      ? "https://openrouter.ai/api/v1/chat/completions"
-      : "https://api.openai.com/v1/chat/completions";
+    // The chat path's own table rather than a ternary here, so a provider
+    // cannot be reachable for one and silently pointed at OpenAI for the other.
+    const { url, keyEnv } = openAiCompatible(config);
+    // Same invariant as the anthropic branch above: the chain only ever offers
+    // a config whose key env var was set.
+    const key = process.env[keyEnv]!;
 
     const res = await fetch(url, {
       method: "POST",

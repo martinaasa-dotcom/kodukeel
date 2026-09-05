@@ -378,23 +378,24 @@ export default async function SettingsPage() {
                       : `${resilience.models} models are tried in order, across ${resilience.providers.join(" and ")}.`}
                   </p>
                   {/*
-                    Said plainly because it is invisible otherwise. A chain of
-                    several OpenRouter models reads as redundancy and is not: they
-                    share one account and one balance, so when it ran out here
-                    every link answered 402 at the same moment and the tutor went
-                    down. A second provider is the only thing that changes that.
+                    Said plainly because it is invisible otherwise. It used to
+                    warn about a chain of several OpenRouter models reading as
+                    redundancy and not being any: they shared one account and one
+                    balance, so when it ran out here every link answered 402 at
+                    the same moment and the tutor went down. There is one link
+                    per provider now, so the flag says the plainer thing, and
+                    what it offers is a second provider rather than a second free
+                    tier, because the free ones are what was withdrawn.
                   */}
                   {resilience.singlePointOfFailure && (
                     <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                       Everything above runs through {resilience.providers[0]}, on one account. If
                       that key stops answering, whether it runs out of credit or just has a bad
-                      minute, Anu stops with it.
-                      Adding <code className="text-xs">GROQ_API_KEY</code> or{" "}
-                      <code className="text-xs">GEMINI_API_KEY</code> to <code className="text-xs">.env</code>{" "}
-                      gives Anu somewhere else to turn. Both are free and neither asks for a card.
-                      Read the note beside them in{" "}
-                      <code className="text-xs">.env.example</code> first: free usually means the
-                      provider may look at what goes through it.
+                      minute, Anu stops with it. Adding{" "}
+                      <code className="text-xs">OPENAI_API_KEY</code> to{" "}
+                      <code className="text-xs">.env</code> gives her somewhere else to turn.
+                      Nothing else in the app is affected either way: review, the dictionary and
+                      every drill keep working with no key at all.
                     </p>
                   )}
                 </div>

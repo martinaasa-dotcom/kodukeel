@@ -48,6 +48,7 @@ export function volumeOf(shape: Shape): Volume {
   const clips = shape.audio ? learners * assumed("clips") : 0;
   const tutorCalls = shape.tutor === "off" ? 0 : learners * assumed("tutor");
   const graderCalls = shape.tutor === "off" ? 0 : learners * assumed("grader");
+  const sceneCalls = shape.tutor === "off" ? 0 : learners * assumed("scene");
 
   const reviewsPerYear = shape.sessionsPerWeek * 52 * shape.reviewsPerSession;
   const newCardsPerMonth =
@@ -65,6 +66,7 @@ export function volumeOf(shape: Shape): Volume {
     emails: learners * assumed("emails"),
     tutorCalls,
     graderCalls,
+    sceneCalls,
     databaseGb:
       (POSTGRES_ITSELF_MB + DICTIONARY_MB) / 1000 + (learners * learnerBytes) / 1e9,
     peakConcurrent: Math.ceil(learners * (assumed("peak") / 100)),

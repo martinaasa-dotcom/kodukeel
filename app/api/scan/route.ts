@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     const status = error instanceof TutorError ? error.status : 502;
     const message = error instanceof TutorError
       ? `${error.message} If the model configured here cannot read images, set a vision model ` +
-        "in .env (OPENROUTER_VISION_MODEL, ANTHROPIC_VISION_MODEL or OPENAI_VISION_MODEL)."
+        "in .env (ANTHROPIC_VISION_MODEL or OPENAI_VISION_MODEL)."
       : "That photo could not be read just now.";
     return Response.json({ error: message }, { status });
   }

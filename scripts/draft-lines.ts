@@ -80,7 +80,7 @@ function refused(text: string, fallback: string, answers: ReadonlySet<string>, b
 async function main() {
   const links = chain();
   if (links.length === 0) {
-    console.log("No provider key is set, so nothing can be drafted. Set OPENROUTER_API_KEY or GROQ_API_KEY.");
+    console.log("No provider key is set, so nothing can be drafted. Set ANTHROPIC_API_KEY.");
     process.exit(1);
   }
   const today = new Date().toISOString().slice(0, 10);

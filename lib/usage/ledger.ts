@@ -413,6 +413,47 @@ export async function releaseReservation(
   }
 }
 
+/**
+ * Everything this deployment has ever spent, and since when.
+ *
+ * `UsageEvent` is append-only and every row carries `costMicros`, so the number
+ * an operator actually wants — how much of the balance on the account has gone
+ * — is one aggregate over a table that already holds it. There was no way to
+ * see it from inside the app before this: the Settings meter reads one
+ * learner's day, `checkQuota` reads the deployment's day, and neither adds up
+ * to a month. The alternative was the Anthropic Console.
+ *
+ * SUMS EVERY ROW, WHICH IS THE POINT. `snapshotUsage` counts `CALL` rows only
+ * where it is counting calls, because a settlement is the same call arriving
+ * again; money is the other way round. A reservation and the settlement that
+ * corrects it are two rows whose costs add up to what was really spent, and a
+ * release is a negative row that takes back a call nobody received. Summing the
+ * lot is exactly the invoice.
+ *
+ * It is a figure about the account rather than about a person, so no `ownerId`:
+ * the only reader is an operator looking at their own balance, and
+ * `UsagePanel` shows it to nobody else.
+ */
+export async function deploymentSpend(): Promise<{
+  micros: number;
+  since: Date | null;
+  days: number;
+}> {
+  const [spend, first] = await Promise.all([
+    prisma.usageEvent.aggregate({ _sum: { costMicros: true } }),
+    prisma.usageEvent.findFirst({ orderBy: { createdAt: "asc" }, select: { createdAt: true } }),
+  ]);
+  const since = first?.createdAt ?? null;
+  return {
+    micros: spend._sum.costMicros ?? 0,
+    since,
+    // Whole days, floored, and never zero where there is anything to divide by:
+    // a rate per day on the first afternoon is a rate over a fraction of a day,
+    // which reads as an alarming number rather than as too little evidence.
+    days: since ? Math.max(1, Math.floor((Date.now() - since.getTime()) / 86_400_000)) : 0,
+  };
+}
+
 /** Today's spend and call count for one user, for the Settings meter. */
 export async function usageToday(ownerId: string, now = new Date()) {
   const day = utcDay(now);

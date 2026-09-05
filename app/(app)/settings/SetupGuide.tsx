@@ -4,22 +4,24 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 
 const STEPS = [
-  { text: "Go to ", link: { href: "https://openrouter.ai", label: "openrouter.ai" }, after: " and sign in with Google. It's free and takes no card." },
-  { text: "Click your avatar in the top right, then ", strong: "Keys", after: "." },
+  { text: "Go to ", link: { href: "https://console.anthropic.com", label: "console.anthropic.com" }, after: " and sign in. Add a little credit: five dollars lasts about a month." },
+  { text: "Open ", strong: "Settings", after: ", then API keys." },
   { text: "Click ", strong: "Create Key", after: ". Give it any name. Copy the key it shows you: you only see it once." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
   { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be waiting." },
 ];
 
 /*
-  The key and nothing else. This used to pin OPENROUTER_MODEL to one free
-  model, which reads as helpful and is the opposite: setting it replaces the
-  whole free chain with that single name, so the learner who follows this
-  guide opts out of the fallback in the act of setting Anu up. Free models are
-  rate-limited hard and retired without notice, and both were true of the one
-  named here within a day of it being written.
+  The key and nothing else. It used to pin a model on a second line, which
+  reads as helpful and was the opposite: with a chain of free models behind it,
+  naming one replaced the whole chain, so the learner following this guide
+  opted out of the fallback in the act of setting Anu up. There is no free
+  chain to opt out of now, and the rule survives for a simpler reason: the
+  default is the model this app is written and priced against, and a guide that
+  hands somebody a second thing to get wrong is a guide with a longer failure
+  list.
 */
-const SNIPPET = 'OPENROUTER_API_KEY="paste-your-key-here"';
+const SNIPPET = 'ANTHROPIC_API_KEY="paste-your-key-here"';
 
 export function SetupGuide() {
   const [copied, setCopied] = useState(false);
@@ -27,9 +29,10 @@ export function SetupGuide() {
   return (
     <div>
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        Anu needs a free key to answer questions. Everything else (the dictionary, your cards,
-        audio) works without one. The key costs nothing and needs no card: Anu asks free models,
-        and moves on to the next one when the first is busy. Here is the whole thing, step by step:
+        Anu needs a key to answer questions. Everything else (the dictionary, your cards, audio)
+        works without one, and keeps working when the day&rsquo;s allowance runs out. A question
+        costs about a cent and a half, and the app has a daily ceiling it cannot be talked out of.
+        Here is the whole thing, step by step:
       </p>
 
       <ol className="mt-4 flex flex-col gap-3">
@@ -82,16 +85,15 @@ export function SetupGuide() {
       </div>
 
       {/*
-        The snippet is one line, and this told the reader to change its second
-        one. There has never been a second line: the model is not named there
-        at all, it comes from `OPENROUTER_MODEL` with a free default, so the
-        instruction pointed at nothing and the reader who followed it would
-        have been looking for a line that does not exist.
+        One line, and this used to tell the reader to change a second one that
+        has never existed. What replaces it names a real variable and says what
+        it would cost, in both directions, since the reason to change it is as
+        often thrift as it is sharpness.
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-        The models Anu asks are free. If she ever feels vague about Estonian, adding{" "}
-        <code>OPENROUTER_MODEL=&quot;anthropic/claude-sonnet-5&quot;</code> on a line of its own
-        buys a noticeably sharper answer for a fraction of a cent a question.
+        Anu asks Claude Sonnet. Adding{" "}
+        <code>ANTHROPIC_MODEL=&quot;claude-haiku-4-5&quot;</code> on a line of its own halves what a
+        question costs, and <code>claude-opus-5</code> buys a sharper answer for a few times more.
       </p>
     </div>
   );

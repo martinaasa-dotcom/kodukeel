@@ -28,7 +28,7 @@ import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
 import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
-import { FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS } from "../../lib/tutor/provider";
+import { DEFAULT_ANTHROPIC_MODEL } from "../../lib/tutor/provider";
 import { buildLexicon, caseKeyFor, formsOf, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS } from "../../lib/scenes/retrieval";
@@ -256,37 +256,31 @@ export function keylessContext(scene: SceneSpec, allowlist: Allowlist = "units")
 }
 
 /* ------------------------------------------------------------------ *
- * The chain, the way `resolveProviders` builds it: every free model of
- * every provider whose key is set, in order.
+ * The chain, the way `resolveProviders` builds it: the provider whose
+ * key is set.
  * ------------------------------------------------------------------ */
 
-export interface Link { label: string; model: string; url: string; key: string }
+export interface Link { label: string; model: string; key: string }
 
 /**
  * Read when asked, never at import.
  *
- * A single model is what the eval asked first and it measured a rate limit
- * rather than a gate: free models are limited hard and per day, so on any
- * afternoon one of them is closed, and a run that could not compose a line
- * reported a perfect score.
+ * It listed several free models at once, and the reason was a measurement: a
+ * single free model measured a rate limit rather than a gate, because free
+ * tiers are capped per day and on any given afternoon one of them is closed,
+ * so a run that could not compose a line reported a perfect score. The free
+ * providers went on 2026-09-05 (see `lib/tutor/provider.ts`) and the reason
+ * went with them: a paid key answers, so one link is one link.
+ *
+ * It stays a list because the eval and the drafter want to be told which model
+ * wrote a line, and because `ANTHROPIC_MODEL` is a comma-free single name
+ * today and might not always be.
  */
 export function chain(): Link[] {
-  const links: Link[] = [];
-  const or = process.env.OPENROUTER_API_KEY;
-  if (or) {
-    const pinned = (process.env.OPENROUTER_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_OPENROUTER_MODELS) {
-      links.push({ label: "OpenRouter", model, url: "https://openrouter.ai/api/v1/chat/completions", key: or });
-    }
-  }
-  const groq = process.env.GROQ_API_KEY;
-  if (groq) {
-    const pinned = (process.env.GROQ_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_GROQ_MODELS) {
-      links.push({ label: "Groq", model, url: "https://api.groq.com/openai/v1/chat/completions", key: groq });
-    }
-  }
-  return links;
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return [];
+  const model = (process.env.ANTHROPIC_MODEL ?? "").trim() || DEFAULT_ANTHROPIC_MODEL;
+  return [{ label: "Anthropic", model, key }];
 }
 
 /** Why a line could not be composed, by status, so a thin run says so. */
@@ -343,19 +337,35 @@ export async function compose(
   for (const link of links) {
     let status = 0;
     for (let attempt = 0; attempt < 2; attempt++) {
-      const res = await fetch(link.url, {
+      /*
+        Anthropic's own shape rather than an OpenAI-compatible one, because
+        that is the only chain left and a shim would be a second answer to what
+        the app already asks. `max_tokens` is 400 rather than the 60 a
+        fourteen-word line needs, and thinking is off, for the reason
+        `ANTHROPIC_THINKING` gives in `lib/tutor/provider.ts`: thinking tokens
+        come out of `max_tokens`, and a drafter that quietly composed nothing
+        would look exactly like a gate refusing everything.
+      */
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": link.key,
+          "anthropic-version": "2023-06-01",
+        },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: 60,
-          messages: [{ role: "system", content: SYSTEM }, { role: "user", content: user }],
+          model: link.model, temperature: 0.8, max_tokens: 400,
+          thinking: { type: "disabled" },
+          system: SYSTEM,
+          messages: [{ role: "user", content: user }],
         }),
       });
       status = res.status;
       if (res.status === 429 && attempt === 0) { await new Promise((r) => setTimeout(r, 1500)); continue; }
       if (!res.ok) break;
-      const data = await res.json() as { choices?: { message?: { content?: string } }[] };
-      const text = data.choices?.[0]?.message?.content?.trim();
+      const data = await res.json() as { content?: { type?: string; text?: string }[] };
+      const text = (data.content ?? [])
+        .filter((b) => b.type === "text").map((b) => b.text ?? "").join("").trim();
       if (!text) break;
       ANSWERED.set(link.model, (ANSWERED.get(link.model) ?? 0) + 1);
       return { text: text.replace(/^["'«]|["'»]$/g, ""), model: link.model };

@@ -464,6 +464,13 @@ export const ASSUMPTIONS: readonly Assumption[] = [
     why: "Cheaper per call than a question and asked more often, because the writing exercise offers one every time.",
   },
   {
+    id: "scene",
+    what: "Scene turns a month that no recorded line could fill",
+    value: 6,
+    unit: "turns",
+    why: "A scene is about a dozen turns and most of them are answered from Ekilex or the drafted bank for nothing. This is the handful left over, on the assumption a learner plays one scene a fortnight.",
+  },
+  {
     id: "emails",
     what: "Emails a learner is sent in a month",
     value: 3,
@@ -570,6 +577,14 @@ export const DEFAULT_SHAPE: Shape = {
   reviewsPerSession: 15,
   audio: true,
   tutor: "paid",
-  tutorModel: "claude-opus-5",
+  /*
+    The model the app itself defaults to (`DEFAULT_ANTHROPIC_MODEL`), so the
+    page opens on the bill somebody actually gets. It was Opus, chosen when the
+    default chain was free models and this figure was a hypothetical either
+    way; a page whose whole argument is that every number is real should not
+    open on a model no deployment runs. The chooser still offers Haiku and
+    Opus, which is the point of the chooser.
+  */
+  tutorModel: "claude-sonnet-5",
   years: 1,
 };

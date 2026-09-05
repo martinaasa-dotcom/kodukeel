@@ -6329,7 +6329,13 @@ check("every provider key the chain can hold is marked in the credential canary"
   const listed = chain.match(/export const PROVIDER_KEY_ENV = \[([\s\S]*?)\] as const;/);
   assert.ok(listed, "PROVIDER_KEY_ENV is not where this check expects it");
   const keys = [...listed![1]!.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!);
-  assert.ok(keys.length >= 3, `only ${keys.length} provider keys found, so this check stopped looking`);
+  /*
+    Two, which is what the chain holds since the free providers were withdrawn
+    on 2026-09-05. The floor is what says the regex still found the list rather
+    than matching an empty one, so it tracks the list down as well as up: three
+    would pass a `PROVIDER_KEY_ENV` this check could no longer read.
+  */
+  assert.ok(keys.length >= 2, `only ${keys.length} provider keys found, so this check stopped looking`);
 
   const ci = read(join(".github", "workflows", "ci.yml"));
   for (const key of keys) {
@@ -10678,8 +10684,18 @@ check("every secret-shaped variable the app reads is marked in the CI canary bui
     }
   }
 
+  /*
+    Six, and it was eight. `OPENROUTER_API_KEY`, `GROQ_API_KEY` and
+    `GEMINI_API_KEY` stopped being read anywhere Next builds when the free
+    providers were withdrawn on 2026-09-05, and the last of them went when the
+    grader stopped picking its endpoint with a ternary. The floor is a
+    stopped-looking detector rather than an inventory, so it moves with the
+    real count in both directions: leaving it at eight would fail honestly
+    today and leaving it high after a genuine removal is how a floor gets
+    lowered in a hurry by somebody who has not read this.
+  */
   assert.ok(
-    found.size >= 8,
+    found.size >= 6,
     `only ${found.size} secret-shaped variables found, so this check stopped looking`,
   );
 

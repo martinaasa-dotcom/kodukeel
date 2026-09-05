@@ -39,17 +39,23 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   "gpt-4o-mini": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
 
   /*
-    The models the free-tier providers give away, at the rate they are given
+    The models the free-tier providers gave away, at the rate they were given
     away for. Named one by one rather than pricing a whole provider at zero,
     because "free" is a property of the account and this table cannot see the
-    account: a deployment that has upgraded its Groq or Gemini plan and pinned
-    some other model still meets UNKNOWN_MODEL and still fails closed.
+    account: a deployment that had upgraded its Groq or Gemini plan and pinned
+    some other model still met UNKNOWN_MODEL and still failed closed.
 
-    Without these rows the cap would fail the other way. An unrecognised model
-    is charged at the dearest rate in the table, so a handful of genuinely free
-    Groq calls would have read as several dollars and switched Anu off for
+    Without these rows the cap would have failed the other way. An unrecognised
+    model is charged at the dearest rate in the table, so a handful of genuinely
+    free Groq calls would have read as several dollars and switched Anu off for
     everybody, which is exactly the fault the TTS speaker name caused once
     before.
+
+    UNREACHABLE SINCE 2026-09-05, when the free providers came out of the chain
+    (`lib/tutor/provider.ts`), and kept rather than deleted because this table
+    is also read when a settlement lands: nothing in flight across a deploy, and
+    nothing already in `UsageEvent`, should be re-priced at the dearest rate on
+    the way past. Nothing can select one of these models now.
   */
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.

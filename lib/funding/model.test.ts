@@ -220,8 +220,24 @@ describe("the model, which is the only line that could run away", () => {
     expect(MODEL_CAP_USD).toBeCloseTo((DEFAULT_LIMITS.dailyMicrosGlobal / 1e6) * 30.44, 5);
   });
 
+  /*
+    THE SIZE AT WHICH THE CAP BINDS CAME DOWN A LONG WAY (2026-09-05).
+
+    This used to read 100 learners and 100,000: the cap was $20 a day, which is
+    $608.80 a month, so an ordinary deployment was nowhere near it and only a
+    hypothetical one at scale ever met it. The cap is $0.11 a day now, sized
+    against the operator's own $5 of credit, and the crossing point is nearer
+    twenty learners than a hundred thousand.
+
+    That is the page telling the truth rather than the page breaking. What the
+    figure means at 100 learners is "this deployment would spend more than this
+    if its own cap let it", which is exactly what `modelCapBinds` exists to say,
+    and the sentence beside it on the page already says the cap is what is
+    holding the number down rather than the traffic.
+  */
   it("says when the cap rather than the traffic is what decided the figure", () => {
-    expect(billFor(at({ learners: 100 })).modelCapBinds).toBe(false);
+    expect(billFor(at({ learners: 5 })).modelCapBinds).toBe(false);
+    expect(billFor(at({ learners: 100 })).modelCapBinds).toBe(true);
     expect(billFor(at({ learners: 100_000 })).modelCapBinds).toBe(true);
   });
 
@@ -331,10 +347,18 @@ describe("which model answers, which is what funding actually changes", () => {
     }
   });
 
+  /*
+    Measured below the cap, deliberately. At 500 learners every model runs into
+    the daily ceiling and the three totals come out identical, which is the app
+    behaving exactly as it should and says nothing about the price table; the
+    claim here is about the choice being worth making, so it is asked at a size
+    where the choice is still free to show.
+  */
   it("costs more on a better model, in the order the price table has them", () => {
     const totals = TUTOR_MODELS.map(
-      (m) => billFor(at({ learners: 500, tutorModel: m.id })).totalUsd,
+      (m) => billFor(at({ learners: 5, tutorModel: m.id })).totalUsd,
     );
+    expect(billFor(at({ learners: 5 })).modelCapBinds).toBe(false);
     for (let i = 1; i < totals.length; i += 1) {
       expect(totals[i]!, TUTOR_MODELS[i]!.id).toBeGreaterThan(totals[i - 1]!);
     }
@@ -406,13 +430,47 @@ describe("the sentences the page writes about the bill", () => {
     expect(floor).toBeGreaterThan(100);
   });
 
-  it("saves more by turning the tutor off than by turning the audio off", () => {
-    for (const learners of [100, 100_000]) {
-      const on = billFor(at({ learners })).totalUsd;
-      const audioOff = on - billFor(at({ learners, audio: false })).totalUsd;
-      const tutorOff = on - billFor(at({ learners, tutor: "off" })).totalUsd;
-      expect(tutorOff, `at ${learners} learners`).toBeGreaterThan(audioOff);
-    }
+  /*
+    TRUE WHILE THE CAP IS NOT BINDING, AND THE CAP IS WHY (2026-09-05).
+
+    This used to hold at every size, because the model line was free to grow to
+    whatever the traffic implied. At $0.11 a day it cannot: turning the tutor
+    off at 100,000 learners saves the $3.35 the cap allows, while turning the
+    audio off saves ten times that in the traffic it removes.
+
+    Both halves are asserted rather than the claim being narrowed to the size
+    that still passes, because the second half is the more useful sentence and
+    the one somebody hosting this needs. Below the cap the tutor is the dearest
+    thing here and switching it off is the biggest saving available. Above it
+    the model line is already the smallest thing on the bill, and what is
+    holding it there is a number in `lib/usage/quota.ts` rather than anything
+    about the traffic: the honest advice at that size is to raise the cap and
+    look at the bill again, not to switch Anu off to save three dollars.
+  */
+  it("saves more by turning the tutor off than by turning the audio off, below the cap", () => {
+    const learners = 5;
+    expect(billFor(at({ learners })).modelCapBinds).toBe(false);
+    const on = billFor(at({ learners })).totalUsd;
+    const audioOff = on - billFor(at({ learners, audio: false })).totalUsd;
+    const tutorOff = on - billFor(at({ learners, tutor: "off" })).totalUsd;
+    expect(tutorOff).toBeGreaterThan(audioOff);
+  });
+
+  it("cannot save more than the cap on the model line once the cap binds", () => {
+    /*
+      The MODEL LINE, not the total. Turning the tutor off removes the calls as
+      well as the tokens, and a call is a function invocation the host bills
+      for, so the whole saving is legitimately larger than the cap. It is the
+      line the cap applies to that the cap has to bound, which is the thing
+      worth asserting: the first draft of this compared the total and failed by
+      exactly the invocations, which is the check being right and the claim
+      being sloppy.
+    */
+    const learners = 100_000;
+    expect(billFor(at({ learners })).modelCapBinds).toBe(true);
+    const cost = lineFor("model", at({ learners })).cost;
+    expect(cost.kind).toBe("charged");
+    if (cost.kind === "charged") expect(cost.usd).toBeLessThanOrEqual(MODEL_CAP_USD);
   });
 
   it("saves nothing at all by turning the audio off at the default size", () => {

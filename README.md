@@ -257,26 +257,36 @@ Everything except the two things that need a model, Anu and reading a photograph
 
 Anu needs one API key, and so does scanning a page. **Settings** in the app walks through it, but in short:
 
-1. Sign in at [openrouter.ai](https://openrouter.ai) with Google, free, no card.
-2. Avatar (top right) → **Keys** → **Create Key**. Copy it; you only see it once.
+1. Sign in at [console.anthropic.com](https://console.anthropic.com) and add a little credit.
+2. **Settings → API keys → Create Key**. Copy it; you only see it once.
 3. Open the file `.env` in this folder and fill in:
    ```
-   OPENROUTER_API_KEY="paste-your-key-here"
-   OPENROUTER_MODEL="z-ai/glm-5.2:free"
+   ANTHROPIC_API_KEY="paste-your-key-here"
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That model costs nothing. If Anu ever feels vague about Estonian, swap the model line for
-`anthropic/claude-sonnet-5` or `openai/gpt-4o`, a fraction of a cent per question and noticeably
-sharper. An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` works instead of OpenRouter if you prefer;
-whichever key is present is the one used.
+That is the whole setup. The model is Claude Sonnet, which costs $2 per million tokens in and $10
+out, so a question to Anu is about a cent and a half and a scanned page is about a cent.
+`ANTHROPIC_MODEL` points it somewhere else if you want Haiku for less or Opus for more.
 
-**Scan a page** needs the same key and one more line, because reading a photograph needs a model
-that can look at one and the free chain above cannot. Scanning uses whatever model is configured
-above unless you say otherwise, deliberately: switching the camera on must never move a free
-deployment onto a paid model by itself. So add
-`OPENROUTER_VISION_MODEL="openai/gpt-4o"` (or `ANTHROPIC_VISION_MODEL` / `OPENAI_VISION_MODEL`) and
-it is used for scanning and nothing else. A page is roughly a third of a cent.
+**It used to be a free key**, from OpenRouter, and that is worth saying plainly because the free tier
+was the reason this section was four steps long. Free models ran out of quota by the afternoon,
+throttled by the minute, and one of them answered with an empty reply because its own reasoning had
+spent the whole output budget, which the app counted as an answer. A tutor that is dead on the days
+somebody needs it is worse than a small bill, so there is one paid provider now and the caps below
+are what keep the bill small.
+
+**Scan a page** needs no extra setting: the default model reads photographs. `ANTHROPIC_VISION_MODEL`
+(or `OPENAI_VISION_MODEL`) points scanning at a different model if you want one, and it applies to
+scanning and nothing else, deliberately, so switching the camera on cannot move the whole deployment
+onto a dearer model by itself.
+
+**No key at all is a supported way to run this**, and it is the default. The chain is empty, every
+screen that would ask a model runs its scripted path instead, and nothing errors: review, the
+dictionary, every drill, the exams, the grammar pages and the writing exercise's actual verdict all
+work exactly as they do with a key. A conversation scene holds itself together on the lines Ekilex
+recorded and the ones already drafted into `lib/scenes/bank.ts`. What you lose is Anu, the note on a
+piece of writing, scanning a photograph, and a fresh line where no recorded one fits.
 
 ## Deploying it as a real website
 
@@ -341,9 +351,21 @@ Without that key it falls back to local disk, and Settings says so plainly.
 
 **Set a spend cap.** The app is free to whoever uses it, and the caps are what make that
 affordable rather than a leap of faith. The tutor is metered per user per day (ten conversations,
-`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default $20). The
-writing grader and speech scale off the same number in `lib/usage/ledger.ts`, higher, because they
-cost far less. Nothing a learner does outside the tutor is metered at all.
+`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default **$0.11 a day**).
+The writing grader and speech scale off the same number in `lib/usage/ledger.ts`, higher, because
+they cost far less. Nothing a learner does outside the tutor is metered at all.
+
+Eleven cents is a deliberate number rather than a round one, and `lib/usage/quota.ts` shows the
+arithmetic: a month of days all at the cap is $3.35, which fits inside a $5 balance with about
+$1.59 to spare for the days that run hot. It buys roughly seven questions a day, or ten once the
+cached system prompt is warm. **Raise it before you open this to more than a couple of people**:
+one learner at their own call limit would spend more than a day's budget, so at this setting money
+binds before the call counts do. About $0.35 a day suits a small pilot and $1 a day a class.
+
+**What has been spent so far is in Settings**, under the daily meter, for whoever `ADMIN_EMAILS`
+names (running locally that is the one learner). It is the sum of every row in the usage ledger
+since the first call, so it answers "how much of my credit has gone" without opening the Anthropic
+Console.
 
 The last quarter of the day's shared budget is held back for people who have not asked anything
 yet (`AI_GLOBAL_RESERVE_FRACTION`). Without it the cap is first come, first served: an enthusiastic
@@ -391,7 +413,9 @@ Four things on it are worth knowing before you deploy this for anybody.
   software maintains itself.
 - **The model line has a ceiling in the code.** Every call is booked against a shared daily budget
   (`AI_DAILY_USD_GLOBAL`) that cannot be turned off, so the projection cannot show a bill the
-  running app would refuse to run up.
+  running app would refuse to run up. At the shipped default that ceiling is about $3.35 a month,
+  which is what the page shows for the model line at any size: honest, and a reminder that the
+  number to change before hosting this for a class is that one.
 
 ### When the app gets something wrong
 

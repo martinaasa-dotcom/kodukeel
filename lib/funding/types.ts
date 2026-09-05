@@ -41,6 +41,16 @@ export interface Volume {
   readonly spokenCharacters: number;
   readonly tutorCalls: number;
   readonly graderCalls: number;
+  /**
+   * Turns of a Situations scene that a model had to compose.
+   *
+   * Not every turn: `sceneLine` answers most beats from a recorded usage or
+   * the drafted bank, both of which cost nothing, and only the beats neither
+   * rung can fill book a call. It is a line of its own rather than folded into
+   * `tutorCalls` because it is the only one of the three that spends money on
+   * a learner who never opens Anu.
+   */
+  readonly sceneCalls: number;
   readonly emails: number;
   readonly databaseGb: number;
   readonly peakConcurrent: number;

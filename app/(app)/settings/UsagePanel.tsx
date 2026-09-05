@@ -1,7 +1,9 @@
 import { Card, SectionTitle } from "@/components/ui";
 import { formatMicros } from "@/lib/usage/pricing";
-import { usageToday } from "@/lib/usage/ledger";
+import { deploymentSpend, usageToday } from "@/lib/usage/ledger";
 import { audioCacheIsDurable } from "@/lib/audio/store";
+import { isAdmin } from "@/lib/auth/admin";
+import { DateText } from "@/components/DateText";
 
 /**
  * What the learner has used today, and what the ceiling is.
@@ -12,6 +14,16 @@ import { audioCacheIsDurable } from "@/lib/audio/store";
  */
 export async function UsagePanel({ ownerId }: { ownerId: string }) {
   const { calls, micros, limits } = await usageToday(ownerId);
+  /*
+    The running total is the operator's business and nobody else's. A learner
+    reading what the deployment has spent on them this month is being shown a
+    number they cannot act on and did not ask for; the person paying the bill
+    is the person who wants it, and `isAdmin` is already how this app decides
+    who that is. Running locally there is one learner and they are the
+    operator, which is the same rule rather than an exception to it.
+  */
+  const operator = await isAdmin();
+  const lifetime = operator ? await deploymentSpend() : null;
   const pct = limits.dailyCallsPerUser
     ? Math.min(100, Math.round((calls / limits.dailyCallsPerUser) * 100))
     : 0;
@@ -53,6 +65,24 @@ export async function UsagePanel({ ownerId }: { ownerId: string }) {
           Only asking Anu counts against this. Review, the dictionary and your deck have no
           limit, and keep working even after this runs out.
         </p>
+
+        {lifetime && lifetime.since && (
+          <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
+            This deployment has spent{" "}
+            <span className="tnum" style={{ color: "var(--ink)" }}>
+              {formatMicros(lifetime.micros)}
+            </span>{" "}
+            on models since{" "}
+            <DateText iso={lifetime.since.toISOString()} options={{ day: "numeric", month: "short", year: "numeric" }} />, over {lifetime.days}{" "}
+            {lifetime.days === 1 ? "day" : "days"}. The ceiling is{" "}
+            <span className="tnum">{formatMicros(limits.dailyMicrosGlobal)}</span> a day for
+            everybody together, which is about{" "}
+            <span className="tnum">
+              {formatMicros(limits.dailyMicrosGlobal * 30)}
+            </span>{" "}
+            a month if every day reached it.
+          </p>
+        )}
 
         {!audioCacheIsDurable() && (
           <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>

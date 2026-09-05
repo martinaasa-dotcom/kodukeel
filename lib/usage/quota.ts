@@ -43,15 +43,64 @@ export interface QuotaLimits {
  * scales it per kind, because a grader note and a cache miss on speech are not
  * the same thing as a tutoring conversation.
  *
- * The per-user spend cap is a backstop rather than the control. At ten tutor
- * answers and thirty grader notes it should never be the thing that bites.
+ * The per-user spend cap was a backstop rather than the control, and at ten
+ * tutor answers and thirty grader notes it was never the thing that bit. That
+ * stopped being true when the global cap came down; see below.
+ *
+ * THE GLOBAL CAP IS ELEVEN CENTS A DAY, AND IT USED TO BE TWENTY DOLLARS
+ * (2026-09-05). Twenty was chosen when the default chain was free models: a
+ * number that could not plausibly be reached, standing in front of a bill that
+ * was going to be nothing anyway. Every call is billed now, and the operator is
+ * one person with $5 of credit on the account and no auto-reload, so the cap is
+ * sized against that balance rather than against a shrug.
+ *
+ * THE ARITHMETIC, because a ceiling nobody can check is a ceiling nobody
+ * trusts. A daily cap is a *worst* case, not an expected spend, so the number
+ * to set it by is what a month of days all at the cap would cost:
+ *
+ *   $0.11 x 30.44 days (a mean month) = $3.35
+ *   $0.11 x 31    days (the longest)  = $3.41
+ *
+ * That is inside the $3.00-$3.50 a month the balance is meant to cover, and it
+ * leaves about $1.59 of the $5 untouched even in the pathological case where
+ * every single day maxes out. An ordinary month, where most days spend a
+ * fraction of the cap, lands nearer $1.50. The point of the margin is exactly
+ * the uneven day: two or three heavy days inside a quiet month are absorbed by
+ * the headroom rather than by the next month's balance.
+ *
+ * WHAT ELEVEN CENTS BUYS, at Sonnet 5's $2/$10 per million tokens against the
+ * profile in `lib/usage/pricing.ts`. A tutor answer is 4,000 tokens in and 700
+ * out, which is $0.008 + $0.007 = $0.015. A scene turn is 3,500 and 1,000,
+ * which is $0.017. A grader note is $0.0034 and a scan is $0.010. So a day is
+ * about seven questions, or six composed scene turns, or a real session of
+ * three questions, three scene turns and four writing notes, which comes to
+ * $0.110 exactly. Caching moves it the right way rather than the wrong one:
+ * the Estonian system prompt is identical every turn and sits behind a
+ * `cache_control` breakpoint, a cache read is a tenth of the input rate, and a
+ * warm tutor answer is nearer $0.010, so a busy day gets ten or eleven.
+ *
+ * WHICH LIMIT ACTUALLY BITES CHANGED WITH IT, and that is worth knowing before
+ * anybody tunes one of the others. `dailyCallsPerUser` is ten, so one person at
+ * their call limit would spend $0.15 on tutor answers alone: more than the
+ * whole day's money. Money is the binding control now and the call counts are
+ * the backstop, which is the reverse of what the paragraph above says about the
+ * $20 era. `dailyMicrosPerUser` had to move with it for the same reason: at
+ * $0.50 it sat above the global cap and could never fire, so it is $0.05, which
+ * is what guarantees the day's budget reaches at least two people rather than
+ * being spent by whoever opens the app first. `globalReserveFraction` holds the
+ * last quarter back on top of that.
+ *
+ * This is a personal deployment's number. Opening this to a class means raising
+ * it, and that is `AI_DAILY_USD_GLOBAL` in the environment rather than a code
+ * change: roughly $0.35 a day for a pilot of a few learners, and $1 a day for
+ * something that looks like a small class.
  */
 export const DEFAULT_LIMITS: QuotaLimits = {
   burstCalls: 8,
   burstWindowSeconds: 60,
   dailyCallsPerUser: 10,
-  dailyMicrosPerUser: 500_000,        // $0.50
-  dailyMicrosGlobal: 20_000_000,      // $20.00
+  dailyMicrosPerUser: 50_000,         // $0.05
+  dailyMicrosGlobal: 110_000,         // $0.11
   globalReserveFraction: 0.25,
   reserveCallsPerUser: 3,
 };

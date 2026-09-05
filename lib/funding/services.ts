@@ -73,9 +73,9 @@ export const SERVICES: readonly Service[] = [
     whenItIsGone: "The pages a phone has already seen still open, and nothing new loads.",
     ref: VERCEL.ref,
     bill(v: Volume, shape: Shape): ServiceCost {
-      const invocations = v.pageViews + v.reviews + v.clips + v.tutorCalls + v.graderCalls;
+      const invocations = v.pageViews + v.reviews + v.clips + v.tutorCalls + v.graderCalls + v.sceneCalls;
       const edgeRequests = v.pageViews * REQUESTS_PER_PAGE
-        + v.reviews + v.clips + v.tutorCalls + v.graderCalls;
+        + v.reviews + v.clips + v.tutorCalls + v.graderCalls + v.sceneCalls;
       const transferGb = gbOf(
         v.pageViews * HTML_KB
         + v.clips * CLIP_KB
@@ -173,13 +173,13 @@ export const SERVICES: readonly Service[] = [
   {
     id: "model",
     name: "The language model",
-    who: "OpenRouter, Anthropic, OpenAI, Groq or Google, whichever has a key",
-    does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
-    whenItIsGone: "Anu says she cannot reach anybody. Review, the dictionary and every drill are untouched.",
-    setBy: "OPENROUTER_API_KEY",
+    who: "Anthropic",
+    does: "Anu, the note on a piece of writing, the other side of a conversation where no recorded line fits, and reading a photographed page. Never a single Estonian form.",
+    whenItIsGone: "Anu says she cannot reach anybody, and a scene is held together by the lines a lexicographer wrote. Review, the dictionary and every drill are untouched.",
+    setBy: "ANTHROPIC_API_KEY",
     ref: {
-      source: "https://openrouter.ai/models",
-      checked: SPEECH_MARKET.ref.checked,
+      source: "https://platform.claude.com/docs/en/about-claude/pricing",
+      checked: "2026-09-05",
     },
     bill(v: Volume, shape: Shape): ServiceCost {
       if (shape.tutor === "off") {
@@ -187,7 +187,7 @@ export const SERVICES: readonly Service[] = [
           kind: "charged",
           plan: "No key set",
           usd: 0,
-          why: "Nobody has set a key, so Anu is not here. Everything else in the app works.",
+          why: "Nobody has set a key, so Anu is not here and a scene runs on recorded lines alone. Everything else in the app works.",
         };
       }
 
@@ -196,24 +196,45 @@ export const SERVICES: readonly Service[] = [
         `reserveMicros` is what `authoriseCall` books a call at before it makes
         one, so the projection and the running app are the same arithmetic.
       */
+      /*
+        THREE LINES, NOT TWO (2026-09-05). The scene composer books its own
+        call in the ledger and always has, and this page did not count it: it
+        was written when the default chain was free models, where every one of
+        the three came to nothing and the omission cost the total nothing
+        either. Every call is billed now, so a line left out is a bill quoted
+        low, which is the one direction a page like this must not be wrong in.
+      */
       const model = shape.tutorModel;
       const perTutor = reserveMicros("TUTOR", model) / 1e6;
       const perGrader = reserveMicros("GRADER", model) / 1e6;
-      const wanted = v.tutorCalls * perTutor + v.graderCalls * perGrader;
+      const perScene = reserveMicros("SCENE", model) / 1e6;
+      const wanted =
+        v.tutorCalls * perTutor + v.graderCalls * perGrader + v.sceneCalls * perScene;
       const capped = wanted > MODEL_CAP_USD;
       const named = TUTOR_MODELS.find((m) => m.id === model)?.name ?? model;
 
       return {
         kind: "charged",
         plan: named,
-        usd: round2(Math.min(wanted, MODEL_CAP_USD)),
+        /*
+          Rounded DOWN where the cap is what decided it, and that is not a
+          nicety. `round2` rounds to nearest, so a cap of $3.348 was printed as
+          $3.35 and the page quoted a figure a cent above the number the app
+          will actually stop at. It never showed while the cap was $20 a day
+          and the monthly figure was $608.80, which is what a small cap is good
+          for: it puts the rounding where a person can see it.
+        */
+        usd: capped
+          ? Math.floor(MODEL_CAP_USD * 100) / 100
+          : round2(wanted),
         cappedByUs: capped,
         why: capped
           ? "The app's own daily cap is what is holding this down, not the traffic."
-          : `A question and a writing note on ${named}, priced the way the ledger prices one before it makes the call.`,
+          : `A question, a writing note and a composed line on ${named}, each priced the way the ledger prices one before it makes the call.`,
         meters: [
           { label: "Questions asked", used: v.tutorCalls, included: 0, as: "count" },
           { label: "Writing looked at", used: v.graderCalls, included: 0, as: "count" },
+          { label: "Lines composed", used: v.sceneCalls, included: 0, as: "count" },
         ],
       };
     },

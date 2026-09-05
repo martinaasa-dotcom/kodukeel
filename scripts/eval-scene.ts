@@ -26,7 +26,7 @@
  * sentences. So this runs its second half on any machine and says what it could
  * not do rather than refusing to start.
  *
- * IT TALKS TO OPENROUTER DIRECTLY, like `scripts/eval-anu.mjs` beside it, and
+ * IT TALKS TO THE PROVIDER DIRECTLY, like `scripts/eval-anu.mjs` beside it, and
  * it does not go through `lib/usage/ledger.ts`. That is not the rule being
  * bent: the ledger rations one learner's share of a deployment's budget, and
  * nobody's allowance is involved when a developer runs a measurement against
@@ -92,7 +92,7 @@ async function partA() {
   console.log("\n=== Part A: the gate, against a real model ===\n");
   if (CHAIN.length === 0) {
     console.log("  No provider key is set, so no line can be composed and no rate measured.");
-    console.log("  Set OPENROUTER_API_KEY or GROQ_API_KEY. Part B below needs no key and runs anyway.");
+    console.log("  Set ANTHROPIC_API_KEY. Part B below needs no key and runs anyway.");
     return;
   }
   console.log(`  ${LINES} lines per beat, vouching against the ${ALLOWLIST === "course" ? "whole course to the scene\u2019s level" : "scene\u2019s own units"}, over ${CHAIN.length} free models: ${CHAIN.map((l) => l.model).join(", ")}\n`);
