@@ -11514,8 +11514,8 @@ check("a scene understands a slip before it marks one, and says so", () => {
     "lib/scenes/grades.ts no longer reads a slip, so a word understood with the wrong ending grades Good",
   );
   assert.match(
-    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "again"/,
-    "replyFor no longer labels a recast as the learner's word put right",
+    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "echo"/,
+    "replyFor no longer labels a recast as the learner's word put right, or an unslipped echo as said again",
   );
   const session = code("components/scene/SceneSession.tsx");
   assert.match(session, /recast:/, "the scene screen has no label for a recast line");

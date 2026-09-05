@@ -161,7 +161,8 @@ describe("a word understood with a slip", () => {
 
   it("is said back as the learner's own where nothing slipped", () => {
     const lines = replyFor(input({ answered: ASK, beat: OFFER, echo: "poodi" }));
-    expect(lines[0]?.provenance).toBe("again");
+    // Never `again`, which means the line they were answering said once more.
+    expect(lines[0]?.provenance).toBe("echo");
   });
 
   it("is taken up before a narrower re-ask, so the part that landed is not ignored", () => {

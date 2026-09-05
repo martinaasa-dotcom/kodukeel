@@ -48,7 +48,7 @@ import { practises } from "@/lib/scenes/practises";
  * debrief handles it without a word of reproach.
  */
 
-type Provenance = "attested" | "scripted" | "composed" | "fallback" | "again" | "recast" | "offered" | "english" | "unspoken";
+type Provenance = "attested" | "scripted" | "composed" | "fallback" | "again" | "echo" | "recast" | "offered" | "english" | "unspoken";
 
 interface Line {
   readonly text: string;
@@ -116,6 +116,16 @@ const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
 const spokenEstonian = (line: Line) => line.provenance !== "unspoken" && line.provenance !== "english";
 /** Whether a line was said at all, in either language. */
 const spoken = (line: Line) => line.provenance !== "unspoken";
+/**
+ * Whether "this is not how anybody says it" is a thing to say about a line.
+ *
+ * Not about a line said once more, since the report belongs on the first
+ * time it was said, and not about the learner's own word handed back to
+ * them: a report there is somebody reporting themselves. A recast is
+ * reportable, because the form in it is the dictionary's.
+ */
+const reportable = (line: Line) =>
+  spokenEstonian(line) && line.provenance !== "again" && line.provenance !== "echo";
 
 /**
  * The line the learner is now answering: the other side's last move, which is
@@ -749,7 +759,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                     */}
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
                       <span>{PROVENANCE[line.provenance]}</span>
-                      {line.provenance !== "again" && spokenEstonian(line) && (
+                      {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
                           trigger={`Situations · ${scene.id} · ${line.text}`}
@@ -822,7 +832,22 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       <div ref={ask} className="dock-clear">
       <Card tone="accent" className="flex flex-col gap-3">
         <div aria-live="polite">
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Your turn</p>
+          {/*
+            HOW FAR IN, WHERE THE LEARNER IS LOOKING.
+
+            The checklist marks the beat in play and counts what is behind
+            you, and it stands above the conversation, so once the page has
+            come down to the box it is off the screen: the panel says what to
+            say now and nothing about where that sits in the whole thing. The
+            same count, in the same words, beside the eyebrow. It is the
+            checklist's own figure rather than a second one, so the two cannot
+            disagree, and it is a count of ticks rather than a meter (§7):
+            nothing fills, nothing drains, and nothing is running.
+          */}
+          <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
+            <span>Your turn</span>
+            <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length} done</span>
+          </p>
           {/*
             Bigger than the conversation rather than smaller, because it is
             read before every turn and the transcript is read once. Where the
@@ -895,6 +920,13 @@ const PROVENANCE: Record<Provenance, string> = {
   composed: "Written for this turn",
   fallback: "They did not catch that",
   again: "Said again",
+  /*
+    Their word back at them because it needed nothing doing to it, which is
+    not the same claim as "said again": that one means the line the learner
+    was answering, once more. A learner who said the right word was reading
+    "Said again" under their own word coming back.
+  */
+  echo: "Your word, said back",
   /*
     The learner's word, put right and said back, which is the one correction
     a conversation makes without stopping. The label says whose word it was
