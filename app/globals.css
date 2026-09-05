@@ -676,6 +676,21 @@
   :root[data-dock] .dock-pad { padding-bottom: calc(var(--dock-clearance) + 1.5rem); }
 
   /*
+    THE SAME MEASUREMENT AGAIN, SPENT AS SCROLL MARGIN.
+
+    `scrollIntoView` stops when the element's own box is inside the window,
+    and the bar is drawn over the bottom of that window, so a panel scrolled
+    to on a phone comes to rest with its last row behind the bar. The
+    conversation screen brings the box you type into on screen after every
+    reply, which is exactly where that shows. Scroll margin is what the
+    browser subtracts from the resting place, so this is the padding rule
+    read by the scroller rather than by the layout.
+  */
+  .dock-clear { scroll-margin-bottom: 1.5rem; }
+  @media (max-width: 767px) { .dock-clear { scroll-margin-bottom: 7rem; } }
+  :root[data-dock] .dock-clear { scroll-margin-bottom: calc(var(--dock-clearance) + 1.5rem); }
+
+  /*
     THE ESTONIAN LETTER BAR, WHICH IS A DESKTOP THING AND A CHOICE.
 
     Two rules, in one place, because they were previously neither: the bar was
