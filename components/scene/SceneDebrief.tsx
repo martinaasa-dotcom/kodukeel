@@ -175,7 +175,10 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 {note.term && (
                   <p className="text-xs" lang="et" style={{ color: "var(--ink-3)" }}>{note.term}</p>
                 )}
-                <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{note.body}</p>
+                {/* Usually there is none: the heading and the pair have said it. */}
+                {note.body && (
+                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{note.body}</p>
+                )}
                 {/*
                   THE LEARNER'S OWN WORDS BEFORE THE GUESS AT WHY, because the
                   example is what makes the sentence above it mean anything and

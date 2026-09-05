@@ -33,18 +33,17 @@ describe("why the wrong ending came out", () => {
   it("names the pair that answers one question word, and which is which", () => {
     const hunch = diagnose("INESSIVE", "ADESSIVE", NONE);
     expect(hunch?.sure).toBe("likely");
-    expect(hunch?.says).toContain("kus?");
-    expect(hunch?.says).toContain("seesütlev");
-    expect(hunch?.says).toContain("alalütlev");
-    // And what each of the two means, off the same table the grammar page leads with.
-    expect(hunch?.says).toMatch(/seesütlev means in/);
-    expect(hunch?.says).toMatch(/alalütlev means on, at/);
+    /*
+      Only the one they reached for. The note's own heading already says what
+      the case that was due is for, so naming both here was that heading again
+      inside a longer sentence.
+    */
+    expect(hunch?.says).toBe("alalütlev answers kus? too, and means on, at, and have.");
   });
 
   it("names the same pair the other way round, with the meanings the same way round", () => {
     const hunch = diagnose("ADESSIVE", "INESSIVE", NONE);
-    expect(hunch?.says).toMatch(/alalütlev means on, at/);
-    expect(hunch?.says).toMatch(/seesütlev means in/);
+    expect(hunch?.says).toBe("seesütlev answers kus? too, and means in.");
   });
 
   it("covers the other two question words the same way", () => {
@@ -55,7 +54,7 @@ describe("why the wrong ending came out", () => {
   it("reads the plain word as the ending not having arrived", () => {
     const hunch = diagnose("INESSIVE", "NOMINATIVE", NONE);
     expect(hunch?.sure).toBe("likely");
-    expect(hunch?.says).toContain("dictionary lists it");
+    expect(hunch?.says).toContain("dictionary form");
   });
 
   /*
@@ -66,7 +65,7 @@ describe("why the wrong ending came out", () => {
     for (const reached of ["GENITIVE", "PARTITIVE"] as const) {
       const hunch = diagnose("INESSIVE", reached, NONE);
       expect(hunch?.sure, reached).toBe("possible");
-      expect(hunch?.says, reached).toContain("every other ending is built on");
+      expect(hunch?.says, reached).toContain("the stem the ending goes on");
     }
   });
 

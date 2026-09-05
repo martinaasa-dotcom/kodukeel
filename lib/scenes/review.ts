@@ -38,7 +38,6 @@
  */
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_NOTES } from "@/lib/estonian/grammar";
-import { plainAsk } from "@/lib/estonian/plainAsk";
 import type { CaseKey } from "@/lib/estonian/types";
 import type { SceneState } from "./state";
 import { diagnose, diagnosePerson, type Hunch } from "./diagnose";
@@ -66,8 +65,17 @@ export interface ReviewNote {
    * a course needs the word their teacher uses and does not need it first.
    */
   readonly term?: string;
-  /** English, one or two sentences. What to do about it. */
-  readonly body: string;
+  /**
+   * English, one short sentence, and usually there is none.
+   *
+   * A learner read the panel and said it was still too much. Most of what was
+   * in here was the heading again in more words: over "The ending for “into”"
+   * it said "Use this one when something goes into it", which is the same fact
+   * at twice the length, on every one of four notes. What a note has to carry
+   * is what the ending is for, the name a class uses, and the learner's own
+   * word beside the right one. Everything else was padding.
+   */
+  readonly body?: string;
   /**
    * The learner's own form beside the one the other side used, where there is
    * a pair to show. Both are the dictionary's or the learner's; neither is
@@ -243,35 +251,17 @@ function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
     .map(([key, rows]) => {
       const spec = caseByKey(key);
       const plain = CASE_NOTES.find((n) => n.key === key)?.plain;
-      /*
-        WHAT THE ENDING IS FOR, AND ONCE.
-
-        The body used to run `plain` and `englishHook` together, and for the
-        illative those two are "into" and "into.", so the screen read "It is
-        the ending for into. into." Two fields saying one thing is a sentence
-        nobody reads past. The clause is `plainAsk`'s, which is the one table
-        of what a slot is asking for in the words somebody would use out loud,
-        so this review and the card the same learner meets tomorrow explain
-        the ending the same way.
-      */
-      const clause = plainAsk(key);
       const many = rows.length > 1;
       return {
         id: `case:${key}`,
         heading: headingFor(plain, spec?.suffix),
-        term: spec ? `${spec.et} ${MIDDOT} ${spec.question}` : undefined,
+        term: spec ? `${spec.et} ${MIDDOT} ${spec.asksWhere ?? spec.asksThing}` : undefined,
         /*
-          THE COUNT IS WORTH SAYING AND THE OPENER IS NOT. Every case note
-          opened "You reached for a different ending here", which is the same
-          sentence on all of them and says less than the pair printed two lines
-          under it. Read down four notes it is four identical lines. How many
-          times is a fact about this run and stays; once is the ordinary case
-          and the evidence says it.
+          NO BODY WHERE THE HEADING HAS SAID IT. `plainAsk`'s clause was the
+          heading again in more words, and how many times is the only thing
+          about this note that the heading and the pair under it cannot say.
         */
-        body: [
-          many ? `This came out as another form ${rows.length} times.` : "",
-          clause ? `Use this one ${clause}.` : "You reached for a different ending here.",
-        ].filter(Boolean).join(" "),
+        ...(many ? { body: `This came out as another form ${rows.length} times.` } : {}),
         evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
         ...hunchFor(key, rows),
       };
@@ -353,8 +343,7 @@ function personNote(slips: readonly Slip[]): ReviewNote[] {
   return [{
     id: "person",
     heading: "The verb needed a person on it",
-    body: "You used the dictionary form where the sentence wanted a person. "
-      + "Estonian builds all six off the first person: take the -n off it, add the ending for who is doing it.",
+    body: "All six persons are built off the first: take the -n off, add the ending for who is doing it.",
     evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
     hunch: diagnosePerson(),
   }];
@@ -367,8 +356,7 @@ function formNote(slips: readonly Slip[]): ReviewNote[] {
   return [{
     id: "form",
     heading: "An ending this word does not take",
-    body: "The stem was right, so it was understood. Estonian glues its endings onto the genitive, "
-      + "which is why that one form is the one worth learning first: eleven cases fall out of it.",
+    body: "The stem was right and the ending is not one this word takes.",
     evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
   }];
 }
@@ -386,8 +374,7 @@ function spellingNote(slips: readonly Slip[]): ReviewNote[] {
   return [{
     id: "spelling",
     heading: "A letter or two out",
-    body: "Understood as it stood. The row of letters under the box types the ones "
-      + "an English keyboard has no key for.",
+    body: "The row of letters under the box types the ones an English keyboard has no key for.",
     evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
   }];
 }
@@ -405,8 +392,8 @@ function englishNote(count: number): ReviewNote[] {
   return [{
     id: "english",
     heading: count === 1 ? "One turn in English" : `${count} turns in English`,
-    body: "That happens on the street too. Holding out in Estonian for one more turn is most of what "
-      + "this is practice for, and the word button hands you one of the beat's own words when you are stuck.",
+    body: "Holding out for one more turn is most of what this is practice for. "
+      + "The word button hands you one when you are stuck.",
     evidence: [],
   }];
 }

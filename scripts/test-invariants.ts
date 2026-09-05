@@ -11736,7 +11736,7 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     learner sitting a course still gets the word their teacher uses.
   */
   assert.match(
-    review, /plainAsk\(/,
+    review, /headingFor\(plain, spec\?\.suffix\)/,
     "the review names an ending without saying what it is for, which is the heading a learner could not read",
   );
   assert.match(

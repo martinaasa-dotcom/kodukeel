@@ -91,8 +91,7 @@ export function diagnose(
   if (before.grammCase === reached) {
     return {
       sure: "likely",
-      says: `you stayed in the ending the question before wanted. That is the commonest thing that `
-        + `happens in a conversation, and listening for the new question word is what breaks it.`,
+      says: "you stayed in the ending the question before wanted.",
     };
   }
 
@@ -110,30 +109,30 @@ export function diagnose(
       rule about that, which is a thing this app has been wrong about in
       eight places before.
     */
-    const dueMeans = CASE_NOTES.find((n) => n.key === wanted)?.plain;
     const askedMeans = CASE_NOTES.find((n) => n.key === reached)?.plain;
-    const both = dueMeans && askedMeans
-      ? ` ${due.et} means ${dueMeans}; ${asked.et} means ${askedMeans}.`
-      : "";
+    /*
+      ONLY THE ONE THEY REACHED FOR NEEDS EXPLAINING. The note's own heading
+      already says what the case that was due is for, so naming both meanings
+      here was that heading again inside a longer sentence.
+    */
+    const means = askedMeans ? `, and means ${askedMeans}` : "";
     return {
       sure: "likely",
-      says: `both answer ${due.asksWhere}, so they are taught together and they get swapped.${both}`,
+      says: `${asked.et} answers ${due.asksWhere} too${means}.`,
     };
   }
 
   if (reached === "NOMINATIVE") {
     return {
       sure: "likely",
-      says: "you used the word as the dictionary lists it. The word was there and the ending was not, "
-        + "which is the right half to have first.",
+      says: "you used the dictionary form.",
     };
   }
 
   if (reached === "GENITIVE" || reached === "PARTITIVE") {
     return {
       sure: "possible",
-      says: `you used ${asked.et}, one of the three forms every other ending is built on, so the stem `
-        + `arrived without the ending after it. ${due.et} is that stem plus one more piece.`,
+      says: `you used ${asked.et}, which is the stem the ending goes on.`,
     };
   }
 
@@ -150,7 +149,6 @@ export function diagnose(
 export function diagnosePerson(): Hunch {
   return {
     sure: "likely",
-    says: "a dictionary lists a verb in that form, so it is the one you have met most and the one that "
-      + "arrives first when you are thinking about what to say rather than how to say it.",
+    says: "a dictionary lists a verb that way, so it is the form you meet most.",
   };
 }

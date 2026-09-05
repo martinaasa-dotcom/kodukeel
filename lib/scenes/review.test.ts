@@ -91,7 +91,7 @@ describe("the review of a conversation", () => {
   it("does not say what was left undone a third time", () => {
     const review = reviewOf(SCENE, state([turn()], []));
     expect(review.notes.some((n) => n.id === "missed")).toBe(false);
-    expect(review.notes.every((n) => !n.body.includes("Say what is wrong."))).toBe(true);
+    expect(review.notes.every((n) => !(n.body ?? "").includes("Say what is wrong."))).toBe(true);
   });
 
   it("counts turns the other side acted on, and not the ones it waited through", () => {
@@ -113,10 +113,12 @@ describe("the review of a conversation", () => {
     const review = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })]));
     const note = review.notes.find((n) => n.id === "case:INESSIVE");
     expect(note?.heading).toBe("The ending for \u201cin\u201d");
+    expect(note?.body).toBeUndefined();
     expect(note?.heading).not.toMatch(/[õäöüšž]/i);
     // The class's own name and question are still there, one line down.
-    expect(note?.term).toContain("seesütlev");
-    expect(note?.term).toContain("kus?");
+    // One question word, which is what a class writes on the board, rather than
+    // the case's whole name.
+    expect(note?.term).toBe("seesütlev · kus?");
     expect(note?.evidence).toEqual([{ said: "pea", form: "peas" }]);
   });
 
@@ -128,7 +130,10 @@ describe("the review of a conversation", () => {
   it("does not say the same thing twice about one ending", () => {
     const slip: Slip = { kind: "case", said: "kool", form: "kooli", lemma: "kool", grammCase: "ILLATIVE" };
     const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
-    expect(note?.body).toBe("Use this one when something goes into it.");
+    // The heading says what the ending is for; a sentence under it saying the
+    // same at twice the length is what a learner reported as still too much.
+    expect(note?.heading).toBe("The ending for \u201cinto\u201d");
+    expect(note?.body).toBeUndefined();
   });
 
   /*
@@ -147,7 +152,7 @@ describe("the review of a conversation", () => {
   */
   it("says how many times only where it was more than once", () => {
     const review = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })]));
-    expect(review.notes[0]?.body).toBe("This came out as another form 2 times. Use this one when something is inside it.");
+    expect(review.notes[0]?.body).toBe("This came out as another form 2 times.");
   });
 
   /*
@@ -239,7 +244,7 @@ describe("the review of a conversation", () => {
     const review = reviewOf(SCENE, state([turn({ slips })]));
     expect(review.notes.length).toBe(4);
     for (const note of review.notes) {
-      expect(note.body, note.id).not.toMatch(/[õäöüšž]/i);
+      expect(note.body ?? "", note.id).not.toMatch(/[õäöüšž]/i);
     }
   });
 
