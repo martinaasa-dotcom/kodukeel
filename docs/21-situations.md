@@ -2539,6 +2539,18 @@ that".
 nothing when the box is already on screen, and `.dock-clear` is `.dock-pad`'s measurement spent as
 scroll margin, since `scrollIntoView` otherwise settles the panel under the phone bar.
 
+**The other side said nothing while it was answering.** A turn goes to the server to be marked and
+the reply can be a model's, so the wait is a second or two on a good day, and the screen showed
+nothing in it: the learner's own bubble appeared and the page sat still, which reads as a turn that
+did not register. Anu has had three dots since she was written, so `components/Dots.tsx` is now the
+one drawing of them, with the label as a parameter. Drawn only while the floor is theirs, since
+`busy` is also true while the help button fetches a word and while the run is being finished.
+
+**And the briefing said where you are twice.** The card was headed with the place, which the page
+above it prints as its lead. The role leads it now, with no heading, since a heading forty words
+long is a paragraph wearing an `h2`. The unit a scene takes apart was a bare link with no class on
+it, so the one thing in that header that goes anywhere rendered as plain dark text.
+
 **What this does not fix.** A native speaker has still read none of the bank. The transcript on the
 debrief is still every turn at full size, so the review under it is a scroll away on a long
 conversation.
