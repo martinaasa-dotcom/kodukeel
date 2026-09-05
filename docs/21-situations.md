@@ -2505,3 +2505,40 @@ inside it, so a learner who collapsed it once had no reason to open it again.
 phone a long conversation is a scroll between reading what was said and answering it. Pinning it
 would put a second fixed element over the one the phone bar already owns, which is the measurement
 `lib/layout/dockClearance.ts` exists for, and is a bigger change than this one.
+
+## 44. The fifteenth pass: what playing one through found
+
+§43 was the screen a learner types into. This is what came out of playing scenes to their
+debriefs, walking out of one, and reading the role card of a third.
+
+**A card printed what the other side was about to say.** `theirs` marks a fact as the other
+side's, so it is drawn and stored and kept off the role card, and it was on the day a landlord
+offers and on nothing else. Three scenes draw a *time* the other side offers: the health centre's
+appointment, the second one it offers when the first will not do, and the hour a shop opens. All
+three printed on the learner's card, so "take the time offered, or ask for another" was answerable
+before an offer, the counter-offer was visible before the first was refused, and the shop scene's
+"say the time back, to check you heard it" needed no hearing. The flag is now on the time prop's
+type and on its draw, which is where it was missing under both. The rule is read off the beats
+rather than kept as a list: a slot whose value the other side utters, in a stage direction or in
+the line itself, is a fact the learner hears. `catalogue.test.ts` asserts it in both directions, so
+the learner's own facts stay on the card.
+
+**A reason given four times is furniture.** Somebody early enough to be reaching for the dictionary
+form reaches for it in every case they are asked for, so `diagnose` returned one reading per note
+and the debrief printed the identical paragraph under four headings. The first note to carry a
+reason keeps it and says how many notes it covers; the rest keep their heading, their line about
+the ending and the learner's own words. `It is the ending for into. into.` went with it, since the
+illative's hook was the plain word again and every other hook shows the ending doing something.
+
+**"Your Estonian was read every time" over a run where it was not.** The condition was that any
+turn had been read, and the sentence claims every one. It is the first line of the debrief, and the
+learner placed to catch it is the one who just watched two turns come back as "I did not catch
+that".
+
+**The page comes down to the box when it is your turn again.** `block: "nearest"`, so it does
+nothing when the box is already on screen, and `.dock-clear` is `.dock-pad`'s measurement spent as
+scroll margin, since `scrollIntoView` otherwise settles the panel under the phone bar.
+
+**What this does not fix.** A native speaker has still read none of the bank. The transcript on the
+debrief is still every turn at full size, so the review under it is a scroll away on a long
+conversation.

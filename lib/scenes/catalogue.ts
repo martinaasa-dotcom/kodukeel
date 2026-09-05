@@ -185,9 +185,16 @@ const DOCTOR: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "It started earlier this week, on this day.",
     },
-    { kind: "time", slot: "time", from: 9, to: 16 },
+    /*
+      The times the desk offers, and both are theirs: a card that prints them
+      is a card that answers "take the time offered" before anybody has
+      offered anything, and it printed the counter-offer too, so a learner
+      knew a second slot was coming. Drawn and stored exactly as before, so a
+      reload offers the same appointment.
+    */
+    { kind: "time", slot: "time", from: 9, to: 16, theirs: true },
     // The second slot they offer when the first will not do, and never the same one.
-    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time" },
+    { kind: "time", slot: "time2", from: 8, to: 16, differentFrom: "time", theirs: true },
   ],
   /*
     `misheard` because a symptom is the one prop here a receptionist could
@@ -358,7 +365,8 @@ const LANDLORD: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "It has been like this since this day.",
     },
-    { kind: "time", slot: "time", from: 8, to: 18 },
+    // Theirs, like the day beside it: they say when they can come.
+    { kind: "time", slot: "time", from: 8, to: 18, theirs: true },
     { kind: "number", slot: "floor", min: 1, max: 5, says: "You live on floor" },
     /*
       The day the landlord offers, drawn per run so a reload offers the same
@@ -379,7 +387,7 @@ const LANDLORD: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "The other day they can come.",
     },
-    { kind: "time", slot: "time2", from: 8, to: 18, differentFrom: "time" },
+    { kind: "time", slot: "time2", from: 8, to: 18, differentFrom: "time", theirs: true },
   ],
   /*
     No queue: this one is a telephone call, so the only curveball in the
@@ -1204,7 +1212,12 @@ const PHONE: SceneSpec = {
       kind: "word", slot: "thing", oneOf: ["telefon", "arvuti", "raamat", "võti", "laud"],
       says: "What you are after.",
     },
-    { kind: "time", slot: "open", from: 9, to: 11 },
+    /*
+      When they open, which is theirs: the beat after it asks the learner to
+      say the time back to check they heard it, and a card printing it is the
+      answer to that beat printed before the question.
+    */
+    { kind: "time", slot: "open", from: 9, to: 11, theirs: true },
   ],
   curveballs: ["faster", "english", "interrupted", "not-possible", "small-talk", "misheard"],
   beats: [
