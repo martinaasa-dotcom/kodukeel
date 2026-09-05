@@ -294,6 +294,37 @@ describe("a turn that was understood and missed the point", () => {
     expect(lines).toEqual([{ text: "Kus teil valutab?", provenance: "again" }]);
   });
 
+  /*
+    The synthesis of "put the question again, do not put it differently" with
+    "do not repeat yourself at somebody who is already stuck": verbatim while
+    the app is still repeating and narrowing, another authored line once it has
+    run out of both. Only ever a line the bank already held.
+  */
+  it("is asked the same question verbatim while it is still worth repeating", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: 1, others: ["Kus valu on?"],
+    }));
+    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+  });
+
+  it("is put another way once repeating and narrowing have both been tried", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: ["Kus valu on?"],
+    }));
+    expect(texts(lines)).toContain("Kus valu on?");
+    expect(texts(lines)).not.toContain("Kus teil valutab?");
+  });
+
+  it("and said again where the bank holds nothing else", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: [],
+    }));
+    expect(texts(lines)).toContain("Kus teil valutab?");
+  });
+
   it("is never told they were not understood", () => {
     for (const reading of ["offtarget", "incomplete"] as const) {
       const lines = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading, line: NOTHING }));

@@ -870,7 +870,27 @@ function satisfies(
       const hit = exact(accepted);
       if (hit) return { word: hit };
       const lower = text.toLowerCase().replace(/\s+/g, " ");
-      const literal = [...accepted].find((value) => (/\d|\s/.test(value)) && lower.includes(value));
+      /*
+        A SPELLING MADE OF DIGITS IS MATCHED WHOLE, NOT ANYWHERE IN THE TEXT.
+
+        `words()` returns letters, so a time or a number is looked for in the
+        text itself, and that was a bare `includes`: the hour `15` matched
+        inside `150`, inside `2015`, and inside any sentence that happened to
+        carry the digits. The numbers a card deals are exactly the ones a
+        learner also writes about prices, minutes and house numbers, so the
+        loose reading credited a beat for a turn about something else.
+
+        A digit literal is compared against the runs of digits in the turn, so
+        `15` is `15` and is not `150`. Everything else keeps the substring
+        reading it had: a time said in words is a phrase with a space in it
+        (`pool neli`), and a reference is letters and digits together
+        (`KK-1234`), and neither can be read off a digit run.
+      */
+      const runs: string[] = text.toLowerCase().match(/\d{1,2}[:.]\d{2}|\d+/g) ?? [];
+      const isDigits = (value: string) => /^\d{1,2}([:.]\d{2})?$/.test(value);
+      const literal = [...accepted].find((value) => (isDigits(value)
+        ? runs.includes(value)
+        : /\d|\s/.test(value) && lower.includes(value)));
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };

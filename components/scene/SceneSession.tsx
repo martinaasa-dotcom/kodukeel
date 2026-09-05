@@ -522,6 +522,12 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   }
 
   const objectives = scene.beats.filter((beat) => beat.required);
+  /*
+    What the learner was dealt, flattened, for the line that stays on screen
+    while they type. English, like the card itself: saying it in Estonian is the
+    exercise, so the word is not here either.
+  */
+  const dealt = (opened?.card.props ?? []).flatMap((prop) => prop.given);
 
   return (
     <div className="flex flex-col gap-4">
@@ -531,7 +537,38 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         keyboard and a screen reader for free.
       */}
       <details open>
-        <summary className="cursor-pointer text-sm font-medium">Your card</summary>
+        {/*
+          THE SUMMARY STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
+          NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
+
+          Measured at 360x640, which is the width this app is measured at: the
+          card open is 300 to 400 pixels, the log is capped at 46vh and the
+          composer with its four buttons is another 200, so the column is half
+          again as tall as the screen and the card is off the top of it for the
+          whole conversation. With a keyboard up it is off the top twice over.
+          That is not a cosmetic loss: the values on the card are exactly what a
+          beat asks for, so a learner asked what time suits them was being asked
+          about a time they could no longer see.
+
+          Sticking the whole disclosure is the obvious fix and is worse, since a
+          40vh block pinned over a 46vh log leaves the conversation reading
+          underneath it. What has to stay is the facts, and they are one line.
+          They are also drawn twice, here and under the prop line that asks for
+          them, and that is the right kind of twice: the pairing in the body says
+          which value answers which line, and this says the value is still true
+          while you type. A reminder is not a second answer to a question.
+        */}
+        <summary
+          className="sticky top-0 z-10 cursor-pointer py-1 text-sm font-medium"
+          style={{ background: "var(--ground)" }}
+        >
+          Your card
+          {dealt.length > 0 && (
+            <span className="font-normal" style={{ color: "var(--ink-2)" }}>
+              {" · "}{dealt.join(" · ")}
+            </span>
+          )}
+        </summary>
         <Card className="mt-2 flex flex-col gap-2">
           <p className="text-sm">{opened?.card.you}</p>
           <ul className="flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>

@@ -296,6 +296,14 @@ export async function POST(request: Request) {
     */
     tries: answered ? state.turns.filter((turn) => turn.beatId === answered.id).length : 0,
     /*
+      The beat's other banked lines, so a question that has already been put
+      twice and narrowed once can be put a different way rather than a fourth
+      identical time (`replyFor`). `fresh` is the same filter the aside uses:
+      the bank's rows for the beat, minus whatever this run has already said,
+      so nothing repeats and no line is composed for it.
+    */
+    others: fresh(speaking?.id),
+    /*
       And the same question narrowed to two, where the beat's own words or the
       card's own values can supply a pair. Built off the beat the learner was
       answering rather than the one coming next: they are stuck on the question

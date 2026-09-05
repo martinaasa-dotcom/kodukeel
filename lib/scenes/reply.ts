@@ -148,6 +148,13 @@ export interface ReplyInput {
    */
   readonly choice?: string | null;
   /**
+   * The beat's other authored lines, the ones the bank holds for it that this
+   * run has not said yet (`lib/scenes/scripted.ts`). Used only to put a
+   * question a third and fourth way, never to open one: see the move block for
+   * why the first re-ask is still verbatim.
+   */
+  readonly others?: readonly string[];
+  /**
    * Whether this persona says "hästi" before moving on. The brisk one does
    * not: they take the answer and ask the next thing, which is most of what
    * makes them read as brisk rather than as a slightly smaller number.
@@ -582,7 +589,30 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     otherwise the same line once more; otherwise what they did, in English.
   */
   const sayAgain = sayAgainWanted(response, reading, heard);
-  if (sayAgain) {
+  /*
+    AND THE FOURTH TIME OF ASKING IS NOT THE SECOND.
+
+    The rule above is that a question is put again rather than put differently,
+    and it is right about the turn straight after a miss: a person who was not
+    understood repeats themselves, and rephrasing there was what made a learner
+    read three questions and think they had answered two of them. It is not
+    right for ever. Past the point where the app has already narrowed the
+    question and stepped out of character to say what is wanted, the same
+    sentence a fourth time is the machine repeating itself at somebody who has
+    told it twice that this sentence is not landing, which is the thing the
+    nudge exists to stop.
+
+    So: verbatim on the first re-asks, and once `tries` is past `NUDGE_AFTER`,
+    another line the bank already holds for this beat. Authored and gated when
+    it was drafted, off `others`, which the caller has already filtered to what
+    this run has not said, so nothing repeats and nothing is written here. Where
+    the bank holds only the one line, `others` is empty and the behaviour is
+    exactly what it was: this can never invent a way of asking.
+  */
+  const another = sayAgain && (input.tries ?? 0) > NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  if (another) {
+    out.push({ text: another, provenance: "scripted" });
+  } else if (sayAgain) {
     out.push({ text: heard, provenance: "again" });
   } else if (line && line.provenance !== "fallback") {
     out.push(line);

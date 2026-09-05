@@ -517,6 +517,24 @@ describe("a beat that takes any one of several answers", () => {
     }
   });
 
+  /*
+    A DIGIT IS MATCHED WHOLE, WHICH IS THE FAULT THE BUS TICKET REPORTED.
+
+    The accepted set for a time carries the bare hour so `kell kolm` typed as
+    `kell 3` lands, and the first version looked for it anywhere in the text.
+    So `2014`, `140` and `14.50` all carried the hour and met the beat. A
+    number is read off the digit runs in the turn and compared as a whole run,
+    so a time matches a time. The other half of the same fault is one layer up:
+    `lib/scenes/props.ts` offers a bare hour only where the time is on the hour,
+    so a 15:30 card has no `15` for anybody to hit by accident.
+  */
+  it("takes a bare hour typed on its own and not a digit inside another number", () => {
+    expect(readTurn("kell 14", offer, ctx).reading).toBe("complete");
+    for (const said of ["2014", "140", "14.50"]) {
+      expect(readTurn(said, offer, ctx).reading, said).not.toBe("complete");
+    }
+  });
+
   it("is one requirement to the marker, so a miss is a miss and not a partial answer", () => {
     const seen = readTurn("tuba", offer, ctx);
     expect(seen.reading).toBe("offtarget");

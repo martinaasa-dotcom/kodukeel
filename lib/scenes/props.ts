@@ -184,8 +184,29 @@ export function drawProp(
         ...worn(value, avoid),
         slot: spec.slot,
         card: `The time you were given: ${value}`,
-        // `14:00`, `14.00` and `14` are all how somebody writes it down.
-        literal: [value, value.replace(":", "."), value.slice(0, 2), stripLeadingZero(value)],
+        /*
+          `14:00`, `14.00` and `14` are all how somebody writes a time down.
+
+          THE BARE HOUR ONLY WHERE THE TIME IS ON THE HOUR, which is the half
+          this got wrong. `value.slice(0, 2)` handed `15` to a card that said
+          **15:30**, and the marker looks for a literal anywhere in the text,
+          so `ma tulen 15 minuti pärast` met the beat: a learner who said they
+          were coming in a quarter of an hour was recorded as having given the
+          departure time. Half past three is not three, and the way to say it
+          is `pool neli`, which `timeWords` already supplies.
+
+          AND BOTH SPELLINGS OF IT, which is the other half. The hour was taken
+          as the first two characters, so an `08:00` card accepted `08` and
+          never `8`, while a `15:00` card accepted `15`: whether a learner
+          could write the hour the way anybody writes it depended on a leading
+          zero the card printed and they did not.
+        */
+        literal: [
+          value,
+          value.replace(":", "."),
+          stripLeadingZero(value),
+          ...(value.endsWith(":00") ? [value.slice(0, 2), stripLeadingZero(value.slice(0, 2))] : []),
+        ],
         lemmas: [],
         value,
       };
