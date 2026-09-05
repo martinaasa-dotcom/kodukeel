@@ -100,14 +100,14 @@ export function reviewOf(scene: SceneSpec, state: SceneState): SceneReview {
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
   const slips = turns.flatMap((t) => t.slips ?? []);
 
-  const notes = [
+  const notes = saidOnce([
     ...caseNotes(slips, state),
     ...personNote(slips),
     ...formNote(slips),
     ...spellingNote(slips),
     ...missedNote(scene, state),
     ...englishNote(turns.filter((t) => t.reading === "english").length),
-  ];
+  ]);
 
   return {
     lead: lead({ turns: turns.length, landed: landed.length, read: read.length, slips: slips.length, notes: notes.length }),
@@ -172,17 +172,98 @@ function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
       return {
         id: `case:${key}`,
         heading: spec ? `${spec.et} · ${spec.question}` : key.toLowerCase(),
+        /*
+          THE COUNT IS NEWS AND THE OPENER IS NOT.
+
+          Every note used to open "This came out as another form.", which
+          under a heading naming the case and above the learner's own pair
+          ("pood is said poes") is the third telling of one fact, and four
+          notes opened with it word for word. A count is a different matter:
+          three times is a pattern and the reader cannot get it off the two
+          pairs the note has room to print. So the sentence is there when it
+          carries a number and gone when it does not.
+
+          The hook opens a sentence here, where in the reference it sits in a
+          row of its own, so it is capitalized on the way in: "It is the
+          ending for out of. out of the house." is the join showing through.
+        */
         body: [
-          many
-            ? `This came out as another form ${rows.length} times.`
-            : "This came out as another form.",
+          many ? `This came out as another form ${rows.length} times.` : "",
           note ? `It is the ending for ${note.plain}.` : "",
-          note?.englishHook ?? note?.watchOut ?? "",
+          opensSentence(note?.englishHook ?? note?.watchOut ?? ""),
         ].filter(Boolean).join(" "),
         evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
         ...hunchFor(key, rows),
       };
     });
+}
+
+/**
+ * A REASON IS GIVEN ONCE, AND THEN IT IS NOT NEWS.
+ *
+ * A hunch is worked out per note, and the commonest run there is produces
+ * the same one on every note in the review: somebody early enough to be
+ * reaching for the dictionary form reaches for it in every case they are
+ * asked for, so `diagnose` returns the nominative reading four times and the
+ * screen printed the identical paragraph four times under four headings.
+ * That is worse than saying it once and worse than saying nothing, because a
+ * paragraph a reader has already read is a paragraph they learn to skip, and
+ * they skip it on the note where it was going to be different.
+ *
+ * So the first note to carry a reason keeps it, and says how many of the
+ * notes below it the same reason covers, which is the thing a teacher would
+ * actually say and is a fact the review holds and never printed. The rest
+ * keep their heading, their line about what the ending is for, and the
+ * learner's own words, all of which differ per case.
+ *
+ * The count is added to the reason rather than kept as a field, because the
+ * screen prints `says` and a second field would be a second way for a note
+ * to explain itself.
+ */
+function saidOnce(notes: readonly ReviewNote[]): ReviewNote[] {
+  const times = new Map<string, number>();
+  for (const note of notes) {
+    if (note.hunch) times.set(note.hunch.says, (times.get(note.hunch.says) ?? 0) + 1);
+  }
+  const said = new Set<string>();
+  return notes.map((note) => {
+    if (!note.hunch) return note;
+    if (said.has(note.hunch.says)) {
+      const { hunch: _dropped, ...rest } = note;
+      return rest;
+    }
+    said.add(note.hunch.says);
+    const count = times.get(note.hunch.says) ?? 1;
+    return count > 1
+      ? { ...note, hunch: { ...note.hunch, says: `${note.hunch.says} ${COVERS(count)}` } }
+      : note;
+  });
+}
+
+/**
+ * What one reason covering several notes says about the rest of them.
+ *
+ * Two is "both", which is the word English has for it: "all two of these" is
+ * the sentence a template writes and a person never does. Small numbers are
+ * written out for the same reason, and past four the digit reads better than
+ * the word, where a review has bigger news than a count anyway.
+ */
+const COVERS = (count: number) => count === 2
+  ? "The same thing is behind both of these."
+  : `The same thing is behind all ${WORDS[count] ?? count} of these.`;
+
+const WORDS: Record<number, string> = { 3: "three", 4: "four" };
+
+/**
+ * A fragment written to sit in a row of its own, made to start a sentence.
+ *
+ * The data is the reference page's, where a hook is a line under a heading
+ * and lower case is right; here it follows a full stop. Nothing else about
+ * it is touched, so an entry that already starts with a capital is left
+ * exactly as its author wrote it.
+ */
+function opensSentence(text: string): string {
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : text;
 }
 
 /** One case slip, with the case the question before it wanted. */

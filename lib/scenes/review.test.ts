@@ -83,6 +83,21 @@ describe("the review of a conversation", () => {
     expect(note?.evidence).toEqual([{ said: "pea", form: "peas" }]);
   });
 
+  /*
+    The count is news; the opener was the third telling of one fact, under a
+    heading naming the case and above the learner's own pair.
+  */
+  it("says how many times only where there were several", () => {
+    const once = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).notes[0];
+    expect(once?.body).not.toContain("came out as another form");
+    expect(once?.body).toContain("It is the ending for in.");
+    // And the hook opens a sentence here rather than trailing a full stop in lower case.
+    expect(once?.body).toContain("In the house");
+
+    const twice = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })])).notes[0];
+    expect(twice?.body).toContain("2 times");
+  });
+
   it("ranks the case somebody got wrong most often first", () => {
     const other: Slip = { kind: "case", said: "pea", form: "peast", lemma: "pea", grammCase: "ELATIVE" };
     const review = reviewOf(SCENE, state([
@@ -165,6 +180,35 @@ describe("the review of a conversation", () => {
     const slip: Slip = { ...CASE_SLIP, said: "peal", reached: "ADESSIVE" };
     const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
     expect(["likely", "possible"]).toContain(note?.hunch?.sure);
+  });
+
+  /*
+    A REASON IS GIVEN ONCE.
+
+    Somebody early enough to be reaching for the dictionary form reaches for
+    it in every case they are asked for, so `diagnose` returns the same
+    reading on every note and the debrief printed the identical paragraph
+    four times under four headings. A paragraph a reader has already read is
+    one they learn to skip, and they skip it on the note where it differs.
+  */
+  it("gives one reason once, and says how many notes it covers", () => {
+    const inessive: Slip = { ...CASE_SLIP, reached: "NOMINATIVE" };
+    const elative: Slip = { kind: "case", said: "pea", form: "peast", lemma: "pea", grammCase: "ELATIVE", reached: "NOMINATIVE" };
+    const review = reviewOf(SCENE, state([turn({ slips: [inessive] }), turn({ slips: [elative] })]));
+    const carried = review.notes.filter((n) => n.hunch);
+    expect(carried).toHaveLength(1);
+    expect(carried[0]?.hunch?.says).toContain("dictionary lists it");
+    expect(carried[0]?.hunch?.says).toContain("behind both of these");
+    // The rest keep everything that is about their own case.
+    const second = review.notes.find((n) => n.id === "case:ELATIVE");
+    expect(second?.body).toContain("out of");
+    expect(second?.evidence).toEqual([{ said: "pea", form: "peast" }]);
+  });
+
+  it("leaves a reason that covers one note exactly as it was", () => {
+    const slip: Slip = { ...CASE_SLIP, said: "peal", reached: "ADESSIVE" };
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    expect(note?.hunch?.says).not.toContain("The same thing is behind");
   });
 
   it("says something kind and true about a run where nothing was said", () => {
