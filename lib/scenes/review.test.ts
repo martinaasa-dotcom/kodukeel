@@ -173,3 +173,19 @@ describe("the review of a conversation", () => {
     expect(review.notes.some((n) => n.id === "missed")).toBe(true);
   });
 });
+
+
+/*
+  A hook that is the plain word again, which the illative's is: `plain` is
+  "into" and `englishHook` is "into.", so a learner's review read "It is the
+  ending for into. into." The line above already said it.
+*/
+describe("a note whose hook says nothing new", () => {
+  it("does not say the word twice", () => {
+    const slip: Slip = { kind: "case", said: "jaam", form: "jaama", lemma: "jaam", grammCase: "ILLATIVE" };
+    const review = reviewOf(SCENE, state([turn({ slips: [slip] })]));
+    const body = review.notes.find((n) => n.id === "case:ILLATIVE")?.body ?? "";
+    expect(body, "the illative note was not built").toContain("the ending for into.");
+    expect(body.match(/into/g) ?? [], body).toHaveLength(1);
+  });
+});

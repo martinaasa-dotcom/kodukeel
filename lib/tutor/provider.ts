@@ -25,6 +25,25 @@ import { estimateTokens } from "@/lib/usage/pricing";
 
 export type ProviderName = "openrouter" | "groq" | "gemini" | "openai" | "anthropic";
 
+/**
+ * How much a reply may cost in tokens, and why it is not small.
+ *
+ * A scene line is one short Estonian sentence and the obvious budget for one is
+ * a few dozen tokens. That is wrong on the models this app is built to run on:
+ * several free models spend their whole budget in a reasoning field and write
+ * into `content` only once they have finished thinking, so a tight cap returns
+ * HTTP 200 with an empty string. Measured on one beat with the route's own
+ * prompt: at 80 tokens `openai/gpt-oss-120b` and `gemini-3.6-flash` both
+ * answered empty; at 1200 both wrote a clean line. An empty answer is
+ * indistinguishable from a bad minute one rung down, so the cap was quietly
+ * deciding which free models this app can use.
+ *
+ * Exported so a script measuring which model to put in front measures the app
+ * rather than itself, which is the rule `PROVIDER_KEY_ENV` states about lists
+ * that live in a test.
+ */
+export const REPLY_TOKENS = 1200;
+
 export interface ProviderConfig {
   name: ProviderName;
   model: string;
@@ -591,7 +610,7 @@ async function callOpenAiCompatible(
       // Without this the stream carries no usage frame and the ledger has to
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),
@@ -612,7 +631,7 @@ async function callAnthropic(config: ProviderConfig, system: string, messages: C
     body: JSON.stringify({
       model: config.model,
       stream: true,
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than

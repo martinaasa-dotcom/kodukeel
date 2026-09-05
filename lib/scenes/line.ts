@@ -239,38 +239,74 @@ export function fallbackLine(text: string, withheld: readonly Check[] = []): Spo
  * same place, and the learner is waiting through every one of them.
  */
 export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
+  /* Which checks withheld the model's line, carried to the fallback so the run can say. */
+  let withheld: readonly Check[] = [];
+
   const attested = pickAttested(request);
   if (attested) return attested;
 
   /*
-    THE SCRIPTED RUNG SITS BETWEEN THE LEXICOGRAPHER AND THE MODEL, and the
-    order is the provenance order. An attested line is somebody's recorded
-    Estonian and outranks anything a model wrote; a scripted line was written
-    by a model but was gated then and read by a person since, which is more
-    than a line composed a second ago can say. It costs a comparison, so like
-    the attested rung it is tried before the ledger is asked, and it is what
-    lets a keyless deployment hold a conversation on a beat retrieval cannot
-    fill. Passed over once used, like an attested line, so a run that comes
-    back to a beat does not hear the same sentence twice while another is left.
+    THE MODEL NOW SITS ABOVE THE BANK RATHER THAN BELOW IT, AND ONLY ABOVE THE
+    BANK.
+
+    The order used to be attested, scripted, composed, on the argument that a
+    line gated when it was drafted and read by a person since is worth more
+    than one gated a second ago. That argument weighs the two model-written
+    rungs by how much review they have had, and it is missing the thing that
+    actually decides whether a line is any good here: a banked line was written
+    against the beat alone, months before anybody played, and a composed line
+    is written with this conversation in front of it. A receptionist who can
+    answer what the learner said three turns ago is worth more than one who
+    cannot, and no amount of reviewing a generic line closes that gap.
+
+    So composition is attempted on every beat, and the bank is what catches it:
+    no key, no allowance, no answer, or an answer the gate withheld, and the
+    run says the drafted line instead. Every safety property is unchanged,
+    because both rungs pass the same gate against the same closed word list,
+    and a deployment with no key walks straight past this to the same bank line
+    it says today (`compose` is absent and the rung below is reached
+    unconditionally).
+
+    THE ATTESTED RUNG KEEPS THE TOP, and that is not an exception carved out to
+    avoid moving something. It is reachable only for a beat whose pool holds a
+    phrase entry, which after §32 narrowed it is the courtesies: `Tere!`,
+    `Aitäh!`, `Head aega!`. Those are the whole line, a lexicographer recorded
+    them, and what a model does with a greeting is paraphrase a fixed phrase
+    into something nobody says. Composition leads everywhere a beat has content
+    to carry, which is every beat that makes a scene this scene.
+  */
+  if (request.compose) {
+    const first = await request.compose([]);
+    const firstVerdict = first ? runGate(first, request.beat, request.gate) : null;
+    if (first && firstVerdict && passes(firstVerdict)) {
+      return { text: first, provenance: "composed" };
+    }
+
+    /*
+      One retry, and only one. §6 allows it with the failing words named, and
+      the second failure is the bank: a third attempt is a slower way to reach
+      the same place, and the learner is waiting through every one of them.
+    */
+    const second = await request.compose(firstVerdict?.unknown ?? []);
+    const secondVerdict = second ? runGate(second, request.beat, request.gate) : null;
+    if (second && secondVerdict && passes(secondVerdict)) {
+      return { text: second, provenance: "composed" };
+    }
+    withheld = secondVerdict?.failed ?? firstVerdict?.failed ?? [];
+  }
+
+  /*
+    THE SCRIPTED RUNG IS THE SAFETY NET AND IS ALWAYS REACHED. A line drafted
+    in advance and gated then, which is what lets a keyless deployment hold a
+    conversation on a beat retrieval cannot fill, and what a keyed one says
+    when the free tier is having a bad minute. Passed over once used, like an
+    attested line, so a run that comes back to a beat does not hear the same
+    sentence twice while another is left.
   */
   const scripted = request.scripted.find((text) => !request.used.has(text));
   if (scripted) return { text: scripted, provenance: "scripted" };
 
-  if (!request.compose) return fallbackLine(request.fallback);
-
-  const first = await request.compose([]);
-  const firstVerdict = first ? runGate(first, request.beat, request.gate) : null;
-  if (first && firstVerdict && passes(firstVerdict)) {
-    return { text: first, provenance: "composed" };
-  }
-
-  const second = await request.compose(firstVerdict?.unknown ?? []);
-  const secondVerdict = second ? runGate(second, request.beat, request.gate) : null;
-  if (second && secondVerdict && passes(secondVerdict)) {
-    return { text: second, provenance: "composed" };
-  }
-
-  return fallbackLine(request.fallback, secondVerdict?.failed ?? firstVerdict?.failed ?? []);
+  return fallbackLine(request.fallback, withheld);
 }
 
 /** The first recorded sentence that fits this beat and has not been used yet. */

@@ -28,7 +28,18 @@ import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
 import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
-import { FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS } from "../../lib/tutor/provider";
+/*
+  The token budget is the app's, not a number of this script's own.
+
+  It was 60 here, which is generous for one short sentence and is the wrong
+  question: several free models spend their whole budget in a reasoning field
+  and write into `content` only after it, so at 60 they answer 200 with an
+  empty string and this harness recorded that as the model declining. Measured
+  on one beat: `openai/gpt-oss-120b` and `gemini-3.6-flash` both answered empty
+  at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
+  disqualifies a model the app can use is worse than no measurement.
+*/
+import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS, REPLY_TOKENS } from "../../lib/tutor/provider";
 import { buildLexicon, caseKeyFor, formsOf, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS } from "../../lib/scenes/retrieval";
@@ -286,6 +297,28 @@ export function chain(): Link[] {
       links.push({ label: "Groq", model, url: "https://api.groq.com/openai/v1/chat/completions", key: groq });
     }
   }
+  /*
+    And Gemini, which the app's own chain has carried since the second free
+    provider was added and this harness did not. That mattered more than a
+    missing name: the whole point of the eval is deciding which free model to
+    put in front for scenes, and a model the deployment would actually use was
+    outside the measurement, so the answer was drawn from two providers out of
+    three. It speaks the OpenAI wire format at Google's compatibility endpoint,
+    which is the same URL `lib/tutor/provider.ts` uses, so nothing else here
+    changes.
+  */
+  const gemini = process.env.GEMINI_API_KEY;
+  if (gemini) {
+    const pinned = (process.env.GEMINI_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
+    for (const model of pinned.length ? pinned : FREE_GEMINI_MODELS) {
+      links.push({
+        label: "Google Gemini",
+        model,
+        url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        key: gemini,
+      });
+    }
+  }
   return links;
 }
 
@@ -347,7 +380,7 @@ export async function compose(
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: 60,
+          model: link.model, temperature: 0.8, max_tokens: REPLY_TOKENS,
           messages: [{ role: "system", content: SYSTEM }, { role: "user", content: user }],
         }),
       });

@@ -187,12 +187,27 @@ function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
             ? `This came out as another form ${rows.length} times.`
             : "This came out as another form.",
           note ? `It is the ending for ${note.plain}.` : "",
-          note?.englishHook ?? note?.watchOut ?? "",
+          /*
+            The hook is a phrase showing the case doing its job ("of the book",
+            "the book's cover"), and for a case whose plain word is the whole of
+            it the two are one word twice: the illative's `plain` is "into" and
+            its `englishHook` is "into.", which reached a learner's review as
+            "It is the ending for into. into." Dropped where it says nothing the
+            line above has not, which is a rule about this sentence rather than
+            about the hook, since on the grammar page it stands alone.
+          */
+          repeats(note?.englishHook, note?.plain) ? (note?.watchOut ?? "") : (note?.englishHook ?? note?.watchOut ?? ""),
         ].filter(Boolean).join(" "),
         evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
         ...hunchFor(key, rows),
       };
     });
+}
+
+/** Whether a hook says nothing but the plain word the sentence above already gave. */
+function repeats(hook: string | undefined, plain: string | undefined): boolean {
+  if (!hook || !plain) return false;
+  return hook.replace(/[.,]/g, "").trim().toLowerCase() === plain.trim().toLowerCase();
 }
 
 /** One case slip, with the case the question before it wanted. */

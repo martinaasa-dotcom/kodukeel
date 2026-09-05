@@ -11275,15 +11275,37 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
     "scripts/draft-lines.ts no longer writes the bank, so a line could only get there by hand",
   );
 
+  /*
+    THE ORDER, AND IT IS NOT THE ORDER THIS INVARIANT WAS FIRST WRITTEN FOR.
+
+    It used to assert attested, then scripted, then composed, on the argument
+    that a line gated yesterday and read by a person since outranks one composed
+    a second ago. That weighs the two model-written rungs by how much review
+    they have had and misses what decides whether a line is any good in a
+    conversation: a banked line was written against the beat alone and a
+    composed one is written with this run in front of it. So the model leads,
+    and what this holds now is the two things that must survive it.
+
+    A recorded sentence still comes first, because the attested rung is
+    reachable only for a courtesy and what a model does with `Tere!` is
+    paraphrase it into something nobody says. And the bank is still always
+    reached, so no key, no answer or a withheld answer all land on it rather
+    than on the repair phrase.
+  */
   const line = code("lib/scenes/line.ts");
   const attestedAt = line.indexOf("pickAttested(request)");
   const scriptedAt = line.indexOf('provenance: "scripted"');
   const composeAt = line.indexOf("request.compose([])");
   assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
   assert.ok(
-    attestedAt < scriptedAt && scriptedAt < composeAt,
-    "the scripted rung is no longer between the recorded sentence and the live model. " +
-    "A lexicographer outranks a model, and a line gated yesterday and read since outranks one composed a second ago.",
+    attestedAt < composeAt && composeAt < scriptedAt,
+    "the ladder is no longer recorded, then composed, then banked. A lexicographer's " +
+    "courtesy outranks a paraphrase of it, and the bank is the net under the model rather than a rung above it.",
+  );
+  assert.ok(
+    !/if \(!request\.compose\) return fallbackLine/.test(line),
+    "the ladder returns the repair phrase where no model is configured, so a keyless deployment " +
+    "no longer reaches the bank at all",
   );
   assert.match(
     line,
@@ -11292,10 +11314,12 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
 
   const route = code("app/api/scene/route.ts");
-  const cheapAt = route.indexOf('cheap.provenance !== "fallback"');
+  const netAt = route.indexOf("const cheap = await sceneLine");
   const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
-  assert.ok(cheapAt > 0 && bookAt > 0 && cheapAt < bookAt,
-    "the route books a call before trying the rungs that cost nothing, so a scripted line rations a learner over a request nobody made");
+  assert.ok(netAt > 0 && bookAt > 0 && netAt < bookAt,
+    "the route books a call before working out what it would say without one, so the net is assembled while somebody is waiting");
+  assert.match(route, /if \(cheap\.provenance === "attested"\) return/,
+    "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
   assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
 
   assert.match(

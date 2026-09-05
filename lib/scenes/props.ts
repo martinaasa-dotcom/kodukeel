@@ -335,3 +335,30 @@ export function timeWords(value: string): string[] {
 
 /** Every lemma `timeWords` can name, for the test that checks they are taught. */
 export const TIME_LEMMAS: readonly string[] = [...HOUR_WORDS, HALF];
+
+/**
+ * Every number this run was dealt, as it may be written.
+ *
+ * THE GATE'S FIFTH CHECK NEEDS THIS AND NOTHING ELSE DOES. Vouching is about
+ * words and a number is not one, so a composed line naming a time the card
+ * never dealt passes every check the gate had: the learner is asked to agree
+ * to an appointment nobody offered them, in perfectly in-scope Estonian. That
+ * was invisible while a beat naming a dealt value was answered off the card
+ * before a model was asked, and it stops being invisible the moment the model
+ * is asked first.
+ *
+ * Read off `literal`, which is already every spelling of the value the marker
+ * will accept from the learner, so what the other side may say and what the
+ * learner may say are the one list. Words are not in it: `kolm` is a word, it
+ * is vouched by the lexicon like any other, and a line saying it has said
+ * something the course teaches rather than made a number up.
+ */
+export function dealtNumbers(card: RoleCard | null): ReadonlySet<string> {
+  const out = new Set<string>();
+  for (const prop of card?.props ?? []) {
+    for (const spelling of prop.literal) {
+      if (/\d/.test(spelling)) out.add(spelling);
+    }
+  }
+  return out;
+}

@@ -50,10 +50,19 @@ lines a model wrote.** `lib/scenes/` is Situations (ADR-025, `docs/21-situations
 for what building it found). A scene file names moves and unit ids and holds no Estonian: every
 lemma it names is one its own declared units teach, asserted word by word, so a scene cannot
 introduce vocabulary. What the other side says comes from `sceneLine`, with its provenance: a
-recorded usage where one fits the beat, otherwise a line a model composed inside the scene's closed
-word list and `runGate` checked four ways, shape, vouching, register, government, and withheld
-whole when it fails, and where both rungs fail the other side says they did not catch that, in a
-phrase the course teaches and in character, never a repair line this app wrote. What the learner
+recorded usage where one fits the beat, which after §32 is the courtesies and nothing else,
+otherwise a line a model composed inside the scene's closed word list with this run's own turns in
+front of it and `runGate` checked five ways, shape, vouching, register, government and facts, and
+withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
+line the beat says off the card, and where every rung fails the other side says they did not catch
+that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
+model writes what the other person says and never decides whether the learner was understood**
+(ADR-025 amendment 1): the bank is the net under composition rather than a rung above it, which is
+what a deployment with no key, a spent allowance or a withheld line falls to, so nothing about the
+keyless claim moved. The fifth check exists because the other four are about words and a number is
+not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
+asked first on a beat that names a time invites the learner to agree to an appointment nobody
+offered. What the learner
 says is read by `readTurn` and by nothing else; `advance` takes `Evidence` and nothing else, so a
 caller holding a model's verdict cannot compile. The server marks every turn as it is typed and
 reads the finished run again before `finishScene` grades through `gradeCard`, Good, Hard, Again and

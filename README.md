@@ -52,7 +52,11 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
   the screen says which, and all fourteen play without a model key. Whether you were understood is decided by the
   dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
   budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
-  English. You can walk out. The debrief leads with what happened and never with a score.
+  English. You can walk out. The debrief leads with what happened and never with a score. Where a
+  key is set the other side's line is written for this turn, with the conversation so far in front
+  of it, so it can pick up something you said three turns ago; where there is none, or the free tier
+  will not answer, the lines written for the scene say it instead, which is why all fourteen still
+  play with no key at all.
 - **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
   yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
   one small errand for today, order a coffee, ask the time, drawn from the units you have
@@ -282,8 +286,16 @@ it is used for scanning and nothing else. A page is roughly a third of a cent.
 follow a conversation with a beginner, in a language most models are thin on, inside a closed word
 list, and write one line that answers what the person actually said. Anything reaching outside that
 list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 percent of composed
-lines withheld on a free model, which the learner meets as a stage direction instead of a
-conversation. Comprehension is most of what decides whether the module works.
+lines withheld on a free model, which the learner meets as a line written for the scene instead of
+one written for the turn. Comprehension is most of what decides whether the module works.
+
+`npm run probe:compose` is the narrower question, and it is the one to run before choosing: one
+beat, every free model a key is set for, the route's own prompt, printing what each wrote and
+whether the gate would show it. Measured here on 2026-09-05, the two that answered cleanly and in
+scope were `qwen/qwen3.8-27b` on Groq and `gemini-3.6-flash`; `groq/compound-mini` wrote statements
+where the beat wanted a question; and two of the three OpenRouter free models answered 429 to every
+request for the rest of the day, which is what a free tier is and is the argument for the lines
+written in advance being good rather than for the ladder being different.
 
 So `OPENROUTER_SCENE_MODEL` (or `GROQ_` / `GEMINI_` / `ANTHROPIC_` / `OPENAI_SCENE_MODEL`) points
 conversations at a better model than the rest of the app uses, and a provider you name here is asked
