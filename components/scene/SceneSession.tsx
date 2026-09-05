@@ -779,10 +779,30 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           ariaLabel="What you say"
           placeholder="Say something"
         />
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={say} disabled={busy || !draft.trim()}>
+        {/*
+          THE ONE LOUD ACTION ON THE SCREEN, WHICH FOR A WHILE THERE WAS NONE OF.
+
+          Every other typed round in the app paints its submit in the accent:
+          "Check it" on flash cards, on the exceptions round, on dictation. This
+          screen is the same kind of round and drew "Say it" as an ordinary
+          secondary pill, first in a row of four, so the thing the whole screen
+          exists for was the same weight as "leave". `components/Button.tsx`
+          says it in its own header: one loud action per screen, everything else
+          quiet.
+
+          In a row of its own rather than at the end of the row below, which is
+          where "the primary sits last" would otherwise put it: last in that row
+          means next to "Leave", and a submit pressed hundreds of times sitting
+          beside the button that ends the conversation is a thumb away from
+          walking out mid-sentence. A column reads top to bottom and the primary
+          leads, which is the shape flash cards already has.
+        */}
+        <div>
+          <Button variant="primary" onClick={say} disabled={busy || !draft.trim()}>
             <CornerDownLeft size={16} aria-hidden /> Say it
           </Button>
+        </div>
+        <div className="flex flex-wrap gap-2">
           <Button variant="ghost" onClick={again} disabled={busy || !heard}>
             <RotateCcw size={16} aria-hidden /> Say that again
           </Button>

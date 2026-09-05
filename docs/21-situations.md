@@ -2530,3 +2530,28 @@ and written down at length why it dropped it, which is the same reason one scree
 is over every case rather than over the one that read worst, because the fault was in how the body
 was built and it was true of all of them: every sentence in a note's body opens with a capital, and
 no word is repeated across a full stop in lower case. It fails on the copy that shipped.
+
+## 45. The one loud action, which this screen had none of
+
+`components/Button.tsx` says it in its own header: only the primary carries the gradient, one loud
+action per screen, everything else quiet. Twenty-one of the twenty-five round screens in the app did
+that, and four did not.
+
+A conversation is a typed round like flash cards and dictation, and both of those paint "Check it"
+in the accent. This screen drew "Say it" as an ordinary secondary pill, first in a row of four, so
+the thing the whole screen exists for was the same weight as "Leave". It sits in a row of its own
+now rather than at the end of the row under it, which is where "the primary sits last" would
+otherwise put it: last in that row is next to "Leave", and a submit pressed hundreds of times
+beside the button that ends the conversation is a thumb away from walking out mid-sentence. A column
+reads top to bottom and the primary leads, which is the shape flash cards already has.
+
+The debrief had the same gap and it mattered more than it looks, because the screen argues in its
+own words that "the second run of a scene is where most of it sticks" and then drew "Have it again"
+quieter than the link away from it. The row is the quiet way out first and the loud one last now,
+which is what every other finish screen in the app does.
+
+The other two were outside Situations and are the same fault: the unit lesson offered "Start these
+6 words", the only thing to press on the way into the course, in the same weight as the "Leave" two
+lines above it, and the crossword marked its own "Check" `secondary` beside a ghost that hands over
+the answer. The invariant asks only that a round has a primary at all, since where it sits in its
+row is a rule that already existed, and it was made to fail on each.

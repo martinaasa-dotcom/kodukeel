@@ -12803,6 +12803,43 @@ check("the primary button is the last one in its row", () => {
 });
 
 /*
+  ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
+
+  It says it in the file itself: only the primary carries the gradient, one loud
+  action per screen, everything else quiet. Twenty-one of the twenty-five round
+  screens did that and four did not, and each of the four was the same shape.
+  The lesson offered "Start these 6 words", the only thing to press on the way
+  into the course, in the same weight as the "Leave" two lines above it. The
+  checkpoint drew "Finish" as an ordinary pill. The crossword marked its own
+  "Check" `secondary` beside a ghost that hands over the answer. And a
+  conversation, which is a typed round like flash cards and dictation, drew
+  "Say it" as a secondary first in a row of four, so the thing the screen exists
+  for looked exactly like the button that walks out of it.
+
+  A screen, not a row: where the primary sits in its row is the check above.
+  This one only asks that a round has one at all, which is the half that goes
+  missing when a screen is built out of the neutral default.
+*/
+check("every round paints its one action in the accent", () => {
+  /*
+    Plus the conversation's finish screen, which is the one round whose end is
+    a module of its own rather than a branch inside the session: it recommends
+    in its own words that the second run of a scene is where most of it sticks,
+    and drew that quieter than the link away from it.
+  */
+  const rounds = [...SESSION_FILES(), "components/scene/SceneDebrief.tsx"];
+  assert.ok(rounds.length >= 20, `only ${rounds.length} round screens found; the sweep has stopped seeing them`);
+  for (const file of rounds) {
+    assert.match(
+      code(file),
+      /variant="primary"/,
+      `${file} draws no primary button. The one thing a round is for is the loud one `
+      + "(components/Button.tsx: one loud action per screen, everything else quiet).",
+    );
+  }
+});
+
+/*
   ENTER AND SPACE ARE ONE KEY ON A CARD, AND ONE MODULE SAYS SO.
 
   `lib/ux/advanceKey.ts` is the reading of "the key that moves forward": Enter

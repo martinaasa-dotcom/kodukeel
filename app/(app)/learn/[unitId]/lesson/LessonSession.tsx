@@ -152,7 +152,14 @@ function Continue({ onNext, label = "Continue" }: { onNext: () => void; label?: 
     return () => window.removeEventListener("keydown", onKey);
   }, [onNext]);
   return (
-    <Button onClick={onNext} className="self-start">
+    /*
+      The loud one. This is the only thing to press on the step it sits on, and
+      `components/Button.tsx` says what that means: one loud action per screen,
+      everything else quiet. It was a plain secondary pill, so the first screen
+      of a lesson offered "Start these 6 words" in the same weight as "Leave"
+      two lines above it, on the way into the course.
+    */
+    <Button variant="primary" onClick={onNext} className="self-start">
       {label} <ArrowRight size={15} aria-hidden />
     </Button>
   );
@@ -380,7 +387,7 @@ function StepCard({
             onEnter={() => checkTyped(step.lemma, step.lemma, step.kind)}
           />
           {!checked && (
-            <Button onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
               Check
             </Button>
           )}
@@ -405,7 +412,7 @@ function StepCard({
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (
-            <Button onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check
             </Button>
           )}
@@ -437,7 +444,7 @@ function StepCard({
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (
-            <Button onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
+            <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check
             </Button>
           )}
@@ -505,6 +512,7 @@ function StepCard({
             )}
             {!done && (
               <Button
+                variant="primary"
                 disabled={remaining > 0}
                 onClick={() => {
                   const ok = sentenceMatches(placed, step.sentence);

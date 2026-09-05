@@ -5139,6 +5139,18 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   to be added to the allowlist in `middleware.ts` as well.
 - Every interactive element is keyboard-reachable with a visible focus ring, and under a coarse
   pointer every one of them clears 44px.
+- **One loud action per round, which is `components/Button.tsx`'s own header.** It says it in the
+  file: only the primary carries the gradient, one loud action per screen, everything else quiet.
+  Twenty-one of the twenty-five round screens did that and four did not, each the same shape. The
+  lesson offered "Start these 6 words", the only thing to press on the way into the course, in the
+  same weight as the "Leave" two lines above it; the checkpoint drew "Finish" as an ordinary pill;
+  the crossword marked its own "Check" `secondary` beside a ghost that hands over the answer; and a
+  conversation, which is a typed round like flash cards and dictation, drew "Say it" as a secondary
+  first in a row of four, so the thing the screen exists for looked exactly like the button that
+  walks out of it. The invariant asks only that a round has a primary at all, since where it sits in
+  its row is the rule below; and the conversation's sits in a row of its own rather than at the end
+  of the row under it, because last in that row is next to "Leave", and a submit pressed hundreds of
+  times beside the button that ends the conversation is a thumb away from walking out mid-sentence.
 - **The primary button is the last one in its row.** "Got it", "Save", "Drill it", "Back to Today":
   where a screen ends in two or three buttons side by side, the one painted in the accent sits on
   the right, where a thumb and a reading eye both end up, and the quieter choices sit to its left,
