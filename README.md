@@ -297,6 +297,12 @@ where the beat wanted a question; and two of the three OpenRouter free models an
 request for the rest of the day, which is what a free tier is and is the argument for the lines
 written in advance being good rather than for the ladder being different.
 
+**Setting a paid key is not the same as using it here.** The chain is free first by policy, so a
+deployment that sets `ANTHROPIC_API_KEY` and nothing else still asks three free models before it
+reaches the paid one, on every turn, and mostly gets a line from the bank instead. What points
+conversations at the paid model is naming it: `ANTHROPIC_SCENE_MODEL="claude-sonnet-5"`. A provider
+named there goes to the front, and everything else stays behind it as the fallback it already was.
+
 So `OPENROUTER_SCENE_MODEL` (or `GROQ_` / `GEMINI_` / `ANTHROPIC_` / `OPENAI_SCENE_MODEL`) points
 conversations at a better model than the rest of the app uses, and a provider you name here is asked
 *first* rather than after the free chain, since naming one is choosing it. Nothing is set by default,
