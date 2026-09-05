@@ -830,78 +830,78 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         ground, so the box still reads as a box.
       */}
       <div ref={ask} className="dock-clear">
-      <Card tone="accent" className="flex flex-col gap-3">
-        <div aria-live="polite">
-          {/*
-            HOW FAR IN, WHERE THE LEARNER IS LOOKING.
+        <Card tone="accent" className="flex flex-col gap-3">
+          <div aria-live="polite">
+            {/*
+              HOW FAR IN, WHERE THE LEARNER IS LOOKING.
 
-            The checklist marks the beat in play and counts what is behind
-            you, and it stands above the conversation, so once the page has
-            come down to the box it is off the screen: the panel says what to
-            say now and nothing about where that sits in the whole thing. The
-            same count, in the same words, beside the eyebrow. It is the
-            checklist's own figure rather than a second one, so the two cannot
-            disagree, and it is a count of ticks rather than a meter (§7):
-            nothing fills, nothing drains, and nothing is running.
-          */}
-          <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
-            <span>Your turn</span>
-            <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length} done</span>
-          </p>
-          {/*
-            Bigger than the conversation rather than smaller, because it is
-            read before every turn and the transcript is read once. Where the
-            server has no goal for the beat, the panel still says what the
-            box is for rather than standing empty.
-          */}
-          <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
-        </div>
-        {lent && (
-          <p className="text-sm" aria-live="polite">
-            <span style={{ color: "var(--ink-2)" }}>The word you were reaching for: </span>
-            <span lang="et" className="font-medium">{lent.lemma}</span>
-            <span style={{ color: "var(--ink-2)" }}> · {lent.gloss}</span>
-          </p>
-        )}
-        {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+              The checklist marks the beat in play and counts what is behind
+              you, and it stands above the conversation, so once the page has
+              come down to the box it is off the screen: the panel says what to
+              say now and nothing about where that sits in the whole thing. The
+              same count, in the same words, beside the eyebrow. It is the
+              checklist's own figure rather than a second one, so the two cannot
+              disagree, and it is a count of ticks rather than a meter (§7):
+              nothing fills, nothing drains, and nothing is running.
+            */}
+            <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
+              <span>Your turn</span>
+              <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length} done</span>
+            </p>
+            {/*
+              Bigger than the conversation rather than smaller, because it is
+              read before every turn and the transcript is read once. Where the
+              server has no goal for the beat, the panel still says what the
+              box is for rather than standing empty.
+            */}
+            <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
+          </div>
+          {lent && (
+            <p className="text-sm" aria-live="polite">
+              <span style={{ color: "var(--ink-2)" }}>The word you were reaching for: </span>
+              <span lang="et" className="font-medium">{lent.lemma}</span>
+              <span style={{ color: "var(--ink-2)" }}> · {lent.gloss}</span>
+            </p>
+          )}
+          {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
 
-        <EstonianInput
-          value={draft}
-          onChange={setDraft}
-          onEnter={say}
-          ariaLabel="What you say"
-          placeholder="Say it in Estonian"
-        />
-        {/*
-          Alone in its row, so the one action a learner takes every turn is the
-          loud one and nothing sits between it and the box. The three quieter
-          controls are a row of their own underneath, which also keeps Leave
-          away from the button being pressed twenty times a conversation.
-        */}
-        <Button onClick={say} disabled={busy || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
-          <CornerDownLeft size={16} aria-hidden /> Say it
-        </Button>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={again} disabled={busy || !heard}>
-            <RotateCcw size={16} aria-hidden /> Say that again
-          </Button>
+          <EstonianInput
+            value={draft}
+            onChange={setDraft}
+            onEnter={say}
+            ariaLabel="What you say"
+            placeholder="Say it in Estonian"
+          />
           {/*
-            Asking costs the turn its `helped` flag and nothing else: no
-            objective is withheld and nothing is deducted, because somebody who
-            asks for four words and finishes has learned more than somebody who
-            gave up with none. The word is one of the beat's own, off the
-            scene's closed list, which is why this is a server call rather than
-            something the screen could work out: the client does not hold the
-            lexicon and should not.
+            Alone in its row, so the one action a learner takes every turn is the
+            loud one and nothing sits between it and the box. The three quieter
+            controls are a row of their own underneath, which also keeps Leave
+            away from the button being pressed twenty times a conversation.
           */}
-          <Button variant="ghost" onClick={help} disabled={busy || helped}>
-            <LifeBuoy size={16} aria-hidden /> I need a word
+          <Button onClick={say} disabled={busy || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
+            <CornerDownLeft size={16} aria-hidden /> Say it
           </Button>
-          <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy}>
-            <DoorOpen size={16} aria-hidden /> Leave
-          </Button>
-        </div>
-      </Card>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" onClick={again} disabled={busy || !heard}>
+              <RotateCcw size={16} aria-hidden /> Say that again
+            </Button>
+            {/*
+              Asking costs the turn its `helped` flag and nothing else: no
+              objective is withheld and nothing is deducted, because somebody who
+              asks for four words and finishes has learned more than somebody who
+              gave up with none. The word is one of the beat's own, off the
+              scene's closed list, which is why this is a server call rather than
+              something the screen could work out: the client does not hold the
+              lexicon and should not.
+            */}
+            <Button variant="ghost" onClick={help} disabled={busy || helped}>
+              <LifeBuoy size={16} aria-hidden /> I need a word
+            </Button>
+            <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy}>
+              <DoorOpen size={16} aria-hidden /> Leave
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -941,8 +941,10 @@ const PROVENANCE: Record<Provenance, string> = {
   offered: "The word you were reaching for",
   english: "They said it in English",
   /*
-    The sixth is not a line they said, it is what they did, and the label has
-    to say so or the sentence reads as Estonian rendered in English. It is
+    This one is not a line they said, it is what they did, and the label has
+    to say so or the sentence reads as Estonian rendered in English. It was
+    "the sixth" here for as long as there were six, which is a count of a
+    list kept in a comment beside the list. It is
     read to a screen reader beside the stage direction and drawn to nobody:
     the italics are what a sighted reader gets. See `replyFor` in
     lib/scenes/reply.ts for why this exists at all: "They did not catch that"
