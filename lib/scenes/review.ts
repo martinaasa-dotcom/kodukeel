@@ -122,13 +122,13 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
   const slips = turns.flatMap((t) => t.slips ?? []);
 
-  const notes = [
+  const notes = onceEach([
     ...caseNotes(slips, state),
     ...personNote(slips),
     ...formNote(slips),
     ...spellingNote(slips),
     ...englishNote(turns.filter((t) => t.reading === "english").length),
-  ];
+  ]);
 
   return {
     lead: lead({
@@ -141,6 +141,32 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
     }),
     notes,
   };
+}
+
+/**
+ * The same guess, said once.
+ *
+ * A hunch is about a habit rather than about a word, so the reading that fits
+ * three cases is one reading, and printing it three times does not make it
+ * truer. Measured on a real run of `poodi-piima`: three case notes, two of them
+ * carrying the same twenty-five words about the dictionary form, in a panel a
+ * learner had already reported as too much to read. The first keeps it, because
+ * that is the one whose evidence is nearest the top.
+ *
+ * The note itself is never dropped: what a case is for differs per case, and
+ * that is the half worth reading twice.
+ */
+function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
+  const said = new Set<string>();
+  return notes.map((note) => {
+    if (!note.hunch) return note;
+    if (said.has(note.hunch.says)) {
+      const { hunch: _dropped, ...rest } = note;
+      return rest;
+    }
+    said.add(note.hunch.says);
+    return note;
+  });
 }
 
 function lead(n: {
@@ -170,8 +196,14 @@ function lead(n: {
       ? "The one thing you said answered what was asked."
       : `Every one of your ${n.turns} turns answered what was asked.`
     : `${n.landed} of your ${n.turns} turns answered what was asked.`;
+  /*
+    AND THE FLOURISH ONLY WHERE IT IS TRUE OF THE WHOLE RUN. It printed on any
+    run with no slips, so "3 of your 4 turns answered what was asked. Nothing
+    needed putting right" reached a learner whose fourth turn had not landed,
+    which is one sentence disagreeing with the one before it.
+  */
   if (n.slips === 0) {
-    return n.notes === 0
+    return n.notes === 0 && all
       ? `${opener} Nothing needed putting right, which is rarer than it sounds.`
       : opener;
   }
@@ -228,11 +260,17 @@ function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
         id: `case:${key}`,
         heading: headingFor(plain, spec?.suffix),
         term: spec ? `${spec.et} ${MIDDOT} ${spec.question}` : undefined,
+        /*
+          THE COUNT IS WORTH SAYING AND THE OPENER IS NOT. Every case note
+          opened "You reached for a different ending here", which is the same
+          sentence on all of them and says less than the pair printed two lines
+          under it. Read down four notes it is four identical lines. How many
+          times is a fact about this run and stays; once is the ordinary case
+          and the evidence says it.
+        */
         body: [
-          many
-            ? `You reached for a different ending ${rows.length} times.`
-            : "You reached for a different ending here.",
-          clause ? `This is the one to use ${clause}.` : "",
+          many ? `This came out as another form ${rows.length} times.` : "",
+          clause ? `Use this one ${clause}.` : "You reached for a different ending here.",
         ].filter(Boolean).join(" "),
         evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
         ...hunchFor(key, rows),

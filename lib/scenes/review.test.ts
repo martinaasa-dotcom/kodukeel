@@ -128,7 +128,7 @@ describe("the review of a conversation", () => {
   it("does not say the same thing twice about one ending", () => {
     const slip: Slip = { kind: "case", said: "kool", form: "kooli", lemma: "kool", grammCase: "ILLATIVE" };
     const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
-    expect(note?.body).toBe("You reached for a different ending here. This is the one to use when something goes into it.");
+    expect(note?.body).toBe("Use this one when something goes into it.");
   });
 
   /*
@@ -139,6 +139,39 @@ describe("the review of a conversation", () => {
     const slip: Slip = { kind: "case", said: "kooli", form: "kool", lemma: "kool", grammCase: "NOMINATIVE" };
     const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
     expect(note?.heading).toBe("The form for \u201cthe plain word\u201d");
+  });
+
+  /*
+    The count is a fact about the run; the opener was the same sentence on every
+    note and said less than the pair under it.
+  */
+  it("says how many times only where it was more than once", () => {
+    const review = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })]));
+    expect(review.notes[0]?.body).toBe("This came out as another form 2 times. Use this one when something is inside it.");
+  });
+
+  /*
+    A hunch is about a habit rather than about a word, so the reading that fits
+    three cases is one reading. A real run of `poodi-piima` printed the same
+    twenty-five words twice in a panel already reported as too much to read.
+  */
+  it("says one guess once, however many notes it fits", () => {
+    const into: Slip = { kind: "case", said: "pood", form: "poodi", lemma: "pood", grammCase: "ILLATIVE", reached: "NOMINATIVE" };
+    const some: Slip = { kind: "case", said: "piim", form: "piima", lemma: "piim", grammCase: "PARTITIVE", reached: "NOMINATIVE" };
+    const notes = reviewOf(SCENE, state([turn({ slips: [into] }), turn({ slips: [some] })])).notes;
+    expect(notes.filter((n) => n.hunch).length).toBe(1);
+    // And the note itself stays, because what a case is for differs per case.
+    expect(notes.length).toBe(2);
+  });
+
+  /*
+    "3 of your 4 turns answered what was asked. Nothing needed putting right"
+    is one sentence disagreeing with the one before it.
+  */
+  it("does not say nothing needed putting right where a turn did not land", () => {
+    const lead = reviewOf(SCENE, state([turn(), turn({ reading: "offtarget", met: [false] })])).lead;
+    expect(lead).not.toMatch(/Nothing needed putting right/);
+    expect(reviewOf(SCENE, state([turn(), turn()])).lead).toMatch(/Nothing needed putting right/);
   });
 
   it("ranks the case somebody got wrong most often first", () => {
