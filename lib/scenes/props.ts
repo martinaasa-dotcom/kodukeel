@@ -56,6 +56,13 @@ export type PropSpec =
    * A time of day, on the hour or the half hour, inside a window.
    * `differentFrom` names an earlier slot whose value this one may not
    * repeat, so a second offer is a second time.
+   *
+   * `theirs` for the reason it is on a weekday below, and the type carried
+   * it there and not here while three scenes drew a time the other side
+   * offers: the desk's appointment, the second one it offers when the first
+   * will not do, and the hour a shop opens. All three printed on the
+   * learner's card, so "take the time offered" was answerable before an
+   * offer and "say the time back, to check you heard it" needed no hearing.
    */
   | {
       readonly kind: "time";
@@ -63,6 +70,7 @@ export type PropSpec =
       readonly from: number;
       readonly to: number;
       readonly differentFrom?: string;
+      readonly theirs?: true;
     }
   /**
    * A weekday, as one of the course's own weekday lemmas.
@@ -188,6 +196,7 @@ export function drawProp(
         literal: [value, value.replace(":", "."), value.slice(0, 2), stripLeadingZero(value)],
         lemmas: [],
         value,
+        ...(spec.theirs ? { theirs: true as const } : {}),
       };
     }
     case "number": {

@@ -2471,3 +2471,86 @@ scenes at all. Of the forty-five live claims the course makes, seven had a rehea
 one is `reviewed: false`. And a scene is still typed: the spoken unmarked mode of §11 is the same
 distance away it was.
 
+
+## 43. The fourteenth pass: the ask is the loudest thing on the screen
+
+**What was wrong.** Reported from a screenshot, by somebody mid-conversation: the line saying what
+to say next was "very hidden and hard to see". It was. `Your turn` and the beat's goal were a
+`text-sm` paragraph in the quiet ink, floating between the transcript and the box, set smaller than
+the Estonian above it and detached from the field it is an instruction for. The transcript is read
+once; the ask is read before every single turn, and it was the quietest text on the screen.
+
+Two things were missing beside it. Nothing said which step of the conversation was in play: the
+objectives carried a tick each, which says only what is behind you, and the beat the other side is
+actually waiting on was known to the screen the whole time in `beatId` and drawn nowhere. And the
+disclosure over the card said "Your card", which does not say that the list of what to get done is
+inside it, so a learner who collapsed it once had no reason to open it again.
+
+**What changed.**
+
+- The ask, the word the help button lent, the box and the send button are one accent-tinted panel.
+  Accent because it means "this is yours" and the primary action (`docs/14-design-system.md` §1),
+  and this is the one place on the screen the learner is being asked for something. The goal is set
+  above the size of the conversation rather than under it. The field keeps its own white ground, so
+  a box still reads as a box.
+- The send button is alone in its row, so nothing sits between the box and the thing pressed every
+  turn, and `Leave` is no longer beside it. The three quiet controls are a row underneath.
+- The objective in play is named: an arrow, the accent, bold, and a `Now` chip beside it, with the
+  count of what is behind you over the list. A count of ticks is not a meter (§7): there is no bar,
+  no clock and nothing draining, and it is the reading the debrief already gives.
+- The summary says "Your card and what to get done", and names the place beside it.
+- The placeholder says what language to answer in.
+
+**What this does not fix.** The panel is still below the transcript rather than pinned, so on a
+phone a long conversation is a scroll between reading what was said and answering it. Pinning it
+would put a second fixed element over the one the phone bar already owns, which is the measurement
+`lib/layout/dockClearance.ts` exists for, and is a bigger change than this one.
+
+## 44. The fifteenth pass: what playing one through found
+
+§43 was the screen a learner types into. This is what came out of playing scenes to their
+debriefs, walking out of one, and reading the role card of a third.
+
+**A card printed what the other side was about to say.** `theirs` marks a fact as the other
+side's, so it is drawn and stored and kept off the role card, and it was on the day a landlord
+offers and on nothing else. Three scenes draw a *time* the other side offers: the health centre's
+appointment, the second one it offers when the first will not do, and the hour a shop opens. All
+three printed on the learner's card, so "take the time offered, or ask for another" was answerable
+before an offer, the counter-offer was visible before the first was refused, and the shop scene's
+"say the time back, to check you heard it" needed no hearing. The flag is now on the time prop's
+type and on its draw, which is where it was missing under both. The rule is read off the beats
+rather than kept as a list: a slot whose value the other side utters, in a stage direction or in
+the line itself, is a fact the learner hears. `catalogue.test.ts` asserts it in both directions, so
+the learner's own facts stay on the card.
+
+**A reason given four times is furniture.** Somebody early enough to be reaching for the dictionary
+form reaches for it in every case they are asked for, so `diagnose` returned one reading per note
+and the debrief printed the identical paragraph under four headings. The first note to carry a
+reason keeps it and says how many notes it covers; the rest keep their heading, their line about
+the ending and the learner's own words. `It is the ending for into. into.` went with it, since the
+illative's hook was the plain word again and every other hook shows the ending doing something.
+
+**"Your Estonian was read every time" over a run where it was not.** The condition was that any
+turn had been read, and the sentence claims every one. It is the first line of the debrief, and the
+learner placed to catch it is the one who just watched two turns come back as "I did not catch
+that".
+
+**The page comes down to the box when it is your turn again.** `block: "nearest"`, so it does
+nothing when the box is already on screen, and `.dock-clear` is `.dock-pad`'s measurement spent as
+scroll margin, since `scrollIntoView` otherwise settles the panel under the phone bar.
+
+**The other side said nothing while it was answering.** A turn goes to the server to be marked and
+the reply can be a model's, so the wait is a second or two on a good day, and the screen showed
+nothing in it: the learner's own bubble appeared and the page sat still, which reads as a turn that
+did not register. Anu has had three dots since she was written, so `components/Dots.tsx` is now the
+one drawing of them, with the label as a parameter. Drawn only while the floor is theirs, since
+`busy` is also true while the help button fetches a word and while the run is being finished.
+
+**And the briefing said where you are twice.** The card was headed with the place, which the page
+above it prints as its lead. The role leads it now, with no heading, since a heading forty words
+long is a paragraph wearing an `h2`. The unit a scene takes apart was a bare link with no class on
+it, so the one thing in that header that goes anywhere rendered as plain dark text.
+
+**What this does not fix.** A native speaker has still read none of the bank. The transcript on the
+debrief is still every turn at full size, so the review under it is a scroll away on a long
+conversation.

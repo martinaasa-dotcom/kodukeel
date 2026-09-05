@@ -6,7 +6,7 @@ import { BookOpen, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Chip, Empty, Meter, Page, StatTile } from "@/components/ui";
+import { Chip, Empty, KeyCap, Meter, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -25,7 +25,7 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -572,9 +572,7 @@ export function LearnSession({
                         disabled={busy || marked}
                         className={`choice-btn ${state ? OPTION_CLASS[state] : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
                       >
-                        <span className="label-xs shrink-0 rounded-full px-2 py-0.5" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
-                          {i + 1}
-                        </span>
+                        <KeyCap>{i + 1}</KeyCap>
                         <span className="min-w-0 flex-1">{option}</span>
                         {state === "right" && <Check size={16} aria-label="Right" />}
                         {state === "wrong" && <X size={16} aria-label="Your pick" />}
@@ -700,16 +698,18 @@ export function LearnSession({
               {phase === "ask" && (
                 <Button variant="primary" onClick={answerGap} disabled={busy}>
                   Check
-                  <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                    Enter
-                  </kbd>
+                  <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
                 </Button>
               )}
             </>
           )}
 
           {phase === "feedback" && result && (
+            /* The panel that says how it went, in a live region like every
+               other round's. The ladder is where a word is met for the first
+               time, so this is the one panel a learner most needs read back. */
             <div
+              role="status"
               className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} mt-2 w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left`}
             >
               <p className="text-sm font-semibold">

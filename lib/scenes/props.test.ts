@@ -111,6 +111,18 @@ describe("the other side's facts", () => {
     expect(DAY.oneOf).toContain(theirs.value);
     expect(drawProp(DAY, seeded(2)).theirs).toBeUndefined();
   });
+
+  /*
+    A time as well as a day, and it took a scene to find that out: the flag
+    was carried by the weekday branch alone, so three scenes that marked a
+    time as the other side's were drawn without it and the card printed the
+    appointment the desk was about to offer.
+  */
+  it("carries the flag on a time, which is what a desk offers", () => {
+    const theirs = drawProp({ ...TIME, slot: "time", theirs: true }, seeded(2));
+    expect(theirs.theirs).toBe(true);
+    expect(drawProp(TIME, seeded(2)).theirs).toBeUndefined();
+  });
 });
 
 describe("a second offer's slot", () => {

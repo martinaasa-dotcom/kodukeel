@@ -8,6 +8,7 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { Card, Chip } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { SuggestFix } from "@/components/SuggestFix";
+import { Dots } from "@/components/Dots";
 import type { Msg } from "./useAnuChat";
 import { AI_TAG } from "@/lib/copy/values";
 import { fixFrom, vocabFrom } from "@/lib/tutor/markers";
@@ -223,7 +224,7 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
             : "Anu"}
         </p>
         {writing ? (
-          <Writing />
+          <Dots label="Anu is writing" />
         ) : isUser ? (
           <div className="whitespace-pre-wrap text-base leading-relaxed" style={{ color: "var(--ink)" }}>{rest}</div>
         ) : (
@@ -243,29 +244,6 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
         {unverified.length > 0 && <UnverifiedNotice words={unverified} />}
         {vocab.length > 0 && <VocabBridge vocab={vocab} />}
       </div>
-    </div>
-  );
-}
-
-/**
- * Three dots, in turn, and a sentence for anybody who cannot see them.
- *
- * The bubble is in a live region, so the sentence is announced once when the
- * reply is asked for and the finished reply is announced when it lands, which
- * is two announcements rather than one per word.
- */
-function Writing() {
-  return (
-    <div className="flex h-6 items-center gap-1" aria-label="Anu is writing" role="status">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          aria-hidden
-          className="inline-block h-1.5 w-1.5 animate-pulse rounded-full"
-          style={{ background: "var(--ink-3)", animationDelay: `${i * 180}ms` }}
-        />
-      ))}
-      <span className="sr-only">Anu is writing</span>
     </div>
   );
 }
@@ -407,7 +385,7 @@ export function SentenceCheck({
     <Card>
       <div className="mb-3 flex items-center justify-between gap-3">
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>Check a sentence</span>
-        <button type="button" onClick={onClose} className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <button type="button" onClick={onClose} className="tap-tint rounded-md px-1.5 py-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
           Close
         </button>
       </div>

@@ -5,8 +5,9 @@ import { CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card } from "@/components/ui";
+import { Card, Chip } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
+import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
 import { conditionFor } from "@/lib/audio/conditions";
 import { GlossedSentence } from "@/components/GlossedSentence";
@@ -47,7 +48,7 @@ import { practises } from "@/lib/scenes/practises";
  * debrief handles it without a word of reproach.
  */
 
-type Provenance = "attested" | "scripted" | "composed" | "fallback" | "again" | "recast" | "offered" | "english" | "unspoken";
+type Provenance = "attested" | "scripted" | "composed" | "fallback" | "again" | "echo" | "recast" | "offered" | "english" | "unspoken";
 
 interface Line {
   readonly text: string;
@@ -115,6 +116,16 @@ const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
 const spokenEstonian = (line: Line) => line.provenance !== "unspoken" && line.provenance !== "english";
 /** Whether a line was said at all, in either language. */
 const spoken = (line: Line) => line.provenance !== "unspoken";
+/**
+ * Whether "this is not how anybody says it" is a thing to say about a line.
+ *
+ * Not about a line said once more, since the report belongs on the first
+ * time it was said, and not about the learner's own word handed back to
+ * them: a report there is somebody reporting themselves. A recast is
+ * reportable, because the form in it is the dictionary's.
+ */
+const reportable = (line: Line) =>
+  spokenEstonian(line) && line.provenance !== "again" && line.provenance !== "echo";
 
 /**
  * The line the learner is now answering: the other side's last move, which is
@@ -210,6 +221,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   const { hearing } = useAudioPrefs();
 
   const log = useRef<HTMLDivElement>(null);
+  const ask = useRef<HTMLDivElement>(null);
   /*
     A scene can end on its own, when the last beat is done or the persona has
     run out of patience, and the turn that ended it is the one that has to hang
@@ -231,6 +243,30 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   useEffect(() => {
     const box = log.current;
     if (box) box.scrollTop = box.scrollHeight;
+  }, [turns]);
+
+  /*
+    AND THE PAGE COMES DOWN TO THE BOX WHEN IT IS YOUR TURN AGAIN.
+
+    The card and what to get done stand above the conversation and are worth
+    the room they take, which on a phone puts the box below the fold: every
+    turn was press, read the reply, scroll, type. The reply lands at the
+    bottom of the log and the box is directly under it, so bringing the box
+    into view brings the newest line with it, which is the pair a learner
+    needs at that moment.
+
+    `block: "nearest"` rather than a scroll to a position, because it does
+    nothing at all when the box is already on screen, which is the desktop
+    case and the case on a phone once somebody has scrolled down: a page that
+    jumps on every turn is worse than one that never moves. Only on a line
+    from the other side, never on the learner's own turn appearing, and never
+    smooth for somebody who has asked for less movement.
+  */
+  useEffect(() => {
+    if (turns[turns.length - 1]?.who !== "them") return;
+    const still = typeof matchMedia === "function"
+      && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    ask.current?.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
   }, [turns]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -388,19 +424,25 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       turns: turnsRef.current.flatMap((turn): Debrief["turns"][number][] => {
         if (turn.who === "you") return [{ who: "you", text: turn.text, lang: "et" }];
         /*
-          Split by language rather than joined into one string, because the
-          other side does not only speak Estonian: where neither rung could put
-          their move into words the course teaches, `reply` says what they did
-          in English. Joining the two and marking the result `lang="et"` had a
-          screen reader saying the English with Estonian phonology.
+          A LINE EACH, WHICH IS HOW THEY WERE SAID AND HOW THEY WERE DRAWN.
+
+          A reply is a reaction and then a move, so it arrives as a list, and
+          the transcript joined the list into one string per language. Nothing
+          in that list promises to end in a full stop: `Ma ei saa aru` is a
+          phrase the course teaches as a lemma, so a turn that could not be
+          made out and then asked again read back as "Ma ei saa aru Tere!",
+          one run-on sentence nobody said. Each line is its own bubble in the
+          conversation itself and is its own bubble here, which also carries
+          the language per line for free. That was the reason the join was
+          split in two: joining a stage direction to Estonian and marking the
+          result `lang="et"` had a screen reader saying the English with
+          Estonian phonology.
         */
-        const said = turn.lines.filter(spoken);
-        const et = said.filter(spokenEstonian).map((line) => line.text).join(" ");
-        const en = said.filter((line) => !spokenEstonian(line)).map((line) => line.text).join(" ");
-        return [
-          ...(et ? [{ who: "them" as const, text: et, lang: "et" as const }] : []),
-          ...(en ? [{ who: "them" as const, text: en, lang: "en" as const }] : []),
-        ];
+        return turn.lines.filter(spoken).map((line) => ({
+          who: "them" as const,
+          text: line.text,
+          lang: spokenEstonian(line) ? ("et" as const) : ("en" as const),
+        }));
       }),
     });
     setPhase("debrief");
@@ -421,11 +463,22 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     return (
       <div className="flex flex-col gap-5">
         <Card className="flex flex-col gap-2">
-          <h2 className="font-medium">{scene.place}</h2>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{scene.role}</p>
+          {/*
+            WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN.
+
+            This card was headed with the place, which the page above it
+            already prints as its lead, so the first two lines of the screen
+            were the same sentence twice. What the card is for is the role, so
+            the role leads it and there is no heading at all: the role is
+            forty words of prose, and a heading that long is a paragraph
+            wearing an `h2`, which is worse for somebody moving by headings
+            than having none.
+          */}
+          <p>{scene.role}</p>
           <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-            You will need {practises(scene).join(", ")}. They speak first, you answer, and the card
-            below the conversation says what to get done.
+            You will need {practises(scene).join(", ")}. They speak first, you answer, and the box
+            you type into says what to say each time. The card above the conversation lists what to
+            get done and ticks it off.
           </p>
           {/*
             Said before the first line rather than discovered on the third,
@@ -479,6 +532,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   }
 
   const objectives = scene.beats.filter((beat) => beat.required);
+  const metCount = objectives.filter((beat) => done.includes(beat.id)).length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -488,7 +542,10 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         keyboard and a screen reader for free.
       */}
       <details open>
-        <summary className="cursor-pointer text-sm font-medium">Your card</summary>
+        <summary className="cursor-pointer text-sm font-medium">
+          Your card and what to get done
+          <span style={{ color: "var(--ink-3)" }}> · {scene.place}</span>
+        </summary>
         <Card className="mt-2 flex flex-col gap-2">
           <p className="text-sm">{opened?.card.you}</p>
           <ul className="flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -518,25 +575,54 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           {opened?.persona && (
             <p className="text-xs" style={{ color: "var(--ink-3)" }}>{opened.persona}</p>
           )}
-          <ul className="mt-1 flex flex-col gap-1">
-            {objectives.map((beat) => {
-              const met = done.includes(beat.id);
-              return (
-                <li key={beat.id} className="flex items-center gap-2 text-sm">
-                  {/*
-                    An icon and a word beside the hue, because mint means
-                    recalled and nothing in this app may be carried by colour
-                    alone.
-                  */}
-                  <span aria-hidden style={{ color: met ? "var(--mint-ink)" : "var(--ink-3)" }}>
-                    {met ? "✓" : "·"}
-                  </span>
-                  <span style={{ color: met ? "var(--ink)" : "var(--ink-3)" }}>{beat.goal}</span>
-                  <span className="sr-only">{met ? "done" : "not yet"}</span>
-                </li>
-              );
-            })}
-          </ul>
+          {/*
+            WHAT TO GET DONE, AND WHICH OF IT IS IN PLAY.
+
+            The ticks were here from the start and said only what was behind
+            you. What a learner mid-conversation asks first is where they are
+            in it, and the answer was on the screen all along in `beatId`: the
+            beat the other side is waiting on. So the objective in play is
+            named, in words as well as in weight, and the count says how many
+            are behind you.
+
+            A count of things done is not a meter (§7). There is no bar, no
+            timer and nothing draining: it is the same ticks added up, which
+            is the reading the debrief is allowed to give and the one somebody
+            glancing at a list wants without counting it themselves.
+          */}
+          <div className="mt-1 flex flex-col gap-1">
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>
+              What to get done · {metCount} of {objectives.length} done
+            </p>
+            <ul className="flex flex-col gap-1">
+              {objectives.map((beat) => {
+                const met = done.includes(beat.id);
+                const now = !met && beat.id === beatId;
+                return (
+                  <li key={beat.id} className="flex items-start gap-2 text-sm">
+                    {/*
+                      An icon and a word beside the hue, because mint means
+                      recalled and nothing in this app may be carried by colour
+                      alone. The marker holds its own column and the goal wraps
+                      beside it: a `flex-wrap` on the row lets a long objective
+                      push its own bullet onto a line of its own, which reads as
+                      a list that has come apart.
+                    */}
+                    <span aria-hidden className="shrink-0" style={{ color: met ? "var(--mint-ink)" : now ? "var(--accent-deep)" : "var(--ink-3)" }}>
+                      {met ? "✓" : now ? "→" : "·"}
+                    </span>
+                    <span className="flex min-w-0 flex-wrap items-center gap-x-2">
+                      <span style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }} className={now ? "font-medium" : undefined}>
+                        {beat.goal}
+                      </span>
+                      {now && <Chip tone="accent">Now</Chip>}
+                      <span className="sr-only">{met ? "done" : now ? "this is the one they are waiting on" : "not yet"}</span>
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </Card>
       </details>
 
@@ -673,7 +759,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                     */}
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
                       <span>{PROVENANCE[line.provenance]}</span>
-                      {line.provenance !== "again" && spokenEstonian(line) && (
+                      {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
                           trigger={`Situations · ${scene.id} · ${line.text}`}
@@ -700,53 +786,122 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             </div>
           )
         ))}
+        {/*
+          THEY ARE ANSWERING, WHICH IS THE ONE THING THE LOG NEVER SAID.
+
+          A turn goes to the server to be marked and the reply can be a
+          model's, so the wait is a second or two on a good day and longer on
+          a bad one, and the screen showed nothing at all in it: the learner's
+          own bubble appeared and then the page sat still, which reads as a
+          turn that did not register and is answered by pressing again. Anu
+          has had the dots since she was written, so this is her drawing
+          rather than a second one.
+
+          Only while the floor is theirs: `busy` is also true while the help
+          button fetches a word and while the run is being finished, and in
+          both of those the last thing in the log is already something they
+          said. The opening line has nothing before it, which is exactly when
+          the dots are worth most.
+        */}
+        {busy && turns[turns.length - 1]?.who !== "them" && (
+          <div className="flex flex-col items-start">
+            <Card className="inline-block">
+              <Dots label="They are answering" />
+            </Card>
+          </div>
+        )}
       </div>
 
-      {goal && (
-        <p className="text-sm" aria-live="polite">
-          <span className="label-xs" style={{ color: "var(--ink-3)" }}>Your turn</span>
-          <span className="block font-medium">{goal}</span>
-        </p>
-      )}
-      {lent && (
-        <p className="text-sm" aria-live="polite">
-          <span lang="et" className="font-medium">{lent.lemma}</span>
-          <span style={{ color: "var(--ink-2)" }}> · {lent.gloss}</span>
-        </p>
-      )}
-      {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+      {/*
+        THE ASK AND THE BOX ARE ONE OBJECT.
 
-      <div className="flex flex-col gap-2">
-        <EstonianInput
-          value={draft}
-          onChange={setDraft}
-          onEnter={say}
-          ariaLabel="What you say"
-          placeholder="Say something"
-        />
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={say} disabled={busy || !draft.trim()}>
+        What to say next was a `text-sm` paragraph between the transcript and
+        the field, in the quiet ink, and it was reported as hidden and hard to
+        see: the single most important sentence on the screen was set smaller
+        than the conversation above it and separated from the box it is an
+        instruction for. Two lines of prose floating between two blocks read as
+        furniture wherever they are put, so it is not a matter of finding a
+        better gap. The instruction belongs *inside* the thing it instructs.
+
+        So the ask, the word the help button lent, the box and the send button
+        are one tinted panel: accent, because the accent is "this is yours" and
+        the primary action (§1), and it is the one place on this screen the
+        learner is being asked for something. The field keeps its own white
+        ground, so the box still reads as a box.
+      */}
+      <div ref={ask} className="dock-clear">
+        <Card tone="accent" className="flex flex-col gap-3">
+          <div aria-live="polite">
+            {/*
+              HOW FAR IN, WHERE THE LEARNER IS LOOKING.
+
+              The checklist marks the beat in play and counts what is behind
+              you, and it stands above the conversation, so once the page has
+              come down to the box it is off the screen: the panel says what to
+              say now and nothing about where that sits in the whole thing. The
+              same count, in the same words, beside the eyebrow. It is the
+              checklist's own figure rather than a second one, so the two cannot
+              disagree, and it is a count of ticks rather than a meter (§7):
+              nothing fills, nothing drains, and nothing is running.
+            */}
+            <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
+              <span>Your turn</span>
+              <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length} done</span>
+            </p>
+            {/*
+              Bigger than the conversation rather than smaller, because it is
+              read before every turn and the transcript is read once. Where the
+              server has no goal for the beat, the panel still says what the
+              box is for rather than standing empty.
+            */}
+            <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
+          </div>
+          {lent && (
+            <p className="text-sm" aria-live="polite">
+              <span style={{ color: "var(--ink-2)" }}>The word you were reaching for: </span>
+              <span lang="et" className="font-medium">{lent.lemma}</span>
+              <span style={{ color: "var(--ink-2)" }}> · {lent.gloss}</span>
+            </p>
+          )}
+          {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
+
+          <EstonianInput
+            value={draft}
+            onChange={setDraft}
+            onEnter={say}
+            ariaLabel="What you say"
+            placeholder="Say it in Estonian"
+          />
+          {/*
+            Alone in its row, so the one action a learner takes every turn is the
+            loud one and nothing sits between it and the box. The three quieter
+            controls are a row of their own underneath, which also keeps Leave
+            away from the button being pressed twenty times a conversation.
+          */}
+          <Button onClick={say} disabled={busy || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
             <CornerDownLeft size={16} aria-hidden /> Say it
           </Button>
-          <Button variant="ghost" onClick={again} disabled={busy || !heard}>
-            <RotateCcw size={16} aria-hidden /> Say that again
-          </Button>
-          {/*
-            Asking costs the turn its `helped` flag and nothing else: no
-            objective is withheld and nothing is deducted, because somebody who
-            asks for four words and finishes has learned more than somebody who
-            gave up with none. The word is one of the beat's own, off the
-            scene's closed list, which is why this is a server call rather than
-            something the screen could work out: the client does not hold the
-            lexicon and should not.
-          */}
-          <Button variant="ghost" onClick={help} disabled={busy || helped}>
-            <LifeBuoy size={16} aria-hidden /> I need a word
-          </Button>
-          <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy}>
-            <DoorOpen size={16} aria-hidden /> Leave
-          </Button>
-        </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="ghost" onClick={again} disabled={busy || !heard}>
+              <RotateCcw size={16} aria-hidden /> Say that again
+            </Button>
+            {/*
+              Asking costs the turn its `helped` flag and nothing else: no
+              objective is withheld and nothing is deducted, because somebody who
+              asks for four words and finishes has learned more than somebody who
+              gave up with none. The word is one of the beat's own, off the
+              scene's closed list, which is why this is a server call rather than
+              something the screen could work out: the client does not hold the
+              lexicon and should not.
+            */}
+            <Button variant="ghost" onClick={help} disabled={busy || helped}>
+              <LifeBuoy size={16} aria-hidden /> I need a word
+            </Button>
+            <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy}>
+              <DoorOpen size={16} aria-hidden /> Leave
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -766,6 +921,13 @@ const PROVENANCE: Record<Provenance, string> = {
   fallback: "They did not catch that",
   again: "Said again",
   /*
+    Their word back at them because it needed nothing doing to it, which is
+    not the same claim as "said again": that one means the line the learner
+    was answering, once more. A learner who said the right word was reading
+    "Said again" under their own word coming back.
+  */
+  echo: "Your word, said back",
+  /*
     The learner's word, put right and said back, which is the one correction
     a conversation makes without stopping. The label says whose word it was
     and what happened to it; "said again" would claim they had said it.
@@ -779,8 +941,10 @@ const PROVENANCE: Record<Provenance, string> = {
   offered: "The word you were reaching for",
   english: "They said it in English",
   /*
-    The sixth is not a line they said, it is what they did, and the label has
-    to say so or the sentence reads as Estonian rendered in English. It is
+    This one is not a line they said, it is what they did, and the label has
+    to say so or the sentence reads as Estonian rendered in English. It was
+    "the sixth" here for as long as there were six, which is a count of a
+    list kept in a comment beside the list. It is
     read to a screen reader beside the stage direction and drawn to nobody:
     the italics are what a sighted reader gets. See `replyFor` in
     lib/scenes/reply.ts for why this exists at all: "They did not catch that"

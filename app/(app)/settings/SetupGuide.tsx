@@ -70,7 +70,7 @@ export function SetupGuide() {
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="flex items-center gap-1.5 text-xs"
+            className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
             style={{ color: copied ? "var(--good-ink)" : "var(--ink-3)" }}
           >
             {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy</>}

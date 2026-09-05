@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Chip, Empty, Meter, Page, StatTile } from "@/components/ui";
+import { Chip, Empty, KeyCap, Meter, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
@@ -27,7 +27,7 @@ import type { ReviewMode } from "@/lib/settings/store";
 import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export interface ReviewCard {
   id: string;
@@ -1107,19 +1107,27 @@ export function ReviewSession({
           {ask === "choice" && card.choices && !chosen && (
             <div className="mt-2 grid w-full max-w-md gap-2">
               {card.choices.map((choice, i) => (
+                /*
+                  `.choice-btn` and a tone through `--choice-bg`, like every
+                  other option in the app. It painted its own background
+                  inline, which is the fault that class's own comment names:
+                  an inline style beats a class `:hover`, so the busiest
+                  options in the app could never define one and moved under a
+                  pointer without changing at all.
+                */
                 <button
                   key={choice}
                   type="button"
                   onClick={() => pickChoice(choice)}
-                  className="press flex items-center gap-3 rounded-[var(--r)] px-4 py-3.5 text-left text-base font-medium transition-ui hover:-translate-y-0.5"
-                  style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow-sm)" }}
+                  className="choice-btn flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium"
+                  style={{
+                    "--choice-bg": "var(--accent-soft)",
+                    "--choice-border": "transparent",
+                    color: "var(--accent-deep)",
+                    boxShadow: "var(--shadow-sm)",
+                  } as CSSProperties}
                 >
-                  <span
-                    className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-2xs font-bold"
-                    style={{ background: "var(--surface)", color: "var(--accent-deep)" }}
-                  >
-                    {i + 1}
-                  </span>
+                  <KeyCap>{i + 1}</KeyCap>
                   {choice}
                 </button>
               ))}
@@ -1218,16 +1226,12 @@ export function ReviewSession({
           {ask === "intro" ? (
             <Button variant="primary" size="lg" className="w-full" onClick={meetDone} disabled={busy}>
               Got it, ask me later
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                Space
-              </kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           ) : ask === "type" && !verdict ? (
             <Button variant="primary" size="lg" className="w-full" onClick={checkTyped}>
               Check
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                Enter
-              </kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           ) : ask === "type" && verdict ? (
             /* Marked already. A clean hit takes itself away (see `checkTyped`),
@@ -1243,9 +1247,7 @@ export function ReviewSession({
               disabled={busy || retypeOk}
             >
               {needsRetype ? "Check it again" : "Got it, next"}
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                Enter
-              </kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
@@ -1258,16 +1260,12 @@ export function ReviewSession({
                the screen and the card comes back later in this session. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(1)} disabled={busy}>
               Got it, next
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                Enter
-              </kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           ) : !revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
               Show answer
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                Space
-              </kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           ) : (
             <div className="grid grid-cols-2 gap-2.5">
@@ -1282,7 +1280,7 @@ export function ReviewSession({
                 >
                   <span className="text-base font-bold">{g.label}</span>
                   <span className="tnum text-2xs">{intervals?.[g.rating]}</span>
-                  <kbd className="text-2xs">{g.key}</kbd>
+                  <KeyCap>{g.key}</KeyCap>
                 </button>
               ))}
             </div>
@@ -1297,10 +1295,10 @@ export function ReviewSession({
           type="button"
           onClick={() => void undo()}
           disabled={history.length === 0 || busy}
-          className="flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
+          className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >
-          <Undo2 size={12} aria-hidden /> Undo <kbd>u</kbd>
+          <Undo2 size={12} aria-hidden /> Undo <KeyCap>U</KeyCap>
         </button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />
@@ -1310,13 +1308,13 @@ export function ReviewSession({
               Space to flip and 1-4 to grade, where nothing flips and 1-4 picks
               an option instead. */}
           {ask === "intro"
-            ? "Space for the next one"
+            ? `${ADVANCE_KEY_LABEL} for the next one`
             : ask === "type"
-              ? (verdict ? (needsRetype ? "Type it again, then Enter" : "Enter to carry on") : "Enter to check")
+              ? (verdict ? (needsRetype ? `Type it again, then ${ADVANCE_KEY_LABEL}` : `${ADVANCE_KEY_LABEL} to carry on`) : `${ADVANCE_KEY_LABEL} to check`)
               : ask === "choice"
-                ? (chosen ? "Enter to carry on" : `1 to ${card?.choices?.length ?? 4} to pick`)
+                ? (chosen ? `${ADVANCE_KEY_LABEL} to carry on` : `1 to ${card?.choices?.length ?? 4} to pick`)
                 : !revealed
-                  ? "Space to flip"
+                  ? `${ADVANCE_KEY_LABEL} to flip`
                   : "1 not yet · 2 got it"}
         </span>
       </div>
