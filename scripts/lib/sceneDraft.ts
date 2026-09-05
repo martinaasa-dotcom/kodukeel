@@ -28,7 +28,7 @@ import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
 import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
-import { FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS } from "../../lib/tutor/provider";
+import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS } from "../../lib/tutor/provider";
 import { buildLexicon, caseKeyFor, formsOf, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS } from "../../lib/scenes/retrieval";
@@ -272,20 +272,31 @@ export interface Link { label: string; model: string; url: string; key: string }
  */
 export function chain(): Link[] {
   const links: Link[] = [];
-  const or = process.env.OPENROUTER_API_KEY;
-  if (or) {
-    const pinned = (process.env.OPENROUTER_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_OPENROUTER_MODELS) {
-      links.push({ label: "OpenRouter", model, url: "https://openrouter.ai/api/v1/chat/completions", key: or });
-    }
-  }
-  const groq = process.env.GROQ_API_KEY;
-  if (groq) {
-    const pinned = (process.env.GROQ_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_GROQ_MODELS) {
-      links.push({ label: "Groq", model, url: "https://api.groq.com/openai/v1/chat/completions", key: groq });
-    }
-  }
+  const add = (
+    label: string, keyEnv: string, modelEnv: string, url: string, fallback: readonly string[],
+  ) => {
+    const key = process.env[keyEnv];
+    if (!key) return;
+    const pinned = (process.env[modelEnv] ?? "").split(",").map((m) => m.trim()).filter(Boolean);
+    for (const model of pinned.length ? pinned : fallback) links.push({ label, model, url, key });
+  };
+  add("OpenRouter", "OPENROUTER_API_KEY", "OPENROUTER_MODEL",
+    "https://openrouter.ai/api/v1/chat/completions", FREE_OPENROUTER_MODELS);
+  add("Groq", "GROQ_API_KEY", "GROQ_MODEL",
+    "https://api.groq.com/openai/v1/chat/completions", FREE_GROQ_MODELS);
+  /*
+    Gemini was missing here for the whole life of this file, which is the fault
+    the header two hundred lines up warns about in its own words: a list that
+    lives in a script measures the script. `resolveProviders` has put every free
+    Gemini model on the chain since the day the provider was added, and this
+    built OpenRouter and Groq and stopped, so `eval:scene` measured a rejection
+    rate over two thirds of the chain and `draft:lines` drafted the whole bank
+    without ever asking a provider the app itself would have asked first.
+    Neither said so, because a chain that is shorter than it should be still
+    composes lines.
+  */
+  add("Google Gemini", "GEMINI_API_KEY", "GEMINI_MODEL",
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", FREE_GEMINI_MODELS);
   return links;
 }
 
