@@ -12803,6 +12803,35 @@ check("the primary button is the last one in its row", () => {
 });
 
 /*
+  A LINE SAYS WHICH RUNG ANSWERED, IN WORDS AND IN THE MARKUP.
+
+  ADR-025's claim is that every line the other side says carries where it came
+  from, and the words under the bubble are how a reader is told. A suite reading
+  the same fact had to walk the markup to pair a line with its label, and
+  `scripts/test-scene.mjs` did it by counting hops. That was true until a line
+  grew the dictionary under it (`GlossedSentence`), which put two more elements
+  between the two: from then on every label the suite read came back empty, the
+  composed and the scripted checks fell into their waivers on every run in every
+  state, and the reason printed was that the bank held no line for a beat this
+  run reached, when the bank had just supplied one. A waiver that fires on every
+  possible run is a hole wearing a waiver's clothes.
+
+  So the rung travels as an attribute on the line's own wrapper, which is a fact
+  about the line rather than a shape in the markup, and the label stays beside
+  it for the reader. Both, or the suite goes blind again in silence.
+*/
+check("every line a scene says carries its rung", () => {
+  const source = code("components/scene/SceneSession.tsx");
+  assert.match(source, /data-rung=\{line\.provenance\}/,
+    "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
+  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+    "and the words under it are what a reader is told, which is ADR-025 itself");
+  const suite = readFileSync("scripts/test-scene.mjs", "utf8");
+  assert.match(suite, /\[data-rung\]/,
+    "test-scene.mjs reads the rung off the attribute rather than by walking the markup");
+});
+
+/*
   ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
 
   It says it in the file itself: only the primary carries the gradient, one loud

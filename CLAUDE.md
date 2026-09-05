@@ -5139,6 +5139,20 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   to be added to the allowlist in `middleware.ts` as well.
 - Every interactive element is keyboard-reachable with a visible focus ring, and under a coarse
   pointer every one of them clears 44px.
+- **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
+  waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
+  answer, that a composed line and a scripted line are each one short sentence saying which rung
+  wrote them, and it found the label by counting hops from the line: one up, then the next
+  paragraph. True when it was written, and untrue from the day a line grew the dictionary under it,
+  since `GlossedSentence` puts two more elements between the two. Every label came back empty, both
+  checks fell through to their waivers on every run in every state, and the scripted one printed a
+  reason that was not the reason: it said the bank held no line for a beat this run reached, when
+  the bank had just supplied the second line of the scene. A waiver lowers the floor by exactly as
+  much as it skips, so nothing complained. The rung travels as `data-rung` on the line's own
+  wrapper now, which is a fact about the line rather than a shape in the markup, the words under
+  the bubble stay for the reader, and a third check says the two agree for every line said. Both
+  halves are asserted, because a hook nobody renders and a suite that stops reading it are the same
+  silence one file apart.
 - **One loud action per round, which is `components/Button.tsx`'s own header.** It says it in the
   file: only the primary carries the gradient, one loud action per screen, everything else quiet.
   Twenty-one of the twenty-five round screens did that and four did not, each the same shape. The

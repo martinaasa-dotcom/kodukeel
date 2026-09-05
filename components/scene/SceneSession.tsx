@@ -668,7 +668,27 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             <div key={index} className="flex flex-col items-start gap-1.5">
               {turn.lines.map((line, at) => (
                 spoken(line) ? (
-                  <div key={at} className="max-w-full">
+                  /*
+                    THE RUNG IS ON THE LINE, NOT ONLY IN THE SENTENCE UNDER IT.
+
+                    ADR-025's claim is that every line says which rung answered,
+                    and the words under the bubble are how a reader is told. A
+                    suite reading the same fact had to walk the markup to pair a
+                    line with its label, and `scripts/test-scene.mjs` did that by
+                    counting hops: one up from the `p[lang=et]` and along to the
+                    next paragraph. That was true until a line grew the
+                    dictionary under it (`GlossedSentence`), which put two more
+                    elements between the two, and from then on every label the
+                    suite read came back empty. Both checks keyed on it stopped
+                    running and waived themselves with a reason that was not the
+                    reason: it said the bank held no line for this run, and the
+                    bank had just supplied the second one.
+
+                    So the rung is an attribute on the line's own wrapper, which
+                    is a fact about the line rather than a shape in the markup,
+                    and an invariant keeps it there.
+                  */
+                  <div key={at} data-rung={line.provenance} className="max-w-full">
                     <Card className="inline-block max-w-full">
                       {/*
                         Spoken in the persona's voice (§6), in the room this

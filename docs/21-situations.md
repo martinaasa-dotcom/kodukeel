@@ -2555,3 +2555,26 @@ The other two were outside Situations and are the same fault: the unit lesson of
 lines above it, and the crossword marked its own "Check" `secondary` beside a ghost that hands over
 the answer. The invariant asks only that a round has a primary at all, since where it sits in its
 row is a rule that already existed, and it was made to fail on each.
+
+## 46. The check that had never once run
+
+`scripts/test-scene.mjs` ends with two questions only a browser can answer: a composed line is one
+short sentence, and a scripted line is one short sentence that says it was scripted. Both waived
+themselves on every run, in every state, and the scripted one printed a reason that was not true:
+*"the bank holds no row for a beat this run reached"*. The bank had just supplied the second line of
+the scene.
+
+The suite paired a line with its label by walking the markup, one hop up from the `p[lang=et]` and
+along to the next paragraph. That was right when it was written and stopped being right when a line
+grew the dictionary under it: `GlossedSentence` puts two more elements between the two, so every
+label came back as an empty string and no line matched any rung. Both checks fell through to their
+waivers and the floor stayed satisfied, because a waiver lowers the floor by exactly as much as it
+skips. This is the shape §42 of the status doc calls a hole wearing a waiver's clothes, and it is
+the second one found in this repository the same way.
+
+The rung is an attribute on the line's own wrapper now, `data-rung`, which is a fact about the line
+rather than a shape in the markup, and the words under the bubble stay beside it for the reader. The
+suite reads the attribute, and a third check says the two agree for every line said: a line labelled
+"from the course" that a model wrote would be the app vouching for its own Estonian, which is the
+whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
+the one the bank was built for.
