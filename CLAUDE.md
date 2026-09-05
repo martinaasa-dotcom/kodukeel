@@ -4740,6 +4740,47 @@ said, in the kitchen their card had put them in: asked where they were, they ans
 were refused, and reported the scene as broken. `BeatSpec.meanwhile` is one line of English printed
 as a break in the conversation before the beat's line, once, on the turn that arrives at it.
 
+**A second word for the same thing is the same thing, and the list a beat names can never hold
+them all.** A beat may name only words its scene's units teach (a lemma is a request against the
+course), so a learner who knew a second word was refused for knowing it. `lib/dict/synonyms.ts`
+derives the relation instead: two entries stand in for each other where the dictionary gives them
+the same sense and the same part of speech, off the English gloss, which is the one authored column
+in the pipeline and the way anybody names a word to somebody who does not have it. 2,920 pairs over
+the shipped dictionary, reaching 508 of the course's 1,448 words: `pood` takes `kauplus`, `arst`
+takes `doktor` and `tohter`, `tuba` takes `ruum`. Nothing is generated and the file holds no
+Estonian at all.
+
+**A qualifier is a distinction somebody drew on purpose and may not be thrown away.** The course
+writes "bread (dark)" against "bread (white)" and "character (a person's)" against "character (in a
+story)" precisely because one English word covers two Estonian ones, so grouping on the bare sense
+would hand a scene back the pair its author had separated. Two qualifiers that differ are not
+substitutes; one qualifier and none is a note on one word rather than a line drawn between two.
+
+**It over-accepts, on purpose, and that trade is not symmetric.** English is polysemous and the
+gloss is English, so a pair can be joined over a word that means two things in one language and
+neither in the other. The tightener was tried and reverted: requiring the two to share one of
+Ekilex's semantic types drops 492 of 1,099 groups and takes "help", "husband", "believe" and "bad"
+with it. What decides it is the cost of each error. A wrong pair credits a turn that used a word
+meaning something else; a missing pair tells somebody their correct Estonian is wrong, which is the
+one thing this module exists not to do. So it is read **to accept and never to answer**: nothing
+under `lib/srs`, `lib/exam`, `lib/assessment`, `lib/scan`, `lib/games`, nor the gate, retrieval or
+the line ladder may reach it, asserted, exactly as `prisma/data/forms/` is. The scene's own list
+stays what the other side may say. And **a substitution is never graded as the word the beat
+named**: `Evidence.substituted` carries which requirements it met, and `gradesFor` skips them,
+because a row for the beat's word would tell the scheduler the learner recalled one they never
+wrote.
+
+**And a greeting cannot be failed at all.** A scene names the greetings its units teach, which is
+two, and Estonian has many more: a learner answered `Tere!` with `Tervitused!`, which is a greeting
+the dictionary holds and no unit teaches, and the app told them they had not been understood. There
+is no mechanical repair inside the list, since `tere` is glossed "hello" and `tervitus` "greeting,
+salutation" and the two share not one word. So the beat is met by whatever they say back: the other
+side has just said hello, anybody who answers has greeted them, and the word is on the screen one
+line above. Nothing is graded for it, because they may not have said it, which is what
+`TurnRecord.produced` is for. Only `greet`: a farewell is read against every turn of a scene,
+because somebody who says goodbye in the middle has left, so a `close` beat that took anything
+would end every conversation on its first turn.
+
 **And a beat's goal names the answer wherever there is exactly one.** A goal is the objective on
 the screen, and where a beat accepts one word a goal that does not name it is a trap rather than an
 instruction: "Say where you are now" took only "at the shop". `catalogue.test.ts` reads the
@@ -5924,7 +5965,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,

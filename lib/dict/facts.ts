@@ -1,4 +1,5 @@
 import { singleFlight } from "@/lib/cache/singleFlight";
+import { substitutesFrom } from "./synonyms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { prisma } from "@/lib/db";
 import { unitIntroducing } from "@/lib/collections/syllabus";
@@ -204,6 +205,35 @@ export async function dictionaryLemmas(): Promise<Set<string>> {
  * bounded and meaningful, and the memory is a fifth. A word outside it is
  * rare enough that "I did not catch that" is the honest answer.
  */
+/**
+ * WHICH WORDS STAND IN FOR WHICH, OVER THE WHOLE SHARED DICTIONARY.
+ *
+ * `lib/dict/synonyms.ts` is the rule and this is where it is read, because a
+ * synonym relation is a fact about the dictionary and about nobody in
+ * particular: one read a minute per instance, shared by every learner in every
+ * scene. It reads the gloss and the part of speech and nothing else, which is
+ * two columns of a query the scene path already makes.
+ *
+ * ACCEPT ONLY. What this answers is "would somebody have meant the same
+ * thing", which is the right question when reading a learner's turn and the
+ * wrong one everywhere else: it may not decide what the other side says, may
+ * not mark a paper and may not build a card. Asserted, the way the forms list
+ * is.
+ */
+export async function substitutes(): Promise<ReadonlyMap<string, readonly string[]>> {
+  return remember("substitutes", FACTS_TTL_MS, async () => {
+    const rows = await prisma.lexeme.findMany({
+      select: { lemma: true, pos: true, translation: true },
+      orderBy: { id: "asc" },
+    });
+    return substitutesFrom(
+      rows
+        .filter((row) => row.translation)
+        .map((row) => ({ lemma: row.lemma, pos: row.pos, gloss: row.translation })),
+    );
+  });
+}
+
 export async function courseForms(): Promise<ReadonlySet<string>> {
   return remember("courseForms", FACTS_TTL_MS, async () => {
     const lemmas = [...new Set(SYLLABUS.flatMap((unit) => unit.lemmas))];

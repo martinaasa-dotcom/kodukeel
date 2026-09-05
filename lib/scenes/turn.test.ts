@@ -141,6 +141,84 @@ describe("reading a turn", () => {
     expect(readTurn("Ma lähen tuba", asks, context()).slips).toHaveLength(1);
   });
 
+  /*
+    A GREETING CANNOT BE FAILED. A scene may name only greetings its own units
+    teach, which is two of them, and Estonian has many more: a learner
+    answered `Tere!` with `Tervitused!`, which is a greeting the dictionary
+    holds and no unit teaches, and the app refused it. Nothing a refusal there
+    could teach is worth that, since the word is on the screen one line above.
+  */
+  it("takes anything said back to a greeting", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    for (const said of ["tervitused", "tere", "hei", "good morning"]) {
+      expect(readTurn(said, hello, context()).reading, said).toBe("complete");
+    }
+  });
+
+  it("grades nobody for it, since they may not have said the word", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    /*
+      Met, and nothing produced, so `gradesFor` writes no row claiming the
+      learner recalled a word they never wrote.
+    */
+    expect(readTurn("tervitused", hello, context()).satisfiedBy).toEqual([]);
+  });
+
+  it("still ends a scene only on a real farewell, since a goodbye is read on every turn", () => {
+    /*
+      `replay` reads the close beat against every turn, because somebody who
+      says goodbye in the middle has left. A `close` beat that took anything
+      would end every conversation on its first turn.
+    */
+    const bye = beat({ move: "close", needs: [{ kind: "lemma", oneOf: ["aitäh"] }] });
+    expect(readTurn("tervitused", bye, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    A SECOND WORD FOR THE SAME THING IS THE SAME THING. A beat may name only
+    words its scene's units teach, so its list can never hold every way
+    Estonian says something; the relation is derived from the dictionary's own
+    glosses and read here to accept, never to mark.
+  */
+  describe("a word that stands in for the one the beat named", () => {
+    const stand = {
+      forLemma: new Map([["tuba", ["ruum"]]]),
+      lexicon: buildLexicon([{
+        lemma: "ruum", pos: "NOUN", cefr: "A2", usages: [],
+        parts: { NOM_SG: "ruum", GEN_SG: "ruumi", PART_SG: "ruumi" },
+      }]),
+    };
+
+    it("meets a lemma requirement", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("ruum", asks, { ...context(), substitutes: stand }).reading).toBe("complete");
+    });
+
+    it("meets a case requirement in that case", () => {
+      const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] });
+      const seen = readTurn("ruumis", asks, { ...context(), substitutes: stand });
+      expect(seen.reading).toBe("complete");
+    });
+
+    it("is written down as a substitution, so no grade claims the beat's own word", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("ruum", asks, { ...context(), substitutes: stand });
+      expect(seen.substituted).toEqual([0]);
+    });
+
+    it("never answers before the beat's own word does", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("tuba", asks, { ...context(), substitutes: stand });
+      expect(seen.substituted).toEqual([]);
+      expect(seen.matched).toEqual(["tuba"]);
+    });
+
+    it("does nothing where the caller resolved none, which is what it did before", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("ruum", asks, context()).reading).not.toBe("complete");
+    });
+  });
+
   it("takes a question mark as a question, because Homme? is one", () => {
     const asks = beat({ needs: [{ kind: "question" }] });
     expect(readTurn("Kus?", asks, context()).reading).toBe("complete");

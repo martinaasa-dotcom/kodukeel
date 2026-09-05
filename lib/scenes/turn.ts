@@ -143,6 +143,18 @@ export interface Evidence {
    */
   readonly slips: readonly Slip[];
   /**
+   * The indices of the requirements met by a word standing in for the one the
+   * beat named (`TurnContext.substitutes`).
+   *
+   * The beat is met, because the learner said something that means the same
+   * thing, and **no grade is written for it**: they produced their own word
+   * and not the one the beat asked for, so a row claiming they recalled the
+   * beat's word would be a false claim in the append-only log. `gradesFor`
+   * reads this, and the debrief has the pair to say which word they reached
+   * for and which one this scene uses.
+   */
+  readonly substituted: readonly number[];
+  /**
    * A question the learner asked: the question word they used, or `?` where
    * there was only the mark. Null where the turn asked nothing. What
    * `asideFor` reads to give the other side something to say about it
@@ -192,6 +204,28 @@ export interface TurnContext {
    * scene's own list answers, which is what it did before.
    */
   readonly known?: (word: string) => boolean;
+  /**
+   * WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING.
+   *
+   * A beat names the words that meet it and may name only words the scene's
+   * own units teach, so a learner who knows a second word for the same thing
+   * was refused for knowing it. `lib/dict/synonyms.ts` derives the relation
+   * from the dictionary's own glosses, and this is it resolved: the beat's
+   * lemma to the words that stand in for it, and a lexicon holding their forms
+   * and their cases so a substitute can be met in the case the beat asked for.
+   *
+   * ACCEPT ONLY, and separate from `lexicon` for exactly that reason. The
+   * scene's own list stays what the other side may say and what a model may
+   * compose inside (the design's §6); this is only ever read to decide whether
+   * a turn landed. Absent on a caller that has not resolved it, and then a
+   * beat takes its own words and nothing else, which is what it did before.
+   */
+  readonly substitutes?: {
+    /** Beat lemma to the lemmas that may stand in for it. */
+    readonly forLemma: ReadonlyMap<string, readonly string[]>;
+    /** Their forms and cases, built the same way the scene's own are. */
+    readonly lexicon: Lexicon;
+  };
   /**
    * Whether a word is a finite verb the scene knows, for the shape rule.
    * `Pea valutab.` is two words and a sentence, and `looksLikeSentence` alone
@@ -307,6 +341,12 @@ export function readTurn(
     back", and `addsEvidence` needs the first.
   */
   const satisfiedBy = found.flatMap((hit) => (hit && hit !== YES ? [hit.word] : []));
+  /*
+    Which requirements were met by a word standing in for the one the beat
+    named. The beat is met; the grade is not written, because the learner
+    produced their own word rather than the scene's.
+  */
+  const substituted = found.flatMap((hit, i) => (hit && hit !== YES && hit.stoodIn ? [i] : []));
   const slips = found.flatMap((hit) => (hit && hit !== YES && hit.slip ? [hit.slip] : []));
   /*
     A question the beat did not ask for. A person caught off guard by one
@@ -317,7 +357,7 @@ export function readTurn(
   const questionWord = spoken.find((word) => context.questionWords.has(word)) ?? null;
   const asked = questionWord ?? (text.includes("?") ? "?" : null);
   const shape = (reading: TurnReading): Evidence =>
-    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked });
+    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted });
 
   /*
     No letters at all is nothing anybody could read, unless the beat wanted a
@@ -335,6 +375,42 @@ export function readTurn(
     */
     return shape(/\d/.test(text) ? "offtarget" : "unrecognised");
   }
+  /*
+    A GREETING CANNOT BE FAILED, AND A CLOSED LIST OF TWO WAS NEVER GOING TO
+    HOLD ALL OF THEM.
+
+    A scene's greet beat names the greetings its units teach, which is `Tere!`
+    and `Tere hommikust!`, and a scene may name nothing else (ADR-005: a lemma
+    is a request against the course). Estonian has many more. A learner
+    answered `Tere!` with `Tervitused!`, which is a greeting, which the
+    dictionary holds, and which no unit teaches, and the app refused it. There
+    is no mechanical repair for that inside the list: `tere` is glossed
+    "hello" and `tervitus` "greeting, salutation", the two share not one word,
+    and Ekilex's own definitions connect them only through prose. Widening the
+    list by hand would refuse the next person instead.
+
+    So the beat is met by anything they say back. The other side has just said
+    hello; a person who answers at all has greeted them, and there is nothing
+    left for a refusal to teach, because the word is on the screen one line
+    above and `offerFor` hands it over. That covers every scene there is and
+    every one nobody has written, which a longer list would not.
+
+    NOTHING IS GRADED FOR IT. `satisfiedBy` stays empty, so no row goes into
+    the review log claiming the learner produced `Tere!` when what they
+    produced was something else (`gradesFor`). The beat is met, the objective
+    ticks, and the append-only log says only what actually happened.
+
+    Only `greet`. A farewell is read against every turn of the scene, because
+    somebody who says goodbye in the middle has left (`replay`), so a `close`
+    beat that took anything would end every conversation on its first turn.
+  */
+  if (beat.move === "greet" && missing.length > 0) {
+    return {
+      reading: "complete", met: beat.needs.map(() => true), missing: [],
+      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [],
+    };
+  }
+
   if (isEnglish(spoken, marked)) return shape("english");
   /*
     Not on a beat whose answer *is* the other side's line. `Tere!` is answered
@@ -355,8 +431,8 @@ export function readTurn(
   */
   if (beat.counter && spoken.some((word) => context.negators.has(word))) {
     return {
-      reading: "declined", met: beat.needs.map(() => false),
-      missing: beat.needs.map((_, i) => i), words: marked, matched: [], satisfiedBy: [], slips: [], asked: null,
+      reading: "declined", met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
+      words: marked, matched: [], satisfiedBy: [], slips: [], asked: null, substituted: [],
     };
   }
   /*
@@ -422,6 +498,8 @@ const YES = "\u0001";
 interface Hit {
   readonly word: string;
   readonly slip?: Slip;
+  /** Met by a word standing in for the one the beat named, not by that word. */
+  readonly stoodIn?: true;
 }
 
 /**
@@ -537,6 +615,16 @@ function satisfies(
         const built = inflected(context.lexicon.byLemma.get(lemma));
         if (built) return { word: built.form, slip: { kind: "form", said: built.said, form: built.form, lemma } };
       }
+      /*
+        AND THEN THE WORDS THAT MEAN THE SAME THING. Last, so a beat's own word
+        always answers first and nothing here can change which word is repeated
+        back when the learner used the right one. `stoodIn` travels with it, so
+        the beat is met and no grade claims they produced the word it named.
+      */
+      for (const lemma of need.oneOf) {
+        const said = substituteFor(lemma, context, spoken);
+        if (said) return { word: said, stoodIn: true };
+      }
       return null;
     }
     case "case": {
@@ -584,6 +672,16 @@ function satisfies(
       */
       const other = folded(forms)?.said ?? inflected(forms)?.said ?? nearly(forms)?.said ?? null;
       if (other) return cased(other);
+      /*
+        A word that stands in for this one, in the case the beat asked for.
+        Read out of the substitutes' own table rather than derived, so a
+        learner who says a second word for the same thing and inflects it
+        correctly is understood; where they say it in another form the beat is
+        met all the same and nothing is recast, because the form the other side
+        would say back is a word this scene does not use.
+      */
+      const stood = substituteFor(need.lemma, context, spoken, need.grammCase);
+      if (stood) return { word: stood, stoodIn: true };
       return null;
     }
     /*
@@ -662,6 +760,42 @@ function satisfies(
       return null;
     }
   }
+}
+
+/**
+ * A word the learner said that stands in for the one the beat named.
+ *
+ * The case, where one was asked for, and any form of it otherwise. The
+ * substitutes' own table decides both, so nothing is derived here and a
+ * substitute the dictionary holds no form for simply does not answer.
+ */
+function substituteFor(
+  lemma: string,
+  context: TurnContext,
+  spoken: readonly string[],
+  grammCase?: CaseKey,
+): string | null {
+  const stand = context.substitutes;
+  if (!stand) return null;
+  for (const other of stand.forLemma.get(lemma) ?? []) {
+    const forms = grammCase
+      ? stand.lexicon.byCase.get(caseKeyFor(other, grammCase))
+      : stand.lexicon.byLemma.get(other);
+    const hit = forms ? spoken.find((word) => forms.has(word)) : undefined;
+    if (hit) return hit;
+    /*
+      And the word in another form where a case was asked for, because saying
+      the right word with the wrong ending is understood here exactly as it is
+      when the beat's own word is used. Not recast: the form the other side
+      would say back is a word this scene does not use.
+    */
+    if (grammCase) {
+      const any = stand.lexicon.byLemma.get(other);
+      const loose = any ? spoken.find((word) => any.has(word)) : undefined;
+      if (loose) return loose;
+    }
+  }
+  return null;
 }
 
 /**

@@ -31,7 +31,7 @@ import type { TurnContext } from "@/lib/scenes/turn";
 import { timeWords, type RoleCard } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
-import { courseForms } from "@/lib/dict/facts";
+import { courseForms, substitutes } from "@/lib/dict/facts";
 import { isKnownForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
@@ -103,7 +103,7 @@ export type Row = DictEntry & { readonly id: string; readonly government: string
 export async function sceneContext(sceneId: string): Promise<SceneContext | null> {
   const scene = sceneById(sceneId);
   if (!scene) return null;
-  const [rows, known] = await Promise.all([
+  const [rows, known, stand] = await Promise.all([
     readEntries([...sceneLemmas(scene)]),
     /*
       What the *course* can account for, for deciding whether the learner was
@@ -113,9 +113,42 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
       say, which is the whole of §6.
     */
     courseForms(),
+    /*
+      AND WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING. A
+      beat may name only words the scene's units teach, so the list of what
+      meets it can never hold every way Estonian says the thing, and a learner
+      who knows a second word was refused for knowing it. The relation is
+      derived from the dictionary's own glosses (`lib/dict/synonyms.ts`) and
+      cached beside the other facts about the shared dictionary.
+    */
+    substitutes(),
   ]);
   const context = contextFromRows(scene, rows);
-  return { ...context, marker: { ...context.marker, known: (word: string) => known.has(word) } };
+  /*
+    ACCEPT ONLY, AND A LEXICON OF ITS OWN. The scene's own list stays what the
+    other side may say and what a model may compose inside, which is the whole
+    of the design's §6; these forms are read when a turn is marked and nowhere
+    else. Resolved here because it needs a query, and bounded by the scene's
+    own lemmas rather than by the dictionary.
+  */
+  const wanted = new Map<string, readonly string[]>();
+  for (const lemma of sceneLemmas(scene)) {
+    const also = stand.get(lemma);
+    if (also && also.length > 0) wanted.set(lemma, also);
+  }
+  const standRows = wanted.size > 0
+    ? await readEntries([...new Set([...wanted.values()].flat())])
+    : [];
+  return {
+    ...context,
+    marker: {
+      ...context.marker,
+      known: (word: string) => known.has(word),
+      ...(standRows.length > 0
+        ? { substitutes: { forLemma: wanted, lexicon: buildLexicon(standRows) } }
+        : {}),
+    },
+  };
 }
 
 /**

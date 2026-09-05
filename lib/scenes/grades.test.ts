@@ -31,17 +31,33 @@ const SCENE: SceneSpec = {
   ],
 };
 
-function evidence(reading: TurnReading, met: readonly boolean[], slips: Evidence["slips"] = []): Evidence {
-  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy: [], slips, asked: null };
+/*
+  `satisfiedBy` follows `met`, because it is what a real turn does: a
+  requirement met by a word puts that word here, and a grade is written for a
+  word the learner produced rather than for a beat the scene let through. The
+  fixture used to leave it empty on every turn, which was harmless while
+  nothing read it and wrong the moment something did.
+*/
+function evidence(
+  reading: TurnReading,
+  met: readonly boolean[],
+  slips: Evidence["slips"] = [],
+  satisfiedBy: readonly string[] = met.some(Boolean) ? ["x"] : [],
+): Evidence {
+  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy, slips, asked: null, substituted: [] };
 }
 
 /** Plays the turns given, in order, and hands back where it got to. */
 function play(
-  turns: { reading: TurnReading; met: boolean[]; helped?: boolean; slips?: Evidence["slips"] }[],
+  turns: {
+    reading: TurnReading; met: boolean[]; helped?: boolean;
+    slips?: Evidence["slips"]; satisfiedBy?: readonly string[];
+  }[],
 ): SceneState {
   let state = startScene(SCENE);
   for (const turn of turns) {
-    ({ state } = advance(SCENE, state, evidence(turn.reading, turn.met, turn.slips), "x", turn.helped));
+    const seen = evidence(turn.reading, turn.met, turn.slips, turn.satisfiedBy);
+    ({ state } = advance(SCENE, state, seen, "x", turn.helped));
   }
   return state;
 }
@@ -145,6 +161,16 @@ describe("what a conversation writes into the review log", () => {
     // `close` asks for a question mark, which is a thing they did and not a
     // word they hold a card for.
     expect(gradesFor(SCENE, state).map((g) => g.beatId)).toEqual(["reason", "where"]);
+  });
+
+  /*
+    A greeting is met by whatever the learner says back (`readTurn`), so
+    grading on `met` alone would put "they recalled Tere!" into the
+    append-only log about a turn that said something else entirely.
+  */
+  it("writes nothing for a beat that was met without the learner producing a word", () => {
+    const state = play([{ reading: "complete", met: [true], satisfiedBy: [] }]);
+    expect(gradesFor(SCENE, state)).toEqual([]);
   });
 
   it("writes nothing at all for an abandoned run", () => {

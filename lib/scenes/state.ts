@@ -52,6 +52,26 @@ export interface TurnRecord {
   /** The words that met them, for the other side to repeat back. Absent on a row written before it was kept. */
   readonly matched?: readonly string[];
   /**
+   * Every word that met a requirement, unfiltered (`Evidence.satisfiedBy`),
+   * so the grades can tell a beat the learner answered from one the scene let
+   * through without them producing anything.
+   *
+   * Always written, and **empty is the point**: a greeting is met by whatever
+   * the learner says back, so an empty list here says the beat was met and no
+   * word was produced, and `gradesFor` writes no row for it. Spreading it in
+   * only when non-empty, the way `matched` is, would make "nothing produced"
+   * indistinguishable from "written before this existed", and the review log
+   * would go on claiming somebody recalled `Tere!` when they had said
+   * something else entirely. Absent only on a row written before the field.
+   */
+  readonly produced?: readonly string[];
+  /**
+   * Which of the beat's requirements were met by a word standing in for the
+   * one it named (`Evidence.substituted`). The beat is met and the grades skip
+   * it, because the learner produced their own word rather than the scene's.
+   */
+  readonly substituted?: readonly number[];
+  /**
    * What was understood despite itself: a dropped diacritic, the right word
    * in the wrong case, an infinitive where a person was due. Absent where the
    * turn was right, and on a row written before slips were read. The grades
@@ -168,6 +188,8 @@ export function advance(
     helped,
     ...(heard ? { heard } : {}),
     ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
+    produced: evidence.satisfiedBy,
+    substituted: evidence.substituted,
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),
   }];
@@ -395,6 +417,8 @@ export function advanceHurdle(
     reading: evidence.reading,
     met: evidence.met,
     helped: false,
+    produced: evidence.satisfiedBy,
+    substituted: evidence.substituted,
     ...(heard ? { heard } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),

@@ -92,6 +92,26 @@ export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
     const slipped = turns.some((turn) => (turn.slips?.length ?? 0) > 0);
     const rating = helped ? 1 : attempts <= 1 && !slipped ? 3 : 2;
 
+    /*
+      A ROW IS WRITTEN FOR A WORD THE LEARNER PRODUCED, AND NOT FOR A BEAT THE
+      SCENE LET THROUGH. A greeting is met by whatever they say back
+      (`readTurn`), so grading on `met` alone would put "they recalled Tere!"
+      into the append-only log about a turn that said something else. Absent
+      is read as produced, since a transcript written before the column has
+      nothing to say either way and the old reading is the safe one there.
+    */
+    const answered = (index: number) => turns.some(
+      (turn) => turn.met[index]
+        && (turn.produced === undefined || turn.produced.length > 0)
+        /*
+          And not where a word standing in for the beat's own met it. The
+          learner said a second word for the same thing and was understood;
+          writing a row for the word the beat named would tell the scheduler
+          they had produced a word they never wrote.
+        */
+        && !(turn.substituted ?? []).includes(index),
+    );
+
     for (const { need, index } of leafNeeds(beat.needs)) {
       /*
         Only where the beat named a word. `question`, `negation`, `register`,
@@ -107,11 +127,11 @@ export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
         // say which was taken, so a row per candidate would credit words
         // nobody used. The first is the beat's own head word.
         const lemma = need.oneOf[0];
-        if (lemma && turns.some((turn) => turn.met[index])) {
+        if (lemma && answered(index)) {
           out.push({ lemma, grammCase: null, reachedCase: null, rating, beatId: beat.id });
         }
       }
-      if (need.kind === "case" && turns.some((turn) => turn.met[index])) {
+      if (need.kind === "case" && answered(index)) {
         out.push({
           lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id,
           reachedCase: reachedCase === need.grammCase ? null : reachedCase,

@@ -11830,6 +11830,54 @@ check("a learner who says they are lost is handed the word, never the question a
     "the marker corrects a case wherever the word turns up, so a correct sentence is answered with a correction",
   );
   /*
+    A SECOND WORD FOR THE SAME THING IS THE SAME THING, AND IT IS ONLY EVER
+    READ TO ACCEPT.
+
+    A beat may name only words its scene's units teach, so its list can never
+    hold every way Estonian says something and a learner who knew a second word
+    was refused for knowing it. `lib/dict/synonyms.ts` derives the relation from
+    the dictionary's own glosses. What keeps that inside ADR-005 is which side
+    of the app reads it, exactly as with the forms list: on the accept side a
+    wrong pair credits a turn, and on the answer side the same pair would put a
+    word the scene never taught into a card, a paper, or the other side's mouth.
+  */
+  const synonyms = "lib/dict/synonyms.ts";
+  assert.ok(existsSync(synonyms), "the substitution relation has gone");
+  assert.doesNotMatch(code(synonyms), /[õäöüšž]/i, "the substitution relation has started writing Estonian");
+  assert.doesNotMatch(
+    code(synonyms), /@\/lib\/db|@prisma\/client|\bprisma\./,
+    "the substitution relation has become a database read rather than a rule over glosses",
+  );
+  {
+    const readers = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
+      .flatMap((dir) => sourceFiles(dir))
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .filter((file) => /substitutesFrom|\bsubstitutes\(|context\.substitutes/.test(code(file)));
+    assert.deepEqual(readers, [], "a module on the answer side reads the substitution relation");
+  }
+  /*
+    And a substitution is never graded as the word the beat named. The learner
+    produced their own word; a row for the beat's would tell the scheduler they
+    had recalled one they never wrote, in the table that is never repaired.
+  */
+  assert.match(
+    code("lib/scenes/grades.ts"), /turn\.substituted \?\? \[\]\)\.includes\(index\)/,
+    "a word standing in for the beat's own is graded as the beat's own",
+  );
+  /*
+    AND A GREETING CANNOT BE FAILED. A scene names the greetings its units
+    teach, which is two of them, and Estonian has many more: a learner
+    answered `Tere!` with `Tervitused!` and was told they had not been
+    understood. Nothing a refusal there could teach is worth that, and nothing
+    is graded for it either, since they may not have said the word.
+  */
+  assert.match(
+    turn, /beat\.move === "greet" && missing\.length > 0/,
+    "a greeting can be failed again, so a learner who says hello in a word the course does not "
+    + "teach is refused for knowing it",
+  );
+
+  /*
     NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
 
     Two halves, and neither is the other. The character says the word on the
