@@ -2512,3 +2512,21 @@ off 114px above the top of the window, on the one card the whole conversation is
 the scene's own title gone. Nothing at a desktop width can see it, because there the briefing fits
 and the scroll is nought either way, so the check is in `scripts/test-mobile.mjs` at 360 rather
 than beside the other two.
+
+## 44. What the debrief was actually saying
+
+Read off `npm run play:scenes` rather than off the code: a learner who put a noun in the wrong case
+was told, at the end of the conversation, *"It is the ending for into. into."*
+
+`CASE_NOTES` carries an `englishHook`, and it is written for the label it sits behind on the case's
+own page: **In English** · *of the book, the book's cover*. So it is a lower-case fragment by
+design, and the review pasted it straight after a full stop on all fourteen cases. The illative's
+hook is the word "into", the comitative's is "with, and by bus", so the note repeated the word it
+had just used and then stopped. `lib/assessment/items.ts` had already tried the hook in feedback
+and written down at length why it dropped it, which is the same reason one screen over.
+
+`summary` is the field that is a sentence, and it is the one the note takes now:
+*"It is the ending for into. Going into something: a room, a language, a decade, a mood."* The test
+is over every case rather than over the one that read worst, because the fault was in how the body
+was built and it was true of all of them: every sentence in a note's body opens with a capital, and
+no word is repeated across a full stop in lower case. It fails on the copy that shipped.

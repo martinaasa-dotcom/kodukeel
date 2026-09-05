@@ -177,7 +177,18 @@ function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
             ? `This came out as another form ${rows.length} times.`
             : "This came out as another form.",
           note ? `It is the ending for ${note.plain}.` : "",
-          note?.englishHook ?? note?.watchOut ?? "",
+          /*
+            `summary` rather than `englishHook`, which is what this read before
+            and which is not a sentence. The hook is written for the label it
+            sits behind on the case's own page ("In English: of the book, the
+            book's cover"), so pasted after a full stop it opened a sentence in
+            lower case, on every one of the fourteen: the illative's is the
+            word "into", so a learner who put a noun in the wrong case was told
+            "It is the ending for into. into." `lib/assessment/items.ts` had
+            already tried the hook in feedback and written down why it dropped
+            it, which is the same reason one screen over.
+          */
+          note?.summary ?? "",
         ].filter(Boolean).join(" "),
         evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
         ...hunchFor(key, rows),

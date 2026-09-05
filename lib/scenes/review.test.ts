@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CASES } from "@/lib/estonian/cases";
 import { reviewOf } from "./review";
 import { startScene, type SceneState, type TurnRecord } from "./state";
 import type { Slip } from "./turn";
@@ -154,6 +155,41 @@ describe("the review of a conversation", () => {
     expect(review.notes.length).toBeGreaterThan(3);
     for (const note of review.notes) {
       expect(note.body, note.id).not.toMatch(/[õäöüšž]/i);
+    }
+  });
+
+  /*
+    A NOTE IS SENTENCES, WHICH IS NOT WHAT A LABELLED FRAGMENT IS.
+
+    `CASE_NOTES` carries an `englishHook` written for the label it sits behind
+    on the case's own page, "In English: of the book, the book's cover", so it
+    is a lower-case fragment by design. This body pasted it after a full stop
+    on every one of the fourteen cases, and the illative's hook is the word
+    "into": a learner who put a noun in the wrong case read "It is the ending
+    for into. into." Asserted over every case rather than over the one that
+    reads worst, since the fault was in how the body was built and it was true
+    of all of them.
+  */
+  it("writes a note in sentences, for every case there is", () => {
+    for (const spec of CASES) {
+      const slip: Slip = {
+        kind: "case", said: "pea", form: "peas", lemma: "pea", grammCase: spec.key,
+      };
+      const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes
+        .find((n) => n.id === `case:${spec.key}`);
+      expect(note, spec.key).toBeDefined();
+      for (const sentence of (note?.body ?? "").split(". ")) {
+        const first = sentence.trim()[0] ?? "";
+        expect(first === first.toUpperCase(), `${spec.key}: ${note?.body}`).toBe(true);
+      }
+      /*
+        And it never says the same word twice across a full stop in lower
+        case, which is exactly what "the ending for into. into." was. Case
+        sensitive on purpose: the genitive reads "the ending for of, and
+        whose. Whose something is", and a capital after a full stop is a
+        sentence rather than a fragment pasted onto one.
+      */
+      expect(note?.body, spec.key).not.toMatch(/\b(\w+)\.\s+\1\b/);
     }
   });
 
