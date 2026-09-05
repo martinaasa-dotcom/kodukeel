@@ -4,8 +4,8 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
 import { SceneSession } from "@/components/scene/SceneSession";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Page } from "@/components/ui";
+import { BookOpen } from "lucide-react";
+import { CardLink, Page } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -37,7 +37,20 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
     <Page
       title={scene.title}
       lead={`${scene.place} · about ${minutesFor(scene)} min`}
-      actions={unit ? <Link href={`/learn/${unit.id}`}>{unit.title}</Link> : undefined}
+      /*
+        The unit this scene takes apart, and it has to look like the link it
+        is: this was a bare `Link` with no class on it, so the one thing in
+        the page header that goes anywhere rendered as plain dark text, and a
+        learner reading "Suhtlemine" under the lead had no way to know it was
+        the lesson behind the conversation. Every other page in the app styles
+        its header action; this was the one that did not. `CardLink` is the
+        app's own "go here", and the book says which kind of place.
+      */
+      actions={unit ? (
+        <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
+          {unit.title}
+        </CardLink>
+      ) : undefined}
     >
       <SceneSession scene={scene} />
     </Page>

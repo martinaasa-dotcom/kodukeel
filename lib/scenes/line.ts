@@ -51,6 +51,17 @@ export type Provenance =
   /** The line the learner already heard, said once more, because they did not answer it. */
   | "again"
   /**
+   * The learner's own word, said straight back because it needed nothing
+   * doing to it. `Poodi.` after `poodi`, which is what a person does to show
+   * you were heard.
+   *
+   * Its neighbour `recast` is the same move with the form put right, and for
+   * a while this case wore `again`, whose whole meaning is "the line you were
+   * answering, once more": a learner who said the right word read "Said
+   * again" under their own word coming back at them. Set only by `replyFor`.
+   */
+  | "echo"
+  /**
    * The learner's own word, said back the way the other side would say it.
    * `Poodi.` after `pood`, `Tulen?` after `ma tulema`: the one correction a
    * conversation makes without stopping, and the form is the dictionary's

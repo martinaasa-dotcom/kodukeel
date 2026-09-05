@@ -431,7 +431,10 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       the whole of what a learner needs to hear: you were understood, and
       this is how it is said. Not a verdict, not a colour, not a stop. The
       form is the dictionary's own, off the slip, and the line is labeled as
-      the learner's word put right rather than as said again.
+      the learner's word put right rather than as said again. Where nothing
+      slipped it is `echo`, which is the same move with nothing to correct:
+      `again` means "the line you were answering, once more", so a learner
+      who had said the right word read "Said again" under their own word.
     */
     const flat = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
     /*
@@ -460,7 +463,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
-        provenance: input.english ? "offered" : input.recast ? "recast" : "again", reaction: true,
+        provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
     } else if (!aside && input.acknowledges && response === "answer") {
       const choices = REACTIONS.acknowledge;

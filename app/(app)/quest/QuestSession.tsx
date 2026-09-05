@@ -4,14 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Flame, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, Empty, Page, StatTile } from "@/components/ui";
+import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 
 
@@ -346,17 +346,32 @@ export function QuestSession({
                     {revealed && isAnswer
                       ? <span className="text-xs font-semibold uppercase tracking-wide">Right</span>
                       : (
-                        <kbd className="rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">
-                          {at + 1}
-                        </kbd>
+                        <KeyCap>{at + 1}</KeyCap>
                       )}
                   </button>
                 );
               })}
+              {/* The pick is marked in a tint and in one word inside the
+                  option's own button, neither of which a screen reader
+                  announces on its own. One line, once, in the shape the
+                  review card already uses for its near-miss note. */}
+              {revealed && (
+                <p className="sr-only" role="status">
+                  {picked && acceptedAnswers(card.back, "et")
+                    .some((f) => f.toLocaleLowerCase("et") === picked.toLocaleLowerCase("et"))
+                    ? "Right."
+                    : `Not this time. The answer is ${card.back}.`}
+                </p>
+              )}
             </div>
           ) : revealed ? (
             <>
-              <div className="flex items-center gap-2">
+              {/* The reveal is the answer, and it arrived in silence: nothing
+                  here was in a live region, so pressing "Show answer" put the
+                  word on the screen and said nothing to a screen reader, on
+                  the one round the app features a day. Every other round
+                  announces its own feedback panel. */}
+              <div className="flex items-center gap-2" role="status">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                   {card.back}
                 </p>
@@ -371,7 +386,7 @@ export function QuestSession({
                   onClick={() => void answer(false)}
                   className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
                 >
-                  Missed it <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">1</kbd>
+                  Missed it <KeyCap className="ml-1">1</KeyCap>
                 </button>
                 <button
                   type="button"
@@ -379,13 +394,13 @@ export function QuestSession({
                   onClick={() => void answer(true)}
                   className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
                 >
-                  Had it <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">2</kbd>
+                  Had it <KeyCap className="ml-1">2</KeyCap>
                 </button>
               </div>
             </>
           ) : (
             <Button variant="primary" size="lg" onClick={() => setRevealed(true)}>
-              Show answer <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs font-semibold key-cap">Space</kbd>
+              Show answer <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           )}
         </div>

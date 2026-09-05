@@ -390,6 +390,43 @@ describe("the scene catalog", () => {
   });
 
   /*
+    A CARD MAY NOT PRINT WHAT THE OTHER SIDE IS ABOUT TO SAY.
+
+    `theirs` exists for this and was on the day a landlord offers and on
+    nothing else, while three scenes drew a *time* the other side offers and
+    printed it: the desk's appointment and the second one it offers when the
+    first will not do, both on the card before a word was said, and the hour
+    a shop opens on the card of the scene whose next beat is "say the time
+    back, to check you heard it". Two beats answerable without listening, and
+    a learner who could see the counter-offer coming.
+
+    The rule is read off the beats rather than kept as a list: a slot whose
+    value the other side utters, in a stage direction or in the line itself,
+    is a fact the learner hears rather than one they are handed. The learner's
+    own facts, the symptom and the day it started, are uttered by nobody and
+    stay on the card, which is what makes this a test rather than a ban on
+    printing anything.
+  */
+  it("keeps a fact the other side says off the learner's card", () => {
+    for (const scene of SCENES) {
+      const uttered = new Set<string>();
+      for (const beat of scene.beats) {
+        for (const side of [beat, beat.counter]) {
+          if (!side) continue;
+          for (const part of side.says ?? []) if ("slot" in part) uttered.add(part.slot);
+          for (const found of (side.they ?? "").matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
+        }
+      }
+      for (const prop of scene.props) {
+        expect(
+          "theirs" in prop && Boolean(prop.theirs),
+          `${scene.id}/${prop.slot} is said by the other side, so the card may not print it`,
+        ).toBe(uttered.has(prop.slot));
+      }
+    }
+  });
+
+  /*
     A CURVEBALL WITH NO OUT IS A TRAP (§9), and the out has to be sayable
     *inside this scene*: a requirement naming a word the scene's units do not
     teach is difficulty a learner cannot answer, which is a bug in a costume.

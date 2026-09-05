@@ -289,7 +289,7 @@ function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 text-xs"
+        className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
         style={{ color: "var(--accent-deep)" }}
       >
         <ChevronDown

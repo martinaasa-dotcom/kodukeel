@@ -198,7 +198,7 @@ function Row({ row, onDone }: { row: QueueRow; onDone: (message: string) => void
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            className="label-xs flex items-center gap-1"
+            className="tap-tint label-xs flex items-center gap-1 rounded-md px-1.5 py-0.5"
             style={{ color: "var(--ink-3)" }}
           >
             {open ? <ChevronDown size={13} aria-hidden /> : <ChevronRight size={13} aria-hidden />}
