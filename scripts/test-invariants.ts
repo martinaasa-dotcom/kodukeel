@@ -3595,7 +3595,7 @@ check("nothing a person reads is smaller than the scale allows", () => {
       for (const match of line.matchAll(tiny)) {
         const size = Number(match[1]);
         if (size >= FLOOR) continue;
-        if (/label-xs|uppercase|tracking-|<kbd/.test(line)) continue;
+        if (/label-xs|uppercase|tracking-|<kbd|KeyCap/.test(line)) continue;
         offenders.push(`${file}:${i + 1}: ${size}px`);
       }
     }
@@ -11514,8 +11514,8 @@ check("a scene understands a slip before it marks one, and says so", () => {
     "lib/scenes/grades.ts no longer reads a slip, so a word understood with the wrong ending grades Good",
   );
   assert.match(
-    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "again"/,
-    "replyFor no longer labels a recast as the learner's word put right",
+    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "echo"/,
+    "replyFor no longer labels a recast as the learner's word put right, or an unslipped echo as said again",
   );
   const session = code("components/scene/SceneSession.tsx");
   assert.match(session, /recast:/, "the scene screen has no label for a recast line");
@@ -13008,6 +13008,210 @@ check("every round reads the key that moves forward through isAdvanceKey", () =>
   assert.match(helper, /"Enter"/);
   assert.match(helper, /" "/);
   assert.match(helper, /TEXTAREA/, "Space inside a text box is a letter, and the helper has to know that");
+});
+
+/*
+  ONE KEY IS DRAWN ONE WAY, AND ONE NAME IS PRINTED ON IT.
+
+  The rule above is about which keys work. This is about what the button says
+  they are, which had drifted twice over. The first meeting of a word offered
+  "Got it, ask me later" with a Space cap on it and the card after it offered
+  "Got it, next" with an Enter cap, for one gesture that took both keys the
+  whole time; and the cap itself came in four shapes, one of them a bare
+  `<kbd>`, which no stylesheet here paints, so it did not read as a key at all.
+
+  So `KeyCap` in `components/ui.tsx` is the one drawing, and
+  `ADVANCE_KEY_LABEL` is the one name. Enter rather than Space, because Space
+  is a letter inside a text box and a typed card promising it would be lying.
+  The two reference lists, the settings sheet and the shortcut dialog, are
+  where both keys are written down: they are set on the page rather than on a
+  control, and they are exempt by name.
+
+  What the cap looks like is one rule in the stylesheet rather than a prop,
+  because a caller cannot be asked to know which ground it is standing on:
+  a hairline printing in the ink around it, and the fill only inside the
+  gradient. `scripts/a11y-check.mjs` is what measures that, and it caught the
+  version of this component that painted a fill everywhere.
+*/
+check("a key hint is one component and the advance key has one name", () => {
+  const SHEETS = ["app/(app)/settings/page.tsx", "components/Shortcuts.tsx"];
+  let caps = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (file === "components/ui.tsx") continue;
+    const source = code(file);
+    source.split("\n").forEach((line, i) => {
+      if (/<kbd\b/.test(line)) {
+        assert.fail(`${file}:${i + 1} draws its own <kbd>. Use <KeyCap> from components/ui.tsx.`);
+      }
+      const cap = /<KeyCap[^>]*>\s*(Enter|Space|↵|⏎)\s*</.exec(line);
+      if (cap && !SHEETS.includes(file)) {
+        assert.fail(
+          `${file}:${i + 1} names the advance key itself (${cap[1]}). Read ADVANCE_KEY_LABEL from lib/ux/advanceKey.ts.`,
+        );
+      }
+      if (/<KeyCap\b/.test(line)) caps += 1;
+    });
+  }
+  assert.ok(caps >= 25, `only ${caps} key caps found; the sweep has stopped seeing them`);
+  assert.match(
+    code("lib/ux/advanceKey.ts"),
+    /ADVANCE_KEY_LABEL = "Enter"/,
+    "the name on the button is the key that works everywhere, which is Enter",
+  );
+  assert.match(code("components/ui.tsx"), /export function KeyCap/);
+});
+
+/*
+  AN OPTION IS ONE CONTROL, AND THE NUMBER THAT PICKS IT IS ONE CAP.
+
+  Nine screens put four answers up and let 1 to 4 press them, and they had
+  drawn that two ways each. The button: `.choice-btn` is the one option, and
+  its own comment in `app/globals.css` says why a caller passes a tone through
+  `--choice-bg` rather than an inline `background`, which is that an inline
+  style beats a class `:hover` silently. The review card and the listening
+  round were painting their ground inline, so the two most-pressed sets of
+  options in the app could never define a hover and moved under a pointer
+  without changing at all. And the numeral: `KeyCap` on five screens, a round
+  badge on the review card, an `--raised` pill on the learn ladder, an
+  accent-soft square on the unit lesson, and another circle on the level
+  check, one of them `aria-hidden` so the shortcut was hidden from the reader
+  least able to point at the option instead.
+
+  A numeral is a cap where a key presses it, which is what the file set is
+  read off: a screen binding `Number(e.key)` is a screen where the number is a
+  key, and drawing it as anything else is a shortcut nobody can find. A list
+  numbered 1, 2, 3 with no key behind it, on the worksheet or the settings
+  order panel, is a list marker and stays one.
+*/
+check("an option is one control, and the number that picks it is one cap", () => {
+  const files = [...APP, ...COMPONENTS].filter((f) => /Number\((?:e|event)\.key\)/.test(code(f)));
+  assert.ok(files.length >= 8, `only ${files.length} screens bind a number key; the sweep has stopped seeing them`);
+  const cap = /<KeyCap>\{(?:i|at|index) \+ 1\}<\/KeyCap>/;
+  let options = 0;
+  for (const file of files) {
+    const lines = code(file).split("\n");
+    lines.forEach((line, i) => {
+      /* The numeral is the key, so it is the cap. A line rendering it any
+         other way is a shortcut drawn as decoration. */
+      if (/\{(?:i|at|index) \+ 1\}/.test(line) && !/aria-label|`/.test(line)) {
+        assert.match(line, cap, `${file}:${i + 1} draws the key that picks an option by hand. Use <KeyCap> from components/ui.tsx.`);
+      }
+      if (!cap.test(line)) return;
+      /* The option is the button holding that cap, and the sweep reads the
+         button's own attributes rather than the file's, so a `.choice-btn`
+         somewhere else in the round cannot vouch for this one. */
+      const opens = lines.slice(0, i).map((l, n) => (/<button\b/.test(l) ? n : -1)).filter((n) => n >= 0);
+      const opener = opens[opens.length - 1];
+      assert.ok(opener !== undefined && i - opener <= 24, `${file}:${i + 1} has a key cap with no option button around it.`);
+      options += 1;
+      const attrs = lines.slice(opener, i).join("\n");
+      assert.match(attrs, /choice-btn/, `${file}:${(opener ?? 0) + 1} is an option that is not a .choice-btn.`);
+      assert.ok(
+        !/background:\s*"var\(/.test(attrs),
+        `${file}:${(opener ?? 0) + 1} paints an option's ground inline, which beats the class hover. Pass it through --choice-bg.`,
+      );
+      /* `.choice-btn` has its own `:active`, and `.press` is a second one on
+         the same control: two transforms for one gesture, of which the later
+         rule in the stylesheet silently wins. */
+      assert.ok(
+        !/\bpress\b/.test(attrs),
+        `${file}:${(opener ?? 0) + 1} adds .press to a .choice-btn, which already has its own press.`,
+      );
+    });
+  }
+  assert.ok(options >= 8, `only ${options} option buttons found; the sweep has stopped seeing them`);
+});
+
+/*
+  A CONTROL SAYS WHAT IT DOES UNDER A POINTER, AND A DOZEN SAID NOTHING.
+
+  The rule this repository already had is about a hover that makes a control
+  *less* present: `transition-opacity hover:opacity-80` reads as the control
+  switching off, because dimming is how everything disabled here is drawn.
+  What nothing checked is the case underneath it, a control with no hover at
+  all, which was the fault the option rows had and which reads exactly the
+  same to somebody working out what is pressable by pointing at it. Undo on
+  the daily path, Cancel on the add-a-word form, Close on Anu's panel, Leave
+  and Archive on a class, both copy buttons in the setup guides, the two
+  translate buttons and the forms disclosure: twelve controls drawn as a run
+  of text with nothing behind them.
+
+  `.tap-tint` is the answer the conventions already name for a bare row or an
+  icon button, with the padding the tint needs and a negative margin so the
+  text does not move. The sweep reads a `<button>` whose className is written
+  out as a string, which is every hand-drawn control; a className built from a
+  variable belongs to a component that has already decided (`Button`,
+  `Choice`, `KeyCap`).
+
+  `underline` passes: a button drawn as underlined text is a link wearing the
+  right element, which is the one exemption the fade rule already makes. Two
+  more are exempt by name and both are a decision rather than an omission.
+*/
+check("a control says what it does under a pointer", () => {
+  /* The scrim behind the phone sheet is a close target rather than a control
+     with a label, and the palette's rows are painted from `active`, which the
+     arrow keys move too: a CSS hover there would let the pointer and the
+     keyboard disagree about which row is next. */
+  const EXEMPT = new Set(["components/Sidebar.tsx", "components/CommandPalette.tsx"]);
+  const answers = /press|tap-tint|choice-btn|hover:|nav-cell|letter-key|underline|group/;
+  const button = /<button\b((?:[^>{]|\{[^{}]*\}|\{\{[^{}]*\}\})*?)>/gs;
+  let drawn = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (EXEMPT.has(file)) continue;
+    const source = code(file);
+    for (const match of source.matchAll(button)) {
+      const className = /className="([^"]*)"/.exec(match[1] ?? "");
+      if (!className) continue;
+      drawn += 1;
+      assert.match(
+        className[1] ?? "",
+        answers,
+        `${file}:${source.slice(0, match.index).split("\n").length} is a control with no answer to a pointer. `
+          + "`.tap-tint` for a bare row or an icon button, `.choice-btn` for a box.",
+      );
+    }
+  }
+  assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
+});
+
+/*
+  A MARKED ANSWER SAYS SO OUT LOUD.
+
+  Every round in this app tells a learner how it went in a tint, a chip and a
+  sentence, and six screens said all of it in silence. The level check was the
+  worst of them: focus moves to "Next question" with `autoFocus`, so somebody
+  sitting a fifteen-minute placement heard the button fifteen times and never
+  once heard whether they had got it right, on the one screen in the app whose
+  whole output is feedback. The daily quest revealed the answer with nothing
+  announced at all, the learn ladder marked a first meeting the same way, and
+  the three boards marked in movement alone: a matched pair pops out, a wrong
+  one shakes, a checked letter turns peach.
+
+  A live region is the answer everywhere, and on a board it is one line held in
+  state rather than derived, so a fast player is read the last thing that
+  happened rather than a backlog of every pair.
+
+  The trigger is the palette's own marking classes, because a screen that
+  paints an answer right or wrong is a screen that has something to say about
+  it. One exemption: an examination result is a page reached by navigating to
+  it, where the heading is the announcement and a live region would fight it.
+*/
+check("a marked answer says so out loud", () => {
+  const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
+  let marking = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    const source = code(file);
+    if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
+    if (file === PAGE_NOT_A_ROUND) continue;
+    marking += 1;
+    assert.match(
+      source,
+      /aria-live|role="(status|alert)"/,
+      `${file} marks an answer and never says so: a screen reader hears the tint change as nothing. `
+        + 'Put the feedback in a live region (`role="status"`), or a line in `sr-only` where the marking is a board.',
+    );
+  }
+  assert.ok(marking >= 15, `only ${marking} marking screens found; the sweep has stopped seeing them`);
 });
 
 console.log(

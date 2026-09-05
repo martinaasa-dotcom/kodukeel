@@ -216,7 +216,7 @@ function SentenceEnglish({ lexemeId, et, en, canTranslate }: {
         type="button"
         disabled={pending}
         onClick={translate}
-        className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-semibold disabled:opacity-50"
+        className="tap-tint mt-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs font-semibold disabled:opacity-50"
         style={{ color: "var(--accent-deep)" }}
       >
         {pending

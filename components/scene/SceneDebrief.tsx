@@ -129,7 +129,16 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       </Card>
 
       <section>
-        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What you got done</h3>
+        {/*
+          The heading follows the list. "What you got done" over six unticked
+          rows is a heading arguing with what is under it, and the run where
+          that happens is the run somebody walked out of, which is the one
+          where the copy has to be kind and accurate at once. The card above
+          has already said the count, so this says what the list is.
+        */}
+        <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
+          {objectives.met.length === 0 ? "What you went in to get done" : "What you got done"}
+        </h3>
         <ul className="flex flex-col gap-1">
           {required.map((beat) => {
             const met = objectives.met.includes(beat.id);

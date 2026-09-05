@@ -105,7 +105,7 @@ export const CASE_NOTES: readonly CaseNote[] = [
     uses: ["Going into a place or a container", "Going into a state or a stretch of time"],
     watchOut:
       "Plenty of everyday words have a short form instead, and the short one is what people say. The dictionary shows it wherever it exists.",
-    englishHook: "into.",
+    englishHook: "into the room, into the nineties, into a bad mood.",
   },
   {
     key: "INESSIVE",

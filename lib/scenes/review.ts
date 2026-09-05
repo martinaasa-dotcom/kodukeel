@@ -272,13 +272,36 @@ function hunchFor(slip: Slip, rows: readonly Slipped[]): { hunch?: Hunch } {
 }
 
 /**
- * The same guess, said once.
+ * A REASON IS GIVEN ONCE, AND SAYS HOW MANY NOTES IT COVERS.
  *
- * A hunch is about a habit rather than about a word, so the reading that fits
- * three words is one reading, and printing it three times does not make it
- * truer. The first note keeps it, because that is the one nearest the top.
+ * A hunch is worked out per word, and the commonest run there is produces the
+ * same one on every note: somebody early enough to be reaching for the
+ * dictionary form reaches for it in every case they are asked for, so
+ * `diagnose` returns the nominative reading four times and the screen printed
+ * the identical sentence four times. That is worse than saying it once and
+ * worse than saying nothing, because a sentence a reader has already read is
+ * one they learn to skip, and they skip it on the note where it was going to
+ * be different.
+ *
+ * So the first note to carry a reason keeps it and says how many of the notes
+ * below it the same reason covers, which is the thing a teacher would say and
+ * is a fact the review holds and never printed. The rest keep the word, the
+ * form that was wanted and where it was said, all of which differ.
+ *
+ * The count goes into the reason rather than into a field of its own, because
+ * the screen prints `says` and a second field would be a second way for a note
+ * to explain itself.
+ *
+ * Two sessions wrote this function on the same evening, one on each side of a
+ * merge, and this is the one that came back from the other with the count on
+ * it: dropping a repeated reason is half the idea, and saying what it covers
+ * is the half that tells the learner something they could not otherwise see.
  */
 function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
+  const times = new Map<string, number>();
+  for (const note of notes) {
+    if (note.hunch) times.set(note.hunch.says, (times.get(note.hunch.says) ?? 0) + 1);
+  }
   const said = new Set<string>();
   return notes.map((note) => {
     if (!note.hunch) return note;
@@ -287,9 +310,28 @@ function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
       return rest;
     }
     said.add(note.hunch.says);
-    return note;
+    const count = times.get(note.hunch.says) ?? 1;
+    return count > 1
+      ? { ...note, hunch: { ...note.hunch, says: `${note.hunch.says} ${covers(count)}` } }
+      : note;
   });
 }
+
+/**
+ * What one reason covering several notes says about the rest of them.
+ *
+ * Two is "both", which is the word English has for it: "all two of these" is
+ * the sentence a template writes and a person never does. Small numbers are
+ * written out for the same reason, and past four the digit reads better than
+ * the word, where a review has bigger news than a count anyway.
+ */
+function covers(count: number): string {
+  return count === 2
+    ? "The same thing is behind both of these."
+    : `The same thing is behind all ${WORDS[count] ?? count} of these.`;
+}
+
+const WORDS: Record<number, string> = { 3: "three", 4: "four" };
 
 function lead(n: {
   turns: number; landed: number; read: number; slips: number; spellings: number; notes: number;

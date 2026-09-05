@@ -676,6 +676,21 @@
   :root[data-dock] .dock-pad { padding-bottom: calc(var(--dock-clearance) + 1.5rem); }
 
   /*
+    THE SAME MEASUREMENT AGAIN, SPENT AS SCROLL MARGIN.
+
+    `scrollIntoView` stops when the element's own box is inside the window,
+    and the bar is drawn over the bottom of that window, so a panel scrolled
+    to on a phone comes to rest with its last row behind the bar. The
+    conversation screen brings the box you type into on screen after every
+    reply, which is exactly where that shows. Scroll margin is what the
+    browser subtracts from the resting place, so this is the padding rule
+    read by the scroller rather than by the layout.
+  */
+  .dock-clear { scroll-margin-bottom: 1.5rem; }
+  @media (max-width: 767px) { .dock-clear { scroll-margin-bottom: 7rem; } }
+  :root[data-dock] .dock-clear { scroll-margin-bottom: calc(var(--dock-clearance) + 1.5rem); }
+
+  /*
     THE ESTONIAN LETTER BAR, WHICH IS A DESKTOP THING AND A CHOICE.
 
     Two rules, in one place, because they were previously neither: the bar was
@@ -999,7 +1014,35 @@
     outline-offset: 2px;
   }
 
-  .key-cap { background: var(--key-cap); }
+  /*
+    A KEY CAP DOES NOT DARKEN THE GROUND ITS INK WAS DRAWN FOR.
+
+    The cap used to be a translucent black (a translucent white in the dark
+    theme) laid over whatever was behind it, and that is safe on exactly two
+    grounds: the primary button's gradient, where the ink is white and a
+    darker ground helps it, and a plain surface. On a tint it eats the margin
+    the hue's ink was measured with, because `--mint-ink` and its neighbors
+    are drawn to clear 4.5:1 on mint's tint and nothing else. Measured over
+    the tokens: a grade key on a verdict tile fell to 3.53 in the light and
+    3.04 in the dark, an option numeral on `option-other` to 2.18, and the
+    hint in the minimal-pairs caption to 2.37, which is the one axe caught.
+
+    So the cap is a hairline and the ink it prints in is the ink around it,
+    whatever that is: contrast is then exactly the contrast of the sentence
+    or the button it sits in, which every screen already measures. The fill
+    comes back inside the gradient, where it is the loudest thing on the
+    screen and darkening is what makes it legible.
+  */
+  .key-cap {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+  }
+
+  .grad-accent .key-cap {
+    background: var(--key-cap);
+    border-color: transparent;
+  }
+
   .tnum { font-variant-numeric: tabular-nums; }
 
   .label-xs {

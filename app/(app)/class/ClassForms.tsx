@@ -181,7 +181,7 @@ export function LeaveClass({ classroomId }: { classroomId: string }) {
           router.push("/class");
           router.refresh();
         })}
-        className="inline-flex items-center gap-1.5 text-xs"
+        className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
         style={{ color: "var(--ink-3)" }}
       >
         <LogOut size={12} aria-hidden /> Leave this class
@@ -201,7 +201,7 @@ export function ArchiveClass({ classroomId }: { classroomId: string }) {
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="text-xs"
+        className="tap-tint rounded-md px-1.5 py-0.5 text-xs"
         style={{ color: "var(--ink-3)" }}
       >
         Archive this class

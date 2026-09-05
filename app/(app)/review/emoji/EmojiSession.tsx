@@ -79,6 +79,17 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
   const [matched, setMatched] = useState<ReadonlySet<string>>(() => new Set());
   const [wrong, setWrong] = useState<readonly string[]>([]);
   const [misses, setMisses] = useState(0);
+  /*
+    WHAT JUST HAPPENED, IN WORDS.
+
+    The board says it in movement and in the palette: a solved pair turns mint
+    and leaves, a wrong one turns peach and shakes. The tiles are buttons and
+    the picture side is deliberately left to be read by its Unicode name, so
+    the round is playable without sight right up to the moment it marks an
+    answer, which it did in silence. One line, replaced rather than appended,
+    so a fast player is not read a backlog.
+  */
+  const [said, setSaid] = useState("");
   /** Pairs a wrong try has already touched, so a match after one grades Hard. */
   const missedPairs = useRef<Set<string>>(new Set());
   const [phase, setPhase] = useState<"ready" | "running" | "done">("ready");
@@ -110,6 +121,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
       setMatched((m) => new Set(m).add(tile.pairId));
       setPicked(null);
       const pair = pairs.find((p) => p.id === tile.pairId);
+      setSaid(pair ? `${pair.form}. Matched.` : "Matched.");
       if (pair?.cardId) {
         // Good first time, Hard after a wrong try: the same two ratings a near
         // miss and a clean hit get everywhere else. Not awaited, because a
@@ -120,6 +132,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
     }
 
     sound("wrong");
+    setSaid("Not a pair.");
     setMisses((n) => n + 1);
     missedPairs.current.add(picked.pairId);
     missedPairs.current.add(tile.pairId);
@@ -216,6 +229,8 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
           {matched.size} of {pairs.length}
         </Chip>
       </div>
+
+      <span className="sr-only" role="status">{said}</span>
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         {tiles.map((tile) => {

@@ -170,6 +170,33 @@ describe("the review of a conversation", () => {
     expect(note?.hunch?.says).toContain("the question before");
   });
 
+  /*
+    A hunch is about a habit rather than about a word, so the reading that fits
+    three words is one reading, and printing it three times does not make it
+    truer. What the one that keeps it adds is how many it covers, which is a
+    fact the review held and never printed.
+
+    THIS TEST WAS LOST AND CAME BACK THROUGH A MERGE. It was written when the
+    dedupe was, dropped by the pass that turned a note from a case into a word,
+    and another session's version of the same idea is what put it back.
+  */
+  it("gives one reason once, and says how many notes it covers", () => {
+    const into: Slip = { kind: "case", said: "pood", form: "poodi", lemma: "pood", grammCase: "ILLATIVE", reached: "NOMINATIVE" };
+    const some: Slip = { kind: "case", said: "piim", form: "piima", lemma: "piim", grammCase: "PARTITIVE", reached: "NOMINATIVE" };
+    const notes = reviewOf(SCENE, state([turn({ slips: [into] }), turn({ slips: [some] })])).notes;
+    expect(notes.filter((n) => n.hunch)).toHaveLength(1);
+    // The notes themselves stay: each is about a different word.
+    expect(notes).toHaveLength(2);
+    // "Both" rather than "all two of these", which a template writes and a
+    // person never does.
+    expect(notes[0]?.hunch?.says).toContain("The same thing is behind both of these.");
+  });
+
+  it("leaves a reason that covers one note exactly as it was", () => {
+    const note = reviewOf(SCENE, state([turn({ slips: [{ ...CASE_SLIP, reached: "NOMINATIVE" }] })])).notes[0];
+    expect(note?.hunch?.says).not.toContain("The same thing is behind");
+  });
+
   it("guesses nothing where the spelling names no case", () => {
     const note = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).notes[0];
     expect(note?.hunch).toBeUndefined();
