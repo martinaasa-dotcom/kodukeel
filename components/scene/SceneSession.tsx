@@ -388,19 +388,25 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       turns: turnsRef.current.flatMap((turn): Debrief["turns"][number][] => {
         if (turn.who === "you") return [{ who: "you", text: turn.text, lang: "et" }];
         /*
-          Split by language rather than joined into one string, because the
-          other side does not only speak Estonian: where neither rung could put
-          their move into words the course teaches, `reply` says what they did
-          in English. Joining the two and marking the result `lang="et"` had a
-          screen reader saying the English with Estonian phonology.
+          A LINE EACH, WHICH IS HOW THEY WERE SAID AND HOW THEY WERE DRAWN.
+
+          A reply is a reaction and then a move, so it arrives as a list, and
+          the transcript joined the list into one string per language. Nothing
+          in that list promises to end in a full stop: `Ma ei saa aru` is a
+          phrase the course teaches as a lemma, so a turn that could not be
+          made out and then asked again read back as "Ma ei saa aru Tere!",
+          one run-on sentence nobody said. Each line is its own bubble in the
+          conversation itself and is its own bubble here, which also carries
+          the language per line for free. That was the reason the join was
+          split in two: joining a stage direction to Estonian and marking the
+          result `lang="et"` had a screen reader saying the English with
+          Estonian phonology.
         */
-        const said = turn.lines.filter(spoken);
-        const et = said.filter(spokenEstonian).map((line) => line.text).join(" ");
-        const en = said.filter((line) => !spokenEstonian(line)).map((line) => line.text).join(" ");
-        return [
-          ...(et ? [{ who: "them" as const, text: et, lang: "et" as const }] : []),
-          ...(en ? [{ who: "them" as const, text: en, lang: "en" as const }] : []),
-        ];
+        return turn.lines.filter(spoken).map((line) => ({
+          who: "them" as const,
+          text: line.text,
+          lang: spokenEstonian(line) ? ("et" as const) : ("en" as const),
+        }));
       }),
     });
     setPhase("debrief");

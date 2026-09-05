@@ -58,6 +58,22 @@ describe("the review of a conversation", () => {
     expect(review.lead).toMatch(/read every time/);
   });
 
+  /*
+    "Every time" is a claim about every turn. A run where one turn was read
+    and two were not was told its Estonian was read every time, on the one
+    sentence of the debrief a learner believes or stops believing.
+  */
+  it("does not say every time about some of them", () => {
+    const some = [
+      turn({ reading: "offtarget", met: [false] }),
+      turn({ reading: "unrecognised", met: [false] }),
+      turn({ reading: "english", met: [false] }),
+    ];
+    const review = reviewOf(SCENE, state(some, []));
+    expect(review.lead).not.toContain("every time");
+    expect(review.lead).toContain("Nothing landed");
+  });
+
   it("names two unmet goals and counts the rest, rather than running six together", () => {
     const note = reviewOf(SCENE, state([turn()], [])).notes.find((n) => n.id === "missed");
     expect(note?.body).toContain("Say what is wrong.");

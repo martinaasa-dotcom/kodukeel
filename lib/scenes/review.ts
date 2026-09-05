@@ -127,9 +127,23 @@ function lead(n: {
     button rather than a figure.
   */
   if (n.landed === 0) {
-    const seen = n.read > 0
-      ? "Your Estonian was read every time; none of it was the thing that was being asked for. "
-      : "";
+    /*
+      "EVERY TIME" IS A CLAIM ABOUT EVERY TURN, AND IT WAS PRINTED OVER ONE.
+
+      `read` counts the turns that were neither a word nothing could be made
+      out of nor a turn in English, and the condition was `read > 0`: a run of
+      three where one was read and two were not was told its Estonian was read
+      every time. The first sentence of the debrief is the one somebody
+      believes or stops believing, and a learner who has just watched two of
+      their turns come back as "I did not catch that" is the reader placed to
+      catch it. So the count decides the sentence, and where only some were
+      read the sentence says only that much.
+    */
+    const seen = n.read === 0
+      ? ""
+      : n.read === n.turns
+        ? "Your Estonian was read every time; none of it was the thing that was being asked for. "
+        : "The Estonian that was read came through; none of it was the thing that was being asked for. ";
     return `${seen}Nothing landed this time. The word button hands you one of the beat's own words, `
       + "and saying you have not followed gets it handed over too.";
   }
