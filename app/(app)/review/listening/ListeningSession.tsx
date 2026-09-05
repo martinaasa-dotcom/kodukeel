@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Check, Headphones, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
@@ -274,8 +274,12 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                 type="button"
                 disabled={answered || busy}
                 onClick={() => void pick(choice)}
-                className={`${state} press flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold transition-ui hover:-translate-y-0.5 disabled:cursor-default disabled:hover:translate-y-0`}
-                style={answered ? undefined : { background: "var(--raised)", borderColor: "transparent", color: "var(--ink)" }}
+                className={`choice-btn ${state} flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold disabled:cursor-default`}
+                style={answered ? undefined : {
+                  "--choice-bg": "var(--raised)",
+                  "--choice-border": "transparent",
+                  color: "var(--ink)",
+                } as CSSProperties}
               >
                 {/* One character, so axe files it as "too short to determine"
                     and the sweep used to drop the measurement on the floor.

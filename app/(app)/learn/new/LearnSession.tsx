@@ -572,9 +572,7 @@ export function LearnSession({
                         disabled={busy || marked}
                         className={`choice-btn ${state ? OPTION_CLASS[state] : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
                       >
-                        <span className="label-xs shrink-0 rounded-full px-2 py-0.5" style={{ background: "var(--raised)", color: "var(--ink-3)" }}>
-                          {i + 1}
-                        </span>
+                        <KeyCap>{i + 1}</KeyCap>
                         <span className="min-w-0 flex-1">{option}</span>
                         {state === "right" && <Check size={16} aria-label="Right" />}
                         {state === "wrong" && <X size={16} aria-label="Your pick" />}

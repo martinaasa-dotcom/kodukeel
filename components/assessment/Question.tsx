@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak } from "@/components/Speak";
 import { LEARNING_RATE } from "@/lib/audio/clip";
-import { Chip, Note } from "@/components/ui";
+import { Chip, KeyCap, Note } from "@/components/ui";
 import { BLANK } from "@/lib/estonian/cloze";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
@@ -198,12 +198,7 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
               onClick={() => choose(index)}
               className={`choice-btn ${picked !== null ? OPTION_CLASS[optionState(Boolean(correct), Boolean(chosen))] : ""} flex min-h-[52px] items-center gap-3 rounded-[var(--r-lg)] border px-4 py-3 text-left disabled:cursor-default`}
             >
-              <span
-                className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-                style={{ background: "var(--raised)", color: "var(--ink-3)" }}
-              >
-                {index + 1}
-              </span>
+              <KeyCap>{index + 1}</KeyCap>
               <span
                 lang={item.estonianOptions ? "et" : undefined}
                 className={`min-w-0 flex-1 text-base ${item.estonianOptions ? "font-semibold" : ""}`}

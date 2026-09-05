@@ -5178,6 +5178,26 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   works everywhere it worked before, and the settings sheet and the shortcut dialog are where both
   are written down, because those are references rather than buttons. `⌘ Enter`, which is the
   textarea submit, and `⌫` are different gestures and keep their own names, spelled the same way.
+- **An option is one control, and the number that picks it is one cap.** Nine screens put four
+  answers up and let 1 to 4 press them, and each had drawn that its own way. The button:
+  `.choice-btn` is the one option and its own comment in `app/globals.css` says a caller passes a
+  tone through `--choice-bg` rather than an inline `background`, because an inline style beats a
+  class `:hover` silently. The review card and the listening round were painting their ground
+  inline, so the two most-pressed sets of options in the app could never define a hover and moved
+  under a pointer without changing at all; and `.press` beside `.choice-btn` is a second `:active`
+  on one control, of which the later rule in the stylesheet wins. The numeral: a `KeyCap` on five
+  screens, a round badge on the review card, an `--raised` pill on the learn ladder, an
+  accent-soft square on the unit lesson and another circle on the level check, that last one
+  `aria-hidden`, so the shortcut was hidden from the reader least able to point at the option
+  instead. **A numeral is a cap where a key presses it**, which is what the sweep reads its file
+  list off: a screen binding `Number(e.key)` is a screen where the number is a key, and a list
+  numbered 1, 2, 3 with nothing behind it, on the worksheet or the settings order panel, is a list
+  marker and stays one. Every numeral moved onto the option's own ink, which is 15.88 against 5.62
+  on the ladder and unchanged on the review card. Three arms, each made to fail on a real line.
+- **And the shortcut sheet says every shortcut the app has, which is a claim rather than a
+  heading.** `R` plays the word again on minimal pairs, is drawn on that round's own button, and
+  was in neither reference list, so the one place a learner goes to find out what the keyboard does
+  did not know about it.
 - **A shortcut works wherever the control it presses is drawn, and "drawn" is one question with one
   name.** A new card in review leads with its answer, because a card you have never seen cannot be
   recalled, only met, so `askFor` returns `intro` and the rating buttons arrive with it. `revealed`

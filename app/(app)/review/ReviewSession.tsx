@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
@@ -1107,19 +1107,27 @@ export function ReviewSession({
           {ask === "choice" && card.choices && !chosen && (
             <div className="mt-2 grid w-full max-w-md gap-2">
               {card.choices.map((choice, i) => (
+                /*
+                  `.choice-btn` and a tone through `--choice-bg`, like every
+                  other option in the app. It painted its own background
+                  inline, which is the fault that class's own comment names:
+                  an inline style beats a class `:hover`, so the busiest
+                  options in the app could never define one and moved under a
+                  pointer without changing at all.
+                */
                 <button
                   key={choice}
                   type="button"
                   onClick={() => pickChoice(choice)}
-                  className="press flex items-center gap-3 rounded-[var(--r)] px-4 py-3.5 text-left text-base font-medium transition-ui hover:-translate-y-0.5"
-                  style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow-sm)" }}
+                  className="choice-btn flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium"
+                  style={{
+                    "--choice-bg": "var(--accent-soft)",
+                    "--choice-border": "transparent",
+                    color: "var(--accent-deep)",
+                    boxShadow: "var(--shadow-sm)",
+                  } as CSSProperties}
                 >
-                  <span
-                    className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-2xs font-bold"
-                    style={{ background: "var(--surface)", color: "var(--accent-deep)" }}
-                  >
-                    {i + 1}
-                  </span>
+                  <KeyCap>{i + 1}</KeyCap>
                   {choice}
                 </button>
               ))}
@@ -1290,7 +1298,7 @@ export function ReviewSession({
           className="flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >
-          <Undo2 size={12} aria-hidden /> Undo <KeyCap>u</KeyCap>
+          <Undo2 size={12} aria-hidden /> Undo <KeyCap>U</KeyCap>
         </button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />

@@ -65,7 +65,7 @@ const SHORTCUTS: [string, string][] = [
   ["Enter", "Show the answer, check what you typed, then carry on"],
   ["Space", "The same, wherever you are not typing"],
   ["1-4", "Again · Hard · Good · Easy"],
-  ["u", "Undo the last grade"],
+  ["U", "Undo the last grade"],
   ["1-4 (listening, choice)", "Pick an option"],
 ];
 

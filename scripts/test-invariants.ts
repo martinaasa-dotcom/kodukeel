@@ -12884,6 +12884,67 @@ check("a key hint is one component and the advance key has one name", () => {
   assert.match(code("components/ui.tsx"), /export function KeyCap/);
 });
 
+/*
+  AN OPTION IS ONE CONTROL, AND THE NUMBER THAT PICKS IT IS ONE CAP.
+
+  Nine screens put four answers up and let 1 to 4 press them, and they had
+  drawn that two ways each. The button: `.choice-btn` is the one option, and
+  its own comment in `app/globals.css` says why a caller passes a tone through
+  `--choice-bg` rather than an inline `background`, which is that an inline
+  style beats a class `:hover` silently. The review card and the listening
+  round were painting their ground inline, so the two most-pressed sets of
+  options in the app could never define a hover and moved under a pointer
+  without changing at all. And the numeral: `KeyCap` on five screens, a round
+  badge on the review card, an `--raised` pill on the learn ladder, an
+  accent-soft square on the unit lesson, and another circle on the level
+  check, one of them `aria-hidden` so the shortcut was hidden from the reader
+  least able to point at the option instead.
+
+  A numeral is a cap where a key presses it, which is what the file set is
+  read off: a screen binding `Number(e.key)` is a screen where the number is a
+  key, and drawing it as anything else is a shortcut nobody can find. A list
+  numbered 1, 2, 3 with no key behind it, on the worksheet or the settings
+  order panel, is a list marker and stays one.
+*/
+check("an option is one control, and the number that picks it is one cap", () => {
+  const files = [...APP, ...COMPONENTS].filter((f) => /Number\((?:e|event)\.key\)/.test(code(f)));
+  assert.ok(files.length >= 8, `only ${files.length} screens bind a number key; the sweep has stopped seeing them`);
+  const cap = /<KeyCap>\{(?:i|at|index) \+ 1\}<\/KeyCap>/;
+  let options = 0;
+  for (const file of files) {
+    const lines = code(file).split("\n");
+    lines.forEach((line, i) => {
+      /* The numeral is the key, so it is the cap. A line rendering it any
+         other way is a shortcut drawn as decoration. */
+      if (/\{(?:i|at|index) \+ 1\}/.test(line) && !/aria-label|`/.test(line)) {
+        assert.match(line, cap, `${file}:${i + 1} draws the key that picks an option by hand. Use <KeyCap> from components/ui.tsx.`);
+      }
+      if (!cap.test(line)) return;
+      /* The option is the button holding that cap, and the sweep reads the
+         button's own attributes rather than the file's, so a `.choice-btn`
+         somewhere else in the round cannot vouch for this one. */
+      const opens = lines.slice(0, i).map((l, n) => (/<button\b/.test(l) ? n : -1)).filter((n) => n >= 0);
+      const opener = opens[opens.length - 1];
+      assert.ok(opener !== undefined && i - opener <= 24, `${file}:${i + 1} has a key cap with no option button around it.`);
+      options += 1;
+      const attrs = lines.slice(opener, i).join("\n");
+      assert.match(attrs, /choice-btn/, `${file}:${(opener ?? 0) + 1} is an option that is not a .choice-btn.`);
+      assert.ok(
+        !/background:\s*"var\(/.test(attrs),
+        `${file}:${(opener ?? 0) + 1} paints an option's ground inline, which beats the class hover. Pass it through --choice-bg.`,
+      );
+      /* `.choice-btn` has its own `:active`, and `.press` is a second one on
+         the same control: two transforms for one gesture, of which the later
+         rule in the stylesheet silently wins. */
+      assert.ok(
+        !/\bpress\b/.test(attrs),
+        `${file}:${(opener ?? 0) + 1} adds .press to a .choice-btn, which already has its own press.`,
+      );
+    });
+  }
+  assert.ok(options >= 8, `only ${options} option buttons found; the sweep has stopped seeing them`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

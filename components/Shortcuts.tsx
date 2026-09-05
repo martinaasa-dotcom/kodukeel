@@ -45,10 +45,11 @@ const GROUPS: Group[] = [
   },
   {
     title: "Multiple choice",
-    hint: "new cards, and the listening round",
+    hint: "new cards, the listening round and minimal pairs",
     keys: [
       { press: ["1"], does: "Pick the first option" },
       { press: ["2"], does: "…the second, and so on" },
+      { press: ["R"], does: "Hear it again, on minimal pairs" },
       { press: ["Enter", "Space"], does: "Continue once you have answered" },
     ],
   },
