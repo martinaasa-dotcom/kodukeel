@@ -10,6 +10,7 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
+import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { passes, runGate } from "@/lib/scenes/gate";
@@ -293,6 +294,24 @@ export async function POST(request: Request) {
       or not the machine spent a try on it.
     */
     tries: answered ? state.turns.filter((turn) => turn.beatId === answered.id).length : 0,
+    /*
+      And the same question narrowed to two, where the beat's own words or the
+      card's own values can supply a pair. Built off the beat the learner was
+      answering rather than the one coming next: they are stuck on the question
+      they were asked. The roll is the turn count, which is stable across a
+      replay, so a choice does not swap sides under somebody reading it.
+    */
+    choice: answered && !isOver(scene, state)
+      ? choiceOf({
+          beat: answered, card, lexicon: context.lexicon,
+          dealt: new Map(
+            scene.props.flatMap((prop) =>
+              prop.kind === "word" || prop.kind === "weekday" ? [[prop.slot, prop.oneOf] as const] : [],
+            ),
+          ),
+          roll: state.turns.length,
+        })
+      : null,
   });
   /*
     THE OTHER SIDE'S LINE, WITH THE DICTIONARY UNDER IT.

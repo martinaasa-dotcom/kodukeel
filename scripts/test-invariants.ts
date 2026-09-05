@@ -11923,6 +11923,33 @@ check("a learner who says they are lost is handed the word, never the question a
   );
 
   /*
+    AND WHEN THE WORDS ARE NOT LANDING, THEY NARROW THE QUESTION TO TWO.
+
+    Asking the same thing a third time is what a machine does; offering a
+    choice is what a person at a counter does, and it is a step down from
+    production to recognition, which is the step a teacher takes. In Estonian
+    and in character, so it is tried before the app's own English hint.
+  */
+  const choice = code("lib/scenes/choice.ts");
+  assert.ok(existsSync("lib/scenes/choice.ts"), "the narrowed question has gone");
+  assert.match(
+    answering, /const narrowed = input\.tries === NUDGE_AFTER/,
+    "the other side no longer narrows a question it has asked twice",
+  );
+  /*
+    And it writes no Estonian: every option is a lemma the beat named or a form
+    off the same table every case card reads, and the one word between them is
+    a course lemma the catalog test checks against every scene's units.
+  */
+  {
+    const estonian = [...choice.matchAll(/"([^"]*[\u00e4\u00f5\u00f6\u00fc\u0161\u017e][^"]*)"/gi)].map((m) => m[1]!);
+    assert.deepEqual(
+      estonian, ["v\u00f5i"],
+      "the narrowed question writes Estonian of its own rather than naming the beat's words",
+    );
+  }
+
+  /*
     NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
 
     Two halves, and neither is the other. The character says the word on the

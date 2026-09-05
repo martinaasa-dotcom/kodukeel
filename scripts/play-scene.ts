@@ -26,6 +26,7 @@ import { PERSONAS } from "../lib/scenes/personas";
 import { answerBeatId } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
+import { choiceOf } from "../lib/scenes/choice";
 import { caseKeyFor, words } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { propBySlot } from "../lib/scenes/props";
@@ -158,6 +159,12 @@ async function play(sceneId: string) {
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords) : null,
       met: state.done.length,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
+      choice: answered ? choiceOf({
+        beat: answered, card: card ?? draw.card, lexicon: context.lexicon,
+        dealt: new Map(scene.props.flatMap((p) =>
+          p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
+        roll: state.turns.length,
+      }) : null,
       hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
     });
     if (last) {

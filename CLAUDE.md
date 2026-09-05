@@ -4786,6 +4786,24 @@ since `tere` is "hello". Nothing is graded for it, because they may not have sai
 because somebody who says goodbye in the middle has left, so a `close` beat that took anything
 would end every conversation on its first turn.
 
+**When a person cannot understand you, they offer you a choice.** Asking the same question a third
+time is what a machine does; narrowing it to two is what anybody at a counter does, and this module
+had no move between "I did not catch that" and giving up. `lib/scenes/choice.ts` builds it out of
+the beat's own words (`Valu või palavik?`, where either is right), or the case it wants against
+another case of the same word (`Pood või poodi?`, which drills the ending), or the card's own value
+against one the scene might have dealt instead. It is offered on the same miss the app's hint would
+have fired on and **instead of it**, because it stays in Estonian and in character, and it is a step
+down from production to recognition, which is the step a teacher takes; the app steps out of
+character only where no choice can be built. Nothing is written: every option is a lemma the beat
+named or a form off the same table every case card reads, and `CHOICE_WORD` is a course lemma the
+catalog test checks against every scene's own units. The roll is the turn count, so a choice does
+not swap sides while somebody is reading it. Asserted in both directions, including that the file
+writes no Estonian of its own.
+
+**And a cry for help is not a greeting.** The greeting rule above takes anything the app can read as
+language, which swallowed `ma ei tea`: the beat ticked and the learner who had just said they were
+not following got a tick instead of the word. The lost reading is checked first now.
+
 **A compound of the word is the word, and Estonian is made of compounds.** Asked what they wanted
 at a ticket window, a learner who wrote `bussipileti` was being more precise than the beat asked for
 and was refused: the two spellings share no opening, so every "close enough" rule missed it. The
@@ -6006,7 +6024,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,

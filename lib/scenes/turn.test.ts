@@ -160,6 +160,15 @@ describe("reading a turn", () => {
     And not anything at all: an objective credited for typing is a score
     hidden inside a scene, which is what the debrief exists not to have.
   */
+  it("does not credit a greeting for somebody saying they are not following", () => {
+    /*
+      `Ma ei saa aru` is Estonian and is not a greeting. Crediting the beat
+      for it swallows the one thing this module most wants to hear.
+    */
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("ma ei saa aru", hello, { ...context(), known: () => true }).reading).toBe("lost");
+  });
+
   it("does not credit a greeting for a turn nobody could read", () => {
     const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
     expect(readTurn("qqqq wwww", hello, context()).reading).not.toBe("complete");

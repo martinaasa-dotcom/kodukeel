@@ -31,6 +31,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
+import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
@@ -130,6 +131,14 @@ export interface ReplyInput {
    * mid-conversation. Absent on the opening line.
    */
   readonly tries?: number;
+  /**
+   * The beat's question narrowed to two, where one could be built
+   * (`lib/scenes/choice.ts`). Offered instead of asking the same thing again,
+   * because that is what a person does once it is clear the words are not
+   * landing, and it stays in Estonian and in character where the app's own
+   * hint does not.
+   */
+  readonly choice?: string | null;
   /**
    * Whether this persona says "hästi" before moving on. The brisk one does
    * not: they take the answer and ask the next thing, which is most of what
@@ -538,6 +547,19 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     already struggling. The goal stays on the screen the whole time, so what
     a second copy would add is noise.
   */
+  /*
+    THE QUESTION NARROWED TO TWO, WHICH IS WHAT A PERSON OFFERS WHEN THE WORDS
+    ARE NOT LANDING. Tried before the app's own hint and instead of the move,
+    because it *is* the move: the same question, asked in a way the learner can
+    answer by recognizing rather than producing. In Estonian and in character,
+    which the hint below is not, so the app steps out only where no choice
+    could be built.
+  */
+  const narrowed = input.tries === NUDGE_AFTER && !advancing(response) ? input.choice : null;
+  if (narrowed) {
+    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
+    return out;
+  }
   if (input.tries === NUDGE_AFTER && !advancing(response)) {
     const hint = coachFor(beat, card);
     if (hint) out.push({ text: hint, provenance: "coach" });

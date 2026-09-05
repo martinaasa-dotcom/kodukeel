@@ -23,6 +23,7 @@ import { curveballById } from "./curveballs";
 import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
 import { unitById } from "@/lib/collections/syllabus";
 import { TIME_LEMMAS } from "./props";
+import { CHOICE_WORD } from "./choice";
 
 /** Every lemma a scene names, from its beats' topics and its requirements. */
 function lemmasOf(scene: (typeof SCENES)[number]): string[] {
@@ -77,7 +78,8 @@ describe("the scene catalog", () => {
         which is the fault this file's own header describes one layer out.
       */
       const reactions = Object.values(REACTIONS).flat();
-      const named = [...lemmasOf(scene), ...reactions, ...asides, ...TIME_LEMMAS];
+      // The word between two options, said in every scene that narrows a question.
+      const named = [...lemmasOf(scene), ...reactions, ...asides, ...TIME_LEMMAS, CHOICE_WORD];
       const strangers = [...new Set(named)].filter((lemma) => !taught.has(lemma));
       expect(strangers, `${scene.id} names words none of its units teach`).toEqual([]);
     }

@@ -439,7 +439,14 @@ export function readTurn(
     somebody who says goodbye in the middle has left (`replay`), so a `close`
     beat that took anything would end every conversation on its first turn.
   */
-  if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked)) {
+  /*
+    AND NOT WHERE THEY SAID THEY ARE NOT FOLLOWING. `ma ei tea` is Estonian and
+    it is not a greeting: crediting the beat for it swallows the one thing this
+    module most wants to hear, and hands back a tick where the learner had
+    asked for the word. The lost reading is below, and it answers with `Tere!`,
+    which is the whole of what they needed.
+  */
+  if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked) && !isLost(spoken, context)) {
     return {
       reading: "complete", met: beat.needs.map(() => true), missing: [],
       words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [],
