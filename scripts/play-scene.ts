@@ -16,7 +16,7 @@
  * how the marker's tolerance and the asides were shaped.
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
-import { contextFromRows, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
+import { contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
@@ -46,6 +46,16 @@ const rows: Row[] = shippedDictionary().map((e) => ({
 const LOST = [
   "ma ei tea", "vabandust, mida?", "ma õpin eesti keelt", "ma ei saa aru",
   "kas te räägite inglise keelt?", "üks moment palun", "oota", "hmm",
+  /*
+    REAL ESTONIAN THE COURSE DOES NOT HAPPEN TO TEACH, which is what a learner
+    with a class or a phrasebook writes and is the case the repair phrase was
+    being said about. `Tervitused!` is a greeting; a learner answered `Tere!`
+    with it and was told they had not been understood. These are the lines to
+    watch in a transcript: `unrecognised` on any of them means the marker has
+    stopped asking the forms list (`knowing`) and is judging the language by
+    the scene's own few hundred words again.
+  */
+  "tervitused", "see on keeruline", "ma mõtlen"
 ];
 
 function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number): string {
@@ -97,7 +107,20 @@ async function play(sceneId: string) {
   const used = new Set<string>();
   let heard = "";
   for (let n = 0; n < 24; n++) {
-    const { state, response } = replay(context, draw, turns);
+    /*
+      MARKED THE WAY THE ROUTE MARKS IT, OR THIS TOOL IS A SECOND MARKER.
+
+      The route widens what counts as Estonian through `knowing` before every
+      replay, because the scene's own word list is a few hundred words and the
+      language is not: without it a learner saying a real word from outside
+      the course is answered "I did not catch that". This harness is what a
+      maintainer reads before touching the marker, so a transcript printed
+      from a narrower reading than the app's would send them looking for a
+      fault the app does not have, or hide one it does. It costs nothing here:
+      `knowing` reads the forms list off disk and touches no database.
+    */
+    const marking = await knowing(context, turns.map((t) => t.said));
+    const { state, response } = replay(marking, draw, turns);
     const beat = currentBeat(scene, state);
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
