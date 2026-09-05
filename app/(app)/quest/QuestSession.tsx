@@ -351,10 +351,27 @@ export function QuestSession({
                   </button>
                 );
               })}
+              {/* The pick is marked in a tint and in one word inside the
+                  option's own button, neither of which a screen reader
+                  announces on its own. One line, once, in the shape the
+                  review card already uses for its near-miss note. */}
+              {revealed && (
+                <p className="sr-only" role="status">
+                  {picked && acceptedAnswers(card.back, "et")
+                    .some((f) => f.toLocaleLowerCase("et") === picked.toLocaleLowerCase("et"))
+                    ? "Right."
+                    : `Not this time. The answer is ${card.back}.`}
+                </p>
+              )}
             </div>
           ) : revealed ? (
             <>
-              <div className="flex items-center gap-2">
+              {/* The reveal is the answer, and it arrived in silence: nothing
+                  here was in a live region, so pressing "Show answer" put the
+                  word on the screen and said nothing to a screen reader, on
+                  the one round the app features a day. Every other round
+                  announces its own feedback panel. */}
+              <div className="flex items-center gap-2" role="status">
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                   {card.back}
                 </p>

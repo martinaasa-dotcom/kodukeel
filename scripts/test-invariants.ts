@@ -12997,6 +12997,46 @@ check("a control says what it does under a pointer", () => {
   assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
 });
 
+/*
+  A MARKED ANSWER SAYS SO OUT LOUD.
+
+  Every round in this app tells a learner how it went in a tint, a chip and a
+  sentence, and six screens said all of it in silence. The level check was the
+  worst of them: focus moves to "Next question" with `autoFocus`, so somebody
+  sitting a fifteen-minute placement heard the button fifteen times and never
+  once heard whether they had got it right, on the one screen in the app whose
+  whole output is feedback. The daily quest revealed the answer with nothing
+  announced at all, the learn ladder marked a first meeting the same way, and
+  the three boards marked in movement alone: a matched pair pops out, a wrong
+  one shakes, a checked letter turns peach.
+
+  A live region is the answer everywhere, and on a board it is one line held in
+  state rather than derived, so a fast player is read the last thing that
+  happened rather than a backlog of every pair.
+
+  The trigger is the palette's own marking classes, because a screen that
+  paints an answer right or wrong is a screen that has something to say about
+  it. One exemption: an examination result is a page reached by navigating to
+  it, where the heading is the announcement and a live region would fight it.
+*/
+check("a marked answer says so out loud", () => {
+  const PAGE_NOT_A_ROUND = "app/(app)/exam/result/[id]/page.tsx";
+  let marking = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    const source = code(file);
+    if (!/VERDICT_CLASS|OPTION_CLASS/.test(source)) continue;
+    if (file === PAGE_NOT_A_ROUND) continue;
+    marking += 1;
+    assert.match(
+      source,
+      /aria-live|role="(status|alert)"/,
+      `${file} marks an answer and never says so: a screen reader hears the tint change as nothing. `
+        + 'Put the feedback in a live region (`role="status"`), or a line in `sr-only` where the marking is a board.',
+    );
+  }
+  assert.ok(marking >= 15, `only ${marking} marking screens found; the sweep has stopped seeing them`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

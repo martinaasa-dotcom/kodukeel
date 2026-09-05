@@ -5217,6 +5217,19 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   exempt by name: the scrim behind the phone sheet, which is a close target rather than a labelled
   control, and the command palette's rows, which are painted from `active` so the pointer and the
   arrow keys cannot disagree about which row is next.
+- **And a marked answer says so out loud.** Every round tells a learner how it went in a tint, a
+  chip and a sentence, and six screens said all of it in silence. The level check was the worst:
+  focus moves to "Next question" with `autoFocus`, so somebody sitting a fifteen-minute placement
+  heard the button fifteen times and never once heard whether they had got it right, on the one
+  screen whose whole output is feedback. The daily quest revealed the answer with nothing announced
+  at all, the learn ladder marked a first meeting the same way, and the three boards marked in
+  movement alone: a matched pair pops out, a wrong one shakes, a checked letter turns peach. A live
+  region is the answer everywhere, and **on a board it is one line held in state rather than
+  derived**, so a fast player is read the last thing that happened rather than a backlog of every
+  pair, and a crossword is not re-read on every keystroke after Check. The trigger is the palette's
+  own marking classes, because a screen that paints an answer right or wrong has something to say
+  about it; the one exemption is an examination result, which is a page reached by navigating to
+  it, where the heading is the announcement and a live region would fight it.
 - **A shortcut works wherever the control it presses is drawn, and "drawn" is one question with one
   name.** A new card in review leads with its answer, because a card you have never seen cannot be
   recalled, only met, so `askFor` returns `intro` and the rating buttons arrive with it. `revealed`

@@ -214,7 +214,18 @@ export function ChoiceQuestion({ item, onAnswer, onNoAudio }: {
       </div>
 
       {picked !== null && (
-        <div className="pop-in mt-5">
+        /*
+          A MARKED ANSWER SAYS SO OUT LOUD.
+
+          The panel that appears here is the whole of what a learner gets back
+          from the check: whether they were right, and why. Focus moves to
+          "Next question" with `autoFocus`, so a screen reader announced the
+          button and nothing else, and somebody sitting a fifteen-minute
+          placement check heard "Next question" fifteen times and never once
+          heard whether they had got it right. `role="status"` is polite, so
+          it waits for the focus move rather than interrupting it.
+        */
+        <div className="pop-in mt-5" role="status">
           <Chip tone={right ? "good" : "again"}>{right ? "Right" : "Not this time"}</Chip>
           {/*
             Not marked lang="et": this line is English prose with an Estonian
@@ -315,7 +326,7 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
           </div>
         </div>
       ) : (
-        <div className="pop-in mt-6">
+        <div className="pop-in mt-6" role="status">
           <Chip tone={mark.result.verdict === "correct" ? "good" : mark.result.verdict === "wrong" ? "again" : "hard"}>
             {mark.result.note}
           </Chip>
@@ -393,7 +404,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
           </div>
         </div>
       ) : (
-        <div className="pop-in mt-6">
+        <div className="pop-in mt-6" role="status">
           <Chip tone={mark.credit === 1 ? "good" : mark.credit > 0 ? "hard" : "again"}>{mark.note}</Chip>
           {/*
             The sentence put back together, and then why it wanted that word.

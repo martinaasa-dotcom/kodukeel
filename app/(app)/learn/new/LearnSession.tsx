@@ -705,7 +705,11 @@ export function LearnSession({
           )}
 
           {phase === "feedback" && result && (
+            /* The panel that says how it went, in a live region like every
+               other round's. The ladder is where a word is met for the first
+               time, so this is the one panel a learner most needs read back. */
             <div
+              role="status"
               className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} mt-2 w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left`}
             >
               <p className="text-sm font-semibold">
