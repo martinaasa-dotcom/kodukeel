@@ -4786,6 +4786,34 @@ since `tere` is "hello". Nothing is graded for it, because they may not have sai
 because somebody who says goodbye in the middle has left, so a `close` beat that took anything
 would end every conversation on its first turn.
 
+**A phrase this app teaches is answered rather than punished.** `Kas sa räägid inglise keelt?` is
+in `tervitused`, the first unit anybody opens, and it is the move everybody makes in their first
+month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
+asked the same thing again: the app teaching a phrase on one screen and ignoring it on another. It
+costs no patience, for the reason saying you are lost costs none, and it is answered whatever the
+persona would have done on its own, because being asked is not the same as being written to in a
+language you do not speak. Matched on `inglise` alone rather than on the phrase, since the phrase
+inflects for person and politeness and matching it whole catches one learner in two, while that word
+appears in nothing else a scene teaches.
+
+**And one word nobody could place is not "I did not catch that" either.** `npm run probe:turns`
+found the case it costs most: asked where they are going, a learner writes `Tartusse`, and the app
+answers that it did not understand them. Tartu is a city, and the forms list holds no capitalised
+word on purpose, so every place name in the country lands here, in the scenes most likely to need
+one. A clerk who hears a word they do not know says "sorry?" and asks again, and that is what a lone
+unplaceable word gets. Two of them is still the repair phrase. The greeting rule reads
+`caughtSomething` rather than this, so one unreadable word cannot tick an objective.
+
+**How much the app helps is not the same question as how hard they are, and only one dial existed.**
+The difficulty dial is about the other side: how many things go wrong, how much patience they have.
+Nothing was about the app, which holds both hands, because every line is written out as it is said
+and the objective is in English underneath. In a shop you get neither. `Support` is the second dial:
+`guided` is what everybody has had, `listen` puts the words behind a press, `cold` puts the
+objective there too. `guided` is the default, since the other two are harder than what a learner
+arrived with. Nothing is locked and neither press is recorded, because a scene that punished looking
+would teach people to guess rather than to ask. It is also what makes a second run of a scene worth
+having, which the debrief has been promising all along.
+
 **When a person cannot understand you, they offer you a choice.** Asking the same question a third
 time is what a machine does; narrowing it to two is what anybody at a counter does, and this module
 had no move between "I did not catch that" and giving up. `lib/scenes/choice.ts` builds it out of
@@ -6024,7 +6052,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,

@@ -42,7 +42,7 @@ import {
 } from "@/lib/settings/store";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom, listenFirstFrom } from "@/lib/audio/conditions";
+import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -1403,10 +1403,10 @@ export async function setFeedbackSounds(value: string) {
  * speed was the one thing a rehearsal never rehearsed. Off by default, since
  * it is harder than what everybody has had.
  */
-export async function setListenFirst(value: string) {
+export async function setSupport(value: string) {
   const ownerId = await requireUserId();
-  const normalised = listenFirstFrom(value);
-  await writeSetting(ownerId, SETTING_KEYS.listenFirst, normalised);
+  const normalised = supportFrom(value);
+  await writeSetting(ownerId, SETTING_KEYS.support, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }

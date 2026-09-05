@@ -44,7 +44,7 @@ function evidence(
   slips: Evidence["slips"] = [],
   satisfiedBy: readonly string[] = met.some(Boolean) ? ["x"] : [],
 ): Evidence {
-  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy, slips, asked: null, substituted: [] };
+  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy, slips, asked: null, substituted: [], wantsEnglish: false };
 }
 
 /** Plays the turns given, in order, and hands back where it got to. */

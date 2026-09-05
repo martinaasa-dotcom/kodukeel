@@ -82,6 +82,8 @@ export interface TurnRecord {
   readonly asked?: string;
   /** Whether the app had to supply a word for this beat before it was met. */
   readonly helped: boolean;
+  /** Whether the learner asked for English on this turn, so the move is put into it. */
+  readonly wantsEnglish?: boolean;
 }
 
 /**
@@ -190,6 +192,7 @@ export function advance(
     ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
     produced: evidence.satisfiedBy,
     substituted: evidence.substituted,
+    ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),
   }];
@@ -217,6 +220,24 @@ export function advance(
   */
   if (evidence.reading === "lost" && !waitedAlready) {
     return { state: { ...state, turns }, response: "help" };
+  }
+
+  /*
+    THEY ASKED FOR ENGLISH, WHICH THE COURSE TEACHES THEM TO DO.
+
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and it is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked again: this app
+    teaching a phrase on one screen and ignoring it on another.
+
+    It costs no patience, for the reason saying you are lost costs none: it is
+    a person taking part rather than failing, and a scene that ran out of
+    patience on somebody asking for help would be the module's whole purpose
+    pointed backwards. Only where nothing landed, because a turn that answered
+    the question is an answer whatever else is in it.
+  */
+  if (evidence.wantsEnglish && evidence.missing.length === beat.needs.length) {
+    return { state: { ...state, turns }, response: "english" };
   }
 
   if (advances(evidence.reading) || taken) {

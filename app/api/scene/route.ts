@@ -262,6 +262,7 @@ export async function POST(request: Request) {
     said: last?.said ?? null,
     card,
     translates: persona?.translates ?? false,
+    askedForEnglish: last?.wantsEnglish === true,
     acknowledges: persona?.acknowledges ?? true,
     echo: last?.matched?.[0] ?? null,
     /*

@@ -11736,9 +11736,13 @@ check("a learner who says they are lost is handed the word, never the question a
     a turn there was nothing in.
   */
   assert.match(
-    turn, /caughtSomething\(marked\) \? "offtarget" : "unrecognised"/,
+    turn, /caughtSomething\(marked\)/,
     "the repair phrase is decided on a share of the words again, so a learner using Estonian from "
     + "another unit is told they were incomprehensible",
+  );
+  assert.match(
+    turn, /shape\(tried \? "offtarget" : "unrecognised"\)/,
+    "the repair phrase is no longer the last resort it was written to be",
   );
   /*
     AND WHETHER THE LEARNER WAS UNDERSTOOD IS A WIDER QUESTION THAN WHAT THIS
@@ -11920,6 +11924,39 @@ check("a learner who says they are lost is handed the word, never the question a
     turn, /beat\.move === "greet" && missing\.length > 0/,
     "a greeting can be failed again, so a learner who says hello in a word the course does not "
     + "teach is refused for knowing it",
+  );
+
+  /*
+    AND A PHRASE THIS APP TEACHES IS ANSWERED RATHER THAN PUNISHED.
+
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked the same thing
+    again. It costs no patience, for the reason saying you are lost costs
+    none, and it is answered whatever the persona would have done on its own.
+  */
+  assert.match(
+    turn, /spoken\.includes\(ASK_ENGLISH\)/,
+    "a learner asking for English is read as an ordinary turn again, so a phrase this app teaches "
+    + "is answered with the same question a third time",
+  );
+  assert.match(
+    code("lib/scenes/state.ts"), /evidence\.wantsEnglish && evidence\.missing\.length === beat\.needs\.length/,
+    "asking for English costs a try, so a scene can run out of patience on somebody asking for help",
+  );
+  assert.match(
+    answering, /input\.translates \|\| input\.askedForEnglish/,
+    "a brisk persona refuses to answer a learner who asked for English in Estonian",
+  );
+  /*
+    And one word nobody could place is not the repair phrase either: the probe
+    found `Tartusse` answered with "I did not understand", because the forms
+    list holds no capitalised word and so holds no place name in the country.
+  */
+  assert.match(
+    turn, /caughtSomething\(marked\) \|\| spoken\.length === 1/,
+    "a single unplaceable word is called incomprehensible again, which is every place name in "
+    + "Estonia in the scenes most likely to need one",
   );
 
   /*

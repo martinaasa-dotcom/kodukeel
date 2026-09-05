@@ -118,7 +118,7 @@ export const SETTING_KEYS = {
    * never rehearsed. Off by default, since it is harder than what everybody
    * has had; revealing costs nothing and is never recorded.
    */
-  listenFirst: "listenFirst",
+  support: "support",
   /**
    * Which language a meaning is given in beside the English.
    *

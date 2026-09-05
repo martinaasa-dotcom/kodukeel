@@ -9,7 +9,7 @@ import { Card } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Speak } from "@/components/Speak";
 import { isSaid, isSpokenEstonian, type Provenance as SceneProvenance } from "@/lib/scenes/line";
-import { conditionFor } from "@/lib/audio/conditions";
+import { conditionFor, hidesGoal, hidesWords } from "@/lib/audio/conditions";
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -220,11 +220,11 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     is the thing the table exists to rehearse rather than a way to be marked
     down.
   */
-  const { hearing, listenFirst } = useAudioPrefs();
+  const { hearing, support } = useAudioPrefs();
   /*
     WHICH LINES THE LEARNER HAS ASKED TO SEE.
 
-    With `listenFirst` on, the other side's Estonian is spoken and its words
+    With `support` on, the other side's Estonian is spoken and its words
     wait behind a press: in a shop you do not get the subtitles, and every line
     here has been text and audio at once, so catching it the first time at
     somebody else's speed was the one thing a rehearsal never rehearsed.
@@ -236,6 +236,8 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     not to be marked on it.
   */
   const [shown, setShown] = useState<ReadonlySet<string>>(new Set());
+  /* Whether the objective has been asked for on this beat. Reset when it changes. */
+  const [goalShown, setGoalShown] = useState(false);
   const reveal = useCallback((text: string) => {
     setShown((was) => (was.has(text) ? was : new Set([...was, text])));
   }, []);
@@ -315,7 +317,17 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       }
 
       setBeatId(data.beatId ?? null);
-      setGoal(data.goal ?? null);
+      /*
+        A new objective is a new beat, so the cold level hides it again: the
+        press is per beat rather than per scene, or the first one would be the
+        only one anybody had to work out.
+      */
+      setGoal((was) => {
+        const next = data.goal ?? null;
+        // A new objective is a new beat, so the cold level hides it again.
+        if (next !== was) setGoalShown(false);
+        return next;
+      });
       if (data.voice) setVoice(data.voice);
       if (typeof data.speed === "number" && data.speed > 0) setSpeed(data.speed);
       setDone(data.done ?? []);
@@ -646,7 +658,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                 spoken(line) ? (
                   <div key={at} className="max-w-full">
                     <Card className="inline-block max-w-full">
-                      {listenFirst === "on" && spokenEstonian(line) && !shown.has(line.text) ? (
+                      {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
                           Heard, not read. The speaker is the whole line, and
                           the way out is beside it rather than hidden: a
@@ -812,7 +824,31 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         ))}
       </div>
 
-      {goal && (
+      {goal && hidesGoal(support) && !goalShown ? (
+        /*
+          COLD: THEY HAVE SAID SOMETHING AND NOBODY HAS TOLD YOU WHAT TO SAY.
+          Which is the position anybody is in at a counter, and the objective
+          in English underneath every turn is the last thing between a scene
+          and the real exchange. It is one press away and the press is never
+          recorded, because a scene that punished looking would teach people to
+          guess rather than to ask.
+
+          Reset per beat, so the objective is hidden again on the next one
+          rather than only on the first: `goal` is what changes when the
+          conversation moves.
+        */
+        <p className="text-sm" aria-live="polite">
+          <span className="label-xs" style={{ color: "var(--ink-3)" }}>Your turn</span>
+          <button
+            type="button"
+            onClick={() => setGoalShown(true)}
+            className="tap-tint mt-0.5 block rounded-full px-3 py-1 text-sm"
+            style={{ color: "var(--ink-2)" }}
+          >
+            Show what you are trying to do
+          </button>
+        </p>
+      ) : goal && (
         <p className="text-sm" aria-live="polite">
           <span className="label-xs" style={{ color: "var(--ink-3)" }}>Your turn</span>
           <span className="block font-medium">{goal}</span>

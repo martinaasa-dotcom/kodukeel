@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AudioLines, BookOpen, Coffee, Ear, EarOff, Music, VolumeX } from "lucide-react";
-import { setAutoplay, setFeedbackSounds, setHearing, setListenFirst, setVoice } from "@/app/actions";
-import { CONDITIONS, removesWords, type Hearing, type ListenFirst } from "@/lib/audio/conditions";
+import { AudioLines, BookOpen, Coffee, Ear, EarOff, Music, Sparkles, VolumeX } from "lucide-react";
+import { setAutoplay, setFeedbackSounds, setHearing, setSupport, setVoice } from "@/app/actions";
+import { CONDITIONS, removesWords, type Hearing, type Support } from "@/lib/audio/conditions";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
@@ -214,49 +214,57 @@ export function HearingPanel({ current }: { current: Hearing }) {
 }
 
 /**
- * WHETHER A CONVERSATION IS HEARD BEFORE IT IS READ.
+ * HOW MUCH THE APP HELPS, WHICH IS NOT THE SAME QUESTION AS HOW HARD THEY ARE.
  *
- * Every line the other side says in a scene has been on the screen as text and
- * in the ear at the same time, so the one thing that actually breaks down at a
- * counter, catching it the first time at somebody else's speed, was the one
- * thing a rehearsal never rehearsed. Off by default, which is the ordinary
- * rule about a missing row rather than the exception the row above makes:
- * this is harder than what everybody has had.
+ * The dial a scene already had is about the other side: how many things go
+ * wrong and how much patience they have. This one is about the app, which
+ * holds both hands: every line is written out as it is said, and the objective
+ * is in English underneath. In a shop you get neither, so the thing that
+ * actually breaks down at a counter was the one thing a rehearsal never
+ * rehearsed. It is also what makes a second run of a scene worth having, which
+ * the debrief has been promising all along.
  *
- * The words are always one press away inside the scene, so nothing is locked
- * behind it and nothing is recorded about whether somebody looked.
+ * Nothing is locked and nothing is recorded: both presses are always there,
+ * and a scene that punished looking would teach people to guess rather than to
+ * ask.
  */
-const LISTEN_FIRST: { value: ListenFirst; label: string; detail: string; icon: typeof Coffee }[] = [
+const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typeof Coffee }[] = [
   {
-    value: "off",
+    value: "guided",
     label: "Words and voice together",
-    detail: "Every line is written down as it is said, which is how a conversation has always read here.",
+    detail: "Every line is written down as it is said, and the objective is under it. This is how a conversation has always read here.",
     icon: BookOpen,
   },
   {
-    value: "on",
+    value: "listen",
     label: "Hear it first",
     detail: "A line is spoken and its words wait behind a press, the way they do in a shop. You can always look.",
     icon: Ear,
   },
+  {
+    value: "cold",
+    label: "Hear it, and work out what to say",
+    detail: "The objective waits behind a press as well, which is the closest this gets to the real thing. Best on a scene you have done before.",
+    icon: Sparkles,
+  },
 ];
 
-export function ListenFirstPanel({ current }: { current: ListenFirst }) {
+export function SupportPanel({ current }: { current: Support }) {
   const [value, setValue] = useState(current);
   const [pending, start] = useTransition();
   const router = useRouter();
 
-  const pick = (next: ListenFirst) => {
+  const pick = (next: Support) => {
     setValue(next);
     start(async () => {
-      await setListenFirst(next);
+      await setSupport(next);
       router.refresh();
     });
   };
 
   return (
-    <ChoiceGroup ariaLabel="Whether a conversation is heard before it is read" className="grid gap-2 sm:grid-cols-2">
-      {LISTEN_FIRST.map((o) => (
+    <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 sm:grid-cols-3">
+      {SUPPORT_LEVELS.map((o) => (
         <ChoiceCard
           key={o.value}
           layout="stacked"

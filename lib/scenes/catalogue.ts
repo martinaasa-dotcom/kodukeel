@@ -160,6 +160,24 @@ export const LOST = {
   verbs: ["teadma", "saama"],
 } as const;
 
+/**
+ * HOW A LEARNER ASKS FOR ENGLISH, WHICH IS A PHRASE THE COURSE TEACHES AND
+ * THIS MODULE USED TO PUNISH.
+ *
+ * `Kas sa räägid inglise keelt?` is in `tervitused`, which every scene
+ * declares, and it is the move anybody makes in their first month in a shop.
+ * Read as an ordinary turn it meets no requirement, so the other side said
+ * "sorry?" and asked the same question again: the app teaching a phrase in one
+ * screen and ignoring it in another.
+ *
+ * Matched on `inglise` alone, and that is deliberate rather than lazy. The
+ * phrase inflects for person and politeness (`sa räägid`, `te räägite`), so
+ * matching it whole catches one learner in two; the word for "English" appears
+ * in nothing else a scene teaches, which makes it the one token that says what
+ * the turn is about whatever else is around it.
+ */
+export const ASK_ENGLISH = "inglise";
+
 export const ASIDES = {
   /** `Hästi, aitäh.` */
   howAreYou: [{ lemma: "hästi" }, { lemma: "aitäh" }],

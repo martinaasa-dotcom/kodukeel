@@ -20,8 +20,8 @@ import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel } from "./PreferencesPanel";
-import { AutoplayPanel, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, ListenFirstPanel, VoicePanel } from "./AudioPanel";
-import { hearingFrom, listenFirstFrom } from "@/lib/audio/conditions";
+import { AutoplayPanel, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SupportPanel, VoicePanel } from "./AudioPanel";
+import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
 import { RoundPacePanel } from "./RoundPacePanel";
 import { ROUND_PACES, roundPaceFrom } from "@/lib/ux/roundClock";
@@ -102,7 +102,7 @@ export default async function SettingsPage() {
       SETTING_KEYS.letterBar, SETTING_KEYS.researchOptOut,
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-      SETTING_KEYS.hearing, SETTING_KEYS.listenFirst, SETTING_KEYS.glossLanguage, SETTING_KEYS.todayOrder,
+      SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.glossLanguage, SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
     ]),
     currentLearner(),
@@ -127,7 +127,7 @@ export default async function SettingsPage() {
   const autoplay = autoplayFrom(settings[SETTING_KEYS.autoplayAudio]);
   const sounds = feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]);
   const hearing = hearingFrom(settings[SETTING_KEYS.hearing]);
-  const listenFirst = listenFirstFrom(settings[SETTING_KEYS.listenFirst]);
+  const support = supportFrom(settings[SETTING_KEYS.support]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
@@ -196,7 +196,7 @@ export default async function SettingsPage() {
               <div>
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Listening and dictation</h3>
                 <HearingPanel current={hearing} />
-                <ListenFirstPanel current={listenFirst} />
+                <SupportPanel current={support} />
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                   The words never change. What changes is the pace, the reader, and the room,
                   because the receptionist will not slow down for you and the counter is never quiet.

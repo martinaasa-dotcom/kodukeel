@@ -45,7 +45,7 @@ const SCENE: SceneSpec = {
 
 function evidence(reading: TurnReading, met: readonly boolean[] = [true]): Evidence {
   return {
-    reading, met, substituted: [],
+    reading, met, substituted: [], wantsEnglish: false,
     missing: met.flatMap((ok, i) => (ok ? [] : [i])),
     words: [],
     matched: [],

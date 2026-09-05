@@ -309,6 +309,35 @@ describe("reading a turn", () => {
     expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
   });
 
+  /*
+    A word the app cannot place is a word they tried. The probe found the case
+    it costs most: `Tartusse` is a city, the forms list holds no capitalised
+    word on purpose, and the app answered that it did not understand them.
+  */
+  it("does not call one unplaceable word incomprehensible", () => {
+    expect(readTurn("tartusse", beat(), context()).reading).toBe("offtarget");
+    // Two of them is a turn there really was nothing to go on in.
+    expect(readTurn("qqqq wwww", beat(), context()).reading).toBe("unrecognised");
+  });
+
+  it("still refuses to credit a greeting for one word nobody could place", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("qqqq", hello, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked again: this app
+    teaching a phrase on one screen and ignoring it on another.
+  */
+  it("notices a learner asking for English, whatever person they asked it in", () => {
+    for (const said of ["kas sa räägid inglise keelt?", "kas te räägite inglise keelt"]) {
+      expect(readTurn(said, beat(), context()).wantsEnglish, said).toBe(true);
+    }
+    expect(readTurn("tere", beat(), context()).wantsEnglish).toBe(false);
+  });
+
   it("reads a turn written in English as English rather than as unreadable Estonian", () => {
     const seen = readTurn("Sorry, what do you mean?", beat(), context());
     expect(seen.reading).toBe("english");
@@ -394,9 +423,16 @@ describe("reading a turn", () => {
   */
   it("counts a word only the course knows as Estonian, so it is aimed elsewhere and not unreadable", () => {
     const wider = context({ known: (word) => word === "sularahaga" });
-    expect(readTurn("sularahaga", beat(), wider).reading).toBe("offtarget");
-    // And without the wider list it is what it was, which is what a thin caller gets.
-    expect(readTurn("sularahaga", beat(), context()).reading).toBe("unrecognised");
+    /*
+      Two words, because a single one is never called incomprehensible now
+      whatever the list says: what this is about is the *wider* list, so the
+      turn has to be one the scene's own list could not carry on its own.
+    */
+    expect(readTurn("sularahaga qqqq", beat(), wider).reading).toBe("offtarget");
+    expect(readTurn("sularahaga qqqq", beat(), context()).reading).toBe("unrecognised");
+    // And it is marked as Estonian either way it is read.
+    expect(readTurn("sularahaga", beat(), wider).words[0]?.vouched).toBe(true);
+    expect(readTurn("sularahaga", beat(), context()).words[0]?.vouched).toBe(false);
   });
 
   /*

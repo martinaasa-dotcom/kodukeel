@@ -26,7 +26,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { looksLikeSentence } from "@/lib/estonian/writing";
-import { LOST } from "./catalogue";
+import { ASK_ENGLISH, LOST } from "./catalogue";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
 import { words, type Lexicon } from "./lexicon";
@@ -161,6 +161,15 @@ export interface Evidence {
    * for and which one this scene uses.
    */
   readonly substituted: readonly number[];
+  /**
+   * Whether the learner asked for English. A phrase the course teaches and
+   * the move anybody makes in their first month, which read as an ordinary
+   * turn meets nothing: the other side said "sorry?" and asked again, which
+   * is the app teaching a phrase on one screen and ignoring it on another.
+   * The reply puts the move into English whatever the persona would have
+   * done, because being asked is not the same as being written to in English.
+   */
+  readonly wantsEnglish: boolean;
   /**
    * A question the learner asked: the question word they used, or `?` where
    * there was only the mark. Null where the turn asked nothing. What
@@ -381,8 +390,9 @@ export function readTurn(
   */
   const questionWord = spoken.find((word) => context.questionWords.has(word)) ?? null;
   const asked = questionWord ?? (text.includes("?") ? "?" : null);
+  const wantsEnglish = spoken.includes(ASK_ENGLISH);
   const shape = (reading: TurnReading): Evidence =>
-    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted });
+    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted, wantsEnglish });
 
   /*
     No letters at all is nothing anybody could read, unless the beat wanted a
@@ -449,7 +459,7 @@ export function readTurn(
   if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked) && !isLost(spoken, context)) {
     return {
       reading: "complete", met: beat.needs.map(() => true), missing: [],
-      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [],
+      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [], wantsEnglish,
     };
   }
 
@@ -473,7 +483,7 @@ export function readTurn(
   if (beat.counter && spoken.some((word) => context.negators.has(word))) {
     return {
       reading: "declined", met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
-      words: marked, matched: [], satisfiedBy: [], slips: [], asked: null, substituted: [],
+      words: marked, matched: [], satisfiedBy: [], slips: [], asked: null, substituted: [], wantsEnglish: false,
     };
   }
   /*
@@ -538,7 +548,27 @@ export function readTurn(
   if (isEnglish(spoken, marked)) return shape("english");
   if (missing.length < beat.needs.length) return shape("incomplete");
 
-  return shape(caughtSomething(marked) ? "offtarget" : "unrecognised");
+  /*
+    AND ONE WORD NOBODY COULD PLACE IS NOT "I DID NOT CATCH THAT" EITHER.
+
+    The repair phrase is for a turn there was nothing readable in, and a single
+    word is a word they tried. `npm run probe:turns` found the case it costs
+    most: asked where they are going, a learner writes `Tartusse`, and the app
+    answers that it did not understand them. Tartu is a city. The forms list
+    holds no capitalised word on purpose (`scripts/build-wordlist.ts`: an index
+    full of two-letter abbreviations makes every typo look like a word), so
+    every place name in the country lands here, in the scenes most likely to
+    need one.
+
+    A clerk who hears a word they do not know says "sorry?" and asks again.
+    That is `offtarget`, and it is what a lone unplaceable word gets now. Two
+    of them is still the repair phrase, because at that point there really was
+    nothing to go on. The greeting rule above deliberately reads
+    `caughtSomething` rather than this, so a single unreadable word cannot tick
+    an objective.
+  */
+  const tried = caughtSomething(marked) || spoken.length === 1;
+  return shape(tried ? "offtarget" : "unrecognised");
 }
 
 /**

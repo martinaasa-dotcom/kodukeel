@@ -75,6 +75,14 @@ export interface ReplyInput {
   /** Whether this persona puts the question into English when the learner writes English. */
   readonly translates: boolean;
   /**
+   * Whether the learner asked for English in Estonian, which the course teaches
+   * them to do. Then the move is put into English whatever the persona would
+   * have done on its own: being asked is not the same as being written to in a
+   * language you do not speak, and refusing a phrase this app taught them is
+   * the worst answer available.
+   */
+  readonly askedForEnglish?: boolean;
+  /**
    * The curveball now standing in front of the beat, as a beat, with the line
    * the ladder built for it. When one is up it is what the other side says
    * instead of the beat's move, and the learner's goal on screen is its way
@@ -512,7 +520,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
-    if (response === "english" && input.translates) out.push(stage(stageFor(input.hurdle.beat, card)));
+    if (response === "english" && (input.translates || input.askedForEnglish)) {
+      out.push(stage(stageFor(input.hurdle.beat, card)));
+    }
     return out;
   }
 
@@ -587,7 +597,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     (§8); a brisk one has already repeated it in Estonian above and says no
     more. Never scolded, and the turn has already cost its try.
   */
-  if (response === "english" && input.translates) out.push(stage(stageFor(beat, card)));
+  if (response === "english" && (input.translates || input.askedForEnglish)) {
+    out.push(stage(stageFor(beat, card)));
+  }
 
   return out;
 }

@@ -153,6 +153,38 @@ describe("a turn nobody could read", () => {
   });
 });
 
+describe("a learner who asks for English", () => {
+  /*
+    The course teaches the phrase in its first unit, so refusing it is the app
+    ignoring something it taught. The persona's own answer to a turn *written*
+    in English is a separate question: being asked is not the same as being
+    written to in a language you do not speak.
+  */
+  it("is answered in English even by somebody who would not have offered", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false, askedForEnglish: true,
+    }));
+    expect(texts(lines)).toContain("They ask where it hurts.");
+  });
+
+  it("still hears it in Estonian first, because that is what they came for", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false, askedForEnglish: true,
+    }));
+    expect(texts(lines)[0]).toBe("Kus teil valutab?");
+  });
+
+  it("does not put a brisk persona into English for somebody who merely wrote it", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "english",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false,
+    }));
+    expect(texts(lines)).not.toContain("They ask where it hurts.");
+  });
+});
+
 describe("a learner who is stuck", () => {
   /*
     The other side asks again and then gives up, which is what a counter does
