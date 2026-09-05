@@ -425,11 +425,21 @@ export function readTurn(
     produced was something else (`gradesFor`). The beat is met, the objective
     ticks, and the append-only log says only what actually happened.
 
+    ANYTHING THEY SAY BACK, AND NOT ANYTHING AT ALL. The first version of this
+    took every turn, and an integration test caught it: a run whose only turn
+    was `qqqq wwww` came back with the greeting credited. An objective the
+    learner did not meet is one the debrief has to be able to say they did not
+    meet, and a scene that credits one for typing is a scene with a score
+    hidden inside it. So the turn has to be something the app can account for,
+    which after `knowing` is the whole language rather than this scene's few
+    hundred words. A greeting in English is met one rung down, by the gloss,
+    since `tere` is "hello" and that is what the learner reached for.
+
     Only `greet`. A farewell is read against every turn of the scene, because
     somebody who says goodbye in the middle has left (`replay`), so a `close`
     beat that took anything would end every conversation on its first turn.
   */
-  if (beat.move === "greet" && missing.length > 0) {
+  if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked)) {
     return {
       reading: "complete", met: beat.needs.map(() => true), missing: [],
       words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [],

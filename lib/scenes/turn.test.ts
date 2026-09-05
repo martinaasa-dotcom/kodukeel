@@ -148,11 +148,21 @@ describe("reading a turn", () => {
     holds and no unit teaches, and the app refused it. Nothing a refusal there
     could teach is worth that, since the word is on the screen one line above.
   */
-  it("takes anything said back to a greeting", () => {
+  it("takes anything Estonian said back to a greeting", () => {
     const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
-    for (const said of ["tervitused", "tere", "hei", "good morning"]) {
-      expect(readTurn(said, hello, context()).reading, said).toBe("complete");
+    const anyEstonian = { ...context(), known: () => true };
+    for (const said of ["tervitused", "tere", "hei"]) {
+      expect(readTurn(said, hello, anyEstonian).reading, said).toBe("complete");
     }
+  });
+
+  /*
+    And not anything at all: an objective credited for typing is a score
+    hidden inside a scene, which is what the debrief exists not to have.
+  */
+  it("does not credit a greeting for a turn nobody could read", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("qqqq wwww", hello, context()).reading).not.toBe("complete");
   });
 
   it("grades nobody for it, since they may not have said the word", () => {
@@ -161,7 +171,7 @@ describe("reading a turn", () => {
       Met, and nothing produced, so `gradesFor` writes no row claiming the
       learner recalled a word they never wrote.
     */
-    expect(readTurn("tervitused", hello, context()).satisfiedBy).toEqual([]);
+    expect(readTurn("tervitused", hello, { ...context(), known: () => true }).satisfiedBy).toEqual([]);
   });
 
   it("still ends a scene only on a real farewell, since a goodbye is read on every turn", () => {
@@ -171,7 +181,7 @@ describe("reading a turn", () => {
       would end every conversation on its first turn.
     */
     const bye = beat({ move: "close", needs: [{ kind: "lemma", oneOf: ["aitäh"] }] });
-    expect(readTurn("tervitused", bye, context()).reading).not.toBe("complete");
+    expect(readTurn("tervitused", bye, { ...context(), known: () => true }).reading).not.toBe("complete");
   });
 
   /*

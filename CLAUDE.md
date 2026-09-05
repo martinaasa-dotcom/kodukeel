@@ -4776,7 +4776,12 @@ the dictionary holds and no unit teaches, and the app told them they had not bee
 is no mechanical repair inside the list, since `tere` is glossed "hello" and `tervitus` "greeting,
 salutation" and the two share not one word. So the beat is met by whatever they say back: the other
 side has just said hello, anybody who answers has greeted them, and the word is on the screen one
-line above. Nothing is graded for it, because they may not have said it, which is what
+line above. **Anything they say back, and not anything at all**: the first version took every turn
+and an integration test caught it, crediting the greeting on a run whose only turn was `qqqq wwww`.
+An objective the learner did not meet is one the debrief has to be able to say they did not meet,
+so the turn has to be something the app can account for, which after `knowing` is the whole language
+rather than the scene's few hundred words; a greeting in English is met one rung down by the gloss,
+since `tere` is "hello". Nothing is graded for it, because they may not have said it, which is what
 `TurnRecord.produced` is for. Only `greet`: a farewell is read against every turn of a scene,
 because somebody who says goodbye in the middle has left, so a `close` beat that took anything
 would end every conversation on its first turn.
