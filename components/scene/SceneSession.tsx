@@ -7,6 +7,7 @@ import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, Chip } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
+import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
 import { conditionFor } from "@/lib/audio/conditions";
 import { GlossedSentence } from "@/components/GlossedSentence";
@@ -775,6 +776,30 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             </div>
           )
         ))}
+        {/*
+          THEY ARE ANSWERING, WHICH IS THE ONE THING THE LOG NEVER SAID.
+
+          A turn goes to the server to be marked and the reply can be a
+          model's, so the wait is a second or two on a good day and longer on
+          a bad one, and the screen showed nothing at all in it: the learner's
+          own bubble appeared and then the page sat still, which reads as a
+          turn that did not register and is answered by pressing again. Anu
+          has had the dots since she was written, so this is her drawing
+          rather than a second one.
+
+          Only while the floor is theirs: `busy` is also true while the help
+          button fetches a word and while the run is being finished, and in
+          both of those the last thing in the log is already something they
+          said. The opening line has nothing before it, which is exactly when
+          the dots are worth most.
+        */}
+        {busy && turns[turns.length - 1]?.who !== "them" && (
+          <div className="flex flex-col items-start">
+            <Card className="inline-block">
+              <Dots label="They are answering" />
+            </Card>
+          </div>
+        )}
       </div>
 
       {/*
