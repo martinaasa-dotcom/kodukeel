@@ -313,7 +313,7 @@ const page = await measuring({ width: 1280, height: 1000 });
   claim on /accessibility, and it is worth it: a phone is where most of this
   app is read.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 574 });
+const { check, absent, done } = suite("Accessibility", { floor: 576 });
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.
@@ -593,6 +593,67 @@ for (const theme of ["light", "dark"]) {
       "(run `npm run demo`) or every card that came up graded itself, which a clean hit does");
   }
   await graded.close();
+}
+
+/*
+  AND THE ONE SCREEN IN THIS APP THAT NO URL REACHES.
+
+  The block above says the rule: a control that is only live after somebody has
+  done something has to be swept after they have done it. The scene debrief is
+  the same rule one step further out. It is not a state of a route, it is what
+  `/situations/[id]` becomes once a conversation has been had and left, so no
+  walk of the filesystem can arrive at it and nothing here had ever looked at
+  it. It is also dense: a verdict card, a ticked list, a review with the
+  learner's own forms in it, chips with add-to-deck buttons beside them, and a
+  transcript of both sides.
+
+  Two turns and out, rather than a whole conversation, because what is being
+  swept is the debrief and not the scene: `scripts/test-scene.mjs` is where the
+  conversation itself is driven and checked. Every step is guarded, and a run
+  that cannot get there waives its checks with the reason rather than failing,
+  since this depends on a seeded dictionary and on the scene catalogue holding
+  the id.
+
+  IT COSTS WHAT A CONVERSATION COSTS, stated here rather than found by whoever
+  runs the next suite: a scene run per theme, and a `Review` row for any word
+  the two turns retrieved unambiguously, which is the same price
+  `scripts/test-scene.mjs` already pays.
+*/
+for (const theme of ["light", "dark"]) {
+  const scene = await measuring({ width: 1280, height: 1000 });
+  if (theme === "dark") await chooseDark(scene);
+  const reached = await (async () => {
+    try {
+      await scene.goto(`${BASE}/situations/arsti-aeg`, { waitUntil: "networkidle" });
+      await scene.getByRole("button", { name: /Start the conversation/i }).click({ timeout: 8_000 });
+      const box = scene.getByLabel("What you say");
+      await box.waitFor({ timeout: 20_000 });
+      for (const said of ["Tere!", "Mul on valu."]) {
+        const before = await scene.locator('[role="log"] p').count();
+        await box.fill(said);
+        await scene.getByRole("button", { name: /Say it/i }).click();
+        await scene.waitForFunction(
+          (n) => document.querySelectorAll('[role="log"] p').length > n + 1,
+          before, { timeout: 30_000 },
+        );
+      }
+      await scene.getByRole("button", { name: /^Leave/i }).click();
+      await scene.waitForSelector("text=/What you got done/i", { timeout: 30_000 });
+      await scene.waitForTimeout(300);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+  if (reached) {
+    const violations = await axeViolations(scene);
+    check(`the scene debrief, in ${theme}: axe finds nothing`,
+      violations.length === 0, violations.slice(0, 2).join("; "));
+  } else {
+    absent(1, `the scene debrief, in ${theme}: a conversation could not be played through to one. ` +
+      "It needs a seeded dictionary and the scene catalogue to hold `arsti-aeg`");
+  }
+  await scene.close();
 }
 
 // A visible focus ring on the primary action of the review path.

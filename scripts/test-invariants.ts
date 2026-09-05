@@ -11769,6 +11769,29 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     debrief, /You wrote <span lang="et"/,
     "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
   );
+  /*
+    AND THE TRANSCRIPT SAYS WHO SPOKE. Left and right and two inks are the
+    whole of what tells the two speakers apart, and both are things you have to
+    be looking at, so read aloud this section was one flat run of sentences in
+    two languages on the screen whose point is reading the exchange back.
+  */
+  assert.match(
+    debrief, /className="sr-only">\{turn\.who === "you" \? "You said/,
+    "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
+  );
+  /*
+    AND THE RECORD SITS UNDER THE TEACHING. The transcript is the one section
+    on this screen with no bound on its length: 1,056 of 2,339 pixels at 360 on
+    a seven-turn run, measured, and it used to sit between the outcome and
+    every actionable thing under it, so the review, the words to keep and the
+    drill were all a screen and a half down on a conversation that had barely
+    started. Read as source order rather than as markup, because what matters
+    is which section is written first (`docs/21-situations.md` §12 amendment 1).
+  */
+  assert.ok(
+    debrief.indexOf("How it went") < debrief.indexOf("What was said"),
+    "the debrief puts its transcript back in front of its teaching, so the review is a screen down again",
+  );
   assert.match(
     code("lib/progress/scene.ts"), /reviewOf\(scene, state\)/,
     "finishRun no longer derives the review from the run it just marked",

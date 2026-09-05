@@ -23,17 +23,24 @@ export const SCENE_SOURCE = "SCENE";
  * 2. **What you got done**: the required beats, ticked. A count of things
  *    achieved, never a percentage, because a mark on a conversation is a claim
  *    about somebody's Estonian and only the mock exam may make one (ADR-022).
- * 3. **Your turns**, so a learner can read back what they actually said.
- * 4. **How it went**, which is the review a teacher gives after a role-play:
+ * 3. **How it went**, which is the review a teacher gives after a role-play:
  *    it leads on how much of what you said was understood, and then names
  *    each ending that came out as something else, what that ending is for,
  *    and your own words beside the ones the other side used. English, and
  *    derived from the transcript rather than written here
  *    (`lib/scenes/review.ts`).
- * 5. **The words you needed and did not have**, each with an add-to-deck
+ * 4. **The words you needed and did not have**, each with an add-to-deck
  *    button, from the help button and from the beats that stalled.
- * 6. **One thing to work on**, as a `DrillLink` into the drill that addresses
- *    it, rather than advice this screen wrote itself.
+ * 5. **One thing to work on**, as a `DrillLink` into the drill that addresses
+ *    it, rather than advice this screen wrote itself, and only where there is
+ *    a drill: the goal itself is already ticked off at 2.
+ * 6. **What was said**, both sides, which is the record. §12 of the design
+ *    had it third and gave as its reason the job 3 does now, that this is
+ *    where a learner finds out the word they were sure of was not the word.
+ *    The transcript marks nothing, and it is the one section here with no
+ *    bound on its length, so it sits under the things a learner can act on
+ *    rather than between them and the outcome
+ *    (`docs/21-situations.md` §12, amendment 1).
  * 7. **The real one.** The errand this scene rehearses, and where the people
  *    are. This is the screen a learner is on the moment they have just proved
  *    they can book the appointment, and it used to end in "have it again":
@@ -131,29 +138,6 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                 </li>
               );
             })}
-          </ul>
-        </section>
-      )}
-
-      {turns.length > 0 && (
-        <section>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What was said</h3>
-          {/*
-            Both sides rather than the learner's alone, because a turn only
-            makes sense beside the line it answered, and reading the whole
-            exchange back is how somebody notices that "poodi" was the right
-            answer to the wrong question.
-          */}
-          <ul className="flex flex-col gap-2">
-            {turns.map((turn, index) => (
-              <li key={index} className={turn.who === "you" ? "self-end text-right" : "self-start"}>
-                <Card className="inline-block max-w-full text-sm">
-                  <span lang={turn.lang} style={turn.who === "them" ? { color: "var(--ink-2)" } : undefined}>
-                    {turn.text}
-                  </span>
-                </Card>
-              </li>
-            ))}
           </ul>
         </section>
       )}
@@ -268,18 +252,22 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
 
-      {missed && (
+      {missed && drill && (
         <section>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>One thing to work on</h3>
           {/*
-            The one goal to go back in for, and the whole list of them is
-            ticked off a few sections above. `lib/scenes/review.ts` used to
-            print the unmet goals a third time in between, which is how the
-            same sentence came to be on this screen three times over.
+            NAMED HERE ONLY WHERE THERE IS A DRILL TO NAME IT FOR.
+
+            Every unmet goal is ticked off a few sections above, in order, so
+            the first of them is already on the screen and already first. What
+            this section adds is the way to practise it, and with no drill
+            behind it the whole section was that same sentence printed a second
+            time under a heading, followed by an encouragement about pressing a
+            button that is four lines further down. `lib/scenes/review.ts` used
+            to print it a third time in between, which is how one sentence came
+            to be on this screen three times over.
           */}
-          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>
-            {missed.goal} The second run of a scene is where most of it sticks.
-          </p>
+          <p className="mb-2 text-sm" style={{ color: "var(--ink-2)" }}>{missed.goal}</p>
           {/*
             A link into a drill that already exists rather than advice this
             screen invented, and the drill is read off what the beat needed
@@ -291,6 +279,61 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             something else.
           */}
           {drill && <DrillLink href={drill} />}
+        </section>
+      )}
+
+      {/*
+        THE RECORD, AFTER THE TEACHING RATHER THAN IN FRONT OF IT.
+
+        §12 of the design put the turns third, and the reason it gave is the
+        job the review does now: "this is where a learner finds out that the
+        word they were sure of was not the word", with each word marked and
+        the near misses named. The transcript as built marks nothing; it is
+        the plain record, and the review quotes the learner's own words, so it
+        stands without having read the conversation back first. Meanwhile the
+        transcript is the one section on this screen with no bound on its
+        length: measured on a seven-turn run at 360px it is 900 of the 2,232
+        pixels, and it sat between the outcome and every actionable thing
+        under it, so the teaching, the words to keep and the way back in were
+        all below the fold on a conversation that had barely started.
+
+        What stays exactly where §12 put it is the outcome, which leads
+        because a person remembers the outcome, and it still leads before any
+        teaching at all.
+      */}
+      {turns.length > 0 && (
+        <section>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>What was said</h3>
+          {/*
+            Both sides rather than the learner's alone, because a turn only
+            makes sense beside the line it answered, and reading the whole
+            exchange back is how somebody notices that "poodi" was the right
+            answer to the wrong question.
+          */}
+          <ul className="flex flex-col gap-2">
+            {turns.map((turn, index) => (
+              <li key={index} className={turn.who === "you" ? "self-end text-right" : "self-start"}>
+                <Card className="inline-block max-w-full text-sm">
+                  {/*
+                    WHO SAID IT, FOR A READER WHO CANNOT SEE WHICH SIDE IT IS
+                    ON. Left and right and two inks are the whole of what tells
+                    the two speakers apart, and both are things you have to be
+                    looking at. Read aloud, this section was one flat run of
+                    sentences in two languages with nothing between them, on
+                    the screen whose point is reading the exchange back.
+
+                    `sr-only`, because the alignment does say it to anybody who
+                    can see it and a label on every bubble would be the same
+                    two words twenty times down a phone.
+                  */}
+                  <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
+                  <span lang={turn.lang} style={turn.who === "them" ? { color: "var(--ink-2)" } : undefined}>
+                    {turn.text}
+                  </span>
+                </Card>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -317,6 +360,19 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             )}
           </Card>
         </section>
+      )}
+
+      {/*
+        The reason to press the button, beside the button. It used to sit under
+        "one thing to work on", which is a heading about a goal rather than
+        about the way back in. Only where something is left undone: a run that
+        got everything done closes on the errand above, which points out of the
+        app rather than back into it (`docs/22-real-life.md`).
+      */}
+      {objectives.missed.length > 0 && (
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          The second run of a scene is where most of it sticks.
+        </p>
       )}
 
       <div className="flex flex-wrap gap-2">
