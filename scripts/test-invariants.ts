@@ -12945,6 +12945,58 @@ check("an option is one control, and the number that picks it is one cap", () =>
   assert.ok(options >= 8, `only ${options} option buttons found; the sweep has stopped seeing them`);
 });
 
+/*
+  A CONTROL SAYS WHAT IT DOES UNDER A POINTER, AND A DOZEN SAID NOTHING.
+
+  The rule this repository already had is about a hover that makes a control
+  *less* present: `transition-opacity hover:opacity-80` reads as the control
+  switching off, because dimming is how everything disabled here is drawn.
+  What nothing checked is the case underneath it, a control with no hover at
+  all, which was the fault the option rows had and which reads exactly the
+  same to somebody working out what is pressable by pointing at it. Undo on
+  the daily path, Cancel on the add-a-word form, Close on Anu's panel, Leave
+  and Archive on a class, both copy buttons in the setup guides, the two
+  translate buttons and the forms disclosure: twelve controls drawn as a run
+  of text with nothing behind them.
+
+  `.tap-tint` is the answer the conventions already name for a bare row or an
+  icon button, with the padding the tint needs and a negative margin so the
+  text does not move. The sweep reads a `<button>` whose className is written
+  out as a string, which is every hand-drawn control; a className built from a
+  variable belongs to a component that has already decided (`Button`,
+  `Choice`, `KeyCap`).
+
+  `underline` passes: a button drawn as underlined text is a link wearing the
+  right element, which is the one exemption the fade rule already makes. Two
+  more are exempt by name and both are a decision rather than an omission.
+*/
+check("a control says what it does under a pointer", () => {
+  /* The scrim behind the phone sheet is a close target rather than a control
+     with a label, and the palette's rows are painted from `active`, which the
+     arrow keys move too: a CSS hover there would let the pointer and the
+     keyboard disagree about which row is next. */
+  const EXEMPT = new Set(["components/Sidebar.tsx", "components/CommandPalette.tsx"]);
+  const answers = /press|tap-tint|choice-btn|hover:|nav-cell|letter-key|underline|group/;
+  const button = /<button\b((?:[^>{]|\{[^{}]*\}|\{\{[^{}]*\}\})*?)>/gs;
+  let drawn = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (EXEMPT.has(file)) continue;
+    const source = code(file);
+    for (const match of source.matchAll(button)) {
+      const className = /className="([^"]*)"/.exec(match[1] ?? "");
+      if (!className) continue;
+      drawn += 1;
+      assert.match(
+        className[1] ?? "",
+        answers,
+        `${file}:${source.slice(0, match.index).split("\n").length} is a control with no answer to a pointer. `
+          + "`.tap-tint` for a bare row or an icon button, `.choice-btn` for a box.",
+      );
+    }
+  }
+  assert.ok(drawn >= 25, `only ${drawn} hand-drawn controls found; the sweep has stopped seeing them`);
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

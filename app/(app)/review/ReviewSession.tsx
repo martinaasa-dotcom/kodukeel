@@ -1295,7 +1295,7 @@ export function ReviewSession({
           type="button"
           onClick={() => void undo()}
           disabled={history.length === 0 || busy}
-          className="flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
+          className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >
           <Undo2 size={12} aria-hidden /> Undo <KeyCap>U</KeyCap>

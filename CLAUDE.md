@@ -5198,6 +5198,25 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   heading.** `R` plays the word again on minimal pairs, is drawn on that round's own button, and
   was in neither reference list, so the one place a learner goes to find out what the keyboard does
   did not know about it.
+- **And a control with no hover at all is the same fault as one that dims.** The rule above it is
+  about a hover that makes a control *less* present; nothing checked the case underneath, which is
+  a control that answers a pointer with nothing, and reads exactly the same to somebody working out
+  what is pressable by pointing at it. Twelve were drawn as a run of text with nothing behind them:
+  Undo on the daily path, Cancel on the add-a-word form, Close on Anu's panel, Leave and Archive on
+  a class, both copy buttons in the setup guides, the two translate buttons and the forms
+  disclosure. `.tap-tint` is what the conventions already name for a bare row or an icon button,
+  with the padding the tint needs. **And no negative margin to pull the text back**, which was the
+  first draft of this and which `scripts/test-containment.mjs` refused: "Archive this class" sits
+  in a bare `flex-wrap` row with no padding to absorb it, so the control hung six pixels outside
+  the row it belongs to, at every width and in both themes. A tinted control is inset by its own
+  padding, which nobody notices, rather than aligned by a margin that escapes half the rows it is
+  in. The sweep reads
+  a `<button>` whose className is written out as a string, which is every hand-drawn control, since
+  a className built from a variable belongs to a component that has already decided. `underline`
+  passes, because a button drawn as underlined text is a link wearing the right element. Two are
+  exempt by name: the scrim behind the phone sheet, which is a close target rather than a labelled
+  control, and the command palette's rows, which are painted from `active` so the pointer and the
+  arrow keys cannot disagree about which row is next.
 - **A shortcut works wherever the control it presses is drawn, and "drawn" is one question with one
   name.** A new card in review leads with its answer, because a card you have never seen cannot be
   recalled, only met, so `askFor` returns `intro` and the rating buttons arrive with it. `revealed`

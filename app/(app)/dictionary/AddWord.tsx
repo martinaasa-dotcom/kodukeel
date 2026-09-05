@@ -128,7 +128,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
           {edit ? `Edit ${edit.lemma}` : "Add a word"}
         </h2>
-        <button type="button" onClick={() => setOpen(false)} className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <button type="button" onClick={() => setOpen(false)} className="tap-tint rounded-md px-1.5 py-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
           Cancel
         </button>
       </div>
