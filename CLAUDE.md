@@ -5165,8 +5165,14 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   four shapes as well: a filled one for `Space` and the grade keys, a bare `<kbd>`, which no
   stylesheet here paints, so `↵` and `u` were drawn as small monospace text rather than as keys, and
   a bordered one on each of the two reference lists. `ADVANCE_KEY_LABEL` in `lib/ux/advanceKey.ts`
-  is the name and `KeyCap` in `components/ui.tsx` is the drawing, with `outline` for a list set on
-  the page rather than on a control. **Enter rather than Space**, because Space is a letter inside
+  is the name and `KeyCap` in `components/ui.tsx` is the drawing. **The cap is a hairline printing
+  in the ink around it**, and the fill it used to carry everywhere belongs to the gradient alone,
+  which is a rule in `app/globals.css` rather than a prop, because a caller cannot be asked to know
+  which ground it is standing on: a translucent fill darkens the ground a hue's ink was measured
+  against, so a grade key on a verdict tile fell from 5.12 to 3.53 in the light and from 8.63 to
+  3.04 in the dark, an option numeral on `option-other` to 2.18, and the hint in the minimal-pairs
+  caption to 2.37, which is the one axe caught. Two of those had shipped that way before this was
+  one component. **Enter rather than Space**, because Space is a letter inside
   a text box: `isAdvanceKey` takes it only outside one, so a typed card promising it would be lying
   on the shape where a shortcut is worth most, and Enter is the half with no exception. Space still
   works everywhere it worked before, and the settings sheet and the shortcut dialog are where both

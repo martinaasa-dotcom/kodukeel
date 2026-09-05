@@ -233,7 +233,7 @@ export function CommandPalette() {
             className="w-full bg-transparent text-base"
             style={{ color: "var(--ink)" }}
           />
-          <KeyCap variant="outline">Esc</KeyCap>
+          <KeyCap>Esc</KeyCap>
         </div>
         <ul className="scroll-host max-h-[52vh] py-1">
           {rows.map(({ command: c, index: i, heading }) => (

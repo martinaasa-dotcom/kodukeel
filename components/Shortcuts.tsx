@@ -142,7 +142,7 @@ export function Shortcuts() {
                   <li key={`${group.title}-${row.press.join("+")}-${row.does}`} className="flex items-baseline gap-3">
                     <span className="flex shrink-0 gap-1">
                       {row.press.map((key) => (
-                        <KeyCap key={key} variant="outline">{key}</KeyCap>
+                        <KeyCap key={key}>{key}</KeyCap>
                       ))}
                     </span>
                     <span className="text-xs" style={{ color: "var(--ink-2)" }}>{row.does}</span>

@@ -999,7 +999,35 @@
     outline-offset: 2px;
   }
 
-  .key-cap { background: var(--key-cap); }
+  /*
+    A KEY CAP DOES NOT DARKEN THE GROUND ITS INK WAS DRAWN FOR.
+
+    The cap used to be a translucent black (a translucent white in the dark
+    theme) laid over whatever was behind it, and that is safe on exactly two
+    grounds: the primary button's gradient, where the ink is white and a
+    darker ground helps it, and a plain surface. On a tint it eats the margin
+    the hue's ink was measured with, because `--mint-ink` and its neighbors
+    are drawn to clear 4.5:1 on mint's tint and nothing else. Measured over
+    the tokens: a grade key on a verdict tile fell to 3.53 in the light and
+    3.04 in the dark, an option numeral on `option-other` to 2.18, and the
+    hint in the minimal-pairs caption to 2.37, which is the one axe caught.
+
+    So the cap is a hairline and the ink it prints in is the ink around it,
+    whatever that is: contrast is then exactly the contrast of the sentence
+    or the button it sits in, which every screen already measures. The fill
+    comes back inside the gradient, where it is the loudest thing on the
+    screen and darkening is what makes it legible.
+  */
+  .key-cap {
+    border: 1px solid var(--rule);
+    border-radius: var(--r-sm);
+  }
+
+  .grad-accent .key-cap {
+    background: var(--key-cap);
+    border-color: transparent;
+  }
+
   .tnum { font-variant-numeric: tabular-nums; }
 
   .label-xs {

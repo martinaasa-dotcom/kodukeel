@@ -12849,6 +12849,12 @@ check("every round reads the key that moves forward through isAdvanceKey", () =>
   The two reference lists, the settings sheet and the shortcut dialog, are
   where both keys are written down: they are set on the page rather than on a
   control, and they are exempt by name.
+
+  What the cap looks like is one rule in the stylesheet rather than a prop,
+  because a caller cannot be asked to know which ground it is standing on:
+  a hairline printing in the ink around it, and the fill only inside the
+  gradient. `scripts/a11y-check.mjs` is what measures that, and it caught the
+  version of this component that painted a fill everywhere.
 */
 check("a key hint is one component and the advance key has one name", () => {
   const SHEETS = ["app/(app)/settings/page.tsx", "components/Shortcuts.tsx"];

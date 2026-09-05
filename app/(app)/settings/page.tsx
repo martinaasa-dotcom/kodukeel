@@ -481,7 +481,7 @@ export default async function SettingsPage() {
                     {SHORTCUTS.map(([keys, what]) => (
                       <div key={keys} className="flex items-baseline gap-3">
                         <dt>
-                          <KeyCap variant="outline">{keys}</KeyCap>
+                          <KeyCap>{keys}</KeyCap>
                         </dt>
                         <dd className="text-xs" style={{ color: "var(--ink-3)" }}>{what}</dd>
                       </div>

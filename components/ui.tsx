@@ -444,32 +444,29 @@ export function CardLink({ href, children, icon, className = "" }: {
  * A shortcut hint on a button was written out at each call site, and the
  * copies had drifted into four different objects: a filled cap for `Space`
  * and the grade keys, a bare `<kbd>` for `↵` and `u`, which no stylesheet
- * here paints at all so the browser draws it as small monospace text, a
- * bordered cap in the command palette, and another bordered one on the
- * settings sheet. Three of those sit inside a button, so the same hint on
- * two consecutive screens was two different shapes, and the bare one did not
+ * here paints, so the browser drew it as small monospace text, a bordered
+ * cap in the command palette, and another bordered one on the settings
+ * sheet. Three of those sit inside a button, so the same hint on two
+ * consecutive screens was two different shapes, and the bare one did not
  * read as a key at all.
  *
- * One cap, everywhere: the fill is `--key-cap`, which is drawn to sit on the
- * gradient of the primary button and on a card alike. `outline` is the one
- * variant, for the two reference lists that are set on the page rather than
- * on a control, where a filled cap would be the loudest thing in a table.
+ * One cap, everywhere, and it is a hairline that prints in the ink around
+ * it: `app/globals.css` says why, which is that a fill darkens the ground a
+ * hue's ink was measured against and takes a grade key on a verdict tile
+ * from 5.12 to 3.53. The fill belongs to the gradient and comes back there,
+ * in the stylesheet rather than through a prop, so no screen has to know
+ * which ground it is standing on.
  *
  * What goes inside is a key as a keyboard prints it: `Enter`, `Space`, `1`,
  * `⌘K`. `lib/ux/advanceKey.ts` owns the name of the key that moves forward,
  * so no screen picks it for itself.
  */
-export function KeyCap({ children, variant = "filled", className = "" }: {
+export function KeyCap({ children, className = "" }: {
   children: ReactNode;
-  variant?: "filled" | "outline";
   className?: string;
 }) {
-  const outline = variant === "outline";
   return (
-    <kbd
-      className={`tnum inline-flex items-center rounded-md px-1.5 py-0.5 text-2xs font-semibold ${outline ? "border" : "key-cap"} ${className}`}
-      style={outline ? { borderColor: "var(--rule)", color: "var(--ink-2)" } : undefined}
-    >
+    <kbd className={`key-cap tnum inline-flex items-center px-1.5 py-0.5 text-2xs font-semibold ${className}`}>
       {children}
     </kbd>
   );
