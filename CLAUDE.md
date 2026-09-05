@@ -5221,6 +5221,22 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   instead of viewport ones when it is: a menu hung off the sticky rail or the fixed phone bar is
   then drawn one scroll offset from where it belongs, which on a scrolled phone means open,
   focused and off the top of the screen. Sideways is still clipped, on `body`.
+- **A page that scrolls holds no second scroller, and `overscroll-behavior: contain` is what makes
+  that unforgiving.** `.scroll-host` is right for a thing that owns its own window: the rail, the
+  command palette, Anu's panel, a wide table. Inside the flow of a page that already scrolls it
+  takes the wheel away, because the contain rule stops the scroll chaining out once the inner box
+  is at its end, and a transcript pinned to its newest line is at its end from the moment it
+  answers. The situations screen had the conversation in a `scroll-host` capped at 46vh across the
+  middle of the column: measured on `bussipilet` at 1280x900 after six turns, the page had 323px
+  still to go, 1,622px of turns sat in a 414px box, and a pointer anywhere over them scrolled
+  nothing at all, so the input, the goal for the turn and every button under it could not be
+  reached. It reads as an app that has frozen, and it was reported as one. The first-run wizard
+  had already removed the same shape from its reasons grid. Containment never asked for a second
+  scroller: it asks that nothing is drawn outside the box it was given, and a list that grows
+  downward makes the page taller rather than overflowing anything. So the conversation is the page
+  and the page follows it, and `scripts/test-scene.mjs` rolls the wheel over the transcript and
+  asks where the page ended up, because no source check can see this and both halves of it were
+  made to fail on the code that shipped.
 - **Nothing may be `position: fixed` over moving content and carry a `backdrop-filter`.** That
   pairing re-filters its backdrop every frame of every scroll; Upside Lab measured it at 42
   repainted frames in one pass down a phone screen, the worst a third of a screen behind where the

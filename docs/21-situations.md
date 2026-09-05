@@ -631,9 +631,14 @@ Four states, per `docs/08-ux-ia-a11y.md` §4:
   like any other route.
 
 The layout, at 360px first: the role card and the objectives at the top, collapsible and never gone;
-the turns in their own scroll container, per the containment rules; the input above the phone bar
-with the letter bar, the help button, and "say that again" as a first-class control, because asking
-for repetition is the most useful sentence a learner can own and putting it on screen teaches it.
+the turns down the page, which scrolls; the input under them with the letter bar, the help button,
+and "say that again" as a first-class control, because asking for repetition is the most useful
+sentence a learner can own and putting it on screen teaches it.
+
+The turns were in a scroll container of their own for a while, written down here as the containment
+rule and corrected in §43: containment asks that nothing is drawn outside its box, and a growing
+list makes the page taller rather than overflowing anything. What the box actually did was take the
+wheel away from the page it sat in.
 
 **Accessibility.** The turns are a log region that announces each new turn once and does not
 re-announce the ones above it, which is the lesson the exam clock taught: a live region that updates
@@ -2471,3 +2476,30 @@ scenes at all. Of the forty-five live claims the course makes, seven had a rehea
 one is `reviewed: false`. And a scene is still typed: the spoken unmarked mode of §11 is the same
 distance away it was.
 
+## 43. The screen the conversation is had on, which had stopped scrolling
+
+Reported with a screenshot: a scene open, the desk's question on screen, the box to answer it in cut
+off by the bottom of the window, and no way to get to it.
+
+The transcript was a `scroll-host` capped at 46vh, put there on the containment rule and sitting
+across the middle of the column. `.scroll-host` carries `overscroll-behavior: contain`, which is
+right for the rail and the command palette and wrong here: it stops the scroll chaining out to the
+page when the inner box reaches its end, and the transcript is pinned to its newest turn the moment
+a reply lands, so the box is always at its end. Measured on `bussipilet` at 1280x900 after six
+turns: the page had 323px still to go, 1,622px of turns sat in a 414px box, and a wheel anywhere
+over the conversation moved nothing whatever. The input, the goal for the turn, "say that again",
+the help button and "leave" were all below the fold and unreachable. It reads as an app that has
+frozen.
+
+Containment never asked for the box. It asks that nothing is drawn outside the box it was given,
+and a list that grows downward makes the page taller rather than overflowing anything; the
+first-run wizard had already taken the same shape out of its reasons grid for the same reason. So
+there is one scroller on this screen, the page, and the page follows the conversation: the opening
+line is deliberately not scrolled to, because it arrives as the scene opens and moving then would
+take the role card and the objectives off the screen before either had been read, and from the
+second turn on the page goes to its own end, which is where the reply and the box to answer it in
+both are.
+
+`scripts/test-scene.mjs` asks the two halves separately, since they fail separately: nothing inside
+the page is its own scroller, and a wheel rolled over the middle of the transcript reaches the box
+you answer in. Both were made to fail on the code that shipped, at 206 of 334.

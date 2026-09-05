@@ -47,14 +47,14 @@ const prisma = new PrismaClient({
 const { check, absent, done } = suite("A conversation, end to end", {
   /*
     THE COUNT IN THE FULL STATE, which is a key configured, the allowance
-    unspent and the bank holding a row for a beat the run reaches: 37.
+    unspent and the bank holding a row for a beat the run reaches: 39.
     Keyless, the composed check is waived and the target drops by one; with
     an empty bank the scripted check is waived and it drops by one more. Each
     state differs by exactly as many checks as waivers, which is the
     arithmetic `absent` exists to keep honest and which the first version of
     this got wrong in both directions at once.
   */
-  floor: 37,
+  floor: 39,
 });
 
 /*
@@ -259,6 +259,50 @@ const afterTwo = await page.locator("main").innerText();
 check("a second objective can be met", (afterTwo.match(/\ndone\n/g) ?? []).length >= 2);
 check("no meter, no timer, no score anywhere on the screen (§7)",
   !/\d+\s*%/.test(afterTwo) && !/\bscore\b/i.test(afterTwo) && !/\bpoints?\b/i.test(afterTwo));
+
+// ── The screen a conversation is had on scrolls to its own end ──────────────
+/*
+  THE ONE THING THAT LOOKS LIKE AN APP THAT HAS FROZEN.
+
+  The turns were in a scroll container of their own capped at 46vh, on the
+  containment rule, and it sat across the middle of the column with
+  `overscroll-behavior: contain` on it. So a pointer anywhere over the
+  transcript scrolled the transcript rather than the page, and the transcript
+  is scrolled to its newest turn the moment a reply lands, which means the
+  wheel had nothing left to move: the input, the goal for the turn and every
+  button under it were below the fold and could not be reached. Two checks,
+  because the two halves fail separately: nothing inside this page may be its
+  own scroller, and the page has to be able to reach its own bottom.
+
+  Measured rather than reasoned about: the wheel is rolled over the middle of
+  the column, which is where the transcript is, and the page is asked where it
+  ended up.
+*/
+const columnMiddle = await page.evaluate(() => {
+  const log = document.querySelector('[role="log"]').getBoundingClientRect();
+  return { x: Math.round(log.left + log.width / 2), y: Math.round(log.top + log.height / 2) };
+});
+const nested = await page.evaluate(() => [...document.querySelectorAll("main *")].filter((el) => {
+  const style = getComputedStyle(el);
+  return (style.overflowY === "auto" || style.overflowY === "scroll")
+    && el.scrollHeight > el.clientHeight + 1;
+}).length);
+check("the conversation is not a scrolling box inside a scrolling page", nested === 0,
+  `${nested} nested scrollers`);
+await page.mouse.move(columnMiddle.x, columnMiddle.y);
+await page.mouse.wheel(0, 4_000);
+await page.waitForTimeout(400);
+const reached = await page.evaluate(() => {
+  const input = document.querySelector('input[aria-label="What you say"]').getBoundingClientRect();
+  return {
+    y: Math.round(scrollY),
+    end: document.documentElement.scrollHeight - innerHeight,
+    inputInView: input.top >= 0 && input.bottom <= innerHeight,
+  };
+});
+check("and a wheel over it reaches the box you answer in",
+  reached.inputInView && reached.y >= reached.end - 2,
+  `scrolled to ${reached.y} of ${reached.end}`);
 
 // ── Walking out, which is a real option ─────────────────────────────────────
 await page.getByRole("button", { name: /^Leave/i }).click();

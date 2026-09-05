@@ -209,7 +209,6 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   */
   const { hearing } = useAudioPrefs();
 
-  const log = useRef<HTMLDivElement>(null);
   /*
     A scene can end on its own, when the last beat is done or the persona has
     run out of patience, and the turn that ended it is the one that has to hang
@@ -224,14 +223,57 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   );
 
   /*
-    The turns scroll in their own container, per the containment rules, and the
-    newest is scrolled to rather than the page jumping. `scrollTop` rather than
-    `scrollIntoView`, which scrolls every ancestor including the document.
+    THE CONVERSATION IS THE PAGE, AND FOR A WHILE IT WAS A BOX INSIDE ONE.
+
+    The turns were in a `scroll-host` capped at 46vh, on the containment rule,
+    and that is the shape the first-run wizard already removed from its own
+    screen: a nested scroll region inside a page that also scrolls swallows the
+    wheel. Measured on `bussipilet` at 1280x900 after six turns, the page had
+    323px still to go and the log had 1,622px of turns in a 414px box sitting
+    across the middle of the column, with `overscroll-behavior: contain` on it
+    so the scroll could not chain out. A pointer anywhere over the transcript
+    scrolled the transcript, and once that hit its end the page never moved
+    again: the input, the goal for this turn and every button under it were
+    below the fold and unreachable, which reads as an app that has frozen.
+    Auto-scrolling the box to the newest turn is what made it certain, since
+    the box is at its end the moment a reply lands.
+
+    Containment never asked for a second scroller. It asks that nothing is
+    drawn outside the box it was given, and a list that grows downward makes a
+    page taller rather than overflowing anything. So there is one scroller
+    here, the page, and the newest turn is kept in view by moving it.
+
+    The opening line is deliberately not scrolled to: it arrives as the scene
+    opens, and scrolling then would take the role card and the objectives off
+    the screen before the learner had read either. From the second turn on the
+    page follows the conversation, which is where the input is.
   */
+  const opening = useRef(true);
   useEffect(() => {
-    const box = log.current;
-    if (box) box.scrollTop = box.scrollHeight;
-  }, [turns]);
+    /*
+      A debrief is read from its own first line. The page is left wherever the
+      last turn put it, which with the transcript in the page rather than in a
+      box of its own is most of a screen down: measured at 827px, with the
+      debrief's own heading 779px above the top of the window, so a scene ended
+      on a page that opened halfway through what it had to say.
+    */
+    if (phase === "debrief") {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+    if (turns.length === 0) return;
+    if (opening.current) {
+      opening.current = false;
+      return;
+    }
+    /*
+      The end of the document rather than the newest bubble, because the thing
+      a learner needs on screen is the reply *and* the box they answer it in,
+      and the box is the last thing on the page. `scrollIntoView` on the turn
+      would put the reply at the bottom edge with the input under it.
+    */
+    window.scrollTo({ top: document.documentElement.scrollHeight });
+  }, [turns, phase]);
 
   const speak = useCallback(async (next: Sent[]) => {
     if (!opened) return;
@@ -553,8 +595,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         region that updates constantly reads a number a second at somebody.
       */}
       <div
-        ref={log}
-        className="scroll-host flex max-h-[46vh] flex-col gap-3 overflow-y-auto"
+        className="flex flex-col gap-3"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
