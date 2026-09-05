@@ -85,12 +85,14 @@ const LEDGER_LOCK = 4_820_311_907n;
  *           here at all. A listening round legitimately meets a dozen new
  *           words in a minute, so a tight cap would break a real session to
  *           solve a problem that does not exist.
- *   SCENE    one conversation, booked whole rather than per turn, because
- *           running out of allowance halfway through one is the worst failure
- *           available to that module. The base gives ten a day, which is a real
- *           amount of somebody's evening, and what actually rations it is the
- *           deployment's daily budget rather than this count: the reservation
- *           is the whole scene, so the global cap sees a scene as a scene.
+ *   SCENE   one turn of one conversation. The booking is per turn (§16) and
+ *           since ADR-025 amendment 2 a composed run asks for nearly every
+ *           beat rather than only the ones the bank has no line for, so a
+ *           whole scene is about ten of these where it used to be two or
+ *           three. At the base it would be one conversation a day, which is
+ *           not an allowance, it is a wall. Four times the base is three or
+ *           four conversations, and the burst is doubled because a turn is a
+ *           sentence and somebody talking is not somebody idling.
  *   SCAN     one photograph read once. It is the dearest single call in the
  *           app, because a picture is a few thousand input tokens where a
  *           question is a few hundred, but it is also the least repeated: a
@@ -99,13 +101,43 @@ const LEDGER_LOCK = 4_820_311_907n;
  *
  * Everything stays free at every one of these numbers. They exist so that one
  * enthusiastic person cannot spend the day's budget before anyone else arrives.
+ *
+ * AND A THIRD NUMBER, WHICH IS ABOUT THE DEPLOYMENT RATHER THAN THE PERSON.
+ *
+ * The two above ration one learner. Neither says anything about which *kind*
+ * of call gets the money when there is not enough for all of them, and until
+ * scenes composed every beat that question did not arise: the tutor was the
+ * expensive path and the scenes were a handful of calls behind a bank of
+ * drafted lines. It arises now. A composed conversation is about ten calls and
+ * somebody can have several in an evening, so on a small budget an afternoon
+ * of role-play can reach the global cap and the next person to ask Anu a
+ * question is told the deployment has run out.
+ *
+ * `globalShare` is the fraction of `dailyMicrosGlobal` a kind may reach before
+ * it yields. It is not a reservation for anybody: what is left over is not
+ * held back from scenes and then wasted, it is simply the point past which a
+ * scene stops being the thing that spends it.
+ *
+ * SCENES YIELD AND ANU DOES NOT, and the reason is what each does when it is
+ * refused rather than what each is worth. A refused scene turn falls to the
+ * bank, which is the same closed word list, the same four checks and a line a
+ * person has read: the conversation carries on and what it loses is that the
+ * lines stop being about this learner. A refused question to Anu degrades to
+ * nothing at all. There is no rung under her, the learner's actual question
+ * goes unanswered, and the screen has to say so. Where one path has a floor
+ * under it and the other does not, the one with the floor is the one that
+ * gives way.
+ *
+ * Half rather than a smaller share, because scene composition is the thing
+ * this budget is mostly *for*: a share that made scenes yield early would
+ * protect a tutor nobody had asked anything.
  */
-const ALLOWANCE: Record<UsageKind, { burst: number; daily: number }> = {
-  TUTOR: { burst: 1, daily: 1 },
-  GRADER: { burst: 1, daily: 3 },
-  TTS: { burst: 6, daily: 30 },
-  SCAN: { burst: 1, daily: 2 },
-  SCENE: { burst: 1, daily: 1 },
+const ALLOWANCE: Record<UsageKind, { burst: number; daily: number; globalShare: number }> = {
+  TUTOR: { burst: 1, daily: 1, globalShare: 1 },
+  GRADER: { burst: 1, daily: 3, globalShare: 1 },
+  TTS: { burst: 6, daily: 30, globalShare: 1 },
+  SCAN: { burst: 1, daily: 2, globalShare: 1 },
+  SCENE: { burst: 2, daily: 4, globalShare: 0.5 },
 };
 
 /**
@@ -254,6 +286,13 @@ export async function authoriseCall(
       // it scales with it. Otherwise three TTS misses would look like a heavy
       // user and mute a listening round on a busy day.
       reserveCallsPerUser: limits.reserveCallsPerUser * allowance.daily,
+      /*
+        The share of the deployment's day this kind may reach. Scaled here
+        rather than inside `checkQuota`, which is deliberately handed a
+        snapshot with no `kind` in it so that the sentence it refuses with is
+        true of every caller.
+      */
+      dailyMicrosGlobal: Math.round(limits.dailyMicrosGlobal * allowance.globalShare),
     };
     const micros = reserveMicros(kind);
 
@@ -266,7 +305,16 @@ export async function authoriseCall(
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(${LEDGER_LOCK})`;
 
       const decision = checkQuota(await snapshotUsage(ownerId, kind, now, tx), scaled, now);
-      if (!decision.allowed) return decision;
+      /*
+        A FAILURE MAY NOT MISNAME ITS CAUSE. `checkQuota` is pure and kind-free
+        and says "this deployment has reached its shared daily budget", which is
+        the honest sentence when the whole budget really is gone. A kind that
+        yields at half of it reaches that branch with half the day's money still
+        unspent, and telling somebody the deployment is out when Anu is about to
+        answer perfectly well is the kind of small wrongness a reader catches
+        once and then stops trusting.
+      */
+      if (!decision.allowed) return allowance.globalShare < 1 ? yielded(decision) : decision;
 
       const row = await tx.usageEvent.create({
         data: {
@@ -293,10 +341,34 @@ export async function authoriseCall(
     return {
       allowed: false,
       reason: "GLOBAL_SPEND",
-      message: "Anu is unavailable for a moment. The usage ledger could not be read.",
+      /*
+        Names no one feature, for the reason `checkQuota`'s own messages do
+        not: this is reached by a conversation, a photograph and a question
+        alike, and it used to say "Anu is unavailable" to a learner standing
+        at a reception desk.
+      */
+      message: "That could not be asked just now. The usage ledger could not be read.",
       retryAfterSeconds: 30,
     };
   }
+}
+
+/**
+ * The same refusal, said about the kind's share rather than about the day.
+ *
+ * Only reached by a kind whose `globalShare` is below one, which is scene
+ * composition alone: it yields so that a question to Anu, which has no rung
+ * under it, is still answerable at the end of a day of role-play.
+ */
+function yielded(decision: QuotaDecision): QuotaDecision {
+  if (decision.reason !== "GLOBAL_SPEND" && decision.reason !== "GLOBAL_BUSY") return decision;
+  return {
+    ...decision,
+    message:
+      "Conversations have used their share of today's budget, so the other side is " +
+      "speaking from the scripted lines for the rest of the day. Everything else, " +
+      "Anu included, is unaffected, and it resets at midnight UTC.",
+  };
 }
 
 /**

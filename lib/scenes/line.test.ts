@@ -48,6 +48,12 @@ function request(over: Partial<LineRequest> = {}): LineRequest {
     fallback: "Vabandust?",
     scripted: [],
     used: new Set(),
+    /*
+      A composed run unless a test says otherwise, because that is what a
+      deployment with a key opens (`LineMode`). The scripted-run tests below
+      say otherwise, and the two describe blocks are the two modes.
+    */
+    mode: "composed",
     ...over,
   };
 }
@@ -148,28 +154,67 @@ describe("the ladder", () => {
 
 /*
   THE SCRIPTED RUNG (ADR-025 amendment 1). A line drafted before the run and
-  gated then. It sits under the lexicographer and above the model, costs a
-  comparison, and is what a keyless deployment converses with.
+  gated then. It is what a keyless deployment converses with, and under a
+  composed run it is the net that catches a total failure (ADR-025 amendment 2).
 */
 describe("the scripted rung", () => {
-  it("takes a recorded sentence ahead of a scripted one", async () => {
-    const line = await sceneLine(request({ pool: [RECORDED], scripted: ["Mis on valus?"] }));
-    expect(line.provenance).toBe("attested");
+  it("takes a recorded sentence ahead of a scripted one, in either mode", async () => {
+    for (const mode of ["scripted", "composed"] as const) {
+      const line = await sceneLine(request({ mode, pool: [RECORDED], scripted: ["Mis on valus?"] }));
+      expect(line.provenance, `mode ${mode}`).toBe("attested");
+    }
   });
 
-  it("takes a scripted line ahead of asking a model, and says which rung answered", async () => {
+  it("answers out of the bank and asks nobody, in a scripted run", async () => {
     let asked = 0;
     const line = await sceneLine(request({
+      mode: "scripted",
       scripted: ["Kas teil on valu?"],
-      compose: async () => { asked++; return "Kas teil on valu?"; },
+      compose: async () => { asked++; return "Kus on valu?"; },
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
-    // The whole point: a booked call is what this rung saves.
+    /*
+      The whole point of the mode: a run that opened without a key does not
+      start asking because one appeared halfway through, and a booked call is
+      what this rung saves.
+    */
     expect(asked).toBe(0);
+  });
+
+  it("asks before it reaches for the bank, in a composed run", async () => {
+    let asked = 0;
+    const line = await sceneLine(request({
+      mode: "composed",
+      scripted: ["Kas teil on valu?"],
+      compose: async () => { asked++; return "Kus on valu?"; },
+    }));
+    /*
+      ADR-025 amendment 2. Both rungs are a model writing inside the same
+      closed list through the same gate, and only one of them can have heard
+      what this learner said two turns ago.
+    */
+    expect(line).toEqual({ text: "Kus on valu?", provenance: "composed" });
+    expect(asked).toBe(1);
+  });
+
+  it("falls to the bank when a composed run cannot compose", async () => {
+    for (const compose of [
+      async () => null,
+      // Two attempts the gate withholds: `peavalu` is outside the list.
+      async () => "Kas teil on peavalu?",
+    ]) {
+      const line = await sceneLine(request({
+        mode: "composed",
+        scripted: ["Kas teil on valu?"],
+        compose,
+      }));
+      expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
+    }
   });
 
   it("passes over a scripted line this run has already used", async () => {
     const line = await sceneLine(request({
+      mode: "scripted",
       scripted: ["Kas teil on valu?", "Kus on valu?"],
       used: new Set(["Kas teil on valu?"]),
     }));
@@ -177,17 +222,8 @@ describe("the scripted rung", () => {
     expect(line.provenance).toBe("scripted");
   });
 
-  it("falls through to the model once every scripted line has been said", async () => {
-    const line = await sceneLine(request({
-      scripted: ["Kas teil on valu?"],
-      used: new Set(["Kas teil on valu?"]),
-      compose: async () => "Kus on valu?",
-    }));
-    expect(line.provenance).toBe("composed");
-  });
-
-  it("answers keyless where a scripted line exists, rather than asking again", async () => {
-    const line = await sceneLine(request({ scripted: ["Kas teil on valu?"] }));
+  it("answers keyless where a scripted line exists, rather than falling to the way out", async () => {
+    const line = await sceneLine(request({ mode: "scripted", scripted: ["Kas teil on valu?"] }));
     expect(line.provenance).toBe("scripted");
   });
 });

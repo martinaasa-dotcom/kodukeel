@@ -15,6 +15,12 @@
  * to ask a question about it. So the composer is load-bearing rather than a
  * fallback, and the gate is the thing the module rests on.
  *
+ * AND WHICH OF THE TWO MODEL-WRITTEN RUNGS ANSWERS IS THE RUN'S CHOICE RATHER
+ * THAN THE BEAT'S (`LineMode`). An attested sentence leads in both modes. Under
+ * `composed` the model is asked and the bank catches a total failure; under
+ * `scripted` the bank answers and nothing is asked. Mixing the two inside one
+ * conversation is the thing the mode exists to prevent.
+ *
  * COMPOSITION IS INJECTED. This module may not open a socket, so the caller
  * hands in a function that asks a model and this decides what to do with the
  * answer. That keeps the ladder, the retry and the fallback in one pure place
@@ -93,6 +99,36 @@ export type Provenance =
    */
   | "unspoken";
 
+/**
+ * WHICH OF THE TWO MODEL-WRITTEN RUNGS A RUN USES, DECIDED ONCE FOR THE WHOLE
+ * RUN (ADR-025 amendment 2).
+ *
+ * The bank and the composer both hold Estonian a model wrote inside this
+ * scene's closed list, and both went through `runGate`. What the bank adds is
+ * that a line sat in a diff where a person could read it; what the composer
+ * adds is that the line can answer what this learner actually said two turns
+ * ago. Neither is free to mix with the other inside one conversation: a
+ * receptionist who says three sentences drafted last month and then one
+ * written about the thing you just told her is two characters, and the seam is
+ * audible in exactly the place a role-play is trying not to have one.
+ *
+ * So the mode is a property of the run rather than of the beat, resolved when
+ * the run opens and stored with the draw, and the ladder reads it here:
+ *
+ *   `scripted`  the bank answers, and the model is never asked. This is a
+ *               deployment with no key, and it is the shipped default for a
+ *               run that predates the field.
+ *   `composed`  the model answers, and the bank is what catches a total
+ *               failure: no key at that moment, a call that threw, or two
+ *               attempts the gate withheld.
+ *
+ * The attested rung is above both either way and is not part of the choice. It
+ * is a sentence a lexicographer recorded, it is free, and it is the same
+ * register the composer is shown as an example, so spending a call to replace
+ * it would buy a worse provenance at a price.
+ */
+export type LineMode = "scripted" | "composed";
+
 export interface SpokenLine {
   readonly text: string;
   readonly provenance: Provenance;
@@ -144,6 +180,15 @@ export interface LineRequest {
   /** Attested and scripted lines this run has already used, so none repeats until the pool runs dry. */
   readonly used: ReadonlySet<string>;
   /**
+   * Whether this run says its model-written lines live or out of the bank.
+   *
+   * **Required rather than optional**, for the reason `scripted` and
+   * `fallback` are: a caller that has not decided does not compile, and the
+   * decision belongs to the run rather than to whichever beat happens to be
+   * next.
+   */
+  readonly mode: LineMode;
+  /**
    * Asks a model for one line. `avoid` names the words the last attempt reached
    * for that the list could not vouch for, which is what §6 gives the one retry.
    *
@@ -189,33 +234,67 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   if (attested) return attested;
 
   /*
-    THE SCRIPTED RUNG SITS BETWEEN THE LEXICOGRAPHER AND THE MODEL, and the
-    order is the provenance order. An attested line is somebody's recorded
-    Estonian and outranks anything a model wrote; a scripted line was written
-    by a model but was gated then and read by a person since, which is more
-    than a line composed a second ago can say. It costs a comparison, so like
-    the attested rung it is tried before the ledger is asked, and it is what
-    lets a keyless deployment hold a conversation on a beat retrieval cannot
-    fill. Passed over once used, like an attested line, so a run that comes
-    back to a beat does not hear the same sentence twice while another is left.
+    THE BANK IS PASSED OVER ONCE USED, like an attested line, so a run that
+    comes back to a beat does not hear the same sentence twice while another
+    is left. Resolved before either branch below, because in a composed run it
+    is what catches a total failure and in a scripted run it is the answer.
   */
   const scripted = request.scripted.find((text) => !request.used.has(text));
-  if (scripted) return { text: scripted, provenance: "scripted" };
 
-  if (!request.compose) return fallbackLine(request.fallback);
+  /*
+    A SCRIPTED RUN NEVER ASKS. That is a deployment with no key, and it is
+    also every run opened before the mode was stored, which is why the reader
+    that resolves it defaults this way: the shipped behaviour of a run already
+    in flight cannot change under the learner having it.
+  */
+  if (request.mode === "scripted" || !request.compose) {
+    if (scripted) return { text: scripted, provenance: "scripted" };
+    return fallbackLine(request.fallback);
+  }
 
+  /*
+    A COMPOSED RUN ASKS BEFORE IT REACHES FOR THE BANK, WHICH INVERTS THE RUNG
+    ORDER THIS FILE USED TO STATE, and the reason is worth writing down because
+    the old order had a good argument behind it.
+
+    That argument was provenance: a bank line was gated when it was drafted and
+    a person read it in a diff afterwards, which is more than a line composed a
+    second ago can say. It is still true. What it leaves out is that both rungs
+    are a model writing Estonian inside the same closed list and through the
+    same four checks, so what a person's reading buys is style rather than
+    safety: nothing about `runGate` is weaker at request time than it was at
+    draft time, and `bank.test.ts` re-runs it on every row on every run of the
+    suite precisely because that is the claim.
+
+    What the bank cannot buy at any price is a line about this conversation.
+    It was written without a learner in front of it, so it answers the beat and
+    never the person, and §32 is a list of the places that shows: the friend
+    who never reacts, the landlord who says yes to a question with no yes in
+    it. A composed line is shown the run so far (`lib/scenes/compose.ts`) and
+    can.
+
+    So the bank becomes the safety net rather than the voice: no key, a call
+    that threw, or two attempts the gate withheld. Which of the two a run uses
+    is decided once, when it opens, and never per beat (`LineMode`).
+  */
   const first = await request.compose([]);
   const firstVerdict = first ? runGate(first, request.beat, request.gate) : null;
   if (first && firstVerdict && passes(firstVerdict)) {
     return { text: first, provenance: "composed" };
   }
 
+  /*
+    One retry, and only one. §6 allows it with the failing words named, and the
+    second failure is the bank: a third attempt is a slower way to reach the
+    same place, and the learner is waiting through every one of them.
+  */
   const second = await request.compose(firstVerdict?.unknown ?? []);
   const secondVerdict = second ? runGate(second, request.beat, request.gate) : null;
   if (second && secondVerdict && passes(secondVerdict)) {
     return { text: second, provenance: "composed" };
   }
 
+  if (scripted) return { text: scripted, provenance: "scripted" };
   return fallbackLine(request.fallback, secondVerdict?.failed ?? firstVerdict?.failed ?? []);
 }
 

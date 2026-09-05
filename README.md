@@ -341,9 +341,17 @@ Without that key it falls back to local disk, and Settings says so plainly.
 
 **Set a spend cap.** The app is free to whoever uses it, and the caps are what make that
 affordable rather than a leap of faith. The tutor is metered per user per day (ten conversations,
-`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default $20). The
-writing grader and speech scale off the same number in `lib/usage/ledger.ts`, higher, because they
-cost far less. Nothing a learner does outside the tutor is metered at all.
+`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default $20, and a daily
+figure, so a five-dollar month is `0.17`). The writing grader, speech and a turn of a rehearsed
+conversation scale off the same number in `lib/usage/ledger.ts`. Nothing a learner does outside
+those is metered at all.
+
+`npm run measure:compose` prices the two paths that cost real money against the prompts this
+repository actually builds, and prints what a given monthly budget buys. Scene composition also
+yields at half the day's budget, so an afternoon of role-play cannot leave the next person's
+question to Anu unanswerable: a refused scene turn falls back to a drafted line and the
+conversation carries on, and a refused question to Anu has nothing under it at all
+(`docs/21-situations.md` §42).
 
 The last quarter of the day's shared budget is held back for people who have not asked anything
 yet (`AI_GLOBAL_RESERVE_FRACTION`). Without it the cap is first come, first served: an enthusiastic

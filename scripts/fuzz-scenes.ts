@@ -50,7 +50,7 @@ async function main() {
     for (const difficulty of ["textbook", "bad"] as const) {
       for (let seedNo = 0; seedNo < 6; seedNo++) {
         const run = planRun(scene, `fuzz-${seedNo}`, scene.level, difficulty);
-        const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })) };
+        const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: "scripted" };
         const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
         // sequences: pure garbage, alternating garbage/real, and all-real
         const sequences: string[][] = [];
@@ -79,6 +79,8 @@ async function main() {
                 pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
                 hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
                 scripted: context.scripted.get(spokenFor.id) ?? [], used: new Set(),
+                // Keyless by design: the fuzzer opens no socket.
+                mode: "scripted" as const,
               });
               line = cheap.provenance !== "fallback" ? cheap : (datumLine(spokenFor, card, context.lexicon) ?? cheap);
             }

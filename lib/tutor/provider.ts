@@ -351,6 +351,26 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
  * one is two teachers talking over each other, and nothing on screen would
  * say where one stopped.
  */
+/**
+ * How long an answer Anu, the grader and the translator may write, when the
+ * caller does not say.
+ *
+ * ANU IS NOT SHORT BECAUSE OF THIS NUMBER AND MUST NOT BE. Her prompt asks for
+ * about two hundred words, which is roughly two hundred and seventy tokens, so
+ * the ceiling has never been what ends one of her answers and raising it does
+ * not make her more generous. What it does is make sure the ceiling never ends
+ * one either: a full explanation with a minimal pair, a corrected sentence on
+ * its own `FIX:` line and half a dozen `VOCAB:` lines under it is a real
+ * answer she is entitled to give, and a reply truncated mid-word is the worst
+ * available failure on a teaching screen, because a half-written Estonian form
+ * is exactly the thing this app may not put in front of somebody. 1600 is that
+ * with room to spare, and it costs nothing at all on a call that does not use
+ * it: output is billed on what comes back.
+ *
+ * A caller with a bound of its own passes it (`COMPOSE_MAX_TOKENS`).
+ */
+const REPLY_TOKENS = 1600;
+
 export async function openWithFallback(
   chain: ProviderConfig[],
   system: string,
@@ -366,6 +386,17 @@ export async function openWithFallback(
     never invalidates the part that does not.
   */
   live = "",
+  /*
+    HOW LONG AN ANSWER THIS CALL MAY BE, because one size does not fit both
+    callers. Anu writes a paragraph with a worked example under it; a scene
+    line is one sentence the gate refuses over fourteen words, and asking for
+    a thousand tokens of it was wrong twice. It is charged as a reservation on
+    a provider that bills that way, and OpenRouter refuses outright a request
+    whose `max_tokens` is more credit than the key has left, which is a scene
+    that could have spoken failing on the size of an answer it was never going
+    to give.
+  */
+  maxTokens: number = REPLY_TOKENS,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
 
@@ -375,8 +406,8 @@ export async function openWithFallback(
       const last = i === chain.length - 1;
       const upstream =
         config.name === "anthropic"
-          ? await callAnthropic(config, system, messages, live)
-          : await callOpenAiCompatible(config, system, messages, last, live);
+          ? await callAnthropic(config, system, messages, live, maxTokens)
+          : await callOpenAiCompatible(config, system, messages, last, live, maxTokens);
       // The ledger has to see the provider that actually answered, not the head
       // of the chain — falling back to a dearer model must not go unmetered.
       return { config, chunks: readStream(config, upstream, system + live, messages, onUsage) };
@@ -570,6 +601,7 @@ async function callOpenAiCompatible(
   messages: ChatMessage[],
   patient = true,
   live = "",
+  maxTokens: number = REPLY_TOKENS,
 ) {
   const { url, keyEnv, usageFrames } = openAiCompatible(config);
   // Safe only because every config reaching here came from resolveProviders(),
@@ -591,7 +623,7 @@ async function callOpenAiCompatible(
       // Without this the stream carries no usage frame and the ledger has to
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
-      max_tokens: 1200,
+      max_tokens: maxTokens,
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),
@@ -601,7 +633,13 @@ async function callOpenAiCompatible(
   return res;
 }
 
-async function callAnthropic(config: ProviderConfig, system: string, messages: ChatMessage[], live = "") {
+async function callAnthropic(
+  config: ProviderConfig,
+  system: string,
+  messages: ChatMessage[],
+  live = "",
+  maxTokens: number = REPLY_TOKENS,
+) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -612,7 +650,7 @@ async function callAnthropic(config: ProviderConfig, system: string, messages: C
     body: JSON.stringify({
       model: config.model,
       stream: true,
-      max_tokens: 1200,
+      max_tokens: maxTokens,
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than

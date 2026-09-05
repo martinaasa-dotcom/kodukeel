@@ -5125,6 +5125,124 @@ check("a daily reminder fires on the learner's clock, not the server's", () => {
   assert.doesNotMatch(route, /setHours/, "the reminder route is back to the server's clock");
 });
 
+/**
+ * SCENES YIELD AND ANU DOES NOT, AND THE REFUSAL SAYS WHICH.
+ *
+ * `globalShare` is what stops an afternoon of role-play leaving the next
+ * person's question to Anu unanswerable, and the reason it is scenes that give
+ * way is what each does when it is refused rather than what each is worth: a
+ * refused scene turn falls to the bank, which is the same closed list, the
+ * same four checks and a line a person has read, and a refused question to Anu
+ * degrades to nothing at all (docs/21-situations.md §42).
+ *
+ * Three things could quietly stop being true. The share could be dropped from
+ * the table, in which case scenes stop yielding and the cap is first come
+ * first served again. It could be applied to the wrong ceiling, which is the
+ * one that would look like it worked. And the refusal could go on saying the
+ * deployment's whole budget is gone with half of it sitting there for Anu,
+ * which is a failure misnaming its cause on the one screen that has to be
+ * believed.
+ */
+check("scene composition yields a share of the day's budget, and says so honestly", () => {
+  const ledger = code("lib/usage/ledger.ts");
+  assert.match(
+    ledger,
+    /SCENE: \{ burst: \d+, daily: \d+, globalShare: 0?\.\d+ \}/,
+    "scene composition no longer yields a share of the deployment's daily budget, so one learner's " +
+    "afternoon of conversation can spend the day and leave a question to Anu unanswerable",
+  );
+  for (const kind of ["TUTOR", "GRADER", "SCAN"]) {
+    assert.match(
+      ledger,
+      new RegExp(`${kind}: \\{ burst: \\d+, daily: \\d+, globalShare: 1 \\}`),
+      `${kind} now yields part of the budget. Only a path with a rung underneath it may: ` +
+      "there is nothing under a refused question to Anu.",
+    );
+  }
+  /*
+    Applied to the money and not to the counts. A share of the call allowance
+    would ration the person rather than protect the other path, and it is the
+    change that would look as though it had worked.
+  */
+  assert.match(
+    ledger,
+    /dailyMicrosGlobal: Math\.round\(limits\.dailyMicrosGlobal \* allowance\.globalShare\)/,
+    "the kind's share is no longer applied to the deployment's daily spend ceiling",
+  );
+  assert.match(
+    ledger,
+    /allowance\.globalShare < 1 \? yielded\(decision\) : decision/,
+    "a kind that yields at half the budget is telling learners the whole deployment has run out",
+  );
+  /*
+    And the reservation is per turn, because the booking is. The row read 3,500
+    in and 1,000 out from when a scene booked once for the whole conversation,
+    which is twenty-five times a turn: harmless against a generous budget and
+    the whole harm against a small one, since the reserve is what the next
+    request is checked against.
+  */
+  const scene = /SCENE: \{ input: (\d[\d_]*), output: (\d[\d_]*) \}/.exec(code("lib/usage/pricing.ts"));
+  assert.ok(scene, "EXPECTED_TOKENS lost its SCENE row");
+  assert.ok(
+    Number(scene![1]!.replace(/_/g, "")) < 2_000,
+    "a composed turn is reserved at more than a turn costs. It is one line inside one cached word list.",
+  );
+});
+
+/**
+ * AN ANSWER IS ASKED FOR AT THE SIZE OF AN ANSWER.
+ *
+ * One ceiling served both callers and it was wrong for both. A scene line the
+ * gate refuses over fourteen words was asking for a thousand tokens, which is
+ * charged as a reservation on a provider that bills that way and is refused
+ * outright by OpenRouter when it is more credit than the key has left: a scene
+ * that could have spoken, failing on the size of an answer it was never going
+ * to give. And Anu's ceiling had to stay clear of a full explanation with a
+ * corrected sentence and a vocabulary list under it, because a reply truncated
+ * mid-word puts half an Estonian form in front of somebody (ADR-005).
+ */
+check("a scene line and a tutor answer are asked for at their own sizes", () => {
+  const provider = code("lib/tutor/provider.ts");
+  const reply = /const REPLY_TOKENS = (\d+);/.exec(provider);
+  assert.ok(reply, "lib/tutor/provider.ts lost the default answer ceiling");
+  assert.match(
+    provider,
+    /max_tokens: maxTokens/g,
+    "a provider is back to a hardcoded max_tokens, so every caller asks for the same size answer",
+  );
+  assert.doesNotMatch(provider, /max_tokens: 1200/, "a hardcoded 1200 came back");
+
+  const compose = code("lib/scenes/compose.ts");
+  const cap = /export const COMPOSE_MAX_TOKENS = (\d+);/.exec(compose);
+  assert.ok(cap, "lib/scenes/compose.ts lost COMPOSE_MAX_TOKENS");
+  assert.ok(
+    Number(cap![1]) < Number(reply![1]) / 4,
+    "a composed scene line is being asked for at anything like the size of a tutor answer",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"),
+    /COMPOSE_MAX_TOKENS,/,
+    "the scene route stopped passing its own ceiling, so it is back to asking for a tutor answer",
+  );
+  /*
+    And the word list is on the cached side of the prompt. It is nine tenths of
+    it and identical on every turn of a run, so on the wrong side every turn
+    pays full price to re-read three hundred and fifty lemmas.
+  */
+  const block = (name: string) =>
+    new RegExp(`export function ${name}\\([\\s\\S]*?\\n\\}`).exec(compose)?.[0] ?? "";
+  assert.match(
+    block("composeSystem"),
+    /Words you may use/,
+    "the scene's word list left the cached block, so every composed turn pays to re-read it",
+  );
+  assert.doesNotMatch(
+    block("composeLive"),
+    /Words you may use/,
+    "the word list is back in the block that changes per turn",
+  );
+});
+
 check("nothing reaches a paid provider without going through the ledger", () => {
   /*
     CLAUDE.md: "Any new path that calls a paid provider goes through
@@ -11276,27 +11394,80 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
 
   const line = code("lib/scenes/line.ts");
+  /*
+    THE RECORDED SENTENCE LEADS IN BOTH MODES, and that half of the order is
+    unchanged: it is free, it is somebody's own Estonian, and it is the register
+    the composer is shown as an example, so buying a replacement for it would be
+    a worse provenance at a price. Anchored on the call rather than on the word,
+    because the word appears in the prose above it.
+  */
   const attestedAt = line.indexOf("pickAttested(request)");
-  const scriptedAt = line.indexOf('provenance: "scripted"');
   const composeAt = line.indexOf("request.compose([])");
-  assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
-  assert.ok(
-    attestedAt < scriptedAt && scriptedAt < composeAt,
-    "the scripted rung is no longer between the recorded sentence and the live model. " +
-    "A lexicographer outranks a model, and a line gated yesterday and read since outranks one composed a second ago.",
-  );
+  assert.ok(attestedAt > 0 && composeAt > 0, "the ladder lost a rung");
+  assert.ok(attestedAt < composeAt, "the ladder asks a model before it looks for a recorded sentence");
   assert.match(
     line,
     /request\.scripted\.find\(\(text\) => !request\.used\.has\(text\)\)/,
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
+  /*
+    AND THE OTHER HALF OF THE ORDER IS THE RUN'S CHOICE (ADR-025 amendment 2).
+    Which of the two model-written rungs answers is decided once when the run
+    opens and never per beat, because a character who says three sentences
+    drafted last month and then one written about what the learner just told
+    them is two characters. Asserted three ways, since each is a thing that
+    could quietly stop being true: a scripted run never reaches the composer,
+    a composed run keeps the bank underneath it as the net, and neither
+    decision is made from anything but the field.
+  */
+  assert.match(
+    line,
+    /if \(request\.mode === "scripted" \|\| !request\.compose\)/,
+    "lib/scenes/line.ts no longer refuses to compose in a scripted run, so a run opened with no key starts asking halfway through",
+  );
+  assert.ok(
+    line.lastIndexOf('provenance: "scripted"') > composeAt,
+    "the bank is no longer under the composer in a composed run, so a withheld line falls straight to the way out " +
+    "when there is a gated sentence a person has read sitting right there",
+  );
 
   const route = code("app/api/scene/route.ts");
-  const cheapAt = route.indexOf('cheap.provenance !== "fallback"');
+  /*
+    The free rungs are still tried before the ledger, because a booking made
+    for a line already in hand rations a learner over a request nobody made.
+    Anchored on the ladder being asked in scripted mode, which is what "try
+    the free rungs and spend nothing finding out" is spelled as.
+  */
+  const cheapAt = route.indexOf('mode: "scripted"');
   const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
   assert.ok(cheapAt > 0 && bookAt > 0 && cheapAt < bookAt,
     "the route books a call before trying the rungs that cost nothing, so a scripted line rations a learner over a request nobody made");
   assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
+  assert.match(
+    route,
+    /mode: draw\?\.lines \?\? "scripted"/,
+    "the route decides for itself whether to compose instead of reading the run's own choice, so one conversation can change voice halfway through",
+  );
+  assert.match(
+    code("app/actions.ts"),
+    /lines: resolveProviders\(\)\.length > 0 \? "composed" : "scripted"/,
+    "the run no longer settles composed-or-scripted when it opens (ADR-025 amendment 2)",
+  );
+  /*
+    A BEAT THAT NAMES A DRAWN VALUE IS NEVER COMPOSED. The card's day, hour or
+    number is not in the word list and not in the prompt, so a composed line
+    there is a plausible sentence with the wrong hour in it. `datumLine` is what
+    says it, and it has to be resolved before the branch that decides to ask.
+  */
+  assert.ok(
+    route.indexOf("const dealt = datumLine(") < route.indexOf("const composing ="),
+    "the route decides to compose before it knows whether the beat has to name a value off the card",
+  );
+  assert.match(
+    route,
+    /const composing = shared\.mode === "composed" && !dealt;/,
+    "a beat whose line names a time or a number the card drew is being handed to a model, which cannot know it",
+  );
 
   assert.match(
     code("components/scene/SceneSession.tsx"),

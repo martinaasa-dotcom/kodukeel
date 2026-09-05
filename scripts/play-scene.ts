@@ -88,7 +88,7 @@ async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
   const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
   const run = planRun(scene, `play-${style}`, scene.level, difficulty);
-  const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })) };
+  const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: "scripted" };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
@@ -123,6 +123,8 @@ async function play(sceneId: string) {
         pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        // Keyless by design: this plays what a deployment with no model says.
+        mode: "scripted" as const,
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
     }

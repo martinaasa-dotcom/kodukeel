@@ -24,6 +24,7 @@ import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import type { LineMode } from "@/lib/scenes/line";
 import type { GateContext, GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
@@ -475,6 +476,19 @@ export interface StoredDraw {
   readonly card: RoleCard;
   /** Which curveballs, and at which beat. A row written before the beat was kept holds none in play. */
   readonly curveballs: readonly { id: string; at: number }[];
+  /**
+   * Whether this run's model-written lines come from the bank or are composed
+   * live, decided once when the run opened (`LineMode`).
+   *
+   * Part of the draw for the same reason the persona is: it is a fact about
+   * the conversation the learner is having rather than about the request in
+   * front of the route, and re-deciding it per turn is how a receptionist
+   * comes to have two voices. It also means the run survives what changes
+   * underneath it, a key added or removed and a redeploy alike: the run
+   * carries on the way it started, and the ladder's own fallback is what
+   * covers a call that cannot be made today.
+   */
+  readonly lines: LineMode;
 }
 
 export interface FinishedRun {
@@ -616,7 +630,14 @@ export async function beginRun(input: {
   sceneId: string;
   level: string;
   difficulty: Difficulty;
-}): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing } | null> {
+  /**
+   * Which of the two model-written rungs this run will speak with, decided by
+   * the caller because only a server component can ask whether a provider is
+   * configured, and decided *once* because a conversation may not change voice
+   * halfway through (`LineMode`).
+   */
+  lines: LineMode;
+}): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing; lines: LineMode } | null> {
   const scene = sceneById(input.sceneId);
   if (!scene) return null;
 
@@ -655,6 +676,7 @@ export async function beginRun(input: {
     persona: run.persona.id,
     card,
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
+    lines: input.lines,
   };
 
   const created = await prisma.sceneRun.create({
@@ -669,7 +691,7 @@ export async function beginRun(input: {
     select: { id: true },
   });
 
-  return { runId: created.id, seed, run, plays, briefing: briefingOf(run, glosses) };
+  return { runId: created.id, seed, run, plays, briefing: briefingOf(run, glosses), lines: input.lines };
 }
 
 /**
@@ -979,6 +1001,13 @@ export function readDraw(transcript: string): StoredDraw | null {
       persona: typeof parsed.persona === "string" ? parsed.persona : "",
       card: parsed.card,
       curveballs,
+      /*
+        A run written before the field defaults to the bank, which is the free
+        rung and the one every such run has been using: reading a missing
+        value as `composed` would start asking a model halfway through
+        somebody's conversation, and change its voice at the same moment.
+      */
+      lines: parsed.lines === "composed" ? "composed" : "scripted",
     };
   } catch {
     return null;

@@ -994,6 +994,22 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     sceneId: scene.id,
     level: await courseLevelFor(ownerId),
     difficulty: chosen as Difficulty,
+    /*
+      WHETHER THIS CONVERSATION IS SPOKEN LIVE OR OUT OF THE BANK, DECIDED HERE
+      AND ONCE (`LineMode`). A run whose lines came from whichever rung
+      happened to be available on each turn is a character who changes voice
+      mid-sentence, and the seam falls in exactly the place a role-play is
+      trying not to have one. So it is a property of the run, written into the
+      draw beside the persona and the card.
+
+      Decided on whether a provider is configured at all, which is the one
+      thing that is knowable here and never changes under a run in flight.
+      Everything that *can* change under one, the day's allowance and a
+      provider having a bad minute, is handled where it happens: the ladder
+      falls to the bank on a total failure, which is the same Estonian this
+      run would have been speaking under the other mode.
+    */
+    lines: resolveProviders().length > 0 ? "composed" : "scripted",
   });
   if (!opened) return { ok: false as const, error: "That scene could not be built." };
 
@@ -1010,6 +1026,10 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     composed turn and hands the booking back where nothing was composed. What
     this reports is the only part that is a fact about the deployment rather
     than about the next minute: whether a provider is configured at all.
+
+    Read off the run's own decision rather than asking the environment a second
+    time, because two reads of one question is where the screen and the
+    conversation start disagreeing about whether anybody is composing.
   */
   return {
     ok: true as const,
@@ -1018,7 +1038,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // How many times they have had this one before, which is what opens the
     // hearing pool for the other side's lines.
     plays: opened.plays,
-    composed: resolveProviders().length > 0,
+    composed: opened.lines === "composed",
   };
 }
 

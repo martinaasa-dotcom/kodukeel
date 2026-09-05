@@ -71,8 +71,10 @@ screen saying which it got.
    nothing needs checking, and it costs a query.
 2. **Reviewed.** A line a person approved into the scene's phrase bank through the suggestion queue.
    Phase 3, and deliberately not in the first build (§19).
-3. **Composed.** A model is given the move, the beat, the closed word list and the last two turns,
-   and returns one line, which then has to get past the gate below.
+3. **Composed.** A model is given the move, the beat, the closed word list and the run so far, and
+   returns one line, which then has to get past the gate below. Under a key this is where nearly
+   every line comes from and rung 2 is the net underneath it; with no key it is never reached at
+   all. Which of the two, for the whole of a run, is §42.
 4. **The way out.** Composition can fail twice and there is still a person standing there waiting,
    so the fallback is a move that is always in character and always attested: they did not catch
    that, and they ask again. The learner sees somebody who missed what they said, which is the
@@ -360,8 +362,9 @@ Per turn:
 
 One line, for one move, inside a closed word list. It never sees the plot, never decides what
 happens next, never marks anything, and never sees the learner's deck beyond the words lent to the
-list. The static half of the prompt is identical on every turn of every scene, so it sits behind the
-Anthropic `cache_control` breakpoint the tutor already uses.
+list. The half of the prompt that is identical on every turn of a scene, which is the word list and
+nine tenths of the whole, sits behind the Anthropic `cache_control` breakpoint the tutor already
+uses; §42 has what that is worth, and what it cost while the list sat on the wrong side of it.
 
 A rejected line costs one retry with the failing words named, then the fallback. **The gate
 rejection rate is the number that decides whether composition is safe**, and it is measured before
@@ -774,6 +777,12 @@ The honest sentence a learner is shown is therefore about the day rather than ab
 what the quota says when it refuses names no one feature, since a conversation, the tutor and the
 scanner all reach the same allowance and a receptionist screen saying "today's limit for Anu" is a
 screen naming a feature the reader is not using.
+
+**The numbers below were written before there were any, and §42 has the measured ones**: a composed
+turn is $0.0016 and a run of them about $0.0155, `SCENE`'s allowance is four multiples of the base
+rather than one, `EXPECTED_TOKENS.SCENE` was corrected from a whole conversation to one turn, and
+the table learned the fraction this paragraph asks for, as a share of the deployment's budget rather
+than of the count.
 
 The number itself needs the Phase 0 measurement, and the shape of the table is worth noting before
 somebody picks one. `ALLOWANCE` is a whole multiple of the base, which is the tutor's ten a day, so
@@ -2554,3 +2563,175 @@ it, so the one thing in that header that goes anywhere rendered as plain dark te
 **What this does not fix.** A native speaker has still read none of the bank. The transcript on the
 debrief is still every turn at full size, so the review under it is a scroll away on a long
 conversation.
+
+## 42. Composed for the whole run, or scripted for the whole run
+
+The bank was doing two jobs. §31 built it so that a deployment with no key could hold a conversation
+at all, which is what it is for and what it is good at. What it also became, because it sits above
+the live model in the ladder, was the voice of every run on every deployment: the composer was
+reached only on a beat nobody had drafted a line for, so on a fully drafted scene the model wrote
+nothing and the "composed" rung was a rung with almost nothing on it.
+
+That is a defensible way to spend nothing and it is not what the module is for. §32 is a list of the
+places a drafted line shows what it is: the friend who never reacts to what was said, the landlord
+who answers a question with `Jah.` when there was no yes in it, the receptionist who opens the next
+beat as though nobody had spoken. Every one of those is the same fault, which is that a line written
+last month was written without this learner in front of it.
+
+### The two rungs are the same claim about safety and a different claim about voice
+
+Both are Estonian a model wrote inside the scene's closed word list. Both went through `runGate`'s
+four checks, shape, vouching, register and government. Nothing about the gate is weaker at request
+time than it was at draft time, and `lib/scenes/bank.test.ts` re-runs it over every banked row on
+every run of the suite precisely because that is the claim rather than a hope. So what a drafted line
+buys is that a person read it in a diff, which is style and tone rather than correctness.
+
+What a drafted line cannot buy at any price is a line about this conversation.
+
+So under a key, the model writes the other side's line for **every beat it may write one for**, and
+the bank moves underneath it as the net: no key at that moment, a call that threw, or two attempts
+the gate withheld. Under no key, nothing changes at all.
+
+### The choice is the run's, not the beat's
+
+It is stored on the draw beside the persona and the card (`StoredDraw.lines`), decided once by
+`beginScene` on whether a provider is configured, and read back by the route on every turn. Mixing
+the two inside one conversation is the thing this prevents: a character who says three sentences
+drafted last month and then one written about the thing the learner just told her is two characters,
+and the seam falls in exactly the place a role-play is trying not to have one.
+
+Deciding once also means the run survives what moves underneath it. A key added or removed between
+turns, a redeploy, a day's allowance running out: none of them changes the voice of a conversation
+already in progress, because the mode is a fact about the run and the ladder's own fallback is what
+covers a call that cannot be made right now. A run written before the field defaults to `scripted`,
+which is the free rung and the one every such run has already been speaking with.
+
+Two rungs stay above the choice and one stays outside it. **An attested sentence leads in both
+modes**, because it is free, it is a lexicographer's own Estonian, and it is the register the
+composer is shown as an example, so buying a replacement for it would be a worse provenance at a
+price. **A beat that names a value off the card is never composed**: `datumLine` assembles
+`Teisipäeval kell 13:30?` out of the drawn day and hour, and a model that has not been told the hour
+would write a plausible sentence with the wrong one in it, which is why `scriptable` refuses to
+draft such a beat either.
+
+### The composer is shown the conversation, and for a year it was shown nothing
+
+§17 says the last two turns go into the prompt as conversation, never concatenated into an
+instruction, and the route read them off a `said` array in the request body. The client has never
+sent one. `SceneSession` posts `{ runId, turns, used }` and nothing else, so the composer saw the
+current beat in isolation on every call ever made, and the paragraph describing what it saw was true
+of the code and false of every request.
+
+It is read off the replayed run now, which is authoritative, already in hand, and marked by the same
+function that marks the run at the end: `exchangesFrom` takes the last six turns, each as the line
+the learner heard and what they wrote back. The blast radius is unchanged and §17 still describes it.
+A learner can type anything into these; what comes back is one line, checked four ways against a
+closed list, and the model can neither mark, advance the scene nor see the deck.
+
+### What it costs, measured rather than argued about
+
+`npm run measure:compose` builds every scene's real prompt and Anu's real prompt and prices them at
+`claude-sonnet-5`. It counts the characters of the actual strings, which is exact, and converts at a
+ratio taken on 2026-09-05 by running a tokenizer over those same strings, which is stated in the
+script's header along with the command to re-derive it, because Anthropic publishes no tokenizer and
+a script claiming an exact count would be claiming more than it can.
+
+**The cached half was the wrong half.** The scene's word list is about 918 tokens, nine tenths of the
+prompt, and identical on every turn of a run. It sat in the `live` block, which is the block *after*
+the `cache_control` breakpoint, so every turn of every scene paid full price to re-read three hundred
+and fifty lemmas. `composeSystem` is now everything constant for the run and `composeLive` is the
+move alone, twenty-one tokens of it. Measured: $0.0016 a composed turn against $0.0036, and the
+factor is under three rather than ten because once the input is cached the answer and the one retry
+§6 allows are most of what is left.
+
+| | measured |
+| --- | --- |
+| cached block, per scene | 918 tokens |
+| live block, per turn | 21 tokens |
+| the run so far, per turn | 110 tokens |
+| the answer | about 45 tokens, capped at 96 |
+| one composed turn, with the retry rate | $0.0016 |
+| a run of ten composed turns | $0.0155 |
+| one question to Anu | $0.0056 |
+
+**At five dollars a month**, which is $0.167 a day, that is about 320 scene runs a month if the
+budget went nowhere else, or about 900 questions to Anu. Neither of those is the number to plan on,
+because both paths draw on one budget.
+
+### Scenes yield to Anu, and the reason is the floor under each
+
+`ALLOWANCE` in `lib/usage/ledger.ts` gains a third number beside the burst and the daily count:
+`globalShare`, the fraction of the deployment's daily budget a kind may reach before it gives way.
+Scene composition is at a half and everything else is at one, which at five dollars a month is about
+160 scene runs and about 450 questions to Anu, or five conversations and fourteen questions a day.
+
+The reason is not that one is worth more. It is what each does when it is refused. A refused scene
+turn falls to the bank, which is the same closed list, the same four checks and a line a person has
+read: the conversation carries on and what it loses is that the lines stop being about this learner.
+A refused question to Anu degrades to nothing. There is no rung under her, the learner's actual
+question goes unanswered, and the screen has to say so. Where one path has a floor under it and the
+other does not, the one with the floor is the one that gives way.
+
+Half rather than a smaller share, because scene composition is what this budget is mostly for: a
+share that made scenes yield early would be protecting a tutor nobody had asked anything. And the
+refusal says which it is, because a failure may not misname its cause: `checkQuota` is pure and
+kind-free and says "this deployment has reached its shared daily budget", which is the honest
+sentence when the whole budget is gone and not when half of it is still sitting there for Anu.
+
+Two other numbers moved with it, and both were already wrong. `EXPECTED_TOKENS.SCENE` read 3,500 in
+and 1,000 out with a comment explaining that a scene books one call for the whole conversation,
+which stopped being true when the booking moved per turn in §16 and which nothing corrected: every
+composed turn reserved about twenty-five times what it costs. Against a twenty-dollar budget a
+generous reservation is corrected by its settlement seconds later and does no harm; against a cap
+set for five dollars a month it is the whole harm, because the reserve is what the next request is
+checked against. And `SCENE`'s daily allowance was one multiple of the base, which at ten calls a day
+was one conversation and not an allowance but a wall.
+
+### And an answer is asked for at the size of an answer
+
+`max_tokens` was 1200 for every caller. For a scene line that is wrong twice: the gate refuses
+anything over fourteen words, so the rest was never going to be shown, and OpenRouter refuses
+outright a request whose `max_tokens` is more credit than the key has left, which is a scene that
+could have spoken failing on the size of an answer it was never going to give. It is
+`COMPOSE_MAX_TOKENS`, 96, which is fourteen Estonian words with room to finish a sentence.
+
+Anu's is 1600, and raising it changes nothing about how long she writes, which is the point of
+saying so. Her prompt asks for about two hundred words and that is roughly two hundred and seventy
+tokens, so the ceiling has never been what ends one of her answers. What it does is make sure it
+never is: a full explanation with a minimal pair, a corrected sentence on its own `FIX:` line and a
+short `VOCAB:` list under it is a real answer she is entitled to give, and a reply truncated
+mid-word is the worst available failure on a teaching screen, because a half-written Estonian form
+is exactly what this app may not put in front of somebody.
+
+What did change is the instruction. "Keep answers under about 200 words" is a number where the
+honest rule is about the question: "how do you say Tuesday" is one line and padding it insults the
+person who asked, and "why is it toas and not toasse" is the case system, the two sets of local
+cases and where every English speaker trips, and answering that in two sentences leaves somebody a
+fact instead of a rule, so they ask it again about a different word next week. Being short is every
+sentence doing work, never stopping early, and `docs/18-voice.md` is still the standard for whether
+she managed it.
+
+### What this does not change
+
+The grading. `readTurn` and `satisfies` in `lib/scenes/turn.ts` decide whether a learner's turn was
+understood, off the dictionary, the course's own forms and the drawn role card, and `advance` takes
+`Evidence` and nothing else, so a caller holding a model's verdict does not compile. None of that is
+touched here and none of it may be: a model writes the other side's half of the conversation and has
+never had an opinion about the learner's.
+
+The keyless deployment. A run opened with no provider configured is `scripted`, speaks entirely out
+of the bank and the recorded sentences, plays through to its debrief and writes the same grades. That
+is the shipped default, and `npm run play:scenes` is what reads it.
+
+The word gate. Every composed line is vouched word by word against the scene's own declared units,
+withheld whole when it fails, and the screen says which rung answered. Nothing here widens the list,
+and §41's split still holds: the *marker* asks the whole course, and the composer and the gate keep
+to the scene's own units.
+
+### What it does not fix
+
+A native speaker has still read none of the bank, which now matters slightly less on a deployment
+with a key and exactly as much on one without. And the retry rate the cost model assumes, 1.4 calls
+a composed turn, is taken from `eval:scene`'s withholding rate on a different prompt: the composer
+is shown the conversation now, and whether that moves the gate's verdict up or down has not been
+measured. Re-run `npm run eval:scene` before trusting the figure to two significant digits.
