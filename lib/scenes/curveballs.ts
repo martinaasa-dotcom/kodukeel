@@ -142,7 +142,15 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "instruct",
     cost: 1,
     says: "They speed up.",
-    out: "Ask them to slow down. Free, always, and taught.",
+    /*
+      Asking for it slower costs nothing, is always available and is taught by
+      the course, which is the argument for this being a fair thing to throw
+      at somebody. It is an argument about the table rather than a sentence
+      for the person in the conversation, who is reading this as the thing to
+      do next: it printed on screen as "Ask them to slow down. Free, always,
+      and taught."
+    */
+    out: "Ask them to slow down.",
     needs: [{ kind: "question" }],
   },
   {

@@ -210,6 +210,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   const { hearing } = useAudioPrefs();
 
   const log = useRef<HTMLDivElement>(null);
+  const ask = useRef<HTMLDivElement>(null);
   /*
     A scene can end on its own, when the last beat is done or the persona has
     run out of patience, and the turn that ended it is the one that has to hang
@@ -231,6 +232,30 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   useEffect(() => {
     const box = log.current;
     if (box) box.scrollTop = box.scrollHeight;
+  }, [turns]);
+
+  /*
+    AND THE PAGE COMES DOWN TO THE BOX WHEN IT IS YOUR TURN AGAIN.
+
+    The card and what to get done stand above the conversation and are worth
+    the room they take, which on a phone puts the box below the fold: every
+    turn was press, read the reply, scroll, type. The reply lands at the
+    bottom of the log and the box is directly under it, so bringing the box
+    into view brings the newest line with it, which is the pair a learner
+    needs at that moment.
+
+    `block: "nearest"` rather than a scroll to a position, because it does
+    nothing at all when the box is already on screen, which is the desktop
+    case and the case on a phone once somebody has scrolled down: a page that
+    jumps on every turn is worse than one that never moves. Only on a line
+    from the other side, never on the learner's own turn appearing, and never
+    smooth for somebody who has asked for less movement.
+  */
+  useEffect(() => {
+    if (turns[turns.length - 1]?.who !== "them") return;
+    const still = typeof matchMedia === "function"
+      && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    ask.current?.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
   }, [turns]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -759,6 +784,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         learner is being asked for something. The field keeps its own white
         ground, so the box still reads as a box.
       */}
+      <div ref={ask} className="dock-clear">
       <Card tone="accent" className="flex flex-col gap-3">
         <div aria-live="polite">
           <p className="label-xs" style={{ color: "var(--accent-deep)" }}>Your turn</p>
@@ -816,6 +842,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           </Button>
         </div>
       </Card>
+      </div>
     </div>
   );
 }
