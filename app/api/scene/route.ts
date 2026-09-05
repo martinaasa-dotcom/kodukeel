@@ -269,6 +269,12 @@ export async function POST(request: Request) {
       `readTurn` already put first in `matched`. The flag is what labels it.
     */
     recast: Boolean(last?.slips?.some((slip) => slip.form && slip.form === last?.matched?.[0])),
+    /*
+      And where they reached for the word in English, the Estonian is said back
+      as the word they were reaching for rather than as their own word put
+      right, because it was not their word.
+    */
+    english: Boolean(last?.slips?.some((slip) => slip.kind === "english")),
     aside,
     /*
       The word to hand over where the turn said they were not following. The
@@ -349,6 +355,35 @@ export async function POST(request: Request) {
         .map((v) => v.slice(0, MAX_CONTEXT_CHARS))
     : [];
 
+  /*
+    WHAT THE LEARNER APPEARS TO HAVE SAID, IN ENGLISH, MADE BY THE DICTIONARY.
+
+    A beginner's Estonian is short, endingless and often a word off, and the
+    model composing the other side's next line reads it raw. Handing it a
+    word-by-word reading is the cheapest way to make that line about what they
+    actually said rather than about what the beat expected, and it is the thing
+    a bilingual listener does without noticing: hear it, understand it, answer
+    in Estonian.
+
+    `lib/dict/glossed.ts` makes it, which means the DICTIONARY makes it: every
+    gloss here is the entry's own, vouched at the confidence a photographed
+    page has to clear (ADR-021), and a word it will not vouch for is simply
+    absent. No second model reads the learner's turn, nothing here can advance
+    the scene, and the reply the model writes is still checked four ways by the
+    gate before anybody sees it. It is context for one line, not a verdict:
+    `advance` still takes `Evidence` and `readTurn` is still its only producer.
+
+    Only on a turn that is going to book a call anyway, so the ordinary turn
+    pays nothing for it.
+  */
+  const readingOf = async (text: string): Promise<string> => {
+    const [tokens] = await glossSentences([{ et: text, form: null }]);
+    const seen = (tokens ?? [])
+      .filter((token) => token.word && token.entry)
+      .map((token) => `${token.text}: ${token.entry!.gloss.split(/[,;]/)[0]!.trim()}`);
+    return seen.join("; ");
+  };
+
   const shared = {
     beat,
     lexicon: context.lexicon,
@@ -391,6 +426,7 @@ export async function POST(request: Request) {
     const asking: typeof beat = { ...beat, id: `aside:${beat.id}`, move: "confirm", topic: [] };
     const drafted = await compose(chain, {
       ownerId,
+      reading: last?.said ? await readingOf(last.said) : "",
       // The booking this turn already made, so the settlement is a settlement
       // rather than a second `CALL` at the full estimate. Required rather than
       // optional for exactly this: a call site that has not thought about it
@@ -448,6 +484,7 @@ export async function POST(request: Request) {
   */
   const reservation = decision.reservation;
 
+  const learnerReading = last?.said ? await readingOf(last.said) : "";
   const line = await sceneLine({
     ...shared,
     // The attested and scripted rungs were already tried and did not answer.
@@ -455,6 +492,7 @@ export async function POST(request: Request) {
     scripted: [],
     compose: (avoid) => compose(chain, {
       ownerId,
+      reading: learnerReading,
       // The booking this turn was authorised under, so the settlement corrects
       // it rather than being written down as a second call. See `compose`.
       reservation,
@@ -530,6 +568,13 @@ async function compose(
     move: string;
     /** What they are doing, in English, from their side: the beat's `they`. */
     they: string;
+    /**
+     * What the learner's last turn appears to say, word by word, from the
+     * dictionary. Empty where there is no turn yet or the dictionary could
+     * vouch for none of it, and then the model reads the Estonian alone,
+     * which is what it did before.
+     */
+    reading: string;
     register: string;
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
@@ -551,6 +596,10 @@ async function compose(
     `Your move: ${input.move}.`,
     `What you are doing, in English: ${input.they}`,
     `Address them as "${input.register}".`,
+    input.reading
+      ? `What they just said appears to mean, word by word: ${input.reading}. `
+        + "Answer what they actually said. Reply in Estonian only."
+      : "",
     input.examples.length > 0
       ? `Lines this character has said at other moments, for tone and length: ${input.examples.join(" | ")}`
       : "",

@@ -11514,7 +11514,7 @@ check("a scene understands a slip before it marks one, and says so", () => {
     "lib/scenes/grades.ts no longer reads a slip, so a word understood with the wrong ending grades Good",
   );
   assert.match(
-    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "again"/,
+    code("lib/scenes/reply.ts"), /input\.english \? "offered" : input\.recast \? "recast" : "again"/,
     "replyFor no longer labels a recast as the learner's word put right",
   );
   const session = code("components/scene/SceneSession.tsx");
@@ -11829,6 +11829,51 @@ check("a learner who says they are lost is handed the word, never the question a
     turn, /const isAnswer = \(word: string\) =>/,
     "the marker corrects a case wherever the word turns up, so a correct sentence is answered with a correction",
   );
+  /*
+    A COMPOUND OF THE WORD IS THE WORD, AND THE WHOLE SPELLING HAS TO BE ONE.
+    Estonian builds compounds on the head, so a spelling ending in a form of
+    the beat's word is that word with a modifier in front; without the second
+    guard a learner could meet any beat by gluing letters to its word.
+  */
+  assert.match(
+    turn, /compoundOf\(said, forms, isWord\)/,
+    "a compound of the beat's word is refused again, so naming the exact thing is a miss",
+  );
+  assert.match(
+    code("lib/scenes/nearly.ts"), /if \(!isWord\(said\)\) return null;/,
+    "a compound is accepted without the app vouching for the whole spelling, so any letters glued "
+    + "to the beat's word would meet it",
+  );
+  /*
+    AND THE WORD IN ENGLISH IS THE WORD, ANSWERED IN ESTONIAN. Reaching for a
+    word in the language you have is the commonest thing anybody does in a
+    second language. It is read after the requirements rather than before them,
+    or a turn that said the thing is answered as though nothing was said.
+  */
+  assert.match(
+    turn, /if \(missing\.length === 0\) return shape\("complete"\);\s*if \(isEnglish/,
+    "English is read before the requirements again, so a turn that met the beat in English is "
+    + "answered as though nothing was said",
+  );
+  /*
+    And what the model is handed about the learner's turn is the dictionary's
+    reading of it, not a second model's. `glossed.ts` vouches every word at the
+    confidence a photographed page has to clear, nothing here can advance the
+    scene, and the line that comes back is still checked four ways by the gate.
+  */
+  {
+    const route = code("app/api/scene/route.ts");
+    assert.match(
+      route, /const readingOf = async/,
+      "the composer is no longer told what the learner's turn means, so its line answers the beat "
+      + "rather than the person",
+    );
+    assert.match(
+      route, /glossSentences\(\[\{ et: text, form: null \}\]\)/,
+      "the reading of a learner's turn is made by something other than the dictionary",
+    );
+  }
+
   /*
     A SECOND WORD FOR THE SAME THING IS THE SAME THING, AND IT IS ONLY EVER
     READ TO ACCEPT.

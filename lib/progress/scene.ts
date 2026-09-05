@@ -32,6 +32,7 @@ import { timeWords, type RoleCard } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
+import { sensesOf } from "@/lib/dict/synonyms";
 import { isKnownForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
@@ -89,7 +90,12 @@ export interface SceneContext {
 }
 
 /** One entry as this module needs it: `DictEntry`, its id, and its government. */
-export type Row = DictEntry & { readonly id: string; readonly government: string | null };
+export type Row = DictEntry & {
+  readonly id: string;
+  readonly government: string | null;
+  /** The English gloss, for the marker's "they reached for it in English" rule. */
+  readonly gloss?: string | null;
+};
 
 /**
  * Builds the context for one scene.
@@ -144,6 +150,21 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
     marker: {
       ...context.marker,
       known: (word: string) => known.has(word),
+      /*
+        The English for each of the scene's own words, so a learner who reaches
+        for one in English is understood and told the Estonian. One sense per
+        entry off the dictionary's own gloss, and single words only: a sense of
+        several words could not be matched against one token without parsing
+        English, which this app does not do.
+      */
+      englishFor: new Map(
+        rows
+          .map((row) => [
+            row.lemma,
+            sensesOf(row.gloss ?? "").map((sense) => sense.of).filter((sense) => !/\s/.test(sense)),
+          ] as const)
+          .filter(([, senses]) => senses.length > 0),
+      ),
       ...(standRows.length > 0
         ? { substitutes: { forLemma: wanted, lexicon: buildLexicon(standRows) } }
         : {}),
@@ -277,6 +298,9 @@ async function readEntries(lemmas: readonly string[]): Promise<Row[]> {
     where: { lemma: { in: [...lemmas] } },
     select: {
       id: true, lemma: true, pos: true, cefr: true, examples: true, government: true,
+      // The English gloss, so a learner who reaches for the word in English is
+      // understood and told the Estonian (`englishFor` in the marker).
+      translation: true,
       forms: { select: { formType: true, value: true } },
     },
     // Ordered because the pools below are cut, and because two entries can
@@ -296,6 +320,7 @@ async function readEntries(lemmas: readonly string[]): Promise<Row[]> {
     }
     return {
       id: row.id,
+      gloss: row.translation,
       government: row.government,
       lemma: row.lemma,
       pos: row.pos,
@@ -836,10 +861,35 @@ export async function finishRun(input: {
     alternative is a debrief that lists words the conversation never needed.
   */
   const declared = input.asked.filter((one) => context.lexicon.byLemma.has(one.lemma));
+  /*
+    AND THE WORDS THEY REACHED FOR IN ENGLISH, WHICH IS THE BEST LIST OF WHAT
+    TO LEARN NEXT THIS APP CAN MAKE.
+
+    A learner who writes `ma lahen shop` wanted that word badly enough to say
+    it in the language they have. No scheduler picks better than that: it is
+    not a word somebody thought they might need one day, it is one they needed
+    in a sentence and did not have. The marker already wrote it down as a slip
+    (`readTurn`), so this is reading a fact the run already recorded rather
+    than a new judgment.
+
+    `REACHED` rather than `ASKED` or `STALLED`, because the three are different
+    things a debrief should be able to tell apart: one is a button they pressed,
+    one is a beat that ran out of patience, and this is a word they produced the
+    meaning of and not the form. The lemma is the dictionary's own and is checked
+    against the scene's lexicon like the others, so nothing a client sends can
+    reach this table.
+  */
+  const reached = [...new Set(
+    state.turns
+      .flatMap((turn) => turn.slips ?? [])
+      .filter((slip) => slip.kind === "english")
+      .map((slip) => slip.lemma),
+  )].filter((lemma) => context.lexicon.byLemma.has(lemma));
   const gaps = [
     ...declared.slice(0, MAX_GAPS).map((one) => ({
       kind: "ASKED", lemma: one.lemma, lexemeId: one.lexemeId,
     })),
+    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
     ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
   ];
   if (gaps.length > 0) {
@@ -848,7 +898,7 @@ export async function finishRun(input: {
     });
   }
 
-  const wanted = [...new Set([...declared.map((a) => a.lemma), ...stalled])];
+  const wanted = [...new Set([...declared.map((a) => a.lemma), ...reached, ...stalled])];
   const known = wanted.length === 0 ? [] : await prisma.lexeme.findMany({
     where: { lemma: { in: wanted } },
     select: { id: true, lemma: true },

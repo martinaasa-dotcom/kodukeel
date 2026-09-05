@@ -98,7 +98,16 @@ export function reviewOf(scene: SceneSpec, state: SceneState): SceneReview {
   */
   const landed = turns.filter((t) => t.reading === "complete" || t.met.some(Boolean));
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
-  const slips = turns.flatMap((t) => t.slips ?? []);
+  const every = turns.flatMap((t) => t.slips ?? []);
+  /*
+    A WORD REACHED FOR IN ENGLISH IS NOT AN ENDING THAT WAS OFF. It is carried
+    as a slip so the other side says the Estonian back and the debrief can
+    name it, and it is a different thing from a spelling or a case: counting
+    it in "two endings or spellings were off" would tell a learner they got a
+    form wrong when what happened is that they did not have the word yet.
+  */
+  const slips = every.filter((slip) => slip.kind !== "english");
+  const reached = every.filter((slip) => slip.kind === "english");
 
   const notes = [
     ...caseNotes(slips, state),
@@ -107,6 +116,7 @@ export function reviewOf(scene: SceneSpec, state: SceneState): SceneReview {
     ...spellingNote(slips),
     ...missedNote(scene, state),
     ...englishNote(turns.filter((t) => t.reading === "english").length),
+    ...reachedNote(reached),
   ];
 
   return {
@@ -314,6 +324,30 @@ function missedNote(scene: SceneSpec, state: SceneState): ReviewNote[] {
  * say how often it happened and why it matters, on a screen the conversation
  * is already over on.
  */
+/**
+ * The words they reached for in English, with the Estonian beside each.
+ *
+ * The kindest thing in the debrief and the one worth reading twice: these are
+ * the words a learner wanted badly enough to say in the wrong language, which
+ * is a better list of what to learn next than anything a scheduler could pick.
+ * Nothing is graded for them, since they did not produce the Estonian.
+ */
+function reachedNote(reached: readonly Slip[]): ReviewNote[] {
+  if (reached.length === 0) return [];
+  const seen = new Map<string, Slip>();
+  for (const slip of reached) if (!seen.has(slip.lemma)) seen.set(slip.lemma, slip);
+  const rows = [...seen.values()];
+  return [{
+    id: "english-reach",
+    heading: rows.length === 1
+      ? "One word you reached for in English"
+      : `${rows.length} words you reached for in English`,
+    body: "You knew what you wanted to say and not yet how to say it, which is the shortest list there "
+      + "is of what to learn next. Here they are, the way this scene says them.",
+    evidence: rows.map((slip) => ({ said: slip.said, form: slip.form })),
+  }];
+}
+
 function englishNote(count: number): ReviewNote[] {
   if (count === 0) return [];
   return [{

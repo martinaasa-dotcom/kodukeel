@@ -31,7 +31,7 @@ import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
 import { words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
-import { foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
+import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
 import type { BeatSpec, Requirement } from "./types";
 
 /**
@@ -82,7 +82,14 @@ export interface TurnWord {
  * so the review log can file it beside the same case missed on a card.
  */
 export interface Slip {
-  readonly kind: "spelling" | "case" | "form" | "person";
+  /**
+   * `english` is the one that is not a slip of the pen: the learner reached
+   * for the word in English, which is understood and answered with the
+   * Estonian rather than corrected. It is a slip so the debrief lists it and
+   * the other side says the word back, and it is never graded as production,
+   * for which `Evidence.substituted` is what the grades read.
+   */
+  readonly kind: "spelling" | "case" | "form" | "person" | "english";
   readonly said: string;
   readonly form: string | null;
   readonly lemma: string;
@@ -226,6 +233,24 @@ export interface TurnContext {
     /** Their forms and cases, built the same way the scene's own are. */
     readonly lexicon: Lexicon;
   };
+  /**
+   * THE ENGLISH FOR EACH OF THE SCENE'S OWN WORDS, ONE SENSE PER ENTRY.
+   *
+   * A learner reaching for a word they do not have reaches for it in English,
+   * which is the commonest thing anybody does in a second language and the one
+   * thing a bilingual listener always understands. Asked where they are going
+   * and writing "ma lahen shop", they have said the thing; the other side
+   * hears it and says the Estonian back, which is what a friend does and is
+   * worth more to a learner than a refusal.
+   *
+   * The gloss is the dictionary's own and this is only ever read to accept: a
+   * turn met this way is written down as a substitution, so no grade claims
+   * they produced the Estonian word they were reaching for.
+   *
+   * Absent on a caller that has not resolved it, and then an English word is
+   * an English word, which is what it was before.
+   */
+  readonly englishFor?: ReadonlyMap<string, readonly string[]>;
   /**
    * Whether a word is a finite verb the scene knows, for the shape rule.
    * `Pea valutab.` is two words and a sentence, and `looksLikeSentence` alone
@@ -411,7 +436,6 @@ export function readTurn(
     };
   }
 
-  if (isEnglish(spoken, marked)) return shape("english");
   /*
     Not on a beat whose answer *is* the other side's line. `Tere!` is answered
     with `Tere!` and `Head aega!` with `Head aega!`, and reading either as
@@ -479,6 +503,22 @@ export function readTurn(
   if (beat.shape === "sentence" && anyVouched && !sentence) return shape("fragment");
 
   if (missing.length === 0) return shape("complete");
+  /*
+    ENGLISH IS READ AFTER THE REQUIREMENTS RATHER THAN BEFORE THEM.
+
+    It used to lead, on the argument that a turn in English satisfies no
+    requirement, and that stopped being true the day the beat's own word could
+    be met by the English for it: `I am in the room` says the thing, and it was
+    read as a turn in English and answered as if nothing had been said. A turn
+    that met everything the beat asked is complete whatever language the rest
+    of it is in, which is also what a bilingual listener does.
+
+    Nothing above it can be reached by an English turn, which is what makes the
+    move safe: the echo needs their own Estonian line handed back, a no needs
+    the negator, saying you are lost needs a course phrase, and a fragment
+    needs a word the scene can vouch for.
+  */
+  if (isEnglish(spoken, marked)) return shape("english");
   if (missing.length < beat.needs.length) return shape("incomplete");
 
   return shape(caughtSomething(marked) ? "offtarget" : "unrecognised");
@@ -594,6 +634,21 @@ function satisfies(
     }
     return null;
   };
+  /*
+    A compound whose head is the word: `bussipileti` is a `pilet`, and more
+    precisely so than the beat asked for. Vouched against the forms list
+    rather than the scene's, since a compound is usually a word no unit here
+    teaches and is still an ordinary Estonian word.
+  */
+  const compound = (forms: ReadonlySet<string> | undefined): { said: string; form: string } | null => {
+    if (forms === undefined) return null;
+    const isWord = (word: string) => vouched(word);
+    for (const said of spoken) {
+      const form = compoundOf(said, forms, isWord);
+      if (form) return { said, form };
+    }
+    return null;
+  };
 
   switch (need.kind) {
     case "any":
@@ -605,6 +660,15 @@ function satisfies(
         if (hit) return { word: hit, ...personSlip(hit, lemma, spoken, context) };
         const near = nearly(forms);
         if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma } };
+      }
+      /*
+        A compound of the word, before the stem pass and after the exact one:
+        `bussipilet` really is a ticket, where a shared stem is only evidence
+        that somebody meant one.
+      */
+      for (const lemma of need.oneOf) {
+        const built = compound(context.lexicon.byLemma.get(lemma));
+        if (built) return { word: built.said };
       }
       /*
         A pass of its own after every candidate has been tried exactly,
@@ -624,6 +688,17 @@ function satisfies(
       for (const lemma of need.oneOf) {
         const said = substituteFor(lemma, context, spoken);
         if (said) return { word: said, stoodIn: true };
+      }
+      /*
+        And the word in English, which is what anybody reaches for when they do
+        not have it yet. Understood, and said back in Estonian, so the one
+        thing a learner gets out of not knowing a word is the word.
+      */
+      for (const lemma of need.oneOf) {
+        const said = englishFor(lemma, context, spoken);
+        if (said) {
+          return { word: lemma, stoodIn: true, slip: { kind: "english", said, form: lemma, lemma } };
+        }
       }
       return null;
     }
@@ -647,6 +722,13 @@ function satisfies(
         and calling it a typo would hand the review a note about spelling
         where the learner needs one about the case.
       */
+      /*
+        A compound in the case the beat wanted: `bussipiletisse` carries its
+        ending on the head, so the case is right and there is nothing to
+        recast.
+      */
+      const inCompound = compound(accepted);
+      if (inCompound) return { word: inCompound.said };
       const otherForm = exact(forms);
       const cased = (said: string): Hit => {
         if (!isAnswer(said)) return { word: said };
@@ -682,6 +764,18 @@ function satisfies(
       */
       const stood = substituteFor(need.lemma, context, spoken, need.grammCase);
       if (stood) return { word: stood, stoodIn: true };
+      /*
+        And the word in English, said back in the case the beat wanted, which
+        is the whole of what they were missing.
+      */
+      const inEnglish = englishFor(need.lemma, context, spoken);
+      if (inEnglish) {
+        const form = context.lexicon.caseForm.get(key) ?? null;
+        return {
+          word: form ?? need.lemma, stoodIn: true,
+          slip: { kind: "english", said: inEnglish, form, lemma: need.lemma, grammCase: need.grammCase },
+        };
+      }
       return null;
     }
     /*
@@ -760,6 +854,23 @@ function satisfies(
       return null;
     }
   }
+}
+
+/**
+ * The English word the learner reached for, where it is one of this word's own
+ * senses. One token against one whole sense, so a sense of several words never
+ * matches half of itself and nothing here parses English.
+ */
+function englishFor(
+  lemma: string,
+  context: TurnContext,
+  spoken: readonly string[],
+): string | null {
+  for (const sense of context.englishFor?.get(lemma) ?? []) {
+    const hit = spoken.find((word) => word === sense);
+    if (hit) return hit;
+  }
+  return null;
 }
 
 /**

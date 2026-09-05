@@ -101,6 +101,13 @@ export interface ReplyInput {
    */
   readonly recast?: boolean;
   /**
+   * Whether `echo` is the Estonian for a word the learner reached for in
+   * English. Said back like a recast, and labeled as the word they were
+   * reaching for rather than as their own word put right, because it was not
+   * their word: they said it in the language they have.
+   */
+  readonly english?: boolean;
+  /**
    * What the other side says about a question the learner asked that the
    * beat did not ask for, before their own move (`asideFor`). Said first,
    * because a person answers what they were asked before going on, and it
@@ -418,12 +425,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       said it right is not.
     */
     const brief = input.said === null || words(input.said).length <= ECHO_WORDS;
-    const worth = input.recast || brief;
+    /*
+      A recast and a word reached for in English are both corrections rather
+      than echoes, so they survive whatever the length: somebody who wrote
+      `ma lahen shop` is owed `Poodi.` in a way that somebody who said it
+      right is not.
+    */
+    const worth = input.recast || input.english || brief;
     const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
-        provenance: input.recast ? "recast" : "again", reaction: true,
+        provenance: input.english ? "offered" : input.recast ? "recast" : "again", reaction: true,
       });
     } else if (!aside && input.acknowledges && response === "answer") {
       const choices = REACTIONS.acknowledge;

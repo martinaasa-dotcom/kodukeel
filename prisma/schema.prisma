@@ -703,7 +703,10 @@ model SceneGap {
   /// The word as the learner reached for it, which is the only handle a word
   /// the dictionary could not vouch for has.
   lemma    String?
-  /// `ASKED` (the help button) or `STALLED` (the beat could not be met).
+  /// `ASKED` (the help button), `STALLED` (the beat could not be met) or
+  /// `REACHED` (they said the word in English, which is the best list of what
+  /// to learn next this app can make: not a word somebody thought they might
+  /// need, one they needed in a sentence and did not have).
   kind     String
 
   createdAt DateTime @default(now())

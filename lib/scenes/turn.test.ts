@@ -219,6 +219,70 @@ describe("reading a turn", () => {
     });
   });
 
+  /*
+    ESTONIAN IS MADE OF COMPOUNDS, AND THE HEAD IS THE LAST PART. A learner
+    who names the exact thing they want is being more precise than the beat
+    asked for, and was refused for it: the two spellings share no opening, so
+    every other rule missed it.
+  */
+  describe("a compound of the beat's word", () => {
+    const real = (word: string) => ["tubapoiss", "suurtuba"].includes(word);
+
+    it("is that word", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("suurtuba", asks, { ...context(), known: real });
+      expect(seen.reading).toBe("complete");
+      // Their own word is what comes back, since a compound is not a mistake.
+      expect(seen.matched).toEqual(["suurtuba"]);
+    });
+
+    it("has to be a word, or any letters glued to the front would meet the beat", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("xyzzytuba", asks, { ...context(), known: real }).reading).not.toBe("complete");
+    });
+
+    it("needs a modifier long enough to be one", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("atuba", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
+    });
+  });
+
+  /*
+    AND THE WORD IN ENGLISH IS THE WORD. Reaching for it in the language you
+    have is the commonest thing anybody does in a second language and the one
+    thing a bilingual listener always understands. The other side says the
+    Estonian back, which is the whole of what the learner was missing.
+  */
+  describe("a word the learner reached for in English", () => {
+    const english = new Map([["tuba", ["room"]]]);
+
+    it("meets the beat, and the Estonian is what comes back", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("i am in the room", asks, { ...context(), englishFor: english });
+      expect(seen.reading).toBe("complete");
+      expect(seen.matched).toEqual(["tuba"]);
+      expect(seen.slips[0]?.kind).toBe("english");
+    });
+
+    it("comes back in the case the beat asked for", () => {
+      const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] });
+      const seen = readTurn("room", asks, { ...context(), englishFor: english });
+      expect(seen.slips[0]?.form).toBe("toas");
+    });
+
+    it("is written down as a substitution, so nothing grades it as production", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("room", asks, { ...context(), englishFor: english }).substituted).toEqual([0]);
+    });
+
+    it("never answers before the Estonian does", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("tuba", asks, { ...context(), englishFor: english });
+      expect(seen.slips).toEqual([]);
+      expect(seen.substituted).toEqual([]);
+    });
+  });
+
   it("takes a question mark as a question, because Homme? is one", () => {
     const asks = beat({ needs: [{ kind: "question" }] });
     expect(readTurn("Kus?", asks, context()).reading).toBe("complete");

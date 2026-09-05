@@ -4781,6 +4781,42 @@ line above. Nothing is graded for it, because they may not have said it, which i
 because somebody who says goodbye in the middle has left, so a `close` beat that took anything
 would end every conversation on its first turn.
 
+**A compound of the word is the word, and Estonian is made of compounds.** Asked what they wanted
+at a ticket window, a learner who wrote `bussipileti` was being more precise than the beat asked for
+and was refused: the two spellings share no opening, so every "close enough" rule missed it. The
+head of an Estonian compound is its last part and carries the inflection, which is what makes this
+decidable without a parser, so a spelling ending in a form of the word, with a modifier of at least
+`COMPOUND_MODIFIER` characters in front, is that word. Two guards and both are load-bearing: the
+modifier has to be long enough to be a word, and the whole spelling has to be one
+`prisma/data/forms/` can vouch for, or a learner could meet any beat by gluing letters to its word.
+
+**And the word in English is the word, answered in Estonian.** Reaching for a word in the language
+you have is the commonest thing anybody does in a second language and the one thing a bilingual
+listener always understands. `TurnContext.englishFor` is the dictionary's own gloss, one single-word
+sense per entry, and a turn met that way is understood, said back in Estonian, labeled as the word
+they were reaching for rather than as their own word put right, and **never graded as production**,
+since they produced the meaning and not the form. **English is read after the requirements rather
+than before them**, which is the half that makes it work: it used to lead, so `I am in the room`
+said the thing and was answered as though nothing had been said. Nothing above that check can be
+reached by an English turn, which is what makes the move safe.
+
+**And the words reached for in English are the best list of what to learn next this app can make.**
+Not a word somebody thought they might need one day: one they needed in a sentence and did not have.
+They are written to `SceneGap` as `REACHED`, beside the button's `ASKED` and the beat's `STALLED`,
+so the debrief offers them with an add-to-deck button and the next scene's card prefers them, which
+is the design's own promise about that table. The lemma is the dictionary's and is checked against
+the scene's lexicon like the others, so nothing a client sends reaches the table.
+
+**And the model composing the other side's line is told what the learner appears to have said.** A
+beginner's Estonian is short, endingless and often a word off, and the composer read it raw, so its
+line answered the beat rather than the person. `readingOf` in the scene route builds a word-by-word
+English reading through `lib/dict/glossed.ts`, which means the **dictionary** builds it: every gloss
+is the entry's own, vouched at the confidence a photographed page has to clear (ADR-021), and a word
+it will not vouch for is absent. No second model reads the learner's turn, nothing about it can
+advance the scene, and the line that comes back is still checked four ways by the gate before
+anybody sees it: `advance` still takes `Evidence` and `readTurn` is still its only producer. It is
+resolved only on a turn that books a call anyway, so an ordinary turn pays nothing for it.
+
 **And a beat's goal names the answer wherever there is exactly one.** A goal is the objective on
 the screen, and where a beat accepts one word a goal that does not name it is a trap rather than an
 instruction: "Say where you are now" took only "at the shop". `catalogue.test.ts` reads the
@@ -5965,7 +6001,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,
