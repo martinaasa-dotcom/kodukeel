@@ -11572,6 +11572,46 @@ check("a question the scene did not anticipate is answered before the move", () 
   assert.match(scripted, /export function answerBeatId\(/, "the bank has nowhere to hold a question-beat's answer");
 });
 
+check("a suite that measures colour measures a page that has finished arriving", () => {
+  /*
+    THE LANDING PAGE ARRIVES OVER ABOUT A SECOND, and a contrast check has no
+    notion of time. It brings its headline in a word at a time and its claims
+    640ms later, each with `both` fill, so an element part way through
+    `fade-up` is a real colour composited against the ground and axe reports it
+    as a real failure. Which elements were caught depended on when the run
+    happened: CI named the hero claims, and a probe at the same viewport with
+    the same axe configuration named three to sixteen nodes and never the same
+    set twice, then came back clean five times out of five with the motion off.
+    A check whose answer depends on the millisecond is not a check.
+
+    `reducedMotion: "reduce"` is this repository's own answer, already given by
+    `test-containment.mjs`, whose comment says the animations "are what would
+    otherwise be measured", and by `test-design.mjs`, which stops a letter
+    drifting before reading its angle. The a11y sweep was the one that had not
+    been told, and what it costs is nothing: `prefers-reduced-motion` collapses
+    every duration in `app/globals.css` and turns the scroll-driven reveal off
+    outright, so content that was tied to the scrollbar is now measured too.
+
+    Anchored on there being no bare `newPage` left, because a fifth context
+    added later is exactly how this comes back.
+  */
+  const a11y = read("scripts/a11y-check.mjs");
+  assert.match(
+    a11y, /browser\.newPage\(\{ viewport, reducedMotion: "reduce" \}\)/,
+    "the a11y sweep no longer stops the page moving before it measures its colours",
+  );
+  assert.doesNotMatch(
+    a11y, /browser\.newPage\(\{ viewport: /,
+    "a page in the a11y sweep is made outside the one helper, so it measures a page mid-entrance",
+  );
+  for (const file of ["scripts/test-containment.mjs", "scripts/test-design.mjs"]) {
+    assert.match(
+      read(file), /reducedMotion: "reduce"/,
+      `${file} stopped asking for the motion to be off, so it measures whatever frame it landed on`,
+    );
+  }
+});
+
 check("no Estonian word is set in a class that shouts it", () => {
   /*
     `label-xs` is 10.5px bold with wide tracking and `text-transform:

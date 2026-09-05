@@ -189,7 +189,33 @@ const ROUTES = [
 ];
 
 const browser = await launchChromium();
-const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+/**
+ * A page for measuring on, and the motion is off on every one of them.
+ *
+ * WHAT A CONTRAST CHECK MEASURES IS THE SETTLED STATE, AND THIS PAGE ARRIVES
+ * OVER ABOUT A SECOND. The landing page brings its headline in a word at a
+ * time and its claims 640ms later, each with `both` fill, so an element part
+ * way through `fade-up` is a real colour composited against the ground and
+ * axe reports it as a real failure: `--ink-3` mid-fade measured 2.83 against
+ * a bar of 3. Which elements were caught depended on when the run happened,
+ * so the suite reported a different set of nodes every time and a clean pass
+ * whenever the timing was kind. Measured here: five runs against /welcome on
+ * a phone, five failures, three to sixteen nodes, never the same set twice;
+ * five more with the motion off, five clean.
+ *
+ * `reducedMotion: "reduce"` is this repository's own answer to that question,
+ * already asked and answered by `test-containment.mjs`, whose comment says
+ * the animations "are what would otherwise be measured", and by
+ * `test-design.mjs`, which stops a letter drifting before it reads the letter's
+ * angle. This suite was the one that had not been told. It measures more
+ * rather than less: `prefers-reduced-motion` collapses every duration in
+ * `app/globals.css` and turns the scroll-driven reveal off outright, so
+ * content that used to be tied to the scrollbar is now in its finished state
+ * and gets looked at.
+ */
+const measuring = (viewport) => browser.newPage({ viewport, reducedMotion: "reduce" });
+
+const page = await measuring({ width: 1280, height: 1000 });
 
 
 /*
@@ -431,7 +457,7 @@ for (const route of ROUTES) {
 const chooseDark = (page) =>
   page.addInitScript(() => { try { localStorage.setItem("theme", "dark"); } catch { /* private mode */ } });
 
-const dark = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+const dark = await measuring({ width: 1280, height: 1000 });
 await chooseDark(dark);
 for (const route of ROUTES) {
   await open(dark, route, 200);
@@ -478,7 +504,7 @@ await dark.close();
 const PHONE = { width: 390, height: 844 };
 
 for (const theme of ["light", "dark"]) {
-  const phone = await browser.newPage({ viewport: PHONE });
+  const phone = await measuring(PHONE);
   if (theme === "dark") await chooseDark(phone);
   for (const route of ROUTES) {
     await open(phone, route, 200);
@@ -543,7 +569,7 @@ for (const theme of ["light", "dark"]) {
   runs the next suite.
 */
 for (const theme of ["light", "dark"]) {
-  const graded = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+  const graded = await measuring({ width: 1280, height: 1000 });
   if (theme === "dark") await chooseDark(graded);
   await graded.goto(`${BASE}/review`, { waitUntil: "networkidle" });
   await graded.waitForTimeout(300);
