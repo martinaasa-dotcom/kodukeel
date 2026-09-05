@@ -5139,6 +5139,19 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   to be added to the allowlist in `middleware.ts` as well.
 - Every interactive element is keyboard-reachable with a visible focus ring, and under a coarse
   pointer every one of them clears 44px.
+- **A check over an empty list is a pass nobody earned, and `A || !A` is a check nobody can fail.**
+  Three of them, found by reading every `.every(` and every `||` in the suites after the one above.
+  The Sonad board asserted `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`, and
+  the second half is true exactly when the first is false: either six things differ or they are all
+  the same, which is true of any six things, so the one claim it makes about the board was never
+  asked. It asks a falsifiable one now, that two circles the app itself calls different states are
+  drawn differently, off the labels a screen reader is given rather than off what the suite assumes,
+  and it was made to fail by painting two of the three states alike. The edit suite claimed a rename
+  leaves an attested sentence exactly as recorded and printed PASS beside "0 gap-fill card(s)" on
+  every run there has ever been, because the dictionary's own Add to deck builds recognition and
+  production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
+  which passes when there is nothing on screen to report. Where the subject can honestly be empty,
+  say so with `absent` and name what would fill it; where it cannot, assert the claim.
 - **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
   waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
   answer, that a composed line and a scripted line are each one short sentence saying which rung

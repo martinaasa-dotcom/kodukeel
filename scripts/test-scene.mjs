@@ -200,8 +200,20 @@ check("and the line says which rung it came from (ADR-025)", provenance,
   always is, because `Tere!` is its own sentence and the dictionary answers it.
 */
 const spoken = await page.getByText(/From the course|Written for this scene|Written for this turn/i).count();
-check("with a way to report a line somebody said",
-  spoken === 0 || (await page.getByRole("button", { name: /^Report/i }).count()) > 0);
+/*
+  `spoken === 0 || ...` was the old shape and it passes when there is nothing
+  to look at, which is the same fault as the two waivers at the foot of this
+  file one size smaller. The greeting always is a line somebody said, so the
+  empty case is worth saying out loud rather than swallowing.
+*/
+if (spoken > 0) {
+  check("with a way to report a line somebody said",
+    (await page.getByRole("button", { name: /^Report/i }).count()) > 0,
+    `${spoken} spoken line(s) on screen`);
+} else {
+  absent(1, "no Estonian line was on screen to report: every line this run reached was a stage "
+    + "direction, which is our own English and deliberately carries no report button");
+}
 
 /*
   Every line the desk said, with the rung it came from, over the whole
