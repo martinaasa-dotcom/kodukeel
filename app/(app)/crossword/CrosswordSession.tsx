@@ -32,6 +32,17 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
   const [typed, setTyped] = useState<Record<number, string>>({});
   const [active, setActive] = useState(0);
   const [checked, setChecked] = useState<number[]>([]);
+  /*
+    WHAT CHECK FOUND, IN WORDS.
+
+    Check marks the wrong letters peach and the right ones mint, in the cells
+    themselves, which is nothing a screen reader announces: the grid is real
+    inputs and is otherwise typed into perfectly well, and the one button that
+    tells you how you are doing said nothing at all. Held in state rather than
+    derived, so it is read once when Check is pressed and not again on every
+    keystroke after it.
+  */
+  const [said, setSaid] = useState("");
   const [helped, setHelped] = useState<number[]>([]);
   const [ready, setReady] = useState(false);
   const recorded = useRef(false);
@@ -226,6 +237,8 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
         </div>
       </Card>
 
+      <span className="sr-only" role="status">{said}</span>
+
       {done ? (
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
@@ -235,7 +248,15 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
               type="button"
               variant="secondary"
               className="flex-1"
-              onClick={() => setChecked(Object.keys(typed).map(Number))}
+              onClick={() => {
+                setChecked(Object.keys(typed).map(Number));
+                const bad = wrongCells(puzzle, typed).size;
+                setSaid(
+                  bad === 0
+                    ? "Every letter you have filled in is right."
+                    : `${bad} ${bad === 1 ? "letter is" : "letters are"} wrong.`,
+                );
+              }}
             >
               <Check size={16} aria-hidden /> Check
             </Button>

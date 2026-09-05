@@ -150,7 +150,7 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
           type="button"
           onClick={translate}
           disabled={pending}
-          className="mt-1 inline-flex items-center gap-1.5 text-xs disabled:opacity-50"
+          className="tap-tint mt-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs disabled:opacity-50"
           style={{ color: "var(--accent-deep)" }}
         >
           {pending

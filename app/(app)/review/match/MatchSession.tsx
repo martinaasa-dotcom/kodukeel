@@ -51,6 +51,16 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
   const [misses, setMisses] = useState<Record<string, number>>({});
   const [seconds, setSeconds] = useState(0);
   const [isNewBest, setIsNewBest] = useState(false);
+  /*
+    WHAT JUST HAPPENED, IN WORDS.
+
+    The board says it in movement: a matched pair pops out of the grid and a
+    wrong one shakes. Neither is anything a screen reader can see, and the
+    tiles are buttons, so the round is otherwise playable by keyboard and
+    silent about the only thing it ever tells you. One line, replaced rather
+    than appended, so a fast player is not read a backlog.
+  */
+  const [said, setSaid] = useState("");
   const startedAt = useRef(0);
   const saved = useRef(false);
 
@@ -110,6 +120,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
       const nextMatched = new Set(matched).add(tile.cardId);
       setMatched(nextMatched);
       setSelected(null);
+      setSaid(tile.side === "et" ? `${tile.text} is ${selected.text}.` : `${selected.text} is ${tile.text}.`);
       if (nextMatched.size === pairs.length) {
         const finalSeconds = Math.max(1, Math.round((Date.now() - startedAt.current) / 1000));
         setSeconds(finalSeconds);
@@ -120,6 +131,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
 
     // Wrong pair: flash both, count it against the card being learned.
     setWrong([selected.key, tile.key]);
+    setSaid("Not a pair.");
     setMisses((m) => ({ ...m, [tile.cardId]: (m[tile.cardId] ?? 0) + 1, [selected.cardId]: (m[selected.cardId] ?? 0) + 1 }));
     if (typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(50);
     window.setTimeout(() => { setWrong(null); setSelected(null); }, 450);
@@ -231,6 +243,8 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           {matched.size}/{pairs.length}
         </span>
       </div>
+
+      <span className="sr-only" role="status">{said}</span>
 
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {tiles.map((tile) => {

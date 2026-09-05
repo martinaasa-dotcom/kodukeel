@@ -385,7 +385,7 @@ export function SentenceCheck({
     <Card>
       <div className="mb-3 flex items-center justify-between gap-3">
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>Check a sentence</span>
-        <button type="button" onClick={onClose} className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <button type="button" onClick={onClose} className="tap-tint rounded-md px-1.5 py-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
           Close
         </button>
       </div>
