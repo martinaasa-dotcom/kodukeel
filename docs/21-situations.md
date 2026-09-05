@@ -2578,3 +2578,21 @@ suite reads the attribute, and a third check says the two agree for every line s
 "from the course" that a model wrote would be the app vouching for its own Estonian, which is the
 whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
 the one the bank was built for.
+
+## 47. The caret, which the button took and did not give back
+
+"Say it" disables itself the moment the draft is empty, which is the moment the turn is sent, and a
+browser moves focus off a control it has just disabled. Measured: `document.activeElement` was
+`BODY` after every turn taken with the mouse. So a learner clicked into the box, typed, pressed the
+button, and then had to click into the box again, for every turn of the conversation; somebody
+working from the keyboard could not carry on at all without tabbing back. Answering with Enter never
+had the fault, because the box keeps focus there, which is why it survived this long.
+
+The caret goes back where focus was **lost**, never where it was put: if it sits on a word of the
+last line, on the report button, or anywhere the learner chose, it stays there, and that was driven
+both ways. There is deliberately no focus when a scene opens: the box is at the bottom of the page,
+so focusing it would scroll the role card off a phone and open the keyboard over the first thing
+there is to read.
+
+`scripts/test-scene.mjs` takes its turn with the mouse for exactly this reason and asks where the
+caret is. It fails, at `BODY`, on the line before this one.

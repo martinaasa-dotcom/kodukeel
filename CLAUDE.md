@@ -5166,6 +5166,15 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   the bubble stay for the reader, and a third check says the two agree for every line said. Both
   halves are asserted, because a hook nobody renders and a suite that stops reading it are the same
   silence one file apart.
+- **A control that disables itself hands its focus to nobody.** "Say it" on a conversation disables
+  the moment the draft empties, which is the moment the turn is sent, and a browser moves focus off
+  a control it has just disabled: measured, `document.activeElement` was `BODY` after every turn
+  taken with the mouse, so a learner clicked into the box for every turn and a keyboard could not
+  carry on at all. Answering with Enter never had it, because the box keeps focus there, which is
+  how it survived. The caret goes back where focus was *lost* and never where it was put, so a word
+  of the last line or the report button keeps it; and a screen does not take focus on arrival, since
+  the box is at the bottom of the page and focusing it would scroll the card that is answered from
+  off a phone and open the keyboard over the first thing there is to read.
 - **One loud action per round, which is `components/Button.tsx`'s own header.** It says it in the
   file: only the primary carries the gradient, one loud action per screen, everything else quiet.
   Twenty-one of the twenty-five round screens did that and four did not, each the same shape. The

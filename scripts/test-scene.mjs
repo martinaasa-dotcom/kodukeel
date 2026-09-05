@@ -47,7 +47,7 @@ const prisma = new PrismaClient({
 const { check, absent, done } = suite("A conversation, end to end", {
   /*
     THE COUNT IN THE FULL STATE, which is a key configured, the allowance
-    unspent and the bank holding a row for a beat the run reaches: 40.
+    unspent and the bank holding a row for a beat the run reaches: 41.
     Keyless, the composed check is waived and the target drops by one; with
     an empty bank the scripted check is waived and it drops by one more. Each
     state differs by exactly as many checks as waivers, which is the
@@ -59,7 +59,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 40,
+  floor: 41,
 });
 
 /*
@@ -266,6 +266,21 @@ async function say(text) {
 const waited = await say("Tere!");
 check("a greeting is read as a greeting", (await page.getByText("Greet them back.").count()) > 0
   && (await page.locator("main").innerText()).includes("done"), `${waited}ms`);
+
+/*
+  AND THE CARET IS BACK IN THE BOX, WHICH THE BUTTON TAKES AND THEN LEAVES.
+
+  "Say it" disables itself the moment the draft is empty, which is the moment
+  the turn is sent, and a browser moves focus off a control it has just
+  disabled: `document.activeElement` was `BODY` after every turn taken with the
+  mouse, so a learner had to click back into the box for each turn and a
+  keyboard could not carry on at all. Answering with Enter never had the fault,
+  which is why it survived: the box keeps focus there. Driven with the mouse
+  here for that reason.
+*/
+check("and the caret is back in the box, ready for the next turn",
+  await page.evaluate(() => document.activeElement?.getAttribute("aria-label")) === "What you say",
+  await page.evaluate(() => document.activeElement?.tagName ?? "none"));
 
 // ── The help button, which is the one that was wrong ────────────────────────
 /*

@@ -248,6 +248,24 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     the screen before the learner had read either. From the second turn on the
     page follows the conversation, which is where the input is.
   */
+  /*
+    THE CARET GOES BACK IN THE BOX, BECAUSE THE BUTTON TAKES IT AND THEN LEAVES.
+
+    "Say it" disables itself the moment the draft is empty, which is the moment
+    the turn is sent, and a browser moves focus off a control that has just been
+    disabled: measured, `document.activeElement` was `BODY` after every turn
+    taken with the mouse. So the learner had to click back into the box for each
+    turn of a conversation, and a keyboard could not carry on at all. Answering
+    with Enter never had the fault, since the box keeps focus, which is why it
+    survived this long.
+
+    Only where focus was lost, never taken: if it sits on a word of the last
+    line, on the report button or anywhere else the learner put it, it stays
+    there. And there is deliberately no focus when a scene opens: the box is at
+    the bottom of the page, so focusing it would scroll the role card off a
+    phone and open the keyboard over the first thing there is to read.
+  */
+  const box = useRef<HTMLInputElement>(null);
   const opening = useRef(true);
   useEffect(() => {
     /*
@@ -287,6 +305,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       would put the reply at the bottom edge with the input under it.
     */
     window.scrollTo({ top: document.documentElement.scrollHeight });
+    if (document.activeElement === document.body) box.current?.focus();
   }, [turns, phase]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -796,6 +815,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           value={draft}
           onChange={setDraft}
           onEnter={say}
+          inputRef={box}
           ariaLabel="What you say"
           placeholder="Say something"
         />
