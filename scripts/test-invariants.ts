@@ -11736,11 +11736,22 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     learner sitting a course still gets the word their teacher uses.
   */
   assert.match(
-    review, /headingFor\(plain, spec\?\.suffix\)/,
+    review, /whatFor\(slip\.kind, plain, spec\?\.suffix\)/,
     "the review names an ending without saying what it is for, which is the heading a learner could not read",
   );
+  /*
+    AND THE WORD LEADS. A learner read the version headed by the case and said
+    the word itself should come first: what they wrote, then what they were
+    reaching for, then the form that was wanted. A note is one word for that
+    reason, and it knows which turn it was in so the transcript on the same
+    screen can be pointed at rather than searched.
+  */
   assert.match(
-    review, /term: spec \?/,
+    review, /said: slip\.said,[\s\S]{0,600}?at: first\.at,/,
+    "a review note no longer leads with the learner's own word, or no longer says which turn it was in",
+  );
+  assert.match(
+    review, /term: `\$\{spec\.et\}/,
     "the review's notes no longer carry the name a class uses, so the Estonian name has gone rather than moved",
   );
   /*
@@ -11766,8 +11777,22 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     of it is that the first word is pronounced like the second.
   */
   assert.match(
-    debrief, /You wrote <span lang="et"/,
+    debrief, /\{"It should be "\}/,
     "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
+  );
+  /*
+    AND THE NOTE IS PRESSABLE. The transcript is on the same screen, so a
+    learner asking "where did I do that" was being left to find it themselves.
+    It marks the turn and the word inside it, since a page that jumps and
+    highlights nothing has answered a different question.
+  */
+  assert.match(
+    debrief, /onClick=\{\(\) => show\(note\.at\)\}/,
+    "a review note no longer points at the turn it happened in",
+  );
+  assert.match(
+    debrief, /splitOnForm\(turn\.text, word\)/,
+    "the debrief scrolls to a turn without marking the word the note is about",
   );
   /*
     AND THE TRANSCRIPT SAYS WHO SPOKE. Left and right and two inks are the

@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback, useRef, useState } from "react";
+
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip } from "@/components/ui";
@@ -7,6 +9,7 @@ import { AddWordButton } from "@/components/AddWordButton";
 import { DrillLink } from "@/components/DrillLink";
 import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
+import { splitOnForm } from "@/lib/dict/examples";
 import { curveballById } from "@/lib/scenes/curveballs";
 import { errandForScene } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
@@ -84,6 +87,35 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
   const errand = objectives.missed.length === 0 ? errandForScene(scene.id) : undefined;
   const cafe = PLACES_TO_TALK[0];
 
+  /*
+    WHICH TURN A NOTE IS POINTING AT, AND THE WORD INSIDE IT.
+
+    `showing` is an index among the learner's own turns, which is what a note
+    carries: the transcript holds both sides and the two lists are built in
+    different processes, so what they can agree on is that the nth thing the
+    learner said is the nth thing the learner said.
+
+    Scrolled into view rather than only marked, because on a phone the
+    transcript is under everything else on this screen, and marked rather than
+    only scrolled to, because a page that jumps and highlights nothing has
+    answered a different question.
+  */
+  const [showing, setShowing] = useState<number | null>(null);
+  const marked = useRef<HTMLLIElement | null>(null);
+  const show = useCallback((at: number) => {
+    setShowing(at);
+    /*
+      After the paint that marks it, and never smoothly for a reader who asked
+      for less movement: `prefers-reduced-motion` turns every animation in
+      `app/globals.css` off and a scroll this app starts itself is no different.
+    */
+    requestAnimationFrame(() => {
+      const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      marked.current?.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" });
+    });
+  }, []);
+  const wordAt = new Map(review.notes.map((note) => [note.at, note.said]));
+
   return (
     <div className="flex flex-col gap-6">
       {/* What happened, first, before any teaching. */}
@@ -156,69 +188,68 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           <ul className="mt-3 flex flex-col gap-3">
             {review.notes.map((note) => (
               <li key={note.id}>
-                <p className="text-sm font-medium">{note.heading}</p>
                 {/*
-                  The name a class uses, under the plain heading rather than
-                  instead of it. A learner sitting a course needs the case's
-                  own name and its question word to follow their teacher, and
-                  needs to know what the ending is for before either of them
-                  means anything (`lib/estonian/plainAsk.ts`).
+                  THE WORD FIRST, THEN WHAT THEY WERE REACHING FOR, THEN THE
+                  FORM THAT WAS WANTED. A learner read the earlier version and
+                  said the word itself should lead: a note headed "The ending
+                  for “into”" is a grammar point, and what they want to know is
+                  what happened to the word they wrote.
 
-                  `text-xs` AND NOT `label-xs`, WHICH UPPERCASES. A case name
-                  set in the label class reaches the screen shouted, which is
-                  the fault CLAUDE.md names twice over: an ending printed as
-                  "-SSE" is not how any Estonian word is spelled. It is also
-                  the longest cross-reference on this screen, so a tracked
-                  bold marker would be the hardest thing to read on a note
-                  about having been confused.
+                  And it is pressable, because the transcript is on the same
+                  screen and somebody asking "where did I do that" was being
+                  left to find it themselves. It marks the turn and the word
+                  inside it rather than only scrolling to it, since a page that
+                  jumps and highlights nothing has answered a different
+                  question.
                 */}
-                {note.term && (
-                  <p className="text-xs" lang="et" style={{ color: "var(--ink-3)" }}>{note.term}</p>
-                )}
-                {/* Usually there is none: the heading and the pair have said it. */}
-                {note.body && (
-                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{note.body}</p>
-                )}
+                <button
+                  type="button"
+                  onClick={() => show(note.at)}
+                  aria-expanded={showing === note.at}
+                  className="press tap-tint -mx-1.5 flex w-full items-baseline gap-2 rounded-[var(--r-sm)] px-1.5 py-1 text-left"
+                >
+                  <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                    {note.said}
+                  </span>
+                  {note.times && (
+                    <span className="text-xs" style={{ color: "var(--ink-3)" }}>{note.times} times</span>
+                  )}
+                  <span className="ml-auto shrink-0 text-xs" style={{ color: "var(--accent-deep)" }}>
+                    {showing === note.at ? "Shown below" : "Where I said it"}
+                  </span>
+                </button>
                 {/*
-                  THE LEARNER'S OWN WORDS BEFORE THE GUESS AT WHY, because the
-                  example is what makes the sentence above it mean anything and
-                  the guess is the least certain thing in the note. It read
-                  `ulikool  is said  ulikooli`: three runs of text with no
-                  label on any of them, whose likeliest reading is that the
-                  first word is pronounced like the second. So the screen says
-                  which is which in words, with the two Estonian forms carrying
-                  the weight.
-                */}
-                {note.evidence.length > 0 && (
-                  <ul className="mt-1.5 flex flex-col gap-1 text-sm">
-                    {note.evidence.map((one) => (
-                      <li key={one.said} style={{ color: "var(--ink-2)" }}>
-                        You wrote <span lang="et" className="font-medium">{one.said}</span>
-                        {one.form ? (
-                          <>
-                            {". Here it is "}
-                            <span lang="et" className="font-medium">{one.form}</span>
-                            {"."}
-                          </>
-                        ) : ", and it was understood as it stood."}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {/*
-                  Why it most likely happened, marked as the guess it is and
-                  last, in the quietest ink on the note. Worded as a guess in
-                  both tiers, because a wrong confident diagnosis teaches a
-                  learner a reason for a mistake they did not make and they
-                  have no way to tell (`lib/scenes/diagnose.ts`).
+                  What they were reaching for, marked as the guess it is and
+                  worded as a guess in both tiers, because a wrong confident
+                  diagnosis teaches a learner a reason for a mistake they did
+                  not make and they have no way to tell
+                  (`lib/scenes/diagnose.ts`).
                 */}
                 {note.hunch && (
-                  <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>
                     <span className="font-medium">
                       {note.hunch.sure === "likely" ? "Most likely" : "Possibly"}:
                     </span>{" "}
                     {note.hunch.says}
                   </p>
+                )}
+                {/* And the form that was wanted, which is the dictionary's. */}
+                <p className="mt-0.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                  {note.form ? (
+                    <>
+                      {"It should be "}
+                      <span lang="et" className="font-medium">{note.form}</span>
+                      {`, ${note.what}.`}
+                    </>
+                  ) : (
+                    `Understood as it stood. It wanted ${note.what}.`
+                  )}
+                </p>
+                {note.term && (
+                  <p className="text-xs" lang="et" style={{ color: "var(--ink-3)" }}>{note.term}</p>
+                )}
+                {note.body && (
+                  <p className="mt-0.5 text-sm" style={{ color: "var(--ink-3)" }}>{note.body}</p>
                 )}
               </li>
             ))}
@@ -314,28 +345,70 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             answer to the wrong question.
           */}
           <ul className="flex flex-col gap-2">
-            {turns.map((turn, index) => (
-              <li key={index} className={turn.who === "you" ? "self-end text-right" : "self-start"}>
-                <Card className="inline-block max-w-full text-sm">
-                  {/*
-                    WHO SAID IT, FOR A READER WHO CANNOT SEE WHICH SIDE IT IS
-                    ON. Left and right and two inks are the whole of what tells
-                    the two speakers apart, and both are things you have to be
-                    looking at. Read aloud, this section was one flat run of
-                    sentences in two languages with nothing between them, on
-                    the screen whose point is reading the exchange back.
+            {(() => {
+              /*
+                The learner's turns are numbered as they go past, because that
+                is the join a note points along: the nth thing the learner said.
+                Counted here rather than carried on the turn, since the
+                transcript is built in the browser out of what was drawn and
+                the notes are built on the server out of what was marked.
+              */
+              let said = -1;
+              return turns.map((turn, index) => {
+                const mine = turn.who === "you" ? (said += 1) : null;
+                const here = mine !== null && mine === showing;
+                const word = mine !== null ? wordAt.get(mine) : undefined;
+                return (
+                  <li
+                    key={index}
+                    ref={here ? marked : undefined}
+                    className={turn.who === "you" ? "self-end text-right" : "self-start"}
+                  >
+                    <Card
+                      className="inline-block max-w-full text-sm"
+                      style={here ? { boxShadow: "inset 0 0 0 2px var(--butter-ink)" } : undefined}
+                    >
+                      {/*
+                        WHO SAID IT, FOR A READER WHO CANNOT SEE WHICH SIDE IT
+                        IS ON. Left and right and two inks are the whole of what
+                        tells the two speakers apart, and both are things you
+                        have to be looking at. Read aloud, this section was one
+                        flat run of sentences in two languages with nothing
+                        between them, on the screen whose point is reading the
+                        exchange back.
 
-                    `sr-only`, because the alignment does say it to anybody who
-                    can see it and a label on every bubble would be the same
-                    two words twenty times down a phone.
-                  */}
-                  <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
-                  <span lang={turn.lang} style={turn.who === "them" ? { color: "var(--ink-2)" } : undefined}>
-                    {turn.text}
-                  </span>
-                </Card>
-              </li>
-            ))}
+                        `sr-only`, because the alignment does say it to anybody
+                        who can see it and a label on every bubble would be the
+                        same two words twenty times down a phone.
+                      */}
+                      <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
+                      <span lang={turn.lang} style={turn.who === "them" ? { color: "var(--ink-2)" } : undefined}>
+                        {/*
+                          The word marked inside the turn, in butter, which is
+                          this app's colour for "nearly" and is what a slip is.
+                          `splitOnForm` is the same whole-word split the
+                          dictionary marks a form with, so a word inside a
+                          longer one is never painted.
+                        */}
+                        {here && word
+                          ? splitOnForm(turn.text, word).map((run, at) => (
+                            run.match ? (
+                              <mark
+                                key={at}
+                                className="rounded-[var(--radius-sm)] px-0.5"
+                                style={{ background: "var(--butter-soft)", color: "var(--butter-ink)" }}
+                              >
+                                {run.text}
+                              </mark>
+                            ) : <span key={at}>{run.text}</span>
+                          ))
+                          : turn.text}
+                      </span>
+                    </Card>
+                  </li>
+                );
+              });
+            })()}
           </ul>
         </section>
       )}

@@ -104,36 +104,20 @@ describe("the review of a conversation", () => {
   });
 
   /*
-    The heading is what the ending is for, in words somebody has before they
-    have met a grammar book, and the name a class uses is the cross-reference
-    under it (`lib/estonian/plainAsk.ts`). Leading with the name is what made
-    a real learner report this screen as unreadable.
+    THE WORD FIRST, THEN THE GUESS, THEN THE FORM THAT WAS WANTED. A learner
+    read the version headed by the case and said the word itself should lead:
+    a note headed "The ending for “into”" is a grammar point, and what they
+    want to know is what happened to the word they wrote.
   */
-  it("says what the ending is for before it says what it is called", () => {
-    const review = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })]));
-    const note = review.notes.find((n) => n.id === "case:INESSIVE");
-    expect(note?.heading).toBe("The ending for \u201cin\u201d");
-    expect(note?.body).toBeUndefined();
-    expect(note?.heading).not.toMatch(/[õäöüšž]/i);
-    // The class's own name and question are still there, one line down.
-    // One question word, which is what a class writes on the board, rather than
-    // the case's whole name.
+  it("leads with the learner's own word and says which turn it was in", () => {
+    const note = reviewOf(SCENE, state([turn(), turn({ slips: [CASE_SLIP] })])).notes[0];
+    expect(note?.said).toBe("pea");
+    expect(note?.form).toBe("peas");
+    expect(note?.what).toBe("the ending for \u201cin\u201d");
+    // Counting the learner's own turns, which is the join the transcript has.
+    expect(note?.at).toBe(1);
+    // The name a class uses is still there, one line down and one question word.
     expect(note?.term).toBe("seesütlev · kus?");
-    expect(note?.evidence).toEqual([{ said: "pea", form: "peas" }]);
-  });
-
-  /*
-    And it says what the ending is for once. The body used to join `plain` and
-    `englishHook`, which for the illative are "into" and "into.", so the screen
-    read "It is the ending for into. into."
-  */
-  it("does not say the same thing twice about one ending", () => {
-    const slip: Slip = { kind: "case", said: "kool", form: "kooli", lemma: "kool", grammCase: "ILLATIVE" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
-    // The heading says what the ending is for; a sentence under it saying the
-    // same at twice the length is what a learner reported as still too much.
-    expect(note?.heading).toBe("The ending for \u201cinto\u201d");
-    expect(note?.body).toBeUndefined();
   });
 
   /*
@@ -143,49 +127,25 @@ describe("the review of a conversation", () => {
   it("does not call the plain form an ending", () => {
     const slip: Slip = { kind: "case", said: "kooli", form: "kool", lemma: "kool", grammCase: "NOMINATIVE" };
     const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
-    expect(note?.heading).toBe("The form for \u201cthe plain word\u201d");
+    expect(note?.what).toBe("the form for \u201cthe plain word\u201d");
   });
 
-  /*
-    The count is a fact about the run; the opener was the same sentence on every
-    note and said less than the pair under it.
-  */
   it("says how many times only where it was more than once", () => {
-    const review = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })]));
-    expect(review.notes[0]?.body).toBe("This came out as another form 2 times.");
+    const once = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] })])).notes[0];
+    expect(once?.times).toBeUndefined();
+    const twice = reviewOf(SCENE, state([turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] })])).notes[0];
+    expect(twice?.times).toBe(2);
+    // And it points at the first of them, which is nearest the top.
+    expect(twice?.at).toBe(0);
   });
 
-  /*
-    A hunch is about a habit rather than about a word, so the reading that fits
-    three cases is one reading. A real run of `poodi-piima` printed the same
-    twenty-five words twice in a panel already reported as too much to read.
-  */
-  it("says one guess once, however many notes it fits", () => {
-    const into: Slip = { kind: "case", said: "pood", form: "poodi", lemma: "pood", grammCase: "ILLATIVE", reached: "NOMINATIVE" };
-    const some: Slip = { kind: "case", said: "piim", form: "piima", lemma: "piim", grammCase: "PARTITIVE", reached: "NOMINATIVE" };
-    const notes = reviewOf(SCENE, state([turn({ slips: [into] }), turn({ slips: [some] })])).notes;
-    expect(notes.filter((n) => n.hunch).length).toBe(1);
-    // And the note itself stays, because what a case is for differs per case.
-    expect(notes.length).toBe(2);
-  });
-
-  /*
-    "3 of your 4 turns answered what was asked. Nothing needed putting right"
-    is one sentence disagreeing with the one before it.
-  */
-  it("does not say nothing needed putting right where a turn did not land", () => {
-    const lead = reviewOf(SCENE, state([turn(), turn({ reading: "offtarget", met: [false] })])).lead;
-    expect(lead).not.toMatch(/Nothing needed putting right/);
-    expect(reviewOf(SCENE, state([turn(), turn()])).lead).toMatch(/Nothing needed putting right/);
-  });
-
-  it("ranks the case somebody got wrong most often first", () => {
-    const other: Slip = { kind: "case", said: "pea", form: "peast", lemma: "pea", grammCase: "ELATIVE" };
+  it("ranks the word somebody got wrong most often first", () => {
+    const other: Slip = { kind: "case", said: "kohv", form: "kohvi", lemma: "kohv", grammCase: "PARTITIVE" };
     const review = reviewOf(SCENE, state([
-      turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] }), turn({ slips: [other] }),
+      turn({ slips: [other] }), turn({ slips: [CASE_SLIP] }), turn({ slips: [CASE_SLIP] }),
     ]));
-    expect(review.notes[0]?.id).toBe("case:INESSIVE");
-    expect(review.notes[1]?.id).toBe("case:ELATIVE");
+    expect(review.notes[0]?.said).toBe("pea");
+    expect(review.notes[1]?.said).toBe("kohv");
   });
 
   /*
@@ -205,7 +165,8 @@ describe("the review of a conversation", () => {
     const first: Slip = { kind: "case", said: "peast", form: "peas", lemma: "pea", grammCase: "ELATIVE" };
     const second: Slip = { ...CASE_SLIP, said: "peast", reached: "ELATIVE" };
     const review = reviewOf(SCENE, state([turn({ slips: [first] }), turn({ slips: [second] })]));
-    const note = review.notes.find((n) => n.id === "case:INESSIVE");
+    // Both turns said the same word; the note keyed on the case that was wanted.
+    const note = review.notes.find((n) => n.id === "case:INESSIVE:peast");
     expect(note?.hunch?.says).toContain("the question before");
   });
 
@@ -216,15 +177,16 @@ describe("the review of a conversation", () => {
 
   it("states the one rule that gets five forms for the price of one", () => {
     const slip: Slip = { kind: "person", said: "tulema", form: "tulen", lemma: "tulema" };
-    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes.find((n) => n.id === "person");
+    const note = reviewOf(SCENE, state([turn({ slips: [slip] })])).notes[0];
+    expect(note?.said).toBe("tulema");
+    expect(note?.form).toBe("tulen");
     expect(note?.body).toContain("first");
     expect(note?.hunch?.says).toContain("dictionary lists a verb");
-    expect(note?.evidence).toEqual([{ said: "tulema", form: "tulen" }]);
   });
 
   it("counts a turn in English without a word against it", () => {
     const note = reviewOf(SCENE, state([turn({ reading: "english" })])).notes.find((n) => n.id === "english");
-    expect(note?.heading).toBe("One turn in English");
+    expect(note?.said).toBe("One turn in English");
     expect(note?.body).not.toMatch(/should|must|avoid/i);
   });
 

@@ -44,44 +44,59 @@ import { diagnose, diagnosePerson, type Hunch } from "./diagnose";
 import type { Slip } from "./turn";
 import type { SceneSpec } from "./types";
 
-/** One thing worth saying, with the learner's own words under it. */
+/**
+ * One word that came out as something else, and what to do about it.
+ *
+ * A NOTE IS A WORD RATHER THAN A CASE. It was a case, with the learner's words
+ * listed under it, and the learner reading it said the word itself should come
+ * first: what they wrote, then what they were reaching for, then the form that
+ * was wanted. That is the order of the three fields below, and it is why the
+ * grouping turned inside out. The repetition a per-case note was avoiding is
+ * handled where it belongs instead, by `onceEach`.
+ */
 export interface ReviewNote {
   readonly id: string;
   /**
-   * English, a few words, and it leads.
+   * The learner's own word, and the first thing on the note.
    *
-   * A learner reported this screen as unreadable and the heading is most of
-   * why: it read the case's Estonian name and its question word, which are a
-   * name and a question word to somebody who has met neither yet, over a note
-   * about their own sentence. That is the fault `lib/estonian/plainAsk.ts` was
-   * written for one screen over, and the answer is its answer: say what the
-   * ending is for in words anybody has, and keep the name underneath as the
-   * cross-reference it was always meant to be.
+   * Estonian, and it is theirs: `Slip.said` is what they typed. Nothing in
+   * this module writes a form.
    */
-  readonly heading: string;
+  readonly said: string;
   /**
-   * The Estonian name and the question it is taught by, where the note is
-   * about a case. Printed quietly under the heading, because a learner sitting
-   * a course needs the word their teacher uses and does not need it first.
+   * The form the dictionary gives instead, where there is one.
+   *
+   * Null where a slip could not be recast, which `nearly.ts` allows: the word
+   * was understood and the app has nothing to put beside it, so the note says
+   * that rather than inventing one.
+   */
+  readonly form: string | null;
+  /**
+   * What the form that was wanted is for, in words anybody has: "the ending
+   * for “into”". Read off `CASE_NOTES`, which is what the grammar reference
+   * leads a case's page with.
+   */
+  readonly what: string;
+  /**
+   * The name a class uses and the question it answers, quiet under the rest.
+   * Absent where the note is not about a case.
    */
   readonly term?: string;
-  /**
-   * English, one short sentence, and usually there is none.
-   *
-   * A learner read the panel and said it was still too much. Most of what was
-   * in here was the heading again in more words: over "The ending for “into”"
-   * it said "Use this one when something goes into it", which is the same fact
-   * at twice the length, on every one of four notes. What a note has to carry
-   * is what the ending is for, the name a class uses, and the learner's own
-   * word beside the right one. Everything else was padding.
-   */
+  /** English, one short sentence, and usually there is none. */
   readonly body?: string;
   /**
-   * The learner's own form beside the one the other side used, where there is
-   * a pair to show. Both are the dictionary's or the learner's; neither is
-   * this module's.
+   * Which of the learner's turns it happened in, counting from zero.
+   *
+   * The debrief makes this pressable: the transcript is on the same screen and
+   * a learner asking "where did I do that" was being asked to find it
+   * themselves. It is an index among the learner's own turns rather than into
+   * the transcript, because the transcript holds both sides and the two lists
+   * are built in different processes; what they agree on is that the nth thing
+   * the learner said is the nth thing the learner said.
    */
-  readonly evidence: readonly { readonly said: string; readonly form: string | null }[];
+  readonly at: number;
+  /** How many times this same word came out this way, where it was more than once. */
+  readonly times?: number;
   /**
    * Why it most likely happened, where the run carries enough to guess and
    * the guess is worth having (`lib/scenes/diagnose.ts`). Absent rather than
@@ -106,9 +121,6 @@ export interface SceneReview {
   readonly notes: readonly ReviewNote[];
 }
 
-/** How many of the learner's own pairs a note prints before it is a list. */
-const EVIDENCE_SHOWN = 3;
-
 export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
   /*
     The turns that were turns. A fragment and an echo cost no patience and
@@ -130,12 +142,10 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
   const slips = turns.flatMap((t) => t.slips ?? []);
 
+  const englishAt = state.turns.findIndex((t) => t.reading === "english");
   const notes = onceEach([
-    ...caseNotes(slips, state),
-    ...personNote(slips),
-    ...formNote(slips),
-    ...spellingNote(slips),
-    ...englishNote(turns.filter((t) => t.reading === "english").length),
+    ...notesFrom(state),
+    ...englishNote(turns.filter((t) => t.reading === "english").length, Math.max(englishAt, 0)),
   ]);
 
   return {
@@ -152,17 +162,121 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
 }
 
 /**
+ * Every slip in the run, in the order they happened, each knowing which of the
+ * learner's turns it was in and what the question before it had wanted.
+ *
+ * IN TURN ORDER RATHER THAN KEYED ON THE WORD, which is the version this was
+ * written as first and is wrong the moment a learner slips on the same
+ * spelling twice: the carry-over reading is about the moment it happened, and
+ * two turns are two moments. A slip on the first turn has nothing before it
+ * and carries null, which `diagnose` reads as no evidence rather than as a no.
+ */
+interface Slipped {
+  readonly slip: Slip;
+  readonly before: CaseKey | null;
+  /** Index among the learner's own turns, which is what the transcript can find. */
+  readonly at: number;
+}
+
+function slipsInOrder(state: SceneState): Slipped[] {
+  const out: Slipped[] = [];
+  let previous: CaseKey | null = null;
+  let at = 0;
+  for (const turn of state.turns) {
+    for (const slip of turn.slips ?? []) out.push({ slip, before: previous, at });
+    const asked = (turn.slips ?? []).find((s) => s.kind === "case")?.grammCase;
+    if (asked) previous = asked;
+    at += 1;
+  }
+  return out;
+}
+
+/**
+ * A note per word, commonest first, and the same word twice is one note.
+ *
+ * Ranked by how often it happened and then by where: a word that came out
+ * wrong three times is more worth reading than one that did it once, and among
+ * equals the one said first is the one whose turn is nearest the top of the
+ * transcript the note points into.
+ */
+function notesFrom(state: SceneState): ReviewNote[] {
+  const byWord = new Map<string, Slipped[]>();
+  for (const row of slipsInOrder(state)) {
+    const key = `${row.slip.kind}:${row.slip.grammCase ?? ""}:${row.slip.said.toLowerCase()}`;
+    byWord.set(key, [...(byWord.get(key) ?? []), row]);
+  }
+  return [...byWord.entries()]
+    .sort((a, b) => b[1].length - a[1].length || a[1][0]!.at - b[1][0]!.at)
+    .map(([id, rows]) => {
+      const first = rows[0]!;
+      const { slip } = first;
+      const spec = slip.grammCase ? caseByKey(slip.grammCase) : undefined;
+      const plain = slip.grammCase ? CASE_NOTES.find((n) => n.key === slip.grammCase)?.plain : undefined;
+      return {
+        id,
+        said: slip.said,
+        form: slip.form,
+        what: whatFor(slip.kind, plain, spec?.suffix),
+        ...(spec ? { term: `${spec.et} ${MIDDOT} ${spec.asksWhere ?? spec.asksThing}` } : {}),
+        ...(NOTE_BODY[slip.kind] ? { body: NOTE_BODY[slip.kind] } : {}),
+        at: first.at,
+        ...(rows.length > 1 ? { times: rows.length } : {}),
+        ...hunchFor(slip, rows),
+      };
+    });
+}
+
+/** The separator this app uses in a label, so no dash reaches a reader. */
+const MIDDOT = "\u00b7";
+
+/**
+ * What the form that was wanted is for, in words anybody has.
+ *
+ * READ OFF `CASES` RATHER THAN BRANCHED ON A KEY. The three principal parts
+ * carry no suffix, so calling one of them an ending would teach something
+ * false about the language, and `CaseSpec.suffix` is the one place that fact
+ * already lives.
+ */
+function whatFor(kind: Slip["kind"], plain: string | undefined, suffix: string | undefined): string {
+  if (kind === "person") return "the verb with a person on it";
+  if (kind === "spelling") return "the spelling";
+  if (!plain) return "the form this one wanted";
+  return suffix ? `the ending for “${plain}”` : `the form for “${plain}”`;
+}
+
+/**
+ * One short sentence, on the two kinds where there is a rule worth stating.
+ *
+ * A case note has none: what the ending is for is on the note already, and a
+ * sentence under it saying the same at twice the length is what a learner
+ * reported as too much to read.
+ */
+const NOTE_BODY: Partial<Record<Slip["kind"], string>> = {
+  person: "All six persons are built off the first: take the -n off, add the ending for who is doing it.",
+  spelling: "The row of letters under the box types the ones an English keyboard has no key for.",
+};
+
+/**
+ * The hunch for a word, off the first slip that carries one. The first rather
+ * than the commonest, because a reason is about the moment it happened and the
+ * transcript has that moment.
+ */
+function hunchFor(slip: Slip, rows: readonly Slipped[]): { hunch?: Hunch } {
+  if (slip.kind === "person") return { hunch: diagnosePerson() };
+  if (slip.kind !== "case" || !slip.grammCase) return {};
+  for (const row of rows) {
+    const hunch = diagnose(slip.grammCase, row.slip.reached, { grammCase: row.before });
+    if (hunch) return { hunch };
+  }
+  return {};
+}
+
+/**
  * The same guess, said once.
  *
  * A hunch is about a habit rather than about a word, so the reading that fits
- * three cases is one reading, and printing it three times does not make it
- * truer. Measured on a real run of `poodi-piima`: three case notes, two of them
- * carrying the same twenty-five words about the dictionary form, in a panel a
- * learner had already reported as too much to read. The first keeps it, because
- * that is the one whose evidence is nearest the top.
- *
- * The note itself is never dropped: what a case is for differs per case, and
- * that is the half worth reading twice.
+ * three words is one reading, and printing it three times does not make it
+ * truer. The first note keeps it, because that is the one nearest the top.
  */
 function onceEach(notes: readonly ReviewNote[]): ReviewNote[] {
   const said = new Set<string>();
@@ -233,153 +347,6 @@ function lead(n: {
 }
 
 /**
- * A note per case that came out as something else, commonest first.
- *
- * Per case rather than one note about cases, because the advice is different
- * for each and a learner who mixes up two of them is doing two things: the
- * case a note is about carries its own line from `CASE_NOTES`, which is what
- * the grammar reference prints for it and is therefore the same explanation
- * they will meet if they follow the link.
- */
-function caseNotes(_slips: readonly Slip[], state: SceneState): ReviewNote[] {
-  const byCase = new Map<CaseKey, Slipped[]>();
-  for (const row of caseSlips(state)) {
-    byCase.set(row.slip.grammCase!, [...(byCase.get(row.slip.grammCase!) ?? []), row]);
-  }
-  return [...byCase.entries()]
-    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
-    .map(([key, rows]) => {
-      const spec = caseByKey(key);
-      const plain = CASE_NOTES.find((n) => n.key === key)?.plain;
-      const many = rows.length > 1;
-      return {
-        id: `case:${key}`,
-        heading: headingFor(plain, spec?.suffix),
-        term: spec ? `${spec.et} ${MIDDOT} ${spec.asksWhere ?? spec.asksThing}` : undefined,
-        /*
-          NO BODY WHERE THE HEADING HAS SAID IT. `plainAsk`'s clause was the
-          heading again in more words, and how many times is the only thing
-          about this note that the heading and the pair under it cannot say.
-        */
-        ...(many ? { body: `This came out as another form ${rows.length} times.` } : {}),
-        evidence: rows.slice(0, EVIDENCE_SHOWN).map((r) => ({ said: r.slip.said, form: r.slip.form })),
-        ...hunchFor(key, rows),
-      };
-    });
-}
-
-/** The separator this app uses in a label, so no dash reaches a reader. */
-const MIDDOT = "\u00b7";
-
-/**
- * The heading, which says what the ending is for rather than what it is called.
- *
- * READ OFF `CASES` RATHER THAN BRANCHED ON A KEY. The three principal parts
- * carry no suffix, so calling one of them an ending would teach something
- * false about the language, and `CaseSpec.suffix` is the one place that fact
- * already lives.
- */
-function headingFor(plain: string | undefined, suffix: string | undefined): string {
-  if (!plain) return "The form this one wanted";
-  return suffix ? `The ending for “${plain}”` : `The form for “${plain}”`;
-}
-
-/** One case slip, with the case the question before it wanted. */
-interface Slipped {
-  readonly slip: Slip;
-  readonly before: CaseKey | null;
-}
-
-/**
- * Every case slip in the order it happened, each carrying what the question
- * before it wanted.
- *
- * **In turn order rather than keyed on the word**, which is the version this
- * was written as first and is wrong the moment a learner slips on the same
- * spelling twice: the carry-over reading is about the moment it happened,
- * and two turns are two moments. A slip on the first turn has nothing before
- * it and carries null, which `diagnose` reads as no evidence rather than
- * as a no.
- */
-function caseSlips(state: SceneState): Slipped[] {
-  const out: Slipped[] = [];
-  let previous: CaseKey | null = null;
-  for (const turn of state.turns) {
-    for (const slip of turn.slips ?? []) {
-      if (slip.kind === "case" && slip.grammCase) out.push({ slip, before: previous });
-    }
-    const asked = (turn.slips ?? []).find((s) => s.kind === "case")?.grammCase;
-    if (asked) previous = asked;
-  }
-  return out;
-}
-
-/**
- * The hunch for a case, off the first slip that carries one. The first rather
- * than the commonest, because a reason is about the moment it happened and
- * the transcript has that moment.
- */
-function hunchFor(wanted: CaseKey, rows: readonly Slipped[]): { hunch?: Hunch } {
-  for (const row of rows) {
-    const hunch = diagnose(wanted, row.slip.reached, { grammCase: row.before });
-    if (hunch) return { hunch };
-  }
-  return {};
-}
-
-/**
- * The dictionary form where a person was due.
- *
- * The rule is worth stating because it is the one piece of Estonian
- * morphology that really is regular for every verb but two, and a learner who
- * has it stops needing to look up five of the six persons: the present is the
- * stored first person with its -n taken off and the person's own ending put
- * on. `lib/estonian/conjugate.ts` is the module that does it, and the four
- * verb topic pages teach it on the learner's own words.
- */
-function personNote(slips: readonly Slip[]): ReviewNote[] {
-  const rows = slips.filter((s) => s.kind === "person");
-  if (rows.length === 0) return [];
-  return [{
-    id: "person",
-    heading: "The verb needed a person on it",
-    body: "All six persons are built off the first: take the -n off, add the ending for who is doing it.",
-    evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
-    hunch: diagnosePerson(),
-  }];
-}
-
-/** An ending the word does not have, on a stem that was plainly right. */
-function formNote(slips: readonly Slip[]): ReviewNote[] {
-  const rows = slips.filter((s) => s.kind === "form");
-  if (rows.length === 0) return [];
-  return [{
-    id: "form",
-    heading: "An ending this word does not take",
-    body: "The stem was right and the ending is not one this word takes.",
-    evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
-  }];
-}
-
-/**
- * The six letters an English keyboard has no key for, and a slipped letter.
- *
- * Last of the four, because it is the least worth a learner's attention: a
- * dropped diacritic is a keyboard rather than a gap in anybody's Estonian,
- * and the letter bar under every field in this app exists for it.
- */
-function spellingNote(slips: readonly Slip[]): ReviewNote[] {
-  const rows = slips.filter((s) => s.kind === "spelling");
-  if (rows.length === 0) return [];
-  return [{
-    id: "spelling",
-    heading: "A letter or two out",
-    body: "The row of letters under the box types the ones an English keyboard has no key for.",
-    evidence: rows.slice(0, EVIDENCE_SHOWN).map((s) => ({ said: s.said, form: s.form })),
-  }];
-}
-
-/**
  * Reaching for English, counted and never scolded.
  *
  * §8's rule, said once at the end rather than in the moment: what is being
@@ -387,13 +354,15 @@ function spellingNote(slips: readonly Slip[]): ReviewNote[] {
  * say how often it happened and why it matters, on a screen the conversation
  * is already over on.
  */
-function englishNote(count: number): ReviewNote[] {
+function englishNote(count: number, at: number): ReviewNote[] {
   if (count === 0) return [];
   return [{
     id: "english",
-    heading: count === 1 ? "One turn in English" : `${count} turns in English`,
+    said: count === 1 ? "One turn in English" : `${count} turns in English`,
+    form: null,
+    what: "Estonian, for one turn more",
     body: "Holding out for one more turn is most of what this is practice for. "
       + "The word button hands you one when you are stuck.",
-    evidence: [],
+    at,
   }];
 }
