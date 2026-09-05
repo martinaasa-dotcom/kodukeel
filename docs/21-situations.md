@@ -2503,3 +2503,12 @@ both are.
 `scripts/test-scene.mjs` asks the two halves separately, since they fail separately: nothing inside
 the page is its own scroller, and a wheel rolled over the middle of the transcript reaches the box
 you answer in. Both were made to fail on the code that shipped, at 206 of 334.
+
+And a conversation opens at its own top. The briefing is taller than a phone, so the button that
+starts a scene is below the fold: measured at 360, it sits at 850 in a 740 window, so a learner has
+scrolled about 300px by the time they press it and that scroll was left where it was when the
+screen changed under them. What they were looking at then was the first line with the role card cut
+off 114px above the top of the window, on the one card the whole conversation is answered from, and
+the scene's own title gone. Nothing at a desktop width can see it, because there the briefing fits
+and the scroll is nought either way, so the check is in `scripts/test-mobile.mjs` at 360 rather
+than beside the other two.

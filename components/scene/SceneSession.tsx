@@ -261,7 +261,21 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       window.scrollTo({ top: 0 });
       return;
     }
-    if (turns.length === 0) return;
+    /*
+      And a conversation opens at its own top. The briefing is taller than a
+      phone, so the button that starts it is below the fold: measured at 360,
+      it sits at 849 in a 740 window, so a learner has scrolled about 300px by
+      the time they press it and the scroll is left there when the screen
+      changes under them. What they were then looking at was the first line
+      with the role card cut off 114px above the top of the window, on the one
+      card the whole conversation is answered from, and the title of the scene
+      gone. Where the briefing fits, which is every desktop width, this is the
+      scroll it is already at and moves nothing.
+    */
+    if (turns.length === 0) {
+      if (phase === "talking") window.scrollTo({ top: 0 });
+      return;
+    }
     if (opening.current) {
       opening.current = false;
       return;

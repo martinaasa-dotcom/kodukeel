@@ -5236,7 +5236,12 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   downward makes the page taller rather than overflowing anything. So the conversation is the page
   and the page follows it, and `scripts/test-scene.mjs` rolls the wheel over the transcript and
   asks where the page ended up, because no source check can see this and both halves of it were
-  made to fail on the code that shipped.
+  made to fail on the code that shipped. A screen that replaces itself opens at its own top, which
+  is the same rule one moment earlier: the briefing is taller than a phone, so the button that
+  starts a scene is at 850 in a 740 window, and the scroll a learner did to reach it was left
+  standing when the screen changed under them, opening the conversation with the card it is
+  answered from cut off above the top of the window. `scripts/test-mobile.mjs` asks that at 360,
+  because at a desktop width the briefing fits and the scroll is nought either way.
 - **Nothing may be `position: fixed` over moving content and carry a `backdrop-filter`.** That
   pairing re-filters its backdrop every frame of every scroll; Upside Lab measured it at 42
   repainted frames in one pass down a phone screen, the worst a third of a screen behind where the
