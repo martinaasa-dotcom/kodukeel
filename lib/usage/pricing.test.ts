@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  normaliseModel,
   CACHE_READ_RATE,
   CACHE_WRITE_RATE,
   estimateCostMicros,
@@ -102,5 +103,32 @@ describe("the price of a cached input token", () => {
       cachedInputTokens: 9_000,
     });
     expect(unknown).toBeGreaterThan(0);
+  });
+
+  /*
+    A DATED ANTHROPIC ID IS THE MODEL IT NAMES, NOT AN UNKNOWN ONE.
+
+    Anthropic publishes `claude-haiku-4-5-20251001` beside `claude-haiku-4-5`,
+    and only the alias is a key in the table, so the snapshot id missed and
+    fell to `UNKNOWN_MODEL`: $10/$50 against its real $1/$5, on every call made
+    by a deployment that pinned an exact model, which is what anybody wanting a
+    reproducible one does. It fails expensive rather than dangerous, so nothing
+    was refused that should have run, but the ledger and the Settings meter
+    were both reporting a number about a model nobody was using.
+
+    The second half is what keeps the rule narrow: eight digits after a final
+    hyphen is a date, and a version is not. `claude-sonnet-4-6` has to survive
+    it untouched, or fixing the snapshot would break the alias.
+  */
+  it("prices a dated model id as the model it names, and leaves a version alone", () => {
+    expect(normaliseModel("claude-haiku-4-5-20251001")).toBe("claude-haiku-4-5");
+    expect(estimateCostMicros("claude-haiku-4-5-20251001", 1_000_000, 0))
+      .toBe(estimateCostMicros("claude-haiku-4-5", 1_000_000, 0));
+    // And the dearest row is what it used to cost, so this is a real change.
+    expect(estimateCostMicros("claude-haiku-4-5-20251001", 1_000_000, 0))
+      .toBeLessThan(estimateCostMicros("something-nobody-has-heard-of", 1_000_000, 0));
+
+    expect(normaliseModel("claude-sonnet-4-6")).toBe("claude-sonnet-4-6");
+    expect(normaliseModel("anthropic/claude-sonnet-5")).toBe("claude-sonnet-5");
   });
 });

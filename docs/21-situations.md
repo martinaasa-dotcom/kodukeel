@@ -2769,3 +2769,181 @@ is a real wall: measured here, one of the three OpenRouter free models answered 
 requests of an evaluation run. On a deployment leaning on one free key the bank is not a rare
 fallback but a regular one, which is an argument for the bank being good rather than for the ladder
 being different.
+
+## 51. What composing every beat costs, and what yields when there is not enough
+
+§50 made the model write every line. This is the bill for that, measured rather than argued about,
+and the four numbers that were wrong once it was true.
+
+`npm run measure:compose` builds every scene's real `composeSystem` and `composeLive` and Anu's real
+system prompt and learner note, and prices them at `claude-sonnet-5`. What is exact is the character
+count of the actual strings; tokens come from a ratio taken by running a tokenizer over those same
+strings, stated in the script's header with the command to re-derive it, because Anthropic publishes
+no tokenizer and a script claiming an exact count would claim more than it can.
+
+### The cached half was the small half
+
+The scene's closed word list is about 918 tokens, nine tenths of the prompt, and identical on every
+turn of one run. It sat in `composeLive`, which is the block *after* the `cache_control` breakpoint,
+so every composed turn paid full price to re-read three hundred and fifty lemmas.
+
+`composeSystem` is now what is constant for a run, the instructions, the register and the list, and
+`composeLive` is the move. The tone examples stay in `live` deliberately even though they look
+constant: the route excludes the beat being asked about, so they change per beat, and a block that
+changes per beat sitting in front of the list would break the list's cache entry every turn. Six
+short lines is about sixty tokens, which is the right thing to pay to keep 918 cached.
+
+| | measured |
+| --- | --- |
+| cached block, per scene | 918 tokens |
+| live block and the run so far, per turn | about 110 tokens |
+| the answer | about 45 tokens |
+| one composed turn, with the retry rate | $0.0018 |
+| the same turn with nothing cached | $0.0035 |
+| a run of ten composed turns | $0.0179 |
+| one question to Anu | $0.0055 |
+
+### And a tight `max_tokens` is the obvious saving that does not work
+
+Fifty tokens is all a gated line can be, so asking for `REPLY_TOKENS` looks like a thousand tokens of
+waste. It is not, because output is billed on what comes back, and §50 already has the measurement
+that settles it: several of the free models this app runs on spend their whole budget in a reasoning
+field and write into `content` only after they have finished, so at 80 tokens `openai/gpt-oss-120b`
+and `gemini-3.6-flash` both answer with an empty string. A tight cap here quietly decides which
+models this app can use. What a low ceiling would buy is a nearly-empty OpenRouter key still being
+able to compose, since that provider holds credit against `max_tokens`; that is a clear 402 a reader
+can act on, and it is the smaller harm. It is written down in `lib/scenes/prompt.ts` because the
+arithmetic invites the change every time somebody reads it.
+
+### The numbers that stopped being true when the booking moved
+
+**The reservation.** `EXPECTED_TOKENS.SCENE` read 3,500 in and 1,000 out under a comment explaining
+that a scene books one call for a whole conversation. The booking moved per turn in §16 and the
+number did not, so every composed turn reserved about twenty-five times what it costs. Against a
+generous budget that is invisible, since a settlement follows within seconds; against a small one it
+is the whole harm, because the reserve is what the *next* request is checked against, so a scene
+refuses itself at a twenty-fifth of the spending it was allowed. It is 1,400 in and 60 out.
+
+**The allowance was one conversation a day.** `SCENE` was one multiple of the base, ten calls, which
+with a composed line on every beat is a single run. §50 considered that and left it, pointing an
+operator at `AI_DAILY_CALLS_PER_USER`, and while one shared pot of money paid for everything that was
+right: a count was the only thing standing between an evening of role-play and the tutor's balance.
+It is not the only thing now, and it is four.
+
+**Because the budget underneath it stopped being one pot.** The ceiling was `AI_DAILY_USD_GLOBAL`
+alone, and a first attempt at this section capped it at five dollars a month and gave each kind a
+*fraction* of it. Main's answer is better and is the one kept: `DEFAULT_KIND_BUDGETS` is a slice in
+**dollars per kind**, because the two purposes here are two balances at two providers rather than two
+shares of one bill, and only a figure in dollars can say two dollars of Groq and ten cents of
+Anthropic. A fraction of a shared ceiling cannot.
+
+That distinction is what makes the five dollars precise rather than blunt. The constraint is five
+dollars of *Anthropic*, and the paths that can reach Anthropic are the tutor always, the scanner and
+the grader on a fallback, and a scene never, since it is Groq by purpose with no cross-purpose
+fallback. So the slices that add up to the $0.167 a day that makes $5 last a month are TUTOR, SCAN
+and GRADER, and scene composition sits outside it on its own bill. Capping the whole deployment at
+$5 a month, which is what the first attempt did, would have throttled Groq composition to protect an
+Anthropic balance it cannot spend.
+
+It is also why the call count could go back up. With the money split per purpose, the count is no
+longer the thing keeping Anu answerable, so it is free to be what it says it is: a bound on one
+person's share of a day. Four is three or four conversations against a slice that pays for about a
+hundred, so the count still binds one learner and the money still bounds the bill.
+
+### Which one gives way, and why it is scenes
+
+Where two paths do share a balance, the one that yields is the one with a floor under it. A refused
+scene turn falls to the bank, which is the same closed word list, the same four checks and a line a
+person has read: the conversation carries on and what it loses is that the lines stop being about
+this learner. A refused question to Anu degrades to nothing. There is no rung under her, the question
+goes unanswered, and the screen has to say so.
+
+### And a run keeps one voice
+
+§50 asks the model on every beat and falls to the bank when it cannot, which is right per turn and
+leaves a run able to change character halfway through: the likeliest cause is not a key being added
+or a redeploy, it is the day's allowance running out at turn six, which on this budget is ordinary
+rather than rare. `LineMode` is stored on the draw beside the persona and the card, decided once when
+the run opens on whether `sceneProviders` has anything in it, and read back by the route every turn.
+A scripted run never asks whatever composer it is handed; a composed run still falls to the bank on a
+call that fails, which is the mid-run failure the bank is for. What the mode removes is a run
+*starting* in one voice and being switched into the other by something outside it. A run written
+before the field reads as `scripted`, since the shipped behaviour of a run already in flight may not
+change under the learner having it.
+
+### What this does not change
+
+The grading, which is `readTurn` and `satisfies` off the dictionary and the drawn card. The gate,
+which still vouches every composed line word by word against the scene's own units and withholds it
+whole. And the keyless deployment, which is `scripted`, plays through to its debrief and writes the
+same grades.
+
+## 52. What a learner read back off one conversation
+
+A run of `poodi-piima` was played on the deployment and reported in four sentences. Every one of
+them was right, and none of them was about a rule this document had not already written down: each
+was a rule applied on one path and not on the one the learner was standing on.
+
+**The reply arrived as two bubbles.** `replyFor` builds a reaction and then a move, which is what a
+person does, and the screen drew each of them in a card of its own: `Jah.` in one and the question
+in the next, twice a turn, all the way down. Nobody talks in two bubbles. `inOneBreath` in
+`components/scene/SceneSession.tsx` joins the lines said in Estonian into one, so the bubble reads
+`Jah. Kuhu sa nüüd lähed?`, and it is the *screen's* rule rather than the reply's: a break in time,
+a hint from the app and a stage direction are not things anybody said and still stand on their own.
+Where the line came from survives the join, which is why this returns a line rather than a string:
+the bubble carries every rung that wrote a piece of it and the words under it name them all
+(ADR-025). The debrief's transcript is built from the same function, because the record of a
+conversation reading as two speakers where the round reads as one is the same fault twice.
+
+**Nothing said the scene had moved.** `BeatSpec.meanwhile` has existed since §33 and the learner saw
+neither of the two this scene carries. It was printed on a response of `answer` or `moveOn`, which
+is the commonest way to arrive at a beat and not the only one, and it was drawn as a grey sentence
+between two hairlines on a screen where a new bubble arrives every few seconds. Both halves are
+fixed and only one of them is code you can point at: it is printed on `arriving`, which is "no turn
+of this run has been taken on this beat", a fact about the run rather than about how the last turn
+went; and it is drawn as the panel the app's own hint uses, in the accent's softest tint with a
+clock beside it, and it arrives, the rules drawing out from the middle and the words settling onto
+the thread (`.scene-break`). Under `prefers-reduced-motion` it is still a panel and still says what
+happened.
+
+**`Kust sina nüüd tuleb?` reached a learner.** Every word of it is in the scene's own list, the
+register is right, nothing is governed and no number is claimed, so all five checks passed a line
+that is not Estonian. Vouching asks whether a spelling is a form of a word the scene may use and
+cannot ask whether it is the *right* form, which is the one thing a beginner reading the other
+side's line cannot check for themselves. `disagrees` is the sixth check: a clause holding exactly
+one personal pronoun in the nominative and no verb that can agree with it is withheld. The tables
+are the app's own, `Lexicon.persons` off `derivedVerbForms` and off the persons Ekilex stored for
+the verbs no rule reaches, so nothing in the gate knows any Estonian; it compares two spellings the
+dictionary supplied. It is drawn as weakly as the government check and for its reason: a clause at
+a time, because `Ma ei tea, kus see on.` is a first person beside a third and is right, and only
+where the pronoun's spelling is the nominative and nothing else, because `teie` is also a genitive
+and `Palun enne teie nimi.` is a line the bank has held since it was drafted.
+
+Two more checks came off the same thread. **`topic`**, because a model told "they ask where you are
+now" wrote `Kuhu sa ikka lähed?`, which is real Estonian inside the list and is the question the
+learner answered two turns before: retrieval has asked a recorded sentence to be about its beat
+since it was written and nothing asked it of a composed one. And **`giveaway`**, because a run
+played while this was being written answered the beat whose whole job is getting the learner to say
+`poes` with `Kas sa juba oled poes?`. The bank's own test has refused that since the bank was
+drafted; the live path had no such rule, and a learner who copies the answer out of the question
+has retrieved nothing while the scheduler writes down a recall.
+
+**And the app's own gate was stricter than the one it measured itself with.** `gateContext` in the
+eval and in the bank's test has handed in the course's question words since the government check was
+written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
+sentence that check's own comment names as the reason the question words are there, was withheld on
+the deployment and passed in every measurement of it.
+
+**`Poest või pood?`** was the other side narrowing its question to two, and it is a grammar exercise
+spoken in a character's voice: two cases of one word are not two things a person could have meant.
+A case beat is narrowed on nothing now and gets the app's own hint instead, in English and out of
+character, which is the honest thing to say at that moment (`lib/scenes/coach.ts`).
+
+**And the model is told who it is.** It used to be handed a move, a sentence about what to do and a
+word list, which is a translation exercise rather than a part in a scene. `ComposeAsk` carries the
+scene, the place, the drawn persona and the learner's own role card, all of it English already on
+the learner's briefing screen, and the system prompt says what a beginner's Estonian looks like and
+what to do about it: work out what they meant and answer that, never correct them, never comment on
+their Estonian, never write English. The beat's `goal` is deliberately still absent (§32). Measured
+after all of it on `poodi-piima` at three lines a beat: 5.6% of composed lines withheld, against the
+design's line of one in twenty.

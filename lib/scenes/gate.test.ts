@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildLexicon, type DictEntry } from "./lexicon";
-import { governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
+import { disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -31,7 +31,26 @@ const ENTRIES: DictEntry[] = [
   {
     lemma: "olema", pos: "VERB", cefr: "A1",
     parts: { INF_MA: "olema", INF_DA: "olla", PRES_1SG: "olen", PAST_1SG: "olin" },
-    extraForms: [{ code: "IndPrSg3", value: "on" }],
+    extraForms: [{ code: "IndPrSg2", value: "oled" }, { code: "IndPrSg3", value: "on" }],
+    usages: [],
+  },
+  {
+    lemma: "tulema", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tulema", INF_DA: "tulla", PRES_1SG: "tulen", PAST_1SG: "tulin" },
+    usages: [],
+  },
+  // The pronouns whose nominative is the one thing that spelling can be, which
+  // is what `subjectsIn` reads and all it reads.
+  {
+    lemma: "sina", pos: "PRONOUN", cefr: "A1",
+    parts: { NOM_SG: "sina", GEN_SG: "sinu", PART_SG: "sind" },
+    extraForms: [{ code: "SgN", value: "sina" }, { code: "SgN", value: "sa" }],
+    usages: [],
+  },
+  {
+    lemma: "mina", pos: "PRONOUN", cefr: "A1",
+    parts: { NOM_SG: "mina", GEN_SG: "minu", PART_SG: "mind" },
+    extraForms: [{ code: "SgN", value: "mina" }, { code: "SgN", value: "ma" }],
     usages: [],
   },
 ];
@@ -46,7 +65,7 @@ const LEXICON = { ...LEX, forms: new Set([...LEX.forms, ...EXTRA]) };
 function context(over: Partial<GateContext> = {}): GateContext {
   return {
     lexicon: LEXICON,
-    wrongRegister: new Set(["sul", "sinul", "sina"]),
+    wrongRegister: new Set(["sul", "sinul"]),
     governed: [],
     caseOf: new Map(),
     ...over,
@@ -185,5 +204,104 @@ describe("a number nobody dealt", () => {
   */
   it("treats a run that dealt nothing as having dealt nothing", () => {
     expect(runGate("Kas kell 14:00 on valu?", beat(), context()).failed).toContain("facts");
+  });
+});
+
+/**
+ * THE SIXTH CHECK: THE SUBJECT AND THE VERB ARE THE SAME PERSON.
+ *
+ * `Kust sina nüüd tuleb?` reached a learner. Every word of it is in the
+ * scene's own list, the register is right, nothing is governed and no number
+ * is claimed, so all five checks above passed a line that is not Estonian.
+ * Vouching asks whether a spelling is a form of a word the scene may use, and
+ * cannot ask whether it is the right form, which is the one thing a beginner
+ * reading the other side's line cannot check for themselves.
+ */
+describe("a verb that does not agree with its subject", () => {
+  const ctx = context({ subjects: subjectsIn(LEXICON) });
+
+  it("knows the pronouns off the dictionary rather than off a list", () => {
+    expect(ctx.subjects?.get("sina")).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("sa")).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("ma")).toBe("IndPrSg1");
+    // An oblique form is not a subject, or `Kas ma aitan sind?` would be read as one.
+    expect(ctx.subjects?.has("sind")).toBe(false);
+  });
+
+  it("withholds the line that reached a learner", () => {
+    expect(runGate("Kust sina nüüd tuleb?", beat(), ctx).failed).toContain("agreement");
+    expect(runGate("Kust sina nüüd tuled?", beat(), ctx).failed).not.toContain("agreement");
+  });
+
+  it("reads the persons the dictionary stores as well as the ones a rule reaches", () => {
+    // `olema` is the verb no rule conjugates and the one every other line holds.
+    expect(runGate("Kas sa on toas?", beat(), ctx).failed).toContain("agreement");
+    expect(runGate("Kas sa oled toas?", beat(), ctx).failed).not.toContain("agreement");
+  });
+
+  it("says nothing about a clause whose verb belongs to another one", () => {
+    /*
+      `Ma ei tea, kus see on.` is a first person beside a third and is right:
+      the verb is the other clause's, whose subject is `see`. Estonian writes
+      that comma, which is the weakest clause boundary available without a
+      parser.
+    */
+    expect(runGate("Ma tulen, kus see on.", beat({ move: "confirm" }), ctx).failed)
+      .not.toContain("agreement");
+  });
+
+  it("says nothing where a clause holds two subjects, or none, or no person at all", () => {
+    expect(runGate("Kas sa tead, mida ma tulen?", beat(), ctx).failed).not.toContain("agreement");
+    expect(runGate("Kas toas on valu?", beat(), ctx).failed).not.toContain("agreement");
+    expect(runGate("Kas sina tuled?", beat(), ctx).failed).not.toContain("agreement");
+  });
+
+  it("passes a line where one verb agrees and another does not, because it cannot say which is whose", () => {
+    expect(disagrees("Kas sina oled see, kes tuleb?", ctx)).toBe(false);
+  });
+});
+
+/**
+ * AND THE SEVENTH: A LINE FOR A BEAT IS ABOUT THE BEAT.
+ *
+ * Retrieval has asked this of a recorded sentence since it was written
+ * (`onTopic`); nothing asked it of a composed one. So a model told "they ask
+ * where you are now" wrote `Kuhu sa ikka lähed?`, which is real Estonian
+ * inside the list and is the question the learner answered two turns before.
+ */
+describe("a line that is not about its beat", () => {
+  const ctx = context({ topic: new Set(["valu", "valud", "valus"]) });
+
+  it("is withheld, and a line naming the beat's own word is not", () => {
+    expect(runGate("Kas teil on valu?", beat(), ctx).failed).not.toContain("topic");
+    expect(runGate("Kas teil on tuba?", beat(), ctx).failed).toContain("topic");
+  });
+
+  it("says nothing where the caller named no topic, which is how an aside is gated", () => {
+    expect(runGate("Kas teil on tuba?", beat(), context()).failed).not.toContain("topic");
+    expect(runGate("Kas teil on tuba?", beat(), context({ topic: new Set() })).failed)
+      .not.toContain("topic");
+  });
+});
+
+/**
+ * AND THE EIGHTH: A LINE MAY NOT HAND OVER WHAT IT IS ABOUT TO ASK FOR.
+ *
+ * The bank has been held to this since it was drafted, and nothing asked it of
+ * a line composed live: a real run answered the beat whose whole job is
+ * getting the learner to say `poes` with `Kas sa juba oled poes?`. They copy
+ * it out, retrieve nothing, and the scheduler writes down a recall.
+ */
+describe("a line that gives the answer away", () => {
+  const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }], topic: ["tuba"] });
+
+  it("is withheld, and the same question without the form is not", () => {
+    const answers = new Set(["toas"]);
+    expect(runGate("Kas sa oled toas?", asks, context({ answers })).failed).toContain("giveaway");
+    expect(runGate("Kas sa oled tuba?", asks, context({ answers })).failed).not.toContain("giveaway");
+  });
+
+  it("says nothing where the caller named no answer, which is how an aside is gated", () => {
+    expect(runGate("Kas sa oled toas?", asks, context()).failed).not.toContain("giveaway");
   });
 });

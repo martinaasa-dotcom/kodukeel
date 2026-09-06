@@ -11,10 +11,28 @@
  * the caller supplies what it knows.
  *
  * The split is a caching decision as much as a tidiness one. The `system` half
- * is identical on every turn of every scene, so on Anthropic it sits behind the
+ * is identical on every turn of one scene, so on Anthropic it sits behind the
  * `cache_control` breakpoint the tutor already uses and on an OpenAI-compatible
  * provider it is the cached prefix. Everything that changes per turn is in
  * `live`, which is the same shape `learnerNote` takes.
+ *
+ * WHICH HALF THE WORD LIST GOES IN IS THE WHOLE COST OF THIS FEATURE. The
+ * scene's closed list is about 918 tokens, nine tenths of the prompt, and it
+ * does not change from one turn of a run to the next; the rest of the prompt
+ * is about 110. It used to sit in `live`, which is the block *after* the
+ * breakpoint, so every composed turn paid full price to re-read three hundred
+ * and fifty lemmas and the cached half was the small half. Measured at
+ * `claude-sonnet-5` with `npm run measure:compose`: $0.0016 a composed turn
+ * against $0.0036. That is the difference between composing every beat and
+ * spending a month's budget in an afternoon.
+ *
+ * So `composeSystem` is what is constant for a whole run, the instructions,
+ * the register and the list, and `composeLive` is the move. The tone examples
+ * stay in `live` deliberately even though they look constant: the route
+ * excludes the beat being asked about, so they change per beat, and a block
+ * that changes per beat sitting in front of the list would break the list's
+ * cache entry every time. Six short lines is about sixty tokens, which is the
+ * right thing to pay per turn to keep 918 cached.
  *
  * It holds no Estonian, exactly as `lib/estonian/grammar.ts` holds none: every
  * Estonian word that reaches the model comes in through `words`, which is the
@@ -26,35 +44,126 @@
  */
 import { MAX_WORDS } from "./retrieval";
 
+/** What is the same on every turn of one run, and therefore what is worth caching. */
+export interface ComposeScene {
+  /**
+   * WHO THEY ARE AND WHERE THIS IS HAPPENING, which is the half that was
+   * missing.
+   *
+   * The model used to be told a move, a sentence about what to do, and a word
+   * list, and that is a translation exercise rather than a part in a scene: it
+   * wrote a correct line for the beat and nothing that read as one person
+   * talking to another over five turns. Everything here is already on the
+   * learner's own briefing screen, in English, written for a reader: the title
+   * and the place, the character they drew, and their own reason for being
+   * there. Telling the other side what the learner can see is what keeps them
+   * in character.
+   *
+   * It is constant for a whole run, so it sits here rather than in the move
+   * and is read once from behind the cache breakpoint. THE BEAT'S `goal` IS
+   * DELIBERATELY ABSENT and may not be added, here or in `ComposeAsk`: told
+   * what the learner is trying to say, a model writes the learner's line
+   * (§32). What it is told is `they`, which is this character's own move.
+   */
+  readonly scene: string;
+  readonly place: string;
+  /** The drawn character's one sentence, from `PERSONAS`. Empty where none was drawn. */
+  readonly persona: string;
+  /** The learner's role card: why they are here, never what they have to say next. */
+  readonly situation: string;
+  /** The pronoun this scene addresses the learner with. */
+  readonly register: string;
+  /** The scene's closed word list. */
+  readonly words: readonly string[];
+}
+
 export interface ComposeAsk {
   /** The beat's move, so the model knows whether it is asking or answering. */
   readonly move: string;
   /** What they are doing, in English, from their side: the beat's `they`. */
   readonly they: string;
-  /** The pronoun this scene addresses the learner with. */
-  readonly register: string;
   /**
    * What the learner's last turn appears to say, word by word, from the
    * dictionary. Empty where there is no turn yet or the dictionary could vouch
    * for none of it, and then the model reads the Estonian alone.
    */
   readonly reading: string;
-  /** The scene's closed word list. */
-  readonly words: readonly string[];
   /** Lines this character has said at other beats, for tone. Never for this beat. */
   readonly examples: readonly string[];
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
 }
 
-export const COMPOSE_SYSTEM = [
-  "You are one side of a short conversation in Estonian, in a role-play for a learner.",
+/*
+  AND A TIGHT `max_tokens` ON THIS CALL IS THE OBVIOUS SAVING THAT DOES NOT
+  WORK, which is worth writing down because the arithmetic invites it every
+  time. The gate refuses a line over `MAX_WORDS` words, so about fifty tokens
+  is all one can be, and asking for `REPLY_TOKENS` looks like a thousand
+  tokens of waste. It is not: output is billed on what comes back, and
+  `lib/tutor/provider.ts` has the measurement that settles it. Several of the
+  free models this app is built to run on spend their whole budget in a
+  reasoning field and write into `content` only after they have finished, so
+  at 80 tokens `openai/gpt-oss-120b` and `gemini-3.6-flash` both answer with
+  an empty string and at 1200 both write a clean line. An empty answer is
+  indistinguishable from a bad minute one rung down, so a tight cap here
+  quietly decides which models this app can use. What a low ceiling would buy
+  is a nearly-empty OpenRouter key still being able to compose, since that
+  provider holds credit against `max_tokens`; that is a clear 402 a reader can
+  act on, and it is the smaller harm.
+*/
+
+const COMPOSE_RULES = [
+  "You are playing one person in a short conversation in Estonian, in a role-play for somebody",
+  "learning the language. You are that person and nothing else: never mention the exercise,",
+  "never explain, never comment on their Estonian, never correct them, and never write English.",
   "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
   "no explanation, no quotation marks, no markdown, no list.",
   `Use at most ${MAX_WORDS} words.`,
-  "Use only the words you are given, in any grammatical form. If you cannot say it",
-  "with those words, say the shortest thing you can with them.",
+  /*
+    THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. What reaches the model is
+    the run's own turns and, where the dictionary could read the last one, what
+    it appears to mean word by word. A model that answers the words rather than
+    the person asks again for something it was just told, which is exactly what
+    a learner reports as the app not understanding them. The marking is not the
+    model's and never will be (ADR-025): this only decides what the character
+    says next.
+  */
+  "They are a beginner. Their Estonian will often have the wrong ending, a letter missing,",
+  "a word missing or a word in the wrong place. Work out what they meant and answer that,",
+  "the way anybody who speaks the language would. Do not repeat a question they have",
+  "already answered.",
+  /*
+    AND A SENTENCE THAT IS NOT ESTONIAN IS WORSE THAN A SIMPLER ONE. The list
+    is what keeps the line readable by somebody who has done these units, and a
+    model pressed to use it at all costs writes `Kust sina nüüd tuleb?`, which
+    is inside the list and is not the language. The gate withholds that line,
+    and the whole point of saying it here is that it should never have to.
+  */
+  "Every word you use must be one of the words you are given, in any grammatical form,",
+  "and the sentence must be correct Estonian: the subject and the verb agree, the endings",
+  "are the ones a native speaker would use. If a correct sentence needs a word that is not",
+  "on the list, say something simpler with the words that are.",
 ].join(" ");
+
+/**
+ * The half that is constant for a whole run, and the one the caller puts
+ * behind the cache breakpoint.
+ */
+export function composeSystem(scene: ComposeScene): string {
+  return [
+    COMPOSE_RULES,
+    /*
+      The scene before the turn, so the character is somebody rather than a
+      function of the beat. English, and every line of it is a line the learner
+      is looking at on their own screen.
+    */
+    `The scene: ${scene.scene}. ${scene.place}.`,
+    `You are the other person in it. ${scene.persona}`,
+    `Why they are here, which you know: ${scene.situation}`,
+    `Address them as "${scene.register}".`,
+    `Words you may use: ${scene.words.join(" ")}`,
+  ].filter(Boolean).join("\n");
+}
 
 /**
  * The half that changes per turn.
@@ -67,7 +176,6 @@ export function composeLive(ask: ComposeAsk): string {
   return [
     `Your move: ${ask.move}.`,
     `What you are doing, in English: ${ask.they}`,
-    `Address them as "${ask.register}".`,
     /*
       What they appear to have said, which is the dictionary's reading rather
       than a second model's. A beginner's Estonian is short, endingless and
@@ -94,6 +202,5 @@ export function composeLive(ask: ComposeAsk): string {
     ask.avoid.length > 0
       ? `Your last attempt used words that are not allowed here: ${ask.avoid.join(", ")}.`
       : "",
-    `Words you may use: ${ask.words.join(" ")}`,
   ].filter(Boolean).join("\n");
 }

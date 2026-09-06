@@ -23,6 +23,7 @@ import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wikti
 import { resolvePos } from "../lib/dict/pos";
 import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
+import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
@@ -5169,6 +5170,136 @@ check("a daily reminder fires on the learner's clock, not the server's", () => {
   assert.doesNotMatch(route, /setHours/, "the reminder route is back to the server's clock");
 });
 
+/**
+ * A CAP THAT CANNOT BITE IS A STATED CONTROL DOING NOTHING.
+ *
+ * `dailyMicrosPerUser` sat at $0.50 under a shared ceiling of $20 a day, which
+ * was a fortieth of it and a real backstop. The ceiling is $5 a month now, and
+ * a per-user cap left where it was would be three times the budget it sits
+ * inside: it could never fire, while still being printed on the Settings meter
+ * as the figure a learner is measured against, which is worse than no control
+ * because a reader counts it. Asserted against each other rather than against
+ * any particular number, so this stays true when somebody changes the budget.
+ */
+check("no spend cap sits above the one it is inside", () => {
+  const limits = DEFAULT_LIMITS;
+  assert.ok(
+    limits.dailyMicrosPerUser <= limits.dailyMicrosGlobal,
+    `one learner may spend $${(limits.dailyMicrosPerUser / 1e6).toFixed(2)} a day inside a ` +
+    `deployment budget of $${(limits.dailyMicrosGlobal / 1e6).toFixed(2)}, so the per-user cap can ` +
+    "never fire and the Settings meter measures a learner against a figure nothing enforces",
+  );
+  assert.ok(limits.dailyMicrosGlobal > 0, "the shared ceiling is zero by default, which switches every model off");
+});
+
+/**
+ * A SCENE MAY NOT SPEND ANU'S DAY, AND A TURN IS RESERVED AT WHAT A TURN COSTS.
+ *
+ * This branch answered the first half with `globalShare`, a fraction of the
+ * deployment's budget each kind was allowed to reach. Main answered it with
+ * `DEFAULT_KIND_BUDGETS`, a slice in dollars per kind, and that is the one
+ * kept: two purposes here are two *balances* at two providers rather than two
+ * shares of one bill, and only a figure in dollars can say "two dollars of
+ * Groq, ten cents of Anthropic". The claim underneath is unchanged and is what
+ * is asserted, rather than either mechanism's spelling: an afternoon of
+ * role-play may not leave the next person's question to Anu unanswerable, and
+ * the reason scenes give way is what each does when refused rather than what
+ * each is worth. A refused scene turn falls to the bank, which is the same
+ * closed list, the same checks and a line a person has read. A refused question
+ * to Anu degrades to nothing.
+ *
+ * And the reservation is per turn, because the booking is. The row read 3,500
+ * in and 1,000 out from when a scene booked once for a whole conversation,
+ * which is about twenty-five times a turn: harmless against a generous budget
+ * and the whole harm against a small one, since the reserve is what the next
+ * request is checked against.
+ */
+check("a scene cannot spend the day Anu needs, and reserves what a turn costs", () => {
+  const scene = DEFAULT_KIND_BUDGETS.SCENE;
+  const tutor = DEFAULT_KIND_BUDGETS.TUTOR;
+  assert.ok(
+    scene !== undefined && scene < DEFAULT_LIMITS.dailyMicrosGlobal,
+    "scene composition has no slice of its own under the deployment's daily budget, so one " +
+    "learner's afternoon of conversation can spend the day and leave a question to Anu unanswerable",
+  );
+  assert.ok(
+    tutor !== undefined && tutor > 0,
+    "Anu has no budget of her own, so whatever spends first decides whether she answers",
+  );
+  for (const [kind, slice] of Object.entries(DEFAULT_KIND_BUDGETS)) {
+    assert.ok(
+      slice! <= DEFAULT_LIMITS.dailyMicrosGlobal,
+      `${kind} may spend $${(slice! / 1e6).toFixed(2)} a day inside a deployment budget of ` +
+      `$${(DEFAULT_LIMITS.dailyMicrosGlobal / 1e6).toFixed(2)}, so its slice can never bite`,
+    );
+  }
+  assert.match(
+    code("lib/usage/quota.ts"), /dailyMicrosGlobalForKind/,
+    "the kind's own slice is no longer a limit anything reads",
+  );
+  assert.match(
+    code("lib/usage/ledger.ts"), /globalKindMicros/,
+    "the ledger stopped counting a kind's spend separately, so its slice cannot bite",
+  );
+  const priced = /SCENE: \{ input: (\d[\d_]*), output: (\d[\d_]*) \}/.exec(code("lib/usage/pricing.ts"));
+  assert.ok(priced, "EXPECTED_TOKENS lost its SCENE row");
+  assert.ok(
+    Number(priced![1]!.replace(/_/g, "")) < 2_000,
+    "a composed turn is reserved at more than a turn costs. It is one line inside one cached word list.",
+  );
+});
+
+/**
+ * THE WORD LIST IS ON THE CACHED SIDE OF THE PROMPT, WHICH IS THE WHOLE COST OF
+ * COMPOSING EVERY BEAT.
+ *
+ * It is about 918 tokens, nine tenths of the prompt, and identical on every
+ * turn of a run. In the block after the breakpoint every composed turn pays
+ * full price to re-read three hundred and fifty lemmas: $0.0035 a turn against
+ * $0.0018, measured by `npm run measure:compose`.
+ *
+ * And the run's voice is settled once (`LineMode`), because the likeliest thing
+ * to flip a run from composed lines to banked ones halfway through is the day's
+ * allowance running out, which on a small budget is ordinary.
+ */
+check("the scene's word list is cached, and a run keeps one voice", () => {
+  const prompt = code("lib/scenes/prompt.ts");
+  const block = (name: string) =>
+    new RegExp(`export function ${name}\\([\\s\\S]*?\\n\\}`).exec(prompt)?.[0] ?? "";
+  assert.match(
+    block("composeSystem"), /Words you may use/,
+    "the scene's word list left the cached block, so every composed turn pays to re-read it",
+  );
+  assert.doesNotMatch(
+    block("composeLive"), /Words you may use/,
+    "the word list is back in the block that changes per turn",
+  );
+  /*
+    The list, and everything else that is constant for a whole run: the scene,
+    the place, the drawn persona and the learner's role card all sit behind the
+    breakpoint with it, because a briefing that changed per turn would break
+    the list's cache entry every time.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"),
+    /composeSystem\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
+    "the scene route stopped putting the list behind the cache breakpoint",
+  );
+  assert.match(
+    code("lib/scenes/line.ts"), /if \(request\.mode === "composed" && request\.compose\)/,
+    "lib/scenes/line.ts no longer refuses to compose in a scripted run, so a run opened with no key " +
+    "starts asking halfway through and changes voice mid-conversation",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /mode: draw\?\.lines \?\? "scripted"/,
+    "the route decides for itself whether to compose instead of reading the run's own choice",
+  );
+  assert.match(
+    code("app/actions.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
+    "the run no longer settles composed-or-scripted when it opens",
+  );
+});
+
 check("nothing reaches a paid provider without going through the ledger", () => {
   /*
     CLAUDE.md: "Any new path that calls a paid provider goes through
@@ -5474,6 +5605,103 @@ check("a word under a teaching sentence is one the dictionary vouched for", () =
     /YOUR_OWN_SOURCES = \[([\s\S]*?)\]/.exec(sources)?.[1] ?? "",
     /"SENTENCE"/,
     "a word the learner stopped and kept out of a sentence is filed as material the app chose",
+  );
+});
+
+check("the dictionary under a sentence is the learner's to refuse", () => {
+  /*
+    A SENTENCE SOMEBODY CAN READ IS ALSO SIX UNDERLINES ACROSS A SENTENCE
+    SOMEBODY IS READING.
+
+    `lib/dict/glossed.ts` puts the dictionary under every word an attested
+    sentence carries, which is the difference between a line a beginner can
+    read and one they can only look at. It was also reported, plainly, as a
+    second thing happening on a card whose whole job is one sentence. Which of
+    those two readers somebody is cannot be detected, for the reason
+    `lib/ux/letterBar.ts` gives about the letter bar, so it is asked.
+
+    Three things follow and all three are here.
+
+    ON IS THE DEFAULT. A missing row is everybody who used the app before the
+    question existed, and reading absence as a refusal takes the dictionary out
+    from under every sentence in one deploy for people who never asked.
+
+    OFF MEANS THE LOOKUP IS NEVER MADE. Every producer of glossed tokens asks
+    before it looks, rather than a screen drawing the answer and hiding it: the
+    two screens have drawn the plain marked sentence since before this existed,
+    for the page that did not look, so refusing costs a round trip rather than
+    adding one. The question is asked in the producer rather than threaded down
+    from the routes, which is what stops a fifth route arriving without it and
+    quietly drawing a feature its learner turned off.
+
+    AND THE READING OF THE LEARNER'S OWN TURN IS NOT THIS. The scene route
+    glosses two different things with one function: the other side's lines,
+    which a learner reads, and the learner's own turn, which is what the
+    composer is told they said. The second reaches no screen and a preference
+    about underlines may not decide what the other side understood.
+  */
+  const answer = "lib/ux/wordGloss.ts";
+  assert.ok(existsSync(answer), "the answer about underlining a sentence has gone");
+  const rule = code(answer);
+  assert.match(
+    rule, /DEFAULT_WORD_GLOSS: WordGloss = "on"/,
+    "underlining every word is no longer what somebody who has never answered gets",
+  );
+  assert.match(
+    rule, /value === "off" \? "off"/,
+    "a stored answer other than \"off\" no longer reads as the behavior everybody had",
+  );
+
+  /*
+    Every place a sentence is looked up for a screen, and the shape asserted is
+    the read rather than the file: a producer that imports the reader and then
+    looks anyway is the fault this is for.
+  */
+  const producers = [
+    ["app/(app)/review/cards.ts", "a first meeting in review"],
+    ["lib/progress/learn.ts", "a word on the learn ladder"],
+    ["app/api/scene/route.ts", "a line said in a conversation"],
+  ] as const;
+  for (const [file, what] of producers) {
+    const producer = code(file);
+    assert.match(
+      producer, /wordGlossFrom\(await readSetting\(ownerId, SETTING_KEYS\.wordGloss\)\)/,
+      `${what} is glossed without asking whether this learner wanted the dictionary under it`,
+    );
+  }
+
+  {
+    /*
+      The learner's own turn, gated by nothing. Asserted on the order: the
+      refusal has to sit inside `glossedLines`, which is what a screen reads,
+      and above the `glossSentences` that draws the other side's line, while
+      the turn's own reading further down the file is untouched.
+    */
+    const route = code("app/api/scene/route.ts");
+    const refusal = route.indexOf("SETTING_KEYS.wordGloss");
+    const reading = route.indexOf('glossSentences([{ et: text, form: null }])');
+    assert.ok(refusal > 0 && reading > refusal, "the scene route no longer refuses before it looks");
+    const between = route.slice(refusal, reading);
+    assert.doesNotMatch(
+      between.slice(between.indexOf("\n")), /SETTING_KEYS\.wordGloss/,
+      "what the composer is told the learner said is now decided by a preference about underlines",
+    );
+  }
+
+  /*
+    The way out is on the panel, where somebody is standing when they decide,
+    and Settings is where it goes back on. Both, because a way out with no way
+    back is a feature somebody loses by pressing a button once.
+  */
+  const screen = code("components/GlossedSentence.tsx");
+  assert.match(
+    screen, /setWordGloss\("off"\)/,
+    "the panel no longer carries the way out, so the only way to stop this is three screens away",
+  );
+  const settings = code("app/(app)/settings/page.tsx");
+  assert.match(
+    settings, /<WordGlossPanel/,
+    "Settings no longer draws the answer, so a learner who turned this off cannot turn it back on",
   );
 });
 
@@ -11314,7 +11542,17 @@ check("each routed purpose asks for its own chain", () => {
 
   for (const [file, purpose] of Object.entries(routed)) {
     const src = code(join(...file.split("/")));
-    assert.match(
+    /*
+      `sceneProviders` counts as asking for the scene chain, because the block
+      above has just asserted that it is built on that purpose. A scene path may
+      reach it either way and `app/actions.ts` reaches it through the wrapper:
+      the briefing has to promise exactly what `/api/scene` will attempt, and the
+      wrapper is what carries the per-provider `*_SCENE_MODEL` override the route
+      also honours. Asking the bare purpose there would promise composition on a
+      deployment whose only scene model is named rather than defaulted.
+    */
+    const throughWrapper = purpose === "scene" && /\bsceneProviders\(/.test(src);
+    if (!throughWrapper) assert.match(
       src,
       /*
         `String.raw`, because a template literal eats the backslashes on its way
@@ -11739,9 +11977,24 @@ check("the repair move is only used on a turn nobody understood", () => {
     session, /unspoken: "They did not catch/,
     "an unspoken turn is labeled as a turn nobody understood, which is the bug this fixed",
   );
+  /*
+    AND A REPLY IS SAID IN ONE BREATH. `replyFor` builds a reaction and then a
+    move, and the screen drew each in a card of its own: `Jah.` in one bubble
+    and the question in the next, twice a turn, which a learner read back and
+    reported as the other side answering itself. `inOneBreath` joins the lines
+    said in Estonian and leaves everything that is not something anybody said
+    (a break in time, a hint from the app, a stage direction) standing alone,
+    so this asks for the merge rather than for the raw list.
+  */
   assert.match(
-    session, /lines\.map\(/,
-    "the scene screen reads one line per reply again; a reply is a reaction and then a move",
+    session, /inOneBreath\(turn\.lines\)\.map\(/,
+    "the scene screen draws a reply line by line again: a reaction and its move are one thing said, "
+    + "and nobody talks in two bubbles",
+  );
+  assert.match(
+    session, /inOneBreath\(turn\.lines\)\.filter\(spoken\)/,
+    "the debrief's transcript is built from the raw lines again, so the record of the conversation "
+    + "reads as two speakers where the round reads as one",
   );
 });
 
@@ -12645,7 +12898,9 @@ check("nothing but the dictionary can advance a scene", () => {
 check("the scene route marks mechanically before it reaches a provider", () => {
   const src = code("app/api/describe/route.ts");
   const marked = src.indexOf("markDescription(");
-  const provider = src.indexOf("resolveProvider(");
+  // Either spelling: the route resolves the whole chain now, and the rule is
+  // about the order, not about which of the two functions it calls.
+  const provider = src.search(/resolveProviders?\(/);
   assert.ok(marked > 0 && provider > 0, "the describe route no longer does both of these");
   assert.ok(
     marked < provider,
@@ -13658,7 +13913,13 @@ check("every line a scene says carries its rung", () => {
   const source = code("components/scene/SceneSession.tsx");
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
-  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+  /*
+    Every rung that wrote a piece of the bubble, since two lines said in one
+    breath are one bubble (`inOneBreath`): "your word, said back" and then a
+    question written for this turn is two claims, and a label naming one of
+    them would be the screen vouching for the other.
+  */
+  assert.match(source, /line\.rungs \?\? \[line\.provenance\][\s\S]{0,40}?PROVENANCE\[rung\]/,
     "and the words under it are what a reader is told, which is ADR-025 itself");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,

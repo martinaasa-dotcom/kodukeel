@@ -22,7 +22,7 @@
     "build:ci": "prisma generate && next build",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:licences": "node scripts/check-licences.mjs",
-    "test:db": "vitest run --config vitest.integration.config.ts",
+    "test:db": "vitest run --config vitest.integration.config.mts",
     "test:browser": "node scripts/test-first-day.mjs && node scripts/smoke-new.mjs && node scripts/smoke-interact.mjs && node scripts/smoke-offline.mjs && node scripts/test-assess.mjs && node scripts/test-scan.mjs && node scripts/test-flash.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-scene.mjs && node scripts/test-error.mjs && node scripts/test-signin.mjs && node scripts/test-containment.mjs && node scripts/test-security.mjs && node scripts/a11y-check.mjs",
     "test:invariants": "tsx scripts/test-invariants.ts",
     "audit:merge": "node scripts/audit-merge.mjs",
@@ -45,6 +45,7 @@
     "fixture:load": "tsx scripts/load-fixture.ts",
     "report:impact": "tsx scripts/report-impact.ts",
     "measure:asr": "node scripts/measure-asr.mjs",
+    "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
@@ -85,7 +86,7 @@
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.13",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.7"
+    "vitest": "^4.1.11"
   },
   "overrides": {
     "postcss": "^8.5.26",

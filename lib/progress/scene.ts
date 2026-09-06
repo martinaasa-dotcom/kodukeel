@@ -24,8 +24,9 @@ import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import type { LineMode } from "@/lib/scenes/line";
 import type { GateContext, GovernedWord } from "@/lib/scenes/gate";
-import { buildLexicon, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
+import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
 import { timeWords, type RoleCard } from "@/lib/scenes/props";
@@ -268,7 +269,21 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
   return {
     scene,
     lexicon,
-    gate: { lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon) },
+    gate: {
+      lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon),
+      subjects: subjectsIn(lexicon),
+      /*
+        AND THE QUESTION WORDS, which the gate's own government check names in
+        its comment and was never handed. `Kust sa tuled?` holds a governed
+        verb and one nominal, the subject, and the case the verb governs is
+        carried by `kust`: without the list, the check reads the sentence as a
+        noun in the wrong case and withholds the commonest short question a
+        friend on the phone asks. The eval and the bank's own test have passed
+        them in since the check was written, so the two disagreed about what
+        the gate does, and the app had the stricter half.
+      */
+      questionWords: marker.questionWords,
+    },
     marker,
     pool: poolsFor(scene, rows),
     topic: new Map(scene.beats.map((beat) => [beat.id, topicForms(beat, lexicon)])),
@@ -594,6 +609,17 @@ export interface StoredDraw {
   readonly card: RoleCard;
   /** Which curveballs, and at which beat. A row written before the beat was kept holds none in play. */
   readonly curveballs: readonly { id: string; at: number }[];
+  /**
+   * Whether this run's model-written lines are composed live or come out of
+   * the bank, decided once when it opened (`LineMode`).
+   *
+   * Part of the draw for the reason the persona is: it is a fact about the
+   * conversation the learner is having rather than about the request in front
+   * of the route. It is also what keeps a run in one voice when the day's
+   * allowance runs out halfway through it, which on a small budget is the
+   * ordinary case.
+   */
+  readonly lines: LineMode;
 }
 
 export interface FinishedRun {
@@ -735,7 +761,14 @@ export async function beginRun(input: {
   sceneId: string;
   level: string;
   difficulty: Difficulty;
-}): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing } | null> {
+  /**
+   * Which of the two model-written rungs this run speaks with, decided by the
+   * caller because only a server component can ask whether a provider is
+   * configured, and decided *once* because a conversation may not change voice
+   * halfway through (`LineMode`).
+   */
+  lines: LineMode;
+}): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing; lines: LineMode } | null> {
   const scene = sceneById(input.sceneId);
   if (!scene) return null;
 
@@ -774,6 +807,7 @@ export async function beginRun(input: {
     persona: run.persona.id,
     card,
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
+    lines: input.lines,
   };
 
   const created = await prisma.sceneRun.create({
@@ -788,7 +822,7 @@ export async function beginRun(input: {
     select: { id: true },
   });
 
-  return { runId: created.id, seed, run, plays, briefing: briefingOf(run, glosses) };
+  return { runId: created.id, seed, run, plays, briefing: briefingOf(run, glosses), lines: input.lines };
 }
 
 /**
@@ -1124,6 +1158,13 @@ export function readDraw(transcript: string): StoredDraw | null {
       persona: typeof parsed.persona === "string" ? parsed.persona : "",
       card: parsed.card,
       curveballs,
+      /*
+        A run written before the field defaults to the bank, which is the free
+        rung and the one every such run has been using. Reading a missing value
+        as `composed` would start asking a model halfway through somebody's
+        conversation and change its voice at the same moment.
+      */
+      lines: parsed.lines === "composed" ? "composed" : "scripted",
     };
   } catch {
     return null;

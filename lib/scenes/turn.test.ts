@@ -750,12 +750,13 @@ describe("a turn that is nearly right", () => {
     const seen = readTurn("ma olema kodus", asks, context({ hasFiniteVerb: () => false }));
     expect(seen.reading).toBe("complete");
     /*
-      `olema` is the one verb the present rule refuses, so the slip is
-      understood and not recast: `form` is null and the screen says
-      "understood" and no more, which is what a person does with a verb they
-      cannot put right in passing.
+      `olema` is the one verb the present rule refuses, and the dictionary
+      holds its persons anyway: the stored first person is a principal part
+      and Ekilex recorded the rest, which is what `Lexicon.persons` reads
+      after the derived table. So the friend says `Olen.` back, which is the
+      recast the commonest verb in the language could not make before.
     */
-    expect(seen.slips).toEqual([{ kind: "person", said: "olema", form: null, lemma: "olema" }]);
+    expect(seen.slips).toEqual([{ kind: "person", said: "olema", form: "olen", lemma: "olema" }]);
   });
 
   it("recasts a regular verb off the derived present", () => {
