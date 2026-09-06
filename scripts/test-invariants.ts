@@ -23,6 +23,7 @@ import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wikti
 import { resolvePos } from "../lib/dict/pos";
 import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
+import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
@@ -5123,6 +5124,129 @@ check("a daily reminder fires on the learner's clock, not the server's", () => {
   const route = code("app/api/reminder/route.ts");
   assert.match(route, /buildReminderIcs\(/, "the reminder route builds its own file again");
   assert.doesNotMatch(route, /setHours/, "the reminder route is back to the server's clock");
+});
+
+/**
+ * A CAP THAT CANNOT BITE IS A STATED CONTROL DOING NOTHING.
+ *
+ * `dailyMicrosPerUser` sat at $0.50 under a shared ceiling of $20 a day, which
+ * was a fortieth of it and a real backstop. The ceiling is $5 a month now, and
+ * a per-user cap left where it was would be three times the budget it sits
+ * inside: it could never fire, while still being printed on the Settings meter
+ * as the figure a learner is measured against, which is worse than no control
+ * because a reader counts it. Asserted against each other rather than against
+ * any particular number, so this stays true when somebody changes the budget.
+ */
+check("no spend cap sits above the one it is inside", () => {
+  const limits = DEFAULT_LIMITS;
+  assert.ok(
+    limits.dailyMicrosPerUser <= limits.dailyMicrosGlobal,
+    `one learner may spend $${(limits.dailyMicrosPerUser / 1e6).toFixed(2)} a day inside a ` +
+    `deployment budget of $${(limits.dailyMicrosGlobal / 1e6).toFixed(2)}, so the per-user cap can ` +
+    "never fire and the Settings meter measures a learner against a figure nothing enforces",
+  );
+  assert.ok(limits.dailyMicrosGlobal > 0, "the shared ceiling is zero by default, which switches every model off");
+});
+
+/**
+ * A SCENE MAY NOT SPEND ANU'S DAY, AND A TURN IS RESERVED AT WHAT A TURN COSTS.
+ *
+ * This branch answered the first half with `globalShare`, a fraction of the
+ * deployment's budget each kind was allowed to reach. Main answered it with
+ * `DEFAULT_KIND_BUDGETS`, a slice in dollars per kind, and that is the one
+ * kept: two purposes here are two *balances* at two providers rather than two
+ * shares of one bill, and only a figure in dollars can say "two dollars of
+ * Groq, ten cents of Anthropic". The claim underneath is unchanged and is what
+ * is asserted, rather than either mechanism's spelling: an afternoon of
+ * role-play may not leave the next person's question to Anu unanswerable, and
+ * the reason scenes give way is what each does when refused rather than what
+ * each is worth. A refused scene turn falls to the bank, which is the same
+ * closed list, the same checks and a line a person has read. A refused question
+ * to Anu degrades to nothing.
+ *
+ * And the reservation is per turn, because the booking is. The row read 3,500
+ * in and 1,000 out from when a scene booked once for a whole conversation,
+ * which is about twenty-five times a turn: harmless against a generous budget
+ * and the whole harm against a small one, since the reserve is what the next
+ * request is checked against.
+ */
+check("a scene cannot spend the day Anu needs, and reserves what a turn costs", () => {
+  const scene = DEFAULT_KIND_BUDGETS.SCENE;
+  const tutor = DEFAULT_KIND_BUDGETS.TUTOR;
+  assert.ok(
+    scene !== undefined && scene < DEFAULT_LIMITS.dailyMicrosGlobal,
+    "scene composition has no slice of its own under the deployment's daily budget, so one " +
+    "learner's afternoon of conversation can spend the day and leave a question to Anu unanswerable",
+  );
+  assert.ok(
+    tutor !== undefined && tutor > 0,
+    "Anu has no budget of her own, so whatever spends first decides whether she answers",
+  );
+  for (const [kind, slice] of Object.entries(DEFAULT_KIND_BUDGETS)) {
+    assert.ok(
+      slice! <= DEFAULT_LIMITS.dailyMicrosGlobal,
+      `${kind} may spend $${(slice! / 1e6).toFixed(2)} a day inside a deployment budget of ` +
+      `$${(DEFAULT_LIMITS.dailyMicrosGlobal / 1e6).toFixed(2)}, so its slice can never bite`,
+    );
+  }
+  assert.match(
+    code("lib/usage/quota.ts"), /dailyMicrosGlobalForKind/,
+    "the kind's own slice is no longer a limit anything reads",
+  );
+  assert.match(
+    code("lib/usage/ledger.ts"), /globalKindMicros/,
+    "the ledger stopped counting a kind's spend separately, so its slice cannot bite",
+  );
+  const priced = /SCENE: \{ input: (\d[\d_]*), output: (\d[\d_]*) \}/.exec(code("lib/usage/pricing.ts"));
+  assert.ok(priced, "EXPECTED_TOKENS lost its SCENE row");
+  assert.ok(
+    Number(priced![1]!.replace(/_/g, "")) < 2_000,
+    "a composed turn is reserved at more than a turn costs. It is one line inside one cached word list.",
+  );
+});
+
+/**
+ * THE WORD LIST IS ON THE CACHED SIDE OF THE PROMPT, WHICH IS THE WHOLE COST OF
+ * COMPOSING EVERY BEAT.
+ *
+ * It is about 918 tokens, nine tenths of the prompt, and identical on every
+ * turn of a run. In the block after the breakpoint every composed turn pays
+ * full price to re-read three hundred and fifty lemmas: $0.0035 a turn against
+ * $0.0018, measured by `npm run measure:compose`.
+ *
+ * And the run's voice is settled once (`LineMode`), because the likeliest thing
+ * to flip a run from composed lines to banked ones halfway through is the day's
+ * allowance running out, which on a small budget is ordinary.
+ */
+check("the scene's word list is cached, and a run keeps one voice", () => {
+  const prompt = code("lib/scenes/prompt.ts");
+  const block = (name: string) =>
+    new RegExp(`export function ${name}\\([\\s\\S]*?\\n\\}`).exec(prompt)?.[0] ?? "";
+  assert.match(
+    block("composeSystem"), /Words you may use/,
+    "the scene's word list left the cached block, so every composed turn pays to re-read it",
+  );
+  assert.doesNotMatch(
+    block("composeLive"), /Words you may use/,
+    "the word list is back in the block that changes per turn",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /composeSystem\(\{ register: input\.register, words: input\.words \}\)/,
+    "the scene route stopped putting the list behind the cache breakpoint",
+  );
+  assert.match(
+    code("lib/scenes/line.ts"), /if \(request\.mode === "composed" && request\.compose\)/,
+    "lib/scenes/line.ts no longer refuses to compose in a scripted run, so a run opened with no key " +
+    "starts asking halfway through and changes voice mid-conversation",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /mode: draw\?\.lines \?\? "scripted"/,
+    "the route decides for itself whether to compose instead of reading the run's own choice",
+  );
+  assert.match(
+    code("app/actions.ts"), /lines: sceneProviders\(\)\.length > 0 \? "composed" : "scripted"/,
+    "the run no longer settles composed-or-scripted when it opens",
+  );
 });
 
 check("nothing reaches a paid provider without going through the ledger", () => {
@@ -11270,7 +11394,17 @@ check("each routed purpose asks for its own chain", () => {
 
   for (const [file, purpose] of Object.entries(routed)) {
     const src = code(join(...file.split("/")));
-    assert.match(
+    /*
+      `sceneProviders` counts as asking for the scene chain, because the block
+      above has just asserted that it is built on that purpose. A scene path may
+      reach it either way and `app/actions.ts` reaches it through the wrapper:
+      the briefing has to promise exactly what `/api/scene` will attempt, and the
+      wrapper is what carries the per-provider `*_SCENE_MODEL` override the route
+      also honours. Asking the bare purpose there would promise composition on a
+      deployment whose only scene model is named rather than defaulted.
+    */
+    const throughWrapper = purpose === "scene" && /\bsceneProviders\(/.test(src);
+    if (!throughWrapper) assert.match(
       src,
       /*
         `String.raw`, because a template literal eats the backslashes on its way

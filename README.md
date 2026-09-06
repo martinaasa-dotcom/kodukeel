@@ -373,7 +373,7 @@ Without that key it falls back to local disk, and Settings says so plainly.
 
 **Set a spend cap.** The app is free to whoever uses it, and the caps are what make that
 affordable rather than a leap of faith. The tutor is metered per user per day (ten conversations,
-`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default $20). The
+`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`). That ceiling is a daily figure and **defaults to five dollars a month**, which is `0.17` a day. The
 writing grader and speech scale off the same number in `lib/usage/ledger.ts`, higher, because they
 cost far less. Nothing a learner does outside the tutor is metered at all.
 

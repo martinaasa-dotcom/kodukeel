@@ -45,6 +45,7 @@
     "fixture:load": "tsx scripts/load-fixture.ts",
     "report:impact": "tsx scripts/report-impact.ts",
     "measure:asr": "node scripts/measure-asr.mjs",
+    "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
