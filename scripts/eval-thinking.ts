@@ -92,6 +92,10 @@ function combos(): Combo[] {
       out.push({ label: `${model} think:none`, model, url: GEMINI, key: gemini, extra: { reasoning_effort: "none" } });
     }
     out.push({ label: "gemini-pro-latest think:default", model: "gemini-pro-latest", url: GEMINI, key: gemini });
+    out.push({
+      label: "gemini-3.1-pro-preview think:default", model: "gemini-3.1-pro-preview",
+      url: GEMINI, key: gemini,
+    });
   }
   if (anthropic) {
     for (const model of ["claude-haiku-4-5-20251001", "claude-sonnet-5"]) {
@@ -116,10 +120,15 @@ function combos(): Combo[] {
   twelve lines.
 */
 const BEATS: readonly (readonly [string, string])[] = [
-  ["apteek", "what"], ["apteek", "since"], ["bussipilet", "where"],
-  ["trepikoda", "floor"], ["trepikoda", "from"], ["restoranis-tellimine", "order"],
-  ["toovestlus", "start"], ["kaebus", "want"], ["uuri-remont", "where"],
-  ["helistamine", "what"], ["keeletund", "why"], ["ametiasutus", "what"],
+  ["apteek", "what"], ["apteek", "since"], ["apteek", "medicine"],
+  ["bussipilet", "where"], ["bussipilet", "when"], ["bussipilet", "pay"],
+  ["trepikoda", "floor"], ["trepikoda", "from"], ["trepikoda", "with"],
+  ["restoranis-tellimine", "order"], ["restoranis-tellimine", "drink"],
+  ["restoranis-tellimine", "bill"],
+  ["toovestlus", "start"], ["toovestlus", "before"], ["toovestlus", "skill"],
+  ["kaebus", "want"], ["kaebus", "when"], ["uuri-remont", "where"],
+  ["uuri-remont", "since"], ["helistamine", "what"], ["keeletund", "why"],
+  ["ametiasutus", "what"], ["poodi-piima", "item"], ["kohvikus", "order"],
 ];
 
 const only = (() => {
