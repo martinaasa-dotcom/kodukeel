@@ -8,7 +8,7 @@ import { resolve } from "node:path";
  * a clean clone.
  */
 export default defineConfig({
-  resolve: { alias: { "@": resolve(__dirname, ".") } },
+  resolve: { alias: { "@": resolve(import.meta.dirname, ".") } },
   test: {
     environment: "node",
     // `prisma/` as well as `lib/`, because the seed's own claims about the
