@@ -351,7 +351,7 @@ repository actually builds, and prints what a given monthly budget buys. Scene c
 yields at half the day's budget, so an afternoon of role-play cannot leave the next person's
 question to Anu unanswerable: a refused scene turn falls back to a drafted line and the
 conversation carries on, and a refused question to Anu has nothing under it at all
-(`docs/21-situations.md` §45).
+(`docs/21-situations.md` §50).
 
 The last quarter of the day's shared budget is held back for people who have not asked anything
 yet (`AI_GLOBAL_RESERVE_FRACTION`). Without it the cap is first come, first served: an enthusiastic

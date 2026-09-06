@@ -295,11 +295,48 @@ async function tapWord(word) {
 await tapWord("kastan");
 await page.getByRole("button", { name: "Guess" }).click();
 await page.waitForTimeout(600);
-const marked = await board.evaluateAll((els) =>
-  els.filter((e) => e.textContent.trim()).map((e) => getComputedStyle(e).backgroundColor));
+/*
+  The state each circle is in, in the app's own words, beside the paint it was
+  given. `aria-label` is "<letter>, in place" / ", in the word, elsewhere" /
+  ", not in the word", which is what a reader who cannot see the hue is told,
+  so it is the one fact on the board that says what a circle means.
+*/
+const marks = await board.evaluateAll((els) => els
+  .filter((e) => e.textContent.trim())
+  .map((e) => ({
+    state: (e.getAttribute("aria-label") ?? "").split(", ").slice(1).join(", "),
+    bg: getComputedStyle(e).backgroundColor,
+    ring: getComputedStyle(e).boxShadow,
+  })));
+const marked = marks.map((m) => m.bg);
 check("a guess lands and every circle in it is marked", marked.length === 6);
-check("the marks are not all the same",
-  new Set(marked).size > 1 || marked.every((c) => c === marked[0]));
+/*
+  A CHECK THAT CANNOT FAIL, WHICH THIS WAS.
+
+  It read `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`,
+  and the second half is true exactly when the first is false: either they
+  differ or they are all the same, which is true of any six things. So the one
+  claim it makes about the board was never once asked.
+
+  What is worth asking is not that the six circles differ, since a guess
+  against a word nobody chose can honestly land all in one state. It is that
+  two circles the app itself calls different states are drawn differently:
+  Sonad's three used to differ by hue alone and the fix was to make them three
+  kinds of object, and a palette that collapsed two of them would leave the
+  board marking a guess it could not report. The states come off the labels a
+  screen reader is given, so the check reads what the app says rather than what
+  the suite assumes.
+*/
+const states = [...new Set(marks.map((m) => m.state))].filter(Boolean);
+if (states.length > 1) {
+  const drawn = new Set(marks.map((m) => `${m.bg}|${m.ring}`));
+  check("two circles in different states are drawn differently",
+    drawn.size >= states.length,
+    states.map((st) => `${st}: ${marks.find((m) => m.state === st)?.bg}`).join(" · "));
+} else {
+  absent(1, `every letter of this guess landed in one state (${states[0] ?? "none"}), which a guess `
+    + "against the day's own word can do: there was nothing on the board to tell apart");
+}
 
 // The letters say what they are in words, because a fill and a ring are both
 // visual and a color may not be the only thing carrying a distinction.
