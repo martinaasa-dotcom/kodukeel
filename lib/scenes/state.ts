@@ -52,6 +52,26 @@ export interface TurnRecord {
   /** The words that met them, for the other side to repeat back. Absent on a row written before it was kept. */
   readonly matched?: readonly string[];
   /**
+   * Every word that met a requirement, unfiltered (`Evidence.satisfiedBy`),
+   * so the grades can tell a beat the learner answered from one the scene let
+   * through without them producing anything.
+   *
+   * Always written, and **empty is the point**: a greeting is met by whatever
+   * the learner says back, so an empty list here says the beat was met and no
+   * word was produced, and `gradesFor` writes no row for it. Spreading it in
+   * only when non-empty, the way `matched` is, would make "nothing produced"
+   * indistinguishable from "written before this existed", and the review log
+   * would go on claiming somebody recalled `Tere!` when they had said
+   * something else entirely. Absent only on a row written before the field.
+   */
+  readonly produced?: readonly string[];
+  /**
+   * Which of the beat's requirements were met by a word standing in for the
+   * one it named (`Evidence.substituted`). The beat is met and the grades skip
+   * it, because the learner produced their own word rather than the scene's.
+   */
+  readonly substituted?: readonly number[];
+  /**
    * What was understood despite itself: a dropped diacritic, the right word
    * in the wrong case, an infinitive where a person was due. Absent where the
    * turn was right, and on a row written before slips were read. The grades
@@ -62,6 +82,8 @@ export interface TurnRecord {
   readonly asked?: string;
   /** Whether the app had to supply a word for this beat before it was met. */
   readonly helped: boolean;
+  /** Whether the learner asked for English on this turn, so the move is put into it. */
+  readonly wantsEnglish?: boolean;
 }
 
 /**
@@ -168,6 +190,9 @@ export function advance(
     helped,
     ...(heard ? { heard } : {}),
     ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
+    produced: evidence.satisfiedBy,
+    substituted: evidence.substituted,
+    ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),
   }];
@@ -195,6 +220,24 @@ export function advance(
   */
   if (evidence.reading === "lost" && !waitedAlready) {
     return { state: { ...state, turns }, response: "help" };
+  }
+
+  /*
+    THEY ASKED FOR ENGLISH, WHICH THE COURSE TEACHES THEM TO DO.
+
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and it is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked again: this app
+    teaching a phrase on one screen and ignoring it on another.
+
+    It costs no patience, for the reason saying you are lost costs none: it is
+    a person taking part rather than failing, and a scene that ran out of
+    patience on somebody asking for help would be the module's whole purpose
+    pointed backwards. Only where nothing landed, because a turn that answered
+    the question is an answer whatever else is in it.
+  */
+  if (evidence.wantsEnglish && evidence.missing.length === beat.needs.length) {
+    return { state: { ...state, turns }, response: "english" };
   }
 
   if (advances(evidence.reading) || taken) {
@@ -395,6 +438,8 @@ export function advanceHurdle(
     reading: evidence.reading,
     met: evidence.met,
     helped: false,
+    produced: evidence.satisfiedBy,
+    substituted: evidence.substituted,
     ...(heard ? { heard } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),

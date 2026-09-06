@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { resolveProvider, TutorError } from "@/lib/tutor/provider";
+import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { gradeSentence } from "@/lib/tutor/grader";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import {
@@ -119,7 +119,15 @@ export async function POST(request: Request) {
   // verification. Only the first is owed its authorization back.
   let settled = false;
   try {
-    const { graded, usage } = await gradeSentence(config, {
+      /*
+    A chain rather than the head of one, so a grader note has a last resort.
+    Anthropic sits behind Groq only while the day's fallback budget has room:
+    past it the chain is one link, and a note that cannot be written is dropped
+    exactly as it was before this existed. The verdict the learner acts on was
+    decided by string comparison against the dictionary before any of this ran.
+  */
+  const chain = resolveProviders({ purpose: undefined, allowFallback: decision.fallbackAllowed });
+  const { graded, usage, config: answered } = await gradeSentence(chain, {
       task,
       sentence,
       level,
@@ -130,7 +138,7 @@ export async function POST(request: Request) {
     }, formCheck.used);
 
     after(() => recordUsage({
-      ownerId, kind: "GRADER", provider: config.name, model: config.model,
+      ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
       // Priced at the cache rates where the provider reported a split.
       cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
@@ -156,7 +164,7 @@ export async function POST(request: Request) {
         reportError(new Error("grader introduced an unverified Estonian form"), {
           at: "api/write/verify",
           ownerId,
-          extra: { model: config.model, unverified: verified.unverified, lemma: lexeme.lemma },
+          extra: { model: answered.model, unverified: verified.unverified, lemma: lexeme.lemma },
         });
       }
       reply = verified.graded;

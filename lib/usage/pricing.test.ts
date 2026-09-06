@@ -77,9 +77,19 @@ describe("the price of a cached input token", () => {
     expect(estimateCostMicros(MODEL, -50, -50, { cachedInputTokens: -10 })).toBe(0);
   });
 
-  it("still charges nothing for a model given away free, cached or not", () => {
-    expect(estimateCostMicros("qwen/qwen3.8-27b", 5_000, 500, { cachedInputTokens: 4_000 })).toBe(0);
+  /*
+    A `:free` SLUG IS THE ONLY THING THAT IS FREE, AND THAT IS A CORRECTION.
+    This asserted that `qwen/qwen3.8-27b` costs nothing, which was true of the
+    table on the day it was written and was never true of the invoice: Groq's
+    own /v1/models reports $0.80 and $4.00 per MTok for it. A cap that prices a
+    paid model at zero is a cap that fails open, so the rows were corrected to
+    the API's figures. What stays free is a slug that says so.
+  */
+  it("charges nothing only for a slug the provider marks free, cached or not", () => {
     expect(estimateCostMicros("google/gemma-4-31b-it:free", 5_000, 500)).toBe(0);
+    expect(estimateCostMicros("google/gemma-4-31b-it:free", 5_000, 500, { cachedInputTokens: 4_000 })).toBe(0);
+    // And a model somebody is billed for is billed for, cache or no cache.
+    expect(estimateCostMicros("qwen/qwen3.8-27b", 5_000, 500)).toBeGreaterThan(0);
   });
 
   /*

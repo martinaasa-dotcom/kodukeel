@@ -243,23 +243,14 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
         <Finish puzzle={puzzle} helped={helped.length} />
       ) : (
         <Card>
+          {/*
+            The quiet way out first and the loud one last, which is the rule
+            everywhere else in the app: the primary sits on the right, where a
+            thumb and a reading eye both end up. "Check" was a secondary beside
+            it, so the one thing this screen is for was drawn at the weight of
+            "show me the answer".
+          */}
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              className="flex-1"
-              onClick={() => {
-                setChecked(Object.keys(typed).map(Number));
-                const bad = wrongCells(puzzle, typed).size;
-                setSaid(
-                  bad === 0
-                    ? "Every letter you have filled in is right."
-                    : `${bad} ${bad === 1 ? "letter is" : "letters are"} wrong.`,
-                );
-              }}
-            >
-              <Check size={16} aria-hidden /> Check
-            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -276,6 +267,24 @@ export function CrosswordSession({ puzzle, day }: { puzzle: DailyCrossword; day:
               }}
             >
               <Eye size={16} aria-hidden /> Show this one
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              className="flex-1"
+              /* Main's own reading of the result, kept: marking in silence
+                 tells a reader who cannot see the cells nothing at all. */
+              onClick={() => {
+                setChecked(Object.keys(typed).map(Number));
+                const bad = wrongCells(puzzle, typed).size;
+                setSaid(
+                  bad === 0
+                    ? "Every letter you have filled in is right."
+                    : `${bad} ${bad === 1 ? "letter is" : "letters are"} wrong.`,
+                );
+              }}
+            >
+              <Check size={16} aria-hidden /> Check
             </Button>
           </div>
         </Card>

@@ -175,7 +175,8 @@ export function CheckpointSession({
             placeholder={question.kind === "gap" ? BLANK : undefined}
             onEnter={submit}
           />
-          <Button onClick={submit} className="self-start" disabled={saving}>
+          {/* The one action on a checkpoint question, so the loud one. */}
+          <Button variant="primary" onClick={submit} className="self-start" disabled={saving}>
             {at + 1 === total ? "Finish" : "Next"}
           </Button>
           {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Marking…</p>}

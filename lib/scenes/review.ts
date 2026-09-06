@@ -140,12 +140,28 @@ export function reviewOf(_scene: SceneSpec, state: SceneState): SceneReview {
   */
   const landed = turns.filter((t) => t.reading === "complete" || t.met.some(Boolean));
   const read = turns.filter((t) => t.reading !== "unrecognised" && t.reading !== "english");
-  const slips = turns.flatMap((t) => t.slips ?? []);
+  const every = turns.flatMap((t) => t.slips ?? []);
+  /*
+    A WORD REACHED FOR IN ENGLISH IS NOT AN ENDING THAT WAS OFF. It is carried
+    as a slip so the other side says the Estonian back and the debrief can
+    name it, and it is a different thing from a spelling or a case: counting
+    it in "two endings or spellings were off" would tell a learner they got a
+    form wrong when what happened is that they did not have the word yet.
+  */
+  const slips = every.filter((slip) => slip.kind !== "english");
 
   const englishAt = state.turns.findIndex((t) => t.reading === "english");
   const notes = onceEach([
     ...notesFrom(state),
     ...englishNote(turns.filter((t) => t.reading === "english").length, Math.max(englishAt, 0)),
+    /*
+      And the words they reached for in English, which is this branch's note and
+      not one `notesFrom` builds: it is read off `SceneGap` rather than off a
+      slip, so it has no row in the by-word grouping that rewrite is built on.
+      Last, because it is a list of things to learn rather than a reason
+      something came out wrong.
+    */
+    ...reachedNote(state),
   ]);
 
   return {
@@ -396,6 +412,38 @@ function lead(n: {
  * say how often it happened and why it matters, on a screen the conversation
  * is already over on.
  */
+/**
+ * The words they reached for in English, each with the Estonian beside it.
+ *
+ * The kindest thing in the debrief and the one worth reading twice: these are
+ * the words a learner wanted badly enough to say in the wrong language, which
+ * is a better list of what to learn next than anything a scheduler could pick.
+ * Nothing is graded for them, since they did not produce the Estonian.
+ *
+ * ONE NOTE PER WORD, in the shape every other note takes. It was one note
+ * listing several, which was written against the old shape and does not fit
+ * this one: a note is now the learner's own word, the form beside it, and the
+ * turn it happened in, and a list rolled into a single row can carry none of
+ * those. Read through `slipsInOrder` rather than off a flat list, because that
+ * is the one place the turn a slip happened in is known.
+ */
+function reachedNote(state: SceneState): ReviewNote[] {
+  const seen = new Map<string, Slipped>();
+  for (const row of slipsInOrder(state)) {
+    if (row.slip.kind !== "english") continue;
+    if (!seen.has(row.slip.lemma)) seen.set(row.slip.lemma, row);
+  }
+  return [...seen.values()].map((row) => ({
+    id: `english-reach:${row.slip.lemma}`,
+    said: row.slip.said,
+    form: row.slip.form,
+    what: "the word you were reaching for",
+    body: "You knew what you wanted to say and not yet how to say it, which is the shortest list "
+      + "there is of what to learn next.",
+    at: row.at,
+  }));
+}
+
 function englishNote(count: number, at: number): ReviewNote[] {
   if (count === 0) return [];
   return [{

@@ -16,7 +16,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom } from "@/lib/audio/conditions";
+import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 
 // Not cached at build time: `configured` below is read from the environment,
 // and a notice baked in from the build machine's environment describes
@@ -31,7 +31,14 @@ export const dynamic = "force-dynamic";
  * — sit in `app/(chromeless)/` and get none of it.
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const chain = resolveProviders();
+  /*
+    Anu's own chain, because this decides whether her button offers a
+    conversation. A screen may not promise what the route will refuse: since
+    the purpose split, `/api/tutor` asks Anthropic and nothing else, so reading
+    the general chain here would draw a live button on a deployment that has
+    OpenRouter configured and no Anthropic key.
+  */
+  const chain = resolveProviders({ purpose: "tutor" });
   /*
     Two settings the shell needs, in one read rather than two.
 
@@ -64,6 +71,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     autoplay: autoplayFrom(settings[SETTING_KEYS.autoplayAudio]),
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
+    support: supportFrom(settings[SETTING_KEYS.support]),
   };
   return (
     <AudioPrefsProvider value={audio}>

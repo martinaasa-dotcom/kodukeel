@@ -42,7 +42,7 @@ import {
 } from "@/lib/settings/store";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
-import { hearingFrom } from "@/lib/audio/conditions";
+import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -1018,7 +1018,14 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // How many times they have had this one before, which is what opens the
     // hearing pool for the other side's lines.
     plays: opened.plays,
-    composed: resolveProviders().length > 0,
+    /*
+      The scene chain, not the general one. This is what tells the briefing
+      whether the other side's lines can be freshly composed or will come off
+      the bank, and `/api/scene` asks Groq alone since the purpose split: an
+      Anthropic-only deployment would otherwise promise composition that the
+      route is never going to attempt.
+    */
+    composed: resolveProviders({ purpose: "scene" }).length > 0,
   };
 }
 
@@ -1395,6 +1402,22 @@ export async function setFeedbackSounds(value: string) {
  * Whether the listening rounds vary the delivery, or keep the studio.
  * Normalized on the way in like the other three; the shell publishes it.
  */
+/**
+ * Whether a conversation is heard before its words are shown.
+ *
+ * In a shop you do not get the subtitles, and every line in a scene has been
+ * text and audio at once, so catching it the first time at somebody else's
+ * speed was the one thing a rehearsal never rehearsed. Off by default, since
+ * it is harder than what everybody has had.
+ */
+export async function setSupport(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = supportFrom(value);
+  await writeSetting(ownerId, SETTING_KEYS.support, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
 export async function setHearing(value: string) {
   const ownerId = await requireUserId();
   const normalised = hearingFrom(value);

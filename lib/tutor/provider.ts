@@ -12,8 +12,8 @@
  * the wrong tool once a whole minute of quota is gone. If a second key is
  * configured, walking past the exhausted provider costs one request and gets
  * the learner an answer; refusing when there was another way to ask is the
- * app choosing to fail. The order is deliberate: free first, so the paid key
- * is the fallback rather than the default.
+ * app choosing to fail. The order is deliberate: Groq first, because it is the
+ * cheap measured one, then any free tier, then the dear keys last.
  *
  * WHICH ONE ANSWERED IS THEN A FACT ABOUT THE ANSWER, and the app says so.
  * `streamReply` reports the provider that actually served the stream, never
@@ -24,6 +24,25 @@ import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
 
 export type ProviderName = "openrouter" | "groq" | "gemini" | "openai" | "anthropic";
+
+/**
+ * How much a reply may cost in tokens, and why it is not small.
+ *
+ * A scene line is one short Estonian sentence and the obvious budget for one is
+ * a few dozen tokens. That is wrong on the models this app is built to run on:
+ * several free models spend their whole budget in a reasoning field and write
+ * into `content` only once they have finished thinking, so a tight cap returns
+ * HTTP 200 with an empty string. Measured on one beat with the route's own
+ * prompt: at 80 tokens `openai/gpt-oss-120b` and `gemini-3.6-flash` both
+ * answered empty; at 1200 both wrote a clean line. An empty answer is
+ * indistinguishable from a bad minute one rung down, so the cap was quietly
+ * deciding which free models this app can use.
+ *
+ * Exported so a script measuring which model to put in front measures the app
+ * rather than itself, which is the rule `PROVIDER_KEY_ENV` states about lists
+ * that live in a test.
+ */
+export const REPLY_TOKENS = 1200;
 
 export interface ProviderConfig {
   name: ProviderName;
@@ -92,22 +111,223 @@ export const PROVIDER_KEY_ENV = [
   "OPENAI_API_KEY",
 ] as const;
 
-export function resolveProviders(): ProviderConfig[] {
-  const chain: ProviderConfig[] = [];
-  if (process.env.OPENROUTER_API_KEY) {
-    for (const model of openRouterModels()) {
-      chain.push({ name: "openrouter", model, label: "OpenRouter" });
-    }
-  }
-  /*
-    Free providers before paid ones, and independent of OpenRouter.
+/**
+ * What a chain is being built *for*.
+ *
+ * "tutor" is Anu: general questions about grammar and vocabulary, asked rarely
+ * and answered at length. "scene" is one line of a role-play conversation:
+ * asked constantly, answered in at most fourteen words, inside a closed word
+ * list the gate then checks four ways.
+ *
+ * They are different jobs and the measurements say so, which is why they no
+ * longer share a chain. See `PURPOSE_CHAINS` for which provider answers which
+ * and what the evidence was.
+ */
+export type ProviderPurpose = "tutor" | "scene";
 
-    The order is the policy: everything a stranger can set up without a card is
-    tried first, and a paid key is only ever reached once all of it has failed.
+export interface ChainOptions {
+  /**
+   * Omit for the chain the app has always built: every configured provider,
+   * cheapest-first. That default is what the twenty-odd callers asking "is any
+   * model configured at all" mean, and none of them is choosing a model.
+   *
+   * Name a purpose and the chain leads with that purpose's own provider.
+   */
+  purpose?: ProviderPurpose;
+  /**
+   * Whether Anthropic may be appended as the last resort.
+   *
+   * Defaults to true, so a caller that has not thought about it gets the
+   * behaviour the chain has always had. What passes `false` is a caller that
+   * has asked the ledger and been told the day's fallback budget is spent:
+   * `authoriseCall` answers it, because only the ledger knows.
+   *
+   * WHY THIS IS A PARAMETER AND NOT A READ. Everything under `lib/tutor/` that
+   * builds a chain is pure and may not open a database, which is the same rule
+   * `lib/usage/pricing.ts` keeps against `lib/usage/ledger.ts`. So the fact
+   * travels in rather than being fetched, and the one place that knows it is
+   * the one place already holding a transaction open to find out.
+   */
+  allowFallback?: boolean;
+}
+
+/**
+ * Which provider answers which job, and why it is a routing table rather than
+ * an order.
+ *
+ * THE CHAIN WAS ONE LIST TRIED IN ONE ORDER, and that is the right shape while
+ * every link is a free model and the only question is which of them is awake.
+ * It is the wrong shape once two paid keys are configured for two different
+ * reasons, because then "whichever answers first" is a cost decision and a
+ * quality decision being made by a rate limiter.
+ *
+ * SCENE COMPOSITION GOES TO GROQ. A scene line is one short sentence built out
+ * of a word list the route hands over, and `lib/scenes/gate.ts` checks it four
+ * ways before a learner sees it, so what is wanted from the model is constraint
+ * compliance at speed and nothing deeper. `npm run eval:composers` measured
+ * exactly that and `qwen/qwen3.8-27b` was the strongest link tested for this
+ * one job: 24 of 24 calls answered, every one carrying a finite verb, at a
+ * quarter-second median. It is also about a fortieth of Sonnet's per-token
+ * price, and this is the path that makes calls by the dozen: a conversation is
+ * a dozen turns and a learner plays several.
+ *
+ * ANU GOES TO ANTHROPIC. A tutor answer is the opposite shape. It is asked a
+ * handful of times a day, it is open-ended, and it is read by somebody who
+ * cannot check it, so being right about Estonian matters more than being cheap
+ * or quick. Sonnet scored highest of everything tested on a native-Estonian
+ * benchmark, and at Anu's call volume the per-token difference is small enough
+ * to be worth paying.
+ *
+ * WHAT THIS IS NOT is a change to `openWithFallback`. The mechanism underneath
+ * is untouched: a purpose still gets a chain, the chain is still walked in
+ * order, and the provider that actually answered is still what the ledger and
+ * the response header are told. What changed is which links go in it.
+ */
+const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[]) => void>> = {
+  tutor: (chain) => {
+    if (!process.env.ANTHROPIC_API_KEY) return;
+    chain.push({
+      name: "anthropic",
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
+      label: "Anthropic",
+    });
+  },
+  scene: (chain) => {
+    if (!process.env.GROQ_API_KEY) return;
+    // Groq leads; `resolveProviders` appends the fallback behind it, if the
+    // day's fallback budget still has room for one.
+    /*
+      `SCENE_MODEL` rather than `GROQ_MODEL`, deliberately.
+
+      `GROQ_MODEL` configures the general chain, which is a different decision
+      made for a different reason: a deployment that pins it to whatever is
+      cheapest this week would silently move scene composition off the model the
+      eval actually ranked, and nothing would fail. A measured choice is worth
+      its own variable.
+    */
+    for (const model of configuredModels(process.env.SCENE_MODEL, SCENE_GROQ_MODELS)) {
+      chain.push({ name: "groq", model, label: "Groq" });
+    }
+  },
+};
+
+/**
+ * The model scene composition asks, and why it is one name rather than three.
+ *
+ * `FREE_GROQ_MODELS` carries three because a free model is retired without
+ * notice and walking past a 404 within one provider costs a request where
+ * refusing costs the learner their answer. That reasoning does not survive
+ * `lib/usage/pricing.ts`: this deployment bills for its Groq calls, and the
+ * only model here whose paid rate has been checked against Groq's own pricing
+ * page is this one. A fallback to a model the price table cannot price is a
+ * call charged at `UNKNOWN_MODEL`, which is the dearest rate in the table, so
+ * the fallback that was protecting availability would be spending the scene
+ * budget forty times faster than the line it replaced.
+ *
+ * The scene ladder already has somewhere to go, which is what makes one name
+ * safe here where it would not be for Anu. A composed line is the third rung:
+ * below it are the recorded usages, the drafted bank in `lib/scenes/bank.ts`,
+ * and the phrase the other side says when it did not catch that. A deployment
+ * with no key at all plays all fourteen scenes start to finish (§16), so a
+ * retired slug costs a conversation some freshness and never the conversation.
+ *
+ * Naming a second model here is a two-line change and a price row.
+ */
+export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
+
+/**
+ * Every provider with a key, in the order they should be tried.
+ *
+ * With no `purpose` this is Groq first and the dear keys last, one link per
+ * free model. That chain is what `providerResilience`, the Settings
+ * panel, the recipients list and every "is a model configured" read mean, and
+ * none of them is picking a model to send anything to.
+ *
+ * With a `purpose` it is that purpose's provider and nothing else. There is no
+ * cross-purpose fallback and that is a decision rather than an omission: see
+ * the note on `PURPOSE_CHAINS`, and `docs/05-integrations.md` for the argument
+ * against letting a Groq outage take Anu down with it.
+ */
+export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
+  const allowFallback = options.allowFallback ?? true;
+
+  if (options.purpose) {
+    const chain: ProviderConfig[] = [];
+    PURPOSE_CHAINS[options.purpose](chain);
+    /*
+      THE LAST RESORT, AND THE THING THAT MAKES IT SAFE TO HAVE ONE.
+
+      A purpose whose own provider is having a bad hour used to have nowhere to
+      go, which was deliberate: the note above says a Groq outage routed to
+      Anthropic would drain the balance Anu depends on, so one provider's bad
+      hour would take down the feature with no fallback at all.
+
+      That argument was about an *ungated* fallback. What makes this safe is
+      `allowFallback`, which the ledger sets false the moment the day's
+      dedicated fallback budget is spent: the fallback is bounded, small, and
+      separate from every per-kind slice, so the worst a total Groq outage can
+      cost the Anthropic balance is that one number. Past it the chain is the
+      purpose's own provider again, that provider is down, and the purpose
+      degrades exactly as it did before this existed — a scene off its
+      recorded and banked lines, which is how a keyless deployment plays all
+      fourteen of them.
+
+      Anu is the exception and takes no fallback at all. Her provider *is*
+      Anthropic, so there is nothing behind it but Groq, and `npm run
+      eval:anu` measured what Groq does with her questions: it called the
+      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
+      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
+      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
+      app parses. A fallback that answers wrongly is worse than one that does
+      not answer, because the learner cannot tell.
+    */
+    if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
+      if (!chain.some((c) => c.name === "anthropic")) {
+        chain.push({
+          name: "anthropic",
+          model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
+          label: "Anthropic",
+        });
+      }
+    }
+    return chain;
+  }
+  const chain: ProviderConfig[] = [];
+  /*
+    GROQ LEADS, AND THE POLICY THIS REPLACED WAS "FREE FIRST".
+
+    That rule was written when the only way to run this app without a card was
+    OpenRouter's free models, so the order encoded "everything a stranger can
+    set up for nothing is tried before anything that bills". It is still the
+    right instinct for an install with a free key and no budget, and it is no
+    longer the right *default*, for a reason the price table now makes plain:
+    Groq's rate is $0.29 and $0.59 per MTok, which is a fortieth of what the
+    dearest link in this chain charges and close enough to nothing that
+    preferring a rate-limited free model over it buys a 429 to save a
+    hundredth of a cent. A free model is limited hard upstream by design, so
+    "free first" spends the learner's wait rather than the operator's money.
+
+    So the ordering rule is now: the measured, cheap, reliable provider first,
+    then whatever free tiers an install has, then the dear ones. `worthFalling
+    BackFrom` is untouched, so a throttled Groq still walks to whatever is
+    behind it.
+
+    THIS IS THE GENERAL CHAIN ONLY. Anu and scene composition do not read it
+    (see `PURPOSE_CHAINS`); what it serves is the writing grader, the
+    dictionary's translation and the page scanner. On an install carrying only
+    the two keys this app is now run with, it is Groq then Anthropic, which is
+    exactly the ranking above and was already the ranking before this moved.
+    What the move changes is that it stays the ranking on an install that also
+    has a free key, rather than depending on which keys happen to be set.
   */
   if (process.env.GROQ_API_KEY) {
     for (const model of configuredModels(process.env.GROQ_MODEL, FREE_GROQ_MODELS)) {
       chain.push({ name: "groq", model, label: "Groq" });
+    }
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    for (const model of openRouterModels()) {
+      chain.push({ name: "openrouter", model, label: "OpenRouter" });
     }
   }
   if (process.env.GEMINI_API_KEY) {
@@ -115,14 +335,20 @@ export function resolveProviders(): ProviderConfig[] {
       chain.push({ name: "gemini", model, label: "Google Gemini" });
     }
   }
-  if (process.env.ANTHROPIC_API_KEY) {
+  /*
+    The dear tail of the general chain is a fallback like any other, and is
+    gated like one. Groq leads it and the free tiers sit behind Groq, so
+    anything reached down here is reached because everything cheaper failed,
+    which is exactly the traffic the fallback budget exists to bound.
+  */
+  if (allowFallback && process.env.ANTHROPIC_API_KEY) {
     chain.push({
       name: "anthropic",
       model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
       label: "Anthropic",
     });
   }
-  if (process.env.OPENAI_API_KEY) {
+  if (allowFallback && process.env.OPENAI_API_KEY) {
     chain.push({
       name: "openai",
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
@@ -624,7 +850,7 @@ async function callOpenAiCompatible(
       // Without this the stream carries no usage frame and the ledger has to
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),
@@ -677,7 +903,7 @@ async function callAnthropic(config: ProviderConfig, system: string, messages: C
     body: JSON.stringify({
       model: config.model,
       stream: true,
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than
@@ -767,6 +993,98 @@ export interface CompletedReply {
 }
 
 /**
+ * WHICH MODEL A CONVERSATION IS COMPOSED WITH, WHICH IS THE HARDEST READING
+ * JOB IN THIS APP.
+ *
+ * Every other paid path here asks a model to do something bounded: translate a
+ * word, mark a form, read a photograph. A scene asks it to follow a
+ * conversation with a beginner, in a language most models are thin on, inside a
+ * closed word list, and write one line that is about what the person actually
+ * said. `runGate` then withholds the line whole if it reaches outside the list,
+ * and `npm run eval:scene` has measured that at between 43 and 70 percent
+ * withheld: on a free model, most of what it writes never reaches anybody, and
+ * the learner gets a stage direction instead of a conversation. **Comprehension
+ * is not a nicety on this path, it is most of what decides whether the module
+ * works at all.**
+ *
+ * So a deployment may point scenes at a better model than it uses for chat,
+ * and the shape is the one `visionProviders` already established: an override
+ * per provider, and **nothing by default**, because turning a conversation on
+ * must not move a free-model deployment onto a paid one behind the operator's
+ * back. A deployment that sets none of these is composed exactly as it was.
+ *
+ * The one thing this does beyond substituting a name is **order**. The chat
+ * chain is free first, which is the right policy when every link can do the
+ * job; here an operator who has named a model for scenes has said which one
+ * they want asked, and trying three free ones first would spend the turn's
+ * booking on the models they were choosing against. So a provider carrying an
+ * explicit scene model goes to the front, and everything else keeps its place
+ * behind as the fallback it already was.
+ */
+export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
+  /*
+    TWO SESSIONS BUILT THIS AND THIS IS BOTH OF THEM.
+
+    Main's version read the *general* chain, applied a `*_SCENE_MODEL` override
+    per provider and moved any provider carrying one to the front. This branch
+    built a purpose-scoped chain instead: Groq alone, on the model
+    `eval:composers` ranked, with Anthropic behind it only while the day's
+    fallback budget has room. Both answer "which chain does a scene use" and a
+    clean three-way merge would have shipped two of them.
+
+    Neither is redundant, because they are about different halves. Main's is
+    model *selection*: an operator who has a better model somewhere should be
+    able to point conversations at it, and the comment above says why
+    comprehension decides whether this module works at all. This branch's is
+    cost *isolation*: a scene must not be able to spend the balance Anu runs
+    on, which is what the per-purpose caps and the bounded fallback are for.
+
+    So the override and the ordering are main's, unchanged, and what they are
+    applied to is the purpose chain rather than the general one. An install that
+    names no scene model gets Groq then the gated fallback; one that names a
+    model gets it asked first, which is what naming it meant.
+
+    KNOWN WART, WRITTEN DOWN RATHER THAN HIDDEN. `globalFallbackMicros` counts
+    Anthropic answering a SCENE as fallback traffic, and an operator who sets
+    `ANTHROPIC_SCENE_MODEL` has made it a primary. Such a deployment is
+    rationed by the fallback budget when it should not be. It errs toward
+    under-spending, which is the safe direction, and the honest fix is for the
+    ledger to know which link was chosen rather than inferring it from the
+    provider. Not built here.
+  */
+  const override: Record<ProviderName, string | undefined> = {
+    openrouter: process.env.OPENROUTER_SCENE_MODEL,
+    groq: process.env.GROQ_SCENE_MODEL,
+    gemini: process.env.GEMINI_SCENE_MODEL,
+    anthropic: process.env.ANTHROPIC_SCENE_MODEL,
+    openai: process.env.OPENAI_SCENE_MODEL,
+  };
+
+  /*
+    The purpose chain first, then anything an operator has explicitly named for
+    scenes that is not already in it. Without the second half, naming
+    `OPENROUTER_SCENE_MODEL` on an install that has an OpenRouter key would do
+    nothing, which is main's feature deleted rather than merged.
+  */
+  const base = resolveProviders({ ...options, purpose: "scene" });
+  const named = resolveProviders({ allowFallback: true })
+    .filter((c) => override[c.name]?.trim());
+
+  const seen = new Set<string>();
+  const chosen: ProviderConfig[] = [];
+  const rest: ProviderConfig[] = [];
+  for (const config of [...base, ...named]) {
+    const explicit = override[config.name]?.trim();
+    const model = explicit || config.model;
+    const key = `${config.name}:${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    (explicit ? chosen : rest).push({ ...config, model });
+  }
+  return [...chosen, ...rest];
+}
+
+/**
  * Which model each provider is asked to look at pictures with.
  *
  * It defaults to whatever the deployment already configured for chat, because
@@ -777,7 +1095,7 @@ export interface CompletedReply {
  * a free-model deployment points the one feature that needs eyes at something
  * that has them.
  */
-export function visionProviders(): ProviderConfig[] {
+export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
   const override: Record<ProviderName, string | undefined> = {
     openrouter: process.env.OPENROUTER_VISION_MODEL,
     groq: process.env.GROQ_VISION_MODEL,
@@ -794,7 +1112,7 @@ export function visionProviders(): ProviderConfig[] {
   */
   const seen = new Set<string>();
   const chain: ProviderConfig[] = [];
-  for (const config of resolveProviders()) {
+  for (const config of resolveProviders(options)) {
     const model = override[config.name]?.trim() || config.model;
     const key = `${config.name}:${model}`;
     if (seen.has(key)) continue;
