@@ -11244,11 +11244,25 @@ check("a class cannot read a conversation", () => {
  * going to refuse, which is a failure misnaming its own cause.
  */
 check("each routed purpose asks for its own chain", () => {
+  /*
+    The scene route asks through `sceneProviders`, which is the scene chain plus
+    main's per-provider `*_SCENE_MODEL` override, so it is checked one level
+    down: the wrapper has to be built on the purpose, or the route is asking a
+    general chain wearing a scene-shaped name. That indirection is the merge of
+    two sessions' answers and is argued at the function itself.
+  */
+  const provider = code(join("lib", "tutor", "provider.ts"));
+  const scenePart = provider.slice(provider.indexOf("export function sceneProviders"));
+  assert.match(
+    scenePart,
+    /resolveProviders\(\s*\{[^}]*purpose:\s*"scene"/,
+    "sceneProviders no longer builds on the scene purpose, so a scene can reach " +
+    "whatever the general chain holds and the per-purpose budget stops meaning anything.",
+  );
+
   const routed: Readonly<Record<string, "tutor" | "scene">> = {
-    // The two routes that send something to a model.
+    // The routes and reads that must not take the general chain by accident.
     "app/api/tutor/route.ts": "tutor",
-    "app/api/scene/route.ts": "scene",
-    // And the three reads that decide whether a screen offers the feature at all.
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
     "app/actions.ts": "scene",
@@ -11325,9 +11339,8 @@ check("a metered route asks the ledger before offering a last resort", () => {
     "b becomes v" against a dictionary that says b : the consonant going, and
     inventing a lemma it then emitted as a VOCAB line.
   */
-  const provider = code(join("lib", "tutor", "provider.ts"));
   assert.match(
-    provider,
+    code(join("lib", "tutor", "provider.ts")),
     /options\.purpose\s*!==\s*"tutor"/,
     "lib/tutor/provider.ts no longer excludes the tutor from the fallback, so " +
     "Anu can now be answered by a model measured to get her grammar wrong.",
@@ -11445,15 +11458,37 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
     "scripts/draft-lines.ts no longer writes the bank, so a line could only get there by hand",
   );
 
+  /*
+    THE ORDER, AND IT IS NOT THE ORDER THIS INVARIANT WAS FIRST WRITTEN FOR.
+
+    It used to assert attested, then scripted, then composed, on the argument
+    that a line gated yesterday and read by a person since outranks one composed
+    a second ago. That weighs the two model-written rungs by how much review
+    they have had and misses what decides whether a line is any good in a
+    conversation: a banked line was written against the beat alone and a
+    composed one is written with this run in front of it. So the model leads,
+    and what this holds now is the two things that must survive it.
+
+    A recorded sentence still comes first, because the attested rung is
+    reachable only for a courtesy and what a model does with `Tere!` is
+    paraphrase it into something nobody says. And the bank is still always
+    reached, so no key, no answer or a withheld answer all land on it rather
+    than on the repair phrase.
+  */
   const line = code("lib/scenes/line.ts");
   const attestedAt = line.indexOf("pickAttested(request)");
   const scriptedAt = line.indexOf('provenance: "scripted"');
   const composeAt = line.indexOf("request.compose([])");
   assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
   assert.ok(
-    attestedAt < scriptedAt && scriptedAt < composeAt,
-    "the scripted rung is no longer between the recorded sentence and the live model. " +
-    "A lexicographer outranks a model, and a line gated yesterday and read since outranks one composed a second ago.",
+    attestedAt < composeAt && composeAt < scriptedAt,
+    "the ladder is no longer recorded, then composed, then banked. A lexicographer's " +
+    "courtesy outranks a paraphrase of it, and the bank is the net under the model rather than a rung above it.",
+  );
+  assert.ok(
+    !/if \(!request\.compose\) return fallbackLine/.test(line),
+    "the ladder returns the repair phrase where no model is configured, so a keyless deployment " +
+    "no longer reaches the bank at all",
   );
   assert.match(
     line,
@@ -11462,10 +11497,12 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
 
   const route = code("app/api/scene/route.ts");
-  const cheapAt = route.indexOf('cheap.provenance !== "fallback"');
+  const netAt = route.indexOf("const cheap = await sceneLine");
   const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
-  assert.ok(cheapAt > 0 && bookAt > 0 && cheapAt < bookAt,
-    "the route books a call before trying the rungs that cost nothing, so a scripted line rations a learner over a request nobody made");
+  assert.ok(netAt > 0 && bookAt > 0 && netAt < bookAt,
+    "the route books a call before working out what it would say without one, so the net is assembled while somebody is waiting");
+  assert.match(route, /if \(cheap\.provenance === "attested"\) return/,
+    "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
   assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
 
   assert.match(
@@ -11684,8 +11721,9 @@ check("a scene understands a slip before it marks one, and says so", () => {
     "lib/scenes/grades.ts no longer reads a slip, so a word understood with the wrong ending grades Good",
   );
   assert.match(
-    code("lib/scenes/reply.ts"), /input\.recast \? "recast" : "echo"/,
-    "replyFor no longer labels a recast as the learner's word put right, or an unslipped echo as said again",
+    code("lib/scenes/reply.ts"), /input\.english \? "offered" : input\.recast \? "recast" : "echo"/,
+    "replyFor no longer labels a recast as the learner's word put right, an English reach as the word "
+    + "they were reaching for, or an unslipped echo as said again",
   );
   const session = code("components/scene/SceneSession.tsx");
   assert.match(session, /recast:/, "the scene screen has no label for a recast line");
@@ -11740,6 +11778,96 @@ check("a question the scene did not anticipate is answered before the move", () 
   assert.match(route, /spokenFor\.awaits && !standing/, "the scene route walks the ladder for a beat that opens with nothing, so the answer is said before the question");
   const scripted = code("lib/scenes/scripted.ts");
   assert.match(scripted, /export function answerBeatId\(/, "the bank has nowhere to hold a question-beat's answer");
+});
+
+check("a suite that measures colour measures a page that has finished arriving", () => {
+  /*
+    THE LANDING PAGE ARRIVES OVER ABOUT A SECOND, and a contrast check has no
+    notion of time. It brings its headline in a word at a time and its claims
+    640ms later, each with `both` fill, so an element part way through
+    `fade-up` is a real colour composited against the ground and axe reports it
+    as a real failure. Which elements were caught depended on when the run
+    happened: CI named the hero claims, and a probe at the same viewport with
+    the same axe configuration named three to sixteen nodes and never the same
+    set twice, then came back clean five times out of five with the motion off.
+    A check whose answer depends on the millisecond is not a check.
+
+    `reducedMotion: "reduce"` is this repository's own answer, already given by
+    `test-containment.mjs`, whose comment says the animations "are what would
+    otherwise be measured", and by `test-design.mjs`, which stops a letter
+    drifting before reading its angle. The a11y sweep was the one that had not
+    been told, and what it costs is nothing: `prefers-reduced-motion` collapses
+    every duration in `app/globals.css` and turns the scroll-driven reveal off
+    outright, so content that was tied to the scrollbar is now measured too.
+
+    Anchored on there being no bare `newPage` left, because a fifth context
+    added later is exactly how this comes back.
+  */
+  const a11y = read("scripts/a11y-check.mjs");
+  assert.match(
+    a11y, /browser\.newPage\(\{ viewport, reducedMotion: "reduce" \}\)/,
+    "the a11y sweep no longer stops the page moving before it measures its colours",
+  );
+  assert.doesNotMatch(
+    a11y, /browser\.newPage\(\{ viewport: /,
+    "a page in the a11y sweep is made outside the one helper, so it measures a page mid-entrance",
+  );
+  for (const file of ["scripts/test-containment.mjs", "scripts/test-design.mjs"]) {
+    assert.match(
+      read(file), /reducedMotion: "reduce"/,
+      `${file} stopped asking for the motion to be off, so it measures whatever frame it landed on`,
+    );
+  }
+});
+
+check("no Estonian word is set in a class that shouts it", () => {
+  /*
+    `label-xs` is 10.5px bold with wide tracking and `text-transform:
+    uppercase`, which is right over a section of English and wrong over a word
+    of Estonian: CLAUDE.md names this fault twice, once where a group heading
+    printed the ending `-sse` as `-SSE`, which no Estonian word ends in, and
+    once where a dictionary entry shouted a case name over the English in
+    italics under it. `Chip` already carries the remedy as a prop and calls it
+    `caseSensitive`; what it did not have was anything stopping the next raw
+    span doing it again, and the next raw span did, three times.
+
+    A SWEEP RATHER THAN A LIST, because a fourth one looks exactly like the
+    three. What it reads is the opening tag itself: an element that declares
+    `lang="et"` and carries an uppercasing class has to ask for its own case
+    back, either with `textTransform: "none"` or through `Chip`'s prop.
+  */
+  /*
+    ONE LETTER IS NOT A WORD, and a word game draws its board and its keys one
+    letter to a cell: `SONAD_LETTERS` is what those hold, an uppercase O with a
+    tilde is still that letter, and a tile of lower-case letters is not what
+    anybody has ever played. Named rather than pattern-matched, because what
+    makes it safe is the content and the sweep reads the opening tag; and the
+    name is checked for staleness below, so it cannot become a parking space.
+  */
+  const ONE_LETTER_AT_A_TIME = "app/(app)/sonad/SonadSession.tsx";
+  const shouted: string[] = [];
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx") && f !== ONE_LETTER_AT_A_TIME)) {
+    const src = code(file);
+    for (const tag of src.match(/<[A-Za-z][^<>]*?>/gs) ?? []) {
+      if (!/lang="et"/.test(tag)) continue;
+      if (!/label-xs|uppercase/.test(tag)) continue;
+      if (/textTransform:\s*"none"|caseSensitive/.test(tag)) continue;
+      shouted.push(`${file}: ${tag.replace(/\s+/g, " ").slice(0, 90)}`);
+    }
+  }
+  assert.deepEqual(
+    shouted, [],
+    "an Estonian word is set in an uppercasing class, so it reaches the screen shouted and misspelled. "
+    + 'Add textTransform: "none", or use a class that does not transform.\n' + shouted.join("\n"),
+  );
+  assert.match(
+    code(ONE_LETTER_AT_A_TIME), /lang="et"[\s\S]{0,400}?uppercase/,
+    `${ONE_LETTER_AT_A_TIME} no longer sets an Estonian letter in caps, so the exemption above is a parking space`,
+  );
+  assert.match(
+    code("components/ui.tsx"), /textTransform: caseSensitive \? "none" : undefined/,
+    "Chip lost the prop that keeps a form like `b : \u2205` as it was written",
+  );
 });
 
 check("a scene reviews itself in English, and the review teaches nothing it made up", () => {
@@ -11807,9 +11935,96 @@ check("a scene reviews itself in English, and the review teaches nothing it made
     "a scene's grades no longer carry the case that came back instead, so the confusion is lost",
   );
 
+  /*
+    AND IT LEADS IN WORDS SOMEBODY HAS. A learner reported this screen as
+    unreadable and the heading was most of why: it read the case's Estonian
+    name and its question word over a note about their own sentence, which is
+    exactly the fault `lib/estonian/plainAsk.ts` was written for one screen
+    over. The name is not gone, it is the cross-reference under it, so the
+    learner sitting a course still gets the word their teacher uses.
+  */
+  assert.match(
+    review, /whatFor\(slip\.kind, plain, spec\?\.suffix\)/,
+    "the review names an ending without saying what it is for, which is the heading a learner could not read",
+  );
+  /*
+    AND THE WORD LEADS. A learner read the version headed by the case and said
+    the word itself should come first: what they wrote, then what they were
+    reaching for, then the form that was wanted. A note is one word for that
+    reason, and it knows which turn it was in so the transcript on the same
+    screen can be pointed at rather than searched.
+  */
+  assert.match(
+    review, /said: slip\.said,[\s\S]{0,600}?at: first\.at,/,
+    "a review note no longer leads with the learner's own word, or no longer says which turn it was in",
+  );
+  assert.match(
+    review, /term: `\$\{spec\.et\}/,
+    "the review's notes no longer carry the name a class uses, so the Estonian name has gone rather than moved",
+  );
+  /*
+    And it says what was left undone once. It was on this screen three times:
+    ticked off in the objectives, again as a note, and again under "One thing
+    to work on" with the drill beside it.
+  */
+  assert.doesNotMatch(
+    review, /id: "missed"/,
+    "the review is printing the unmet goals again, beside the list that ticks them and the drill that fixes one",
+  );
+
   const debrief = code("components/scene/SceneDebrief.tsx");
   assert.match(debrief, /review\.lead/, "the debrief no longer prints the review's lead");
   assert.match(debrief, /review\.notes\.map/, "the debrief no longer prints the review's notes");
+  assert.match(
+    debrief, /note\.term &&/,
+    "the debrief drops the name a class uses, so a learner in a course cannot match the note to their lesson",
+  );
+  /*
+    And the learner's own word is labelled. `ulikool  is said  ulikooli` was
+    three runs of text with no label on any of them, and the likeliest reading
+    of it is that the first word is pronounced like the second.
+  */
+  assert.match(
+    debrief, /\{"It should be "\}/,
+    "the debrief prints the learner's form and the dictionary's with nothing saying which is which",
+  );
+  /*
+    AND THE NOTE IS PRESSABLE. The transcript is on the same screen, so a
+    learner asking "where did I do that" was being left to find it themselves.
+    It marks the turn and the word inside it, since a page that jumps and
+    highlights nothing has answered a different question.
+  */
+  assert.match(
+    debrief, /onClick=\{\(\) => show\(note\.at\)\}/,
+    "a review note no longer points at the turn it happened in",
+  );
+  assert.match(
+    debrief, /splitOnForm\(turn\.text, word\)/,
+    "the debrief scrolls to a turn without marking the word the note is about",
+  );
+  /*
+    AND THE TRANSCRIPT SAYS WHO SPOKE. Left and right and two inks are the
+    whole of what tells the two speakers apart, and both are things you have to
+    be looking at, so read aloud this section was one flat run of sentences in
+    two languages on the screen whose point is reading the exchange back.
+  */
+  assert.match(
+    debrief, /className="sr-only">\{turn\.who === "you" \? "You said/,
+    "the debrief's transcript says who spoke with position and colour alone, which is nothing to a screen reader",
+  );
+  /*
+    AND THE RECORD SITS UNDER THE TEACHING. The transcript is the one section
+    on this screen with no bound on its length: 1,056 of 2,339 pixels at 360 on
+    a seven-turn run, measured, and it used to sit between the outcome and
+    every actionable thing under it, so the review, the words to keep and the
+    drill were all a screen and a half down on a conversation that had barely
+    started. Read as source order rather than as markup, because what matters
+    is which section is written first (`docs/21-situations.md` §12 amendment 1).
+  */
+  assert.ok(
+    debrief.indexOf("How it went") < debrief.indexOf("What was said"),
+    "the debrief puts its transcript back in front of its teaching, so the review is a screen down again",
+  );
   assert.match(
     code("lib/progress/scene.ts"), /reviewOf\(scene, state\)/,
     "finishRun no longer derives the review from the run it just marked",
@@ -11906,9 +12121,13 @@ check("a learner who says they are lost is handed the word, never the question a
     a turn there was nothing in.
   */
   assert.match(
-    turn, /caughtSomething\(marked\) \? "offtarget" : "unrecognised"/,
+    turn, /caughtSomething\(marked\)/,
     "the repair phrase is decided on a share of the words again, so a learner using Estonian from "
     + "another unit is told they were incomprehensible",
+  );
+  assert.match(
+    turn, /shape\(tried \? "offtarget" : "unrecognised"\)/,
+    "the repair phrase is no longer the last resort it was written to be",
   );
   /*
     AND WHETHER THE LEARNER WAS UNDERSTOOD IS A WIDER QUESTION THAN WHAT THIS
@@ -11926,6 +12145,319 @@ check("a learner who says they are lost is handed the word, never the question a
     code("lib/progress/scene.ts"), /courseForms\(\)/,
     "the scene context no longer resolves what the course can account for",
   );
+  /*
+    AND THE COURSE IS 1,449 WORDS, WHICH IS NOT THE LANGUAGE. Everything else
+    read as noise, so the other side said `Ma ei saa aru` to a learner who
+    answered `Tere!` with `Tervitused!`: real Estonian, a real greeting, and
+    a word this course does not happen to teach. `prisma/data/forms/` is what
+    that file exists for, and this is its accept side: a spelling let through
+    here costs a turn being read as Estonian off the point rather than as
+    noise, and it can never meet a requirement, because a requirement is
+    still decided against the scene's own lexicon alone.
+  */
+  const sceneRead = code("lib/progress/scene.ts");
+  assert.match(
+    sceneRead, /isKnownForm/,
+    "the scene marker no longer asks the forms list, so a real Estonian word from outside the course "
+    + "is answered with the repair phrase",
+  );
+  for (const [file, calls] of [
+    ["app/api/scene/route.ts", 1],
+    ["lib/progress/scene.ts", 2],
+  ] as const) {
+    const source = code(file);
+    /*
+      Every caller of `replay` widens first. The reading a learner sees while
+      they are talking and the one written down when they stop come from one
+      function over one input, so a caller that skipped this would mark the
+      same turn two ways and the debrief would call a word incomprehensible
+      that the conversation had understood.
+    */
+    const replays = source.match(/\breplay\(/g)?.length ?? 0;
+    const widened = source.match(/await knowing\(/g)?.length ?? 0;
+    assert.ok(replays > 0, `${file} no longer replays a scene`);
+    assert.equal(
+      widened, calls,
+      `${file} replays a scene without widening what counts as Estonian first`,
+    );
+  }
+  /*
+    A MISS IS ANSWERED AS A MISS, AND THE QUESTION IS PUT AGAIN RATHER THAN
+    PUT DIFFERENTLY. A turn that landed got a word and then the next question;
+    a turn that was real Estonian off the point got nothing and then a
+    *rephrased* question, so on the screen the two were one event. A learner
+    read three questions and thought they had answered two of them.
+  */
+  const answering = code("lib/scenes/reply.ts");
+  assert.match(
+    answering, /REACTIONS\.missed/,
+    "a turn that missed is answered with nothing again, so it reads exactly like a turn that landed",
+  );
+  assert.match(
+    answering, /response === "narrow" && reading === "offtarget"/,
+    "a beat that missed is asked again in other words, so a learner cannot tell a re-ask from a new question",
+  );
+  /*
+    And letting a question go is not agreement. It drew from the
+    acknowledgment rotation, so running out of patience could come out as
+    `Aitäh.` or `Jah.`
+  */
+  assert.match(
+    answering, /response === "moveOn" && !aside\) \{[\s\S]{0,600}?REACTIONS\.letGo/,
+    "running out of patience is acknowledged like an answer, so giving up reads as agreement",
+  );
+  /*
+    AND A CASE IS ONLY CORRECTED WHERE THE WORD WAS THE ANSWER. `Piim on
+    otsas` is a correct sentence and was answered "Understood. Here it is
+    piima.": the app telling somebody their own good Estonian was wrong, in
+    the one place where being wrong is supposed to be survivable. This module
+    cannot parse a sentence, so it does not make claims about the middle of
+    one.
+  */
+  assert.match(
+    turn, /const isAnswer = \(word: string\) =>/,
+    "the marker corrects a case wherever the word turns up, so a correct sentence is answered with a correction",
+  );
+  /*
+    A COMPOUND OF THE WORD IS THE WORD, AND THE WHOLE SPELLING HAS TO BE ONE.
+    Estonian builds compounds on the head, so a spelling ending in a form of
+    the beat's word is that word with a modifier in front; without the second
+    guard a learner could meet any beat by gluing letters to its word.
+  */
+  assert.match(
+    turn, /compoundOf\(said, forms, isWord\)/,
+    "a compound of the beat's word is refused again, so naming the exact thing is a miss",
+  );
+  assert.match(
+    code("lib/scenes/nearly.ts"), /if \(!isWord\(said\)\) return null;/,
+    "a compound is accepted without the app vouching for the whole spelling, so any letters glued "
+    + "to the beat's word would meet it",
+  );
+  /*
+    AND THE WORD IN ENGLISH IS THE WORD, ANSWERED IN ESTONIAN. Reaching for a
+    word in the language you have is the commonest thing anybody does in a
+    second language. It is read after the requirements rather than before them,
+    or a turn that said the thing is answered as though nothing was said.
+  */
+  assert.match(
+    turn, /if \(missing\.length === 0\) return shape\("complete"\);\s*if \(isEnglish/,
+    "English is read before the requirements again, so a turn that met the beat in English is "
+    + "answered as though nothing was said",
+  );
+  /*
+    And what the model is handed about the learner's turn is the dictionary's
+    reading of it, not a second model's. `glossed.ts` vouches every word at the
+    confidence a photographed page has to clear, nothing here can advance the
+    scene, and the line that comes back is still checked four ways by the gate.
+  */
+  {
+    const route = code("app/api/scene/route.ts");
+    assert.match(
+      route, /const readingOf = async/,
+      "the composer is no longer told what the learner's turn means, so its line answers the beat "
+      + "rather than the person",
+    );
+    assert.match(
+      route, /glossSentences\(\[\{ et: text, form: null \}\]\)/,
+      "the reading of a learner's turn is made by something other than the dictionary",
+    );
+  }
+
+  /*
+    A SECOND WORD FOR THE SAME THING IS THE SAME THING, AND IT IS ONLY EVER
+    READ TO ACCEPT.
+
+    A beat may name only words its scene's units teach, so its list can never
+    hold every way Estonian says something and a learner who knew a second word
+    was refused for knowing it. `lib/dict/synonyms.ts` derives the relation from
+    the dictionary's own glosses. What keeps that inside ADR-005 is which side
+    of the app reads it, exactly as with the forms list: on the accept side a
+    wrong pair credits a turn, and on the answer side the same pair would put a
+    word the scene never taught into a card, a paper, or the other side's mouth.
+  */
+  const synonyms = "lib/dict/synonyms.ts";
+  assert.ok(existsSync(synonyms), "the substitution relation has gone");
+  assert.doesNotMatch(code(synonyms), /[õäöüšž]/i, "the substitution relation has started writing Estonian");
+  assert.doesNotMatch(
+    code(synonyms), /@\/lib\/db|@prisma\/client|\bprisma\./,
+    "the substitution relation has become a database read rather than a rule over glosses",
+  );
+  {
+    const readers = ["lib/srs", "lib/exam", "lib/assessment", "lib/scan", "lib/tutor", "lib/games"]
+      .flatMap((dir) => sourceFiles(dir))
+      .concat(["lib/scenes/gate.ts", "lib/scenes/retrieval.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts"])
+      .filter((file) => /substitutesFrom|\bsubstitutes\(|context\.substitutes/.test(code(file)));
+    assert.deepEqual(readers, [], "a module on the answer side reads the substitution relation");
+  }
+  /*
+    And a substitution is never graded as the word the beat named. The learner
+    produced their own word; a row for the beat's would tell the scheduler they
+    had recalled one they never wrote, in the table that is never repaired.
+  */
+  assert.match(
+    code("lib/scenes/grades.ts"), /turn\.substituted \?\? \[\]\)\.includes\(index\)/,
+    "a word standing in for the beat's own is graded as the beat's own",
+  );
+  /*
+    AND A GREETING CANNOT BE FAILED. A scene names the greetings its units
+    teach, which is two of them, and Estonian has many more: a learner
+    answered `Tere!` with `Tervitused!` and was told they had not been
+    understood. Nothing a refusal there could teach is worth that, and nothing
+    is graded for it either, since they may not have said the word.
+  */
+  assert.match(
+    turn, /beat\.move === "greet" && missing\.length > 0/,
+    "a greeting can be failed again, so a learner who says hello in a word the course does not "
+    + "teach is refused for knowing it",
+  );
+
+  /*
+    AND A PHRASE THIS APP TEACHES IS ANSWERED RATHER THAN PUNISHED.
+
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked the same thing
+    again. It costs no patience, for the reason saying you are lost costs
+    none, and it is answered whatever the persona would have done on its own.
+  */
+  assert.match(
+    turn, /spoken\.includes\(ASK_ENGLISH\)/,
+    "a learner asking for English is read as an ordinary turn again, so a phrase this app teaches "
+    + "is answered with the same question a third time",
+  );
+  assert.match(
+    code("lib/scenes/state.ts"), /evidence\.wantsEnglish && evidence\.missing\.length === beat\.needs\.length/,
+    "asking for English costs a try, so a scene can run out of patience on somebody asking for help",
+  );
+  assert.match(
+    answering, /input\.translates \|\| input\.askedForEnglish/,
+    "a brisk persona refuses to answer a learner who asked for English in Estonian",
+  );
+  /*
+    And one word nobody could place is not the repair phrase either: the probe
+    found `Tartusse` answered with "I did not understand", because the forms
+    list holds no capitalised word and so holds no place name in the country.
+  */
+  assert.match(
+    turn, /caughtSomething\(marked\) \|\| spoken\.length === 1/,
+    "a single unplaceable word is called incomprehensible again, which is every place name in "
+    + "Estonia in the scenes most likely to need one",
+  );
+
+  /*
+    AND WHEN THE WORDS ARE NOT LANDING, THEY NARROW THE QUESTION TO TWO.
+
+    Asking the same thing a third time is what a machine does; offering a
+    choice is what a person at a counter does, and it is a step down from
+    production to recognition, which is the step a teacher takes. In Estonian
+    and in character, so it is tried before the app's own English hint.
+  */
+  const choice = code("lib/scenes/choice.ts");
+  assert.ok(existsSync("lib/scenes/choice.ts"), "the narrowed question has gone");
+  assert.match(
+    answering, /const narrowed = input\.tries === NUDGE_AFTER/,
+    "the other side no longer narrows a question it has asked twice",
+  );
+  /*
+    And it writes no Estonian: every option is a lemma the beat named or a form
+    off the same table every case card reads, and the one word between them is
+    a course lemma the catalog test checks against every scene's units.
+  */
+  {
+    const estonian = [...choice.matchAll(/"([^"]*[\u00e4\u00f5\u00f6\u00fc\u0161\u017e][^"]*)"/gi)].map((m) => m[1]!);
+    assert.deepEqual(
+      estonian, ["v\u00f5i"],
+      "the narrowed question writes Estonian of its own rather than naming the beat's words",
+    );
+  }
+
+  /*
+    NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
+
+    Two halves, and neither is the other. The character says the word on the
+    way past when they give up, so a beat never ends in silence; and the app
+    says, in its own voice and in English, what is being waited for once the
+    learner has missed twice, because the other side of a conversation cannot
+    explain itself and a learner watching it ask a third time and give up
+    reads that as the app having decided they are stupid.
+  */
+  assert.match(
+    answering, /if \(input\.offer\) out\.push/,
+    "the other side gives up without saying the word it was waiting for",
+  );
+  assert.match(
+    answering, /coachFor\(beat, card\)/,
+    "a learner who is stuck is no longer told what the beat wants, so a scene can run out of "
+    + "patience on somebody who never found out what it was asking",
+  );
+  /*
+    And the hint holds no Estonian of its own. `lib/scenes/coach.ts` names a
+    lemma the beat already named, which the catalog test has checked against
+    the scene's own units, and it never spells a form: the ending is what a
+    case beat is drilling, so a hint that gave it would answer the question
+    and then let the scheduler record the learner as having produced it.
+  */
+  const coach = code("lib/scenes/coach.ts");
+  assert.doesNotMatch(coach, /[õäöüšž]/i, "the hint has started writing Estonian");
+  assert.doesNotMatch(
+    coach, /caseAnswer|caseForm|byCase|lexicon/i,
+    "the hint reaches the form table, so it can hand over the ending the beat is drilling",
+  );
+  /*
+    AND A SCENE THAT MOVES THE LEARNER SAYS SO. A scene can span an errand,
+    and the beats knew that while the screen did not, so somebody walked to a
+    shop was still, as far as anything on the screen said, in the kitchen
+    their card had put them in. They answered honestly and were refused for
+    it, three times, and reported the scene as broken.
+  */
+  assert.match(
+    answering, /beat\.meanwhile && beat !== answered/,
+    "a break in time is no longer printed, or is printed again on every miss",
+  );
+  {
+    /*
+      And the screen draws both, which is a different claim from the reply
+      building them: a provenance the component does not know renders as a
+      stage direction, so a hint would arrive as grey italics beside the
+      thing it exists to be distinguishable from.
+    */
+    const session = code("components/scene/SceneSession.tsx");
+    for (const kind of ["meanwhile", "coach"]) {
+      assert.match(
+        session, new RegExp(`line\\.provenance === "${kind}"`),
+        `the scene screen draws a ${kind} line as an ordinary stage direction`,
+      );
+    }
+    /*
+      And it reads the list of kinds off `lib/scenes/line.ts` rather than
+      keeping its own, which is how it came to know nine kinds on the day the
+      reply learned eleven.
+    */
+    assert.doesNotMatch(
+      session, /type Provenance = "attested"/,
+      "the scene screen keeps its own copy of the provenance list, so it can fall behind the reply",
+    );
+    /*
+      AND WHICH LINES ARE SPOKEN IS ONE DEFINITION, BECAUSE IT WAS THREE.
+
+      A reply is drawn by the screen, read by the fuzz harness and glossed by
+      the route, and each wrote out its own idea of which provenances are
+      Estonian somebody said. The day a line learned to be a break in time or
+      a hint from the app, the screen drew both as stage directions and the
+      harness reported the hint as an Estonian line with a digit in it, which
+      is what a list copied three times always does.
+    */
+    for (const file of ["components/scene/SceneSession.tsx", "app/api/scene/route.ts", "scripts/fuzz-scenes.ts"]) {
+      assert.match(
+        code(file), /isSpokenEstonian|isSaid/,
+        `${file} decides for itself which lines are spoken, so it can disagree with the others`,
+      );
+      assert.doesNotMatch(
+        code(file), /provenance !== "unspoken"/,
+        `${file} keeps its own copy of which lines are spoken`,
+      );
+    }
+  }
   /*
     And the gate is not widened with it. A model composing inside the course
     rather than inside the scene's own units is a line the learner has not
@@ -12970,6 +13502,72 @@ check("the primary button is the last one in its row", () => {
     }
   }
   assert.ok(rows >= 30, `only ${rows} button rows found; the sweep has stopped seeing them`);
+});
+
+/*
+  A LINE SAYS WHICH RUNG ANSWERED, IN WORDS AND IN THE MARKUP.
+
+  ADR-025's claim is that every line the other side says carries where it came
+  from, and the words under the bubble are how a reader is told. A suite reading
+  the same fact had to walk the markup to pair a line with its label, and
+  `scripts/test-scene.mjs` did it by counting hops. That was true until a line
+  grew the dictionary under it (`GlossedSentence`), which put two more elements
+  between the two: from then on every label the suite read came back empty, the
+  composed and the scripted checks fell into their waivers on every run in every
+  state, and the reason printed was that the bank held no line for a beat this
+  run reached, when the bank had just supplied one. A waiver that fires on every
+  possible run is a hole wearing a waiver's clothes.
+
+  So the rung travels as an attribute on the line's own wrapper, which is a fact
+  about the line rather than a shape in the markup, and the label stays beside
+  it for the reader. Both, or the suite goes blind again in silence.
+*/
+check("every line a scene says carries its rung", () => {
+  const source = code("components/scene/SceneSession.tsx");
+  assert.match(source, /data-rung=\{line\.provenance\}/,
+    "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
+  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+    "and the words under it are what a reader is told, which is ADR-025 itself");
+  const suite = readFileSync("scripts/test-scene.mjs", "utf8");
+  assert.match(suite, /\[data-rung\]/,
+    "test-scene.mjs reads the rung off the attribute rather than by walking the markup");
+});
+
+/*
+  ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
+
+  It says it in the file itself: only the primary carries the gradient, one loud
+  action per screen, everything else quiet. Twenty-one of the twenty-five round
+  screens did that and four did not, and each of the four was the same shape.
+  The lesson offered "Start these 6 words", the only thing to press on the way
+  into the course, in the same weight as the "Leave" two lines above it. The
+  checkpoint drew "Finish" as an ordinary pill. The crossword marked its own
+  "Check" `secondary` beside a ghost that hands over the answer. And a
+  conversation, which is a typed round like flash cards and dictation, drew
+  "Say it" as a secondary first in a row of four, so the thing the screen exists
+  for looked exactly like the button that walks out of it.
+
+  A screen, not a row: where the primary sits in its row is the check above.
+  This one only asks that a round has one at all, which is the half that goes
+  missing when a screen is built out of the neutral default.
+*/
+check("every round paints its one action in the accent", () => {
+  /*
+    Plus the conversation's finish screen, which is the one round whose end is
+    a module of its own rather than a branch inside the session: it recommends
+    in its own words that the second run of a scene is where most of it sticks,
+    and drew that quieter than the link away from it.
+  */
+  const rounds = [...SESSION_FILES(), "components/scene/SceneDebrief.tsx"];
+  assert.ok(rounds.length >= 20, `only ${rounds.length} round screens found; the sweep has stopped seeing them`);
+  for (const file of rounds) {
+    assert.match(
+      code(file),
+      /variant="primary"/,
+      `${file} draws no primary button. The one thing a round is for is the loud one `
+      + "(components/Button.tsx: one loud action per screen, everything else quiet).",
+    );
+  }
 });
 
 /*

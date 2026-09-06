@@ -39,6 +39,7 @@
  * the transcripts is done over the file rather than by asking again.
  */
 import { appendFileSync, mkdirSync } from "node:fs";
+import { COMPOSE_SYSTEM, composeLive } from "../lib/scenes/prompt";
 import { runGate, type Check } from "../lib/scenes/gate";
 import { SCENES } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
@@ -86,40 +87,39 @@ function links(): Link[] {
 }
 
 /**
- * The prompt `compose` in `app/api/scene/route.ts` sends, character for
- * character, with `said` empty.
+ * The prompt `compose` in `app/api/scene/route.ts` sends, with no conversation
+ * behind it.
  *
- * Empty rather than a conversation invented here: what a learner said before
- * this beat is a variable, and one made up for the measurement would be a
- * variable every model is judged under without any of them having earned it.
+ * READ FROM `lib/scenes/prompt.ts` RATHER THAN COPIED. This said "character for
+ * character, with `said` empty" and then wrote the prompt out again, which is
+ * the fault this file's own header warns about one paragraph up: a list that
+ * lives in a script measures the script. A copy is character for character on
+ * the day it is written and is a different prompt the first time the route's
+ * wording moves, and the measurement then ranks models on something nobody is
+ * ever sent. The module is pure, so a script may import it.
+ *
+ * The conversation is empty rather than invented here: what a learner said
+ * before this beat is a variable, and one made up for the measurement would be
+ * a variable every model is judged under without any of them having earned it.
  * The opening state is the one state every beat genuinely has in common.
  */
 function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) {
-  const system = [
-    "You are one side of a short conversation in Estonian, in a role-play for a learner.",
-    "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
-    "no explanation, no quotation marks, no markdown, no list.",
-    `Use at most 14 words.`,
-    "Use only the words you are given, in any grammatical form. If you cannot say it",
-    "with those words, say the shortest thing you can with them.",
-  ].join(" ");
-
   const examples = scene.beats
     .filter((b) => b.id !== beat.id)
     .flatMap((b) => scriptedFor(scene, b).slice(0, 1))
     .slice(0, 6);
 
-  const live = [
-    `Your move: ${beat.move}.`,
-    `What you are doing, in English: ${stageFor(beat, null)}`,
-    `Address them as "${scene.register}".`,
-    examples.length > 0
-      ? `Lines this character has said at other moments, for tone and length: ${examples.join(" | ")}`
-      : "",
-    `Words you may use: ${lemmas.join(" ")}`,
-  ].filter(Boolean).join("\n");
+  const live = composeLive({
+    move: beat.move,
+    they: stageFor(beat, null),
+    register: scene.register,
+    reading: "",
+    words: lemmas,
+    examples,
+    avoid: [],
+  });
 
-  return { system: `${system}\n\n${live}`, user: "Your line:" };
+  return { system: `${COMPOSE_SYSTEM}\n\n${live}`, user: "Your line:" };
 }
 
 /* ------------------------------------------------------------------ *

@@ -97,12 +97,24 @@ const LEDGER_LOCK = 4_820_311_907n;
  *           here at all. A listening round legitimately meets a dozen new
  *           words in a minute, so a tight cap would break a real session to
  *           solve a problem that does not exist.
- *   SCENE    one conversation, booked whole rather than per turn, because
- *           running out of allowance halfway through one is the worst failure
- *           available to that module. The base gives ten a day, which is a real
- *           amount of somebody's evening, and what actually rations it is the
- *           deployment's daily budget rather than this count: the reservation
- *           is the whole scene, so the global cap sees a scene as a scene.
+ *   SCENE    one turn of a conversation. This paragraph used to say "one
+ *           conversation, booked whole rather than per turn", and that has been
+ *           wrong since the route started booking per turn: a scene is a dozen
+ *           turns, and one `CALL` row in front of twelve settlements is eleven
+ *           calls the allowance never saw. The multiplier stays at one, so the
+ *           base gives ten composed turns a day.
+ *
+ *           WHAT THAT IS WORTH CHANGED WITH ADR-025 AMENDMENT 1, and the number
+ *           did not. A model used to be asked only where a recorded line and
+ *           the bank had both missed, which was about half the beats; it is now
+ *           asked on every beat that carries content, so ten turns is about one
+ *           conversation a day rather than two or three. That is the amendment
+ *           doing what it says rather than a fault, and the failure it produces
+ *           is the designed one: the allowance runs out, the ledger refuses,
+ *           and the run says the line written for the scene, which is what a
+ *           deployment with no key says at every turn. A deployment that wants
+ *           more sets `AI_DAILY_CALLS_PER_USER`, which is the operator's
+ *           decision about their own bill and not one to make for them here.
  *   SCAN     one photograph read once. It is the dearest single call in the
  *           app, because a picture is a few thousand input tokens where a
  *           question is a few hundred, but it is also the least repeated: a

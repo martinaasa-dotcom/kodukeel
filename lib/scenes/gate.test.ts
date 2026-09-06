@@ -151,3 +151,39 @@ describe("the government check", () => {
     expect(governmentSuspect(["ta", "aitab", "tuba", "toas"], ctx)).toBe(false);
   });
 });
+
+/**
+ * THE FIFTH CHECK: A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN.
+ *
+ * The other four are about words, and a number is not a word: the tokenizer
+ * drops it and the lexicon never held one, so "Kas kell 14:00 sobib?" on a card
+ * that dealt 15:30 passed all four. That was survivable while a beat naming a
+ * dealt value was answered off the card before a model was asked, and it stops
+ * being survivable the moment the model is asked first on every beat, because
+ * the learner is then being invited to agree to an appointment nobody offered.
+ */
+describe("a number nobody dealt", () => {
+  it("is withheld, and the value that was dealt is not", () => {
+    const dealt = new Set(["15:30", "15.30"]);
+    expect(runGate("Kas kell 15:30 on valu?", beat(), context({ dealt })).failed).not.toContain("facts");
+    expect(runGate("Kas kell 14:00 on valu?", beat(), context({ dealt })).failed).toContain("facts");
+  });
+
+  it("is compared as a whole run, so an hour inside another number is not the hour", () => {
+    const dealt = new Set(["15:30"]);
+    expect(runGate("Kas 15 on valu?", beat(), context({ dealt })).failed).toContain("facts");
+  });
+
+  it("says nothing about a line with no number in it", () => {
+    expect(runGate("Kas teil on valu?", beat(), context({ dealt: new Set() })).failed).not.toContain("facts");
+  });
+
+  /*
+    A run that dealt no numbers is the ordinary case, and there any digit at all
+    is invented. Absent rather than empty is the same answer, so a caller that
+    has not been given the card cannot silently switch the check off.
+  */
+  it("treats a run that dealt nothing as having dealt nothing", () => {
+    expect(runGate("Kas kell 14:00 on valu?", beat(), context()).failed).toContain("facts");
+  });
+});

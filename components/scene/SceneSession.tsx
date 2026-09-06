@@ -9,7 +9,8 @@ import { Card, Chip } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
-import { conditionFor } from "@/lib/audio/conditions";
+import { isSaid, isSpokenEstonian, type Provenance as SceneProvenance } from "@/lib/scenes/line";
+import { conditionFor, hidesGoal, hidesWords } from "@/lib/audio/conditions";
 import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -48,7 +49,14 @@ import { practises } from "@/lib/scenes/practises";
  * debrief handles it without a word of reproach.
  */
 
-type Provenance = "attested" | "scripted" | "composed" | "fallback" | "again" | "echo" | "recast" | "offered" | "english" | "unspoken";
+/*
+  Read off the one definition rather than written out again. This was a second
+  copy of the list, so the day a line learned to be a break in time or a hint
+  from the app, the screen went on knowing nine kinds and `PROVENANCE` still
+  type-checked with two of them missing. A type-only import is erased, so a
+  client component pays nothing for it.
+*/
+type Provenance = SceneProvenance;
 
 interface Line {
   readonly text: string;
@@ -112,10 +120,15 @@ const DIFFICULTIES: { id: Difficulty; label: string; blurb: string }[] = [
   { id: "bad", label: "Hard", blurb: "As bad as a Tuesday at a busy desk." },
 ];
 
-/** Whether a line is Estonian the other side said, as opposed to a stage direction or their English. */
-const spokenEstonian = (line: Line) => line.provenance !== "unspoken" && line.provenance !== "english";
+/*
+  Both read off `lib/scenes/line.ts` rather than written out here, because this
+  was one of three copies of the same list and the day a line learned to be a
+  break in time or a hint from the app, two of them did not hear about it.
+*/
+/** Whether a line is Estonian the other side said, as opposed to a note or their English. */
+const spokenEstonian = (line: Line) => isSpokenEstonian(line.provenance);
 /** Whether a line was said at all, in either language. */
-const spoken = (line: Line) => line.provenance !== "unspoken";
+const spoken = (line: Line) => isSaid(line.provenance);
 /**
  * Whether "this is not how anybody says it" is a thing to say about a line.
  *
@@ -218,9 +231,34 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     is the thing the table exists to rehearse rather than a way to be marked
     down.
   */
-  const { hearing } = useAudioPrefs();
+  const { hearing, support } = useAudioPrefs();
+  /*
+    WHICH LINES THE LEARNER HAS ASKED TO SEE.
 
-  const log = useRef<HTMLDivElement>(null);
+    With `support` on, the other side's Estonian is spoken and its words
+    wait behind a press: in a shop you do not get the subtitles, and every line
+    here has been text and audio at once, so catching it the first time at
+    somebody else's speed was the one thing a rehearsal never rehearsed.
+
+    Keyed on the text rather than on an index, because a line said again is the
+    same line and should stay shown; the newest line is what is hidden, and the
+    set only ever grows, so nothing a learner has already read is taken back.
+    Revealing is free and is written down nowhere: the point is to try first,
+    not to be marked on it.
+  */
+  const [shown, setShown] = useState<ReadonlySet<string>>(new Set());
+  /* Whether the objective has been asked for on this beat. Reset when it changes. */
+  const [goalShown, setGoalShown] = useState(false);
+  const reveal = useCallback((text: string) => {
+    setShown((was) => (was.has(text) ? was : new Set([...was, text])));
+  }, []);
+
+  /*
+    `ask` is main's, and the panel it points at is what the page comes down to
+    after a reply. There is no `log` ref beside it any more: the transcript is
+    not a scroller of its own (see the effect below), so there is nothing to
+    scroll inside it.
+  */
   const ask = useRef<HTMLDivElement>(null);
   /*
     A scene can end on its own, when the last beat is done or the persona has
@@ -236,14 +274,74 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   );
 
   /*
-    The turns scroll in their own container, per the containment rules, and the
-    newest is scrolled to rather than the page jumping. `scrollTop` rather than
-    `scrollIntoView`, which scrolls every ancestor including the document.
+    THE CONVERSATION IS THE PAGE, AND FOR A WHILE IT WAS A BOX INSIDE ONE.
+
+    The turns were in a `scroll-host` capped at 46vh, on the containment rule,
+    and that is the shape the first-run wizard already removed from its own
+    screen: a nested scroll region inside a page that also scrolls swallows the
+    wheel. Measured on `bussipilet` at 1280x900 after six turns, the page had
+    323px still to go and the log had 1,622px of turns in a 414px box sitting
+    across the middle of the column, with `overscroll-behavior: contain` on it
+    so the scroll could not chain out. A pointer anywhere over the transcript
+    scrolled the transcript, and once that hit its end the page never moved
+    again: the input, the goal for this turn and every button under it were
+    below the fold and unreachable, which reads as an app that has frozen.
+    Auto-scrolling the box to the newest turn is what made it certain, since
+    the box is at its end the moment a reply lands.
+
+    Containment never asked for a second scroller. It asks that nothing is
+    drawn outside the box it was given, and a list that grows downward makes a
+    page taller rather than overflowing anything. So there is one scroller
+    here, the page, and what brings the newest line into view is the effect
+    below, which came down main and is the better half of two answers written
+    the same day: it moves the page to the panel a learner answers in, does
+    nothing at all when that is already on screen, and is still for anybody who
+    asked for less movement. What is left here is the two moments a screen has
+    to open at its own top rather than wherever the screen before it was left.
   */
+  /*
+    THE CARET GOES BACK IN THE BOX, BECAUSE THE BUTTON TAKES IT AND THEN LEAVES.
+
+    "Say it" disables itself the moment the draft is empty, which is the moment
+    the turn is sent, and a browser moves focus off a control that has just been
+    disabled: measured, `document.activeElement` was `BODY` after every turn
+    taken with the mouse. So the learner had to click back into the box for each
+    turn of a conversation, and a keyboard could not carry on at all. Answering
+    with Enter never had the fault, since the box keeps focus, which is why it
+    survived this long.
+
+    Only where focus was lost, never taken: if it sits on a word of the last
+    line, on the report button or anywhere else the learner put it, it stays
+    there. And there is deliberately no focus when a scene opens: the box is at
+    the bottom of the page, so focusing it would scroll the role card off a
+    phone and open the keyboard over the first thing there is to read.
+  */
+  const box = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    const box = log.current;
-    if (box) box.scrollTop = box.scrollHeight;
-  }, [turns]);
+    /*
+      A debrief is read from its own first line. The page is left wherever the
+      last turn put it, which with the transcript in the page rather than in a
+      box of its own is most of a screen down: measured at 827px, with the
+      debrief's own heading 779px above the top of the window, so a scene ended
+      on a page that opened halfway through what it had to say.
+    */
+    if (phase === "debrief") {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+    /*
+      And a conversation opens at its own top. The briefing is taller than a
+      phone, so the button that starts it is below the fold: measured at 360,
+      it sits at 849 in a 740 window, so a learner has scrolled about 300px by
+      the time they press it and the scroll is left there when the screen
+      changes under them. What they were then looking at was the first line
+      with the role card cut off 114px above the top of the window, on the one
+      card the whole conversation is answered from, and the title of the scene
+      gone. Where the briefing fits, which is every desktop width, this is the
+      scroll it is already at and moves nothing.
+    */
+    if (phase === "talking" && turns.length === 0) window.scrollTo({ top: 0 });
+  }, [turns.length, phase]);
 
   /*
     AND THE PAGE COMES DOWN TO THE BOX WHEN IT IS YOUR TURN AGAIN.
@@ -264,9 +362,67 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   */
   useEffect(() => {
     if (turns[turns.length - 1]?.who !== "them") return;
+    /*
+      EXCEPT ON THE LINE THAT OPENS THE SCENE, WHICH NOBODY HAS ANSWERED YET.
+
+      This says "when it is your turn again", and on the first line there is no
+      again: the learner has said nothing, and what is above the conversation is
+      the role card they answer *from*, with the destination and the time on it.
+      Measured at 360 on the merged tree, coming down to the panel then put the
+      page 531px in, with the card 320px above the top of the window and the
+      scene's title 499px above it, which is the fault `test-mobile.mjs` was
+      written for one pass earlier. So the page comes down once there is a
+      conversation to come back to.
+    */
+    if (!turns.some((turn) => turn.who === "you")) return;
     const still = typeof matchMedia === "function"
       && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    ask.current?.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+    /*
+      THE WHOLE PANEL, WHICH `nearest` STOPPED REACHING WHEN THE LOG LOST ITS
+      OWN SCROLLER.
+
+      `block: "nearest"` scrolls the least it can, which was right while the
+      transcript was a 46vh box and the panel sat just under it. With the
+      conversation flowing down the page the panel is the last thing on a much
+      taller one, and the least it can do leaves the panel's top on screen and
+      everything under it off: measured at 390 after two turns, the field's
+      bottom edge was the window's bottom edge, "Say it" was 70px below the
+      fold and the page had 347px still to go. That is the report this pass
+      started from, arriving through the fix for it.
+
+      So: nothing at all where the panel is already whole on screen, which is
+      the desktop case and main's own argument; its bottom brought up to the
+      window's where it is not, which shows the ask, the box and the button
+      together; and its top where the panel is taller than the window, since
+      the half worth seeing then is the one you read before you type.
+    */
+    const panel = ask.current;
+    if (!panel) return;
+    const at = panel.getBoundingClientRect();
+    const whole = at.top >= 0 && at.bottom <= window.innerHeight;
+    if (!whole) {
+      panel.scrollIntoView({
+        block: at.height > window.innerHeight ? "start" : "end",
+        behavior: still ? "auto" : "smooth",
+      });
+    }
+    /*
+      And the caret goes back in the box, which is the same moment: "Say it"
+      disables itself as the draft empties, and a browser moves focus off a
+      control it has just disabled, so `document.activeElement` was `BODY`
+      after every turn taken with the mouse and the learner had to click back
+      in for each one. Only where focus was lost, never taken: on a word of
+      the last line or on the report button it stays where the learner put it.
+    */
+    /*
+      `preventScroll`, or the caret does the placing instead of the panel: a
+      browser scrolls a field it is focusing the least it can, which lands the
+      field's bottom edge flush with the window's and leaves "Say it" below the
+      fold. Measured at 390: the field's bottom was 844 in an 844 window and the
+      button 70px under it, on a page with 347px still to go. The panel above
+      decides where the page sits; this only decides where the caret is.
+    */
+    if (document.activeElement === document.body) box.current?.focus({ preventScroll: true });
   }, [turns]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -320,7 +476,17 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       }
 
       setBeatId(data.beatId ?? null);
-      setGoal(data.goal ?? null);
+      /*
+        A new objective is a new beat, so the cold level hides it again: the
+        press is per beat rather than per scene, or the first one would be the
+        only one anybody had to work out.
+      */
+      setGoal((was) => {
+        const next = data.goal ?? null;
+        // A new objective is a new beat, so the cold level hides it again.
+        if (next !== was) setGoalShown(false);
+        return next;
+      });
       if (data.voice) setVoice(data.voice);
       if (typeof data.speed === "number" && data.speed > 0) setSpeed(data.speed);
       setDone(data.done ?? []);
@@ -532,6 +698,12 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   }
 
   const objectives = scene.beats.filter((beat) => beat.required);
+  /*
+    What the learner was dealt, flattened, for the line that stays on screen
+    while they type. English, like the card itself: saying it in Estonian is the
+    exercise, so the word is not here either.
+  */
+  const dealt = (opened?.card.props ?? []).flatMap((prop) => prop.given);
   const metCount = objectives.filter((beat) => done.includes(beat.id)).length;
 
   return (
@@ -542,9 +714,38 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         keyboard and a screen reader for free.
       */}
       <details open>
-        <summary className="cursor-pointer text-sm font-medium">
+        {/*
+          THE SUMMARY STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
+          NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
+
+          Measured at 360x640, which is the width this app is measured at: the
+          card open is 300 to 400 pixels, the log is capped at 46vh and the
+          composer with its four buttons is another 200, so the column is half
+          again as tall as the screen and the card is off the top of it for the
+          whole conversation. With a keyboard up it is off the top twice over.
+          That is not a cosmetic loss: the values on the card are exactly what a
+          beat asks for, so a learner asked what time suits them was being asked
+          about a time they could no longer see.
+
+          Sticking the whole disclosure is the obvious fix and is worse, since a
+          40vh block pinned over a 46vh log leaves the conversation reading
+          underneath it. What has to stay is the facts, and they are one line.
+          They are also drawn twice, here and under the prop line that asks for
+          them, and that is the right kind of twice: the pairing in the body says
+          which value answers which line, and this says the value is still true
+          while you type. A reminder is not a second answer to a question.
+        */}
+        <summary
+          className="sticky top-0 z-10 cursor-pointer py-1 text-sm font-medium"
+          style={{ background: "var(--ground)" }}
+        >
           Your card and what to get done
           <span style={{ color: "var(--ink-3)" }}> · {scene.place}</span>
+          {dealt.length > 0 && (
+            <span className="font-normal" style={{ color: "var(--ink-2)" }}>
+              {" · "}{dealt.join(" · ")}
+            </span>
+          )}
         </summary>
         <Card className="mt-2 flex flex-col gap-2">
           <p className="text-sm">{opened?.card.you}</p>
@@ -639,8 +840,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         region that updates constantly reads a number a second at somebody.
       */}
       <div
-        ref={log}
-        className="scroll-host flex max-h-[46vh] flex-col gap-3 overflow-y-auto"
+        className="flex flex-col gap-3"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -699,8 +899,56 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             <div key={index} className="flex flex-col items-start gap-1.5">
               {turn.lines.map((line, at) => (
                 spoken(line) ? (
-                  <div key={at} className="max-w-full">
+                  /*
+                    THE RUNG IS ON THE LINE, NOT ONLY IN THE SENTENCE UNDER IT.
+
+                    ADR-025's claim is that every line says which rung answered,
+                    and the words under the bubble are how a reader is told. A
+                    suite reading the same fact had to walk the markup to pair a
+                    line with its label, and `scripts/test-scene.mjs` did that by
+                    counting hops: one up from the `p[lang=et]` and along to the
+                    next paragraph. That was true until a line grew the
+                    dictionary under it (`GlossedSentence`), which put two more
+                    elements between the two, and from then on every label the
+                    suite read came back empty. Both checks keyed on it stopped
+                    running and waived themselves with a reason that was not the
+                    reason: it said the bank held no line for this run, and the
+                    bank had just supplied the second one.
+
+                    So the rung is an attribute on the line's own wrapper, which
+                    is a fact about the line rather than a shape in the markup,
+                    and an invariant keeps it there.
+                  */
+                  <div key={at} data-rung={line.provenance} className="max-w-full">
                     <Card className="inline-block max-w-full">
+                      {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
+                        /*
+                          Heard, not read. The speaker is the whole line, and
+                          the way out is beside it rather than hidden: a
+                          learner who cannot catch it has to be able to look,
+                          or the mode is a wall rather than an exercise.
+                        */
+                        <p className="flex items-center gap-3">
+                          <Speak
+                            text={line.text}
+                            voice={voice}
+                            condition={conditionFor(opened?.plays ?? 0, index, hearing, true)}
+                            rate={speed}
+                            size={18}
+                            autoplay={index === turns.length - 1 && at === turn.lines.length - 1}
+                            className="press inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full hover:bg-[var(--raised)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => reveal(line.text)}
+                            className="tap-tint rounded-full px-3 py-1 text-sm"
+                            style={{ color: "var(--ink-2)" }}
+                          >
+                            Show the words
+                          </button>
+                        </p>
+                      ) : (
+                        <>
                       {/*
                         Spoken in the persona's voice (§6), in the room this
                         scene is heard in, and the newest line plays itself
@@ -750,6 +998,8 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                         )}
                       </p>
                       )}
+                        </>
+                      )}
                     </Card>
                     {/*
                       Where the line came from, in words rather than a chip
@@ -768,6 +1018,55 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                       )}
                     </p>
                   </div>
+                ) : line.provenance === "meanwhile" ? (
+                  /*
+                    TIME PASSING, DRAWN AS A BREAK RATHER THAN AS A MURMUR.
+
+                    A stage direction is set small and grey because it stands
+                    in for a line and is worth less than one. This is the
+                    opposite: it is the scene telling the learner where they
+                    now are, and missing it is what left somebody answering
+                    "where are you now?" from the kitchen the card had put
+                    them in. So it is centred, ruled on both sides and set in
+                    the ordinary ink, which is what a break in a story looks
+                    like everywhere else it is drawn.
+                  */
+                  <p
+                    key={at}
+                    className="my-2 flex items-center gap-3 text-sm"
+                    style={{ color: "var(--ink-2)" }}
+                  >
+                    <span aria-hidden className="h-px flex-1" style={{ background: "var(--rule)" }} />
+                    <span className="text-center">{line.text}</span>
+                    <span aria-hidden className="h-px flex-1" style={{ background: "var(--rule)" }} />
+                  </p>
+                ) : line.provenance === "coach" ? (
+                  /*
+                    THE APP, OUT OF CHARACTER, AND DRAWN SO NOBODY MISTAKES IT
+                    FOR THE OTHER PERSON. A panel in the accent's softest tint
+                    with the ink drawn to sit on it, which is the pairing
+                    `test-design.mjs` measures: a hint set as grey italics
+                    beside a grey italic stage direction is a hint nobody sees
+                    at the moment they most need one.
+                  */
+                  <p
+                    key={at}
+                    className="rounded-2xl px-4 py-3 text-sm"
+                    style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+                  >
+                    {/*
+                      One word in the eyebrow, because `label-xs` uppercases:
+                      the whole label set in capitals is a shouted sentence
+                      over a panel that exists to be reassuring. The sentence
+                      itself is read to a screen reader instead, where the
+                      panel's colour and position say nothing.
+                    */}
+                    <span className="label-xs block" style={{ color: "var(--accent-deep)" }}>
+                      Hint
+                      <span className="sr-only"> ({PROVENANCE.coach})</span>
+                    </span>
+                    {line.text}
+                  </p>
                 ) : (
                   /*
                     A stage direction: what they did, in English, because no
@@ -854,7 +1153,35 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
               server has no goal for the beat, the panel still says what the
               box is for rather than standing empty.
             */}
-            <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
+            {goal && hidesGoal(support) && !goalShown ? (
+              /*
+                COLD: THEY HAVE SAID SOMETHING AND NOBODY HAS TOLD YOU WHAT TO
+                SAY. Which is the position anybody is in at a counter, and the
+                objective in English is the last thing between a scene and the
+                real exchange. It is one press away and the press is never
+                recorded, because a scene that punished looking would teach
+                people to guess rather than to ask.
+
+                Inside the panel rather than above it, which is the merge of two
+                passes rather than a choice between them: the ask belongs in the
+                box it instructs, and a button floating over the box is the
+                furniture that argument was made against.
+
+                Reset per beat, so the objective is hidden again on the next one
+                rather than only on the first: `goal` is what changes when the
+                conversation moves.
+              */
+              <button
+                type="button"
+                onClick={() => setGoalShown(true)}
+                className="tap-tint mt-1 block rounded-full px-3 py-1 text-lg font-medium"
+                style={{ color: "var(--ink-2)" }}
+              >
+                Show what you are trying to do
+              </button>
+            ) : (
+              <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
+            )}
           </div>
           {lent && (
             <p className="text-sm" aria-live="polite">
@@ -869,6 +1196,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             value={draft}
             onChange={setDraft}
             onEnter={say}
+            inputRef={box}
             ariaLabel="What you say"
             placeholder="Say it in Estonian"
           />
@@ -952,6 +1280,20 @@ const PROVENANCE: Record<Provenance, string> = {
     is the app blaming a learner for its own empty pool.
   */
   unspoken: "In English, because no Estonian line could be built for it",
+  /*
+    Time passing. Not a stage direction and not something anybody said: it is
+    the scene moving the learner from one place to the next, which the screen
+    used not to do at all, so a conversation that walked somebody to a shop
+    left them answering from their own kitchen.
+  */
+  meanwhile: "What has happened since",
+  /*
+    The app, out of character. Everything else on this screen is one side of a
+    conversation and a conversation cannot explain itself; this can, and the
+    label says whose voice it is so nobody reads it as the other person
+    breaking into English.
+  */
+  coach: "A hint, from the app rather than from them",
 };
 
 export { BUDGETS };

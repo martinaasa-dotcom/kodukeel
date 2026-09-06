@@ -114,11 +114,228 @@ describe("reading a turn", () => {
     expect(readTurn("Ma lähen valu", asks, context()).reading).not.toBe("complete");
   });
 
+  /*
+    AND IT IS ONLY SAID WHERE THE WORD WAS THE ANSWER.
+
+    A case slip claims the learner reached for the wrong ending, and it was
+    claimed wherever the word turned up in any other form. Inside a sentence
+    that is a guess about grammar this module cannot parse, and on a real run
+    it was wrong twice over: a learner who wrote a correct sentence with the
+    word as its subject was told "here it is" and given another form. The
+    position rule is what stops it, and it costs nothing on the case the
+    correction is actually for, which is the word said on its own or at the
+    end of a short answer.
+  */
+  it("does not correct a word sitting in the middle of a sentence, where it may be doing another job", () => {
+    const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] });
+    const seen = readTurn("Tuba on suur ja valge", asks, context());
+    expect(seen.reading).toBe("complete");
+    expect(seen.slips).toEqual([]);
+    // And nothing is said back as a correction, so no bubble claims they were wrong.
+    expect(seen.matched).toEqual(["tuba"]);
+  });
+
+  it("still corrects the word when it is the answer", () => {
+    const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "ILLATIVE" }] });
+    expect(readTurn("tuba", asks, context()).slips).toHaveLength(1);
+    expect(readTurn("Ma lähen tuba", asks, context()).slips).toHaveLength(1);
+  });
+
+  /*
+    A GREETING CANNOT BE FAILED. A scene may name only greetings its own units
+    teach, which is two of them, and Estonian has many more: a learner
+    answered `Tere!` with `Tervitused!`, which is a greeting the dictionary
+    holds and no unit teaches, and the app refused it. Nothing a refusal there
+    could teach is worth that, since the word is on the screen one line above.
+  */
+  it("takes anything Estonian said back to a greeting", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    const anyEstonian = { ...context(), known: () => true };
+    for (const said of ["tervitused", "tere", "hei"]) {
+      expect(readTurn(said, hello, anyEstonian).reading, said).toBe("complete");
+    }
+  });
+
+  /*
+    And not anything at all: an objective credited for typing is a score
+    hidden inside a scene, which is what the debrief exists not to have.
+  */
+  it("does not credit a greeting for somebody saying they are not following", () => {
+    /*
+      `Ma ei saa aru` is Estonian and is not a greeting. Crediting the beat
+      for it swallows the one thing this module most wants to hear.
+    */
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("ma ei saa aru", hello, { ...context(), known: () => true }).reading).toBe("lost");
+  });
+
+  it("does not credit a greeting for a turn nobody could read", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("qqqq wwww", hello, context()).reading).not.toBe("complete");
+  });
+
+  it("grades nobody for it, since they may not have said the word", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    /*
+      Met, and nothing produced, so `gradesFor` writes no row claiming the
+      learner recalled a word they never wrote.
+    */
+    expect(readTurn("tervitused", hello, { ...context(), known: () => true }).satisfiedBy).toEqual([]);
+  });
+
+  it("still ends a scene only on a real farewell, since a goodbye is read on every turn", () => {
+    /*
+      `replay` reads the close beat against every turn, because somebody who
+      says goodbye in the middle has left. A `close` beat that took anything
+      would end every conversation on its first turn.
+    */
+    const bye = beat({ move: "close", needs: [{ kind: "lemma", oneOf: ["aitäh"] }] });
+    expect(readTurn("tervitused", bye, { ...context(), known: () => true }).reading).not.toBe("complete");
+  });
+
+  /*
+    A SECOND WORD FOR THE SAME THING IS THE SAME THING. A beat may name only
+    words its scene's units teach, so its list can never hold every way
+    Estonian says something; the relation is derived from the dictionary's own
+    glosses and read here to accept, never to mark.
+  */
+  describe("a word that stands in for the one the beat named", () => {
+    const stand = {
+      forLemma: new Map([["tuba", ["ruum"]]]),
+      lexicon: buildLexicon([{
+        lemma: "ruum", pos: "NOUN", cefr: "A2", usages: [],
+        parts: { NOM_SG: "ruum", GEN_SG: "ruumi", PART_SG: "ruumi" },
+      }]),
+    };
+
+    it("meets a lemma requirement", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("ruum", asks, { ...context(), substitutes: stand }).reading).toBe("complete");
+    });
+
+    it("meets a case requirement in that case", () => {
+      const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] });
+      const seen = readTurn("ruumis", asks, { ...context(), substitutes: stand });
+      expect(seen.reading).toBe("complete");
+    });
+
+    it("is written down as a substitution, so no grade claims the beat's own word", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("ruum", asks, { ...context(), substitutes: stand });
+      expect(seen.substituted).toEqual([0]);
+    });
+
+    it("never answers before the beat's own word does", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("tuba", asks, { ...context(), substitutes: stand });
+      expect(seen.substituted).toEqual([]);
+      expect(seen.matched).toEqual(["tuba"]);
+    });
+
+    it("does nothing where the caller resolved none, which is what it did before", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("ruum", asks, context()).reading).not.toBe("complete");
+    });
+  });
+
+  /*
+    ESTONIAN IS MADE OF COMPOUNDS, AND THE HEAD IS THE LAST PART. A learner
+    who names the exact thing they want is being more precise than the beat
+    asked for, and was refused for it: the two spellings share no opening, so
+    every other rule missed it.
+  */
+  describe("a compound of the beat's word", () => {
+    const real = (word: string) => ["tubapoiss", "suurtuba"].includes(word);
+
+    it("is that word", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("suurtuba", asks, { ...context(), known: real });
+      expect(seen.reading).toBe("complete");
+      // Their own word is what comes back, since a compound is not a mistake.
+      expect(seen.matched).toEqual(["suurtuba"]);
+    });
+
+    it("has to be a word, or any letters glued to the front would meet the beat", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("xyzzytuba", asks, { ...context(), known: real }).reading).not.toBe("complete");
+    });
+
+    it("needs a modifier long enough to be one", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("atuba", asks, { ...context(), known: () => true }).reading).not.toBe("complete");
+    });
+  });
+
+  /*
+    AND THE WORD IN ENGLISH IS THE WORD. Reaching for it in the language you
+    have is the commonest thing anybody does in a second language and the one
+    thing a bilingual listener always understands. The other side says the
+    Estonian back, which is the whole of what the learner was missing.
+  */
+  describe("a word the learner reached for in English", () => {
+    const english = new Map([["tuba", ["room"]]]);
+
+    it("meets the beat, and the Estonian is what comes back", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("i am in the room", asks, { ...context(), englishFor: english });
+      expect(seen.reading).toBe("complete");
+      expect(seen.matched).toEqual(["tuba"]);
+      expect(seen.slips[0]?.kind).toBe("english");
+    });
+
+    it("comes back in the case the beat asked for", () => {
+      const asks = beat({ needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] });
+      const seen = readTurn("room", asks, { ...context(), englishFor: english });
+      expect(seen.slips[0]?.form).toBe("toas");
+    });
+
+    it("is written down as a substitution, so nothing grades it as production", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      expect(readTurn("room", asks, { ...context(), englishFor: english }).substituted).toEqual([0]);
+    });
+
+    it("never answers before the Estonian does", () => {
+      const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
+      const seen = readTurn("tuba", asks, { ...context(), englishFor: english });
+      expect(seen.slips).toEqual([]);
+      expect(seen.substituted).toEqual([]);
+    });
+  });
+
   it("takes a question mark as a question, because Homme? is one", () => {
     const asks = beat({ needs: [{ kind: "question" }] });
     expect(readTurn("Kus?", asks, context()).reading).toBe("complete");
     expect(readTurn("Kus see on", asks, context()).reading).toBe("complete");
     expect(readTurn("valu", asks, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    A word the app cannot place is a word they tried. The probe found the case
+    it costs most: `Tartusse` is a city, the forms list holds no capitalised
+    word on purpose, and the app answered that it did not understand them.
+  */
+  it("does not call one unplaceable word incomprehensible", () => {
+    expect(readTurn("tartusse", beat(), context()).reading).toBe("offtarget");
+    // Two of them is a turn there really was nothing to go on in.
+    expect(readTurn("qqqq wwww", beat(), context()).reading).toBe("unrecognised");
+  });
+
+  it("still refuses to credit a greeting for one word nobody could place", () => {
+    const hello = beat({ move: "greet", needs: [{ kind: "lemma", oneOf: ["tere"] }] });
+    expect(readTurn("qqqq", hello, context()).reading).not.toBe("complete");
+  });
+
+  /*
+    `Kas sa räägid inglise keelt?` is in the first unit anybody opens and is
+    the move everybody makes in their first month. Read as an ordinary turn it
+    meets nothing, so the other side said "sorry?" and asked again: this app
+    teaching a phrase on one screen and ignoring it on another.
+  */
+  it("notices a learner asking for English, whatever person they asked it in", () => {
+    for (const said of ["kas sa räägid inglise keelt?", "kas te räägite inglise keelt"]) {
+      expect(readTurn(said, beat(), context()).wantsEnglish, said).toBe(true);
+    }
+    expect(readTurn("tere", beat(), context()).wantsEnglish).toBe(false);
   });
 
   it("reads a turn written in English as English rather than as unreadable Estonian", () => {
@@ -206,9 +423,16 @@ describe("reading a turn", () => {
   */
   it("counts a word only the course knows as Estonian, so it is aimed elsewhere and not unreadable", () => {
     const wider = context({ known: (word) => word === "sularahaga" });
-    expect(readTurn("sularahaga", beat(), wider).reading).toBe("offtarget");
-    // And without the wider list it is what it was, which is what a thin caller gets.
-    expect(readTurn("sularahaga", beat(), context()).reading).toBe("unrecognised");
+    /*
+      Two words, because a single one is never called incomprehensible now
+      whatever the list says: what this is about is the *wider* list, so the
+      turn has to be one the scene's own list could not carry on its own.
+    */
+    expect(readTurn("sularahaga qqqq", beat(), wider).reading).toBe("offtarget");
+    expect(readTurn("sularahaga qqqq", beat(), context()).reading).toBe("unrecognised");
+    // And it is marked as Estonian either way it is read.
+    expect(readTurn("sularahaga", beat(), wider).words[0]?.vouched).toBe(true);
+    expect(readTurn("sularahaga", beat(), context()).words[0]?.vouched).toBe(false);
   });
 
   /*
@@ -290,6 +514,24 @@ describe("a beat that takes any one of several answers", () => {
   it("is met by whichever option the learner took", () => {
     for (const said of ["14:30", "Valu", "Ei"]) {
       expect(readTurn(said, offer, ctx).reading, said).toBe("complete");
+    }
+  });
+
+  /*
+    A DIGIT IS MATCHED WHOLE, WHICH IS THE FAULT THE BUS TICKET REPORTED.
+
+    The accepted set for a time carries the bare hour so `kell kolm` typed as
+    `kell 3` lands, and the first version looked for it anywhere in the text.
+    So `2014`, `140` and `14.50` all carried the hour and met the beat. A
+    number is read off the digit runs in the turn and compared as a whole run,
+    so a time matches a time. The other half of the same fault is one layer up:
+    `lib/scenes/props.ts` offers a bare hour only where the time is on the hour,
+    so a 15:30 card has no `15` for anybody to hit by accident.
+  */
+  it("takes a bare hour typed on its own and not a digit inside another number", () => {
+    expect(readTurn("kell 14", offer, ctx).reading).toBe("complete");
+    for (const said of ["2014", "140", "14.50"]) {
+      expect(readTurn(said, offer, ctx).reading, said).not.toBe("complete");
     }
   });
 

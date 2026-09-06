@@ -586,6 +586,20 @@ The order is the argument.
 6. **Try it again**, which keeps the role card and redraws the persona and the curveballs. The
    second run is where most of the learning is, and it should be one button.
 
+### Amendment 1: the record sits under the teaching
+
+The list above was written before `lib/scenes/review.ts` existed, and item 3's reason is the job the
+review does: *this is where a learner finds out that the word they were sure of was not the word*.
+The transcript as built marks nothing, and the review quotes the learner's own words, so it reads
+without the conversation having been read back first.
+
+The transcript is also the one section on the screen with no bound on its length. Measured on a
+seven-turn run at 360px it is 900 of the 2,232 pixels of the page, and it sat between the outcome
+and everything a learner can act on, so the teaching, the words to keep, the drill and the way back
+in were all below the fold on a conversation that had barely started. It goes under them.
+
+What does not move is item 1. The outcome still leads, before any teaching, for the reason given.
+
 ### What it writes
 
 A card added from a scene carries `SCENE_SOURCE` in the `source` column `Card` already has, so
@@ -631,9 +645,14 @@ Four states, per `docs/08-ux-ia-a11y.md` §4:
   like any other route.
 
 The layout, at 360px first: the role card and the objectives at the top, collapsible and never gone;
-the turns in their own scroll container, per the containment rules; the input above the phone bar
-with the letter bar, the help button, and "say that again" as a first-class control, because asking
-for repetition is the most useful sentence a learner can own and putting it on screen teaches it.
+the turns down the page, which scrolls; the input under them with the letter bar, the help button,
+and "say that again" as a first-class control, because asking for repetition is the most useful
+sentence a learner can own and putting it on screen teaches it.
+
+The turns were in a scroll container of their own for a while, written down here as the containment
+rule and corrected in §43: containment asks that nothing is drawn outside its box, and a growing
+list makes the page taller rather than overflowing anything. What the box actually did was take the
+wheel away from the page it sat in.
 
 **Accessibility.** The turns are a log region that announces each new turn once and does not
 re-announce the ones above it, which is the lesson the exam clock taught: a live region that updates
@@ -2554,3 +2573,199 @@ it, so the one thing in that header that goes anywhere rendered as plain dark te
 **What this does not fix.** A native speaker has still read none of the bank. The transcript on the
 debrief is still every turn at full size, so the review under it is a scroll away on a long
 conversation.
+
+## 45. The screen the conversation is had on, which had stopped scrolling
+
+Reported with a screenshot: a scene open, the desk's question on screen, the box to answer it in cut
+off by the bottom of the window, and no way to get to it. Found and fixed the same day as §43, from
+the other end: that pass made the ask impossible to miss, and this one is why the page would not
+move when somebody went looking for it.
+
+The transcript was a `scroll-host` capped at 46vh, put there on the containment rule and sitting
+across the middle of the column. `.scroll-host` carries `overscroll-behavior: contain`, which is
+right for the rail and the command palette and wrong here: it stops the scroll chaining out to the
+page when the inner box reaches its end, and the transcript is pinned to its newest turn the moment
+a reply lands, so the box is always at its end. Measured on `bussipilet` at 1280x900 after six
+turns: the page had 323px still to go, 1,622px of turns sat in a 414px box, and a wheel anywhere
+over the conversation moved nothing whatever. The input, the goal for the turn, "say that again",
+the help button and "leave" were all below the fold and unreachable. It reads as an app that has
+frozen.
+
+Containment never asked for the box. It asks that nothing is drawn outside the box it was given,
+and a list that grows downward makes the page taller rather than overflowing anything; the
+first-run wizard had already taken the same shape out of its reasons grid for the same reason. So
+there is one scroller on this screen, the page. What brings the newest line into view is §43's own
+effect, which is the better half of two answers written the same day: it moves the page to the
+panel the learner answers in, does nothing at all when that is already on screen, and is still for
+anybody who asked for less movement. The scroll to the document end that came with this pass was
+deleted rather than left beside it.
+
+`scripts/test-scene.mjs` asks the two halves separately, since they fail separately: nothing inside
+the page is its own scroller, and a wheel rolled over the middle of the transcript reaches the box
+you answer in. Both were made to fail on the code that shipped, at 206 of 334.
+
+Two moments still open a screen at its own top rather than wherever the screen before it was left.
+A debrief is read from its own first line, which the flowing transcript would otherwise open 827px
+into. And a conversation opens at its top: the briefing is taller than a phone, so the button that
+starts a scene is below the fold, measured at 360 sitting at 850 in a 740 window, so a learner has
+scrolled about 300px by the time they press it and that scroll was left standing when the screen
+changed under them. What they were looking at then was the first line with the role card cut off
+114px above the top of the window, on the one card the whole conversation is answered from, and the
+scene's own title gone. Nothing at a desktop width can see it, so that check is in
+`scripts/test-mobile.mjs` at 360.
+
+## 46. What the debrief was actually saying, three times over
+
+Three sessions found the same sentence within a day of each other, which is worth writing down
+because the third one made the first two moot.
+
+`CASE_NOTES` carries an `englishHook`, written for the label it sits behind on the case's own page
+("In English · of the book, the book's cover"), so it is a lower-case fragment by design. The review
+pasted it straight after a full stop on all fourteen cases; the illative's hook is the word "into",
+so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
+`lib/assessment/items.ts` had already tried the hook in feedback and written down why it dropped it.
+
+This pass replaced the hook with `summary`, the field written as a sentence. §43 capitalised the
+hook instead, which kept the reference page's examples and left "into. Into." on the one case where
+the hook *is* the plain word; merging the two kept the examples and fell back to the summary there.
+And then #167 rewrote the note itself, in the pass that made the review readable: a note leads with
+the learner's own word, says what the form that was wanted is for in one clause
+(`the ending for "into"`), and carries an authored sentence only where there is a rule worth
+stating. There is no join left to show through, so both earlier fixes are
+gone rather than layered, and the test written for the join went with them: it asserted over a `body`
+built out of two fields, and nothing builds one any more.
+
+## 47. One loud action per round, on the screens that had none
+
+`components/Button.tsx` says it in its own header: only the primary carries the gradient, one loud
+action per screen, everything else quiet. Twenty-one of the twenty-five round screens did that and
+four did not.
+
+The conversation was one of them, and §43 fixed it in the course of building the ask panel: the send
+button is `primary` and alone in its row, with `Leave` moved out of reach of the thing pressed every
+turn. That is the same conclusion this pass reached from the other side and the same argument, and
+the panel is the better version of it, so it is the one kept.
+
+The other three stand. The **debrief** argues in its own words that "the second run of a scene is
+where most of it sticks" and then drew "Have it again" quieter than the link away from it; the row
+is the quiet way out first and the loud one last now. The **unit lesson** offered "Start these 6
+words", the only thing to press on the way into the course, in the same weight as the "Leave" two
+lines above it. The **crossword** marked its own "Check" `secondary` beside a ghost that hands over
+the answer, and that row is reordered so the loud one is on the right.
+
+The invariant asks only that a round has a primary at all, since where it sits in its row is a rule
+that already existed. It covers the conversation's debrief by name, that being the one round whose
+finish screen is a module of its own, and it was made to fail on each.
+
+## 48. The check that had never once run
+
+`scripts/test-scene.mjs` ends with two questions only a browser can answer: a composed line is one
+short sentence, and a scripted line is one short sentence that says it was scripted. Both waived
+themselves on every run, in every state, and the scripted one printed a reason that was not true:
+*"the bank holds no row for a beat this run reached"*. The bank had just supplied the second line of
+the scene.
+
+The suite paired a line with its label by walking the markup, one hop up from the `p[lang=et]` and
+along to the next paragraph. That was right when it was written and stopped being right when a line
+grew the dictionary under it: `GlossedSentence` puts two more elements between the two, so every
+label came back as an empty string and no line matched any rung. Both checks fell through to their
+waivers and the floor stayed satisfied, because a waiver lowers the floor by exactly as much as it
+skips. This is the shape §42 of the status doc calls a hole wearing a waiver's clothes.
+
+The rung is an attribute on the line's own wrapper now, `data-rung`, which is a fact about the line
+rather than a shape in the markup, and the words under the bubble stay beside it for the reader. The
+suite reads the attribute, and a third check says the two agree for every line said: a line labelled
+"from the course" that a model wrote would be the app vouching for its own Estonian, which is the
+whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
+the one the bank was built for.
+
+Three more checks in the suites were the same family and are in the same pass. Sonad's board
+asserted `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`, which is true of any
+six things; the edit suite printed PASS beside "0 gap-fill card(s)", `every` on nothing being true;
+and this suite's own report-button check opened `spoken === 0 || ...`, which passes when there is
+nothing on screen to report.
+
+## 49. The caret, which the button took and did not give back
+
+"Say it" disables itself the moment the draft is empty, which is the moment the turn is sent, and a
+browser moves focus off a control it has just disabled. Measured: `document.activeElement` was
+`BODY` after every turn taken with the mouse. So a learner clicked into the box, typed, pressed the
+button, and had to click into the box again, for every turn of the conversation; somebody working
+from the keyboard could not carry on without tabbing back. Answering with Enter never had the fault,
+because the box keeps focus there, which is why it survived this long.
+
+It rides on §43's effect, which already runs at exactly the right moment, when a line from the other
+side lands. The caret goes back where focus was **lost**, never where it was put: if it sits on a
+word of the last line, on the report button, or anywhere the learner chose, it stays there, and that
+was driven both ways. There is deliberately no focus when a scene opens, since the box is at the
+bottom of the page and focusing it would scroll the role card off a phone and open the keyboard over
+the first thing there is to read.
+
+`scripts/test-scene.mjs` takes its turn with the mouse for exactly this reason and asks where the
+caret is. It fails, at `BODY`, on the line before this one.
+
+## 50. The model writes every line, and still marks nothing
+
+ADR-025 amendment 1.
+
+**What was wrong.** The ladder asked a model only where a recorded sentence and the bank had both
+missed. The bank now holds 296 lines, so on about half the beats in the catalogue the other side
+said a sentence drafted months before anybody played, written against the beat alone. Such a line
+is a competent generic question and it cannot be about the conversation: it cannot pick up that the
+learner said two turns ago they were in a hurry, cannot acknowledge the thing they just got right,
+and cannot narrow after a miss in a way that has anything to do with what they wrote. That is what
+"it does not answer me like a human" was about, and no amount of drafting more lines reaches it,
+because the missing ingredient is the run.
+
+The argument for keeping the bank in front was written down and looked sound: a line gated when it
+was drafted and read by a person since outranks one gated a second ago. It weighs the two
+model-written rungs by how much review they have had. What it does not weigh is whether the line is
+about anything.
+
+**What changed.**
+
+- **Composition leads on every beat that carries content.** The bank is the net under it, not a rung
+  above it. `sceneLine` is the whole of the change: attested, then composed, then scripted, then the
+  line the beat says off the card, then the repair phrase.
+- **A recorded sentence keeps the top.** The attested rung is reachable only where the beat's pool
+  holds a phrase entry, which after §32 narrowed it is the courtesies. `Tere!` is the whole line and
+  what a model does with it is paraphrase a fixed phrase into something nobody says.
+- **The prompt gets the run, both sides.** It used to get the learner's last two lines as two `user`
+  messages with nothing between them, which is half a conversation with the halves it did not write
+  missing. It is now the run's own turns, alternating, off `state.turns`, capped at six exchanges
+  because the free models this runs on have small windows and a request refused for length is a turn
+  with no line in it. Never interpolated into an instruction (§17): the exchange goes in as
+  messages.
+- **The gate has a fifth check, `facts`.** The other four are about words and a number is not a
+  word: `words()` drops it, the lexicon never held one, and "Kas kell 14:00 sobib?" on a card that
+  dealt 15:30 passed all four. That was survivable while a beat naming a dealt value was answered
+  off the card before a model was asked. It stops being survivable the moment the model is asked
+  first, because the learner is then being invited to agree to an appointment nobody offered. A
+  digit run in a composed line has to be one `dealtNumbers` says the card dealt, read off the same
+  `literal` list the marker accepts from the learner, so what the other side may say and what the
+  learner may say are the one list.
+
+**What did not change, and this is the part that makes the rest safe to have done.** `readTurn` and
+`satisfies` decide whether a turn met a beat, off the dictionary and the drawn role card and nothing
+else. `advance` takes `Evidence` and `readTurn` is its only producer, so a caller holding a model's
+opinion about the learner cannot compile. **The model may now write what the other person says. It
+never decides whether the learner was understood.** Every composed line passes the same gate against
+the same closed word list; every call is booked before it is made and settled after it, through the
+same ledger, with the same three limits; and a deployment with no key walks past composition to the
+same bank line it says today, which is what keeps "all fourteen play without a model key" true.
+
+**Per turn, not per run, and that is a decision rather than an omission.** The obvious worry about
+making composition the primary path is a mixed voice inside one conversation, and the obvious fix is
+to commit a whole run to one mode up front. It is the wrong fix. The failures that would justify it
+are structural (no key, no credit, a spent daily allowance) and every turn reaches them identically,
+so a stored mode would be a second source of truth for something re-derivable, which is ADR-014's
+own rule. The failures that are not structural are per-minute rate limits that recover inside a
+single conversation, and a run-level commit would spend a whole conversation on one bad minute. What
+is left is the chain walking to a second model mid-run, which happens only when the alternative is
+no line at all, and where the screen already says which rung answered.
+
+**What this does not fix.** A free model is rate-limited per minute and per day, and the day's quota
+is a real wall: measured here, one of the three OpenRouter free models answered 429 to all 182
+requests of an evaluation run. On a deployment leaning on one free key the bank is not a rare
+fallback but a regular one, which is an argument for the bank being good rather than for the ladder
+being different.

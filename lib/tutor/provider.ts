@@ -25,6 +25,25 @@ import { estimateTokens } from "@/lib/usage/pricing";
 
 export type ProviderName = "openrouter" | "groq" | "gemini" | "openai" | "anthropic";
 
+/**
+ * How much a reply may cost in tokens, and why it is not small.
+ *
+ * A scene line is one short Estonian sentence and the obvious budget for one is
+ * a few dozen tokens. That is wrong on the models this app is built to run on:
+ * several free models spend their whole budget in a reasoning field and write
+ * into `content` only once they have finished thinking, so a tight cap returns
+ * HTTP 200 with an empty string. Measured on one beat with the route's own
+ * prompt: at 80 tokens `openai/gpt-oss-120b` and `gemini-3.6-flash` both
+ * answered empty; at 1200 both wrote a clean line. An empty answer is
+ * indistinguishable from a bad minute one rung down, so the cap was quietly
+ * deciding which free models this app can use.
+ *
+ * Exported so a script measuring which model to put in front measures the app
+ * rather than itself, which is the rule `PROVIDER_KEY_ENV` states about lists
+ * that live in a test.
+ */
+export const REPLY_TOKENS = 1200;
+
 export interface ProviderConfig {
   name: ProviderName;
   model: string;
@@ -798,7 +817,7 @@ async function callOpenAiCompatible(
       // Without this the stream carries no usage frame and the ledger has to
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),
@@ -819,7 +838,7 @@ async function callAnthropic(config: ProviderConfig, system: string, messages: C
     body: JSON.stringify({
       model: config.model,
       stream: true,
-      max_tokens: 1200,
+      max_tokens: REPLY_TOKENS,
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than
@@ -906,6 +925,98 @@ export interface CompletedReply {
   config: ProviderConfig;
   text: string;
   usage: UsageReport;
+}
+
+/**
+ * WHICH MODEL A CONVERSATION IS COMPOSED WITH, WHICH IS THE HARDEST READING
+ * JOB IN THIS APP.
+ *
+ * Every other paid path here asks a model to do something bounded: translate a
+ * word, mark a form, read a photograph. A scene asks it to follow a
+ * conversation with a beginner, in a language most models are thin on, inside a
+ * closed word list, and write one line that is about what the person actually
+ * said. `runGate` then withholds the line whole if it reaches outside the list,
+ * and `npm run eval:scene` has measured that at between 43 and 70 percent
+ * withheld: on a free model, most of what it writes never reaches anybody, and
+ * the learner gets a stage direction instead of a conversation. **Comprehension
+ * is not a nicety on this path, it is most of what decides whether the module
+ * works at all.**
+ *
+ * So a deployment may point scenes at a better model than it uses for chat,
+ * and the shape is the one `visionProviders` already established: an override
+ * per provider, and **nothing by default**, because turning a conversation on
+ * must not move a free-model deployment onto a paid one behind the operator's
+ * back. A deployment that sets none of these is composed exactly as it was.
+ *
+ * The one thing this does beyond substituting a name is **order**. The chat
+ * chain is free first, which is the right policy when every link can do the
+ * job; here an operator who has named a model for scenes has said which one
+ * they want asked, and trying three free ones first would spend the turn's
+ * booking on the models they were choosing against. So a provider carrying an
+ * explicit scene model goes to the front, and everything else keeps its place
+ * behind as the fallback it already was.
+ */
+export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
+  /*
+    TWO SESSIONS BUILT THIS AND THIS IS BOTH OF THEM.
+
+    Main's version read the *general* chain, applied a `*_SCENE_MODEL` override
+    per provider and moved any provider carrying one to the front. This branch
+    built a purpose-scoped chain instead: Groq alone, on the model
+    `eval:composers` ranked, with Anthropic behind it only while the day's
+    fallback budget has room. Both answer "which chain does a scene use" and a
+    clean three-way merge would have shipped two of them.
+
+    Neither is redundant, because they are about different halves. Main's is
+    model *selection*: an operator who has a better model somewhere should be
+    able to point conversations at it, and the comment above says why
+    comprehension decides whether this module works at all. This branch's is
+    cost *isolation*: a scene must not be able to spend the balance Anu runs
+    on, which is what the per-purpose caps and the bounded fallback are for.
+
+    So the override and the ordering are main's, unchanged, and what they are
+    applied to is the purpose chain rather than the general one. An install that
+    names no scene model gets Groq then the gated fallback; one that names a
+    model gets it asked first, which is what naming it meant.
+
+    KNOWN WART, WRITTEN DOWN RATHER THAN HIDDEN. `globalFallbackMicros` counts
+    Anthropic answering a SCENE as fallback traffic, and an operator who sets
+    `ANTHROPIC_SCENE_MODEL` has made it a primary. Such a deployment is
+    rationed by the fallback budget when it should not be. It errs toward
+    under-spending, which is the safe direction, and the honest fix is for the
+    ledger to know which link was chosen rather than inferring it from the
+    provider. Not built here.
+  */
+  const override: Record<ProviderName, string | undefined> = {
+    openrouter: process.env.OPENROUTER_SCENE_MODEL,
+    groq: process.env.GROQ_SCENE_MODEL,
+    gemini: process.env.GEMINI_SCENE_MODEL,
+    anthropic: process.env.ANTHROPIC_SCENE_MODEL,
+    openai: process.env.OPENAI_SCENE_MODEL,
+  };
+
+  /*
+    The purpose chain first, then anything an operator has explicitly named for
+    scenes that is not already in it. Without the second half, naming
+    `OPENROUTER_SCENE_MODEL` on an install that has an OpenRouter key would do
+    nothing, which is main's feature deleted rather than merged.
+  */
+  const base = resolveProviders({ ...options, purpose: "scene" });
+  const named = resolveProviders({ allowFallback: true })
+    .filter((c) => override[c.name]?.trim());
+
+  const seen = new Set<string>();
+  const chosen: ProviderConfig[] = [];
+  const rest: ProviderConfig[] = [];
+  for (const config of [...base, ...named]) {
+    const explicit = override[config.name]?.trim();
+    const model = explicit || config.model;
+    const key = `${config.name}:${model}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    (explicit ? chosen : rest).push({ ...config, model });
+  }
+  return [...chosen, ...rest];
 }
 
 /**

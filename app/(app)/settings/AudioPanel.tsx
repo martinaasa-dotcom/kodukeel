@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AudioLines, Coffee, Ear, EarOff, Music, VolumeX } from "lucide-react";
-import { setAutoplay, setFeedbackSounds, setHearing, setVoice } from "@/app/actions";
-import { CONDITIONS, removesWords, type Hearing } from "@/lib/audio/conditions";
+import { AudioLines, BookOpen, Coffee, Ear, EarOff, Music, Sparkles, VolumeX } from "lucide-react";
+import { setAutoplay, setFeedbackSounds, setHearing, setSupport, setVoice } from "@/app/actions";
+import { CONDITIONS, removesWords, type Hearing, type Support } from "@/lib/audio/conditions";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
@@ -198,6 +198,73 @@ export function HearingPanel({ current }: { current: Hearing }) {
   return (
     <ChoiceGroup ariaLabel="How the listening rounds sound" className="grid gap-2 sm:grid-cols-2">
       {HEARING.map((o) => (
+        <ChoiceCard
+          key={o.value}
+          layout="stacked"
+          disabled={pending}
+          selected={value === o.value}
+          onSelect={() => pick(o.value)}
+          icon={<o.icon size={16} aria-hidden />}
+          title={o.label}
+          detail={o.detail}
+        />
+      ))}
+    </ChoiceGroup>
+  );
+}
+
+/**
+ * HOW MUCH THE APP HELPS, WHICH IS NOT THE SAME QUESTION AS HOW HARD THEY ARE.
+ *
+ * The dial a scene already had is about the other side: how many things go
+ * wrong and how much patience they have. This one is about the app, which
+ * holds both hands: every line is written out as it is said, and the objective
+ * is in English underneath. In a shop you get neither, so the thing that
+ * actually breaks down at a counter was the one thing a rehearsal never
+ * rehearsed. It is also what makes a second run of a scene worth having, which
+ * the debrief has been promising all along.
+ *
+ * Nothing is locked and nothing is recorded: both presses are always there,
+ * and a scene that punished looking would teach people to guess rather than to
+ * ask.
+ */
+const SUPPORT_LEVELS: { value: Support; label: string; detail: string; icon: typeof Coffee }[] = [
+  {
+    value: "guided",
+    label: "Words and voice together",
+    detail: "Every line is written down as it is said, and the objective is under it. This is how a conversation has always read here.",
+    icon: BookOpen,
+  },
+  {
+    value: "listen",
+    label: "Hear it first",
+    detail: "A line is spoken and its words wait behind a press, the way they do in a shop. You can always look.",
+    icon: Ear,
+  },
+  {
+    value: "cold",
+    label: "Hear it, and work out what to say",
+    detail: "The objective waits behind a press as well, which is the closest this gets to the real thing. Best on a scene you have done before.",
+    icon: Sparkles,
+  },
+];
+
+export function SupportPanel({ current }: { current: Support }) {
+  const [value, setValue] = useState(current);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const pick = (next: Support) => {
+    setValue(next);
+    start(async () => {
+      await setSupport(next);
+      router.refresh();
+    });
+  };
+
+  return (
+    <ChoiceGroup ariaLabel="How much the app helps in a conversation" className="grid gap-2 sm:grid-cols-3">
+      {SUPPORT_LEVELS.map((o) => (
         <ChoiceCard
           key={o.value}
           layout="stacked"

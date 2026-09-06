@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
-  SCENE_GROQ_MODELS, TutorError, visionProviders,
+  SCENE_GROQ_MODELS, sceneProviders, TutorError, visionProviders,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
@@ -207,6 +207,39 @@ describe("a chain built for a purpose", () => {
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
     all();
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["groq", "anthropic"]);
+  });
+
+  it("keeps both halves of the two sessions that built the scene chain", () => {
+    /*
+      Main added `sceneProviders`, a `*_SCENE_MODEL` override per provider with
+      the named one moved to the front, and the README documents it. This branch
+      added the purpose chain, which is what stops a scene spending the balance
+      Anu runs on. A clean three-way merge would have shipped two answers to one
+      question; this asserts the merged one still does both jobs.
+    */
+    // Isolation, with nothing named: Groq leads, Anthropic behind it as the
+    // gated last resort, and nothing else however many keys are set.
+    all();
+    expect(sceneProviders().map((c) => c.name)).toEqual(["groq", "anthropic"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["groq"]);
+
+    // Selection: a named model is asked, and asked first.
+    vi.stubEnv("GROQ_SCENE_MODEL", "groq/some-better-model");
+    expect(sceneProviders()[0]).toMatchObject({
+      name: "groq", model: "groq/some-better-model",
+    });
+
+    /*
+      And main's real point: an operator may point conversations at a provider
+      the purpose chain would not otherwise reach. Naming one has to work, or
+      the feature was deleted rather than merged. It leads even with the
+      fallback budget spent, because a model somebody named is a primary.
+    */
+    vi.stubEnv("GROQ_SCENE_MODEL", "");
+    vi.stubEnv("OPENROUTER_SCENE_MODEL", "some/scene-model");
+    expect(sceneProviders({ allowFallback: false })[0]).toMatchObject({
+      name: "openrouter", model: "some/scene-model",
+    });
   });
 
   it("gives a deployment with no keys an empty chain for both, as it always did", () => {
