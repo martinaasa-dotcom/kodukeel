@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS, checkQuota, readLimits,
+  DEFAULT_FALLBACK_BUDGET, DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS, checkQuota, readLimits,
   secondsUntilUtcMidnight, utcDay,
   type UsageSnapshot,
 } from "./quota";
@@ -11,7 +11,7 @@ import {
 
 const clear: UsageSnapshot = {
   burstCalls: 0, dailyCalls: 0, dailyCallsAllKinds: 0, dailyMicros: 0,
-  globalMicros: 0, globalKindMicros: 0,
+  globalMicros: 0, globalKindMicros: 0, globalFallbackMicros: 0,
 };
 const NOON = new Date("2026-08-29T12:00:00.000Z");
 
@@ -31,6 +31,7 @@ describe("checkQuota", () => {
       // that is the rule the block below covers.
       globalMicros: reserveFrom() - 1,
       globalKindMicros: DEFAULT_LIMITS.dailyMicrosGlobalForKind - 1,
+      globalFallbackMicros: 0,
     };
     expect(checkQuota(usage, DEFAULT_LIMITS, NOON).allowed).toBe(true);
   });
@@ -143,6 +144,17 @@ describe("readLimits", () => {
     expect(readLimits({})).toEqual(DEFAULT_LIMITS);
   });
 
+  it("reads the fallback budget, clamped to the day", () => {
+    expect(readLimits({}).dailyMicrosFallback).toBe(DEFAULT_FALLBACK_BUDGET);
+    expect(readLimits({ AI_DAILY_USD_FALLBACK: "0.02" }).dailyMicrosFallback).toBe(20_000);
+    // A fallback allowance bigger than the day cannot be spent and must not
+    // read like one that can.
+    expect(readLimits({ AI_DAILY_USD_GLOBAL: "1", AI_DAILY_USD_FALLBACK: "9" })
+      .dailyMicrosFallback).toBe(1_000_000);
+    // And zero is a way to switch the last resort off entirely.
+    expect(readLimits({ AI_DAILY_USD_FALLBACK: "0" }).dailyMicrosFallback).toBe(0);
+  });
+
   it("gives a kind with no slice of its own the whole budget", () => {
     /*
       TTS is the one, and it is the one on purpose: it is free, so a slice
@@ -155,6 +167,30 @@ describe("readLimits", () => {
     */
     const limits = readLimits({ AI_DAILY_USD_GLOBAL: "20" }, "TTS");
     expect(limits.dailyMicrosGlobalForKind).toBe(limits.dailyMicrosGlobal);
+  });
+
+  it("bounds a total Groq outage to the fallback budget, not to nothing", () => {
+    /*
+      THE RISK GIVING EVERY PURPOSE A FALLBACK HANDS BACK, AND WHAT HOLDS IT.
+
+      The purpose split's own argument was that a scene can never touch the
+      Anthropic balance, because there is no chain from one to the other. A last
+      resort undoes that unless the last resort is itself capped, so the worst a
+      day of Groq being down can add is this one number rather than whatever
+      SCENE's $2.00 slice would have bought at Anthropic's rate.
+    */
+    const BALANCE_MICROS = 5_000_000;
+    const afford = BALANCE_MICROS / 30;
+    const worstDay = (DEFAULT_KIND_BUDGETS.TUTOR ?? 0) + DEFAULT_LIMITS.dailyMicrosFallback;
+    expect(worstDay).toBeLessThan(afford);
+    // And the balance still lasts a month of that happening every single day.
+    expect(BALANCE_MICROS / worstDay).toBeGreaterThan(30);
+    /*
+      Uncapped, the same outage would have put SCENE's whole slice through
+      Anthropic. This is the number the cap replaces, and it is the difference
+      between a month and three days.
+    */
+    expect(DEFAULT_KIND_BUDGETS.SCENE).toBeGreaterThan(afford * 10);
   });
 
   it("keeps everything that can reach Anthropic inside what the balance affords", () => {

@@ -112,9 +112,24 @@ export interface ChainOptions {
    * cheapest-first. That default is what the twenty-odd callers asking "is any
    * model configured at all" mean, and none of them is choosing a model.
    *
-   * Name a purpose and the chain is built from that purpose's provider alone.
+   * Name a purpose and the chain leads with that purpose's own provider.
    */
   purpose?: ProviderPurpose;
+  /**
+   * Whether Anthropic may be appended as the last resort.
+   *
+   * Defaults to true, so a caller that has not thought about it gets the
+   * behaviour the chain has always had. What passes `false` is a caller that
+   * has asked the ledger and been told the day's fallback budget is spent:
+   * `authoriseCall` answers it, because only the ledger knows.
+   *
+   * WHY THIS IS A PARAMETER AND NOT A READ. Everything under `lib/tutor/` that
+   * builds a chain is pure and may not open a database, which is the same rule
+   * `lib/usage/pricing.ts` keeps against `lib/usage/ledger.ts`. So the fact
+   * travels in rather than being fetched, and the one place that knows it is
+   * the one place already holding a transaction open to find out.
+   */
+  allowFallback?: boolean;
 }
 
 /**
@@ -160,6 +175,8 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
   },
   scene: (chain) => {
     if (!process.env.GROQ_API_KEY) return;
+    // Groq leads; `resolveProviders` appends the fallback behind it, if the
+    // day's fallback budget still has room for one.
     /*
       `SCENE_MODEL` rather than `GROQ_MODEL`, deliberately.
 
@@ -213,9 +230,47 @@ export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
  * against letting a Groq outage take Anu down with it.
  */
 export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
+  const allowFallback = options.allowFallback ?? true;
+
   if (options.purpose) {
     const chain: ProviderConfig[] = [];
     PURPOSE_CHAINS[options.purpose](chain);
+    /*
+      THE LAST RESORT, AND THE THING THAT MAKES IT SAFE TO HAVE ONE.
+
+      A purpose whose own provider is having a bad hour used to have nowhere to
+      go, which was deliberate: the note above says a Groq outage routed to
+      Anthropic would drain the balance Anu depends on, so one provider's bad
+      hour would take down the feature with no fallback at all.
+
+      That argument was about an *ungated* fallback. What makes this safe is
+      `allowFallback`, which the ledger sets false the moment the day's
+      dedicated fallback budget is spent: the fallback is bounded, small, and
+      separate from every per-kind slice, so the worst a total Groq outage can
+      cost the Anthropic balance is that one number. Past it the chain is the
+      purpose's own provider again, that provider is down, and the purpose
+      degrades exactly as it did before this existed — a scene off its
+      recorded and banked lines, which is how a keyless deployment plays all
+      fourteen of them.
+
+      Anu is the exception and takes no fallback at all. Her provider *is*
+      Anthropic, so there is nothing behind it but Groq, and `npm run
+      eval:anu` measured what Groq does with her questions: it called the
+      tuba : toa gradation "b becomes v" where the dictionary says b : ∅,
+      offered "Mul meeldib" for "Mulle meeldib", and invented `lähema` for
+      `minema` and `kotta` for `koju`, emitting the first as a VOCAB line the
+      app parses. A fallback that answers wrongly is worse than one that does
+      not answer, because the learner cannot tell.
+    */
+    if (allowFallback && options.purpose !== "tutor" && process.env.ANTHROPIC_API_KEY) {
+      if (!chain.some((c) => c.name === "anthropic")) {
+        chain.push({
+          name: "anthropic",
+          model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
+          label: "Anthropic",
+        });
+      }
+    }
     return chain;
   }
   const chain: ProviderConfig[] = [];
@@ -261,14 +316,20 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
       chain.push({ name: "gemini", model, label: "Google Gemini" });
     }
   }
-  if (process.env.ANTHROPIC_API_KEY) {
+  /*
+    The dear tail of the general chain is a fallback like any other, and is
+    gated like one. Groq leads it and the free tiers sit behind Groq, so
+    anything reached down here is reached because everything cheaper failed,
+    which is exactly the traffic the fallback budget exists to bound.
+  */
+  if (allowFallback && process.env.ANTHROPIC_API_KEY) {
     chain.push({
       name: "anthropic",
       model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
       label: "Anthropic",
     });
   }
-  if (process.env.OPENAI_API_KEY) {
+  if (allowFallback && process.env.OPENAI_API_KEY) {
     chain.push({
       name: "openai",
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
@@ -858,7 +919,7 @@ export interface CompletedReply {
  * a free-model deployment points the one feature that needs eyes at something
  * that has them.
  */
-export function visionProviders(): ProviderConfig[] {
+export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
   const override: Record<ProviderName, string | undefined> = {
     openrouter: process.env.OPENROUTER_VISION_MODEL,
     groq: process.env.GROQ_VISION_MODEL,
@@ -875,7 +936,7 @@ export function visionProviders(): ProviderConfig[] {
   */
   const seen = new Set<string>();
   const chain: ProviderConfig[] = [];
-  for (const config of resolveProviders()) {
+  for (const config of resolveProviders(options)) {
     const model = override[config.name]?.trim() || config.model;
     const key = `${config.name}:${model}`;
     if (seen.has(key)) continue;

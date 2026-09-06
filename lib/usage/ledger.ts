@@ -48,6 +48,18 @@ const RELEASE = "RELEASE";
 const PENDING = "pending";
 
 /**
+ * The provider every purpose falls back *to*, and the kind whose spend on it is
+ * not a fallback.
+ *
+ * Named here rather than written into the query, because the pairing is the
+ * rule: Anthropic answering a scene is a last resort and Anthropic answering
+ * Anu is her ordinary Tuesday, and a query that could not tell them apart would
+ * ration the first out of existence every time somebody used the second.
+ */
+const FALLBACK_PROVIDER = "anthropic";
+const TUTOR_KIND: UsageKind = "TUTOR";
+
+/**
  * The advisory lock the ledger's read-and-reserve runs under.
  *
  * An arbitrary constant, and deployment-wide rather than per-user, because the
@@ -195,10 +207,30 @@ export async function snapshotUsage(
   const [global] = await client.$queryRaw<{
     globalMicros: bigint | null;
     globalKindMicros: bigint | null;
+    globalFallbackMicros: bigint | null;
   }[]>`
     SELECT
       coalesce(sum("costMicros"), 0) AS "globalMicros",
-      coalesce(sum("costMicros") FILTER (WHERE "kind" = ${kind}), 0) AS "globalKindMicros"
+      coalesce(sum("costMicros") FILTER (WHERE "kind" = ${kind}), 0) AS "globalKindMicros",
+      /*
+        Fallback traffic: Anthropic answering for a purpose whose own provider
+        is Groq. TUTOR is excluded because Anthropic is her primary and her
+        spend is already bounded by her own slice; counting it here would make a
+        busy day of Anu look like a Groq outage and switch off everybody else's
+        last resort.
+
+        A reservation carries the provider "pending" and so counts for nothing
+        until it settles, which is the right answer rather than a gap: until the
+        chain has opened, nobody knows whether this call will reach Anthropic at
+        all.
+
+        No backticks in here, and that is not a style note: this comment is
+        inside a tagged template literal, so one would end the SQL string and
+        the file stops parsing.
+      */
+      coalesce(sum("costMicros") FILTER (
+        WHERE "provider" = ${FALLBACK_PROVIDER} AND "kind" <> ${TUTOR_KIND}
+      ), 0) AS "globalFallbackMicros"
     FROM "UsageEvent" WHERE "day" = ${day}
   `;
 
@@ -213,6 +245,7 @@ export async function snapshotUsage(
     dailyMicros: n(row?.userMicros),
     globalMicros: n(global?.globalMicros),
     globalKindMicros: n(global?.globalKindMicros),
+    globalFallbackMicros: n(global?.globalFallbackMicros),
   };
 }
 
@@ -258,7 +291,7 @@ export async function authoriseCall(
   ownerId: string,
   kind: UsageKind,
   now = new Date(),
-): Promise<QuotaDecision & { reservation?: Reservation }> {
+): Promise<QuotaDecision & { reservation?: Reservation; fallbackAllowed: boolean }> {
   try {
     /*
       Read *for this kind*, which is what resolves its slice of the day's
@@ -288,8 +321,16 @@ export async function authoriseCall(
       // not one.
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(${LEDGER_LOCK})`;
 
-      const decision = checkQuota(await snapshotUsage(ownerId, kind, now, tx), scaled, now);
-      if (!decision.allowed) return decision;
+      const snapshot = await snapshotUsage(ownerId, kind, now, tx);
+      /*
+        Whether this call may be offered a last resort, which is a different
+        question from whether it may happen at all and is answered here because
+        this is the one place already holding the numbers. The chain builder is
+        pure and cannot ask; `resolveProviders` takes it as a parameter.
+      */
+      const fallbackAllowed = snapshot.globalFallbackMicros < limits.dailyMicrosFallback;
+      const decision = checkQuota(snapshot, scaled, now);
+      if (!decision.allowed) return { ...decision, fallbackAllowed };
 
       const row = await tx.usageEvent.create({
         data: {
@@ -309,7 +350,11 @@ export async function authoriseCall(
         select: { id: true },
       });
 
-      return { ...decision, reservation: { id: row.id, ownerId, kind, micros } };
+      return {
+        ...decision,
+        fallbackAllowed,
+        reservation: { id: row.id, ownerId, kind, micros },
+      };
     });
   } catch (error) {
     reportError(error, { at: "usage/authoriseCall", ownerId, extra: { kind } });
@@ -318,6 +363,10 @@ export async function authoriseCall(
       reason: "GLOBAL_SPEND",
       message: "Anu is unavailable for a moment. The usage ledger could not be read.",
       retryAfterSeconds: 30,
+      // Fails closed on the fallback too: a ledger that cannot be read cannot
+      // say how much of the day's fallback budget is left, and guessing "plenty"
+      // is the one guess that costs money.
+      fallbackAllowed: false,
     };
   }
 }

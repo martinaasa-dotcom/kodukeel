@@ -35,6 +35,17 @@ export interface QuotaLimits {
    */
   dailyMicrosGlobalForKind: number;
   /**
+   * Micro-dollars every user together may spend in a UTC day on *fallback*
+   * traffic: Anthropic answering for a purpose whose own provider is Groq.
+   *
+   * A fourth number rather than a wider slice, because it bounds a different
+   * thing. The per-kind slices ask "how much may this feature spend"; this asks
+   * "how much may a bad day at Groq cost the balance Anu runs on", and the
+   * answer has to hold across every feature at once. Anu's own spend is not in
+   * it: Anthropic is her primary, not her fallback.
+   */
+  dailyMicrosFallback: number;
+  /**
    * The tail of the global budget held back for people who have barely used
    * Anu today. 0.25 means the last quarter is reserved.
    */
@@ -42,6 +53,40 @@ export interface QuotaLimits {
   /** Calls a user may still make once the budget is down to that reserve. */
   reserveCallsPerUser: number;
 }
+
+/**
+ * What a day of falling back to Anthropic may cost, across every purpose.
+ *
+ * THE RISK THIS EXISTS TO BOUND is the one the purpose split was praised for
+ * removing: with no fallback at all, a scene could never touch the Anthropic
+ * balance however badly Groq behaved. Giving every purpose a last resort hands
+ * that risk straight back, unless the fallback itself is capped. So it is.
+ *
+ * THE ARITHMETIC. On a day Groq never answers, every fallback call is priced at
+ * Anthropic's rate: a scene turn is $0.0034, a grader note $0.0038, a scanned
+ * page $0.0100. $0.05 is therefore about 14 scene turns, or 13 grader notes, or
+ * 5 pages, or some mixture — thin, and deliberately so. It is a limp rather
+ * than a spare leg: enough that a short Groq wobble is invisible to a learner,
+ * not enough that a sustained outage quietly re-routes the app onto the dear
+ * provider for a day.
+ *
+ * WHAT IT COSTS THE BALANCE. Anu is $0.10 a day and is not fallback traffic, so
+ * the worst an outage can add is this $0.05, giving $0.15 against the $0.167 a
+ * day that makes $5 last a month. Fifty days normally, thirty-three on a day
+ * Groq is out from midnight to midnight. Neither is the collapse-to-hours that
+ * an ungated fallback would have been: the same outage against uncapped
+ * fallback would have run SCENE alone at $2.00 of Anthropic in a day, which is
+ * the whole balance inside three days.
+ *
+ * PAST IT, THE PURPOSE DEGRADES RATHER THAN SPENDING. `authoriseCall` stops
+ * offering the fallback link, the chain is the purpose's own provider again,
+ * that provider is down, and the ladder falls to where it already falls with
+ * no key at all: a scene plays off its recorded and banked lines, the grader
+ * keeps the verdict it decided by string comparison before any model was asked,
+ * and the scanner says so. That is the behaviour this app already ships with,
+ * reached by a budget rather than by a missing key.
+ */
+export const DEFAULT_FALLBACK_BUDGET = 50_000; // $0.05
 
 /**
  * Sized for an app that is free to everybody and has to stay that way.
@@ -75,9 +120,11 @@ export const DEFAULT_LIMITS: QuotaLimits = {
   // Overridden per kind by `DEFAULT_KIND_BUDGETS`; this is the value a kind
   // with nothing to say about itself falls back to, which is the whole budget.
   dailyMicrosGlobalForKind: 3_000_000,
+  dailyMicrosFallback: DEFAULT_FALLBACK_BUDGET,
   globalReserveFraction: 0.25,
   reserveCallsPerUser: 3,
 };
+
 
 /**
  * A slice of the day's budget per kind of call, and why one number stopped
@@ -205,6 +252,7 @@ export interface QuotaEnv {
   AI_DAILY_USD_SCENE?: string | undefined;
   AI_DAILY_USD_GRADER?: string | undefined;
   AI_DAILY_USD_SCAN?: string | undefined;
+  AI_DAILY_USD_FALLBACK?: string | undefined;
   AI_GLOBAL_RESERVE_FRACTION?: string | undefined;
   AI_RESERVE_CALLS_PER_USER?: string | undefined;
   [key: string]: string | undefined;
@@ -243,6 +291,13 @@ export function readLimits(env: QuotaEnv = process.env, kind?: UsageKind): Quota
     dailyMicrosGlobalForKind: Math.min(
       dailyMicrosGlobal,
       kindBudgetMicros(kind, env, dailyMicrosGlobal),
+    ),
+    // Clamped to the day's budget for the reason the slice above is: a fallback
+    // allowance larger than the whole cannot be spent and reads like one that
+    // can.
+    dailyMicrosFallback: Math.min(
+      dailyMicrosGlobal,
+      Math.round(num(env.AI_DAILY_USD_FALLBACK, DEFAULT_FALLBACK_BUDGET / 1e6) * 1e6),
     ),
     // Clamped rather than trusted: a fraction above 1 would reserve more than
     // the budget and refuse the first call of the day.
@@ -303,6 +358,18 @@ export interface UsageSnapshot {
    * having been cheap.
    */
   globalKindMicros: number;
+  /**
+   * Micro-dollars everyone spent today (UTC) on Anthropic answering for a
+   * purpose whose own provider is Groq.
+   *
+   * Settled calls only, because a reservation is written before the chain has
+   * opened and cannot know which provider will answer: `PENDING` is the honest
+   * value there and it is not this one. So a burst of fallback calls in flight
+   * at once is under-counted for the seconds before they settle, which is the
+   * same window every figure in this file has and is bounded by how many
+   * requests one deployment has open at a time.
+   */
+  globalFallbackMicros: number;
 }
 
 export type QuotaDenial =

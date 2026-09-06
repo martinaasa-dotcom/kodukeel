@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { resolveProvider, TutorError } from "@/lib/tutor/provider";
+import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { gradeComposition } from "@/lib/tutor/grader";
 import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
@@ -70,9 +70,17 @@ export async function POST(request: Request) {
   // then withheld. Only the first is owed its authorization back.
   let settled = false;
   try {
-    const { graded, usage } = await gradeComposition(config, text, level);
+      /*
+    A chain rather than the head of one, so a grader note has a last resort.
+    Anthropic sits behind Groq only while the day's fallback budget has room:
+    past it the chain is one link, and a note that cannot be written is dropped
+    exactly as it was before this existed. The verdict the learner acts on was
+    decided by string comparison against the dictionary before any of this ran.
+  */
+  const chain = resolveProviders({ purpose: undefined, allowFallback: decision.fallbackAllowed });
+  const { graded, usage, config: answered } = await gradeComposition(chain, text, level);
     after(() => recordUsage({
-      ownerId, kind: "GRADER", provider: config.name, model: config.model,
+      ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
       reservation: decision.reservation,
     }));
@@ -101,7 +109,7 @@ export async function POST(request: Request) {
       reportError(new Error("composition reader introduced an unverified Estonian form"), {
         at: "api/exam/write/verify",
         ownerId,
-        extra: { model: config.model, unverified: verified.unverified },
+        extra: { model: answered.model, unverified: verified.unverified },
       });
       return Response.json({
         comment: "", rule: "", aiAvailable: true,

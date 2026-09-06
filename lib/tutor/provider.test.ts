@@ -97,7 +97,9 @@ describe("a chain built for a purpose", () => {
   it("sends scene composition to Groq, and to the model the eval ranked", () => {
     all();
     const chain = resolveProviders({ purpose: "scene" });
-    expect(chain.map((c) => c.name)).toEqual(["groq"]);
+    // Groq leads, on the model `eval:composers` ranked. What sits behind it is
+    // the bounded last resort, covered by its own cases below.
+    expect(chain[0]?.name).toBe("groq");
     expect(chain[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
   });
 
@@ -108,12 +110,16 @@ describe("a chain built for a purpose", () => {
     expect(chain[0]?.model).toBe("claude-sonnet-5");
   });
 
-  it("lets neither purpose reach the other's provider", () => {
+  it("lets neither purpose take the other's provider as its primary", () => {
+    /*
+      This used to assert that neither could reach the other at all, which was
+      true while there was no fallback anywhere. There is one now, bounded by
+      its own daily budget, so the claim that survives is the one that was doing
+      the work: a purpose's *first* choice is its own provider, and Anu has no
+      Groq behind her at any budget.
+    */
     all();
-    // The cost half of the split: Anthropic answering scene lines is the whole
-    // conversation billed at forty times the rate it was measured at.
-    expect(resolveProviders({ purpose: "scene" }).some((c) => c.name === "anthropic")).toBe(false);
-    // And the quality half: Groq was ranked on fourteen-word constrained output.
+    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("groq");
     expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "groq")).toBe(false);
   });
 
@@ -128,10 +134,12 @@ describe("a chain built for a purpose", () => {
     */
     all();
     for (const purpose of ["tutor", "scene"] as const) {
-      const names = resolveProviders({ purpose }).map((c) => c.name);
-      expect(names).not.toContain("openrouter");
-      expect(names).not.toContain("gemini");
-      expect(names).not.toContain("openai");
+      for (const allowFallback of [true, false]) {
+        const names = resolveProviders({ purpose, allowFallback }).map((c) => c.name);
+        expect(names).not.toContain("openrouter");
+        expect(names).not.toContain("gemini");
+        expect(names).not.toContain("openai");
+      }
     }
   });
 
@@ -144,11 +152,61 @@ describe("a chain built for a purpose", () => {
     */
     only("groq");
     expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
+    // Anu has no fallback at any budget, so a Groq-only deployment has no tutor.
     expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
 
     only("anthropic");
     expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
-    expect(resolveProviders({ purpose: "scene" })).toHaveLength(0);
+    /*
+      A scene on an Anthropic-only deployment composes through the fallback, and
+      stops the moment the fallback budget is spent. Both readings matter: the
+      first is why a one-key install still works, the second is why a Groq
+      outage cannot quietly become an Anthropic bill.
+    */
+    expect(resolveProviders({ purpose: "scene", allowFallback: true })).toHaveLength(1);
+    expect(resolveProviders({ purpose: "scene", allowFallback: false })).toHaveLength(0);
+  });
+
+  it("puts Anthropic behind a purpose's own provider, once, as a last resort", () => {
+    all();
+    const scene = resolveProviders({ purpose: "scene", allowFallback: true });
+    expect(scene.map((c) => c.name)).toEqual(["groq", "anthropic"]);
+    // Groq still leads: the fallback is behind it, not instead of it.
+    expect(scene[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+  });
+
+  it("drops the fallback the moment the day's fallback budget is spent", () => {
+    /*
+      What the ledger's `fallbackAllowed` buys. Past the budget the chain is the
+      purpose's own provider again, so a Groq that is not answering means the
+      scene ladder falls to its recorded and banked lines, which is where a
+      keyless deployment already lives.
+    */
+    all();
+    const scene = resolveProviders({ purpose: "scene", allowFallback: false });
+    expect(scene.map((c) => c.name)).toEqual(["groq"]);
+    // The general chain's dear tail is a fallback too, and goes the same way.
+    expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
+    expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
+  });
+
+  it("never gives Anu a fallback, however much budget there is", () => {
+    /*
+      Anthropic is her primary, so the only thing behind it would be Groq, and
+      `eval:anu` measured what Groq does with her questions: the tuba : toa
+      gradation called "b becomes v" where the dictionary says b : ∅, "Mul
+      meeldib" for "Mulle meeldib", and the invented lemmas `lähema` and
+      `kotta`, the first emitted as a VOCAB line the app parses. An answer that
+      is wrong in a way the learner cannot see is worse than no answer.
+    */
+    all();
+    expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
+      .toEqual(["anthropic"]);
+  });
+
+  it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
+    all();
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["groq", "anthropic"]);
   });
 
   it("gives a deployment with no keys an empty chain for both, as it always did", () => {

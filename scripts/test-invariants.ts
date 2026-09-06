@@ -11285,6 +11285,56 @@ check("each routed purpose asks for its own chain", () => {
 });
 
 /**
+ * A LAST RESORT IS ASKED FOR, NEVER ASSUMED.
+ *
+ * Every purpose has Anthropic behind it now, which hands back the exact risk the
+ * purpose split was built to remove: with no fallback, a scene could not touch
+ * the balance Anu runs on however badly Groq behaved. What makes it safe again
+ * is that the fallback is bounded, and the bound only works if the routes that
+ * spend actually consult it. A route that builds its chain without
+ * `allowFallback` gets one anyway, because the default is true, and nothing
+ * fails: the answer arrives, and a sustained Groq outage quietly re-routes the
+ * app onto the dear provider for a day.
+ *
+ * So every metered route that builds a chain has to read the ledger's own
+ * verdict. Anchored on the call rather than the import, for the reason six other
+ * checks in this file are.
+ */
+check("a metered route asks the ledger before offering a last resort", () => {
+  const routes = [
+    "app/api/scene/route.ts",
+    "app/api/scan/route.ts",
+    "app/api/write/route.ts",
+    "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts",
+  ];
+  for (const file of routes) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /allowFallback:\s*decision\.fallbackAllowed/,
+      `${file} spends money and builds a chain without asking the ledger whether ` +
+      "today's fallback budget has room. The default is true, so this fails open: " +
+      "a day of Groq being down becomes a day of Anthropic billing.",
+    );
+  }
+
+  /*
+    And Anu never gets one. Anthropic is her primary, so the only thing behind
+    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
+    "b becomes v" against a dictionary that says b : the consonant going, and
+    inventing a lemma it then emitted as a VOCAB line.
+  */
+  const provider = code(join("lib", "tutor", "provider.ts"));
+  assert.match(
+    provider,
+    /options\.purpose\s*!==\s*"tutor"/,
+    "lib/tutor/provider.ts no longer excludes the tutor from the fallback, so " +
+    "Anu can now be answered by a model measured to get her grammar wrong.",
+  );
+});
+
+/**
  * A SCRIPT THAT MEASURES THE CHAIN MEASURES THE WHOLE CHAIN.
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain
