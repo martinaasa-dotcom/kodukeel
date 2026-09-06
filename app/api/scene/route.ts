@@ -5,7 +5,9 @@ import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
-import { openWithFallback, sceneProviders, type ChatMessage } from "@/lib/tutor/provider";
+import {
+  SCENE_REPLY_TOKENS, openWithFallback, sceneProviders, type ChatMessage,
+} from "@/lib/tutor/provider";
 import {
   MAX_TURNS, MAX_TURN_CHARS, clockInPlay, growDictionary, knowing, readDraw, replay, sceneContext,
   sceneVouch,
@@ -868,6 +870,13 @@ async function compose(
         }));
       },
       live,
+      /*
+        Room for a model that thinks before it writes. Several of the models
+        this composer can be pointed at spend hundreds of tokens in a reasoning
+        field, and a trace that runs past `REPLY_TOKENS` comes back as an empty
+        string, which reads as a bad minute one rung down rather than as a cap.
+      */
+      SCENE_REPLY_TOKENS,
     );
 
     let text = "";

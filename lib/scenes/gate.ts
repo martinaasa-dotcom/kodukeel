@@ -44,7 +44,7 @@ import { QUESTION_SHAPE, type BeatSpec } from "./types";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive",
+  "stretch", "clause", "infinitive", "negation",
 ] as const;
 
 /**
@@ -330,6 +330,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
 
   if (noClause(tokens, stretched, beat, context)) failed.push("clause");
   if (wrongInfinitive(text, context)) failed.push("infinitive");
+  if (inflectedAfterEi(text, context)) failed.push("negation");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -451,6 +452,43 @@ function possessive(word: string, clause: readonly string[], context: GateContex
 function isPerson(word: string, context: GateContext): boolean {
   for (const table of context.lexicon.persons.values()) {
     for (const code of PERSON_CODES) if (table.get(code)?.toLowerCase() === word) return true;
+  }
+  return false;
+}
+
+/**
+ * A verb still carrying its person after the negator.
+ *
+ * Estonian negates with `ei` and the *bare* form: `ei ole`, `ei tea`, `ei
+ * saa`, whoever is speaking. `ei olen` and `ei saan` are the other mistake a
+ * model makes constantly here and a person never makes, and they are the same
+ * shape as `saan aitama`: fluent, every word vouched, and not the language.
+ *
+ * `PERSON_CODES` is the present indicative and nothing else, which is what
+ * makes this decidable: the negative form has a code of its own, so `ei ole`
+ * asks about a spelling the person table does not hold and this says nothing.
+ * The conditional, the imperative and both participles have their own codes
+ * too, so `ei oleks`, `ei olnud` and `ärge minge` are all untouched.
+ *
+ * Immediately after, and within a clause, for the reason `wrongInfinitive`
+ * gives: `Ei, ma tean` is a person answering no and then saying what they
+ * know, and the comma is where one stops and the other starts.
+ */
+function inflectedAfterEi(text: string, context: GateContext): boolean {
+  const persons = new Set<string>();
+  for (const table of context.lexicon.persons.values()) {
+    for (const code of PERSON_CODES) {
+      const form = table.get(code);
+      if (form) persons.add(form.toLowerCase());
+    }
+  }
+  if (persons.size === 0) return false;
+
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    for (let at = 0; at < lower.length - 1; at += 1) {
+      if (lower[at] === "ei" && persons.has(lower[at + 1]!)) return true;
+    }
   }
   return false;
 }

@@ -236,6 +236,27 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
 export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
 
 /**
+ * How much room a scene line needs, which is not what Anu needs.
+ *
+ * `REPLY_TOKENS` is 1,200 and its own note says the cap exists because some
+ * models spend their budget in a reasoning field and write into `content` only
+ * once they have finished. Measured on the route's own prompt across the
+ * models this deployment can reach, that is not a hypothetical: `qwen/
+ * qwen3.8-27b` spends about ten output tokens and never comes close, while
+ * `openai/gpt-oss-120b` spends about 380 a line and `groq/compound` about 770,
+ * with single lines over a thousand. A trace that runs past the cap comes back
+ * as an empty string, which is indistinguishable from a bad minute one rung
+ * down, so the cap was quietly deciding which models the scene composer can
+ * use.
+ *
+ * Four thousand, and it costs nothing to raise: output is billed on what comes
+ * back, so a model that answers in ten tokens is charged for ten either way.
+ * What it buys is that changing the scene model is a change to one line rather
+ * than a change that silently truncates.
+ */
+export const SCENE_REPLY_TOKENS = 4_000;
+
+/**
  * Every provider with a key, in the order they should be tried.
  *
  * With no `purpose` this is Groq first and the dear keys last, one link per
@@ -612,6 +633,13 @@ export async function openWithFallback(
     never invalidates the part that does not.
   */
   live = "",
+  /*
+    How much room the answer may take, where the caller needs more than the
+    default. Absent for Anu, whose replies are prose inside `REPLY_TOKENS`;
+    set by the scene composer, because several of the models it can be pointed
+    at spend hundreds of tokens thinking before they write the sentence.
+  */
+  maxTokens?: number,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
 
@@ -622,7 +650,7 @@ export async function openWithFallback(
       const upstream =
         config.name === "anthropic"
           ? await callAnthropic(config, system, messages, live)
-          : await callOpenAiCompatible(config, system, messages, last, live);
+          : await callOpenAiCompatible(config, system, messages, last, live, maxTokens);
       // The ledger has to see the provider that actually answered, not the head
       // of the chain — falling back to a dearer model must not go unmetered.
       return { config, chunks: readStream(config, upstream, system + live, messages, onUsage) };
@@ -829,6 +857,7 @@ async function callOpenAiCompatible(
   messages: ChatMessage[],
   patient = true,
   live = "",
+  maxTokens?: number,
 ) {
   const { url, keyEnv, usageFrames } = openAiCompatible(config);
   // Safe only because every config reaching here came from resolveProviders(),
@@ -850,7 +879,7 @@ async function callOpenAiCompatible(
       // Without this the stream carries no usage frame and the ledger has to
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
-      max_tokens: REPLY_TOKENS,
+      max_tokens: maxTokens ?? REPLY_TOKENS,
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),

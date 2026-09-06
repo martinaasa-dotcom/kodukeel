@@ -396,6 +396,32 @@ describe("a verb that does not agree with its subject", () => {
 });
 
 /**
+ * AND A VERB STILL CARRYING ITS PERSON AFTER THE NEGATOR.
+ *
+ * Estonian negates with `ei` and the bare form: `ei ole`, `ei tea`, `ei saa`,
+ * whoever is speaking. `ei olen` is the same shape of fault as `saan aitama`,
+ * fluent and vouched word by word and not the language, and it is decidable
+ * because the negative has a code of its own: this asks only about the six
+ * present persons, so `ei ole`, `ei oleks` and `ei olnud` are all untouched.
+ */
+describe("a verb that kept its person after the negator", () => {
+  const ctx = context();
+
+  it("withholds the person where the bare form belongs", () => {
+    expect(runGate("Kas te ei tahate valu?", beat(), ctx).failed).toContain("negation");
+  });
+
+  it("says nothing about the bare form, which is what belongs there", () => {
+    expect(runGate("Kas teil ei ole valu?", beat(), ctx).failed).not.toContain("negation");
+  });
+
+  /* `Ei, ma tahan.` is a person answering no and then saying what they want. */
+  it("says nothing across a clause boundary", () => {
+    expect(runGate("Ei, kas te tahate valu?", beat(), ctx).failed).not.toContain("negation");
+  });
+});
+
+/**
  * AND A MA-INFINITIVE WHERE THE DA-INFINITIVE BELONGS.
  *
  * `Tere! Mis needus täna aitama saan?` reached a learner and every other check

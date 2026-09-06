@@ -13075,6 +13075,29 @@ check("the other side may volunteer something, and never says it twice", () => {
   and a check built on a list of those would be a check built on the half
   somebody forgot, refusing correct lines. These seven never take one.
 */
+/*
+  AND A VERB THAT KEPT ITS PERSON AFTER THE NEGATOR.
+
+  Estonian negates with `ei` and the bare form: `ei ole`, `ei tea`, `ei saa`,
+  whoever is speaking. `ei olen` is the same shape of fault as `saan aitama`,
+  fluent and vouched word by word and not the language. It is decidable because
+  the negative has a code of its own, so asking only about the six present
+  persons leaves `ei ole`, `ei oleks` and `ei olnud` alone.
+*/
+check("a verb keeps no person after the negator", () => {
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /if \(inflectedAfterEi\(text, context\)\) failed\.push\("negation"\)/,
+    "the gate stopped asking whether a verb kept its person after `ei`, so `ei olen` is a line the "
+    + "other side says",
+  );
+  assert.match(
+    gate, /lower\[at\] === "ei" && persons\.has\(lower\[at \+ 1\]!\)/,
+    "the negation check stopped reading the word straight after the negator, so it either misses "
+    + "the fault or fires on `Ei, ma tean`",
+  );
+});
+
 check("a verb that only takes the da-infinitive is not given the other one", () => {
   const lexicon = code("lib/scenes/lexicon.ts");
   assert.match(
