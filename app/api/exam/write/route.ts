@@ -1,8 +1,8 @@
 import { after } from "next/server";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { TutorError } from "@/lib/tutor/provider";
-import { gradeComposition, graderChain } from "@/lib/tutor/grader";
+import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
+import { gradeComposition } from "@/lib/tutor/grader";
 import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { reportError } from "@/lib/observability/report";
@@ -54,11 +54,7 @@ export async function POST(request: Request) {
     return Response.json({ error: "There is not enough here to read." }, { status: 400 });
   }
 
-  // The whole chain rather than its head. The grader used to take
-  // `resolveProvider()`, which is one model with nothing behind it, so a
-  // provider having a bad minute was the learner losing their feedback.
-  const chain = graderChain();
-  const config = chain[0];
+  const config = resolveProvider();
   if (!config) {
     return Response.json({ comment: "", rule: "", aiAvailable: false });
   }
@@ -74,10 +70,20 @@ export async function POST(request: Request) {
   // then withheld. Only the first is owed its authorization back.
   let settled = false;
   try {
-    const { graded, usage, config: answered } = await gradeComposition(chain, text, level);
+      /*
+    A chain rather than the head of one, so a grader note has a last resort.
+    Anthropic sits behind Groq only while the day's fallback budget has room:
+    past it the chain is one link, and a note that cannot be written is dropped
+    exactly as it was before this existed. The verdict the learner acts on was
+    decided by string comparison against the dictionary before any of this ran.
+  */
+  const chain = resolveProviders({ purpose: undefined, allowFallback: decision.fallbackAllowed });
+  const { graded, usage, config: answered } = await gradeComposition(chain, text, level);
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
       reservation: decision.reservation,
     }));
     settled = true;

@@ -2987,7 +2987,7 @@ check("Anu's reply is drawn as typography, shown once finished, and the marker l
   }
 
   // The prompt says what formatting is allowed, in the terms the renderer understands.
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   assert.match(prompt, /\*\*bold\*\*/, "the prompt no longer says what bold is for");
   assert.match(prompt, /No headings, no tables/, "the prompt no longer rules out the shapes the renderer will not draw");
 });
@@ -3664,7 +3664,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     imports a constant and never interpolates it type-checks perfectly and
     asks the model for nothing, which is the failure worth catching here.
   */
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   for (const rule of VOICE_RULES) {
     assert.ok(prompt.includes(rule), `Anu is not given the rule: ${rule.slice(0, 48)}`);
   }
@@ -11217,6 +11217,137 @@ check("a class cannot read a conversation", () => {
 });
 
 /**
+ * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
+ *
+ * Two paid keys are configured for two different reasons: Anu asks Anthropic
+ * because Sonnet was the best of everything tested on real Estonian, and scene
+ * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
+ * finite verb every time at a quarter-second median, for a fortieth of the
+ * price, on a path that makes calls by the dozen.
+ *
+ * `resolveProviders()` with no argument is still the whole chain, deliberately,
+ * because twenty-odd callers mean "is a model configured at all" by it and none
+ * of them is choosing where to send anything. That is also what makes this
+ * regression invisible: a route that dropped its `purpose` still compiles,
+ * still answers, and still names the model that wrote it in a header nobody
+ * watches. What it stops doing is the split. Anu's question gets answered by a
+ * model ranked on fourteen-word constrained sentences, or every scene line in
+ * every conversation gets billed at Sonnet's rate against a $5 balance, and
+ * a Groq outage starts taking Anu down with it.
+ *
+ * Anchored on the call rather than on the import, for the reason five other
+ * checks in this file are: a file can import the right function and go on
+ * calling it the general way, which is exactly the shape of the fault.
+ *
+ * The screens are in it beside the routes. A screen that reads the general
+ * chain to decide whether to draw Anu's text box promises what `/api/tutor` is
+ * going to refuse, which is a failure misnaming its own cause.
+ */
+check("each routed purpose asks for its own chain", () => {
+  /*
+    The scene route asks through `sceneProviders`, which is the scene chain plus
+    main's per-provider `*_SCENE_MODEL` override, so it is checked one level
+    down: the wrapper has to be built on the purpose, or the route is asking a
+    general chain wearing a scene-shaped name. That indirection is the merge of
+    two sessions' answers and is argued at the function itself.
+  */
+  const provider = code(join("lib", "tutor", "provider.ts"));
+  const scenePart = provider.slice(provider.indexOf("export function sceneProviders"));
+  assert.match(
+    scenePart,
+    /resolveProviders\(\s*\{[^}]*purpose:\s*"scene"/,
+    "sceneProviders no longer builds on the scene purpose, so a scene can reach " +
+    "whatever the general chain holds and the per-purpose budget stops meaning anything.",
+  );
+
+  const routed: Readonly<Record<string, "tutor" | "scene">> = {
+    // The routes and reads that must not take the general chain by accident.
+    "app/api/tutor/route.ts": "tutor",
+    "app/(app)/layout.tsx": "tutor",
+    "app/(app)/tutor/page.tsx": "tutor",
+    "app/actions.ts": "scene",
+  };
+
+  for (const [file, purpose] of Object.entries(routed)) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /*
+        `String.raw`, because a template literal eats the backslashes on its way
+        to `RegExp` and the first version of this line built
+        /resolveProviders(s*{s*purpose:s*"tutor"/, which is an unterminated
+        group rather than a check. It threw instead of passing, which is the
+        lucky half; the same mistake inside a character class is a pattern that
+        quietly matches nothing.
+      */
+      new RegExp(String.raw`resolveProviders\(\s*\{\s*purpose:\s*"${purpose}"`),
+      `${file} is a ${purpose} path and never asks for the ${purpose} chain. ` +
+      "Its provider is a measured choice, not whichever key happens to be set.",
+    );
+    /*
+      And never the bare call beside it, which is the half a diff hides: adding
+      the purpose-scoped read and leaving the old line in place is two chains,
+      of which the general one is the one that gets used.
+    */
+    assert.doesNotMatch(
+      src,
+      /resolveProviders\(\s*\)/,
+      `${file} still reads the general chain somewhere. A routed path has one ` +
+      "chain, or the split is a comment.",
+    );
+  }
+});
+
+/**
+ * A LAST RESORT IS ASKED FOR, NEVER ASSUMED.
+ *
+ * Every purpose has Anthropic behind it now, which hands back the exact risk the
+ * purpose split was built to remove: with no fallback, a scene could not touch
+ * the balance Anu runs on however badly Groq behaved. What makes it safe again
+ * is that the fallback is bounded, and the bound only works if the routes that
+ * spend actually consult it. A route that builds its chain without
+ * `allowFallback` gets one anyway, because the default is true, and nothing
+ * fails: the answer arrives, and a sustained Groq outage quietly re-routes the
+ * app onto the dear provider for a day.
+ *
+ * So every metered route that builds a chain has to read the ledger's own
+ * verdict. Anchored on the call rather than the import, for the reason six other
+ * checks in this file are.
+ */
+check("a metered route asks the ledger before offering a last resort", () => {
+  const routes = [
+    "app/api/scene/route.ts",
+    "app/api/scan/route.ts",
+    "app/api/write/route.ts",
+    "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts",
+  ];
+  for (const file of routes) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /allowFallback:\s*decision\.fallbackAllowed/,
+      `${file} spends money and builds a chain without asking the ledger whether ` +
+      "today's fallback budget has room. The default is true, so this fails open: " +
+      "a day of Groq being down becomes a day of Anthropic billing.",
+    );
+  }
+
+  /*
+    And Anu never gets one. Anthropic is her primary, so the only thing behind
+    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
+    "b becomes v" against a dictionary that says b : the consonant going, and
+    inventing a lemma it then emitted as a VOCAB line.
+  */
+  assert.match(
+    code(join("lib", "tutor", "provider.ts")),
+    /options\.purpose\s*!==\s*"tutor"/,
+    "lib/tutor/provider.ts no longer excludes the tutor from the fallback, so " +
+    "Anu can now be answered by a model measured to get her grammar wrong.",
+  );
+});
+
+/**
  * A SCRIPT THAT MEASURES THE CHAIN MEASURES THE WHOLE CHAIN.
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain
@@ -11318,6 +11449,94 @@ check("the scene gate has one implementation, and a line says where it came from
  * sets an exam can reach the bank at all. `lib/scenes/bank.test.ts` holds
  * the sixth, that every row still passes the gate today.
  */
+/**
+ * A CACHED INPUT TOKEN IS PRICED AS ONE, AND THE STATIC HALF OF A PROMPT DOES
+ * NOT VARY PER LEARNER.
+ *
+ * Two halves of prompt caching, and each fails in a way nothing else notices.
+ *
+ * Every Anthropic call site reports three input buckets and they are billed at
+ * three rates: a read at a tenth of base, a write at 1.25x. Summing them into
+ * one figure priced at base charges a read ten times over, which nothing
+ * refuses and no learner sees; what it costs is the feature, because the
+ * budget then binds ten times too early on exactly the traffic the breakpoint
+ * was added to make cheap. The safe direction is what let it sit there.
+ *
+ * And a cache entry is keyed on the exact prefix, so anything varying inside
+ * the block behind the breakpoint splits it. The learner's level did that from
+ * character 158 of 9,093, which is a cache fragmented six ways by a string
+ * that was already being sent in the block after it.
+ */
+check("a cached input token is priced as one, and the cached prompt is the same for everybody", () => {
+  const pricing = code("lib/usage/pricing.ts");
+  assert.match(pricing, /CACHE_READ_RATE = 0\.1/, "a cache read is no longer priced at a tenth of base");
+  assert.match(pricing, /CACHE_WRITE_RATE = 1\.25/, "a cache write is no longer priced at 1.25x base");
+  assert.match(
+    pricing,
+    /cached \/ 1e6\) \* price\.inputPerMTok \* CACHE_READ_RATE/,
+    "estimateCostMicros no longer prices the cached bucket at the cache rate",
+  );
+
+  /*
+    THE SPLIT HAS TO SURVIVE THE WHOLE JOURNEY, and the middle of it is where
+    it would be dropped. A call site can report the buckets and a route can
+    forget to pass them on, and the result compiles, runs, prices everything at
+    base, and looks exactly like a deployment that never gets a cache hit.
+  */
+  assert.match(code("lib/tutor/provider.ts"), /into\.cachedInputTokens = cached;/,
+    "the streaming path no longer reports which input tokens came off a cache");
+  assert.match(code("lib/tutor/grader.ts"), /usage\.cachedInputTokens = cached;/,
+    "the grader's transport no longer reports which input tokens came off a cache");
+  assert.match(code("lib/usage/ledger.ts"), /cachedInputTokens: input\.cachedInputTokens,/,
+    "recordUsage no longer hands the split to the price table");
+
+  for (const file of [
+    "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
+  ]) {
+    assert.match(
+      code(file),
+      /cachedInputTokens: usage\.cachedInputTokens/,
+      `${file} settles a call without passing on which of its input tokens were cached, so a cache read is charged ten times over`,
+    );
+  }
+
+  /*
+    AND THE CACHED BLOCK IS BYTE-IDENTICAL FOR EVERY LEARNER. Asserted on the
+    signature rather than on today's sentence: a `buildSystemPrompt` that takes
+    the learner's anything is a prompt that varies per learner, whatever it
+    does with the argument. What is allowed to vary is `learnerNote`, which is
+    the block after the breakpoint and exists for exactly that.
+  */
+  /*
+    AND ONLY THE ONE PROMPT LONG ENOUGH TO BE CACHED ASKS TO BE.
+
+    A `cache_control` breakpoint on a prefix under 1,024 tokens is accepted,
+    ignored, and reads to anybody looking as though caching were switched on.
+    Two of the three were exactly that: the grader's three system prompts are
+    462, 609 and 717 tokens and the scanner's is 221, against the tutor's
+    ~2,275. Asserted as a count rather than by naming the survivor, because
+    what goes wrong here is a fourth call site copying the parameter from a
+    neighbour without measuring its own prompt.
+  */
+  const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control/g)].length
+    + [...code("lib/tutor/grader.ts").matchAll(/cache_control/g)].length;
+  assert.equal(
+    breakpoints, 1,
+    "a second `cache_control` breakpoint is being asked for. Anthropic creates no cache entry under 1,024 tokens, and only the tutor's prompt clears that; measure the prefix before adding one.",
+  );
+
+  const prompt = code("lib/tutor/prompt.ts");
+  assert.match(prompt, /export function buildSystemPrompt\(\): string \{/,
+    "the static prompt takes an argument again, so it varies per learner and the cache entry splits with it");
+  assert.match(prompt, /system: \[\s*$|ABOUT THIS LEARNER/, "learnerNote no longer names the learner");
+  assert.match(
+    code("lib/tutor/provider.ts"),
+    /cache_control: \{ type: "ephemeral" \} \},\s*\.\.\.\(live/s,
+    "the per-learner block is no longer sent after the cached breakpoint",
+  );
+});
+
 check("a scripted line is drafted by a script, said after a recorded one, and marks nothing", () => {
   const bank = read("lib/scenes/bank.ts");
   assert.match(bank, /^\/\* GENERATED by scripts\/draft-lines\.ts/, "lib/scenes/bank.ts no longer says it is generated");
@@ -12384,7 +12603,7 @@ check("the scene route marks mechanically before it reaches a provider", () => {
   const marked = src.indexOf("markDescription(");
   // Either spelling: the route resolves the whole chain now, and the rule is
   // about the order, not about which of the two functions it calls.
-  const provider = src.search(/resolveProviders?\(|graderChain\(/);
+  const provider = src.search(/resolveProviders?\(/);
   assert.ok(marked > 0 && provider > 0, "the describe route no longer does both of these");
   assert.ok(
     marked < provider,

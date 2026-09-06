@@ -8,8 +8,8 @@ import { MAX_SENTENCE_CHARS, looksLikeSentence } from "@/lib/estonian/writing";
 import { reportError } from "@/lib/observability/report";
 import { taskById } from "@/lib/progress/describe";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { gradeDescription, graderChain } from "@/lib/tutor/grader";
-import { TutorError } from "@/lib/tutor/provider";
+import { gradeDescription } from "@/lib/tutor/grader";
+import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -111,11 +111,7 @@ export async function POST(request: Request) {
     answer,
   };
 
-  // The whole chain rather than its head. The grader used to take
-  // `resolveProvider()`, which is one model with nothing behind it, so a
-  // provider having a bad minute was the learner losing their feedback.
-  const chain = graderChain();
-  const config = chain[0];
+  const config = resolveProvider();
   if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false });
 
   const decision = await authoriseCall(ownerId, "GRADER");
@@ -134,7 +130,15 @@ export async function POST(request: Request) {
   let settled = false;
   try {
     const level = await courseLevelFor(ownerId);
-    const { graded, usage, config: answered } = await gradeDescription(chain, {
+      /*
+    A chain rather than the head of one, so a grader note has a last resort.
+    Anthropic sits behind Groq only while the day's fallback budget has room:
+    past it the chain is one link, and a note that cannot be written is dropped
+    exactly as it was before this existed. The verdict the learner acts on was
+    decided by string comparison against the dictionary before any of this ran.
+  */
+  const chain = resolveProviders({ purpose: undefined, allowFallback: decision.fallbackAllowed });
+  const { graded, usage, config: answered } = await gradeDescription(chain, {
       situation: task.situation,
       things: task.words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
       asked: {
@@ -160,6 +164,8 @@ export async function POST(request: Request) {
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
       reservation: decision.reservation,
     }));
     settled = true;

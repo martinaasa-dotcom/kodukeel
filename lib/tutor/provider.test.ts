@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
-  TutorError, visionProviders,
+  SCENE_GROQ_MODELS, sceneProviders, TutorError, visionProviders,
 } from "@/lib/tutor/provider";
-import { priceFor } from "@/lib/usage/pricing";
+import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
 /*
   EVERY CASE STARTS ON A MACHINE WITH NO KEYS, WHATEVER MACHINE IT IS ON.
@@ -73,8 +73,234 @@ function only(name: "openrouter" | "groq" | "gemini" | "anthropic" | "openai") {
   chain: both hand out a real free tier with no card, both speak the OpenAI
   wire format, and neither shares a balance with OpenRouter.
 */
+/*
+  THE SPLIT, AND THE ONE THING THAT WOULD UNDO IT SILENTLY.
+
+  Routing by purpose is only worth anything if a purpose's chain cannot pick up
+  a provider that was configured for the other job. Nothing would fail if it
+  did: the answer still arrives, the header still names whoever wrote it, and
+  the only symptom is Anu's question answered by a model chosen for fourteen-word
+  sentences, or every scene line billed at Sonnet's rate against a $5 balance.
+
+  So the cases below set *every* key rather than only the one they are about.
+  That is the opposite of `only()` next door and it is deliberate: `only()` asks
+  what a chain does with one provider, and the question here is what it does
+  when four others are sitting right there. A purpose that read the general
+  chain would pass a test that stubbed one key and fail this.
+*/
+describe("a chain built for a purpose", () => {
+  /** Every provider configured at once, which is the state the split is for. */
+  function all() {
+    for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
+  }
+
+  it("sends scene composition to Groq, and to the model the eval ranked", () => {
+    all();
+    const chain = resolveProviders({ purpose: "scene" });
+    // Groq leads, on the model `eval:composers` ranked. What sits behind it is
+    // the bounded last resort, covered by its own cases below.
+    expect(chain[0]?.name).toBe("groq");
+    expect(chain[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+  });
+
+  it("sends Anu to Anthropic", () => {
+    all();
+    const chain = resolveProviders({ purpose: "tutor" });
+    expect(chain.map((c) => c.name)).toEqual(["anthropic"]);
+    expect(chain[0]?.model).toBe("claude-sonnet-5");
+  });
+
+  it("lets neither purpose take the other's provider as its primary", () => {
+    /*
+      This used to assert that neither could reach the other at all, which was
+      true while there was no fallback anywhere. There is one now, bounded by
+      its own daily budget, so the claim that survives is the one that was doing
+      the work: a purpose's *first* choice is its own provider, and Anu has no
+      Groq behind her at any budget.
+    */
+    all();
+    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("groq");
+    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "groq")).toBe(false);
+  });
+
+  it("keeps OpenRouter and Gemini out of both, however the machine is configured", () => {
+    /*
+      The reason this is its own case rather than a line in the one above. Those
+      two are the free chain's defaults, so they are the providers most likely
+      to be left set on a machine that has since moved to paid keys, and a
+      purpose that quietly inherited one would look exactly like a purpose that
+      was working. Being absent from the environment is not what protects this;
+      being unreachable by construction is.
+    */
+    all();
+    for (const purpose of ["tutor", "scene"] as const) {
+      for (const allowFallback of [true, false]) {
+        const names = resolveProviders({ purpose, allowFallback }).map((c) => c.name);
+        expect(names).not.toContain("openrouter");
+        expect(names).not.toContain("gemini");
+        expect(names).not.toContain("openai");
+      }
+    }
+  });
+
+  it("falls to scripted on its own provider's absence, independently", () => {
+    /*
+      ITEM FIVE OF THE SPLIT: one balance running out may not take the other
+      feature down. An empty chain is what both routes read as "no model", and
+      each of them has somewhere to go — Anu says she is not set up, a scene
+      plays off its recorded and banked lines.
+    */
+    only("groq");
+    expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
+    // Anu has no fallback at any budget, so a Groq-only deployment has no tutor.
+    expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
+
+    only("anthropic");
+    expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
+    /*
+      A scene on an Anthropic-only deployment composes through the fallback, and
+      stops the moment the fallback budget is spent. Both readings matter: the
+      first is why a one-key install still works, the second is why a Groq
+      outage cannot quietly become an Anthropic bill.
+    */
+    expect(resolveProviders({ purpose: "scene", allowFallback: true })).toHaveLength(1);
+    expect(resolveProviders({ purpose: "scene", allowFallback: false })).toHaveLength(0);
+  });
+
+  it("puts Anthropic behind a purpose's own provider, once, as a last resort", () => {
+    all();
+    const scene = resolveProviders({ purpose: "scene", allowFallback: true });
+    expect(scene.map((c) => c.name)).toEqual(["groq", "anthropic"]);
+    // Groq still leads: the fallback is behind it, not instead of it.
+    expect(scene[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+  });
+
+  it("drops the fallback the moment the day's fallback budget is spent", () => {
+    /*
+      What the ledger's `fallbackAllowed` buys. Past the budget the chain is the
+      purpose's own provider again, so a Groq that is not answering means the
+      scene ladder falls to its recorded and banked lines, which is where a
+      keyless deployment already lives.
+    */
+    all();
+    const scene = resolveProviders({ purpose: "scene", allowFallback: false });
+    expect(scene.map((c) => c.name)).toEqual(["groq"]);
+    // The general chain's dear tail is a fallback too, and goes the same way.
+    expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
+    expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
+  });
+
+  it("never gives Anu a fallback, however much budget there is", () => {
+    /*
+      Anthropic is her primary, so the only thing behind it would be Groq, and
+      `eval:anu` measured what Groq does with her questions: the tuba : toa
+      gradation called "b becomes v" where the dictionary says b : ∅, "Mul
+      meeldib" for "Mulle meeldib", and the invented lemmas `lähema` and
+      `kotta`, the first emitted as a VOCAB line the app parses. An answer that
+      is wrong in a way the learner cannot see is worse than no answer.
+    */
+    all();
+    expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
+      .toEqual(["anthropic"]);
+  });
+
+  it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
+    all();
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["groq", "anthropic"]);
+  });
+
+  it("keeps both halves of the two sessions that built the scene chain", () => {
+    /*
+      Main added `sceneProviders`, a `*_SCENE_MODEL` override per provider with
+      the named one moved to the front, and the README documents it. This branch
+      added the purpose chain, which is what stops a scene spending the balance
+      Anu runs on. A clean three-way merge would have shipped two answers to one
+      question; this asserts the merged one still does both jobs.
+    */
+    // Isolation, with nothing named: Groq leads, Anthropic behind it as the
+    // gated last resort, and nothing else however many keys are set.
+    all();
+    expect(sceneProviders().map((c) => c.name)).toEqual(["groq", "anthropic"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["groq"]);
+
+    // Selection: a named model is asked, and asked first.
+    vi.stubEnv("GROQ_SCENE_MODEL", "groq/some-better-model");
+    expect(sceneProviders()[0]).toMatchObject({
+      name: "groq", model: "groq/some-better-model",
+    });
+
+    /*
+      And main's real point: an operator may point conversations at a provider
+      the purpose chain would not otherwise reach. Naming one has to work, or
+      the feature was deleted rather than merged. It leads even with the
+      fallback budget spent, because a model somebody named is a primary.
+    */
+    vi.stubEnv("GROQ_SCENE_MODEL", "");
+    vi.stubEnv("OPENROUTER_SCENE_MODEL", "some/scene-model");
+    expect(sceneProviders({ allowFallback: false })[0]).toMatchObject({
+      name: "openrouter", model: "some/scene-model",
+    });
+  });
+
+  it("gives a deployment with no keys an empty chain for both, as it always did", () => {
+    expect(resolveProviders({ purpose: "tutor" })).toEqual([]);
+    expect(resolveProviders({ purpose: "scene" })).toEqual([]);
+    expect(resolveProviders()).toEqual([]);
+  });
+
+  it("leaves the general chain alone, because twenty callers still read it", () => {
+    all();
+    // `providerResilience`, the Settings panel, the recipients list and every
+    // "is a model configured at all" read take this one, and none of them is
+    // choosing where to send anything.
+    const names = new Set(resolveProviders().map((c) => c.name));
+    expect(names).toEqual(new Set(["openrouter", "groq", "gemini", "anthropic", "openai"]));
+  });
+
+  it("lets SCENE_MODEL name the model, and does not read GROQ_MODEL for it", () => {
+    /*
+      GROQ_MODEL configures the general chain. Inheriting it here would move
+      scene composition off the model `eval:composers` ranked the first time
+      anybody tuned the general chain for some other reason, and nothing would
+      say so.
+    */
+    only("groq");
+    vi.stubEnv("GROQ_MODEL", "openai/gpt-oss-120b");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_GROQ_MODELS]);
+
+    vi.stubEnv("SCENE_MODEL", "some/other-model");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["some/other-model"]);
+  });
+
+  it("prices the scene model as a paid model, because the account is paid", () => {
+    /*
+      THE ROW THAT WOULD SWITCH THE SPEND CAP OFF. `qwen3.8-27b` was priced at
+      zero with the rest of Groq's free tier, which was true of a free account
+      and is not true of this one. Left at zero it is the global cap disabled
+      for the highest-volume path in the app: scene composition would have been
+      unbounded and `AI_DAILY_USD_GLOBAL` would never have known.
+    */
+    const price = priceFor(SCENE_GROQ_MODELS[0]);
+    expect(price.inputPerMTok).toBeGreaterThan(0);
+    expect(price.outputPerMTok).toBeGreaterThan(0);
+    // And not the punitive unknown rate, which would bind forty times too early
+    // and break the feature to protect a bill that was never at risk.
+    expect(price.inputPerMTok).toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+  });
+});
+
 describe("the free providers that are not OpenRouter", () => {
-  it("puts every free provider ahead of every paid one", () => {
+  it("leads with Groq, then the free tiers, then the dear ones", () => {
+    /*
+      THIS ASKED FOR "EVERY FREE PROVIDER AHEAD OF EVERY PAID ONE", which was
+      the policy when the only way to run this without a card was OpenRouter.
+
+      Groq at $0.29/$0.59 per MTok is a fortieth of the dearest link here, and a
+      free model is rate-limited hard upstream by design, so preferring one over
+      Groq buys a 429 to save a hundredth of a cent: it spends the learner's
+      wait to save the operator nothing. The paid tail is still last, which is
+      the half of the old rule that was doing real work.
+    */
     vi.stubEnv("OPENROUTER_API_KEY", "k");
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("GEMINI_API_KEY", "k");
@@ -82,7 +308,22 @@ describe("the free providers that are not OpenRouter", () => {
     vi.stubEnv("OPENAI_API_KEY", "k");
     const order: string[] = [];
     for (const { name } of resolveProviders()) if (order[order.length - 1] !== name) order.push(name);
-    expect(order).toEqual(["openrouter", "groq", "gemini", "anthropic", "openai"]);
+    expect(order).toEqual(["groq", "openrouter", "gemini", "anthropic", "openai"]);
+  });
+
+  it("leads with Groq on the two keys this app is actually run with", () => {
+    /*
+      The install the ordering is for: no free alternative behind either of
+      them, so what the order decides is which of two paid providers the
+      grader, the translation and the scanner reach first. Groq is the cheap
+      one by a factor of forty, and Anthropic's balance is what Anu depends on.
+    */
+    for (const key of PROVIDER_KEY_ENV) {
+      vi.stubEnv(key, key === "GROQ_API_KEY" || key === "ANTHROPIC_API_KEY" ? "k" : "");
+    }
+    const order: string[] = [];
+    for (const { name } of resolveProviders()) if (order[order.length - 1] !== name) order.push(name);
+    expect(order).toEqual(["groq", "anthropic"]);
   });
 
   it("counts a free second provider as real redundancy", () => {
@@ -102,13 +343,35 @@ describe("the free providers that are not OpenRouter", () => {
     expect(FREE_GEMINI_MODELS.length).toBeGreaterThan(1);
   });
 
-  it("charges nothing for the models these tiers give away", async () => {
-    const { priceFor } = await import("@/lib/usage/pricing");
+  it("never charges the unknown rate for a model on one of these lists", async () => {
+    /*
+      THIS ASKED FOR ZERO AND CAN NO LONGER, WHICH IS THE POINT OF THE ROW IT
+      BROKE ON.
+
+      The claim it was written for is that a listed model must not meet
+      `UNKNOWN_MODEL`, because the dearest rate in the table charged against a
+      handful of genuinely free calls reads as several dollars and switches the
+      tutor off for everybody. That claim is unchanged and is what is asserted
+      below.
+
+      What changed is that "on the free list" stopped implying "costs nothing".
+      `qwen/qwen3.8-27b` is the scene composer's model on a paid Groq plan
+      (`SCENE_GROQ_MODELS`), and it stays on this list because `eval:composers`
+      reads it to decide what to rank and a free-tier deployment's general chain
+      still wants the link. Its price row is the real one now: pricing a paid
+      model at zero is the global spend cap switched off for the busiest path in
+      the app, which is the larger of the two failures by a distance.
+
+      So the assertion is the bound rather than the number. A model that is
+      actually free still measures zero and is covered by that bound.
+    */
+    const { priceFor, UNKNOWN_MODEL } = await import("@/lib/usage/pricing");
     for (const model of [...FREE_GROQ_MODELS, ...FREE_GEMINI_MODELS]) {
-      expect(priceFor(model), `${model} is not priced as free`).toEqual({
-        inputPerMTok: 0,
-        outputPerMTok: 0,
-      });
+      const price = priceFor(model);
+      expect(price.inputPerMTok, `${model} is priced at the unknown rate`)
+        .toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+      expect(price.outputPerMTok, `${model} is priced at the unknown rate`)
+        .toBeLessThan(UNKNOWN_MODEL.outputPerMTok);
     }
   });
 

@@ -15,7 +15,10 @@ export default async function TutorPage({ searchParams }: {
 }) {
   const { q } = await searchParams;
   const ownerId = await requireUserId();
-  const chain = resolveProviders();
+  // Anu's own chain, for the reason the shell reads it that way: this draws
+  // either a text box or the setup walkthrough, and `/api/tutor` is Anthropic
+  // only since the purpose split.
+  const chain = resolveProviders({ purpose: "tutor" });
   const history = await loadRecentMessages(ownerId);
 
   return (

@@ -53,9 +53,52 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   */
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
-  "gpt-oss-120b": { inputPerMTok: 0, outputPerMTok: 0 },
-  "qwen3.8-27b": { inputPerMTok: 0, outputPerMTok: 0 },
+  "gpt-oss-120b": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
+  // Groq publishes no price for this one, so there is none to write down. It is
+  // on no purpose chain and is reachable only on an install that sets no
+  // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
   "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
+
+  /*
+    THE ONE ROW THAT IS NOT FREE, AND THE REASON IT STOPPED BEING.
+
+    `qwen3.8-27b` sat in the block above at zero, with the rest of Groq's free
+    tier, and that was true while the only Groq account anybody here had was a
+    free one. It is the scene composer's model now (`SCENE_GROQ_MODELS`) on a
+    paid Groq plan, and a paid model priced at zero is not a rounding error in
+    a cost estimate: it is the global spend cap switched off for the single
+    highest-volume path in the app. A conversation is a dozen turns and a scene
+    composes several of them, so this is the row most likely to be charged and
+    it was the row charging nothing. `AI_DAILY_USD_GLOBAL` would never have
+    bound on scene composition at all.
+
+    The comment above still holds and this is it happening: "free" is a property
+    of the account and this table cannot see the account. So the table takes the
+    side that fails closed. Charging a free-tier deployment 0.29 for a call that
+    cost it nothing makes its cap bind sooner by a fraction of a cent per scene
+    turn, which is the safe direction and, at these rates, not a direction
+    anybody will notice: 54,000 composed turns to reach a $20 day. Charging a
+    paid deployment nothing has no floor under it at all.
+
+    AND THE FIRST NUMBER WRITTEN HERE WAS WRONG, WHICH IS WHY THIS ONE IS READ
+    RATHER THAN QUOTED.
+
+    It went in at $0.29/$0.59 on a figure supplied in good faith and never
+    checked, because there was no obvious way to check it. There is: Groq's
+    `/v1/models` returns a `pricing` object per model, and asked with this
+    deployment's own key it answers $0.80 and $4.00 per MTok. So the rate was
+    understated by 2.75x on input and 6.8x on output, which is the same failure
+    as the zero it replaced, one order of magnitude smaller: a cap sized against
+    a price that low binds long after the money has gone.
+
+    Every Groq row in this table is now that answer rather than anybody's
+    recollection, this one and `gpt-oss-120b` above, which was also sitting at
+    zero and is $0.15/$0.60. Re-read them the same way when the plan changes:
+
+      curl -s https://api.groq.com/openai/v1/models \
+        -H "Authorization: Bearer $GROQ_API_KEY"
+  */
+  "qwen3.8-27b": { inputPerMTok: 0.8, outputPerMTok: 4 },
   "gemini-flash-latest": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.6-flash": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.5-flash": { inputPerMTok: 0, outputPerMTok: 0 },
@@ -99,15 +142,67 @@ export function priceFor(model: string): ModelPrice {
   return PRICES[normaliseModel(model)] ?? UNKNOWN_MODEL;
 }
 
+/**
+ * What a cached input token costs, as a multiple of the ordinary input rate.
+ *
+ * Anthropic's `cache_control: { type: "ephemeral" }`, which is the only kind
+ * this app asks for, bills a five-minute entry at 1.25x base input to write
+ * and 0.1x base input to read. Every other provider in the chain either
+ * caches transparently at no stated discount or does not cache at all, so
+ * these only ever apply to tokens a caller actually reported as cached.
+ *
+ * WHY THIS MATTERS RATHER THAN BEING A ROUNDING DETAIL. Every Anthropic call
+ * site summed `input_tokens`, `cache_read_input_tokens` and
+ * `cache_creation_input_tokens` into one figure and priced the lot at the
+ * base rate, under a comment saying cache reads "are real input tokens and
+ * are billed as such". They are real input tokens and they are not billed as
+ * such: a cache read was being charged ten times what Anthropic charges for
+ * it. The direction is the safe one, so nothing ever overspent, and the cost
+ * is the whole point of the feature: the tutor's prompt is ~2,275 tokens of
+ * case table read on every turn, and the ledger could not see the ninety
+ * percent that caching takes off it. The deployment budget and the learner's
+ * own spend meter both bound roughly ten times too early on exactly the
+ * traffic the breakpoint was added to make cheap.
+ */
+export const CACHE_READ_RATE = 0.1;
+export const CACHE_WRITE_RATE = 1.25;
+
+/**
+ * The parts of one call's input, where the provider told them apart.
+ *
+ * `inputTokens` stays the total, cached tokens included, so a caller that has
+ * not been taught about caching keeps the behaviour it had: everything at the
+ * base rate, which over-counts and therefore still fails closed. What these
+ * two do is move the tokens the provider named as cached onto their own rate.
+ */
+export interface CacheSplit {
+  /** Tokens served from an existing cache entry. Billed at CACHE_READ_RATE. */
+  readonly cachedInputTokens?: number;
+  /** Tokens written into a new cache entry. Billed at CACHE_WRITE_RATE. */
+  readonly cacheWriteTokens?: number;
+}
+
 /** Cost of one call, in micro-dollars, rounded up so it is never understated. */
 export function estimateCostMicros(
   model: string,
   inputTokens: number,
   outputTokens: number,
+  cache: CacheSplit = {},
 ): number {
   const price = priceFor(model);
+  const cached = Math.max(0, cache.cachedInputTokens ?? 0);
+  const written = Math.max(0, cache.cacheWriteTokens ?? 0);
+  /*
+    Clamped at zero rather than trusted. `inputTokens` is the total and these
+    are parts of it, so a provider reporting the parts and a smaller total, or
+    a caller populating one and not the other, must never make the plain
+    remainder negative and refund the call.
+  */
+  const plain = Math.max(0, Math.max(0, inputTokens) - cached - written);
   const dollars =
-    (Math.max(0, inputTokens) / 1e6) * price.inputPerMTok +
+    (plain / 1e6) * price.inputPerMTok +
+    (cached / 1e6) * price.inputPerMTok * CACHE_READ_RATE +
+    (written / 1e6) * price.inputPerMTok * CACHE_WRITE_RATE +
     (Math.max(0, outputTokens) / 1e6) * price.outputPerMTok;
   return Math.ceil(dollars * 1e6);
 }
@@ -167,22 +262,30 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
   // A photograph, which is a few thousand input tokens of image.
   SCAN: { input: 3_000, output: 400 },
   /*
-    A WHOLE CONVERSATION, BOOKED ONCE.
+    ONE COMPOSED TURN, BOOKED PER TURN, WHICH IS NOT WHAT THIS USED TO SAY.
 
-    A scene books one call rather than one per turn (docs/19-situations.md §16),
-    because running out of allowance halfway through a conversation is the worst
-    failure available to this module: the other side simply stops talking, and
-    there is no honest thing to put on the screen. So the reservation is the
-    whole scene and the settlement corrects it at the end, which is negative
-    whenever the estimate was generous, exactly as it is for every other kind.
+    This row read "a whole conversation, booked once" and was sized for one:
+    3,500 in and 1,000 out, roughly five composed lines. `app/api/scene/route.ts`
+    has booked per turn since, under a comment of its own explaining why ("one
+    `CALL` row in front of twelve settlements is eleven calls the allowance
+    never saw"), and nothing moved this. So every composed line was reserved at
+    about five lines' worth.
 
-    Roughly five grader calls, which is what a scene composes: the beats
-    retrieval cannot fill, plus the one retry §6 allows on some of them. The
-    static half of the prompt is identical on every turn of every scene, so on
-    Anthropic it sits behind the `cache_control` breakpoint the tutor uses and
-    the real figure comes in under this.
+    Over-reserving is the safe direction and a settlement follows within seconds,
+    so no money was mis-counted. What it distorted is the seconds in between,
+    which is exactly what a reservation is for: several turns in flight at once
+    looked like several times as much spend as they were, so the global reserve
+    fraction bit early and a busy evening could refuse a turn on an imaginary
+    bill.
+
+    Measured rather than re-estimated. The static system block is 128 tokens and
+    identical on every turn of every scene; the live block is dominated by the
+    word list the route hands over, which is 714 to 955 tokens across the
+    fourteen shipped scenes (mean 821), plus the stage direction, the register,
+    six banked lines for tone and the turns so far. The reply is capped at
+    `MAX_WORDS`, fourteen words, and comes back as one short sentence.
   */
-  SCENE: { input: 3_500, output: 1_000 },
+  SCENE: { input: 1_400, output: 60 },
 };
 
 /**

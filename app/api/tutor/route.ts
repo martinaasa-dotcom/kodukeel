@@ -59,7 +59,15 @@ export async function POST(request: Request) {
   */
   const learnerPromise = learnerContextFor(ownerId).catch(() => null);
 
-  const chain = resolveProviders();
+  /*
+    Anu's own chain, which since the split is Anthropic and nothing else.
+
+    Not the general chain: `resolveProviders()` with no purpose is still every
+    configured provider, and reading it here would put a scene composer's cheap
+    constrained-output model in front of the one question in this app where
+    being right about Estonian is the whole product. See `PURPOSE_CHAINS`.
+  */
+  const chain = resolveProviders({ purpose: "tutor" });
   if (chain.length === 0) {
     return Response.json(
       { error: "No AI key set up yet. Add one in .env, or Settings has a two-minute walkthrough." },
@@ -118,7 +126,7 @@ export async function POST(request: Request) {
     depend on the answer cost nothing extra when they are in flight together.
   */
   const learner = (await learnerPromise) ?? UNKNOWN_LEARNER;
-  const system = buildSystemPrompt(learner.level);
+  const system = buildSystemPrompt();
   const live = learnerNote(learner);
   const encoder = new TextEncoder();
   let full = "";
@@ -143,6 +151,8 @@ export async function POST(request: Request) {
       after(() => recordUsage({
         ownerId, kind: "TUTOR", provider: config.name, model: config.model,
         inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
         // Settles the reservation `authoriseCall` already booked, rather than
         // charging a second time. The call was written down before the chain
         // was opened, which is what stops ten tabs reading the same "under the

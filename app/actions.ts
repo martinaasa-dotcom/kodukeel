@@ -1018,7 +1018,14 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // How many times they have had this one before, which is what opens the
     // hearing pool for the other side's lines.
     plays: opened.plays,
-    composed: resolveProviders().length > 0,
+    /*
+      The scene chain, not the general one. This is what tells the briefing
+      whether the other side's lines can be freshly composed or will come off
+      the bank, and `/api/scene` asks Groq alone since the purpose split: an
+      Anthropic-only deployment would otherwise promise composition that the
+      route is never going to attempt.
+    */
+    composed: resolveProviders({ purpose: "scene" }).length > 0,
   };
 }
 
