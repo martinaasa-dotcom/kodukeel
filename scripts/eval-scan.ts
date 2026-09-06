@@ -94,6 +94,12 @@ const CANDIDATES: ProviderConfig[] = [
   ...(process.env.ANTHROPIC_API_KEY
     ? [{ name: "anthropic", model: "claude-haiku-4-5", label: "Anthropic" } as ProviderConfig]
     : []),
+  ...(process.env.GEMINI_API_KEY
+    ? ([
+        { name: "gemini", model: "gemini-3.8-flash", label: "Google Gemini" },
+        { name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" },
+      ] as ProviderConfig[])
+    : []),
 ];
 
 async function main() {

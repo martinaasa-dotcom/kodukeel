@@ -84,6 +84,20 @@ const CANDIDATES: ProviderConfig[] = [
         { name: "anthropic", model: "claude-haiku-4-5", label: "Anthropic" },
       ] as ProviderConfig[])
     : []),
+  /*
+    And the Gemini tier, because the scene composer's own comparison found it
+    writing better Estonian than the model in front of it for less money, and
+    "better and cheaper on one path" is a reason to ask about the others rather
+    than a reason to assume. This one is the harder question of the two: a
+    grader returns JSON against a schema and a model that writes beautifully
+    and closes a brace in the wrong place scores zero here, correctly.
+  */
+  ...(process.env.GEMINI_API_KEY
+    ? ([
+        { name: "gemini", model: "gemini-3.8-flash", label: "Google Gemini" },
+        { name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" },
+      ] as ProviderConfig[])
+    : []),
 ];
 
 type Tally = {
