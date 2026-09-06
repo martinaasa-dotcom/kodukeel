@@ -160,7 +160,7 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
     stopped being true when the booking moved per turn (`docs/21-situations.md`
     §16) and nothing corrected the number, so every composed turn reserved
     about twenty-five times what it costs. A reservation that is generous is
-    corrected by its settlement seconds later and does no harm to a $20 budget;
+    corrected by its settlement seconds later and does no harm to a generous budget;
     against a cap set for five dollars a month it is the whole harm, because
     the reserve is what the *next* request is checked against and a scene would
     refuse itself at a twenty-fifth of the spending it was allowed.

@@ -341,10 +341,10 @@ Without that key it falls back to local disk, and Settings says so plainly.
 
 **Set a spend cap.** The app is free to whoever uses it, and the caps are what make that
 affordable rather than a leap of faith. The tutor is metered per user per day (ten conversations,
-`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`, default $20, and a daily
-figure, so a five-dollar month is `0.17`). The writing grader, speech and a turn of a rehearsed
-conversation scale off the same number in `lib/usage/ledger.ts`. Nothing a learner does outside
-those is metered at all.
+`AI_DAILY_CALLS_PER_USER`) under a global ceiling (`AI_DAILY_USD_GLOBAL`). That ceiling is a daily
+figure and **defaults to five dollars a month**, which is `0.17` a day; ten dollars a month is
+`0.34`. The writing grader, speech and a turn of a rehearsed conversation scale off the same number
+in `lib/usage/ledger.ts`. Nothing a learner does outside those is metered at all.
 
 `npm run measure:compose` prices the two paths that cost real money against the prompts this
 repository actually builds, and prints what a given monthly budget buys. Scene composition also

@@ -36,6 +36,7 @@ import { contextFromRows, sceneLemmas, type Row } from "../lib/progress/scene";
 import { composeLive, composeMessages, composeSystem, COMPOSE_MAX_TOKENS } from "../lib/scenes/compose";
 import { buildSystemPrompt, learnerNote } from "../lib/tutor/prompt";
 import { priceFor } from "../lib/usage/pricing";
+import { monthlyBudgetUsd } from "../lib/usage/quota";
 import { shippedDictionary } from "./lib/dictionary";
 
 /** Measured on these prompts. See the header. */
@@ -51,7 +52,9 @@ const CACHE_READ = 0.1;
 
 const MODEL = "claude-sonnet-5";
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
-const budgetPerMonth = Number(arg("budget") ?? 5);
+/* The shipped ceiling, so running this with no argument prices what is actually enforced. */
+const defaultBudget = monthlyBudgetUsd();
+const budgetPerMonth = Number(arg("budget") ?? defaultBudget);
 
 const price = priceFor(MODEL);
 const inputUsd = (tokens: number, multiplier = 1) => (tokens / 1e6) * price.inputPerMTok * multiplier;
@@ -154,7 +157,7 @@ line("learner note + conversation", `${anuNote + anuHistory} tokens`);
 line("her answer", `${anuAnswer} tokens`);
 line("one question", usd(anuUsd));
 
-console.log(`\nWHAT $${budgetPerMonth} A MONTH BUYS ($${perDay.toFixed(4)} a day)`);
+console.log(`\nWHAT $${budgetPerMonth.toFixed(2)} A MONTH BUYS ($${perDay.toFixed(4)} a day)`);
 line("scene runs, if it were only scenes", `${Math.floor(budgetPerMonth / runUsd)} a month, ${Math.floor(perDay / runUsd)} a day`);
 line("composed turns, likewise", `${Math.floor(budgetPerMonth / turnUsd)} a month`);
 line("Anu questions, if it were only Anu", `${Math.floor(budgetPerMonth / anuUsd)} a month, ${Math.floor(perDay / anuUsd)} a day`);
@@ -162,4 +165,8 @@ console.log("");
 line("at the 50/50 split ALLOWANCE sets:", "");
 line("  scene runs", `${Math.floor(budgetPerMonth / 2 / runUsd)} a month, ${Math.floor(perDay / 2 / runUsd)} a day`);
 line("  Anu questions", `${Math.floor(budgetPerMonth / 2 / anuUsd)} a month, ${Math.floor(perDay / 2 / anuUsd)} a day`);
-console.log(`\nSet AI_DAILY_USD_GLOBAL="${perDay.toFixed(2)}" for that budget.\n`);
+console.log(
+  budgetPerMonth === defaultBudget
+    ? `\nThat is the shipped default. Set AI_DAILY_USD_GLOBAL to change it: it is a daily\nfigure, so a month is that over thirty.\n`
+    : `\nSet AI_DAILY_USD_GLOBAL="${perDay.toFixed(2)}" for that budget.\n`,
+);

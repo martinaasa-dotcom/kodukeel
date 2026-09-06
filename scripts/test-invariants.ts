@@ -22,6 +22,7 @@ import { join } from "node:path";
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
 import { wordNote } from "../lib/estonian/dictation";
+import { DEFAULT_LIMITS } from "../lib/usage/quota";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
@@ -5143,6 +5144,50 @@ check("a daily reminder fires on the learner's clock, not the server's", () => {
  * which is a failure misnaming its cause on the one screen that has to be
  * believed.
  */
+/**
+ * A CAP THAT CANNOT BITE IS A STATED CONTROL DOING NOTHING.
+ *
+ * `dailyMicrosPerUser` sat at $0.50 under a shared ceiling of $20 a day, which
+ * was a fortieth of it and a real backstop. The ceiling is $5 a month now, and
+ * a per-user cap left where it was would have been three times the budget it
+ * sits inside: it could never fire, while still being printed on the Settings
+ * meter as the figure a learner is measured against. That is worse than no
+ * control, because a reader counts it.
+ *
+ * So the two are asserted against each other rather than against any
+ * particular number, which is what keeps this true when somebody changes the
+ * budget. What rations one person at a small budget is the call count and the
+ * reserve, not a second money cap.
+ */
+check("no spend cap sits above the one it is inside", () => {
+  const limits = DEFAULT_LIMITS;
+  assert.ok(
+    limits.dailyMicrosPerUser <= limits.dailyMicrosGlobal,
+    `one learner may spend $${(limits.dailyMicrosPerUser / 1e6).toFixed(2)} a day inside a ` +
+    `deployment budget of $${(limits.dailyMicrosGlobal / 1e6).toFixed(2)}, so the per-user cap can ` +
+    "never fire and the Settings meter measures a learner against a figure nothing enforces",
+  );
+  assert.ok(
+    limits.dailyMicrosGlobal > 0,
+    "the shared ceiling is zero by default, which switches every model off for everybody",
+  );
+  /*
+    And the copy that talks in months derives the figure rather than typing
+    one, or a page says "five dollars a month" over a constant somebody has
+    since raised.
+  */
+  assert.match(
+    code("lib/usage/quota.ts"),
+    /export function monthlyBudgetUsd/,
+    "lib/usage/quota.ts lost the one place a daily ceiling becomes a monthly figure",
+  );
+  assert.doesNotMatch(
+    code("app/funding/page.tsx"),
+    /dailyMicrosGlobal/,
+    "the funding page is doing the month arithmetic itself again instead of asking monthlyBudgetUsd",
+  );
+});
+
 check("scene composition yields a share of the day's budget, and says so honestly", () => {
   const ledger = code("lib/usage/ledger.ts");
   assert.match(

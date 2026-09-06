@@ -2654,9 +2654,19 @@ factor is under three rather than ten because once the input is cached the answe
 | a run of ten composed turns | $0.0155 |
 | one question to Anu | $0.0056 |
 
-**At five dollars a month**, which is $0.167 a day, that is about 320 scene runs a month if the
-budget went nowhere else, or about 900 questions to Anu. Neither of those is the number to plan on,
-because both paths draw on one budget.
+**At five dollars a month**, which is $0.167 a day and is now the shipped default in
+`DEFAULT_LIMITS` rather than a figure a deployment has to remember to set, that is about 320 scene
+runs a month if the budget went nowhere else, or about 900 questions to Anu. Neither of those is the
+number to plan on, because both paths draw on one budget.
+
+The default moved from $20 a day, which is $600 a month and was never a figure anybody had decided
+to spend. Two things follow that are worth knowing rather than discovering. The per-user daily spend
+cap came down with it, because $0.50 under a $0.167 ceiling is a stated control that can never fire;
+at this budget one learner may spend the day and the reserve is what keeps the last quarter for
+somebody who has not asked anything yet. And on `/funding` the model line is now held by the cap at
+every size above about fifty learners rather than only at a hundred thousand, which is the cap doing
+its job: everything else on that page grows with learners and the one line that could run away does
+not.
 
 ### Scenes yield to Anu, and the reason is the floor under each
 
