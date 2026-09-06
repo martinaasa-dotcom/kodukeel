@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildGraderSystemPrompt, buildGraderUserPrompt, gradeSentence, parseVerdict } from "./grader";
-import { PROVIDER_KEY_ENV, openAiCompatible } from "./provider";
+import { PROVIDER_KEY_ENV, anthropicHeaders, openAiCompatible } from "./provider";
 import type { WritingTask } from "@/lib/estonian/writing";
 
 const task: WritingTask = {
@@ -200,3 +200,73 @@ describe("the grader's non-streaming transport", () => {
     }
   });
 });
+
+/**
+ * AN ANTHROPIC KEY IS SCOPED TO A WORKSPACE OR TO AN ORGANIZATION, AND ONLY
+ * ONE OF THE TWO WORKED.
+ *
+ * An org-scoped key is refused outright without `anthropic-workspace-id`, with
+ * a 400 whose message names the header, and all three Anthropic call sites
+ * built their headers separately and all three sent the same two. What made it
+ * hard to see is that it does not look like a configuration fault: `assertOk`
+ * has no 400 branch, so it becomes a 502, which `worthFallingBackFrom` treats
+ * as worth trying the next provider for. The Anthropic leg was simply dead,
+ * silently, with a key correctly set in the environment.
+ */
+describe("the headers an Anthropic call carries", () => {
+  const swap = (vars: Record<string, string | undefined>) => {
+    const before: Record<string, string | undefined> = {};
+    for (const [k, v] of Object.entries(vars)) {
+      before[k] = process.env[k];
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+    return () => {
+      for (const [k, v] of Object.entries(before)) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+    };
+  };
+
+  it("names the workspace when the key is scoped to the organization", () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: "wrkspc_test" });
+    try {
+      expect(anthropicHeaders()["anthropic-workspace-id"]).toBe("wrkspc_test");
+      expect(anthropicHeaders()["x-api-key"]).toBe("k");
+      expect(anthropicHeaders()["anthropic-version"]).toBe("2023-06-01");
+    } finally { restore(); }
+  });
+
+  /*
+    AND OMITS IT OTHERWISE, WHICH IS NOT TIDINESS. A workspace-scoped key sent
+    a workspace id is refused in the other direction, because the header names
+    a workspace the key may not belong to. Absent is the ordinary case and has
+    to behave exactly as it did before this existed.
+  */
+  it("omits it for a workspace-scoped key, which is refused if it carries one", () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: undefined });
+    try {
+      expect(Object.keys(anthropicHeaders())).not.toContain("anthropic-workspace-id");
+    } finally { restore(); }
+  });
+
+  it("is the one place the headers are built, so a fourth call site cannot send two of three", async () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: "wrkspc_test" });
+    const real = globalThis.fetch;
+    let sent: Headers | null = null;
+    globalThis.fetch = (async (_i: RequestInfo | URL, init?: RequestInit) => {
+      sent = new Headers(init?.headers);
+      return new Response(
+        JSON.stringify({ content: [{ type: "text", text: '{"verdict":"correct","comment":"","rule":""}' }], usage: { input_tokens: 1, output_tokens: 1 } }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }) as typeof fetch;
+    try {
+      await gradeSentence(
+        { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
+        { task, sentence: "Ma olen toas.", level: "B1", knownForms: [] }, true,
+      );
+    } finally { globalThis.fetch = real; restore(); }
+    expect(sent!.get("anthropic-workspace-id")).toBe("wrkspc_test");
+  });
+});
+

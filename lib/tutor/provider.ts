@@ -634,14 +634,46 @@ async function callOpenAiCompatible(
   return res;
 }
 
+/**
+ * The headers every Anthropic call sends, and the one that is not optional for
+ * half of the keys people actually have.
+ *
+ * An Anthropic key is scoped either to a workspace or to the organization. A
+ * workspace key needs nothing beyond the two headers this always sent; an
+ * org-scoped key is refused outright without `anthropic-workspace-id`, with a
+ * 400 whose message names the header. So the app worked with one shape of key
+ * and could not make a single call with the other, on any path: the tutor, the
+ * scanner and the grader all built these headers separately and all three sent
+ * the same two.
+ *
+ * WHAT THAT LOOKED LIKE RATHER THAN WHAT IT WAS. `assertOk` has no branch for a
+ * 400, so it becomes a `TutorError` at 502, which `worthFallingBackFrom` treats
+ * as worth trying the next provider for. So nothing broke loudly: on a chain
+ * with a free provider in front, Anthropic simply never answered and the
+ * fallback leg was dead with nothing on any screen to say so; on a deployment
+ * where Anthropic is the only key, every AI feature degraded to its no-key
+ * state while a key sat correctly configured in the environment.
+ *
+ * Sent only when set, because a workspace-scoped key must not carry it: the
+ * header names a workspace the key may not be in, and Anthropic refuses that
+ * too. Absent is the ordinary case and the one that behaves exactly as before.
+ */
+export function anthropicHeaders(): Record<string, string> {
+  const workspace = process.env.ANTHROPIC_WORKSPACE_ID;
+  return {
+    "content-type": "application/json",
+    // Safe for the reason every other key read here is: a config only reaches
+    // an Anthropic call site from `resolveProviders`, which adds it when set.
+    "x-api-key": process.env.ANTHROPIC_API_KEY!,
+    "anthropic-version": "2023-06-01",
+    ...(workspace ? { "anthropic-workspace-id": workspace } : {}),
+  };
+}
+
 async function callAnthropic(config: ProviderConfig, system: string, messages: ChatMessage[], live = "") {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY!,
-      "anthropic-version": "2023-06-01",
-    },
+    headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
       stream: true,
@@ -894,11 +926,7 @@ async function readImageAnthropic(
 ): Promise<CompletedReply> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY!,
-      "anthropic-version": "2023-06-01",
-    },
+    headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,

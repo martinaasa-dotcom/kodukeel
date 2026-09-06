@@ -1,6 +1,6 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { openAiCompatible, TutorError, type ProviderConfig, type UsageReport } from "./provider";
+import { anthropicHeaders, openAiCompatible, TutorError, type ProviderConfig, type UsageReport } from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -185,11 +185,7 @@ async function callForJson(
     // only ever offers "anthropic" when this key was set.
     const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY!,
-        "anthropic-version": "2023-06-01",
-      },
+      headers: anthropicHeaders(),
       body: JSON.stringify({
         model: config.model,
         max_tokens: maxTokens,
