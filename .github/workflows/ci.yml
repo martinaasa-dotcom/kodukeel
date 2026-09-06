@@ -98,6 +98,13 @@ jobs:
       # in the rule that had been written to fix the first three.
       #
       # 44,818 questions in about ninety seconds, most of it the deck.
+      # Prisma 7 will not let the client be *imported* before it is generated:
+      # `@prisma/client` resolves to a stub whose `default.js` requires the
+      # generated output, so a script that only reads `expanded.json` still dies
+      # on MODULE_NOT_FOUND for reaching `lib/db.ts` through an import chain. On
+      # 6 the stub imported cleanly and threw only on use, which is why this
+      # step was never needed here.
+      - run: npx prisma generate
       - run: npm run audit:questions
       # And the question after it: not "is the answer printed in the question"
       # but "would anybody ask this question about this word". It reads the

@@ -108,8 +108,13 @@ jobs:
           DIRECT_URL: ${{ secrets.DIRECT_URL || secrets.DATABASE_URL }}
         run: |
           node - <<'JS' >> "$GITHUB_STEP_SUMMARY"
+          const { PrismaPg } = require("@prisma/adapter-pg");
           const { PrismaClient } = require("@prisma/client");
-          const db = new PrismaClient();
+          // Prisma 7 connects through a driver adapter rather than through the
+          // schema, so this says which database it is reading. `scripts/lib/db.mjs`
+          // is the same two lines for anything that can import a module; this step
+          // is a heredoc piped to `node -`, which has no file to import from.
+          const db = new PrismaClient({ adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }) });
           Promise.all([db.lexeme.count(), db.form.count(), db.card.count(), db.review.count()])
             .then(([words, forms, cards, reviews]) => {
               console.log(`The dictionary holds **${words}** entries and **${forms}** forms.`);

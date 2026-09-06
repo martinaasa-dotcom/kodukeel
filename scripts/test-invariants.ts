@@ -4820,6 +4820,50 @@ check("every settings panel is on the settings screen", () => {
   }
 });
 
+/**
+ * A CLIENT IS BUILT IN ONE PLACE PER MODULE SYSTEM, AND NOWHERE ELSE.
+ *
+ * Prisma 7 does not connect through the schema: `PrismaClient` takes a driver
+ * adapter, and a bare `new PrismaClient()` throws at the *first query* rather
+ * than at the import. So a construction site that forgets the adapter is not a
+ * type error and not an import error, it is a script that dies halfway through
+ * whatever it was doing, and the message names the constructor rather than the
+ * file.
+ *
+ * That is not hypothetical. The upgrade rewired the six sites a `*.ts` grep
+ * found and left seven behind in `.mjs` files and one in a workflow's heredoc,
+ * and CI found them one job at a time. This is the check that would have found
+ * all eight at once.
+ *
+ * Two homes because there are two module systems: `lib/db.ts` for everything
+ * run by Next or `tsx`, `scripts/lib/db.mjs` for the browser suites, which
+ * `node` runs and which cannot import TypeScript. The workflow heredoc is
+ * exempt by name and by necessity: it is piped to `node -` and has no file to
+ * import from, so it carries the two lines itself and says so.
+ */
+check("a Prisma client is built in one place, with its adapter", () => {
+  const homes = ["lib/db.ts", join("scripts", "lib", "db.mjs")];
+  for (const home of homes) {
+    assert.match(
+      code(home), /new PrismaClient\(\{ adapter: new PrismaPg\(/,
+      `${home} stopped handing PrismaClient an adapter, which is a client that throws at its first query`,
+    );
+  }
+
+  const searched = [
+    ...sourceFiles("app"), ...sourceFiles("lib"), ...sourceFiles("components"),
+    ...sourceFiles("prisma"), ...sourceFiles("scripts", /\.(ts|mjs)$/),
+  ];
+  const strays = searched
+    .filter((file) => !homes.includes(file))
+    .filter((file) => /new PrismaClient\(/.test(code(file)));
+  assert.deepEqual(
+    strays, [],
+    `these build a Prisma client of their own: ${strays.join(", ")}. Ask ${homes.join(" or ")} ` +
+    "for one instead, or the adapter is a thing each of them has to remember.",
+  );
+});
+
 /** Every model in the schema carrying an `ownerId`: one person's own data. */
 function ownerScopedModels(): string[] {
   const owned = [...SCHEMA.matchAll(/model (\w+) \{([^}]*)\}/g)]

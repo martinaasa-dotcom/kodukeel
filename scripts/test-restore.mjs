@@ -1,8 +1,8 @@
 import { launchChromium } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { PrismaClient } from "@prisma/client";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 /**
@@ -21,9 +21,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  *    and `Settings → Restore` puts it back.
  */
 const B = baseUrl();
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("delete every word, card, task and review row"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("delete every word, card, task and review row"));
 /*
   Floor: twelve checks, all unconditional. It said ten while the suite reached
   eleven, so a check could have stopped running and the tally would still have
