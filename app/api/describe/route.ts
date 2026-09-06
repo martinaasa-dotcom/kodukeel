@@ -9,7 +9,7 @@ import { reportError } from "@/lib/observability/report";
 import { taskById } from "@/lib/progress/describe";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { gradeDescription } from "@/lib/tutor/grader";
-import { resolveProvider, TutorError } from "@/lib/tutor/provider";
+import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -111,7 +111,11 @@ export async function POST(request: Request) {
     answer,
   };
 
-  const config = resolveProvider();
+  // The whole chain rather than its head. The grader used to take
+  // `resolveProvider()`, which is one model with nothing behind it, so a
+  // provider having a bad minute was the learner losing their feedback.
+  const chain = resolveProviders();
+  const config = chain[0];
   if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false });
 
   const decision = await authoriseCall(ownerId, "GRADER");
@@ -130,7 +134,7 @@ export async function POST(request: Request) {
   let settled = false;
   try {
     const level = await courseLevelFor(ownerId);
-    const { graded, usage } = await gradeDescription(config, {
+    const { graded, usage, config: answered } = await gradeDescription(chain, {
       situation: task.situation,
       things: task.words.map((w) => ({ emoji: w.emoji, lemma: w.lemma, translation: w.translation })),
       asked: {
@@ -154,7 +158,7 @@ export async function POST(request: Request) {
     });
 
     after(() => recordUsage({
-      ownerId, kind: "GRADER", provider: config.name, model: config.model,
+      ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
       reservation: decision.reservation,
     }));
@@ -176,7 +180,7 @@ export async function POST(request: Request) {
         reportError(new Error("grader introduced an unverified Estonian form"), {
           at: "api/describe/verify",
           ownerId,
-          extra: { model: config.model, unverified: verified.unverified, scene: task.sceneId },
+          extra: { model: answered.model, unverified: verified.unverified, scene: task.sceneId },
         });
       }
       reply = verified.graded;

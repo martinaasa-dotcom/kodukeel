@@ -1,6 +1,6 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { TutorError, type ProviderConfig, type UsageReport } from "./provider";
+import { TutorError, type ProviderConfig, type ProviderName, type UsageReport } from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -129,14 +129,14 @@ export function parseVerdict(raw: string): GradedSentence | null {
  * single verdict, so streaming would add complexity for no perceived speed.
  */
 export async function gradeSentence(
-  config: ProviderConfig,
+  chain: ProviderConfig | ProviderConfig[],
   input: GraderInput,
   formWasUsed: boolean,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text, usage } = await callForJson(
-    config, buildGraderSystemPrompt(), buildGraderUserPrompt(input, formWasUsed),
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text, usage, config } = await callForJson(
+    chain, buildGraderSystemPrompt(), buildGraderUserPrompt(input, formWasUsed),
   );
-  return { graded: parseVerdict(text), usage };
+  return { graded: parseVerdict(text), usage, config };
 }
 
 /**
@@ -148,11 +148,56 @@ export async function gradeSentence(
  * next time a provider changed the shape of its usage block. The scene grader
  * is the third and added none, which is the argument for having extracted it.
  */
+/**
+ * Whether a failure says something about this model rather than the request.
+ *
+ * `worthFallingBackFrom` in `provider.ts` refuses to walk past a 400, and is
+ * right to: a malformed request is malformed everywhere, and trying four
+ * providers turns one clear message into a slower one. JSON mode breaks that
+ * rule in one specific way. Groq answers a model that spent its whole budget
+ * reasoning with 400 `json_validate_failed`, and says so in the body: "max
+ * completion tokens reached before generating a valid document". Measured at
+ * the real caps, `openai/gpt-oss-120b` does that on 15 of 36 grader calls. That
+ * is a fact about the model, and refusing to walk past it stops the chain on
+ * the exact failure the chain exists to survive.
+ *
+ * So this is the provider rule plus that one case, and it is local to the
+ * grader because JSON mode is: nothing else in the app asks for a whole object
+ * inside a few hundred tokens.
+ */
+function graderShouldTryNext(error: unknown): boolean {
+  if (!(error instanceof TutorError)) return true;
+  if (error.status === 401 || error.status === 403) return false;
+  return true;
+}
+
 async function callForJson(
-  config: ProviderConfig,
+  chain: ProviderConfig | ProviderConfig[],
   system: string,
   user: string,
   maxTokens = 400,
+): Promise<{ text: string; usage: UsageReport; config: ProviderConfig }> {
+  const links = Array.isArray(chain) ? chain : [chain];
+  if (links.length === 0) throw new TutorError("No AI provider is configured.", 501);
+  let last: unknown = null;
+  for (const [i, link] of links.entries()) {
+    try {
+      return { ...(await oneCall(link, system, user, maxTokens)), config: link };
+    } catch (error) {
+      last = error;
+      // A rejected key is fatal across the chain, and the last link has
+      // nowhere to fall to, so both stop here rather than retrying to no end.
+      if (i === links.length - 1 || !graderShouldTryNext(error)) throw error;
+    }
+  }
+  throw last instanceof Error ? last : new TutorError("The grader could not be reached.", 502);
+}
+
+async function oneCall(
+  config: ProviderConfig,
+  system: string,
+  user: string,
+  maxTokens: number,
 ): Promise<{ text: string; usage: UsageReport }> {
   const usage: UsageReport = { inputTokens: 0, outputTokens: 0, measured: false };
   let text = "";
@@ -191,12 +236,45 @@ async function callForJson(
       usage.measured = true;
     }
   } else {
-    const isOpenRouter = config.name === "openrouter";
-    // Same invariant as the anthropic branch above.
-    const key = isOpenRouter ? process.env.OPENROUTER_API_KEY! : process.env.OPENAI_API_KEY!;
-    const url = isOpenRouter
-      ? "https://openrouter.ai/api/v1/chat/completions"
-      : "https://api.openai.com/v1/chat/completions";
+    /*
+      One row per provider, rather than "openrouter, and everything else is
+      OpenAI".
+
+      That `else` was a silent misroute. `ProviderName` has five values and the
+      streaming path in `provider.ts` routes all five; this transport knew two,
+      so a name that was neither "anthropic" nor "openrouter" was posted to
+      api.openai.com with OPENAI_API_KEY. On the deployment this was found on,
+      configured with Groq and Anthropic and nothing else, `resolveProvider()`
+      returns groq:openai/gpt-oss-120b, so every grader call went to OpenAI with
+      an undefined bearer and every learner got "no AI feedback" on the writing
+      exercise, the composition and the picture round. Nothing reported it,
+      because the route is built to degrade to the mechanical verdict and that
+      half was working.
+
+      A provider with no row throws rather than falling through to somebody
+      else's endpoint. Gemini has no row on purpose: it is one line to add when
+      a deployment configures it, and inventing an untested one here would be
+      the same guess that caused this.
+    */
+    const ENDPOINTS: Partial<Record<ProviderName, { url: string; key: string | undefined }>> = {
+      openrouter: {
+        url: "https://openrouter.ai/api/v1/chat/completions",
+        key: process.env.OPENROUTER_API_KEY,
+      },
+      groq: {
+        url: "https://api.groq.com/openai/v1/chat/completions",
+        key: process.env.GROQ_API_KEY,
+      },
+      openai: {
+        url: "https://api.openai.com/v1/chat/completions",
+        key: process.env.OPENAI_API_KEY,
+      },
+    };
+    const endpoint = ENDPOINTS[config.name];
+    if (!endpoint?.key) {
+      throw new TutorError(`${config.label} cannot be reached by the grader.`, 501);
+    }
+    const { url, key } = endpoint;
 
     const res = await fetch(url, {
       method: "POST",
@@ -280,14 +358,14 @@ ${text}`;
 }
 
 export async function gradeComposition(
-  config: ProviderConfig,
+  chain: ProviderConfig | ProviderConfig[],
   text: string,
   level: string,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text: reply, usage } = await callForJson(
-    config, buildCompositionSystemPrompt(), buildCompositionUserPrompt(text, level), 500,
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text: reply, usage, config } = await callForJson(
+    chain, buildCompositionSystemPrompt(), buildCompositionUserPrompt(text, level), 500,
   );
-  return { graded: parseVerdict(reply), usage };
+  return { graded: parseVerdict(reply), usage, config };
 }
 
 // ── A sentence about a scene ─────────────────────────────────────────────────
@@ -383,11 +461,11 @@ ${input.sentence}`;
 }
 
 export async function gradeDescription(
-  config: ProviderConfig,
+  chain: ProviderConfig | ProviderConfig[],
   input: DescribeGraderInput,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text, usage } = await callForJson(
-    config, buildDescribeSystemPrompt(), buildDescribeUserPrompt(input),
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text, usage, config } = await callForJson(
+    chain, buildDescribeSystemPrompt(), buildDescribeUserPrompt(input),
   );
-  return { graded: parseVerdict(text), usage };
+  return { graded: parseVerdict(text), usage, config };
 }

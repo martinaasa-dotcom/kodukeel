@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { resolveProvider, TutorError } from "@/lib/tutor/provider";
+import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { gradeComposition } from "@/lib/tutor/grader";
 import { verifyVerdict } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
@@ -54,7 +54,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "There is not enough here to read." }, { status: 400 });
   }
 
-  const config = resolveProvider();
+  // The whole chain rather than its head. The grader used to take
+  // `resolveProvider()`, which is one model with nothing behind it, so a
+  // provider having a bad minute was the learner losing their feedback.
+  const chain = resolveProviders();
+  const config = chain[0];
   if (!config) {
     return Response.json({ comment: "", rule: "", aiAvailable: false });
   }
@@ -70,9 +74,9 @@ export async function POST(request: Request) {
   // then withheld. Only the first is owed its authorization back.
   let settled = false;
   try {
-    const { graded, usage } = await gradeComposition(config, text, level);
+    const { graded, usage, config: answered } = await gradeComposition(chain, text, level);
     after(() => recordUsage({
-      ownerId, kind: "GRADER", provider: config.name, model: config.model,
+      ownerId, kind: "GRADER", provider: answered.name, model: answered.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
       reservation: decision.reservation,
     }));
@@ -101,7 +105,7 @@ export async function POST(request: Request) {
       reportError(new Error("composition reader introduced an unverified Estonian form"), {
         at: "api/exam/write/verify",
         ownerId,
-        extra: { model: config.model, unverified: verified.unverified },
+        extra: { model: answered.model, unverified: verified.unverified },
       });
       return Response.json({
         comment: "", rule: "", aiAvailable: true,

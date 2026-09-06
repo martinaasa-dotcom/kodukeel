@@ -12382,7 +12382,9 @@ check("nothing but the dictionary can advance a scene", () => {
 check("the scene route marks mechanically before it reaches a provider", () => {
   const src = code("app/api/describe/route.ts");
   const marked = src.indexOf("markDescription(");
-  const provider = src.indexOf("resolveProvider(");
+  // Either spelling: the route resolves the whole chain now, and the rule is
+  // about the order, not about which of the two functions it calls.
+  const provider = src.search(/resolveProviders?\(/);
   assert.ok(marked > 0 && provider > 0, "the describe route no longer does both of these");
   assert.ok(
     marked < provider,
