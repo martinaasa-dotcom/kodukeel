@@ -15,7 +15,16 @@ import { baseUrl, suite } from "./lib/checks.mjs";
 const B = baseUrl();
 const PAGES = ["/", "/practice", "/grammar", "/grammar/partitive", "/progress", "/learn",
   "/learn/kodu", "/dictionary?q=tuba", "/words", "/words/mastery", "/settings", "/review",
-  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding"];
+  "/review/dictation", "/class", "/tutor", "/scan", "/welcome", "/funding",
+  /*
+    The one screen in the app that takes the shell off and paints its own
+    ground (`components/scene/SceneStage.tsx`). It is measured here for exactly
+    that reason: everything else on this list is read on `--ground` or on a
+    named tint, and a room with a light of its own is where a caption that was
+    chosen against a surface token quietly stops clearing 4.5:1. The briefing
+    is the state a route arrives in, which is all a sweep can reach.
+  */
+  "/situations", "/situations/poodi-piima"];
 
 // sRGB relative luminance + WCAG contrast.
 const lum = ([r, g, b]) => {

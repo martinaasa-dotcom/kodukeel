@@ -11,6 +11,7 @@ import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { errandForScene } from "@/lib/collections/errands";
 import { practises } from "@/lib/scenes/practises";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
+import { SceneMotif } from "@/components/scene/SceneMotif";
 
 export const metadata = { title: "Situations" };
 export const dynamic = "force-dynamic";
@@ -101,7 +102,7 @@ export default async function SituationsPage() {
           programme, named, with a link that was opened before it was written down.
         */}
         <section aria-labelledby="places-heading">
-          <h2 id="places-heading" className="font-medium">Where the people are</h2>
+          <h2 id="places-heading" className="text-lg font-medium">Where the people are</h2>
           <p className="mb-3 mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
             The rehearsal is here. The conversation is out there, and these are free.
           </p>
@@ -109,7 +110,7 @@ export default async function SituationsPage() {
             {PLACES_TO_TALK.map((place) => (
               <li key={place.href}>
                 <Card className="flex h-full flex-col gap-1">
-                  <a href={place.href} target="_blank" rel="noreferrer" className="font-medium underline">
+                  <a href={place.href} target="_blank" rel="noreferrer" className="text-base font-medium underline">
                     {place.name}
                   </a>
                   <p className="text-sm" style={{ color: "var(--ink-2)" }}>{place.what}</p>
@@ -132,8 +133,26 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
     <li>
       <Link href={`/situations/${scene.id}`} className="block h-full">
         <Card hover className="flex h-full flex-col gap-2">
-          <div className="flex items-start justify-between gap-2">
-            <h2 className="font-medium">{scene.title}</h2>
+          <div className="flex items-start gap-3">
+            {/*
+              WHICH ROOM THIS IS, BEFORE THE TITLE IS READ.
+
+              Fourteen tiles were fourteen identical cards and the only thing
+              telling a pharmacy from a job interview was the sentence on it.
+              `lib/scenes/scenery.ts` gives each one a mark, and it is the same
+              mark that sits on the bar for the whole conversation, so choosing
+              one and being in it are the same place. Decoration: the title,
+              the place and the kind of place are all written out beside it.
+            */}
+            <SceneMotif sceneId={scene.id} />
+            {/*
+              On the scale, which it was not: a bare `h2` inherits the
+              document's own 16px and the type scale has no such step, so
+              every tile on this page was a size nothing else in the app
+              uses. Found the day `/situations` joined the design sweep,
+              which is the argument for putting it there.
+            */}
+            <h2 className="min-w-0 flex-1 text-md font-medium">{scene.title}</h2>
             {/* A level never wraps: "B1" on two lines reads as two chips. */}
             <span className="shrink-0"><Chip tone="neutral">{scene.level}</Chip></span>
           </div>

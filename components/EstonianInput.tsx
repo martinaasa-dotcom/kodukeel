@@ -21,6 +21,14 @@ import { DiacriticBar } from "@/components/DiacriticBar";
  * fall back to, so the caller's ref is used as this component's own rather than
  * kept alongside it: two refs on one input is how they come apart.
  *
+ * `disabled` is the one moment a conversation takes the box away: a scene that
+ * moves the learner from a kitchen to a shop covers the screen while it does
+ * (`components/scene/SceneInterlude.tsx`), and a turn typed into a scene that
+ * is halfway through moving is a turn answered about the wrong place. The
+ * letter bar goes with it rather than sitting under a box nothing can be typed
+ * into, since the bar types into whatever has focus and there is nothing to
+ * focus.
+ *
  * `compact` is the floating Anu panel, the one place this field sits beside a
  * button inside a 26rem card rather than across a page. At the default size a
  * long placeholder such as "Why is it raamatut and not raamatu?" ran past the
@@ -30,6 +38,7 @@ import { DiacriticBar } from "@/components/DiacriticBar";
  */
 export function EstonianInput({
   value, onChange, placeholder, autoFocus, onEnter, id, ariaLabel, large, compact, inputRef, bar = true,
+  disabled,
 }: {
   value: string;
   onChange: (next: string) => void;
@@ -41,6 +50,7 @@ export function EstonianInput({
   large?: boolean;
   compact?: boolean;
   inputRef?: RefObject<HTMLInputElement | null>;
+  disabled?: boolean;
   /**
    * `false` where several of these sit in one table and one bar under the
    * table serves them all, since the shared bar types into whatever has
@@ -61,6 +71,7 @@ export function EstonianInput({
         value={value}
         autoFocus={autoFocus}
         placeholder={placeholder}
+        disabled={disabled}
         onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
         onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => {
           if (e.key === "Enter" && onEnter) { e.preventDefault(); onEnter(); }
@@ -68,7 +79,7 @@ export function EstonianInput({
         className={`w-full ${large ? "field-lg text-xl" : compact ? "field text-sm" : "field-lg text-md"}`}
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)", boxShadow: "var(--shadow-sm)" }}
       />
-      {bar && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={ref} /></div>}
+      {bar && !disabled && <div className="under-field"><DiacriticBar standalone={false} fallbackRef={ref} /></div>}
     </div>
   );
 }

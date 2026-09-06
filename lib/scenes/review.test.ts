@@ -34,7 +34,7 @@ const CASE_SLIP: Slip = { kind: "case", said: "pea", form: "peas", lemma: "pea",
 describe("the review of a conversation", () => {
   it("leads on what landed, because that is the sentence somebody takes away", () => {
     const review = reviewOf(SCENE, state([turn(), turn(), turn()]));
-    expect(review.lead).toMatch(/answered what was asked/);
+    expect(review.lead).toMatch(/answered the question/);
     expect(review.lead).not.toMatch(/wrong|mistake|error/i);
   });
 

@@ -57,7 +57,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 42,
+  floor: 44,
 });
 
 /*
@@ -154,6 +154,33 @@ await page.getByRole("button", { name: /Start the conversation/i }).click();
 await page.waitForSelector('[role="log"] p', { timeout: TURN_MS });
 
 // ── The card, which is the thing a learner answers from ─────────────────────
+/*
+  THE STRIP IS THE CARD NOW, AND THE CARD IS BEHIND IT.
+
+  It used to be open: forty words of role, the labelled values, a line about
+  the persona and every objective in the scene, all of it standing above the
+  conversation on a phone. A learner sent a screenshot of that and called it
+  cluttered, and they were right. What a beat actually asks a learner to read
+  off the card is the values, and that is two words, so the values are the
+  strip and everything else is one press away.
+
+  So this asks the same question in two halves. The strip carries the values
+  while somebody types, which is the claim that matters and the one the whole
+  card used to be there for; opening it still shows which value answers which
+  line, which is what stops "back" and "Wednesday" being two words with no
+  question attached.
+*/
+const strip = await page.locator("details > summary").innerText();
+check("the strip carries what you were dealt, without opening anything",
+  /^Your card: \S/.test(strip.trim()), strip.trim());
+/*
+  AND THE ROOM'S NAME IS NOT ON IT TWICE. The bar above the conversation prints
+  the place, and the strip printed it again two lines under it, which on a
+  phone is most of the width of the one line that had a job to do.
+*/
+check("and does not say the place the bar has just said", !/counter|centre|center/i.test(strip));
+
+await page.locator("details > summary").click();
 const card = await page.locator("details").innerText();
 /*
   THE CARD SHOWS WHAT IT POINTS AT. Six props across three scenes told a learner
@@ -177,7 +204,15 @@ check("and what is wrong with you, in English", /What is wrong/i.test(card)
   `catalogue.test.ts` reads which props those are off the beats.
 */
 check("and not the time the desk is about to offer", !/The time you were given/.test(card));
-check("the objectives are on screen from the start", (await page.getByText("Greet them back.").count()) > 0);
+check("and every objective, once it has been opened", card.includes("Say hello back."));
+await page.locator("details > summary").click();
+/*
+  AND THE ONE IN PLAY IS ON SCREEN WITH THE CARD SHUT, which is what makes
+  shutting it safe: the panel a learner types into names the objective they are
+  on, so the list is a reference rather than something to keep in view.
+*/
+check("and the objective in play is named without it",
+  (await page.getByText("Say hello back.").count()) > 0);
 
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
@@ -276,7 +311,7 @@ async function say(text) {
 
 // ── A turn that lands ───────────────────────────────────────────────────────
 const waited = await say("Tere!");
-check("a greeting is read as a greeting", (await page.getByText("Greet them back.").count()) > 0
+check("a greeting is read as a greeting", (await page.getByText("Say hello back.").count()) > 0
   && (await page.locator("main").innerText()).includes("done"), `${waited}ms`);
 
 /*
@@ -309,7 +344,18 @@ check("asking for a word gives you a word, with its meaning", / · /.test(lent)
 // ── A turn that repairs ─────────────────────────────────────────────────────
 await say("Mul on valu.");
 const afterTwo = await page.locator("main").innerText();
-check("a second objective can be met", (afterTwo.match(/\ndone\n/g) ?? []).length >= 2);
+/*
+  READ OFF THE COUNT RATHER THAN OFF THE TICKS.
+
+  This used to count the word "done" in the checklist, which lives inside the
+  card, and the card is shut now: what it was counting was `sr-only` text in a
+  closed disclosure, so it read nought whatever the learner had achieved. The
+  count is on screen either way, in the panel a learner types into and on the
+  bar above the conversation, and it is the same figure the ticks are, read off
+  the same list.
+*/
+const counts = [...afterTwo.matchAll(/(\d+) of (\d+)/g)].map((m) => Number(m[1]));
+check("a second objective can be met", counts.some((n) => n >= 2), afterTwo.match(/\d+ of \d+/)?.[0] ?? "no count on screen");
 check("no meter, no timer, no score anywhere on the screen (§7)",
   !/\d+\s*%/.test(afterTwo) && !/\bscore\b/i.test(afterTwo) && !/\bpoints?\b/i.test(afterTwo));
 

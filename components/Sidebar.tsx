@@ -109,7 +109,17 @@ export function Sidebar() {
         that: the rows are simply clipped at its top edge, which is what every
         other scroller in the app already does.
       */}
+      {/*
+        MARKED SO A CONVERSATION CAN TAKE IT OFF THE SCREEN.
+
+        `data-chrome` is the one hook `:root[data-scene]` hides by, and it is an
+        attribute here rather than a selector guessing at this markup: a rule
+        written against a shape stops matching the day somebody moves a div, and
+        it fails by quietly leaving the website drawn around a screen that is
+        supposed to be a room (app/globals.css, components/scene/SceneStage.tsx).
+      */}
       <nav
+        data-chrome="rail"
         aria-label="Main"
         className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col p-4 md:flex"
       >
@@ -251,6 +261,7 @@ export function Sidebar() {
       */}
       <nav
         ref={measure}
+        data-chrome="dock"
         aria-label="Main"
         className="fixed left-3 right-3 z-40 md:hidden"
         style={{ bottom: "max(0.75rem, env(safe-area-inset-bottom))" }}

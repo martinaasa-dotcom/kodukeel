@@ -926,10 +926,392 @@
     100% { transform: scaleX(1); }
   }
 
+  /*
+    A CONVERSATION IS A ROOM, AND THE WEBSITE IS NOT IN IT.
+
+    Everything else in this app is a page inside a shell: a rail down the left,
+    a bar along the bottom of a phone, a button in the corner that opens a
+    tutor. That is right for a deck and for a chart, and it is wrong for the one
+    screen where somebody is supposed to forget they are using an app at all. A
+    learner standing at a counter has no navigation. What was reported is that
+    the situations read as one more page rather than as a thing you step into,
+    and the fix is not decoration: it is taking the rest of the site off the
+    screen for as long as the conversation lasts.
+
+    `.scene-room` is the one element `components/scene/SceneStage.tsx` draws
+    round a conversation, and `body:has(...)` is what reads it. In CSS rather
+    than as an attribute written from an effect, and that is the difference
+    between a room and a room that flickers: an effect runs after the first
+    paint, so every arrival would draw the whole website for a frame and then
+    take it away. A selector answers in the first style pass, and there is
+    nothing to clean up when the conversation ends.
+
+    What it hides is marked `data-chrome` at the three places that draw it,
+    rather than matched by shape: a rule that guessed at the rail's markup
+    would stop hiding it the day somebody moved a div, silently, which is the
+    same class of fault as a suite that walks the markup to pair a line with
+    its label.
+
+    The bar at the bottom of a phone is measured rather than assumed
+    (`lib/layout/dockClearance.ts`), and `display: none` gives its observer a
+    zero box, so `data-dock` comes off by itself and the notices that sit clear
+    of it stop reserving room for a bar nobody can see.
+  */
+  body:has(.scene-room) [data-chrome] { display: none !important; }
+  body:has(.scene-room) #main { padding-right: 0; }
+  body:has(.scene-room) .dock-pad { padding-bottom: 0; }
+
+  /*
+    THE ROOM'S OWN LIGHT.
+
+    `Wash` paints three pastel blobs behind every signed-in page, and a scene
+    keeps that family rather than inventing a second one: the same three wash
+    tokens, laid out as light coming from the top left and settling at the foot
+    of the screen, so a conversation reads as somewhere warmer and deeper than
+    the app around it without reading as a different product. Fixed, so it does
+    not travel with a long transcript, and behind everything, so nothing is ever
+    written on a gradient it was not measured against: the panels a learner
+    reads are all `--surface` and the tints they already use.
+
+    No `backdrop-filter` anywhere on this screen. A filtered layer over content
+    that scrolls is re-filtered every frame, which was measured at a third of a
+    screen of lag on a phone, and a conversation scrolls on every single turn.
+  */
+  .scene-ground {
+    position: fixed;
+    inset: 0;
+    z-index: -9;
+    pointer-events: none;
+    background:
+      radial-gradient(78% 48% at 6% 26%, var(--wash-1), transparent 64%),
+      radial-gradient(64% 40% at 102% 34%, var(--wash-2), transparent 60%),
+      radial-gradient(80% 46% at 50% 106%, var(--wash-3), transparent 62%),
+      var(--ground);
+    /*
+      The light starts below the bar rather than at the top of the window. The
+      bar is painted in `--ground` and cannot be translucent, since a
+      `backdrop-filter` over a transcript that scrolls is re-filtered every
+      frame and this app does not put one over moving content; so a wash that
+      reached the top edge drew a seam across the screen exactly where the
+      room's own name is. Softened with it, because what this is for is depth
+      rather than colour: at full strength three pastels behind a conversation
+      is a second thing to look at.
+    */
+    opacity: 0.72;
+  }
+
+  /*
+    THE BAR ALONG THE TOP OF THE ROOM.
+
+    Sticky rather than fixed, so it takes part in the page's own layout and the
+    transcript is never drawn underneath it, and opaque rather than blurred for
+    the reason above. The hairline under it is what says the conversation runs
+    on past the edge of it.
+  */
+  .scene-top {
+    background: var(--ground);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  /*
+    AND WHAT STICKS UNDER IT KNOWS HOW TALL IT IS.
+
+    Two sticky things at `top: 0` are one sticky thing with the other drawn
+    underneath it, and the other one here is the role card's own summary, which
+    is the line carrying the values a beat is about to ask the learner to read
+    back. It was measured off the bar by hand once and that number was wrong the
+    first time the bar changed, so the bar declares its height and the summary
+    reads it: one figure, in one place, and a card that cannot end up hidden
+    behind the room's own name.
+  */
+  .scene-room { --scene-top: 3.5rem; }
+  .scene-sticky { position: sticky; top: var(--scene-top, 0px); }
+
+  /*
+    ONE LINE ARRIVING, WHICH IS THE MOVEMENT THIS SCREEN IS MADE OF.
+
+    A reply lands as a bubble appended to a list, and a list that grows with no
+    movement at all reads as a page that reloaded rather than as somebody
+    answering you. It rises a little and settles, off `--say-at` so a reaction
+    and the move after it arrive in the order they were said rather than
+    together. Transform and opacity only.
+
+    The learner's own turn arrives from the other side, because it came from
+    the other side of the screen.
+  */
+  .scene-say {
+    animation: scene-say 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--say-at, 0) * 110ms);
+  }
+  .scene-say-you { animation: scene-say-you 320ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  @keyframes scene-say {
+    0% { opacity: 0; transform: translate3d(-10px, 8px, 0) scale(0.97); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+  @keyframes scene-say-you {
+    0% { opacity: 0; transform: translate3d(10px, 8px, 0) scale(0.97); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+
+  /*
+    A THING GOT DONE, SAID IN MOVEMENT AS WELL AS IN A TICK.
+
+    The pips along the top bar are the objectives, and one turning is the only
+    good news this screen ever gives while the conversation is running. It is a
+    single hop rather than anything that keeps moving: the news has landed, and
+    a thing still moving afterwards is asking for attention it has already had,
+    which is `sonad-rise`'s own argument one file up.
+  */
+  .scene-pip-met { animation: scene-pip 460ms cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+  @keyframes scene-pip {
+    0% { transform: scale(0.6); }
+    55% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+  }
+
+  /*
+    THE CURTAIN, WHICH IS ONE MOVEMENT AND NOT A TRANSITION LIBRARY.
+
+    Pressing "Start the conversation" replaces a briefing with a counter, and a
+    swap with nothing between them reads as a page navigation. The room fades up
+    from underneath, once, and then never again for the rest of the run.
+  */
+  .scene-open { animation: scene-open 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes scene-open {
+    0% { opacity: 0; transform: translate3d(0, 14px, 0); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  /*
+    TIME PASSING, AND THE ONE MOMENT THIS MODULE STOPS EVERYTHING.
+
+    A scene can walk somebody out of their kitchen and into a shop, and every
+    question after that is asked about the shop. The screen used to say so in a
+    grey sentence between two hairlines; then in a tinted chip that arrived,
+    which is what `.scene-break` below still draws in the transcript. A learner
+    walked to a shop reported, twice, that nothing had told them the scene had
+    moved, and they were right both times: a chip that arrives among bubbles
+    that also arrive is one more bubble.
+
+    So the room itself changes. The conversation is covered, the light gathers
+    into the middle of the screen, the hour is drawn, and the sentence rises
+    into it; then it clears and the counter is somewhere else. It is the one
+    place in this app where the learner cannot type, and that is the point
+    rather than an accident of the animation: a turn typed into a scene that is
+    halfway through moving is a turn answered about the wrong place.
+
+    It is transform and opacity throughout, with one exception written down
+    rather than hidden: the sentence comes out of a blur, which is a paint the
+    compositor cannot help with. It is one short run on one small element over
+    a cover that is not moving, and it is what makes the words read as coming
+    into focus rather than as sliding in. Under
+    `prefers-reduced-motion` nothing moves and the panel is simply there, which
+    is the whole of the information; the hold is shorter, because a still panel
+    is read in less time than a moving one is watched.
+  */
+  .scene-veil { animation: scene-veil 420ms ease-out both; }
+  .scene-veil-out { animation: scene-veil 300ms ease-in both reverse; }
+  @keyframes scene-veil {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* The light gathering behind the words: a slow bloom that never quite settles. */
+  .scene-bloom { animation: scene-bloom 2600ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes scene-bloom {
+    0% { opacity: 0; transform: scale(0.72); }
+    45% { opacity: 1; transform: scale(1.04); }
+    100% { opacity: 0.92; transform: scale(1.12); }
+  }
+
+  /* The hour, drawn once, with its hand coming round to the top. */
+  .scene-dial { animation: scene-dial 620ms cubic-bezier(0.34, 1.3, 0.64, 1) both; }
+  .scene-hand {
+    transform-origin: 50% 50%;
+    animation: scene-hand 1400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    animation-delay: 180ms;
+  }
+  @keyframes scene-dial {
+    0% { opacity: 0; transform: scale(0.5); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes scene-hand {
+    0% { transform: rotate(-150deg); }
+    100% { transform: rotate(210deg); }
+  }
+
+  /* Two rules drawing out from the middle, one each way. */
+  .scene-thread {
+    transform-origin: 50% 50%;
+    animation: scene-thread 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 120ms;
+  }
+  @keyframes scene-thread {
+    0% { opacity: 0; transform: scaleX(0); }
+    100% { opacity: 1; transform: scaleX(1); }
+  }
+
+  /* And the sentence rising into the light it was given. */
+  .scene-told {
+    animation: scene-told 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(260ms + var(--told-at, 0) * 140ms);
+  }
+  @keyframes scene-told {
+    0% { opacity: 0; transform: translate3d(0, 16px, 0); filter: blur(6px); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+  }
+
+  /*
+    WHERE YOU ARE NOW, WHICH IS THE HALF A LEARNER ANSWERS FROM.
+
+    The sentence says what happened; the place is what every question after it
+    is about, so it is set as the heading of the moment rather than as a note
+    under it, and it arrives last, once the words that explain it have settled.
+  */
+  .scene-place {
+    animation: scene-place 620ms cubic-bezier(0.34, 1.25, 0.64, 1) both;
+    animation-delay: 620ms;
+  }
+  @keyframes scene-place {
+    0% { opacity: 0; transform: translate3d(0, 10px, 0) scale(0.96); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+  }
+
+  /*
+    WHAT A PLACE MOVES LIKE.
+
+    Fourteen conversations were fourteen identical white cards, and the only
+    thing that told a health centre from a job interview was the sentence you
+    read. `lib/scenes/scenery.ts` gives each one an icon and one of five
+    movements, and this is where a movement becomes something on the screen.
+
+    None of them is a picture of anything and none of them uses a hue that
+    means something: the five colours in this app carry fixed meanings and are
+    not free for decoration, so every scene is drawn in the accent and what
+    tells them apart is what moves. A queue advances. A telephone rings out in
+    circles. A journey travels. Steam comes off something hot. A room somebody
+    is looking at you in breathes.
+
+    Slow on purpose, and all of them out of phase with each other, because this
+    sits behind a sentence somebody is reading and a thing that ticks at the
+    speed of a cursor is a thing that gets read instead of the sentence. Every
+    one is transform and opacity, they are all decorative and hidden from a
+    reader, and they all stop dead under `prefers-reduced-motion`, where the
+    icon and the words beside it are the whole of the information.
+  */
+  .amb-queue { animation: amb-queue 2800ms cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+  .amb-1 { animation-delay: 0ms; }
+  .amb-2 { animation-delay: 900ms; }
+  .amb-3 { animation-delay: 1800ms; }
+
+  /* A step, a pause, a step. A queue does not glide. */
+  @keyframes amb-queue {
+    0% { opacity: 0; transform: translateX(-14px); }
+    18% { opacity: 1; transform: translateX(-14px); }
+    34% { opacity: 1; transform: translateX(0); }
+    72% { opacity: 1; transform: translateX(0); }
+    88%, 100% { opacity: 0; transform: translateX(14px); }
+  }
+
+  /*
+    THE PEOPLE IN THE DRAWING, MOVING AS LITTLE AS THEY CAN GET AWAY WITH.
+
+    `components/scene/SceneVignette.tsx` draws each situation out of six lines
+    and a counter, and this is the whole of what moves in it. Slow, small and
+    out of phase, because it sits above a paragraph somebody is reading and a
+    drawing that ticks at the speed of a cursor is a drawing that gets read
+    instead of the sentence.
+
+    Two legs taking it in turns is a walk, which is the one piece of movement
+    here that has to be sharper than the rest: a scissor at four steps a second
+    reads as walking and at one reads as a fault.
+  */
+  .stick-bob { animation: stick-bob 3600ms ease-in-out infinite; }
+  .stick-nod { animation: stick-nod 4200ms ease-in-out infinite; }
+  .stick-legs-a { animation: stick-legs 900ms steps(1, end) infinite; }
+  .stick-legs-b { animation: stick-legs 900ms steps(1, end) infinite reverse; }
+  .stick-arc { animation: stick-arc 2600ms ease-out infinite; }
+
+  /*
+    ONE ROOM LEAVING AND THE NEXT ONE ARRIVING.
+
+    A scene can walk somebody out of their kitchen and into a shop, and the
+    cover that says so used to draw a clock: the room they had been answering
+    from for four turns simply stopped being true. These are the two halves of
+    the move, and the timing is the whole of what makes it read as one thing
+    rather than two: the room being left goes first and is gone before the room
+    being arrived in is halfway in, so there is a moment in the middle with
+    neither, which is what a cut between two places looks like.
+
+    Transform and opacity, both ways, so the compositor runs them while React is
+    appending the lines said in the new place. Nothing at all under
+    `prefers-reduced-motion`, where the second room is simply there and the
+    sentence under it says what happened.
+  */
+  .scene-room-out { animation: scene-room-out 900ms cubic-bezier(0.4, 0, 1, 1) both; }
+  .scene-room-in {
+    animation: scene-room-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 620ms;
+  }
+
+  @keyframes scene-room-out {
+    0% { opacity: 1; transform: translate3d(0, 0, 0); }
+    100% { opacity: 0; transform: translate3d(-46px, 0, 0); }
+  }
+  @keyframes scene-room-in {
+    0% { opacity: 0; transform: translate3d(46px, 0, 0); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  /*
+    Steam, in the drawing's own units rather than in pixels. The first version
+    of this rose 22, which was written for a 96px badge and is a fifth of the
+    way up a 120-unit drawing: the wisps left the cup behind and hung in the air
+    above the counter. Here it is eight units and a lean.
+  */
+  .stick-steam { animation: stick-steam 3800ms ease-in-out infinite; }
+
+  @keyframes stick-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  /* Listening, which is the one thing somebody across a table is doing. */
+  @keyframes stick-nod {
+    0%, 72%, 100% { transform: translateY(0); }
+    80% { transform: translateY(2.5px); }
+    88% { transform: translateY(0); }
+  }
+  @keyframes stick-legs {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes stick-steam {
+    0% { opacity: 0; transform: translateY(2px); }
+    35% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(2px, -8px); }
+  }
+  /* Out from the ear, and gone, which is a telephone from the outside. */
+  @keyframes stick-arc {
+    0%, 60%, 100% { opacity: 0; }
+    20%, 40% { opacity: 1; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
     .sonad-settle, .sonad-refuse, .sonad-rise,
-    .scene-break, .scene-break-rule { animation: none; }
+    .scene-break, .scene-break-rule,
+    .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
+    .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,
+    .scene-thread, .scene-told, .scene-place,
+    .amb-queue, .scene-room-out, .scene-room-in,
+    .stick-bob, .stick-nod, .stick-arc, .stick-steam,
+    .stick-legs-a, .stick-legs-b { animation: none; }
+    /*
+      The walker keeps one pair of legs rather than both. `-b` carries its own
+      `opacity: 0` and only the animation ever shows it, so stopping the
+      animation leaves the wider stance standing still, which is a person
+      rather than a person mid-stride with four legs.
+    */
   }
 
   /*

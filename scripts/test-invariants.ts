@@ -14413,6 +14413,86 @@ check("every line a scene says carries its rung", () => {
 });
 
 /*
+  A CONVERSATION IS A ROOM, AND THE ROOM STOPS WHEN THE SCENE MOVES.
+
+  Two rules from the same pass, and each fails silently in a way nobody would
+  file a bug about.
+
+  The first is that the website comes off the screen while a conversation is
+  running. It is one rule in `app/globals.css` reading `body:has(.scene-room)`
+  against `data-chrome` at the three places the shell draws itself, and it has
+  two halves that can come apart without anything breaking: a mark nothing
+  hides, or a rule with nothing marked. Either way the rail is simply drawn
+  back around a screen that is supposed to be a room, which reads as a design
+  somebody chose.
+
+  The second is the one this pass was reported for twice. A scene can walk a
+  learner out of their kitchen and into a shop, and every question after that
+  is asked about the shop. The cover is what says so (`SceneInterlude`), and
+  the load-bearing half is not the drawing: it is that the reply is cut at the
+  break, so what the other side says in the new place is held until the cover
+  has been read, and the composer is closed for the whole of it. Appending the
+  lot at once puts the move back to being one more bubble among bubbles, which
+  is exactly the state two learners reported; leaving the field live lets
+  somebody answer a question about a place they have not been told they are
+  standing in, and the field and the button are two different promises to a
+  keyboard.
+*/
+check("a conversation takes the website off the screen, and stops when the scene moves", () => {
+  const css = read("app/globals.css");
+  const stage = code("components/scene/SceneStage.tsx");
+  assert.match(stage, /className="scene-room/, "SceneStage no longer draws the element the room is hidden by");
+  assert.match(
+    css, /body:has\(\.scene-room\) \[data-chrome\] \{ display: none/,
+    "the shell is no longer hidden while a conversation is running, so a situation is a page again",
+  );
+  /*
+    And there is something to hide. Three parts of the shell draw themselves
+    over or beside a page, and the set is asserted rather than each file being
+    asked whether it carries a mark at all: the rail and the phone bar are both
+    in `Sidebar.tsx`, so a check that only asked the file would pass with the
+    rail's mark deleted and the bar's still there. That is the fault this is
+    for, and it was made to happen once before it was trusted.
+  */
+  const marked = new Set(
+    COMPONENTS.flatMap((file) => [...code(file).matchAll(/data-chrome="(\w+)"/g)].map((m) => m[1]!)),
+  );
+  assert.deepEqual(
+    [...marked].sort(), ["anu", "dock", "rail"],
+    "the parts of the shell a conversation hides have changed. Every one of them carries "
+    + "`data-chrome`, or it stays drawn around a screen that is supposed to be a room "
+    + "(components/scene/SceneStage.tsx).",
+  );
+
+  const session = code("components/scene/SceneSession.tsx");
+  /*
+    The reply is cut at the break and the second half waits on the cover. The
+    `await` is the whole of it: without it the lines land while the room is
+    still moving and the cover is a decoration over a conversation that has
+    already changed.
+  */
+  assert.match(
+    session, /findIndex\(\(line\) => line\.provenance === "meanwhile"\)/,
+    "the scene screen no longer cuts a reply at the moment the scene moves",
+  );
+  assert.match(
+    session, /await new Promise<void>\(\(resume\) => \{\s*setInterlude\(/,
+    "the lines said after the move are no longer held until the cover has been read, so the move is "
+    + "one more bubble among bubbles again",
+  );
+  /*
+    And nothing can be typed while it is up: the field as well as the button,
+    since a disabled button beside a live field is a learner writing an answer
+    to a question that has not been asked yet.
+  */
+  assert.match(session, /const moving = interlude !== null;/,
+    "there is no single reading of whether the room is moving, so five controls each decide for themselves");
+  assert.match(session, /disabled=\{moving\}/, "the box a learner types into stays live while the scene is moving");
+  assert.match(session, /disabled=\{busy \|\| moving \|\| !draft\.trim\(\)\}/,
+    "the button that sends a turn stays live while the scene is moving");
+});
+
+/*
   ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
 
   It says it in the file itself: only the primary carries the gradient, one loud
