@@ -66,9 +66,16 @@ describe("dateLine", () => {
   it("does not follow the reader's locale", () => {
     const seen: (string | string[] | undefined)[] = [];
     const real = Intl.DateTimeFormat;
+    /*
+      A `function` rather than an arrow, because `dateLine` reaches this with
+      `new` and an arrow has no construct behaviour: under Vitest 4 the spy says
+      so out loud ("the DateTimeFormat mock did not use 'function' or 'class'")
+      and records nothing, so the assertion below failed on an empty list while
+      the code under test was perfectly correct.
+    */
     vi.spyOn(Intl, "DateTimeFormat").mockImplementation(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any -- standing in for a constructor
-      ((locales: any, options: any) => { seen.push(locales); return new real(locales, options); }) as any,
+      function (locales: any, options: any) { seen.push(locales); return new real(locales, options); } as any,
     );
     dateLine(AT, "Europe/Tallinn");
     expect(seen).toContain(ESTONIAN_LOCALE);
