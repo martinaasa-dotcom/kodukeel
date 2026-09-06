@@ -12988,9 +12988,39 @@ check("the other side may volunteer something, and never says it twice", () => {
     "the polar reading stopped being a reading of the question's own first word, or stopped erring "
     + "toward leaving `jah` out where there is nothing to read",
   );
+  const prompt = code("lib/scenes/prompt.ts");
   assert.match(
-    code("lib/scenes/prompt.ts"), /one short remark of your own in front of your move/,
+    prompt, /one short remark of your own in front of your move/,
     "the prompt stopped asking for the remark, so the sentence the gate now allows is never written",
+  );
+  /*
+    AND THE PROMPT MAY NOT ASK FOR ONE SENTENCE AND THEN ALLOW TWO. It did, for
+    as long as the remark rule existed: `Reply with exactly ONE short Estonian
+    sentence` sat three hundred characters above it, a model reads the stronger
+    instruction, and every line came back as the shortest question that would
+    do. A learner read `Kust alustaksite tööd?` and said what was missing was
+    context rather than brevity.
+  */
+  assert.doesNotMatch(
+    prompt, /exactly ONE short Estonian sentence/,
+    "the prompt asks for one sentence and then allows a remark in front of the move, which is two "
+    + "instructions and the model takes the first",
+  );
+  assert.match(
+    prompt, /one or two short Estonian sentences/,
+    "the prompt stopped saying how many sentences a line may be, so what it asks for and what the "
+    + "gate allows are two different things",
+  );
+  /*
+    And the room for it is `MAX_WORDS`, which was raised to eighteen once and
+    put back: the extra rope bought `Tere! Mis needus täna aitama saan?`, which
+    is vouched word by word, names the beat's own topic and is not the language,
+    and nothing in the gate can see it. Two ordinary sentences fit in fourteen.
+  */
+  assert.match(
+    code("lib/scenes/gate.ts"), /export const MAX_COMPOSED_WORDS = MAX_WORDS;/,
+    "a composed line may be longer than a recorded one, which is rope the gate cannot check: the "
+    + "count was never what made the other side terse",
   );
 });
 

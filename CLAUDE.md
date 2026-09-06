@@ -5042,6 +5042,23 @@ had not used came back unvouched: it reported `ja` and `on` as words nothing cou
 rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
 the harness.
 
+**And asking for one short sentence is what made the other side terse.** A learner read
+`Kust alustaksite tööd?` and said what the model needs is context rather than shorter questions,
+and they were right about the cause and it was not the word count. `Reply with exactly ONE short
+Estonian sentence` sat three hundred characters above the rule allowing a remark in front of the
+move, and a model reads the stronger instruction, so every line came back as the shortest question
+that would do. With the two reconciled the neighbor says `Neljas korrus on hea. Kust te olete
+pärit?` and the waiter `Hea valik! Mida te joote?`, which are eight words and five.
+
+**The ceiling was raised for it and put back, which the transcripts settled within one run.**
+Eighteen words looked like the obvious way to make room for the second half of a line, and what the
+extra rope bought was `Tere! Mis needus täna aitama saan?`: every word vouched by the forms list,
+the beat's own topic named, one new word inside the budget, and not the language. Nothing in the
+gate can see that, and nothing ever will, so what keeps a composed line honest is how little room
+it has to reach. `MAX_COMPOSED_WORDS` is `MAX_WORDS` again, asserted, and the instruction that
+earns the fluff now says to make the remark out of the words it was given and to say nothing rather
+than reach: a plain question is better than a sentence the model is not sure of.
+
 **And the model was told what to ask for in one sentence of English, and guessed the rest.** `they`
 is the beat's stage direction, and a model reads it fluently and still writes the wrong question:
 told they ask when the learner could start, the app's own model wrote `Kust alustaksite tööd?`,
@@ -6490,7 +6507,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
 `answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
 `dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
-`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`.
+`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`, `MAX_COMPOSED_WORDS`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

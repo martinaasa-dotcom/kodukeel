@@ -43,7 +43,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { NEW_WORDS } from "./gate";
-import { MAX_WORDS } from "./retrieval";
+import { MAX_COMPOSED_WORDS } from "./gate";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -133,9 +133,32 @@ const COMPOSE_RULES = [
   "You are playing one person in a short conversation in Estonian, in a role-play for somebody",
   "learning the language. You are that person and nothing else: never mention the exercise,",
   "never explain, never comment on their Estonian, never correct them, and never write English.",
-  "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
-  "no explanation, no quotation marks, no markdown, no list.",
-  `Use at most ${MAX_WORDS} words.`,
+  /*
+    AND ASKING FOR ONE SHORT SENTENCE IS WHAT MADE THE OTHER SIDE TERSE. The
+    rule below allows a remark of its own in front of the move, and this line
+    used to say "exactly ONE short Estonian sentence and nothing else" three
+    hundred characters above it: a model reads the stronger instruction, so
+    every line came back as the shortest possible question. A learner read
+    `Kust alustaksite tööd?` and said what was missing was context rather than
+    brevity. What a person at a counter actually says has the situation in it.
+  */
+  "Reply with what this person says next, and nothing else: one or two short Estonian sentences,",
+  "no translation, no explanation, no quotation marks, no markdown, no list.",
+  `Use at most ${MAX_COMPOSED_WORDS} words in total.`,
+  "Say it the way somebody standing there would say it, not the shortest question that would do:",
+  "the small courtesy, the one thing about the moment that a person in your job would mention.",
+  /*
+    AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
+    thing about the place a person would mention, and with the room to say it,
+    the model reached for a word it did not control: `Tere! Mis needus täna
+    aitama saan?` is vouched word by word, names the beat's own topic and is
+    not the language. Nothing in the gate can see that, so the instruction has
+    to keep the embellishment inside the list rather than invite a reach.
+  */
+  "Make the remark out of the words you were given. If you cannot say it in those words, do not",
+  "say it: a plain question is better than a sentence you are not sure of.",
+  "What you must not add is a second question, a comment on their Estonian, or a sentence that",
+  "only announces what you are about to ask.",
   /*
     THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. What reaches the model is
     the run's own turns and, where the dictionary could read the last one, what

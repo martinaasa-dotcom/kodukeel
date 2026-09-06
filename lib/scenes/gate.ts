@@ -502,6 +502,26 @@ export function disagrees(text: string, context: GateContext): boolean {
 const MAX_SENTENCES = 2;
 
 /**
+ * How long a composed line may be, which is `MAX_WORDS` and was briefly not.
+ *
+ * A learner read `Kust alustaksite tööd?` and said what the other side needs
+ * is context rather than shorter questions, so the ceiling was raised to
+ * eighteen to make room for the second half of a line. It was the wrong lever
+ * and the transcripts said so within a run: with the extra rope the same model
+ * wrote `Tere! Mis needus täna aitama saan?`, which is not the language, and
+ * nothing in this file can see that, because every word of it is vouched and
+ * the line names the beat's own topic.
+ *
+ * The count was never what made the other side terse. `Reply with exactly ONE
+ * short Estonian sentence` was, three hundred characters above the rule that
+ * allows a remark, and a model reads the stronger instruction. With that fixed
+ * the neighbor says `Neljas korrus on hea. Kust te olete pärit?`, which is
+ * eight words. Two ordinary sentences fit inside fourteen with room to spare,
+ * and what is left over is rope.
+ */
+export const MAX_COMPOSED_WORDS = MAX_WORDS;
+
+/**
  * At most two short sentences, inside the word count, punctuated, no markdown,
  * and the shape the move asked for.
  *
@@ -519,7 +539,7 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
     && /[.!?]"?$/.test(trimmed)
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0
-    && tokens.length <= MAX_WORDS
+    && tokens.length <= MAX_COMPOSED_WORDS
     && !(shape === "required" && !isQuestion(text))
     && !(shape === "forbidden" && isQuestion(text));
 }
