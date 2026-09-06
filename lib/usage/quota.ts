@@ -125,19 +125,6 @@ export const DEFAULT_LIMITS: QuotaLimits = {
   reserveCallsPerUser: 3,
 };
 
-/**
- * What the daily ceiling above comes to over a month, for copy that talks about
- * a budget rather than about a day.
- *
- * Derived rather than typed, because a page saying "five dollars a month" over a
- * constant somebody has since raised is the kind of small wrongness a reader
- * catches once and then stops trusting the page for. `/funding` is the caller,
- * and that page's whole argument is that every number on it says where it came
- * from.
- */
-export function monthlyBudgetUsd(limits: QuotaLimits = DEFAULT_LIMITS): number {
-  return (limits.dailyMicrosGlobal / 1e6) * 30;
-}
 
 
 /**

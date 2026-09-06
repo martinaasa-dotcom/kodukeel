@@ -5146,14 +5146,6 @@ check("no spend cap sits above the one it is inside", () => {
     "never fire and the Settings meter measures a learner against a figure nothing enforces",
   );
   assert.ok(limits.dailyMicrosGlobal > 0, "the shared ceiling is zero by default, which switches every model off");
-  assert.match(
-    code("lib/usage/quota.ts"), /export function monthlyBudgetUsd/,
-    "lib/usage/quota.ts lost the one place a daily ceiling becomes a monthly figure",
-  );
-  assert.doesNotMatch(
-    code("app/funding/page.tsx"), /dailyMicrosGlobal/,
-    "the funding page is doing the month arithmetic itself again instead of asking monthlyBudgetUsd",
-  );
 });
 
 /**

@@ -1,9 +1,14 @@
 /**
- * What a composed scene turn and a question to Anu actually cost, off the
- * prompts this repository builds rather than off anybody's estimate.
+ * What a composed scene turn costs, off the prompt this repository builds
+ * rather than off anybody's estimate, and what caching the word list is worth.
  *
- *   npx tsx scripts/measure-compose.ts               (no database, no key)
- *   npx tsx scripts/measure-compose.ts --budget 5    (dollars a month)
+ * It deliberately does not price a question to Anu. `lib/usage/quota.ts` sizes
+ * the Anthropic slices against a measured tutor prompt already, and a second
+ * figure derived a second way is two answers to one question: this one would
+ * assume a warm cache and come out lower, which is the wrong direction for a
+ * number a budget is set from.
+ *
+ *   npx tsx scripts/measure-compose.ts    (no database, no key)
  *
  * No check passes or fails here. This is the instrument behind the numbers in
  * `docs/21-situations.md` §16 and behind `EXPECTED_TOKENS.SCENE`, and it exists
@@ -34,9 +39,8 @@
 import { SCENES } from "../lib/scenes/catalogue";
 import { contextFromRows, sceneLemmas, type Row } from "../lib/progress/scene";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
-import { buildSystemPrompt, learnerNote } from "../lib/tutor/prompt";
 import { priceFor } from "../lib/usage/pricing";
-import { monthlyBudgetUsd } from "../lib/usage/quota";
+import { DEFAULT_KIND_BUDGETS } from "../lib/usage/quota";
 import { shippedDictionary } from "./lib/dictionary";
 
 /** Measured on these prompts. See the header. */
@@ -51,10 +55,20 @@ const CACHE_WRITE = 1.25;
 const CACHE_READ = 0.1;
 
 const MODEL = "claude-sonnet-5";
-const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
-/* The shipped ceiling, so running this with no argument prices what is actually enforced. */
-const defaultBudget = monthlyBudgetUsd();
-const budgetPerMonth = Number(arg("budget") ?? defaultBudget);
+/*
+  THE BUDGET IS TWO BALANCES RATHER THAN ONE, so this prices each path against
+  its own slice. A composed line is a Groq call by purpose and a question to Anu
+  is an Anthropic one, and there is no cross-purpose fallback, so a day of
+  role-play cannot spend the tutor's credit however hard it tries. Dividing one
+  monthly figure between them would be describing a budget this app does not
+  have (`DEFAULT_KIND_BUDGETS`).
+
+  Both are priced at claude-sonnet-5 regardless, because what is being measured
+  is the prompt rather than the vendor: a scene turn on Groq costs a fraction of
+  what this prints, and knowing what it would cost on the dear provider is the
+  useful bound.
+*/
+const sceneUsdPerDay = (DEFAULT_KIND_BUDGETS.SCENE ?? 0) / 1e6;
 
 const price = priceFor(MODEL);
 const inputUsd = (tokens: number, multiplier = 1) => (tokens / 1e6) * price.inputPerMTok * multiplier;
@@ -122,22 +136,6 @@ const turnUsd = runUsd / TURNS_PER_RUN;
 /* What every turn would cost with the word list back in the uncached block. */
 const uncachedTurn = (inputUsd(cachedTokens + liveTokens + turnTokens) + outputUsd(answerTokens)) * CALLS_PER_TURN;
 
-const anuSystem = Math.round(buildSystemPrompt("B1").length / CHARS_PER_TOKEN.prose);
-const anuNote = Math.round(learnerNote({
-  level: "B1",
-  weakestCase: { grammCase: "PARTITIVE", accuracy: 62, total: 140 },
-  unit: { title: "Kodus", subtitle: "At home", level: "A2" },
-  standing: { source: "measured", skills: { reading: "B1", listening: "A2", writing: "B1" } },
-  situation: "live in Estonia",
-  scene: { title: "At the health centre", missed: ["say what hurts"], gaps: ["valutama"] },
-}).length / CHARS_PER_TOKEN.prose);
-/* A few turns of conversation and the question itself, at the length people write. */
-const anuHistory = 600;
-/* About two hundred words, plus a corrected sentence and a short vocabulary list. */
-const anuAnswer = 340;
-const anuUsd = inputUsd(anuSystem, CACHE_READ) + inputUsd(anuNote + anuHistory) + outputUsd(anuAnswer);
-
-const perDay = budgetPerMonth / 30;
 const line = (label: string, value: string) => console.log(`  ${label.padEnd(38)}${value}`);
 
 console.log(`\nPriced at ${MODEL}: $${price.inputPerMTok}/Mtok in, $${price.outputPerMTok}/Mtok out.\n`);
@@ -152,22 +150,9 @@ line(`with ${CALLS_PER_TURN} calls a turn, one turn`, usd(turnUsd));
 line(`a run of ${TURNS_PER_RUN} composed turns`, usd(runUsd));
 line("the same turn with nothing cached", `${usd(uncachedTurn)}  (${(uncachedTurn / turnUsd).toFixed(1)}x)`);
 
-console.log("\nA QUESTION TO ANU");
-line("system prompt (cached)", `${anuSystem} tokens`);
-line("learner note + conversation", `${anuNote + anuHistory} tokens`);
-line("her answer", `${anuAnswer} tokens`);
-line("one question", usd(anuUsd));
-
-console.log(`\nWHAT $${budgetPerMonth.toFixed(2)} A MONTH BUYS ($${perDay.toFixed(4)} a day)`);
-line("scene runs, if it were only scenes", `${Math.floor(budgetPerMonth / runUsd)} a month, ${Math.floor(perDay / runUsd)} a day`);
-line("composed turns, likewise", `${Math.floor(budgetPerMonth / turnUsd)} a month`);
-line("Anu questions, if it were only Anu", `${Math.floor(budgetPerMonth / anuUsd)} a month, ${Math.floor(perDay / anuUsd)} a day`);
-console.log("");
-line("at the 50/50 split ALLOWANCE sets:", "");
-line("  scene runs", `${Math.floor(budgetPerMonth / 2 / runUsd)} a month, ${Math.floor(perDay / 2 / runUsd)} a day`);
-line("  Anu questions", `${Math.floor(budgetPerMonth / 2 / anuUsd)} a month, ${Math.floor(perDay / 2 / anuUsd)} a day`);
+console.log("\nWHAT THE SLICE BUYS A DAY");
+line("scene composition", `$${sceneUsdPerDay.toFixed(2)} a day = ${Math.floor(sceneUsdPerDay / runUsd)} runs, ${Math.floor(sceneUsdPerDay / turnUsd)} composed turns`);
 console.log(
-  budgetPerMonth === defaultBudget
-    ? `\nThat is the shipped default. Set AI_DAILY_USD_GLOBAL to change it: it is a daily\nfigure, so a month is that over thirty.\n`
-    : `\nSet AI_DAILY_USD_GLOBAL="${perDay.toFixed(2)}" for that budget.\n`,
+  "\nPriced at the dear provider, so a real Groq turn costs a fraction of it.\n" +
+  "What the tutor's slice buys is measured in lib/usage/quota.ts, against a\ncold prompt rather than a cached one, and is not re-derived here.\n",
 );

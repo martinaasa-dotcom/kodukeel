@@ -2815,51 +2815,48 @@ able to compose, since that provider holds credit against `max_tokens`; that is 
 can act on, and it is the smaller harm. It is written down in `lib/scenes/prompt.ts` because the
 arithmetic invites the change every time somebody reads it.
 
-### Three numbers that stopped being true when the booking moved
+### The numbers that stopped being true when the booking moved
 
 **The reservation.** `EXPECTED_TOKENS.SCENE` read 3,500 in and 1,000 out under a comment explaining
 that a scene books one call for a whole conversation. The booking moved per turn in §16 and the
 number did not, so every composed turn reserved about twenty-five times what it costs. Against a
 generous budget that is invisible, since a settlement follows within seconds; against a small one it
 is the whole harm, because the reserve is what the *next* request is checked against, so a scene
-refuses itself at a twenty-fifth of the spending it was allowed and tells the learner the deployment
-has run out when it has spent four cents.
+refuses itself at a twenty-fifth of the spending it was allowed. It is 1,400 in and 60 out.
 
-**The allowance.** `SCENE` was one multiple of the base, which is ten calls a day, which with a
-composed line on every beat is one conversation. §50 considered this and left it, pointing an
-operator at `AI_DAILY_CALLS_PER_USER`. That reasoning was written against a $20-a-day ceiling and
-does not survive a five-dollar-a-month one, for two reasons. The money binds now, so the call count
-no longer has to double as a cost control. And the knob it points at cannot express the request:
-`AI_DAILY_CALLS_PER_USER` is the base every kind multiplies, so an operator who wants four
-conversations gets forty tutor answers with them. "More scenes, the same tutor" is only sayable
-through the per-kind multiple.
+**The allowance was one conversation a day.** `SCENE` was one multiple of the base, ten calls, which
+with a composed line on every beat is a single run. §50 considered that and left it, pointing an
+operator at `AI_DAILY_CALLS_PER_USER`, and while one shared pot of money paid for everything that was
+right: a count was the only thing standing between an evening of role-play and the tutor's balance.
+It is not the only thing now, and it is four.
 
-**The ceiling.** `AI_DAILY_USD_GLOBAL` defaulted to $20 a day, which is $600 a month and was never a
-figure anybody had decided to spend. It is five dollars a month, held as the daily figure the ledger
-compares against. The per-user cap came down with it to the same number, because $0.50 under a
-$0.167 ceiling is a control that can never fire while the Settings meter goes on measuring a learner
-against it; at this budget one person is rationed by the call count and the reserve.
+**Because the budget underneath it stopped being one pot.** The ceiling was `AI_DAILY_USD_GLOBAL`
+alone, and a first attempt at this section capped it at five dollars a month and gave each kind a
+*fraction* of it. Main's answer is better and is the one kept: `DEFAULT_KIND_BUDGETS` is a slice in
+**dollars per kind**, because the two purposes here are two balances at two providers rather than two
+shares of one bill, and only a figure in dollars can say two dollars of Groq and ten cents of
+Anthropic. A fraction of a shared ceiling cannot.
 
-### Scenes yield to Anu, and the refusal says which
+That distinction is what makes the five dollars precise rather than blunt. The constraint is five
+dollars of *Anthropic*, and the paths that can reach Anthropic are the tutor always, the scanner and
+the grader on a fallback, and a scene never, since it is Groq by purpose with no cross-purpose
+fallback. So the slices that add up to the $0.167 a day that makes $5 last a month are TUTOR, SCAN
+and GRADER, and scene composition sits outside it on its own bill. Capping the whole deployment at
+$5 a month, which is what the first attempt did, would have throttled Groq composition to protect an
+Anthropic balance it cannot spend.
 
-`ALLOWANCE` gains a third number: `globalShare`, the fraction of the deployment's daily budget a kind
-may reach before it gives way. Scene composition is at a half and everything else at one, so an
-afternoon of role-play cannot leave the next question to Anu unanswerable.
+It is also why the call count could go back up. With the money split per purpose, the count is no
+longer the thing keeping Anu answerable, so it is free to be what it says it is: a bound on one
+person's share of a day. Four is three or four conversations against a slice that pays for about a
+hundred, so the count still binds one learner and the money still bounds the bill.
 
-The reason is not that one is worth more. It is what each does when refused. A refused scene turn
-falls to the bank, which is the same closed word list, the same four checks and a line a person has
-read: the conversation carries on and what it loses is that the lines stop being about this learner.
-A refused question to Anu degrades to nothing. There is no rung under her, the question goes
-unanswered, and the screen has to say so. Where one path has a floor under it and the other does not,
-the one with the floor gives way. Half rather than less, because composition is what this budget is
-mostly for: a share that made scenes yield early would protect a tutor nobody had asked anything.
+### Which one gives way, and why it is scenes
 
-And it says which it is. `checkQuota` is pure and kind-free and says "this deployment has reached its
-shared daily budget", which is honest when the budget is gone and not when half of it is sitting
-there for Anu, so a kind that yields gets its own sentence.
-
-At five dollars a month that is about four rehearsed conversations and fifteen questions to Anu a
-day, which is a lot for one person and very little for a deployment strangers can sign up to.
+Where two paths do share a balance, the one that yields is the one with a floor under it. A refused
+scene turn falls to the bank, which is the same closed word list, the same four checks and a line a
+person has read: the conversation carries on and what it loses is that the lines stop being about
+this learner. A refused question to Anu degrades to nothing. There is no rung under her, the question
+goes unanswered, and the screen has to say so.
 
 ### And a run keeps one voice
 
