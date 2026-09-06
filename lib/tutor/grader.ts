@@ -412,6 +412,34 @@ THIS IS WHAT THEY WROTE. Every Estonian word you may use is somewhere in it:
 ${text}`;
 }
 
+/**
+ * A composition is the longest thing this file grades, and it needs a budget
+ * of its own. Both halves of that were measured rather than reasoned about.
+ *
+ * This call carried an explicit 500 while the other three inherited
+ * `JSON_REPLY_TOKENS`, so raising the default reached `gradeSentence` and
+ * `gradeDescription` and stopped at the door of the one path with the most to
+ * write. Swept over twelve compositions built from attested sentences, on
+ * `openai/gpt-oss-120b` through this transport, with everything but the cap
+ * held still:
+ *
+ *   500 -> 0 of 12,  1000 -> 9 of 12,  1500 -> 12 of 12,  2000 -> 12 of 12
+ *
+ * So the override was not merely tight, it was under the answer's own length:
+ * the mean reply is 966 tokens, which is why 1,000 clears three quarters of
+ * them and no more. Groq refuses these with 400 `json_validate_failed` rather
+ * than returning a truncated string, so nothing reports `finish_reason:
+ * "length"` and a cap that is too small looks like a model that cannot answer.
+ *
+ * A second constant, then, where the note here first said one. That is the
+ * right way round and the reason is the direction: the old 500 was *smaller*
+ * than the shared default and nobody had measured it, so it silently undid a
+ * fix; this is *larger* and measured, on its own prompt, and 2,000 buys
+ * nothing over 1,500. A ceiling and not a target, so a reply that finishes in
+ * 200 still costs 200 and the short paths are untouched.
+ */
+const COMPOSITION_REPLY_TOKENS = 1_500;
+
 export async function gradeComposition(
   provider: ProviderConfig | readonly ProviderConfig[],
   text: string,
@@ -419,7 +447,7 @@ export async function gradeComposition(
 ): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
   const { text: reply, usage, config } = await callChainForJson(
     asChain(provider), buildCompositionSystemPrompt(),
-    buildCompositionUserPrompt(text, level), 500,
+    buildCompositionUserPrompt(text, level), COMPOSITION_REPLY_TOKENS,
   );
   return { graded: parseVerdict(reply), usage, config };
 }
