@@ -32,7 +32,7 @@ import {
   DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
 } from "./lexicon";
 import { compoundOf } from "./nearly";
-import { MAX_WORDS, isQuestion } from "./retrieval";
+import { isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 
 /**
