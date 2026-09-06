@@ -22,11 +22,16 @@
  * whole line, which is `datumLine`'s rule and for its reason: half a choice is
  * worse than none.
  *
+ * AND IT IS TWO THINGS THEY COULD HAVE MEANT, never one thing said two ways.
+ * A beat wanting a case was narrowed on the ending, which reads as a grammar
+ * exercise in a character's voice: `Poest või pood?` is not a question a
+ * friend on the phone asks, and it was reported by the learner it was asked
+ * of. Those beats get the app's own hint instead (`lib/scenes/coach.ts`).
+ *
  * AND IT IS NOT A GIVEAWAY, THOUGH IT IS HELP. Two options is a coin toss on
- * the word and no help at all on the ending, which is what a case beat is
- * drilling; a learner who takes the offered word still has to inflect it. The
- * grades already read a beat met after two attempts as `Hard` rather than
- * `Good`, so nothing here has to be told about it.
+ * the word and no help at all on the ending; a learner who takes the offered
+ * word still has to inflect it. The grades already read a beat met after two
+ * attempts as `Hard` rather than `Good`, so nothing here has to be told.
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
@@ -92,21 +97,22 @@ function optionsFor(input: ChoiceInput): string[] {
       if (said.length === OPTIONS) return said;
       continue;
     }
-    if (need.kind === "case") {
-      /*
-        The form the beat wants against another case of the same word, which
-        is the confusion the beat is about and the pool `caseFormChoices`
-        draws from on a card. Read off the table rather than derived, and a
-        spelling that also counts as the wanted case is never the wrong one,
-        or the learner would be marked wrong for the other true answer.
-      */
-      const wanted = lexicon.caseForm.get(caseKeyFor(need.lemma, need.grammCase));
-      if (!wanted) continue;
-      const accepted = lexicon.byCase.get(caseKeyFor(need.lemma, need.grammCase));
-      const other = otherForm(lexicon, need.lemma, wanted, accepted);
-      if (other) return [wanted, other];
-      continue;
-    }
+    /*
+      A CHOICE IS TWO THINGS A PERSON COULD MEAN, NEVER ONE THING SAID TWO
+      WAYS. Where the beat wants a case this used to offer the form it wanted
+      against another case of the same word, on the argument that the ending is
+      what the beat is drilling. On a card that would be a fair question. In a
+      conversation it is not a question at all: a learner who could not say
+      where they were coming from was asked `Poest või pood?` by a friend on
+      the phone, which is nothing anybody has ever said, and reported it as the
+      app making no sense. It is a grammar exercise spoken in a character's
+      voice, and the two options are not two things they could have meant.
+
+      So a case beat is narrowed on nothing, and what the learner gets instead
+      is the app's own hint, in English and out of character, which is exactly
+      the honest thing to say: this is the word, and this is the ending it
+      wants (`lib/scenes/coach.ts`).
+    */
     if (need.kind === "datum") {
       const prop = card ? propBySlot(card, need.slot) : undefined;
       const drawn = prop?.lemmas[0];
@@ -122,20 +128,4 @@ function optionsFor(input: ChoiceInput): string[] {
     }
   }
   return [];
-}
-
-/** Another case of the word, spelled differently and not itself a right answer. */
-function otherForm(
-  lexicon: Lexicon,
-  lemma: string,
-  wanted: string,
-  accepted: ReadonlySet<string> | undefined,
-): string | null {
-  const prefix = `${lemma}|`;
-  for (const [key, form] of lexicon.caseForm) {
-    if (!key.startsWith(prefix)) continue;
-    if (form === wanted || accepted?.has(form)) continue;
-    return form;
-  }
-  return null;
 }

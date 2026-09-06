@@ -40,7 +40,8 @@ import { parseGovernment } from "../lib/estonian/government";
 import type { CaseKey } from "../lib/estonian/types";
 import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
-import { governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
+import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
+import { topicForms } from "../lib/scenes/retrieval";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
@@ -124,7 +125,12 @@ async function partA() {
         const line = (await compose(scene, beat, lemmas))?.text;
         if (!line) { refused++; continue; }
         asked++; sceneAsked++;
-        const gate = gateContext(lexicon, wrongRegister);
+        /*
+          The beat's own topic, because the app's gate is handed it for a
+          composed line (`sceneLine`): a measurement taken without it is a
+          measurement of a gate this app does not run.
+        */
+        const gate = { ...gateContext(lexicon, wrongRegister), topic: topicForms(beat, lexicon) };
         const first = runGate(line, beat, gate);
         for (const word of first.unknown) reached.set(word, (reached.get(word) ?? 0) + 1);
         if (first.failed.length === 0) { firstPass++; continue; }
@@ -176,7 +182,12 @@ async function partA() {
     console.log(`  ${rate <= 5 ? "AT OR UNDER" : "OVER"} the line on this run.`);
   }
   console.log("\n  Which check withheld a line (a line can fail more than one):");
-  for (const check of ["shape", "vouching", "register", "government"] as Check[]) {
+  /*
+    Every check, read off the type rather than listed here: the day a fifth was
+    added this printed four and the run looked the same, which is the fault
+    this script's own header describes about a list living in a script.
+  */
+  for (const check of CHECKS) {
     console.log(`    ${check.padEnd(12)} ${tally.get(check) ?? 0}`);
   }
   if (examples.length) {

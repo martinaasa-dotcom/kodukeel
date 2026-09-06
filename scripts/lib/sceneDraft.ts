@@ -40,9 +40,11 @@ import type { CaseKey } from "../../lib/estonian/types";
   disqualifies a model the app can use is worse than no measurement.
 */
 import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS, REPLY_TOKENS } from "../../lib/tutor/provider";
-import { buildLexicon, caseKeyFor, formsOf, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
+import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
-import { MAX_WORDS } from "../../lib/scenes/retrieval";
+import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
+
+export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
 import { LEVELS, SYLLABUS, unitById } from "../../lib/collections/syllabus";
 import { shippedDictionary } from "./dictionary";
@@ -237,26 +239,10 @@ const QUESTION_WORDS: ReadonlySet<string> = new Set(
 );
 
 export function gateContext(lexicon: Lexicon, wrongRegister: ReadonlySet<string>): GateContext {
-  return { lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS };
-}
-
-/**
- * Every spelling the beat will accept as its answer, where it asks for a form.
- *
- * What a drafted line may not contain: "Kas sa tahad piima osta?" before a
- * beat that wants `piima` is the answer printed in the question, which is the
- * fault `npm run audit:questions` hunts on every card, and a learner who
- * copies it out has retrieved nothing. Here rather than in the drafter so the
- * bank's own test can ask the same question without importing a script that
- * runs on import.
- */
-export function answerForms(beat: BeatSpec, lexicon: Lexicon): ReadonlySet<string> {
-  const out = new Set<string>();
-  for (const need of beat.needs) {
-    if (need.kind !== "case") continue;
-    for (const form of lexicon.byCase.get(caseKeyFor(need.lemma, need.grammCase)) ?? []) out.add(form);
-  }
-  return out;
+  return {
+    lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
+    subjects: subjectsIn(lexicon),
+  };
 }
 
 /** Everything the gate needs for one scene, in one call. */
@@ -320,6 +306,16 @@ export const SYSTEM = [
   "Write exactly ONE Estonian sentence: the line this character says next. Nothing else.",
   "Use ONLY words from the list you are given. Any form of a listed word is allowed.",
   "No English, no markdown, no quotation marks, no explanation.",
+  /*
+    AND IT HAS TO BE ESTONIAN, which the word list on its own does not ask for.
+    A model pressed to stay inside a few hundred lemmas writes `Kust sina nüüd
+    tuleb?`: every word listed, the subject and the verb in different persons,
+    and not the language. The gate withholds it (`disagrees`), and a line that
+    never had to be withheld is worth more than one that was.
+  */
+  "The sentence must be correct Estonian: the subject and the verb agree, and every ending",
+  "is the one a native speaker would use. If a correct sentence needs a word that is not on",
+  "the list, write a simpler sentence with the words that are.",
 ].join(" ");
 
 export interface Composed { text: string; model: string }

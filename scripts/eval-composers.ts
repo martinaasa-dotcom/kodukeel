@@ -110,6 +110,11 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
     .slice(0, 6);
 
   const live = composeLive({
+    scene: scene.title,
+    place: scene.place,
+    // The eval draws no persona: what it measures is the model against the beat.
+    persona: "",
+    situation: scene.role,
     move: beat.move,
     they: stageFor(beat, null),
     register: scene.register,

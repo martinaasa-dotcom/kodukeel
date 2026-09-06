@@ -2769,3 +2769,73 @@ is a real wall: measured here, one of the three OpenRouter free models answered 
 requests of an evaluation run. On a deployment leaning on one free key the bank is not a rare
 fallback but a regular one, which is an argument for the bank being good rather than for the ladder
 being different.
+
+## 51. What a learner read back off one conversation
+
+A run of `poodi-piima` was played on the deployment and reported in four sentences. Every one of
+them was right, and none of them was about a rule this document had not already written down: each
+was a rule applied on one path and not on the one the learner was standing on.
+
+**The reply arrived as two bubbles.** `replyFor` builds a reaction and then a move, which is what a
+person does, and the screen drew each of them in a card of its own: `Jah.` in one and the question
+in the next, twice a turn, all the way down. Nobody talks in two bubbles. `inOneBreath` in
+`components/scene/SceneSession.tsx` joins the lines said in Estonian into one, so the bubble reads
+`Jah. Kuhu sa nüüd lähed?`, and it is the *screen's* rule rather than the reply's: a break in time,
+a hint from the app and a stage direction are not things anybody said and still stand on their own.
+Where the line came from survives the join, which is why this returns a line rather than a string:
+the bubble carries every rung that wrote a piece of it and the words under it name them all
+(ADR-025). The debrief's transcript is built from the same function, because the record of a
+conversation reading as two speakers where the round reads as one is the same fault twice.
+
+**Nothing said the scene had moved.** `BeatSpec.meanwhile` has existed since §33 and the learner saw
+neither of the two this scene carries. It was printed on a response of `answer` or `moveOn`, which
+is the commonest way to arrive at a beat and not the only one, and it was drawn as a grey sentence
+between two hairlines on a screen where a new bubble arrives every few seconds. Both halves are
+fixed and only one of them is code you can point at: it is printed on `arriving`, which is "no turn
+of this run has been taken on this beat", a fact about the run rather than about how the last turn
+went; and it is drawn as the panel the app's own hint uses, in the accent's softest tint with a
+clock beside it, and it arrives, the rules drawing out from the middle and the words settling onto
+the thread (`.scene-break`). Under `prefers-reduced-motion` it is still a panel and still says what
+happened.
+
+**`Kust sina nüüd tuleb?` reached a learner.** Every word of it is in the scene's own list, the
+register is right, nothing is governed and no number is claimed, so all five checks passed a line
+that is not Estonian. Vouching asks whether a spelling is a form of a word the scene may use and
+cannot ask whether it is the *right* form, which is the one thing a beginner reading the other
+side's line cannot check for themselves. `disagrees` is the sixth check: a clause holding exactly
+one personal pronoun in the nominative and no verb that can agree with it is withheld. The tables
+are the app's own, `Lexicon.persons` off `derivedVerbForms` and off the persons Ekilex stored for
+the verbs no rule reaches, so nothing in the gate knows any Estonian; it compares two spellings the
+dictionary supplied. It is drawn as weakly as the government check and for its reason: a clause at
+a time, because `Ma ei tea, kus see on.` is a first person beside a third and is right, and only
+where the pronoun's spelling is the nominative and nothing else, because `teie` is also a genitive
+and `Palun enne teie nimi.` is a line the bank has held since it was drafted.
+
+Two more checks came off the same thread. **`topic`**, because a model told "they ask where you are
+now" wrote `Kuhu sa ikka lähed?`, which is real Estonian inside the list and is the question the
+learner answered two turns before: retrieval has asked a recorded sentence to be about its beat
+since it was written and nothing asked it of a composed one. And **`giveaway`**, because a run
+played while this was being written answered the beat whose whole job is getting the learner to say
+`poes` with `Kas sa juba oled poes?`. The bank's own test has refused that since the bank was
+drafted; the live path had no such rule, and a learner who copies the answer out of the question
+has retrieved nothing while the scheduler writes down a recall.
+
+**And the app's own gate was stricter than the one it measured itself with.** `gateContext` in the
+eval and in the bank's test has handed in the course's question words since the government check was
+written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
+sentence that check's own comment names as the reason the question words are there, was withheld on
+the deployment and passed in every measurement of it.
+
+**`Poest või pood?`** was the other side narrowing its question to two, and it is a grammar exercise
+spoken in a character's voice: two cases of one word are not two things a person could have meant.
+A case beat is narrowed on nothing now and gets the app's own hint instead, in English and out of
+character, which is the honest thing to say at that moment (`lib/scenes/coach.ts`).
+
+**And the model is told who it is.** It used to be handed a move, a sentence about what to do and a
+word list, which is a translation exercise rather than a part in a scene. `ComposeAsk` carries the
+scene, the place, the drawn persona and the learner's own role card, all of it English already on
+the learner's briefing screen, and the system prompt says what a beginner's Estonian looks like and
+what to do about it: work out what they meant and answer that, never correct them, never comment on
+their Estonian, never write English. The beat's `goal` is deliberately still absent (§32). Measured
+after all of it on `poodi-piima` at three lines a beat: 5.6% of composed lines withheld, against the
+design's line of one in twenty.

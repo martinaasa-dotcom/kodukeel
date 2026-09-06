@@ -134,6 +134,17 @@ export interface ReplyInput {
   /** How many beats have been met, which is what rotates the acknowledgment. */
   readonly met: number;
   /**
+   * Whether the learner is arriving at `beat` for the first time: no turn of
+   * this run has been taken on it yet.
+   *
+   * What the break in time is printed on. It used to be printed on a response
+   * of `answer` or `moveOn`, which is the commonest way to arrive at a beat
+   * and not the only one, and a break in time a counter-offer or a curveball
+   * can skip leaves a learner walked to a shop while the screen still has
+   * them in their kitchen. Absent on the opening line.
+   */
+  readonly arriving?: boolean;
+  /**
    * How many turns the learner has already spent on the beat they were just
    * answering, so the app knows when they are stuck rather than merely
    * mid-conversation. Absent on the opening line.
@@ -544,9 +555,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     was asked "where are you now?" and answered, correctly, that they were at
     home. Printed before the beat's own line, and only on the turn that
     arrives at the beat, since a break in time that reappears every time
-    somebody misses is not a break in time.
+    somebody misses is not a break in time. Arriving is "no turn of this run
+    has been taken on this beat", which is a fact about the run rather than
+    about how the last turn went: a beat reached by a counter-offer or after a
+    curveball is still a beat somebody has just walked to.
   */
-  if (beat.meanwhile && beat !== answered && (response === "answer" || response === "moveOn")) {
+  if (beat.meanwhile && beat !== answered && input.arriving) {
     out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
   }
 

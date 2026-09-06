@@ -248,6 +248,10 @@ async function play(sceneId: string) {
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
         ...(LINKS.length > 0 ? {
           compose: (avoid: readonly string[]) => askModel({
+            scene: scene.title,
+            place: scene.place,
+            persona: persona.who,
+            situation: scene.role,
             move: spokenFor.move,
             they: spokenFor.they,
             register: scene.register,
@@ -271,6 +275,7 @@ async function play(sceneId: string) {
       aside, offer: (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords) : null,
       met: state.done.length,
+      arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
       choice: answered ? choiceOf({
         beat: answered, card: card ?? draw.card, lexicon: context.lexicon,

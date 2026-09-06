@@ -2,9 +2,9 @@
  * The narrowed question, which is the repair move a person actually makes.
  *
  * What this is really testing is that both options are true where the beat
- * would take either, and that the wrong one is genuinely wrong where the beat
- * wants a case: a choice that offered two spellings the marker both accepts
- * would be a question with no answer.
+ * would take either, and that no choice is built where the two options would
+ * be one word in two cases: that is a grammar exercise in a character's
+ * voice, not a question anybody asks.
  */
 import { describe, expect, it } from "vitest";
 import { CHOICE_WORD, choiceOf } from "./choice";
@@ -43,18 +43,14 @@ describe("narrowing a question to two", () => {
   });
 
   /*
-    Where the beat wants a case, the choice is about the ending, and the wrong
-    option has to be one the marker would actually refuse: offering two
-    spellings it both accepts is a question with no answer.
+    A choice is two things the learner could have meant. Narrowing a case beat
+    on the ending was `Poest või pood?`, which is a grammar exercise in a
+    character's voice and was reported by the learner it was asked of; those
+    beats get the app's own hint instead.
   */
-  it("offers the case the beat wants against another case of the same word", () => {
+  it("says nothing where the beat wants a case, because two cases are not two meanings", () => {
     const asks: BeatSpec = { ...BEAT, needs: [{ kind: "case", lemma: "tuba", grammCase: "INESSIVE" }] };
-    const said = choiceOf({ beat: asks, card: CARD, lexicon: LEX, roll: 0 });
-    // Capitalized, like every line: it opens a sentence.
-    expect(said?.toLowerCase()).toContain("toas");
-    expect(said).toContain(CHOICE_WORD);
-    const other = said!.replace("?", "").split(` ${CHOICE_WORD} `).find((f) => f.toLowerCase() !== "toas");
-    expect(LEX.byCase.get("tuba|INESSIVE")?.has(other!.toLowerCase())).toBe(false);
+    expect(choiceOf({ beat: asks, card: CARD, lexicon: LEX, roll: 0 })).toBeNull();
   });
 
   it("says nothing where the beat has no two options to offer", () => {

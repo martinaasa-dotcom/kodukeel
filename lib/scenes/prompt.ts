@@ -27,6 +27,29 @@
 import { MAX_WORDS } from "./retrieval";
 
 export interface ComposeAsk {
+  /**
+   * WHO THEY ARE AND WHERE THIS IS HAPPENING, which is the half that was
+   * missing.
+   *
+   * The model used to be told a move, a sentence about what to do, and a word
+   * list, and that is a translation exercise rather than a part in a scene: it
+   * wrote a correct line for the beat and nothing that read as one person
+   * talking to another over five turns. Everything here is already on the
+   * learner's own briefing screen, in English, written for a reader: the
+   * place, the person they drew, and their own reason for being there. Telling
+   * the other side what the learner can see is what keeps them in character.
+   *
+   * `scene` is the title and `place` where it is set; `persona` is the drawn
+   * character's one sentence, from `PERSONAS`; `situation` is the learner's
+   * role card, which is why they are here rather than what they have to say
+   * next. THE BEAT'S `goal` IS DELIBERATELY ABSENT and may not be added: told
+   * what the learner is trying to say, a model writes the learner's line
+   * (§32). What it is told is `they`, which is this character's own move.
+   */
+  readonly scene: string;
+  readonly place: string;
+  readonly persona: string;
+  readonly situation: string;
   /** The beat's move, so the model knows whether it is asking or answering. */
   readonly move: string;
   /** What they are doing, in English, from their side: the beat's `they`. */
@@ -48,12 +71,36 @@ export interface ComposeAsk {
 }
 
 export const COMPOSE_SYSTEM = [
-  "You are one side of a short conversation in Estonian, in a role-play for a learner.",
+  "You are playing one person in a short conversation in Estonian, in a role-play for somebody",
+  "learning the language. You are that person and nothing else: never mention the exercise,",
+  "never explain, never comment on their Estonian, never correct them, and never write English.",
   "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
   "no explanation, no quotation marks, no markdown, no list.",
   `Use at most ${MAX_WORDS} words.`,
-  "Use only the words you are given, in any grammatical form. If you cannot say it",
-  "with those words, say the shortest thing you can with them.",
+  /*
+    THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. What reaches the model is
+    the run's own turns and, where the dictionary could read the last one, what
+    it appears to mean word by word. A model that answers the words rather than
+    the person asks again for something it was just told, which is exactly what
+    a learner reports as the app not understanding them. The marking is not the
+    model's and never will be (ADR-025): this only decides what the character
+    says next.
+  */
+  "They are a beginner. Their Estonian will often have the wrong ending, a letter missing,",
+  "a word missing or a word in the wrong place. Work out what they meant and answer that,",
+  "the way anybody who speaks the language would. Do not repeat a question they have",
+  "already answered.",
+  /*
+    AND A SENTENCE THAT IS NOT ESTONIAN IS WORSE THAN A SIMPLER ONE. The list
+    is what keeps the line readable by somebody who has done these units, and a
+    model pressed to use it at all costs writes `Kust sina nüüd tuleb?`, which
+    is inside the list and is not the language. The gate withholds that line,
+    and the whole point of saying it here is that it should never have to.
+  */
+  "Every word you use must be one of the words you are given, in any grammatical form,",
+  "and the sentence must be correct Estonian: the subject and the verb agree, the endings",
+  "are the ones a native speaker would use. If a correct sentence needs a word that is not",
+  "on the list, say something simpler with the words that are.",
 ].join(" ");
 
 /**
@@ -65,7 +112,15 @@ export const COMPOSE_SYSTEM = [
  */
 export function composeLive(ask: ComposeAsk): string {
   return [
-    `Your move: ${ask.move}.`,
+    /*
+      The scene before the turn, so the character is somebody rather than a
+      function of the beat. English, and every line of it is a line the learner
+      is looking at on their own screen.
+    */
+    `The scene: ${ask.scene}. ${ask.place}.`,
+    `You are the other person in it. ${ask.persona}`,
+    `Why they are here, which you know: ${ask.situation}`,
+    `Your move now: ${ask.move}.`,
     `What you are doing, in English: ${ask.they}`,
     `Address them as "${ask.register}".`,
     /*

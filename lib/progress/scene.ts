@@ -25,7 +25,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { GateContext, GovernedWord } from "@/lib/scenes/gate";
-import { buildLexicon, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
+import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
 import { timeWords, type RoleCard } from "@/lib/scenes/props";
@@ -268,7 +268,21 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
   return {
     scene,
     lexicon,
-    gate: { lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon) },
+    gate: {
+      lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon),
+      subjects: subjectsIn(lexicon),
+      /*
+        AND THE QUESTION WORDS, which the gate's own government check names in
+        its comment and was never handed. `Kust sa tuled?` holds a governed
+        verb and one nominal, the subject, and the case the verb governs is
+        carried by `kust`: without the list, the check reads the sentence as a
+        noun in the wrong case and withholds the commonest short question a
+        friend on the phone asks. The eval and the bank's own test have passed
+        them in since the check was written, so the two disagreed about what
+        the gate does, and the app had the stricter half.
+      */
+      questionWords: marker.questionWords,
+    },
     marker,
     pool: poolsFor(scene, rows),
     topic: new Map(scene.beats.map((beat) => [beat.id, topicForms(beat, lexicon)])),

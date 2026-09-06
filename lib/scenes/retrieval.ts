@@ -41,7 +41,7 @@
  * Pure: no React, no Next, no Prisma, no network. Every input is data.
  */
 import { naturalSentence } from "@/lib/estonian/cloze";
-import { words, type Lexicon } from "./lexicon";
+import { caseKeyFor, words, type Lexicon } from "./lexicon";
 import { QUESTION_SHAPE, type BeatSpec, type MoveKind } from "./types";
 
 /** One recorded sentence, with the entry it was recorded against. */
@@ -101,6 +101,36 @@ export function fitsMove(text: string, beat: BeatSpec): boolean {
   const shape = QUESTION_SHAPE[beat.move];
   if (shape === "either") return true;
   return isQuestion(text) === (shape === "required");
+}
+
+/**
+ * Every spelling the beat will accept as its answer, where it asks for a form.
+ *
+ * What a line said to the learner may not contain, which is the fault
+ * `npm run audit:questions` hunts on every card: "Kas sa juba oled poes?" on a
+ * beat that wants `poes` is the answer printed in the question, and a learner
+ * who copies it out has retrieved nothing while the scheduler writes down a
+ * recall. The bank has been held to this since it was drafted; the gate now
+ * asks it of a line composed live, which is where the same sentence came from
+ * on a run somebody played.
+ *
+ * Only a `case` requirement, deliberately. A beat that wants a greeting is met
+ * by the word the other side is saying, and a rule reading that as a giveaway
+ * would refuse every `Tere!` in the catalogue.
+ */
+export function answerForms(beat: BeatSpec, lexicon: Lexicon): ReadonlySet<string> {
+  const out = new Set<string>();
+  /*
+    The beat's own requirements rather than every leaf of an `anyOf`, which is
+    the rule as it was written and as the bank was drafted against: a beat that
+    accepts any of several is narrowed by naming them, and `Kaardiga või
+    rahaga?` is that question rather than the answer to it.
+  */
+  for (const need of beat.needs) {
+    if (need.kind !== "case") continue;
+    for (const form of lexicon.byCase.get(caseKeyFor(need.lemma, need.grammCase)) ?? []) out.add(form);
+  }
+  return out;
 }
 
 /**
