@@ -115,7 +115,21 @@ export const UNKNOWN_MODEL: ModelPrice = { inputPerMTok: 10, outputPerMTok: 50 }
 export function normaliseModel(model: string): string {
   const withoutVariant = model.split(":")[0] ?? model;
   const parts = withoutVariant.split("/");
-  return (parts[parts.length - 1] ?? withoutVariant).trim().toLowerCase();
+  const bare = (parts[parts.length - 1] ?? withoutVariant).trim().toLowerCase();
+  /*
+    Anthropic publishes a dated id beside the alias: `claude-haiku-4-5` and
+    `claude-haiku-4-5-20251001` are one model, and only the first is a key in
+    the table above. The dated one therefore missed and priced at
+    `UNKNOWN_MODEL`, which is the dearest row: a deployment that pinned the
+    exact snapshot, which is what anybody wanting a reproducible model does,
+    had every call booked at $10/$50. It fails expensive rather than dangerous,
+    so nothing was ever refused that should have run, but the ledger, the
+    Settings meter and the funding page were all reading a number about a model
+    nobody was using. Eight digits after a final hyphen is the date and nothing
+    else: no model in the table ends that way, and a version like `claude-sonnet-4-6`
+    is three groups of one or two digits rather than one of eight.
+  */
+  return bare.replace(/-\d{8}$/, "");
 }
 
 /** True when the slug names a model the provider serves at no charge. */

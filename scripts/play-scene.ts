@@ -262,7 +262,10 @@ async function play(sceneId: string) {
               .flatMap(([, lines]) => lines.slice(0, 1))
               .slice(0, 6),
             avoid,
-          }, { register: scene.register, words: [...context.lexicon.byLemma.keys()] }, talk),
+          }, {
+            scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+            register: scene.register, words: [...context.lexicon.byLemma.keys()],
+          }, talk),
         } : {}),
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
@@ -275,6 +278,7 @@ async function play(sceneId: string) {
       aside, offer: (response === "help" || response === "moveOn") && answered
         ? offerFor(answered, card ?? draw.card, context.marker.questionWords) : null,
       met: state.done.length,
+      arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
       choice: answered ? choiceOf({
         beat: answered, card: card ?? draw.card, lexicon: context.lexicon,

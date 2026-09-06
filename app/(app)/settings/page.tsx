@@ -8,6 +8,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
@@ -19,7 +20,7 @@ import { EkilexSetupGuide } from "./EkilexSetupGuide";
 import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
-import { ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel } from "./PreferencesPanel";
+import { ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { AutoplayPanel, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
@@ -105,7 +106,8 @@ export default async function SettingsPage() {
       SETTING_KEYS.letterBar, SETTING_KEYS.researchOptOut,
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-      SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.glossLanguage, SETTING_KEYS.todayOrder,
+      SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
     ]),
     currentLearner(),
@@ -132,6 +134,7 @@ export default async function SettingsPage() {
   const hearing = hearingFrom(settings[SETTING_KEYS.hearing]);
   const support = supportFrom(settings[SETTING_KEYS.support]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
+  const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
   const roundPaceName =
@@ -233,7 +236,9 @@ export default async function SettingsPage() {
           </section>
 
           <section id="meanings">
-            <SectionTitle hint={glossLanguageName}>Meanings</SectionTitle>
+            <SectionTitle hint={wordGloss === "off" ? `${glossLanguageName}, no underlines` : glossLanguageName}>
+              Meanings
+            </SectionTitle>
             <Card>
               <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
                 What a word means, in the language you think in. The English gloss stays on every
@@ -245,6 +250,15 @@ export default async function SettingsPage() {
                 the Estonian. Where they recorded none, the entry says so by showing the English
                 on its own.
               </p>
+
+              <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
+                <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
+                  Every other word in an example sentence, when a card teaches a word or somebody
+                  says a line to you in a conversation. Turn it off and the sentence is drawn plain,
+                  with the word being taught still marked.
+                </p>
+                <WordGlossPanel current={wordGloss} />
+              </div>
             </Card>
           </section>
 

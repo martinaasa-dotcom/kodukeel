@@ -1,6 +1,13 @@
 /**
- * The four checks a composed line has to pass, and it is withheld whole when
- * it fails any of them.
+ * The checks a composed line has to pass, and it is withheld whole when it
+ * fails any of them.
+ *
+ * There were four and there are six. The two that arrived late were each a
+ * line that reached a learner and should not have: `Kust sina nüüd tuleb?`,
+ * which is inside the word list and is not Estonian, and `Kuhu sa ikka
+ * lähed?` on the beat that asks where the learner is *now*, which is the
+ * question they answered two turns ago. Vouching is about vocabulary, and
+ * neither of those is a vocabulary fault.
  *
  * `docs/19-situations.md` §2. Never shown with a caveat: a caveat still puts a
  * wrong form in front of somebody trying to learn one, which is the same rule
@@ -21,12 +28,22 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
-import { words, type Lexicon } from "./lexicon";
+import { PERSON_CODES, words, type Lexicon, type PersonCode } from "./lexicon";
 import { MAX_WORDS, isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 
-/** Which check withheld a line. A line can fail more than one. */
-export type Check = "shape" | "vouching" | "register" | "government" | "facts";
+/**
+ * Which check withheld a line. A line can fail more than one.
+ *
+ * The list rather than a bare union, because `npm run eval:scene` prints one
+ * line per check and printed a list of its own: the day a fifth check was
+ * added the run looked exactly the same and said nothing about it.
+ */
+export const CHECKS = [
+  "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
+] as const;
+
+export type Check = (typeof CHECKS)[number];
 
 /** A word that demands a case of its complement, by every form it has. */
 export interface GovernedWord {
@@ -43,6 +60,17 @@ export interface GateContext {
   readonly questionWords?: ReadonlySet<string>;
   /** Forms of the pronoun this scene's register forbids. */
   readonly wrongRegister: ReadonlySet<string>;
+  /**
+   * The nominative of each personal pronoun, to the person a verb beside it
+   * has to be in. `sa` and `sina` to `IndPrSg2`, and nothing else: an oblique
+   * form is not a subject, so `sind` is deliberately absent and a line saying
+   * `Kas ma saan sind aidata?` is a line this check has nothing to say about.
+   *
+   * Handed in rather than written here, like `wrongRegister` and for the same
+   * reason: this module may not write Estonian, and which spellings are the
+   * nominative of `mina` is the dictionary's answer (ADR-005).
+   */
+  readonly subjects?: ReadonlyMap<string, PersonCode>;
   /** The governed words the scene can see. */
   readonly governed: readonly GovernedWord[];
   /** Every case form of every nominal, so a token can be asked which case it is. */
@@ -64,6 +92,33 @@ export interface GateContext {
    * this run dealt no numbers, and then any digit at all is invented.
    */
   readonly dealt?: ReadonlySet<string>;
+  /**
+   * Every form of the beat's own topic words, where the caller has one.
+   *
+   * A LINE FOR A BEAT HAS TO BE ABOUT THE BEAT. Retrieval has asked this of a
+   * recorded sentence since it was written (`onTopic`) and nothing asked it of
+   * a composed one, so a model asked for "they ask where you are now" wrote
+   * `Kuhu sa ikka lähed?`, which is grammatical, is inside the word list, and
+   * is the question the learner answered two turns ago. On the screen that is
+   * the app asking the same thing twice and marking the second answer wrong.
+   *
+   * Absent or empty means the caller has nothing to say about the topic, which
+   * is how an aside is gated: it is a line about whatever the learner asked.
+   */
+  readonly topic?: ReadonlySet<string>;
+  /**
+   * Every spelling that would answer this beat (`answerForms`), where the
+   * caller has one.
+   *
+   * A LINE MAY NOT HAND OVER THE FORM IT IS ABOUT TO ASK FOR, which is the
+   * fault `npm run audit:questions` hunts on every card and which the bank's
+   * own test has asked of a drafted line since it was written. Nothing asked
+   * it of a line composed live, and a real run produced `Kas sa juba oled
+   * poes?` on the beat whose whole job is getting the learner to say `poes`:
+   * they copy it out, retrieve nothing, and the scheduler writes down a
+   * recall.
+   */
+  readonly answers?: ReadonlySet<string>;
 }
 
 export interface Verdict {
@@ -94,11 +149,11 @@ export function passes(verdict: Verdict): boolean {
 }
 
 /**
- * Runs all four and reports every failure rather than the first.
+ * Runs them all and reports every failure rather than the first.
  *
- * All four rather than short-circuiting, because §6 allows one retry with the
- * failing words named and a retry told about one problem out of two comes back
- * with the other.
+ * All of them rather than short-circuiting, because §6 allows one retry with
+ * the failing words named and a retry told about one problem out of two comes
+ * back with the other.
  */
 export function runGate(text: string, beat: BeatSpec, context: GateContext): Verdict {
   const failed: Check[] = [];
@@ -120,6 +175,20 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
 
   if (governmentSuspect(tokens, context)) failed.push("government");
 
+  if (disagrees(text, context)) failed.push("agreement");
+
+  /*
+    ON TOPIC, where the caller says what the topic is. `some` rather than
+    `every`, for the reason `onTopic` gives about a recorded sentence: a line
+    is about its beat if it names the thing the beat is about, and everything
+    else in it is the sentence around that.
+  */
+  if (context.topic && context.topic.size > 0 && !tokens.some((word) => context.topic!.has(word))) {
+    failed.push("topic");
+  }
+
+  if (context.answers && tokens.some((word) => context.answers!.has(word))) failed.push("giveaway");
+
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
     made. Read off the raw text rather than off `tokens`, because the tokenizer
@@ -129,6 +198,62 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (invented(text, context.dealt)) failed.push("facts");
 
   return { failed, unknown };
+}
+
+/**
+ * WHETHER THE SUBJECT AND THE VERB ARE THE SAME PERSON.
+ *
+ * `Kust sina nüüd tuleb?` passed every other check on this page and reached a
+ * learner: every word is in the scene's list, the register is right, the verb
+ * governs nothing, and no number is claimed. It is also not Estonian. Vouching
+ * asks whether a spelling is a form of a word the scene may use and has no way
+ * of asking whether it is the *right* form, which is the one thing a beginner
+ * reading the other side's line cannot check for themselves.
+ *
+ * The tables are the app's own: `Lexicon.persons` is `derivedVerbForms` over a
+ * stored first person, which `npm run audit:verbs` checked against Ekilex on
+ * 797 verbs, plus whatever Ekilex recorded for the verbs no rule reaches. So
+ * nothing here knows any Estonian; it compares two spellings the dictionary
+ * supplied.
+ *
+ * DRAWN AS WEAKLY AS THE GOVERNMENT CHECK, and for its reason. There is no
+ * parser, so a line with two subjects is two clauses and nothing here can say
+ * which verb belongs to which: it fires only on a line with **exactly one**
+ * personal pronoun in the nominative, and only where no verb in the line can
+ * agree with it. `Kas sina oled see, kes tuleb?` holds a verb that agrees and
+ * one that does not, and it passes, which is right.
+ */
+export function disagrees(text: string, context: GateContext): boolean {
+  const subjects = context.subjects;
+  if (!subjects) return false;
+  /*
+    A CLAUSE AT A TIME, and the clause boundary is the comma. `Ma ei tea, kus
+    see on.` puts a first-person subject and a third-person verb in one
+    sentence and is exactly right: the verb belongs to the other clause, whose
+    subject is `see`. Estonian writes that comma, so the weakest thing that is
+    still a clause boundary is available without a parser, and a check reading
+    the sentence whole refused a line the bank has held since it was drafted.
+  */
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    const said = lower.filter((t) => subjects.has(t));
+    if (said.length !== 1) continue;
+    const wanted = subjects.get(said[0]!)!;
+
+    let agrees = false;
+    let person = false;
+    for (const token of lower) {
+      for (const table of context.lexicon.persons.values()) {
+        for (const code of PERSON_CODES) {
+          if (table.get(code)?.toLowerCase() !== token) continue;
+          person = true;
+          if (code === wanted) agrees = true;
+        }
+      }
+    }
+    if (person && !agrees) return true;
+  }
+  return false;
 }
 
 /**

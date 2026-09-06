@@ -169,7 +169,7 @@ export async function gradeSentence(
  * writes nothing into `content`". That was read as a fact about one model. It
  * is a fact about a budget.
  */
-const JSON_REPLY_TOKENS = 1_000;
+export const JSON_REPLY_TOKENS = 1_000;
 
 /**
  * NOTE ON THE TWO ABOVE AND BELOW, WHICH ARRIVED FROM TWO SESSIONS AT ONCE.
@@ -412,6 +412,50 @@ THIS IS WHAT THEY WROTE. Every Estonian word you may use is somewhere in it:
 ${text}`;
 }
 
+/**
+ * A composition is the longest thing this file grades, and it needs a budget
+ * of its own. Both halves of that were measured rather than reasoned about.
+ *
+ * This call carried an explicit 500 while the other three inherited
+ * `JSON_REPLY_TOKENS`, so raising the default reached `gradeSentence` and
+ * `gradeDescription` and stopped at the door of the one path with the most to
+ * write. Swept over twelve compositions built from attested sentences, on
+ * `openai/gpt-oss-120b` through this transport, with everything but the cap
+ * held still:
+ *
+ *   500 -> 0 of 12,  1000 -> 9 of 12,  1500 -> 12 of 12,  2000 -> 12 of 12
+ *
+ * and again over twenty fresh compositions, with the cost per verdict beside
+ * it, priced from this repository's own table and charging a refused call for
+ * the prompt it still sent:
+ *
+ *    500: 1 of 20, $0.001724 a verdict
+ *   1000: 17 of 20, $0.000567
+ *   1500: 20 of 20, $0.000569
+ *
+ * Two things follow, and the second is the one worth keeping. The override was
+ * not merely tight, it was under the answer's own length, so 1,000 clears
+ * about five sixths of them and no more; and Groq refuses these with 400
+ * `json_validate_failed` rather than returning a truncated string, so nothing
+ * reports `finish_reason: "length"` and a cap that is too small reads as a
+ * model that cannot answer. That is the same disguise the 400 wore.
+ *
+ * And raising the ceiling is very nearly free: 1,000 to 1,500 moves the cost
+ * per verdict by four tenths of a percent, because a cap is a ceiling rather
+ * than a target and the mean reply barely moves with it, 799 tokens against
+ * 825. The 500 was the *expensive* setting, three times the cost of either,
+ * since nineteen refusals were paid for to buy one verdict. Whatever cost
+ * argument put this model on the grader survives the larger budget intact.
+ *
+ * A second constant, then, where the note here first said one. That is the
+ * right way round and the reason is the direction: the old 500 was *smaller*
+ * than the shared default and nobody had measured it, so it silently undid a
+ * fix; this is *larger* and measured, on its own prompt, and 2,000 buys
+ * nothing over 1,500. A ceiling and not a target, so a reply that finishes in
+ * 200 still costs 200 and the short paths are untouched.
+ */
+export const COMPOSITION_REPLY_TOKENS = 1_500;
+
 export async function gradeComposition(
   provider: ProviderConfig | readonly ProviderConfig[],
   text: string,
@@ -419,7 +463,7 @@ export async function gradeComposition(
 ): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
   const { text: reply, usage, config } = await callChainForJson(
     asChain(provider), buildCompositionSystemPrompt(),
-    buildCompositionUserPrompt(text, level), 500,
+    buildCompositionUserPrompt(text, level), COMPOSITION_REPLY_TOKENS,
   );
   return { graded: parseVerdict(reply), usage, config };
 }

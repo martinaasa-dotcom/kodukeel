@@ -1751,6 +1751,34 @@ queries is a round trip each and a hosted database is in another region. `WORD_B
 a caller that grows cannot quietly turn this into the widest query on the page, and a sentence past
 it comes back unglossed, which is exactly what every sentence looked like before this existed.
 
+**And it is the learner's to refuse, because six underlines across a line somebody is reading is a
+second thing happening on a card whose whole job is one sentence.** That was reported plainly by
+somebody using it, and it is the same shape as the letter bar: a reader who can already read the
+line is being offered help on every word of it, a reader who cannot is being handed the only thing
+that makes the sentence answerable, and there is no way to tell which of the two anybody is. So it
+is asked. `lib/ux/wordGloss.ts` is the answer, on by default for the reason `letterBar.ts` gives
+about itself, since a missing row is everybody who used the app before the question existed and
+reading absence as a refusal takes the dictionary out from under every sentence in one deploy.
+
+**Off means the lookup is never made, rather than made and hidden.** Both screens that show a
+glossed sentence have drawn the plain marked sentence since before this existed, for the page that
+did not look, so `tokens: null` was already a state and refusing costs a round trip rather than
+adding a branch. The question is asked in the producer rather than threaded down from the routes,
+which is the opposite of what `glossLanguage` does one parameter over and is right for this one:
+that decides what a mapping function prints and every caller has to hand it over, this decides
+whether a lookup happens at all and there is exactly one place per surface where it does, so
+putting it there is what stops a fifth route arriving without it and drawing a feature its learner
+turned off. It costs nothing to ask, since the settings table is read once per learner per request.
+
+**And the reading of the learner's own turn is not this.** The scene route glosses two things with
+one function: the other side's lines, which somebody reads, and the learner's own turn, which is
+what the composer is told they said. The second reaches no screen, so a preference about underlines
+may not decide what the other side understood, and the invariant is drawn on the order of the two
+rather than on either alone. **The way out is on the panel and the way back is in Settings**, both,
+because the moment somebody decides they are done with this is the moment one is open in front of
+them, and a way out with no way back is a feature lost by pressing a button once. Five arms, each
+made to fail on the real line.
+
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
 words, and neither tells somebody in their first week where to start. `scripts/build-frequency.ts`
@@ -4927,6 +4955,80 @@ harvest's own English gloss and fails on a beat with one requirement, one candid
 never names it, and on a beat wanting a value off the card whose goal never mentions the card. That
 is the half that reaches every scene written after this one.
 
+**A reply is one thing said, and nobody talks in two bubbles.** `replyFor` builds a reaction and
+then a move, which is what a person does, and the screen drew each in a card of its own: `Jah.` in
+one bubble and the question in the next, twice a turn, all the way down. It was reported as the
+other side answering itself, and the debrief's transcript had it too, so the record of the
+conversation read as two speakers where the round read as one. `inOneBreath` joins the lines said
+in Estonian into one bubble and is the *screen's* rule rather than the reply's: a break in time, a
+hint from the app and a stage direction are not things anybody said and still stand alone. Where
+the line came from survives the join, which is why it returns a line rather than a string: the
+bubble carries every rung that wrote a piece of it and the words under it name them all (ADR-025).
+Asserted on both readers, because a merge on the round and none on the transcript is the fault half
+fixed.
+
+**A scene that walks somebody across town says so, and it is not a grey sentence between two
+rules.** `BeatSpec.meanwhile` existed and a learner walked to a shop saw neither of the two
+`poodi-piima` carries. It was printed on a response of `answer` or `moveOn`, which is the commonest
+way to arrive at a beat and not the only one, and drawn in the ink of a stage direction on a screen
+where a new bubble arrives every few seconds. It is printed on `arriving` now, which is "no turn of
+this run has been taken on this beat" and is a fact about the run rather than about how the last
+turn went, so a beat reached by a counter-offer or after a curveball still announces itself; and it
+is drawn as the panel the app's own hint uses, with a clock beside it, and it arrives, the rules
+drawing out from the middle and the words settling onto the thread (`.scene-break`). Under
+`prefers-reduced-motion` it is still a panel and still says what happened.
+
+**The gate has eight checks, and the three that arrived late were each a line a learner read.**
+`Kust sina nüüd tuleb?` is inside the scene's word list, in the right register, governs nothing and
+claims no number, so five checks passed a line that is not the language. Vouching asks whether a
+spelling is a form of a word the scene may use and cannot ask whether it is the *right* form, which
+is the one thing a beginner reading the other side's line cannot check for themselves. **`agreement`**
+(`disagrees`) withholds a clause holding exactly one personal pronoun in the nominative and no verb
+that can agree with it. It knows no Estonian: `Lexicon.persons` is `derivedVerbForms` over a stored
+first person, which `npm run audit:verbs` checked against Ekilex on 797 verbs, plus the persons the
+harvest stored for the verbs no rule reaches, so `olema` is checkable at last. Drawn as weakly as
+the government check and for its reason: **a clause at a time**, since `Ma ei tea, kus see on.` is a
+first person beside a third and is right, and **only where the spelling is the nominative and
+nothing else**, which is `caseOfForm`'s strict rule, since `teie` is also a genitive and
+`Palun enne teie nimi.` is a line the bank has held since it was drafted. **`topic`** holds a
+composed line to the beat it is for, which retrieval has asked of a recorded sentence since it was
+written: told "they ask where you are now", a model wrote `Kuhu sa ikka lähed?`, which is the
+question the learner answered two turns before. **`giveaway`** refuses a line carrying the form the
+beat is about to ask for (`answerForms`), which the bank's own test has refused since the bank was
+drafted and the live path never did: a run answered the beat whose whole job is getting the learner
+to say `poes` with `Kas sa juba oled poes?`, and a learner who copies that out has retrieved nothing
+while the scheduler writes down a recall. `CHECKS` is a list rather than a bare union, because
+`eval:scene` printed four checks out of a list of its own and a fifth changed nothing on the screen.
+
+**And the app's own gate was stricter than the gate it measured itself with.** `gateContext` in the
+eval and in the bank's test has handed in the course's question words since the government check was
+written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
+sentence that check's own comment names as the reason the question words exist, was withheld on the
+deployment and passed in every measurement of it. When a check is drawn against data handed in, the
+app is the caller that has to hand it in.
+
+**A choice is two things a person could have meant, never one thing said two ways.** Narrowing a
+case beat offered the wanted form against another case of the same word, on the argument that the
+ending is what the beat drills. On a card that is a fair question; in a conversation it is a grammar
+exercise in a character's voice, and a learner who could not say where they were coming from was
+asked `Poest või pood?` by a friend on the phone. A case beat is narrowed on nothing and gets the
+app's own hint instead, in English and out of character, which is the honest thing to say at that
+moment (`lib/scenes/coach.ts`). The word-shaped and card-shaped choices are untouched, since
+`Valu või palavik?` is two things somebody could have meant.
+
+**The model is told who it is before it is asked for a line.** It used to be handed a move, one
+sentence about what to do and a word list, which is a translation exercise rather than a part in a
+scene. `ComposeAsk` carries the scene, the place, the drawn persona and the learner's own role card,
+every line of it English already on the learner's own briefing screen, and the system prompt says
+what a beginner's Estonian looks like and what to do about it: work out what they meant and answer
+that, never correct them, never comment on their Estonian, never write English, and never repeat a
+question they have already answered. It also asks for a correct sentence rather than only a listed
+one, because a model pressed to stay inside a few hundred lemmas at all costs writes the line the
+agreement check exists to withhold. **The beat's `goal` is still deliberately absent**: told what the
+learner is trying to say, a model writes the learner's line (§32). Measured after all of it on
+`poodi-piima` at three lines a beat, 5.6% of composed lines withheld against the design's one in
+twenty.
+
 
 **Sõnad has seven tries and two clues, and both clues arrive late on purpose.** Six for six is the
 English game's ratio and not its game: Estonian has nine vowels where English is deducing among
@@ -6259,10 +6361,12 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
 `addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
+`wordGlossFrom`, `WORD_GLOSS_CHOICES`, `setWordGloss`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,
 `IDENTIFIED_DEPLOYMENTS`, `currentIdentity`, `retrenchment`, `CONTINUITY`, `summariseImpact`,
-`gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`. Most of them now
+`gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
+`answerForms`, `scene-break`, `PERSON_CODES`. Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands

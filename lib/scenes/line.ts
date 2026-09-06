@@ -25,7 +25,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { passes, runGate, type Check, type GateContext } from "./gate";
-import { fits, type Line } from "./retrieval";
+import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
 import type { BeatSpec } from "./types";
 
@@ -331,8 +331,26 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     was stored (`LineMode`).
   */
   if (request.mode === "composed" && request.compose) {
+    /*
+      THE BEAT'S OWN TOPIC IS PART OF THE GATE FOR A COMPOSED LINE. Retrieval
+      has asked a recorded sentence to be about the beat since it was written
+      (`onTopic`) and nothing asked it of a written one, so a model told "they
+      ask where you are now" answered `Kuhu sa ikka lähed?`: real Estonian,
+      inside the list, and the question the learner answered two turns before.
+      Same set, same test, one rung further down.
+    */
+    const gate = {
+      ...request.gate,
+      topic: request.topic,
+      /*
+        And the answer the beat is about to ask for, which the bank's own test
+        has refused since the bank was written and nothing refused live: a real
+        run answered the beat that wants `poes` with `Kas sa juba oled poes?`.
+      */
+      answers: answerForms(request.beat, request.lexicon),
+    };
     const first = await request.compose([]);
-    const firstVerdict = first ? runGate(first, request.beat, request.gate) : null;
+    const firstVerdict = first ? runGate(first, request.beat, gate) : null;
     if (first && firstVerdict && passes(firstVerdict)) {
       return { text: first, provenance: "composed" };
     }
@@ -343,7 +361,7 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       the same place, and the learner is waiting through every one of them.
     */
     const second = await request.compose(firstVerdict?.unknown ?? []);
-    const secondVerdict = second ? runGate(second, request.beat, request.gate) : null;
+    const secondVerdict = second ? runGate(second, request.beat, gate) : null;
     if (second && secondVerdict && passes(secondVerdict)) {
       return { text: second, provenance: "composed" };
     }

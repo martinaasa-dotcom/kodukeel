@@ -234,7 +234,9 @@ describe("time passing between two beats", () => {
   const LATER: BeatSpec = { ...OFFER, meanwhile: "Five minutes later. You are at the shop." };
 
   it("is said before the line that assumes it", () => {
-    const lines = replyFor(input({ answered: ASK, beat: LATER, response: "answer", reading: "complete" }));
+    const lines = replyFor(input({
+      answered: ASK, beat: LATER, response: "answer", reading: "complete", arriving: true,
+    }));
     const at = lines.findIndex((line) => line.provenance === "meanwhile");
     expect(at).toBeGreaterThanOrEqual(0);
     expect(at).toBeLessThan(lines.length - 1);
@@ -243,8 +245,22 @@ describe("time passing between two beats", () => {
   it("is said once, on the turn that arrives, and not again on every miss", () => {
     const lines = replyFor(input({
       answered: LATER, beat: LATER, response: "narrow", reading: "offtarget", heard: "Kus sa oled?",
+      arriving: false,
     }));
     expect(lines.some((line) => line.provenance === "meanwhile")).toBe(false);
+  });
+
+  /*
+    ARRIVING IS A FACT ABOUT THE RUN, NOT ABOUT THE LAST TURN. It used to be
+    read off a response of `answer` or `moveOn`, so a beat reached any other
+    way (a counter-offer taken, a curveball cleared) walked the learner to the
+    shop with nothing on the screen to say so.
+  */
+  it("is said on any way of arriving, not only on an answer", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: LATER, response: "counter", reading: "declined", arriving: true,
+    }));
+    expect(lines.some((line) => line.provenance === "meanwhile")).toBe(true);
   });
 });
 

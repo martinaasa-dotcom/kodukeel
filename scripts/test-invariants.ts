@@ -5230,8 +5230,15 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     block("composeLive"), /Words you may use/,
     "the word list is back in the block that changes per turn",
   );
+  /*
+    The list, and everything else that is constant for a whole run: the scene,
+    the place, the drawn persona and the learner's role card all sit behind the
+    breakpoint with it, because a briefing that changed per turn would break
+    the list's cache entry every time.
+  */
   assert.match(
-    code("app/api/scene/route.ts"), /composeSystem\(\{ register: input\.register, words: input\.words \}\)/,
+    code("app/api/scene/route.ts"),
+    /composeSystem\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
     "the scene route stopped putting the list behind the cache breakpoint",
   );
   assert.match(
@@ -5554,6 +5561,103 @@ check("a word under a teaching sentence is one the dictionary vouched for", () =
     /YOUR_OWN_SOURCES = \[([\s\S]*?)\]/.exec(sources)?.[1] ?? "",
     /"SENTENCE"/,
     "a word the learner stopped and kept out of a sentence is filed as material the app chose",
+  );
+});
+
+check("the dictionary under a sentence is the learner's to refuse", () => {
+  /*
+    A SENTENCE SOMEBODY CAN READ IS ALSO SIX UNDERLINES ACROSS A SENTENCE
+    SOMEBODY IS READING.
+
+    `lib/dict/glossed.ts` puts the dictionary under every word an attested
+    sentence carries, which is the difference between a line a beginner can
+    read and one they can only look at. It was also reported, plainly, as a
+    second thing happening on a card whose whole job is one sentence. Which of
+    those two readers somebody is cannot be detected, for the reason
+    `lib/ux/letterBar.ts` gives about the letter bar, so it is asked.
+
+    Three things follow and all three are here.
+
+    ON IS THE DEFAULT. A missing row is everybody who used the app before the
+    question existed, and reading absence as a refusal takes the dictionary out
+    from under every sentence in one deploy for people who never asked.
+
+    OFF MEANS THE LOOKUP IS NEVER MADE. Every producer of glossed tokens asks
+    before it looks, rather than a screen drawing the answer and hiding it: the
+    two screens have drawn the plain marked sentence since before this existed,
+    for the page that did not look, so refusing costs a round trip rather than
+    adding one. The question is asked in the producer rather than threaded down
+    from the routes, which is what stops a fifth route arriving without it and
+    quietly drawing a feature its learner turned off.
+
+    AND THE READING OF THE LEARNER'S OWN TURN IS NOT THIS. The scene route
+    glosses two different things with one function: the other side's lines,
+    which a learner reads, and the learner's own turn, which is what the
+    composer is told they said. The second reaches no screen and a preference
+    about underlines may not decide what the other side understood.
+  */
+  const answer = "lib/ux/wordGloss.ts";
+  assert.ok(existsSync(answer), "the answer about underlining a sentence has gone");
+  const rule = code(answer);
+  assert.match(
+    rule, /DEFAULT_WORD_GLOSS: WordGloss = "on"/,
+    "underlining every word is no longer what somebody who has never answered gets",
+  );
+  assert.match(
+    rule, /value === "off" \? "off"/,
+    "a stored answer other than \"off\" no longer reads as the behavior everybody had",
+  );
+
+  /*
+    Every place a sentence is looked up for a screen, and the shape asserted is
+    the read rather than the file: a producer that imports the reader and then
+    looks anyway is the fault this is for.
+  */
+  const producers = [
+    ["app/(app)/review/cards.ts", "a first meeting in review"],
+    ["lib/progress/learn.ts", "a word on the learn ladder"],
+    ["app/api/scene/route.ts", "a line said in a conversation"],
+  ] as const;
+  for (const [file, what] of producers) {
+    const producer = code(file);
+    assert.match(
+      producer, /wordGlossFrom\(await readSetting\(ownerId, SETTING_KEYS\.wordGloss\)\)/,
+      `${what} is glossed without asking whether this learner wanted the dictionary under it`,
+    );
+  }
+
+  {
+    /*
+      The learner's own turn, gated by nothing. Asserted on the order: the
+      refusal has to sit inside `glossedLines`, which is what a screen reads,
+      and above the `glossSentences` that draws the other side's line, while
+      the turn's own reading further down the file is untouched.
+    */
+    const route = code("app/api/scene/route.ts");
+    const refusal = route.indexOf("SETTING_KEYS.wordGloss");
+    const reading = route.indexOf('glossSentences([{ et: text, form: null }])');
+    assert.ok(refusal > 0 && reading > refusal, "the scene route no longer refuses before it looks");
+    const between = route.slice(refusal, reading);
+    assert.doesNotMatch(
+      between.slice(between.indexOf("\n")), /SETTING_KEYS\.wordGloss/,
+      "what the composer is told the learner said is now decided by a preference about underlines",
+    );
+  }
+
+  /*
+    The way out is on the panel, where somebody is standing when they decide,
+    and Settings is where it goes back on. Both, because a way out with no way
+    back is a feature somebody loses by pressing a button once.
+  */
+  const screen = code("components/GlossedSentence.tsx");
+  assert.match(
+    screen, /setWordGloss\("off"\)/,
+    "the panel no longer carries the way out, so the only way to stop this is three screens away",
+  );
+  const settings = code("app/(app)/settings/page.tsx");
+  assert.match(
+    settings, /<WordGlossPanel/,
+    "Settings no longer draws the answer, so a learner who turned this off cannot turn it back on",
   );
 });
 
@@ -11829,9 +11933,24 @@ check("the repair move is only used on a turn nobody understood", () => {
     session, /unspoken: "They did not catch/,
     "an unspoken turn is labeled as a turn nobody understood, which is the bug this fixed",
   );
+  /*
+    AND A REPLY IS SAID IN ONE BREATH. `replyFor` builds a reaction and then a
+    move, and the screen drew each in a card of its own: `Jah.` in one bubble
+    and the question in the next, twice a turn, which a learner read back and
+    reported as the other side answering itself. `inOneBreath` joins the lines
+    said in Estonian and leaves everything that is not something anybody said
+    (a break in time, a hint from the app, a stage direction) standing alone,
+    so this asks for the merge rather than for the raw list.
+  */
   assert.match(
-    session, /lines\.map\(/,
-    "the scene screen reads one line per reply again; a reply is a reaction and then a move",
+    session, /inOneBreath\(turn\.lines\)\.map\(/,
+    "the scene screen draws a reply line by line again: a reaction and its move are one thing said, "
+    + "and nobody talks in two bubbles",
+  );
+  assert.match(
+    session, /inOneBreath\(turn\.lines\)\.filter\(spoken\)/,
+    "the debrief's transcript is built from the raw lines again, so the record of the conversation "
+    + "reads as two speakers where the round reads as one",
   );
 });
 
@@ -12735,7 +12854,9 @@ check("nothing but the dictionary can advance a scene", () => {
 check("the scene route marks mechanically before it reaches a provider", () => {
   const src = code("app/api/describe/route.ts");
   const marked = src.indexOf("markDescription(");
-  const provider = src.indexOf("resolveProvider(");
+  // Either spelling: the route resolves the whole chain now, and the rule is
+  // about the order, not about which of the two functions it calls.
+  const provider = src.search(/resolveProviders?\(/);
   assert.ok(marked > 0 && provider > 0, "the describe route no longer does both of these");
   assert.ok(
     marked < provider,
@@ -13748,7 +13869,13 @@ check("every line a scene says carries its rung", () => {
   const source = code("components/scene/SceneSession.tsx");
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
-  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+  /*
+    Every rung that wrote a piece of the bubble, since two lines said in one
+    breath are one bubble (`inOneBreath`): "your word, said back" and then a
+    question written for this turn is two claims, and a label naming one of
+    them would be the screen vouching for the other.
+  */
+  assert.match(source, /line\.rungs \?\? \[line\.provenance\][\s\S]{0,40}?PROVENANCE\[rung\]/,
     "and the words under it are what a reader is told, which is ADR-025 itself");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,

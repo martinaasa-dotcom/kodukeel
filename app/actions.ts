@@ -41,6 +41,7 @@ import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
+import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { kindFrom } from "@/lib/ux/schedule";
@@ -1370,6 +1371,24 @@ export async function setGlossLanguage(value: string) {
   const ownerId = await requireUserId();
   const normalised = glossLanguageFrom(text(value));
   await writeSetting(ownerId, SETTING_KEYS.glossLanguage, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * Whether the dictionary is put under every word of an attested sentence.
+ *
+ * Revalidated at the layout rather than at a path, for `setLetterBar`'s
+ * reason: a first meeting and a conversation both read this, and somebody who
+ * turned it off under a word in a review should not meet it again on the next
+ * screen because that one happened to be cached. The way out sits on the panel
+ * itself, which is where somebody is standing when they decide they are done
+ * with it, so this action is reached from there as well as from Settings.
+ */
+export async function setWordGloss(value: WordGloss) {
+  const ownerId = await requireUserId();
+  const normalised = wordGlossFrom(value);
+  await writeSetting(ownerId, SETTING_KEYS.wordGloss, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }
