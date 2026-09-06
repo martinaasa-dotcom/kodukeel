@@ -1201,10 +1201,6 @@
     icon and the words beside it are the whole of the information.
   */
   .amb-queue { animation: amb-queue 2800ms cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-  .amb-ring { animation: amb-ring 3400ms cubic-bezier(0.22, 1, 0.36, 1) infinite; }
-  .amb-travel { animation: amb-travel 3600ms cubic-bezier(0.45, 0, 0.35, 1) infinite; }
-  .amb-steam { animation: amb-steam 4200ms ease-in-out infinite; }
-  .amb-attend { animation: amb-attend 4600ms ease-in-out infinite; }
   .amb-1 { animation-delay: 0ms; }
   .amb-2 { animation-delay: 900ms; }
   .amb-3 { animation-delay: 1800ms; }
@@ -1216,34 +1212,6 @@
     34% { opacity: 1; transform: translateX(0); }
     72% { opacity: 1; transform: translateX(0); }
     88%, 100% { opacity: 0; transform: translateX(14px); }
-  }
-
-  /* Out, and gone, the way a ring leaves a telephone. */
-  @keyframes amb-ring {
-    0% { opacity: 0.55; transform: scale(0.55); }
-    70% { opacity: 0; transform: scale(1.5); }
-    100% { opacity: 0; transform: scale(1.5); }
-  }
-
-  /* Here to there, with the arriving slower than the setting off. */
-  @keyframes amb-travel {
-    0% { opacity: 0; transform: translateX(-26px); }
-    12% { opacity: 1; }
-    76% { opacity: 1; }
-    100% { opacity: 0; transform: translateX(26px); }
-  }
-
-  /* Up and off, leaning as it goes, because warmth does not rise straight. */
-  @keyframes amb-steam {
-    0% { opacity: 0; transform: translateY(6px) translateX(0) scale(0.8); }
-    30% { opacity: 0.7; }
-    100% { opacity: 0; transform: translateY(-22px) translateX(5px) scale(1.25); }
-  }
-
-  /* A room breathing, and nothing more than that. */
-  @keyframes amb-attend {
-    0%, 100% { opacity: 0.35; transform: scale(0.94); }
-    50% { opacity: 0.7; transform: scale(1.06); }
   }
 
   /*
@@ -1264,11 +1232,42 @@
   .stick-legs-a { animation: stick-legs 900ms steps(1, end) infinite; }
   .stick-legs-b { animation: stick-legs 900ms steps(1, end) infinite reverse; }
   .stick-arc { animation: stick-arc 2600ms ease-out infinite; }
+
   /*
-    Steam, in the drawing's own units rather than in pixels. `amb-steam` rises
-    22 pixels, which is right on a 96px badge and a fifth of the way up a
-    120-unit drawing: the wisps left the cup behind and hung in the air above
-    the counter. Here it is eight units and a lean.
+    ONE ROOM LEAVING AND THE NEXT ONE ARRIVING.
+
+    A scene can walk somebody out of their kitchen and into a shop, and the
+    cover that says so used to draw a clock: the room they had been answering
+    from for four turns simply stopped being true. These are the two halves of
+    the move, and the timing is the whole of what makes it read as one thing
+    rather than two: the room being left goes first and is gone before the room
+    being arrived in is halfway in, so there is a moment in the middle with
+    neither, which is what a cut between two places looks like.
+
+    Transform and opacity, both ways, so the compositor runs them while React is
+    appending the lines said in the new place. Nothing at all under
+    `prefers-reduced-motion`, where the second room is simply there and the
+    sentence under it says what happened.
+  */
+  .scene-room-out { animation: scene-room-out 900ms cubic-bezier(0.4, 0, 1, 1) both; }
+  .scene-room-in {
+    animation: scene-room-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: 620ms;
+  }
+
+  @keyframes scene-room-out {
+    0% { opacity: 1; transform: translate3d(0, 0, 0); }
+    100% { opacity: 0; transform: translate3d(-46px, 0, 0); }
+  }
+  @keyframes scene-room-in {
+    0% { opacity: 0; transform: translate3d(46px, 0, 0); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  /*
+    Steam, in the drawing's own units rather than in pixels. The first version
+    of this rose 22, which was written for a 96px badge and is a fifth of the
+    way up a 120-unit drawing: the wisps left the cup behind and hung in the air
+    above the counter. Here it is eight units and a lean.
   */
   .stick-steam { animation: stick-steam 3800ms ease-in-out infinite; }
 
@@ -1304,7 +1303,7 @@
     .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,
     .scene-thread, .scene-told, .scene-place,
-    .amb-queue, .amb-ring, .amb-travel, .amb-steam, .amb-attend,
+    .amb-queue, .scene-room-out, .scene-room-in,
     .stick-bob, .stick-nod, .stick-arc, .stick-steam,
     .stick-legs-a, .stick-legs-b { animation: none; }
     /*

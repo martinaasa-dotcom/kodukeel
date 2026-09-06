@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, type CSSProperties } from "react";
 import { Button } from "@/components/Button";
-import { SceneMotif } from "./SceneMotif";
+import { SceneVignette } from "./SceneVignette";
+import type { Setting } from "@/lib/scenes/scenery";
 
 /**
  * TIME PASSING, DRAWN AS THE ONE THING THAT STOPS THE ROOM.
@@ -60,9 +61,16 @@ const STILL_MS = 1_600;
  * with a beat of nothing in between.
  */
 export const VEIL_OUT_MS = 300;
-export function SceneInterlude({ sceneId, text, onDone }: {
-  /** The room being moved into, for the mark at the end of the journey. */
+export function SceneInterlude({ sceneId, from, to, text, onDone }: {
   sceneId: string;
+  /** The room the conversation has been in until now. */
+  from: Setting;
+  /**
+   * The room it is in from here, where the scene moves somebody at all. Absent
+   * for the commoner kind of break, which is twenty minutes in a queue at the
+   * same desk: there the room stays and the clock is what has moved.
+   */
+  to: Setting | null;
   text: string;
   onDone: () => void;
 }) {
@@ -139,32 +147,49 @@ export function SceneInterlude({ sceneId, text, onDone }: {
 
       <div className="relative flex w-full max-w-lg flex-col items-center gap-5 text-center">
         {/*
-          AN HOUR GOING ROUND, AND THEN THE PLACE IT WENT ROUND INTO.
+          ONE ROOM LEAVING AND THE NEXT ONE ARRIVING, WHICH IS WHAT THE
+          SENTENCE UNDERNEATH SAYS IN WORDS.
 
-          The sentence says both halves ("five minutes later, and you are in
-          the shop now") and this is the same two halves drawn: time on the
-          left, a short journey between them, the room on the right. It is the
-          scene's own mark, the one on the bar the learner has been looking at
-          for the whole conversation, so arriving at it reads as arriving
-          somewhere they know they are.
+          "Five minutes later. You have walked to the shop and you are inside
+          it." is two facts, and until now the screen drew one of them: a clock
+          going round. The room the learner has been answering from for the last
+          four turns simply stopped being true, silently, and the next question
+          was about somewhere they had never been shown. So the kitchen goes out
+          to the left and the shop comes in from the right, in the same drawing
+          the briefing opened with, and the learner watches the move rather than
+          reading about it.
+
+          Where the scene does not move anybody, which is the commoner kind of
+          break, the room stays and the clock arrives beside it: twenty minutes
+          in a queue at the same desk is time passing and nothing else, and
+          cross-fading a drawing into itself would say something happened that
+          did not.
 
           Decoration throughout. Everything it carries is in the sentence
           underneath, which is what lets the lot of it be hidden from a reader.
         */}
-        <span className="flex items-center gap-4">
-          <Dial />
-          <span aria-hidden className="relative block h-1 w-16 rounded-full" style={{ background: "var(--accent-soft)" }}>
-            {[1, 2].map((at) => (
-              <span
-                key={at}
-                className={`amb-travel amb-${at} absolute -top-1 left-1/2 h-3 w-3 rounded-full`}
-                style={{ background: "var(--accent)", opacity: 0 }}
-              />
-            ))}
-          </span>
-          <span className="scene-place block">
-            <SceneMotif sceneId={sceneId} size="sm" />
-          </span>
+        <span className="relative flex w-full items-center justify-center">
+          {to ? (
+            /*
+              The box is the drawing's own shape rather than a height typed
+              beside it: both rooms are taken out of the flow so they can pass
+              through each other, and a wrapper that reserved less than they
+              need would let the sentence slide up under them mid-move.
+            */
+            <span className="relative block aspect-[5/3] w-full max-w-[19rem]">
+              <span className="scene-room-out absolute inset-0">
+                <SceneVignette sceneId={sceneId} setting={from} />
+              </span>
+              <span className="scene-room-in absolute inset-0">
+                <SceneVignette sceneId={sceneId} setting={to} />
+              </span>
+            </span>
+          ) : (
+            <span className="flex items-center gap-5">
+              <SceneVignette sceneId={sceneId} setting={from} className="max-w-[13rem]" />
+              <Dial />
+            </span>
+          )}
         </span>
 
         {/* Two rules drawing out from the middle, which is the thread of the

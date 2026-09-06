@@ -144,7 +144,7 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
               one and being in it are the same place. Decoration: the title,
               the place and the kind of place are all written out beside it.
             */}
-            <SceneMotif sceneId={scene.id} size="sm" />
+            <SceneMotif sceneId={scene.id} />
             {/*
               On the scale, which it was not: a bare `h2` inherits the
               document's own 16px and the type scale has no such step, so

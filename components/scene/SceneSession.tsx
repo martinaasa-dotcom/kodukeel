@@ -22,6 +22,7 @@ import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
+import { movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 
 /**
@@ -298,7 +299,21 @@ export function SceneSession({ scene, minutes, unit }: {
     screen they could not see. `done` is what the cover calls when it has been
     read or pressed through, and `speak` is waiting on it.
   */
-  const [interlude, setInterlude] = useState<{ text: string; done: () => void } | null>(null);
+  const [interlude, setInterlude] = useState<{
+    text: string; from: Setting; to: Setting | null; done: () => void;
+  } | null>(null);
+  /*
+    WHICH ROOM THE CONVERSATION IS IN, WHICH IS NOT ALWAYS THE ONE IT OPENED
+    IN.
+
+    `poodi-piima` starts in your own kitchen with a friend ringing and walks you
+    to the corner shop. The scene has one setting, so the briefing drew the shop
+    for the whole of it, including the two beats before anybody had left the
+    house, and the cover between them had nothing to move from. This is where
+    the conversation is standing now: the scene's own room to begin with, and
+    whatever the beat moved into afterwards (`movesTo`).
+  */
+  const [room, setRoom] = useState<Setting>(() => sceneryFor(scene.id).setting);
   /*
     HOW THE OTHER SIDE SOUNDS, WHICH IS THE ROOM THIS FEATURE WAS WRITTEN FOR.
 
@@ -580,9 +595,17 @@ export function SceneSession({ scene, minutes, unit }: {
       if (moves >= 0) {
         const before = lines.slice(0, moves);
         if (before.length > 0) setTurns((was) => [...was, { who: "them", lines: before }]);
+        /*
+          The room this beat moves into, if it moves anybody at all. Read here
+          rather than after the cover clears, because the cover is what draws
+          the move: it needs the room being left and the room being arrived in
+          at the same moment.
+        */
+        const into = movesTo(scene.id, data.beatId ?? null);
         await new Promise<void>((resume) => {
-          setInterlude({ text: lines[moves]!.text, done: resume });
+          setInterlude({ text: lines[moves]!.text, from: room, to: into, done: resume });
         });
+        if (into) setRoom(into);
       }
       /* The move itself stays in the transcript, so the record of the
          conversation still says where it happened. */
@@ -661,7 +684,13 @@ export function SceneSession({ scene, minutes, unit }: {
     } finally {
       setBusy(false);
     }
-  }, [opened, used, setTurns]);
+  /*
+    `room` is in here because the cover draws the move out of it: memoised
+    without it, a second break in one conversation would hand the cover the room
+    the scene opened in rather than the one it is standing in, so a learner
+    walking home from the shop would watch their kitchen leave twice.
+  */
+  }, [opened, used, setTurns, scene.id, room]);
 
   async function start() {
     setBusy(true);
@@ -826,7 +855,7 @@ export function SceneSession({ scene, minutes, unit }: {
           "you got it".
         */}
         <div className="flex justify-center pb-1 pt-2">
-          <SceneVignette sceneId={scene.id} />
+          <SceneVignette sceneId={scene.id} setting={room} />
         </div>
 
         <Card className="flex flex-col gap-2">
@@ -969,7 +998,13 @@ export function SceneSession({ scene, minutes, unit }: {
       keyboard), and the lines said after the move are held until it clears.
     */}
     {interlude && (
-      <SceneInterlude sceneId={scene.id} text={interlude.text} onDone={interlude.done} />
+      <SceneInterlude
+        sceneId={scene.id}
+        from={interlude.from}
+        to={interlude.to}
+        text={interlude.text}
+        onDone={interlude.done}
+      />
     )}
     <div className="scene-open flex flex-col gap-4">
       {/*

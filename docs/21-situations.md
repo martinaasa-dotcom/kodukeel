@@ -3074,3 +3074,53 @@ anything, are three sentences with one idea each. And the debrief's transcript
 is drawn in the two bubbles the conversation was had in rather than in two white
 cards that differ only by which edge they sit against: it is the record of that
 conversation, and it was being read back in somebody else's handwriting.
+
+## 55. A room per place, and the move between two of them
+
+Five drawings shared out among fourteen scenes told a learner what *kind* of
+place they were in, and the kind is already in the scene's title. A pharmacy and
+a health centre were the same picture; so were a bus station and a street
+corner. What a learner does not have is the room.
+
+**So a setting is a room.** `lib/scenes/scenery.ts` names one per scene out of
+fourteen, and `components/scene/SceneVignette.tsx` draws each: a reception desk
+with chairs to wait in, a counter with a cross over it and a bottle on it, a
+counter with the paperwork the conversation is about, a bar with something hot
+on it, a table with a plate and somebody standing over it, shelves with you in
+among them, a counter with the parcel you are bringing back, a bus, a lamp post
+and somebody who lives here, the stairs in your own building, a board on the
+wall, a table with a sheet of paper on it, a roof over somebody on the phone,
+and somebody on their way with the phone still to their ear. Two scenes share
+one, and they are the two that really are the same room.
+
+Everything is built from three parts, a person, a counter and the floor, plus
+one or two props that say which room it is, so a fifteenth scene costs a branch
+and no file. Nothing is filled, nothing is coloured, and every room moves once
+and only once: somebody nods, steam comes off something, a queue steps up, a
+phone rings out, a bus idles.
+
+**And the cover between two rooms is the move.** `poodi-piima` opens in your own
+kitchen with a friend ringing, walks you to the corner shop and walks you home
+again, and until now the screen drew the shop for the whole of it, including the
+two beats before anybody had left the house. The scene's row is where it
+*opens*; `MOVES` is where a beat takes you, keyed on the beat rather than
+written into the catalogue, because which room is drawn is a question about a
+screen and the catalogue is the conversation.
+
+What that buys is the thing the cover was missing. "Five minutes later. You have
+walked to the shop and you are inside it." is two facts and the screen drew one
+of them, a clock going round: the room a learner had been answering from for
+four turns quietly stopped being true. Now the kitchen leaves to the left and
+the shop arrives from the right, in the same drawing the briefing opened with,
+and there is a moment in the middle with neither, which is what a cut between
+two places looks like. A break that does *not* move anybody keeps its room and
+gets the clock beside it, because twenty minutes in a queue at the same desk is
+time passing and nothing else, and cross-fading a drawing into itself would say
+something happened that did not.
+
+Four things are checked, and each fails silently otherwise. Every scene has a
+room; no row names a scene that is not there; every room a row can name has a
+drawing, so a new setting cannot fall through to a default; and a beat that
+moves you names a beat that exists and a room that is drawn, read in both
+directions, because a typo in a beat id is an entry nothing matches and leaves
+the learner in the kitchen for a conversation held in a shop.

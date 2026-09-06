@@ -97,7 +97,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, children 
             place it is once the conversation has scrolled the briefing away.
             Decoration: the name and the place are written out beside it.
           */}
-          <SceneMotif sceneId={sceneId} size="sm" />
+          <SceneMotif sceneId={sceneId} />
 
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-bold leading-tight" style={{ color: "var(--ink)" }}>
