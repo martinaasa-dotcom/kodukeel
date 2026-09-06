@@ -586,6 +586,20 @@ The order is the argument.
 6. **Try it again**, which keeps the role card and redraws the persona and the curveballs. The
    second run is where most of the learning is, and it should be one button.
 
+### Amendment 1: the record sits under the teaching
+
+The list above was written before `lib/scenes/review.ts` existed, and item 3's reason is the job the
+review does: *this is where a learner finds out that the word they were sure of was not the word*.
+The transcript as built marks nothing, and the review quotes the learner's own words, so it reads
+without the conversation having been read back first.
+
+The transcript is also the one section on the screen with no bound on its length. Measured on a
+seven-turn run at 360px it is 900 of the 2,232 pixels of the page, and it sat between the outcome
+and everything a learner can act on, so the teaching, the words to keep, the drill and the way back
+in were all below the fold on a conversation that had barely started. It goes under them.
+
+What does not move is item 1. The outcome still leads, before any teaching, for the reason given.
+
 ### What it writes
 
 A card added from a scene carries `SCENE_SOURCE` in the `source` column `Card` already has, so
