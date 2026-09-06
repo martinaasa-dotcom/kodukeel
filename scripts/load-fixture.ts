@@ -17,13 +17,13 @@
  *
  * Local databases only, by the same guard as every other destructive script.
  */
-import { PrismaClient } from "@prisma/client";
+import { newPrismaClient } from "../lib/db";
 // @ts-expect-error - plain JS helper, shared with the .mjs end-to-end scripts.
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("write and delete synthetic load-test learners"),
-});
+const prisma = newPrismaClient(
+  requireLocalDatabase("write and delete synthetic load-test learners"),
+);
 
 /**
  * The owner id prefix every row here carries.

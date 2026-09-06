@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { launchChromium, eventually } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
-import { PrismaClient } from "@prisma/client";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 /**
@@ -39,9 +39,7 @@ const OWNER = "local-single-user";
 /** A word no dictionary has, so the unverified path is exercised honestly. */
 const UNKNOWN = "kodukeeltestsona";
 
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("write and delete a scanned page and its cards"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("write and delete a scanned page and its cards"));
 
 const { check, done } = suite("The paper path", { floor: 17 });
 

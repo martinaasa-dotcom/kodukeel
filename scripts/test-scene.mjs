@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { PrismaClient } from "@prisma/client";
 import { eventually, launchChromium } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
@@ -40,9 +40,7 @@ const B = baseUrl();
 const OWNER = "local-single-user";
 const SCENE = "arsti-aeg";
 
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("play a scene through and read its debrief"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("play a scene through and read its debrief"));
 
 const { check, absent, done } = suite("A conversation, end to end", {
   /*

@@ -28,7 +28,7 @@
  * shows only what changed.
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { PrismaClient } from "@prisma/client";
+import { newPrismaClient } from "../lib/db";
 import { SCENES } from "@/lib/collections/scenes";
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
@@ -87,7 +87,7 @@ async function main() {
     console.error(`  ${row.id}: no scene with that id. Renamed, or a typo in the spreadsheet.`);
   }
 
-  const prisma = new PrismaClient();
+  const prisma = newPrismaClient();
   const kept: { id: string; et: string; by: string }[] = [];
   const rejected: { id: string; word: string }[] = [];
 

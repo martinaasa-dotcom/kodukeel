@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { launchChromium } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 
-import { PrismaClient } from "@prisma/client";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 /**
@@ -38,9 +38,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
 const B = baseUrl();
 const OWNER = "local-single-user";
 
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("write and delete the reviews this round grades"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("write and delete the reviews this round grades"));
 
 const { check, absent, done } = suite("The flash round", { floor: 18 });
 

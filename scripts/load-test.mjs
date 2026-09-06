@@ -77,8 +77,8 @@ async function time(fn, runs) {
 // ── Half one: the derived-progress queries, against a heavy learner ──────────
 
 async function measureQueries() {
-  const { PrismaClient } = await import("@prisma/client");
-  const prisma = new PrismaClient();
+  const { newPrismaClient } = await import("./lib/db.mjs");
+  const prisma = newPrismaClient();
 
   const owners = await prisma.review.groupBy({
     by: ["ownerId"],

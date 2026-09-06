@@ -14,6 +14,28 @@ import { LEXEME_COLUMNS, MANAGED_COLUMNS, PRESERVED_COLUMNS } from "./columns";
 const lexeme = Prisma.dmmf.datamodel.models.find((m) => m.name === "Lexeme")!;
 const scalars = lexeme.fields.filter((f) => f.kind !== "object").map((f) => f.name);
 
+/**
+ * Which of those columns are nullable, read off the schema rather than off the
+ * generated client.
+ *
+ * `Prisma.dmmf` used to carry `isRequired` on every field and Prisma 7 strips
+ * it: a runtime field is now its name, its kind and its type and nothing else.
+ * The check below asked `!field.isRequired`, so on 7 every column read as
+ * nullable and the first required one failed it, which is a check answering a
+ * question its source can no longer be asked.
+ *
+ * The schema is the better source anyway, because it is what a person edits and
+ * what `prisma db push` applies. A field is nullable when its type ends in `?`,
+ * which is the whole of the syntax.
+ */
+const NULLABLE = new Set<string>(
+  (/model Lexeme \{([\s\S]*?)\n\}/.exec(readFileSync("prisma/schema.prisma", "utf8"))?.[1] ?? "")
+    .split("\n")
+    .map((line) => /^\s{2}(\w+)\s+(\S+)/.exec(line))
+    .filter((m): m is RegExpExecArray => m !== null && m[2]!.endsWith("?"))
+    .map((m) => m[1]!),
+);
+
 describe("the seed's Lexeme columns", () => {
   it("names only columns that exist", () => {
     const named = [...LEXEME_COLUMNS.map((c) => c.name), ...PRESERVED_COLUMNS, ...MANAGED_COLUMNS];
@@ -61,9 +83,12 @@ describe("the seed's Lexeme columns", () => {
     // Postgres cannot infer a parameter's type from a column that is null in
     // every row of the VALUES list, so a nullable column without a cast is a
     // seed that fails on whichever batch happens to be all-null.
+    // The set has to hold something, or this passes by finding no nullable
+    // column at all, which is exactly how the Prisma 7 failure would have hidden
+    // if the reading had gone the other way.
+    expect(NULLABLE.size).toBeGreaterThan(0);
     for (const column of LEXEME_COLUMNS) {
-      const field = lexeme.fields.find((f) => f.name === column.name)!;
-      if (!field.isRequired) expect(column.cast, `${column.name} needs a cast`).toBeTruthy();
+      if (NULLABLE.has(column.name)) expect(column.cast, `${column.name} needs a cast`).toBeTruthy();
     }
   });
 });

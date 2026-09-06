@@ -1,4 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { newPrismaClient } from "../lib/db";
 import { NOUNS } from "./data/nouns";
 import { VERBS } from "./data/verbs";
 import { ADJECTIVES, PHRASES } from "./data/other";
@@ -12,7 +13,7 @@ import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
 import { courseWords } from "../lib/collections/syllabus/index";
 
-const prisma = new PrismaClient();
+const prisma = newPrismaClient();
 
 /**
  * Seeds the built-in dictionary. Idempotent: re-running updates entries in place
