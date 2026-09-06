@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { NEW_WORDS, disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -193,6 +193,23 @@ describe("a number nobody dealt", () => {
     expect(runGate("Kas 15 on valu?", beat(), context({ dealt })).failed).toContain("facts");
   });
 
+  /*
+    A NUMBER SAID IN WORDS IS STILL A NUMBER. `dealtNumbers` reads digits, and
+    a card dealing 16:00 was answered `Teil on kohtumine homme kell kolm`: an
+    appointment nobody offered, in words the course teaches, past every check.
+  */
+  it("is withheld when the hour is told in words, and the hour that was dealt is not", () => {
+    const times = { clock: new Set(["kell"]), hours: new Set(["kolm", "neli"]), dealt: new Set(["neli"]) };
+    expect(runGate("Kas kell neli on valu?", beat(), context({ times })).failed).not.toContain("facts");
+    expect(runGate("Kas kell kolm on valu?", beat(), context({ times })).failed).toContain("facts");
+  });
+
+  it("says nothing about a count, because only a line telling the time is a claim", () => {
+    const times = { clock: new Set(["kell"]), hours: new Set(["kolm"]), dealt: new Set(["neli"]) };
+    // `kolm minutit` is three minutes. Without the clock word there is no appointment in it.
+    expect(runGate("Kas kolm on valu?", beat(), context({ times })).failed).not.toContain("facts");
+  });
+
   it("says nothing about a line with no number in it", () => {
     expect(runGate("Kas teil on valu?", beat(), context({ dealt: new Set() })).failed).not.toContain("facts");
   });
@@ -277,6 +294,19 @@ describe("a line that is not about its beat", () => {
     expect(runGate("Kas teil on tuba?", beat(), ctx).failed).toContain("topic");
   });
 
+  /*
+    The marker reads `bussipileti` as `pilet` and the gate refused `kellaaeg`
+    on a beat about `aeg`: the app would not say a word it praises the learner
+    for using. Same rule, same guard, both directions.
+  */
+  it("reads a compound as the word it is a compound of", () => {
+    const wide = context({ topic: new Set(["valu", "valud"]), vouched: () => true });
+    expect(runGate("Kas teil on peavalu?", beat(), wide).failed).not.toContain("topic");
+    // And not by accident: the whole spelling still has to be vouched.
+    expect(runGate("Kas teil on xyzvalu?", beat(), context({ topic: new Set(["valu"]) })).failed)
+      .toContain("topic");
+  });
+
   it("says nothing where the caller named no topic, which is how an aside is gated", () => {
     expect(runGate("Kas teil on tuba?", beat(), context()).failed).not.toContain("topic");
     expect(runGate("Kas teil on tuba?", beat(), context({ topic: new Set() })).failed)
@@ -303,5 +333,40 @@ describe("a line that gives the answer away", () => {
 
   it("says nothing where the caller named no answer, which is how an aside is gated", () => {
     expect(runGate("Kas sa oled toas?", asks, context()).failed).not.toContain("giveaway");
+  });
+});
+
+/**
+ * BEING ESTONIAN AND BEING TAUGHT HERE ARE TWO QUESTIONS.
+ *
+ * One membership test against the scene's few hundred lemmas was asked as
+ * both, so the only way for a model to say the natural thing was to have the
+ * line withheld: seventeen of the twenty-five lines the gate withheld across
+ * the fourteen scenes were real Estonian refused for one word a person would
+ * obviously have said. `vouching` is now the hard one, against whatever the
+ * caller can account for; `stretch` is the readable one, and it is a budget.
+ */
+describe("a line that reaches past the scene's own list", () => {
+  /* What the forms list answers: everything here is Estonian but `blorp`. */
+  const language = context({ vouched: (word: string) => word !== "blorp" });
+
+  it("passes where the language can vouch for the word, and says which words were new", () => {
+    const verdict = runGate("Kas teil on peavalu?", beat(), language);
+    expect(verdict.failed).not.toContain("vouching");
+    expect(verdict.stretched).toEqual(["peavalu"]);
+  });
+
+  it("is withheld where nothing can vouch for it, which is a word nobody has written down", () => {
+    expect(runGate("Kas teil on blorp?", beat(), language).failed).toContain("vouching");
+  });
+
+  it("is withheld once it reaches further than a learner can read in one line", () => {
+    const verdict = runGate("Kas teil peavalu kestab kaua?", beat(), language);
+    expect(verdict.failed).toContain("stretch");
+    expect(verdict.stretched.length).toBeGreaterThan(NEW_WORDS);
+  });
+
+  it("holds a caller that cannot vouch to the scene's own list, exactly as before", () => {
+    expect(runGate("Kas teil on peavalu?", beat(), context()).failed).toContain("vouching");
   });
 });

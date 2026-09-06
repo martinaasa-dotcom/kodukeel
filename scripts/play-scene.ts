@@ -32,7 +32,9 @@
  * how the marker's tolerance and the asides were shaped.
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
-import { contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
+import {
+  clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+} from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
@@ -48,6 +50,7 @@ import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
+import { isKnownForm } from "../lib/dict/forms";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
 import { chain as providerChain } from "./lib/sceneDraft";
@@ -246,10 +249,26 @@ async function play(sceneId: string) {
       const cheap = await sceneLine({
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
-        gate: { ...context.gate, dealt: dealtNumbers(card ?? draw.card) },
+        gate: {
+          ...context.gate, dealt: dealtNumbers(card ?? draw.card),
+          times: clockInPlay(card ?? draw.card, context.lexicon),
+        },
         pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        /*
+          The same question the route asks (`sceneVouch`), minus the course
+          read that needs a database: is this spelling Estonian at all. Without
+          it this harness plays a scene whose other side may only say the few
+          hundred lemmas its units declare, which is not the app.
+        */
+        vouch: async (spellings: readonly string[]) => {
+          const out = new Set<string>();
+          await Promise.all([...new Set(spellings)].map(async (word) => {
+            if (context.lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+          }));
+          return out;
+        },
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {

@@ -2947,3 +2947,74 @@ what to do about it: work out what they meant and answer that, never correct the
 their Estonian, never write English. The beat's `goal` is deliberately still absent (§32). Measured
 after all of it on `poodi-piima` at three lines a beat: 5.6% of composed lines withheld, against the
 design's line of one in twenty.
+
+## 53. The word list was answering two questions, and one of them was the wrong one
+
+§52's measurements were re-run against the model scenes actually go to, and the gate withheld 13.7%
+of composed lines across the fourteen scenes, against the design's line of one in twenty. What the
+ranked list said is that seventeen of the twenty-five were `vouching`, and the words were
+`sümptomid` at the health centre, `alustasite` at the landlord's, `minemas` on the way to the shop.
+Not one of them is a made-up word. Every one is what a person would have said.
+
+**One membership test was being asked two questions.** *Is this Estonian* is a hallucination guard
+and is what ADR-005 is about. *Has this learner been taught it* is a pedagogical constraint and is
+what the closed list is for. Answering both with `lexicon.forms.has` meant the only way for the
+model to say the natural thing was to have the line withheld whole, and the scenes read stilted for
+exactly that reason: the other side could never reach for the word the situation called for.
+
+They are separate now.
+
+- **`vouching` is the hard one and it is asked of the language.** `GateContext.vouched` is handed in
+  resolved, and `sceneVouch` is what resolves it: the scene's own list, then the course, then
+  `prisma/data/forms/`, which is Ekilex's inflection tables and Vabamorf **with guessing off on both
+  sides**. A spelling in that file is a real form of a real headword somebody classified. A word
+  none of the three can account for is still withheld whole, because that is a word nobody has ever
+  written down.
+- **`stretch` is the readable one and it is a budget.** At most `NEW_WORDS` words of a line may be
+  outside the scene's own list. Two, because every one of them arrives underlined with the
+  dictionary under it (`lib/dict/glossed.ts`), and one new word is a lesson where four is a wall.
+- **The retry is told which of the two went wrong.** A word nothing could vouch for is a word to
+  drop; a line that simply reached too far is told to reach less far. They used to be the same
+  sentence, which sent a model hunting for a synonym that was equally new.
+
+**And the dictionary grows by what the conversations need.** A word the line reached past the list
+for is one the learner has just met, so `growDictionary` resolves the spelling to its headword
+through the forms list and, where the dictionary holds no entry, fetches it from Ekilex through the
+same `lookupAndStore` the search box uses. What lands is the Institute's own lemma, forms, level,
+definition and recorded sentences, marked `EKILEX`. Driven against a real database: `vastuvõtule`
+in a line added `vastuvõtt`, A2, with its whole case table; `ostuarve`, which the forms list cannot
+place, added nothing at all.
+
+**Nothing here lets a model write Estonian, and that is the whole of why it is safe.** The model
+proposes a spelling; the forms list and Ekilex decide. It is the same rule as the photographed page
+(ADR-021), the headline, the frequency count and the contributed sentence, and this is the sixth
+door onto it. It runs in `after()`, so nobody waits on Ekilex for a line already on the screen, and
+it inherits that path's per-owner cap, miss cache and single flight. The cost of being first to
+meet a word is that it is printed plain rather than glossed, once, because the entry lands a second
+later.
+
+**Two more checks came out of reading the transcripts this opened up.**
+
+`topic` was refusing a compound of its own topic word: `Kas see kellaaeg on teie jaoks õige?` on a
+beat about `aeg`. The marker has read a learner's `bussipileti` as `pilet` since §41, so the gate
+was stricter than the marker about the same question, and the app was refusing to say a word it
+praises the learner for using. Same function, `compoundOf`, same guard: the whole spelling has to be
+vouched, or `xyzzyaeg` would be about the time.
+
+And `facts` could only see digits. A card dealing 16:00 was answered `Teil on kohtumine homme kell
+kolm`, which is an appointment nobody offered, told in words the course teaches, past every check on
+the page. `dealtHours` reads the card's own times through `timeWords`, the same table the marker
+accepts a spoken time from, and the check fires only where the line is telling the time: `kolm
+minutit` is a count and `kell kolm` is a claim about the run.
+
+**Measured after all of it**, same model, same fourteen scenes, two lines a beat: **2.7% withheld**,
+against 13.7% before and a design line of 5%. `vouching` fell from 17 to 1. What is left is two
+government refusals (that check's own measured false-positive rate is 5.4% and one of them is
+`Minge otse edasi ning pöörake vasakule`, which is correct), three topic refusals on lines that
+genuinely name nothing the beat is about, one stretch and one word nothing could place.
+
+**And the harness measures the app again.** The first version of the eval built one gate before the
+retry and gated both lines with it, so every word of the second line the first had not happened to
+use came back unvouched: it reported `ja` and `on` as words nothing could account for and rescued
+nothing at all. A harness that resolves per line is the only honest one, and `npm run play:scenes`
+vouches the same way for the same reason.

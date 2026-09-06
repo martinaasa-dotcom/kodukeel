@@ -5000,6 +5000,48 @@ to say `poes` with `Kas sa juba oled poes?`, and a learner who copies that out h
 while the scheduler writes down a recall. `CHECKS` is a list rather than a bare union, because
 `eval:scene` printed four checks out of a list of its own and a fifth changed nothing on the screen.
 
+**The word list was answering two questions, and one of them was the wrong one.** *Is this
+Estonian* is a hallucination guard and is what ADR-005 is about; *has this learner been taught it*
+is what the closed list is for. Both were `lexicon.forms.has`, so the only way for a model to say
+the natural thing was to have the line withheld: measured against the model scenes actually go to,
+seventeen of the twenty-five lines the gate withheld across the fourteen scenes were `vouching`, and
+the words were `sümptomid` at a health centre, `alustasite` at a landlord's, `minemas` on the way to
+the shop. Not one was a made-up word. **`vouching` is now asked of the language**, through
+`GateContext.vouched`, which `sceneVouch` resolves off the scene's list, the course and
+`prisma/data/forms/`, Ekilex and Vabamorf with guessing off on both sides; a word none of the three
+can account for is still withheld whole, because that is a word nobody has ever written down. **And
+`stretch` is the readable half, as a budget**: at most `NEW_WORDS` words of a line outside the
+scene's own list, because each of them arrives underlined with the dictionary under it and one new
+word is a lesson where four is a wall. The retry is told which of the two went wrong, since a word
+to drop and a line that reached too far are different instructions and used to be the same one.
+
+**And the dictionary grows by what the conversations needed.** `growDictionary` takes the words a
+line reached past the list for, asks the forms list which headword each spelling belongs to, and
+where the dictionary holds no entry fetches it through the same `lookupAndStore` the search box
+uses: what lands is Ekilex's own lemma, forms, level, definition and sentences, marked `EKILEX`.
+**The model proposes a spelling and the dictionary decides**, which is ADR-021's rule about a
+photographed page and the sixth door onto it; nothing a model wrote reaches a row. It runs in
+`after()`, so nobody waits on Ekilex for a line already on the screen, and it inherits that path's
+per-owner cap, miss cache and single flight. Asserted in both directions: `sceneVouch` may not reach
+a provider, and `growDictionary` may not write a dictionary row itself.
+
+**A compound of the topic word is the topic word, and a number said in words is still a number.**
+Two checks were stricter than the app's own rules elsewhere. `topic` refused `Kas see kellaaeg on
+teie jaoks õige?` on a beat about `aeg`, while the marker has read a learner's `bussipileti` as
+`pilet` since §41: the gate was refusing to say a word the app praises the learner for using, and it
+reads `compoundOf` now, with the same vouching guard. And `facts` could only see digits, so a card
+dealing 16:00 was answered `Teil on kohtumine homme kell kolm`, an appointment nobody offered in
+words the course teaches. `dealtHours` reads the card's own times through `timeWords`, the table the
+marker already accepts a spoken time from, and it fires only where the line is telling the time,
+since `kolm minutit` is a count and `kell kolm` is a claim about the run. Measured after all of it:
+**2.7% of composed lines withheld against 13.7%**, on a design line of 5%.
+
+**And a harness that resolves vouching once measures itself.** The first version of the eval built
+one gate before the retry and gated both lines with it, so every word of the second line the first
+had not used came back unvouched: it reported `ja` and `on` as words nothing could account for and
+rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
+the harness.
+
 **And the app's own gate was stricter than the gate it measured itself with.** `gateContext` in the
 eval and in the bank's test has handed in the course's question words since the government check was
 written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
@@ -6366,7 +6408,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,
 `IDENTIFIED_DEPLOYMENTS`, `currentIdentity`, `retrenchment`, `CONTINUITY`, `summariseImpact`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
-`answerForms`, `scene-break`, `PERSON_CODES`. Most of them now
+`answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
+`dealtHours`, `clockInPlay`. Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands

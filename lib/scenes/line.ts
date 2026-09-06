@@ -24,7 +24,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { passes, runGate, type Check, type GateContext } from "./gate";
+import { passes, runGate, type Check, type GateContext, type Verdict } from "./gate";
 import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
 import type { BeatSpec } from "./types";
@@ -200,6 +200,16 @@ export interface SpokenLine {
   /** Which checks withheld a composed line, for the debrief and the report button. */
   readonly withheld?: readonly Check[];
   /**
+   * The words in this line the scene itself does not teach, where it is a
+   * composed one that passed.
+   *
+   * The caller looks each of them up so the dictionary holds the word by the
+   * time anybody meets it again (`app/api/scene/route.ts`). Absent on every
+   * other rung, because a recorded sentence and a banked line are both made of
+   * words the dictionary already has.
+   */
+  readonly stretched?: readonly string[];
+  /**
    * A reaction to the learner's turn rather than the other side's move, so
    * the screen knows it is not the line the learner is now answering.
    * `lib/scenes/reply.ts` is the only thing that sets it.
@@ -216,6 +226,15 @@ export interface LineRequest {
   readonly pool: readonly Line[];
   /** Every form of the beat's own topic words. */
   readonly topic: ReadonlySet<string>;
+  /**
+   * Which of these spellings the app can account for as Estonian, from the
+   * scene, the course and the forms list (`sceneVouch`).
+   *
+   * Asked of a composed line's own words and of nothing else, so a run that
+   * composes nothing costs no lookup. Absent where the caller cannot answer
+   * it, and then vouching is against the scene's list exactly as it was.
+   */
+  readonly vouch?: (spellings: readonly string[]) => Promise<ReadonlySet<string>>;
   readonly hasFiniteVerb: (word: string) => boolean;
   /**
    * What they say when nothing could be built. Estonian, and the caller's.
@@ -339,6 +358,16 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       inside the list, and the question the learner answered two turns before.
       Same set, same test, one rung further down.
     */
+    /*
+      WHETHER THE WORDS ARE ESTONIAN IS ASKED OF THE LANGUAGE, AND IT IS ASKED
+      HERE BECAUSE ONLY HERE IS THE ANSWER CHEAP.
+
+      The gate is pure and synchronous, and the widest vouching source is the
+      forms list on disk, so the resolution happens in the ladder, which is
+      already awaiting a model. It is asked about the words this line actually
+      used and never in advance: a line inside the scene's list costs nothing
+      at all, which is most of them.
+    */
     const gate = {
       ...request.gate,
       topic: request.topic,
@@ -349,21 +378,32 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       */
       answers: answerForms(request.beat, request.lexicon),
     };
+    const judge = async (line: string | null) => {
+      if (!line) return null;
+      const vouched = request.vouch ? await request.vouch(words(line)) : undefined;
+      return runGate(line, request.beat, vouched ? { ...gate, vouched: (w) => vouched.has(w) } : gate);
+    };
+
     const first = await request.compose([]);
-    const firstVerdict = first ? runGate(first, request.beat, gate) : null;
+    const firstVerdict = await judge(first);
     if (first && firstVerdict && passes(firstVerdict)) {
-      return { text: first, provenance: "composed" };
+      return { text: first, provenance: "composed", stretched: firstVerdict.stretched };
     }
 
     /*
       One retry, and only one. §6 allows it with the failing words named, and
       the second failure is the bank: a third attempt is a slower way to reach
       the same place, and the learner is waiting through every one of them.
+
+      What it is told is what actually went wrong: a word nothing could vouch
+      for is a word to drop, and a line that simply reached too far is told to
+      reach less far, which is a different instruction and used to be the same
+      one.
     */
-    const second = await request.compose(firstVerdict?.unknown ?? []);
-    const secondVerdict = second ? runGate(second, request.beat, gate) : null;
+    const second = await request.compose(retryNote(firstVerdict));
+    const secondVerdict = await judge(second);
     if (second && secondVerdict && passes(secondVerdict)) {
-      return { text: second, provenance: "composed" };
+      return { text: second, provenance: "composed", stretched: secondVerdict.stretched };
     }
     withheld = secondVerdict?.failed ?? firstVerdict?.failed ?? [];
   }
@@ -380,6 +420,21 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   if (scripted) return { text: scripted, provenance: "scripted" };
 
   return fallbackLine(request.fallback, withheld);
+}
+
+/**
+ * What to tell a retry, which is not always "you used a word you may not".
+ *
+ * A line withheld for `vouching` used a word nothing could vouch for and the
+ * fix is to drop it. A line withheld for `stretch` used real Estonian and
+ * simply too much of it at once, and telling it those words are "not allowed"
+ * sends it hunting for a synonym that is equally new. The words are the same
+ * shape either way, so what changes is which set is sent.
+ */
+function retryNote(verdict: Verdict | null): readonly string[] {
+  if (!verdict) return [];
+  if (verdict.unknown.length > 0) return verdict.unknown;
+  return verdict.failed.includes("stretch") ? verdict.stretched : [];
 }
 
 /** The first recorded sentence that fits this beat and has not been used yet. */

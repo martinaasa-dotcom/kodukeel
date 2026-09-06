@@ -42,6 +42,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
+import { NEW_WORDS } from "./gate";
 import { MAX_WORDS } from "./retrieval";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
@@ -139,10 +140,28 @@ const COMPOSE_RULES = [
     is inside the list and is not the language. The gate withholds that line,
     and the whole point of saying it here is that it should never have to.
   */
-  "Every word you use must be one of the words you are given, in any grammatical form,",
-  "and the sentence must be correct Estonian: the subject and the verb agree, the endings",
-  "are the ones a native speaker would use. If a correct sentence needs a word that is not",
-  "on the list, say something simpler with the words that are.",
+  /*
+    AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE.
+
+    It used to be both, so the only way to say `Kui kaua teie sümptomid
+    kestavad?` was to have the line withheld whole, and seventeen of the
+    twenty-five lines the gate withheld across the fourteen scenes were exactly
+    that: real Estonian, refused for one word a person would obviously have
+    said. What the gate holds now is that every word is a real Estonian word
+    (`vouching`, against the forms list) and that at most `NEW_WORDS` of them
+    are outside the list (`stretch`), because every one of those arrives with
+    the dictionary under it and one new word is a lesson where four is a wall.
+
+    So this asks for the natural sentence and says which way to lean, which is
+    what a teacher does: use their words where they carry it, reach for the
+    right word where they do not.
+  */
+  "Prefer the words you are given, in any grammatical form: they are what this learner has",
+  `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
+  "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",
+  "person in this situation would actually say, rather than a simpler one that avoids a word.",
+  "It must be correct Estonian: the subject and the verb agree, and every ending is the one a",
+  "native speaker would use.",
 ].join(" ");
 
 /**
@@ -199,8 +218,16 @@ export function composeLive(ask: ComposeAsk): string {
     ask.examples.length > 0
       ? `Lines this character has said at other moments, for tone and length: ${ask.examples.join(" | ")}`
       : "",
+    /*
+      What a retry is told, and it is deliberately not "those words are not
+      allowed". A line can be withheld for using a word nothing could vouch for
+      or for reaching too far at once, and `retryNote` sends the words that
+      actually went wrong; hunting for a synonym is the right instruction for
+      the first and the wrong one for the second.
+    */
     ask.avoid.length > 0
-      ? `Your last attempt used words that are not allowed here: ${ask.avoid.join(", ")}.`
+      ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
+        + "Say it again without them, using more of the words you were given."
       : "",
   ].filter(Boolean).join("\n");
 }

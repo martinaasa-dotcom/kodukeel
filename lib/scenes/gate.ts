@@ -29,6 +29,7 @@
  */
 import type { CaseKey } from "@/lib/estonian/types";
 import { PERSON_CODES, words, type Lexicon, type PersonCode } from "./lexicon";
+import { compoundOf } from "./nearly";
 import { MAX_WORDS, isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 
@@ -41,7 +42,33 @@ import { QUESTION_SHAPE, type BeatSpec } from "./types";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
+  "stretch",
 ] as const;
+
+/**
+ * How many words of a line may be ones this scene has not declared.
+ *
+ * ONE SET WAS ANSWERING TWO QUESTIONS, AND THAT IS WHY CONVERSATIONS READ AS
+ * STILTED. `vouching` asked "is this Estonian" and "has this learner been
+ * taught it" with one membership test against a few hundred lemmas, so the
+ * only way for a model to say the natural thing was to fail. It was measured:
+ * 17 of the 25 lines withheld across the fourteen scenes were vouching, and
+ * the words were `sümptomid` at the health centre, `alustasite` at the
+ * landlord's, `minemas` on the way to the shop. Not one of them is a made-up
+ * word. Every one is what a person would have said.
+ *
+ * The two questions are now asked separately. Being Estonian is a hard
+ * requirement and is what `vouching` still means, against the whole language
+ * rather than against the scene (`GateContext.vouched`). Being readable is
+ * this, and it is a budget rather than a refusal: a couple of new words is a
+ * conversation with something in it, and half a line of them is a wall.
+ *
+ * Two, because a line is at most fourteen words and every word outside the
+ * scene's list arrives underlined with the dictionary under it
+ * (`lib/dict/glossed.ts`): one new thing to notice is a lesson, three at once
+ * is the exercise being taken away.
+ */
+export const NEW_WORDS = 2;
 
 export type Check = (typeof CHECKS)[number];
 
@@ -54,8 +81,30 @@ export interface GovernedWord {
 }
 
 export interface GateContext {
-  /** The scene's closed word list. Vouching is against this, not the dictionary. */
+  /**
+   * The scene's closed word list: what the learner has been taught to read,
+   * and what a line may reach past by at most `NEW_WORDS` (`stretch`).
+   */
   readonly lexicon: Lexicon;
+  /**
+   * WHETHER A SPELLING IS ESTONIAN AT ALL, which is a different question from
+   * whether this scene teaches it and is the one `vouching` now asks.
+   *
+   * Handed in resolved, because answering it reads the forms list off disk
+   * and this module may reach neither a database nor a filesystem. The route
+   * resolves it for the words a composed line actually used
+   * (`LineRequest.vouch`), so nothing is looked up in advance and a keyless
+   * or scriptless caller that supplies none falls back to the scene's own
+   * list, which is exactly the behaviour this had before.
+   *
+   * WHAT IT MAY NEVER BECOME IS A MODEL'S OPINION. The chain behind it is the
+   * scene's lexicon, the course, and `prisma/data/forms/`, which is Ekilex's
+   * own inflection tables and Vabamorf with guessing off on both sides: a
+   * spelling in it is a real form of a real headword somebody classified. A
+   * word none of them can account for is still withheld whole, because that
+   * is a word nobody has ever written down (ADR-005).
+   */
+  readonly vouched?: (word: string) => boolean;
   /** Every form of the course's question words, which stand in for a governed complement. */
   readonly questionWords?: ReadonlySet<string>;
   /** Forms of the pronoun this scene's register forbids. */
@@ -93,6 +142,27 @@ export interface GateContext {
    */
   readonly dealt?: ReadonlySet<string>;
   /**
+   * The clock, where this run deals one: every form of the word a time is told
+   * with, every hour word there is, and the hours this card actually named.
+   *
+   * A NUMBER SAID IN WORDS IS STILL A NUMBER, and `dealt` cannot see one:
+   * `words()` keeps `kolm` and the lexicon vouches for it like any other word,
+   * so a card dealing 16:00 was answered `Teil on kohtumine homme kell kolm`
+   * and every check here passed it. That is the same fault `facts` exists for,
+   * wearing vocabulary as a disguise, and the learner is being asked to agree
+   * to an appointment nobody offered.
+   *
+   * Read only where the line is telling the time, which is what `clock` is
+   * for: `kolm minutit` is a count and `kell kolm` is a claim about the run.
+   * Handed in resolved, like everything else here, because this module holds
+   * no Estonian.
+   */
+  readonly times?: {
+    readonly clock: ReadonlySet<string>;
+    readonly hours: ReadonlySet<string>;
+    readonly dealt: ReadonlySet<string>;
+  };
+  /**
    * Every form of the beat's own topic words, where the caller has one.
    *
    * A LINE FOR A BEAT HAS TO BE ABOUT THE BEAT. Retrieval has asked this of a
@@ -124,8 +194,17 @@ export interface GateContext {
 export interface Verdict {
   /** Empty when the line may be shown. */
   readonly failed: readonly Check[];
-  /** The words vouching could not account for, named so a retry can be told. */
+  /** The words nothing could vouch for as Estonian, named so a retry can be told. */
   readonly unknown: readonly string[];
+  /**
+   * The words the line reached past the scene's own list for, whether or not
+   * that broke the budget.
+   *
+   * Two readers and they want it for opposite reasons. A retry is told to use
+   * fewer of them; and the route, on a line that passed, looks each one up so
+   * the dictionary holds the word by the time anybody meets it again.
+   */
+  readonly stretched: readonly string[];
 }
 
 /**
@@ -142,6 +221,22 @@ function invented(text: string, dealt: ReadonlySet<string> | undefined): boolean
   if (!runs) return false;
   const said = dealt ?? new Set<string>();
   return runs.some((run) => !said.has(run));
+}
+
+/**
+ * Whether the line tells a time this run did not deal.
+ *
+ * Only where it is telling one: a line has to hold the clock word and an hour
+ * word together, so `kolm minutit` and `kolmas korrus` are counts and say
+ * nothing about the appointment. Every hour word in such a line has to be one
+ * the card named, and a run that dealt no time at all deals no hours, so an
+ * offer in a scene with nothing to offer is invented too.
+ */
+function inventedHour(tokens: readonly string[], times: GateContext["times"]): boolean {
+  if (!times) return false;
+  if (!tokens.some((word) => times.clock.has(word))) return false;
+  const hours = tokens.filter((word) => times.hours.has(word));
+  return hours.length > 0 && hours.some((word) => !times.dealt.has(word));
 }
 
 export function passes(verdict: Verdict): boolean {
@@ -168,8 +263,28 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     choosing inside a box, and a line reaching outside it is a line the learner
     has not been taught to read.
   */
-  const unknown = tokens.filter((word) => !context.lexicon.forms.has(word));
+  /*
+    VOUCHING IS AGAINST THE LANGUAGE, AND READABILITY IS A BUDGET.
+
+    It used to be one test against the scene's own few hundred lemmas, which
+    made "is this Estonian" and "has this learner met it" the same question and
+    refused `Kui kaua teie sümptomid kestavad?` for the one word that makes it
+    a sentence a receptionist says. What a line may not do is invent a word, so
+    that is what this asks: every token has to be a spelling the app can
+    account for, through the scene, the course and the forms list.
+  */
+  const vouched = context.vouched ?? ((word: string) => context.lexicon.forms.has(word));
+  const unknown = tokens.filter((word) => !vouched(word));
   if (unknown.length > 0) failed.push("vouching");
+
+  /*
+    And how far past the scene's own list it reached, which is what keeps the
+    line readable by somebody who has done these units. Every one of these
+    arrives underlined with the dictionary under it, so the cost of one is a
+    word to notice rather than a word that stops the conversation.
+  */
+  const stretched = tokens.filter((word) => !context.lexicon.forms.has(word));
+  if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
 
@@ -183,7 +298,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     is about its beat if it names the thing the beat is about, and everything
     else in it is the sentence around that.
   */
-  if (context.topic && context.topic.size > 0 && !tokens.some((word) => context.topic!.has(word))) {
+  if (context.topic && context.topic.size > 0 && !onTopic(tokens, context.topic, vouched)) {
     failed.push("topic");
   }
 
@@ -195,9 +310,32 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     exists to find Estonian words and drops digits on the way past, which is
     exactly why nothing here could see this before.
   */
-  if (invented(text, context.dealt)) failed.push("facts");
+  if (invented(text, context.dealt) || inventedHour(tokens, context.times)) failed.push("facts");
 
-  return { failed, unknown };
+  return { failed, unknown, stretched };
+}
+
+/**
+ * WHETHER THE LINE IS ABOUT ITS BEAT, WITH A COMPOUND READ AS ITS HEAD.
+ *
+ * `A compound of the word is the word, and Estonian is made of compounds` is
+ * the rule the marker reads a learner's turn by (`compoundOf`), and the topic
+ * check was stricter than the marker on exactly the same question: `Kas see
+ * kellaaeg on teie jaoks õige?` was refused on a beat about `aeg`, and
+ * `bussipilet` would be refused on a beat about `pilet`. That is the app
+ * refusing to say a word it would praise the learner for using.
+ *
+ * The head of an Estonian compound is its last part, so a token ending in a
+ * topic form with a modifier in front of it is that topic word. The guard the
+ * marker uses is the same one: the whole spelling has to be vouched, or
+ * `xyzzyaeg` would be about the time.
+ */
+function onTopic(
+  tokens: readonly string[],
+  topic: ReadonlySet<string>,
+  vouched: (word: string) => boolean,
+): boolean {
+  return tokens.some((word) => topic.has(word) || compoundOf(word, topic, vouched) !== null);
 }
 
 /**

@@ -5,7 +5,10 @@ import { authoriseCall, recordUsage, releaseReservation, type Reservation } from
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import { openWithFallback, sceneProviders, type ChatMessage } from "@/lib/tutor/provider";
-import { MAX_TURNS, MAX_TURN_CHARS, knowing, readDraw, replay, sceneContext } from "@/lib/progress/scene";
+import {
+  MAX_TURNS, MAX_TURN_CHARS, clockInPlay, growDictionary, knowing, readDraw, replay, sceneContext,
+  sceneVouch,
+} from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
@@ -481,7 +484,7 @@ export async function POST(request: Request) {
       scene, which is why it is joined here rather than in `sceneContext`: the
       card is drawn when the run opens and the scene knows nothing about it.
     */
-    gate: { ...context.gate, dealt: dealtNumbers(card) },
+    gate: { ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon) },
     topic: context.topic.get(beat.id) ?? new Set<string>(),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
@@ -567,7 +570,11 @@ export async function POST(request: Request) {
       conversation,
       avoid: [],
     });
-    const verdict = drafted ? runGate(drafted, asking, { ...context.gate, dealt: dealtNumbers(card) }) : null;
+    const verdict = drafted
+      ? runGate(drafted, asking, {
+        ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
+      })
+      : null;
     if (drafted && verdict && passes(verdict)) {
       aside = { text: drafted, provenance: "composed" };
     } else {
@@ -640,6 +647,14 @@ export async function POST(request: Request) {
     // The attested and scripted rungs were already tried and did not answer.
     pool: [],
     scripted: [],
+    /*
+      WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
+      SCENE. The closed list is what the learner has been taught to read and
+      the gate keeps holding the line to it, by a budget rather than by a
+      refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
+      what this answers, off the course and the forms list.
+    */
+    vouch: (spellings) => sceneVouch(context, spellings),
     compose: (avoid) => compose(chain, {
       ownerId,
       reading: learnerReading,
@@ -693,6 +708,23 @@ export async function POST(request: Request) {
     */
     if (move.provenance !== "fallback") return answer(reply(move), { composed: false });
     return answer(reply(line), { composed: false });
+  }
+
+  /*
+    AND THE DICTIONARY GROWS BY WHAT THE CONVERSATION NEEDED.
+
+    A word the line reached past the scene's list for is one the learner has
+    just met, and the panel under it offers to keep it. Where the dictionary
+    held no entry, `growDictionary` asks Ekilex for the headword the forms list
+    says the spelling belongs to, so the entry is there the next time anybody
+    meets it, with the Institute's own forms and sentences.
+
+    `after`, because nobody is waiting: the line is already going out, glossed
+    with whatever the dictionary held when it was composed. Never in front of
+    the reply, and never on the request's own clock.
+  */
+  if (line.stretched && line.stretched.length > 0) {
+    after(() => growDictionary(ownerId, line.stretched!));
   }
 
   return answer(reply(line), { composed: true });

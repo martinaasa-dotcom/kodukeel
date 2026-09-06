@@ -42,6 +42,7 @@ import { SCENES } from "../lib/scenes/catalogue";
 import { formsOf, words, type Lexicon } from "../lib/scenes/lexicon";
 import { CHECKS, governmentSuspect, runGate, type Check } from "../lib/scenes/gate";
 import { topicForms } from "../lib/scenes/retrieval";
+import { isKnownForm } from "../lib/dict/forms";
 import { SYLLABUS } from "../lib/collections/syllabus";
 import {
   ANSWERED, CASE_OF, POOL, REFUSALS, SHIPPED, chain, compose, gateContext, sceneLemmas, sceneLexicon,
@@ -53,6 +54,20 @@ const arg = (name: string, fallback: number) => {
   return i >= 0 ? Number(process.argv[i + 1]) : fallback;
 };
 const LINES = arg("lines", 3);
+
+/**
+ * The app's own vouching, minus the course read it cannot do without a
+ * database: the scene's list, then the forms list. `courseForms` is a query
+ * and every word it holds is in the forms list anyway, so what this loses is
+ * speed rather than an answer.
+ */
+async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
 const sceneArg = process.argv.indexOf("--scene");
 const onlyScene = sceneArg >= 0 ? process.argv[sceneArg + 1] : undefined;
 /*
@@ -130,14 +145,37 @@ async function partA() {
           composed line (`sceneLine`): a measurement taken without it is a
           measurement of a gate this app does not run.
         */
-        const gate = { ...gateContext(lexicon, wrongRegister), topic: topicForms(beat, lexicon) };
-        const first = runGate(line, beat, gate);
+        /*
+          AND WHETHER THE WORDS ARE ESTONIAN IS ASKED OF THE LANGUAGE, which is
+          what the app asks (`sceneVouch`). Measured without it, this reports
+          the rate of a gate that refused every word outside the scene's own
+          units, which is the thing the split fixed rather than the thing that
+          ships. The forms list is what the app's third rung reads and it needs
+          no key, so the measurement is the same one.
+        */
+        /*
+          PER LINE, because vouching is resolved from the words the line
+          actually used. The first version of this built one gate before the
+          retry and gated both with it, so every word of the second line that
+          the first had not happened to use came back unvouched: the run
+          reported `ja` and `on` as words nothing could account for and rescued
+          nothing at all, which is the harness measuring itself.
+        */
+        const gateFor = async (text: string) => {
+          const vouched = await vouchOf(lexicon, words(text));
+          return {
+            ...gateContext(lexicon, wrongRegister),
+            topic: topicForms(beat, lexicon),
+            vouched: (word: string) => vouched.has(word),
+          };
+        };
+        const first = runGate(line, beat, await gateFor(line));
         for (const word of first.unknown) reached.set(word, (reached.get(word) ?? 0) + 1);
         if (first.failed.length === 0) { firstPass++; continue; }
 
         // The one retry, with the words that failed named. §6.
         const second = (await compose(scene, beat, lemmas, first.unknown))?.text;
-        const after = second ? runGate(second, beat, gate) : null;
+        const after = second ? runGate(second, beat, await gateFor(second)) : null;
         if (after && after.failed.length === 0) { rescued++; continue; }
 
         withheld++; sceneWithheld++;

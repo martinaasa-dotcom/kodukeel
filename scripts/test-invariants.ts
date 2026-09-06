@@ -12800,12 +12800,60 @@ check("a learner who says they are lost is handed the word, never the question a
     }
   }
   /*
-    And the gate is not widened with it. A model composing inside the course
-    rather than inside the scene's own units is a line the learner has not
-    been taught to read, which is the one thing the closed list is for.
+    AND THE TWO QUESTIONS STAY TWO QUESTIONS.
+
+    "Is this Estonian" and "has this learner been taught it" were one
+    membership test against the scene's few hundred lemmas, which is why a
+    receptionist could not say `sümptomid`. They are separate now, and each
+    half has to keep doing its own job: `vouching` against whatever the caller
+    can vouch for, `stretch` as a budget over the scene's own list. Either one
+    collapsing back into the other is the fault this split fixed, in one
+    direction or the other.
   */
-  const gate = code("lib/progress/scene.ts").match(/gate: \{[^}]*\}/)?.[0] ?? "";
-  assert.doesNotMatch(gate, /known|courseForms/, "the gate is vouching against the course, not against the scene's own list");
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /const vouched = context\.vouched \?\? /,
+    "the gate stopped asking the caller whether a word is Estonian, so a scene is back to refusing "
+    + "every word its own units do not teach",
+  );
+  assert.match(
+    gate, /!context\.lexicon\.forms\.has\(word\)\);\n  if \(stretched\.length > NEW_WORDS\)/,
+    "the readability budget is gone, so a composed line can be made entirely of words the learner "
+    + "has never met",
+  );
+  /*
+    And what vouches is the language rather than a model: the scene's list, the
+    course, and the forms list, which is Ekilex and Vabamorf with guessing off
+    (ADR-005). A vouch reaching a provider would be the app asking a model
+    whether its own word is a word.
+  */
+  const vouch = code("lib/progress/scene.ts").match(/export async function sceneVouch[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(vouch, /courseForms\(\)/, "sceneVouch stopped reading the course");
+  assert.match(vouch, /isKnownForm\(/, "sceneVouch stopped reading the forms list");
+  assert.doesNotMatch(
+    vouch, /compose|provider|openWithFallback/,
+    "sceneVouch reaches a model to decide whether a word is Estonian, which is the app vouching for "
+    + "its own invention (ADR-005)",
+  );
+  /*
+    And a word the line reached for is looked up rather than written down: the
+    forms list says which headword the spelling belongs to and Ekilex supplies
+    the entry, so what lands in the dictionary is the Institute's and never a
+    model's.
+  */
+  const grow = code("lib/progress/scene.ts").match(/export async function growDictionary[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(grow, /lemmasOfForm\(/, "growDictionary stopped asking the forms list which word a spelling is");
+  assert.match(grow, /lookupAndStore\(/, "growDictionary writes an entry from something other than Ekilex");
+  assert.doesNotMatch(
+    grow, /prisma\.lexeme\.(create|update)|prisma\.form\./,
+    "growDictionary writes a dictionary row itself rather than through the live lookup, so a word a "
+    + "model chose could reach the dictionary without the Institute being asked",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /after\(\(\) => growDictionary\(/,
+    "the scene route fetches new words on the request's own clock, so a learner waits on Ekilex for "
+    + "a line that is already written",
+  );
   /*
     And a real word is never read as a slip of the pen for another: `valutab`
     is the third person of a verb the course teaches, and reading it as a

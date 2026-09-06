@@ -25,17 +25,18 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { LineMode } from "@/lib/scenes/line";
-import type { GateContext, GovernedWord } from "@/lib/scenes/gate";
+import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
-import { timeWords, type RoleCard } from "@/lib/scenes/props";
+import { CLOCK_LEMMA, HOUR_LEMMAS, dealtHours, timeWords, type RoleCard } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
 import { sensesOf } from "@/lib/dict/synonyms";
-import { isKnownForm } from "@/lib/dict/forms";
+import { isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { lookupAndStore } from "@/lib/dict/lookup";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
 import { randomUUID } from "node:crypto";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
@@ -231,6 +232,115 @@ export async function knowing(
       known: (word: string) => found.has(word) || Boolean(already?.(word)),
     },
   };
+}
+
+/**
+ * WHICH OF THESE SPELLINGS THE APP CAN ACCOUNT FOR AS ESTONIAN.
+ *
+ * `knowing` is this pointed at the learner's turn; this is the same question
+ * pointed at what the other side is about to say, and it exists because one
+ * membership test was answering two things. The scene's closed list is what
+ * the learner has been taught to read. It was also, until now, the whole of
+ * what the other side was allowed to say, so the model could not reach for
+ * `sümptomid` at a health centre or `alustasite` at a landlord's without the
+ * line being withheld whole: measured over the fourteen scenes, seventeen of
+ * the twenty-five withheld lines were that, and not one of them was a made-up
+ * word.
+ *
+ * So being Estonian and being taught here are asked separately. This is the
+ * first: the scene's own list, then the course, then `prisma/data/forms/`,
+ * which is Ekilex's inflection tables and Vabamorf **with guessing off on both
+ * sides**, so every spelling in it is a real form of a real headword somebody
+ * classified. The second is a budget rather than a refusal, `NEW_WORDS` in the
+ * gate, and every word past the list arrives underlined with the dictionary
+ * under it.
+ *
+ * WHAT THIS IS NOT is a licence for a model to write Estonian. It proposes a
+ * spelling; the forms list decides, exactly as `matchEstonianForm` decides
+ * about a photographed page (ADR-021) and a headline and a contributed
+ * sentence. A word none of the three can account for is still withheld whole.
+ */
+export async function sceneVouch(
+  context: SceneContext,
+  spellings: readonly string[],
+): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  const asking: string[] = [];
+  for (const word of new Set(spellings.map((w) => w.toLowerCase()))) {
+    if (context.lexicon.forms.has(word) || context.marker.known?.(word)) out.add(word);
+    else asking.push(word);
+  }
+  if (asking.length === 0) return out;
+
+  /*
+    The course before the forms list, because it is one cached read for the
+    whole set where the list is a shard off disk per first three letters, and
+    because a word the course teaches is one this app can say more about.
+  */
+  const course = await courseForms();
+  const left = asking.filter((word) => (course.has(word) ? (out.add(word), false) : true));
+  await Promise.all(left.slice(0, KNOWN_LOOKUPS).map(async (word) => {
+    if (await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
+
+/**
+ * THE DICTIONARY GROWS AS THE CONVERSATIONS DO.
+ *
+ * A composed line may now reach past the scene's own list, and a word the
+ * learner meets there is worth having as an entry: the panel under the line
+ * offers to keep it, the debrief lists what the conversation needed, and the
+ * next run of any scene can retrieve a sentence for it. So each new spelling
+ * is resolved to the headword it belongs to (`lemmasOfForm`, the forms list's
+ * own second answer) and, where the dictionary holds no entry for it, fetched
+ * from Ekilex.
+ *
+ * NOTHING HERE IS WRITTEN BY A MODEL, which is the whole of why this is safe.
+ * The model chose a spelling; the forms list says which word it is a form of;
+ * `lookupAndStore` asks the Institute, and what lands is Ekilex's own lemma,
+ * forms, level, government and recorded sentences, marked `EKILEX` like any
+ * other live lookup. A spelling neither can place adds nothing at all.
+ *
+ * Called after the reply has been sent, through `after()`, because it is two
+ * requests to a free academic service and nobody is waiting on it: the line is
+ * already on the screen, glossed with whatever the dictionary held at the time.
+ * `lookupAndStore` carries its own per-owner cap, its own miss cache and its
+ * own single flight, so a class meeting one new word costs one lookup.
+ */
+export async function growDictionary(ownerId: string, spellings: readonly string[]): Promise<void> {
+  for (const spelling of [...new Set(spellings.map((w) => w.toLowerCase()))].slice(0, NEW_WORD_LOOKUPS)) {
+    const lemmas = await lemmasOfForm(spelling).catch(() => []);
+    const lemma = lemmas[0];
+    if (!lemma) continue;
+    const held = await prisma.lexeme.findFirst({ where: { lemma }, select: { id: true } });
+    if (held) continue;
+    await lookupAndStore(ownerId, lemma).catch(() => null);
+  }
+}
+
+/**
+ * How many new words one turn will fetch. The gate lets a line reach past the
+ * scene's list by `NEW_WORDS`, so this is that and no more: a bound that could
+ * exceed what a line may hold would be a bound on nothing.
+ */
+const NEW_WORD_LOOKUPS = NEW_WORDS;
+
+/**
+ * The clock this run is telling, for the gate's `facts` check.
+ *
+ * A number said in words is still a number (`dealtHours`), and the check that
+ * catches an invented time could only see digits. What makes a line a claim
+ * about the appointment rather than a line with a count in it is the word a
+ * time is told with, so that is resolved here through the scene's own lexicon
+ * along with the hour words, and the card says which hours it actually dealt.
+ */
+export function clockInPlay(card: RoleCard | null, lexicon: Lexicon): GateContext["times"] {
+  const clock = lexicon.byLemma.get(CLOCK_LEMMA);
+  if (!clock || clock.size === 0) return undefined;
+  const hours = new Set<string>();
+  for (const lemma of HOUR_LEMMAS) for (const form of lexicon.byLemma.get(lemma) ?? []) hours.add(form);
+  return { clock, hours, dealt: dealtHours(card) };
 }
 
 /** Every lemma a scene may reach: its units, its beats' topics, its props, and the way out. */
