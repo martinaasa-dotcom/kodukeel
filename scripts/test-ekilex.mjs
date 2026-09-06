@@ -1,12 +1,10 @@
 import { launchChromium } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
-import { PrismaClient } from "@prisma/client";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
 const B = baseUrl();
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("delete a dictionary entry and re-fetch it"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("delete a dictionary entry and re-fetch it"));
 // Floor: ten checks, all unconditional.
 const { check, done } = suite("Ekilex lookup", { floor: 10 });
 const browser = await launchChromium();

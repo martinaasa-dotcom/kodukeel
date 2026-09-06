@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { PrismaClient } from "@prisma/client";
 import { launchChromium, eventually } from "./lib/browser.mjs";
+import { newPrismaClient } from "./lib/db.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
 import { requireLocalDatabase } from "./lib/local-db.mjs";
 
@@ -35,9 +35,7 @@ const WORD = "kodukeelparandustest";
 const MEANING = "a word invented for a test";
 const CORRECTED = "a corrected meaning";
 
-const prisma = new PrismaClient({
-  datasourceUrl: requireLocalDatabase("send suggestions and accept them into the dictionary"),
-});
+const prisma = newPrismaClient(requireLocalDatabase("send suggestions and accept them into the dictionary"));
 
 const { check, done } = suite("The suggestion loop", { floor: 17 });
 

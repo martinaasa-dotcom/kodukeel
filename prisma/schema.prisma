@@ -9,11 +9,12 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  // Supabase's pooled (pgbouncer) connection can't run schema changes;
-  // db push/migrate use the direct connection instead.
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  // The connection strings live in `prisma.config.ts` since Prisma 7, which no
+  // longer accepts `url` or `directUrl` here. Nothing about the arrangement
+  // changed: the CLI opens the direct connection, because Supabase's pooled
+  // (pgbouncer) one cannot run schema changes, and the app opens the pooled one
+  // through the driver adapter in `lib/db.ts`.
 }
 
 /// A dictionary word. Shared across every user — the dictionary is reference

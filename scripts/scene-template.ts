@@ -25,7 +25,7 @@
  * makes about itself.
  */
 import { writeFileSync } from "node:fs";
-import { PrismaClient } from "@prisma/client";
+import { newPrismaClient } from "../lib/db";
 import { emojiFor } from "@/lib/collections/emoji";
 import { SCENES, SCENE_LEMMAS } from "@/lib/collections/scenes";
 import { SCENE_ANSWERS } from "@/lib/collections/sceneAnswers";
@@ -38,7 +38,7 @@ function cell(value: string): string {
 }
 
 async function main() {
-  const prisma = new PrismaClient();
+  const prisma = newPrismaClient();
   const rows = await prisma.lexeme.findMany({
     where: { lemma: { in: [...SCENE_LEMMAS] }, pos: "NOUN" },
     select: { lemma: true, translation: true },

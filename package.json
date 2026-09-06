@@ -60,11 +60,9 @@
     "audit:homonyms": "tsx scripts/audit-homonyms.ts",
     "audit:decks": "tsx scripts/audit-decks.ts"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
-    "@prisma/client": "^6.1.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "@supabase/ssr": "^0.12.5",
     "@supabase/supabase-js": "^2.114.0",
     "lucide-react": "^0.469.0",
@@ -84,7 +82,7 @@
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.5.24",
     "playwright": "^1.49.1",
-    "prisma": "^6.1.0",
+    "prisma": "^7.10.0",
     "tailwindcss": "^4.0.0",
     "tsx": "^4.23.13",
     "typescript": "^5.7.2",
@@ -92,6 +90,7 @@
   },
   "overrides": {
     "postcss": "^8.5.26",
-    "deepmerge-ts": "^8.0.2"
+    "deepmerge-ts": "^8.0.2",
+    "mysql2": "^3.24.3"
   }
 }
