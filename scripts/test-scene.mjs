@@ -47,7 +47,7 @@ const prisma = new PrismaClient({
 const { check, absent, done } = suite("A conversation, end to end", {
   /*
     THE COUNT IN THE FULL STATE, which is a key configured, the allowance
-    unspent and the bank holding a row for a beat the run reaches: 41.
+    unspent and the bank holding a row for a beat the run reaches: 42.
     Keyless, the composed check is waived and the target drops by one; with
     an empty bank the scripted check is waived and it drops by one more. Each
     state differs by exactly as many checks as waivers, which is the
@@ -59,7 +59,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 41,
+  floor: 42,
 });
 
 /*
@@ -157,14 +157,28 @@ await page.waitForSelector('[role="log"] p', { timeout: TURN_MS });
 
 // ── The card, which is the thing a learner answers from ─────────────────────
 const card = await page.locator("details").innerText();
-check("the card says what you were given", /The time you were given: \d\d:\d\d/.test(card));
 /*
   THE CARD SHOWS WHAT IT POINTS AT. Six props across three scenes told a learner
   to read a word off the card and printed nothing, so two of this scene's three
   were unanswerable. In English, because saying it in Estonian is the exercise.
+
+  The witness used to be the time, and that was the wrong prop to prove it
+  with: a time prints itself, and the two here are the desk's, not the
+  learner's. The day this started is the learner's own fact and prints the
+  same way a word does.
 */
+check("the card says what you were given", /this day\.?\s*\n\s*[A-Z][a-z]+/.test(card));
 check("and what is wrong with you, in English", /What is wrong/i.test(card)
   && /\n[a-z][a-z ,'-]{2,}\n/.test(card));
+/*
+  AND NOT WHAT THE OTHER SIDE IS ABOUT TO SAY. The appointment this desk offers
+  and the slot it offers when the first will not do were both on this card, so
+  "take the time offered, or ask for another" was answerable before anybody had
+  offered anything and the counter-offer was visible before the first was
+  refused. `theirs` keeps a fact the other side utters off the card, and
+  `catalogue.test.ts` reads which props those are off the beats.
+*/
+check("and not the time the desk is about to offer", !/The time you were given/.test(card));
 check("the objectives are on screen from the start", (await page.getByText("Greet them back.").count()) > 0);
 
 // ── The first line, and where it came from ──────────────────────────────────
@@ -331,8 +345,28 @@ const nested = await page.evaluate(() => [...document.querySelectorAll("main *")
 check("the conversation is not a scrolling box inside a scrolling page", nested === 0,
   `${nested} nested scrollers`);
 await page.mouse.move(columnMiddle.x, columnMiddle.y);
+/*
+  TWO THINGS HAVE TO STOP MOVING BEFORE THE WHEEL MEANS ANYTHING.
+
+  The page comes down to the panel after a reply and it does it smoothly, so a
+  wheel rolled while that is in flight is two scrolls fighting and the
+  measurement lands wherever they met: this read "466 of 514" against a page
+  that reaches its end perfectly well a moment later. And the pointer has just
+  landed on a word of the transcript, which opens the dictionary under that
+  sentence and makes the page about 160px taller: rolling before it opens
+  reaches an end that is no longer the end, which read "587 of 747". So wait
+  for the height and the scroll both to settle, then roll.
+*/
+await page.waitForFunction(() => new Promise((settled) => {
+  const tall = document.documentElement.scrollHeight;
+  setTimeout(() => settled(document.documentElement.scrollHeight === tall), 250);
+}), null, { timeout: 10_000 }).catch(() => {});
+await page.waitForFunction(() => new Promise((settled) => {
+  const at = window.scrollY;
+  requestAnimationFrame(() => requestAnimationFrame(() => settled(window.scrollY === at)));
+}), null, { timeout: 10_000 }).catch(() => {});
 await page.mouse.wheel(0, 4_000);
-await page.waitForTimeout(400);
+await page.waitForTimeout(600);
 const reached = await page.evaluate(() => {
   const input = document.querySelector('input[aria-label="What you say"]').getBoundingClientRect();
   return {

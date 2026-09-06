@@ -10,7 +10,7 @@ import { Et } from "@/components/Et";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
-import { Card, Empty, Meter, Page } from "@/components/ui";
+import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sentenceMatches } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
@@ -208,13 +208,10 @@ function Options({
             onClick={() => onChoose(i)}
             className={`choice-btn ${settled ? OPTION_CLASS[optionState(isAnswer, picked)] : ""} flex min-h-[44px] items-center gap-3 rounded-[var(--r-sm)] border p-3 text-left`}
           >
-            <span
-              className="grid h-6 w-6 shrink-0 place-items-center rounded-[var(--r-sm)] text-xs"
-              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-              aria-hidden
-            >
-              {i + 1}
-            </span>
+            {/* Not `aria-hidden`: the number is a key this round answers to,
+                so hiding it takes the shortcut away from the one reader who
+                cannot see the option to point at it. */}
+            <KeyCap>{i + 1}</KeyCap>
             {lang === "et" ? <Et>{option}</Et> : <span>{option}</span>}
           </button>
         );

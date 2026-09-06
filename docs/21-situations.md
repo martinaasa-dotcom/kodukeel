@@ -2476,10 +2476,96 @@ scenes at all. Of the forty-five live claims the course makes, seven had a rehea
 one is `reviewed: false`. And a scene is still typed: the spoken unmarked mode of §11 is the same
 distance away it was.
 
-## 43. The screen the conversation is had on, which had stopped scrolling
+
+## 43. The fourteenth pass: the ask is the loudest thing on the screen
+
+**What was wrong.** Reported from a screenshot, by somebody mid-conversation: the line saying what
+to say next was "very hidden and hard to see". It was. `Your turn` and the beat's goal were a
+`text-sm` paragraph in the quiet ink, floating between the transcript and the box, set smaller than
+the Estonian above it and detached from the field it is an instruction for. The transcript is read
+once; the ask is read before every single turn, and it was the quietest text on the screen.
+
+Two things were missing beside it. Nothing said which step of the conversation was in play: the
+objectives carried a tick each, which says only what is behind you, and the beat the other side is
+actually waiting on was known to the screen the whole time in `beatId` and drawn nowhere. And the
+disclosure over the card said "Your card", which does not say that the list of what to get done is
+inside it, so a learner who collapsed it once had no reason to open it again.
+
+**What changed.**
+
+- The ask, the word the help button lent, the box and the send button are one accent-tinted panel.
+  Accent because it means "this is yours" and the primary action (`docs/14-design-system.md` §1),
+  and this is the one place on the screen the learner is being asked for something. The goal is set
+  above the size of the conversation rather than under it. The field keeps its own white ground, so
+  a box still reads as a box.
+- The send button is alone in its row, so nothing sits between the box and the thing pressed every
+  turn, and `Leave` is no longer beside it. The three quiet controls are a row underneath.
+- The objective in play is named: an arrow, the accent, bold, and a `Now` chip beside it, with the
+  count of what is behind you over the list. A count of ticks is not a meter (§7): there is no bar,
+  no clock and nothing draining, and it is the reading the debrief already gives.
+- The summary says "Your card and what to get done", and names the place beside it.
+- The placeholder says what language to answer in.
+
+**What this does not fix.** The panel is still below the transcript rather than pinned, so on a
+phone a long conversation is a scroll between reading what was said and answering it. Pinning it
+would put a second fixed element over the one the phone bar already owns, which is the measurement
+`lib/layout/dockClearance.ts` exists for, and is a bigger change than this one.
+
+## 44. The fifteenth pass: what playing one through found
+
+§43 was the screen a learner types into. This is what came out of playing scenes to their
+debriefs, walking out of one, and reading the role card of a third.
+
+**A card printed what the other side was about to say.** `theirs` marks a fact as the other
+side's, so it is drawn and stored and kept off the role card, and it was on the day a landlord
+offers and on nothing else. Three scenes draw a *time* the other side offers: the health centre's
+appointment, the second one it offers when the first will not do, and the hour a shop opens. All
+three printed on the learner's card, so "take the time offered, or ask for another" was answerable
+before an offer, the counter-offer was visible before the first was refused, and the shop scene's
+"say the time back, to check you heard it" needed no hearing. The flag is now on the time prop's
+type and on its draw, which is where it was missing under both. The rule is read off the beats
+rather than kept as a list: a slot whose value the other side utters, in a stage direction or in
+the line itself, is a fact the learner hears. `catalogue.test.ts` asserts it in both directions, so
+the learner's own facts stay on the card.
+
+**A reason given four times is furniture.** Somebody early enough to be reaching for the dictionary
+form reaches for it in every case they are asked for, so `diagnose` returned one reading per note
+and the debrief printed the identical paragraph under four headings. The first note to carry a
+reason keeps it and says how many notes it covers; the rest keep their heading, their line about
+the ending and the learner's own words. `It is the ending for into. into.` went with it, since the
+illative's hook was the plain word again and every other hook shows the ending doing something.
+
+**"Your Estonian was read every time" over a run where it was not.** The condition was that any
+turn had been read, and the sentence claims every one. It is the first line of the debrief, and the
+learner placed to catch it is the one who just watched two turns come back as "I did not catch
+that".
+
+**The page comes down to the box when it is your turn again.** `block: "nearest"`, so it does
+nothing when the box is already on screen, and `.dock-clear` is `.dock-pad`'s measurement spent as
+scroll margin, since `scrollIntoView` otherwise settles the panel under the phone bar.
+
+**The other side said nothing while it was answering.** A turn goes to the server to be marked and
+the reply can be a model's, so the wait is a second or two on a good day, and the screen showed
+nothing in it: the learner's own bubble appeared and the page sat still, which reads as a turn that
+did not register. Anu has had three dots since she was written, so `components/Dots.tsx` is now the
+one drawing of them, with the label as a parameter. Drawn only while the floor is theirs, since
+`busy` is also true while the help button fetches a word and while the run is being finished.
+
+**And the briefing said where you are twice.** The card was headed with the place, which the page
+above it prints as its lead. The role leads it now, with no heading, since a heading forty words
+long is a paragraph wearing an `h2`. The unit a scene takes apart was a bare link with no class on
+it, so the one thing in that header that goes anywhere rendered as plain dark text.
+
+**What this does not fix.** A native speaker has still read none of the bank. The transcript on the
+debrief is still every turn at full size, so the review under it is a scroll away on a long
+conversation.
+
+## 45. The screen the conversation is had on, which had stopped scrolling
 
 Reported with a screenshot: a scene open, the desk's question on screen, the box to answer it in cut
-off by the bottom of the window, and no way to get to it.
+off by the bottom of the window, and no way to get to it. Found and fixed the same day as §43, from
+the other end: that pass made the ask impossible to miss, and this one is why the page would not
+move when somebody went looking for it.
 
 The transcript was a `scroll-host` capped at 46vh, put there on the containment rule and sitting
 across the middle of the column. `.scroll-host` carries `overscroll-behavior: contain`, which is
@@ -2494,69 +2580,73 @@ frozen.
 Containment never asked for the box. It asks that nothing is drawn outside the box it was given,
 and a list that grows downward makes the page taller rather than overflowing anything; the
 first-run wizard had already taken the same shape out of its reasons grid for the same reason. So
-there is one scroller on this screen, the page, and the page follows the conversation: the opening
-line is deliberately not scrolled to, because it arrives as the scene opens and moving then would
-take the role card and the objectives off the screen before either had been read, and from the
-second turn on the page goes to its own end, which is where the reply and the box to answer it in
-both are.
+there is one scroller on this screen, the page. What brings the newest line into view is §43's own
+effect, which is the better half of two answers written the same day: it moves the page to the
+panel the learner answers in, does nothing at all when that is already on screen, and is still for
+anybody who asked for less movement. The scroll to the document end that came with this pass was
+deleted rather than left beside it.
 
 `scripts/test-scene.mjs` asks the two halves separately, since they fail separately: nothing inside
 the page is its own scroller, and a wheel rolled over the middle of the transcript reaches the box
 you answer in. Both were made to fail on the code that shipped, at 206 of 334.
 
-And a conversation opens at its own top. The briefing is taller than a phone, so the button that
-starts a scene is below the fold: measured at 360, it sits at 850 in a 740 window, so a learner has
-scrolled about 300px by the time they press it and that scroll was left where it was when the
-screen changed under them. What they were looking at then was the first line with the role card cut
-off 114px above the top of the window, on the one card the whole conversation is answered from, and
-the scene's own title gone. Nothing at a desktop width can see it, because there the briefing fits
-and the scroll is nought either way, so the check is in `scripts/test-mobile.mjs` at 360 rather
-than beside the other two.
+Two moments still open a screen at its own top rather than wherever the screen before it was left.
+A debrief is read from its own first line, which the flowing transcript would otherwise open 827px
+into. And a conversation opens at its top: the briefing is taller than a phone, so the button that
+starts a scene is below the fold, measured at 360 sitting at 850 in a 740 window, so a learner has
+scrolled about 300px by the time they press it and that scroll was left standing when the screen
+changed under them. What they were looking at then was the first line with the role card cut off
+114px above the top of the window, on the one card the whole conversation is answered from, and the
+scene's own title gone. Nothing at a desktop width can see it, so that check is in
+`scripts/test-mobile.mjs` at 360.
 
-## 44. What the debrief was actually saying
+## 46. What the debrief was actually saying
 
-Read off `npm run play:scenes` rather than off the code: a learner who put a noun in the wrong case
-was told, at the end of the conversation, *"It is the ending for into. into."*
+Found by reading `npm run play:scenes` rather than the code, and found by §43 the same day, which is
+worth writing down because the two fixes were different and the merge kept both halves.
 
 `CASE_NOTES` carries an `englishHook`, and it is written for the label it sits behind on the case's
-own page: **In English** · *of the book, the book's cover*. So it is a lower-case fragment by
-design, and the review pasted it straight after a full stop on all fourteen cases. The illative's
-hook is the word "into", the comitative's is "with, and by bus", so the note repeated the word it
-had just used and then stopped. `lib/assessment/items.ts` had already tried the hook in feedback
-and written down at length why it dropped it, which is the same reason one screen over.
+own page ("In English · of the book, the book's cover"), so it is a lower-case fragment by design.
+The review pasted it straight after a full stop on all fourteen cases; the illative's hook is the
+word "into", so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
+`lib/assessment/items.ts` had already tried the hook in feedback and written down why it dropped it.
 
-`summary` is the field that is a sentence, and it is the one the note takes now:
-*"It is the ending for into. Going into something: a room, a language, a decade, a mood."* The test
-is over every case rather than over the one that read worst, because the fault was in how the body
-was built and it was true of all of them: every sentence in a note's body opens with a capital, and
-no word is repeated across a full stop in lower case. It fails on the copy that shipped.
+§43 capitalises the hook, which keeps the reference page's own examples, and they are the better
+copy in twelve of the fourteen: *"It is the ending for in. In the house, in March, in a good mood."*
+lands where a definition would not. The illative is where it does not, because there the hook **is**
+the plain word: capitalised, the note reads "It is the ending for into. Into.", which is the same
+word twice and was the fault the whole way. So `saysMore` compares the two without punctuation or
+case, and where the hook adds nothing the `summary` answers instead, that being the field written as
+a sentence.
 
-## 45. The one loud action, which this screen had none of
+The test is over every case rather than over the one that read worst, because the fault was in how
+the body was built and it was true of all of them: every sentence in a note's body opens with a
+capital, and no word is repeated across a full stop in lower case. It fails on the copy that
+shipped.
+
+## 47. One loud action per round, on the screens that had none
 
 `components/Button.tsx` says it in its own header: only the primary carries the gradient, one loud
-action per screen, everything else quiet. Twenty-one of the twenty-five round screens in the app did
-that, and four did not.
+action per screen, everything else quiet. Twenty-one of the twenty-five round screens did that and
+four did not.
 
-A conversation is a typed round like flash cards and dictation, and both of those paint "Check it"
-in the accent. This screen drew "Say it" as an ordinary secondary pill, first in a row of four, so
-the thing the whole screen exists for was the same weight as "Leave". It sits in a row of its own
-now rather than at the end of the row under it, which is where "the primary sits last" would
-otherwise put it: last in that row is next to "Leave", and a submit pressed hundreds of times
-beside the button that ends the conversation is a thumb away from walking out mid-sentence. A column
-reads top to bottom and the primary leads, which is the shape flash cards already has.
+The conversation was one of them, and §43 fixed it in the course of building the ask panel: the send
+button is `primary` and alone in its row, with `Leave` moved out of reach of the thing pressed every
+turn. That is the same conclusion this pass reached from the other side and the same argument, and
+the panel is the better version of it, so it is the one kept.
 
-The debrief had the same gap and it mattered more than it looks, because the screen argues in its
-own words that "the second run of a scene is where most of it sticks" and then drew "Have it again"
-quieter than the link away from it. The row is the quiet way out first and the loud one last now,
-which is what every other finish screen in the app does.
+The other three stand. The **debrief** argues in its own words that "the second run of a scene is
+where most of it sticks" and then drew "Have it again" quieter than the link away from it; the row
+is the quiet way out first and the loud one last now. The **unit lesson** offered "Start these 6
+words", the only thing to press on the way into the course, in the same weight as the "Leave" two
+lines above it. The **crossword** marked its own "Check" `secondary` beside a ghost that hands over
+the answer, and that row is reordered so the loud one is on the right.
 
-The other two were outside Situations and are the same fault: the unit lesson offered "Start these
-6 words", the only thing to press on the way into the course, in the same weight as the "Leave" two
-lines above it, and the crossword marked its own "Check" `secondary` beside a ghost that hands over
-the answer. The invariant asks only that a round has a primary at all, since where it sits in its
-row is a rule that already existed, and it was made to fail on each.
+The invariant asks only that a round has a primary at all, since where it sits in its row is a rule
+that already existed. It covers the conversation's debrief by name, that being the one round whose
+finish screen is a module of its own, and it was made to fail on each.
 
-## 46. The check that had never once run
+## 48. The check that had never once run
 
 `scripts/test-scene.mjs` ends with two questions only a browser can answer: a composed line is one
 short sentence, and a scripted line is one short sentence that says it was scripted. Both waived
@@ -2569,8 +2659,7 @@ along to the next paragraph. That was right when it was written and stopped bein
 grew the dictionary under it: `GlossedSentence` puts two more elements between the two, so every
 label came back as an empty string and no line matched any rung. Both checks fell through to their
 waivers and the floor stayed satisfied, because a waiver lowers the floor by exactly as much as it
-skips. This is the shape §42 of the status doc calls a hole wearing a waiver's clothes, and it is
-the second one found in this repository the same way.
+skips. This is the shape §42 of the status doc calls a hole wearing a waiver's clothes.
 
 The rung is an attribute on the line's own wrapper now, `data-rung`, which is a fact about the line
 rather than a shape in the markup, and the words under the bubble stay beside it for the reader. The
@@ -2579,20 +2668,27 @@ suite reads the attribute, and a third check says the two agree for every line s
 whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
 the one the bank was built for.
 
-## 47. The caret, which the button took and did not give back
+Three more checks in the suites were the same family and are in the same pass. Sonad's board
+asserted `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`, which is true of any
+six things; the edit suite printed PASS beside "0 gap-fill card(s)", `every` on nothing being true;
+and this suite's own report-button check opened `spoken === 0 || ...`, which passes when there is
+nothing on screen to report.
+
+## 49. The caret, which the button took and did not give back
 
 "Say it" disables itself the moment the draft is empty, which is the moment the turn is sent, and a
 browser moves focus off a control it has just disabled. Measured: `document.activeElement` was
 `BODY` after every turn taken with the mouse. So a learner clicked into the box, typed, pressed the
-button, and then had to click into the box again, for every turn of the conversation; somebody
-working from the keyboard could not carry on at all without tabbing back. Answering with Enter never
-had the fault, because the box keeps focus there, which is why it survived this long.
+button, and had to click into the box again, for every turn of the conversation; somebody working
+from the keyboard could not carry on without tabbing back. Answering with Enter never had the fault,
+because the box keeps focus there, which is why it survived this long.
 
-The caret goes back where focus was **lost**, never where it was put: if it sits on a word of the
-last line, on the report button, or anywhere the learner chose, it stays there, and that was driven
-both ways. There is deliberately no focus when a scene opens: the box is at the bottom of the page,
-so focusing it would scroll the role card off a phone and open the keyboard over the first thing
-there is to read.
+It rides on §43's effect, which already runs at exactly the right moment, when a line from the other
+side lands. The caret goes back where focus was **lost**, never where it was put: if it sits on a
+word of the last line, on the report button, or anywhere the learner chose, it stays there, and that
+was driven both ways. There is deliberately no focus when a scene opens, since the box is at the
+bottom of the page and focusing it would scroll the role card off a phone and open the keyboard over
+the first thing there is to read.
 
 `scripts/test-scene.mjs` takes its turn with the mouse for exactly this reason and asks where the
 caret is. It fails, at `BODY`, on the line before this one.

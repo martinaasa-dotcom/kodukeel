@@ -49,7 +49,7 @@ export function WordsTable({ rows }: { rows: CardRow[] }) {
             type="button"
             onClick={() => setFilter(f)}
             aria-pressed={filter === f}
-            className="choice-btn press rounded-full border px-3.5 py-1.5 text-xs"
+            className="choice-btn rounded-full border px-3.5 py-1.5 text-xs"
             style={filter === f ? {
               borderColor: "transparent",
               background: "var(--accent-deep)",

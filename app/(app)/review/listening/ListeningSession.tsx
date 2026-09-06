@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Check, Headphones, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
-import { Chip, Empty, Page, StatTile } from "@/components/ui";
+import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -13,7 +13,7 @@ import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -274,14 +274,18 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                 type="button"
                 disabled={answered || busy}
                 onClick={() => void pick(choice)}
-                className={`${state} press flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold transition-ui hover:-translate-y-0.5 disabled:cursor-default disabled:hover:translate-y-0`}
-                style={answered ? undefined : { background: "var(--raised)", borderColor: "transparent", color: "var(--ink)" }}
+                className={`choice-btn ${state} flex items-center gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-base font-semibold disabled:cursor-default`}
+                style={answered ? undefined : {
+                  "--choice-bg": "var(--raised)",
+                  "--choice-border": "transparent",
+                  color: "var(--ink)",
+                } as CSSProperties}
               >
                 {/* One character, so axe files it as "too short to determine"
                     and the sweep used to drop the measurement on the floor.
                     At 60% this read 2.46 to 4.16 depending on which of the
                     four tones the option was wearing. */}
-                <kbd className="text-2xs">{i + 1}</kbd>
+                <KeyCap>{i + 1}</KeyCap>
                 <span className="flex-1">{choice}</span>
                 {answered && isCorrectChoice && <Check size={15} aria-hidden />}
                 {answered && isPicked && !isCorrectChoice && <X size={15} aria-hidden />}
@@ -294,7 +298,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
               Continue
-              <kbd className="ml-1 rounded-md px-1.5 py-0.5 text-2xs key-cap">Space</kbd>
+              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
             </Button>
           </div>
         )}

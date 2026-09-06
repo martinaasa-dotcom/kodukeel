@@ -5178,6 +5178,9 @@ shape that breaks this and it is the natural thing to write, so the invariant re
 - **One loud action per round, which is `components/Button.tsx`'s own header.** It says it in the
   file: only the primary carries the gradient, one loud action per screen, everything else quiet.
   Twenty-one of the twenty-five round screens did that and four did not, each the same shape. The
+  conversation was one of them, and two sessions reached the same conclusion about it on the same
+  day from opposite ends, one building the ask panel and one sweeping the rounds; the panel is the
+  version kept, with the send button alone in its row and Leave out of reach of it. The
   lesson offered "Start these 6 words", the only thing to press on the way into the course, in the
   same weight as the "Leave" two lines above it; the checkpoint drew "Finish" as an ordinary pill;
   the crossword marked its own "Check" `secondary` beside a ghost that hands over the answer; and a
@@ -5204,6 +5207,80 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   of its own. Enter with a modifier is still how a textarea submits and the answer field's own
   `onEnter` is the field's, so the invariant is drawn on a bare comparison against either key in a
   session file.
+- **And the button names one of the two, drawn one way, everywhere.** The rule above settles which
+  keys work; it said nothing about what the button claims, and the claims had drifted twice over.
+  A first meeting offered "Got it, ask me later" with `Space` on the cap and the card after it
+  offered "Got it, next" with `Enter`, for one gesture that had taken both keys all along, and the
+  footer under both said Space. Two names for one gesture on two consecutive screens reads as two
+  gestures, so a learner either reaches for the mouse or finds out by pressing. The cap came in
+  four shapes as well: a filled one for `Space` and the grade keys, a bare `<kbd>`, which no
+  stylesheet here paints, so `↵` and `u` were drawn as small monospace text rather than as keys, and
+  a bordered one on each of the two reference lists. `ADVANCE_KEY_LABEL` in `lib/ux/advanceKey.ts`
+  is the name and `KeyCap` in `components/ui.tsx` is the drawing. **The cap is a hairline printing
+  in the ink around it**, and the fill it used to carry everywhere belongs to the gradient alone,
+  which is a rule in `app/globals.css` rather than a prop, because a caller cannot be asked to know
+  which ground it is standing on: a translucent fill darkens the ground a hue's ink was measured
+  against, so a grade key on a verdict tile fell from 5.12 to 3.53 in the light and from 8.63 to
+  3.04 in the dark, an option numeral on `option-other` to 2.18, and the hint in the minimal-pairs
+  caption to 2.37, which is the one axe caught. Two of those had shipped that way before this was
+  one component. **Enter rather than Space**, because Space is a letter inside
+  a text box: `isAdvanceKey` takes it only outside one, so a typed card promising it would be lying
+  on the shape where a shortcut is worth most, and Enter is the half with no exception. Space still
+  works everywhere it worked before, and the settings sheet and the shortcut dialog are where both
+  are written down, because those are references rather than buttons. `⌘ Enter`, which is the
+  textarea submit, and `⌫` are different gestures and keep their own names, spelled the same way.
+- **An option is one control, and the number that picks it is one cap.** Nine screens put four
+  answers up and let 1 to 4 press them, and each had drawn that its own way. The button:
+  `.choice-btn` is the one option and its own comment in `app/globals.css` says a caller passes a
+  tone through `--choice-bg` rather than an inline `background`, because an inline style beats a
+  class `:hover` silently. The review card and the listening round were painting their ground
+  inline, so the two most-pressed sets of options in the app could never define a hover and moved
+  under a pointer without changing at all; and `.press` beside `.choice-btn` is a second `:active`
+  on one control, of which the later rule in the stylesheet wins. The numeral: a `KeyCap` on five
+  screens, a round badge on the review card, an `--raised` pill on the learn ladder, an
+  accent-soft square on the unit lesson and another circle on the level check, that last one
+  `aria-hidden`, so the shortcut was hidden from the reader least able to point at the option
+  instead. **A numeral is a cap where a key presses it**, which is what the sweep reads its file
+  list off: a screen binding `Number(e.key)` is a screen where the number is a key, and a list
+  numbered 1, 2, 3 with nothing behind it, on the worksheet or the settings order panel, is a list
+  marker and stays one. Every numeral moved onto the option's own ink, which is 15.88 against 5.62
+  on the ladder and unchanged on the review card. Three arms, each made to fail on a real line.
+- **And the shortcut sheet says every shortcut the app has, which is a claim rather than a
+  heading.** `R` plays the word again on minimal pairs, is drawn on that round's own button, and
+  was in neither reference list, so the one place a learner goes to find out what the keyboard does
+  did not know about it.
+- **And a control with no hover at all is the same fault as one that dims.** The rule above it is
+  about a hover that makes a control *less* present; nothing checked the case underneath, which is
+  a control that answers a pointer with nothing, and reads exactly the same to somebody working out
+  what is pressable by pointing at it. Twelve were drawn as a run of text with nothing behind them:
+  Undo on the daily path, Cancel on the add-a-word form, Close on Anu's panel, Leave and Archive on
+  a class, both copy buttons in the setup guides, the two translate buttons and the forms
+  disclosure. `.tap-tint` is what the conventions already name for a bare row or an icon button,
+  with the padding the tint needs. **And no negative margin to pull the text back**, which was the
+  first draft of this and which `scripts/test-containment.mjs` refused: "Archive this class" sits
+  in a bare `flex-wrap` row with no padding to absorb it, so the control hung six pixels outside
+  the row it belongs to, at every width and in both themes. A tinted control is inset by its own
+  padding, which nobody notices, rather than aligned by a margin that escapes half the rows it is
+  in. The sweep reads
+  a `<button>` whose className is written out as a string, which is every hand-drawn control, since
+  a className built from a variable belongs to a component that has already decided. `underline`
+  passes, because a button drawn as underlined text is a link wearing the right element. Two are
+  exempt by name: the scrim behind the phone sheet, which is a close target rather than a labelled
+  control, and the command palette's rows, which are painted from `active` so the pointer and the
+  arrow keys cannot disagree about which row is next.
+- **And a marked answer says so out loud.** Every round tells a learner how it went in a tint, a
+  chip and a sentence, and six screens said all of it in silence. The level check was the worst:
+  focus moves to "Next question" with `autoFocus`, so somebody sitting a fifteen-minute placement
+  heard the button fifteen times and never once heard whether they had got it right, on the one
+  screen whose whole output is feedback. The daily quest revealed the answer with nothing announced
+  at all, the learn ladder marked a first meeting the same way, and the three boards marked in
+  movement alone: a matched pair pops out, a wrong one shakes, a checked letter turns peach. A live
+  region is the answer everywhere, and **on a board it is one line held in state rather than
+  derived**, so a fast player is read the last thing that happened rather than a backlog of every
+  pair, and a crossword is not re-read on every keystroke after Check. The trigger is the palette's
+  own marking classes, because a screen that paints an answer right or wrong has something to say
+  about it; the one exemption is an examination result, which is a page reached by navigating to
+  it, where the heading is the announcement and a live region would fight it.
 - **A shortcut works wherever the control it presses is drawn, and "drawn" is one question with one
   name.** A new card in review leads with its answer, because a card you have never seen cannot be
   recalled, only met, so `askFor` returns `intro` and the rating buttons arrive with it. `revealed`
@@ -5281,15 +5358,22 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   reached. It reads as an app that has frozen, and it was reported as one. The first-run wizard
   had already removed the same shape from its reasons grid. Containment never asked for a second
   scroller: it asks that nothing is drawn outside the box it was given, and a list that grows
-  downward makes the page taller rather than overflowing anything. So the conversation is the page
-  and the page follows it, and `scripts/test-scene.mjs` rolls the wheel over the transcript and
-  asks where the page ended up, because no source check can see this and both halves of it were
-  made to fail on the code that shipped. A screen that replaces itself opens at its own top, which
+  downward makes the page taller rather than overflowing anything. So the conversation is the page,
+  what brings the newest line into view is the ask panel's own `scrollIntoView`, which does nothing
+  when the box is already on screen and is still for anybody who asked for less movement, and
+  `scripts/test-scene.mjs` rolls the wheel over the transcript and asks where the page ended up,
+  because no source check can see this and both halves of it were made to fail on the code that
+  shipped. It waits for the page to stop moving before it rolls, since a wheel against a smooth
+  scroll still in flight measures where the two met. A screen that replaces itself opens at its own top, which
   is the same rule one moment earlier: the briefing is taller than a phone, so the button that
   starts a scene is at 850 in a 740 window, and the scroll a learner did to reach it was left
   standing when the screen changed under them, opening the conversation with the card it is
   answered from cut off above the top of the window. `scripts/test-mobile.mjs` asks that at 360,
-  because at a desktop width the briefing fits and the scroll is nought either way.
+  because at a desktop width the briefing fits and the scroll is nought either way. The same
+  boundary holds the other way round: a screen that follows the conversation down to the box does
+  not do it on the line that opens the scene, since there is no "again" yet and what stands above
+  the conversation is the card the learner answers from. Measured at 531px in, with that card 320px
+  above the top of the window.
 - **Nothing may be `position: fixed` over moving content and carry a `backdrop-filter`.** That
   pairing re-filters its backdrop every frame of every scroll; Upside Lab measured it at 42
   repainted frames in one pass down a phone screen, the worst a third of a screen behind where the

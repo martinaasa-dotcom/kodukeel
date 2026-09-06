@@ -65,6 +65,25 @@ describe("case notes", () => {
   });
 
   /*
+    AND THE HOOK SHOWS THE ENDING DOING SOMETHING.
+
+    `plain` is the one English word for the ending and the hook is what makes
+    it land, so a hook that only says the plain word again is a line that
+    reads as a stutter wherever the two are printed together. They are: the
+    scene review says "It is the ending for into. into.", which is what
+    found this, and the case page prints them a row apart. `englishHook` on
+    the illative was the word "into" and nothing else.
+  */
+  it("shows the ending doing something rather than repeating the plain word", () => {
+    const bare = (s: string) => s.toLowerCase().replace(/[.,;:]/g, "").trim();
+    for (const note of CASE_NOTES) {
+      if (!note.englishHook) continue;
+      expect(bare(note.englishHook), note.key).not.toBe(bare(note.plain));
+      expect(note.englishHook.length, note.key).toBeGreaterThan(note.plain.length + 4);
+    }
+  });
+
+  /*
     THE ENDING IS WHAT THE SCREEN LEADS WITH, so it has to be an English word
     a learner already has. `plain` holding "inessive" would be the Latin name
     wearing the plain field's clothes, and the page would be back where it
