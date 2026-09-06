@@ -42,8 +42,18 @@ import { QUESTION_SHAPE, type BeatSpec } from "./types";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch",
+  "stretch", "clause",
 ] as const;
+
+/**
+ * How long a line has to be before it is expected to hold a finite verb.
+ *
+ * Two exemptions and each is a kind of line people say. A greeting or a
+ * farewell is a phrase with no verb in it, and a short elliptical question is
+ * one anybody asks: `Mis kell?`, `Neljapäev?`. Four is where `Kus pood praegu
+ * olema?` sits, which is the line this exists for.
+ */
+export const FINITE_VERB_FLOOR = 4;
 
 /**
  * How many words of a line may be ones this scene has not declared.
@@ -157,6 +167,18 @@ export interface GateContext {
    * Handed in resolved, like everything else here, because this module holds
    * no Estonian.
    */
+  /**
+   * Whether a spelling is a finite verb form, which is what makes a run of
+   * words a clause somebody said.
+   *
+   * The bank has been held to this since it was drafted and the live path
+   * never was, which is the third rule the two sides disagreed about. Read on
+   * a real transcript: `Mis teie pilet tahta?` and `Kas te maksete sularaha
+   * või kaardiga?` are both inside the word list, in the right register, and
+   * neither is a sentence. A line with no verb in it is the most obviously
+   * broken thing a model produces here.
+   */
+  readonly hasFiniteVerb?: (word: string) => boolean;
   readonly times?: {
     readonly clock: ReadonlySet<string>;
     readonly hours: ReadonlySet<string>;
@@ -304,6 +326,8 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
 
   if (context.answers && tokens.some((word) => context.answers!.has(word))) failed.push("giveaway");
 
+  if (noClause(tokens, stretched, beat, context)) failed.push("clause");
+
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
     made. Read off the raw text rather than off `tokens`, because the tokenizer
@@ -313,6 +337,36 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (invented(text, context.dealt) || inventedHour(tokens, context.times)) failed.push("facts");
 
   return { failed, unknown, stretched };
+}
+
+/**
+ * WHETHER A RUN OF WORDS IS A CLAUSE SOMEBODY SAID.
+ *
+ * `Kus pood praegu olema?` passes every check about vocabulary and is not a
+ * sentence, and a real transcript produced `Mis teie pilet tahta?` at a ticket
+ * window. What is missing in each is the finite verb, and this app can list
+ * every one it knows without a parser: the stored principal parts plus
+ * `derivedVerbForms`, which `npm run audit:verbs` checked against Ekilex on
+ * 797 verbs.
+ *
+ * DRAWN AS WEAKLY AS IT CAN BE AND STILL BE A CHECK, which here means it
+ * stands down on any line that reached past the scene's own list. The
+ * predicate is built from the scene's own verbs, so a stretched verb form is a
+ * word it has never heard of and reading that as "no verb" would withhold the
+ * natural line for being natural. What is left is the case it is certain
+ * about: every word in the scene's own list, four or more of them, and not one
+ * of them a verb anybody could have said.
+ */
+function noClause(
+  tokens: readonly string[],
+  stretched: readonly string[],
+  beat: BeatSpec,
+  context: GateContext,
+): boolean {
+  if (!context.hasFiniteVerb || stretched.length > 0) return false;
+  if (beat.move === "greet" || beat.move === "close") return false;
+  if (tokens.length < FINITE_VERB_FLOOR) return false;
+  return !tokens.some((word) => context.hasFiniteVerb!(word));
 }
 
 /**

@@ -40,12 +40,13 @@ import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/repl
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
+import { passes, runGate } from "../lib/scenes/gate";
 import { PERSONAS } from "../lib/scenes/personas";
 import { answerBeatId } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
-import { caseKeyFor, words } from "../lib/scenes/lexicon";
+import { caseKeyFor, words, type Lexicon } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
@@ -79,6 +80,20 @@ const LINKS = composing
   ? providerChain().filter((link) => !pinned || link.model === pinned)
   : [];
 const COMPOSE_STATUS = new Map<string, number>();
+
+/**
+ * The app's own vouching, minus the course read that needs a database: is this
+ * spelling Estonian at all (`sceneVouch`). Without it this harness plays a
+ * scene whose other side may only say the lemmas its units declare, which is
+ * not the app.
+ */
+async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
 
 async function askModel(
   ask: Parameters<typeof composeLive>[0],
@@ -232,7 +247,6 @@ async function play(sceneId: string) {
       more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [],
     };
     let aside = wantsAside ? asideFor(asking) : null;
-    if (wantsAside && !aside && asideOwed(asking)) aside = shrug(context.lexicon);
 
     let line = null;
     if (spokenFor && !(spokenFor.awaits && !standing)) {
@@ -246,6 +260,41 @@ async function play(sceneId: string) {
         ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
         { role: "user" as const, content: t.said },
       ]);
+      /*
+        AND THE QUESTION THEY WERE NOT EXPECTING IS ANSWERED BY A MODEL, WHICH
+        THIS HARNESS NEVER DID.
+
+        The route spends the turn's one booking on an aside where the learner
+        asked something, and this went straight to `Ei tea.` whenever the bank
+        had no answer: read here, a barista asked where to go said "I don't
+        know" and the transcript looked like the app being cold, when the app
+        would have answered. That is the same fault as an eval that resolves
+        vouching once (§53) and it is worth more, because these transcripts are
+        what anybody reads to decide whether the module sounds like a person.
+      */
+      if (wantsAside && !aside && asideOwed(asking) && LINKS.length > 0) {
+        const drafted = await askModel({
+          move: "answer",
+          they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+          reading: "",
+          examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
+          avoid: [],
+        }, {
+          scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+          register: scene.register, words: [...context.lexicon.byLemma.keys()],
+        }, talk);
+        const asked: BeatSpec = { ...spokenFor, id: `aside:${spokenFor.id}`, move: "confirm", topic: [] };
+        const vouched = drafted ? await vouchOf(context.lexicon, words(drafted)) : new Set<string>();
+        const verdict = drafted ? runGate(drafted, asked, {
+          ...context.gate,
+          dealt: dealtNumbers(card ?? draw.card),
+          times: clockInPlay(card ?? draw.card, context.lexicon),
+          vouched: (word: string) => vouched.has(word),
+        }) : null;
+        if (drafted && verdict && passes(verdict)) aside = { text: drafted, provenance: "composed" };
+      }
+      if (wantsAside && !aside && asideOwed(asking)) aside = shrug(context.lexicon);
+
       const cheap = await sceneLine({
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
@@ -262,13 +311,7 @@ async function play(sceneId: string) {
           it this harness plays a scene whose other side may only say the few
           hundred lemmas its units declare, which is not the app.
         */
-        vouch: async (spellings: readonly string[]) => {
-          const out = new Set<string>();
-          await Promise.all([...new Set(spellings)].map(async (word) => {
-            if (context.lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
-          }));
-          return out;
-        },
+        vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {

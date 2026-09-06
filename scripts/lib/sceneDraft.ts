@@ -41,7 +41,7 @@ import type { CaseKey } from "../../lib/estonian/types";
 */
 import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS, REPLY_TOKENS } from "../../lib/tutor/provider";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
-import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
+import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
 
 export { answerForms };
@@ -222,7 +222,7 @@ for (const entry of shipped) {
  * nothing is asked. Four is where "Kus pood praegu olema?" sits, which is the
  * line this exists for.
  */
-export const FINITE_VERB_FLOOR = 4;
+export { FINITE_VERB_FLOOR };
 export function lacksFiniteVerb(text: string, beat: BeatSpec): boolean {
   if (beat.move === "greet" || beat.move === "close") return false;
   const tokens = words(text);

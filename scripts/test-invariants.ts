@@ -12849,6 +12849,21 @@ check("a learner who says they are lost is handed the word, never the question a
     "growDictionary writes a dictionary row itself rather than through the live lookup, so a word a "
     + "model chose could reach the dictionary without the Institute being asked",
   );
+  /*
+    And a run of words is not a clause until it holds a verb, which the bank has
+    been held to since it was drafted and the live path never was: `Mis teie
+    pilet tahta?` reached a learner at a ticket window.
+  */
+  assert.match(
+    gate, /if \(noClause\(tokens, stretched, beat, context\)\) failed\.push\("clause"\)/,
+    "the gate stopped asking whether a composed line is a clause, so a run of words with no verb "
+    + "in it is a line the other side says",
+  );
+  assert.match(
+    code("lib/scenes/line.ts"), /hasFiniteVerb: request\.hasFiniteVerb/,
+    "the ladder stopped handing the gate the finite verbs, so the clause check is off on every "
+    + "composed line",
+  );
   assert.match(
     code("app/api/scene/route.ts"), /after\(\(\) => growDictionary\(/,
     "the scene route fetches new words on the request's own clock, so a learner waits on Ekilex for "

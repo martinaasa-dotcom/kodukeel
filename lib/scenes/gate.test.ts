@@ -370,3 +370,39 @@ describe("a line that reaches past the scene's own list", () => {
     expect(runGate("Kas teil on peavalu?", beat(), context()).failed).toContain("vouching");
   });
 });
+
+/**
+ * AND THE NINTH: A RUN OF WORDS IS NOT A CLAUSE UNTIL IT HOLDS A VERB.
+ *
+ * The bank has been held to this since it was drafted and the live path never
+ * was. Read off a real transcript: `Mis teie pilet tahta?` at a ticket window
+ * and `Kas te maksete sularaha või kaardiga?` are both inside the word list,
+ * in the right register, and neither is a sentence anybody says.
+ */
+describe("a line with no verb in it", () => {
+  const finite = context({ hasFiniteVerb: (word: string) => word === "on" });
+
+  it("is withheld once it is long enough to have needed one", () => {
+    expect(runGate("Kas teil valu olema?", beat(), finite).failed).toContain("clause");
+    expect(runGate("Kas teil on valu?", beat(), finite).failed).not.toContain("clause");
+  });
+
+  it("says nothing about a short elliptical question, which anybody asks", () => {
+    expect(runGate("Kus valu?", beat(), finite).failed).not.toContain("clause");
+  });
+
+  it("says nothing about a greeting, which is a phrase with no verb in it", () => {
+    expect(runGate("Kas teil valu olema?", beat({ move: "greet" }), finite).failed)
+      .not.toContain("clause");
+  });
+
+  /*
+    And it stands down on a line that reached past the scene's list, because
+    the predicate is built from the scene's own verbs: reading a stretched verb
+    form as "no verb" would withhold the natural line for being natural.
+  */
+  it("says nothing about a line holding a word the scene does not teach", () => {
+    const wide = context({ hasFiniteVerb: (word: string) => word === "on", vouched: () => true });
+    expect(runGate("Kas teil peavalu olema?", beat(), wide).failed).not.toContain("clause");
+  });
+});

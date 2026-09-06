@@ -377,6 +377,11 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
         run answered the beat that wants `poes` with `Kas sa juba oled poes?`.
       */
       answers: answerForms(request.beat, request.lexicon),
+      /*
+        And whether a run of words is a clause somebody said, which the bank
+        has been held to since it was drafted and the live path never was.
+      */
+      hasFiniteVerb: request.hasFiniteVerb,
     };
     const judge = async (line: string | null) => {
       if (!line) return null;
