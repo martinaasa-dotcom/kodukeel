@@ -2,16 +2,17 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { BarChart3, EyeOff, Keyboard, PenLine } from "lucide-react";
+import { AlignLeft, BarChart3, EyeOff, Keyboard, PenLine, Underline } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import {
-  setClassDisplayName, setLetterBar, setResearchParticipation, setReviewMode,
+  setClassDisplayName, setLetterBar, setResearchParticipation, setReviewMode, setWordGloss,
 } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { LetterSample } from "@/components/DiacriticBar";
 import type { ReviewMode } from "@/lib/settings/store";
 import { LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
+import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
 import type { Participation } from "@/lib/research/participation";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
@@ -111,6 +112,52 @@ export function LetterBarPanel({ current }: { current: LetterBar }) {
         ))}
       </ChoiceGroup>
     </div>
+  );
+}
+
+/**
+ * Whether every word of an attested sentence is underlined and openable.
+ *
+ * Two cards rather than a switch, for the reason the research panel gives
+ * about itself: "on" and "off" do not say what is being turned off, and
+ * somebody who has met this once under a review card knows it as underlines
+ * rather than as a feature with a name. Each side says what happens to the
+ * sentence, and neither says which is the better learner to be.
+ *
+ * It sits under Meanings because that is what it is: the same question as
+ * which language a gloss is given in, asked about the words around the one
+ * being taught rather than about the word itself.
+ */
+export function WordGlossPanel({ current }: { current: WordGloss }) {
+  const [value, setValue] = useState(current);
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const pick = (next: WordGloss) => {
+    setValue(next);
+    start(async () => {
+      await setWordGloss(next);
+      // The answer is read on the server when a sentence is looked up, so the
+      // screens holding one have to be built again rather than repainted.
+      router.refresh();
+    });
+  };
+
+  return (
+    <ChoiceGroup ariaLabel="Words in a sentence" className="grid gap-2 sm:grid-cols-2">
+      {WORD_GLOSS_CHOICES.map((o) => (
+        <ChoiceCard
+          key={o.value}
+          layout="stacked"
+          disabled={pending}
+          selected={value === o.value}
+          onSelect={() => pick(o.value)}
+          icon={o.value === "on" ? <Underline size={16} aria-hidden /> : <AlignLeft size={16} aria-hidden />}
+          title={o.label}
+          detail={o.detail}
+        />
+      ))}
+    </ChoiceGroup>
   );
 }
 

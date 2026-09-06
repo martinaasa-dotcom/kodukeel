@@ -129,6 +129,19 @@ export const SETTING_KEYS = {
    */
   glossLanguage: "glossLanguage",
   /**
+   * Whether the dictionary is put under every word of an attested sentence.
+   *
+   * A first meeting and a line in a conversation both underline every word
+   * `matchEstonianForm` will vouch for, and a panel under the sentence says
+   * what one means. It is the difference between a sentence somebody can read
+   * and one they can only look at, and it is also six underlines across a line
+   * a learner is trying to read, which was reported as exactly that. On by
+   * default, because a missing row has to read as the behavior everybody had;
+   * off means the lookup is never made rather than made and hidden. The values
+   * and the reasoning live in lib/ux/wordGloss.ts.
+   */
+  wordGloss: "wordGloss",
+  /**
    * Whether this learner's reviews are counted in the anonymous statistics.
    *
    * `/api/research` turns the review log into accuracy per grammatical case,

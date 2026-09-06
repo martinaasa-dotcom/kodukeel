@@ -1,8 +1,9 @@
 "use client";
 
 import { useId, useState, useTransition } from "react";
-import { BookOpen, Check, Loader2, Plus, X } from "lucide-react";
-import { addToDeck } from "@/app/actions";
+import { useRouter } from "next/navigation";
+import { BookOpen, Check, Loader2, Plus, Underline, X } from "lucide-react";
+import { addToDeck, setWordGloss } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Speak } from "@/components/Speak";
@@ -31,8 +32,19 @@ import type { Condition } from "@/lib/audio/conditions";
  * word is picked or it is closed. If leaving cleared it, the mouse could never
  * reach the controls inside it, which is the half of this that a learner
  * actually presses.
+ *
+ * AND THE PANEL CARRIES THE WAY OUT, for the reason the letter bar's own cross
+ * does: the moment somebody decides they do not want six underlines across a
+ * sentence they are reading is the moment one is open in front of them, and a
+ * setting three screens away is a setting they will not go and find. Pressing
+ * it turns the sentence plain here and now, so the answer is visible before
+ * the round trip that stores it, and Settings is where it is turned back on,
+ * which the control says. Whether the dictionary was consulted at all is the
+ * server's decision (see lib/ux/wordGloss.ts): a learner who has turned this
+ * off is handed no tokens on the next screen, so this component is never asked
+ * to draw a feature nobody wants.
  */
-export function GlossedSentence({ tokens, sentence, speak }: {
+export function GlossedSentence({ tokens, sentence, speak, onTurnedOff }: {
   tokens: GlossedToken[];
   /** The sentence as recorded, for the speaker. Joining the tokens gives the same string. */
   sentence: string;
@@ -51,10 +63,29 @@ export function GlossedSentence({ tokens, sentence, speak }: {
     rate?: number;
     autoplay?: boolean;
   };
+  /**
+   * Told once, where the screen around the sentence says something about the
+   * underlines being there.
+   *
+   * The first meeting's provenance line reads "Any underlined word opens its
+   * meaning", which is true of the server's answer and false for the second
+   * between the press and the refresh landing. A screen may not say a thing is
+   * there while the reader is looking at it not being there, and the caption
+   * cannot see this component's own state. A conversation says nothing about
+   * underlines and passes none.
+   */
+  onTurnedOff?: () => void;
 }) {
   const panelId = useId();
   const [open, setOpen] = useState<number | null>(null);
-  const chosen = open === null ? null : tokens[open] ?? null;
+  /*
+    Turned off from inside the panel, optimistically. The server stops handing
+    tokens over on the next render, and until it does this is what the reader
+    sees: the same sentence with the taught word still marked, which is exactly
+    what the screens above draw when the dictionary was never consulted.
+  */
+  const [dismissed, setDismissed] = useState(false);
+  const chosen = open === null || dismissed ? null : tokens[open] ?? null;
 
   return (
     <div className="w-full">
@@ -68,7 +99,7 @@ export function GlossedSentence({ tokens, sentence, speak }: {
                 </mark>
               );
             }
-            if (!token.entry) return <span key={i}>{token.text}</span>;
+            if (!token.entry || dismissed) return <span key={i}>{token.text}</span>;
             const showing = open === i;
             return (
               <button
@@ -123,7 +154,12 @@ export function GlossedSentence({ tokens, sentence, speak }: {
 
       <div id={panelId}>
         {chosen?.entry && (
-          <WordPanel key={chosen.entry.lexemeId} entry={chosen.entry} onClose={() => setOpen(null)} />
+          <WordPanel
+            key={chosen.entry.lexemeId}
+            entry={chosen.entry}
+            onClose={() => setOpen(null)}
+            onTurnOff={() => { setDismissed(true); onTurnedOff?.(); }}
+          />
         )}
       </div>
     </div>
@@ -139,12 +175,35 @@ export function GlossedSentence({ tokens, sentence, speak }: {
  * those are one word learns that they are two. It is only printed where the
  * spelling in front of them is not the headword.
  */
-function WordPanel({ entry, onClose }: {
+function WordPanel({ entry, onClose, onTurnOff }: {
   entry: NonNullable<GlossedToken["entry"]>;
   onClose: () => void;
+  /** Draw the sentence plain, now, while the answer is on its way to the server. */
+  onTurnOff: () => void;
 }) {
   const [pending, start] = useTransition();
   const [result, setResult] = useState<string | null>(null);
+  /*
+    Its own transition, not the one the add button reads. Sharing it made
+    pressing "stop underlining" put "Adding…" on the button beside it, which is
+    the panel reporting a word had been kept when nothing of the sort happened.
+  */
+  const [leaving, startLeaving] = useTransition();
+  const router = useRouter();
+
+  const turnOff = () => {
+    onTurnOff();
+    startLeaving(async () => {
+      await setWordGloss("off");
+      /*
+        Re-renders this screen from the setting, so the sentence somebody is
+        looking at and the next one they meet agree about it. The optimistic
+        change above is what they see in the meantime, since a review card is
+        several server round trips from here.
+      */
+      router.refresh();
+    });
+  };
 
   const add = () => {
     start(async () => {
@@ -206,6 +265,36 @@ function WordPanel({ entry, onClose }: {
             <><Plus size={13} aria-hidden /> Add to my deck</>
           )}
         </Button>
+      </div>
+      {/*
+        THE WAY OUT IS UNDER THE PANEL RATHER THAN BESIDE THE BUTTON, because
+        the two are about different things: keeping the word is about this
+        word, and this is about every sentence in the app. Beside it they also
+        wrapped at 360 into a stack with the loud one at the bottom, which is
+        the row rule read upside down (see `buttonRuns`): a row ends on its
+        primary and a column leads with it, and a wrapping row of two is
+        whichever of those the width decides. A line of its own is neither.
+      */}
+      <div className="mt-2.5 border-t pt-2" style={{ borderColor: "var(--rule)" }}>
+        <button
+          type="button"
+          onClick={turnOff}
+          disabled={leaving}
+          title="Stop underlining words. Settings turns it back on."
+          /* The accessible name carries the sentence the tooltip does, because
+             a tooltip is a hover and this app is measured on a phone. It opens
+             with the visible words, which is what "label in name" asks for. */
+          aria-label="Stop underlining words. Settings turns it back on."
+          /* Inset by its own padding rather than pulled back by a negative
+             margin: this panel has none to absorb one, and a control hanging
+             outside the box it belongs to is what `test-containment.mjs`
+             refused the last time somebody reached for `-ml-1`. */
+          className="tap-tint inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs"
+          style={{ color: "var(--ink-3)" }}
+        >
+          <Underline size={13} aria-hidden />
+          Stop underlining words
+        </button>
       </div>
       <span className="sr-only" role="status">{result ? `${entry.lemma}: ${result}` : ""}</span>
     </div>
