@@ -6176,6 +6176,7 @@ npm run measure:scenes   # how much of a conversation the dictionary can already
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)
+npm run eval:composers   # which free model writes the best Estonian for a scene line, one model at a time (--samples, --model, --scenes)
 npm run demo             # two months of sample history, for looking at the charts
 npm run test:e2e         # every browser suite, needs the server running
 npm run test:browser     # the newer browser suites: routes, modes, offline, scanning, suggestions, a11y

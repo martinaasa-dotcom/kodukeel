@@ -289,9 +289,9 @@ list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 
 lines withheld on a free model, which the learner meets as a line written for the scene instead of
 one written for the turn. Comprehension is most of what decides whether the module works.
 
-`npm run probe:compose` is the narrower question, and it is the one to run before choosing: one
-beat, every free model a key is set for, the route's own prompt, printing what each wrote and
-whether the gate would show it. Measured here on 2026-09-05, the two that answered cleanly and in
+`npm run eval:composers` is the narrower question, and it is the one to run before choosing: it
+forces one model at a time, sends the route's own prompt, judges with the shipped gate, and reports
+per model rather than in total. Measured here on 2026-09-05, the two that answered cleanly and in
 scope were `qwen/qwen3.8-27b` on Groq and `gemini-3.6-flash`; `groq/compound-mini` wrote statements
 where the beat wanted a question; and two of the three OpenRouter free models answered 429 to every
 request for the rest of the day, which is what a free tier is and is the argument for the lines

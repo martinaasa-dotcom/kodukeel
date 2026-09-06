@@ -283,42 +283,31 @@ export interface Link { label: string; model: string; url: string; key: string }
  */
 export function chain(): Link[] {
   const links: Link[] = [];
-  const or = process.env.OPENROUTER_API_KEY;
-  if (or) {
-    const pinned = (process.env.OPENROUTER_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_OPENROUTER_MODELS) {
-      links.push({ label: "OpenRouter", model, url: "https://openrouter.ai/api/v1/chat/completions", key: or });
-    }
-  }
-  const groq = process.env.GROQ_API_KEY;
-  if (groq) {
-    const pinned = (process.env.GROQ_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_GROQ_MODELS) {
-      links.push({ label: "Groq", model, url: "https://api.groq.com/openai/v1/chat/completions", key: groq });
-    }
-  }
+  const add = (
+    label: string, keyEnv: string, modelEnv: string, url: string, fallback: readonly string[],
+  ) => {
+    const key = process.env[keyEnv];
+    if (!key) return;
+    const pinned = (process.env[modelEnv] ?? "").split(",").map((m) => m.trim()).filter(Boolean);
+    for (const model of pinned.length ? pinned : fallback) links.push({ label, model, url, key });
+  };
+  add("OpenRouter", "OPENROUTER_API_KEY", "OPENROUTER_MODEL",
+    "https://openrouter.ai/api/v1/chat/completions", FREE_OPENROUTER_MODELS);
+  add("Groq", "GROQ_API_KEY", "GROQ_MODEL",
+    "https://api.groq.com/openai/v1/chat/completions", FREE_GROQ_MODELS);
   /*
-    And Gemini, which the app's own chain has carried since the second free
-    provider was added and this harness did not. That mattered more than a
-    missing name: the whole point of the eval is deciding which free model to
-    put in front for scenes, and a model the deployment would actually use was
-    outside the measurement, so the answer was drawn from two providers out of
-    three. It speaks the OpenAI wire format at Google's compatibility endpoint,
-    which is the same URL `lib/tutor/provider.ts` uses, so nothing else here
-    changes.
+    Gemini was missing here for the whole life of this file, which is the fault
+    the header two hundred lines up warns about in its own words: a list that
+    lives in a script measures the script. `resolveProviders` has put every free
+    Gemini model on the chain since the day the provider was added, and this
+    built OpenRouter and Groq and stopped, so `eval:scene` measured a rejection
+    rate over two thirds of the chain and `draft:lines` drafted the whole bank
+    without ever asking a provider the app itself would have asked first.
+    Neither said so, because a chain that is shorter than it should be still
+    composes lines.
   */
-  const gemini = process.env.GEMINI_API_KEY;
-  if (gemini) {
-    const pinned = (process.env.GEMINI_MODEL ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : FREE_GEMINI_MODELS) {
-      links.push({
-        label: "Google Gemini",
-        model,
-        url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-        key: gemini,
-      });
-    }
-  }
+  add("Google Gemini", "GEMINI_API_KEY", "GEMINI_MODEL",
+    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", FREE_GEMINI_MODELS);
   return links;
 }
 

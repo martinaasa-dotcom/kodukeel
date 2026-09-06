@@ -11216,6 +11216,58 @@ check("a class cannot read a conversation", () => {
   }
 });
 
+/**
+ * A SCRIPT THAT MEASURES THE CHAIN MEASURES THE WHOLE CHAIN.
+ *
+ * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain
+ * rather than naming one, for the reason `PROVIDER_KEY_ENV` is imported and not
+ * retyped, and then built OpenRouter and Groq and stopped. `resolveProviders`
+ * has put every free Gemini model on the chain since the provider was added, so
+ * `eval:scene` measured a rejection rate over two thirds of the chain and
+ * `draft:lines` drafted the whole bank without ever asking a provider the app
+ * itself would have asked first.
+ *
+ * Nothing failed, and nothing could have: a chain shorter than it should be
+ * still composes lines, so the only symptom is a number quietly describing less
+ * than it claims to. That is the same shape as the unit suite keeping its own
+ * list of provider keys, and it gets the same answer.
+ *
+ * Read off `provider.ts`'s own exports rather than a list here, or this becomes
+ * the fourth copy of the thing it exists to prevent. A fourth free provider
+ * fails this until the scripts can see it.
+ */
+check("every free provider the app would ask, a measuring script can ask too", () => {
+  const provider = code(join("lib", "tutor", "provider.ts"));
+  const lists = [...provider.matchAll(/export const (FREE_\w+_MODELS) = \[/g)].map((m) => m[1]!);
+  assert.ok(
+    lists.length >= 3,
+    `only found ${lists.length} free model lists in provider.ts, so this check stopped looking`,
+  );
+
+  /*
+    Every one of them has to reach the chain the app builds and the chain the
+    scripts build. The first is the bug's other half: a list nothing reads is a
+    provider configured and never asked.
+  */
+  const resolve = provider.slice(provider.indexOf("export function resolveProviders"));
+  const draft = code(join("scripts", "lib", "sceneDraft.ts"));
+  for (const list of lists) {
+    assert.match(
+      resolve,
+      new RegExp(`\\b${list}\\b`),
+      `${list} is declared in provider.ts and resolveProviders never reads it, so a ` +
+      "deployment that set that key would have its models silently left off the chain.",
+    );
+    assert.match(
+      draft,
+      new RegExp(`\\b${list}\\b`),
+      `${list} is on the app's chain and scripts/lib/sceneDraft.ts cannot see it, so ` +
+      "eval:scene measures part of the chain and draft:lines drafts the bank without " +
+      "asking a provider the app would have asked first.",
+    );
+  }
+});
+
 check("the scene gate has one implementation, and a line says where it came from", () => {
   const evalScript = code("scripts/eval-scene.ts");
   assert.match(
