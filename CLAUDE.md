@@ -50,10 +50,19 @@ lines a model wrote.** `lib/scenes/` is Situations (ADR-025, `docs/21-situations
 for what building it found). A scene file names moves and unit ids and holds no Estonian: every
 lemma it names is one its own declared units teach, asserted word by word, so a scene cannot
 introduce vocabulary. What the other side says comes from `sceneLine`, with its provenance: a
-recorded usage where one fits the beat, otherwise a line a model composed inside the scene's closed
-word list and `runGate` checked four ways, shape, vouching, register, government, and withheld
-whole when it fails, and where both rungs fail the other side says they did not catch that, in a
-phrase the course teaches and in character, never a repair line this app wrote. What the learner
+recorded usage where one fits the beat, which after §32 is the courtesies and nothing else,
+otherwise a line a model composed inside the scene's closed word list with this run's own turns in
+front of it and `runGate` checked five ways, shape, vouching, register, government and facts, and
+withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
+line the beat says off the card, and where every rung fails the other side says they did not catch
+that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
+model writes what the other person says and never decides whether the learner was understood**
+(ADR-025 amendment 1): the bank is the net under composition rather than a rung above it, which is
+what a deployment with no key, a spent allowance or a withheld line falls to, so nothing about the
+keyless claim moved. The fifth check exists because the other four are about words and a number is
+not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
+asked first on a beat that names a time invites the learner to agree to an appointment nobody
+offered. What the learner
 says is read by `readTurn` and by nothing else; `advance` takes `Evidence` and nothing else, so a
 caller holding a model's verdict cannot compile. The server marks every turn as it is typed and
 reads the finished run again before `finishScene` grades through `gradeCard`, Good, Hard, Again and
@@ -4680,6 +4689,201 @@ is wrong with you" refused `valutama`, which is §29's finding about the whole c
 one beat. `npm run probe:turns` is the instrument: sixty sentences a real person would type, and the
 `unrecognised` lines are the ones to hunt. `docs/21-situations.md` §41.
 
+**Every failure in a conversation looked exactly like a success, and that is why the whole module
+was reported as unusable.** A turn that landed got a word back and then the next question. A turn
+that was real Estonian off the point got nothing back and then a question, and where the ladder had
+a line for the same beat it got a *differently worded* one, so `Kuhu te lähete?` became
+`Kuhu te sõidate?` became `Mis kell te sõidate?` and a learner read three new questions and thought
+they had answered two of them. Five rules, and every one of them is in the machine rather than in a
+scene, so it holds for the fourteen scenes there are and the ones nobody has written yet.
+
+**A miss is answered as a miss.** `REACTIONS.missed` is the one word the course teaches for "that
+was not what I asked", said before the question goes again, and only on a turn that missed
+outright: a turn nobody could read already has the repair phrase and a turn that half landed
+already gets its own word back. **And the question is put again rather than put differently**
+(`sayAgainWanted`), because a person who did not get an answer repeats themselves; `incomplete` is
+the one reading that still gets a fresh line, since there the next question really is a narrower
+one. That is also a booking the ledger never has to make. **Letting a question go is not
+agreement**: running out of patience drew from the acknowledgment rotation, so giving up could come
+out as `Aitäh.` or `Jah.`, the other side thanking somebody for an answer they never gave.
+`REACTIONS.letGo` is its own word.
+
+**Telling somebody they were incomprehensible is the worst thing this module can do, and it was the
+default.** `unrecognised` fires where the app can vouch for no word of a turn, and what it vouched
+against was the scene's units widened once to the course, which is 1,449 words: everything else in
+the language read as noise. A learner answered `Tere!` with `Tervitused!`, which is Estonian, which
+is a greeting, and which this course does not happen to teach, and was told they had not been
+understood. `knowing` in `lib/progress/scene.ts` asks `prisma/data/forms/` about the spellings in
+the run, which is the accept side of ADR-005 and the reason that file exists: a spelling let
+through costs a turn being read as Estonian off the point rather than as noise, and it can never
+meet a requirement, because a requirement is still decided against the scene's own lexicon alone.
+Every caller of `replay` widens first, asserted, or the reading a learner sees while they talk and
+the one written down when they stop would come from two markers.
+
+**A case is corrected only where the word was the answer.** A slip claims the learner reached for
+the wrong ending, and it was claimed wherever the word turned up in any other form. Inside a
+sentence that is a guess about grammar this module cannot parse: `Piim on otsas` is a correct
+sentence with `piim` as its subject and was answered "Understood. Here it is piima.", and
+`Ma olen ikka kodus, pood on 5 minuti kaugusel` was answered "Here it is poes." over a `pood` that
+was the subject of its own clause. Both told a learner their correct Estonian was wrong. `isAnswer`
+is a position rule and not a parse, so it is wrong at the edges and errs toward saying nothing,
+which is the side to err on. **And a word is said back to a word, never to a sentence**: repeating
+the answer is what a person does with a one-word one, and after a sentence it is a stutter. A
+recast survives whatever the length, because it is a correction rather than an echo.
+
+**Nobody leaves a beat without having been told what it wanted.** Two halves and neither is the
+other. The character says the word on the way past when they give up, so a beat never ends in
+silence, and `offerFor` points at the beat's own topic where the answer is a value off the card,
+since "the answer is already in front of them" is true and is not what somebody stuck needs to
+hear. And **the app steps out of character**: `lib/scenes/coach.ts` says in English, after a second
+miss, which word is being waited for, or which line of the card holds the answer, or that a
+question is wanted. It holds no Estonian, it names only a lemma the beat already named, and it
+**never spells the form**, because the ending is what a case beat is drilling and a hint that gave
+it would answer the question and then let the scheduler record the learner as having produced it.
+Once per beat, since the same paragraph three times running is the machine repeating itself at
+somebody already struggling.
+
+**A scene that moves the learner says so.** A scene can span an errand and the beats knew that
+while the screen did not, so somebody walked to a shop was still, as far as anything on screen
+said, in the kitchen their card had put them in: asked where they were, they answered honestly,
+were refused, and reported the scene as broken. `BeatSpec.meanwhile` is one line of English printed
+as a break in the conversation before the beat's line, once, on the turn that arrives at it.
+
+**A second word for the same thing is the same thing, and the list a beat names can never hold
+them all.** A beat may name only words its scene's units teach (a lemma is a request against the
+course), so a learner who knew a second word was refused for knowing it. `lib/dict/synonyms.ts`
+derives the relation instead: two entries stand in for each other where the dictionary gives them
+the same sense and the same part of speech, off the English gloss, which is the one authored column
+in the pipeline and the way anybody names a word to somebody who does not have it. 2,920 pairs over
+the shipped dictionary, reaching 508 of the course's 1,448 words: `pood` takes `kauplus`, `arst`
+takes `doktor` and `tohter`, `tuba` takes `ruum`. Nothing is generated and the file holds no
+Estonian at all.
+
+**A qualifier is a distinction somebody drew on purpose and may not be thrown away.** The course
+writes "bread (dark)" against "bread (white)" and "character (a person's)" against "character (in a
+story)" precisely because one English word covers two Estonian ones, so grouping on the bare sense
+would hand a scene back the pair its author had separated. Two qualifiers that differ are not
+substitutes; one qualifier and none is a note on one word rather than a line drawn between two.
+
+**It over-accepts, on purpose, and that trade is not symmetric.** English is polysemous and the
+gloss is English, so a pair can be joined over a word that means two things in one language and
+neither in the other. The tightener was tried and reverted: requiring the two to share one of
+Ekilex's semantic types drops 492 of 1,099 groups and takes "help", "husband", "believe" and "bad"
+with it. What decides it is the cost of each error. A wrong pair credits a turn that used a word
+meaning something else; a missing pair tells somebody their correct Estonian is wrong, which is the
+one thing this module exists not to do. So it is read **to accept and never to answer**: nothing
+under `lib/srs`, `lib/exam`, `lib/assessment`, `lib/scan`, `lib/games`, nor the gate, retrieval or
+the line ladder may reach it, asserted, exactly as `prisma/data/forms/` is. The scene's own list
+stays what the other side may say. And **a substitution is never graded as the word the beat
+named**: `Evidence.substituted` carries which requirements it met, and `gradesFor` skips them,
+because a row for the beat's word would tell the scheduler the learner recalled one they never
+wrote.
+
+**And a greeting cannot be failed at all.** A scene names the greetings its units teach, which is
+two, and Estonian has many more: a learner answered `Tere!` with `Tervitused!`, which is a greeting
+the dictionary holds and no unit teaches, and the app told them they had not been understood. There
+is no mechanical repair inside the list, since `tere` is glossed "hello" and `tervitus` "greeting,
+salutation" and the two share not one word. So the beat is met by whatever they say back: the other
+side has just said hello, anybody who answers has greeted them, and the word is on the screen one
+line above. **Anything they say back, and not anything at all**: the first version took every turn
+and an integration test caught it, crediting the greeting on a run whose only turn was `qqqq wwww`.
+An objective the learner did not meet is one the debrief has to be able to say they did not meet,
+so the turn has to be something the app can account for, which after `knowing` is the whole language
+rather than the scene's few hundred words; a greeting in English is met one rung down by the gloss,
+since `tere` is "hello". Nothing is graded for it, because they may not have said it, which is what
+`TurnRecord.produced` is for. Only `greet`: a farewell is read against every turn of a scene,
+because somebody who says goodbye in the middle has left, so a `close` beat that took anything
+would end every conversation on its first turn.
+
+**A phrase this app teaches is answered rather than punished.** `Kas sa räägid inglise keelt?` is
+in `tervitused`, the first unit anybody opens, and it is the move everybody makes in their first
+month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
+asked the same thing again: the app teaching a phrase on one screen and ignoring it on another. It
+costs no patience, for the reason saying you are lost costs none, and it is answered whatever the
+persona would have done on its own, because being asked is not the same as being written to in a
+language you do not speak. Matched on `inglise` alone rather than on the phrase, since the phrase
+inflects for person and politeness and matching it whole catches one learner in two, while that word
+appears in nothing else a scene teaches.
+
+**And one word nobody could place is not "I did not catch that" either.** `npm run probe:turns`
+found the case it costs most: asked where they are going, a learner writes `Tartusse`, and the app
+answers that it did not understand them. Tartu is a city, and the forms list holds no capitalised
+word on purpose, so every place name in the country lands here, in the scenes most likely to need
+one. A clerk who hears a word they do not know says "sorry?" and asks again, and that is what a lone
+unplaceable word gets. Two of them is still the repair phrase. The greeting rule reads
+`caughtSomething` rather than this, so one unreadable word cannot tick an objective.
+
+**How much the app helps is not the same question as how hard they are, and only one dial existed.**
+The difficulty dial is about the other side: how many things go wrong, how much patience they have.
+Nothing was about the app, which holds both hands, because every line is written out as it is said
+and the objective is in English underneath. In a shop you get neither. `Support` is the second dial:
+`guided` is what everybody has had, `listen` puts the words behind a press, `cold` puts the
+objective there too. `guided` is the default, since the other two are harder than what a learner
+arrived with. Nothing is locked and neither press is recorded, because a scene that punished looking
+would teach people to guess rather than to ask. It is also what makes a second run of a scene worth
+having, which the debrief has been promising all along.
+
+**When a person cannot understand you, they offer you a choice.** Asking the same question a third
+time is what a machine does; narrowing it to two is what anybody at a counter does, and this module
+had no move between "I did not catch that" and giving up. `lib/scenes/choice.ts` builds it out of
+the beat's own words (`Valu või palavik?`, where either is right), or the case it wants against
+another case of the same word (`Pood või poodi?`, which drills the ending), or the card's own value
+against one the scene might have dealt instead. It is offered on the same miss the app's hint would
+have fired on and **instead of it**, because it stays in Estonian and in character, and it is a step
+down from production to recognition, which is the step a teacher takes; the app steps out of
+character only where no choice can be built. Nothing is written: every option is a lemma the beat
+named or a form off the same table every case card reads, and `CHOICE_WORD` is a course lemma the
+catalog test checks against every scene's own units. The roll is the turn count, so a choice does
+not swap sides while somebody is reading it. Asserted in both directions, including that the file
+writes no Estonian of its own.
+
+**And a cry for help is not a greeting.** The greeting rule above takes anything the app can read as
+language, which swallowed `ma ei tea`: the beat ticked and the learner who had just said they were
+not following got a tick instead of the word. The lost reading is checked first now.
+
+**A compound of the word is the word, and Estonian is made of compounds.** Asked what they wanted
+at a ticket window, a learner who wrote `bussipileti` was being more precise than the beat asked for
+and was refused: the two spellings share no opening, so every "close enough" rule missed it. The
+head of an Estonian compound is its last part and carries the inflection, which is what makes this
+decidable without a parser, so a spelling ending in a form of the word, with a modifier of at least
+`COMPOUND_MODIFIER` characters in front, is that word. Two guards and both are load-bearing: the
+modifier has to be long enough to be a word, and the whole spelling has to be one
+`prisma/data/forms/` can vouch for, or a learner could meet any beat by gluing letters to its word.
+
+**And the word in English is the word, answered in Estonian.** Reaching for a word in the language
+you have is the commonest thing anybody does in a second language and the one thing a bilingual
+listener always understands. `TurnContext.englishFor` is the dictionary's own gloss, one single-word
+sense per entry, and a turn met that way is understood, said back in Estonian, labeled as the word
+they were reaching for rather than as their own word put right, and **never graded as production**,
+since they produced the meaning and not the form. **English is read after the requirements rather
+than before them**, which is the half that makes it work: it used to lead, so `I am in the room`
+said the thing and was answered as though nothing had been said. Nothing above that check can be
+reached by an English turn, which is what makes the move safe.
+
+**And the words reached for in English are the best list of what to learn next this app can make.**
+Not a word somebody thought they might need one day: one they needed in a sentence and did not have.
+They are written to `SceneGap` as `REACHED`, beside the button's `ASKED` and the beat's `STALLED`,
+so the debrief offers them with an add-to-deck button and the next scene's card prefers them, which
+is the design's own promise about that table. The lemma is the dictionary's and is checked against
+the scene's lexicon like the others, so nothing a client sends reaches the table.
+
+**And the model composing the other side's line is told what the learner appears to have said.** A
+beginner's Estonian is short, endingless and often a word off, and the composer read it raw, so its
+line answered the beat rather than the person. `readingOf` in the scene route builds a word-by-word
+English reading through `lib/dict/glossed.ts`, which means the **dictionary** builds it: every gloss
+is the entry's own, vouched at the confidence a photographed page has to clear (ADR-021), and a word
+it will not vouch for is absent. No second model reads the learner's turn, nothing about it can
+advance the scene, and the line that comes back is still checked four ways by the gate before
+anybody sees it: `advance` still takes `Evidence` and `readTurn` is still its only producer. It is
+resolved only on a turn that books a call anyway, so an ordinary turn pays nothing for it.
+
+**And a beat's goal names the answer wherever there is exactly one.** A goal is the objective on
+the screen, and where a beat accepts one word a goal that does not name it is a trap rather than an
+instruction: "Say where you are now" took only "at the shop". `catalogue.test.ts` reads the
+harvest's own English gloss and fails on a beat with one requirement, one candidate and a goal that
+never names it, and on a beat wanting a value off the card whose goal never mentions the card. That
+is the half that reaches every scene written after this one.
+
 
 **Sõnad has seven tries and two clues, and both clues arrive late on purpose.** Six for six is the
 English game's ratio and not its game: Estonian has nine vowels where English is deducing among
@@ -6010,7 +6214,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,

@@ -31,17 +31,33 @@ const SCENE: SceneSpec = {
   ],
 };
 
-function evidence(reading: TurnReading, met: readonly boolean[], slips: Evidence["slips"] = []): Evidence {
-  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy: [], slips, asked: null };
+/*
+  `satisfiedBy` follows `met`, because it is what a real turn does: a
+  requirement met by a word puts that word here, and a grade is written for a
+  word the learner produced rather than for a beat the scene let through. The
+  fixture used to leave it empty on every turn, which was harmless while
+  nothing read it and wrong the moment something did.
+*/
+function evidence(
+  reading: TurnReading,
+  met: readonly boolean[],
+  slips: Evidence["slips"] = [],
+  satisfiedBy: readonly string[] = met.some(Boolean) ? ["x"] : [],
+): Evidence {
+  return { reading, met, missing: met.flatMap((ok, i) => (ok ? [] : [i])), words: [], matched: [], satisfiedBy, slips, asked: null, substituted: [], wantsEnglish: false };
 }
 
 /** Plays the turns given, in order, and hands back where it got to. */
 function play(
-  turns: { reading: TurnReading; met: boolean[]; helped?: boolean; slips?: Evidence["slips"] }[],
+  turns: {
+    reading: TurnReading; met: boolean[]; helped?: boolean;
+    slips?: Evidence["slips"]; satisfiedBy?: readonly string[];
+  }[],
 ): SceneState {
   let state = startScene(SCENE);
   for (const turn of turns) {
-    ({ state } = advance(SCENE, state, evidence(turn.reading, turn.met, turn.slips), "x", turn.helped));
+    const seen = evidence(turn.reading, turn.met, turn.slips, turn.satisfiedBy);
+    ({ state } = advance(SCENE, state, seen, "x", turn.helped));
   }
   return state;
 }
@@ -147,6 +163,16 @@ describe("what a conversation writes into the review log", () => {
     expect(gradesFor(SCENE, state).map((g) => g.beatId)).toEqual(["reason", "where"]);
   });
 
+  /*
+    A greeting is met by whatever the learner says back (`readTurn`), so
+    grading on `met` alone would put "they recalled Tere!" into the
+    append-only log about a turn that said something else entirely.
+  */
+  it("writes nothing for a beat that was met without the learner producing a word", () => {
+    const state = play([{ reading: "complete", met: [true], satisfiedBy: [] }]);
+    expect(gradesFor(SCENE, state)).toEqual([]);
+  });
+
   it("writes nothing at all for an abandoned run", () => {
     const grades = gradesFor(SCENE, play([
       { reading: "unrecognised", met: [false] },
@@ -241,7 +267,20 @@ describe("the word the other side offers", () => {
     than a word, and a word that would not meet the beat is a hint that
     cannot help.
   */
-  it("is nothing where no word of theirs would meet the beat", () => {
-    expect(offerFor(SCENE.beats[2]!)).toBeNull();
+  /*
+    Where the answer is a value off the card there is no word that would meet
+    the beat, and that used to mean nothing was said at all: somebody stuck
+    got the same question back with no sign of what it was about. The beat's
+    own topic says what kind of thing is wanted and gives the answer away
+    nowhere, because the answer is on the card.
+  */
+  it("points at what the beat is about where the answer is a value off the card", () => {
+    const beat = SCENE.beats[2]!;
+    expect(beat.topic).toContain(offerFor(beat));
+  });
+
+  it("never points at the question word they were just asked", () => {
+    const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "aeg"] };
+    expect(offerFor(beat, null, new Set(["kuhu"]))).toBe("aeg");
   });
 });

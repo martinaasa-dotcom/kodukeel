@@ -26,7 +26,7 @@ import { MAX_WORDS, isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 
 /** Which check withheld a line. A line can fail more than one. */
-export type Check = "shape" | "vouching" | "register" | "government";
+export type Check = "shape" | "vouching" | "register" | "government" | "facts";
 
 /** A word that demands a case of its complement, by every form it has. */
 export interface GovernedWord {
@@ -47,6 +47,23 @@ export interface GateContext {
   readonly governed: readonly GovernedWord[];
   /** Every case form of every nominal, so a token can be asked which case it is. */
   readonly caseOf: ReadonlyMap<string, ReadonlySet<CaseKey>>;
+  /**
+   * Every number this run was actually dealt, as it may be written.
+   *
+   * THE ONE THING VOUCHING CANNOT SEE. The four checks above are all about
+   * words, and a number is not a word: `words()` drops it, the lexicon has
+   * never held one, and a line reading "Kas kell 14:00 sobib?" on a card that
+   * says 15:30 passes every one of them. That was survivable while composition
+   * was the rung below `datumLine`, because a beat that names a value the card
+   * dealt was answered off the card before a model was ever asked. It is not
+   * survivable now that a model is asked first on every beat: a made-up time
+   * is a fact about the run rather than a word out of scope, the learner is
+   * being asked to agree to it, and no amount of vocabulary checking notices.
+   *
+   * So a digit run in a composed line has to be one the card dealt. Empty means
+   * this run dealt no numbers, and then any digit at all is invented.
+   */
+  readonly dealt?: ReadonlySet<string>;
 }
 
 export interface Verdict {
@@ -54,6 +71,22 @@ export interface Verdict {
   readonly failed: readonly Check[];
   /** The words vouching could not account for, named so a retry can be told. */
   readonly unknown: readonly string[];
+}
+
+/**
+ * Whether the line states a number nobody dealt.
+ *
+ * The comparison is whole runs against whole runs, the same rule the marker
+ * reads a learner's time by: `15` inside `2015` is not the hour, and a card
+ * that dealt 15:30 must not have `15:30` matched by a line saying `15`. Both
+ * spellings of a clock time count, since Estonian writes `14.30` as readily as
+ * `14:30` and `props.ts` deals both.
+ */
+function invented(text: string, dealt: ReadonlySet<string> | undefined): boolean {
+  const runs = text.match(/\d{1,2}[:.]\d{2}|\d+/g);
+  if (!runs) return false;
+  const said = dealt ?? new Set<string>();
+  return runs.some((run) => !said.has(run));
 }
 
 export function passes(verdict: Verdict): boolean {
@@ -86,6 +119,14 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
 
   if (governmentSuspect(tokens, context)) failed.push("government");
+
+  /*
+    A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
+    made. Read off the raw text rather than off `tokens`, because the tokenizer
+    exists to find Estonian words and drops digits on the way past, which is
+    exactly why nothing here could see this before.
+  */
+  if (invented(text, context.dealt)) failed.push("facts");
 
   return { failed, unknown };
 }

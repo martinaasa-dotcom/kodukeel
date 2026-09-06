@@ -204,3 +204,43 @@ function sharedPrefix(a: string, b: string): number {
   while (i < limit && a[i] === b[i]) i += 1;
   return i;
 }
+
+/**
+ * A COMPOUND OF THE WORD IS THE WORD, AND ESTONIAN IS MADE OF COMPOUNDS.
+ *
+ * Asked what they want at a ticket window, a learner writes `bussipileti`
+ * rather than `pileti`, which is more precise Estonian than the beat asked
+ * for and was refused: the two spellings share no opening at all, so every
+ * rule above missed it, and the other side told somebody who had named the
+ * exact thing they wanted that it had not understood them. The language builds
+ * `bussipilet`, `sõidupilet`, `koolimaja`, `kohvitass` and `elektriarve` the
+ * same way, so this is not one word's problem.
+ *
+ * The head of an Estonian compound is its **last** part and carries the
+ * inflection, which is what makes this decidable without a parser: a spelling
+ * that ends in a form of the word, with something in front of it, is that word
+ * with a modifier on the front. `piim` is not read out of `vahepiim` by
+ * accident, because that is what `vahepiim` is.
+ *
+ * TWO GUARDS, AND BOTH ARE LOAD-BEARING. The modifier has to be long enough to
+ * be a word rather than a stray letter, so `apilet` is not a ticket. And the
+ * whole spelling has to be one the app can vouch for as Estonian, which is what
+ * `prisma/data/forms/` answers: without it `xyzzypilet` would be a ticket, and
+ * a learner could meet any beat by gluing letters to its word.
+ */
+export const COMPOUND_MODIFIER = 3;
+
+export function compoundOf(
+  said: string,
+  forms: ReadonlySet<string> | undefined,
+  isWord: (word: string) => boolean,
+): string | null {
+  if (!forms || said.length <= COMPOUND_MODIFIER) return null;
+  if (!isWord(said)) return null;
+  for (const form of forms) {
+    if (form.length < 2 || form.length >= said.length) continue;
+    if (said.length - form.length < COMPOUND_MODIFIER) continue;
+    if (said.endsWith(form)) return form;
+  }
+  return null;
+}

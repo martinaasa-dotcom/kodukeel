@@ -2703,3 +2703,69 @@ the first thing there is to read.
 
 `scripts/test-scene.mjs` takes its turn with the mouse for exactly this reason and asks where the
 caret is. It fails, at `BODY`, on the line before this one.
+
+## 50. The model writes every line, and still marks nothing
+
+ADR-025 amendment 1.
+
+**What was wrong.** The ladder asked a model only where a recorded sentence and the bank had both
+missed. The bank now holds 296 lines, so on about half the beats in the catalogue the other side
+said a sentence drafted months before anybody played, written against the beat alone. Such a line
+is a competent generic question and it cannot be about the conversation: it cannot pick up that the
+learner said two turns ago they were in a hurry, cannot acknowledge the thing they just got right,
+and cannot narrow after a miss in a way that has anything to do with what they wrote. That is what
+"it does not answer me like a human" was about, and no amount of drafting more lines reaches it,
+because the missing ingredient is the run.
+
+The argument for keeping the bank in front was written down and looked sound: a line gated when it
+was drafted and read by a person since outranks one gated a second ago. It weighs the two
+model-written rungs by how much review they have had. What it does not weigh is whether the line is
+about anything.
+
+**What changed.**
+
+- **Composition leads on every beat that carries content.** The bank is the net under it, not a rung
+  above it. `sceneLine` is the whole of the change: attested, then composed, then scripted, then the
+  line the beat says off the card, then the repair phrase.
+- **A recorded sentence keeps the top.** The attested rung is reachable only where the beat's pool
+  holds a phrase entry, which after §32 narrowed it is the courtesies. `Tere!` is the whole line and
+  what a model does with it is paraphrase a fixed phrase into something nobody says.
+- **The prompt gets the run, both sides.** It used to get the learner's last two lines as two `user`
+  messages with nothing between them, which is half a conversation with the halves it did not write
+  missing. It is now the run's own turns, alternating, off `state.turns`, capped at six exchanges
+  because the free models this runs on have small windows and a request refused for length is a turn
+  with no line in it. Never interpolated into an instruction (§17): the exchange goes in as
+  messages.
+- **The gate has a fifth check, `facts`.** The other four are about words and a number is not a
+  word: `words()` drops it, the lexicon never held one, and "Kas kell 14:00 sobib?" on a card that
+  dealt 15:30 passed all four. That was survivable while a beat naming a dealt value was answered
+  off the card before a model was asked. It stops being survivable the moment the model is asked
+  first, because the learner is then being invited to agree to an appointment nobody offered. A
+  digit run in a composed line has to be one `dealtNumbers` says the card dealt, read off the same
+  `literal` list the marker accepts from the learner, so what the other side may say and what the
+  learner may say are the one list.
+
+**What did not change, and this is the part that makes the rest safe to have done.** `readTurn` and
+`satisfies` decide whether a turn met a beat, off the dictionary and the drawn role card and nothing
+else. `advance` takes `Evidence` and `readTurn` is its only producer, so a caller holding a model's
+opinion about the learner cannot compile. **The model may now write what the other person says. It
+never decides whether the learner was understood.** Every composed line passes the same gate against
+the same closed word list; every call is booked before it is made and settled after it, through the
+same ledger, with the same three limits; and a deployment with no key walks past composition to the
+same bank line it says today, which is what keeps "all fourteen play without a model key" true.
+
+**Per turn, not per run, and that is a decision rather than an omission.** The obvious worry about
+making composition the primary path is a mixed voice inside one conversation, and the obvious fix is
+to commit a whole run to one mode up front. It is the wrong fix. The failures that would justify it
+are structural (no key, no credit, a spent daily allowance) and every turn reaches them identically,
+so a stored mode would be a second source of truth for something re-derivable, which is ADR-014's
+own rule. The failures that are not structural are per-minute rate limits that recover inside a
+single conversation, and a run-level commit would spend a whole conversation on one bad minute. What
+is left is the chain walking to a second model mid-run, which happens only when the alternative is
+no line at all, and where the screen already says which rung answered.
+
+**What this does not fix.** A free model is rate-limited per minute and per day, and the day's quota
+is a real wall: measured here, one of the three OpenRouter free models answered 429 to all 182
+requests of an evaluation run. On a deployment leaning on one free key the bank is not a rare
+fallback but a regular one, which is an argument for the bank being good rather than for the ladder
+being different.

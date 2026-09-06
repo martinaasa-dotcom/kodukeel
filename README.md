@@ -52,7 +52,11 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
   the screen says which, and all fourteen play without a model key. Whether you were understood is decided by the
   dictionary, never by a model, so you cannot be marked wrong for being right. Difficulty is a
   budget of things that go wrong: the slot you asked for has gone, a queue forms, they switch to
-  English. You can walk out. The debrief leads with what happened and never with a score.
+  English. You can walk out. The debrief leads with what happened and never with a score. Where a
+  key is set the other side's line is written for this turn, with the conversation so far in front
+  of it, so it can pick up something you said three turns ago; where there is none, or the free tier
+  will not answer, the lines written for the scene say it instead, which is why all fourteen still
+  play with no key at all.
 - **Say it today.** Each morning, one press to say whether you spoke Estonian to anybody
   yesterday: they understood, they switched to English, not yesterday. Where the answer is no,
   one small errand for today, order a coffee, ask the time, drawn from the units you have
@@ -277,6 +281,34 @@ above unless you say otherwise, deliberately: switching the camera on must never
 deployment onto a paid model by itself. So add
 `OPENROUTER_VISION_MODEL="openai/gpt-4o"` (or `ANTHROPIC_VISION_MODEL` / `OPENAI_VISION_MODEL`) and
 it is used for scanning and nothing else. A page is roughly a third of a cent.
+
+**Situations** take the same key and, if you want them good, one more line. A scene asks a model to
+follow a conversation with a beginner, in a language most models are thin on, inside a closed word
+list, and write one line that answers what the person actually said. Anything reaching outside that
+list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 percent of composed
+lines withheld on a free model, which the learner meets as a line written for the scene instead of
+one written for the turn. Comprehension is most of what decides whether the module works.
+
+`npm run eval:composers` is the narrower question, and it is the one to run before choosing: it
+forces one model at a time, sends the route's own prompt, judges with the shipped gate, and reports
+per model rather than in total. Measured here on 2026-09-05, the two that answered cleanly and in
+scope were `qwen/qwen3.8-27b` on Groq and `gemini-3.6-flash`; `groq/compound-mini` wrote statements
+where the beat wanted a question; and two of the three OpenRouter free models answered 429 to every
+request for the rest of the day, which is what a free tier is and is the argument for the lines
+written in advance being good rather than for the ladder being different.
+
+**Setting a paid key is not the same as using it here.** The chain is free first by policy, so a
+deployment that sets `ANTHROPIC_API_KEY` and nothing else still asks three free models before it
+reaches the paid one, on every turn, and mostly gets a line from the bank instead. What points
+conversations at the paid model is naming it: `ANTHROPIC_SCENE_MODEL="claude-sonnet-5"`. A provider
+named there goes to the front, and everything else stays behind it as the fallback it already was.
+
+So `OPENROUTER_SCENE_MODEL` (or `GROQ_` / `GEMINI_` / `ANTHROPIC_` / `OPENAI_SCENE_MODEL`) points
+conversations at a better model than the rest of the app uses, and a provider you name here is asked
+*first* rather than after the free chain, since naming one is choosing it. Nothing is set by default,
+for the reason scanning sets nothing: opening a conversation must never move a free deployment onto
+a paid model by itself. A turn is one short answer, so this is the cheapest paid path in the app to
+run well.
 
 ## Deploying it as a real website
 

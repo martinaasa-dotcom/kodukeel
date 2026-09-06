@@ -31,9 +31,11 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
+import { CHOICE_WORD } from "./choice";
+import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
-import { caseKeyFor, type Lexicon } from "./lexicon";
+import { caseKeyFor, words, type Lexicon } from "./lexicon";
 import { propBySlot, type RoleCard } from "./props";
 import type { Response } from "./state";
 import type { TurnReading } from "./turn";
@@ -56,10 +58,30 @@ export interface ReplyInput {
   readonly line: SpokenLine | null;
   /** The last Estonian line the learner was answering, so it can be said again. */
   readonly heard: string | null;
+  /**
+   * What the learner wrote, for the one question the echo rule cannot answer
+   * without it: was this a word or a sentence.
+   *
+   * Repeating somebody's word back is what a person does with a one-word
+   * answer, and it is a stutter after a sentence. `Ma soovin osta pilet` came
+   * back as a bubble reading `Pilet.` and then the next question, which a
+   * learner reported as the app breaking. The beat's own `shape` is what the
+   * filter used, and that says what the beat would accept rather than what
+   * the learner actually said. Null on the opening line.
+   */
+  readonly said: string | null;
   /** The card this run dealt, for a stage direction that names a time. */
   readonly card: RoleCard | null;
   /** Whether this persona puts the question into English when the learner writes English. */
   readonly translates: boolean;
+  /**
+   * Whether the learner asked for English in Estonian, which the course teaches
+   * them to do. Then the move is put into English whatever the persona would
+   * have done on its own: being asked is not the same as being written to in a
+   * language you do not speak, and refusing a phrase this app taught them is
+   * the worst answer available.
+   */
+  readonly askedForEnglish?: boolean;
   /**
    * The curveball now standing in front of the beat, as a beat, with the line
    * the ladder built for it. When one is up it is what the other side says
@@ -88,6 +110,13 @@ export interface ReplyInput {
    */
   readonly recast?: boolean;
   /**
+   * Whether `echo` is the Estonian for a word the learner reached for in
+   * English. Said back like a recast, and labeled as the word they were
+   * reaching for rather than as their own word put right, because it was not
+   * their word: they said it in the language they have.
+   */
+  readonly english?: boolean;
+  /**
    * What the other side says about a question the learner asked that the
    * beat did not ask for, before their own move (`asideFor`). Said first,
    * because a person answers what they were asked before going on, and it
@@ -104,6 +133,27 @@ export interface ReplyInput {
   readonly offer?: string | null;
   /** How many beats have been met, which is what rotates the acknowledgment. */
   readonly met: number;
+  /**
+   * How many turns the learner has already spent on the beat they were just
+   * answering, so the app knows when they are stuck rather than merely
+   * mid-conversation. Absent on the opening line.
+   */
+  readonly tries?: number;
+  /**
+   * The beat's question narrowed to two, where one could be built
+   * (`lib/scenes/choice.ts`). Offered instead of asking the same thing again,
+   * because that is what a person does once it is clear the words are not
+   * landing, and it stays in Estonian and in character where the app's own
+   * hint does not.
+   */
+  readonly choice?: string | null;
+  /**
+   * The beat's other authored lines, the ones the bank holds for it that this
+   * run has not said yet (`lib/scenes/scripted.ts`). Used only to put a
+   * question a third and fourth way, never to open one: see the move block for
+   * why the first re-ask is still verbatim.
+   */
+  readonly others?: readonly string[];
   /**
    * Whether this persona says "hästi" before moving on. The brisk one does
    * not: they take the answer and ask the next thing, which is most of what
@@ -236,11 +286,21 @@ export function cardInPlay(
  * asking a model for a fresh one would spend a booking on a line that is not
  * wanted. The route asks this before it asks the ledger.
  */
-export function wantsFreshLine(response: Response | null, heard: string | null): boolean {
+export function wantsFreshLine(
+  response: Response | null,
+  heard: string | null,
+  reading: TurnReading | null = null,
+): boolean {
   if (response === "wait") return false;
-  if ((response === "repeat" || response === "english") && heard) return false;
+  if (sayAgainWanted(response, reading, heard)) return false;
   return true;
 }
+
+/**
+ * How long a turn can be and still have its answer said back to it. Two, so
+ * `poodi` and `kell kaks` are repeated and a sentence is acknowledged instead.
+ */
+const ECHO_WORDS = 2;
 
 /** The reply, in the order it is said. Empty once the scene is over and nothing is owed. */
 export function replyFor(input: ReplyInput): SpokenLine[] {
@@ -294,6 +354,27 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   */
   if (response === "repeat" && (reading === "unrecognised" || reading === "echo")) {
     out.push({ ...fallbackLine(FALLBACK_PHRASE, line?.withheld ?? []), reaction: true });
+  }
+
+  /*
+    AND A TURN THAT MISSED IS ANSWERED AS A MISS.
+
+    A turn that landed got a word and then the next question. A turn that was
+    real Estonian off the point got nothing at all and then a question, so on
+    the screen the two were the same event: the learner read a new question
+    and assumed the last one was done with. Asked where they were going and
+    answering `kool` where the card said the university, they were asked again
+    in different words and had no way of knowing they had not been understood.
+
+    One word, and it is the one the course teaches for exactly this. The
+    question follows it, said again rather than rephrased (`sayAgainWanted`),
+    so what the learner sees is a person who did not get what they asked for
+    and asked for it again. Only where the turn missed outright: a turn that
+    half landed gets its own word back, and a turn nobody could read already
+    has the repair phrase above.
+  */
+  if ((response === "narrow" || response === "repeat") && reading === "offtarget") {
+    out.push(reaction(REACTIONS.missed[0], "?"));
   }
 
   /*
@@ -356,11 +437,33 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       who had said the right word read "Said again" under their own word.
     */
     const flat = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
-    const echo = input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
+    /*
+      AND A WORD IS SAID BACK TO A WORD, NEVER TO A SENTENCE. Repeating the
+      answer is what a person does with a one-word one: asked where to and
+      told `poodi`, they say `Poodi.` and move on. After a whole sentence it
+      is a stutter, and it read as one: `ma soovin osta pilet` came back as a
+      bubble saying `Pilet.` and then the next question, which a learner
+      reported as the app breaking. The filter it had was the *beat's* shape,
+      which says what would be accepted rather than what was actually said.
+
+      A recast survives whatever the length, because it is not an echo: it is
+      the one correction a conversation makes without stopping, and a learner
+      who wrote `ma lähen pood` is owed `Poodi.` in a way that somebody who
+      said it right is not.
+    */
+    const brief = input.said === null || words(input.said).length <= ECHO_WORDS;
+    /*
+      A recast and a word reached for in English are both corrections rather
+      than echoes, so they survive whatever the length: somebody who wrote
+      `ma lahen shop` is owed `Poodi.` in a way that somebody who said it
+      right is not.
+    */
+    const worth = input.recast || input.english || brief;
+    const echo = worth && input.echo && !/\d/.test(input.echo) && !flat.has(input.echo) ? input.echo : null;
     if (echo) {
       out.push({
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
-        provenance: input.recast ? "recast" : "echo", reaction: true,
+        provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
     } else if (!aside && input.acknowledges && response === "answer") {
       const choices = REACTIONS.acknowledge;
@@ -380,8 +483,31 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     conversation is steered on rather than stopped and annotated.
   */
   if (response === "moveOn" && !aside) {
-    const choices = REACTIONS.acknowledge;
-    out.push(reaction(choices[input.met % choices.length] ?? choices[0], "."));
+    /*
+      NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
+
+      The `lost` reading hands the word over, because a learner who says "I do
+      not understand" and gets the same question a third time has been told by
+      a machine that the problem is them. What that missed is everybody who
+      does not say it: they try, they miss, they try again, and the other side
+      gives up on them without ever saying what it was waiting for. That is
+      the same sentence with the learner left to work out for themselves that
+      they were the problem, which is the one thing this module exists not to
+      do.
+
+      So the word is said here too, on the way past: `Piim?` and then the next
+      question. It costs no try, it comes only once the beat is being let go,
+      so nothing is given away while the learner is still working on it, and
+      it means every beat in every scene ends with the learner knowing what it
+      wanted, whether or not they got there.
+
+      `letGo` where there is no word to point at, and never `acknowledge`,
+      because letting a question go is not agreement: drawing from the
+      rotation this could come out as `Aitäh.` or `Jah.`, the other side
+      thanking somebody for an answer they never gave.
+    */
+    if (input.offer) out.push({ ...reaction(input.offer, "?"), provenance: "offered" });
+    else out.push(reaction(REACTIONS.letGo[0], "."));
   }
 
   /*
@@ -400,12 +526,63 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     again where the learner did not answer it, like any other move.
   */
   if (input.hurdle) {
-    if (sayAgainWanted(response, heard)) out.push({ text: heard!, provenance: "again" });
+    if (sayAgainWanted(response, reading, heard)) out.push({ text: heard!, provenance: "again" });
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
-    if (response === "english" && input.translates) out.push(stage(stageFor(input.hurdle.beat, card)));
+    if (response === "english" && (input.translates || input.askedForEnglish)) {
+      out.push(stage(stageFor(input.hurdle.beat, card)));
+    }
     return out;
+  }
+
+  /*
+    THE CONVERSATION HAS MOVED, AND THE SCREEN SAYS SO BEFORE THE NEXT LINE.
+
+    A scene can span an errand. The beats knew that and nothing on the screen
+    did, so a learner who had been put in their own kitchen by the role card
+    was asked "where are you now?" and answered, correctly, that they were at
+    home. Printed before the beat's own line, and only on the turn that
+    arrives at the beat, since a break in time that reappears every time
+    somebody misses is not a break in time.
+  */
+  if (beat.meanwhile && beat !== answered && (response === "answer" || response === "moveOn")) {
+    out.push({ text: stageFor({ ...beat, they: beat.meanwhile }, card), provenance: "meanwhile" });
+  }
+
+  /*
+    AND WHERE THEY ARE STUCK, THE APP SAYS WHAT IS WANTED, AS ITSELF.
+
+    The other side of a conversation cannot explain itself: they ask again and
+    then give up, and a learner watching that cannot tell an answer that was
+    wrong from one that was in the wrong shape. `lib/scenes/coach.ts` is the
+    app saying it in English, off the beat's own requirements, after a second
+    miss on the same beat. It never advances anything and it is drawn as a
+    note rather than as a bubble, because nobody said it.
+  */
+  /*
+    Once, on the turn the learner reaches the count, and not on every miss
+    after it. The same paragraph printed three times running is the thing it
+    was written against: the machine repeating itself at somebody who is
+    already struggling. The goal stays on the screen the whole time, so what
+    a second copy would add is noise.
+  */
+  /*
+    THE QUESTION NARROWED TO TWO, WHICH IS WHAT A PERSON OFFERS WHEN THE WORDS
+    ARE NOT LANDING. Tried before the app's own hint and instead of the move,
+    because it *is* the move: the same question, asked in a way the learner can
+    answer by recognizing rather than producing. In Estonian and in character,
+    which the hint below is not, so the app steps out only where no choice
+    could be built.
+  */
+  const narrowed = input.tries === NUDGE_AFTER && !advancing(response) ? input.choice : null;
+  if (narrowed) {
+    out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
+    return out;
+  }
+  if (input.tries === NUDGE_AFTER && !advancing(response)) {
+    const hint = coachFor(beat, card);
+    if (hint) out.push({ text: hint, provenance: "coach" });
   }
 
   /*
@@ -414,8 +591,31 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     themselves rather than rephrasing. A fresh line where there is one;
     otherwise the same line once more; otherwise what they did, in English.
   */
-  const sayAgain = sayAgainWanted(response, heard);
-  if (sayAgain) {
+  const sayAgain = sayAgainWanted(response, reading, heard);
+  /*
+    AND THE FOURTH TIME OF ASKING IS NOT THE SECOND.
+
+    The rule above is that a question is put again rather than put differently,
+    and it is right about the turn straight after a miss: a person who was not
+    understood repeats themselves, and rephrasing there was what made a learner
+    read three questions and think they had answered two of them. It is not
+    right for ever. Past the point where the app has already narrowed the
+    question and stepped out of character to say what is wanted, the same
+    sentence a fourth time is the machine repeating itself at somebody who has
+    told it twice that this sentence is not landing, which is the thing the
+    nudge exists to stop.
+
+    So: verbatim on the first re-asks, and once `tries` is past `NUDGE_AFTER`,
+    another line the bank already holds for this beat. Authored and gated when
+    it was drafted, off `others`, which the caller has already filtered to what
+    this run has not said, so nothing repeats and nothing is written here. Where
+    the bank holds only the one line, `others` is empty and the behaviour is
+    exactly what it was: this can never invent a way of asking.
+  */
+  const another = sayAgain && (input.tries ?? 0) > NUDGE_AFTER ? input.others?.[0] ?? null : null;
+  if (another) {
+    out.push({ text: another, provenance: "scripted" });
+  } else if (sayAgain) {
     out.push({ text: heard, provenance: "again" });
   } else if (line && line.provenance !== "fallback") {
     out.push(line);
@@ -430,13 +630,43 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     (§8); a brisk one has already repeated it in Estonian above and says no
     more. Never scolded, and the turn has already cost its try.
   */
-  if (response === "english" && input.translates) out.push(stage(stageFor(beat, card)));
+  if (response === "english" && (input.translates || input.askedForEnglish)) {
+    out.push(stage(stageFor(beat, card)));
+  }
 
   return out;
 }
 
-function sayAgainWanted(response: Response | null, heard: string | null): heard is string {
-  return (response === "repeat" || response === "english") && Boolean(heard);
+/**
+ * Whether the question is put again rather than put differently.
+ *
+ * A PERSON WHO DID NOT GET AN ANSWER REPEATS THE QUESTION. The first version
+ * of this said so in a comment and then applied it to two readings out of
+ * three, so a turn read as `offtarget`, which is the commonest way to miss,
+ * walked the ladder for a fresh line and asked the same beat in different
+ * words. On the transcript that produced `Kuhu te lähete?`, then `Kuhu te
+ * sõidate?`, then `Mis kell te sõidate?`, and there was nothing on the screen
+ * to tell a rephrased question apart from a new one: the learner read three
+ * questions and thought they had answered two of them.
+ *
+ * `incomplete` is deliberately not here. There the turn met part of the beat
+ * and the next question is genuinely a narrower one, which is what `narrow`
+ * is for. Everything else that missed gets the same words back, which is also
+ * a booking the ledger never has to make (§16).
+ */
+/** Whether this response leaves the beat behind, so no hint about it is owed. */
+function advancing(response: Response | null): boolean {
+  return response === "answer" || response === "moveOn" || response === "counter";
+}
+
+function sayAgainWanted(
+  response: Response | null,
+  reading: TurnReading | null,
+  heard: string | null,
+): heard is string {
+  if (!heard) return false;
+  if (response === "repeat" || response === "english") return true;
+  return response === "narrow" && reading === "offtarget";
 }
 
 /**

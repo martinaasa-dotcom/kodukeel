@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
+import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import { cardInPlay, counterBeat, datumLine, replyFor, reaction, stageFor, wantsFreshLine, type ReplyInput } from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
@@ -28,7 +29,7 @@ const NOTHING = fallbackLine(FALLBACK_PHRASE);
 function input(over: Partial<ReplyInput> = {}): ReplyInput {
   return {
     beat: ASK, answered: GREET, response: "answer", reading: "complete",
-    line: FRESH, heard: "Tere!", card: CARD, translates: false, acknowledges: true, met: 1, hurdle: null, echo: null,
+    line: FRESH, heard: "Tere!", said: "tere", card: CARD, translates: false, acknowledges: true, met: 1, hurdle: null, echo: null,
     ...over,
   };
 }
@@ -49,6 +50,30 @@ describe("a turn that landed", () => {
     expect(lines[0]?.reaction).toBe(true);
     expect(lines[0]?.provenance).toBe("attested");
     expect(lines[1]).toEqual(FRESH);
+  });
+
+  /*
+    A WORD IS SAID BACK TO A WORD, NOT TO A SENTENCE. `Ma soovin osta pilet`
+    came back as a bubble reading `Pilet.` and then the next question, which
+    reads as a stutter and was reported as the app breaking.
+  */
+  it("says the answer back to a one-word answer", () => {
+    const lines = replyFor(input({ answered: ASK, beat: OFFER, said: "pea", echo: "pea" }));
+    expect(texts(lines)[0]).toBe("Pea.");
+  });
+
+  it("acknowledges a sentence rather than repeating one word out of it", () => {
+    const lines = replyFor(input({ answered: ASK, beat: OFFER, said: "mul on pea valus", echo: "pea" }));
+    expect(texts(lines)[0]).not.toBe("Pea.");
+    expect(REACTIONS.acknowledge).toContain(lines[0]?.from);
+  });
+
+  it("still puts a word right inside a sentence, because a recast is a correction and not an echo", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: OFFER, said: "ma lähen pood", echo: "tuppa", recast: true,
+    }));
+    expect(texts(lines)[0]).toBe("Tuppa.");
+    expect(lines[0]?.provenance).toBe("recast");
   });
 
   it("is not acknowledged after a greeting, since the next line answers it", () => {
@@ -128,13 +153,138 @@ describe("a turn nobody could read", () => {
   });
 });
 
+describe("a learner who asks for English", () => {
+  /*
+    The course teaches the phrase in its first unit, so refusing it is the app
+    ignoring something it taught. The persona's own answer to a turn *written*
+    in English is a separate question: being asked is not the same as being
+    written to in a language you do not speak.
+  */
+  it("is answered in English even by somebody who would not have offered", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false, askedForEnglish: true,
+    }));
+    expect(texts(lines)).toContain("They ask where it hurts.");
+  });
+
+  it("still hears it in Estonian first, because that is what they came for", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false, askedForEnglish: true,
+    }));
+    expect(texts(lines)[0]).toBe("Kus teil valutab?");
+  });
+
+  it("does not put a brisk persona into English for somebody who merely wrote it", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "english", reading: "english",
+      heard: "Kus teil valutab?", line: NOTHING, translates: false,
+    }));
+    expect(texts(lines)).not.toContain("They ask where it hurts.");
+  });
+});
+
+describe("a learner who is stuck", () => {
+  /*
+    The other side asks again and then gives up, which is what a counter does
+    and is the wrong thing for a rehearsal to do on its own: a learner
+    watching it cannot tell an answer that was wrong from one that was in the
+    wrong shape. So the app says what is wanted, in its own voice.
+  */
+  it("is told what the beat wants, by the app rather than by the other side", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER,
+    }));
+    const hint = lines.find((line) => line.provenance === "coach");
+    expect(hint?.text).toContain("pea");
+  });
+
+  it("is not told on the first miss, which is an ordinary part of a conversation", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: 1,
+    }));
+    expect(lines.some((line) => line.provenance === "coach")).toBe(false);
+  });
+
+  it("is not told the same thing again on every miss after it", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1,
+    }));
+    expect(lines.some((line) => line.provenance === "coach")).toBe(false);
+  });
+
+  it("is told nothing about a beat they have just finished", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: OFFER, response: "answer", reading: "complete", tries: NUDGE_AFTER,
+    }));
+    expect(lines.some((line) => line.provenance === "coach")).toBe(false);
+  });
+});
+
+describe("time passing between two beats", () => {
+  /*
+    A scene can walk somebody across town, and the screen said so nowhere: a
+    learner still standing where their card had put them answered "where are
+    you now?" honestly and was refused for it.
+  */
+  const LATER: BeatSpec = { ...OFFER, meanwhile: "Five minutes later. You are at the shop." };
+
+  it("is said before the line that assumes it", () => {
+    const lines = replyFor(input({ answered: ASK, beat: LATER, response: "answer", reading: "complete" }));
+    const at = lines.findIndex((line) => line.provenance === "meanwhile");
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(at).toBeLessThan(lines.length - 1);
+  });
+
+  it("is said once, on the turn that arrives, and not again on every miss", () => {
+    const lines = replyFor(input({
+      answered: LATER, beat: LATER, response: "narrow", reading: "offtarget", heard: "Kus sa oled?",
+    }));
+    expect(lines.some((line) => line.provenance === "meanwhile")).toBe(false);
+  });
+});
+
+describe("running out of patience", () => {
+  /*
+    It drew from the acknowledgment rotation, so letting a question go could
+    come out as `Aitäh.` or `Jah.`: the other side thanking somebody for an
+    answer they never gave, at the moment the learner most needed to know
+    they had not been understood.
+  */
+  it("is never a thank you and never a yes", () => {
+    for (let met = 0; met < 6; met += 1) {
+      const lines = replyFor(input({
+        answered: ASK, beat: OFFER, response: "moveOn", reading: "offtarget", met,
+      }));
+      expect(lines[0]?.from).toBe(REACTIONS.letGo[0]);
+    }
+  });
+});
+
 describe("a turn that was understood and missed the point", () => {
-  it("is asked again in other words where the ladder has some", () => {
+  /*
+    It used to be asked again in other words, which is the fault a learner
+    reported the whole module for: nothing said the turn had missed, and the
+    question came back rephrased, so three questions read as three new ones.
+  */
+  it("says so, and asks the same question again", () => {
     const other: SpokenLine = { text: "Kas teil on pea valus?", provenance: "scripted" };
     const lines = replyFor(input({
       answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", heard: "Kus teil valutab?", line: other,
     }));
-    expect(lines).toEqual([other]);
+    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+    expect(lines[0]?.reaction).toBe(true);
+    expect(lines[1]?.provenance).toBe("again");
+  });
+
+  it("costs the ladder no booking, since the line is one the learner already heard", () => {
+    expect(wantsFreshLine("narrow", "Kus teil valutab?", "offtarget")).toBe(false);
+    // A turn that met part of the beat is asked a narrower question, which is a fresh one.
+    expect(wantsFreshLine("narrow", "Kus teil valutab?", "incomplete")).toBe(true);
   });
 
   it("is asked the same question again where it has none", () => {
@@ -142,6 +292,37 @@ describe("a turn that was understood and missed the point", () => {
       answered: ASK, beat: ASK, response: "narrow", reading: "incomplete", heard: "Kus teil valutab?", line: NOTHING,
     }));
     expect(lines).toEqual([{ text: "Kus teil valutab?", provenance: "again" }]);
+  });
+
+  /*
+    The synthesis of "put the question again, do not put it differently" with
+    "do not repeat yourself at somebody who is already stuck": verbatim while
+    the app is still repeating and narrowing, another authored line once it has
+    run out of both. Only ever a line the bank already held.
+  */
+  it("is asked the same question verbatim while it is still worth repeating", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: 1, others: ["Kus valu on?"],
+    }));
+    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+  });
+
+  it("is put another way once repeating and narrowing have both been tried", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: ["Kus valu on?"],
+    }));
+    expect(texts(lines)).toContain("Kus valu on?");
+    expect(texts(lines)).not.toContain("Kus teil valutab?");
+  });
+
+  it("and said again where the bank holds nothing else", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING, tries: NUDGE_AFTER + 1, others: [],
+    }));
+    expect(texts(lines)).toContain("Kus teil valutab?");
   });
 
   it("is never told they were not understood", () => {

@@ -4,12 +4,15 @@ import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
-import { openWithFallback, resolveProviders } from "@/lib/tutor/provider";
-import { MAX_TURNS, MAX_TURN_CHARS, readDraw, replay, sceneContext } from "@/lib/progress/scene";
+import { openWithFallback, sceneProviders, type ChatMessage } from "@/lib/tutor/provider";
+import { MAX_TURNS, MAX_TURN_CHARS, knowing, readDraw, replay, sceneContext } from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
-import { sceneLine, type SpokenLine } from "@/lib/scenes/line";
+import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
+import { dealtNumbers } from "@/lib/scenes/props";
+import { COMPOSE_SYSTEM, composeLive } from "@/lib/scenes/prompt";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
+import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { passes, runGate } from "@/lib/scenes/gate";
@@ -18,7 +21,6 @@ import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "@/lib/scenes/state"
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
 import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
-import { MAX_WORDS } from "@/lib/scenes/retrieval";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -64,6 +66,15 @@ export const dynamic = "force-dynamic";
 
 /** A bound on a body rather than on a scene. */
 const MAX_CONTEXT_CHARS = 600;
+/**
+ * How many exchanges of the run the composer is shown.
+ *
+ * Enough that a line can answer something said several turns ago, which is the
+ * whole reason the conversation is passed at all, and bounded because the free
+ * models this runs on have small windows and a request refused for length is a
+ * turn with no line in it. Six is about half a scene.
+ */
+const MAX_CONTEXT_TURNS = 6;
 /** Per instance, and not the thing that bounds cost: the ledger is (§16). */
 const PER_MINUTE = 30;
 const NO_STORE = { "cache-control": "no-store" };
@@ -134,7 +145,17 @@ export async function POST(request: Request) {
     : [];
 
   const draw = readDraw(row!.transcript);
-  const { state, response } = replay(context, draw, turns);
+  /*
+    WHETHER THE LEARNER WAS UNDERSTOOD IS A WIDER QUESTION THAN WHAT THIS
+    SCENE MAY SAY. The scene's list is its declared units and the marker was
+    widened once to the course, so a real Estonian word from anywhere else
+    read as noise and the other side said `Ma ei saa aru` to somebody who had
+    written perfectly good Estonian. `knowing` asks the forms list about the
+    spellings in this run, which is the accept side of ADR-005 and the reason
+    that file exists.
+  */
+  const marking = await knowing(context, turns.map((t) => t.said));
+  const { state, response } = replay(marking, draw, turns);
   const current = currentBeat(scene, state);
   /*
     A curveball in the way is what the other side says next and what the
@@ -248,8 +269,10 @@ export async function POST(request: Request) {
     reading: progress.reading,
     line,
     heard,
+    said: last?.said ?? null,
     card,
     translates: persona?.translates ?? false,
+    askedForEnglish: last?.wantsEnglish === true,
     acknowledges: persona?.acknowledges ?? true,
     echo: last?.matched?.[0] ?? null,
     /*
@@ -258,14 +281,56 @@ export async function POST(request: Request) {
       `readTurn` already put first in `matched`. The flag is what labels it.
     */
     recast: Boolean(last?.slips?.some((slip) => slip.form && slip.form === last?.matched?.[0])),
+    /*
+      And where they reached for the word in English, the Estonian is said back
+      as the word they were reaching for rather than as their own word put
+      right, because it was not their word.
+    */
+    english: Boolean(last?.slips?.some((slip) => slip.kind === "english")),
     aside,
     /*
       The word to hand over where the turn said they were not following. The
       beat they were answering, not the one coming next: they are stuck on
       the question they were asked.
     */
-    offer: response === "help" && answered ? offerFor(answered, card) : null,
+    offer: (response === "help" || response === "moveOn") && answered
+      ? offerFor(answered, card, context.marker.questionWords)
+      : null,
     met: state.done.length,
+    /*
+      How long they have been on this beat, so the app knows when to step out
+      of character and say what is wanted (`lib/scenes/coach.ts`). Turns that
+      cost no patience are still turns the learner took, so they are counted:
+      somebody who has answered three times and got nowhere is stuck whether
+      or not the machine spent a try on it.
+    */
+    tries: answered ? state.turns.filter((turn) => turn.beatId === answered.id).length : 0,
+    /*
+      The beat's other banked lines, so a question that has already been put
+      twice and narrowed once can be put a different way rather than a fourth
+      identical time (`replyFor`). `fresh` is the same filter the aside uses:
+      the bank's rows for the beat, minus whatever this run has already said,
+      so nothing repeats and no line is composed for it.
+    */
+    others: fresh(speaking?.id),
+    /*
+      And the same question narrowed to two, where the beat's own words or the
+      card's own values can supply a pair. Built off the beat the learner was
+      answering rather than the one coming next: they are stuck on the question
+      they were asked. The roll is the turn count, which is stable across a
+      replay, so a choice does not swap sides under somebody reading it.
+    */
+    choice: answered && !isOver(scene, state)
+      ? choiceOf({
+          beat: answered, card, lexicon: context.lexicon,
+          dealt: new Map(
+            scene.props.flatMap((prop) =>
+              prop.kind === "word" || prop.kind === "weekday" ? [[prop.slot, prop.oneOf] as const] : [],
+            ),
+          ),
+          roll: state.turns.length,
+        })
+      : null,
   });
   /*
     THE OTHER SIDE'S LINE, WITH THE DICTIONARY UNDER IT.
@@ -289,7 +354,13 @@ export async function POST(request: Request) {
     reads the run and may call a model.
   */
   const glossedLines = async (lines: readonly SpokenLine[]) => {
-    const spoken = lines.filter((l) => l.provenance !== "unspoken" && l.provenance !== "english");
+    /*
+      Only lines somebody said in Estonian are glossed, off the one definition
+      of which those are: a hint from the app and a break in time are English
+      and would come back as a row of dictionary misses under a sentence
+      nobody spoke.
+    */
+    const spoken = lines.filter((l) => isSpokenEstonian(l.provenance));
     if (spoken.length === 0) return lines;
     const tokens = await glossSentences(spoken.map((l) => ({ et: l.text, form: null })));
     const byText = new Map(spoken.map((l, i) => [l.text, tokens[i]]));
@@ -315,23 +386,82 @@ export async function POST(request: Request) {
     if (asideWantsModel) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
-  if (!wantsFreshLine(turns.length > 0 ? response : null, heard)) {
+  if (!wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
     if (asideWantsModel) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
   const beat = spokenFor;
 
-  const said = Array.isArray(body.said)
-    ? body.said
-        .filter((v): v is string => typeof v === "string")
-        .slice(-2)
-        .map((v) => v.slice(0, MAX_CONTEXT_CHARS))
-    : [];
+  /*
+    THE CONVERSATION SO FAR, BOTH SIDES, RATHER THAN THE LEARNER'S LAST TWO
+    LINES.
+
+    What went before was `body.said`: the last two things the learner typed, as
+    two `user` messages with nothing between them. A model reading that is
+    reading half a conversation with the halves it did not write missing, so it
+    could answer the beat and could not answer the person. Somebody who said at
+    turn two that they were in a hurry and is asked at turn six whether the
+    afternoon suits them has been talked at rather than talked to, and that is
+    most of what "it does not answer me like a human" was about.
+
+    So it is the run's own turns, alternating, off `state.turns`, which holds
+    both `said` and the `heard` it was answering. Same trust level as the field
+    it replaces, since both come from the client's transcript and are re-read by
+    `readTurn` on the server before any of this; what is different is that it is
+    complete. Never interpolated into an instruction (§17): the exchange goes in
+    as messages, so a learner can type anything into it and the blast radius is
+    one withheld line.
+
+    Capped at `MAX_CONTEXT_TURNS` exchanges. A conversation is a dozen turns and
+    the free models this runs on have small windows, so the cap is what stops a
+    long run quietly turning into a request that is refused for length at
+    exactly the point the conversation has become worth reading.
+  */
+  const conversation: ChatMessage[] = state.turns
+    .slice(-MAX_CONTEXT_TURNS)
+    .flatMap((turn) => [
+      ...(turn.heard ? [{ role: "assistant" as const, content: turn.heard.slice(0, MAX_CONTEXT_CHARS) }] : []),
+      { role: "user" as const, content: turn.said.slice(0, MAX_CONTEXT_CHARS) },
+    ]);
+
+  /*
+    WHAT THE LEARNER APPEARS TO HAVE SAID, IN ENGLISH, MADE BY THE DICTIONARY.
+
+    A beginner's Estonian is short, endingless and often a word off, and the
+    model composing the other side's next line reads it raw. Handing it a
+    word-by-word reading is the cheapest way to make that line about what they
+    actually said rather than about what the beat expected, and it is the thing
+    a bilingual listener does without noticing: hear it, understand it, answer
+    in Estonian.
+
+    `lib/dict/glossed.ts` makes it, which means the DICTIONARY makes it: every
+    gloss here is the entry's own, vouched at the confidence a photographed
+    page has to clear (ADR-021), and a word it will not vouch for is simply
+    absent. No second model reads the learner's turn, nothing here can advance
+    the scene, and the reply the model writes is still checked four ways by the
+    gate before anybody sees it. It is context for one line, not a verdict:
+    `advance` still takes `Evidence` and `readTurn` is still its only producer.
+
+    Only on a turn that is going to book a call anyway, so the ordinary turn
+    pays nothing for it.
+  */
+  const readingOf = async (text: string): Promise<string> => {
+    const [tokens] = await glossSentences([{ et: text, form: null }]);
+    const seen = (tokens ?? [])
+      .filter((token) => token.word && token.entry)
+      .map((token) => `${token.text}: ${token.entry!.gloss.split(/[,;]/)[0]!.trim()}`);
+    return seen.join("; ");
+  };
 
   const shared = {
     beat,
     lexicon: context.lexicon,
-    gate: context.gate,
+    /*
+      The gate, plus the numbers this run was dealt. Per run rather than per
+      scene, which is why it is joined here rather than in `sceneContext`: the
+      card is drawn when the run opens and the scene knows nothing about it.
+    */
+    gate: { ...context.gate, dealt: dealtNumbers(card) },
     topic: context.topic.get(beat.id) ?? new Set<string>(),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
@@ -340,15 +470,22 @@ export async function POST(request: Request) {
   };
 
   /*
-    Two rungs cost a comparison and are tried together here: a phrase the
-    course teaches, then a line drafted in advance and gated then (ADR-025
-    amendment 1). Either answers without a booking, which is what lets a
-    keyless deployment hold a conversation on a beat retrieval cannot fill.
-    Booking a call for a line the dictionary already had would ration a
-    learner over a request nobody made.
+    WHAT THIS TURN SAYS IF THE MODEL CANNOT, WORKED OUT BEFORE THE MODEL IS
+    ASKED.
+
+    Three rungs, none of which costs a request: a phrase the course teaches,
+    then a line drafted in advance and gated then (ADR-025 amendment 1), then a
+    line the beat can say out of course words and this run's own dealt values
+    (`Teisipäeval kell 13:30?`). This is the whole of what a keyless deployment
+    ever says, unchanged, and it is now also the safety net under composition
+    rather than the thing composition was a fallback for: the model is asked on
+    every beat, and whatever it cannot answer is answered from here.
+
+    Worked out first rather than after the call fails, because the failure
+    cases include the ledger refusing and the provider timing out, and a net
+    assembled at that point is a net assembled while somebody is waiting.
   */
   const cheap = await sceneLine({ ...shared, pool: context.pool.get(beat.id) ?? [] });
-  // A line the beat can say out of course words and the card's own values: `Teisipäeval kell 13:30?`.
   const dealt = cheap.provenance === "fallback" ? datumLine(beat, card, context.lexicon) : null;
   const move = cheap.provenance !== "fallback" ? cheap : dealt ?? cheap;
 
@@ -361,7 +498,7 @@ export async function POST(request: Request) {
     other side answers with "ei tea", which is at least true.
   */
   if (asideWantsModel) {
-    const chain = resolveProviders();
+    const chain = sceneProviders();
     const decision = chain.length > 0 ? await authoriseCall(ownerId, "SCENE") : null;
     if (!decision?.allowed || !decision.reservation) {
       aside = shrug(context.lexicon);
@@ -370,6 +507,7 @@ export async function POST(request: Request) {
     const asking: typeof beat = { ...beat, id: `aside:${beat.id}`, move: "confirm", topic: [] };
     const drafted = await compose(chain, {
       ownerId,
+      reading: last?.said ? await readingOf(last.said) : "",
       // The booking this turn already made, so the settlement is a settlement
       // rather than a second `CALL` at the full estimate. Required rather than
       // optional for exactly this: a call site that has not thought about it
@@ -380,10 +518,10 @@ export async function POST(request: Request) {
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
-      said,
+      conversation,
       avoid: [],
     });
-    const verdict = drafted ? runGate(drafted, asking, context.gate) : null;
+    const verdict = drafted ? runGate(drafted, asking, { ...context.gate, dealt: dealtNumbers(card) }) : null;
     if (drafted && verdict && passes(verdict)) {
       aside = { text: drafted, provenance: "composed" };
     } else {
@@ -393,8 +531,19 @@ export async function POST(request: Request) {
     return answer(reply(move));
   }
 
-  if (cheap.provenance !== "fallback") return answer(reply(cheap));
-  if (dealt) return answer(reply(dealt));
+  /*
+    A COURTESY IS THE LINE, AND A MODEL ONLY PARAPHRASES IT INTO SOMETHING
+    NOBODY SAYS.
+
+    The attested rung is reachable only where the beat's pool holds a phrase
+    entry, which after §32 narrowed it is `Tere!`, `Aitäh!`, `Head aega!` and
+    their neighbours: a lexicographer recorded them, they are the whole line,
+    and there is nothing about the conversation for a drafted greeting to be
+    better about. Everywhere a beat has content to carry, which is every beat
+    that makes a scene this scene, the model is asked. See `sceneLine` for the
+    rest of the argument.
+  */
+  if (cheap.provenance === "attested") return answer(reply(cheap));
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking
@@ -403,7 +552,7 @@ export async function POST(request: Request) {
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const chain = resolveProviders();
+  const chain = sceneProviders();
   const decision = chain.length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
@@ -415,8 +564,14 @@ export async function POST(request: Request) {
       this module, marked identically, with the beats retrieval can fill. The
       difference between them is a sentence, and it is the ledger's own, since
       only the ledger knows which of the three limits was reached.
+
+      `move` rather than `cheap`, which is the fix that came with putting the
+      model first: `cheap` is the bank alone and `move` is the bank or the line
+      the beat says off the card, so a spent allowance on a beat that names a
+      time used to be answered with the repair phrase where a perfectly good
+      line was sitting one variable away.
     */
-    return answer(reply(cheap), { composed: false, note: decision?.message ?? null });
+    return answer(reply(move), { composed: false, note: decision?.message ?? null });
   }
   /*
     Held as a const so the narrowing the guard above just did survives into the
@@ -427,6 +582,7 @@ export async function POST(request: Request) {
   */
   const reservation = decision.reservation;
 
+  const learnerReading = last?.said ? await readingOf(last.said) : "";
   const line = await sceneLine({
     ...shared,
     // The attested and scripted rungs were already tried and did not answer.
@@ -434,6 +590,7 @@ export async function POST(request: Request) {
     scripted: [],
     compose: (avoid) => compose(chain, {
       ownerId,
+      reading: learnerReading,
       // The booking this turn was authorised under, so the settlement corrects
       // it rather than being written down as a second call. See `compose`.
       reservation,
@@ -452,7 +609,7 @@ export async function POST(request: Request) {
         .filter(([id]) => id !== beat.id)
         .flatMap(([, lines]) => lines.slice(0, 1))
         .slice(0, 6),
-      said,
+      conversation,
       avoid,
     }),
   });
@@ -466,9 +623,18 @@ export async function POST(request: Request) {
   */
   if (line.provenance !== "composed") {
     after(() => releaseReservation(reservation));
+    /*
+      AND THE NET CATCHES IT. The model was asked, and it did not answer or the
+      gate withheld what it wrote; the run says the line it would have said with
+      no key at all rather than the repair phrase. `line.withheld` is kept where
+      the net has nothing either, because that is the one case where the screen
+      has something to explain.
+    */
+    if (move.provenance !== "fallback") return answer(reply(move), { composed: false });
+    return answer(reply(line), { composed: false });
   }
 
-  return answer(reply(line));
+  return answer(reply(line), { composed: true });
 }
 
 /** Who is behind the desk, off the run's own row rather than out of a request. */
@@ -491,7 +657,7 @@ function personaOf(transcript: string): PersonaSpec | undefined {
  * `learnerNote` takes.
  */
 async function compose(
-  chain: ReturnType<typeof resolveProviders>,
+  chain: ReturnType<typeof sceneProviders>,
   input: {
     ownerId: string;
     /**
@@ -509,35 +675,29 @@ async function compose(
     move: string;
     /** What they are doing, in English, from their side: the beat's `they`. */
     they: string;
+    /**
+     * What the learner's last turn appears to say, word by word, from the
+     * dictionary. Empty where there is no turn yet or the dictionary could
+     * vouch for none of it, and then the model reads the Estonian alone,
+     * which is what it did before.
+     */
+    reading: string;
     register: string;
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
-    said: readonly string[];
+    /** The run so far, both sides, alternating. Empty on the opening line. */
+    conversation: readonly ChatMessage[];
     avoid: readonly string[];
   },
 ): Promise<string | null> {
-  const system = [
-    "You are one side of a short conversation in Estonian, in a role-play for a learner.",
-    "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
-    "no explanation, no quotation marks, no markdown, no list.",
-    `Use at most ${MAX_WORDS} words.`,
-    "Use only the words you are given, in any grammatical form. If you cannot say it",
-    "with those words, say the shortest thing you can with them.",
-  ].join(" ");
-
-  const live = [
-    `Your move: ${input.move}.`,
-    `What you are doing, in English: ${input.they}`,
-    `Address them as "${input.register}".`,
-    input.examples.length > 0
-      ? `Lines this character has said at other moments, for tone and length: ${input.examples.join(" | ")}`
-      : "",
-    input.avoid.length > 0
-      ? `Your last attempt used words that are not allowed here: ${input.avoid.join(", ")}.`
-      : "",
-    `Words you may use: ${input.words.join(" ")}`,
-  ].filter(Boolean).join("\n");
+  /*
+    The prompt is `lib/scenes/prompt.ts`, one definition, because
+    `npm run play:scenes` composes with it too and a harness carrying its own
+    copy measures a conversation this app does not have.
+  */
+  const system = COMPOSE_SYSTEM;
+  const live = composeLive(input);
 
   try {
     const open = await openWithFallback(
@@ -550,7 +710,7 @@ async function compose(
         cannot mark, and cannot advance the scene.
       */
       [
-        ...input.said.map((text) => ({ role: "user" as const, content: text })),
+        ...input.conversation,
         { role: "user" as const, content: "Your line:" },
       ],
       (usage, config) => {

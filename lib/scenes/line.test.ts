@@ -148,8 +148,10 @@ describe("the ladder", () => {
 
 /*
   THE SCRIPTED RUNG (ADR-025 amendment 1). A line drafted before the run and
-  gated then. It sits under the lexicographer and above the model, costs a
-  comparison, and is what a keyless deployment converses with.
+  gated then. It sits under the lexicographer and, since the model was put in
+  front of it, under the composer as well: it is what a keyless deployment
+  converses with and what a keyed one says when the free tier will not answer
+  or the gate withholds what it wrote.
 */
 describe("the scripted rung", () => {
   it("takes a recorded sentence ahead of a scripted one", async () => {
@@ -157,15 +159,47 @@ describe("the scripted rung", () => {
     expect(line.provenance).toBe("attested");
   });
 
-  it("takes a scripted line ahead of asking a model, and says which rung answered", async () => {
+  it("asks the model first and keeps the bank as the net", async () => {
     let asked = 0;
     const line = await sceneLine(request({
       scripted: ["Kas teil on valu?"],
-      compose: async () => { asked++; return "Kas teil on valu?"; },
+      compose: async () => { asked++; return "Kus on valu?"; },
+    }));
+    expect(line).toEqual({ text: "Kus on valu?", provenance: "composed" });
+    // The whole change: the bank no longer stops the model being asked.
+    expect(asked).toBe(1);
+  });
+
+  /*
+    THE THREE WAYS COMPOSITION FAILS, AND ALL THREE LAND ON THE SAME RUNG.
+
+    No provider, a provider that answers nothing, and an answer the gate
+    withheld. A learner may never see a blank turn or an error over any of
+    them, so each has a test of its own rather than one test over whichever
+    happens to be reached first.
+  */
+  it("says the banked line where no provider is configured", async () => {
+    const line = await sceneLine(request({ scripted: ["Kas teil on valu?"] }));
+    expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
+  });
+
+  it("says the banked line where the model answers nothing", async () => {
+    let asked = 0;
+    const line = await sceneLine(request({
+      scripted: ["Kas teil on valu?"],
+      compose: async () => { asked++; return null; },
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
-    // The whole point: a booked call is what this rung saves.
-    expect(asked).toBe(0);
+    // Asked, retried once, and then the net: a third attempt is the learner waiting.
+    expect(asked).toBe(2);
+  });
+
+  it("says the banked line where the gate withheld what the model wrote", async () => {
+    const line = await sceneLine(request({
+      scripted: ["Kas teil on valu?"],
+      compose: async () => "Kas teil on kõhuvalu ja peavalu?",
+    }));
+    expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
   });
 
   it("passes over a scripted line this run has already used", async () => {
@@ -177,19 +211,15 @@ describe("the scripted rung", () => {
     expect(line.provenance).toBe("scripted");
   });
 
-  it("falls through to the model once every scripted line has been said", async () => {
+  it("reaches the repair phrase only once the bank is empty too", async () => {
     const line = await sceneLine(request({
       scripted: ["Kas teil on valu?"],
       used: new Set(["Kas teil on valu?"]),
-      compose: async () => "Kus on valu?",
+      compose: async () => null,
     }));
-    expect(line.provenance).toBe("composed");
+    expect(line.provenance).toBe("fallback");
   });
 
-  it("answers keyless where a scripted line exists, rather than asking again", async () => {
-    const line = await sceneLine(request({ scripted: ["Kas teil on valu?"] }));
-    expect(line.provenance).toBe("scripted");
-  });
 });
 
 /**

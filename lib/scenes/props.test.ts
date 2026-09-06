@@ -40,6 +40,36 @@ describe("the role card", () => {
     expect(drawn.lemmas, "a time reached for a word this module may not write").toEqual([]);
   });
 
+  /*
+    HALF PAST THREE IS NOT THREE. The bare hour was taken as the first two
+    characters of the value whatever the minutes were, so a card that said
+    15:30 accepted `15`, and the marker looks for a literal in the text: a
+    learner who wrote `ma tulen 15 minuti pärast` was recorded as having given
+    the departure time. The way to say half past is `pool neli`, which
+    `timeWords` supplies.
+  */
+  it("offers the bare hour only where the time is on the hour", () => {
+    const onTheHour = drawProp({ kind: "time", slot: "t", from: 15, to: 15 }, () => 0);
+    expect(onTheHour.value).toBe("15:00");
+    expect(onTheHour.literal).toContain("15");
+
+    const half = drawProp({ kind: "time", slot: "t", from: 15, to: 16 }, () => 0.4);
+    expect(half.value).toBe("15:30");
+    expect(half.literal, "half past three was accepted as three").not.toContain("15");
+  });
+
+  /*
+    And in both spellings of it. The hour was the first two characters, so an
+    08:00 card took `08` and never `8` while a 15:00 card took `15`: whether a
+    learner could write the hour the way anybody writes it depended on a
+    leading zero the card printed and they did not.
+  */
+  it("takes a single-digit hour with the zero and without it", () => {
+    const early = drawProp({ kind: "time", slot: "t", from: 8, to: 8 }, () => 0);
+    expect(early.value).toBe("08:00");
+    expect(early.literal).toEqual(expect.arrayContaining(["08", "8", "8:00"]));
+  });
+
   it("keeps a time inside the window it was given", () => {
     for (let seed = 1; seed <= 80; seed += 1) {
       const hour = Number(drawProp(TIME, seeded(seed)).value.slice(0, 2));

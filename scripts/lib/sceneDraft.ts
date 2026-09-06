@@ -28,7 +28,18 @@ import { buildCaseTable, stemsFrom } from "../../lib/estonian/derive";
 import { derivedVerbForms } from "../../lib/estonian/conjugate";
 import { parseGovernment } from "../../lib/estonian/government";
 import type { CaseKey } from "../../lib/estonian/types";
-import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS } from "../../lib/tutor/provider";
+/*
+  The token budget is the app's, not a number of this script's own.
+
+  It was 60 here, which is generous for one short sentence and is the wrong
+  question: several free models spend their whole budget in a reasoning field
+  and write into `content` only after it, so at 60 they answer 200 with an
+  empty string and this harness recorded that as the model declining. Measured
+  on one beat: `openai/gpt-oss-120b` and `gemini-3.6-flash` both answered empty
+  at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
+  disqualifies a model the app can use is worse than no measurement.
+*/
+import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS, REPLY_TOKENS } from "../../lib/tutor/provider";
 import { buildLexicon, caseKeyFor, formsOf, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import type { GateContext, GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS } from "../../lib/scenes/retrieval";
@@ -358,7 +369,7 @@ export async function compose(
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: 60,
+          model: link.model, temperature: 0.8, max_tokens: REPLY_TOKENS,
           messages: [{ role: "system", content: SYSTEM }, { role: "user", content: user }],
         }),
       });

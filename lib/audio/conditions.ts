@@ -42,6 +42,58 @@ export type Hearing = "on" | "off";
  */
 export const DEFAULT_HEARING: Hearing = "on";
 
+/**
+ * HOW MUCH THE APP HELPS, WHICH IS NOT THE SAME QUESTION AS HOW HARD THEY ARE.
+ *
+ * A scene had one dial and it was about the other side: how many things go
+ * wrong, how brisk they are, how much patience they have. Nothing was about
+ * how much the *app* holds the learner's hand, and it holds both hands. Every
+ * line the other side says is on the screen as text at the same moment it is
+ * in the ear, and the objective is written out in English underneath. In a
+ * shop you get neither. So the one thing that actually breaks down at a
+ * counter, catching it the first time at somebody else's speed and knowing
+ * what to say without being told, was the one thing a rehearsal never
+ * rehearsed.
+ *
+ * Three steps, and they are what makes a second run worth having. The debrief
+ * has always ended by saying the second run of a scene is where most of it
+ * sticks, and until there was a support dial that was a sentence with nothing
+ * behind it: the second run was the first run again. Now it can be the same
+ * scene with the subtitles off.
+ *
+ *   guided  the words and the objective, which is how this has always read
+ *   listen  the line is spoken and its words wait behind a press
+ *   cold    the objective waits behind a press as well
+ *
+ * `guided` is the default and that is the ordinary rule about a missing row
+ * rather than the exception `DEFAULT_HEARING` makes: the other two are harder
+ * than what everybody has had, and a learner who arrives to find the words
+ * gone has been handed a different app than the one they left.
+ *
+ * NOTHING IS LOCKED AND NOTHING IS RECORDED. Both presses are always there and
+ * neither is written down: the point is to try first, not to be marked on
+ * whether you looked. A scene that punished looking would teach people to
+ * guess rather than to ask, which is the opposite of the skill.
+ */
+export type Support = "guided" | "listen" | "cold";
+
+export const DEFAULT_SUPPORT: Support = "guided";
+
+/** An unset row and an unrecognised value both read as the default. */
+export function supportFrom(value: string | null | undefined): Support {
+  return value === "listen" || value === "cold" ? value : "guided";
+}
+
+/** Whether the other side's words wait behind a press at this level. */
+export function hidesWords(support: Support): boolean {
+  return support !== "guided";
+}
+
+/** Whether the objective waits behind a press at this level. */
+export function hidesGoal(support: Support): boolean {
+  return support === "cold";
+}
+
 /** An unset row and an unrecognised value both read as the default. */
 export function hearingFrom(value: string | null | undefined): Hearing {
   return value === "off" ? "off" : "on";

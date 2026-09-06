@@ -768,6 +768,39 @@ building it into Anu, who streams and so cannot be gated; a recognizer advancing
 and turned down; a model deciding whether the learner was understood, which is the judgment it is
 least qualified to make with the worst failure available; and a score.
 
+**ADR-025 amendment 1: the model writes what the other person says, on every beat, and still
+decides nothing about the learner.**
+*Context:* the ladder above asked a model only where retrieval and the bank had both missed, so on
+about half the beats in the catalogue the other side said a line drafted months earlier against the
+beat alone. That line cannot answer what the learner said three turns ago, because it was written
+before the learner existed, and "it does not answer me like a human" was the report. The reviewing
+argument for keeping the bank in front (a line gated yesterday and read by a person since outranks
+one composed a second ago) weighs the two model-written rungs by how much review they have had and
+misses the thing that decides whether a line works in a conversation, which is whether it is about
+the conversation. *Decision:* composition is attempted on every beat that carries content, and the
+prompt is given the run's own turns, both sides, alternating, capped at six exchanges. The bank
+becomes the net rather than a rung above: no key, no allowance, no answer, or an answer the gate
+withheld, and the run says the drafted line, then the line the beat says off the card, then the
+repair phrase, exactly as a keyless deployment does today. A recorded sentence keeps the top of the
+ladder, since after §32 the attested rung is reachable only for a courtesy and what a model does
+with `Tere!` is paraphrase a fixed phrase into something nobody says. The gate gains a fifth check,
+`facts`: a digit run in a composed line has to be one the card dealt, because the other four are
+about words, a number is not a word, and a model asked first on a beat that names a time can
+otherwise invite the learner to agree to an appointment nobody offered. *What does not move:*
+`readTurn` and `satisfies` still decide whether a turn met a beat, off the dictionary and the drawn
+card and nothing else; `advance` still takes `Evidence` and `readTurn` is still its only producer,
+so no model output can reach the decision even by accident. **The model may now write what the other
+person says. It still never decides whether the learner was understood.** Every composed line passes
+the same gate against the same closed word list it always did, every call is booked and settled
+through `lib/usage/ledger.ts` as before, and the screen still names the rung that answered.
+*Rejected:* committing a whole run to one mode up front, to avoid a mixed voice within a
+conversation. The failures that would justify it are structural (no key, no credit, a spent daily
+allowance) and are already reached identically on every turn, so storing a mode would be a second
+source of truth for something re-derivable, which is ADR-014's own rule; the failures that are not
+structural are per-minute rate limits that recover inside a single conversation, and a run-level
+commit would spend a whole conversation on one bad minute. The remaining source of mixing is the
+chain walking to a second model, which happens only when the alternative is no line at all.
+
 **ADR-026: Readiness for real life is read per situation on three rungs, and recognition alone
 never clears the second.**
 *Context:* a vocabulary app can compute "you would understand 81 percent of everyday situations"

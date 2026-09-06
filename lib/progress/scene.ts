@@ -25,13 +25,15 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { GateContext, GovernedWord } from "@/lib/scenes/gate";
-import { buildLexicon, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
+import { buildLexicon, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
 import { timeWords, type RoleCard } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
-import { courseForms } from "@/lib/dict/facts";
+import { courseForms, substitutes } from "@/lib/dict/facts";
+import { sensesOf } from "@/lib/dict/synonyms";
+import { isKnownForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } from "@/lib/scenes/run";
 import { randomUUID } from "node:crypto";
@@ -88,7 +90,12 @@ export interface SceneContext {
 }
 
 /** One entry as this module needs it: `DictEntry`, its id, and its government. */
-export type Row = DictEntry & { readonly id: string; readonly government: string | null };
+export type Row = DictEntry & {
+  readonly id: string;
+  readonly government: string | null;
+  /** The English gloss, for the marker's "they reached for it in English" rule. */
+  readonly gloss?: string | null;
+};
 
 /**
  * Builds the context for one scene.
@@ -102,7 +109,7 @@ export type Row = DictEntry & { readonly id: string; readonly government: string
 export async function sceneContext(sceneId: string): Promise<SceneContext | null> {
   const scene = sceneById(sceneId);
   if (!scene) return null;
-  const [rows, known] = await Promise.all([
+  const [rows, known, stand] = await Promise.all([
     readEntries([...sceneLemmas(scene)]),
     /*
       What the *course* can account for, for deciding whether the learner was
@@ -112,9 +119,117 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
       say, which is the whole of §6.
     */
     courseForms(),
+    /*
+      AND WHAT ELSE THE LEARNER COULD HAVE SAID AND MEANT THE SAME THING. A
+      beat may name only words the scene's units teach, so the list of what
+      meets it can never hold every way Estonian says the thing, and a learner
+      who knows a second word was refused for knowing it. The relation is
+      derived from the dictionary's own glosses (`lib/dict/synonyms.ts`) and
+      cached beside the other facts about the shared dictionary.
+    */
+    substitutes(),
   ]);
   const context = contextFromRows(scene, rows);
-  return { ...context, marker: { ...context.marker, known: (word: string) => known.has(word) } };
+  /*
+    ACCEPT ONLY, AND A LEXICON OF ITS OWN. The scene's own list stays what the
+    other side may say and what a model may compose inside, which is the whole
+    of the design's §6; these forms are read when a turn is marked and nowhere
+    else. Resolved here because it needs a query, and bounded by the scene's
+    own lemmas rather than by the dictionary.
+  */
+  const wanted = new Map<string, readonly string[]>();
+  for (const lemma of sceneLemmas(scene)) {
+    const also = stand.get(lemma);
+    if (also && also.length > 0) wanted.set(lemma, also);
+  }
+  const standRows = wanted.size > 0
+    ? await readEntries([...new Set([...wanted.values()].flat())])
+    : [];
+  return {
+    ...context,
+    marker: {
+      ...context.marker,
+      known: (word: string) => known.has(word),
+      /*
+        The English for each of the scene's own words, so a learner who reaches
+        for one in English is understood and told the Estonian. One sense per
+        entry off the dictionary's own gloss, and single words only: a sense of
+        several words could not be matched against one token without parsing
+        English, which this app does not do.
+      */
+      englishFor: new Map(
+        rows
+          .map((row) => [
+            row.lemma,
+            sensesOf(row.gloss ?? "").map((sense) => sense.of).filter((sense) => !/\s/.test(sense)),
+          ] as const)
+          .filter(([, senses]) => senses.length > 0),
+      ),
+      ...(standRows.length > 0
+        ? { substitutes: { forLemma: wanted, lexicon: buildLexicon(standRows) } }
+        : {}),
+    },
+  };
+}
+
+/**
+ * How many spellings one request will look up in the forms list. A turn is a
+ * handful of words and a run is a dozen turns; the bound is here so a client
+ * sending forty turns of forty words cannot turn one reply into a file read
+ * per word.
+ */
+const KNOWN_LOOKUPS = 80;
+
+/**
+ * The context, widened to know that the words in these turns are Estonian.
+ *
+ * TELLING SOMEBODY THEY WERE INCOMPREHENSIBLE IS THE WORST THING THIS MODULE
+ * CAN DO, AND IT WAS THE DEFAULT.
+ *
+ * `readTurn` reads a turn it can vouch for no word of as `unrecognised`, and
+ * the other side answers that with `Ma ei saa aru`. What it vouches against
+ * was the scene's own units, widened once to the course, which is 1,449 words:
+ * everything else in the language read as noise. A learner answered `Tere!`
+ * with `Tervitused!`, which is Estonian, which is a greeting, and which the
+ * course does not happen to teach, and was told they had not been understood.
+ * That is the app calling somebody's correct Estonian gibberish, on the
+ * screen whose whole purpose is that being stuck is survivable.
+ *
+ * `prisma/data/forms/` is the answer and it is the reason that file exists:
+ * 5.7 million spellings, and the one question it answers is "is that an
+ * Estonian word". This is the accept side of ADR-005, exactly as the word
+ * game is: a spelling let through here costs a turn being read as real
+ * Estonian off the point rather than as noise, and it can never become a card
+ * answer, a marking target or a word the beat accepts, because a requirement
+ * is still met only against the scene's own lexicon.
+ *
+ * So `unrecognised` now means what a person means by it: there was nothing
+ * in there anybody could read. Everything else is `offtarget`, which is a
+ * narrower re-ask and never an accusation.
+ */
+export async function knowing(
+  context: SceneContext,
+  said: readonly string[],
+): Promise<SceneContext> {
+  const already = context.marker.known;
+  const asking = [...new Set(said.flatMap((text) => words(text)))]
+    .filter((word) => !context.lexicon.forms.has(word) && !already?.(word))
+    .slice(0, KNOWN_LOOKUPS);
+  if (asking.length === 0) return context;
+
+  const found = new Set<string>();
+  await Promise.all(asking.map(async (word) => {
+    if (await isKnownForm(word)) found.add(word);
+  }));
+  if (found.size === 0) return context;
+
+  return {
+    ...context,
+    marker: {
+      ...context.marker,
+      known: (word: string) => found.has(word) || Boolean(already?.(word)),
+    },
+  };
 }
 
 /** Every lemma a scene may reach: its units, its beats' topics, its props, and the way out. */
@@ -183,6 +298,9 @@ async function readEntries(lemmas: readonly string[]): Promise<Row[]> {
     where: { lemma: { in: [...lemmas] } },
     select: {
       id: true, lemma: true, pos: true, cefr: true, examples: true, government: true,
+      // The English gloss, so a learner who reaches for the word in English is
+      // understood and told the Estonian (`englishFor` in the marker).
+      translation: true,
       forms: { select: { formType: true, value: true } },
     },
     // Ordered because the pools below are cut, and because two entries can
@@ -202,6 +320,7 @@ async function readEntries(lemmas: readonly string[]): Promise<Row[]> {
     }
     return {
       id: row.id,
+      gloss: row.translation,
       government: row.government,
       lemma: row.lemma,
       pos: row.pos,
@@ -716,7 +835,7 @@ export async function finishRun(input: {
     every turn. Two markers would be two answers to "were you understood", and
     the one nobody watches is the one that drifts.
   */
-  let { state } = replay(context, draw, input.turns);
+  let { state } = replay(await knowing(context, input.turns.map((t) => t.said)), draw, input.turns);
   if (input.walkedOut) state = walkOut(state);
 
   const objectives = objectivesOf(scene, state);
@@ -742,10 +861,35 @@ export async function finishRun(input: {
     alternative is a debrief that lists words the conversation never needed.
   */
   const declared = input.asked.filter((one) => context.lexicon.byLemma.has(one.lemma));
+  /*
+    AND THE WORDS THEY REACHED FOR IN ENGLISH, WHICH IS THE BEST LIST OF WHAT
+    TO LEARN NEXT THIS APP CAN MAKE.
+
+    A learner who writes `ma lahen shop` wanted that word badly enough to say
+    it in the language they have. No scheduler picks better than that: it is
+    not a word somebody thought they might need one day, it is one they needed
+    in a sentence and did not have. The marker already wrote it down as a slip
+    (`readTurn`), so this is reading a fact the run already recorded rather
+    than a new judgment.
+
+    `REACHED` rather than `ASKED` or `STALLED`, because the three are different
+    things a debrief should be able to tell apart: one is a button they pressed,
+    one is a beat that ran out of patience, and this is a word they produced the
+    meaning of and not the form. The lemma is the dictionary's own and is checked
+    against the scene's lexicon like the others, so nothing a client sends can
+    reach this table.
+  */
+  const reached = [...new Set(
+    state.turns
+      .flatMap((turn) => turn.slips ?? [])
+      .filter((slip) => slip.kind === "english")
+      .map((slip) => slip.lemma),
+  )].filter((lemma) => context.lexicon.byLemma.has(lemma));
   const gaps = [
     ...declared.slice(0, MAX_GAPS).map((one) => ({
       kind: "ASKED", lemma: one.lemma, lexemeId: one.lexemeId,
     })),
+    ...reached.slice(0, MAX_GAPS).map((lemma) => ({ kind: "REACHED", lemma, lexemeId: null })),
     ...stalled.map((lemma) => ({ kind: "STALLED", lemma, lexemeId: null })),
   ];
   if (gaps.length > 0) {
@@ -754,7 +898,7 @@ export async function finishRun(input: {
     });
   }
 
-  const wanted = [...new Set([...declared.map((a) => a.lemma), ...stalled])];
+  const wanted = [...new Set([...declared.map((a) => a.lemma), ...reached, ...stalled])];
   const known = wanted.length === 0 ? [] : await prisma.lexeme.findMany({
     where: { lemma: { in: wanted } },
     select: { id: true, lemma: true },
@@ -803,7 +947,8 @@ export async function beatNow(input: {
   const context = await sceneContext(row.sceneId);
   if (!context) return null;
 
-  const { state } = replay(context, readDraw(row.transcript), input.turns);
+  const widened = await knowing(context, input.turns.map((t) => t.said));
+  const { state } = replay(widened, readDraw(row.transcript), input.turns);
   return currentBeat(context.scene, state) ?? null;
 }
 

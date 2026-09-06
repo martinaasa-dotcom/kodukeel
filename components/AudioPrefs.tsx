@@ -3,7 +3,7 @@
 import { createContext, useContext, type ReactNode } from "react";
 import { DEFAULT_AUTOPLAY, DEFAULT_FEEDBACK_SOUNDS, DEFAULT_VOICE, type Autoplay, type FeedbackSounds } from "@/lib/audio/voice";
 import { playFeedback, type Feedback } from "@/lib/audio/feedback";
-import { DEFAULT_HEARING, type Hearing } from "@/lib/audio/conditions";
+import { DEFAULT_HEARING, DEFAULT_SUPPORT, type Hearing, type Support } from "@/lib/audio/conditions";
 
 /**
  * How this learner wants to hear things, published once by the signed-in
@@ -21,6 +21,8 @@ export interface AudioPrefs {
   readonly sounds: FeedbackSounds;
   /** Whether the listening rounds vary the room and the rate. */
   readonly hearing: Hearing;
+  /** Whether a conversation is heard before its words are shown. */
+  readonly support: Support;
 }
 
 const Context = createContext<AudioPrefs>({
@@ -28,6 +30,7 @@ const Context = createContext<AudioPrefs>({
   autoplay: DEFAULT_AUTOPLAY,
   sounds: DEFAULT_FEEDBACK_SOUNDS,
   hearing: DEFAULT_HEARING,
+  support: DEFAULT_SUPPORT,
 });
 
 export const useAudioPrefs = () => useContext(Context);
