@@ -4,8 +4,6 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
 import { SceneSession } from "@/components/scene/SceneSession";
-import { BookOpen } from "lucide-react";
-import { CardLink, Page } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +20,22 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  * server's and is written down when the run opens (`beginRun`), so nothing on
  * this page decides what happens.
  *
- * A scene links back to the unit whose `canDo` it takes apart, which is the
- * two-way link §14 asks for: the syllabus has been claiming for 81 units that a
- * learner will be able to do something, and this is where it finds out.
+ * AND IT DRAWS NO PAGE FURNITURE, WHICH IS THE CHANGE WORTH KNOWING ABOUT.
+ * Every other route in the app wraps itself in `Page`: a title, a lead, an
+ * action in the corner, inside a shell with a rail down the left. This one does
+ * not, because the one thing a situation is for is forgetting that you are
+ * using an app, and a counter clerk's question read with eight navigation rows
+ * in the corner of your eye is a question read inside an app. `SceneStage` is
+ * the room instead: it takes the shell off the screen while a conversation is
+ * mounted, carries the scene's name as the page's one heading, and puts it
+ * back the moment the learner leaves.
+ *
+ * So the two things the header used to carry are passed down instead. How long
+ * it takes goes on the bar; the unit whose "you can do this" claim this scene
+ * takes apart is offered on the briefing, where somebody deciding whether they
+ * are ready is the person it is for, and nowhere during the conversation, where
+ * a link to a lesson is a door out of the room. That is the two-way link §14
+ * asks for, moved rather than dropped.
  */
 export default async function ScenePage({ params }: { params: Promise<{ id: string }> }) {
   await requireUserId();
@@ -34,25 +45,10 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
   const unit = unitById(scene.tests);
 
   return (
-    <Page
-      title={scene.title}
-      lead={`${scene.place} · about ${minutesFor(scene)} min`}
-      /*
-        The unit this scene takes apart, and it has to look like the link it
-        is: this was a bare `Link` with no class on it, so the one thing in
-        the page header that goes anywhere rendered as plain dark text, and a
-        learner reading "Suhtlemine" under the lead had no way to know it was
-        the lesson behind the conversation. Every other page in the app styles
-        its header action; this was the one that did not. `CardLink` is the
-        app's own "go here", and the book says which kind of place.
-      */
-      actions={unit ? (
-        <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
-          {unit.title}
-        </CardLink>
-      ) : undefined}
-    >
-      <SceneSession scene={scene} />
-    </Page>
+    <SceneSession
+      scene={scene}
+      minutes={minutesFor(scene)}
+      unit={unit ? { id: unit.id, title: unit.title } : null}
+    />
   );
 }

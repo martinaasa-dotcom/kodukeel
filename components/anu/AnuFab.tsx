@@ -51,7 +51,7 @@ export function AnuFab({
   if (pathname === "/tutor") return null;
 
   return (
-    <div className="bottom-notice fixed right-[max(1rem,env(safe-area-inset-right))] z-[90] flex flex-col items-end">
+    <div data-chrome="anu" className="bottom-notice fixed right-[max(1rem,env(safe-area-inset-right))] z-[90] flex flex-col items-end">
       {loaded && (
         <div hidden={!open}>
           <Suspense fallback={null}>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { BookOpen, Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card, Chip } from "@/components/ui";
+import { Card, CardLink, Chip } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
@@ -19,6 +19,10 @@ import type { SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS } from "@/lib/scenes/curveballs";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
+import { SceneStage } from "./SceneStage";
+import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
+import { SceneMotif } from "./SceneMotif";
+import { sceneryFor } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 
 /**
@@ -214,7 +218,21 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene }: { scene: SceneSpec }) {
+export function SceneSession({ scene, minutes, unit }: {
+  scene: SceneSpec;
+  /** How long it takes, printed on the briefing beside where you are standing. */
+  minutes: number;
+  /**
+   * The unit whose "you can do this" claim this scene takes apart, where the
+   * syllabus has one. It used to sit in the page header, and the page header
+   * is gone: without the shell there is nothing above this component, which
+   * is what makes a conversation a room rather than a page (`SceneStage`).
+   * So it is offered on the briefing, where somebody deciding whether they
+   * are ready is the person it is for, and nowhere during the conversation,
+   * where a link to a lesson is a door out of the room.
+   */
+  unit?: { id: string; title: string } | null;
+}) {
   const [phase, setPhase] = useState<Phase>("briefing");
   const [difficulty, setDifficulty] = useState<Difficulty>("good");
   const [opened, setOpened] = useState<Opened | null>(null);
@@ -270,6 +288,18 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   const [note, setNote] = useState<string | null>(null);
   /** The word the help button last handed over, shown until the next turn. */
   const [lent, setLent] = useState<{ lemma: string; gloss: string } | null>(null);
+  /*
+    THE SCENE MOVING, AND THE ONE MOMENT NOTHING CAN BE TYPED.
+
+    A `meanwhile` line is the scene picking the learner up and putting them
+    somewhere else, and every question after it is asked about the new place.
+    While this is set the room is covered (`components/scene/SceneInterlude.tsx`)
+    and the reply that follows the move is held, so the conversation the
+    learner comes back to is already the new one rather than changing under a
+    screen they could not see. `done` is what the cover calls when it has been
+    read or pressed through, and `speak` is waiting on it.
+  */
+  const [interlude, setInterlude] = useState<{ text: string; done: () => void } | null>(null);
   /*
     HOW THE OTHER SIDE SOUNDS, WHICH IS THE ROOM THIS FEATURE WAS WRITTEN FOR.
 
@@ -530,6 +560,35 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         });
       }
 
+      /*
+        WHAT COMES AFTER THE SCENE MOVES WAITS UNTIL IT HAS MOVED.
+
+        A reply carrying a `meanwhile` walks the learner out of one place and
+        into another, and every line from that point on is said in the new one.
+        Appending the lot at once drew the move as one more bubble among
+        bubbles that all arrive the same way, which is exactly what two
+        learners reported as the scene not having told them anything.
+
+        So the reply is cut at the break. What was said before it lands now,
+        because it was said in the old place; the break itself and everything
+        after it, along with the beat, the objective and the line to answer,
+        wait behind the cover. `busy` is true for the whole of it, which is
+        what closes the composer: a turn typed into a scene that is halfway
+        through moving is a turn answered about the wrong place.
+      */
+      const lines = data.lines ?? [];
+      const moves = lines.findIndex((line) => line.provenance === "meanwhile");
+      if (moves >= 0) {
+        const before = lines.slice(0, moves);
+        if (before.length > 0) setTurns((was) => [...was, { who: "them", lines: before }]);
+        await new Promise<void>((resume) => {
+          setInterlude({ text: lines[moves]!.text, done: resume });
+        });
+      }
+      /* The move itself stays in the transcript, so the record of the
+         conversation still says where it happened. */
+      const said = moves >= 0 ? lines.slice(moves) : lines;
+
       setBeatId(data.beatId ?? null);
       /*
         A new objective is a new beat, so the cold level hides it again: the
@@ -545,9 +604,43 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       if (data.voice) setVoice(data.voice);
       if (typeof data.speed === "number" && data.speed > 0) setSpeed(data.speed);
       setDone(data.done ?? []);
-      const lines = data.lines ?? [];
+      if (said.length > 0) setTurns((was) => [...was, { who: "them", lines: said }]);
+      /*
+        And the cover comes off last, over the new place rather than over the
+        old one. It is cleared on a timer rather than in the line above so the
+        fade has something to fade to: the lines said after the move are
+        already underneath it by the time it starts going, which is the whole
+        of why the room appears to have changed while nobody was looking.
+      */
+      if (moves >= 0) {
+        window.setTimeout(() => {
+          setInterlude(null);
+          /*
+            AND THE CARET GOES BACK IN THE BOX.
+
+            The cover takes focus while it is up, which is right: the screen has
+            stopped for a moment that has to be read, and a learner on a
+            keyboard whose caret is in a box they cannot type into has been told
+            nothing. But the button it took focus onto is removed here, and a
+            browser drops focus to the body when that happens, so without this
+            the conversation resumed with the caret nowhere and the next turn
+            had to be started with the mouse. The effect that usually puts it
+            back only runs when a turn arrives, and the turn arrived while the
+            cover still had it.
+
+            On the next frame, because React removes the button in this commit
+            and focusing before that lands on an element about to go.
+          */
+          requestAnimationFrame(() => box.current?.focus({ preventScroll: true }));
+        }, VEIL_OUT_MS);
+      }
       if (lines.length > 0) {
-        setTurns((was) => [...was, { who: "them", lines }]);
+        /*
+          Read off the whole reply rather than off the half that waited: the
+          line the learner is now answering and the lines a beat may not say
+          twice are facts about what was said, and cutting the list at the
+          break would lose either of them whenever the move came last.
+        */
         const move = moveIn(lines);
         if (move !== null) setHeard(move);
         // Both rungs the route passes over once used. A scripted line left out
@@ -676,13 +769,70 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     if (phase === "talking" && opened && turns.length === 0) void speak([]);
   }, [phase, opened, turns.length, speak]);
 
+  /*
+    WHAT THERE IS TO GET DONE, READ ONCE FOR EVERY PHASE.
+
+    This used to be worked out after the briefing had already returned, which
+    was fine while the briefing was a screen of its own. The bar along the top
+    of the room draws a pip per objective and it is above all three phases, so
+    the reading has to be here: one list, one count, and the checklist below
+    reads the same two, which is what stops the pips and the ticks disagreeing
+    about a conversation the learner is in the middle of.
+  */
+  const objectives = scene.beats.filter((beat) => beat.required);
+  const metCount = objectives.filter((beat) => done.includes(beat.id)).length;
+  const progress = objectives.map((beat) => ({
+    met: done.includes(beat.id),
+    now: !done.includes(beat.id) && beat.id === beatId,
+    goal: beat.goal,
+  }));
+
   if (phase === "debrief" && debrief) {
-    return <SceneDebrief debrief={debrief} onAgain={() => window.location.reload()} />;
+    /*
+      The debrief stays inside the room. A conversation that dropped the
+      learner back onto the website the moment it ended would take the one
+      screen that says what just happened and draw it beside a rail, and the
+      way out is a door on the bar and two buttons at the foot of the debrief
+      itself. The pips go, because there is nothing left in play and the
+      debrief lists every objective under its own heading.
+    */
+    return (
+      <SceneStage sceneId={scene.id} title={scene.title} place={scene.place}>
+        <div className="scene-open">
+          <SceneDebrief debrief={debrief} onAgain={() => window.location.reload()} />
+        </div>
+      </SceneStage>
+    );
   }
 
   if (phase === "briefing") {
     return (
-      <div className="flex flex-col gap-5">
+      <SceneStage sceneId={scene.id} title={scene.title} place={scene.place} minutes={minutes}>
+      <div className="scene-open flex flex-col gap-5">
+        {/*
+          THE DOOR, WHICH IS THE ONE PLACE THIS MODULE GETS TO BE PLEASED WITH
+          ITSELF.
+
+          Fourteen conversations opened as fourteen identical white cards, and
+          the only thing telling a health centre from a job interview was the
+          sentence you read. The room says which room it is before a word of it
+          is read: `lib/scenes/scenery.ts` gives every scene an icon and one of
+          five movements, and the movement is the place's own, so a counter has
+          a queue advancing at it and a phone call rings out in circles.
+
+          Decoration, and it says so: everything it carries is printed beside
+          it in words, which is what lets it be hidden from a screen reader
+          outright. And it is drawn in the accent like everything else, because
+          the other four hues in this app mean something and a café is not
+          "you got it".
+        */}
+        <div className="flex flex-col items-center gap-3 pb-1 pt-2 text-center">
+          <SceneMotif sceneId={scene.id} />
+          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>
+            {sceneryFor(scene.id).label}
+          </p>
+        </div>
+
         <Card className="flex flex-col gap-2">
           {/*
             WHO YOU ARE, AND NOT WHERE YOU ARE AGAIN.
@@ -695,7 +845,12 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             wearing an `h2`, which is worse for somebody moving by headings
             than having none.
           */}
-          <p>{scene.role}</p>
+          {/*
+            On the scale. A bare paragraph inherits the document's own 16px,
+            which is a step the type scale does not have, and this is the
+            first and largest thing anybody reads on the way into a scene.
+          */}
+          <p className="text-md leading-relaxed">{scene.role}</p>
           <p className="text-xs" style={{ color: "var(--ink-3)" }}>
             You will need {practises(scene).join(", ")}. They speak first, you answer, and the box
             you type into says what to say each time. The card above the conversation lists what to
@@ -710,7 +865,32 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             An ending that is off is still understood, the way it would be on the street. They
             will say the word back the way they say it, and the debrief lists those afterwards.
           </p>
+          {/*
+            What is coming, in the scene's own terms. It is the count the bar
+            above draws as pips and the checklist ticks, read off the same
+            list, so nothing here is a second answer to it.
+          */}
+          <p className="mt-1 text-sm font-medium" style={{ color: "var(--ink-2)" }}>
+            {objectives.length} things to get done, in about {minutes} minutes.
+          </p>
         </Card>
+
+        {/*
+          THE LESSON BEHIND THE CONVERSATION, AND NOT IN THE BAR ABOVE IT.
+
+          This is the two-way link §14 asks for: a scene takes apart a unit's
+          own "you can do this" claim, and somebody deciding whether they are
+          ready should be able to go and read it. It sat in the bar and cost
+          the room's name half its width on a phone, which is the one width
+          this app is measured at. Here it is a door beside the briefing, and
+          it is gone for the whole of the conversation, where a link to a
+          lesson is a door out of a room somebody has just stepped into.
+        */}
+        {unit && (
+          <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
+            The lesson behind it: {unit.title}
+          </CardLink>
+        )}
 
         {/*
           The dial sits on the scene rather than in Settings, because it is a
@@ -749,20 +929,41 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           {busy ? "Getting ready" : "Start the conversation"}
         </Button>
       </div>
+      </SceneStage>
     );
   }
 
-  const objectives = scene.beats.filter((beat) => beat.required);
   /*
     What the learner was dealt, flattened, for the line that stays on screen
     while they type. English, like the card itself: saying it in Estonian is the
     exercise, so the word is not here either.
   */
   const dealt = (opened?.card.props ?? []).flatMap((prop) => prop.given);
-  const metCount = objectives.filter((beat) => done.includes(beat.id)).length;
+  /*
+    Whether the room is between two places, read once. `busy` already closes
+    every control while a turn is in flight and this is the stricter half of
+    it: a cover is up, the question after the move has not been shown, and
+    nothing on the screen underneath may be pressed or typed into. One reading
+    rather than five, because five controls each testing `interlude` for
+    themselves is how one of them comes to be the one that stayed live.
+  */
+  const moving = interlude !== null;
 
   return (
-    <div className="flex flex-col gap-4">
+    <SceneStage sceneId={scene.id} title={scene.title} place={scene.place} progress={progress}>
+    {/*
+      THE COVER, WHICH IS THE ONE MOMENT NOTHING CAN BE TYPED.
+
+      Drawn here rather than inside the conversation, because it covers the
+      conversation: the composer under it is closed for the whole of it
+      (`busy` is still true, and the field is handed `disabled` as well, since
+      a disabled field and a disabled button are two different promises to a
+      keyboard), and the lines said after the move are held until it clears.
+    */}
+    {interlude && (
+      <SceneInterlude sceneId={scene.id} text={interlude.text} onDone={interlude.done} />
+    )}
+    <div className="scene-open flex flex-col gap-4">
       {/*
         The card and the objectives stay, collapsible and never gone. A `details`
         rather than a state flag, because the browser gives the disclosure a
@@ -791,8 +992,8 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           while you type. A reminder is not a second answer to a question.
         */}
         <summary
-          className="sticky top-0 z-10 cursor-pointer py-1 text-sm font-medium"
-          style={{ background: "var(--ground)" }}
+          className="scene-sticky z-10 cursor-pointer rounded-full px-4 py-2 text-sm font-medium"
+          style={{ background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
         >
           Your card and what to get done
           <span style={{ color: "var(--ink-3)" }}> · {scene.place}</span>
@@ -903,7 +1104,19 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
       >
         {turns.map((turn, index) => (
           turn.who === "you" ? (
-            <div key={index} className="self-end text-right">
+            /*
+              ARRIVING FROM THE SIDE IT CAME FROM.
+
+              A list that grows with no movement at all reads as a page that
+              reloaded rather than as a conversation. The learner's own turn
+              comes in from the right, because that is the side of the screen
+              it is on and the side the box that wrote it is under; the other
+              side's lines come in from the left, one after another rather than
+              together, so a reaction and the move after it arrive in the order
+              they were said. Transform and opacity, and nothing at all for
+              somebody who asked for less movement.
+            */
+            <div key={index} className="scene-say-you flex flex-col items-end">
               {/*
                 What you typed, and a button to hear it said by a native
                 voice, which the design (§11) promised and nothing drew: a
@@ -913,8 +1126,20 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                 the speaker is the app's own, so a turn of English is read
                 with Estonian phonology and sounds exactly as wrong as it is.
               */}
-              <Card className="inline-block max-w-full">
-                <p lang="et" className="flex items-center justify-end gap-2">
+              {/*
+                The learner's own words in the accent's tint with the ink drawn
+                to sit on it, which is the pairing `test-design.mjs` measures
+                and the one the app already uses for "this is yours". The
+                corner nearest the box it was typed in is squared off, so the
+                two sides of the conversation are told apart by shape as well
+                as by which edge they sit against: a bubble is not a thing a
+                colour may carry on its own either.
+              */}
+              <Card
+                tone="accent"
+                className="inline-block max-w-full rounded-br-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5"
+              >
+                <p lang="et" className="flex items-center justify-end gap-2" style={{ color: "var(--accent-deep)" }}>
                   <span>{turn.text}</span>
                   <Speak
                     text={turn.text}
@@ -933,7 +1158,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                 still "understood", which is the half that matters.
               */}
               {turn.slips && turn.slips.length > 0 && (
-                <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
+                <p className="mt-1 pr-1 text-right text-xs" style={{ color: "var(--ink-3)" }}>
                   Understood.
                   {turn.slips.some((slip) => slip.form) && (
                     <>
@@ -951,7 +1176,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
               )}
             </div>
           ) : (
-            <div key={index} className="flex flex-col items-start gap-1.5">
+            <div key={index} className="flex flex-col items-start gap-2">
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
@@ -974,8 +1199,13 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                     is a fact about the line rather than a shape in the markup,
                     and an invariant keeps it there.
                   */
-                  <div key={at} data-rung={line.provenance} className="max-w-full">
-                    <Card className="inline-block max-w-full">
+                  <div
+                    key={at}
+                    data-rung={line.provenance}
+                    className="scene-say max-w-full"
+                    style={{ "--say-at": at } as CSSProperties}
+                  >
+                    <Card className="inline-block max-w-full rounded-bl-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5">
                       {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
                           Heard, not read. The speaker is the whole line, and
@@ -1182,8 +1412,10 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           the dots are worth most.
         */}
         {busy && turns[turns.length - 1]?.who !== "them" && (
-          <div className="flex flex-col items-start">
-            <Card className="inline-block">
+          <div className="scene-say flex flex-col items-start">
+            {/* The same bubble the lines arrive in, so the wait reads as them
+                about to speak rather than as a panel appearing. */}
+            <Card className="inline-block rounded-bl-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5">
               <Dots label="They are answering" />
             </Card>
           </div>
@@ -1208,7 +1440,18 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         ground, so the box still reads as a box.
       */}
       <div ref={ask} className="dock-clear">
-        <Card tone="accent" className="flex flex-col gap-3">
+        {/*
+          The one thing on this screen the learner is being asked for, and it
+          is lifted off the page rather than merely tinted: the room around it
+          is a soft light and a tint alone stopped reading as a panel on it.
+          The shadow is the app's own, so this is the same object the rest of
+          the app raises rather than a second idea of what raised means.
+        */}
+        <Card
+          tone="accent"
+          className="flex flex-col gap-3"
+          style={{ boxShadow: "var(--shadow)" }}
+        >
           <div aria-live="polite">
             {/*
               HOW FAR IN, WHERE THE LEARNER IS LOOKING.
@@ -1271,13 +1514,21 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           )}
           {error && <p className="text-sm" style={{ color: "var(--peach-ink)" }}>{error}</p>}
 
+          {/*
+            Closed while the room is moving, and closed by the field itself
+            rather than only by the button beside it. A box that still takes
+            letters under a cover nobody can see through is a learner typing an
+            answer to a question that has not been asked yet, in a place they
+            have not been told they are standing in.
+          */}
           <EstonianInput
             value={draft}
             onChange={setDraft}
             onEnter={say}
             inputRef={box}
+            disabled={moving}
             ariaLabel="What you say"
-            placeholder="Say it in Estonian"
+            placeholder={moving ? "One moment" : "Say it in Estonian"}
           />
           {/*
             Alone in its row, so the one action a learner takes every turn is the
@@ -1285,11 +1536,11 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             controls are a row of their own underneath, which also keeps Leave
             away from the button being pressed twenty times a conversation.
           */}
-          <Button onClick={say} disabled={busy || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
+          <Button onClick={say} disabled={busy || moving || !draft.trim()} variant="primary" className="w-full sm:w-auto sm:self-start">
             <CornerDownLeft size={16} aria-hidden /> Say it
           </Button>
           <div className="flex flex-wrap gap-2">
-            <Button variant="ghost" onClick={again} disabled={busy || !heard}>
+            <Button variant="ghost" onClick={again} disabled={busy || moving || !heard}>
               <RotateCcw size={16} aria-hidden /> Say that again
             </Button>
             {/*
@@ -1301,16 +1552,17 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
               something the screen could work out: the client does not hold the
               lexicon and should not.
             */}
-            <Button variant="ghost" onClick={help} disabled={busy || helped}>
+            <Button variant="ghost" onClick={help} disabled={busy || moving || helped}>
               <LifeBuoy size={16} aria-hidden /> I need a word
             </Button>
-            <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy}>
+            <Button variant="ghost" onClick={() => hangUp(sent, true)} disabled={busy || moving}>
               <DoorOpen size={16} aria-hidden /> Leave
             </Button>
           </div>
         </Card>
       </div>
     </div>
+    </SceneStage>
   );
 }
 

@@ -2947,3 +2947,77 @@ what to do about it: work out what they meant and answer that, never correct the
 their Estonian, never write English. The beat's `goal` is deliberately still absent (§32). Measured
 after all of it on `poodi-piima` at three lines a beat: 5.6% of composed lines withheld, against the
 design's line of one in twenty.
+
+## 53. The sixteenth pass: a room rather than a page
+
+The report was that the situations read as one more screen of a website, and that the moment a
+scene walks somebody from their kitchen to a shop was still not landing. Both are the same
+complaint from two ends: this module was drawn inside the app's furniture, and the one beat where
+the app has to speak louder than the furniture could not.
+
+**The website comes off the screen for as long as the conversation lasts.** Every other route here
+is a page inside a shell: a rail down the left, a bar along the bottom of a phone, a tutor's button
+in the corner, a header with a title and a lead. The one thing a situation is for is forgetting you
+are using an app, and a counter clerk's question read with eight navigation rows in the corner of
+your eye is a question read inside an app. `components/scene/SceneStage.tsx` is the room instead:
+one element carrying `.scene-room`, and one rule in `app/globals.css` reading
+`body:has(.scene-room)` that hides everything marked `data-chrome`. In CSS rather than as an
+attribute written from an effect, and that is the difference between a room and a room that
+flickers: an effect runs after the first paint, so every arrival would draw the whole website for a
+frame and then take it away. `data-chrome` sits at the three places that draw it rather than being
+matched by shape, for the reason `data-rung` exists one file over: a rule that guessed at the
+rail's markup would stop hiding it the day somebody moved a div, silently.
+
+**The page still scrolls, and that is deliberate.** The obvious way to build a room is a fixed
+layer with a scroller of its own, and §45 is the record of what that costs: a transcript in a box
+inside a page that also scrolls swallows the wheel, and once the box is at its end, which it is the
+moment a reply lands, the input and every button under it cannot be reached. So the immersion is
+the chrome going rather than a container arriving. There is one scroller, the page, and
+`test-scene.mjs` still fails on a second one.
+
+**The scene's name is the page's one heading**, in all three phases, because there is no `Page`
+header above this any more. The two things that header carried moved rather than went: how long it
+takes is on the bar, and the unit whose claim the scene takes apart is a door on the briefing,
+where somebody deciding whether they are ready is the person it is for, and nowhere during the
+conversation, where a link to a lesson is a door out of a room somebody has just stepped into.
+
+**Time passing stops the room.** §52 drew it as a tinted panel that arrives, which is better than
+the grey sentence before it and is still one more thing arriving on a screen where something
+arrives every few seconds. The same learner reported the same thing again. So the conversation is
+covered: the light gathers into the middle of the screen, an hour is drawn, a dot travels from it
+to the mark of the room being moved into, and the sentence comes up out of a blur.
+`components/scene/SceneInterlude.tsx` is that, and the part of it that matters is not the drawing.
+
+**The lines said after the move are held behind it.** A reply carrying a `meanwhile` is cut at the
+break: what was said before it lands immediately, because it was said in the old place, and the
+break and everything after it, along with the beat, the objective and the line to answer, wait
+until the cover has been read. The composer is closed for the whole of it, the field disabled as
+well as the button, because a turn typed into a scene that is halfway through moving is a turn
+answered about the wrong place. The cover then fades over the new conversation rather than off the
+old one, and the caret goes back in the box, which a browser does not do by itself for a control it
+has just removed.
+
+**It is not a jail and it is not a meter (§7).** There is no bar filling and no countdown. It
+clears itself after a hold long enough to read the sentence twice, and a press, Enter, Escape or
+anywhere on the cover ends it at once; under `prefers-reduced-motion` nothing moves, the panel is
+simply there, and the hold is shorter, because a still panel is read in less time than a moving one
+is watched.
+
+**And fourteen conversations were fourteen identical white cards.** A health centre reception, a
+phone call to a landlord, the counter of a small café and a job interview all opened the same way,
+and the only thing telling them apart was the sentence you read. `lib/scenes/scenery.ts` gives each
+scene an icon and one of five movements, and the movement is the place's own: a queue advances a
+step at a time, a telephone rings out in circles, a journey travels, steam comes off something hot,
+and a room somebody is looking at you in simply breathes. Five cover fourteen scenes without any of
+them being a picture of anything, which is what keeps this inside the rule the picture round
+already lives under: there is no artwork in this app and no licence question to answer.
+
+Three things it may not do, and each is a rule this repository already had. **It may not colour
+them in**: the five hues carry fixed meanings and a table that handed the café mint would spend
+"you got it" on a coffee cup, so every scene is drawn in the accent and what tells them apart is a
+drawing and a movement. **It may not use emoji**, which `lib/copy/voice.ts` bans everywhere a
+reader can see one, and a row of little pictures across the top of a conversation is exactly the
+register that ban exists to keep off these screens. And **it carries no Estonian and no JSX**: an
+icon *name*, which `components/icons.tsx` is the one place allowed to resolve, so a unit test reads
+it without a DOM. `scenery.test.ts` checks it both ways, because a scene with no row opens as the
+blank screen this replaced and a row for a scene nobody wrote is a place nobody can go.
