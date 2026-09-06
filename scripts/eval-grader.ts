@@ -77,7 +77,7 @@ const FIX = fixtures(TRIALS);
 
 const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
-  { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
+  { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
@@ -96,6 +96,8 @@ const CANDIDATES: ProviderConfig[] = [
     ? ([
         { name: "gemini", model: "gemini-3.8-flash", label: "Google Gemini" },
         { name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" },
+        { name: "gemini", model: "gemini-2.5-flash", label: "Google Gemini" },
+        { name: "gemini", model: "gemini-2.5-flash-lite", label: "Google Gemini" },
       ] as ProviderConfig[])
     : []),
 ];

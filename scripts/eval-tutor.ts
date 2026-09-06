@@ -81,9 +81,12 @@ function candidates(): ProviderConfig[] {
   if (process.env.GEMINI_API_KEY) {
     out.push({ name: "gemini", model: "gemini-3.8-flash", label: "Google Gemini" });
     out.push({ name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" });
+    out.push({ name: "gemini", model: "gemini-2.5-flash", label: "Google Gemini" });
+    out.push({ name: "gemini", model: "gemini-2.5-flash-lite", label: "Google Gemini" });
   }
   if (process.env.GROQ_API_KEY) {
     out.push({ name: "groq", model: "openai/gpt-oss-120b", label: "Groq" });
+    out.push({ name: "groq", model: "openai/gpt-oss-20b", label: "Groq" });
   }
   return out.filter((one) => !only || one.model.includes(only) || one.name.includes(only));
 }

@@ -54,6 +54,9 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
   "gpt-oss-120b": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
+  // Read the same way, off Groq's own `/v1/models`: half its bigger sibling,
+  // and the cheapest input rate any provider on this deployment's keys quotes.
+  "gpt-oss-20b": { inputPerMTok: 0.075, outputPerMTok: 0.3 },
   // Groq publishes no price for this one, so there is none to write down. It is
   // on no purpose chain and is reachable only on an install that sets no
   // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.

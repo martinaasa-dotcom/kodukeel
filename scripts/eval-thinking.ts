@@ -83,11 +83,11 @@ function combos(): Combo[] {
       the knob and the cheap tiers are swept hardest, because the question is
       how far down the price list the language survives.
     */
-    for (const model of ["gemini-3.8-flash", "gemini-3.5-flash"]) {
+    for (const model of ["gemini-3.8-flash"]) {
       out.push({ label: `${model} think:default`, model, url: GEMINI, key: gemini });
       out.push({ label: `${model} think:none`, model, url: GEMINI, key: gemini, extra: { reasoning_effort: "none" } });
     }
-    for (const model of ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]) {
+    for (const model of ["gemini-3.1-flash-lite", "gemini-2.5-flash", "gemini-2.5-flash-lite"]) {
       out.push({ label: `${model} think:default`, model, url: GEMINI, key: gemini });
       out.push({ label: `${model} think:none`, model, url: GEMINI, key: gemini, extra: { reasoning_effort: "none" } });
     }
@@ -101,7 +101,7 @@ function combos(): Combo[] {
   if (groq) {
     // The incumbent, as the baseline every candidate has to beat, and the
     // cheapest thing Groq serves that answered at all in an earlier pass.
-    for (const model of ["qwen/qwen3.8-27b", "openai/gpt-oss-120b"]) {
+    for (const model of ["qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]) {
       out.push({ label: `${model} think:default`, model, url: GROQ, key: groq });
     }
   }
