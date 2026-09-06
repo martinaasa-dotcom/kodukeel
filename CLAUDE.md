@@ -78,6 +78,49 @@ answered (§30 of the design doc); what survived of the other is what it built b
 rather than inside it, the hearing conditions, the errands and the claim on the landing page. Read
 what landed before you merge, not just the conflict status.
 
+**A cached input token is not an ordinary one, and the ledger charged it as though it were.**
+Anthropic's `cache_control` breakpoints are real on all three paths, and two things behind them
+were not. The learner's level sat at character 158 of a 9,093-character system prompt, so 98% of a
+2,275-token cached block sat behind a string that varies and every CEFR level had its own entry; it
+moved into the per-learner block, which was already naming the level, so nothing is lost and the
+cached half is now byte-identical for everybody. And every Anthropic call site summed
+`input_tokens`, `cache_read_input_tokens` and `cache_creation_input_tokens` into one figure priced
+at base, under a comment saying cache reads "are real input tokens and are billed as such". They
+are real input tokens and they are not billed as such: a read is a tenth of base and a write is
+1.25 times it, so a read was charged ten times over. The direction was safe and the cost was the
+feature, since the budget then binds ten times too early on exactly the traffic the breakpoint
+exists to make cheap. `CacheSplit` carries the two buckets beside the total, so a caller that
+knows nothing about caching still prices the whole call at base and still fails closed.
+
+**Two of the three cache breakpoints are under Anthropic's minimum and do nothing, which is worth
+knowing rather than fixing.** A cached prefix has to reach 1,024 tokens. The tutor's is about
+2,275 and caches; the grader's is 456 and the scanner's 221, so both are inert on Sonnet today.
+Neither is a bug to pad around: a scan's cost is the image, which is correctly never cached, and a
+prompt grown to reach a minimum is a prompt written for a billing rule. The split is reported
+anyway, so each starts telling the truth the day its prompt crosses the line rather than silently
+over-charging from that day on.
+
+**Where a provider lives is one table, and the grader kept its own reading of it.** `callForJson`
+chose an endpoint with "OpenRouter, or else OpenAI", which described the chain on the day it was
+written. `resolveProviders` has offered Groq and Gemini since, and neither is OpenRouter, so both
+fell down the else side and were posted to `api.openai.com` carrying `OPENAI_API_KEY`, undefined on
+a deployment configured with either and no OpenAI key. Every GRADER call there answered 401: the
+writing exercise, the scene description, the examination composition note and the dictionary's
+translation fallback, on the two providers a stranger can set up without a card. The streaming path
+read `OPENAI_COMPATIBLE` all along, which is why nothing looked broken. It reads the same table
+now, and the routing is driven through the real transport with a stubbed `fetch`, because the fault
+is invisible in the arguments and only the outgoing request says which host and key were chosen.
+
+**A beat the other side asks twice has two ways of asking it.** `patience` above one is a beat a
+learner who is *engaging* meets more than once, since an incomplete or off-target turn reads as
+`narrow` and asks for a fresh line. The ladder passes over a scripted line this run has used, so a
+beat holding exactly one came back empty and `replyFor` fell through to `{ text: heard, provenance:
+"again" }`: the identical sentence, to somebody whose answer was nearly right. Twenty-seven beats
+were in that state, twenty-six of them curveballs, which is where a learner most needs two goes.
+Each has a second line through the same gate every other bank row passes, and `bank.test.ts` fails
+on the next one. Drawn on patience rather than on every beat, because a beat nobody asks twice
+cannot repeat itself and a second line there is a line nobody hears.
+
 **The gate rate is a vocabulary number before it is a model number.** `npm run eval:scene` has been
 run three times and the answer moved from 60 to 70 percent to 43.5 without touching the gate:
 first the course did not teach `sobima`, then the scenes did not declare the unit `sobima` lives in.

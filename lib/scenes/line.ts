@@ -158,6 +158,37 @@ export function isSpokenEstonian(provenance: Provenance): boolean {
   return isSaid(provenance) && provenance !== "english";
 }
 
+/**
+ * WHICH OF THE TWO MODEL-WRITTEN RUNGS A RUN USES, DECIDED ONCE FOR THE WHOLE
+ * RUN.
+ *
+ * The ladder above settles which rung *wins*. It says nothing about a run
+ * changing its mind halfway through, and that is a thing that happens: a key
+ * added or removed between turns, a redeploy, and above all the day's
+ * allowance running out mid-conversation, which is the ordinary case rather
+ * than the rare one on a small budget. Each of those flips a run from composed
+ * lines to banked ones at whatever turn it lands on, and a receptionist who
+ * says three sentences written about what the learner just told her and then
+ * one drafted last month is two characters. The seam falls in exactly the
+ * place a role-play is trying not to have one.
+ *
+ * So the mode is a property of the run, resolved when it opens and stored with
+ * the draw beside the persona and the card, and read back here:
+ *
+ *   `scripted`  the bank answers and the model is never asked. This is a
+ *               deployment with no key, and it is the default for a run that
+ *               predates the field, since the shipped behaviour of a run
+ *               already in flight may not change under the learner having it.
+ *   `composed`  the model answers, and the bank still catches a total failure:
+ *               no key at that moment, a call that threw, or two attempts the
+ *               gate withheld.
+ *
+ * The mid-run failure is what the bank is for and stays exactly as it is; what
+ * the mode removes is a run *starting* in one voice and being switched into
+ * the other by something outside it.
+ */
+export type LineMode = "scripted" | "composed";
+
 export interface SpokenLine {
   readonly text: string;
   readonly provenance: Provenance;
@@ -217,6 +248,14 @@ export interface LineRequest {
    * with the attested rungs alone.
    */
   readonly compose?: (avoid: readonly string[]) => Promise<string | null>;
+  /**
+   * Whether this run speaks its model-written lines live or out of the bank.
+   *
+   * **Required rather than optional**, for the reason `scripted` and
+   * `fallback` are: a caller that has not decided does not compile, and the
+   * decision belongs to the run rather than to whichever beat is next.
+   */
+  readonly mode: LineMode;
 }
 
 /**
@@ -286,7 +325,12 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     into something nobody says. Composition leads everywhere a beat has content
     to carry, which is every beat that makes a scene this scene.
   */
-  if (request.compose) {
+  /*
+    A SCRIPTED RUN NEVER ASKS, whatever composer it was handed. That is a
+    deployment with no key, and it is also every run opened before the mode
+    was stored (`LineMode`).
+  */
+  if (request.mode === "composed" && request.compose) {
     /*
       THE BEAT'S OWN TOPIC IS PART OF THE GATE FOR A COMPOSED LINE. Retrieval
       has asked a recorded sentence to be about the beat since it was written

@@ -7,7 +7,7 @@ import { throttleAction } from "@/lib/security/actionLimits";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { beatNow, beginRun, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
-import { resolveProviders } from "@/lib/tutor/provider";
+import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
 import {
@@ -994,6 +994,24 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     sceneId: scene.id,
     level: await courseLevelFor(ownerId),
     difficulty: chosen as Difficulty,
+    /*
+      WHETHER THIS CONVERSATION IS SPOKEN LIVE OR OUT OF THE BANK, DECIDED HERE
+      AND ONCE (`LineMode`). A run whose lines came from whichever rung happened
+      to be available on each turn is a character who changes voice mid-scene,
+      and the likeliest cause of that is the ordinary one on a small budget: the
+      day's allowance running out at turn six.
+
+      Decided on whether a provider is configured at all, which is the one thing
+      knowable here that does not change under a run in flight, and asked of
+      `sceneProviders` rather than the whole chain because that is what the
+      route will actually use: `/api/scene` asks the scene chain since the
+      purpose split, so an Anthropic-only deployment would otherwise promise
+      composition the route is never going to attempt. Everything that *can*
+      change under a run, the allowance and a provider having a bad minute, is
+      handled where it happens: the ladder falls to the bank, which is the same
+      Estonian this run would have been speaking under the other mode.
+    */
+    lines: sceneProviders().length > 0 ? "composed" : "scripted",
   });
   if (!opened) return { ok: false as const, error: "That scene could not be built." };
 
@@ -1019,13 +1037,12 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // hearing pool for the other side's lines.
     plays: opened.plays,
     /*
-      The scene chain, not the general one. This is what tells the briefing
-      whether the other side's lines can be freshly composed or will come off
-      the bank, and `/api/scene` asks Groq alone since the purpose split: an
-      Anthropic-only deployment would otherwise promise composition that the
-      route is never going to attempt.
+      Read off the run's own decision rather than asking the chain a second
+      time, because two reads of one question is where the screen and the
+      conversation start disagreeing about whether anybody is composing. The
+      chain was asked once, above, and it was the scene chain.
     */
-    composed: resolveProviders({ purpose: "scene" }).length > 0,
+    composed: opened.lines === "composed",
   };
 }
 

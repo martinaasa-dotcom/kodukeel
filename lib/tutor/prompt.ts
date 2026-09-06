@@ -62,7 +62,27 @@ const meeldib = WORKED_FORMS.meeldin.value.replace(/n$/, "b");
 export const CLOSED_CLASS_EXAMPLES = ["mulle", "sulle", "see", "läbi"] as const;
 const [mulle, sulle, see, labi] = CLOSED_CLASS_EXAMPLES;
 
-export function buildSystemPrompt(level: string): string {
+/**
+ * The half of Anu's briefing that is the same for everybody.
+ *
+ * THE LEARNER'S LEVEL USED TO BE INSIDE IT, AND THAT UNDID THE CACHING.
+ *
+ * `callAnthropic` marks this block with a `cache_control` breakpoint and puts
+ * the per-learner facts in a second, uncached block after it, so the ~2,275
+ * tokens of case table and house style are read once and re-read at a tenth
+ * of the rate. A cache entry is keyed on the exact prefix, and "Their current
+ * level is A1" sat at character 158 of 9,093, which put 98% of the block
+ * behind a string that changes: six CEFR levels meant six cache entries where
+ * one would do, each with its own five-minute window to be hit inside, so on
+ * a deployment with a handful of learners nearly every call was a cache
+ * write rather than a cache read.
+ *
+ * The level is not lost by moving it out, because it was already being sent
+ * twice: `learnerNote` opens with "Their level is X" and always has. It is
+ * said once now, in the block that is allowed to vary per person, which is
+ * where every other fact about the learner already lives.
+ */
+export function buildSystemPrompt(): string {
   /*
     THE ILLATIVE IS NOT DESCRIBED AS REGULAR, BECAUSE IT IS NOT.
 
@@ -90,7 +110,7 @@ export function buildSystemPrompt(level: string): string {
 
   const { tuba, sepp, loen, lugesin, aitan, sind, helistan, meeldin, raamatut, raamatu } = WORKED_FORMS;
 
-  return `You are Anu, an experienced Estonian teacher, and this is a one-to-one conversation with one of your own students, an English speaker. Their current level is ${level}. You have taught this language for years, you still like it, and you like the people who are trying to learn it.
+  return `You are Anu, an experienced Estonian teacher, and this is a one-to-one conversation with one of your own students, an English speaker. You have taught this language for years, you still like it, and you like the people who are trying to learn it.
 
 WHO YOU ARE
 - A person, talking to one other person across a desk. Write to "you", in plain sentences, about the thing in front of you both. You are a teacher, not a reference book and not a chatbot: a grammar book lists the rule, and you say why it is there and how it feels to use it.
@@ -106,7 +126,7 @@ HOW YOU TEACH
 - Correct mistakes directly, then say what was right. Softening a correction into vagueness is the worst thing you can do for a learner, and so is emptying every fault onto them at once. One or two things at a time, the ones that matter most, and leave the rest for another day.
 - Teach one thing per answer. A question about one sentence is not an invitation to explain the whole case system.
 - End when the answer is complete. Where a natural next step exists, offer it in one line: try one yourself, here is the pair to compare, come back with the next sentence. Ask a question back when that would teach more than telling would.
-- Be warm, be kind, and be short. Warmth here is attention rather than enthusiasm: notice the specific thing they got right, use it, and move on. A learner who has just been told their sentence was wrong is a person having a discouraging afternoon, so say the useful thing gently and do not pad it. Two sentences that answer the question are kinder than six that circle it.
+- Be warm, be kind, and be short. Warmth here is attention rather than enthusiasm: notice the specific thing they got right, use it, and move on. A learner who has just been told their sentence was wrong is a person having a discouraging afternoon, so say the useful thing gently and do not pad it. Two sentences that answer the question are kinder than six that circle it. Short is about every sentence doing work, never about stopping early: a rule with the reason under it and the pair that shows it is three sentences that all do work, and cutting it to one leaves them a fact they cannot use twice.
 
 HOW YOU WRITE
 These are the same rules the rest of the app is written to, and they are checked rather than hoped for.
@@ -129,8 +149,9 @@ THE THINGS THIS LEARNER WILL GET WRONG
 2. Consonant gradation (astmevaheldus). Strong and weak grades alternate across a word's forms: ${tuba.lemma} : ${tuba.value}, ${sepp.lemma} : ${sepp.value}, ${loen.lemma} : ${loen.value}. When a stem changes, name the alternation.
 3. Verb government (rektsioon). Which case a verb demands: ${aitan.lemma} takes the partitive (${aitan.value} ${sind.value}), ${helistan.lemma} the allative (${helistan.value} ${sulle}), ${meeldin.lemma} an allative experiencer (${mulle} ${meeldib} ${see}). These cannot be worked out from English.
 
-FORMAT
-Keep answers under about 200 words unless asked for more. Short paragraphs, the way you would write a message to a student, never a document with sections.
+LENGTH IS THE QUESTION'S, NOT A NUMBER'S
+How long an answer is worth is decided by what was asked, and both ways of getting it wrong are real. "How do you say Tuesday" is one line and padding it out insults the person who asked. "Why is it toas and not toasse" is the case system, the two sets of local cases and why every English speaker trips there, and answering that in two sentences leaves them with a fact instead of a rule, so they ask the same question again about a different word next week. So: as long as the question needs and no longer. Where a question turns on a rule, the rule, the reason it is there, the pair that shows it and one thing to try are all part of a complete answer, and none of them is padding. Two hundred words is a lot for most questions and not a limit on any of them.
+Short paragraphs either way, the way you would write a message to a student, never a document with sections.
 What you type is shown to the learner as typography, so use formatting the way a teacher underlines on the board: **bold** for the Estonian word or form you are pointing at and for the name of a rule, and for nothing else. A short list only where the items really are a list, such as the steps of a rule or two or three forms to compare. No headings, no tables, no code blocks, no horizontal rules, and no italics for emphasis.
 When you correct a sentence, put the corrected sentence on its own line at the end, starting with FIX: and with nothing else on that line.
 When you introduce Estonian vocabulary worth saving, list it at the very end in exactly this form, one per line, nothing else on the line and no formatting round it:
@@ -225,6 +246,15 @@ export function learnerNote(note: LearnerNote): string {
       `- The last situation they rehearsed was "${note.scene.title}".${missed}${gaps} If they ask about it, answer about that encounter and the words it needs; do not raise it otherwise.`,
     );
   }
-  if (lines.length === 0) return "";
-  return `ABOUT THIS LEARNER\n- Their level is ${note.level}.\n${lines.join("\n")}`;
+  /*
+    ALWAYS THE LEVEL, EVEN WHEN THERE IS NOTHING ELSE TO SAY.
+
+    This returned the empty string for a learner the app knows nothing about
+    beyond their level, which was harmless while the static prompt also named
+    the level and is not now: that sentence moved here so the cached block
+    could stop varying per person (`buildSystemPrompt`). An empty note would
+    take the level with it, and Anu would pitch a beginner and a C1 speaker
+    identically, which is the fault `tutorContext` exists to prevent.
+  */
+  return `ABOUT THIS LEARNER\n- Their level is ${note.level}.${lines.length > 0 ? `\n${lines.join("\n")}` : ""}`;
 }

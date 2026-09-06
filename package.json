@@ -45,6 +45,7 @@
     "fixture:load": "tsx scripts/load-fixture.ts",
     "report:impact": "tsx scripts/report-impact.ts",
     "measure:asr": "node scripts/measure-asr.mjs",
+    "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
@@ -65,16 +66,16 @@
   "dependencies": {
     "@prisma/client": "^6.1.0",
     "@supabase/ssr": "^0.12.5",
-    "@supabase/supabase-js": "^2.112.4",
+    "@supabase/supabase-js": "^2.114.0",
     "lucide-react": "^0.469.0",
     "next": "^15.1.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "ts-fsrs": "^5.4.1",
+    "ts-fsrs": "^5.4.2",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.3.6",
+    "@eslint/eslintrc": "^3.3.7",
     "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
@@ -85,7 +86,7 @@
     "playwright": "^1.49.1",
     "prisma": "^6.1.0",
     "tailwindcss": "^4.0.0",
-    "tsx": "^4.19.2",
+    "tsx": "^4.23.13",
     "typescript": "^5.7.2",
     "vitest": "^3.2.7"
   },

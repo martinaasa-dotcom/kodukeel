@@ -48,6 +48,11 @@ function request(over: Partial<LineRequest> = {}): LineRequest {
     fallback: "Vabandust?",
     scripted: [],
     used: new Set(),
+    /*
+      A composed run unless a test says otherwise, because that is what a
+      deployment with a key opens (`LineMode`).
+    */
+    mode: "composed",
     ...over,
   };
 }

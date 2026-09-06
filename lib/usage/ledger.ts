@@ -112,9 +112,26 @@ const LEDGER_LOCK = 4_820_311_907n;
  *           doing what it says rather than a fault, and the failure it produces
  *           is the designed one: the allowance runs out, the ledger refuses,
  *           and the run says the line written for the scene, which is what a
- *           deployment with no key says at every turn. A deployment that wants
- *           more sets `AI_DAILY_CALLS_PER_USER`, which is the operator's
- *           decision about their own bill and not one to make for them here.
+ *           deployment with no key says at every turn.
+ *
+ *           IT IS FOUR NOW, AND WHAT CHANGED IS THE BUDGET UNDERNEATH IT. The
+ *           paragraph above sent an operator to `AI_DAILY_CALLS_PER_USER`, and
+ *           that was the right answer while one shared pot of money paid for
+ *           everything: a count was the only thing standing between an evening
+ *           of role-play and the tutor's balance, so keeping it at one was
+ *           keeping Anu answerable. `DEFAULT_KIND_BUDGETS` does that in money
+ *           now, and it does it better, because SCENE is Groq by purpose with
+ *           no cross-purpose fallback and cannot reach the Anthropic balance
+ *           at all. The count is free to go back to being what it says it is,
+ *           a bound on one person's share of a day.
+ *
+ *           And the knob could not express the request anyway. It is the base
+ *           every kind multiplies, so an operator who wants four conversations
+ *           gets forty tutor answers with them; "more scenes, the same tutor"
+ *           is only sayable through the per-kind multiple. Four is three or
+ *           four conversations against a slice that pays for about a hundred,
+ *           so the count is still the thing that binds one learner and the
+ *           money is still the thing that bounds the bill.
  *   SCAN     one photograph read once. It is the dearest single call in the
  *           app, because a picture is a few thousand input tokens where a
  *           question is a few hundred, but it is also the least repeated: a
@@ -129,7 +146,7 @@ const ALLOWANCE: Record<UsageKind, { burst: number; daily: number }> = {
   GRADER: { burst: 1, daily: 3 },
   TTS: { burst: 6, daily: 30 },
   SCAN: { burst: 1, daily: 2 },
-  SCENE: { burst: 1, daily: 1 },
+  SCENE: { burst: 2, daily: 4 },
 };
 
 /**
@@ -409,8 +426,19 @@ export async function recordUsage(input: {
   kind: UsageKind;
   provider: string;
   model: string;
+  /** Every input token, cached ones included. */
   inputTokens: number;
   outputTokens: number;
+  /**
+   * How much of `inputTokens` a cache served or wrote, where the provider
+   * reported it. Priced at `CACHE_READ_RATE` and `CACHE_WRITE_RATE` rather
+   * than at base, which is the difference between the ledger seeing what
+   * prompt caching saves and charging as though it were switched off.
+   * Omitted by every provider that reports no split, and the whole call is
+   * then priced at base as it always was.
+   */
+  cachedInputTokens?: number;
+  cacheWriteTokens?: number;
   /** The authorization this call is settling, from `authoriseCall`. */
   reservation?: Reservation;
   /**
@@ -424,7 +452,10 @@ export async function recordUsage(input: {
 }): Promise<void> {
   const now = input.now ?? new Date();
   const actual = input.costMicros ??
-    estimateCostMicros(input.model, input.inputTokens, input.outputTokens);
+    estimateCostMicros(input.model, input.inputTokens, input.outputTokens, {
+      cachedInputTokens: input.cachedInputTokens,
+      cacheWriteTokens: input.cacheWriteTokens,
+    });
   try {
     await prisma.usageEvent.create({
       data: {

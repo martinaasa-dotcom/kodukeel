@@ -108,6 +108,45 @@ describe("the scripted bank", () => {
   });
 
   /*
+    A BEAT THEY WILL ASK TWICE HAS TWO WAYS OF ASKING IT, or the second ask is
+    the first one again, word for word.
+
+    `patience` is how many times the other side tries again before letting a
+    beat go, so a beat with patience above one is a beat a learner who is
+    *engaging* meets more than once: an `incomplete` or an `offtarget` turn is
+    read as `narrow`, which asks for a fresh line rather than repeating the
+    heard one. The ladder passes over a scripted line this run has already
+    used, so on a beat holding exactly one the scripted rung comes back empty,
+    and keyless there is nothing under it: `replyFor` falls through to
+    `{ text: heard, provenance: "again" }` and says the identical sentence to
+    somebody whose answer was nearly right. A person rephrases. Twenty-seven
+    beats were in that state when this was written, twenty-six of them
+    curveballs, which is exactly where a learner is most likely to need two
+    goes.
+
+    Drawn on patience rather than on every beat, because a beat nobody asks
+    twice cannot repeat itself and a second line there is a line nobody hears.
+    The exemptions are the coverage test's own, for its reasons: a phrase beat
+    is answered by the dictionary, a beat that waits opens with nothing, and a
+    beat naming a value off the card is said by `datumLine` per run and is
+    therefore never the same sentence twice anyway.
+  */
+  it("holds a second way of asking every beat the other side asks more than once", () => {
+    const phrases = new Set(POOL.filter((e) => isPhrase(e.pos)).map((e) => e.lemma));
+    for (const scene of SCENES) {
+      for (const beat of sceneBeats(scene)) {
+        if (beat.patience <= 1) continue;
+        if (beat.topic.some((lemma) => phrases.has(lemma)) || beat.says) continue;
+        if (!scriptable(scene, beat) || beat.awaits) continue;
+        expect(
+          scriptedFor(scene, beat).length,
+          `${scene.id}/${beat.id} is asked ${beat.patience} times and has one line, so the second ask repeats it verbatim`,
+        ).toBeGreaterThan(1);
+      }
+    }
+  });
+
+  /*
     EVERY SCENE PLAYS KEYLESS FROM THE FIRST LINE TO THE DEBRIEF, and this is
     what makes that a property rather than a claim: every beat that can carry
     a line has one, or is a phrase beat the dictionary answers, or names a

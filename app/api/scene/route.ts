@@ -10,7 +10,7 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
-import { COMPOSE_SYSTEM, composeLive } from "@/lib/scenes/prompt";
+import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId } from "@/lib/scenes/scripted";
@@ -472,6 +472,15 @@ export async function POST(request: Request) {
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
     scripted: context.scripted.get(beat.id) ?? [],
+    /*
+      THE RUN'S OWN CHOICE, READ BACK OFF THE DRAW AND NEVER RE-DECIDED HERE.
+      A run opened with a key composes for the whole of its length and one
+      opened without a key speaks out of the bank for the whole of its length,
+      whatever has happened to the environment in between (`LineMode`). What is
+      allowed to change under a run in flight is whether a *particular* call
+      can be made, and the ladder answers that with the bank.
+    */
+    mode: draw?.lines ?? "scripted",
     used,
   };
 
@@ -739,7 +748,15 @@ async function compose(
     `npm run play:scenes` composes with it too and a harness carrying its own
     copy measures a conversation this app does not have.
   */
-  const system = COMPOSE_SYSTEM;
+  /*
+    The scene's own list and register are what a provider caches, because they
+    are the same on every turn of this run and they are nine tenths of the
+    prompt (`lib/scenes/prompt.ts`).
+  */
+  const system = composeSystem({
+    scene: input.scene, place: input.place, persona: input.persona, situation: input.situation,
+    register: input.register, words: input.words,
+  });
   const live = composeLive(input);
 
   try {
@@ -770,6 +787,9 @@ async function compose(
           model: config.model,
           inputTokens: usage.inputTokens,
           outputTokens: usage.outputTokens,
+          // Priced at the cache rates where the provider reported a split.
+          cachedInputTokens: usage.cachedInputTokens,
+          cacheWriteTokens: usage.cacheWriteTokens,
           reservation: input.reservation,
         }));
       },

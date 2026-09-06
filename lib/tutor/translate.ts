@@ -70,7 +70,7 @@ async function ask(
   try {
     open = await openWithFallback(
       chain,
-      buildSystemPrompt("B1"),
+      buildSystemPrompt(),
       [{ role: "user", content: instruction }],
       // Settles the reservation above, charged to the provider that actually
       // answered. Reported even when the reply is thrown away below for being
@@ -80,6 +80,8 @@ async function ask(
         after(() => recordUsage({
           ownerId, kind: "GRADER", provider: config.name, model: config.model,
           inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
           reservation: decision.reservation,
         }));
       },
