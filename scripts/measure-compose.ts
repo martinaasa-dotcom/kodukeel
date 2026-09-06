@@ -107,7 +107,7 @@ for (const scene of SCENES) {
   }).length;
   for (const beat of scene.beats) {
     liveChars += composeLive({
-      move: beat.move, they: beat.they, reading: "", examples, avoid: [],
+      move: beat.move, they: beat.they, reading: "", examples, asked: [], avoid: [],
     }).length;
     beats += 1;
   }

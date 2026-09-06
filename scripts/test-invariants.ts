@@ -13055,6 +13055,39 @@ check("a scene's agreement check can see the person its scenes are in", () => {
   );
 });
 
+/*
+  THE MODEL IS SHOWN WHAT THIS BEAT ASKS FOR, NOT ONLY DESCRIBED IT.
+
+  `they` is one sentence of English, and a model reads it fluently and still
+  guesses the content: told they ask when the learner could start, the app's
+  own model wrote `Kust alustaksite tööd?`, which is fluent, inside the word
+  list, past every check on the page, and asks where rather than when. The bank
+  holds the same beat asked properly by somebody who read it, and handing that
+  over costs a few tokens and no extra call.
+
+  Rephrased rather than copied, which is the whole reason a line is composed at
+  all: the banked line is the rung underneath and the ladder would have reached
+  it anyway, so a composed line has to be worth more, and what makes it worth
+  more is that it can take account of what the learner just said.
+*/
+check("a composed line is shown how its own beat is asked", () => {
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(
+    prompt, /readonly asked: readonly string\[\];/,
+    "ComposeAsk no longer carries this beat's own banked lines, so the model is told what to ask "
+    + "for in one sentence of English and guesses the rest",
+  );
+  assert.match(
+    prompt, /Ask for the same thing, in your own words/,
+    "the prompt stopped asking for a rephrasing, so a composed line is either the banked line said "
+    + "again or is not steered by it at all",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /asked: \(context\.scripted\.get\(beat\.id\) \?\? \[\]\)/,
+    "the scene route stopped handing the composer this beat's own lines",
+  );
+});
+
 check("a run reads a beat's lines from its own place in them", () => {
   const line = code("lib/scenes/line.ts");
   assert.match(

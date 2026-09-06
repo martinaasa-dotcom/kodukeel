@@ -5042,6 +5042,20 @@ had not used came back unvouched: it reported `ja` and `on` as words nothing cou
 rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
 the harness.
 
+**And the model was told what to ask for in one sentence of English, and guessed the rest.** `they`
+is the beat's stage direction, and a model reads it fluently and still writes the wrong question:
+told they ask when the learner could start, the app's own model wrote `Kust alustaksite tööd?`,
+which is fluent, inside the word list, past every check on the page, and asks *where*. The same
+guess put `Kuidas teie nimi on?` on a language course's first evening and `Maksete kaardiga?` at a
+ticket window. The bank holds each of those beats asked properly by somebody who read it, so
+`ComposeAsk.asked` hands over this beat's own banked lines, which costs a few tokens and no extra
+call. **Rephrased rather than copied**, which is the whole reason a line is composed at all: the
+banked line is the rung underneath and the ladder reaches it anyway, so a composed line has to be
+worth more, and what makes it worth more is that it can take account of what the learner just said.
+An aside gets none, because it answers rather than asks and no beat's line says what to say. After
+it, on the same model and the same scenes: `Millal saate te tööd alustada?`, `Mis teie nimi on?`,
+`Kas maksate kaardiga?`
+
 **And the agreement check could not see the person every one of these scenes is in.** It reads a
 pronoun's nominative spellings off the dictionary, through the built `Lexicon`, and `buildLexicon`
 indexes a case table only where there is a genitive stem to build one from. `meie`, `teie` and
@@ -6476,7 +6490,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
 `answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
 `dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
-`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`. Most of them now
+`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`.
+Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands

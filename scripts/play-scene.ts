@@ -279,6 +279,8 @@ async function play(sceneId: string) {
           they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
           reading: "",
           examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
+          // An aside answers rather than asks, so no beat's banked line says what to say.
+          asked: [],
           avoid: [],
         }, {
           scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
@@ -326,6 +328,8 @@ async function play(sceneId: string) {
               .filter(([id]) => id !== spokenFor.id)
               .flatMap(([, lines]) => lines.slice(0, 1))
               .slice(0, 6),
+            // This beat's own, as the route hands them: ask the same thing, in your own words.
+            asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             avoid,
           }, {
             scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,

@@ -114,6 +114,8 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
     they: stageFor(beat, null),
     reading: "",
     examples,
+    // The composers are ranked on writing the beat cold, which is the harder half.
+    asked: [],
     avoid: [],
   });
 

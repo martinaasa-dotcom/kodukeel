@@ -579,6 +579,12 @@ export async function POST(request: Request) {
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
+      /*
+        An aside is a question the scene did not anticipate, so there is no
+        beat whose banked line says what to ask for: the model is answering
+        rather than asking, and has nothing to be steered onto.
+      */
+      asked: [],
       conversation,
       avoid: [],
     });
@@ -697,6 +703,14 @@ export async function POST(request: Request) {
         .filter(([id]) => id !== beat.id)
         .flatMap(([, lines]) => lines.slice(0, 1))
         .slice(0, 6),
+      /*
+        AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
+        COPY. `they` is one sentence of English and a model reads it fluently
+        and still guesses the content: told they ask when the learner could
+        start, it wrote `Kust alustaksite tööd?`, which asks where. The bank
+        holds the same beat asked properly by somebody who read it.
+      */
+      asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
       conversation,
       avoid,
     }),
@@ -796,6 +810,8 @@ async function compose(
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
+    /** What this character has asked for at this very beat before, from the bank. */
+    asked: readonly string[];
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];

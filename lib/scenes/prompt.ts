@@ -91,6 +91,22 @@ export interface ComposeAsk {
   readonly reading: string;
   /** Lines this character has said at other beats, for tone. Never for this beat. */
   readonly examples: readonly string[];
+  /**
+   * What this character has asked for at this very beat before, from the bank.
+   *
+   * THE MODEL KNOWS THE REGISTER AND GUESSES THE CONTENT. Told, in English,
+   * that they ask when the learner could start, the app's own model wrote
+   * `Kust alustaksite tööd?`: fluent, in the list, past every check on the
+   * page, and asking where rather than when. The stage direction is one
+   * sentence of English and the bank holds the same beat asked properly by
+   * somebody who read it, so the cheapest thing to hand over is that.
+   *
+   * The instruction is to ask for the same thing in different words, never to
+   * copy: a composed line exists because it can take account of what the
+   * learner just said, and a paraphrase that does that is worth more than the
+   * banked line, which the ladder would have reached anyway.
+   */
+  readonly asked: readonly string[];
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
 }
@@ -227,6 +243,11 @@ export function composeLive(ask: ComposeAsk): string {
       + " anything already said.",
     ask.examples.length > 0
       ? `Lines this character has said at other moments, for tone and length: ${ask.examples.join(" | ")}`
+      : "",
+    ask.asked.length > 0
+      ? `At this moment this character has asked for the same thing like this: ${ask.asked.join(" | ")}.`
+        + " Ask for the same thing, in your own words and taking account of what they just said."
+        + " Never word for word."
       : "",
     /*
       What a retry is told, and it is deliberately not "those words are not

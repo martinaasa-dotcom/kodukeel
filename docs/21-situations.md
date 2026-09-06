@@ -3091,3 +3091,17 @@ that cannot be a verb person is possessing it (`teie nimi`). It errs toward the 
 `Kas te nime tead?` goes unremarked, which costs the check a line it could have caught; the other
 way round costs a learner a correct line withheld, which is the fault this module is built against.
 Measured over the whole bank: not one of its 328 lines is refused by it.
+
+**And the model was told what to ask for in one sentence of English, and guessed the rest.** `they`
+is the beat's stage direction, and a model reads it fluently and still writes the wrong question:
+told they ask when the learner could start, the app's own model wrote `Kust alustaksite tööd?`,
+which is fluent, inside the word list, past every check on the page, and asks *where*. The same
+guess put `Kuidas teie nimi on?` on a language course's first evening and `Maksete kaardiga?` at a
+ticket window. The bank holds each of those beats asked properly by somebody who read it, so
+`ComposeAsk.asked` hands over this beat's own banked lines, which costs a few tokens and no extra
+call. **Rephrased rather than copied**, which is the whole reason a line is composed at all: the
+banked line is the rung underneath and the ladder reaches it anyway, so a composed line has to be
+worth more, and what makes it worth more is that it can take account of what the learner just said.
+An aside gets none, because it answers rather than asks and no beat's line says what to say. After
+it, on the same model and the same scenes: `Millal saate te tööd alustada?`, `Mis teie nimi on?`,
+`Kas maksate kaardiga?`
