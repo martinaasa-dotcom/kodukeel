@@ -74,7 +74,7 @@ screen saying which it got.
 3. **Composed.** A model is given the move, the beat, the closed word list and the run so far, and
    returns one line, which then has to get past the gate below. Under a key this is where nearly
    every line comes from and rung 2 is the net underneath it; with no key it is never reached at
-   all. Which of the two, for the whole of a run, is §42.
+   all. Which of the two, for the whole of a run, is §45.
 4. **The way out.** Composition can fail twice and there is still a person standing there waiting,
    so the fallback is a move that is always in character and always attested: they did not catch
    that, and they ask again. The learner sees somebody who missed what they said, which is the
@@ -364,7 +364,7 @@ One line, for one move, inside a closed word list. It never sees the plot, never
 happens next, never marks anything, and never sees the learner's deck beyond the words lent to the
 list. The half of the prompt that is identical on every turn of a scene, which is the word list and
 nine tenths of the whole, sits behind the Anthropic `cache_control` breakpoint the tutor already
-uses; §42 has what that is worth, and what it cost while the list sat on the wrong side of it.
+uses; §45 has what that is worth, and what it cost while the list sat on the wrong side of it.
 
 A rejected line costs one retry with the failing words named, then the fallback. **The gate
 rejection rate is the number that decides whether composition is safe**, and it is measured before
@@ -792,7 +792,7 @@ what the quota says when it refuses names no one feature, since a conversation, 
 scanner all reach the same allowance and a receptionist screen saying "today's limit for Anu" is a
 screen naming a feature the reader is not using.
 
-**The numbers below were written before there were any, and §42 has the measured ones**: a composed
+**The numbers below were written before there were any, and §45 has the measured ones**: a composed
 turn is $0.0016 and a run of them about $0.0155, `SCENE`'s allowance is four multiples of the base
 rather than one, `EXPECTED_TOKENS.SCENE` was corrected from a whole conversation to one turn, and
 the table learned the fraction this paragraph asks for, as a share of the deployment's budget rather
@@ -2578,7 +2578,7 @@ it, so the one thing in that header that goes anywhere rendered as plain dark te
 debrief is still every turn at full size, so the review under it is a scroll away on a long
 conversation.
 
-## 42. Composed for the whole run, or scripted for the whole run
+## 45. Composed for the whole run, or scripted for the whole run
 
 The bank was doing two jobs. §31 built it so that a deployment with no key could hold a conversation
 at all, which is what it is for and what it is good at. What it also became, because it sits above

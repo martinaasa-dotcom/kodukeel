@@ -51,7 +51,7 @@ export interface QuotaLimits {
  * in is a cap somebody can reason about. Measured against the prompts this
  * repository builds (`npm run measure:compose`, priced at claude-sonnet-5),
  * that is about five rehearsed conversations and fourteen questions to Anu a
- * day once scene composition has yielded its half (docs/21-situations.md §42).
+ * day once scene composition has yielded its half (docs/21-situations.md §45).
  *
  * It is a **default** and not a policy: a deployment with more money sets
  * `AI_DAILY_USD_GLOBAL`, and a fork inheriting this inherits a small bill

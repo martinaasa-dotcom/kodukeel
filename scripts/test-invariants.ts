@@ -5134,7 +5134,7 @@ check("a daily reminder fires on the learner's clock, not the server's", () => {
  * way is what each does when it is refused rather than what each is worth: a
  * refused scene turn falls to the bank, which is the same closed list, the
  * same four checks and a line a person has read, and a refused question to Anu
- * degrades to nothing at all (docs/21-situations.md §42).
+ * degrades to nothing at all (docs/21-situations.md §45).
  *
  * Three things could quietly stop being true. The share could be dropped from
  * the table, in which case scenes stop yielding and the cap is first come
