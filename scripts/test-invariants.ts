@@ -3002,7 +3002,7 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     until now nothing checked a word of it: `ProseStream` cleans punctuation
     and explicitly never touches Estonian, and the two lines that were boxed
     and tagged, FIX: and VOCAB:, are the only ones a learner was ever told to
-    doubt. `scripts/eval-anu.mjs` already caught a model inventing a form on
+    doubt. `npm run eval:anu` already caught a model inventing a form on
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
