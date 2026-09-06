@@ -41,7 +41,7 @@ import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } 
 import { randomUUID } from "node:crypto";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import {
-  advance, currentBeat, objectivesOf, outcomeOf, startScene, walkOut, type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle, type HurdleRecord,
+  advance, creditAhead, currentBeat, isOver, objectivesOf, outcomeOf, startScene, walkOut, type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle, type HurdleRecord,
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
@@ -1228,6 +1228,34 @@ export function replay(
       if (!addsEvidence(more, spent)) break;
       for (const word of more.satisfiedBy) spent.add(word);
       ({ state, response } = advance(context.scene, state, more, said, false, heard));
+    }
+    /*
+      AND A BEAT FURTHER DOWN THE SCENE IS CREDITED WHERE IT STANDS.
+
+      The cascade above walks forward while each beat in turn is met, and stops
+      at the first that is not, which is a person who can only hear things in
+      order. Told "where are you going", somebody says `poodi, piima ostma`:
+      that answers the beat in front of them and the one two along, with the
+      beat between them still to come. The friend who heard it does not ask
+      what they are buying later on.
+
+      The pointer does not move, so the beats in between are still asked and
+      the scene keeps its shape; `moveOn` walks past a beat already answered.
+      The same two guards as the cascade, because they are what stop this
+      crediting a beat on a coincidence: the turn has to meet it outright, and
+      it has to meet it with a word this turn has not already spent. The
+      farewell is left alone, since saying goodbye mid-scene has a rule of its
+      own that moves the pointer rather than crediting from a distance.
+    */
+    if (!state.hurdle && !isOver(context.scene, state)) {
+      for (let at = state.beat + 1; at < context.scene.beats.length; at += 1) {
+        const ahead = context.scene.beats[at]!;
+        if (ahead.move === "close" || state.done.includes(ahead.id)) continue;
+        const also = readTurn(said, ahead, marker);
+        if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
+        for (const word of also.satisfiedBy) spent.add(word);
+        state = creditAhead(state, also, ahead, said, heard);
+      }
     }
     previous = heard;
   }

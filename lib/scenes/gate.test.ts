@@ -106,9 +106,21 @@ describe("the gate", () => {
       .toContain("shape");
   });
 
-  it("refuses two sentences, no punctuation, markdown, and a line that runs on", () => {
+  /*
+    TWO SHORT SENTENCES ARE A PERSON AND THREE ARE A PARAGRAPH. One was the
+    other side never volunteering anything: it answered and asked, answered and
+    asked, and never said a thing nobody had asked for, which is half of what
+    makes small talk feel like small talk. The word count is what keeps the
+    remark short, since fourteen words covers the whole turn.
+  */
+  it("takes a remark before the move, and refuses a third sentence", () => {
     const ctx = context();
-    expect(runGate("Kas teil on valu? Kus?", beat(), ctx).failed).toContain("shape");
+    expect(runGate("Teil on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
+    expect(runGate("Teil on valu. Kus? Kas teil on valu?", beat(), ctx).failed).toContain("shape");
+  });
+
+  it("refuses no punctuation, markdown, and a line that runs on", () => {
+    const ctx = context();
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
     expect(runGate(`${"valu ".repeat(20)}?`, beat(), ctx).failed).toContain("shape");

@@ -5042,6 +5042,51 @@ had not used came back unvouched: it reported `ja` and `on` as words nothing cou
 rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
 the harness.
 
+**A word the learner said no about did not meet the beat it was found in.** `satisfies` looks for a
+spelling anywhere in the turn, so `ma ei taha piima` met a beat that wants `piim`: the other side
+said the word back, moved on, ticked the objective, and the append-only log recorded the learner as
+having produced it, which is a refusal read as the answer on the one table that is never repaired.
+`negatedIn` is the guard and it is drawn at a **clause** rather than at a turn, since `ma ei taha
+kohvi, ma tahan piima` is a person saying both things and only the first is negated. It stands down
+where the beat itself accepts the negator, because a beat asking whether it hurts wants `ei` in the
+answer and refusing a hit there would refuse the answer.
+
+**A beat somebody has already answered is never asked again.** The machine walks its beats in order,
+so a turn that answered one further down the scene was asked for it later: told "where are you
+going", somebody who writes `poodi, piima ostma` was asked two beats on what they were buying and
+had to say it twice. `replay` looks ahead, `creditAhead` marks a beat done where it stands without
+moving the pointer, and `moveOn` steps over what is done. Three guards, each a way this would credit
+a coincidence: the reading has to be `complete`, the evidence has to be a word this turn has not
+already spent (`addsEvidence`), and a farewell is never credited from a distance, since somebody who
+says goodbye in the middle has left. The pointer only moves forward, because a beat that ran out of
+patience is deliberately not `done` and a pointer that could walk back would ask for it for ever.
+`creditAhead` takes `Evidence` and nothing else, like `advance` (ADR-025).
+
+**Two runs of one scene do not open with the same sentence.** A beat holds its lines in the order
+somebody wrote them and the ladder took the first that fit, so every learner met `poodi-piima` with
+the same greeting and the same second line, every time, and playing a scene again is the one thing
+the debrief has been recommending all along. `turned` is where this run starts reading, off the run's
+own seed through `LineRequest.rotate`: the pool is the same pool, nothing is dropped, nothing repeats
+before the pool is spent. Asserted on the route as well as on the ladder, because a `rotate` nobody
+passes is a run that opens on the first line for ever and nothing about it looks wrong.
+
+**And a line written for this turn has already seen the turn.** The acknowledgment rotation is
+`hästi, aitäh, jah` by a counter, which is right in front of a banked line drafted months ago against
+the beat alone and unable to acknowledge anything. A composed line was written with the learner's own
+words in front of it and may open with a short remark of its own, so a rotated word bolted on before
+it is the app reacting on top of somebody who already did, which was the most mechanical thing left
+on the screen. `ownReaction` covers the composed line and the banked one that happens to open with a
+reaction word, and the recast survives either, because a correction is not a reaction and is the one
+thing a composed line may not make.
+
+**And `jah` answers one kind of question.** The acknowledgment rotation is `hästi, aitäh, jah` by a
+counter, which is right one turn in three and wrong the other two: asked which floor they live on
+and told `2`, the neighbor said `Jah.`, and a learner who has just produced a whole answer reads
+that as not having been understood. What decides it is the question they were answering, which is
+the line they already heard, and a polar question in Estonian opens with `kas`, so `acknowledgements`
+is a reading of one word rather than a parse. It errs the safe way: where there is no line to read,
+or it is not a question, `jah` is left out, which costs the rotation a word and can never be wrong.
+
 **And the app's own gate was stricter than the gate it measured itself with.** `gateContext` in the
 eval and in the bank's test has handed in the course's question words since the government check was
 written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
@@ -6409,7 +6454,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `IDENTIFIED_DEPLOYMENTS`, `currentIdentity`, `retrenchment`, `CONTINUITY`, `summariseImpact`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
 `answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
-`dealtHours`, `clockInPlay`. Most of them now
+`dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
+`ownReaction`, `opensWithReaction`. Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands

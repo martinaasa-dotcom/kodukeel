@@ -3018,3 +3018,55 @@ retry and gated both lines with it, so every word of the second line the first h
 use came back unvouched: it reported `ja` and `on` as words nothing could account for and rescued
 nothing at all. A harness that resolves per line is the only honest one, and `npm run play:scenes`
 vouches the same way for the same reason.
+
+## 54. Three faults that only show up on the fifth turn
+
+Everything above is about the sentence the other side says. What was left after it is three things
+about the *conversation*, and none of them is visible in one line: a run reads well and then goes
+wrong on the fifth turn, or on the second play of the same scene.
+
+**A word the learner said no about met the beat it was found in.** `satisfies` looks for a spelling
+anywhere in the turn, so `ma ei taha piima` met a beat that wants `piim`. The other side said the
+word back, moved on, ticked the objective, and the append-only log recorded the learner as having
+produced it: a refusal read as the answer, on the one table that is never repaired. `negatedIn` is
+the guard and it is drawn at a clause rather than at a turn, because `ma ei taha kohvi, ma tahan
+piima` is a person saying both things and only the first is negated. It stands down where the beat
+itself accepts the negator, since a beat asking whether it hurts wants `ei` in the answer and
+refusing a hit there would refuse the answer.
+
+**A beat somebody had already answered was asked again.** The machine walks its beats in order, so
+a turn that answered one further down the scene was asked for it later: told "where are you going",
+somebody who writes `poodi, piima ostma` was asked two beats on what they were buying, and had to
+say it twice. `replay` looks ahead now, `creditAhead` marks a beat done where it stands without
+moving the pointer, and `moveOn` steps over what is done. Three guards on it, and each is a way this
+would credit a coincidence: the reading has to be `complete`, the evidence has to be a word this
+turn has not already spent (`addsEvidence`), and the farewell is never credited from a distance,
+because somebody who says goodbye in the middle has left. The pointer only ever moves forward, since
+a beat that ran out of patience is deliberately not `done` and a pointer that could walk back would
+ask for it for ever.
+
+**And two runs of one scene opened with the same sentence.** A beat holds its lines in the order
+somebody wrote them and the ladder took the first that fit, so every learner met `poodi-piima` with
+the same greeting and the same second line, every time, and the one thing the debrief has been
+recommending all along is playing a scene again. `rotate` is where this run starts reading, off the
+run's own seed: the pool is the same pool, nothing is dropped, nothing repeats before the pool is
+spent, and the order through it is this run's. Asserted on the route as well as on the ladder,
+because a `rotate` nobody passes is a run that opens on the first line for ever and nothing about it
+looks wrong.
+
+**And the other side stopped reacting on top of somebody who already had.** The acknowledgment
+rotation is `hästi, aitäh, jah` by a counter, which is the right thing in front of a banked line:
+that line was drafted months ago against the beat alone and cannot acknowledge anything. A composed
+line was written with the learner's own words in front of it, and since §51 it may open with a short
+remark of its own, so a rotated word bolted on before it was the app reacting twice, which is the
+most mechanical thing that was left on the screen. `ownReaction` covers both shapes, the composed
+line and the banked one that happens to open with a reaction word, and the recast survives either,
+because a correction is not a reaction and is the one thing a composed line may not make.
+
+**And `jah` answers one kind of question.** The acknowledgment rotation is `hästi, aitäh, jah` by a
+counter, which is right one turn in three and wrong the other two: asked which floor they live on
+and told `2`, the neighbor said `Jah.`, and a learner who has just produced a whole answer reads
+that as not having been understood. What decides it is the question they were answering, which is
+the line they already heard, and a polar question in Estonian opens with `kas`, so `acknowledgements`
+is a reading of one word rather than a parse. It errs the safe way: where there is no line to read,
+or it is not a question, `jah` is left out, which costs the rotation a word and can never be wrong.

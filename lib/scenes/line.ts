@@ -237,6 +237,22 @@ export interface LineRequest {
   readonly vouch?: (spellings: readonly string[]) => Promise<ReadonlySet<string>>;
   readonly hasFiniteVerb: (word: string) => boolean;
   /**
+   * Where in a beat's own lines this run starts looking.
+   *
+   * EVERY RUN OPENED WITH THE SAME WORD. A courtesy is answered from the
+   * recorded rung and a beat's bank holds two or three lines, and both were
+   * scanned from the front, so `Tere!` opened every conversation in every
+   * scene for ever and the second question of a keyless run was the same
+   * sentence every time. Nothing was wrong with any of those lines; what was
+   * wrong is that a person is not a recording.
+   *
+   * The run's own seed, so a replay of one transcript says exactly what it
+   * said the first time (§5's recency promise is about the draw, and this is
+   * the same device one rung down). Absent means start at the front, which is
+   * what every caller did before.
+   */
+  readonly rotate?: number;
+  /**
    * What they say when nothing could be built. Estonian, and the caller's.
    *
    * **Required rather than optional**, which is `NounStems.illSgShort`'s rule:
@@ -421,7 +437,7 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     attested line, so a run that comes back to a beat does not hear the same
     sentence twice while another is left.
   */
-  const scripted = request.scripted.find((text) => !request.used.has(text));
+  const scripted = turned(request.scripted, request.rotate).find((text) => !request.used.has(text));
   if (scripted) return { text: scripted, provenance: "scripted" };
 
   return fallbackLine(request.fallback, withheld);
@@ -442,9 +458,25 @@ function retryNote(verdict: Verdict | null): readonly string[] {
   return verdict.failed.includes("stretch") ? verdict.stretched : [];
 }
 
-/** The first recorded sentence that fits this beat and has not been used yet. */
+/**
+ * The same list, started at this run's own place in it.
+ *
+ * A rotation rather than a shuffle, because the order inside a beat's bank is
+ * somebody's: the first line is the plainest way to ask, and a run that starts
+ * on the third still hears the first if it comes back to the beat.
+ */
+function turned<T>(items: readonly T[], at: number | undefined): readonly T[] {
+  if (!at || items.length < 2) return items;
+  const from = ((at % items.length) + items.length) % items.length;
+  return [...items.slice(from), ...items.slice(0, from)];
+}
+
+/**
+ * The first recorded sentence that fits this beat and has not been used yet,
+ * counting from where this run's seed says to start (`rotate`).
+ */
 export function pickAttested(request: LineRequest): SpokenLine | null {
-  for (const line of request.pool) {
+  for (const line of turned(request.pool, request.rotate)) {
     if (request.used.has(line.text)) continue;
     const verdict = fits({
       line,

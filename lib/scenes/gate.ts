@@ -449,17 +449,36 @@ export function disagrees(text: string, context: GateContext): boolean {
 }
 
 /**
- * One sentence, inside the word count, punctuated, no markdown, and the shape
- * the move asked for.
+ * How many sentences one turn may be.
+ *
+ * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING. The other side answered and
+ * asked, answered and asked, and never once said something nobody had asked
+ * for, which is half of what makes small talk feel like small talk: `Kohv on
+ * kuum. Kas te soovite piima?` is a barista and `Kas te soovite piima?` is a
+ * form. The remark costs nothing extra, because it rides on the line the model
+ * was writing anyway rather than on a second call.
+ *
+ * Two, and the word count is what keeps it honest: `MAX_WORDS` is fourteen for
+ * the whole turn, so two sentences are two short ones. Three is a paragraph at
+ * somebody who is trying to answer.
+ */
+const MAX_SENTENCES = 2;
+
+/**
+ * At most two short sentences, inside the word count, punctuated, no markdown,
+ * and the shape the move asked for.
  *
  * A move of `ask` that comes back without a question mark did not do what it
- * was told, and a greeting phrased as a question is not a greeting.
+ * was told, and a greeting phrased as a question is not a greeting. The shape
+ * is read off the whole turn, which is what lets the remark come first and the
+ * question last: `Hästi. Kus te elate?` is a question, and it is what a person
+ * says.
  */
 function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boolean {
   const trimmed = text.trim();
   const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
   const shape = QUESTION_SHAPE[beat.move];
-  return sentences === 1
+  return sentences >= 1 && sentences <= MAX_SENTENCES
     && /[.!?]"?$/.test(trimmed)
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0

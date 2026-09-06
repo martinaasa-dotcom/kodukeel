@@ -11818,7 +11818,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
   assert.match(
     line,
-    /request\.scripted\.find\(\(text\) => !request\.used\.has\(text\)\)/,
+    /turned\(request\.scripted, request\.rotate\)\.find\(\(text\) => !request\.used\.has\(text\)\)/,
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
 
@@ -12870,6 +12870,18 @@ check("a learner who says they are lost is handed the word, never the question a
     + "a line that is already written",
   );
   /*
+    AND A WORD THE LEARNER NEGATED DID NOT MEET THE REQUIREMENT IT WAS FOUND
+    IN. `satisfies` looks for a spelling anywhere in the turn, so `ma ei taha
+    piima` met a beat that wants `piim`: the other side said the word back and
+    moved on, the objective was ticked, and the append-only log recorded the
+    learner as having produced it.
+  */
+  assert.match(
+    turn, /\.map\(\(hit\) => \(negatedIn\(hit, text, beat, context\) \? null : hit\)\)/,
+    "the marker credits a requirement met by a word the learner said no about, so a refusal reads "
+    + "as the answer",
+  );
+  /*
     And a real word is never read as a slip of the pen for another: `valutab`
     is the third person of a verb the course teaches, and reading it as a
     typo for `valuta` told a learner the word they got right is said some
@@ -12878,6 +12890,140 @@ check("a learner who says they are lost is handed the word, never the question a
   assert.match(
     turn, /if \(vouched\(said\)\) continue;/,
     "a word the course knows can be read as a typo of another, so the review corrects a word that was right",
+  );
+});
+
+/*
+  A BEAT SOMEBODY HAS ALREADY ANSWERED IS NOT ASKED AGAIN.
+
+  The machine walks its beats in order, so a turn that answered one further
+  down the scene was asked for it again later: told "where are you going",
+  somebody who says `poodi, piima ostma` was asked two beats on what they were
+  buying, and had to say it twice. Two halves, and both are needed: the beat is
+  credited where it stands, and the pointer steps over what is done.
+
+  What may not change with it is the direction. A beat that ran out of patience
+  is deliberately not `done`, and a pointer that could walk backwards would ask
+  for it again for ever.
+*/
+check("a beat answered out of order is credited, and never asked twice", () => {
+  const state = code("lib/scenes/state.ts");
+  assert.match(
+    state, /function moveOn\(\s*scene: SceneSpec,\s*from: number,\s*done: readonly string\[\],/,
+    "the scene machine advances without reading what is done, so a beat the learner already "
+    + "answered is asked again",
+  );
+  assert.match(
+    state, /while \(scene\.beats\[beat\] && done\.includes\(scene\.beats\[beat\]!\.id\)\) beat \+= 1;/,
+    "the pointer stopped stepping over a beat that is done",
+  );
+  assert.match(
+    state, /export function creditAhead\([\s\S]{0,200}?evidence: Evidence/,
+    "creditAhead takes something other than Evidence, so a caller holding a model's opinion about "
+    + "the learner could mark a beat met (ADR-025)",
+  );
+  const replay = code("lib/progress/scene.ts");
+  assert.match(
+    replay, /state = creditAhead\(state, also, ahead, said, heard\)/,
+    "the replay stopped crediting a beat the turn answered further down the scene",
+  );
+  assert.match(
+    replay, /if \(ahead\.move === "close" \|\| state\.done\.includes\(ahead\.id\)\) continue;/,
+    "the look-ahead credits the farewell from a distance, which has its own rule, or credits a "
+    + "beat twice",
+  );
+  assert.match(
+    replay, /if \(also\.reading !== "complete" \|\| !addsEvidence\(also, spent\)\) continue;/,
+    "the look-ahead credits a beat on a coincidence: it has to be met outright, with a word this "
+    + "turn has not already spent",
+  );
+});
+
+/*
+  TWO SHORT SENTENCES ARE A PERSON AND ONE IS A FORM.
+
+  The other side answered and asked, answered and asked, and never once said
+  something nobody had asked for. The remark rides on the line the model was
+  writing anyway, so it costs no second call, and `MAX_WORDS` covers the whole
+  turn. What it must not do is arrive on top of this module's own
+  acknowledgment: `Hästi.` and then `Hästi. Kus te elate?` is the stutter the
+  echo rule exists against, coming through the other door.
+*/
+check("the other side may volunteer something, and never says it twice", () => {
+  assert.match(
+    code("lib/scenes/gate.ts"), /sentences >= 1 && sentences <= MAX_SENTENCES/,
+    "a composed line is back to exactly one sentence, so the other side can never volunteer "
+    + "anything of its own",
+  );
+  /*
+    And a line written for this turn has already seen the turn: the rotation is
+    right in front of a banked line, drafted months ago against the beat alone,
+    and is the app reacting on top of somebody who already did in front of a
+    composed one.
+  */
+  const reply = code("lib/scenes/reply.ts");
+  assert.match(
+    reply, /&& !ownReaction\(line\)/,
+    "the reply stacks its own acknowledgment on a move that already reacted",
+  );
+  assert.match(
+    reply, /line\?\.provenance === "composed" \|\| opensWithReaction\(line\)/,
+    "a composed line is given a rotated acknowledgment in front of it, or a line that opens with "
+    + "one is given a second",
+  );
+  /*
+    And `jah` answers one kind of question. Asked which floor they live on and
+    told `2`, the neighbor said `Jah.`, which a learner who has just produced a
+    whole answer reads as not having been understood. A polar question in
+    Estonian opens with `kas`, so it is a reading of one word, and it errs the
+    safe way: no line to read means the word is left out.
+  */
+  assert.match(
+    reply, /const choices = acknowledgements\(heard\);/,
+    "the acknowledgment is drawn without reading what the learner was asked, so the other side says "
+    + "yes to a question that was not a yes-or-no one",
+  );
+  assert.match(
+    reply, /words\(heard\)\[0\] === "kas" : false;/,
+    "the polar reading stopped being a reading of the question's own first word, or stopped erring "
+    + "toward leaving `jah` out where there is nothing to read",
+  );
+  assert.match(
+    code("lib/scenes/prompt.ts"), /one short remark of your own in front of your move/,
+    "the prompt stopped asking for the remark, so the sentence the gate now allows is never written",
+  );
+});
+
+/*
+  TWO RUNS OF ONE SCENE DO NOT OPEN WITH THE SAME SENTENCE.
+
+  A beat holds its lines in the order somebody wrote them and the ladder took
+  the first that fit, so every learner met a scene with the same greeting and
+  the same second line, every time, and a scene played twice is one of the two
+  things the debrief has been recommending all along. `rotate` is where this
+  run starts reading, off the run's own seed, so the pool is the same pool and
+  the order through it is this run's: nothing is dropped and nothing repeats
+  before the pool is spent.
+
+  Asserted on the route as well as on the ladder, because a `rotate` nobody
+  passes is a run that opens on the first line for ever, and nothing about it
+  looks wrong.
+*/
+check("a run reads a beat's lines from its own place in them", () => {
+  const line = code("lib/scenes/line.ts");
+  assert.match(
+    line, /function turned<T>\(items: readonly T\[\], at: number \| undefined\)/,
+    "the rotation is gone, so every run of a scene says the same lines in the same order",
+  );
+  assert.match(
+    line, /\[\.\.\.items\.slice\(from\), \.\.\.items\.slice\(0, from\)\]/,
+    "the rotation drops the lines before its starting point rather than wrapping round them, so a "
+    + "run can never reach half of a beat's bank",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /rotate: seedFrom\(/,
+    "the scene route stopped handing the ladder this run's own place in the bank, so every learner "
+    + "opens every scene with the same sentence",
   );
 });
 

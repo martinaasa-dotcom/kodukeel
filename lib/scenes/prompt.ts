@@ -156,6 +156,16 @@ const COMPOSE_RULES = [
     what a teacher does: use their words where they carry it, reach for the
     right word where they do not.
   */
+  /*
+    AND A PERSON VOLUNTEERS SOMETHING. One sentence a turn is somebody who
+    answers and asks and never says a thing nobody asked for, which is half of
+    what makes a counter feel like a counter. It rides on the line the model is
+    writing anyway rather than on a second call, and `MAX_WORDS` covers the
+    whole turn, so two sentences are two short ones.
+  */
+  "You may put one short remark of your own in front of your move, where a person in your",
+  "position would actually say one. Never more than two sentences in total, and never a remark",
+  "that asks a second question or answers your own.",
   "Prefer the words you are given, in any grammatical form: they are what this learner has",
   `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
   "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",

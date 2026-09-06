@@ -242,7 +242,10 @@ export function advance(
 
   if (advances(evidence.reading) || taken) {
     return {
-      state: { ...state, ...moveOn(scene, state.beat), done: [...state.done, beat.id], turns },
+      state: {
+        ...state, ...moveOn(scene, state.beat, [...state.done, beat.id]),
+        done: [...state.done, beat.id], turns,
+      },
       response: "answer",
     };
   }
@@ -262,7 +265,10 @@ export function advance(
       return { state: { ...state, turns, countered: [...countered, beat.id] }, response: "counter" };
     }
     return {
-      state: { ...state, ...moveOn(scene, state.beat), done: [...state.done, beat.id], turns },
+      state: {
+        ...state, ...moveOn(scene, state.beat, [...state.done, beat.id]),
+        done: [...state.done, beat.id], turns,
+      },
       response: "answer",
     };
   }
@@ -291,7 +297,7 @@ export function advance(
       being persistent would be a scene with a score hidden inside it.
     */
     return {
-      state: { ...state, ...moveOn(scene, state.beat), turns },
+      state: { ...state, ...moveOn(scene, state.beat, state.done), turns },
       response: "moveOn",
     };
   }
@@ -307,8 +313,29 @@ export function walkOut(state: SceneState): SceneState {
   return { ...state, walkedOut: true };
 }
 
-function moveOn(scene: SceneSpec, from: number): { beat: number; patience: number } {
-  const beat = from + 1;
+/**
+ * The next beat to ask about, which is the next one nobody has answered yet.
+ *
+ * A BEAT SOMEBODY HAS ALREADY ANSWERED IS NOT ASKED. A turn can meet a beat
+ * further down the scene than the one it was answering: told "where are you
+ * going", somebody who says `poodi, piima ostma` has said what they are going
+ * to buy, and the friend who heard it does not ask them two beats later what
+ * they are buying. `replay` credits those beats where the turn met them
+ * (`creditAhead`), and this is the other half: the pointer walks past anything
+ * already done rather than stopping on it.
+ *
+ * Forward only, which is what keeps the scene a scene. A beat that ran out of
+ * patience is deliberately not `done`, and it is left behind here exactly as
+ * it was: an objective the learner did not meet is one the debrief has to be
+ * able to say they did not meet.
+ */
+function moveOn(
+  scene: SceneSpec,
+  from: number,
+  done: readonly string[],
+): { beat: number; patience: number } {
+  let beat = from + 1;
+  while (scene.beats[beat] && done.includes(scene.beats[beat]!.id)) beat += 1;
   return { beat, patience: scene.beats[beat]?.patience ?? 0 };
 }
 
@@ -317,6 +344,50 @@ function responseFor(reading: TurnReading): Response {
   if (reading === "incomplete") return "narrow";
   if (reading === "offtarget") return "narrow";
   return "repeat";
+}
+
+/**
+ * A BEAT THE TURN ANSWERED FURTHER DOWN THE SCENE, CREDITED WHERE IT STANDS.
+ *
+ * `advance` moves through the beats in order and the cascade in `replay`
+ * follows it, so a turn could only ever be credited with the beats immediately
+ * after the one it was answering. A person volunteers out of order all the
+ * time: asked where they are going, somebody says `poodi, piima ostma`, and
+ * the friend who heard that does not ask two beats later what they are buying.
+ * Before this they did, and the learner had to say it twice.
+ *
+ * The pointer does not move. That is the whole of what makes this safe: the
+ * beats in between are still asked, in order, and the scene keeps its shape;
+ * what changes is that `moveOn` walks past a beat somebody has already
+ * answered rather than stopping on it.
+ *
+ * It takes `Evidence` and nothing else, like `advance`, so a caller holding a
+ * model's opinion about the learner still cannot compile (ADR-025).
+ */
+export function creditAhead(
+  state: SceneState,
+  evidence: Evidence,
+  beat: BeatSpec,
+  said: string,
+  heard = "",
+): SceneState {
+  if (state.done.includes(beat.id)) return state;
+  return {
+    ...state,
+    done: [...state.done, beat.id],
+    turns: [...state.turns, {
+      beatId: beat.id,
+      said,
+      reading: evidence.reading,
+      met: evidence.met,
+      helped: false,
+      ...(heard ? { heard } : {}),
+      ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
+      produced: evidence.satisfiedBy,
+      substituted: evidence.substituted,
+      ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
+    }],
+  };
 }
 
 /**

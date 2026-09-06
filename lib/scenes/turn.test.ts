@@ -844,3 +844,47 @@ describe("a turn that is nearly right", () => {
     expect(seen.slips).toEqual([]);
   });
 });
+
+/**
+ * A NO ABOUT THE BEAT'S OWN WORD IS NOT AN ANSWER WITH THAT WORD IN IT.
+ *
+ * `satisfies` looks for a spelling anywhere in the turn, so `ma ei taha valu`
+ * met a beat that wants `valu`: the other side said the word back and moved
+ * on, the objective was ticked, and the log recorded the learner as having
+ * produced it. Nothing in the marker could see the `ei`.
+ */
+describe("a word the learner negated", () => {
+  const ctx = context();
+
+  it("does not meet the requirement it was found in", () => {
+    const seen = readTurn("ma ei taha valu", beat(), ctx);
+    expect(seen.reading).not.toBe("complete");
+    expect(seen.satisfiedBy, "a negated word was recorded as produced").toEqual([]);
+  });
+
+  it("meets it where the negator is in another clause, which is where it usually is", () => {
+    // "I do not know where the pain is" says where nothing is negated.
+    expect(readTurn("ma ei tea, kus on valu", beat({ shape: "sentence" }), ctx).reading)
+      .toBe("complete");
+  });
+
+  it("meets it where the no is about something else and the yes is about this", () => {
+    expect(readTurn("ei, mul on valu", beat({ shape: "sentence" }), ctx).reading).toBe("complete");
+  });
+
+  /*
+    And a beat that takes a no is never refused by one: "Kas te soovite piima?"
+    accepts `ei` as the whole answer, and reading that as a turn which met
+    nothing would be the app refusing the word it asked for.
+  */
+  it("says nothing about a beat whose own answer is the negator", () => {
+    const asks = beat({ needs: [{ kind: "lemma", oneOf: ["jah", "ei", "valu"] }] });
+    /*
+      The very sentence the first case refuses, on a beat that offers a no as
+      one of its answers: here the learner is answering rather than
+      contradicting, and refusing it would be the app turning down the word it
+      asked for.
+    */
+    expect(readTurn("ma ei taha valu", asks, ctx).reading).toBe("complete");
+  });
+});

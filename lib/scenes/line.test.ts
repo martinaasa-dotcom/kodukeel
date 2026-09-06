@@ -221,6 +221,30 @@ describe("the scripted rung", () => {
     expect(line.provenance).toBe("scripted");
   });
 
+  /*
+    TWO RUNS OF ONE SCENE DO NOT OPEN WITH THE SAME SENTENCE. A beat holds its
+    lines in the order somebody wrote them and the ladder took the first that
+    fit, so every learner met `poodi-piima` with the same greeting and the same
+    second line, every time. `rotate` is where this run starts reading, off the
+    run's own seed, so the pool is the same pool and the order through it is
+    this run's.
+  */
+  it("starts a run somewhere else in the bank, and still says every line", async () => {
+    const bank = ["Kas teil on valu?", "Kus on valu?"];
+    const first = await sceneLine(request({ scripted: bank, rotate: 0 }));
+    const second = await sceneLine(request({ scripted: bank, rotate: 1 }));
+    expect(first.text).toBe(bank[0]);
+    expect(second.text).toBe(bank[1]);
+  });
+
+  it("wraps round rather than running out, whatever the seed", async () => {
+    const bank = ["Kas teil on valu?", "Kus on valu?"];
+    for (const rotate of [2, 7, 12345]) {
+      const line = await sceneLine(request({ scripted: bank, rotate }));
+      expect(bank).toContain(line.text);
+    }
+  });
+
   it("reaches the repair phrase only once the bank is empty too", async () => {
     const line = await sceneLine(request({
       scripted: ["Kas teil on valu?"],

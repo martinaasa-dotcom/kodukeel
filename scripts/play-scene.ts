@@ -36,6 +36,7 @@ import {
   clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
+import { seedFrom } from "../lib/random/seeded";
 import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
@@ -305,6 +306,8 @@ async function play(sceneId: string) {
         pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        // Where this run starts reading a beat's own lines, as the route does.
+        rotate: seedFrom(`${scene.id}:${run.seed}`),
         /*
           The same question the route asks (`sceneVouch`), minus the course
           read that needs a database: is this spelling Estonian at all. Without

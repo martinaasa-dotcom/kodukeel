@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
@@ -479,6 +480,17 @@ export async function POST(request: Request) {
   const shared = {
     beat,
     lexicon: context.lexicon,
+    /*
+      WHERE THIS RUN STARTS READING A BEAT'S OWN LINES.
+
+      Every conversation opened with the same word. A courtesy is answered from
+      the recorded rung and a beat's bank holds two or three lines, both scanned
+      from the front, so `Tere!` opened every run of every scene and a keyless
+      run asked its second question in the same sentence every time. The run's
+      own id, so a reload of one transcript says what it said before and the
+      next conversation does not.
+    */
+    rotate: seedFrom(runId),
     /*
       The gate, plus the numbers this run was dealt. Per run rather than per
       scene, which is why it is joined here rather than in `sceneContext`: the
