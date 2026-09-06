@@ -5206,6 +5206,54 @@ check("a scene cannot spend the day Anu needs, and reserves what a turn costs", 
 });
 
 /**
+ * THE BACKLOG IN THE LINT CONFIG SAYS HOW BIG IT IS, AND THE TWO HALVES AGREE.
+ *
+ * `eslint-config-next` 16 brought the React Compiler's rules in as errors.
+ * Eleven of them hold in this tree and stay errors; five do not, and they warn
+ * with a table of counts above them saying how far from holding they are. A
+ * count in prose beside a list in code is the shape this repository has been
+ * wrong about more than once, and here it is worse than usual: the table is the
+ * whole argument that these are a backlog rather than a bar somebody lowered,
+ * so a rule quietly joining the list without a measured count turns a stated
+ * plan into a place to park a failure.
+ *
+ * The counts themselves are not asserted, because that would mean running
+ * eslint over the tree inside this script. What is asserted is that the two
+ * lists are the same list, that the table carries a number for every rule, and
+ * that `rules-of-hooks` never joins them: it predates the compiler, this code
+ * passes it, and it is the one in that family whose failures are real bugs
+ * every time.
+ */
+check("every demoted lint rule is one the config counted", () => {
+  /*
+    `code()` everywhere else in this file, and `read()` here on purpose: the
+    table is a comment, and stripping the comments is what the other checks want
+    and what would leave this one comparing the rules against nothing at all.
+    The rules are read from the stripped source, so a rule mentioned in prose
+    does not count as demoted.
+  */
+  const prose = read("eslint.config.mjs");
+  const demoted = [...code("eslint.config.mjs").matchAll(/"(react-hooks\/[a-z-]+)":\s*"warn"/g)]
+    .map((m) => m[1]!);
+  assert.ok(demoted.length > 0, "the React Compiler rules are all errors now; delete this check with the table");
+
+  const table = new Map(
+    [...prose.matchAll(/^\s*\*\s{3}([a-z-]+)\s+(\d+)(?:\s|$)/gm)].map((m) => [`react-hooks/${m[1]!}`, Number(m[2]!)]),
+  );
+  assert.deepEqual(
+    [...demoted].sort(), [...table.keys()].sort(),
+    "the rules set to warn and the rules the table counts are two different lists, so one of them is out of date",
+  );
+  for (const [rule, count] of table) {
+    assert.ok(count > 0, `${rule} is counted at nought and should be an error again`);
+  }
+  assert.ok(
+    !demoted.includes("react-hooks/rules-of-hooks"),
+    "rules-of-hooks was demoted. It predates the compiler, this tree passes it, and its failures are real every time.",
+  );
+});
+
+/**
  * THE WORD LIST IS ON THE CACHED SIDE OF THE PROMPT, WHICH IS THE WHOLE COST OF
  * COMPOSING EVERY BEAT.
  *
