@@ -12384,7 +12384,7 @@ check("the scene route marks mechanically before it reaches a provider", () => {
   const marked = src.indexOf("markDescription(");
   // Either spelling: the route resolves the whole chain now, and the rule is
   // about the order, not about which of the two functions it calls.
-  const provider = src.search(/resolveProviders?\(/);
+  const provider = src.search(/resolveProviders?\(|graderChain\(/);
   assert.ok(marked > 0 && provider > 0, "the describe route no longer does both of these");
   assert.ok(
     marked < provider,

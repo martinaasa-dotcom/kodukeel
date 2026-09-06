@@ -8,8 +8,8 @@ import { MAX_SENTENCE_CHARS, looksLikeSentence } from "@/lib/estonian/writing";
 import { reportError } from "@/lib/observability/report";
 import { taskById } from "@/lib/progress/describe";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { gradeDescription } from "@/lib/tutor/grader";
-import { resolveProviders, TutorError } from "@/lib/tutor/provider";
+import { gradeDescription, graderChain } from "@/lib/tutor/grader";
+import { TutorError } from "@/lib/tutor/provider";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
   // The whole chain rather than its head. The grader used to take
   // `resolveProvider()`, which is one model with nothing behind it, so a
   // provider having a bad minute was the learner losing their feedback.
-  const chain = resolveProviders();
+  const chain = graderChain();
   const config = chain[0];
   if (!config) return Response.json({ mark, reveal, graded: null, aiAvailable: false });
 

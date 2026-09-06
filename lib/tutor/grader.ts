@@ -1,6 +1,6 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { TutorError, type ProviderConfig, type ProviderName, type UsageReport } from "./provider";
+import { resolveProviders, TutorError, type ProviderConfig, type ProviderName, type UsageReport } from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -148,6 +148,49 @@ export async function gradeSentence(
  * next time a provider changed the shape of its usage block. The scene grader
  * is the third and added none, which is the argument for having extracted it.
  */
+/**
+ * The model that grades first, and the chain still behind it.
+ *
+ * `resolveProviders()` puts free providers first, and its comment says why:
+ * everything a stranger can set up without a card is tried before a paid key.
+ * That policy is right for the tutor, where a weaker answer is a weaker answer.
+ * It is wrong for the grader, and the difference is measurable rather than a
+ * preference. Grading asks for a whole JSON object inside a few hundred tokens,
+ * and at the caps the callers really use (400, and 500 for a composition) the
+ * free head of the chain cannot do it: `openai/gpt-oss-120b` returns a verdict
+ * on 21 of 36 calls, spending its budget reasoning and emitting nothing, and
+ * Groq says so itself with 400 json_validate_failed. `claude-haiku-4-5` is 36
+ * of 36 at an average of 82 output tokens against that 400 ceiling, and reaches
+ * for an unvouched Estonian form a sixth as often as the best free model, which
+ * is the failure ADR-005 cares about rather than a matter of polish.
+ *
+ * So this reorders; it does not pin. The free links stay in the chain behind
+ * the grader model, so a bad minute at Anthropic still gets the learner a
+ * verdict, and a deployment with no Anthropic key gets exactly the chain it had
+ * before: the reorder can only move a link that is already there. That is what
+ * keeps "a chain rather than a choice" true, and what stops this being the
+ * re-pinning the provider module forbids.
+ *
+ * `GRADER_MODEL` names it, so a deployment that would rather grade on something
+ * else says so without editing this file.
+ */
+export const DEFAULT_GRADER_MODEL = "claude-haiku-4-5";
+
+export function graderChain(): ProviderConfig[] {
+  const chain = resolveProviders();
+  const wanted = (process.env.GRADER_MODEL || DEFAULT_GRADER_MODEL).trim();
+  // An Anthropic link carries whatever ANTHROPIC_MODEL said, so the grader's
+  // model may be absent from the chain even where the key is set. Where the
+  // key is set, it is a link worth having; where it is not, there is nothing
+  // to promote and the chain is returned untouched.
+  const already = chain.find((c) => c.model === wanted);
+  if (already) return [already, ...chain.filter((c) => c !== already)];
+  if (wanted.startsWith("claude-") && process.env.ANTHROPIC_API_KEY) {
+    return [{ name: "anthropic", model: wanted, label: "Anthropic" }, ...chain];
+  }
+  return chain;
+}
+
 /**
  * Whether a failure says something about this model rather than the request.
  *

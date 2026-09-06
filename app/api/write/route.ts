@@ -2,8 +2,8 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { resolveProviders, TutorError } from "@/lib/tutor/provider";
-import { gradeSentence } from "@/lib/tutor/grader";
+import { TutorError } from "@/lib/tutor/provider";
+import { gradeSentence, graderChain } from "@/lib/tutor/grader";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import {
   MAX_SENTENCE_CHARS, checkForm, looksLikeSentence, writingTasksFor,
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
   // The whole chain rather than its head. The grader used to take
   // `resolveProvider()`, which is one model with nothing behind it, so a
   // provider having a bad minute was the learner losing their feedback.
-  const chain = resolveProviders();
+  const chain = graderChain();
   const config = chain[0];
   if (!config) {
     return Response.json({ formCheck, graded: null, aiAvailable: false });
