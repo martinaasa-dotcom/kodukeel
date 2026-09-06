@@ -17,7 +17,7 @@
 
   Every word comes out of prisma/data/expanded.json. Nothing is written.
 */
-import { readFileSync, writeFileSync, mkdtempSync } from "node:fs";
+import { readFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 // The repo's own launcher, which is where the sandbox's browser path already
