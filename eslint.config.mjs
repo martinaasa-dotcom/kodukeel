@@ -1,6 +1,5 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 /**
  * ESLint, on the flat config the CLI actually uses.
@@ -10,12 +9,18 @@ import { FlatCompat } from "@eslint/eslintrc";
  * and in any non-interactive shell. `eslint .` reads this file and exits with a
  * status, which is the only behaviour a lint script is useful for.
  *
- * FlatCompat is here because `eslint-config-next` is still published as a
- * legacy (eslintrc) config; this is the shape Next's own migration codemod
- * produces.
+ * `eslint-config-next` ships native flat configs from 16, so its two entry
+ * points are spread in directly. They used to come through `FlatCompat`,
+ * which is the shape Next's own codemod produced while the package was still
+ * eslintrc-only; on 16 that path throws "Converting circular structure to
+ * JSON" before a single file is linted, because the legacy validator tries to
+ * serialise a flat config whose plugins reference themselves.
+ *
+ * Safe on Next 15, which is what this repo is on: the package asks for
+ * `eslint >= 9` and says nothing at all about the framework's version. And
+ * `@eslint/eslintrc` is uninstalled with the wrapper, the wrapper having been
+ * its only reason to be here.
  */
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
 const config = [
   {
     ignores: [
@@ -32,7 +37,8 @@ const config = [
     ],
   },
 
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
 
   {
     rules: {
@@ -55,6 +61,45 @@ const config = [
       // Estonian text is full of apostrophes and quotes; React's own rule about
       // escaping them catches real rendering bugs, so it stays on.
       "react/no-unescaped-entities": "error",
+
+      /*
+       * THE REACT COMPILER'S RULES, WHICH ARRIVED TURNED UP RATHER THAN BEING
+       * TURNED UP HERE.
+       *
+       * `eslint-config-next` 16 brings `eslint-plugin-react-hooks` 7 with it and
+       * enables sixteen `react-hooks/*` rules as errors, eleven of which did not
+       * exist in 15. Eleven hold in this tree already and stay errors, so none of
+       * them can regress quietly. Five do not: 116 findings over about forty
+       * files, listed here with their counts, because a warning nobody has
+       * counted is a warning nobody reads.
+       *
+       *   purity              49  (46 are `Date.now()` read during render)
+       *   set-state-in-effect 34
+       *   refs                25
+       *   static-components    7
+       *   immutability         1
+       *
+       * These are a backlog rather than a bar being lowered, and the difference
+       * is worth being exact about, because `.github/workflows/ci.yml` says of
+       * its own audit gate: do not lower a number. That rule is about a gate this
+       * code used to pass and would stop passing. Nothing here used to pass. The
+       * rules are a new opinion arriving with a new major, and much of what they
+       * object to is deliberate: `lib/layout/navMarker.ts` writes a ref during
+       * render on purpose and CLAUDE.md argues it at length, and a page deciding
+       * what is due now reads the clock.
+       *
+       * So they warn, which is the shape `no-explicit-any` two rules up already
+       * takes and for the reason written there: a prompt to justify rather than a
+       * block. Each goes back to "error" as it empties, and the table is what
+       * says how far that has got. What may not happen is this block growing a
+       * rule that was never measured, or a count here drifting from what
+       * `npm run lint` prints.
+       */
+      "react-hooks/purity": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/static-components": "warn",
+      "react-hooks/immutability": "warn",
     },
   },
 
