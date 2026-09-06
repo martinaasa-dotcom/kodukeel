@@ -409,8 +409,19 @@ export async function recordUsage(input: {
   kind: UsageKind;
   provider: string;
   model: string;
+  /** Every input token, cached ones included. */
   inputTokens: number;
   outputTokens: number;
+  /**
+   * How much of `inputTokens` a cache served or wrote, where the provider
+   * reported it. Priced at `CACHE_READ_RATE` and `CACHE_WRITE_RATE` rather
+   * than at base, which is the difference between the ledger seeing what
+   * prompt caching saves and charging as though it were switched off.
+   * Omitted by every provider that reports no split, and the whole call is
+   * then priced at base as it always was.
+   */
+  cachedInputTokens?: number;
+  cacheWriteTokens?: number;
   /** The authorization this call is settling, from `authoriseCall`. */
   reservation?: Reservation;
   /**
@@ -424,7 +435,10 @@ export async function recordUsage(input: {
 }): Promise<void> {
   const now = input.now ?? new Date();
   const actual = input.costMicros ??
-    estimateCostMicros(input.model, input.inputTokens, input.outputTokens);
+    estimateCostMicros(input.model, input.inputTokens, input.outputTokens, {
+      cachedInputTokens: input.cachedInputTokens,
+      cacheWriteTokens: input.cacheWriteTokens,
+    });
   try {
     await prisma.usageEvent.create({
       data: {

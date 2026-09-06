@@ -741,6 +741,9 @@ async function compose(
           model: config.model,
           inputTokens: usage.inputTokens,
           outputTokens: usage.outputTokens,
+          // Priced at the cache rates where the provider reported a split.
+          cachedInputTokens: usage.cachedInputTokens,
+          cacheWriteTokens: usage.cacheWriteTokens,
           reservation: input.reservation,
         }));
       },
