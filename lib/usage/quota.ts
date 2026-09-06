@@ -46,6 +46,15 @@ export interface QuotaLimits {
 /**
  * Sized for an app that is free to everybody and has to stay that way.
  *
+ * `dailyMicrosGlobal` was $20 and is $3.00, because it had stopped being a
+ * statement about anything. It predated the per-kind slices, and once those
+ * existed it was a leftover: the four of them come to $2.16 a day, so a $20
+ * ceiling was seven times a total nothing could reach and could never be the
+ * thing that bound. $3.00 is the real combined ceiling with a little room, and
+ * the room is deliberate — the reserve holds back the last quarter, which at
+ * $3.00 starts at $2.25, above the $2.16 the slices add up to, so the reserve
+ * cannot clip a path that is still inside its own budget.
+ *
  * The whole product works with no AI at all: review, the dictionary, every
  * drill, the writing exercise's actual verdict, offline. Anu is the one part
  * that costs money per use, so she is the one part with a small allowance. Ten
@@ -62,10 +71,10 @@ export const DEFAULT_LIMITS: QuotaLimits = {
   burstWindowSeconds: 60,
   dailyCallsPerUser: 10,
   dailyMicrosPerUser: 500_000,        // $0.50
-  dailyMicrosGlobal: 20_000_000,      // $20.00
+  dailyMicrosGlobal: 3_000_000,       // $3.00
   // Overridden per kind by `DEFAULT_KIND_BUDGETS`; this is the value a kind
   // with nothing to say about itself falls back to, which is the whole budget.
-  dailyMicrosGlobalForKind: 20_000_000,
+  dailyMicrosGlobalForKind: 3_000_000,
   globalReserveFraction: 0.25,
   reserveCallsPerUser: 3,
 };
@@ -77,59 +86,100 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  * ONE CAP CANNOT PROTECT TWO BALANCES. Until the provider split there was one
  * chain, so every path spent out of the same account and a single global figure
  * was the whole truth about the bill. There are two now and they are nothing
- * like each other: scene composition runs on Groq at $0.29/$0.59 per MTok, and
- * Anu runs on Anthropic at $2/$10 against a balance that is currently $5. One
- * Anu answer costs what thirty-three composed scene turns cost.
+ * like each other: Groq bills separately from Anthropic, and a dollar spent on
+ * one is not a dollar out of the other.
  *
- * What that does to a single $20/day cap is make it irrelevant to the thing
- * most worth protecting. Anu's whole $5 balance is about 347 answers, and 347
- * answers is $5, which is a quarter of the way to a cap that therefore never
- * fires: the balance runs out first, the provider answers 402, and the first
- * anybody knows about it is a learner getting a refusal. A cap that is reached
- * after the money has gone is not a cap, it is a receipt.
+ * THE BINDING CONSTRAINT IS A BALANCE, NOT A BILL, and two versions of these
+ * numbers were sized against the wrong thing before this one.
  *
- * THE ARITHMETIC THESE NUMBERS COME FROM, measured against the real prompts
- * (`lib/tutor/prompt.ts` builds a 3,031-token system prompt; the scene route's
- * word list is 714 to 955 tokens across the fourteen shipped scenes):
+ * The first checked them against `dailyMicrosGlobal`, which was $20 and was a
+ * figure from before any of this existed. What actually constrains this
+ * deployment is $5 sitting in one Anthropic account, wanted to last a month:
+ * $0.167 a day. Sized against the $20, TUTOR and SCAN came to $1.50 a day
+ * between them, nine times the real ceiling, and the balance would have been
+ * gone inside four days with every cap reporting itself comfortably unspent.
  *
- *   TUTOR   ~3,700 in at $2/MTok + ~700 out at $10/MTok  = $0.0144 an answer.
- *           $0.50 a day is ~34 answers, so a $5 balance lasts at least ten days
- *           of the cap being reached every single day, and the *cap* is what
- *           stops Anu rather than the balance. That is the difference between a
- *           learner reading "today's shared budget is used up, it resets at
- *           midnight" and a learner reading nothing while a 402 is logged.
- *   SCENE   ~1,400 in at $0.29/MTok + ~60 out at $0.59/MTok = $0.00044 a turn.
- *           $2.00 a day is ~4,500 composed turns, which is around 900
- *           conversations: more than this deployment will see, and bounded at
- *           $60 a month if it ever does.
- *   GRADER  ~900 in + ~200 out (the three system prompts in lib/tutor/grader.ts
- *           measure 462, 609 and 717 tokens). On Groq, which now leads the
- *           general chain, that is $0.00038 a note and $0.50 buys about 1,300
- *           of them; if Groq is down and Anthropic answers instead it is
- *           $0.0038, so the same $0.50 still buys 130. Sized off the dearer
- *           reading on purpose: a slice that only holds while the cheap
- *           provider is up is not a slice.
- *   SCAN    the dearest single call and the least repeated, since a page is
- *           photographed once and studied for weeks. ~3,000 in of image and
- *           ~400 out. It needs a model that can see, and the cheap one cannot,
- *           so it is priced against Anthropic at $0.010 a page: $1.00 is 100
- *           scans a day across the deployment.
+ * The second used a Groq rate that was quoted rather than read. See the note on
+ * `qwen3.8-27b` in `pricing.ts`: the real figures come off Groq's own
+ * `/v1/models`, and everything below is priced with them.
+ *
+ * WHICH PATHS CAN REACH ANTHROPIC AT ALL, since that is what the $5 constrains:
+ *
+ *   TUTOR   always. It is Anthropic by purpose and has no other chain.
+ *   SCENE   never. It is Groq by purpose, and there is no cross-purpose
+ *           fallback, so a scene cannot spend the tutor's balance however badly
+ *           Groq is behaving.
+ *   SCAN    normally not, and sometimes. It is on the general chain, which
+ *           leads with Groq, and `qwen3.8-27b` accepts images, so a scan is a
+ *           Groq call until Groq fails.
+ *   GRADER  the same, for the same reason.
+ *
+ * So the ceiling that matters is TUTOR plus the two fallbacks, and the numbers
+ * below are sized so that even a day when Groq is down from midnight to
+ * midnight stays inside it. A cap that only holds while the cheap provider is
+ * up is not a cap.
+ *
+ * THE ARITHMETIC, measured against the real prompts (`lib/tutor/prompt.ts`
+ * builds a 3,031-token system prompt; the scene route's word list is 714 to 955
+ * tokens across the fourteen shipped scenes; the three grader systems in
+ * `lib/tutor/grader.ts` are 462, 609 and 717):
+ *
+ *   TUTOR   ~3,700 in + ~700 out on claude-sonnet-5 = $0.0144 an answer.
+ *           $0.10 a day is 6 answers. It takes the largest share because Anu is
+ *           what the Anthropic key was bought for.
+ *   SCAN    ~3,000 in of image + ~400 out. $0.0040 on Groq, $0.0100 on
+ *           Anthropic. $0.02 a day is 5 scans, or 2 on a day Groq is out. This
+ *           is the one that gives up headroom, on the README's own word for it:
+ *           a page is photographed once and studied for weeks. Fifteen a day
+ *           was asked about and fits in no arrangement, because fifteen scans
+ *           on Anthropic is $0.15, which is the whole daily balance with
+ *           nothing left for the tutor.
+ *   GRADER  ~900 in + ~200 out. $0.0015 on Groq, $0.0038 on Anthropic. $0.04 a
+ *           day is 26 notes, or 10 on a day Groq is out.
+ *   SCENE   ~1,400 in + ~60 out on Groq = $0.0014 a turn. $2.00 a day is about
+ *           1,470 composed turns. It is the one slice with no bearing on the
+ *           $5, and it is also $60 a month of Groq if it is ever reached, which
+ *           is the number to argue with rather than this arithmetic.
+ *
+ * WHAT THAT COMES TO. Anthropic sees $0.10 a day in the ordinary case, which is
+ * fifty days of the tutor cap being reached every single day, and $0.16 on a day
+ * Groq never answers at all, which is 4% under what the balance allows and
+ * thirty-one days. Both readings are under it, which is the property worth
+ * having: the arithmetic does not depend on a provider behaving.
+ *
+ * These are deployment-wide, not per learner. At a pilot's size six answers a
+ * day is the number to argue with, and the answer to it is a bigger balance
+ * rather than a bigger cap.
+ *
+ * There is quiet margin under all of it. Anthropic's cache read is a tenth of
+ * the input rate and `absorbUsage` counts a cache read as a full input token,
+ * so a cached tutor answer is charged here at about 1.6 times what it costs.
+ * That over-charge is deliberate elsewhere in this file and is left alone: it
+ * makes the cap bind sooner than the balance, which is the safe order.
  *
  * TTS is the one metered kind with no slice, and that is not an oversight: it
- * is free, so a budget denominated in money says nothing about it. What
- * rations speech is its call count, which `ALLOWANCE` already sets at thirty
- * times the base.
+ * is free, so a budget denominated in money says nothing about it. What rations
+ * speech is its call count, which `ALLOWANCE` already sets at thirty times the
+ * base.
+ *
+ * A SLICE PER KIND STILL CANNOT SAY "CHEAP HERE, DEAR THERE", which is why SCAN
+ * and GRADER are sized off their dear reading and are therefore stingy on the
+ * ordinary one. Only a cap per *provider* expresses the real constraint, and
+ * the ledger already records which provider answered every settled call. That
+ * is the better fix and a larger change than this: written down rather than
+ * half-done.
  *
  * These are defaults; each has an environment variable below, and
- * `AI_DAILY_USD_GLOBAL` still bounds the lot. The four together come to $4.00
- * against a $20 day, which is the shape intended: the global figure is a
- * backstop over everything rather than the number that decides any one path.
+ * `AI_DAILY_USD_GLOBAL` still bounds the lot.
  */
 export const DEFAULT_KIND_BUDGETS: Readonly<Partial<Record<UsageKind, number>>> = {
-  TUTOR: 500_000,     // $0.50
-  SCENE: 2_000_000,   // $2.00
-  GRADER: 500_000,    // $0.50
-  SCAN: 1_000_000,    // $1.00
+  // Anthropic's balance: $0.10 a day normally, $0.16 if Groq is out all day,
+  // against the $0.167 that makes $5 last a month.
+  TUTOR: 100_000,     // $0.10  =  6 answers
+  SCAN: 20_000,       // $0.02  =  5 scans on Groq, 2 on Anthropic
+  GRADER: 40_000,     // $0.04  =  26 notes on Groq, 10 on Anthropic
+  // Groq's, which is a separate bill and cannot reach the Anthropic balance.
+  SCENE: 2_000_000,   // $2.00  =  1,470 composed turns
 };
 
 /** The environment variable that overrides a kind's slice, where it has one. */

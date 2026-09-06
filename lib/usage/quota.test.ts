@@ -157,6 +157,32 @@ describe("readLimits", () => {
     expect(limits.dailyMicrosGlobalForKind).toBe(limits.dailyMicrosGlobal);
   });
 
+  it("keeps everything that can reach Anthropic inside what the balance affords", () => {
+    /*
+      THE CHECK THE FIRST TWO VERSIONS OF THESE NUMBERS WOULD HAVE FAILED.
+
+      Both were sized against `dailyMicrosGlobal`, which was a figure from before
+      the slices existed, and the real constraint is a $5 Anthropic balance
+      wanted to last a month: $0.167 a day. TUTOR always spends it; SCAN and
+      GRADER are on the general chain and fall through to it when Groq is down;
+      SCENE never can, because there is no cross-purpose fallback.
+
+      Asserted on the *worst* reading, a day Groq never answers at all, because
+      a ceiling that only holds while the cheap provider is up is not a ceiling.
+    */
+    const BALANCE_MICROS = 5_000_000;
+    const DAYS = 30;
+    const afford = BALANCE_MICROS / DAYS;
+
+    const canReachAnthropic = (["TUTOR", "SCAN", "GRADER"] as const)
+      .reduce((sum, kind) => sum + (DEFAULT_KIND_BUDGETS[kind] ?? 0), 0);
+
+    expect(canReachAnthropic).toBeLessThan(afford);
+    // And SCENE stays out of that sum, which is the purpose split paying for
+    // itself: the busiest path in the app cannot touch the scarce balance.
+    expect(DEFAULT_KIND_BUDGETS.SCENE).toBeGreaterThan(afford);
+  });
+
   it("gives every paid path a slice, and leaves the free one without", () => {
     // The four that cost money are individually bounded; the global figure is
     // a backstop over everything rather than the number deciding any one path.
@@ -167,6 +193,16 @@ describe("readLimits", () => {
     // And together they stay well inside the day, or the backstop is the cap.
     const total = Object.values(DEFAULT_KIND_BUDGETS).reduce((a, b) => a + (b ?? 0), 0);
     expect(total).toBeLessThan(DEFAULT_LIMITS.dailyMicrosGlobal);
+    /*
+      And the reserve cannot clip a path still inside its own slice. The last
+      quarter of the global figure is held back for people who have asked
+      nothing today, so if that threshold sat below the slices' total, a kind
+      well within its budget would start being refused for a reason that names
+      the deployment rather than itself.
+    */
+    const reserveFrom =
+      DEFAULT_LIMITS.dailyMicrosGlobal * (1 - DEFAULT_LIMITS.globalReserveFraction);
+    expect(reserveFrom).toBeGreaterThan(total);
   });
 
   it("gives the two routed purposes their own slices", () => {

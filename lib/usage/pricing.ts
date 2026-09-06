@@ -53,7 +53,10 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   */
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
-  "gpt-oss-120b": { inputPerMTok: 0, outputPerMTok: 0 },
+  "gpt-oss-120b": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
+  // Groq publishes no price for this one, so there is none to write down. It is
+  // on no purpose chain and is reachable only on an install that sets no
+  // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
   "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
 
   /*
@@ -77,11 +80,25 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
     anybody will notice: 54,000 composed turns to reach a $20 day. Charging a
     paid deployment nothing has no floor under it at all.
 
-    Groq's published rate for this model, per MTok. Checked against the pricing
-    page rather than guessed from the model's size, which is the rule this
-    whole table is written under. Re-check it when the plan changes.
+    AND THE FIRST NUMBER WRITTEN HERE WAS WRONG, WHICH IS WHY THIS ONE IS READ
+    RATHER THAN QUOTED.
+
+    It went in at $0.29/$0.59 on a figure supplied in good faith and never
+    checked, because there was no obvious way to check it. There is: Groq's
+    `/v1/models` returns a `pricing` object per model, and asked with this
+    deployment's own key it answers $0.80 and $4.00 per MTok. So the rate was
+    understated by 2.75x on input and 6.8x on output, which is the same failure
+    as the zero it replaced, one order of magnitude smaller: a cap sized against
+    a price that low binds long after the money has gone.
+
+    Every Groq row in this table is now that answer rather than anybody's
+    recollection, this one and `gpt-oss-120b` above, which was also sitting at
+    zero and is $0.15/$0.60. Re-read them the same way when the plan changes:
+
+      curl -s https://api.groq.com/openai/v1/models \
+        -H "Authorization: Bearer $GROQ_API_KEY"
   */
-  "qwen3.8-27b": { inputPerMTok: 0.29, outputPerMTok: 0.59 },
+  "qwen3.8-27b": { inputPerMTok: 0.8, outputPerMTok: 4 },
   "gemini-flash-latest": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.6-flash": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.5-flash": { inputPerMTok: 0, outputPerMTok: 0 },
