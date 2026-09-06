@@ -144,10 +144,29 @@ describe("readLimits", () => {
   });
 
   it("gives a kind with no slice of its own the whole budget", () => {
-    // SCAN, the writing grader and speech did not change provider, so the split
-    // must not quietly tighten them.
-    const limits = readLimits({ AI_DAILY_USD_GLOBAL: "20" }, "SCAN");
+    /*
+      TTS is the one, and it is the one on purpose: it is free, so a slice
+      denominated in money would be a limit that can never be reached pretending
+      to be a control. What rations speech is its call count.
+
+      This case used to name SCAN, which has a slice of its own now. Keeping the
+      rule and moving the example is the point: a kind that has said nothing
+      about itself must not be quietly tightened by the machinery existing.
+    */
+    const limits = readLimits({ AI_DAILY_USD_GLOBAL: "20" }, "TTS");
     expect(limits.dailyMicrosGlobalForKind).toBe(limits.dailyMicrosGlobal);
+  });
+
+  it("gives every paid path a slice, and leaves the free one without", () => {
+    // The four that cost money are individually bounded; the global figure is
+    // a backstop over everything rather than the number deciding any one path.
+    for (const kind of ["TUTOR", "SCENE", "GRADER", "SCAN"] as const) {
+      expect(DEFAULT_KIND_BUDGETS[kind], `${kind} has no slice`).toBeGreaterThan(0);
+    }
+    expect(DEFAULT_KIND_BUDGETS.TTS).toBeUndefined();
+    // And together they stay well inside the day, or the backstop is the cap.
+    const total = Object.values(DEFAULT_KIND_BUDGETS).reduce((a, b) => a + (b ?? 0), 0);
+    expect(total).toBeLessThan(DEFAULT_LIMITS.dailyMicrosGlobal);
   });
 
   it("gives the two routed purposes their own slices", () => {

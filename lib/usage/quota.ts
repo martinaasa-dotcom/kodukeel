@@ -102,23 +102,42 @@ export const DEFAULT_LIMITS: QuotaLimits = {
  *           $2.00 a day is ~4,500 composed turns, which is around 900
  *           conversations: more than this deployment will see, and bounded at
  *           $60 a month if it ever does.
+ *   GRADER  ~900 in + ~200 out (the three system prompts in lib/tutor/grader.ts
+ *           measure 462, 609 and 717 tokens). On Groq, which now leads the
+ *           general chain, that is $0.00038 a note and $0.50 buys about 1,300
+ *           of them; if Groq is down and Anthropic answers instead it is
+ *           $0.0038, so the same $0.50 still buys 130. Sized off the dearer
+ *           reading on purpose: a slice that only holds while the cheap
+ *           provider is up is not a slice.
+ *   SCAN    the dearest single call and the least repeated, since a page is
+ *           photographed once and studied for weeks. ~3,000 in of image and
+ *           ~400 out. It needs a model that can see, and the cheap one cannot,
+ *           so it is priced against Anthropic at $0.010 a page: $1.00 is 100
+ *           scans a day across the deployment.
  *
- * The rest keep the whole budget, which is what they had: SCAN and GRADER are
- * on the general chain and unchanged by the split, and TTS is free and rationed
- * by its call count rather than by money.
+ * TTS is the one metered kind with no slice, and that is not an oversight: it
+ * is free, so a budget denominated in money says nothing about it. What
+ * rations speech is its call count, which `ALLOWANCE` already sets at thirty
+ * times the base.
  *
- * These are defaults. `AI_DAILY_USD_TUTOR` and `AI_DAILY_USD_SCENE` override
- * them, and `AI_DAILY_USD_GLOBAL` still bounds the lot.
+ * These are defaults; each has an environment variable below, and
+ * `AI_DAILY_USD_GLOBAL` still bounds the lot. The four together come to $4.00
+ * against a $20 day, which is the shape intended: the global figure is a
+ * backstop over everything rather than the number that decides any one path.
  */
 export const DEFAULT_KIND_BUDGETS: Readonly<Partial<Record<UsageKind, number>>> = {
   TUTOR: 500_000,     // $0.50
   SCENE: 2_000_000,   // $2.00
+  GRADER: 500_000,    // $0.50
+  SCAN: 1_000_000,    // $1.00
 };
 
 /** The environment variable that overrides a kind's slice, where it has one. */
 const KIND_BUDGET_ENV: Readonly<Partial<Record<UsageKind, string>>> = {
   TUTOR: "AI_DAILY_USD_TUTOR",
   SCENE: "AI_DAILY_USD_SCENE",
+  GRADER: "AI_DAILY_USD_GRADER",
+  SCAN: "AI_DAILY_USD_SCAN",
 };
 
 function num(raw: string | undefined, fallback: number): number {
@@ -134,6 +153,8 @@ export interface QuotaEnv {
   AI_DAILY_USD_GLOBAL?: string | undefined;
   AI_DAILY_USD_TUTOR?: string | undefined;
   AI_DAILY_USD_SCENE?: string | undefined;
+  AI_DAILY_USD_GRADER?: string | undefined;
+  AI_DAILY_USD_SCAN?: string | undefined;
   AI_GLOBAL_RESERVE_FRACTION?: string | undefined;
   AI_RESERVE_CALLS_PER_USER?: string | undefined;
   [key: string]: string | undefined;

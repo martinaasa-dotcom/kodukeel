@@ -199,7 +199,17 @@ describe("a chain built for a purpose", () => {
 });
 
 describe("the free providers that are not OpenRouter", () => {
-  it("puts every free provider ahead of every paid one", () => {
+  it("leads with Groq, then the free tiers, then the dear ones", () => {
+    /*
+      THIS ASKED FOR "EVERY FREE PROVIDER AHEAD OF EVERY PAID ONE", which was
+      the policy when the only way to run this without a card was OpenRouter.
+
+      Groq at $0.29/$0.59 per MTok is a fortieth of the dearest link here, and a
+      free model is rate-limited hard upstream by design, so preferring one over
+      Groq buys a 429 to save a hundredth of a cent: it spends the learner's
+      wait to save the operator nothing. The paid tail is still last, which is
+      the half of the old rule that was doing real work.
+    */
     vi.stubEnv("OPENROUTER_API_KEY", "k");
     vi.stubEnv("GROQ_API_KEY", "k");
     vi.stubEnv("GEMINI_API_KEY", "k");
@@ -207,7 +217,22 @@ describe("the free providers that are not OpenRouter", () => {
     vi.stubEnv("OPENAI_API_KEY", "k");
     const order: string[] = [];
     for (const { name } of resolveProviders()) if (order[order.length - 1] !== name) order.push(name);
-    expect(order).toEqual(["openrouter", "groq", "gemini", "anthropic", "openai"]);
+    expect(order).toEqual(["groq", "openrouter", "gemini", "anthropic", "openai"]);
+  });
+
+  it("leads with Groq on the two keys this app is actually run with", () => {
+    /*
+      The install the ordering is for: no free alternative behind either of
+      them, so what the order decides is which of two paid providers the
+      grader, the translation and the scanner reach first. Groq is the cheap
+      one by a factor of forty, and Anthropic's balance is what Anu depends on.
+    */
+    for (const key of PROVIDER_KEY_ENV) {
+      vi.stubEnv(key, key === "GROQ_API_KEY" || key === "ANTHROPIC_API_KEY" ? "k" : "");
+    }
+    const order: string[] = [];
+    for (const { name } of resolveProviders()) if (order[order.length - 1] !== name) order.push(name);
+    expect(order).toEqual(["groq", "anthropic"]);
   });
 
   it("counts a free second provider as real redundancy", () => {

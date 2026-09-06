@@ -12,8 +12,8 @@
  * the wrong tool once a whole minute of quota is gone. If a second key is
  * configured, walking past the exhausted provider costs one request and gets
  * the learner an answer; refusing when there was another way to ask is the
- * app choosing to fail. The order is deliberate: free first, so the paid key
- * is the fallback rather than the default.
+ * app choosing to fail. The order is deliberate: Groq first, because it is the
+ * cheap measured one, then any free tier, then the dear keys last.
  *
  * WHICH ONE ANSWERED IS THEN A FACT ABOUT THE ANSWER, and the app says so.
  * `streamReply` reports the provider that actually served the stream, never
@@ -109,7 +109,7 @@ export type ProviderPurpose = "tutor" | "scene";
 export interface ChainOptions {
   /**
    * Omit for the chain the app has always built: every configured provider,
-   * free first. That default is what the twenty-odd callers asking "is any
+   * cheapest-first. That default is what the twenty-odd callers asking "is any
    * model configured at all" mean, and none of them is choosing a model.
    *
    * Name a purpose and the chain is built from that purpose's provider alone.
@@ -202,8 +202,8 @@ export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
 /**
  * Every provider with a key, in the order they should be tried.
  *
- * With no `purpose` this is what it has always been: free first, paid last, one
- * link per free model. That chain is what `providerResilience`, the Settings
+ * With no `purpose` this is Groq first and the dear keys last, one link per
+ * free model. That chain is what `providerResilience`, the Settings
  * panel, the recipients list and every "is a model configured" read mean, and
  * none of them is picking a model to send anything to.
  *
@@ -219,20 +219,41 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
     return chain;
   }
   const chain: ProviderConfig[] = [];
-  if (process.env.OPENROUTER_API_KEY) {
-    for (const model of openRouterModels()) {
-      chain.push({ name: "openrouter", model, label: "OpenRouter" });
-    }
-  }
   /*
-    Free providers before paid ones, and independent of OpenRouter.
+    GROQ LEADS, AND THE POLICY THIS REPLACED WAS "FREE FIRST".
 
-    The order is the policy: everything a stranger can set up without a card is
-    tried first, and a paid key is only ever reached once all of it has failed.
+    That rule was written when the only way to run this app without a card was
+    OpenRouter's free models, so the order encoded "everything a stranger can
+    set up for nothing is tried before anything that bills". It is still the
+    right instinct for an install with a free key and no budget, and it is no
+    longer the right *default*, for a reason the price table now makes plain:
+    Groq's rate is $0.29 and $0.59 per MTok, which is a fortieth of what the
+    dearest link in this chain charges and close enough to nothing that
+    preferring a rate-limited free model over it buys a 429 to save a
+    hundredth of a cent. A free model is limited hard upstream by design, so
+    "free first" spends the learner's wait rather than the operator's money.
+
+    So the ordering rule is now: the measured, cheap, reliable provider first,
+    then whatever free tiers an install has, then the dear ones. `worthFalling
+    BackFrom` is untouched, so a throttled Groq still walks to whatever is
+    behind it.
+
+    THIS IS THE GENERAL CHAIN ONLY. Anu and scene composition do not read it
+    (see `PURPOSE_CHAINS`); what it serves is the writing grader, the
+    dictionary's translation and the page scanner. On an install carrying only
+    the two keys this app is now run with, it is Groq then Anthropic, which is
+    exactly the ranking above and was already the ranking before this moved.
+    What the move changes is that it stays the ranking on an install that also
+    has a free key, rather than depending on which keys happen to be set.
   */
   if (process.env.GROQ_API_KEY) {
     for (const model of configuredModels(process.env.GROQ_MODEL, FREE_GROQ_MODELS)) {
       chain.push({ name: "groq", model, label: "Groq" });
+    }
+  }
+  if (process.env.OPENROUTER_API_KEY) {
+    for (const model of openRouterModels()) {
+      chain.push({ name: "openrouter", model, label: "OpenRouter" });
     }
   }
   if (process.env.GEMINI_API_KEY) {
