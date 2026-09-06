@@ -161,22 +161,41 @@ export interface ChainOptions {
  * reasons, because then "whichever answers first" is a cost decision and a
  * quality decision being made by a rate limiter.
  *
- * SCENE COMPOSITION GOES TO GROQ. A scene line is one short sentence built out
- * of a word list the route hands over, and `lib/scenes/gate.ts` checks it four
- * ways before a learner sees it, so what is wanted from the model is constraint
- * compliance at speed and nothing deeper. `npm run eval:composers` measured
- * exactly that and `qwen/qwen3.8-27b` was the strongest link tested for this
- * one job: 24 of 24 calls answered, every one carrying a finite verb, at a
- * quarter-second median. It is also about a fortieth of Sonnet's per-token
- * price, and this is the path that makes calls by the dozen: a conversation is
- * a dozen turns and a learner plays several.
+ * AND WHICH PROVIDER ANSWERS WHICH JOB IS MEASURED PER JOB, BECAUSE NOTHING
+ * GENERALISES ACROSS THEM. That is the finding, and it is worth stating before
+ * the three rows below, because every intuition about it is wrong.
+ * `gemini-3.8-flash` writes the best Estonian of anything tested and returns
+ * the second-worst JSON; `openai/gpt-oss-120b` is perfect at the JSON and
+ * middling at the Estonian; `claude-sonnet-5` is the dearest thing here and
+ * came last or nearly last at every one of the four. A model that wins one
+ * path tells you nothing about the next, so each row cites its own eval.
  *
- * ANU GOES TO ANTHROPIC. A tutor answer is the opposite shape. It is asked a
- * handful of times a day, it is open-ended, and it is read by somebody who
- * cannot check it, so being right about Estonian matters more than being cheap
- * or quick. Sonnet scored highest of everything tested on a native-Estonian
- * benchmark, and at Anu's call volume the per-token difference is small enough
- * to be worth paying.
+ * SCENE COMPOSITION GOES TO GEMINI (`npm run eval:thinking`). Twenty-four
+ * beats across ten scenes, on this route's own prompt, every line read:
+ * `gemini-3.8-flash` was on the beat 24 times out of 24 with nothing withheld,
+ * and put the situation in the line rather than asking the bare question
+ * (`Meil on täna väga hea kala. Mida ma teile süüa toon?`). It is also the
+ * cheapest of the three that scored at all well, which is why this is not a
+ * trade: `gemini-3.1-pro-preview` is 2.7 times the price and answered
+ * `Kuidas saan teid aidata?` on six different beats, and `claude-sonnet-5` is
+ * 3.8 times the price and is the only one the gate had to withhold from.
+ * Spending up buys a model that repeats itself.
+ *
+ * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
+ * was that being right about Estonian matters more than being cheap, which is
+ * still true and is not an argument for a particular vendor. Asked the six
+ * grammar questions through the route's own transport, `openai/gpt-oss-120b`
+ * answered all six correctly at $0.72 per thousand and `claude-sonnet-5`
+ * missed one at $12.44. Seventeen times the price for a worse score is not a
+ * quality decision, it was an untested assumption. `openai/gpt-oss-20b` is
+ * half the price again and drops to four of six, so this is the floor rather
+ * than the cheapest thing on the list.
+ *
+ * THE SCANNER GOES TO GEMINI (`npm run eval:scan`). Six runs of twenty-four
+ * words that every one carry a diacritic: `gemini-3.1-flash-lite` read 144 of
+ * 144 exactly, and so did `gemini-3.8-flash` and `claude-sonnet-5` at three
+ * and eight times its price. The one it replaces was inventing words off a
+ * clean page.
  *
  * WHAT THIS IS NOT is a change to `openWithFallback`. The mechanism underneath
  * is untouched: a purpose still gets a chain, the chain is still walked in
@@ -185,31 +204,67 @@ export interface ChainOptions {
  */
 const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[]) => void>> = {
   tutor: (chain) => {
-    if (!process.env.ANTHROPIC_API_KEY) return;
+    if (!process.env.GROQ_API_KEY) return;
+    /*
+      `TUTOR_MODEL` rather than `GROQ_MODEL`, for the reason `SCENE_MODEL` is
+      not `GEMINI_MODEL`: the general chain is a different decision made for a
+      different reason, and a deployment that pinned it to whatever is cheapest
+      this week would silently move Anu off the model the eval ranked, with
+      nothing failing.
+    */
     chain.push({
-      name: "anthropic",
-      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
-      label: "Anthropic",
+      name: "groq",
+      model: process.env.TUTOR_MODEL || TUTOR_MODEL,
+      label: "Groq",
     });
   },
   scene: (chain) => {
-    if (!process.env.GROQ_API_KEY) return;
-    // Groq leads; `resolveProviders` appends the fallback behind it, if the
+    if (!process.env.GEMINI_API_KEY) return;
+    // Gemini leads; `resolveProviders` appends the fallback behind it, if the
     // day's fallback budget still has room for one.
     /*
-      `SCENE_MODEL` rather than `GROQ_MODEL`, deliberately.
-
-      `GROQ_MODEL` configures the general chain, which is a different decision
-      made for a different reason: a deployment that pins it to whatever is
-      cheapest this week would silently move scene composition off the model the
-      eval actually ranked, and nothing would fail. A measured choice is worth
-      its own variable.
+      `SCENE_MODEL` rather than `GEMINI_MODEL`, deliberately, and the reason is
+      unchanged from when this named a Groq model: `GEMINI_MODEL` configures the
+      general chain, which is a different decision made for a different reason.
+      A deployment that pins that to whatever is cheapest this week would
+      silently move scene composition off the model the eval actually ranked,
+      and nothing would fail. A measured choice is worth its own variable.
     */
-    for (const model of configuredModels(process.env.SCENE_MODEL, SCENE_GROQ_MODELS)) {
-      chain.push({ name: "groq", model, label: "Groq" });
+    for (const model of configuredModels(process.env.SCENE_MODEL, SCENE_MODELS)) {
+      chain.push({ name: "gemini", model, label: "Google Gemini" });
     }
   },
 };
+
+/**
+ * The model Anu asks, and the reason it is not the dearest one available.
+ *
+ * Measured rather than assumed, which is the whole of the change: the six
+ * grammar questions in `npm run eval:anu`, through the route's own transport
+ * and Anu's own prompt. A wrong grammar explanation is worse than none,
+ * because the learner acts on it and the scheduler then drills what they took
+ * away, so the bar here is all six and not most of them.
+ *
+ * `openai/gpt-oss-20b` is half the price and answers four of six, which is
+ * what makes this a floor rather than the bottom of a price list.
+ */
+export const TUTOR_MODEL = "openai/gpt-oss-120b";
+
+/**
+ * The model the scanner reads a photograph with.
+ *
+ * `npm run eval:scan`: 144 of 144 diacritic-carrying words read exactly over
+ * six runs, which `gemini-3.8-flash` and `claude-sonnet-5` also managed at
+ * three and eight times the price. `claude-haiku-4-5` folded `esmaspäev` to
+ * `esmaspaev` wholesale, which for this one task is a total failure however
+ * good its prose is.
+ *
+ * NOT A PHOTOGRAPH TEST, and `scripts/eval-scan.ts` says so at length: the
+ * pages are rendered text, so a model that fails there would certainly fail on
+ * a phone photograph of somebody's homework, and one that passes has cleared
+ * the easier half.
+ */
+export const VISION_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * The model scene composition asks, and why it is one name rather than three.
@@ -217,12 +272,11 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
  * `FREE_GROQ_MODELS` carries three because a free model is retired without
  * notice and walking past a 404 within one provider costs a request where
  * refusing costs the learner their answer. That reasoning does not survive
- * `lib/usage/pricing.ts`: this deployment bills for its Groq calls, and the
- * only model here whose paid rate has been checked against Groq's own pricing
- * page is this one. A fallback to a model the price table cannot price is a
- * call charged at `UNKNOWN_MODEL`, which is the dearest rate in the table, so
- * the fallback that was protecting availability would be spending the scene
- * budget forty times faster than the line it replaced.
+ * `lib/usage/pricing.ts`: this deployment bills for these calls, and a
+ * fallback to a model the price table cannot price is a call charged at
+ * `UNKNOWN_MODEL`, which is the dearest rate in the table, so the fallback
+ * that was protecting availability would be spending the scene budget forty
+ * times faster than the line it replaced.
  *
  * The scene ladder already has somewhere to go, which is what makes one name
  * safe here where it would not be for Anu. A composed line is the third rung:
@@ -231,9 +285,14 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
  * with no key at all plays all fourteen scenes start to finish (§16), so a
  * retired slug costs a conversation some freshness and never the conversation.
  *
- * Naming a second model here is a two-line change and a price row.
+ * AND THE NAME IN IT IS NEITHER THE NEWEST NOR THE DEAREST FLASH, WHICH IS
+ * WORTH KNOWING BECAUSE BOTH GUESSES ARE WRONG. `gemini-3.5-flash` sits on an
+ * older and dearer tier than `3.8-flash`, twice the price for no better line,
+ * so picking by version number picks badly; and `gemini-3.1-pro-preview` is
+ * 2.7 times the price and repeats itself. Read `npm run eval:thinking` before
+ * changing it, and the price row before believing a version number.
  */
-export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
+export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
 
 /**
  * How much room a scene line needs, which is not what Anu needs.
@@ -1125,6 +1184,29 @@ export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
  * that has them.
  */
 export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
+  /*
+    THE ONE MODEL THAT WAS MEASURED READING ESTONIAN LEADS, AND THE REST OF THE
+    CHAIN STAYS BEHIND IT.
+
+    This was the general chain in whatever order it came in, which put a
+    text-only model at the front and reached a reader by falling past it. What
+    it fell to was inventing words off a clean rendered page: `lapsäpt`,
+    `üptetoma`, `lunex`, on a task whose whole job is telling õ from o.
+
+    `npm run eval:scan` renders the pages and counts, six runs of twenty-four
+    words that every one carry a diacritic. `gemini-3.1-flash-lite` read 144 of
+    144 exactly, with nothing folded, nothing invented and nothing missed, and
+    `gemini-3.8-flash` and `claude-sonnet-5` matched it at three and eight
+    times the price. Cheapest of three tied at perfect.
+
+    First rather than only, because a scan has nowhere to fall: unlike a scene
+    line there is no bank underneath it, so a bad minute at one provider has to
+    be able to reach another. What follows is the general chain, deduplicated.
+  */
+  const led: ProviderConfig[] = process.env.GEMINI_API_KEY
+    ? [{ name: "gemini", model: process.env.GEMINI_VISION_MODEL || VISION_MODEL, label: "Google Gemini" }]
+    : [];
+
   const override: Record<ProviderName, string | undefined> = {
     openrouter: process.env.OPENROUTER_VISION_MODEL,
     groq: process.env.GROQ_VISION_MODEL,
@@ -1141,7 +1223,7 @@ export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
   */
   const seen = new Set<string>();
   const chain: ProviderConfig[] = [];
-  for (const config of resolveProviders(options)) {
+  for (const config of [...led, ...resolveProviders(options)]) {
     const model = override[config.name]?.trim() || config.model;
     const key = `${config.name}:${model}`;
     if (seen.has(key)) continue;

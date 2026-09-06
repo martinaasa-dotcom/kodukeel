@@ -3151,3 +3151,95 @@ came back, and it was put down again on the argument that the only thing keeping
 honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
 since it is six words. Length did not produce it and length was never going to stop it. What stops
 it is the check written for it, and what pays for the room is a gate with eleven checks in it.
+
+## 55. Which model writes the Estonian, measured rather than argued about
+
+Every fault in §54 and the three before it was a fault in a *check*, and each check was written
+because a line reached a learner that should never have been said. That is the right way round
+while the composer is the best one available. It stopped being the right question when somebody
+asked the obvious one: there is no point paying a model to do a bad job, so which model writes
+Estonian a native speaker would recognise, at the lowest cost that gets there.
+
+Four paths call a model in this app and each was measured through **its own production call
+path**, never through a probe of its own. That matters more here than anywhere else in the
+repository, because the fault it prevents was made in the middle of doing it: a stripped-down
+prompt with no banked lines and no conversation in front of it produced `Järjekord ootab taga.
+Mis valutab?`, which was held up as evidence that a knob helped and which the person who reads
+Estonian called horrible on sight. A harness is not the app. Every figure below came through
+`openWithFallback`, the route's own prompt, and the shipped gate.
+
+| path | what it was | what it is | measured |
+|---|---|---|---|
+| scene | `qwen/qwen3.8-27b` | **`gemini-3.8-flash`** | 9/12 to 24/24 clean lines, $0.00132 to $0.00118 a line |
+| vision | fell through the general chain | **`gemini-3.1-flash-lite`** | 144/144 words read exactly, both pages, three runs |
+| tutor | `claude-sonnet-5` | **`openai/gpt-oss-120b`** | 6/6 three runs, $12.44 to $0.72 per thousand |
+| grader | `openai/gpt-oss-120b` | unchanged | 24/24 twice; nothing beat it at the price |
+
+**Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
+Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the
+grader's own model takes 24. `gemini-3.1-flash-lite` reads a photographed page perfectly at a third
+of flash's price and is the cheapest thing on the grader board. `gpt-oss-20b` is cheaper than all of
+them and fails the tutor at 4 of 6 and the grader's sentence caller at 5 of 8. So there is a model
+per purpose rather than a house model, and `PURPOSE_CHAINS` gives each purpose only the provider it
+names: a purpose with no key configured for its provider composes nothing rather than falling
+through to whatever else the deployment happens to hold, because falling through is how the scene
+path came to be answered by a model nobody had chosen.
+
+**The scene is the one purpose allowed to cost more**, on the owner's own instruction, and it is
+still the cheapest of the three that changed. A scene line is about 1,500 tokens in and under 20
+out, because the scene's word list is nine tenths of the prompt, so what a scene costs is an input
+price and the output rate barely reaches the total. That is also why the relaxation below is nearly
+free.
+
+**And the harness had a list of its own, twice.** `scripts/lib/sceneDraft.ts` built its chain from
+`FREE_OPENROUTER_MODELS`, `FREE_GROQ_MODELS` and `FREE_GEMINI_MODELS`, which was right while a
+scene asked the general chain and measured nothing the day scenes were given a chain of their own:
+a transcript printed lines from three OpenRouter models the route would never reach, and
+`draft:lines` drafted the bank with them. It reads `sceneProviders()` now. `scripts/play-scene.ts`
+had the same fault in the other dimension, a hardcoded `max_tokens: 80` where the route asks
+`SCENE_REPLY_TOKENS`, so a thinking model's line came back cut off mid-word (`Kas teil pea valut`,
+`Teisipä`, `Arst saab`), the gate withheld every one, and the transcript read as a model that
+cannot write Estonian. Both now read the app rather than a constant. This is the third and fourth
+time in this file a list living in a script has measured the script.
+
+## 56. The leash came off, and the gate is what pays for it
+
+§54 put `MAX_SENTENCES` back down to three on the argument that the only thing keeping a composed
+line honest is how little room it has to reach. That argument was already shown to be wrong by the
+six-word line that prompted it, and with a composer that writes Estonian properly it is wrong in
+the other direction too: a receptionist explaining what is missing from a form needs three
+sentences, and a scene that can only ever answer in one is a scene where every character sounds
+like a form letter.
+
+So `MAX_SENTENCES` is five, `MAX_COMPOSED_WORDS` is forty, and `NEW_WORDS` is six. What pays for
+the room is the gate, which has twelve checks now rather than the five it had when the limits were
+set: `shape`, `vouching`, `register`, `government`, `facts`, `agreement`, `topic`, `giveaway`,
+`stretch`, `clause`, `infinitive`, `negation`. Every one of those is a check on whether the
+sentence is *right*, and not one of them is a check on whether it is short.
+
+**Not one of the twelve was relaxed, and the four that matter most were the ones the faults came
+in through.** `vouching` is the hallucination guard and is what ADR-005 rests on here. `agreement`
+is what catches `Kuhu te soovid sõita?`, which is the fault that had never been seen because the
+check had literally never been handed `te`, `me` or `nad`. `infinitive` is what catches
+`aitama saan`. `giveaway` is what stops the other side handing over the form the beat is about to
+ask for. Loosening any of those would hand back exactly the work this pass was for, and the
+measured rejection rate says the room did not need paying for that way: 13.7 percent before any of
+this, 2.7 after the eight-check gate, 4.8 with twelve checks and the limits off, against a design
+line of one in twenty.
+
+**What it reads like** is the whole point, so it is written down rather than asserted. The same
+beat of `arsti-aeg`, same card, same seed, before and after:
+
+    before   Kus teie keha valutab?
+    after    Ma aitan teid kohe. Kus kohas teil valu on, kas seljas või peas?
+
+    before   Kui kaua see valu juba kestab?
+    after    Peavalu on tõesti väga halb. Mitu päeva see valu teil juba kestnud on?
+
+    before   Kell 14:30.
+    after    Jah, just nii, see aeg sobib väga hästi. Arst ootab teid kell 14:30.
+
+Ten composed lines in that run, none withheld. The `before` column is not the bank being bad: those
+are the drafted lines, which are correct Estonian and were the right thing to have while the live
+composer was writing `Terve hambaarst on toas number viis, paremal käekäigus.` What changed is that
+the live rung now answers, and what it says is what somebody at a desk would say.

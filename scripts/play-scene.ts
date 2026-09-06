@@ -53,6 +53,7 @@ import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
 import { isKnownForm } from "../lib/dict/forms";
+import { SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
 import { chain as providerChain } from "./lib/sceneDraft";
@@ -110,7 +111,21 @@ async function askModel(
         body: JSON.stringify({
           model: link.model,
           temperature: 0.8,
-          max_tokens: 80,
+          /*
+            THE APP'S OWN BUDGET, NEVER A NUMBER OF THIS SCRIPT'S.
+
+            It was 80 here, which is generous for one short sentence and is
+            the wrong question, exactly as `scripts/lib/sceneDraft.ts` says of
+            the 60 it used to carry. A thinking model spends its budget in a
+            reasoning field and writes into `content` after it, so at 80 the
+            line came back cut off mid-word: `Kas teil pea valut`, `Teisipä`,
+            `Arst saab`. The gate then withheld every one of them, and the
+            transcript read as a model that cannot write Estonian rather than
+            as a harness that would not let it finish. A measurement that
+            disqualifies the model the app has just been pointed at is worse
+            than no measurement.
+          */
+          max_tokens: SCENE_REPLY_TOKENS,
           messages: [
             { role: "system", content: composeSystem(scene) },
             { role: "user", content: composeLive(ask) },

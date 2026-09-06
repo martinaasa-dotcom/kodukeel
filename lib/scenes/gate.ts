@@ -63,24 +63,26 @@ export const FINITE_VERB_FLOOR = 4;
  * ONE SET WAS ANSWERING TWO QUESTIONS, AND THAT IS WHY CONVERSATIONS READ AS
  * STILTED. `vouching` asked "is this Estonian" and "has this learner been
  * taught it" with one membership test against a few hundred lemmas, so the
- * only way for a model to say the natural thing was to fail. It was measured:
- * 17 of the 25 lines withheld across the fourteen scenes were vouching, and
- * the words were `sümptomid` at the health centre, `alustasite` at the
- * landlord's, `minemas` on the way to the shop. Not one of them is a made-up
- * word. Every one is what a person would have said.
+ * only way for a model to say the natural thing was to have the line withheld
+ * whole. `vouching` asks the language now and this is the other half: how much
+ * of a line may be new to the learner.
  *
- * The two questions are now asked separately. Being Estonian is a hard
- * requirement and is what `vouching` still means, against the whole language
- * rather than against the scene (`GateContext.vouched`). Being readable is
- * this, and it is a budget rather than a refusal: a couple of new words is a
- * conversation with something in it, and half a line of them is a wall.
+ * SIX, WHICH IS A BUDGET RATHER THAN A LEASH. It was two, on the argument that
+ * every new word arrives underlined with the dictionary under it and one new
+ * word is a lesson where four is a wall. The wall is real and two was not
+ * where it stands: what a person says at a counter routinely carries a handful
+ * of words a beginner has not met, and refusing the line is not what a person
+ * does about that. What makes six survivable is the thing the argument was
+ * missing, which is that the words do not stay new: `growDictionary` fetches
+ * every one of them from Ekilex behind the turn, so the second learner to meet
+ * `vastuvõtule` meets an entry rather than a gap.
  *
- * Two, because a line is at most fourteen words and every word outside the
- * scene's list arrives underlined with the dictionary under it
- * (`lib/dict/glossed.ts`): one new thing to notice is a lesson, three at once
- * is the exercise being taken away.
+ * It is still a budget and not an absence of one. A line made entirely of
+ * words the learner has never seen is a line they cannot read, whatever the
+ * dictionary does underneath it, and that is the failure this number exists
+ * for.
  */
-export const NEW_WORDS = 2;
+export const NEW_WORDS = 6;
 
 export type Check = (typeof CHECKS)[number];
 
@@ -588,21 +590,22 @@ export function disagrees(text: string, context: GateContext): boolean {
 /**
  * How many sentences one turn may be.
  *
- * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING, and two was a person who
- * volunteers exactly once. A learner asked why there is a limit this tight at
- * all, and they are right that some of these moments need explaining: a
- * landlord saying when somebody can come and what they will need, a clerk
- * saying what is missing from a form and what to do about it, a waiter saying
- * what is off the menu and what is good instead. Each of those is three short
- * sentences from a real person and was two from this one.
+ * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING, two was a person who
+ * volunteers exactly once, and three was still a number chosen to be safe
+ * rather than chosen because anybody speaks that way. A landlord saying when
+ * somebody can come and what they will need, a clerk saying what is missing
+ * from a form and what to do about it, a waiter saying what is off the menu
+ * and what is good instead: each of those runs to four short sentences from a
+ * real person and each was being cut.
  *
- * Three, and the word count is what keeps it from becoming a speech: a turn is
- * still `MAX_COMPOSED_WORDS` words whichever way it is punctuated, so three
- * sentences are three short ones. Four is a paragraph at somebody who is
- * trying to answer in a language they are learning, and the thing that most
- * makes a learner give up is a wall of text they cannot read.
+ * Five, which is a person talking rather than a form being filled in, and the
+ * ceiling that matters is `MAX_COMPOSED_WORDS` underneath it: a turn is still
+ * bounded whichever way it is punctuated, so five sentences are five short
+ * ones. What stops this becoming a wall of text is not this number, it is that
+ * a model asked for a role-play line writes a role-play line, and that the
+ * learner reads every word of it with the dictionary underneath.
  */
-const MAX_SENTENCES = 3;
+const MAX_SENTENCES = 5;
 
 /**
  * How long a composed line may be, which is not how long a recorded one may be.
@@ -612,20 +615,22 @@ const MAX_SENTENCES = 3;
  * and it decides which of them can be lifted onto a beat. Holding a composed
  * line to the same number was never argued for; it was inherited.
  *
- * IT WAS RAISED, PUT BACK, AND RAISED AGAIN, AND THE MIDDLE STEP IS THE ONE
- * WORTH KNOWING. At eighteen words the same model wrote `Tere! Mis needus täna
- * aitama saan?`, which is vouched word by word, names the beat's own topic and
- * is not the language, so the ceiling went back to fourteen on the argument
- * that the only thing keeping a composed line honest is how little room it has
- * to reach. That argument was wrong in a way the line itself shows: it is six
- * words. Length did not produce it and length was not going to stop it. What
- * stops it is `infinitive`, the check written for it.
+ * IT WAS RAISED TO EIGHTEEN, PUT BACK, AND RAISED AGAIN, AND THE MIDDLE STEP
+ * IS THE ONE WORTH KNOWING. At eighteen the model of the day wrote `Tere! Mis
+ * needus täna aitama saan?`, which is vouched word by word, names the beat's
+ * own topic and is not the language, so the ceiling went back down on the
+ * argument that the only thing keeping a composed line honest is how little
+ * room it has to reach. That argument is wrong in a way the line itself shows,
+ * since it is six words. Length did not produce it and length was not going to
+ * stop it; `infinitive`, the check written for it, is what stops it.
  *
- * So the room a learner asked for is here, at twenty-two, and what pays for it
- * is a gate with eleven checks in it rather than a short leash. `MAX_SENTENCES`
- * is the real limit and always was.
+ * So the leash is off: forty, which is a paragraph's worth of room that the
+ * model will not usually take, and `MAX_SENTENCES` is the real limit. What
+ * pays for it is a gate with twelve checks in it and, since the scene chain
+ * moved to `gemini-3.8-flash`, a model measured on the beat twenty-four times
+ * out of twenty-four with nothing withheld.
  */
-export const MAX_COMPOSED_WORDS = 22;
+export const MAX_COMPOSED_WORDS = 40;
 
 /**
  * At most two short sentences, inside the word count, punctuated, no markdown,

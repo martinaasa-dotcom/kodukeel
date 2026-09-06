@@ -178,19 +178,20 @@ describe("the gate", () => {
     The word count covers the whole turn either way, so three are three short
     ones.
   */
-  it("takes a remark and an explanation, and refuses a fourth sentence", () => {
+  it("takes a person talking, and refuses a paragraph", () => {
     const ctx = context();
     expect(runGate("Teil on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
-    expect(runGate("Teil on valu. Toas on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
     expect(runGate("Teil on valu. Toas on valu. Valu on. Kus?", beat(), ctx).failed)
-      .toContain("shape");
+      .not.toContain("shape");
+    const paragraph = `${"Teil on valu. ".repeat(5)}Kus?`;
+    expect(runGate(paragraph, beat(), ctx).failed).toContain("shape");
   });
 
   it("refuses no punctuation, markdown, and a line that runs on", () => {
     const ctx = context();
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
-    expect(runGate(`${"valu ".repeat(30)}?`, beat(), ctx).failed).toContain("shape");
+    expect(runGate(`${"valu ".repeat(50)}?`, beat(), ctx).failed).toContain("shape");
     expect(runGate("", beat(), ctx).failed).toContain("shape");
   });
 
@@ -541,7 +542,14 @@ describe("a line that reaches past the scene's own list", () => {
   });
 
   it("is withheld once it reaches further than a learner can read in one line", () => {
-    const verdict = runGate("Kas teil peavalu kestab kaua?", beat(), language);
+    /*
+      The budget is generous now, because what a person says at a counter
+      routinely carries a handful of words a beginner has not met and refusing
+      the line is not what a person does about that. What it still refuses is a
+      line made of nothing else, which is the wall the number exists for.
+    */
+    const beyond = "peavalu kestab kaua sagedasti harva tugevalt pidevalt";
+    const verdict = runGate(`Kas teil ${beyond}?`, beat(), language);
     expect(verdict.failed).toContain("stretch");
     expect(verdict.stretched.length).toBeGreaterThan(NEW_WORDS);
   });

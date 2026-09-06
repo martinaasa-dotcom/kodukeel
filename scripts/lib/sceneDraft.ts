@@ -39,7 +39,7 @@ import type { CaseKey } from "../../lib/estonian/types";
   at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
   disqualifies a model the app can use is worse than no measurement.
 */
-import { FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS, REPLY_TOKENS } from "../../lib/tutor/provider";
+import { SCENE_REPLY_TOKENS, sceneProviders } from "../../lib/tutor/provider";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
@@ -277,32 +277,52 @@ export interface Link { label: string; model: string; url: string; key: string }
  * reported a perfect score.
  */
 export function chain(): Link[] {
-  const links: Link[] = [];
-  const add = (
-    label: string, keyEnv: string, modelEnv: string, url: string, fallback: readonly string[],
-  ) => {
-    const key = process.env[keyEnv];
-    if (!key) return;
-    const pinned = (process.env[modelEnv] ?? "").split(",").map((m) => m.trim()).filter(Boolean);
-    for (const model of pinned.length ? pinned : fallback) links.push({ label, model, url, key });
-  };
-  add("OpenRouter", "OPENROUTER_API_KEY", "OPENROUTER_MODEL",
-    "https://openrouter.ai/api/v1/chat/completions", FREE_OPENROUTER_MODELS);
-  add("Groq", "GROQ_API_KEY", "GROQ_MODEL",
-    "https://api.groq.com/openai/v1/chat/completions", FREE_GROQ_MODELS);
   /*
-    Gemini was missing here for the whole life of this file, which is the fault
-    the header two hundred lines up warns about in its own words: a list that
-    lives in a script measures the script. `resolveProviders` has put every free
-    Gemini model on the chain since the day the provider was added, and this
-    built OpenRouter and Groq and stopped, so `eval:scene` measured a rejection
-    rate over two thirds of the chain and `draft:lines` drafted the whole bank
-    without ever asking a provider the app itself would have asked first.
-    Neither said so, because a chain that is shorter than it should be still
-    composes lines.
+    THE APP'S OWN SCENE CHAIN, not a list of this script's.
+
+    This built OpenRouter, then Groq, then Gemini out of the three free-model
+    constants, which was right while a scene asked the general chain and became
+    a measurement of nothing the day scenes were given a purpose chain of their
+    own: `sceneProviders` answers Gemini and this went on asking three free
+    OpenRouter models first, so a transcript printed lines from a model the
+    route would never reach and `draft:lines` drafted the bank with it. That is
+    the same fault the Gemini paragraph below already records, one layer up,
+    which is why the fix is to stop keeping a list at all rather than to correct
+    this one. `OPENROUTER_MODEL` and friends still pin, because pinning one
+    model is how a per-model question gets a per-model answer.
   */
-  add("Google Gemini", "GEMINI_API_KEY", "GEMINI_MODEL",
-    "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", FREE_GEMINI_MODELS);
+  const wire: Readonly<Record<string, { keyEnv: string; modelEnv: string; url: string }>> = {
+    openrouter: {
+      keyEnv: "OPENROUTER_API_KEY", modelEnv: "OPENROUTER_MODEL",
+      url: "https://openrouter.ai/api/v1/chat/completions",
+    },
+    groq: {
+      keyEnv: "GROQ_API_KEY", modelEnv: "GROQ_MODEL",
+      url: "https://api.groq.com/openai/v1/chat/completions",
+    },
+    gemini: {
+      keyEnv: "GEMINI_API_KEY", modelEnv: "GEMINI_MODEL",
+      url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    },
+    openai: {
+      keyEnv: "OPENAI_API_KEY", modelEnv: "OPENAI_MODEL",
+      url: "https://api.openai.com/v1/chat/completions",
+    },
+  };
+  const links: Link[] = [];
+  const seen = new Set<string>();
+  for (const provider of sceneProviders()) {
+    const how = wire[provider.name];
+    if (!how) continue;                       // Anthropic speaks its own protocol.
+    const key = process.env[how.keyEnv];
+    if (!key) continue;
+    const pinned = (process.env[how.modelEnv] ?? "").split(",").map((m) => m.trim()).filter(Boolean);
+    for (const model of pinned.length ? pinned : [provider.model]) {
+      if (seen.has(`${provider.name}|${model}`)) continue;
+      seen.add(`${provider.name}|${model}`);
+      links.push({ label: provider.label, model, url: how.url, key });
+    }
+  }
   return links;
 }
 
@@ -374,7 +394,7 @@ export async function compose(
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
-          model: link.model, temperature: 0.8, max_tokens: REPLY_TOKENS,
+          model: link.model, temperature: 0.8, max_tokens: SCENE_REPLY_TOKENS,
           messages: [{ role: "system", content: SYSTEM }, { role: "user", content: user }],
         }),
       });

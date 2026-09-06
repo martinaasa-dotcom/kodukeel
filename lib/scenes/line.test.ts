@@ -299,8 +299,16 @@ describe("a word the scene does not teach", () => {
   });
 
   it("is withheld once a line is more new words than a learner can read", async () => {
+    /*
+      The budget is `NEW_WORDS` and it is deliberately generous now: what a
+      person says at a counter routinely carries a handful of words a beginner
+      has not met, and refusing the line is not what a person does about that.
+      What it still refuses is a line made of nothing else.
+    */
+    const words = ["kestab", "kaua", "sagedasti", "harva", "tugevalt", "pidevalt", "ootamatult"];
     const line = await sceneLine(request({
-      vouch, compose: async () => "Kas valu kestab kaua ja sagedasti?",
+      vouch: async (spellings: readonly string[]) => new Set(spellings),
+      compose: async () => `Kas valu ${words.join(" ")}?`,
     }));
     expect(line.provenance).toBe("fallback");
     expect(line.withheld).toContain("stretch");
@@ -312,7 +320,9 @@ describe("a word the scene does not teach", () => {
       vouch,
       compose: async (avoid) => {
         seen.push([...avoid]);
-        return seen.length === 1 ? "Kas valu kestab kaua ja sagedasti?" : "Kas teil on valu?";
+        return seen.length === 1
+          ? "Kas valu kestab kaua sagedasti harva tugevalt pidevalt ootamatult?"
+          : "Kas teil on valu?";
       },
     }));
     expect(seen[1]).toContain("sagedasti");

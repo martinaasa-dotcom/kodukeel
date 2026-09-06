@@ -88,6 +88,47 @@ the date it doubles rather than left in a diary. A model the table does not name
 `UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:
 that asymmetry is the whole argument for never writing one.
 
+**There is a model per purpose rather than a house model, and every one of them was measured
+through its own production call path.** Four paths here call a model and none of them wants the same
+thing: a scene wants Estonian a native speaker would recognise, the scanner wants a photographed word
+read exactly, the grader wants JSON back, and Anu wants to explain a case. Nothing generalises across
+those, which is the finding and not a hedge. `gemini-3.8-flash` writes the best Estonian of anything
+measured and is second worst at returning JSON, 19 and 20 of 24 where the grader's own model takes
+24. `gemini-3.1-flash-lite` reads a page perfectly, 144 of 144 words exactly on both pages over three
+runs, at a third of flash's price. `gpt-oss-20b` is cheaper than all of them and fails the tutor at 4
+of 6. So `SCENE_MODELS`, `VISION_MODEL`, `TUTOR_MODEL` and the grader's are four decisions, each with
+a measurement behind it in `docs/21-situations.md` §55, and the tutor moved off `claude-sonnet-5` at
+6 of 6 over three runs for $0.72 per thousand calls against $12.44.
+
+**And `PURPOSE_CHAINS` gives a purpose only the provider it names.** It used to append to the general
+chain, so a purpose whose provider had no key fell through to whatever else the deployment held,
+which is how conversations came to be answered by a model nobody had chosen for them. A purpose with
+nothing configured now composes nothing and the rung below it answers, which for a scene is the bank
+and is the state a keyless deployment has always been in. **The measurement is not the app**, which
+was learned in the middle of doing this: a probe with no banked lines and no conversation in front of
+it produced a line held up as evidence a knob helped, and the person who reads Estonian called it
+horrible on sight. Every figure above came through `openWithFallback`, the route's own prompt and the
+shipped gate. The two harnesses that did not were fixed rather than trusted: `scripts/lib/sceneDraft.ts`
+built its chain from the free-model lists and now reads `sceneProviders()`, and `scripts/play-scene.ts`
+carried `max_tokens: 80` where the route asks `SCENE_REPLY_TOKENS`, so a thinking model's line came
+back cut off mid-word and the gate withheld every one of them, which read as a model that cannot
+write Estonian.
+
+**The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
+`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is six, where they were three, twenty-two and two. The
+old argument was that the only thing keeping a composed line honest is how little room it has to
+reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
+that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
+check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+`government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
+`negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
+where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
+had never been handed `te`, `me` or `nad`, `infinitive` is what catches `aitama saan`, and `giveaway`
+is what stops the other side saying the form the beat is about to ask for. Measured: 13.7 percent of
+composed lines withheld before any of this, 2.7 after the eight-check gate, 4.8 with twelve checks
+and the limits off, against a design line of one in twenty. What a learner reads instead of
+`Kus teie keha valutab?` is `Ma aitan teid kohe. Kus kohas teil valu on, kas seljas või peas?`
+
 **A cached input token is not an ordinary one, and the ledger charged it as though it were.**
 Anthropic's `cache_control` breakpoints are real on all three paths, and two things behind them
 were not. The learner's level sat at character 158 of a 9,093-character system prompt, so 98% of a
@@ -6547,7 +6588,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
 `dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
 `ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`, `MAX_COMPOSED_WORDS`,
-`DA_ONLY_VERBS`, `wrongInfinitive`.
+`DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
+`VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

@@ -11627,12 +11627,48 @@ check("every free provider the app would ask, a measuring script can ask too", (
       `${list} is declared in provider.ts and resolveProviders never reads it, so a ` +
       "deployment that set that key would have its models silently left off the chain.",
     );
-    assert.match(
+  }
+
+  /*
+    THE SCRIPTS ASK THE APP WHICH MODELS, RATHER THAN THE LISTS.
+
+    The half above is about the app: a free list nothing reads is a provider
+    configured and never asked. The half here used to be the same assertion
+    pointed at `sceneDraft.ts`, and it went stale the day scenes were given a
+    purpose chain of their own: the free lists are the *general* chain now,
+    `sceneProviders` is what a scene asks, and a harness reading the three
+    lists printed lines from three OpenRouter models the route would never
+    reach while `draft:lines` drafted the bank with them. So what is asserted
+    is the stronger property, that the harness reads the app's own scene chain
+    and keeps no list at all, and that it asks for the budget the route asks
+    for: a hardcoded `max_tokens` is what cut a thinking model's line off
+    mid-word and had the gate withhold every one of them.
+  */
+  assert.match(
+    draft,
+    /sceneProviders\(\)/,
+    "scripts/lib/sceneDraft.ts no longer builds its chain from sceneProviders(), so a " +
+    "transcript and the drafted bank come from whichever models the script happens to " +
+    "name rather than from the ones a scene actually asks.",
+  );
+  for (const list of lists) {
+    assert.doesNotMatch(
       draft,
       new RegExp(`\\b${list}\\b`),
-      `${list} is on the app's chain and scripts/lib/sceneDraft.ts cannot see it, so ` +
-      "eval:scene measures part of the chain and draft:lines drafts the bank without " +
-      "asking a provider the app would have asked first.",
+      `scripts/lib/sceneDraft.ts names ${list}. The general chain is not the scene ` +
+      "chain, and a list living in a script measures the script.",
+    );
+  }
+  for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
+    const text = code(file);
+    if (!/max_tokens/.test(text)) continue;
+    assert.match(
+      text,
+      /max_tokens: SCENE_REPLY_TOKENS/,
+      `${file} asks for a max_tokens of its own. A thinking model spends its budget in a ` +
+      "reasoning field and writes the line after it, so a tight cap returns a sentence cut " +
+      "off mid-word and the gate withholds every one, which reads as a model that cannot " +
+      "write Estonian rather than as a harness that would not let it finish.",
     );
   }
 });
@@ -13006,10 +13042,18 @@ check("the other side may volunteer something, and never says it twice", () => {
     "the prompt asks for one sentence and then allows a remark in front of the move, which is two "
     + "instructions and the model takes the first",
   );
+  /*
+    AND WHAT THE PROMPT ASKS FOR IS WHAT THE GATE ALLOWS, WHICHEVER WAY THE
+    NUMBER MOVES. It said "exactly ONE short Estonian sentence" while the gate
+    took two, which is where this came from; it now says nothing about a count
+    and quotes `MAX_COMPOSED_WORDS` instead, which is the same claim made from
+    one place rather than two. A number typed into the prompt beside a constant
+    in the gate is the drift this was written for.
+  */
   assert.match(
-    prompt, /one to three short Estonian sentences/,
-    "the prompt stopped saying how many sentences a line may be, so what it asks for and what the "
-    + "gate allows are two different things",
+    prompt, /\$\{MAX_COMPOSED_WORDS\} words/,
+    "the prompt stopped reading the gate's own ceiling, so what it asks for and what the gate "
+    + "allows are two numbers that can disagree",
   );
   /*
     And the room for it is `MAX_WORDS`, which was raised to eighteen once and
@@ -13023,10 +13067,16 @@ check("the other side may volunteer something, and never says it twice", () => {
     needus täna aitama saan?` is the check written for it rather than a word
     count, since that line is six words.
   */
-  assert.match(
-    code("lib/scenes/gate.ts"), /const MAX_SENTENCES = 3;/,
-    "a turn is back to two sentences, so the other side cannot say what is missing from a form and "
-    + "what to do about it, which is three sentences from anybody",
+  /*
+    The number has moved twice and will move again; what may not happen is it
+    dropping back to the one or two that made the other side a form being
+    filled in rather than a person talking.
+  */
+  const sentences = Number(code("lib/scenes/gate.ts").match(/const MAX_SENTENCES = (\d+);/)?.[1] ?? 0);
+  assert.ok(
+    sentences >= 3,
+    `a turn is back to ${sentences} sentences, so the other side cannot say what is missing from a `
+    + "form and what to do about it, which is three sentences from anybody",
   );
 });
 

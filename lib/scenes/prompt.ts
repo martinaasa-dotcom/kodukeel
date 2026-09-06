@@ -142,11 +142,12 @@ const COMPOSE_RULES = [
     `Kust alustaksite tööd?` and said what was missing was context rather than
     brevity. What a person at a counter actually says has the situation in it.
   */
-  "Reply with what this person says next, and nothing else: one to three short Estonian sentences,",
-  "no translation, no explanation, no quotation marks, no markdown, no list.",
-  `Use at most ${MAX_COMPOSED_WORDS} words in total.`,
+  "Reply with what this person says next, and nothing else: Estonian, no translation,",
+  "no explanation, no quotation marks, no markdown, no list.",
+  `Say as much or as little as the moment wants, up to ${MAX_COMPOSED_WORDS} words.`,
   "Say it the way somebody standing there would say it, not the shortest question that would do:",
-  "the small courtesy, the one thing about the moment that a person in your job would mention.",
+  "the small courtesy, the one thing about the moment that a person in your job would mention,",
+  "the aside they would actually make. A whole thought, finished, the way you are reading this.",
   /*
     AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
     thing about the place a person would mention, and with the room to say it,
@@ -155,8 +156,10 @@ const COMPOSE_RULES = [
     not the language. Nothing in the gate can see that, so the instruction has
     to keep the embellishment inside the list rather than invite a reach.
   */
-  "Make the remark out of the words you were given. If you cannot say it in those words, do not",
-  "say it: a plain question is better than a sentence you are not sure of.",
+  "Prefer the words you were given, because those are the ones this learner has been taught, but",
+  "say the natural thing rather than a stilted one: a handful of words they have not met is fine,",
+  "and they arrive with the dictionary under them. What is never fine is a word you are not sure",
+  "is real Estonian, or a sentence you are not sure is correct.",
   "What you must not add is a second question, a comment on their Estonian, or a sentence that",
   "only announces what you are about to ask.",
   /*
