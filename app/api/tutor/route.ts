@@ -59,7 +59,15 @@ export async function POST(request: Request) {
   */
   const learnerPromise = learnerContextFor(ownerId).catch(() => null);
 
-  const chain = resolveProviders();
+  /*
+    Anu's own chain, which since the split is Anthropic and nothing else.
+
+    Not the general chain: `resolveProviders()` with no purpose is still every
+    configured provider, and reading it here would put a scene composer's cheap
+    constrained-output model in front of the one question in this app where
+    being right about Estonian is the whole product. See `PURPOSE_CHAINS`.
+  */
+  const chain = resolveProviders({ purpose: "tutor" });
   if (chain.length === 0) {
     return Response.json(
       { error: "No AI key set up yet. Add one in .env, or Settings has a two-minute walkthrough." },

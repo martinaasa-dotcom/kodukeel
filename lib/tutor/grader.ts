@@ -129,14 +129,14 @@ export function parseVerdict(raw: string): GradedSentence | null {
  * single verdict, so streaming would add complexity for no perceived speed.
  */
 export async function gradeSentence(
-  config: ProviderConfig,
+  provider: ProviderConfig | readonly ProviderConfig[],
   input: GraderInput,
   formWasUsed: boolean,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text, usage } = await callForJson(
-    config, buildGraderSystemPrompt(), buildGraderUserPrompt(input, formWasUsed),
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text, usage, config } = await callChainForJson(
+    asChain(provider), buildGraderSystemPrompt(), buildGraderUserPrompt(input, formWasUsed),
   );
-  return { graded: parseVerdict(text), usage };
+  return { graded: parseVerdict(text), usage, config };
 }
 
 /**
@@ -148,6 +148,55 @@ export async function gradeSentence(
  * next time a provider changed the shape of its usage block. The scene grader
  * is the third and added none, which is the argument for having extracted it.
  */
+/**
+ * The three graders' last resort, and why it is a walk rather than one call.
+ *
+ * `callForJson` below talks to one provider. Until this existed the three
+ * graders were handed `resolveProvider()`, the *head* of the chain and nothing
+ * else, so a grader note had no fallback at all: Groq having a bad minute meant
+ * the note simply did not arrive. That was survivable, because the verdict a
+ * learner acts on is decided by string comparison against the dictionary before
+ * any of this runs and only the prose was lost, and it was still the one metered
+ * path with nowhere to go.
+ *
+ * WHAT IT MAY NOT DO IS SPEND WITHOUT A CEILING. The chain handed in is built
+ * with `allowFallback`, which the ledger sets false once the day's fallback
+ * budget is gone, so on a long Groq outage this walks a chain of one, fails,
+ * and the note is dropped exactly as it was before. The degradation is the old
+ * behaviour reached by a budget rather than by a missing key.
+ *
+ * It walks on any failure, unlike `openWithFallback` next door, and for the
+ * reason `completeWithImage` gives about itself: nothing is streamed here, so
+ * there is no half-written answer for a second attempt to talk over, and
+ * whether a model can return the JSON asked for is a fact about that model.
+ */
+async function callChainForJson(
+  chain: readonly ProviderConfig[],
+  system: string,
+  user: string,
+  maxTokens = 400,
+): Promise<{ text: string; usage: UsageReport; config: ProviderConfig }> {
+  let last: unknown = null;
+  for (let i = 0; i < chain.length; i += 1) {
+    const config = chain[i]!;
+    try {
+      const { text, usage } = await callForJson(config, system, user, maxTokens);
+      return { text, usage, config };
+    } catch (error) {
+      last = error;
+      // A rejected key is a configuration mistake no amount of walking fixes.
+      const fatal = error instanceof TutorError && error.status === 401;
+      if (fatal || i === chain.length - 1) throw error;
+    }
+  }
+  throw last instanceof Error ? last : new TutorError("No provider could grade that.", 502);
+}
+
+/** Accepts either, so a caller that has only one provider need not build a list. */
+function asChain(input: ProviderConfig | readonly ProviderConfig[]): readonly ProviderConfig[] {
+  return Array.isArray(input) ? input : [input as ProviderConfig];
+}
+
 async function callForJson(
   config: ProviderConfig,
   system: string,
@@ -280,14 +329,15 @@ ${text}`;
 }
 
 export async function gradeComposition(
-  config: ProviderConfig,
+  provider: ProviderConfig | readonly ProviderConfig[],
   text: string,
   level: string,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text: reply, usage } = await callForJson(
-    config, buildCompositionSystemPrompt(), buildCompositionUserPrompt(text, level), 500,
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text: reply, usage, config } = await callChainForJson(
+    asChain(provider), buildCompositionSystemPrompt(),
+    buildCompositionUserPrompt(text, level), 500,
   );
-  return { graded: parseVerdict(reply), usage };
+  return { graded: parseVerdict(reply), usage, config };
 }
 
 // ── A sentence about a scene ─────────────────────────────────────────────────
@@ -383,11 +433,11 @@ ${input.sentence}`;
 }
 
 export async function gradeDescription(
-  config: ProviderConfig,
+  provider: ProviderConfig | readonly ProviderConfig[],
   input: DescribeGraderInput,
-): Promise<{ graded: GradedSentence | null; usage: UsageReport }> {
-  const { text, usage } = await callForJson(
-    config, buildDescribeSystemPrompt(), buildDescribeUserPrompt(input),
+): Promise<{ graded: GradedSentence | null; usage: UsageReport; config: ProviderConfig }> {
+  const { text, usage, config } = await callChainForJson(
+    asChain(provider), buildDescribeSystemPrompt(), buildDescribeUserPrompt(input),
   );
-  return { graded: parseVerdict(text), usage };
+  return { graded: parseVerdict(text), usage, config };
 }

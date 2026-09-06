@@ -11217,6 +11217,137 @@ check("a class cannot read a conversation", () => {
 });
 
 /**
+ * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
+ *
+ * Two paid keys are configured for two different reasons: Anu asks Anthropic
+ * because Sonnet was the best of everything tested on real Estonian, and scene
+ * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
+ * finite verb every time at a quarter-second median, for a fortieth of the
+ * price, on a path that makes calls by the dozen.
+ *
+ * `resolveProviders()` with no argument is still the whole chain, deliberately,
+ * because twenty-odd callers mean "is a model configured at all" by it and none
+ * of them is choosing where to send anything. That is also what makes this
+ * regression invisible: a route that dropped its `purpose` still compiles,
+ * still answers, and still names the model that wrote it in a header nobody
+ * watches. What it stops doing is the split. Anu's question gets answered by a
+ * model ranked on fourteen-word constrained sentences, or every scene line in
+ * every conversation gets billed at Sonnet's rate against a $5 balance, and
+ * a Groq outage starts taking Anu down with it.
+ *
+ * Anchored on the call rather than on the import, for the reason five other
+ * checks in this file are: a file can import the right function and go on
+ * calling it the general way, which is exactly the shape of the fault.
+ *
+ * The screens are in it beside the routes. A screen that reads the general
+ * chain to decide whether to draw Anu's text box promises what `/api/tutor` is
+ * going to refuse, which is a failure misnaming its own cause.
+ */
+check("each routed purpose asks for its own chain", () => {
+  /*
+    The scene route asks through `sceneProviders`, which is the scene chain plus
+    main's per-provider `*_SCENE_MODEL` override, so it is checked one level
+    down: the wrapper has to be built on the purpose, or the route is asking a
+    general chain wearing a scene-shaped name. That indirection is the merge of
+    two sessions' answers and is argued at the function itself.
+  */
+  const provider = code(join("lib", "tutor", "provider.ts"));
+  const scenePart = provider.slice(provider.indexOf("export function sceneProviders"));
+  assert.match(
+    scenePart,
+    /resolveProviders\(\s*\{[^}]*purpose:\s*"scene"/,
+    "sceneProviders no longer builds on the scene purpose, so a scene can reach " +
+    "whatever the general chain holds and the per-purpose budget stops meaning anything.",
+  );
+
+  const routed: Readonly<Record<string, "tutor" | "scene">> = {
+    // The routes and reads that must not take the general chain by accident.
+    "app/api/tutor/route.ts": "tutor",
+    "app/(app)/layout.tsx": "tutor",
+    "app/(app)/tutor/page.tsx": "tutor",
+    "app/actions.ts": "scene",
+  };
+
+  for (const [file, purpose] of Object.entries(routed)) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /*
+        `String.raw`, because a template literal eats the backslashes on its way
+        to `RegExp` and the first version of this line built
+        /resolveProviders(s*{s*purpose:s*"tutor"/, which is an unterminated
+        group rather than a check. It threw instead of passing, which is the
+        lucky half; the same mistake inside a character class is a pattern that
+        quietly matches nothing.
+      */
+      new RegExp(String.raw`resolveProviders\(\s*\{\s*purpose:\s*"${purpose}"`),
+      `${file} is a ${purpose} path and never asks for the ${purpose} chain. ` +
+      "Its provider is a measured choice, not whichever key happens to be set.",
+    );
+    /*
+      And never the bare call beside it, which is the half a diff hides: adding
+      the purpose-scoped read and leaving the old line in place is two chains,
+      of which the general one is the one that gets used.
+    */
+    assert.doesNotMatch(
+      src,
+      /resolveProviders\(\s*\)/,
+      `${file} still reads the general chain somewhere. A routed path has one ` +
+      "chain, or the split is a comment.",
+    );
+  }
+});
+
+/**
+ * A LAST RESORT IS ASKED FOR, NEVER ASSUMED.
+ *
+ * Every purpose has Anthropic behind it now, which hands back the exact risk the
+ * purpose split was built to remove: with no fallback, a scene could not touch
+ * the balance Anu runs on however badly Groq behaved. What makes it safe again
+ * is that the fallback is bounded, and the bound only works if the routes that
+ * spend actually consult it. A route that builds its chain without
+ * `allowFallback` gets one anyway, because the default is true, and nothing
+ * fails: the answer arrives, and a sustained Groq outage quietly re-routes the
+ * app onto the dear provider for a day.
+ *
+ * So every metered route that builds a chain has to read the ledger's own
+ * verdict. Anchored on the call rather than the import, for the reason six other
+ * checks in this file are.
+ */
+check("a metered route asks the ledger before offering a last resort", () => {
+  const routes = [
+    "app/api/scene/route.ts",
+    "app/api/scan/route.ts",
+    "app/api/write/route.ts",
+    "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts",
+  ];
+  for (const file of routes) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /allowFallback:\s*decision\.fallbackAllowed/,
+      `${file} spends money and builds a chain without asking the ledger whether ` +
+      "today's fallback budget has room. The default is true, so this fails open: " +
+      "a day of Groq being down becomes a day of Anthropic billing.",
+    );
+  }
+
+  /*
+    And Anu never gets one. Anthropic is her primary, so the only thing behind
+    her is Groq, and `eval:anu` measured Groq calling the tuba : toa gradation
+    "b becomes v" against a dictionary that says b : the consonant going, and
+    inventing a lemma it then emitted as a VOCAB line.
+  */
+  assert.match(
+    code(join("lib", "tutor", "provider.ts")),
+    /options\.purpose\s*!==\s*"tutor"/,
+    "lib/tutor/provider.ts no longer excludes the tutor from the fallback, so " +
+    "Anu can now be answered by a model measured to get her grammar wrong.",
+  );
+});
+
+/**
  * A SCRIPT THAT MEASURES THE CHAIN MEASURES THE WHOLE CHAIN.
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain

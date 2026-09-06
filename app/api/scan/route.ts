@@ -89,9 +89,36 @@ export async function POST(request: Request) {
     );
   }
 
+  /*
+    Rebuilt now that the ledger has said whether the day's fallback budget still
+    has room. The check above used the full chain, because "can anything read a
+    photograph at all" is the question a 503 answers; this is the narrower one
+    of what may actually be spent.
+  */
+  const affordable = visionProviders({ allowFallback: decision.fallbackAllowed });
+  if (affordable.length === 0) {
+    /*
+      Groq is configured and Anthropic is out of fallback budget for today, so
+      there is nothing left that can see. A booking was taken a moment ago and
+      is handed straight back, for the reason `releaseReservation` states: a
+      call that reached nobody is not a call anybody made.
+    */
+    after(() => releaseReservation(decision.reservation!));
+    return Response.json(
+      {
+        error:
+          "Reading photos has used today's shared budget for the part of this that " +
+          "asks a model. Typing a word list in by hand still works, and it resets " +
+          "at midnight UTC.",
+        reason: "KIND_SPEND",
+      },
+      { status: 429 },
+    );
+  }
+
   let reply;
   try {
-    reply = await completeWithImage(chain, SCAN_PROMPT, READ_THIS_PAGE, decoded.image, (usage, config) => {
+    reply = await completeWithImage(affordable, SCAN_PROMPT, READ_THIS_PAGE, decoded.image, (usage, config) => {
       after(() => recordUsage({
         ownerId,
         kind: "SCAN",
