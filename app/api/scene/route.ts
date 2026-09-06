@@ -298,6 +298,12 @@ export async function POST(request: Request) {
       : null,
     met: state.done.length,
     /*
+      Whether this is the learner's first sight of the beat now being spoken,
+      which is what the break in time is printed on: a scene that walks
+      somebody to a shop has to say so before it asks where they are.
+    */
+    arriving: speaking ? !state.turns.some((turn) => turn.beatId === speaking.id) : false,
+    /*
       How long they have been on this beat, so the app knows when to step out
       of character and say what is wanted (`lib/scenes/coach.ts`). Turns that
       cost no patience are still turns the learner took, so they are counted:
@@ -529,6 +535,15 @@ export async function POST(request: Request) {
       // rather than a second `CALL` at the full estimate. Required rather than
       // optional for exactly this: a call site that has not thought about it
       // does not compile, and this one arrived on a merge.
+      /*
+        Who they are and where this is happening (`ComposeAsk`). Every line of
+        it is on the learner's own briefing screen: a character told none of it
+        is answering a beat rather than playing a part.
+      */
+      scene: scene.title,
+      place: scene.place,
+      persona: persona?.who ?? "",
+      situation: scene.role,
       reservation: decision.reservation,
       move: "answer",
       they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
@@ -616,6 +631,15 @@ export async function POST(request: Request) {
       reading: learnerReading,
       // The booking this turn was authorised under, so the settlement corrects
       // it rather than being written down as a second call. See `compose`.
+      /*
+        Who they are and where this is happening (`ComposeAsk`). Every line of
+        it is on the learner's own briefing screen: a character told none of it
+        is answering a beat rather than playing a part.
+      */
+      scene: scene.title,
+      place: scene.place,
+      persona: persona?.who ?? "",
+      situation: scene.role,
       reservation,
       move: beat.move,
       they: stageFor(beat, card),
@@ -695,6 +719,11 @@ async function compose(
      * caller that has not thought about it does not compile.
      */
     reservation: Reservation;
+    /** The scene, the place, the character and why the learner is here (`ComposeAsk`). */
+    scene: string;
+    place: string;
+    persona: string;
+    situation: string;
     move: string;
     /** What they are doing, in English, from their side: the beat's `they`. */
     they: string;
@@ -724,7 +753,10 @@ async function compose(
     are the same on every turn of this run and they are nine tenths of the
     prompt (`lib/scenes/prompt.ts`).
   */
-  const system = composeSystem({ register: input.register, words: input.words });
+  const system = composeSystem({
+    scene: input.scene, place: input.place, persona: input.persona, situation: input.situation,
+    register: input.register, words: input.words,
+  });
   const live = composeLive(input);
 
   try {

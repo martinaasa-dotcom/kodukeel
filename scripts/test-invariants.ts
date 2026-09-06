@@ -5230,8 +5230,15 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     block("composeLive"), /Words you may use/,
     "the word list is back in the block that changes per turn",
   );
+  /*
+    The list, and everything else that is constant for a whole run: the scene,
+    the place, the drawn persona and the learner's role card all sit behind the
+    breakpoint with it, because a briefing that changed per turn would break
+    the list's cache entry every time.
+  */
   assert.match(
-    code("app/api/scene/route.ts"), /composeSystem\(\{ register: input\.register, words: input\.words \}\)/,
+    code("app/api/scene/route.ts"),
+    /composeSystem\(\{[\s\S]{0,240}?words: input\.words,?\s*\}\)/,
     "the scene route stopped putting the list behind the cache breakpoint",
   );
   assert.match(
@@ -11829,9 +11836,24 @@ check("the repair move is only used on a turn nobody understood", () => {
     session, /unspoken: "They did not catch/,
     "an unspoken turn is labeled as a turn nobody understood, which is the bug this fixed",
   );
+  /*
+    AND A REPLY IS SAID IN ONE BREATH. `replyFor` builds a reaction and then a
+    move, and the screen drew each in a card of its own: `Jah.` in one bubble
+    and the question in the next, twice a turn, which a learner read back and
+    reported as the other side answering itself. `inOneBreath` joins the lines
+    said in Estonian and leaves everything that is not something anybody said
+    (a break in time, a hint from the app, a stage direction) standing alone,
+    so this asks for the merge rather than for the raw list.
+  */
   assert.match(
-    session, /lines\.map\(/,
-    "the scene screen reads one line per reply again; a reply is a reaction and then a move",
+    session, /inOneBreath\(turn\.lines\)\.map\(/,
+    "the scene screen draws a reply line by line again: a reaction and its move are one thing said, "
+    + "and nobody talks in two bubbles",
+  );
+  assert.match(
+    session, /inOneBreath\(turn\.lines\)\.filter\(spoken\)/,
+    "the debrief's transcript is built from the raw lines again, so the record of the conversation "
+    + "reads as two speakers where the round reads as one",
   );
 });
 
@@ -13750,7 +13772,13 @@ check("every line a scene says carries its rung", () => {
   const source = code("components/scene/SceneSession.tsx");
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
-  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+  /*
+    Every rung that wrote a piece of the bubble, since two lines said in one
+    breath are one bubble (`inOneBreath`): "your word, said back" and then a
+    question written for this turn is two claims, and a label naming one of
+    them would be the screen vouching for the other.
+  */
+  assert.match(source, /line\.rungs \?\? \[line\.provenance\][\s\S]{0,40}?PROVENANCE\[rung\]/,
     "and the words under it are what a reader is told, which is ADR-025 itself");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,

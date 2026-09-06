@@ -897,9 +897,39 @@
     100% { transform: translateY(0); }
   }
 
+  /*
+    TIME PASSING IN A CONVERSATION, DRAWN AS SOMETHING THAT HAPPENS.
+
+    A scene can walk somebody from their kitchen to a shop, and the screen said
+    so in a grey line of text between two rules. A learner who had just been
+    walked to a shop reported that nothing at all had told them the scene had
+    moved, and they were reading the right pixels: a sentence set in the same
+    ink as a stage direction, between two hairlines, on a screen where a new
+    bubble arrives every few seconds, is not a break in a story. It is furniture.
+
+    So it is a panel in the accent's softest tint with the ink drawn to sit on
+    it, the same pairing the app's own hint uses and `test-design.mjs` measures,
+    and it ARRIVES: the rules draw themselves out from the middle and the words
+    settle down onto the thread. Transform and opacity only, so the compositor
+    runs it, and nothing under `prefers-reduced-motion`, where the panel is
+    still a panel and still says what happened.
+  */
+  .scene-break { animation: scene-break-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .scene-break-rule { animation: scene-break-rule 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+  @keyframes scene-break-in {
+    0% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes scene-break-rule {
+    0% { transform: scaleX(0); }
+    100% { transform: scaleX(1); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
-    .sonad-settle, .sonad-refuse, .sonad-rise { animation: none; }
+    .sonad-settle, .sonad-refuse, .sonad-rise,
+    .scene-break, .scene-break-rule { animation: none; }
   }
 
   /*

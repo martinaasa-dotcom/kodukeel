@@ -121,7 +121,15 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
     Joined, because this harness sends one string. The split is about which
     half a provider caches and it does not change a character of what is asked.
   */
-  const system = composeSystem({ register: scene.register, words: lemmas });
+  const system = composeSystem({
+    scene: scene.title,
+    place: scene.place,
+    // The eval draws no persona: what it measures is one model against the beat.
+    persona: "",
+    situation: scene.role,
+    register: scene.register,
+    words: lemmas,
+  });
   return { system: `${system}\n\n${live}`, user: "Your line:" };
 }
 

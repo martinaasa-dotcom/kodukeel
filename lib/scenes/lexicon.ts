@@ -54,6 +54,21 @@ export interface DictEntry {
   readonly usages: readonly string[];
 }
 
+/**
+ * The six present-tense persons, in the codes `derivedVerbForms` uses.
+ *
+ * Present indicative only, and that is the whole of what agreement can be
+ * checked on without a parser: the conditional is one form for two persons
+ * (`tuleksid` is `sina` and `nemad`), the negative is one form for all six,
+ * and the imperative has no subject pronoun in front of it at all. A code
+ * outside this list is a form the check has nothing to say about.
+ */
+export const PERSON_CODES = [
+  "IndPrSg1", "IndPrSg2", "IndPrSg3", "IndPrPl1", "IndPrPl2", "IndPrPl3",
+] as const;
+
+export type PersonCode = (typeof PERSON_CODES)[number];
+
 /** Lowercased words of a string, by the app's one tokenizer. */
 export function words(text: string): string[] {
   return (text.match(ESTONIAN_WORD) ?? []).map((w) => w.toLowerCase());
@@ -185,6 +200,48 @@ export function caseOfForm(lexicon: Lexicon, lemma: string, form: string): CaseK
   return found;
 }
 
+/**
+ * The personal pronouns, each with the person a verb standing beside it has
+ * to be in, so the gate can refuse `Kust sina nüüd tuleb?` (`disagrees`).
+ *
+ * Lemma requests against the course, like the reactions in the catalog, and
+ * the only Estonian this file names. What the spellings are is never decided
+ * here: `subjectsIn` reads each entry's own nominative row, which for `mina`
+ * is `mina` and `ma` and for nothing else.
+ */
+export const SUBJECT_PRONOUN = {
+  mina: "IndPrSg1", sina: "IndPrSg2", tema: "IndPrSg3",
+  meie: "IndPrPl1", teie: "IndPrPl2", nemad: "IndPrPl3",
+} as const satisfies Record<string, PersonCode>;
+
+/**
+ * Each pronoun's nominative spellings, to the person they demand of a verb.
+ *
+ * The nominative row and nothing else, off the same table every case card in
+ * the app reads: `mind` and `sinu` are not subjects, and a check reading them
+ * as one would fire on `Kas ma saan sind aidata?`, which is an ordinary
+ * sentence.
+ *
+ * AND ONLY WHERE THE SPELLING IS THE NOMINATIVE AND NOTHING ELSE, which is
+ * `caseOfForm`'s strict rule and the same one `whichCase` follows over the
+ * whole dictionary. `teie` is the nominative of `teie` and also its genitive,
+ * so `Palun enne teie nimi.` holds no subject at all and a check that read one
+ * there refused a correct line over the `palun` beside it, which is a first
+ * person of `paluma` doing the work of "please". A pronoun whose subject form
+ * is ambiguous contributes nothing, and the check simply has less to say.
+ */
+export function subjectsIn(lexicon: Lexicon): ReadonlyMap<string, PersonCode> {
+  const out = new Map<string, PersonCode>();
+  for (const [lemma, code] of Object.entries(SUBJECT_PRONOUN) as [string, PersonCode][]) {
+    if (!lexicon.byLemma.has(lemma)) continue;
+    for (const form of lexicon.byCase.get(caseKeyFor(lemma, "NOMINATIVE")) ?? []) {
+      if (caseOfForm(lexicon, lemma, form) !== "NOMINATIVE") continue;
+      out.set(form.toLowerCase(), code);
+    }
+  }
+  return out;
+}
+
 /** The key `byCase` is read with. One place, so a caller cannot spell it wrong. */
 export function caseKeyFor(lemma: string, grammCase: string): string {
   return `${lemma.toLowerCase()}|${grammCase}`;
@@ -216,6 +273,21 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       const table = new Map<DerivedVerbCode, string>();
       for (const form of derivedVerbForms({ lemma: entry.lemma, pres1sg: entry.parts.PRES_1SG })) {
         table.set(form.morphCode, form.value);
+      }
+      /*
+        AND AN ATTESTED FORM ANSWERS FIRST, which is the rule everywhere else
+        in this app and was not the rule here. `derivedVerbForms` gives `olema`
+        no present at all, because its third person is `on` and nothing about
+        `olen` predicts that, so the commonest verb in the language had an
+        empty table: no recast for `ma olema`, and nothing for the agreement
+        check to compare a subject against on the one verb every other line
+        holds. The harvest stored exactly those forms for exactly this reason,
+        and they are read here beside the stored first person, which is a
+        principal part rather than a derivation.
+      */
+      if (entry.parts.PRES_1SG) table.set("IndPrSg1", entry.parts.PRES_1SG.toLowerCase());
+      for (const form of entry.extraForms ?? []) {
+        if (PERSON_CODES.includes(form.code as PersonCode)) table.set(form.code as DerivedVerbCode, form.value.toLowerCase());
       }
       if (table.size > 0) persons.set(entry.lemma, table);
       continue;

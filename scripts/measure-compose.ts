@@ -97,6 +97,11 @@ for (const scene of SCENES) {
   const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
   const examples = [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6);
   systemChars += composeSystem({
+    scene: scene.title,
+    place: scene.place,
+    // No draw here: this measures the size of the prompt, not a run.
+    persona: "",
+    situation: scene.role,
     register: scene.register,
     words: [...context.lexicon.byLemma.keys()],
   }).length;

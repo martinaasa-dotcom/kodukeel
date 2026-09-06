@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
+import { Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -68,6 +68,14 @@ interface Line {
    * stage direction, and on any line the route could not gloss.
    */
   readonly tokens?: GlossedToken[];
+  /**
+   * Every rung that wrote a piece of this bubble, where two lines were said in
+   * one breath (`inOneBreath`). One entry on a line that stands alone, and the
+   * words under the bubble name them in the order they were said, because a
+   * reply that says "your word, said back" and then asks a question written
+   * for this turn is two claims and both are owed to the reader (ADR-025).
+   */
+  readonly rungs?: readonly Provenance[];
 }
 
 /**
@@ -139,6 +147,53 @@ const spoken = (line: Line) => isSaid(line.provenance);
  */
 const reportable = (line: Line) =>
   spokenEstonian(line) && line.provenance !== "again" && line.provenance !== "echo";
+
+/**
+ * A REPLY IS ONE THING SAID, NOT A LIST OF BUBBLES.
+ *
+ * `replyFor` builds a reply as a reaction and then a move, which is right, and
+ * the screen drew each of them in a card of its own: `Jah.` in one bubble and
+ * `Kuhu sa nüüd lähed?` in the next, twice a turn, all the way down. Nobody
+ * talks in two bubbles. A learner read it back and said the other side was
+ * answering itself, and the transcript is the record of the conversation, so
+ * the fault was in the debrief as loudly as in the round.
+ *
+ * So consecutive lines said in Estonian are one bubble, joined with a space:
+ * "Jah. Kuhu sa nüüd lähed?" is what a friend on the phone says in one breath.
+ * Nothing else is merged, and that is the whole of the rule: a break in time,
+ * a hint from the app and a stage direction are not something anybody said, so
+ * they stand on their own and keep their own drawing.
+ *
+ * WHERE THE LINE CAME FROM SURVIVES THE JOIN, which is ADR-025's claim and the
+ * reason this returns a line rather than a string. The bubble carries every
+ * rung that wrote a piece of it, in the order it was said, and the words under
+ * it name them all; `provenance` stays the move's, because that is the line
+ * the learner is answering and the one a report is about.
+ */
+export function inOneBreath(lines: readonly Line[]): Line[] {
+  const out: Line[] = [];
+  for (const line of lines) {
+    const last = out[out.length - 1];
+    if (!last || !spokenEstonian(last) || !spokenEstonian(line)) {
+      out.push({ ...line, rungs: [line.provenance] });
+      continue;
+    }
+    out[out.length - 1] = {
+      ...line,
+      text: `${last.text} ${line.text}`,
+      rungs: [...(last.rungs ?? [last.provenance]), line.provenance],
+      /*
+        The dictionary under the line survives too, where every piece has one.
+        A spacer between them keeps the module's own promise that joining every
+        token's text gives the sentence back, which is what the speaker reads.
+      */
+      ...(last.tokens && line.tokens
+        ? { tokens: [...last.tokens, { text: " ", word: false, taught: false, entry: null }, ...line.tokens] }
+        : { tokens: undefined }),
+    };
+  }
+  return out;
+}
 
 /**
  * The line the learner is now answering: the other side's last move, which is
@@ -604,7 +659,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
           result `lang="et"` had a screen reader saying the English with
           Estonian phonology.
         */
-        return turn.lines.filter(spoken).map((line) => ({
+        return inOneBreath(turn.lines).filter(spoken).map((line) => ({
           who: "them" as const,
           text: line.text,
           lang: spokenEstonian(line) ? ("et" as const) : ("en" as const),
@@ -897,7 +952,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             </div>
           ) : (
             <div key={index} className="flex flex-col items-start gap-1.5">
-              {turn.lines.map((line, at) => (
+              {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
                     THE RUNG IS ON THE LINE, NOT ONLY IN THE SENTENCE UNDER IT.
@@ -1008,7 +1063,13 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                       anybody says it" needs the line it is about.
                     */}
                     <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                      <span>{PROVENANCE[line.provenance]}</span>
+                      {/*
+                        Every rung that wrote a piece of the bubble, in the
+                        order it was said and each named once: two lines from
+                        the course in one breath is one claim, not the same
+                        sentence twice.
+                      */}
+                      <span>{[...new Set(line.rungs ?? [line.provenance])].map((rung) => PROVENANCE[rung]).join(" · ")}</span>
                       {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
@@ -1020,25 +1081,43 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
                   </div>
                 ) : line.provenance === "meanwhile" ? (
                   /*
-                    TIME PASSING, DRAWN AS A BREAK RATHER THAN AS A MURMUR.
+                    TIME PASSING, DRAWN AS SOMETHING THAT HAPPENS.
 
                     A stage direction is set small and grey because it stands
                     in for a line and is worth less than one. This is the
-                    opposite: it is the scene telling the learner where they
-                    now are, and missing it is what left somebody answering
-                    "where are you now?" from the kitchen the card had put
-                    them in. So it is centred, ruled on both sides and set in
-                    the ordinary ink, which is what a break in a story looks
-                    like everywhere else it is drawn.
+                    opposite: it is the scene picking the learner up and
+                    putting them somewhere else, and everything after it is
+                    asked about the new place. It was a grey sentence between
+                    two hairlines, and the learner it was drawn for reported
+                    that nothing on the screen had told them the scene had
+                    moved. They were reading the right pixels.
+
+                    So it is the panel the app's own hint uses, in the accent's
+                    softest tint with the ink drawn to sit on it, with the hour
+                    beside it, and it arrives: the rules draw out from the
+                    middle and the words settle onto the thread
+                    (`app/globals.css`, `.scene-break`). Under
+                    `prefers-reduced-motion` it is still a panel and still says
+                    what happened, which is the whole of the information.
                   */
-                  <p
-                    key={at}
-                    className="my-2 flex items-center gap-3 text-sm"
-                    style={{ color: "var(--ink-2)" }}
-                  >
-                    <span aria-hidden className="h-px flex-1" style={{ background: "var(--rule)" }} />
-                    <span className="text-center">{line.text}</span>
-                    <span aria-hidden className="h-px flex-1" style={{ background: "var(--rule)" }} />
+                  <p key={at} className="my-3 flex w-full items-center gap-3">
+                    <span
+                      aria-hidden
+                      className="scene-break-rule h-px flex-1 origin-right"
+                      style={{ background: "var(--rule)" }}
+                    />
+                    <span
+                      className="scene-break inline-flex items-center gap-2 rounded-full px-4 py-2 text-center text-sm"
+                      style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+                    >
+                      <Clock size={16} aria-hidden className="shrink-0" />
+                      {line.text}
+                    </span>
+                    <span
+                      aria-hidden
+                      className="scene-break-rule h-px flex-1 origin-left"
+                      style={{ background: "var(--rule)" }}
+                    />
                   </p>
                 ) : line.provenance === "coach" ? (
                   /*
