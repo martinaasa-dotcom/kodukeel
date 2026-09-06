@@ -189,7 +189,33 @@ const ROUTES = [
 ];
 
 const browser = await launchChromium();
-const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+/**
+ * A page for measuring on, and the motion is off on every one of them.
+ *
+ * WHAT A CONTRAST CHECK MEASURES IS THE SETTLED STATE, AND THIS PAGE ARRIVES
+ * OVER ABOUT A SECOND. The landing page brings its headline in a word at a
+ * time and its claims 640ms later, each with `both` fill, so an element part
+ * way through `fade-up` is a real colour composited against the ground and
+ * axe reports it as a real failure: `--ink-3` mid-fade measured 2.83 against
+ * a bar of 3. Which elements were caught depended on when the run happened,
+ * so the suite reported a different set of nodes every time and a clean pass
+ * whenever the timing was kind. Measured here: five runs against /welcome on
+ * a phone, five failures, three to sixteen nodes, never the same set twice;
+ * five more with the motion off, five clean.
+ *
+ * `reducedMotion: "reduce"` is this repository's own answer to that question,
+ * already asked and answered by `test-containment.mjs`, whose comment says
+ * the animations "are what would otherwise be measured", and by
+ * `test-design.mjs`, which stops a letter drifting before it reads the letter's
+ * angle. This suite was the one that had not been told. It measures more
+ * rather than less: `prefers-reduced-motion` collapses every duration in
+ * `app/globals.css` and turns the scroll-driven reveal off outright, so
+ * content that used to be tied to the scrollbar is now in its finished state
+ * and gets looked at.
+ */
+const measuring = (viewport) => browser.newPage({ viewport, reducedMotion: "reduce" });
+
+const page = await measuring({ width: 1280, height: 1000 });
 
 
 /*
@@ -287,7 +313,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
   claim on /accessibility, and it is worth it: a phone is where most of this
   app is read.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 574 });
+const { check, absent, done } = suite("Accessibility", { floor: 576 });
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.
@@ -431,7 +457,7 @@ for (const route of ROUTES) {
 const chooseDark = (page) =>
   page.addInitScript(() => { try { localStorage.setItem("theme", "dark"); } catch { /* private mode */ } });
 
-const dark = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+const dark = await measuring({ width: 1280, height: 1000 });
 await chooseDark(dark);
 for (const route of ROUTES) {
   await open(dark, route, 200);
@@ -478,7 +504,7 @@ await dark.close();
 const PHONE = { width: 390, height: 844 };
 
 for (const theme of ["light", "dark"]) {
-  const phone = await browser.newPage({ viewport: PHONE });
+  const phone = await measuring(PHONE);
   if (theme === "dark") await chooseDark(phone);
   for (const route of ROUTES) {
     await open(phone, route, 200);
@@ -543,7 +569,7 @@ for (const theme of ["light", "dark"]) {
   runs the next suite.
 */
 for (const theme of ["light", "dark"]) {
-  const graded = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
+  const graded = await measuring({ width: 1280, height: 1000 });
   if (theme === "dark") await chooseDark(graded);
   await graded.goto(`${BASE}/review`, { waitUntil: "networkidle" });
   await graded.waitForTimeout(300);
@@ -567,6 +593,67 @@ for (const theme of ["light", "dark"]) {
       "(run `npm run demo`) or every card that came up graded itself, which a clean hit does");
   }
   await graded.close();
+}
+
+/*
+  AND THE ONE SCREEN IN THIS APP THAT NO URL REACHES.
+
+  The block above says the rule: a control that is only live after somebody has
+  done something has to be swept after they have done it. The scene debrief is
+  the same rule one step further out. It is not a state of a route, it is what
+  `/situations/[id]` becomes once a conversation has been had and left, so no
+  walk of the filesystem can arrive at it and nothing here had ever looked at
+  it. It is also dense: a verdict card, a ticked list, a review with the
+  learner's own forms in it, chips with add-to-deck buttons beside them, and a
+  transcript of both sides.
+
+  Two turns and out, rather than a whole conversation, because what is being
+  swept is the debrief and not the scene: `scripts/test-scene.mjs` is where the
+  conversation itself is driven and checked. Every step is guarded, and a run
+  that cannot get there waives its checks with the reason rather than failing,
+  since this depends on a seeded dictionary and on the scene catalogue holding
+  the id.
+
+  IT COSTS WHAT A CONVERSATION COSTS, stated here rather than found by whoever
+  runs the next suite: a scene run per theme, and a `Review` row for any word
+  the two turns retrieved unambiguously, which is the same price
+  `scripts/test-scene.mjs` already pays.
+*/
+for (const theme of ["light", "dark"]) {
+  const scene = await measuring({ width: 1280, height: 1000 });
+  if (theme === "dark") await chooseDark(scene);
+  const reached = await (async () => {
+    try {
+      await scene.goto(`${BASE}/situations/arsti-aeg`, { waitUntil: "networkidle" });
+      await scene.getByRole("button", { name: /Start the conversation/i }).click({ timeout: 8_000 });
+      const box = scene.getByLabel("What you say");
+      await box.waitFor({ timeout: 20_000 });
+      for (const said of ["Tere!", "Mul on valu."]) {
+        const before = await scene.locator('[role="log"] p').count();
+        await box.fill(said);
+        await scene.getByRole("button", { name: /Say it/i }).click();
+        await scene.waitForFunction(
+          (n) => document.querySelectorAll('[role="log"] p').length > n + 1,
+          before, { timeout: 30_000 },
+        );
+      }
+      await scene.getByRole("button", { name: /^Leave/i }).click();
+      await scene.waitForSelector("text=/What you got done/i", { timeout: 30_000 });
+      await scene.waitForTimeout(300);
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+  if (reached) {
+    const violations = await axeViolations(scene);
+    check(`the scene debrief, in ${theme}: axe finds nothing`,
+      violations.length === 0, violations.slice(0, 2).join("; "));
+  } else {
+    absent(1, `the scene debrief, in ${theme}: a conversation could not be played through to one. ` +
+      "It needs a seeded dictionary and the scene catalogue to hold `arsti-aeg`");
+  }
+  await scene.close();
 }
 
 // A visible focus ring on the primary action of the review path.
