@@ -586,6 +586,20 @@ The order is the argument.
 6. **Try it again**, which keeps the role card and redraws the persona and the curveballs. The
    second run is where most of the learning is, and it should be one button.
 
+### Amendment 1: the record sits under the teaching
+
+The list above was written before `lib/scenes/review.ts` existed, and item 3's reason is the job the
+review does: *this is where a learner finds out that the word they were sure of was not the word*.
+The transcript as built marks nothing, and the review quotes the learner's own words, so it reads
+without the conversation having been read back first.
+
+The transcript is also the one section on the screen with no bound on its length. Measured on a
+seven-turn run at 360px it is 900 of the 2,232 pixels of the page, and it sat between the outcome
+and everything a learner can act on, so the teaching, the words to keep, the drill and the way back
+in were all below the fold on a conversation that had barely started. It goes under them.
+
+What does not move is item 1. The outcome still leads, before any teaching, for the reason given.
+
 ### What it writes
 
 A card added from a scene carries `SCENE_SOURCE` in the `source` column `Card` already has, so
@@ -2600,29 +2614,26 @@ changed under them. What they were looking at then was the first line with the r
 scene's own title gone. Nothing at a desktop width can see it, so that check is in
 `scripts/test-mobile.mjs` at 360.
 
-## 46. What the debrief was actually saying
+## 46. What the debrief was actually saying, three times over
 
-Found by reading `npm run play:scenes` rather than the code, and found by §43 the same day, which is
-worth writing down because the two fixes were different and the merge kept both halves.
+Three sessions found the same sentence within a day of each other, which is worth writing down
+because the third one made the first two moot.
 
-`CASE_NOTES` carries an `englishHook`, and it is written for the label it sits behind on the case's
-own page ("In English · of the book, the book's cover"), so it is a lower-case fragment by design.
-The review pasted it straight after a full stop on all fourteen cases; the illative's hook is the
-word "into", so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
+`CASE_NOTES` carries an `englishHook`, written for the label it sits behind on the case's own page
+("In English · of the book, the book's cover"), so it is a lower-case fragment by design. The review
+pasted it straight after a full stop on all fourteen cases; the illative's hook is the word "into",
+so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
 `lib/assessment/items.ts` had already tried the hook in feedback and written down why it dropped it.
 
-§43 capitalises the hook, which keeps the reference page's own examples, and they are the better
-copy in twelve of the fourteen: *"It is the ending for in. In the house, in March, in a good mood."*
-lands where a definition would not. The illative is where it does not, because there the hook **is**
-the plain word: capitalised, the note reads "It is the ending for into. Into.", which is the same
-word twice and was the fault the whole way. So `saysMore` compares the two without punctuation or
-case, and where the hook adds nothing the `summary` answers instead, that being the field written as
-a sentence.
-
-The test is over every case rather than over the one that read worst, because the fault was in how
-the body was built and it was true of all of them: every sentence in a note's body opens with a
-capital, and no word is repeated across a full stop in lower case. It fails on the copy that
-shipped.
+This pass replaced the hook with `summary`, the field written as a sentence. §43 capitalised the
+hook instead, which kept the reference page's examples and left "into. Into." on the one case where
+the hook *is* the plain word; merging the two kept the examples and fell back to the summary there.
+And then #167 rewrote the note itself, in the pass that made the review readable: a note leads with
+the learner's own word, says what the form that was wanted is for in one clause
+(`the ending for "into"`), and carries an authored sentence only where there is a rule worth
+stating. There is no join left to show through, so both earlier fixes are
+gone rather than layered, and the test written for the join went with them: it asserted over a `body`
+built out of two fields, and nothing builds one any more.
 
 ## 47. One loud action per round, on the screens that had none
 
