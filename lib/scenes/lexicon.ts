@@ -215,6 +215,42 @@ export const SUBJECT_PRONOUN = {
 } as const satisfies Record<string, PersonCode>;
 
 /**
+ * The verbs that take the da-infinitive and never the ma-infinitive.
+ *
+ * `SAAN AITAMA` IS NOT A SENTENCE AND NOTHING COULD SEE IT. A learner read
+ * `Tere! Mis needus täna aitama saan?` and asked, fairly, how that reaches a
+ * screen: every word of it is vouched by the forms list, it names the beat's
+ * own topic, it is inside the new-word budget and it is not the language. The
+ * fault is one a model makes constantly in Estonian and a person never makes,
+ * which is putting the dictionary form of a verb where the da-infinitive
+ * belongs.
+ *
+ * Lemma requests against the course, like `SUBJECT_PRONOUN` above and the
+ * reactions in the catalog, and this file still writes no form: which
+ * spellings each of these has is read off the entry. Deliberately the short,
+ * certain list rather than every verb that governs an infinitive. Estonian has
+ * plenty that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin
+ * magama`) and a check built on a list of those would be a check built on the
+ * half somebody forgot, refusing correct lines. These seven never take one, in
+ * any register, so firing on them can only ever be right.
+ */
+export const DA_ONLY_VERBS = [
+  "saama", "tahtma", "soovima", "võima", "oskama", "tohtima", "suutma", "proovima",
+] as const;
+
+/**
+ * The one fixed expression that breaks the rule above, written down rather
+ * than left to be rediscovered.
+ *
+ * `Ma saan hakkama` is "I will manage", it is what anybody says, and its second
+ * word is the ma-infinitive of `hakkama` sitting straight after `saama`. It is
+ * the one pair in the language that this check would otherwise refuse.
+ */
+export const DA_ONLY_EXEMPT: Readonly<Record<string, readonly string[]>> = {
+  saama: ["hakkama"],
+};
+
+/**
  * A pronoun standing as a subject: the person it demands of a verb, and
  * whether that reading is the only one the spelling has.
  */

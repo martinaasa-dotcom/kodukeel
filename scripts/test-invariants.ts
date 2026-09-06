@@ -13007,7 +13007,7 @@ check("the other side may volunteer something, and never says it twice", () => {
     + "instructions and the model takes the first",
   );
   assert.match(
-    prompt, /one or two short Estonian sentences/,
+    prompt, /one to three short Estonian sentences/,
     "the prompt stopped saying how many sentences a line may be, so what it asks for and what the "
     + "gate allows are two different things",
   );
@@ -13017,10 +13017,16 @@ check("the other side may volunteer something, and never says it twice", () => {
     is vouched word by word, names the beat's own topic and is not the language,
     and nothing in the gate can see it. Two ordinary sentences fit in fourteen.
   */
+  /*
+    And the room a learner asked for is paid for by the gate rather than by a
+    short leash: `MAX_SENTENCES` is the real limit, and what stopped `Tere! Mis
+    needus täna aitama saan?` is the check written for it rather than a word
+    count, since that line is six words.
+  */
   assert.match(
-    code("lib/scenes/gate.ts"), /export const MAX_COMPOSED_WORDS = MAX_WORDS;/,
-    "a composed line may be longer than a recorded one, which is rope the gate cannot check: the "
-    + "count was never what made the other side terse",
+    code("lib/scenes/gate.ts"), /const MAX_SENTENCES = 3;/,
+    "a turn is back to two sentences, so the other side cannot say what is missing from a form and "
+    + "what to do about it, which is three sentences from anybody",
   );
 });
 
@@ -13055,6 +13061,47 @@ check("the other side may volunteer something, and never says it twice", () => {
   their pronoun's genitive as well, which is how Estonian says "your", and
   `Teie nimi on Mari.` holds no subject at all.
 */
+/*
+  A MA-INFINITIVE WHERE THE DA-INFINITIVE BELONGS.
+
+  `Tere! Mis needus täna aitama saan?` reached a learner, and every other check
+  on the page passed it: the words are vouched by the forms list, the beat's own
+  topic is named, the new word is inside the budget, and it is not the language.
+  Putting the dictionary form of a verb where the da-infinitive belongs is a
+  mistake a model makes constantly in Estonian and a person never makes.
+
+  The list is deliberately the short certain one. Estonian has plenty of verbs
+  that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin magama`),
+  and a check built on a list of those would be a check built on the half
+  somebody forgot, refusing correct lines. These seven never take one.
+*/
+check("a verb that only takes the da-infinitive is not given the other one", () => {
+  const lexicon = code("lib/scenes/lexicon.ts");
+  assert.match(
+    lexicon, /export const DA_ONLY_VERBS = \[/,
+    "the da-only verbs are gone, so `saan aitama` is a line the other side says",
+  );
+  assert.match(
+    lexicon, /saama: \["hakkama"\]/,
+    "the one fixed pair in the language lost its exemption, so `Ma saan hakkama` is refused",
+  );
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /if \(wrongInfinitive\(text, context\)\) failed\.push\("infinitive"\)/,
+    "the gate stopped asking whether a ma-infinitive is standing where the da-infinitive belongs",
+  );
+  /*
+    And the adjacency guard, which is what keeps it from refusing correct
+    Estonian: `Ma tahan hakata sööma` holds a da-only verb and a ma-infinitive
+    in one clause and the infinitive belongs to the verb between them.
+  */
+  assert.match(
+    gate, /finite\.has\(here\) && infinitive\.has\(next\)/,
+    "the infinitive check stopped requiring the two to be next to each other, so `tahan minna "
+    + "ostma` is refused",
+  );
+});
+
 check("a scene's agreement check can see the person its scenes are in", () => {
   const lexicon = code("lib/scenes/lexicon.ts");
   assert.match(

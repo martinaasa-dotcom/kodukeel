@@ -28,7 +28,9 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
-import { PERSON_CODES, words, type Lexicon, type Subject } from "./lexicon";
+import {
+  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
+} from "./lexicon";
 import { compoundOf } from "./nearly";
 import { MAX_WORDS, isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
@@ -42,7 +44,7 @@ import { QUESTION_SHAPE, type BeatSpec } from "./types";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause",
+  "stretch", "clause", "infinitive",
 ] as const;
 
 /**
@@ -327,6 +329,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (context.answers && tokens.some((word) => context.answers!.has(word))) failed.push("giveaway");
 
   if (noClause(tokens, stretched, beat, context)) failed.push("clause");
+  if (wrongInfinitive(text, context)) failed.push("infinitive");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -452,6 +455,65 @@ function isPerson(word: string, context: GateContext): boolean {
   return false;
 }
 
+/**
+ * A ma-infinitive standing where the da-infinitive belongs.
+ *
+ * `Tere! Mis needus täna aitama saan?` reached a learner, and every other
+ * check on the page passed it: the words are vouched, the beat's own topic is
+ * named, the new word is inside the budget, and it is not the language. Putting
+ * the dictionary form of a verb where the da-infinitive belongs is a mistake a
+ * model makes constantly in Estonian and a person never makes, so it is worth a
+ * check of its own.
+ *
+ * `DA_ONLY_VERBS` is the short certain list and the reasoning is beside it.
+ * Two guards keep this from refusing correct Estonian, and both matter:
+ *
+ * ADJACENT, AND NOTHING BETWEEN. `Ma tahan hakata sööma` is right, and it holds
+ * a da-only verb and a ma-infinitive in one clause: the ma-infinitive belongs
+ * to `hakata`, which sits between them. So the two have to be next to each
+ * other, in either order, or this says nothing. That is what leaves the whole
+ * of `tahan minna ostma` alone and still catches `aitama saan`.
+ *
+ * AND THE ONE FIXED PAIR IS EXEMPT. `Ma saan hakkama` is what anybody says.
+ *
+ * A verb the scene's list does not hold is invisible to this, which is the safe
+ * direction: it costs a refusal and never a correct line withheld.
+ */
+function wrongInfinitive(text: string, context: GateContext): boolean {
+  const finite = new Map<string, string>();
+  for (const lemma of DA_ONLY_VERBS) {
+    const table = context.lexicon.persons.get(lemma);
+    if (!table) continue;
+    for (const code of PERSON_CODES) {
+      const form = table.get(code);
+      if (form) finite.set(form.toLowerCase(), lemma);
+    }
+  }
+  if (finite.size === 0) return false;
+
+  const infinitive = new Map<string, string>();
+  for (const [lemma, forms] of context.lexicon.infinitives) {
+    for (const form of forms) infinitive.set(form.toLowerCase(), lemma);
+  }
+
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    for (let at = 0; at < lower.length - 1; at += 1) {
+      const here = lower[at]!;
+      const next = lower[at + 1]!;
+      const pair = finite.has(here) && infinitive.has(next)
+        ? { verb: finite.get(here)!, inf: infinitive.get(next)! }
+        : finite.has(next) && infinitive.has(here)
+          ? { verb: finite.get(next)!, inf: infinitive.get(here)! }
+          : null;
+      if (!pair) continue;
+      if ((DA_ONLY_EXEMPT[pair.verb] ?? []).includes(pair.inf)) continue;
+      return true;
+    }
+  }
+  return false;
+}
+
 export function disagrees(text: string, context: GateContext): boolean {
   const subjects = context.subjects;
   if (!subjects) return false;
@@ -488,38 +550,44 @@ export function disagrees(text: string, context: GateContext): boolean {
 /**
  * How many sentences one turn may be.
  *
- * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING. The other side answered and
- * asked, answered and asked, and never once said something nobody had asked
- * for, which is half of what makes small talk feel like small talk: `Kohv on
- * kuum. Kas te soovite piima?` is a barista and `Kas te soovite piima?` is a
- * form. The remark costs nothing extra, because it rides on the line the model
- * was writing anyway rather than on a second call.
+ * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING, and two was a person who
+ * volunteers exactly once. A learner asked why there is a limit this tight at
+ * all, and they are right that some of these moments need explaining: a
+ * landlord saying when somebody can come and what they will need, a clerk
+ * saying what is missing from a form and what to do about it, a waiter saying
+ * what is off the menu and what is good instead. Each of those is three short
+ * sentences from a real person and was two from this one.
  *
- * Two, and the word count is what keeps it honest: `MAX_WORDS` is fourteen for
- * the whole turn, so two sentences are two short ones. Three is a paragraph at
- * somebody who is trying to answer.
+ * Three, and the word count is what keeps it from becoming a speech: a turn is
+ * still `MAX_COMPOSED_WORDS` words whichever way it is punctuated, so three
+ * sentences are three short ones. Four is a paragraph at somebody who is
+ * trying to answer in a language they are learning, and the thing that most
+ * makes a learner give up is a wall of text they cannot read.
  */
-const MAX_SENTENCES = 2;
+const MAX_SENTENCES = 3;
 
 /**
- * How long a composed line may be, which is `MAX_WORDS` and was briefly not.
+ * How long a composed line may be, which is not how long a recorded one may be.
  *
- * A learner read `Kust alustaksite tööd?` and said what the other side needs
- * is context rather than shorter questions, so the ceiling was raised to
- * eighteen to make room for the second half of a line. It was the wrong lever
- * and the transcripts said so within a run: with the extra rope the same model
- * wrote `Tere! Mis needus täna aitama saan?`, which is not the language, and
- * nothing in this file can see that, because every word of it is vouched and
- * the line names the beat's own topic.
+ * `MAX_WORDS` is fourteen and is about a *usage*: whether a sentence a
+ * lexicographer filed under a headword is a thing a person says in one breath,
+ * and it decides which of them can be lifted onto a beat. Holding a composed
+ * line to the same number was never argued for; it was inherited.
  *
- * The count was never what made the other side terse. `Reply with exactly ONE
- * short Estonian sentence` was, three hundred characters above the rule that
- * allows a remark, and a model reads the stronger instruction. With that fixed
- * the neighbor says `Neljas korrus on hea. Kust te olete pärit?`, which is
- * eight words. Two ordinary sentences fit inside fourteen with room to spare,
- * and what is left over is rope.
+ * IT WAS RAISED, PUT BACK, AND RAISED AGAIN, AND THE MIDDLE STEP IS THE ONE
+ * WORTH KNOWING. At eighteen words the same model wrote `Tere! Mis needus täna
+ * aitama saan?`, which is vouched word by word, names the beat's own topic and
+ * is not the language, so the ceiling went back to fourteen on the argument
+ * that the only thing keeping a composed line honest is how little room it has
+ * to reach. That argument was wrong in a way the line itself shows: it is six
+ * words. Length did not produce it and length was not going to stop it. What
+ * stops it is `infinitive`, the check written for it.
+ *
+ * So the room a learner asked for is here, at twenty-two, and what pays for it
+ * is a gate with eleven checks in it rather than a short leash. `MAX_SENTENCES`
+ * is the real limit and always was.
  */
-export const MAX_COMPOSED_WORDS = MAX_WORDS;
+export const MAX_COMPOSED_WORDS = 22;
 
 /**
  * At most two short sentences, inside the word count, punctuated, no markdown,

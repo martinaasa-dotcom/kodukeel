@@ -142,7 +142,7 @@ const COMPOSE_RULES = [
     `Kust alustaksite tööd?` and said what was missing was context rather than
     brevity. What a person at a counter actually says has the situation in it.
   */
-  "Reply with what this person says next, and nothing else: one or two short Estonian sentences,",
+  "Reply with what this person says next, and nothing else: one to three short Estonian sentences,",
   "no translation, no explanation, no quotation marks, no markdown, no list.",
   `Use at most ${MAX_COMPOSED_WORDS} words in total.`,
   "Say it the way somebody standing there would say it, not the shortest question that would do:",

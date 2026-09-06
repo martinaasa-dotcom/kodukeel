@@ -75,6 +75,41 @@ const ENTRIES: DictEntry[] = [
     parts: { NOM_SG: "nimi", GEN_SG: "nime", PART_SG: "nime" },
     usages: [],
   },
+  /*
+    The two the `infinitive` check needs: one verb that only ever takes the
+    da-infinitive, and one whose ma-infinitive a model put beside it.
+  */
+  {
+    lemma: "saama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "saama", INF_DA: "saada", PRES_1SG: "saan", PAST_1SG: "sain" },
+    usages: [],
+  },
+  {
+    lemma: "aitama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "aitama", INF_DA: "aidata", PRES_1SG: "aitan", PAST_1SG: "aitasin" },
+    usages: [],
+  },
+  {
+    lemma: "hakkama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "hakkama", INF_DA: "hakata", PRES_1SG: "hakkan", PAST_1SG: "hakkasin" },
+    usages: [],
+  },
+  {
+    lemma: "tundma", pos: "VERB", cefr: "A2",
+    parts: { INF_MA: "tundma", INF_DA: "tunda", PRES_1SG: "tunnen", PAST_1SG: "tundsin" },
+    usages: [],
+  },
+  {
+    lemma: "tulema", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tulema", INF_DA: "tulla", PRES_1SG: "tulen", PAST_1SG: "tulin" },
+    usages: [],
+  },
+  {
+    lemma: "tahtma", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tahtma", INF_DA: "tahta", PRES_1SG: "tahan", PAST_1SG: "tahtsin" },
+    extraForms: [{ code: "IndPrPl2", value: "tahate" }],
+    usages: [],
+  },
   {
     lemma: "soovima", pos: "VERB", cefr: "A2",
     parts: { INF_MA: "soovima", INF_DA: "soovida", PRES_1SG: "soovin", PAST_1SG: "soovisin" },
@@ -135,23 +170,27 @@ describe("the gate", () => {
   });
 
   /*
-    TWO SHORT SENTENCES ARE A PERSON AND THREE ARE A PARAGRAPH. One was the
+    THREE SHORT SENTENCES ARE A PERSON AND FOUR ARE A PARAGRAPH. One was the
     other side never volunteering anything: it answered and asked, answered and
-    asked, and never said a thing nobody had asked for, which is half of what
-    makes small talk feel like small talk. The word count is what keeps the
-    remark short, since fourteen words covers the whole turn.
+    asked, and never said a thing nobody had asked for. Two was a person who
+    volunteers exactly once, and some of these moments need explaining: what is
+    missing from a form and what to do about it is three sentences from anybody.
+    The word count covers the whole turn either way, so three are three short
+    ones.
   */
-  it("takes a remark before the move, and refuses a third sentence", () => {
+  it("takes a remark and an explanation, and refuses a fourth sentence", () => {
     const ctx = context();
     expect(runGate("Teil on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
-    expect(runGate("Teil on valu. Kus? Kas teil on valu?", beat(), ctx).failed).toContain("shape");
+    expect(runGate("Teil on valu. Toas on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
+    expect(runGate("Teil on valu. Toas on valu. Valu on. Kus?", beat(), ctx).failed)
+      .toContain("shape");
   });
 
   it("refuses no punctuation, markdown, and a line that runs on", () => {
     const ctx = context();
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
-    expect(runGate(`${"valu ".repeat(20)}?`, beat(), ctx).failed).toContain("shape");
+    expect(runGate(`${"valu ".repeat(30)}?`, beat(), ctx).failed).toContain("shape");
     expect(runGate("", beat(), ctx).failed).toContain("shape");
   });
 
@@ -353,6 +392,43 @@ describe("a verb that does not agree with its subject", () => {
       which is the fault this whole module is built against.
     */
     expect(disagrees("Kas te nime tead?", ctx)).toBe(false);
+  });
+});
+
+/**
+ * AND A MA-INFINITIVE WHERE THE DA-INFINITIVE BELONGS.
+ *
+ * `Tere! Mis needus täna aitama saan?` reached a learner and every other check
+ * on the page passed it: the words are vouched, the beat's own topic is named,
+ * the new word is inside the budget, and it is not the language. Putting the
+ * dictionary form of a verb where the da-infinitive belongs is a mistake a
+ * model makes constantly in Estonian and a person never makes.
+ */
+describe("a verb that cannot take the form beside it", () => {
+  const ctx = context();
+
+  it("withholds the line that reached a learner", () => {
+    expect(runGate("Mis täna aitama saan?", beat(), ctx).failed).toContain("infinitive");
+  });
+
+  it("says nothing about the da-infinitive, which is what belongs there", () => {
+    expect(runGate("Kas ma saan aidata?", beat(), ctx).failed).not.toContain("infinitive");
+  });
+
+  /*
+    `Ma tahan hakata sööma` is right and holds both a da-only verb and a
+    ma-infinitive: the infinitive belongs to `hakata`, which stands between
+    them. So the two have to be next to each other or this says nothing, which
+    is what leaves `tahan minna ostma` alone.
+  */
+  it("says nothing where another verb stands between them", () => {
+    expect(runGate("Kas te tahate tulla valu tundma?", beat(), ctx).failed)
+      .not.toContain("infinitive");
+  });
+
+  /* And the one fixed pair in the language that breaks the rule. */
+  it("takes the one expression that really is a ma-infinitive there", () => {
+    expect(runGate("Kas te saate hakkama?", beat(), ctx).failed).not.toContain("infinitive");
   });
 });
 

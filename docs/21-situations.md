@@ -3122,3 +3122,32 @@ gate can see that, and nothing ever will, so what keeps a composed line honest i
 it has to reach. `MAX_COMPOSED_WORDS` is `MAX_WORDS` again, asserted, and the instruction that
 earns the fluff now says to make the remark out of the words it was given and to say nothing rather
 than reach: a plain question is better than a sentence the model is not sure of.
+
+**A ma-infinitive where the da-infinitive belongs, which nothing could see.** `Tere! Mis needus täna
+aitama saan?` reached a learner, and every other check on the page passed it: every word vouched by
+the forms list, the beat's own topic named, the new word inside the budget, and not the language.
+Putting the dictionary form of a verb where the da-infinitive belongs is a mistake a model makes
+constantly in Estonian and a person never makes, so it is worth a check of its own. `DA_ONLY_VERBS`
+is deliberately the short certain list rather than every verb that governs an infinitive: Estonian
+has plenty that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin magama`), and a check
+built on a list of those is a check built on the half somebody forgot, refusing correct lines.
+These seven never take one, in any register, so firing on them can only ever be right. Lemma
+requests against the course, like `SUBJECT_PRONOUN`, and no form is typed.
+
+**Two guards keep it off correct Estonian and both are load-bearing.** `Ma tahan hakata sööma` is
+right and holds a da-only verb and a ma-infinitive in one clause, because the infinitive belongs to
+the `hakata` between them, so the two have to be **adjacent** or the check says nothing. That leaves
+the whole of `tahan minna ostma` alone and still catches `aitama saan`. And `Ma saan hakkama` is
+what anybody says, which is the one fixed pair in the language that breaks the rule, written down
+rather than left to be rediscovered. Measured over all 328 bank rows against every scene's gate:
+none refused.
+
+**And the leash came off, because the leash was never what was holding the line together.** A
+learner asked why the limits are that tight at all, and they were right: some of these moments need
+explaining, and what is missing from a form and what to do about it is three sentences from
+anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
+came back, and it was put down again on the argument that the only thing keeping a composed line
+honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
+since it is six words. Length did not produce it and length was never going to stop it. What stops
+it is the check written for it, and what pays for the room is a gate with eleven checks in it.
