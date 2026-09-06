@@ -381,7 +381,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
     lexicon,
     gate: {
       lexicon, wrongRegister, governed: governedIn(rows), caseOf: caseIndex(lexicon),
-      subjects: subjectsIn(lexicon),
+      subjects: subjectsIn(rows),
       /*
         AND THE QUESTION WORDS, which the gate's own government check names in
         its comment and was never handed. `Kust sa tuled?` holds a governed

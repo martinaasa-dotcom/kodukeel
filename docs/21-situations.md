@@ -3070,3 +3070,24 @@ that as not having been understood. What decides it is the question they were an
 the line they already heard, and a polar question in Estonian opens with `kas`, so `acknowledgements`
 is a reading of one word rather than a parse. It errs the safe way: where there is no line to read,
 or it is not a question, `jah` is left out, which costs the rotation a word and can never be wrong.
+
+**And the agreement check could not see the person every one of these scenes is in.** It reads a
+pronoun's nominative spellings off the dictionary, through the built `Lexicon`, and `buildLexicon`
+indexes a case table only where there is a genitive stem to build one from. `meie`, `teie` and
+`nemad` have no singular, so they carry no principal parts at all and were in no case row of any
+scene: the check had never once looked at `te`, `me` or `nad`. Every scene here is a clerk speaking
+to a customer, so second person plural is the register nearly every line the other side says is in,
+and the app's own model wrote `Kuhu te soovid sõita?` straight past a check whose entire job is that
+sentence. `subjectsIn` takes the entries now and reads `SgN` and `PlN` off the Institute's own rows,
+so the file still names no Estonian beyond the six lemmas it requests.
+
+**And the ambiguity is carried rather than dropped, which is what the first version got wrong.** It
+kept only a spelling that is a nominative and nothing else, which is `caseOfForm`'s strict rule, and
+that rule silently deletes `te`, `me` and `ta`, since each is its pronoun's genitive as well and the
+genitive is how Estonian says "your". So a `Subject` says whether the reading is the only one the
+spelling has, and `disagrees` decides an ambiguous one on the word after it: a pronoun followed by a
+person of a verb is a subject (`te soovid`, `ta on`), and one followed by a word the scene knows
+that cannot be a verb person is possessing it (`teie nimi`). It errs toward the possessive, so
+`Kas te nime tead?` goes unremarked, which costs the check a line it could have caught; the other
+way round costs a learner a correct line withheld, which is the fault this module is built against.
+Measured over the whole bank: not one of its 328 lines is refused by it.

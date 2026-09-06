@@ -5042,6 +5042,27 @@ had not used came back unvouched: it reported `ja` and `on` as words nothing cou
 rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
 the harness.
 
+**And the agreement check could not see the person every one of these scenes is in.** It reads a
+pronoun's nominative spellings off the dictionary, through the built `Lexicon`, and `buildLexicon`
+indexes a case table only where there is a genitive stem to build one from. `meie`, `teie` and
+`nemad` have no singular, so they carry no principal parts at all and were in no case row of any
+scene: the check had never once looked at `te`, `me` or `nad`. Every scene here is a clerk speaking
+to a customer, so second person plural is the register nearly every line the other side says is in,
+and the app's own model wrote `Kuhu te soovid sõita?` straight past a check whose entire job is that
+sentence. `subjectsIn` takes the entries now and reads `SgN` and `PlN` off the Institute's own rows,
+so the file still names no Estonian beyond the six lemmas it requests.
+
+**And the ambiguity is carried rather than dropped, which is what the first version got wrong.** It
+kept only a spelling that is a nominative and nothing else, which is `caseOfForm`'s strict rule, and
+that rule silently deletes `te`, `me` and `ta`, since each is its pronoun's genitive as well and the
+genitive is how Estonian says "your". So a `Subject` says whether the reading is the only one the
+spelling has, and `disagrees` decides an ambiguous one on the word after it: a pronoun followed by a
+person of a verb is a subject (`te soovid`, `ta on`), and one followed by a word the scene knows
+that cannot be a verb person is possessing it (`teie nimi`). It errs toward the possessive, so
+`Kas te nime tead?` goes unremarked, which costs the check a line it could have caught; the other
+way round costs a learner a correct line withheld, which is the fault this module is built against.
+Measured over the whole bank: not one of its 328 lines is refused by it.
+
 **A word the learner said no about did not meet the beat it was found in.** `satisfies` looks for a
 spelling anywhere in the turn, so `ma ei taha piima` met a beat that wants `piim`: the other side
 said the word back, moved on, ticked the objective, and the append-only log recorded the learner as
@@ -6455,7 +6476,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
 `answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
 `dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
-`ownReaction`, `opensWithReaction`. Most of them now
+`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`. Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands

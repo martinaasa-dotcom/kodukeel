@@ -13009,6 +13009,52 @@ check("the other side may volunteer something, and never says it twice", () => {
   passes is a run that opens on the first line for ever, and nothing about it
   looks wrong.
 */
+/*
+  THE VERB AGREES WITH ITS SUBJECT, IN THE PERSON THESE SCENES ARE ACTUALLY IN.
+
+  `subjectsIn` read the built `Lexicon`, which indexes a case table only where
+  there is a genitive stem to build one from, and `meie`, `teie` and `nemad`
+  have no singular and therefore no principal parts at all. So the three plural
+  pronouns were in no reading of any scene, and the app's own model wrote
+  `Kuhu te soovid sõita?` past a check whose entire job is that sentence: every
+  one of these scenes is a clerk speaking to a customer, so second person
+  plural is the register nearly every line is in.
+
+  It reads the entries now, off the Institute's own `SgN`/`PlN` rows, and it
+  carries the ambiguity rather than dropping it: `te`, `me` and `ta` are each
+  their pronoun's genitive as well, which is how Estonian says "your", and
+  `Teie nimi on Mari.` holds no subject at all.
+*/
+check("a scene's agreement check can see the person its scenes are in", () => {
+  const lexicon = code("lib/scenes/lexicon.ts");
+  assert.match(
+    lexicon, /export function subjectsIn\(entries: readonly DictEntry\[\]\)/,
+    "subjectsIn is back to reading the built lexicon, so a pronoun with no singular is invisible "
+    + "to it and the agreement check cannot see `te`, `me` or `nad`",
+  );
+  assert.match(
+    lexicon, /form\.code === "SgN" \|\| form\.code === "PlN"/,
+    "the nominative is no longer read off the entry's own rows, so a pronoun's subject spellings "
+    + "are decided by something other than the Institute",
+  );
+  assert.match(
+    lexicon, /out\.set\(form, \{ code, sure: !genitive\.has\(form\) \}\)/,
+    "an ambiguous spelling stopped being reported as ambiguous, so either the whole second person "
+    + "is dropped again or `Teie nimi on Mari.` is read as a subject and withheld",
+  );
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /subjects\.has\(t\) && !possessive\(t, lower, context\)/,
+    "the agreement check stopped asking whether the pronoun is possessing the word after it, so an "
+    + "ordinary line with `teie` in it is refused",
+  );
+  assert.match(
+    gate, /if \(!next \|\| isPerson\(next, context\)\) return false;/,
+    "the possessive reading no longer errs toward the subject where the next word is a verb, so "
+    + "`te soovid` is read as a possessive and the fault this exists for goes unremarked",
+  );
+});
+
 check("a run reads a beat's lines from its own place in them", () => {
   const line = code("lib/scenes/line.ts");
   assert.match(

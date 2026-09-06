@@ -28,7 +28,7 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
-import { PERSON_CODES, words, type Lexicon, type PersonCode } from "./lexicon";
+import { PERSON_CODES, words, type Lexicon, type Subject } from "./lexicon";
 import { compoundOf } from "./nearly";
 import { MAX_WORDS, isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
@@ -129,7 +129,7 @@ export interface GateContext {
    * reason: this module may not write Estonian, and which spellings are the
    * nominative of `mina` is the dictionary's answer (ADR-005).
    */
-  readonly subjects?: ReadonlyMap<string, PersonCode>;
+  readonly subjects?: ReadonlyMap<string, Subject>;
   /** The governed words the scene can see. */
   readonly governed: readonly GovernedWord[];
   /** Every case form of every nominal, so a token can be asked which case it is. */
@@ -415,6 +415,43 @@ function onTopic(
  * agree with it. `Kas sina oled see, kes tuleb?` holds a verb that agrees and
  * one that does not, and it passes, which is right.
  */
+/**
+ * Whether a pronoun in this clause is possessing the word after it rather than
+ * standing as the subject of a verb.
+ *
+ * `TE`, `ME` AND `TA` ARE EACH THEIR PRONOUN'S GENITIVE AS WELL, and the
+ * genitive is what Estonian uses for "your", "our" and "his". `Teie nimi on
+ * Mari.` holds no subject at all: the subject is `nimi`, the verb agrees with
+ * it, and a check that read `teie` as a second-person subject would refuse an
+ * ordinary line a clerk says. Dropping those spellings is what the first
+ * version did, and it cost the check the whole second person plural, which is
+ * the register every one of these scenes is in.
+ *
+ * What tells the two apart is the word after it, and only two answers are
+ * needed. A pronoun followed by a word that can be a person of a verb is a
+ * subject: `te soovid`, `ta on`, `me läheme`. A pronoun followed by a word the
+ * scene knows that cannot be a verb person is possessing it: `teie nimi`,
+ * `ta raamat`. Anything else, including the end of the clause, is left to the
+ * check, which fires only where a disagreeing verb is actually present.
+ *
+ * A spelling that is a nominative and nothing else is never read this way, so
+ * `mina`, `sina` and `nemad` are untouched by any of it.
+ */
+function possessive(word: string, clause: readonly string[], context: GateContext): boolean {
+  if (context.subjects?.get(word)?.sure !== false) return false;
+  const next = clause[clause.indexOf(word) + 1];
+  if (!next || isPerson(next, context)) return false;
+  return context.lexicon.forms.has(next);
+}
+
+/** Whether a spelling is one of the persons of a verb the scene holds. */
+function isPerson(word: string, context: GateContext): boolean {
+  for (const table of context.lexicon.persons.values()) {
+    for (const code of PERSON_CODES) if (table.get(code)?.toLowerCase() === word) return true;
+  }
+  return false;
+}
+
 export function disagrees(text: string, context: GateContext): boolean {
   const subjects = context.subjects;
   if (!subjects) return false;
@@ -428,9 +465,9 @@ export function disagrees(text: string, context: GateContext): boolean {
   */
   for (const clause of text.split(/[,;:]/)) {
     const lower = words(clause);
-    const said = lower.filter((t) => subjects.has(t));
+    const said = lower.filter((t) => subjects.has(t) && !possessive(t, lower, context));
     if (said.length !== 1) continue;
-    const wanted = subjects.get(said[0]!)!;
+    const wanted = subjects.get(said[0]!)!.code;
 
     let agrees = false;
     let person = false;

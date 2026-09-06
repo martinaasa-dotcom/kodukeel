@@ -53,6 +53,34 @@ const ENTRIES: DictEntry[] = [
     extraForms: [{ code: "SgN", value: "mina" }, { code: "SgN", value: "ma" }],
     usages: [],
   },
+  /*
+    And the one every scene is actually in. `teie` has no singular, so it
+    carries no principal parts at all and `buildLexicon` indexes no case row
+    for it: this is exactly the entry `subjectsIn` could not see when it read
+    the built lexicon. Its nominative and its genitive are the same two
+    spellings, which is why a reading of `te` needs the word after it.
+  */
+  {
+    lemma: "teie", pos: "PRONOUN", cefr: "A1",
+    parts: {},
+    extraForms: [
+      { code: "PlN", value: "teie" }, { code: "PlN", value: "te" },
+      { code: "PlG", value: "teie" }, { code: "PlG", value: "te" },
+      { code: "PlAd", value: "teil" },
+    ],
+    usages: [],
+  },
+  {
+    lemma: "nimi", pos: "NOUN", cefr: "A1",
+    parts: { NOM_SG: "nimi", GEN_SG: "nime", PART_SG: "nime" },
+    usages: [],
+  },
+  {
+    lemma: "soovima", pos: "VERB", cefr: "A2",
+    parts: { INF_MA: "soovima", INF_DA: "soovida", PRES_1SG: "soovin", PAST_1SG: "soovisin" },
+    extraForms: [{ code: "IndPrSg2", value: "soovid" }, { code: "IndPrPl2", value: "soovite" }],
+    usages: [],
+  },
 ];
 
 const LEX = buildLexicon(ENTRIES);
@@ -247,12 +275,19 @@ describe("a number nobody dealt", () => {
  * reading the other side's line cannot check for themselves.
  */
 describe("a verb that does not agree with its subject", () => {
-  const ctx = context({ subjects: subjectsIn(LEXICON) });
+  const ctx = context({ subjects: subjectsIn(ENTRIES) });
 
   it("knows the pronouns off the dictionary rather than off a list", () => {
-    expect(ctx.subjects?.get("sina")).toBe("IndPrSg2");
-    expect(ctx.subjects?.get("sa")).toBe("IndPrSg2");
-    expect(ctx.subjects?.get("ma")).toBe("IndPrSg1");
+    expect(ctx.subjects?.get("sina")?.code).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("sa")?.code).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("ma")?.code).toBe("IndPrSg1");
+    /*
+      And the pronoun that has no singular, so no principal parts and no case
+      row: it was in no reading of the built lexicon, which is why the check
+      had never once looked at the register every one of these scenes is in.
+    */
+    expect(ctx.subjects?.get("te")?.code).toBe("IndPrPl2");
+    expect(ctx.subjects?.get("teie")?.code).toBe("IndPrPl2");
     // An oblique form is not a subject, or `Kas ma aitan sind?` would be read as one.
     expect(ctx.subjects?.has("sind")).toBe(false);
   });
@@ -287,6 +322,37 @@ describe("a verb that does not agree with its subject", () => {
 
   it("passes a line where one verb agrees and another does not, because it cannot say which is whose", () => {
     expect(disagrees("Kas sina oled see, kes tuleb?", ctx)).toBe(false);
+  });
+
+  /*
+    THE REGISTER EVERY ONE OF THESE SCENES IS IN. A clerk speaks to a
+    customer, so nearly every line the other side says is second person
+    plural, and the app's own model wrote `Kuhu te soovid sõita?` past a gate
+    that had never heard of `te`: the pronoun has no singular, so it carries
+    no principal parts and `buildLexicon` indexed no case row for it.
+  */
+  it("reads the pronoun with no singular, which is the one these scenes use", () => {
+    expect(runGate("Kuhu te soovid?", beat(), ctx).failed).toContain("agreement");
+    expect(runGate("Kuhu te soovite?", beat(), ctx).failed).not.toContain("agreement");
+  });
+
+  /*
+    And `te` is its pronoun's genitive as well, which is how Estonian says
+    "your". `Teie nimi on Mari.` holds no subject at all, and the first
+    version of this check dropped every ambiguous spelling rather than reading
+    the word after it, which cost the check the whole second person.
+  */
+  it("does not read a possessive as a subject", () => {
+    expect(disagrees("Teie nimi on Mari.", ctx)).toBe(false);
+    /*
+      AND IT ERRS TOWARD THE POSSESSIVE, WHICH IS THE SAFE SIDE. `Kas te nime
+      tead?` really does have `te` as its subject and `nime` as its object, and
+      this reads the noun after the pronoun and calls it possessed, so the
+      disagreeing `tead` goes unremarked. That costs the check a line it could
+      have caught; the other way round costs a learner a correct line withheld,
+      which is the fault this whole module is built against.
+    */
+    expect(disagrees("Kas te nime tead?", ctx)).toBe(false);
   });
 });
 

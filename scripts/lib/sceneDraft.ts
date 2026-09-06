@@ -90,9 +90,13 @@ export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units"): s
   return [...out];
 }
 
-export function sceneLexicon(scene: SceneSpec, allowlist: Allowlist = "units"): Lexicon {
+export function sceneEntries(scene: SceneSpec, allowlist: Allowlist = "units"): DictEntry[] {
   const lemmas = new Set(sceneLemmas(scene, allowlist));
-  return buildLexicon(POOL.filter((e) => lemmas.has(e.lemma)));
+  return POOL.filter((e) => lemmas.has(e.lemma));
+}
+
+export function sceneLexicon(scene: SceneSpec, allowlist: Allowlist = "units"): Lexicon {
+  return buildLexicon(sceneEntries(scene, allowlist));
 }
 
 /** The pronoun forms a register forbids. One lookup, per the gate's third check. */
@@ -238,18 +242,23 @@ const QUESTION_WORDS: ReadonlySet<string> = new Set(
   }),
 );
 
-export function gateContext(lexicon: Lexicon, wrongRegister: ReadonlySet<string>): GateContext {
+export function gateContext(
+  lexicon: Lexicon,
+  wrongRegister: ReadonlySet<string>,
+  entries: readonly DictEntry[] = [],
+): GateContext {
   return {
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
-    subjects: subjectsIn(lexicon),
+    subjects: subjectsIn(entries),
   };
 }
 
 /** Everything the gate needs for one scene, in one call. */
 export function keylessContext(scene: SceneSpec, allowlist: Allowlist = "units") {
-  const lexicon = sceneLexicon(scene, allowlist);
+  const entries = sceneEntries(scene, allowlist);
+  const lexicon = buildLexicon(entries);
   const lemmas = sceneLemmas(scene, allowlist);
-  return { lexicon, lemmas, gate: gateContext(lexicon, wrongRegisterForms(scene)) };
+  return { lexicon, lemmas, gate: gateContext(lexicon, wrongRegisterForms(scene), entries) };
 }
 
 /* ------------------------------------------------------------------ *
