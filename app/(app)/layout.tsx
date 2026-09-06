@@ -31,7 +31,14 @@ export const dynamic = "force-dynamic";
  * — sit in `app/(chromeless)/` and get none of it.
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  const chain = resolveProviders();
+  /*
+    Anu's own chain, because this decides whether her button offers a
+    conversation. A screen may not promise what the route will refuse: since
+    the purpose split, `/api/tutor` asks Anthropic and nothing else, so reading
+    the general chain here would draw a live button on a deployment that has
+    OpenRouter configured and no Anthropic key.
+  */
+  const chain = resolveProviders({ purpose: "tutor" });
   /*
     Two settings the shell needs, in one read rather than two.
 

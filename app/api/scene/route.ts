@@ -507,12 +507,20 @@ export async function POST(request: Request) {
     other side answers with "ei tea", which is at least true.
   */
   if (asideWantsModel) {
-    const chain = sceneProviders();
-    const decision = chain.length > 0 ? await authoriseCall(ownerId, "SCENE") : null;
+    /*
+      Asked whether anything could answer before booking, then rebuilt once the
+      ledger has said whether the last resort is still affordable today. Two
+      reads of a pure function rather than one, because the first has to include
+      the fallback (a deployment with only an Anthropic key can still compose)
+      and the second has to reflect what the budget allows.
+    */
+    const configured = sceneProviders().length > 0;
+    const decision = configured ? await authoriseCall(ownerId, "SCENE") : null;
     if (!decision?.allowed || !decision.reservation) {
       aside = shrug(context.lexicon);
       return answer(reply(move), { composed: false, note: decision?.message ?? null });
     }
+    const chain = sceneProviders({ allowFallback: decision.fallbackAllowed });
     const asking: typeof beat = { ...beat, id: `aside:${beat.id}`, move: "confirm", topic: [] };
     const drafted = await compose(chain, {
       ownerId,
@@ -561,8 +569,7 @@ export async function POST(request: Request) {
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const chain = sceneProviders();
-  const decision = chain.length > 0
+  const decision = sceneProviders().length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
 
@@ -590,6 +597,13 @@ export async function POST(request: Request) {
     that reason and no longer needs one.
   */
   const reservation = decision.reservation;
+  /*
+    Anthropic behind Groq only while the day's fallback budget has room. Past
+    it the chain is Groq alone, and a Groq that is not answering means the
+    ladder falls to its next rung, which is where a keyless deployment lives
+    and is a conversation rather than an error.
+  */
+  const chain = sceneProviders({ allowFallback: decision.fallbackAllowed });
 
   const learnerReading = last?.said ? await readingOf(last.said) : "";
   const line = await sceneLine({

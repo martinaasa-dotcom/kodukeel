@@ -53,9 +53,52 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   */
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
-  "gpt-oss-120b": { inputPerMTok: 0, outputPerMTok: 0 },
-  "qwen3.8-27b": { inputPerMTok: 0, outputPerMTok: 0 },
+  "gpt-oss-120b": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
+  // Groq publishes no price for this one, so there is none to write down. It is
+  // on no purpose chain and is reachable only on an install that sets no
+  // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
   "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
+
+  /*
+    THE ONE ROW THAT IS NOT FREE, AND THE REASON IT STOPPED BEING.
+
+    `qwen3.8-27b` sat in the block above at zero, with the rest of Groq's free
+    tier, and that was true while the only Groq account anybody here had was a
+    free one. It is the scene composer's model now (`SCENE_GROQ_MODELS`) on a
+    paid Groq plan, and a paid model priced at zero is not a rounding error in
+    a cost estimate: it is the global spend cap switched off for the single
+    highest-volume path in the app. A conversation is a dozen turns and a scene
+    composes several of them, so this is the row most likely to be charged and
+    it was the row charging nothing. `AI_DAILY_USD_GLOBAL` would never have
+    bound on scene composition at all.
+
+    The comment above still holds and this is it happening: "free" is a property
+    of the account and this table cannot see the account. So the table takes the
+    side that fails closed. Charging a free-tier deployment 0.29 for a call that
+    cost it nothing makes its cap bind sooner by a fraction of a cent per scene
+    turn, which is the safe direction and, at these rates, not a direction
+    anybody will notice: 54,000 composed turns to reach a $20 day. Charging a
+    paid deployment nothing has no floor under it at all.
+
+    AND THE FIRST NUMBER WRITTEN HERE WAS WRONG, WHICH IS WHY THIS ONE IS READ
+    RATHER THAN QUOTED.
+
+    It went in at $0.29/$0.59 on a figure supplied in good faith and never
+    checked, because there was no obvious way to check it. There is: Groq's
+    `/v1/models` returns a `pricing` object per model, and asked with this
+    deployment's own key it answers $0.80 and $4.00 per MTok. So the rate was
+    understated by 2.75x on input and 6.8x on output, which is the same failure
+    as the zero it replaced, one order of magnitude smaller: a cap sized against
+    a price that low binds long after the money has gone.
+
+    Every Groq row in this table is now that answer rather than anybody's
+    recollection, this one and `gpt-oss-120b` above, which was also sitting at
+    zero and is $0.15/$0.60. Re-read them the same way when the plan changes:
+
+      curl -s https://api.groq.com/openai/v1/models \
+        -H "Authorization: Bearer $GROQ_API_KEY"
+  */
+  "qwen3.8-27b": { inputPerMTok: 0.8, outputPerMTok: 4 },
   "gemini-flash-latest": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.6-flash": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.5-flash": { inputPerMTok: 0, outputPerMTok: 0 },
@@ -153,29 +196,30 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
   // A photograph, which is a few thousand input tokens of image.
   SCAN: { input: 3_000, output: 400 },
   /*
-    ONE LINE OF ONE TURN, AND THIS ROW SAID THE OPPOSITE.
+    ONE COMPOSED TURN, BOOKED PER TURN, WHICH IS NOT WHAT THIS USED TO SAY.
 
-    It read 3,500 in and 1,000 out under a comment explaining that a scene
-    books one call for the whole conversation and settles at the end. That
-    stopped being true when the booking moved per turn (docs/21-situations.md
-    §16) and the number was never brought with it, so every composed turn
-    reserved about twenty-five times what it costs.
+    This row read "a whole conversation, booked once" and was sized for one:
+    3,500 in and 1,000 out, roughly five composed lines. `app/api/scene/route.ts`
+    has booked per turn since, under a comment of its own explaining why ("one
+    `CALL` row in front of twelve settlements is eleven calls the allowance
+    never saw"), and nothing moved this. So every composed line was reserved at
+    about five lines' worth.
 
-    Against a generous budget that is invisible: a settlement follows within
-    seconds and the totals come out identical. Against a small one it is the
-    whole harm, because the reserve is what the *next* request is checked
-    against, so a scene refuses itself at a twenty-fifth of the spending it was
-    allowed and the learner is told the deployment has run out when it has
-    spent four cents.
+    Over-reserving is the safe direction and a settlement follows within seconds,
+    so no money was mis-counted. What it distorted is the seconds in between,
+    which is exactly what a reservation is for: several turns in flight at once
+    looked like several times as much spend as they were, so the global reserve
+    fraction bit early and a busy evening could refuse a turn on an imaginary
+    bill.
 
-    Measured on the shipped catalogue (`npm run measure:compose`): the cached
-    block is about 918 tokens, the per-turn block and the run so far about 110
-    between them, and the answer is one sentence the gate refuses over fourteen
-    words, which is about 45. This is that rounded up, and it still errs high
-    because it prices the cached block as though every turn were a scene's
-    first.
+    Measured rather than re-estimated. The static system block is 128 tokens and
+    identical on every turn of every scene; the live block is dominated by the
+    word list the route hands over, which is 714 to 955 tokens across the
+    fourteen shipped scenes (mean 821), plus the stage direction, the register,
+    six banked lines for tone and the turns so far. The reply is capped at
+    `MAX_WORDS`, fourteen words, and comes back as one short sentence.
   */
-  SCENE: { input: 1_100, output: 80 },
+  SCENE: { input: 1_400, output: 60 },
 };
 
 /**

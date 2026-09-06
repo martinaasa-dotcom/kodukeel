@@ -1004,10 +1004,12 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
       Decided on whether a provider is configured at all, which is the one thing
       knowable here that does not change under a run in flight, and asked of
       `sceneProviders` rather than the whole chain because that is what the
-      route will actually use. Everything that *can* change under a run, the
-      allowance and a provider having a bad minute, is handled where it happens:
-      the ladder falls to the bank, which is the same Estonian this run would
-      have been speaking under the other mode.
+      route will actually use: `/api/scene` asks the scene chain since the
+      purpose split, so an Anthropic-only deployment would otherwise promise
+      composition the route is never going to attempt. Everything that *can*
+      change under a run, the allowance and a provider having a bad minute, is
+      handled where it happens: the ladder falls to the bank, which is the same
+      Estonian this run would have been speaking under the other mode.
     */
     lines: sceneProviders().length > 0 ? "composed" : "scripted",
   });
@@ -1035,9 +1037,10 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // hearing pool for the other side's lines.
     plays: opened.plays,
     /*
-      Read off the run's own decision rather than asking the environment a
-      second time, because two reads of one question is where the screen and
-      the conversation start disagreeing about whether anybody is composing.
+      Read off the run's own decision rather than asking the chain a second
+      time, because two reads of one question is where the screen and the
+      conversation start disagreeing about whether anybody is composing. The
+      chain was asked once, above, and it was the scene chain.
     */
     composed: opened.lines === "composed",
   };

@@ -440,8 +440,18 @@ describe("the sentences the page writes about the bill", () => {
       answer to the question a funder actually asks about an app that calls a
       model.
     */
-    const small = billFor(at({ learners: 100 }));
-    const large = billFor(at({ learners: 100_000 }));
+    /*
+      The two sizes straddle nothing and are both *above* the cap on purpose,
+      derived rather than typed: the cap is a default an operator can raise, so
+      a pair of round numbers asserts this claim at one particular budget and
+      quietly stops asking it at any other. The first rung of the ladder where
+      the cap binds is the smallest size the sentence is about; the last rung is
+      as far as the page goes.
+    */
+    const binding = SCALE_LADDER.filter((learners) => billFor(at({ learners })).modelCapBinds);
+    expect(binding.length, "no size on the ladder reaches the cap").toBeGreaterThan(1);
+    const small = billFor(at({ learners: binding[0]! }));
+    const large = billFor(at({ learners: binding[binding.length - 1]! }));
     /*
       The model line itself, rather than what switching the tutor off saves.
       Those are two different figures and the difference is the point: turning
@@ -457,8 +467,8 @@ describe("the sentences the page writes about the bill", () => {
     expect(modelUsd(large)).toBeLessThanOrEqual(MODEL_CAP_USD);
     // And it is the cap saying so rather than the traffic happening to be flat.
     expect(large.modelCapBinds).toBe(true);
-    // A thousandfold more learners, and everything that is not the model grows.
-    expect(large.totalUsd).toBeGreaterThan(small.totalUsd * 2);
+    // More learners, and everything that is not the model grows.
+    expect(large.totalUsd).toBeGreaterThan(small.totalUsd);
   });
 
   it("saves nothing at all by turning the audio off at the default size", () => {
