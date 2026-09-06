@@ -5,6 +5,8 @@ import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions } from "@/lib/dict/facts";
 import { starredAmong } from "@/lib/progress/stars";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/examples";
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
@@ -324,7 +326,17 @@ export async function learnBatch(
   words.forEach((word, index) => {
     if (word.sentence) glossable.push({ index, et: word.sentence.et, form: word.sentence.form });
   });
-  if (glossable.length > 0) {
+  /*
+    And only where the learner wants it. Asked here rather than handed down
+    from the route for the reason `withGlosses` gives at length: this is the
+    one place the ladder looks a sentence up, so the one place the question can
+    be put where nobody can arrive without having answered it. Off leaves
+    `tokens` null, which is what a word with no sentence has always been, and
+    `WordIntro` draws the plain marked sentence for it. See lib/ux/wordGloss.ts.
+  */
+  const glossing = glossable.length > 0
+    && wordGlossFrom(await readSetting(ownerId, SETTING_KEYS.wordGloss)) === "on";
+  if (glossing) {
     const glossed = await glossSentences(glossable);
     glossable.forEach((w, i) => {
       const word = words[w.index];

@@ -14,6 +14,8 @@ import { caseFormChoices, verbFormChoices } from "@/lib/questions/caseChoices";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { starredAmong } from "@/lib/progress/stars";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import type { ReviewCard } from "./ReviewSession";
 
 /**
@@ -129,13 +131,32 @@ function introFor(c: CardRow, glossLanguage: GlossLanguage): ReviewCard["intro"]
  * in the app, and a hosted database is a round trip away in another region.
  * A session with no first meeting in it does not ask at all.
  */
-async function withGlosses(cards: ReviewCard[]): Promise<ReviewCard[]> {
+async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<ReviewCard[]> {
   const wanted: { index: number; et: string; form: string | null }[] = [];
   cards.forEach((card, index) => {
     const sentence = card.intro?.sentence;
     if (sentence) wanted.push({ index, et: sentence.et, form: sentence.form });
   });
   if (wanted.length === 0) return cards;
+
+  /*
+    AND ONLY WHERE THE LEARNER WANTS THE DICTIONARY UNDER THE SENTENCE.
+
+    Asked here rather than threaded down from the four routes that render this
+    session, which is the opposite of what `glossLanguage` does one parameter
+    over and is the right way round for this one. `glossLanguage` decides what
+    a mapping function prints and every caller has to hand it over; this
+    decides whether a lookup is made at all, and there is exactly one place the
+    lookup is made, so putting the question there is what makes it impossible
+    for a fifth route to arrive without it and quietly draw a feature its
+    learner turned off. The read costs nothing: `readSetting` is served from
+    the one settings read this request already made.
+
+    Off returns the cards with `tokens` still null, which is the state this
+    screen has always had for a page that did not look, so nothing downstream
+    learns a new shape. See lib/ux/wordGloss.ts.
+  */
+  if (wordGlossFrom(await readSetting(ownerId, SETTING_KEYS.wordGloss)) === "off") return cards;
 
   const glossed = await glossSentences(wanted);
   const byIndex = new Map(wanted.map((w, i) => [w.index, glossed[i] ?? null]));
@@ -331,7 +352,7 @@ export async function withChoices(
     this session resolves an owner already.
   */
   const [glossed, starred] = await Promise.all([
-    withGlosses(rows.map((c) => toReviewCard(c, glossLanguage))),
+    withGlosses(rows.map((c) => toReviewCard(c, glossLanguage)), ownerId),
     starredAmong(ownerId, rows.map((r) => r.lexemeId).filter((id): id is string => !!id)),
   ]);
   const cards = glossed.map(

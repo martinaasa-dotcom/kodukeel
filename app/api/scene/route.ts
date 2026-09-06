@@ -21,6 +21,8 @@ import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "@/lib/scenes/state"
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
 import { DEFAULT_VOICE } from "@/lib/audio/voice";
 import { glossSentences } from "@/lib/dict/glossed";
+import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
 
 /**
  * One line of one turn, walked up the ladder.
@@ -362,6 +364,18 @@ export async function POST(request: Request) {
     */
     const spoken = lines.filter((l) => isSpokenEstonian(l.provenance));
     if (spoken.length === 0) return lines;
+    /*
+      And only where the learner asked for the dictionary under a sentence. A
+      conversation is the screen with the strongest case for it, since being
+      stuck at a counter is the exercise, and it is still theirs to refuse:
+      the words come back untouched and `SceneSession` draws the line the way
+      it drew every line before this existed. The reading of the learner's own
+      turn below is a different thing wearing the same function and is never
+      gated by this: it is what the composer is told the learner said, it
+      reaches no screen, and a preference about underlines may not decide what
+      the other side understood. See lib/ux/wordGloss.ts.
+    */
+    if (wordGlossFrom(await readSetting(ownerId, SETTING_KEYS.wordGloss)) === "off") return lines;
     const tokens = await glossSentences(spoken.map((l) => ({ et: l.text, form: null })));
     const byText = new Map(spoken.map((l, i) => [l.text, tokens[i]]));
     return lines.map((l) => {

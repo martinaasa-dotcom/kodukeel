@@ -1708,6 +1708,34 @@ queries is a round trip each and a hosted database is in another region. `WORD_B
 a caller that grows cannot quietly turn this into the widest query on the page, and a sentence past
 it comes back unglossed, which is exactly what every sentence looked like before this existed.
 
+**And it is the learner's to refuse, because six underlines across a line somebody is reading is a
+second thing happening on a card whose whole job is one sentence.** That was reported plainly by
+somebody using it, and it is the same shape as the letter bar: a reader who can already read the
+line is being offered help on every word of it, a reader who cannot is being handed the only thing
+that makes the sentence answerable, and there is no way to tell which of the two anybody is. So it
+is asked. `lib/ux/wordGloss.ts` is the answer, on by default for the reason `letterBar.ts` gives
+about itself, since a missing row is everybody who used the app before the question existed and
+reading absence as a refusal takes the dictionary out from under every sentence in one deploy.
+
+**Off means the lookup is never made, rather than made and hidden.** Both screens that show a
+glossed sentence have drawn the plain marked sentence since before this existed, for the page that
+did not look, so `tokens: null` was already a state and refusing costs a round trip rather than
+adding a branch. The question is asked in the producer rather than threaded down from the routes,
+which is the opposite of what `glossLanguage` does one parameter over and is right for this one:
+that decides what a mapping function prints and every caller has to hand it over, this decides
+whether a lookup happens at all and there is exactly one place per surface where it does, so
+putting it there is what stops a fifth route arriving without it and drawing a feature its learner
+turned off. It costs nothing to ask, since the settings table is read once per learner per request.
+
+**And the reading of the learner's own turn is not this.** The scene route glosses two things with
+one function: the other side's lines, which somebody reads, and the learner's own turn, which is
+what the composer is told they said. The second reaches no screen, so a preference about underlines
+may not decide what the other side understood, and the invariant is drawn on the order of the two
+rather than on either alone. **The way out is on the panel and the way back is in Settings**, both,
+because the moment somebody decides they are done with this is the moment one is open in front of
+them, and a way out with no way back is a feature lost by pressing a button once. Five arms, each
+made to fail on the real line.
+
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
 words, and neither tells somebody in their first week where to start. `scripts/build-frequency.ts`
@@ -6216,6 +6244,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
 `addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
+`wordGlossFrom`, `WORD_GLOSS_CHOICES`, `setWordGloss`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,
 `IDENTIFIED_DEPLOYMENTS`, `currentIdentity`, `retrenchment`, `CONTINUITY`, `summariseImpact`,
