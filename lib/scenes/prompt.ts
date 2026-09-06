@@ -182,6 +182,16 @@ const COMPOSE_RULES = [
   "You may put one short remark of your own in front of your move, where a person in your",
   "position would actually say one. Never more than two sentences in total, and never a remark",
   "that asks a second question or answers your own.",
+  /*
+    AND A REMARK THAT SAYS NOTHING IS WORSE THAN NONE. Two shapes turned up in
+    the transcripts and both read as a machine filling a slot: `Ma küsin teid.
+    Kas teil on küsimusi?`, which announces the question and then asks it, and
+    `Tere! Kuhu te soovite sõita?` five turns into a conversation that opened
+    with a greeting. The remark exists because a person volunteers something,
+    and neither of those is something.
+  */
+  "The remark has to say something: never announce the question you are about to ask, and never",
+  "greet them again once the conversation has started.",
   "Prefer the words you are given, in any grammatical form: they are what this learner has",
   `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
   "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",
