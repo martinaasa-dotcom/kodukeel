@@ -645,9 +645,14 @@ Four states, per `docs/08-ux-ia-a11y.md` §4:
   like any other route.
 
 The layout, at 360px first: the role card and the objectives at the top, collapsible and never gone;
-the turns in their own scroll container, per the containment rules; the input above the phone bar
-with the letter bar, the help button, and "say that again" as a first-class control, because asking
-for repetition is the most useful sentence a learner can own and putting it on screen teaches it.
+the turns down the page, which scrolls; the input under them with the letter bar, the help button,
+and "say that again" as a first-class control, because asking for repetition is the most useful
+sentence a learner can own and putting it on screen teaches it.
+
+The turns were in a scroll container of their own for a while, written down here as the containment
+rule and corrected in §43: containment asks that nothing is drawn outside its box, and a growing
+list makes the page taller rather than overflowing anything. What the box actually did was take the
+wheel away from the page it sat in.
 
 **Accessibility.** The turns are a log region that announces each new turn once and does not
 re-announce the ones above it, which is the lesson the exam clock taught: a live region that updates
@@ -2568,3 +2573,133 @@ it, so the one thing in that header that goes anywhere rendered as plain dark te
 **What this does not fix.** A native speaker has still read none of the bank. The transcript on the
 debrief is still every turn at full size, so the review under it is a scroll away on a long
 conversation.
+
+## 45. The screen the conversation is had on, which had stopped scrolling
+
+Reported with a screenshot: a scene open, the desk's question on screen, the box to answer it in cut
+off by the bottom of the window, and no way to get to it. Found and fixed the same day as §43, from
+the other end: that pass made the ask impossible to miss, and this one is why the page would not
+move when somebody went looking for it.
+
+The transcript was a `scroll-host` capped at 46vh, put there on the containment rule and sitting
+across the middle of the column. `.scroll-host` carries `overscroll-behavior: contain`, which is
+right for the rail and the command palette and wrong here: it stops the scroll chaining out to the
+page when the inner box reaches its end, and the transcript is pinned to its newest turn the moment
+a reply lands, so the box is always at its end. Measured on `bussipilet` at 1280x900 after six
+turns: the page had 323px still to go, 1,622px of turns sat in a 414px box, and a wheel anywhere
+over the conversation moved nothing whatever. The input, the goal for the turn, "say that again",
+the help button and "leave" were all below the fold and unreachable. It reads as an app that has
+frozen.
+
+Containment never asked for the box. It asks that nothing is drawn outside the box it was given,
+and a list that grows downward makes the page taller rather than overflowing anything; the
+first-run wizard had already taken the same shape out of its reasons grid for the same reason. So
+there is one scroller on this screen, the page. What brings the newest line into view is §43's own
+effect, which is the better half of two answers written the same day: it moves the page to the
+panel the learner answers in, does nothing at all when that is already on screen, and is still for
+anybody who asked for less movement. The scroll to the document end that came with this pass was
+deleted rather than left beside it.
+
+`scripts/test-scene.mjs` asks the two halves separately, since they fail separately: nothing inside
+the page is its own scroller, and a wheel rolled over the middle of the transcript reaches the box
+you answer in. Both were made to fail on the code that shipped, at 206 of 334.
+
+Two moments still open a screen at its own top rather than wherever the screen before it was left.
+A debrief is read from its own first line, which the flowing transcript would otherwise open 827px
+into. And a conversation opens at its top: the briefing is taller than a phone, so the button that
+starts a scene is below the fold, measured at 360 sitting at 850 in a 740 window, so a learner has
+scrolled about 300px by the time they press it and that scroll was left standing when the screen
+changed under them. What they were looking at then was the first line with the role card cut off
+114px above the top of the window, on the one card the whole conversation is answered from, and the
+scene's own title gone. Nothing at a desktop width can see it, so that check is in
+`scripts/test-mobile.mjs` at 360.
+
+## 46. What the debrief was actually saying, three times over
+
+Three sessions found the same sentence within a day of each other, which is worth writing down
+because the third one made the first two moot.
+
+`CASE_NOTES` carries an `englishHook`, written for the label it sits behind on the case's own page
+("In English · of the book, the book's cover"), so it is a lower-case fragment by design. The review
+pasted it straight after a full stop on all fourteen cases; the illative's hook is the word "into",
+so a learner who put a noun in the wrong case read *"It is the ending for into. into."*
+`lib/assessment/items.ts` had already tried the hook in feedback and written down why it dropped it.
+
+This pass replaced the hook with `summary`, the field written as a sentence. §43 capitalised the
+hook instead, which kept the reference page's examples and left "into. Into." on the one case where
+the hook *is* the plain word; merging the two kept the examples and fell back to the summary there.
+And then #167 rewrote the note itself, in the pass that made the review readable: a note leads with
+the learner's own word, says what the form that was wanted is for in one clause
+(`the ending for "into"`), and carries an authored sentence only where there is a rule worth
+stating. There is no join left to show through, so both earlier fixes are
+gone rather than layered, and the test written for the join went with them: it asserted over a `body`
+built out of two fields, and nothing builds one any more.
+
+## 47. One loud action per round, on the screens that had none
+
+`components/Button.tsx` says it in its own header: only the primary carries the gradient, one loud
+action per screen, everything else quiet. Twenty-one of the twenty-five round screens did that and
+four did not.
+
+The conversation was one of them, and §43 fixed it in the course of building the ask panel: the send
+button is `primary` and alone in its row, with `Leave` moved out of reach of the thing pressed every
+turn. That is the same conclusion this pass reached from the other side and the same argument, and
+the panel is the better version of it, so it is the one kept.
+
+The other three stand. The **debrief** argues in its own words that "the second run of a scene is
+where most of it sticks" and then drew "Have it again" quieter than the link away from it; the row
+is the quiet way out first and the loud one last now. The **unit lesson** offered "Start these 6
+words", the only thing to press on the way into the course, in the same weight as the "Leave" two
+lines above it. The **crossword** marked its own "Check" `secondary` beside a ghost that hands over
+the answer, and that row is reordered so the loud one is on the right.
+
+The invariant asks only that a round has a primary at all, since where it sits in its row is a rule
+that already existed. It covers the conversation's debrief by name, that being the one round whose
+finish screen is a module of its own, and it was made to fail on each.
+
+## 48. The check that had never once run
+
+`scripts/test-scene.mjs` ends with two questions only a browser can answer: a composed line is one
+short sentence, and a scripted line is one short sentence that says it was scripted. Both waived
+themselves on every run, in every state, and the scripted one printed a reason that was not true:
+*"the bank holds no row for a beat this run reached"*. The bank had just supplied the second line of
+the scene.
+
+The suite paired a line with its label by walking the markup, one hop up from the `p[lang=et]` and
+along to the next paragraph. That was right when it was written and stopped being right when a line
+grew the dictionary under it: `GlossedSentence` puts two more elements between the two, so every
+label came back as an empty string and no line matched any rung. Both checks fell through to their
+waivers and the floor stayed satisfied, because a waiver lowers the floor by exactly as much as it
+skips. This is the shape §42 of the status doc calls a hole wearing a waiver's clothes.
+
+The rung is an attribute on the line's own wrapper now, `data-rung`, which is a fact about the line
+rather than a shape in the markup, and the words under the bubble stay beside it for the reader. The
+suite reads the attribute, and a third check says the two agree for every line said: a line labelled
+"from the course" that a model wrote would be the app vouching for its own Estonian, which is the
+whole of ADR-025. The scripted check runs keyless, which is the state a default deployment is in and
+the one the bank was built for.
+
+Three more checks in the suites were the same family and are in the same pass. Sonad's board
+asserted `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`, which is true of any
+six things; the edit suite printed PASS beside "0 gap-fill card(s)", `every` on nothing being true;
+and this suite's own report-button check opened `spoken === 0 || ...`, which passes when there is
+nothing on screen to report.
+
+## 49. The caret, which the button took and did not give back
+
+"Say it" disables itself the moment the draft is empty, which is the moment the turn is sent, and a
+browser moves focus off a control it has just disabled. Measured: `document.activeElement` was
+`BODY` after every turn taken with the mouse. So a learner clicked into the box, typed, pressed the
+button, and had to click into the box again, for every turn of the conversation; somebody working
+from the keyboard could not carry on without tabbing back. Answering with Enter never had the fault,
+because the box keeps focus there, which is why it survived this long.
+
+It rides on §43's effect, which already runs at exactly the right moment, when a line from the other
+side lands. The caret goes back where focus was **lost**, never where it was put: if it sits on a
+word of the last line, on the report button, or anywhere the learner chose, it stays there, and that
+was driven both ways. There is deliberately no focus when a scene opens, since the box is at the
+bottom of the page and focusing it would scroll the role card off a phone and open the keyboard over
+the first thing there is to read.
+
+`scripts/test-scene.mjs` takes its turn with the mouse for exactly this reason and asks where the
+caret is. It fails, at `BODY`, on the line before this one.

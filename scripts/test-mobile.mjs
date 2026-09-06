@@ -36,7 +36,11 @@ const browser = await launchChromium();
   62 rather than 60: the conversations joined the target sweep, which is two
   routes and one check each. Measured against a production build.
 */
-const { check, done } = suite("The phone", { floor: 62 });
+/*
+  65 rather than 62: a conversation is started on a phone and asked where it
+  opened, which is three checks and the one width that can fail them.
+*/
+const { check, done } = suite("The phone", { floor: 65 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -432,6 +436,60 @@ for (const width of [480, 640, 760]) {
   ).catch(() => {});
   check("and taking it back brings the row with it", (await letterBar(page)).drawn > 0);
 
+  await ctx.close();
+}
+
+
+// 12 — A conversation opens at its own top, on the screen where it did not.
+//      The briefing is taller than a phone, so the button that starts a scene
+//      is below the fold: measured at 360 it sits at 849 in a 740 window. The
+//      scroll a learner did to reach it was then left where it was when the
+//      screen changed under them, so the conversation opened 310px down, with
+//      the role card the whole thing is answered from cut off 114px above the
+//      top of the window and the scene's own title gone. Nothing at a desktop
+//      width can see this, because there the briefing fits and the scroll is
+//      nought either way, which is why the check is here rather than in
+//      `test-scene.mjs`.
+{
+  const { ctx, page } = await open(360, 740, "/situations/bussipilet");
+  const easy = page.getByRole("radio", { name: /^Easy/i }).first();
+  /*
+    Pressed until it lands, which is `test-scene.mjs`'s own rule and for its
+    reason: a button rendered on the server is clickable and inert until React
+    has attached a handler, so a single click can be swallowed.
+  */
+  for (let i = 0; i < 40 && (await easy.getAttribute("aria-checked")) !== "true"; i += 1) {
+    await easy.click().catch(() => {});
+    await page.waitForTimeout(250);
+  }
+  const start = page.getByRole("button", { name: /Start the conversation/i });
+  const below = await page.evaluate(() => {
+    const button = [...document.querySelectorAll("button")]
+      .find((el) => /Start the conversation/i.test(el.textContent || ""));
+    return button ? Math.round(button.getBoundingClientRect().top + scrollY) : 0;
+  });
+  await start.click();
+  await page.waitForSelector('[role="log"] p', { timeout: 30_000 }).catch(() => {});
+  await page.waitForTimeout(600);
+  const opened = await page.evaluate(() => {
+    const card = document.querySelector("details")?.getBoundingClientRect();
+    const title = document.querySelector("main h1")?.getBoundingClientRect();
+    return {
+      y: Math.round(scrollY),
+      titleTop: title ? Math.round(title.top) : null,
+      cardTop: card ? Math.round(card.top) : null,
+      cardBottom: card ? Math.round(card.bottom) : null,
+      vh: innerHeight,
+    };
+  });
+  check("the button that starts a scene is below the fold on a phone", below > 740,
+    `${below} in a 740 window`);
+  check("and the conversation still opens at its own top",
+    opened.y === 0 && (opened.titleTop ?? -1) >= 0,
+    JSON.stringify(opened));
+  check("with the card it is answered from whole on the screen",
+    (opened.cardTop ?? -1) >= 0 && (opened.cardBottom ?? Infinity) <= opened.vh,
+    JSON.stringify(opened));
   await ctx.close();
 }
 

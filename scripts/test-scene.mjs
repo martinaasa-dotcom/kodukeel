@@ -47,14 +47,19 @@ const prisma = new PrismaClient({
 const { check, absent, done } = suite("A conversation, end to end", {
   /*
     THE COUNT IN THE FULL STATE, which is a key configured, the allowance
-    unspent and the bank holding a row for a beat the run reaches: 38.
+    unspent and the bank holding a row for a beat the run reaches: 42.
     Keyless, the composed check is waived and the target drops by one; with
     an empty bank the scripted check is waived and it drops by one more. Each
     state differs by exactly as many checks as waivers, which is the
     arithmetic `absent` exists to keep honest and which the first version of
     this got wrong in both directions at once.
+
+    The scripted waiver used to fire on every run in every state, because the
+    label it read came back empty whatever the run did (see `listen`). It runs
+    keyless now, which is the state the default deployment is in and the one
+    the bank exists for.
   */
-  floor: 38,
+  floor: 42,
 });
 
 /*
@@ -209,8 +214,20 @@ check("and the line says which rung it came from (ADR-025)", provenance,
   always is, because `Tere!` is its own sentence and the dictionary answers it.
 */
 const spoken = await page.getByText(/From the course|Written for this scene|Written for this turn/i).count();
-check("with a way to report a line somebody said",
-  spoken === 0 || (await page.getByRole("button", { name: /^Report/i }).count()) > 0);
+/*
+  `spoken === 0 || ...` was the old shape and it passes when there is nothing
+  to look at, which is the same fault as the two waivers at the foot of this
+  file one size smaller. The greeting always is a line somebody said, so the
+  empty case is worth saying out loud rather than swallowing.
+*/
+if (spoken > 0) {
+  check("with a way to report a line somebody said",
+    (await page.getByRole("button", { name: /^Report/i }).count()) > 0,
+    `${spoken} spoken line(s) on screen`);
+} else {
+  absent(1, "no Estonian line was on screen to report: every line this run reached was a stage "
+    + "direction, which is our own English and deliberately carries no report button");
+}
 
 /*
   Every line the desk said, with the rung it came from, over the whole
@@ -226,13 +243,22 @@ async function listen() {
   /*
     One entry per bubble rather than per turn, because a reply is a reaction
     and then a move (lib/scenes/reply.ts) and the two carry their own labels.
-    The label is the paragraph after the bubble; a learner's own bubble has
-    none, so it lands here with an empty one and matches no rung.
+
+    READ OFF `data-rung` RATHER THAN BY WALKING THE MARKUP, which is what this
+    did and why two of the checks below had never once run. The label is a
+    paragraph under the bubble, and the version of this that counted hops (one
+    up from the `p[lang=et]`, then the next paragraph) was true until a line
+    grew the dictionary under it: `GlossedSentence` puts two more elements
+    between the two, so every label came back empty, the composed and scripted
+    checks fell into their waivers on every run in every state, and the reason
+    printed was that the bank held no line for a beat this run reached. It had
+    just supplied the second one. A learner's own bubble carries no rung and is
+    not in the list.
   */
-  for (const bubble of await page.getByRole("log").locator("p[lang=et]").all()) {
-    const text = await bubble.innerText().catch(() => "");
-    const chip = await bubble.locator("xpath=../following-sibling::p[1]").innerText().catch(() => "");
-    heard.push({ text, chip });
+  for (const line of await page.getByRole("log").locator("[data-rung]").all()) {
+    const text = await line.locator("p[lang=et]").first().innerText().catch(() => "");
+    const chip = await line.locator("p").last().innerText().catch(() => "");
+    heard.push({ text, chip, rung: await line.getAttribute("data-rung") });
   }
 }
 
@@ -255,6 +281,21 @@ const waited = await say("Tere!");
 check("a greeting is read as a greeting", (await page.getByText("Greet them back.").count()) > 0
   && (await page.locator("main").innerText()).includes("done"), `${waited}ms`);
 
+/*
+  AND THE CARET IS BACK IN THE BOX, WHICH THE BUTTON TAKES AND THEN LEAVES.
+
+  "Say it" disables itself the moment the draft is empty, which is the moment
+  the turn is sent, and a browser moves focus off a control it has just
+  disabled: `document.activeElement` was `BODY` after every turn taken with the
+  mouse, so a learner had to click back into the box for each turn and a
+  keyboard could not carry on at all. Answering with Enter never had the fault,
+  which is why it survived: the box keeps focus there. Driven with the mouse
+  here for that reason.
+*/
+check("and the caret is back in the box, ready for the next turn",
+  await page.evaluate(() => document.activeElement?.getAttribute("aria-label")) === "What you say",
+  await page.evaluate(() => document.activeElement?.tagName ?? "none"));
+
 // ── The help button, which is the one that was wrong ────────────────────────
 /*
   It recorded the *beat id* as the word needed, so a debrief listed `reason`
@@ -273,6 +314,89 @@ const afterTwo = await page.locator("main").innerText();
 check("a second objective can be met", (afterTwo.match(/\ndone\n/g) ?? []).length >= 2);
 check("no meter, no timer, no score anywhere on the screen (§7)",
   !/\d+\s*%/.test(afterTwo) && !/\bscore\b/i.test(afterTwo) && !/\bpoints?\b/i.test(afterTwo));
+
+// ── The screen a conversation is had on scrolls to its own end ──────────────
+/*
+  THE ONE THING THAT LOOKS LIKE AN APP THAT HAS FROZEN.
+
+  The turns were in a scroll container of their own capped at 46vh, on the
+  containment rule, and it sat across the middle of the column with
+  `overscroll-behavior: contain` on it. So a pointer anywhere over the
+  transcript scrolled the transcript rather than the page, and the transcript
+  is scrolled to its newest turn the moment a reply lands, which means the
+  wheel had nothing left to move: the input, the goal for the turn and every
+  button under it were below the fold and could not be reached. Two checks,
+  because the two halves fail separately: nothing inside this page may be its
+  own scroller, and the page has to be able to reach its own bottom.
+
+  Measured rather than reasoned about: the wheel is rolled over the middle of
+  the column, which is where the transcript is, and the page is asked where it
+  ended up.
+*/
+const columnMiddle = await page.evaluate(() => {
+  const log = document.querySelector('[role="log"]').getBoundingClientRect();
+  return { x: Math.round(log.left + log.width / 2), y: Math.round(log.top + log.height / 2) };
+});
+const nested = await page.evaluate(() => [...document.querySelectorAll("main *")].filter((el) => {
+  const style = getComputedStyle(el);
+  return (style.overflowY === "auto" || style.overflowY === "scroll")
+    && el.scrollHeight > el.clientHeight + 1;
+}).length);
+check("the conversation is not a scrolling box inside a scrolling page", nested === 0,
+  `${nested} nested scrollers`);
+await page.mouse.move(columnMiddle.x, columnMiddle.y);
+/*
+  TWO THINGS HAVE TO STOP MOVING BEFORE THE WHEEL MEANS ANYTHING.
+
+  The page comes down to the panel after a reply and it does it smoothly, so a
+  wheel rolled while that is in flight is two scrolls fighting and the
+  measurement lands wherever they met: this read "466 of 514" against a page
+  that reaches its end perfectly well a moment later. And the pointer has just
+  landed on a word of the transcript, which opens the dictionary under that
+  sentence and makes the page about 160px taller: rolling before it opens
+  reaches an end that is no longer the end, which read "587 of 747". So wait
+  for the height and the scroll both to settle, then roll.
+*/
+await page.waitForFunction(() => new Promise((settled) => {
+  const tall = document.documentElement.scrollHeight;
+  setTimeout(() => settled(document.documentElement.scrollHeight === tall), 250);
+}), null, { timeout: 10_000 }).catch(() => {});
+await page.waitForFunction(() => new Promise((settled) => {
+  const at = window.scrollY;
+  requestAnimationFrame(() => requestAnimationFrame(() => settled(window.scrollY === at)));
+}), null, { timeout: 10_000 }).catch(() => {});
+await page.mouse.wheel(0, 4_000);
+await page.waitForTimeout(600);
+const reached = await page.evaluate(() => {
+  const input = document.querySelector('input[aria-label="What you say"]').getBoundingClientRect();
+  return {
+    y: Math.round(scrollY),
+    end: document.documentElement.scrollHeight - innerHeight,
+    inputInView: input.top >= 0 && input.bottom <= innerHeight,
+  };
+});
+check("and a wheel over it reaches the box you answer in",
+  reached.inputInView && reached.y >= reached.end - 2,
+  `scrolled to ${reached.y} of ${reached.end}`);
+
+/*
+  And the words under every line are the rung it actually came from. The chip is
+  what a reader is told and `data-rung` is what the server decided, and the two
+  being one claim is the whole of ADR-025: a line labelled "from the course"
+  that a model wrote would be the app vouching for its own Estonian.
+
+  Read off the transcript this run built, before it is left: the debrief
+  replaces the conversation, so a `listen()` after that would find nothing and
+  the check would be asserting over an empty list.
+*/
+const labelled = heard.filter((line) => line.rung);
+check("and the words under every line are the rung the server chose",
+  labelled.length > 0 && labelled.every((line) => new RegExp(
+    { attested: "From the course", scripted: "Written for this scene", composed: "Written for this turn",
+      fallback: "did not catch that", again: "Said again", recast: "the way they say it",
+      offered: "reaching for", english: "in English" }[line.rung] ?? "$^", "i",
+  ).test(line.chip)),
+  labelled.map((line) => `${line.rung}: ${line.chip}`).join(" | ").slice(0, 160));
 
 // ── Walking out, which is a real option ─────────────────────────────────────
 await page.getByRole("button", { name: /^Leave/i }).click();
@@ -342,11 +466,12 @@ check("the words it needed are written down", gaps > 0, `${gaps} rows`);
   tests own that. What only a real model can show is that the line it composed
   is one short sentence rather than an essay or a refusal.
 */
-const composed = heard.find((line) => /Written for this turn/i.test(line.chip));
+const composed = heard.find((line) => line.rung === "composed");
 if (composed) {
-  check("a composed line is one short sentence",
-    composed.text.length < 120 && composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS,
-    composed.text);
+  check("a composed line is one short sentence, and says a model wrote it",
+    composed.text.length < 120 && composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && /Written for this turn/i.test(composed.chip),
+    `${composed.text} · ${composed.chip}`);
 } else {
   /*
     Says which state lifts it, which the house rule asks of every waiver: a key
@@ -365,11 +490,12 @@ if (composed) {
   see a render. Same shape as the composed check above: one check, or one
   waiver naming the state that would lift it.
 */
-const scripted = heard.find((line) => /Written for this scene/i.test(line.chip));
+const scripted = heard.find((line) => line.rung === "scripted");
 if (scripted) {
   check("a scripted line is one short sentence and says it was scripted",
-    scripted.text.length < 120 && scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS,
-    scripted.text);
+    scripted.text.length < 120 && scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && /Written for this scene/i.test(scripted.chip),
+    `${scripted.text} · ${scripted.chip}`);
 } else {
   absent(1, "no scripted line was said here: that needs lib/scenes/bank.ts to hold a row for a beat this run reached and retrieval did not fill");
 }

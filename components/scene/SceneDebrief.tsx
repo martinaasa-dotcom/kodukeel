@@ -460,10 +460,17 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </p>
       )}
 
+      {/*
+        The quiet way out first and the loud one last, which is the shape every
+        other finish screen in the app has: "Another round" beside a primary
+        that says where to go next. This row had no primary at all, so the way
+        back into the scene was drawn quieter than the link away from it, under
+        the very sentence above that argues for it.
+      */}
       <div className="flex flex-wrap gap-2">
-        {/* Try it again keeps the scene and redraws everything else. */}
-        <Button onClick={onAgain}>Have it again</Button>
         <ButtonLink href="/situations" variant="ghost">Another conversation</ButtonLink>
+        {/* Try it again keeps the scene and redraws everything else. */}
+        <Button variant="primary" onClick={onAgain}>Have it again</Button>
       </div>
 
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
