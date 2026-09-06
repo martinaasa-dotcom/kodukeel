@@ -12,7 +12,6 @@ import { errandForScene } from "@/lib/collections/errands";
 import { practises } from "@/lib/scenes/practises";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneMotif } from "@/components/scene/SceneMotif";
-import { sceneryFor } from "@/lib/scenes/scenery";
 
 export const metadata = { title: "Situations" };
 export const dynamic = "force-dynamic";
@@ -146,17 +145,14 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
               the place and the kind of place are all written out beside it.
             */}
             <SceneMotif sceneId={scene.id} size="sm" />
-            <div className="min-w-0 flex-1">
-              {/*
-                On the scale, which it was not: a bare `h2` inherits the
-                document's own 16px and the type scale has no such step, so
-                every tile on this page was a size nothing else in the app
-                uses. Found the day `/situations` joined the design sweep,
-                which is the argument for putting it there.
-              */}
-              <h2 className="text-md font-medium">{scene.title}</h2>
-              <p className="text-xs" style={{ color: "var(--ink-3)" }}>{sceneryFor(scene.id).label}</p>
-            </div>
+            {/*
+              On the scale, which it was not: a bare `h2` inherits the
+              document's own 16px and the type scale has no such step, so
+              every tile on this page was a size nothing else in the app
+              uses. Found the day `/situations` joined the design sweep,
+              which is the argument for putting it there.
+            */}
+            <h2 className="min-w-0 flex-1 text-md font-medium">{scene.title}</h2>
             {/* A level never wraps: "B1" on two lines reads as two chips. */}
             <span className="shrink-0"><Chip tone="neutral">{scene.level}</Chip></span>
           </div>

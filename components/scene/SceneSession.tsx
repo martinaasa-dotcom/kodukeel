@@ -21,8 +21,7 @@ import { BUDGETS } from "@/lib/scenes/curveballs";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
-import { SceneMotif } from "./SceneMotif";
-import { sceneryFor } from "@/lib/scenes/scenery";
+import { SceneVignette } from "./SceneVignette";
 import { practises } from "@/lib/scenes/practises";
 
 /**
@@ -826,11 +825,8 @@ export function SceneSession({ scene, minutes, unit }: {
           the other four hues in this app mean something and a café is not
           "you got it".
         */}
-        <div className="flex flex-col items-center gap-3 pb-1 pt-2 text-center">
-          <SceneMotif sceneId={scene.id} />
-          <p className="label-xs" style={{ color: "var(--accent-deep)" }}>
-            {sceneryFor(scene.id).label}
-          </p>
+        <div className="flex justify-center pb-1 pt-2">
+          <SceneVignette sceneId={scene.id} />
         </div>
 
         <Card className="flex flex-col gap-2">
@@ -851,26 +847,38 @@ export function SceneSession({ scene, minutes, unit }: {
             first and largest thing anybody reads on the way into a scene.
           */}
           <p className="text-md leading-relaxed">{scene.role}</p>
-          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-            You will need {practises(scene).join(", ")}. They speak first, you answer, and the box
-            you type into says what to say each time. The card above the conversation lists what to
-            get done and ticks it off.
-          </p>
           {/*
+            THREE SENTENCES, ONE IDEA EACH, AND NONE OF THEM ABOUT THE FURNITURE.
+
+            This was two paragraphs that ran four ideas together and described a
+            card that has since stopped listing anything: "the card above the
+            conversation lists what to get done and ticks it off" was a screen
+            explaining its own layout, which is what a screen does when the
+            layout needs explaining. What a learner wants before they start is
+            what the conversation will ask of them, who speaks first, and
+            whether being a little wrong will end it. That is one sentence each.
+
             Said before the first line rather than discovered on the third,
-            because a learner who expects to be marked writes less than one
+            because somebody who expects to be marked writes less than somebody
             who expects to be understood, and being understood is the point.
           */}
-          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-            An ending that is off is still understood, the way it would be on the street. They
-            will say the word back the way they say it, and the debrief lists those afterwards.
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            You will need {practises(scene).join(", ")}.
+          </p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            They speak first. Answer them in Estonian, and the panel under the conversation says
+            what to say each time.
+          </p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            Get an ending wrong and they will still understand you, the way anybody would. They
+            say the word back the way it is said, and you can read the list at the end.
           </p>
           {/*
             What is coming, in the scene's own terms. It is the count the bar
             above draws as pips and the checklist ticks, read off the same
             list, so nothing here is a second answer to it.
           */}
-          <p className="mt-1 text-sm font-medium" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1 text-sm font-medium">
             {objectives.length} things to get done, in about {minutes} minutes.
           </p>
         </Card>
@@ -965,11 +973,27 @@ export function SceneSession({ scene, minutes, unit }: {
     )}
     <div className="scene-open flex flex-col gap-4">
       {/*
-        The card and the objectives stay, collapsible and never gone. A `details`
-        rather than a state flag, because the browser gives the disclosure a
-        keyboard and a screen reader for free.
+        THE CARD IS ONE LINE UNTIL SOMEBODY ASKS FOR MORE, WHICH IS THE WHOLE
+        OF WHAT WAS WRONG WITH IT.
+
+        It used to be open. On a phone that is a wall: forty words of role,
+        two labelled values, a line about the persona, and then every
+        objective in the scene written out as a sentence, all of it above the
+        conversation and all of it read once. A learner sent a screenshot of
+        it and called it cluttered and confusing, which it was.
+
+        Almost none of that is wanted mid-conversation. What is wanted is what
+        the card *dealt*, because a beat asks the learner to read a value off
+        it, and that is two words. So the strip is the values, it sticks, and
+        everything else is behind it for whoever wants it. Nothing was
+        deleted: the role and the persona are the first thing on the briefing,
+        the objective in play is named in the panel a learner types into, and
+        how many are behind them is a pip apiece on the bar above.
+
+        A `details` rather than a state flag, because the browser gives the
+        disclosure a keyboard and a screen reader for free.
       */}
-      <details open>
+      <details>
         {/*
           THE SUMMARY STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
           NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
@@ -991,20 +1015,27 @@ export function SceneSession({ scene, minutes, unit }: {
           which value answers which line, and this says the value is still true
           while you type. A reminder is not a second answer to a question.
         */}
+        {/*
+          The values first, because they are the reason this line is on the
+          screen at all, and the place not at all: the bar two lines above
+          already says where you are standing, and printing it again is the
+          same sentence twice on a screen with room for neither.
+        */}
         <summary
-          className="scene-sticky z-10 cursor-pointer rounded-full px-4 py-2 text-sm font-medium"
-          style={{ background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+          className="scene-sticky z-10 cursor-pointer rounded-full px-4 py-2 text-sm"
+          style={{ background: "var(--surface)", boxShadow: "var(--shadow-sm)", color: "var(--ink-2)" }}
         >
-          Your card and what to get done
-          <span style={{ color: "var(--ink-3)" }}> · {scene.place}</span>
-          {dealt.length > 0 && (
-            <span className="font-normal" style={{ color: "var(--ink-2)" }}>
-              {" · "}{dealt.join(" · ")}
-            </span>
+          {dealt.length > 0 ? (
+            <>
+              <span style={{ color: "var(--ink-3)" }}>Your card: </span>
+              <span className="font-medium" style={{ color: "var(--ink)" }}>{dealt.join(" · ")}</span>
+            </>
+          ) : (
+            "Your card"
           )}
         </summary>
-        <Card className="mt-2 flex flex-col gap-2">
-          <p className="text-sm">{opened?.card.you}</p>
+        <Card className="mt-2 flex flex-col gap-3">
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened?.card.you}</p>
           <ul className="flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
             {(opened?.card.props ?? []).map((prop) => (
               <li key={prop.slot}>
@@ -1049,7 +1080,7 @@ export function SceneSession({ scene, minutes, unit }: {
           */}
           <div className="mt-1 flex flex-col gap-1">
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>
-              What to get done · {metCount} of {objectives.length} done
+              What to get done · {metCount} of {objectives.length}
             </p>
             <ul className="flex flex-col gap-1">
               {objectives.map((beat) => {
@@ -1467,7 +1498,7 @@ export function SceneSession({ scene, minutes, unit }: {
             */}
             <p className="label-xs flex flex-wrap items-baseline justify-between gap-x-3" style={{ color: "var(--accent-deep)" }}>
               <span>Your turn</span>
-              <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length} done</span>
+              <span style={{ color: "var(--ink-3)" }}>{metCount} of {objectives.length}</span>
             </p>
             {/*
               Bigger than the conversation rather than smaller, because it is
@@ -1610,7 +1641,7 @@ const PROVENANCE: Record<Provenance, string> = {
     used to be printed over a turn that had been understood perfectly, which
     is the app blaming a learner for its own empty pool.
   */
-  unspoken: "In English, because no Estonian line could be built for it",
+  unspoken: "In English, because we had no Estonian line for it",
   /*
     Time passing. Not a stage direction and not something anybody said: it is
     the scene moving the learner from one place to the next, which the screen
@@ -1624,7 +1655,7 @@ const PROVENANCE: Record<Provenance, string> = {
     label says whose voice it is so nobody reads it as the other person
     breaking into English.
   */
-  coach: "A hint, from the app rather than from them",
+  coach: "A hint from us, not from them",
 };
 
 export { BUDGETS };

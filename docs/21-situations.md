@@ -3021,3 +3021,56 @@ register that ban exists to keep off these screens. And **it carries no Estonian
 icon *name*, which `components/icons.tsx` is the one place allowed to resolve, so a unit test reads
 it without a DOM. `scenery.test.ts` checks it both ways, because a scene with no row opens as the
 blank screen this replaced and a row for a scene nobody wrote is a place nobody can go.
+
+## 54. What the first look at that found
+
+The room landed and three things in it did not. All three came back the same
+afternoon, from somebody using it, and each is smaller than the pass before it.
+
+**The card was a wall.** It opened by default, and on a phone that is forty
+words of role, two labelled values, a line about the persona and every objective
+in the scene written out as a sentence, standing above the conversation and read
+once. Almost none of it is wanted while somebody is typing. What is wanted is
+what the card *dealt*, because a beat asks the learner to read a value off it,
+and that is two words. So the strip is the values (`Your card: back · Wednesday`),
+it sticks, and the rest is one press behind it. Nothing was deleted: the role is
+the first thing on the briefing, the objective in play is named in the panel a
+learner types into, and how many are behind them is a pip apiece on the bar. The
+place came off the strip as well, because the bar two lines above had just said
+it.
+
+**The bar could not fit the room's own name.** Seven pips beside a count is
+about ninety pixels, and at 360 the title came out as "At the pharmacy..." with
+the place under it cut off mid-word. The dots wait for `sm` now and the phone
+gets the same fact in five characters.
+
+**And an icon is not a situation.** A mark says what kind of place this is; it
+does not say there is somebody on the other side of it who wants something,
+which is the whole of what a situation is. `components/scene/SceneVignette.tsx`
+draws each one out of six lines and a counter: you and a clerk with a desk
+between you, the same desk with something hot on it, two people on the phone
+with the signal going between them, somebody walking toward a flag, two people
+across a table. Five drawings for fourteen scenes, keyed on the same `Ambience`
+the mark uses.
+
+Everybody in them faces the person they are talking to, which took a second
+pass: the first version had the figure on the right gesturing off the
+right-hand edge and holding a phone to the far ear, so both people in a
+conversation were facing away from it. It is one sign on the arm rather than a
+second set of paths. Nothing is filled, nothing is coloured, and the ink is the
+one the prose beside it uses, so it flips with the theme without being told to.
+The scenery table lost its `label` with them: every screen that draws the mark
+already prints the scene's own `place`, which is a sentence somebody wrote about
+that scene rather than a category name shared by four of them.
+
+**And the words were read again, out loud.** `Your card says what.` is an
+ellipsis rather than a sentence, and it was the end of ten beats and two role
+cards; it is `It is on your card.` now, said the same way every time, which is
+what makes ten screens read as one voice. Three phrasings for the opening beat
+("Greet them back", "Say hello", "Say hello back") became one, and it is the one
+without a verb nobody says out loud. The briefing's two paragraphs, which ran
+four ideas together and described a card that has since stopped listing
+anything, are three sentences with one idea each. And the debrief's transcript
+is drawn in the two bubbles the conversation was had in rather than in two white
+cards that differ only by which edge they sit against: it is the record of that
+conversation, and it was being read back in somebody else's handwriting.

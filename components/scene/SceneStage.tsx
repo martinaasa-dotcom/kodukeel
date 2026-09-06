@@ -85,7 +85,7 @@ export function SceneStage({ sceneId, title, place, minutes, progress, children 
           */}
           <Link
             href="/situations"
-            aria-label="Back to the situations"
+            aria-label="Back to Situations"
             className="tap-tint -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
             style={{ color: "var(--ink-2)" }}
           >
@@ -120,10 +120,21 @@ export function SceneStage({ sceneId, title, place, minutes, progress, children 
             */
             <div className="flex shrink-0 items-center gap-2">
               <span className="sr-only">{met} of {progress.length} things done</span>
-              <span aria-hidden className="hidden text-xs tnum sm:inline" style={{ color: "var(--ink-3)" }}>
+              {/*
+                A COUNT ON A PHONE AND DOTS ON A DESKTOP, RATHER THAN BOTH.
+
+                Seven pips beside a number is about ninety pixels, and at 360
+                the bar has the back door, the room's mark and the scene's
+                name to fit as well: the name came out as "At the pharmacy..."
+                and the place under it as "The counter of a phar...". A row of
+                dots is a nice thing to have and the room's own name is not
+                optional, so the dots wait until there is room for them and the
+                phone gets the same fact in five characters.
+              */}
+              <span aria-hidden className="text-xs tnum sm:hidden" style={{ color: "var(--ink-3)" }}>
                 {met}/{progress.length}
               </span>
-              <span aria-hidden className="flex items-center gap-1.5">
+              <span aria-hidden className="hidden items-center gap-1.5 sm:flex">
                 {progress.map((one, at) => (
                   <span
                     key={at}

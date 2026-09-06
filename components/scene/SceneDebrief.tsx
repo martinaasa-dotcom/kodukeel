@@ -373,8 +373,31 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                     ref={here ? marked : undefined}
                     className={turn.who === "you" ? "self-end text-right" : "self-start"}
                   >
+                    {/*
+                      THE SAME TWO BUBBLES THE CONVERSATION WAS HAD IN.
+
+                      This is the record of a conversation, and it was drawn in
+                      two white cards that differed only by which edge they sat
+                      against, while the round itself gives the learner's own
+                      words the accent's tint and squares off the corner nearest
+                      the box they were typed in. Reading it back in a different
+                      pair of shapes is the same exchange in somebody else's
+                      handwriting.
+                    */}
                     <Card
-                      className="inline-block max-w-full text-sm"
+                      tone={turn.who === "you" ? "accent" : "plain"}
+                      /*
+                        The `md:` half is not a second opinion about the
+                        padding, it is what makes the first half apply at all.
+                        `Card` carries `p-5 md:p-6`, and a media-query rule is
+                        written after a plain one in the generated stylesheet,
+                        so `py-2.5` alone loses to `md:p-6` from 768 up: the
+                        bubbles were tight on a phone and an inch tall on a
+                        desktop, for one line of text.
+                      */
+                      className={`inline-block max-w-full px-4 py-2.5 text-sm md:px-4 md:py-2.5 ${
+                        turn.who === "you" ? "rounded-br-[var(--r-sm)]" : "rounded-bl-[var(--r-sm)]"
+                      }`}
                       style={here ? { boxShadow: "inset 0 0 0 2px var(--butter-ink)" } : undefined}
                     >
                       {/*
@@ -391,7 +414,7 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
                         same two words twenty times down a phone.
                       */}
                       <span className="sr-only">{turn.who === "you" ? "You said: " : "They said: "}</span>
-                      <span lang={turn.lang} style={turn.who === "them" ? { color: "var(--ink-2)" } : undefined}>
+                      <span lang={turn.lang} style={{ color: turn.who === "you" ? "var(--accent-deep)" : "var(--ink-2)" }}>
                         {/*
                           The word marked inside the turn, in butter, which is
                           this app's colour for "nearly" and is what a slip is.

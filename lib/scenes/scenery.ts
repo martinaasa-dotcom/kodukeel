@@ -58,13 +58,19 @@ export interface Scenery {
   /** Resolved by `components/icons.tsx` and nowhere else. */
   readonly icon: string;
   readonly ambience: Ambience;
-  /**
-   * What kind of place this is, in three or four words, for a reader who gets
-   * nothing at all from a drawing that moves. It is read out beside the motif
-   * and printed on the tile, so it has to be a phrase and not a category name.
-   */
-  readonly label: string;
 }
+
+/*
+  THERE IS NO LABEL HERE, AND THERE WAS.
+
+  It said what kind of place this is in three or four words, for a reader who
+  gets nothing from a drawing, which is the right instinct and was the wrong
+  answer: every screen that prints the mark already prints the scene's own
+  `place`, which is a sentence somebody wrote about that scene rather than a
+  category name shared by four of them. So the drawing is decoration and
+  `place` is what it means, and two lines came off the chooser and the briefing
+  that were saying the same thing twice.
+*/
 
 /**
  * One row per scene, keyed on the scene's own id.
@@ -76,20 +82,20 @@ export interface Scenery {
  * finding in its own tables.
  */
 export const SCENERY: Readonly<Record<string, Scenery>> = {
-  "arsti-aeg": { icon: "Stethoscope", ambience: "queue", label: "A reception desk" },
-  "uuri-remont": { icon: "House", ambience: "ring", label: "A phone call home" },
-  ametiasutus: { icon: "Stamp", ambience: "queue", label: "A counter and a form" },
-  "poodi-piima": { icon: "ShoppingBag", ambience: "travel", label: "An errand across town" },
-  kohvikus: { icon: "Utensils", ambience: "steam", label: "A counter you order at" },
-  "tee-kusimine": { icon: "Compass", ambience: "travel", label: "A street corner" },
-  bussipilet: { icon: "Map", ambience: "travel", label: "A ticket window" },
-  "restoranis-tellimine": { icon: "Utensils", ambience: "steam", label: "A table and a menu" },
-  helistamine: { icon: "MessagesSquare", ambience: "ring", label: "A phone call out" },
-  trepikoda: { icon: "Footprints", ambience: "travel", label: "The stairs at home" },
-  apteek: { icon: "HeartPulse", ambience: "queue", label: "A counter with a queue" },
-  keeletund: { icon: "School", ambience: "attend", label: "A room full of learners" },
-  toovestlus: { icon: "Briefcase", ambience: "attend", label: "Across a table" },
-  kaebus: { icon: "ClipboardCheck", ambience: "queue", label: "A service desk" },
+  "arsti-aeg": { icon: "Stethoscope", ambience: "queue" },
+  "uuri-remont": { icon: "House", ambience: "ring" },
+  ametiasutus: { icon: "Stamp", ambience: "queue" },
+  "poodi-piima": { icon: "ShoppingBag", ambience: "travel" },
+  kohvikus: { icon: "Utensils", ambience: "steam" },
+  "tee-kusimine": { icon: "Compass", ambience: "travel" },
+  bussipilet: { icon: "Map", ambience: "travel" },
+  "restoranis-tellimine": { icon: "Utensils", ambience: "steam" },
+  helistamine: { icon: "MessagesSquare", ambience: "ring" },
+  trepikoda: { icon: "Footprints", ambience: "travel" },
+  apteek: { icon: "HeartPulse", ambience: "queue" },
+  keeletund: { icon: "School", ambience: "attend" },
+  toovestlus: { icon: "Briefcase", ambience: "attend" },
+  kaebus: { icon: "ClipboardCheck", ambience: "queue" },
 };
 
 /**
@@ -101,5 +107,5 @@ export const SCENERY: Readonly<Record<string, Scenery>> = {
  * fallback becoming the answer.
  */
 export function sceneryFor(sceneId: string): Scenery {
-  return SCENERY[sceneId] ?? { icon: "MessagesSquare", ambience: "attend", label: "A conversation" };
+  return SCENERY[sceneId] ?? { icon: "MessagesSquare", ambience: "attend" };
 }

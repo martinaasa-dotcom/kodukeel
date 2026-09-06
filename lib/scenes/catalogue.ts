@@ -253,7 +253,7 @@ const DOCTOR: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Greet them back.",
+      goal: "Say hello back.",
       they: "The receptionist looks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -445,7 +445,7 @@ const LANDLORD: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The landlord picks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -615,7 +615,7 @@ const COUNTER: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Greet them back.",
+      goal: "Say hello back.",
       they: "The clerk at the desk says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -851,7 +851,7 @@ const CAFE: SceneSpec = {
   */
   units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
   register: "teie",
-  role: "You have ten minutes before a bus and you would like something to drink. The card says what.",
+  role: "You have ten minutes before a bus and you would like something to drink. Your card says which one.",
   props: [
     {
       kind: "word", slot: "drink", oneOf: ["kohv", "tee", "vesi", "mahl"],
@@ -862,7 +862,7 @@ const CAFE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The person behind the counter says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -873,7 +873,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like. Your card says what.",
+      goal: "Say what you would like. It is on your card.",
       they: "They ask what you would like.",
       move: "ask",
       topic: ["kohv", "tee", "jook", "soovima", "tellima"],
@@ -939,7 +939,7 @@ const DIRECTIONS: SceneSpec = {
   */
   units: [...COMMON, "kus-ja-kuhu", "ostmine", "kohasonad", "korraldused", "reisimine", "linn-ja-teenused", "omadussonad"],
   register: "teie",
-  role: "You are new in town and looking for somewhere. The card says where. You stop somebody on the street.",
+  role: "You are new in town and looking for somewhere. Your card says where you are going. You stop somebody on the street.",
   props: [
     {
       kind: "word", slot: "place", oneOf: ["kohvik", "pank", "haigla", "jaam", "hotell", "turg"],
@@ -1021,7 +1021,7 @@ const TICKET: SceneSpec = {
   tests: "reisimine",
   units: [...COMMON, "ostmine", "reisimine", "kus-ja-kuhu", "omadussonad"],
   register: "teie",
-  role: "You need a bus ticket. The card says where to and when. You are at the window.",
+  role: "You need a bus ticket. Your card says where to and when. You are at the window.",
   props: [
     {
       kind: "word", slot: "to", oneOf: ["kesklinn", "jaam", "haigla", "ülikool", "rand"],
@@ -1033,7 +1033,7 @@ const TICKET: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The person at the window says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1055,7 +1055,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "to",
-      goal: "Say where you are going. Your card says where.",
+      goal: "Say where you are going. It is on your card.",
       they: "They ask where you are going.",
       move: "ask",
       topic: ["kuhu", "sõitma", "buss"],
@@ -1139,7 +1139,7 @@ const RESTAURANT: SceneSpec = {
   tests: "restoranis",
   units: [...COMMON, "restoranis", "sook-ja-jook", "ostmine", "omadussonad", "inimesed"],
   register: "teie",
-  role: "You are eating out on your own tonight. The card says what you would like to eat and drink, and the waiter has questions.",
+  role: "You are eating out on your own tonight. Your card says what you would like to eat and drink, and the waiter has questions.",
   props: [
     {
       kind: "word", slot: "dish", oneOf: ["supp", "kala", "liha", "salat", "kartul"],
@@ -1176,7 +1176,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like to eat. The card says what.",
+      goal: "Say what you would like to eat. Your card says what.",
       they: "They ask what you would like to eat.",
       move: "ask",
       topic: ["roog", "menüü", "soovima", "tellima", "sööma"],
@@ -1198,7 +1198,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "drink",
-      goal: "Say what you would like to drink. The card says what.",
+      goal: "Say what you would like to drink. Your card says what.",
       they: "They ask what you would like to drink.",
       move: "ask",
       topic: ["jook", "jooma", "vesi", "mahl"],
@@ -1254,7 +1254,7 @@ const PHONE: SceneSpec = {
   // hours are said with and the one thing this call is about.
   units: [...COMMON, "suhtlemine", "kodu", "ostmine", "linn-ja-teenused", "plaanid", "omadussonad", "kodutood"],
   register: "teie",
-  role: "You need something from a shop across town before the weekend, and you ring first rather than go and find it shut. The card says what you are after.",
+  role: "You need something from a shop across town before the weekend, and you ring first rather than go and find it shut. Your card says what you are after.",
   props: [
     {
       kind: "word", slot: "thing", oneOf: ["telefon", "arvuti", "raamat", "võti", "laud"],
@@ -1271,7 +1271,7 @@ const PHONE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "Somebody answers the phone and says the name of the shop.",
       move: "greet",
       topic: [...HELLOS],
@@ -1293,7 +1293,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "have",
-      goal: "Ask whether they have it. The card says what.",
+      goal: "Ask whether they have it. Your card says what.",
       they: "They ask what you are looking for.",
       move: "ask",
       topic: ["kaup", "soovima", "tahtma", "ostma", "müüma"],
@@ -1358,7 +1358,7 @@ const NEIGHBOR: SceneSpec = {
   */
   units: [...COMMON, "inimesed", "kodu", "riigid", "omadussonad"],
   register: "teie",
-  role: "You moved into the building last week. On the stairs you meet the person from the flat opposite, who stops to say hello. The card says where you are from and who lives with you.",
+  role: "You moved into the building last week. On the stairs you meet the person from the flat opposite, who stops to say hello. Your card says where you are from and who lives with you.",
   props: [
     { kind: "number", slot: "floor", min: 1, max: 5, says: "You live on floor" },
     {
@@ -1374,7 +1374,7 @@ const NEIGHBOR: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "Your neighbor stops on the landing and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1396,7 +1396,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "floor",
-      goal: "Say which floor you live on. Your card says which.",
+      goal: "Say which floor you live on. It is on your card.",
       they: "They ask which floor you are on.",
       move: "ask",
       topic: ["korrus", "korter", "kus", "elama"],
@@ -1407,7 +1407,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from. Your card says where.",
+      goal: "Say where you are from. It is on your card.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "välismaalane", "Eesti"],
@@ -1418,7 +1418,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "with",
-      goal: "Say who lives with you. Your card says who.",
+      goal: "Say who lives with you. It is on your card.",
       they: "They ask whether you live alone.",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
@@ -1474,7 +1474,7 @@ const PHARMACY: SceneSpec = {
   // the eval withheld a line over the polite imperative of it.
   units: [...COMMON, "keha-ja-tervis", "restoranis", "plaanid", "ostmine", "omadussonad", "linn-ja-teenused", "minevik"],
   register: "teie",
-  role: "Something has been hurting since earlier in the week and you would rather not see a doctor for it. You are at the pharmacy counter. The card says what hurts and since when.",
+  role: "Something has been hurting since earlier in the week and you would rather not see a doctor for it. You are at the pharmacy counter. Your card says what hurts and since when.",
   props: [
     {
       kind: "word", slot: "hurts", oneOf: ["pea", "kõrv", "selg", "jalg", "käsi", "silm"],
@@ -1490,7 +1490,7 @@ const PHARMACY: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The pharmacist looks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1501,7 +1501,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "what",
-      goal: "Say what hurts. Your card says what.",
+      goal: "Say what hurts. It is on your card.",
       they: "They ask what they can help with.",
       move: "ask",
       topic: ["aitama", "valu", "valutama", "tervis", "haige"],
@@ -1586,7 +1586,7 @@ const COURSE: SceneSpec = {
   */
   units: [...COMMON, "kool-ja-keel", "riigid", "inimesed", "omadussonad"],
   register: "teie",
-  role: "It is the first evening of an Estonian course and the teacher is going round the room. The card says where you are from and why you are learning. Any name will do; you are not yourself today.",
+  role: "It is the first evening of an Estonian course and the teacher is going round the room. Your card says where you are from and why you are learning. Any name will do; you are not yourself today.",
   props: [
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Saksamaa", "Inglismaa", "Ameerika", "Läti", "Rootsi"],
@@ -1601,7 +1601,7 @@ const COURSE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The teacher turns to you and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1623,7 +1623,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from. Your card says where.",
+      goal: "Say where you are from. It is on your card.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "Eesti", "välismaalane"],
@@ -1634,7 +1634,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Say why you are learning Estonian. Your card says why.",
+      goal: "Say why you are learning Estonian. It is on your card.",
       they: "They ask why you are learning Estonian.",
       move: "ask",
       topic: ["miks", "õppima", "keel", "sest"],
@@ -1699,7 +1699,7 @@ const INTERVIEW: SceneSpec = {
   */
   units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed"],
   register: "teie",
-  role: "You are being interviewed for a job. The card says where you worked before, what you are good at and when you could start. None of it is about your real life.",
+  role: "You are being interviewed for a job. Your card says where you worked before, what you are good at and when you could start. None of it is about your real life.",
   props: [
     {
       kind: "word", slot: "before", oneOf: ["kool", "ülikool", "kohvik", "haigla", "pood", "hotell"],
@@ -1719,7 +1719,7 @@ const INTERVIEW: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "They stand up, shake your hand and say hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1730,7 +1730,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "before",
-      goal: "Say where you worked before. Your card says where.",
+      goal: "Say where you worked before. It is on your card.",
       they: "They ask what you did before.",
       move: "ask",
       topic: ["töö", "töötama", "varem", "kogemus", "ettevõte"],
@@ -1741,7 +1741,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "skill",
-      goal: "Say what you are good at. Your card says what.",
+      goal: "Say what you are good at. It is on your card.",
       they: "They ask what you are good at.",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
@@ -1815,7 +1815,7 @@ const COMPLAINT: SceneSpec = {
   */
   units: [...COMMON, "probleemid", "ostmine", "kodu", "linn-ja-teenused", "kodutood", "minevik", "plaanid", "omadussonad"],
   register: "teie",
-  role: "Something you bought last week stopped working. You are back at the shop with it. The card says what it is and when you bought it.",
+  role: "Something you bought last week stopped working. You are back at the shop with it. Your card says what it is and when you bought it.",
   props: [
     {
       kind: "word", slot: "item", oneOf: ["telefon", "arvuti", "tool", "laud", "klaas"],
@@ -1831,7 +1831,7 @@ const COMPLAINT: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello.",
+      goal: "Say hello back.",
       they: "The person at the desk says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1842,7 +1842,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Say what you bought and that there is a problem with it. The card says what.",
+      goal: "Say what you bought and that there is a problem with it. Your card says what.",
       they: "They ask what the matter is.",
       move: "ask",
       topic: ["probleem", "viga", "kaebus", "aitama"],

@@ -38,19 +38,6 @@ describe("every conversation happens somewhere", () => {
   });
 
   /*
-    The label is read out to somebody who gets nothing from a drawing that
-    moves, so it has to be a phrase rather than a category name, and it may not
-    be the scene's own `place` said again in worse words.
-  */
-  it("says what kind of place it is, in words", () => {
-    for (const [id, room] of Object.entries(SCENERY)) {
-      expect(room.label.length, `${id} has no label`).toBeGreaterThan(3);
-      expect(room.label, `${id} names a place in Estonian`).not.toMatch(/[õäöüšž]/i);
-      expect(room.label, `${id} ends its label like a sentence`).not.toMatch(/\.$/);
-    }
-  });
-
-  /*
     Five ambiences, and each one earning its place by being used. A sixth added
     for one scene is a movement written once and read by nobody, and an
     ambience nothing names is a branch in the component that cannot be reached.
@@ -68,6 +55,6 @@ describe("every conversation happens somewhere", () => {
   it("answers for a scene it has never heard of rather than throwing", () => {
     const room = sceneryFor("a-scene-nobody-has-written");
     expect(room.icon).toBeTruthy();
-    expect(room.label).toBeTruthy();
+    expect(room.ambience).toBeTruthy();
   });
 });

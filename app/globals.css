@@ -1246,6 +1246,57 @@
     50% { opacity: 0.7; transform: scale(1.06); }
   }
 
+  /*
+    THE PEOPLE IN THE DRAWING, MOVING AS LITTLE AS THEY CAN GET AWAY WITH.
+
+    `components/scene/SceneVignette.tsx` draws each situation out of six lines
+    and a counter, and this is the whole of what moves in it. Slow, small and
+    out of phase, because it sits above a paragraph somebody is reading and a
+    drawing that ticks at the speed of a cursor is a drawing that gets read
+    instead of the sentence.
+
+    Two legs taking it in turns is a walk, which is the one piece of movement
+    here that has to be sharper than the rest: a scissor at four steps a second
+    reads as walking and at one reads as a fault.
+  */
+  .stick-bob { animation: stick-bob 3600ms ease-in-out infinite; }
+  .stick-nod { animation: stick-nod 4200ms ease-in-out infinite; }
+  .stick-legs-a { animation: stick-legs 900ms steps(1, end) infinite; }
+  .stick-legs-b { animation: stick-legs 900ms steps(1, end) infinite reverse; }
+  .stick-arc { animation: stick-arc 2600ms ease-out infinite; }
+  /*
+    Steam, in the drawing's own units rather than in pixels. `amb-steam` rises
+    22 pixels, which is right on a 96px badge and a fifth of the way up a
+    120-unit drawing: the wisps left the cup behind and hung in the air above
+    the counter. Here it is eight units and a lean.
+  */
+  .stick-steam { animation: stick-steam 3800ms ease-in-out infinite; }
+
+  @keyframes stick-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-2px); }
+  }
+  /* Listening, which is the one thing somebody across a table is doing. */
+  @keyframes stick-nod {
+    0%, 72%, 100% { transform: translateY(0); }
+    80% { transform: translateY(2.5px); }
+    88% { transform: translateY(0); }
+  }
+  @keyframes stick-legs {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes stick-steam {
+    0% { opacity: 0; transform: translateY(2px); }
+    35% { opacity: 0.8; }
+    100% { opacity: 0; transform: translate(2px, -8px); }
+  }
+  /* Out from the ear, and gone, which is a telephone from the outside. */
+  @keyframes stick-arc {
+    0%, 60%, 100% { opacity: 0; }
+    20%, 40% { opacity: 1; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
     .sonad-settle, .sonad-refuse, .sonad-rise,
@@ -1253,7 +1304,15 @@
     .scene-say, .scene-say-you, .scene-pip-met, .scene-open,
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,
     .scene-thread, .scene-told, .scene-place,
-    .amb-queue, .amb-ring, .amb-travel, .amb-steam, .amb-attend { animation: none; }
+    .amb-queue, .amb-ring, .amb-travel, .amb-steam, .amb-attend,
+    .stick-bob, .stick-nod, .stick-arc, .stick-steam,
+    .stick-legs-a, .stick-legs-b { animation: none; }
+    /*
+      The walker keeps one pair of legs rather than both. `-b` carries its own
+      `opacity: 0` and only the animation ever shows it, so stopping the
+      animation leaves the wider stance standing still, which is a person
+      rather than a person mid-stride with four legs.
+    */
   }
 
   /*

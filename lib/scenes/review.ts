@@ -373,9 +373,9 @@ function lead(n: {
   const all = n.landed === n.turns;
   const opener = all
     ? n.turns === 1
-      ? "The one thing you said answered what was asked."
-      : `Every one of your ${n.turns} turns answered what was asked.`
-    : `${n.landed} of your ${n.turns} turns answered what was asked.`;
+      ? "The one thing you said answered the question."
+      : `Every one of your ${n.turns} turns answered the question.`
+    : `${n.landed} of your ${n.turns} turns answered the question.`;
   /*
     AND THE FLOURISH ONLY WHERE IT IS TRUE OF THE WHOLE RUN. It printed on any
     run with no slips, so "3 of your 4 turns answered what was asked. Nothing

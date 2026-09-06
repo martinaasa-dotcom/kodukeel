@@ -188,7 +188,7 @@ export function SceneInterlude({ sceneId, text, onDone }: {
         </p>
 
         <p className="scene-place text-sm" style={{ color: "var(--ink-2)" }}>
-          What comes next is about where you are now.
+          The rest of the conversation happens here.
         </p>
 
         <span
