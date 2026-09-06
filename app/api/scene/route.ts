@@ -64,18 +64,6 @@ export const dynamic = "force-dynamic";
 
 /** A bound on a body rather than on a scene. */
 const MAX_CONTEXT_CHARS = 600;
-/**
- * How many turns of the conversation reach a prompt.
- *
- * Both sides of each, so twelve turns is up to twenty-four messages, which
- * measured against the shipped scenes is about 290 tokens on top of a prompt
- * that is already around 760: a scene's closed word list is 373 lemmas on
- * average and that is most of what a composed turn costs. Twelve rather than
- * the whole run because `MAX_TURNS` is 60 and a conversation somebody left
- * open should not grow its own prompt without limit, and because by turn
- * thirteen the opening greeting is no longer what the next line is about.
- */
-const HISTORY_TURNS = 12;
 /** Per instance, and not the thing that bounds cost: the ledger is (§16). */
 const PER_MINUTE = 30;
 const NO_STORE = { "cache-control": "no-store" };
@@ -333,39 +321,12 @@ export async function POST(request: Request) {
   }
   const beat = spokenFor;
 
-  /*
-    THE CONVERSATION SO FAR, OFF THE RUN THIS ROUTE ALREADY MARKED.
-
-    This used to be `body.said`, the last two things the client said it had
-    typed, which was two problems wearing one shape. It was the learner's side
-    only, so the model was handed half a dialogue and could not tell what it
-    had itself just asked; and it was the client's account of the run rather
-    than the server's, on a route whose whole design is that the server replays
-    every turn and believes nothing it is told (`replay`, above).
-
-    `state.turns` is that replay, and each turn carries both sides: `heard` is
-    the line the other side said, `said` is what the learner wrote back. Read
-    in order they are the conversation, and the model can answer something
-    from three turns ago rather than only the beat in front of it.
-
-    THE LEARNER'S TEXT REACHES A MODEL, SO IT IS STILL DATA (§17). Each side
-    goes in as its own message, learner as `user` and the other side as
-    `assistant`, and nothing is concatenated into an instruction. The blast
-    radius of anything typed into one is unchanged and is one withheld line:
-    the model cannot mark, cannot advance the scene, cannot see the deck, and
-    cannot say a word the gate will not vouch for.
-
-    Bounded by turns rather than by trust. A conversation is a dozen turns and
-    `MAX_TURNS` already caps what a client may send; `HISTORY_TURNS` is the
-    window that reaches a prompt, because the earliest turns of a scene stop
-    being what the next line is about and a run somebody left open for an hour
-    should not grow its own prompt without limit.
-  */
-  const history: { role: "user" | "assistant"; content: string }[] = [];
-  for (const turn of state.turns.slice(-HISTORY_TURNS)) {
-    if (turn.heard) history.push({ role: "assistant", content: turn.heard.slice(0, MAX_CONTEXT_CHARS) });
-    if (turn.said) history.push({ role: "user", content: turn.said.slice(0, MAX_CONTEXT_CHARS) });
-  }
+  const said = Array.isArray(body.said)
+    ? body.said
+        .filter((v): v is string => typeof v === "string")
+        .slice(-2)
+        .map((v) => v.slice(0, MAX_CONTEXT_CHARS))
+    : [];
 
   const shared = {
     beat,
@@ -419,7 +380,7 @@ export async function POST(request: Request) {
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
-      history,
+      said,
       avoid: [],
     });
     const verdict = drafted ? runGate(drafted, asking, context.gate) : null;
@@ -432,24 +393,8 @@ export async function POST(request: Request) {
     return answer(reply(move));
   }
 
-  /*
-    A SCRIPTED RUN STOPS HERE WHEN THE BANK ANSWERED, AND A COMPOSED ONE DOES
-    NOT.
-
-    `linesFrom` was decided when the run opened and written onto its own
-    transcript, and this is the one place it changes what happens. On a
-    scripted run the ladder is what it has always been: a lexicographer's
-    sentence, then a line drafted in advance, and the model only for the beats
-    neither could fill. On a composed run the model is asked for *every* beat,
-    because a reaction that arrives only where the bank happened to have
-    nothing is not a reaction, it is a seam, and because the model is the only
-    writer here that can see what the learner actually said three turns ago.
-  */
-  const composedRun = draw?.linesFrom === "composed";
-  if (!composedRun) {
-    if (cheap.provenance !== "fallback") return answer(reply(cheap));
-    if (dealt) return answer(reply(dealt));
-  }
+  if (cheap.provenance !== "fallback") return answer(reply(cheap));
+  if (dealt) return answer(reply(dealt));
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking
@@ -457,12 +402,6 @@ export async function POST(request: Request) {
     limiter's own arithmetic broken: a conversation is a dozen turns, and one
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
-
-    Composing every turn is what made that arithmetic worth restating rather
-    than only inheriting: a composed run books once per beat instead of once
-    per beat the bank could not fill, which is why `ALLOWANCE.SCENE` and the
-    `EXPECTED_TOKENS.SCENE` profile were both recomputed against a measured
-    turn rather than left at figures set when a run booked once.
   */
   const chain = resolveProviders();
   const decision = chain.length > 0
@@ -476,17 +415,8 @@ export async function POST(request: Request) {
       this module, marked identically, with the beats retrieval can fill. The
       difference between them is a sentence, and it is the ledger's own, since
       only the ledger knows which of the three limits was reached.
-
-      A composed run reaching here is the allowance having run out mid
-      conversation, and it takes the same way out: the bank's line for this
-      beat, which is a real move rather than an error. That is the one thing
-      that can put a banked line inside a composed run, and it is the right
-      trade, because the alternative to a seam here is silence.
     */
-    return answer(reply(cheap.provenance !== "fallback" ? cheap : dealt ?? cheap), {
-      composed: false,
-      note: decision?.message ?? null,
-    });
+    return answer(reply(cheap), { composed: false, note: decision?.message ?? null });
   }
   /*
     Held as a const so the narrowing the guard above just did survives into the
@@ -499,16 +429,9 @@ export async function POST(request: Request) {
 
   const line = await sceneLine({
     ...shared,
-    /*
-      On a scripted run these two were tried above and did not answer, so they
-      are emptied rather than walked twice. On a composed run they are what
-      catches a model that could not answer or whose line the gate refused, so
-      they are handed over in full and `prefer` puts them under the model
-      instead of over it.
-    */
-    pool: composedRun ? context.pool.get(beat.id) ?? [] : [],
-    scripted: composedRun ? shared.scripted : [],
-    prefer: composedRun ? "composed" : "scripted",
+    // The attested and scripted rungs were already tried and did not answer.
+    pool: [],
+    scripted: [],
     compose: (avoid) => compose(chain, {
       ownerId,
       // The booking this turn was authorised under, so the settlement corrects
@@ -529,7 +452,7 @@ export async function POST(request: Request) {
         .filter(([id]) => id !== beat.id)
         .flatMap(([, lines]) => lines.slice(0, 1))
         .slice(0, 6),
-      history,
+      said,
       avoid,
     }),
   });
@@ -544,14 +467,6 @@ export async function POST(request: Request) {
   if (line.provenance !== "composed") {
     after(() => releaseReservation(reservation));
   }
-
-  /*
-    And a composed run whose model was refused twice still says the line the
-    card deals where there is one, rather than the way out: `datumLine` is
-    Estonian built out of course words and this run's own values, which
-    outranks "I did not catch that" on a turn where the learner was understood.
-  */
-  if (line.provenance === "fallback" && dealt) return answer(reply(dealt));
 
   return answer(reply(line));
 }
@@ -598,28 +513,10 @@ async function compose(
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
-    /**
-     * The conversation so far, both sides, oldest first, as messages.
-     *
-     * This was the learner's last two lines and nothing else, which meant the
-     * model was drafting a reply without being able to see what it had itself
-     * just asked. A line that reacts to something said three turns ago is the
-     * whole difference between a conversation and a quiz wearing a
-     * conversation's clothes, and it cannot be written from the current beat
-     * alone. Built by the route from `replay`'s own turns, never from what a
-     * client claimed (§17).
-     */
-    history: readonly { role: "user" | "assistant"; content: string }[];
+    said: readonly string[];
     avoid: readonly string[];
   },
 ): Promise<string | null> {
-  /*
-    Identical on every turn of every scene, which is what makes it the cached
-    half on Anthropic and the cached prefix on an OpenAI-compatible provider.
-    Nothing about the constraints moved when the model was given the
-    conversation: one short Estonian sentence, inside the list, and the gate
-    checks it four ways afterwards either way.
-  */
   const system = [
     "You are one side of a short conversation in Estonian, in a role-play for a learner.",
     "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
@@ -627,9 +524,6 @@ async function compose(
     `Use at most ${MAX_WORDS} words.`,
     "Use only the words you are given, in any grammatical form. If you cannot say it",
     "with those words, say the shortest thing you can with them.",
-    "The messages before this are the conversation so far: what you said, and what",
-    "the learner said back. Answer what they have actually said, not only the move",
-    "you are given, and do not repeat a line you have already said.",
   ].join(" ");
 
   const live = [
@@ -656,7 +550,7 @@ async function compose(
         cannot mark, and cannot advance the scene.
       */
       [
-        ...input.history.map((turn) => ({ role: turn.role, content: turn.content })),
+        ...input.said.map((text) => ({ role: "user" as const, content: text })),
         { role: "user" as const, content: "Your line:" },
       ],
       (usage, config) => {

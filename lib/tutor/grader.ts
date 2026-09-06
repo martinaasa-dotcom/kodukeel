@@ -148,11 +148,34 @@ export async function gradeSentence(
  * next time a provider changed the shape of its usage block. The scene grader
  * is the third and added none, which is the argument for having extracted it.
  */
+/**
+ * A reply budget that a reasoning model can still finish a JSON object inside.
+ *
+ * This was 400, which is generous for the answer and not for the answer plus
+ * the thinking in front of it. A model that reasons before it writes spends
+ * that budget on the reasoning first, and under `response_format: json_object`
+ * Groq then rejects the whole call with `json_validate_failed` and an empty
+ * `failed_generation`, because there was no JSON to validate. Measured against
+ * `openai/gpt-oss-120b` on this deployment's own key: 1 of 5 calls survived at
+ * 400 and 5 of 5 at 1,000.
+ *
+ * It is a ceiling rather than a target, so nothing that was answering inside
+ * 400 tokens costs a penny more: a model emits what it emits and is billed for
+ * that. What it buys is the class of model that cannot answer at all under the
+ * old number, which is most of the ones worth using here.
+ *
+ * `provider.ts` already recorded the sibling of this fault, that
+ * `openai/gpt-oss-20b` "spends the whole budget in its reasoning field and
+ * writes nothing into `content`". That was read as a fact about one model. It
+ * is a fact about a budget.
+ */
+const JSON_REPLY_TOKENS = 1_000;
+
 async function callForJson(
   config: ProviderConfig,
   system: string,
   user: string,
-  maxTokens = 400,
+  maxTokens = JSON_REPLY_TOKENS,
 ): Promise<{ text: string; usage: UsageReport }> {
   const usage: UsageReport = { inputTokens: 0, outputTokens: 0, measured: false };
   let text = "";
@@ -170,8 +193,27 @@ async function callForJson(
       body: JSON.stringify({
         model: config.model,
         max_tokens: maxTokens,
-        // Identical on every call, so it is worth caching rather than re-reading.
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+        /*
+          NO `cache_control` HERE, AND THE REASON IS ARITHMETIC RATHER THAN
+          TASTE. This carried a breakpoint under a comment saying the prompt is
+          identical on every call and therefore worth caching. Identical it is;
+          cacheable it is not. Anthropic will not create a cache entry for a
+          prefix under 1,024 tokens, and the three system prompts this
+          transport sends measure 462, 609 and 717. So the parameter was
+          accepted, ignored, and read by anybody looking as though caching were
+          switched on here.
+
+          Do not add it back by measuring the prompt against a wish. The two
+          honest ways to make this cacheable are a prompt that genuinely needs
+          to be over a thousand tokens, which none of these does, or a model
+          whose minimum is lower; padding one to reach a billing threshold is
+          writing a prompt for the invoice rather than for the answer.
+
+          The usage split below stays regardless: it costs nothing, and it is
+          what would start telling the truth rather than silently over-charging
+          if either of those ever changed.
+        */
+        system,
         messages: [{ role: "user", content: user }],
       }),
       signal: AbortSignal.timeout(45_000),
@@ -185,12 +227,12 @@ async function callForJson(
     if (body.usage) {
       /*
         The total for the call and the split for its price, as in
-        `absorbUsage`. Worth reporting even though this prompt is ~456 tokens
-        and therefore under Anthropic's 1,024-token minimum for a cache entry,
-        so the `cache_control` above is inert on Sonnet today: the split then
-        reads as zero and nothing changes, and it starts telling the truth the
-        day the prompt grows past the minimum rather than silently over-
-        charging from that day on.
+        `absorbUsage`. Reported even though this transport asks for no cache
+        entry at all and these two therefore read as zero on every call today:
+        Anthropic still sends the fields, parsing them costs nothing, and it is
+        what keeps the price honest the day somebody has a real reason to cache
+        here rather than leaving a ten-times over-charge to be discovered
+        afterwards.
       */
       const cached = body.usage.cache_read_input_tokens ?? 0;
       const written = body.usage.cache_creation_input_tokens ?? 0;

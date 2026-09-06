@@ -205,36 +205,22 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
   // A photograph, which is a few thousand input tokens of image.
   SCAN: { input: 3_000, output: 400 },
   /*
-    ONE TURN OF ONE CONVERSATION, MEASURED.
+    A WHOLE CONVERSATION, BOOKED ONCE.
 
-    This read 3,500 in and 1,000 out, and both halves were a fossil. The
-    figures were set when a scene booked *once for the whole run*
-    (docs/19-situations.md §16), on the argument that running out of allowance
-    halfway through a conversation is the worst failure available here. The
-    booking moved to one per turn afterwards, because two of the three limits
-    count `CALL` rows and a dozen turns behind one booking is eleven calls the
-    allowance never saw. The profile did not move with it, so every composed
-    turn was reserved at a whole run's estimate.
+    A scene books one call rather than one per turn (docs/19-situations.md §16),
+    because running out of allowance halfway through a conversation is the worst
+    failure available to this module: the other side simply stops talking, and
+    there is no honest thing to put on the screen. So the reservation is the
+    whole scene and the settlement corrects it at the end, which is negative
+    whenever the estimate was generous, exactly as it is for every other kind.
 
-    What a turn actually costs was measured over all fourteen shipped scenes
-    against the shipped dictionary. A scene's closed word list is 373 lemmas
-    on average and that list is most of the prompt: with the instruction, the
-    stage direction, the six tone examples and the list, a turn is about 760
-    input tokens, and twelve turns of conversation on top of it, which is what
-    the model is now given so it can answer what was actually said, adds about
-    290 more. The output is one short Estonian sentence, capped at MAX_WORDS,
-    which measures around 20 tokens.
-
-    So 1,200 in and 100 out: comfortably over the measured figure in both
-    directions, which is what a reservation is for, and no longer over it by
-    three times on the input and fifty on the output. A settlement follows
-    within seconds either way and the totals come out the same; what the
-    fossil was costing was the *reservation*, which is what makes concurrent
-    calls visible to the cap, and one that overstates by that much makes a
-    deployment look like it is spending an order of magnitude more than it is
-    for as long as the calls are in flight.
+    Roughly five grader calls, which is what a scene composes: the beats
+    retrieval cannot fill, plus the one retry §6 allows on some of them. The
+    static half of the prompt is identical on every turn of every scene, so on
+    Anthropic it sits behind the `cache_control` breakpoint the tutor uses and
+    the real figure comes in under this.
   */
-  SCENE: { input: 1_200, output: 100 },
+  SCENE: { input: 3_500, output: 1_000 },
 };
 
 /**

@@ -902,9 +902,21 @@ async function readImageAnthropic(
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,
-      // The instruction is identical for every scan, so it is worth caching
-      // exactly as the Estonian system prompt is. The picture never is.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      /*
+        NO `cache_control` HERE. This said the scanning instruction is worth
+        caching "exactly as the Estonian system prompt is", and the two are not
+        alike in the one dimension that decides it: Anthropic will not create a
+        cache entry under 1,024 tokens, the tutor's prompt is about 2,275 and
+        `SCAN_PROMPT` is 221. The parameter was accepted and ignored.
+
+        And there is nothing to fix by growing it, because the instruction was
+        never where a scan's cost is: a photograph is a few thousand input
+        tokens and the picture is different every time, so the expensive half
+        of this call is uncacheable by construction. The comment that used to
+        sit here said as much in its last sentence and then cached the cheap
+        half anyway.
+      */
+      system,
       messages: [
         {
           role: "user",

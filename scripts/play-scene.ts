@@ -88,16 +88,7 @@ async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
   const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
   const run = planRun(scene, `play-${style}`, scene.level, difficulty);
-  /*
-    Scripted, because this script plays a scene with no provider behind it:
-    it is the keyless transcript, which is the one every deployment gets.
-  */
-  const draw: StoredDraw = {
-    persona: run.persona.id,
-    card: run.card,
-    curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
-    linesFrom: "scripted",
-  };
+  const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })) };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);

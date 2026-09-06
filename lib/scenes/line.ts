@@ -152,27 +152,6 @@ export interface LineRequest {
    * with the attested rungs alone.
    */
   readonly compose?: (avoid: readonly string[]) => Promise<string | null>;
-  /**
-   * Which rung this run leads with, decided once when the run opened and
-   * carried on its own transcript (`StoredDraw.linesFrom`).
-   *
-   * "scripted" is the ladder this module has always walked: a lexicographer's
-   * sentence, then a line drafted in advance, then a model, then the way out.
-   * "composed" turns the top two over, so the model drafts the other side's
-   * line for *every* beat and the banked rungs are what catches it when that
-   * fails.
-   *
-   * DECIDED PER RUN RATHER THAN PER TURN, WHICH IS THE WHOLE REASON IT IS A
-   * FIELD AND NOT A CONDITION. A composed line and a banked one are two
-   * different writers: one is answering what the learner said three turns
-   * ago, the other was written months before anybody played. Alternating
-   * between them inside one conversation is the receptionist changing
-   * character halfway through, which reads worse than either voice does on
-   * its own. So a run is one or the other from its first line, and the only
-   * thing that mixes them is a composed run whose model could not answer,
-   * where the alternative is not a consistent voice, it is silence.
-   */
-  readonly prefer?: "composed" | "scripted";
 }
 
 /**
@@ -206,32 +185,6 @@ export function fallbackLine(text: string, withheld: readonly Check[] = []): Spo
  * same place, and the learner is waiting through every one of them.
  */
 export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
-  /*
-    A COMPOSED RUN ASKS THE MODEL FIRST, AND THE BANK IS WHAT CATCHES IT.
-
-    The order below this is the provenance order and it is the right default:
-    a line somebody recorded outranks a line a model wrote. What that order
-    cannot do is hold a conversation, because it answers each beat out of a
-    pool that was filled before the learner said anything, so the other side
-    can only ever say the sentence this beat always says. A run that has been
-    told to compose is one where the model is being asked to react to what
-    actually happened, and a reaction that arrives only on the beats the bank
-    happens to have missed is not a reaction, it is a seam.
-
-    Nothing about the gate moves: a composed line is still checked four ways
-    against the scene's own closed word list and still withheld whole when it
-    fails, and what catches it when it does is the same banked rung a scripted
-    run leads with. That is the "total failure" fallback: no key, no
-    allowance, no answer, or an answer the gate refused twice.
-  */
-  if (request.prefer === "composed") {
-    const composed = await tryCompose(request);
-    if (composed.line) return composed.line;
-    const banked = pickAttested(request) ?? pickScripted(request);
-    if (banked) return banked;
-    return fallbackLine(request.fallback, composed.withheld);
-  }
-
   const attested = pickAttested(request);
   if (attested) return attested;
 
@@ -246,49 +199,24 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     fill. Passed over once used, like an attested line, so a run that comes
     back to a beat does not hear the same sentence twice while another is left.
   */
-  const scripted = pickScripted(request);
-  if (scripted) return scripted;
+  const scripted = request.scripted.find((text) => !request.used.has(text));
+  if (scripted) return { text: scripted, provenance: "scripted" };
 
-  const { line, withheld } = await tryCompose(request);
-  return line ?? fallbackLine(request.fallback, withheld);
-}
-
-/**
- * The model rung, with the one retry §6 allows and no more.
- *
- * Split out of `sceneLine` when the ladder grew a second order to walk, so
- * that "ask the model, gate it, allow one retry with the failing words named"
- * is written once rather than once per order. A third attempt is a slower way
- * to reach the same place and the learner is waiting through every one of
- * them.
- *
- * Returns the checks that withheld the last attempt even when it produces no
- * line, because the debrief and the report button are what that list is for.
- */
-async function tryCompose(
-  request: LineRequest,
-): Promise<{ line: SpokenLine | null; withheld: readonly Check[] }> {
-  if (!request.compose) return { line: null, withheld: [] };
+  if (!request.compose) return fallbackLine(request.fallback);
 
   const first = await request.compose([]);
   const firstVerdict = first ? runGate(first, request.beat, request.gate) : null;
   if (first && firstVerdict && passes(firstVerdict)) {
-    return { line: { text: first, provenance: "composed" }, withheld: [] };
+    return { text: first, provenance: "composed" };
   }
 
   const second = await request.compose(firstVerdict?.unknown ?? []);
   const secondVerdict = second ? runGate(second, request.beat, request.gate) : null;
   if (second && secondVerdict && passes(secondVerdict)) {
-    return { line: { text: second, provenance: "composed" }, withheld: [] };
+    return { text: second, provenance: "composed" };
   }
 
-  return { line: null, withheld: secondVerdict?.failed ?? firstVerdict?.failed ?? [] };
-}
-
-/** The first drafted line for this beat that this run has not said yet. */
-export function pickScripted(request: LineRequest): SpokenLine | null {
-  const text = request.scripted.find((line) => !request.used.has(line));
-  return text ? { text, provenance: "scripted" } : null;
+  return fallbackLine(request.fallback, secondVerdict?.failed ?? firstVerdict?.failed ?? []);
 }
 
 /** The first recorded sentence that fits this beat and has not been used yet. */

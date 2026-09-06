@@ -11319,75 +11319,90 @@ check("the scene gate has one implementation, and a line says where it came from
  * the sixth, that every row still passes the gate today.
  */
 /**
- * WHO WRITES A CONVERSATION IS DECIDED ONCE, AND THE MODEL IS SHOWN THE
- * CONVERSATION.
+ * A CACHED INPUT TOKEN IS PRICED AS ONE, AND THE STATIC HALF OF A PROMPT DOES
+ * NOT VARY PER LEARNER.
  *
- * Two properties, one feature. A run is composed or scripted from its first
- * line, decided when it opens and written onto its own transcript beside the
- * persona and the card, for the reason the persona is: re-deciding per turn
- * deals a different writer mid-conversation. And a composed line is drafted
- * against what has actually been said rather than against the current beat
- * alone, which is the whole difference between a conversation and a quiz with
- * dialogue painted on it.
+ * Two halves of prompt caching, and each fails in a way nothing else notices.
  *
- * The second half is the one that could rot silently. `compose` would compile
- * and run perfectly with the history dropped on the floor, and what a learner
- * would notice is only that the other side never refers to anything, which
- * reads as a model being poor rather than as a field nobody passed.
+ * Every Anthropic call site reports three input buckets and they are billed at
+ * three rates: a read at a tenth of base, a write at 1.25x. Summing them into
+ * one figure priced at base charges a read ten times over, which nothing
+ * refuses and no learner sees; what it costs is the feature, because the
+ * budget then binds ten times too early on exactly the traffic the breakpoint
+ * was added to make cheap. The safe direction is what let it sit there.
+ *
+ * And a cache entry is keyed on the exact prefix, so anything varying inside
+ * the block behind the breakpoint splits it. The learner's level did that from
+ * character 158 of 9,093, which is a cache fragmented six ways by a string
+ * that was already being sent in the block after it.
  */
-check("a scene decides who writes its lines once, and shows that writer the conversation", () => {
-  const scene = code("lib/progress/scene.ts");
-  const route = code("app/api/scene/route.ts");
-  const actions = code("app/actions.ts");
-
-  // Decided at the door and stored, not re-read per turn.
-  assert.match(scene, /linesFrom: "composed" \| "scripted"/, "a run no longer records who writes its lines");
+check("a cached input token is priced as one, and the cached prompt is the same for everybody", () => {
+  const pricing = code("lib/usage/pricing.ts");
+  assert.match(pricing, /CACHE_READ_RATE = 0\.1/, "a cache read is no longer priced at a tenth of base");
+  assert.match(pricing, /CACHE_WRITE_RATE = 1\.25/, "a cache write is no longer priced at 1.25x base");
   assert.match(
-    scene,
-    /linesFrom: input\.composed \? "composed" : "scripted"/,
-    "beginRun no longer writes the decision onto the run",
+    pricing,
+    /cached \/ 1e6\) \* price\.inputPerMTok \* CACHE_READ_RATE/,
+    "estimateCostMicros no longer prices the cached bucket at the cache rate",
   );
-  assert.match(
-    scene,
-    /parsed\.linesFrom === "composed" \? "composed" : "scripted"/,
-    "a transcript that predates the field no longer reads as scripted, so an old run could start spending",
-  );
-  assert.match(actions, /const composed = resolveProviders\(\)\.length > 0;/,
-    "the decision is no longer made from whether a provider is configured");
-  assert.match(actions, /composed,\n\s*\}\);/, "beginScene no longer passes the decision to beginRun");
 
   /*
-    THE ROUTE READS THE RUN'S ANSWER AND NEVER ASKS THE ENVIRONMENT AGAIN.
-    A second read here would be a second answer to one question, and the two
-    would disagree the moment a key was added mid-conversation: the chip the
-    learner is reading says one thing and the ladder does another.
+    THE SPLIT HAS TO SURVIVE THE WHOLE JOURNEY, and the middle of it is where
+    it would be dropped. A call site can report the buckets and a route can
+    forget to pass them on, and the result compiles, runs, prices everything at
+    base, and looks exactly like a deployment that never gets a cache hit.
   */
-  assert.match(route, /const composedRun = draw\?\.linesFrom === "composed";/,
-    "the route no longer reads which writer this run was opened with");
+  assert.match(code("lib/tutor/provider.ts"), /into\.cachedInputTokens = cached;/,
+    "the streaming path no longer reports which input tokens came off a cache");
+  assert.match(code("lib/tutor/grader.ts"), /usage\.cachedInputTokens = cached;/,
+    "the grader's transport no longer reports which input tokens came off a cache");
+  assert.match(code("lib/usage/ledger.ts"), /cachedInputTokens: input\.cachedInputTokens,/,
+    "recordUsage no longer hands the split to the price table");
 
-  // And the conversation reaches the prompt, both sides, off the server's own replay.
+  for (const file of [
+    "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
+  ]) {
+    assert.match(
+      code(file),
+      /cachedInputTokens: usage\.cachedInputTokens/,
+      `${file} settles a call without passing on which of its input tokens were cached, so a cache read is charged ten times over`,
+    );
+  }
+
+  /*
+    AND THE CACHED BLOCK IS BYTE-IDENTICAL FOR EVERY LEARNER. Asserted on the
+    signature rather than on today's sentence: a `buildSystemPrompt` that takes
+    the learner's anything is a prompt that varies per learner, whatever it
+    does with the argument. What is allowed to vary is `learnerNote`, which is
+    the block after the breakpoint and exists for exactly that.
+  */
+  /*
+    AND ONLY THE ONE PROMPT LONG ENOUGH TO BE CACHED ASKS TO BE.
+
+    A `cache_control` breakpoint on a prefix under 1,024 tokens is accepted,
+    ignored, and reads to anybody looking as though caching were switched on.
+    Two of the three were exactly that: the grader's three system prompts are
+    462, 609 and 717 tokens and the scanner's is 221, against the tutor's
+    ~2,275. Asserted as a count rather than by naming the survivor, because
+    what goes wrong here is a fourth call site copying the parameter from a
+    neighbour without measuring its own prompt.
+  */
+  const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control/g)].length
+    + [...code("lib/tutor/grader.ts").matchAll(/cache_control/g)].length;
+  assert.equal(
+    breakpoints, 1,
+    "a second `cache_control` breakpoint is being asked for. Anthropic creates no cache entry under 1,024 tokens, and only the tutor's prompt clears that; measure the prefix before adding one.",
+  );
+
+  const prompt = code("lib/tutor/prompt.ts");
+  assert.match(prompt, /export function buildSystemPrompt\(\): string \{/,
+    "the static prompt takes an argument again, so it varies per learner and the cache entry splits with it");
+  assert.match(prompt, /system: \[\s*$|ABOUT THIS LEARNER/, "learnerNote no longer names the learner");
   assert.match(
-    route,
-    /for \(const turn of state\.turns\.slice\(-HISTORY_TURNS\)\)/,
-    "the composer is no longer given the run's own turns, so it drafts against the beat alone",
-  );
-  assert.match(route, /role: "assistant", content: turn\.heard/, "the other side's own lines no longer reach the composer");
-  assert.match(route, /role: "user", content: turn\.said/, "the learner's lines no longer reach the composer");
-  assert.doesNotMatch(
-    route,
-    /body\.said/,
-    "the composer is being handed the client's account of the run again. The server replays every turn (`replay`) and that is what the model must be shown.",
-  );
-  assert.match(
-    route,
-    /history: readonly \{ role: "user" \| "assistant"; content: string \}\[\];/,
-    "compose no longer takes the conversation as messages, so a caller could concatenate it into an instruction",
-  );
-  // The learner's text stays data: it is a message, never spliced into the system half.
-  assert.doesNotMatch(
-    code("app/api/scene/route.ts").slice(route.indexOf("const system = [")),
-    /\$\{input\.history/,
-    "the learner's own words are being interpolated into the composer's instructions (§17)",
+    code("lib/tutor/provider.ts"),
+    /cache_control: \{ type: "ephemeral" \} \},\s*\.\.\.\(live/s,
+    "the per-learner block is no longer sent after the cached breakpoint",
   );
 });
 
@@ -11401,52 +11416,18 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
 
   const line = code("lib/scenes/line.ts");
-
-  /*
-    THE PROVENANCE ORDER IS THE DEFAULT, AND A COMPOSED RUN IS THE ONE THING
-    ALLOWED TO TURN IT OVER.
-
-    ADR-025's order is a lexicographer's sentence, then a line drafted in
-    advance and read by a person since, then a model, then the way out, and it
-    is still what `sceneLine` walks when nobody has said otherwise. What a run
-    may now say otherwise about is *itself*: `StoredDraw.linesFrom` decides
-    once, at the door, whether the model writes every line of this
-    conversation or none of them, because a model that reacts to what the
-    learner said three turns ago and a sentence drafted months before anybody
-    played are two different writers and swapping between them mid
-    conversation reads as the character changing.
-
-    So the two things asserted are the ones that did not move. The default
-    path is unchanged, rung for rung. And the composed path is a *reordering*
-    rather than a removal: the bank is still there underneath it, which is
-    what stops "the model is preferred" quietly meaning "the model or
-    nothing".
-  */
-  const preferAt = line.indexOf('request.prefer === "composed"');
-  assert.ok(preferAt > 0, "the ladder no longer reads which rung this run leads with");
-
-  const defaultPath = line.slice(line.indexOf("const attested = pickAttested(request);"));
-  const attestedAt = defaultPath.indexOf("pickAttested(request)");
-  const scriptedAt = defaultPath.indexOf("pickScripted(request)");
-  const composeAt = defaultPath.indexOf("tryCompose(request)");
-  assert.ok(attestedAt >= 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
+  const attestedAt = line.indexOf("pickAttested(request)");
+  const scriptedAt = line.indexOf('provenance: "scripted"');
+  const composeAt = line.indexOf("request.compose([])");
+  assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
   assert.ok(
     attestedAt < scriptedAt && scriptedAt < composeAt,
-    "the scripted rung is no longer between the recorded sentence and the live model on a run that did not ask to be composed. " +
+    "the scripted rung is no longer between the recorded sentence and the live model. " +
     "A lexicographer outranks a model, and a line gated yesterday and read since outranks one composed a second ago.",
   );
-
-  // And the composed path falls back to the bank rather than to nothing.
-  const composedPath = line.slice(preferAt, line.indexOf("const attested = pickAttested(request);"));
-  assert.match(
-    composedPath,
-    /pickAttested\(request\) \?\? pickScripted\(request\)/,
-    "a composed run no longer falls back to the bank when the model is refused, so a withheld line is now silence",
-  );
-
   assert.match(
     line,
-    /request\.scripted\.find\(\(line\) => !request\.used\.has\(line\)\)/,
+    /request\.scripted\.find\(\(text\) => !request\.used\.has\(text\)\)/,
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
 

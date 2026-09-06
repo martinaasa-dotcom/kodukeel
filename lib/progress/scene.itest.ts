@@ -147,7 +147,6 @@ describe("a scene against the dictionary", () => {
 
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const drawn = opened!.run.card.props.find((p) => p.slot === "symptom")!;
     const finished = await finishRun({
@@ -185,7 +184,6 @@ describe("a scene against the dictionary", () => {
     const scene = sceneById("tee-kusimine")!;
     const opened = await beginRun({
       ownerId: OWNER, sceneId: scene.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const place = opened!.run.card.props.find((p) => p.slot === "place")!;
     const context = await sceneContext(scene.id);
@@ -208,7 +206,6 @@ describe("a scene against the dictionary", () => {
   it("refuses to credit a beat the learner never met", async () => {
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const finished = await finishRun({
       ownerId: OWNER,
@@ -232,7 +229,6 @@ describe("a scene against the dictionary", () => {
 
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const finished = await finishRun({
       ownerId: OWNER,
@@ -268,7 +264,6 @@ describe("a scene against the dictionary", () => {
     */
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const finished = await finishRun({
       ownerId: OWNER,
@@ -286,7 +281,6 @@ describe("a scene against the dictionary", () => {
   it("hands the help button a word off the beat it is on", async () => {
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",
-      composed: false,
     });
     const beat = await beatNow({ ownerId: OWNER, runId: opened!.runId, turns: [] });
     expect(beat, "a fresh run is on no beat at all").not.toBeNull();
@@ -312,7 +306,6 @@ describe("a scene against the dictionary", () => {
   it("gives back what the last runs used, so a draw can avoid it", async () => {
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "ordinary",
-      composed: false,
     });
     expect(opened).not.toBeNull();
     await finishRun({
@@ -335,7 +328,6 @@ describe("a scene against the dictionary", () => {
     await beginRun({
       ownerId: "itest-owner-scene-other", sceneId: DOCTOR.id,
       level: "A2", difficulty: "ordinary",
-      composed: false,
     });
     const recency = await recencyFor(OWNER, DOCTOR.id);
     expect(recency.personas.size).toBe(0);
