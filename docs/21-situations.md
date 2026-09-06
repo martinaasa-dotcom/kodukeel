@@ -3243,3 +3243,22 @@ Ten composed lines in that run, none withheld. The `before` column is not the ba
 are the drafted lines, which are correct Estonian and were the right thing to have while the live
 composer was writing `Terve hambaarst on toas number viis, paremal käekäigus.` What changed is that
 the live rung now answers, and what it says is what somebody at a desk would say.
+
+**Read by hand across seven scenes**, which is what §55 says a rate cannot answer: 47 composed
+lines, none withheld, and nothing in any of them a native speaker would stop at. Four worth keeping,
+because each is a sentence the old limits made structurally impossible rather than merely unlikely.
+
+    Vabandust, aga sel nädalal ei saa kahjuks keegi kütet parandama tulla.
+    Meil on praegu liiga palju tööd.
+
+    Jah, aga teie kirjutage siia kõigepealt oma nimi ja aadress ning siis
+    pange alla oma allkiri.
+
+    Palun, millega ma saan teid täna aidata?
+
+    Võtke üks tablett hommikul ja teine õhtul. Hind on kuus eurot.
+
+A landlord with a real excuse, a clerk giving an instruction in the right order, and a pharmacist
+who has finished the transaction. The third is the one to notice: `saan teid aidata` is the
+da-infinitive after `saama`, which is the exact shape `infinitive` was written for and is now being
+produced correctly rather than caught.
