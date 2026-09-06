@@ -425,11 +425,27 @@ ${text}`;
  *
  *   500 -> 0 of 12,  1000 -> 9 of 12,  1500 -> 12 of 12,  2000 -> 12 of 12
  *
- * So the override was not merely tight, it was under the answer's own length:
- * the mean reply is 966 tokens, which is why 1,000 clears three quarters of
- * them and no more. Groq refuses these with 400 `json_validate_failed` rather
- * than returning a truncated string, so nothing reports `finish_reason:
- * "length"` and a cap that is too small looks like a model that cannot answer.
+ * and again over twenty fresh compositions, with the cost per verdict beside
+ * it, priced from this repository's own table and charging a refused call for
+ * the prompt it still sent:
+ *
+ *    500: 1 of 20, $0.001724 a verdict
+ *   1000: 17 of 20, $0.000567
+ *   1500: 20 of 20, $0.000569
+ *
+ * Two things follow, and the second is the one worth keeping. The override was
+ * not merely tight, it was under the answer's own length, so 1,000 clears
+ * about five sixths of them and no more; and Groq refuses these with 400
+ * `json_validate_failed` rather than returning a truncated string, so nothing
+ * reports `finish_reason: "length"` and a cap that is too small reads as a
+ * model that cannot answer. That is the same disguise the 400 wore.
+ *
+ * And raising the ceiling is very nearly free: 1,000 to 1,500 moves the cost
+ * per verdict by four tenths of a percent, because a cap is a ceiling rather
+ * than a target and the mean reply barely moves with it, 799 tokens against
+ * 825. The 500 was the *expensive* setting, three times the cost of either,
+ * since nineteen refusals were paid for to buy one verdict. Whatever cost
+ * argument put this model on the grader survives the larger budget intact.
  *
  * A second constant, then, where the note here first said one. That is the
  * right way round and the reason is the direction: the old 500 was *smaller*
