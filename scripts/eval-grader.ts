@@ -1,77 +1,42 @@
 /*
   Which model should grade, measured through the production call path.
 
-  Every arm here calls the exported graders in `lib/tutor/grader.ts`, so every
-  request goes through `callForJson` at the max_tokens each caller really uses:
-  400 for gradeSentence and gradeDescription, 500 for gradeComposition. No
-  fetch of its own, which is the whole point: the earlier comparison was run at
-  1200 by scripts that open their own socket, and that is a budget production
-  never grants.
+  Every arm calls the exported graders in `lib/tutor/grader.ts`, so every
+  request goes through the real transport at the cap each caller really uses:
+  `JSON_REPLY_TOKENS` for a sentence and a description, and
+  `COMPOSITION_REPLY_TOKENS` for a composition. No fetch of its own, which is
+  the whole point. The comparison that first chose a grader model ran at
+  `max_tokens: 1200` through scripts that open their own socket, and that was a
+  budget production did not grant; reading the cap from the code under test is
+  what stops that happening again when the numbers move, as they since have.
 
-  Every Estonian character in the fixtures comes out of prisma/data/expanded.json.
-  Nothing is written anywhere.
+  This file used to carry two shims and needs neither now. It reached Groq
+  itself, because `callForJson` posted every non-OpenRouter provider to
+  api.openai.com, and it added `anthropic-workspace-id`, because nothing sent
+  one. Both are fixed upstream: `openAiCompatible` is the routing table the
+  chain itself reads, and `anthropicHeaders` adds the workspace header when
+  `ANTHROPIC_WORKSPACE_ID` is set. A harness whose job is measuring the real
+  path may not keep scaffolding that makes it a different path.
 
-  Reproducing the three arms:
+  Every Estonian character in the fixtures comes out of
+  prisma/data/expanded.json. Nothing is written anywhere.
 
     TRIALS=12 npx tsx scripts/eval-grader.ts
-      qwen at Groq, gpt-oss at OpenRouter, and, with ANTHROPIC_API_KEY and
-      ANTHROPIC_WORKSPACE_ID set, sonnet and haiku at Anthropic.
 
-    ONLY_OSS=1 GROQ_NATIVE=openai/gpt-oss-120b TRIALS=12 npx tsx scripts/eval-grader.ts
-      gpt-oss at Groq instead, which is where it fails loudly rather than
-      quietly: Groq answers 400 with "max completion tokens reached before
-      generating a valid document" where OpenRouter returns a truncated body
-      that parseVerdict then refuses.
-
-    SHOW_ERR=1 prints the provider's own error body, which is how that
-    sentence was read rather than inferred.
+  runs the two Groq models, and, with ANTHROPIC_API_KEY set, sonnet and haiku
+  behind them. An org-scoped Anthropic key also needs ANTHROPIC_WORKSPACE_ID,
+  which the app reads for itself.
 */
 import { readFileSync } from "node:fs";
-import { gradeSentence, gradeComposition, gradeDescription } from "../lib/tutor/grader";
+import {
+  gradeSentence, gradeComposition, gradeDescription,
+  JSON_REPLY_TOKENS, COMPOSITION_REPLY_TOKENS,
+} from "../lib/tutor/grader";
 import { verifyComment } from "../lib/tutor/verify";
 import { estimateCostMicros } from "../lib/usage/pricing";
 import { CASES } from "../lib/estonian/cases";
 import type { ProviderConfig } from "../lib/tutor/provider";
 
-
-/*
-  Two shims, and each one is a production gap rather than a convenience.
-
-  1. `callForJson` sends no `anthropic-workspace-id`. A workspace-scoped key
-     (which is what this account issues) is answered 400 by every request the
-     grader makes. The header is added here so the model can be measured at all;
-     production needs the same header before it can reach Anthropic.
-
-  2. `callForJson` has no branch for Groq: `config.name` that is not
-     "anthropic" and not "openrouter" is posted to api.openai.com with
-     OPENAI_API_KEY. So a Groq model is unreachable through the grader today.
-     The two Groq-native models are addressed at Groq here, with the request
-     body callForJson built, unchanged.
-
-  Everything else, the prompts, the caps, the parse and the verify, is the
-  production path untouched.
-*/
-const realFetch = globalThis.fetch;
-const GROQ_NATIVE = new Set((process.env.GROQ_NATIVE ?? "qwen/qwen3.8-27b").split(","));
-globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-  const url = String(input);
-  if (url.includes("api.anthropic.com") && process.env.ANTHROPIC_WORKSPACE_ID) {
-    const headers = new Headers(init?.headers);
-    headers.set("anthropic-workspace-id", process.env.ANTHROPIC_WORKSPACE_ID);
-    return realFetch(input, { ...init, headers });
-  }
-  if (url.includes("openrouter.ai") && process.env.GROQ_API_KEY) {
-    const body = JSON.parse(String(init?.body ?? "{}")) as { model?: string };
-    if (body.model && GROQ_NATIVE.has(body.model)) {
-      const headers = new Headers(init?.headers);
-      headers.set("authorization", `Bearer ${process.env.GROQ_API_KEY}`);
-      const r = await realFetch("https://api.groq.com/openai/v1/chat/completions", { ...init, headers });
-      if (!r.ok && process.env.SHOW_ERR) console.error("GROQ", r.status, (await r.clone().text()).slice(0, 300));
-      return r;
-    }
-  }
-  return realFetch(input, init);
-}) as typeof fetch;
 
 type Entry = {
   lemma: string; pos: string; translation: string; cefr: string | null;
@@ -111,8 +76,8 @@ const TRIALS = Number(process.env.TRIALS ?? 10);
 const FIX = fixtures(TRIALS);
 
 const CANDIDATES: ProviderConfig[] = [
-  ...(process.env.ONLY_OSS ? [] : [{ name: "openrouter", model: "qwen/qwen3.8-27b", label: "OpenRouter" } as ProviderConfig]),
-  { name: "openrouter", model: "openai/gpt-oss-120b", label: "OpenRouter" },
+  { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
+  { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
@@ -173,22 +138,27 @@ async function run(cfg: ProviderConfig, shape: "sentence" | "describe" | "compos
   return t;
 }
 
+/*
+  The caps are read off the module under test rather than typed here. A
+  harness carrying its own copy of the number it is measuring against is how
+  the last one came to report a budget production had stopped granting.
+*/
 const SHAPES = [
-  { shape: "sentence", cap: 400, caller: "gradeSentence  (400)" },
-  { shape: "describe", cap: 400, caller: "gradeDescription (400)" },
-  { shape: "composition", cap: 500, caller: "gradeComposition (500)" },
+  { shape: "sentence", cap: JSON_REPLY_TOKENS, caller: "gradeSentence" },
+  { shape: "describe", cap: JSON_REPLY_TOKENS, caller: "gradeDescription" },
+  { shape: "composition", cap: COMPOSITION_REPLY_TOKENS, caller: "gradeComposition" },
 ] as const;
 
 (async () => {
   console.log(`${FIX.length} trials per cell, real production caps.\n`);
   for (const cfg of CANDIDATES) {
-    console.log(`\n### ${cfg.model}   (${cfg.name} branch of callForJson)`);
+    console.log(`\n### ${cfg.model}   (${cfg.name})`);
     console.log("caller                    verdicts  failed  withheld  hit-cap  avg-out  $/1k calls");
     for (const s of SHAPES) {
       const t = await run(cfg, s.shape, s.cap);
       const per = estimateCostMicros(cfg.model, t.inTok / Math.max(t.calls, 1), t.outTok / Math.max(t.calls, 1));
       console.log(
-        `${s.caller.padEnd(25)} ${String(t.verdicts).padStart(5)}/${t.calls}` +
+        `${`${s.caller} (${s.cap})`.padEnd(25)} ${String(t.verdicts).padStart(5)}/${t.calls}` +
         `${String(t.failed).padStart(8)}${String(t.withheld).padStart(10)}` +
         `${String(t.capHits).padStart(9)}${(t.outTok / Math.max(t.calls, 1)).toFixed(0).padStart(9)}` +
         `${("$" + (per * 1000 / 1e6).toFixed(2)).padStart(12)}`,

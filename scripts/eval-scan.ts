@@ -33,23 +33,6 @@ type Entry = { lemma: string; translation: string; cefr: string | null; pos: str
 const DIACRITIC = /[õäöüšž]/i;
 const FOLD: Record<string, string> = { "õ":"o","ä":"a","ö":"o","ü":"u","š":"s","ž":"z" };
 
-/*
-  The workspace header, for the same reason `eval-grader.ts` carries it: the key
-  this was measured with is an org-level key rather than a workspace-scoped one,
-  and Anthropic answers those 400 unless the request names a workspace. An
-  ordinary workspace-scoped key needs nothing, which is why `provider.ts` does
-  not send it and why this is a shim here rather than a fix there.
-*/
-const realFetch = globalThis.fetch;
-globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-  if (String(input).includes("api.anthropic.com") && process.env.ANTHROPIC_WORKSPACE_ID) {
-    const headers = new Headers(init?.headers);
-    headers.set("anthropic-workspace-id", process.env.ANTHROPIC_WORKSPACE_ID);
-    return realFetch(input, { ...init, headers });
-  }
-  return realFetch(input, init);
-}) as typeof fetch;
-
 const entries = JSON.parse(readFileSync("prisma/data/expanded.json", "utf8")) as Entry[];
 const WORDS = entries
   .filter((e) => e.cefr && DIACRITIC.test(e.lemma) && e.lemma.length >= 4 && !e.lemma.includes(" "))

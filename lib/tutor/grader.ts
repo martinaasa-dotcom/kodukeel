@@ -169,7 +169,7 @@ export async function gradeSentence(
  * writes nothing into `content`". That was read as a fact about one model. It
  * is a fact about a budget.
  */
-const JSON_REPLY_TOKENS = 1_000;
+export const JSON_REPLY_TOKENS = 1_000;
 
 /**
  * NOTE ON THE TWO ABOVE AND BELOW, WHICH ARRIVED FROM TWO SESSIONS AT ONCE.
@@ -454,7 +454,7 @@ ${text}`;
  * nothing over 1,500. A ceiling and not a target, so a reply that finishes in
  * 200 still costs 200 and the short paths are untouched.
  */
-const COMPOSITION_REPLY_TOKENS = 1_500;
+export const COMPOSITION_REPLY_TOKENS = 1_500;
 
 export async function gradeComposition(
   provider: ProviderConfig | readonly ProviderConfig[],
