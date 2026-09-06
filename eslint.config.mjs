@@ -1,6 +1,5 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextTypescript from "eslint-config-next/typescript";
 
 /**
  * ESLint, on the flat config the CLI actually uses.
@@ -10,12 +9,13 @@ import { FlatCompat } from "@eslint/eslintrc";
  * and in any non-interactive shell. `eslint .` reads this file and exits with a
  * status, which is the only behaviour a lint script is useful for.
  *
- * FlatCompat is here because `eslint-config-next` is still published as a
- * legacy (eslintrc) config; this is the shape Next's own migration codemod
- * produces.
+ * `eslint-config-next` ships native flat configs from 16, so its two entry
+ * points are spread in directly. They used to come through `FlatCompat`,
+ * which is the shape Next's own codemod produced while the package was still
+ * eslintrc-only; on 16 that path throws "Converting circular structure to
+ * JSON" before a single file is linted, because the legacy validator tries to
+ * serialise a flat config whose plugins reference themselves.
  */
-const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta.url)) });
-
 const config = [
   {
     ignores: [
@@ -32,7 +32,8 @@ const config = [
     ],
   },
 
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCoreWebVitals,
+  ...nextTypescript,
 
   {
     rules: {
