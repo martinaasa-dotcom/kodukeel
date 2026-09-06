@@ -32,7 +32,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
-import type { BeatSpec, Requirement } from "./types";
+import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
 /**
  * How a turn was read. The order below is the order they are tested in, and
@@ -352,7 +352,24 @@ export function readTurn(
   */
   const marked = spoken.map((word) => ({ word, vouched: isEstonian(word, context) }));
 
-  const found = beat.needs.map((need) => satisfies(need, text, spoken, context));
+  /*
+    A REQUIREMENT MET BY A WORD THE LEARNER NEGATED IS NOT MET.
+
+    `satisfies` looks for a spelling anywhere in the turn, so `ma ei taha
+    piima` met a beat that wants `piim` and the friend said "Piima." and moved
+    on: the app read a refusal as the answer, wrote it into the log as the word
+    produced, and ticked the objective. Nothing in the marker could see the
+    `ei` at all.
+
+    Clause by clause, which is the same boundary the gate's agreement check
+    uses and for its reason: `Ma ei tea, kus on pood` says where nothing is
+    negated, and `Ei, ma tahan piima` is a no about something else followed by
+    a yes about this. A negator before the word inside its own clause is the
+    only shape that refuses.
+  */
+  const found = beat.needs
+    .map((need) => satisfies(need, text, spoken, context))
+    .map((hit) => (negatedIn(hit, text, beat, context) ? null : hit));
   const met = found.map((hit) => hit !== null);
   const missing = met.flatMap((ok, i) => (ok ? [] : [i]));
   /*
@@ -998,6 +1015,40 @@ function personSlip(
   const form = context.lexicon.persons.get(lemma)?.get(person) ?? null;
   if (form === hit) return {};
   return { slip: { kind: "person", said: hit, form, lemma } };
+}
+
+/**
+ * Whether the word that met a requirement was negated by the learner.
+ *
+ * A NO ABOUT THE BEAT'S OWN WORD IS NOT AN ANSWER WITH THAT WORD IN IT. What
+ * this refuses is `ma ei taha piima` on a beat that wants `piim`: the marker
+ * found the spelling, and the learner said the opposite of what the beat was
+ * asking for.
+ *
+ * Two guards. The clause, because a negator earlier in the sentence is often
+ * about something else entirely (`Ma ei tea, kus on pood`), and the boundary is
+ * the comma Estonian writes, which is what the gate's agreement check reads.
+ * And **a beat that accepts the negator is never refused by it**: "Kas te
+ * soovite piima?" takes `ei` as a whole answer, and reading a no there as a
+ * turn that met nothing would be the app refusing the word it asked for.
+ */
+function negatedIn(
+  hit: Hit | typeof YES | null,
+  text: string,
+  beat: BeatSpec,
+  context: TurnContext,
+): boolean {
+  if (!hit || hit === YES) return false;
+  const takesNo = leafNeeds(beat.needs).some(({ need }) =>
+    need.kind === "lemma" && need.oneOf.some((lemma) => context.negators.has(lemma.toLowerCase())));
+  if (takesNo) return false;
+  for (const clause of text.split(/[,;:]/)) {
+    const said = words(clause);
+    const at = said.indexOf(hit.word);
+    if (at < 0) continue;
+    if (said.slice(0, at).some((word) => context.negators.has(word))) return true;
+  }
+  return false;
 }
 
 /**

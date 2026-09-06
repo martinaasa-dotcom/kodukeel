@@ -205,6 +205,39 @@ describe("a scene against the dictionary", () => {
     expect(scene.beats[state.beat]?.id, "the scene walked past its own beats").toBe("far");
   });
 
+  /*
+    A BEAT SOMEBODY VOLUNTEERED IS NOT ASKED FOR AGAIN.
+
+    Told "where are you going", a learner who says they are going to the shop
+    to buy milk has answered the beat in front of them and the one two along.
+    The friend who heard that does not ask, two questions later, what they are
+    buying; before this they did, and the learner had to say it twice.
+  */
+  it("credits a beat the turn answered further down the scene", async () => {
+    const scene = sceneById("poodi-piima")!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: scene.id, level: "A1", difficulty: "textbook",
+      lines: "scripted",
+    });
+    const context = await sceneContext(scene.id);
+    const row = await prisma.sceneRun.findUnique({ where: { id: opened!.runId } });
+    const draw = readDraw(row!.transcript);
+
+    const { state } = replay(context!, draw, [
+      { beatId: "greet", said: "Tere!", helped: false, heard: "" },
+      { beatId: "going", said: "ma lähen poodi, ma tahan piima", helped: false, heard: "" },
+    ]);
+
+    expect(state.done, "the beat in front of them was not read").toContain("going");
+    expect(state.done, "what they volunteered was not credited").toContain("item");
+    /*
+      And the beat between them is still asked, in order: the pointer walks
+      forward and the scene keeps its shape. What it does not do is stop on a
+      beat somebody has already answered.
+    */
+    expect(scene.beats[state.beat]?.id).toBe("inside");
+  });
+
   it("refuses to credit a beat the learner never met", async () => {
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",

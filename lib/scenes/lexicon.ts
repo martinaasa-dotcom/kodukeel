@@ -215,29 +215,95 @@ export const SUBJECT_PRONOUN = {
 } as const satisfies Record<string, PersonCode>;
 
 /**
+ * The verbs that take the da-infinitive and never the ma-infinitive.
+ *
+ * `SAAN AITAMA` IS NOT A SENTENCE AND NOTHING COULD SEE IT. A learner read
+ * `Tere! Mis needus täna aitama saan?` and asked, fairly, how that reaches a
+ * screen: every word of it is vouched by the forms list, it names the beat's
+ * own topic, it is inside the new-word budget and it is not the language. The
+ * fault is one a model makes constantly in Estonian and a person never makes,
+ * which is putting the dictionary form of a verb where the da-infinitive
+ * belongs.
+ *
+ * Lemma requests against the course, like `SUBJECT_PRONOUN` above and the
+ * reactions in the catalog, and this file still writes no form: which
+ * spellings each of these has is read off the entry. Deliberately the short,
+ * certain list rather than every verb that governs an infinitive. Estonian has
+ * plenty that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin
+ * magama`) and a check built on a list of those would be a check built on the
+ * half somebody forgot, refusing correct lines. These seven never take one, in
+ * any register, so firing on them can only ever be right.
+ */
+export const DA_ONLY_VERBS = [
+  "saama", "tahtma", "soovima", "võima", "oskama", "tohtima", "suutma", "proovima",
+] as const;
+
+/**
+ * The one fixed expression that breaks the rule above, written down rather
+ * than left to be rediscovered.
+ *
+ * `Ma saan hakkama` is "I will manage", it is what anybody says, and its second
+ * word is the ma-infinitive of `hakkama` sitting straight after `saama`. It is
+ * the one pair in the language that this check would otherwise refuse.
+ */
+export const DA_ONLY_EXEMPT: Readonly<Record<string, readonly string[]>> = {
+  saama: ["hakkama"],
+};
+
+/**
+ * A pronoun standing as a subject: the person it demands of a verb, and
+ * whether that reading is the only one the spelling has.
+ */
+export interface Subject {
+  readonly code: PersonCode;
+  /**
+   * True where the spelling is a nominative and nothing else, so a check may
+   * act on it without looking at what stands beside it. False for `te`, `me`
+   * and `ta`, which are each their pronoun's genitive as well.
+   */
+  readonly sure: boolean;
+}
+
+/**
  * Each pronoun's nominative spellings, to the person they demand of a verb.
  *
- * The nominative row and nothing else, off the same table every case card in
- * the app reads: `mind` and `sinu` are not subjects, and a check reading them
- * as one would fire on `Kas ma saan sind aidata?`, which is an ordinary
- * sentence.
+ * READ OFF THE PRONOUN'S OWN TABLE, which is the Institute's: `SgN` and `PlN`
+ * are the nominative and `SgG` and `PlG` the genitive, so this file still
+ * names no Estonian beyond the six lemmas it requests. It takes the entries
+ * rather than the built `Lexicon` because a pronoun with no singular carries
+ * no `parts` at all, and `buildLexicon` indexes a case table only where there
+ * is a genitive stem to build one from: `meie`, `teie` and `nemad` were
+ * therefore in no case row, and `subjectsIn` could not see them.
  *
- * AND ONLY WHERE THE SPELLING IS THE NOMINATIVE AND NOTHING ELSE, which is
- * `caseOfForm`'s strict rule and the same one `whichCase` follows over the
- * whole dictionary. `teie` is the nominative of `teie` and also its genitive,
- * so `Palun enne teie nimi.` holds no subject at all and a check that read one
- * there refused a correct line over the `palun` beside it, which is a first
- * person of `paluma` doing the work of "please". A pronoun whose subject form
- * is ambiguous contributes nothing, and the check simply has less to say.
+ * THAT WAS THE WHOLE OF WHY THE CHECK MISSED THE COMMONEST FAULT IT EXISTS
+ * FOR. Every one of these scenes is a clerk speaking to a customer, so nearly
+ * every line the other side says is second person plural, and the app's own
+ * model wrote `Kuhu te soovid sõita?` past a gate that had never heard of
+ * `te`.
+ *
+ * AND AMBIGUITY IS REPORTED RATHER THAN DROPPED. The first version kept only
+ * a spelling that is a nominative and nothing else, which is `caseOfForm`'s
+ * strict rule, and that rule silently deleted `te`, `me` and `ta`, since each
+ * is also its pronoun's genitive. `Teie nimi on Mari.` is an ordinary line
+ * with no subject in it at all, and a check that read one there would refuse
+ * it. So the spelling is carried with `sure: false` and the caller decides,
+ * which is what `disagrees` does by looking at the word that follows.
  */
-export function subjectsIn(lexicon: Lexicon): ReadonlyMap<string, PersonCode> {
-  const out = new Map<string, PersonCode>();
+export function subjectsIn(entries: readonly DictEntry[]): ReadonlyMap<string, Subject> {
+  const out = new Map<string, Subject>();
+  const held = new Set(entries.map((entry) => entry.lemma));
   for (const [lemma, code] of Object.entries(SUBJECT_PRONOUN) as [string, PersonCode][]) {
-    if (!lexicon.byLemma.has(lemma)) continue;
-    for (const form of lexicon.byCase.get(caseKeyFor(lemma, "NOMINATIVE")) ?? []) {
-      if (caseOfForm(lexicon, lemma, form) !== "NOMINATIVE") continue;
-      out.set(form.toLowerCase(), code);
+    if (!held.has(lemma)) continue;
+    const entry = entries.find((one) => one.lemma === lemma)!;
+    const nominative = new Set<string>();
+    const genitive = new Set<string>();
+    if (entry.parts?.NOM_SG) nominative.add(entry.parts.NOM_SG.toLowerCase());
+    if (entry.parts?.GEN_SG) genitive.add(entry.parts.GEN_SG.toLowerCase());
+    for (const form of entry.extraForms ?? []) {
+      if (form.code === "SgN" || form.code === "PlN") nominative.add(form.value.toLowerCase());
+      if (form.code === "SgG" || form.code === "PlG") genitive.add(form.value.toLowerCase());
     }
+    for (const form of nominative) out.set(form, { code, sure: !genitive.has(form) });
   }
   return out;
 }

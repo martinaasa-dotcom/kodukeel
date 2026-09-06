@@ -290,6 +290,73 @@ export function cardInPlay(
 }
 
 /**
+ * Whether the move reacts for itself, so this module should not react for it.
+ *
+ * TWO REASONS, AND THE SECOND IS THE INTERESTING ONE.
+ *
+ * A line that opens with a reaction word is the plain case: nobody says
+ * `Hästi` twice, and a composed line may now put a short remark in front of
+ * its move, so `Hästi.` and then `Hästi. Kus te elate?` is the stutter the
+ * echo rule was written against arriving through the other door.
+ *
+ * AND A LINE WRITTEN FOR THIS TURN HAS ALREADY SEEN THE TURN. The rotation is
+ * `hästi, aitäh, jah` by a counter, which is the right thing in front of a
+ * banked line: that line was written months ago against the beat alone and
+ * cannot acknowledge anything. A composed line was written with the learner's
+ * own words in front of it, so a rotated word bolted on before it is the app
+ * reacting on top of somebody who already did, and it is the most mechanical
+ * thing left on the screen. The recast survives, because that is a correction
+ * rather than a reaction and is the one thing a composed line may not make.
+ */
+function ownReaction(line: SpokenLine | null): boolean {
+  return line?.provenance === "composed" || opensWithReaction(line);
+}
+
+/**
+ * The words that answer the question the learner was actually asked.
+ *
+ * `JAH` IS AN ANSWER TO ONE KIND OF QUESTION AND A MACHINE NOISE AFTER ANY
+ * OTHER. The rotation is `hästi, aitäh, jah` by a counter, which is fine one
+ * turn in three and wrong the other two: asked which floor they live on and
+ * told `2`, the neighbor said `Jah.`, and asked where they are from and told
+ * `Läti`, they would have said it too. Nobody says yes to a wh-question, and
+ * a learner who has just produced a whole sentence reads it as the other side
+ * not having understood them.
+ *
+ * What decides it is the question they were answering, which is the line they
+ * already heard. A polar question in Estonian opens with `kas`, so this is a
+ * reading of one word rather than a parse, and it errs the safe way: where
+ * there is no line to read, or it is not a question at all, `jah` is simply
+ * left out, which costs the rotation a word and can never be wrong.
+ */
+function acknowledgements(heard: string | null): readonly string[] {
+  const polar = heard ? words(heard)[0] === "kas" : false;
+  return polar ? REACTIONS.acknowledge : REACTIONS.acknowledge.filter((word) => word !== "jah");
+}
+
+/**
+ * Whether the move already opens with a reaction of its own.
+ *
+ * NOBODY SAYS `HÄSTI` TWICE. A composed line may now put a short remark in
+ * front of its move, and the model reaches for the same word this module does:
+ * `Hästi. Kus te elate?` behind an acknowledgment is `Hästi. Hästi. Kus te
+ * elate?`, which is the stutter the echo rule was written against, arriving
+ * through the other door.
+ *
+ * The first word only, and against the reaction table rather than against any
+ * word: a line that happens to hold `jah` in the middle of a sentence is a
+ * sentence, not a yes.
+ */
+function opensWithReaction(line: SpokenLine | null): boolean {
+  const first = line ? words(line.text)[0] : undefined;
+  if (!first) return false;
+  const said = new Set<string>([
+    ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
+  ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
+  return said.has(first);
+}
+
+/**
  * Whether the route has to walk the ladder at all for this turn.
  *
  * A turn nobody understood, a turn in English and a one-word turn are all
@@ -476,9 +543,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         text: echo.charAt(0).toUpperCase() + echo.slice(1) + ".",
         provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
-    } else if (!aside && input.acknowledges && response === "answer") {
-      const choices = REACTIONS.acknowledge;
-      out.push(reaction(choices[input.met % choices.length] ?? choices[0], "."));
+    } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)) {
+      const choices = acknowledgements(heard);
+      out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
     }
   }
 

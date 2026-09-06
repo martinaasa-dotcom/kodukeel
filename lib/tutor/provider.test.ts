@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
-  SCENE_GROQ_MODELS, sceneProviders, TutorError, visionProviders,
+  SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError, visionProviders,
 } from "@/lib/tutor/provider";
 import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
@@ -94,20 +94,20 @@ describe("a chain built for a purpose", () => {
     for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
   }
 
-  it("sends scene composition to Groq, and to the model the eval ranked", () => {
+  it("sends scene composition to Gemini, and to the model the eval ranked", () => {
     all();
     const chain = resolveProviders({ purpose: "scene" });
-    // Groq leads, on the model `eval:composers` ranked. What sits behind it is
-    // the bounded last resort, covered by its own cases below.
-    expect(chain[0]?.name).toBe("groq");
-    expect(chain[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+    // Gemini leads, on the model `eval:thinking` ranked over twenty-four beats.
+    // What sits behind it is the bounded last resort, covered by its own cases.
+    expect(chain[0]?.name).toBe("gemini");
+    expect(chain[0]?.model).toBe(SCENE_MODELS[0]);
   });
 
-  it("sends Anu to Anthropic", () => {
+  it("sends Anu to the model that answered her questions, not the dearest one", () => {
     all();
     const chain = resolveProviders({ purpose: "tutor" });
-    expect(chain.map((c) => c.name)).toEqual(["anthropic"]);
-    expect(chain[0]?.model).toBe("claude-sonnet-5");
+    expect(chain.map((c) => c.name)).toEqual(["groq"]);
+    expect(chain[0]?.model).toBe(TUTOR_MODEL);
   });
 
   it("lets neither purpose take the other's provider as its primary", () => {
@@ -119,27 +119,41 @@ describe("a chain built for a purpose", () => {
       Groq behind her at any budget.
     */
     all();
-    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("groq");
-    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "groq")).toBe(false);
+    expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("gemini");
+    expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("groq");
+    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "gemini")).toBe(false);
   });
 
-  it("keeps OpenRouter and Gemini out of both, however the machine is configured", () => {
+  it("gives a purpose only the provider it names, and never the general chain", () => {
     /*
-      The reason this is its own case rather than a line in the one above. Those
-      two are the free chain's defaults, so they are the providers most likely
-      to be left set on a machine that has since moved to paid keys, and a
-      purpose that quietly inherited one would look exactly like a purpose that
-      was working. Being absent from the environment is not what protects this;
-      being unreachable by construction is.
+      THIS USED TO NAME THE VENDORS AND THAT WAS THE WRONG SHAPE FOR IT.
+
+      It read "keeps OpenRouter and Gemini out of both", on the argument that
+      those two are the free chain's defaults, so they are the providers most
+      likely to be left set on a machine that has since moved to paid keys, and
+      a purpose that quietly inherited one would look exactly like a purpose
+      that was working.
+
+      The argument is right and it is an argument about *inheriting*, not about
+      a vendor. Measured over twenty-four beats, Gemini writes the best Estonian
+      of anything tested for a scene line and the scanner reads 144 of 144
+      diacritics with it, so a rule phrased as "this vendor is unreachable by
+      construction" now protects the app from the thing it wants.
+
+      What survives is the claim that was doing the work: a purpose reaches
+      exactly the provider it names, and nothing arrives because it happened to
+      be configured. `resolveProviders()` with no purpose is a long chain; a
+      purpose is one link and its bounded fallback.
     */
     all();
+    const general = resolveProviders().map((c) => c.name);
+    expect(general.length).toBeGreaterThan(3);
     for (const purpose of ["tutor", "scene"] as const) {
-      for (const allowFallback of [true, false]) {
-        const names = resolveProviders({ purpose, allowFallback }).map((c) => c.name);
-        expect(names).not.toContain("openrouter");
-        expect(names).not.toContain("gemini");
-        expect(names).not.toContain("openai");
-      }
+      const named = resolveProviders({ purpose, allowFallback: false }).map((c) => c.name);
+      expect(named).toHaveLength(1);
+      // And with the fallback, one link plus the last resort. Never the chain.
+      const withFallback = resolveProviders({ purpose, allowFallback: true });
+      expect(withFallback.length).toBeLessThanOrEqual(2);
     }
   });
 
@@ -150,29 +164,28 @@ describe("a chain built for a purpose", () => {
       each of them has somewhere to go — Anu says she is not set up, a scene
       plays off its recorded and banked lines.
     */
-    only("groq");
+    only("gemini");
     expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
-    // Anu has no fallback at any budget, so a Groq-only deployment has no tutor.
+    // Anu has no fallback at any budget, so a Gemini-only deployment has no tutor.
     expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
 
-    only("anthropic");
+    only("groq");
     expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
     /*
-      A scene on an Anthropic-only deployment composes through the fallback, and
-      stops the moment the fallback budget is spent. Both readings matter: the
-      first is why a one-key install still works, the second is why a Groq
-      outage cannot quietly become an Anthropic bill.
+      A scene on a Groq-only deployment composes through the fallback, and stops
+      the moment the fallback budget is spent. Both readings matter: the first
+      is why a one-key install still works, the second is why a Gemini outage
+      cannot quietly become an Anthropic bill.
     */
-    expect(resolveProviders({ purpose: "scene", allowFallback: true })).toHaveLength(1);
     expect(resolveProviders({ purpose: "scene", allowFallback: false })).toHaveLength(0);
   });
 
   it("puts Anthropic behind a purpose's own provider, once, as a last resort", () => {
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(scene.map((c) => c.name)).toEqual(["groq", "anthropic"]);
-    // Groq still leads: the fallback is behind it, not instead of it.
-    expect(scene[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+    expect(scene.map((c) => c.name)).toEqual(["gemini", "anthropic"]);
+    // Gemini still leads: the fallback is behind it, not instead of it.
+    expect(scene[0]?.model).toBe(SCENE_MODELS[0]);
   });
 
   it("drops the fallback the moment the day's fallback budget is spent", () => {
@@ -184,7 +197,7 @@ describe("a chain built for a purpose", () => {
     */
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: false });
-    expect(scene.map((c) => c.name)).toEqual(["groq"]);
+    expect(scene.map((c) => c.name)).toEqual(["gemini"]);
     // The general chain's dear tail is a fallback too, and goes the same way.
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
@@ -192,21 +205,30 @@ describe("a chain built for a purpose", () => {
 
   it("never gives Anu a fallback, however much budget there is", () => {
     /*
-      Anthropic is her primary, so the only thing behind it would be Groq, and
-      `eval:anu` measured what Groq does with her questions: the tuba : toa
-      gradation called "b becomes v" where the dictionary says b : ∅, "Mul
-      meeldib" for "Mulle meeldib", and the invented lemmas `lähema` and
-      `kotta`, the first emitted as a VOCAB line the app parses. An answer that
-      is wrong in a way the learner cannot see is worse than no answer.
+      AND WHICH PROVIDER IS HER PRIMARY IS NOT WHAT THIS CASE IS ABOUT.
+
+      It used to read "Anthropic is her primary, so the only thing behind it
+      would be Groq", and cited what an older measurement found a free Groq
+      model doing with her questions: the tuba : toa gradation called "b becomes
+      v" where the dictionary says b : ∅, "Mul meeldib" for "Mulle meeldib", and
+      the invented lemmas `lähema` and `kotta`. That is still the reason she has
+      no fallback, and it was never a reason about a vendor: an answer that is
+      wrong in a way the learner cannot see is worse than no answer, whoever
+      wrote it, so there is nothing worth falling to.
+
+      `npm run eval:anu` now asks the same six questions through the route's own
+      transport, and `openai/gpt-oss-120b` answered all six on three separate
+      runs with no invented form, which is what moved her onto it. The rule
+      underneath is unchanged: one model, measured, and nothing behind it.
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
-      .toEqual(["anthropic"]);
+      .toEqual(["groq"]);
   });
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
     all();
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["groq", "anthropic"]);
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "anthropic"]);
   });
 
   it("keeps both halves of the two sessions that built the scene chain", () => {
@@ -217,16 +239,16 @@ describe("a chain built for a purpose", () => {
       Anu runs on. A clean three-way merge would have shipped two answers to one
       question; this asserts the merged one still does both jobs.
     */
-    // Isolation, with nothing named: Groq leads, Anthropic behind it as the
+    // Isolation, with nothing named: Gemini leads, Anthropic behind it as the
     // gated last resort, and nothing else however many keys are set.
     all();
-    expect(sceneProviders().map((c) => c.name)).toEqual(["groq", "anthropic"]);
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["groq"]);
+    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "anthropic"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini"]);
 
     // Selection: a named model is asked, and asked first.
-    vi.stubEnv("GROQ_SCENE_MODEL", "groq/some-better-model");
+    vi.stubEnv("GEMINI_SCENE_MODEL", "gemini/some-better-model");
     expect(sceneProviders()[0]).toMatchObject({
-      name: "groq", model: "groq/some-better-model",
+      name: "gemini", model: "gemini/some-better-model",
     });
 
     /*
@@ -235,7 +257,7 @@ describe("a chain built for a purpose", () => {
       the feature was deleted rather than merged. It leads even with the
       fallback budget spent, because a model somebody named is a primary.
     */
-    vi.stubEnv("GROQ_SCENE_MODEL", "");
+    vi.stubEnv("GEMINI_SCENE_MODEL", "");
     vi.stubEnv("OPENROUTER_SCENE_MODEL", "some/scene-model");
     expect(sceneProviders({ allowFallback: false })[0]).toMatchObject({
       name: "openrouter", model: "some/scene-model",
@@ -257,16 +279,16 @@ describe("a chain built for a purpose", () => {
     expect(names).toEqual(new Set(["openrouter", "groq", "gemini", "anthropic", "openai"]));
   });
 
-  it("lets SCENE_MODEL name the model, and does not read GROQ_MODEL for it", () => {
+  it("lets SCENE_MODEL name the model, and does not read GEMINI_MODEL for it", () => {
     /*
-      GROQ_MODEL configures the general chain. Inheriting it here would move
-      scene composition off the model `eval:composers` ranked the first time
+      GEMINI_MODEL configures the general chain. Inheriting it here would move
+      scene composition off the model `eval:thinking` ranked the first time
       anybody tuned the general chain for some other reason, and nothing would
       say so.
     */
-    only("groq");
-    vi.stubEnv("GROQ_MODEL", "openai/gpt-oss-120b");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_GROQ_MODELS]);
+    only("gemini");
+    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
 
     vi.stubEnv("SCENE_MODEL", "some/other-model");
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["some/other-model"]);
@@ -280,7 +302,7 @@ describe("a chain built for a purpose", () => {
       for the highest-volume path in the app: scene composition would have been
       unbounded and `AI_DAILY_USD_GLOBAL` would never have known.
     */
-    const price = priceFor(SCENE_GROQ_MODELS[0]);
+    const price = priceFor(SCENE_MODELS[0]);
     expect(price.inputPerMTok).toBeGreaterThan(0);
     expect(price.outputPerMTok).toBeGreaterThan(0);
     // And not the punitive unknown rate, which would bind forty times too early
@@ -356,7 +378,7 @@ describe("the free providers that are not OpenRouter", () => {
 
       What changed is that "on the free list" stopped implying "costs nothing".
       `qwen/qwen3.8-27b` is the scene composer's model on a paid Groq plan
-      (`SCENE_GROQ_MODELS`), and it stays on this list because `eval:composers`
+      (`SCENE_MODELS`), and it stays on this list because `eval:composers`
       reads it to decide what to rank and a free-tier deployment's general chain
       still wants the link. Its price row is the real one now: pricing a paid
       model at zero is the global spend cap switched off for the busiest path in

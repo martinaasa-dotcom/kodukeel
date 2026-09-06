@@ -42,7 +42,8 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { MAX_WORDS } from "./retrieval";
+import { NEW_WORDS } from "./gate";
+import { MAX_COMPOSED_WORDS } from "./gate";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -90,6 +91,22 @@ export interface ComposeAsk {
   readonly reading: string;
   /** Lines this character has said at other beats, for tone. Never for this beat. */
   readonly examples: readonly string[];
+  /**
+   * What this character has asked for at this very beat before, from the bank.
+   *
+   * THE MODEL KNOWS THE REGISTER AND GUESSES THE CONTENT. Told, in English,
+   * that they ask when the learner could start, the app's own model wrote
+   * `Kust alustaksite tööd?`: fluent, in the list, past every check on the
+   * page, and asking where rather than when. The stage direction is one
+   * sentence of English and the bank holds the same beat asked properly by
+   * somebody who read it, so the cheapest thing to hand over is that.
+   *
+   * The instruction is to ask for the same thing in different words, never to
+   * copy: a composed line exists because it can take account of what the
+   * learner just said, and a paraphrase that does that is worth more than the
+   * banked line, which the ladder would have reached anyway.
+   */
+  readonly asked: readonly string[];
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
 }
@@ -116,9 +133,35 @@ const COMPOSE_RULES = [
   "You are playing one person in a short conversation in Estonian, in a role-play for somebody",
   "learning the language. You are that person and nothing else: never mention the exercise,",
   "never explain, never comment on their Estonian, never correct them, and never write English.",
-  "Reply with exactly ONE short Estonian sentence and nothing else: no translation,",
+  /*
+    AND ASKING FOR ONE SHORT SENTENCE IS WHAT MADE THE OTHER SIDE TERSE. The
+    rule below allows a remark of its own in front of the move, and this line
+    used to say "exactly ONE short Estonian sentence and nothing else" three
+    hundred characters above it: a model reads the stronger instruction, so
+    every line came back as the shortest possible question. A learner read
+    `Kust alustaksite tööd?` and said what was missing was context rather than
+    brevity. What a person at a counter actually says has the situation in it.
+  */
+  "Reply with what this person says next, and nothing else: Estonian, no translation,",
   "no explanation, no quotation marks, no markdown, no list.",
-  `Use at most ${MAX_WORDS} words.`,
+  `Say as much or as little as the moment wants, up to ${MAX_COMPOSED_WORDS} words.`,
+  "Say it the way somebody standing there would say it, not the shortest question that would do:",
+  "the small courtesy, the one thing about the moment that a person in your job would mention,",
+  "the aside they would actually make. A whole thought, finished, the way you are reading this.",
+  /*
+    AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
+    thing about the place a person would mention, and with the room to say it,
+    the model reached for a word it did not control: `Tere! Mis needus täna
+    aitama saan?` is vouched word by word, names the beat's own topic and is
+    not the language. Nothing in the gate can see that, so the instruction has
+    to keep the embellishment inside the list rather than invite a reach.
+  */
+  "Prefer the words you were given, because those are the ones this learner has been taught, but",
+  "say the natural thing rather than a stilted one: a handful of words they have not met is fine,",
+  "and they arrive with the dictionary under them. What is never fine is a word you are not sure",
+  "is real Estonian, or a sentence you are not sure is correct.",
+  "What you must not add is a second question, a comment on their Estonian, or a sentence that",
+  "only announces what you are about to ask.",
   /*
     THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. What reaches the model is
     the run's own turns and, where the dictionary could read the last one, what
@@ -139,10 +182,48 @@ const COMPOSE_RULES = [
     is inside the list and is not the language. The gate withholds that line,
     and the whole point of saying it here is that it should never have to.
   */
-  "Every word you use must be one of the words you are given, in any grammatical form,",
-  "and the sentence must be correct Estonian: the subject and the verb agree, the endings",
-  "are the ones a native speaker would use. If a correct sentence needs a word that is not",
-  "on the list, say something simpler with the words that are.",
+  /*
+    AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE.
+
+    It used to be both, so the only way to say `Kui kaua teie sümptomid
+    kestavad?` was to have the line withheld whole, and seventeen of the
+    twenty-five lines the gate withheld across the fourteen scenes were exactly
+    that: real Estonian, refused for one word a person would obviously have
+    said. What the gate holds now is that every word is a real Estonian word
+    (`vouching`, against the forms list) and that at most `NEW_WORDS` of them
+    are outside the list (`stretch`), because every one of those arrives with
+    the dictionary under it and one new word is a lesson where four is a wall.
+
+    So this asks for the natural sentence and says which way to lean, which is
+    what a teacher does: use their words where they carry it, reach for the
+    right word where they do not.
+  */
+  /*
+    AND A PERSON VOLUNTEERS SOMETHING. One sentence a turn is somebody who
+    answers and asks and never says a thing nobody asked for, which is half of
+    what makes a counter feel like a counter. It rides on the line the model is
+    writing anyway rather than on a second call, and `MAX_WORDS` covers the
+    whole turn, so two sentences are two short ones.
+  */
+  "You may put one short remark of your own in front of your move, where a person in your",
+  "position would actually say one. Never more than two sentences in total, and never a remark",
+  "that asks a second question or answers your own.",
+  /*
+    AND A REMARK THAT SAYS NOTHING IS WORSE THAN NONE. Two shapes turned up in
+    the transcripts and both read as a machine filling a slot: `Ma küsin teid.
+    Kas teil on küsimusi?`, which announces the question and then asks it, and
+    `Tere! Kuhu te soovite sõita?` five turns into a conversation that opened
+    with a greeting. The remark exists because a person volunteers something,
+    and neither of those is something.
+  */
+  "The remark has to say something: never announce the question you are about to ask, and never",
+  "greet them again once the conversation has started.",
+  "Prefer the words you are given, in any grammatical form: they are what this learner has",
+  `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
+  "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",
+  "person in this situation would actually say, rather than a simpler one that avoids a word.",
+  "It must be correct Estonian: the subject and the verb agree, and every ending is the one a",
+  "native speaker would use.",
 ].join(" ");
 
 /**
@@ -199,8 +280,21 @@ export function composeLive(ask: ComposeAsk): string {
     ask.examples.length > 0
       ? `Lines this character has said at other moments, for tone and length: ${ask.examples.join(" | ")}`
       : "",
+    ask.asked.length > 0
+      ? `At this moment this character has asked for the same thing like this: ${ask.asked.join(" | ")}.`
+        + " Ask for the same thing, in your own words and taking account of what they just said."
+        + " Never word for word."
+      : "",
+    /*
+      What a retry is told, and it is deliberately not "those words are not
+      allowed". A line can be withheld for using a word nothing could vouch for
+      or for reaching too far at once, and `retryNote` sends the words that
+      actually went wrong; hunting for a synonym is the right instruction for
+      the first and the wrong one for the second.
+    */
     ask.avoid.length > 0
-      ? `Your last attempt used words that are not allowed here: ${ask.avoid.join(", ")}.`
+      ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
+        + "Say it again without them, using more of the words you were given."
       : "",
   ].filter(Boolean).join("\n");
 }
