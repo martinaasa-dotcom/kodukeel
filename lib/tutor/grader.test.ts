@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildGraderSystemPrompt, buildGraderUserPrompt, parseVerdict } from "./grader";
+import { buildGraderSystemPrompt, buildGraderUserPrompt, gradeSentence, parseVerdict } from "./grader";
+import { PROVIDER_KEY_ENV, anthropicHeaders, openAiCompatible } from "./provider";
 import type { WritingTask } from "@/lib/estonian/writing";
 
 const task: WritingTask = {
@@ -113,3 +114,159 @@ describe("the grader prompt", () => {
     expect(buildGraderSystemPrompt()).not.toContain("Ignore all previous");
   });
 });
+
+/**
+ * WHERE A GRADER CALL IS ACTUALLY POSTED.
+ *
+ * `callForJson` chose its endpoint with `isOpenRouter ? OpenRouter : OpenAI`,
+ * which was a complete description of the chain on the day it was written and
+ * stopped being one when Groq and Gemini were added to `resolveProviders`.
+ * Both fell down the else side and were posted to `api.openai.com` carrying
+ * `OPENAI_API_KEY`, undefined on a deployment configured with either and no
+ * OpenAI key: every GRADER call on the two providers a stranger can set up
+ * without a card answered 401, and the screen read that as the tutor being
+ * unavailable rather than as a routing fault. The streaming path was right
+ * all along, which is why nothing looked broken.
+ *
+ * Driven through the real transport with a stubbed `fetch`, because the fault
+ * is not visible in the arguments: only the request that goes out says which
+ * host and which key were chosen.
+ */
+describe("the grader's non-streaming transport", () => {
+  const sent: { url: string; auth: string | null }[] = [];
+  const stub = () => {
+    const real = globalThis.fetch;
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const headers = new Headers(init?.headers);
+      sent.push({ url: String(input), auth: headers.get("authorization") });
+      return new Response(
+        JSON.stringify({
+          choices: [{ message: { content: '{"verdict":"correct","comment":"Fine.","rule":""}' } }],
+          usage: { prompt_tokens: 10, completion_tokens: 5 },
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }) as typeof fetch;
+    return () => { globalThis.fetch = real; };
+  };
+
+  const input = { task, sentence: "Ma olen toas.", level: "B1", knownForms: [] };
+
+  it("posts a Groq call to Groq with the Groq key, not to OpenAI with a key it does not have", async () => {
+    const before = process.env.GROQ_API_KEY;
+    process.env.GROQ_API_KEY = "groq-test-key";
+    const restore = stub();
+    sent.length = 0;
+    try {
+      await gradeSentence({ name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" }, input, true);
+    } finally {
+      restore();
+      if (before === undefined) delete process.env.GROQ_API_KEY; else process.env.GROQ_API_KEY = before;
+    }
+    expect(sent).toHaveLength(1);
+    expect(sent[0]!.url).toContain("api.groq.com");
+    expect(sent[0]!.url).not.toContain("api.openai.com");
+    expect(sent[0]!.auth).toBe("Bearer groq-test-key");
+  });
+
+  it("posts a Gemini call to Gemini", async () => {
+    const before = process.env.GEMINI_API_KEY;
+    process.env.GEMINI_API_KEY = "gemini-test-key";
+    const restore = stub();
+    sent.length = 0;
+    try {
+      await gradeSentence({ name: "gemini", model: "gemini-flash-latest", label: "Google Gemini" }, input, true);
+    } finally {
+      restore();
+      if (before === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = before;
+    }
+    expect(sent[0]!.url).toContain("generativelanguage.googleapis.com");
+    expect(sent[0]!.auth).toBe("Bearer gemini-test-key");
+  });
+
+  /*
+    And the table is the chain's own rather than a second copy, which is the
+    property that stops this drifting again the next time a provider joins.
+    Every key that can put a provider into the chain has a home here, except
+    Anthropic's, which is not OpenAI-shaped and has its own branch.
+  */
+  it("has an endpoint for every provider the chain can offer", () => {
+    for (const env of PROVIDER_KEY_ENV) {
+      if (env === "ANTHROPIC_API_KEY") continue;
+      const name = env.replace(/_API_KEY$/, "").toLowerCase() as "openrouter" | "groq" | "gemini" | "openai";
+      const wire = openAiCompatible({ name, model: "m", label: name });
+      expect(wire.keyEnv, `${name} reads the wrong key`).toBe(env);
+      expect(wire.url).toMatch(/^https:\/\//);
+    }
+  });
+});
+
+/**
+ * AN ANTHROPIC KEY IS SCOPED TO A WORKSPACE OR TO AN ORGANIZATION, AND ONLY
+ * ONE OF THE TWO WORKED.
+ *
+ * An org-scoped key is refused outright without `anthropic-workspace-id`, with
+ * a 400 whose message names the header, and all three Anthropic call sites
+ * built their headers separately and all three sent the same two. What made it
+ * hard to see is that it does not look like a configuration fault: `assertOk`
+ * has no 400 branch, so it becomes a 502, which `worthFallingBackFrom` treats
+ * as worth trying the next provider for. The Anthropic leg was simply dead,
+ * silently, with a key correctly set in the environment.
+ */
+describe("the headers an Anthropic call carries", () => {
+  const swap = (vars: Record<string, string | undefined>) => {
+    const before: Record<string, string | undefined> = {};
+    for (const [k, v] of Object.entries(vars)) {
+      before[k] = process.env[k];
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+    }
+    return () => {
+      for (const [k, v] of Object.entries(before)) {
+        if (v === undefined) delete process.env[k]; else process.env[k] = v;
+      }
+    };
+  };
+
+  it("names the workspace when the key is scoped to the organization", () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: "wrkspc_test" });
+    try {
+      expect(anthropicHeaders()["anthropic-workspace-id"]).toBe("wrkspc_test");
+      expect(anthropicHeaders()["x-api-key"]).toBe("k");
+      expect(anthropicHeaders()["anthropic-version"]).toBe("2023-06-01");
+    } finally { restore(); }
+  });
+
+  /*
+    AND OMITS IT OTHERWISE, WHICH IS NOT TIDINESS. A workspace-scoped key sent
+    a workspace id is refused in the other direction, because the header names
+    a workspace the key may not belong to. Absent is the ordinary case and has
+    to behave exactly as it did before this existed.
+  */
+  it("omits it for a workspace-scoped key, which is refused if it carries one", () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: undefined });
+    try {
+      expect(Object.keys(anthropicHeaders())).not.toContain("anthropic-workspace-id");
+    } finally { restore(); }
+  });
+
+  it("is the one place the headers are built, so a fourth call site cannot send two of three", async () => {
+    const restore = swap({ ANTHROPIC_API_KEY: "k", ANTHROPIC_WORKSPACE_ID: "wrkspc_test" });
+    const real = globalThis.fetch;
+    let sent: Headers | null = null;
+    globalThis.fetch = (async (_i: RequestInfo | URL, init?: RequestInit) => {
+      sent = new Headers(init?.headers);
+      return new Response(
+        JSON.stringify({ content: [{ type: "text", text: '{"verdict":"correct","comment":"","rule":""}' }], usage: { input_tokens: 1, output_tokens: 1 } }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      );
+    }) as typeof fetch;
+    try {
+      await gradeSentence(
+        { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
+        { task, sentence: "Ma olen toas.", level: "B1", knownForms: [] }, true,
+      );
+    } finally { globalThis.fetch = real; restore(); }
+    expect(sent!.get("anthropic-workspace-id")).toBe("wrkspc_test");
+  });
+});
+

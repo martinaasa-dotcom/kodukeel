@@ -62,7 +62,27 @@ const meeldib = WORKED_FORMS.meeldin.value.replace(/n$/, "b");
 export const CLOSED_CLASS_EXAMPLES = ["mulle", "sulle", "see", "läbi"] as const;
 const [mulle, sulle, see, labi] = CLOSED_CLASS_EXAMPLES;
 
-export function buildSystemPrompt(level: string): string {
+/**
+ * The half of Anu's briefing that is the same for everybody.
+ *
+ * THE LEARNER'S LEVEL USED TO BE INSIDE IT, AND THAT UNDID THE CACHING.
+ *
+ * `callAnthropic` marks this block with a `cache_control` breakpoint and puts
+ * the per-learner facts in a second, uncached block after it, so the ~2,275
+ * tokens of case table and house style are read once and re-read at a tenth
+ * of the rate. A cache entry is keyed on the exact prefix, and "Their current
+ * level is A1" sat at character 158 of 9,093, which put 98% of the block
+ * behind a string that changes: six CEFR levels meant six cache entries where
+ * one would do, each with its own five-minute window to be hit inside, so on
+ * a deployment with a handful of learners nearly every call was a cache
+ * write rather than a cache read.
+ *
+ * The level is not lost by moving it out, because it was already being sent
+ * twice: `learnerNote` opens with "Their level is X" and always has. It is
+ * said once now, in the block that is allowed to vary per person, which is
+ * where every other fact about the learner already lives.
+ */
+export function buildSystemPrompt(): string {
   /*
     THE ILLATIVE IS NOT DESCRIBED AS REGULAR, BECAUSE IT IS NOT.
 
@@ -90,7 +110,7 @@ export function buildSystemPrompt(level: string): string {
 
   const { tuba, sepp, loen, lugesin, aitan, sind, helistan, meeldin, raamatut, raamatu } = WORKED_FORMS;
 
-  return `You are Anu, an experienced Estonian teacher, and this is a one-to-one conversation with one of your own students, an English speaker. Their current level is ${level}. You have taught this language for years, you still like it, and you like the people who are trying to learn it.
+  return `You are Anu, an experienced Estonian teacher, and this is a one-to-one conversation with one of your own students, an English speaker. You have taught this language for years, you still like it, and you like the people who are trying to learn it.
 
 WHO YOU ARE
 - A person, talking to one other person across a desk. Write to "you", in plain sentences, about the thing in front of you both. You are a teacher, not a reference book and not a chatbot: a grammar book lists the rule, and you say why it is there and how it feels to use it.
@@ -225,6 +245,15 @@ export function learnerNote(note: LearnerNote): string {
       `- The last situation they rehearsed was "${note.scene.title}".${missed}${gaps} If they ask about it, answer about that encounter and the words it needs; do not raise it otherwise.`,
     );
   }
-  if (lines.length === 0) return "";
-  return `ABOUT THIS LEARNER\n- Their level is ${note.level}.\n${lines.join("\n")}`;
+  /*
+    ALWAYS THE LEVEL, EVEN WHEN THERE IS NOTHING ELSE TO SAY.
+
+    This returned the empty string for a learner the app knows nothing about
+    beyond their level, which was harmless while the static prompt also named
+    the level and is not now: that sentence moved here so the cached block
+    could stop varying per person (`buildSystemPrompt`). An empty note would
+    take the level with it, and Anu would pitch a beginner and a C1 speaker
+    identically, which is the fault `tutorContext` exists to prevent.
+  */
+  return `ABOUT THIS LEARNER\n- Their level is ${note.level}.${lines.length > 0 ? `\n${lines.join("\n")}` : ""}`;
 }

@@ -128,15 +128,67 @@ export function priceFor(model: string): ModelPrice {
   return PRICES[normaliseModel(model)] ?? UNKNOWN_MODEL;
 }
 
+/**
+ * What a cached input token costs, as a multiple of the ordinary input rate.
+ *
+ * Anthropic's `cache_control: { type: "ephemeral" }`, which is the only kind
+ * this app asks for, bills a five-minute entry at 1.25x base input to write
+ * and 0.1x base input to read. Every other provider in the chain either
+ * caches transparently at no stated discount or does not cache at all, so
+ * these only ever apply to tokens a caller actually reported as cached.
+ *
+ * WHY THIS MATTERS RATHER THAN BEING A ROUNDING DETAIL. Every Anthropic call
+ * site summed `input_tokens`, `cache_read_input_tokens` and
+ * `cache_creation_input_tokens` into one figure and priced the lot at the
+ * base rate, under a comment saying cache reads "are real input tokens and
+ * are billed as such". They are real input tokens and they are not billed as
+ * such: a cache read was being charged ten times what Anthropic charges for
+ * it. The direction is the safe one, so nothing ever overspent, and the cost
+ * is the whole point of the feature: the tutor's prompt is ~2,275 tokens of
+ * case table read on every turn, and the ledger could not see the ninety
+ * percent that caching takes off it. The deployment budget and the learner's
+ * own spend meter both bound roughly ten times too early on exactly the
+ * traffic the breakpoint was added to make cheap.
+ */
+export const CACHE_READ_RATE = 0.1;
+export const CACHE_WRITE_RATE = 1.25;
+
+/**
+ * The parts of one call's input, where the provider told them apart.
+ *
+ * `inputTokens` stays the total, cached tokens included, so a caller that has
+ * not been taught about caching keeps the behaviour it had: everything at the
+ * base rate, which over-counts and therefore still fails closed. What these
+ * two do is move the tokens the provider named as cached onto their own rate.
+ */
+export interface CacheSplit {
+  /** Tokens served from an existing cache entry. Billed at CACHE_READ_RATE. */
+  readonly cachedInputTokens?: number;
+  /** Tokens written into a new cache entry. Billed at CACHE_WRITE_RATE. */
+  readonly cacheWriteTokens?: number;
+}
+
 /** Cost of one call, in micro-dollars, rounded up so it is never understated. */
 export function estimateCostMicros(
   model: string,
   inputTokens: number,
   outputTokens: number,
+  cache: CacheSplit = {},
 ): number {
   const price = priceFor(model);
+  const cached = Math.max(0, cache.cachedInputTokens ?? 0);
+  const written = Math.max(0, cache.cacheWriteTokens ?? 0);
+  /*
+    Clamped at zero rather than trusted. `inputTokens` is the total and these
+    are parts of it, so a provider reporting the parts and a smaller total, or
+    a caller populating one and not the other, must never make the plain
+    remainder negative and refund the call.
+  */
+  const plain = Math.max(0, Math.max(0, inputTokens) - cached - written);
   const dollars =
-    (Math.max(0, inputTokens) / 1e6) * price.inputPerMTok +
+    (plain / 1e6) * price.inputPerMTok +
+    (cached / 1e6) * price.inputPerMTok * CACHE_READ_RATE +
+    (written / 1e6) * price.inputPerMTok * CACHE_WRITE_RATE +
     (Math.max(0, outputTokens) / 1e6) * price.outputPerMTok;
   return Math.ceil(dollars * 1e6);
 }

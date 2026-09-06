@@ -25,8 +25,15 @@ describe("learnerNote", () => {
     expect(note).toMatch(/Do not raise it unprompted/);
   });
 
-  it("says nothing when there is nothing to say", () => {
-    expect(learnerNote({ level: "B1", weakestCase: null, unit: null, scene: null })).toBe("");
+  it("still names the level when there is nothing else to say", () => {
+    /*
+      The level is the one line this block always carries, because it is the
+      one fact about the learner the static prompt no longer holds: it moved
+      here so the cached half stops varying per person. An empty note would
+      take it with it.
+    */
+    const bare = learnerNote({ level: "B1", weakestCase: null, unit: null, scene: null });
+    expect(bare).toBe("ABOUT THIS LEARNER\n- Their level is B1.");
   });
 
   it("drops a case key it cannot name rather than inventing a name", () => {
@@ -35,7 +42,10 @@ describe("learnerNote", () => {
       weakestCase: { grammCase: "NOT_A_CASE", accuracy: 10, total: 30 },
       unit: null, scene: null,
     });
-    expect(note).toBe("");
+    // The claim is that the unnameable case is dropped, not that the note is
+    // empty: the level line is always there now (see above).
+    expect(note).not.toMatch(/weakest case/);
+    expect(note).not.toContain("NOT_A_CASE");
   });
 
   /*
@@ -66,12 +76,25 @@ describe("learnerNote", () => {
     });
     expect(note).toContain("They live in Estonia and have Estonian at home");
     expect(note).toContain("point them at using it");
-    expect(learnerNote({ level: "A2", weakestCase: null, unit: null, situation: null })).toBe("");
+    expect(learnerNote({ level: "A2", weakestCase: null, unit: null, situation: null }))
+      .not.toMatch(/point them at using it/);
   });
 
-  it("stays out of the static prompt, which is what keeps that prompt cacheable", () => {
-    const prompt = buildSystemPrompt("B1");
-    expect(prompt).not.toContain("ABOUT THIS LEARNER");
-    expect(prompt).toContain("Their current level is B1");
+  /*
+    THE CACHED HALF IS THE SAME BYTES FOR EVERY LEARNER, AND THAT IS THE WHOLE
+    POINT OF SPLITTING IT.
+
+    The first version of this test asserted one half of the property and wrote
+    the breach of the other half into an assertion: it checked that the
+    per-learner block stayed out of the static prompt, and then required the
+    static prompt to contain "Their current level is B1", which is the string
+    that gave every CEFR level its own cache entry. A prompt built for two
+    different learners has to be byte-identical or the `cache_control`
+    breakpoint in `callAnthropic` is marking a prefix that is not shared.
+  */
+  it("is the same static prompt for every learner, which is what makes it cacheable", () => {
+    expect(buildSystemPrompt()).not.toContain("ABOUT THIS LEARNER");
+    expect(buildSystemPrompt()).not.toMatch(/current level is/);
+    expect(learnerNote({ level: "B1", weakestCase: null, unit: null })).toContain("level is B1");
   });
 });
