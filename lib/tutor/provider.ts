@@ -273,10 +273,23 @@ export class TutorError extends Error {
 
 /** Tokens a completed call actually consumed, for the usage ledger. */
 export interface UsageReport {
+  /** Every input token the call was billed for, cached ones included. */
   inputTokens: number;
   outputTokens: number;
   /** False when the provider never sent a usage frame and this is an estimate. */
   measured: boolean;
+  /**
+   * How much of `inputTokens` came off a cache, where the provider said so.
+   *
+   * Anthropic reports the three buckets separately and they are billed at
+   * three different rates (`CACHE_READ_RATE`, `CACHE_WRITE_RATE`), so keeping
+   * only the total charged a cache read ten times over. They are carried
+   * beside the total rather than subtracted from it, so any reader that only
+   * knows about `inputTokens` still sees the whole call and still errs high.
+   * Absent on every other provider, none of which reports a split.
+   */
+  cachedInputTokens?: number;
+  cacheWriteTokens?: number;
 }
 
 /** A provider that has accepted the question, and the reply it is about to give. */
@@ -311,11 +324,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
   if (provider === "anthropic") {
     if (f.type === "message_start" && f.message?.usage) {
       const u = f.message.usage;
-      // Cache reads and writes are real input tokens and are billed as such.
-      into.inputTokens =
-        (u.input_tokens ?? 0) +
-        (u.cache_creation_input_tokens ?? 0) +
-        (u.cache_read_input_tokens ?? 0);
+      /*
+        Cache reads and writes are real input tokens, and the three buckets are
+        billed at three different rates: a read at a tenth of base, a write at
+        1.25x. The total is what the call was for; the split is what it cost.
+        This used to keep the total alone, which priced a read as though the
+        cache did not exist and hid the whole saving from the ledger.
+      */
+      const cached = u.cache_read_input_tokens ?? 0;
+      const written = u.cache_creation_input_tokens ?? 0;
+      into.inputTokens = (u.input_tokens ?? 0) + written + cached;
+      into.cachedInputTokens = cached;
+      into.cacheWriteTokens = written;
       into.measured = true;
     }
     if (f.type === "message_delta" && f.usage?.output_tokens != null) {
@@ -557,8 +577,21 @@ const OPENAI_COMPATIBLE: Record<
   },
 };
 
-/** The wire details for a provider that is not Anthropic. */
-function openAiCompatible(config: ProviderConfig) {
+/**
+ * The wire details for a provider that is not Anthropic.
+ *
+ * Exported because `lib/tutor/grader.ts` needs the same answer for its own
+ * non-streaming transport and had been reaching it by a two-way ternary:
+ * "OpenRouter, or else OpenAI". That was true when the chain held two
+ * providers and silently wrong once Groq and Gemini joined it, since every
+ * config that was not OpenRouter was then posted to `api.openai.com` with
+ * `OPENAI_API_KEY`, which on a Groq-only or Gemini-only deployment is
+ * undefined. Every GRADER call on such a deployment answered 401, which the
+ * screen reads as "the tutor is unavailable" rather than as a routing fault.
+ * One table rather than two readings of it, which is the rule this repository
+ * keeps rediscovering about a fact written down twice.
+ */
+export function openAiCompatible(config: ProviderConfig) {
   const entry = OPENAI_COMPATIBLE[config.name as keyof typeof OPENAI_COMPATIBLE];
   if (!entry) throw new TutorError(`${config.label} has no endpoint configured.`, 500);
   return entry;
@@ -904,15 +937,19 @@ async function readImageAnthropic(
     .map((block) => block.text ?? "")
     .join("");
 
-  const input =
-    (body.usage?.input_tokens ?? 0) +
-    (body.usage?.cache_creation_input_tokens ?? 0) +
-    (body.usage?.cache_read_input_tokens ?? 0);
+  // As in `absorbUsage`: the total for the call, and the split for its price.
+  const cached = body.usage?.cache_read_input_tokens ?? 0;
+  const written = body.usage?.cache_creation_input_tokens ?? 0;
+  const input = (body.usage?.input_tokens ?? 0) + written + cached;
 
   return {
     config,
     text,
-    usage: usageFrom(input || undefined, body.usage?.output_tokens, system + prompt, text),
+    usage: {
+      ...usageFrom(input || undefined, body.usage?.output_tokens, system + prompt, text),
+      cachedInputTokens: cached,
+      cacheWriteTokens: written,
+    },
   };
 }
 

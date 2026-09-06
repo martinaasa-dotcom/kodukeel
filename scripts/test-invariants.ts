@@ -2987,7 +2987,7 @@ check("Anu's reply is drawn as typography, shown once finished, and the marker l
   }
 
   // The prompt says what formatting is allowed, in the terms the renderer understands.
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   assert.match(prompt, /\*\*bold\*\*/, "the prompt no longer says what bold is for");
   assert.match(prompt, /No headings, no tables/, "the prompt no longer rules out the shapes the renderer will not draw");
 });
@@ -3664,7 +3664,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     imports a constant and never interpolates it type-checks perfectly and
     asks the model for nothing, which is the failure worth catching here.
   */
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   for (const rule of VOICE_RULES) {
     assert.ok(prompt.includes(rule), `Anu is not given the rule: ${rule.slice(0, 48)}`);
   }
@@ -11318,6 +11318,79 @@ check("the scene gate has one implementation, and a line says where it came from
  * sets an exam can reach the bank at all. `lib/scenes/bank.test.ts` holds
  * the sixth, that every row still passes the gate today.
  */
+/**
+ * WHO WRITES A CONVERSATION IS DECIDED ONCE, AND THE MODEL IS SHOWN THE
+ * CONVERSATION.
+ *
+ * Two properties, one feature. A run is composed or scripted from its first
+ * line, decided when it opens and written onto its own transcript beside the
+ * persona and the card, for the reason the persona is: re-deciding per turn
+ * deals a different writer mid-conversation. And a composed line is drafted
+ * against what has actually been said rather than against the current beat
+ * alone, which is the whole difference between a conversation and a quiz with
+ * dialogue painted on it.
+ *
+ * The second half is the one that could rot silently. `compose` would compile
+ * and run perfectly with the history dropped on the floor, and what a learner
+ * would notice is only that the other side never refers to anything, which
+ * reads as a model being poor rather than as a field nobody passed.
+ */
+check("a scene decides who writes its lines once, and shows that writer the conversation", () => {
+  const scene = code("lib/progress/scene.ts");
+  const route = code("app/api/scene/route.ts");
+  const actions = code("app/actions.ts");
+
+  // Decided at the door and stored, not re-read per turn.
+  assert.match(scene, /linesFrom: "composed" \| "scripted"/, "a run no longer records who writes its lines");
+  assert.match(
+    scene,
+    /linesFrom: input\.composed \? "composed" : "scripted"/,
+    "beginRun no longer writes the decision onto the run",
+  );
+  assert.match(
+    scene,
+    /parsed\.linesFrom === "composed" \? "composed" : "scripted"/,
+    "a transcript that predates the field no longer reads as scripted, so an old run could start spending",
+  );
+  assert.match(actions, /const composed = resolveProviders\(\)\.length > 0;/,
+    "the decision is no longer made from whether a provider is configured");
+  assert.match(actions, /composed,\n\s*\}\);/, "beginScene no longer passes the decision to beginRun");
+
+  /*
+    THE ROUTE READS THE RUN'S ANSWER AND NEVER ASKS THE ENVIRONMENT AGAIN.
+    A second read here would be a second answer to one question, and the two
+    would disagree the moment a key was added mid-conversation: the chip the
+    learner is reading says one thing and the ladder does another.
+  */
+  assert.match(route, /const composedRun = draw\?\.linesFrom === "composed";/,
+    "the route no longer reads which writer this run was opened with");
+
+  // And the conversation reaches the prompt, both sides, off the server's own replay.
+  assert.match(
+    route,
+    /for \(const turn of state\.turns\.slice\(-HISTORY_TURNS\)\)/,
+    "the composer is no longer given the run's own turns, so it drafts against the beat alone",
+  );
+  assert.match(route, /role: "assistant", content: turn\.heard/, "the other side's own lines no longer reach the composer");
+  assert.match(route, /role: "user", content: turn\.said/, "the learner's lines no longer reach the composer");
+  assert.doesNotMatch(
+    route,
+    /body\.said/,
+    "the composer is being handed the client's account of the run again. The server replays every turn (`replay`) and that is what the model must be shown.",
+  );
+  assert.match(
+    route,
+    /history: readonly \{ role: "user" \| "assistant"; content: string \}\[\];/,
+    "compose no longer takes the conversation as messages, so a caller could concatenate it into an instruction",
+  );
+  // The learner's text stays data: it is a message, never spliced into the system half.
+  assert.doesNotMatch(
+    code("app/api/scene/route.ts").slice(route.indexOf("const system = [")),
+    /\$\{input\.history/,
+    "the learner's own words are being interpolated into the composer's instructions (§17)",
+  );
+});
+
 check("a scripted line is drafted by a script, said after a recorded one, and marks nothing", () => {
   const bank = read("lib/scenes/bank.ts");
   assert.match(bank, /^\/\* GENERATED by scripts\/draft-lines\.ts/, "lib/scenes/bank.ts no longer says it is generated");
@@ -11328,18 +11401,52 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
 
   const line = code("lib/scenes/line.ts");
-  const attestedAt = line.indexOf("pickAttested(request)");
-  const scriptedAt = line.indexOf('provenance: "scripted"');
-  const composeAt = line.indexOf("request.compose([])");
-  assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
+
+  /*
+    THE PROVENANCE ORDER IS THE DEFAULT, AND A COMPOSED RUN IS THE ONE THING
+    ALLOWED TO TURN IT OVER.
+
+    ADR-025's order is a lexicographer's sentence, then a line drafted in
+    advance and read by a person since, then a model, then the way out, and it
+    is still what `sceneLine` walks when nobody has said otherwise. What a run
+    may now say otherwise about is *itself*: `StoredDraw.linesFrom` decides
+    once, at the door, whether the model writes every line of this
+    conversation or none of them, because a model that reacts to what the
+    learner said three turns ago and a sentence drafted months before anybody
+    played are two different writers and swapping between them mid
+    conversation reads as the character changing.
+
+    So the two things asserted are the ones that did not move. The default
+    path is unchanged, rung for rung. And the composed path is a *reordering*
+    rather than a removal: the bank is still there underneath it, which is
+    what stops "the model is preferred" quietly meaning "the model or
+    nothing".
+  */
+  const preferAt = line.indexOf('request.prefer === "composed"');
+  assert.ok(preferAt > 0, "the ladder no longer reads which rung this run leads with");
+
+  const defaultPath = line.slice(line.indexOf("const attested = pickAttested(request);"));
+  const attestedAt = defaultPath.indexOf("pickAttested(request)");
+  const scriptedAt = defaultPath.indexOf("pickScripted(request)");
+  const composeAt = defaultPath.indexOf("tryCompose(request)");
+  assert.ok(attestedAt >= 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
   assert.ok(
     attestedAt < scriptedAt && scriptedAt < composeAt,
-    "the scripted rung is no longer between the recorded sentence and the live model. " +
+    "the scripted rung is no longer between the recorded sentence and the live model on a run that did not ask to be composed. " +
     "A lexicographer outranks a model, and a line gated yesterday and read since outranks one composed a second ago.",
   );
+
+  // And the composed path falls back to the bank rather than to nothing.
+  const composedPath = line.slice(preferAt, line.indexOf("const attested = pickAttested(request);"));
+  assert.match(
+    composedPath,
+    /pickAttested\(request\) \?\? pickScripted\(request\)/,
+    "a composed run no longer falls back to the bank when the model is refused, so a withheld line is now silence",
+  );
+
   assert.match(
     line,
-    /request\.scripted\.find\(\(text\) => !request\.used\.has\(text\)\)/,
+    /request\.scripted\.find\(\(line\) => !request\.used\.has\(line\)\)/,
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
 

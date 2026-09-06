@@ -202,3 +202,98 @@ describe("the scripted rung", () => {
  * empty pool and a spent allowance, and the only sentence it had to say it
  * with was the one that means "I did not understand you".
  */
+
+/**
+ * WHO WRITES THE OTHER SIDE'S LINES, AND THE FACT THAT IT IS ONE OF THEM FOR
+ * THE WHOLE RUN.
+ *
+ * The ladder's default order is the provenance order and is tested above. This
+ * is the other order, and the property that matters is not which rung wins but
+ * that a conversation does not swap writers halfway through: a model answering
+ * what the learner said two turns ago and a sentence drafted months before
+ * anybody played are two different characters wearing one name.
+ */
+describe("a run that leads with the model", () => {
+  const banked = "Mis teil on?";
+
+  it("asks the model on a beat the bank could have answered", async () => {
+    let asked = 0;
+    const line = await sceneLine(request({
+      prefer: "composed",
+      pool: [RECORDED],
+      scripted: [banked],
+      compose: async () => { asked += 1; return "Kas teil on valu?"; },
+    }));
+    expect(asked, "the bank answered a beat on a run that was told to compose").toBe(1);
+    expect(line.provenance).toBe("composed");
+  });
+
+  /*
+    AND THE BANK IS STILL UNDERNEATH IT. "The model is preferred" must not
+    quietly become "the model or nothing": a gate that refuses twice, a
+    provider having a bad minute and a spent allowance are all ordinary here,
+    and the honest thing under each of them is the line somebody already
+    wrote for this beat rather than the repair phrase.
+  */
+  it("falls back to a recorded sentence when the model cannot answer", async () => {
+    const line = await sceneLine(request({
+      prefer: "composed",
+      pool: [RECORDED],
+      scripted: [banked],
+      compose: async () => null,
+    }));
+    expect(line.provenance).toBe("attested");
+    expect(line.text).toBe(RECORDED.text);
+  });
+
+  it("falls back to a drafted line when the model is refused and nothing was recorded", async () => {
+    const line = await sceneLine(request({
+      prefer: "composed",
+      scripted: [banked],
+      // Outside the scene's word list, so the gate withholds it both times.
+      compose: async () => "Ma tahan pitsat ja õlut homme.",
+    }));
+    expect(line.provenance).toBe("scripted");
+    expect(line.text).toBe(banked);
+  });
+
+  it("reaches the way out only when the model and the bank both have nothing", async () => {
+    const line = await sceneLine(request({
+      prefer: "composed",
+      compose: async () => null,
+    }));
+    expect(line.provenance).toBe("fallback");
+    expect(line.text).toBe("Vabandust?");
+  });
+
+  /*
+    A SCRIPTED RUN NEVER ASKS. This is the half that keeps a keyless
+    deployment keyless and a deployment that has decided not to compose from
+    quietly composing anyway: the composer is injected, so the only thing
+    stopping it being called is the order, and the order is the run's.
+  */
+  it("does not ask the model at all on a run that was not told to compose", async () => {
+    let asked = 0;
+    const compose = async () => { asked += 1; return "Kas teil on valu?"; };
+    for (const over of [{ pool: [RECORDED] }, { scripted: [banked] }]) {
+      const line = await sceneLine(request({ ...over, compose }));
+      expect(line.provenance === "attested" || line.provenance === "scripted").toBe(true);
+    }
+    expect(asked, "a scripted run reached a model").toBe(0);
+  });
+
+  it("gives a composed line exactly one retry, on either order", async () => {
+    for (const prefer of ["composed", "scripted"] as const) {
+      const tried: string[][] = [];
+      await sceneLine(request({
+        prefer,
+        // Always outside the list, so both attempts are refused.
+        compose: async (avoid) => { tried.push([...avoid]); return "Ma tahan pitsat homme."; },
+      }));
+      expect(tried.length, `${prefer} asked more or fewer than twice`).toBe(2);
+      // The second attempt is told which words the first reached for.
+      expect(tried[1]!.length).toBeGreaterThan(0);
+    }
+  });
+});
+

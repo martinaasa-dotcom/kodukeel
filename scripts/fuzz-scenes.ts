@@ -50,7 +50,7 @@ async function main() {
     for (const difficulty of ["textbook", "bad"] as const) {
       for (let seedNo = 0; seedNo < 6; seedNo++) {
         const run = planRun(scene, `fuzz-${seedNo}`, scene.level, difficulty);
-        const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })) };
+        const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), linesFrom: "scripted" };
         const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
         // sequences: pure garbage, alternating garbage/real, and all-real
         const sequences: string[][] = [];

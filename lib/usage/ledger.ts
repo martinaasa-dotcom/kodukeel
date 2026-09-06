@@ -85,12 +85,20 @@ const LEDGER_LOCK = 4_820_311_907n;
  *           here at all. A listening round legitimately meets a dozen new
  *           words in a minute, so a tight cap would break a real session to
  *           solve a problem that does not exist.
- *   SCENE    one conversation, booked whole rather than per turn, because
- *           running out of allowance halfway through one is the worst failure
- *           available to that module. The base gives ten a day, which is a real
- *           amount of somebody's evening, and what actually rations it is the
- *           deployment's daily budget rather than this count: the reservation
- *           is the whole scene, so the global cap sees a scene as a scene.
+ *   SCENE    one turn of one conversation. This said "booked whole rather than
+ *           per turn" and described a design two changes ago: the booking is
+ *           per turn, because two of the three limits count `CALL` rows and a
+ *           dozen turns behind one booking is eleven calls the allowance never
+ *           saw. At the base allowance that arithmetic left a learner ten
+ *           turns a day, and a scene is 6.5 beats plus the curveballs its
+ *           difficulty raises, so on a deployment that composes every turn the
+ *           first conversation of the day ran the allowance out somewhere in
+ *           the middle of itself. Four times the base is three or four whole
+ *           conversations, which is a real evening; the burst stays at the
+ *           base, because a turn is somebody typing a sentence and eight a
+ *           minute is already faster than anybody talks. What rations the
+ *           money is still the deployment's daily budget rather than this
+ *           count, and at the measured cost of a turn it binds first.
  *   SCAN     one photograph read once. It is the dearest single call in the
  *           app, because a picture is a few thousand input tokens where a
  *           question is a few hundred, but it is also the least repeated: a
@@ -105,7 +113,7 @@ const ALLOWANCE: Record<UsageKind, { burst: number; daily: number }> = {
   GRADER: { burst: 1, daily: 3 },
   TTS: { burst: 6, daily: 30 },
   SCAN: { burst: 1, daily: 2 },
-  SCENE: { burst: 1, daily: 1 },
+  SCENE: { burst: 1, daily: 4 },
 };
 
 /**
@@ -325,8 +333,19 @@ export async function recordUsage(input: {
   kind: UsageKind;
   provider: string;
   model: string;
+  /** Every input token, cached ones included. */
   inputTokens: number;
   outputTokens: number;
+  /**
+   * How much of `inputTokens` a cache served or wrote, where the provider
+   * reported it. Priced at `CACHE_READ_RATE` and `CACHE_WRITE_RATE` rather
+   * than at base, which is the difference between the ledger seeing what
+   * prompt caching saves and charging as though it were switched off.
+   * Omitted by every provider that reports no split, and the whole call is
+   * then priced at base as it always was.
+   */
+  cachedInputTokens?: number;
+  cacheWriteTokens?: number;
   /** The authorization this call is settling, from `authoriseCall`. */
   reservation?: Reservation;
   /**
@@ -340,7 +359,10 @@ export async function recordUsage(input: {
 }): Promise<void> {
   const now = input.now ?? new Date();
   const actual = input.costMicros ??
-    estimateCostMicros(input.model, input.inputTokens, input.outputTokens);
+    estimateCostMicros(input.model, input.inputTokens, input.outputTokens, {
+      cachedInputTokens: input.cachedInputTokens,
+      cacheWriteTokens: input.cacheWriteTokens,
+    });
   try {
     await prisma.usageEvent.create({
       data: {

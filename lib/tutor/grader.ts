@@ -1,6 +1,6 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { TutorError, type ProviderConfig, type UsageReport } from "./provider";
+import { openAiCompatible, TutorError, type ProviderConfig, type UsageReport } from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -183,20 +183,46 @@ async function callForJson(
     };
     text = (body.content ?? []).filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
     if (body.usage) {
-      usage.inputTokens =
-        (body.usage.input_tokens ?? 0) +
-        (body.usage.cache_read_input_tokens ?? 0) +
-        (body.usage.cache_creation_input_tokens ?? 0);
+      /*
+        The total for the call and the split for its price, as in
+        `absorbUsage`. Worth reporting even though this prompt is ~456 tokens
+        and therefore under Anthropic's 1,024-token minimum for a cache entry,
+        so the `cache_control` above is inert on Sonnet today: the split then
+        reads as zero and nothing changes, and it starts telling the truth the
+        day the prompt grows past the minimum rather than silently over-
+        charging from that day on.
+      */
+      const cached = body.usage.cache_read_input_tokens ?? 0;
+      const written = body.usage.cache_creation_input_tokens ?? 0;
+      usage.inputTokens = (body.usage.input_tokens ?? 0) + cached + written;
+      usage.cachedInputTokens = cached;
+      usage.cacheWriteTokens = written;
       usage.outputTokens = body.usage.output_tokens ?? 0;
       usage.measured = true;
     }
   } else {
-    const isOpenRouter = config.name === "openrouter";
-    // Same invariant as the anthropic branch above.
-    const key = isOpenRouter ? process.env.OPENROUTER_API_KEY! : process.env.OPENAI_API_KEY!;
-    const url = isOpenRouter
-      ? "https://openrouter.ai/api/v1/chat/completions"
-      : "https://api.openai.com/v1/chat/completions";
+    /*
+      WHICH ENDPOINT AND WHICH KEY IS ONE TABLE, AND THIS READ ITS OWN.
+
+      It was `isOpenRouter ? OpenRouter : OpenAI`, written when the chain held
+      exactly those two, and `resolveProviders` has offered Groq and Gemini
+      since. Neither is OpenRouter, so both fell down the else side of that
+      ternary and were posted to `api.openai.com` carrying `OPENAI_API_KEY`,
+      which on a deployment configured with Groq or Gemini and nothing else is
+      undefined. Every GRADER call there answered 401: the writing exercise,
+      the scene description, the examination composition note and the
+      dictionary's translation fallback, all four of them, on the two
+      providers a stranger can set up without a card. The streaming path was
+      unaffected, which is why nothing looked broken.
+
+      `openAiCompatible` in `provider.ts` is the table the chain itself reads,
+      so there is one answer to "where does this provider live" rather than a
+      copy here that goes stale the next time the chain grows.
+    */
+    const { url, keyEnv } = openAiCompatible(config);
+    // Same invariant as the anthropic branch above: a config only ever reaches
+    // here from `resolveProviders`, which adds a provider when its key is set.
+    const key = process.env[keyEnv]!;
 
     const res = await fetch(url, {
       method: "POST",

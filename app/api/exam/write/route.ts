@@ -74,6 +74,8 @@ export async function POST(request: Request) {
     after(() => recordUsage({
       ownerId, kind: "GRADER", provider: config.name, model: config.model,
       inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
       reservation: decision.reservation,
     }));
     settled = true;

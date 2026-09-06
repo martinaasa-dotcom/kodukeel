@@ -475,6 +475,30 @@ export interface StoredDraw {
   readonly card: RoleCard;
   /** Which curveballs, and at which beat. A row written before the beat was kept holds none in play. */
   readonly curveballs: readonly { id: string; at: number }[];
+  /**
+   * Who writes the other side's lines for this run: a model on every beat, or
+   * the bank on every beat.
+   *
+   * DRAWN WITH THE PERSONA AND FOR THE SAME REASON. Which receptionist you got
+   * is decided once and written down, because re-deciding it per turn would
+   * deal a different person mid-conversation; who is *writing* that
+   * receptionist is exactly as much a fact about the run. A model answering
+   * what the learner said two turns ago and a sentence drafted months before
+   * anybody played are two different writers, and alternating between them
+   * inside one conversation reads as the character changing halfway through.
+   *
+   * Decided on whether a provider is configured at all, which is the one
+   * condition that is a fact about the deployment rather than about the next
+   * ninety seconds. Everything narrower, a spent allowance or a provider
+   * having a bad minute, is per turn by nature and is handled where it
+   * happens: the run stays composed and that turn falls back to the bank,
+   * because the alternative there is not a consistent voice, it is silence.
+   *
+   * A row written before this field existed reads as "scripted", which is
+   * both what it was and the side to err on: a run already half over does not
+   * start spending on a model it has not been spending on.
+   */
+  readonly linesFrom: "composed" | "scripted";
 }
 
 export interface FinishedRun {
@@ -616,6 +640,18 @@ export async function beginRun(input: {
   sceneId: string;
   level: string;
   difficulty: Difficulty;
+  /**
+   * Whether a provider is configured, which decides who writes the other
+   * side's lines for the whole run (`StoredDraw.linesFrom`).
+   *
+   * **Required rather than optional**, which is `NounStems.illSgShort`'s rule
+   * one directory over: the answer is a fact about the deployment and this
+   * module could work it out for itself by reading the environment, and a
+   * default here would mean a caller that has not thought about it silently
+   * opens every run scripted on a deployment that has keys. The one caller
+   * asks `resolveProviders` and was already asking it, to tell the screen.
+   */
+  composed: boolean;
 }): Promise<{ runId: string; seed: string; run: SceneRunPlan; plays: number; briefing: Briefing } | null> {
   const scene = sceneById(input.sceneId);
   if (!scene) return null;
@@ -655,6 +691,7 @@ export async function beginRun(input: {
     persona: run.persona.id,
     card,
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
+    linesFrom: input.composed ? "composed" : "scripted",
   };
 
   const created = await prisma.sceneRun.create({
@@ -979,6 +1016,9 @@ export function readDraw(transcript: string): StoredDraw | null {
       persona: typeof parsed.persona === "string" ? parsed.persona : "",
       card: parsed.card,
       curveballs,
+      // Anything but the word itself is a run from before the field existed,
+      // or a transcript somebody edited. Both read as the cheaper of the two.
+      linesFrom: parsed.linesFrom === "composed" ? "composed" : "scripted",
     };
   } catch {
     return null;

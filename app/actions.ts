@@ -989,11 +989,20 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
   const chosen = text(difficulty);
   if (!(chosen in BUDGETS)) return { ok: false as const, error: "Not a difficulty." };
 
+  /*
+    Who writes the other side's lines, decided here and written onto the run.
+    Asked once, at the door, because the answer has to hold for the whole
+    conversation: see `StoredDraw.linesFrom`. The same boolean is what the
+    screen is told below, so the chip a learner reads and the ladder the route
+    walks cannot disagree about this run.
+  */
+  const composed = resolveProviders().length > 0;
   const opened = await beginRun({
     ownerId,
     sceneId: scene.id,
     level: await courseLevelFor(ownerId),
     difficulty: chosen as Difficulty,
+    composed,
   });
   if (!opened) return { ok: false as const, error: "That scene could not be built." };
 
@@ -1018,7 +1027,7 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
     // How many times they have had this one before, which is what opens the
     // hearing pool for the other side's lines.
     plays: opened.plays,
-    composed: resolveProviders().length > 0,
+    composed,
   };
 }
 

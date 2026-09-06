@@ -69,6 +69,42 @@ answered (§30 of the design doc); what survived of the other is what it built b
 rather than inside it, the hearing conditions, the errands and the claim on the landing page. Read
 what landed before you merge, not just the conflict status.
 
+**Who writes a conversation is decided once, at the door, and the model is shown the
+conversation.** The ladder above is the provenance order and it is still what a run walks by
+default. What it could not do is hold a conversation: it answers each beat out of a pool filled
+before the learner said anything, and the composer was reached only on the beats retrieval and the
+bank both missed, so the other side could react to the current move and to nothing else. A reaction
+that arrives only where the bank happened to have a hole is not a reaction, it is a seam.
+`StoredDraw.linesFrom` is the decision, drawn with the persona and for the persona's reason: a model
+answering what was said three turns ago and a sentence drafted months before anybody played are two
+different writers, and swapping between them mid-conversation reads as the character changing. It is
+decided on whether a provider is configured at all, which is the one condition that is a fact about
+the deployment rather than about the next ninety seconds; a spent allowance, a refused key and a
+line the gate withheld twice are all per turn by nature and each falls back to the bank for that
+turn, because the alternative to a seam there is silence. **A run written before the field existed
+reads as scripted**, which is both what it was and the side to err on.
+
+Nothing about the gate moved: a composed line is still checked four ways against the scene's own
+closed list and still withheld whole. What the model is now given is `replay`'s own turns, both
+sides, as messages, up to `HISTORY_TURNS` of them, off the server's marking rather than off
+`body.said`, which was the client's account of half a dialogue. Measured on the shipped scenes, that
+is about 290 tokens on a prompt of around 760, most of which is the scene's 373-lemma word list, and
+the difference it makes is the whole point: without it a café greeted a learner with `Head aega!`
+and answered `Kas homme on aega?` with `Kas teie aeg on üks?`; with it the same model and the same
+gate said `Tere, kuidas läheb?`, answered `Jah, homme on teile aega.`, and closed on
+`Nägemist homme!`, which is the appointment three turns earlier.
+
+**And the booking arithmetic had to be recomputed with it, because both figures were fossils.**
+A scene once booked one call for the whole run and the booking moved to one per turn, since two of
+the three limits count `CALL` rows. `EXPECTED_TOKENS.SCENE` did not move with it and still read a
+whole run's estimate, 3,500 in and 1,000 out, against a measured turn of about 1,050 in and 20 out.
+And `ALLOWANCE.SCENE` was the base, ten calls a day, which composing every turn spends inside the
+first conversation: a scene is 6.5 beats plus the curveballs its difficulty raises. The profile is
+1,200 and 100, over the measurement in both directions the way a reservation should be, and the
+allowance is four times the base, which is three or four whole conversations. The burst stays at the
+base, because a turn is somebody typing a sentence.
+
+
 **The gate rate is a vocabulary number before it is a model number.** `npm run eval:scene` has been
 run three times and the answer moved from 60 to 70 percent to 43.5 without touching the gate:
 first the course did not teach `sobima`, then the scenes did not declare the unit `sobima` lives in.
