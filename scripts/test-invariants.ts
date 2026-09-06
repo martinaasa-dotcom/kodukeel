@@ -3002,7 +3002,7 @@ check("Anu's free chat prose is checked against the dictionary, not just her gra
     until now nothing checked a word of it: `ProseStream` cleans punctuation
     and explicitly never touches Estonian, and the two lines that were boxed
     and tagged, FIX: and VOCAB:, are the only ones a learner was ever told to
-    doubt. `scripts/eval-anu.mjs` already caught a model inventing a form on
+    doubt. `npm run eval:anu` already caught a model inventing a form on
     exactly this kind of question, which is the whole argument for a check
     here rather than a stronger request in the prompt.
   */
@@ -11719,12 +11719,48 @@ check("every free provider the app would ask, a measuring script can ask too", (
       `${list} is declared in provider.ts and resolveProviders never reads it, so a ` +
       "deployment that set that key would have its models silently left off the chain.",
     );
-    assert.match(
+  }
+
+  /*
+    THE SCRIPTS ASK THE APP WHICH MODELS, RATHER THAN THE LISTS.
+
+    The half above is about the app: a free list nothing reads is a provider
+    configured and never asked. The half here used to be the same assertion
+    pointed at `sceneDraft.ts`, and it went stale the day scenes were given a
+    purpose chain of their own: the free lists are the *general* chain now,
+    `sceneProviders` is what a scene asks, and a harness reading the three
+    lists printed lines from three OpenRouter models the route would never
+    reach while `draft:lines` drafted the bank with them. So what is asserted
+    is the stronger property, that the harness reads the app's own scene chain
+    and keeps no list at all, and that it asks for the budget the route asks
+    for: a hardcoded `max_tokens` is what cut a thinking model's line off
+    mid-word and had the gate withhold every one of them.
+  */
+  assert.match(
+    draft,
+    /sceneProviders\(\)/,
+    "scripts/lib/sceneDraft.ts no longer builds its chain from sceneProviders(), so a " +
+    "transcript and the drafted bank come from whichever models the script happens to " +
+    "name rather than from the ones a scene actually asks.",
+  );
+  for (const list of lists) {
+    assert.doesNotMatch(
       draft,
       new RegExp(`\\b${list}\\b`),
-      `${list} is on the app's chain and scripts/lib/sceneDraft.ts cannot see it, so ` +
-      "eval:scene measures part of the chain and draft:lines drafts the bank without " +
-      "asking a provider the app would have asked first.",
+      `scripts/lib/sceneDraft.ts names ${list}. The general chain is not the scene ` +
+      "chain, and a list living in a script measures the script.",
+    );
+  }
+  for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
+    const text = code(file);
+    if (!/max_tokens/.test(text)) continue;
+    assert.match(
+      text,
+      /max_tokens: SCENE_REPLY_TOKENS/,
+      `${file} asks for a max_tokens of its own. A thinking model spends its budget in a ` +
+      "reasoning field and writes the line after it, so a tight cap returns a sentence cut " +
+      "off mid-word and the gate withholds every one, which reads as a model that cannot " +
+      "write Estonian rather than as a harness that would not let it finish.",
     );
   }
 });
@@ -11910,7 +11946,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   );
   assert.match(
     line,
-    /request\.scripted\.find\(\(text\) => !request\.used\.has\(text\)\)/,
+    /turned\(request\.scripted, request\.rotate\)\.find\(\(text\) => !request\.used\.has\(text\)\)/,
     "a scripted line is no longer passed over once used, so a beat can repeat itself",
   );
 
@@ -12892,12 +12928,87 @@ check("a learner who says they are lost is handed the word, never the question a
     }
   }
   /*
-    And the gate is not widened with it. A model composing inside the course
-    rather than inside the scene's own units is a line the learner has not
-    been taught to read, which is the one thing the closed list is for.
+    AND THE TWO QUESTIONS STAY TWO QUESTIONS.
+
+    "Is this Estonian" and "has this learner been taught it" were one
+    membership test against the scene's few hundred lemmas, which is why a
+    receptionist could not say `sümptomid`. They are separate now, and each
+    half has to keep doing its own job: `vouching` against whatever the caller
+    can vouch for, `stretch` as a budget over the scene's own list. Either one
+    collapsing back into the other is the fault this split fixed, in one
+    direction or the other.
   */
-  const gate = code("lib/progress/scene.ts").match(/gate: \{[^}]*\}/)?.[0] ?? "";
-  assert.doesNotMatch(gate, /known|courseForms/, "the gate is vouching against the course, not against the scene's own list");
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /const vouched = context\.vouched \?\? /,
+    "the gate stopped asking the caller whether a word is Estonian, so a scene is back to refusing "
+    + "every word its own units do not teach",
+  );
+  assert.match(
+    gate, /!context\.lexicon\.forms\.has\(word\)\);\n  if \(stretched\.length > NEW_WORDS\)/,
+    "the readability budget is gone, so a composed line can be made entirely of words the learner "
+    + "has never met",
+  );
+  /*
+    And what vouches is the language rather than a model: the scene's list, the
+    course, and the forms list, which is Ekilex and Vabamorf with guessing off
+    (ADR-005). A vouch reaching a provider would be the app asking a model
+    whether its own word is a word.
+  */
+  const vouch = code("lib/progress/scene.ts").match(/export async function sceneVouch[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(vouch, /courseForms\(\)/, "sceneVouch stopped reading the course");
+  assert.match(vouch, /isKnownForm\(/, "sceneVouch stopped reading the forms list");
+  assert.doesNotMatch(
+    vouch, /compose|provider|openWithFallback/,
+    "sceneVouch reaches a model to decide whether a word is Estonian, which is the app vouching for "
+    + "its own invention (ADR-005)",
+  );
+  /*
+    And a word the line reached for is looked up rather than written down: the
+    forms list says which headword the spelling belongs to and Ekilex supplies
+    the entry, so what lands in the dictionary is the Institute's and never a
+    model's.
+  */
+  const grow = code("lib/progress/scene.ts").match(/export async function growDictionary[\s\S]*?\n\}/)?.[0] ?? "";
+  assert.match(grow, /lemmasOfForm\(/, "growDictionary stopped asking the forms list which word a spelling is");
+  assert.match(grow, /lookupAndStore\(/, "growDictionary writes an entry from something other than Ekilex");
+  assert.doesNotMatch(
+    grow, /prisma\.lexeme\.(create|update)|prisma\.form\./,
+    "growDictionary writes a dictionary row itself rather than through the live lookup, so a word a "
+    + "model chose could reach the dictionary without the Institute being asked",
+  );
+  /*
+    And a run of words is not a clause until it holds a verb, which the bank has
+    been held to since it was drafted and the live path never was: `Mis teie
+    pilet tahta?` reached a learner at a ticket window.
+  */
+  assert.match(
+    gate, /if \(noClause\(tokens, stretched, beat, context\)\) failed\.push\("clause"\)/,
+    "the gate stopped asking whether a composed line is a clause, so a run of words with no verb "
+    + "in it is a line the other side says",
+  );
+  assert.match(
+    code("lib/scenes/line.ts"), /hasFiniteVerb: request\.hasFiniteVerb/,
+    "the ladder stopped handing the gate the finite verbs, so the clause check is off on every "
+    + "composed line",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /after\(\(\) => growDictionary\(/,
+    "the scene route fetches new words on the request's own clock, so a learner waits on Ekilex for "
+    + "a line that is already written",
+  );
+  /*
+    AND A WORD THE LEARNER NEGATED DID NOT MEET THE REQUIREMENT IT WAS FOUND
+    IN. `satisfies` looks for a spelling anywhere in the turn, so `ma ei taha
+    piima` met a beat that wants `piim`: the other side said the word back and
+    moved on, the objective was ticked, and the append-only log recorded the
+    learner as having produced it.
+  */
+  assert.match(
+    turn, /\.map\(\(hit\) => \(negatedIn\(hit, text, beat, context\) \? null : hit\)\)/,
+    "the marker credits a requirement met by a word the learner said no about, so a refusal reads "
+    + "as the answer",
+  );
   /*
     And a real word is never read as a slip of the pen for another: `valutab`
     is the third person of a verb the course teaches, and reading it as a
@@ -12907,6 +13018,333 @@ check("a learner who says they are lost is handed the word, never the question a
   assert.match(
     turn, /if \(vouched\(said\)\) continue;/,
     "a word the course knows can be read as a typo of another, so the review corrects a word that was right",
+  );
+});
+
+/*
+  A BEAT SOMEBODY HAS ALREADY ANSWERED IS NOT ASKED AGAIN.
+
+  The machine walks its beats in order, so a turn that answered one further
+  down the scene was asked for it again later: told "where are you going",
+  somebody who says `poodi, piima ostma` was asked two beats on what they were
+  buying, and had to say it twice. Two halves, and both are needed: the beat is
+  credited where it stands, and the pointer steps over what is done.
+
+  What may not change with it is the direction. A beat that ran out of patience
+  is deliberately not `done`, and a pointer that could walk backwards would ask
+  for it again for ever.
+*/
+check("a beat answered out of order is credited, and never asked twice", () => {
+  const state = code("lib/scenes/state.ts");
+  assert.match(
+    state, /function moveOn\(\s*scene: SceneSpec,\s*from: number,\s*done: readonly string\[\],/,
+    "the scene machine advances without reading what is done, so a beat the learner already "
+    + "answered is asked again",
+  );
+  assert.match(
+    state, /while \(scene\.beats\[beat\] && done\.includes\(scene\.beats\[beat\]!\.id\)\) beat \+= 1;/,
+    "the pointer stopped stepping over a beat that is done",
+  );
+  assert.match(
+    state, /export function creditAhead\([\s\S]{0,200}?evidence: Evidence/,
+    "creditAhead takes something other than Evidence, so a caller holding a model's opinion about "
+    + "the learner could mark a beat met (ADR-025)",
+  );
+  const replay = code("lib/progress/scene.ts");
+  assert.match(
+    replay, /state = creditAhead\(state, also, ahead, said, heard\)/,
+    "the replay stopped crediting a beat the turn answered further down the scene",
+  );
+  assert.match(
+    replay, /if \(ahead\.move === "close" \|\| state\.done\.includes\(ahead\.id\)\) continue;/,
+    "the look-ahead credits the farewell from a distance, which has its own rule, or credits a "
+    + "beat twice",
+  );
+  assert.match(
+    replay, /if \(also\.reading !== "complete" \|\| !addsEvidence\(also, spent\)\) continue;/,
+    "the look-ahead credits a beat on a coincidence: it has to be met outright, with a word this "
+    + "turn has not already spent",
+  );
+});
+
+/*
+  TWO SHORT SENTENCES ARE A PERSON AND ONE IS A FORM.
+
+  The other side answered and asked, answered and asked, and never once said
+  something nobody had asked for. The remark rides on the line the model was
+  writing anyway, so it costs no second call, and `MAX_WORDS` covers the whole
+  turn. What it must not do is arrive on top of this module's own
+  acknowledgment: `Hästi.` and then `Hästi. Kus te elate?` is the stutter the
+  echo rule exists against, coming through the other door.
+*/
+check("the other side may volunteer something, and never says it twice", () => {
+  assert.match(
+    code("lib/scenes/gate.ts"), /sentences >= 1 && sentences <= MAX_SENTENCES/,
+    "a composed line is back to exactly one sentence, so the other side can never volunteer "
+    + "anything of its own",
+  );
+  /*
+    And a line written for this turn has already seen the turn: the rotation is
+    right in front of a banked line, drafted months ago against the beat alone,
+    and is the app reacting on top of somebody who already did in front of a
+    composed one.
+  */
+  const reply = code("lib/scenes/reply.ts");
+  assert.match(
+    reply, /&& !ownReaction\(line\)/,
+    "the reply stacks its own acknowledgment on a move that already reacted",
+  );
+  assert.match(
+    reply, /line\?\.provenance === "composed" \|\| opensWithReaction\(line\)/,
+    "a composed line is given a rotated acknowledgment in front of it, or a line that opens with "
+    + "one is given a second",
+  );
+  /*
+    And `jah` answers one kind of question. Asked which floor they live on and
+    told `2`, the neighbor said `Jah.`, which a learner who has just produced a
+    whole answer reads as not having been understood. A polar question in
+    Estonian opens with `kas`, so it is a reading of one word, and it errs the
+    safe way: no line to read means the word is left out.
+  */
+  assert.match(
+    reply, /const choices = acknowledgements\(heard\);/,
+    "the acknowledgment is drawn without reading what the learner was asked, so the other side says "
+    + "yes to a question that was not a yes-or-no one",
+  );
+  assert.match(
+    reply, /words\(heard\)\[0\] === "kas" : false;/,
+    "the polar reading stopped being a reading of the question's own first word, or stopped erring "
+    + "toward leaving `jah` out where there is nothing to read",
+  );
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(
+    prompt, /one short remark of your own in front of your move/,
+    "the prompt stopped asking for the remark, so the sentence the gate now allows is never written",
+  );
+  /*
+    AND THE PROMPT MAY NOT ASK FOR ONE SENTENCE AND THEN ALLOW TWO. It did, for
+    as long as the remark rule existed: `Reply with exactly ONE short Estonian
+    sentence` sat three hundred characters above it, a model reads the stronger
+    instruction, and every line came back as the shortest question that would
+    do. A learner read `Kust alustaksite tööd?` and said what was missing was
+    context rather than brevity.
+  */
+  assert.doesNotMatch(
+    prompt, /exactly ONE short Estonian sentence/,
+    "the prompt asks for one sentence and then allows a remark in front of the move, which is two "
+    + "instructions and the model takes the first",
+  );
+  /*
+    AND WHAT THE PROMPT ASKS FOR IS WHAT THE GATE ALLOWS, WHICHEVER WAY THE
+    NUMBER MOVES. It said "exactly ONE short Estonian sentence" while the gate
+    took two, which is where this came from; it now says nothing about a count
+    and quotes `MAX_COMPOSED_WORDS` instead, which is the same claim made from
+    one place rather than two. A number typed into the prompt beside a constant
+    in the gate is the drift this was written for.
+  */
+  assert.match(
+    prompt, /\$\{MAX_COMPOSED_WORDS\} words/,
+    "the prompt stopped reading the gate's own ceiling, so what it asks for and what the gate "
+    + "allows are two numbers that can disagree",
+  );
+  /*
+    And the room for it is `MAX_WORDS`, which was raised to eighteen once and
+    put back: the extra rope bought `Tere! Mis needus täna aitama saan?`, which
+    is vouched word by word, names the beat's own topic and is not the language,
+    and nothing in the gate can see it. Two ordinary sentences fit in fourteen.
+  */
+  /*
+    And the room a learner asked for is paid for by the gate rather than by a
+    short leash: `MAX_SENTENCES` is the real limit, and what stopped `Tere! Mis
+    needus täna aitama saan?` is the check written for it rather than a word
+    count, since that line is six words.
+  */
+  /*
+    The number has moved twice and will move again; what may not happen is it
+    dropping back to the one or two that made the other side a form being
+    filled in rather than a person talking.
+  */
+  const sentences = Number(code("lib/scenes/gate.ts").match(/const MAX_SENTENCES = (\d+);/)?.[1] ?? 0);
+  assert.ok(
+    sentences >= 3,
+    `a turn is back to ${sentences} sentences, so the other side cannot say what is missing from a `
+    + "form and what to do about it, which is three sentences from anybody",
+  );
+});
+
+/*
+  TWO RUNS OF ONE SCENE DO NOT OPEN WITH THE SAME SENTENCE.
+
+  A beat holds its lines in the order somebody wrote them and the ladder took
+  the first that fit, so every learner met a scene with the same greeting and
+  the same second line, every time, and a scene played twice is one of the two
+  things the debrief has been recommending all along. `rotate` is where this
+  run starts reading, off the run's own seed, so the pool is the same pool and
+  the order through it is this run's: nothing is dropped and nothing repeats
+  before the pool is spent.
+
+  Asserted on the route as well as on the ladder, because a `rotate` nobody
+  passes is a run that opens on the first line for ever, and nothing about it
+  looks wrong.
+*/
+/*
+  THE VERB AGREES WITH ITS SUBJECT, IN THE PERSON THESE SCENES ARE ACTUALLY IN.
+
+  `subjectsIn` read the built `Lexicon`, which indexes a case table only where
+  there is a genitive stem to build one from, and `meie`, `teie` and `nemad`
+  have no singular and therefore no principal parts at all. So the three plural
+  pronouns were in no reading of any scene, and the app's own model wrote
+  `Kuhu te soovid sõita?` past a check whose entire job is that sentence: every
+  one of these scenes is a clerk speaking to a customer, so second person
+  plural is the register nearly every line is in.
+
+  It reads the entries now, off the Institute's own `SgN`/`PlN` rows, and it
+  carries the ambiguity rather than dropping it: `te`, `me` and `ta` are each
+  their pronoun's genitive as well, which is how Estonian says "your", and
+  `Teie nimi on Mari.` holds no subject at all.
+*/
+/*
+  A MA-INFINITIVE WHERE THE DA-INFINITIVE BELONGS.
+
+  `Tere! Mis needus täna aitama saan?` reached a learner, and every other check
+  on the page passed it: the words are vouched by the forms list, the beat's own
+  topic is named, the new word is inside the budget, and it is not the language.
+  Putting the dictionary form of a verb where the da-infinitive belongs is a
+  mistake a model makes constantly in Estonian and a person never makes.
+
+  The list is deliberately the short certain one. Estonian has plenty of verbs
+  that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin magama`),
+  and a check built on a list of those would be a check built on the half
+  somebody forgot, refusing correct lines. These seven never take one.
+*/
+/*
+  AND A VERB THAT KEPT ITS PERSON AFTER THE NEGATOR.
+
+  Estonian negates with `ei` and the bare form: `ei ole`, `ei tea`, `ei saa`,
+  whoever is speaking. `ei olen` is the same shape of fault as `saan aitama`,
+  fluent and vouched word by word and not the language. It is decidable because
+  the negative has a code of its own, so asking only about the six present
+  persons leaves `ei ole`, `ei oleks` and `ei olnud` alone.
+*/
+check("a verb keeps no person after the negator", () => {
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /if \(inflectedAfterEi\(text, context\)\) failed\.push\("negation"\)/,
+    "the gate stopped asking whether a verb kept its person after `ei`, so `ei olen` is a line the "
+    + "other side says",
+  );
+  assert.match(
+    gate, /lower\[at\] === "ei" && persons\.has\(lower\[at \+ 1\]!\)/,
+    "the negation check stopped reading the word straight after the negator, so it either misses "
+    + "the fault or fires on `Ei, ma tean`",
+  );
+});
+
+check("a verb that only takes the da-infinitive is not given the other one", () => {
+  const lexicon = code("lib/scenes/lexicon.ts");
+  assert.match(
+    lexicon, /export const DA_ONLY_VERBS = \[/,
+    "the da-only verbs are gone, so `saan aitama` is a line the other side says",
+  );
+  assert.match(
+    lexicon, /saama: \["hakkama"\]/,
+    "the one fixed pair in the language lost its exemption, so `Ma saan hakkama` is refused",
+  );
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /if \(wrongInfinitive\(text, context\)\) failed\.push\("infinitive"\)/,
+    "the gate stopped asking whether a ma-infinitive is standing where the da-infinitive belongs",
+  );
+  /*
+    And the adjacency guard, which is what keeps it from refusing correct
+    Estonian: `Ma tahan hakata sööma` holds a da-only verb and a ma-infinitive
+    in one clause and the infinitive belongs to the verb between them.
+  */
+  assert.match(
+    gate, /finite\.has\(here\) && infinitive\.has\(next\)/,
+    "the infinitive check stopped requiring the two to be next to each other, so `tahan minna "
+    + "ostma` is refused",
+  );
+});
+
+check("a scene's agreement check can see the person its scenes are in", () => {
+  const lexicon = code("lib/scenes/lexicon.ts");
+  assert.match(
+    lexicon, /export function subjectsIn\(entries: readonly DictEntry\[\]\)/,
+    "subjectsIn is back to reading the built lexicon, so a pronoun with no singular is invisible "
+    + "to it and the agreement check cannot see `te`, `me` or `nad`",
+  );
+  assert.match(
+    lexicon, /form\.code === "SgN" \|\| form\.code === "PlN"/,
+    "the nominative is no longer read off the entry's own rows, so a pronoun's subject spellings "
+    + "are decided by something other than the Institute",
+  );
+  assert.match(
+    lexicon, /out\.set\(form, \{ code, sure: !genitive\.has\(form\) \}\)/,
+    "an ambiguous spelling stopped being reported as ambiguous, so either the whole second person "
+    + "is dropped again or `Teie nimi on Mari.` is read as a subject and withheld",
+  );
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /subjects\.has\(t\) && !possessive\(t, lower, context\)/,
+    "the agreement check stopped asking whether the pronoun is possessing the word after it, so an "
+    + "ordinary line with `teie` in it is refused",
+  );
+  assert.match(
+    gate, /if \(!next \|\| isPerson\(next, context\)\) return false;/,
+    "the possessive reading no longer errs toward the subject where the next word is a verb, so "
+    + "`te soovid` is read as a possessive and the fault this exists for goes unremarked",
+  );
+});
+
+/*
+  THE MODEL IS SHOWN WHAT THIS BEAT ASKS FOR, NOT ONLY DESCRIBED IT.
+
+  `they` is one sentence of English, and a model reads it fluently and still
+  guesses the content: told they ask when the learner could start, the app's
+  own model wrote `Kust alustaksite tööd?`, which is fluent, inside the word
+  list, past every check on the page, and asks where rather than when. The bank
+  holds the same beat asked properly by somebody who read it, and handing that
+  over costs a few tokens and no extra call.
+
+  Rephrased rather than copied, which is the whole reason a line is composed at
+  all: the banked line is the rung underneath and the ladder would have reached
+  it anyway, so a composed line has to be worth more, and what makes it worth
+  more is that it can take account of what the learner just said.
+*/
+check("a composed line is shown how its own beat is asked", () => {
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(
+    prompt, /readonly asked: readonly string\[\];/,
+    "ComposeAsk no longer carries this beat's own banked lines, so the model is told what to ask "
+    + "for in one sentence of English and guesses the rest",
+  );
+  assert.match(
+    prompt, /Ask for the same thing, in your own words/,
+    "the prompt stopped asking for a rephrasing, so a composed line is either the banked line said "
+    + "again or is not steered by it at all",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /asked: \(context\.scripted\.get\(beat\.id\) \?\? \[\]\)/,
+    "the scene route stopped handing the composer this beat's own lines",
+  );
+});
+
+check("a run reads a beat's lines from its own place in them", () => {
+  const line = code("lib/scenes/line.ts");
+  assert.match(
+    line, /function turned<T>\(items: readonly T\[\], at: number \| undefined\)/,
+    "the rotation is gone, so every run of a scene says the same lines in the same order",
+  );
+  assert.match(
+    line, /\[\.\.\.items\.slice\(from\), \.\.\.items\.slice\(0, from\)\]/,
+    "the rotation drops the lines before its starting point rather than wrapping round them, so a "
+    + "run can never reach half of a beat's bank",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /rotate: seedFrom\(/,
+    "the scene route stopped handing the ladder this run's own place in the bank, so every learner "
+    + "opens every scene with the same sentence",
   );
 });
 

@@ -83,9 +83,50 @@ describe("a turn that landed", () => {
   it("rotates the acknowledgment so the same word does not come back every time", () => {
     const seen = new Set<string>();
     for (let met = 0; met < REACTIONS.acknowledge.length; met += 1) {
-      seen.add(replyFor(input({ answered: ASK, met }))[0]!.text);
+      seen.add(replyFor(input({ answered: ASK, met, heard: "Kas teil on valu?" }))[0]!.text);
     }
     expect(seen.size).toBe(REACTIONS.acknowledge.length);
+  });
+
+  /*
+    NOBODY SAYS YES TO A WH-QUESTION. Asked which floor they live on and told
+    `2`, the neighbor said `Jah.`, which a learner who has just produced a
+    whole answer reads as not having been understood. The word they were
+    answering is what decides it, and in Estonian a polar question opens with
+    `kas`.
+  */
+  it("does not say yes to a question that was not a yes-or-no one", () => {
+    const seen = new Set<string>();
+    for (let met = 0; met < 6; met += 1) {
+      seen.add(replyFor(input({ answered: ASK, met, heard: "Mis korrusel te elate?" }))[0]!.text);
+    }
+    expect(seen).not.toContain("Jah.");
+    expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
+  });
+
+  it("leaves it out rather than guessing where there is no question to read", () => {
+    const seen = new Set<string>();
+    for (let met = 0; met < 6; met += 1) {
+      seen.add(replyFor(input({ answered: ASK, met, heard: null }))[0]!.text);
+    }
+    expect(seen).not.toContain("Jah.");
+  });
+
+  /*
+    A LINE WRITTEN FOR THIS TURN HAS ALREADY SEEN THE TURN. The rotation is
+    right in front of a banked line, which was drafted months ago against the
+    beat alone. A composed line was written with the learner's own words in
+    front of it, so a word bolted on before it is the app reacting on top of
+    somebody who already did.
+  */
+  it("leaves a composed line to make its own reaction", () => {
+    const composed: SpokenLine = { text: "Selge. Kus teil valutab?", provenance: "composed" };
+    expect(replyFor(input({ answered: ASK, line: composed }))).toEqual([composed]);
+  });
+
+  it("does not say the same word twice where a banked line opens with one", () => {
+    const opens: SpokenLine = { text: "Hästi. Kus teil valutab?", provenance: "scripted" };
+    expect(replyFor(input({ answered: ASK, line: opens }))).toEqual([opens]);
   });
 
   it("is not acknowledged by a persona who does not, and the move still comes", () => {
@@ -670,5 +711,34 @@ describe("a second offer", () => {
     expect(cardInPlay(card, [offers], [])).toBe(card);
     expect(cardInPlay(card, [offers], undefined)).toBe(card);
     expect(datumLine(offers, inPlay)?.text).toBe("Kell 10:00?");
+  });
+});
+
+/*
+  NOBODY SAYS `HÄSTI` TWICE. A composed line may open with a short remark of
+  its own, and the model reaches for the same words this module does, so the
+  acknowledgment stands down where the move already carries one.
+*/
+describe("a move that opens with a reaction of its own", () => {
+  it("is not given a second one", () => {
+    const said = { text: "Hästi. Kus te elate?", provenance: "composed" as const };
+    const lines = replyFor(input({
+      answered: ASK, beat: OFFER, response: "answer", reading: "complete", line: said, said: "Ma tulen homme",
+    }));
+    expect(lines.filter((l) => l.reaction)).toHaveLength(0);
+    expect(lines[0]?.text).toBe(said.text);
+  });
+
+  /*
+    And a banked line still gets one: it was written months ago against the
+    beat alone and cannot acknowledge anything, which is what the rotation is
+    for.
+  */
+  it("and a line written before the run still gets one", () => {
+    const said = { text: "Kus te elate?", provenance: "scripted" as const };
+    const lines = replyFor(input({
+      answered: ASK, beat: OFFER, response: "answer", reading: "complete", line: said, said: "Ma tulen homme",
+    }));
+    expect(lines[0]?.reaction).toBe(true);
   });
 });

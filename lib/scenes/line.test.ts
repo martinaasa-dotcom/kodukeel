@@ -170,7 +170,12 @@ describe("the scripted rung", () => {
       scripted: ["Kas teil on valu?"],
       compose: async () => { asked++; return "Kus on valu?"; },
     }));
-    expect(line).toEqual({ text: "Kus on valu?", provenance: "composed" });
+    /*
+      `stretched` is what the line reached past the scene's list for, which
+      the route looks up so the dictionary holds it next time. Empty here,
+      because every word of this one is the scene's own.
+    */
+    expect(line).toEqual({ text: "Kus on valu?", provenance: "composed", stretched: [] });
     // The whole change: the bank no longer stops the model being asked.
     expect(asked).toBe(1);
   });
@@ -216,6 +221,30 @@ describe("the scripted rung", () => {
     expect(line.provenance).toBe("scripted");
   });
 
+  /*
+    TWO RUNS OF ONE SCENE DO NOT OPEN WITH THE SAME SENTENCE. A beat holds its
+    lines in the order somebody wrote them and the ladder took the first that
+    fit, so every learner met `poodi-piima` with the same greeting and the same
+    second line, every time. `rotate` is where this run starts reading, off the
+    run's own seed, so the pool is the same pool and the order through it is
+    this run's.
+  */
+  it("starts a run somewhere else in the bank, and still says every line", async () => {
+    const bank = ["Kas teil on valu?", "Kus on valu?"];
+    const first = await sceneLine(request({ scripted: bank, rotate: 0 }));
+    const second = await sceneLine(request({ scripted: bank, rotate: 1 }));
+    expect(first.text).toBe(bank[0]);
+    expect(second.text).toBe(bank[1]);
+  });
+
+  it("wraps round rather than running out, whatever the seed", async () => {
+    const bank = ["Kas teil on valu?", "Kus on valu?"];
+    for (const rotate of [2, 7, 12345]) {
+      const line = await sceneLine(request({ scripted: bank, rotate }));
+      expect(bank).toContain(line.text);
+    }
+  });
+
   it("reaches the repair phrase only once the bank is empty too", async () => {
     const line = await sceneLine(request({
       scripted: ["Kas teil on valu?"],
@@ -237,3 +266,72 @@ describe("the scripted rung", () => {
  * empty pool and a spent allowance, and the only sentence it had to say it
  * with was the one that means "I did not understand you".
  */
+
+/*
+  A LINE MAY REACH PAST WHAT THE SCENE TEACHES, AND MAY NOT INVENT A WORD.
+
+  One membership test was answering both questions, so `Kui kaua teie sümptomid
+  kestavad?` was withheld whole for the one word that makes it a sentence a
+  receptionist says. Being Estonian is now asked of the language, through
+  `vouch`, and being readable is a budget the gate keeps.
+*/
+describe("a word the scene does not teach", () => {
+  /* The forms list's answer, stubbed: everything here is Estonian but `blorp`. */
+  const vouch = async (spellings: readonly string[]) =>
+    new Set(spellings.filter((word) => word !== "blorp"));
+
+  it("is said where the language can vouch for it, and named for the dictionary to fetch", async () => {
+    const line = await sceneLine(request({
+      vouch, compose: async () => "Kas valu kestab kaua?",
+    }));
+    expect(line.provenance).toBe("composed");
+    expect(line.text).toBe("Kas valu kestab kaua?");
+    // What the route looks up, so the entry is there the next time anybody meets it.
+    expect(line.stretched).toEqual(["kestab", "kaua"]);
+  });
+
+  it("is still withheld where nothing can vouch for it, which is the invented word", async () => {
+    const line = await sceneLine(request({
+      vouch, compose: async () => "Kas valu on blorp?",
+    }));
+    expect(line.provenance).toBe("fallback");
+    expect(line.withheld).toContain("vouching");
+  });
+
+  it("is withheld once a line is more new words than a learner can read", async () => {
+    /*
+      The budget is `NEW_WORDS` and it is deliberately generous now: what a
+      person says at a counter routinely carries a handful of words a beginner
+      has not met, and refusing the line is not what a person does about that.
+      What it still refuses is a line made of nothing else.
+    */
+    const words = ["kestab", "kaua", "sagedasti", "harva", "tugevalt", "pidevalt", "ootamatult"];
+    const line = await sceneLine(request({
+      vouch: async (spellings: readonly string[]) => new Set(spellings),
+      compose: async () => `Kas valu ${words.join(" ")}?`,
+    }));
+    expect(line.provenance).toBe("fallback");
+    expect(line.withheld).toContain("stretch");
+  });
+
+  it("tells a retry which words to drop, and not that real Estonian is not allowed", async () => {
+    const seen: string[][] = [];
+    await sceneLine(request({
+      vouch,
+      compose: async (avoid) => {
+        seen.push([...avoid]);
+        return seen.length === 1
+          ? "Kas valu kestab kaua sagedasti harva tugevalt pidevalt ootamatult?"
+          : "Kas teil on valu?";
+      },
+    }));
+    expect(seen[1]).toContain("sagedasti");
+    expect(seen[1], "a word the scene teaches was named as the problem").not.toContain("valu");
+  });
+
+  it("vouches against the scene alone where the caller cannot answer, which is every script", async () => {
+    const line = await sceneLine(request({ compose: async () => "Kas valu kestab kaua?" }));
+    expect(line.provenance).toBe("fallback");
+    expect(line.withheld).toContain("vouching");
+  });
+});

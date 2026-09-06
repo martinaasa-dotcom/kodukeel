@@ -1,11 +1,17 @@
 import { after } from "next/server";
+import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { authoriseCall, recordUsage, releaseReservation, type Reservation } from "@/lib/usage/ledger";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
-import { openWithFallback, sceneProviders, type ChatMessage } from "@/lib/tutor/provider";
-import { MAX_TURNS, MAX_TURN_CHARS, knowing, readDraw, replay, sceneContext } from "@/lib/progress/scene";
+import {
+  SCENE_REPLY_TOKENS, openWithFallback, sceneProviders, type ChatMessage,
+} from "@/lib/tutor/provider";
+import {
+  MAX_TURNS, MAX_TURN_CHARS, clockInPlay, growDictionary, knowing, readDraw, replay, sceneContext,
+  sceneVouch,
+} from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
@@ -477,11 +483,22 @@ export async function POST(request: Request) {
     beat,
     lexicon: context.lexicon,
     /*
+      WHERE THIS RUN STARTS READING A BEAT'S OWN LINES.
+
+      Every conversation opened with the same word. A courtesy is answered from
+      the recorded rung and a beat's bank holds two or three lines, both scanned
+      from the front, so `Tere!` opened every run of every scene and a keyless
+      run asked its second question in the same sentence every time. The run's
+      own id, so a reload of one transcript says what it said before and the
+      next conversation does not.
+    */
+    rotate: seedFrom(runId),
+    /*
       The gate, plus the numbers this run was dealt. Per run rather than per
       scene, which is why it is joined here rather than in `sceneContext`: the
       card is drawn when the run opens and the scene knows nothing about it.
     */
-    gate: { ...context.gate, dealt: dealtNumbers(card) },
+    gate: { ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon) },
     topic: context.topic.get(beat.id) ?? new Set<string>(),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
@@ -564,10 +581,20 @@ export async function POST(request: Request) {
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
+      /*
+        An aside is a question the scene did not anticipate, so there is no
+        beat whose banked line says what to ask for: the model is answering
+        rather than asking, and has nothing to be steered onto.
+      */
+      asked: [],
       conversation,
       avoid: [],
     });
-    const verdict = drafted ? runGate(drafted, asking, { ...context.gate, dealt: dealtNumbers(card) }) : null;
+    const verdict = drafted
+      ? runGate(drafted, asking, {
+        ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
+      })
+      : null;
     if (drafted && verdict && passes(verdict)) {
       aside = { text: drafted, provenance: "composed" };
     } else {
@@ -640,6 +667,14 @@ export async function POST(request: Request) {
     // The attested and scripted rungs were already tried and did not answer.
     pool: [],
     scripted: [],
+    /*
+      WHETHER THE WORDS ARE ESTONIAN, ASKED OF THE LANGUAGE RATHER THAN OF THE
+      SCENE. The closed list is what the learner has been taught to read and
+      the gate keeps holding the line to it, by a budget rather than by a
+      refusal (`NEW_WORDS`); what may not happen is a made-up word, and that is
+      what this answers, off the course and the forms list.
+    */
+    vouch: (spellings) => sceneVouch(context, spellings),
     compose: (avoid) => compose(chain, {
       ownerId,
       reading: learnerReading,
@@ -670,6 +705,14 @@ export async function POST(request: Request) {
         .filter(([id]) => id !== beat.id)
         .flatMap(([, lines]) => lines.slice(0, 1))
         .slice(0, 6),
+      /*
+        AND THIS BEAT'S OWN, WHICH THE PROMPT ASKS IT TO REPHRASE RATHER THAN
+        COPY. `they` is one sentence of English and a model reads it fluently
+        and still guesses the content: told they ask when the learner could
+        start, it wrote `Kust alustaksite tööd?`, which asks where. The bank
+        holds the same beat asked properly by somebody who read it.
+      */
+      asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
       conversation,
       avoid,
     }),
@@ -693,6 +736,23 @@ export async function POST(request: Request) {
     */
     if (move.provenance !== "fallback") return answer(reply(move), { composed: false });
     return answer(reply(line), { composed: false });
+  }
+
+  /*
+    AND THE DICTIONARY GROWS BY WHAT THE CONVERSATION NEEDED.
+
+    A word the line reached past the scene's list for is one the learner has
+    just met, and the panel under it offers to keep it. Where the dictionary
+    held no entry, `growDictionary` asks Ekilex for the headword the forms list
+    says the spelling belongs to, so the entry is there the next time anybody
+    meets it, with the Institute's own forms and sentences.
+
+    `after`, because nobody is waiting: the line is already going out, glossed
+    with whatever the dictionary held when it was composed. Never in front of
+    the reply, and never on the request's own clock.
+  */
+  if (line.stretched && line.stretched.length > 0) {
+    after(() => growDictionary(ownerId, line.stretched!));
   }
 
   return answer(reply(line), { composed: true });
@@ -752,6 +812,8 @@ async function compose(
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
+    /** What this character has asked for at this very beat before, from the bank. */
+    asked: readonly string[];
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];
@@ -808,6 +870,13 @@ async function compose(
         }));
       },
       live,
+      /*
+        Room for a model that thinks before it writes. Several of the models
+        this composer can be pointed at spend hundreds of tokens in a reasoning
+        field, and a trace that runs past `REPLY_TOKENS` comes back as an empty
+        string, which reads as a bad minute one rung down rather than as a cap.
+      */
+      SCENE_REPLY_TOKENS,
     );
 
     let text = "";

@@ -22,7 +22,7 @@ import { HARVESTED } from "@/prisma/data/harvested";
 import { curveballById } from "./curveballs";
 import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
 import { unitById } from "@/lib/collections/syllabus";
-import { TIME_LEMMAS } from "./props";
+import { CLOCK_LEMMA, TIME_LEMMAS } from "./props";
 import { CHOICE_WORD } from "./choice";
 
 /** Every lemma a scene names, from its beats' topics and its requirements. */
@@ -79,7 +79,14 @@ describe("the scene catalog", () => {
       */
       const reactions = Object.values(REACTIONS).flat();
       // The word between two options, said in every scene that narrows a question.
-      const named = [...lemmasOf(scene), ...reactions, ...asides, ...TIME_LEMMAS, CHOICE_WORD];
+      /*
+        And the word a time is told with, which the gate reads to tell a count
+        from an appointment: a scene whose units do not teach `kell` cannot be
+        checked for offering an hour nobody dealt.
+      */
+      const named = [
+        ...lemmasOf(scene), ...reactions, ...asides, ...TIME_LEMMAS, CHOICE_WORD, CLOCK_LEMMA,
+      ];
       const strangers = [...new Set(named)].filter((lemma) => !taught.has(lemma));
       expect(strangers, `${scene.id} names words none of its units teach`).toEqual([]);
     }

@@ -78,6 +78,57 @@ answered (§30 of the design doc); what survived of the other is what it built b
 rather than inside it, the hearing conditions, the errands and the claim on the landing page. Read
 what landed before you merge, not just the conflict status.
 
+**And the Gemini rows in the price table were the same fault one provider over.** They sat at zero
+for the reason the Groq block above them sat at zero: the only Gemini access this project had was a
+free key, and "free" is a property of the account rather than of the model. The moment a paid key is
+set, every one of them prices a real call at nothing, which is the global spend cap switched off on
+whichever model a deployment points `GEMINI_SCENE_MODEL` at. Read off Google's own page rather than
+recalled, with the day on the entry, and the Flash tier's promotional rate is written down beside
+the date it doubles rather than left in a diary. A model the table does not name prices at
+`UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:
+that asymmetry is the whole argument for never writing one.
+
+**There is a model per purpose rather than a house model, and every one of them was measured
+through its own production call path.** Four paths here call a model and none of them wants the same
+thing: a scene wants Estonian a native speaker would recognise, the scanner wants a photographed word
+read exactly, the grader wants JSON back, and Anu wants to explain a case. Nothing generalises across
+those, which is the finding and not a hedge. `gemini-3.8-flash` writes the best Estonian of anything
+measured and is second worst at returning JSON, 19 and 20 of 24 where the grader's own model takes
+24. `gemini-3.1-flash-lite` reads a page perfectly, 144 of 144 words exactly on both pages over three
+runs, at a third of flash's price. `gpt-oss-20b` is cheaper than all of them and fails the tutor at 4
+of 6. So `SCENE_MODELS`, `VISION_MODEL`, `TUTOR_MODEL` and the grader's are four decisions, each with
+a measurement behind it in `docs/21-situations.md` §55, and the tutor moved off `claude-sonnet-5` at
+6 of 6 over three runs for $0.72 per thousand calls against $12.44.
+
+**And `PURPOSE_CHAINS` gives a purpose only the provider it names.** It used to append to the general
+chain, so a purpose whose provider had no key fell through to whatever else the deployment held,
+which is how conversations came to be answered by a model nobody had chosen for them. A purpose with
+nothing configured now composes nothing and the rung below it answers, which for a scene is the bank
+and is the state a keyless deployment has always been in. **The measurement is not the app**, which
+was learned in the middle of doing this: a probe with no banked lines and no conversation in front of
+it produced a line held up as evidence a knob helped, and the person who reads Estonian called it
+horrible on sight. Every figure above came through `openWithFallback`, the route's own prompt and the
+shipped gate. The two harnesses that did not were fixed rather than trusted: `scripts/lib/sceneDraft.ts`
+built its chain from the free-model lists and now reads `sceneProviders()`, and `scripts/play-scene.ts`
+carried `max_tokens: 80` where the route asks `SCENE_REPLY_TOKENS`, so a thinking model's line came
+back cut off mid-word and the gate withheld every one of them, which read as a model that cannot
+write Estonian.
+
+**The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
+`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is six, where they were three, twenty-two and two. The
+old argument was that the only thing keeping a composed line honest is how little room it has to
+reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
+that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
+check written for it, and the gate has twelve now rather than five, `shape`, `vouching`, `register`,
+`government`, `facts`, `agreement`, `topic`, `giveaway`, `stretch`, `clause`, `infinitive`,
+`negation`. **Not one of the twelve was relaxed**, and four of them are the reason: `vouching` is
+where ADR-005 lives on this path, `agreement` is what catches `Kuhu te soovid sõita?` on a check that
+had never been handed `te`, `me` or `nad`, `infinitive` is what catches `aitama saan`, and `giveaway`
+is what stops the other side saying the form the beat is about to ask for. Measured: 13.7 percent of
+composed lines withheld before any of this, 2.7 after the eight-check gate, 4.8 with twelve checks
+and the limits off, against a design line of one in twenty. What a learner reads instead of
+`Kus teie keha valutab?` is `Ma aitan teid kohe. Kus kohas teil valu on, kas seljas või peas?`
+
 **A cached input token is not an ordinary one, and the ledger charged it as though it were.**
 Anthropic's `cache_control` breakpoints are real on all three paths, and two things behind them
 were not. The learner's level sat at character 158 of a 9,093-character system prompt, so 98% of a
@@ -5000,6 +5051,174 @@ to say `poes` with `Kas sa juba oled poes?`, and a learner who copies that out h
 while the scheduler writes down a recall. `CHECKS` is a list rather than a bare union, because
 `eval:scene` printed four checks out of a list of its own and a fifth changed nothing on the screen.
 
+**The word list was answering two questions, and one of them was the wrong one.** *Is this
+Estonian* is a hallucination guard and is what ADR-005 is about; *has this learner been taught it*
+is what the closed list is for. Both were `lexicon.forms.has`, so the only way for a model to say
+the natural thing was to have the line withheld: measured against the model scenes actually go to,
+seventeen of the twenty-five lines the gate withheld across the fourteen scenes were `vouching`, and
+the words were `sümptomid` at a health centre, `alustasite` at a landlord's, `minemas` on the way to
+the shop. Not one was a made-up word. **`vouching` is now asked of the language**, through
+`GateContext.vouched`, which `sceneVouch` resolves off the scene's list, the course and
+`prisma/data/forms/`, Ekilex and Vabamorf with guessing off on both sides; a word none of the three
+can account for is still withheld whole, because that is a word nobody has ever written down. **And
+`stretch` is the readable half, as a budget**: at most `NEW_WORDS` words of a line outside the
+scene's own list, because each of them arrives underlined with the dictionary under it and one new
+word is a lesson where four is a wall. The retry is told which of the two went wrong, since a word
+to drop and a line that reached too far are different instructions and used to be the same one.
+
+**And the dictionary grows by what the conversations needed.** `growDictionary` takes the words a
+line reached past the list for, asks the forms list which headword each spelling belongs to, and
+where the dictionary holds no entry fetches it through the same `lookupAndStore` the search box
+uses: what lands is Ekilex's own lemma, forms, level, definition and sentences, marked `EKILEX`.
+**The model proposes a spelling and the dictionary decides**, which is ADR-021's rule about a
+photographed page and the sixth door onto it; nothing a model wrote reaches a row. It runs in
+`after()`, so nobody waits on Ekilex for a line already on the screen, and it inherits that path's
+per-owner cap, miss cache and single flight. Asserted in both directions: `sceneVouch` may not reach
+a provider, and `growDictionary` may not write a dictionary row itself.
+
+**A compound of the topic word is the topic word, and a number said in words is still a number.**
+Two checks were stricter than the app's own rules elsewhere. `topic` refused `Kas see kellaaeg on
+teie jaoks õige?` on a beat about `aeg`, while the marker has read a learner's `bussipileti` as
+`pilet` since §41: the gate was refusing to say a word the app praises the learner for using, and it
+reads `compoundOf` now, with the same vouching guard. And `facts` could only see digits, so a card
+dealing 16:00 was answered `Teil on kohtumine homme kell kolm`, an appointment nobody offered in
+words the course teaches. `dealtHours` reads the card's own times through `timeWords`, the table the
+marker already accepts a spoken time from, and it fires only where the line is telling the time,
+since `kolm minutit` is a count and `kell kolm` is a claim about the run. Measured after all of it:
+**2.7% of composed lines withheld against 13.7%**, on a design line of 5%.
+
+**And a harness that resolves vouching once measures itself.** The first version of the eval built
+one gate before the retry and gated both lines with it, so every word of the second line the first
+had not used came back unvouched: it reported `ja` and `on` as words nothing could account for and
+rescued nothing at all. Per line, in the eval and in `npm run play:scenes`, or the number is about
+the harness.
+
+**A ma-infinitive where the da-infinitive belongs, which nothing could see.** `Tere! Mis needus täna
+aitama saan?` reached a learner, and every other check on the page passed it: every word vouched by
+the forms list, the beat's own topic named, the new word inside the budget, and not the language.
+Putting the dictionary form of a verb where the da-infinitive belongs is a mistake a model makes
+constantly in Estonian and a person never makes, so it is worth a check of its own. `DA_ONLY_VERBS`
+is deliberately the short certain list rather than every verb that governs an infinitive: Estonian
+has plenty that take the ma-infinitive (`lähen ostma`, `hakkan sööma`, `jäin magama`), and a check
+built on a list of those is a check built on the half somebody forgot, refusing correct lines.
+These seven never take one, in any register, so firing on them can only ever be right. Lemma
+requests against the course, like `SUBJECT_PRONOUN`, and no form is typed.
+
+**Two guards keep it off correct Estonian and both are load-bearing.** `Ma tahan hakata sööma` is
+right and holds a da-only verb and a ma-infinitive in one clause, because the infinitive belongs to
+the `hakata` between them, so the two have to be **adjacent** or the check says nothing. That leaves
+the whole of `tahan minna ostma` alone and still catches `aitama saan`. And `Ma saan hakkama` is
+what anybody says, which is the one fixed pair in the language that breaks the rule, written down
+rather than left to be rediscovered. Measured over all 328 bank rows against every scene's gate:
+none refused.
+
+**And the leash came off, because the leash was never what was holding the line together.** A
+learner asked why the limits are that tight at all, and they were right: some of these moments need
+explaining, and what is missing from a form and what to do about it is three sentences from
+anybody. `MAX_SENTENCES` is three and `MAX_COMPOSED_WORDS` is twenty-two. The middle step is the
+one worth knowing: the ceiling was raised to eighteen once, `Tere! Mis needus täna aitama saan?`
+came back, and it was put down again on the argument that the only thing keeping a composed line
+honest is how little room it has to reach. That argument is wrong in a way the line itself shows,
+since it is six words. Length did not produce it and length was never going to stop it. What stops
+it is the check written for it, and what pays for the room is a gate with eleven checks in it.
+
+**And asking for one short sentence is what made the other side terse.** A learner read
+`Kust alustaksite tööd?` and said what the model needs is context rather than shorter questions,
+and they were right about the cause and it was not the word count. `Reply with exactly ONE short
+Estonian sentence` sat three hundred characters above the rule allowing a remark in front of the
+move, and a model reads the stronger instruction, so every line came back as the shortest question
+that would do. With the two reconciled the neighbor says `Neljas korrus on hea. Kust te olete
+pärit?` and the waiter `Hea valik! Mida te joote?`, which are eight words and five.
+
+**The ceiling was raised for it and put back, which the transcripts settled within one run.**
+Eighteen words looked like the obvious way to make room for the second half of a line, and what the
+extra rope bought was `Tere! Mis needus täna aitama saan?`: every word vouched by the forms list,
+the beat's own topic named, one new word inside the budget, and not the language. Nothing in the
+gate can see that, and nothing ever will, so what keeps a composed line honest is how little room
+it has to reach. The ceiling is back up now that `infinitive` exists, and the instruction that
+earns the fluff says to make the remark out of the words it was given and to say nothing rather
+than reach: a plain question is better than a sentence the model is not sure of.
+
+**And the model was told what to ask for in one sentence of English, and guessed the rest.** `they`
+is the beat's stage direction, and a model reads it fluently and still writes the wrong question:
+told they ask when the learner could start, the app's own model wrote `Kust alustaksite tööd?`,
+which is fluent, inside the word list, past every check on the page, and asks *where*. The same
+guess put `Kuidas teie nimi on?` on a language course's first evening and `Maksete kaardiga?` at a
+ticket window. The bank holds each of those beats asked properly by somebody who read it, so
+`ComposeAsk.asked` hands over this beat's own banked lines, which costs a few tokens and no extra
+call. **Rephrased rather than copied**, which is the whole reason a line is composed at all: the
+banked line is the rung underneath and the ladder reaches it anyway, so a composed line has to be
+worth more, and what makes it worth more is that it can take account of what the learner just said.
+An aside gets none, because it answers rather than asks and no beat's line says what to say. After
+it, on the same model and the same scenes: `Millal saate te tööd alustada?`, `Mis teie nimi on?`,
+`Kas maksate kaardiga?`
+
+**And the agreement check could not see the person every one of these scenes is in.** It reads a
+pronoun's nominative spellings off the dictionary, through the built `Lexicon`, and `buildLexicon`
+indexes a case table only where there is a genitive stem to build one from. `meie`, `teie` and
+`nemad` have no singular, so they carry no principal parts at all and were in no case row of any
+scene: the check had never once looked at `te`, `me` or `nad`. Every scene here is a clerk speaking
+to a customer, so second person plural is the register nearly every line the other side says is in,
+and the app's own model wrote `Kuhu te soovid sõita?` straight past a check whose entire job is that
+sentence. `subjectsIn` takes the entries now and reads `SgN` and `PlN` off the Institute's own rows,
+so the file still names no Estonian beyond the six lemmas it requests.
+
+**And the ambiguity is carried rather than dropped, which is what the first version got wrong.** It
+kept only a spelling that is a nominative and nothing else, which is `caseOfForm`'s strict rule, and
+that rule silently deletes `te`, `me` and `ta`, since each is its pronoun's genitive as well and the
+genitive is how Estonian says "your". So a `Subject` says whether the reading is the only one the
+spelling has, and `disagrees` decides an ambiguous one on the word after it: a pronoun followed by a
+person of a verb is a subject (`te soovid`, `ta on`), and one followed by a word the scene knows
+that cannot be a verb person is possessing it (`teie nimi`). It errs toward the possessive, so
+`Kas te nime tead?` goes unremarked, which costs the check a line it could have caught; the other
+way round costs a learner a correct line withheld, which is the fault this module is built against.
+Measured over the whole bank: not one of its 328 lines is refused by it.
+
+**A word the learner said no about did not meet the beat it was found in.** `satisfies` looks for a
+spelling anywhere in the turn, so `ma ei taha piima` met a beat that wants `piim`: the other side
+said the word back, moved on, ticked the objective, and the append-only log recorded the learner as
+having produced it, which is a refusal read as the answer on the one table that is never repaired.
+`negatedIn` is the guard and it is drawn at a **clause** rather than at a turn, since `ma ei taha
+kohvi, ma tahan piima` is a person saying both things and only the first is negated. It stands down
+where the beat itself accepts the negator, because a beat asking whether it hurts wants `ei` in the
+answer and refusing a hit there would refuse the answer.
+
+**A beat somebody has already answered is never asked again.** The machine walks its beats in order,
+so a turn that answered one further down the scene was asked for it later: told "where are you
+going", somebody who writes `poodi, piima ostma` was asked two beats on what they were buying and
+had to say it twice. `replay` looks ahead, `creditAhead` marks a beat done where it stands without
+moving the pointer, and `moveOn` steps over what is done. Three guards, each a way this would credit
+a coincidence: the reading has to be `complete`, the evidence has to be a word this turn has not
+already spent (`addsEvidence`), and a farewell is never credited from a distance, since somebody who
+says goodbye in the middle has left. The pointer only moves forward, because a beat that ran out of
+patience is deliberately not `done` and a pointer that could walk back would ask for it for ever.
+`creditAhead` takes `Evidence` and nothing else, like `advance` (ADR-025).
+
+**Two runs of one scene do not open with the same sentence.** A beat holds its lines in the order
+somebody wrote them and the ladder took the first that fit, so every learner met `poodi-piima` with
+the same greeting and the same second line, every time, and playing a scene again is the one thing
+the debrief has been recommending all along. `turned` is where this run starts reading, off the run's
+own seed through `LineRequest.rotate`: the pool is the same pool, nothing is dropped, nothing repeats
+before the pool is spent. Asserted on the route as well as on the ladder, because a `rotate` nobody
+passes is a run that opens on the first line for ever and nothing about it looks wrong.
+
+**And a line written for this turn has already seen the turn.** The acknowledgment rotation is
+`hästi, aitäh, jah` by a counter, which is right in front of a banked line drafted months ago against
+the beat alone and unable to acknowledge anything. A composed line was written with the learner's own
+words in front of it and may open with a short remark of its own, so a rotated word bolted on before
+it is the app reacting on top of somebody who already did, which was the most mechanical thing left
+on the screen. `ownReaction` covers the composed line and the banked one that happens to open with a
+reaction word, and the recast survives either, because a correction is not a reaction and is the one
+thing a composed line may not make.
+
+**And `jah` answers one kind of question.** The acknowledgment rotation is `hästi, aitäh, jah` by a
+counter, which is right one turn in three and wrong the other two: asked which floor they live on
+and told `2`, the neighbor said `Jah.`, and a learner who has just produced a whole answer reads
+that as not having been understood. What decides it is the question they were answering, which is
+the line they already heard, and a polar question in Estonian opens with `kas`, so `acknowledgements`
+is a reading of one word rather than a parse. It errs the safe way: where there is no line to read,
+or it is not a question, `jah` is left out, which costs the rotation a word and can never be wrong.
+
 **And the app's own gate was stricter than the gate it measured itself with.** `gateContext` in the
 eval and in the bank's test has handed in the course's question words since the government check was
 written, and `contextFromRows`, which is the one the app runs, never did. So `Kust sa tuled?`, the
@@ -6366,7 +6585,12 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ssoDomainFor`, `checkSharedRateLimit`, `bucketDigest`, `windowStartMs`, `KNOWN_DEPLOYMENTS`,
 `IDENTIFIED_DEPLOYMENTS`, `currentIdentity`, `retrenchment`, `CONTINUITY`, `summariseImpact`,
 `gatherImpact`, `isSameOriginMutation`, `checkSharedRateLimit`, `inOneBreath`, `disagrees`, `subjectsIn`,
-`answerForms`, `scene-break`, `PERSON_CODES`. Most of them now
+`answerForms`, `scene-break`, `PERSON_CODES`, `sceneVouch`, `growDictionary`, `NEW_WORDS`,
+`dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
+`ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`, `MAX_COMPOSED_WORDS`,
+`DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
+`VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`.
+Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
 ## Commands
@@ -6403,6 +6627,7 @@ npm run play:scenes      # every scene played keyless as a sloppy or curious lea
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)
 npm run eval:composers   # which free model writes the best Estonian for a scene line, one model at a time (--samples, --model, --scenes)
+npm run eval:thinking    # model x thinking level over twelve beats: every line printed, tokens and cost per line (--only)
 npm run demo             # two months of sample history, for looking at the charts
 npm run test:e2e         # every browser suite, needs the server running
 npm run test:browser     # the newer browser suites: routes, modes, offline, scanning, suggestions, a11y

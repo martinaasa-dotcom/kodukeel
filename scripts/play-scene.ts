@@ -32,22 +32,28 @@
  * how the marker's tolerance and the asides were shaped.
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
-import { contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw } from "../lib/progress/scene";
+import {
+  clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+} from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
+import { seedFrom } from "../lib/random/seeded";
 import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
+import { passes, runGate } from "../lib/scenes/gate";
 import { PERSONAS } from "../lib/scenes/personas";
 import { answerBeatId } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
-import { caseKeyFor, words } from "../lib/scenes/lexicon";
+import { caseKeyFor, words, type Lexicon } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
+import { isKnownForm } from "../lib/dict/forms";
+import { SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
 import { chain as providerChain } from "./lib/sceneDraft";
@@ -77,6 +83,20 @@ const LINKS = composing
   : [];
 const COMPOSE_STATUS = new Map<string, number>();
 
+/**
+ * The app's own vouching, minus the course read that needs a database: is this
+ * spelling Estonian at all (`sceneVouch`). Without it this harness plays a
+ * scene whose other side may only say the lemmas its units declare, which is
+ * not the app.
+ */
+async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
+
 async function askModel(
   ask: Parameters<typeof composeLive>[0],
   scene: Parameters<typeof composeSystem>[0],
@@ -91,7 +111,21 @@ async function askModel(
         body: JSON.stringify({
           model: link.model,
           temperature: 0.8,
-          max_tokens: 80,
+          /*
+            THE APP'S OWN BUDGET, NEVER A NUMBER OF THIS SCRIPT'S.
+
+            It was 80 here, which is generous for one short sentence and is
+            the wrong question, exactly as `scripts/lib/sceneDraft.ts` says of
+            the 60 it used to carry. A thinking model spends its budget in a
+            reasoning field and writes into `content` after it, so at 80 the
+            line came back cut off mid-word: `Kas teil pea valut`, `Teisipä`,
+            `Arst saab`. The gate then withheld every one of them, and the
+            transcript read as a model that cannot write Estonian rather than
+            as a harness that would not let it finish. A measurement that
+            disqualifies the model the app has just been pointed at is worse
+            than no measurement.
+          */
+          max_tokens: SCENE_REPLY_TOKENS,
           messages: [
             { role: "system", content: composeSystem(scene) },
             { role: "user", content: composeLive(ask) },
@@ -229,7 +263,6 @@ async function play(sceneId: string) {
       more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [],
     };
     let aside = wantsAside ? asideFor(asking) : null;
-    if (wantsAside && !aside && asideOwed(asking)) aside = shrug(context.lexicon);
 
     let line = null;
     if (spokenFor && !(spokenFor.awaits && !standing)) {
@@ -243,13 +276,62 @@ async function play(sceneId: string) {
         ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
         { role: "user" as const, content: t.said },
       ]);
+      /*
+        AND THE QUESTION THEY WERE NOT EXPECTING IS ANSWERED BY A MODEL, WHICH
+        THIS HARNESS NEVER DID.
+
+        The route spends the turn's one booking on an aside where the learner
+        asked something, and this went straight to `Ei tea.` whenever the bank
+        had no answer: read here, a barista asked where to go said "I don't
+        know" and the transcript looked like the app being cold, when the app
+        would have answered. That is the same fault as an eval that resolves
+        vouching once (§53) and it is worth more, because these transcripts are
+        what anybody reads to decide whether the module sounds like a person.
+      */
+      if (wantsAside && !aside && asideOwed(asking) && LINKS.length > 0) {
+        const drafted = await askModel({
+          move: "answer",
+          they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+          reading: "",
+          examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
+          // An aside answers rather than asks, so no beat's banked line says what to say.
+          asked: [],
+          avoid: [],
+        }, {
+          scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+          register: scene.register, words: [...context.lexicon.byLemma.keys()],
+        }, talk);
+        const asked: BeatSpec = { ...spokenFor, id: `aside:${spokenFor.id}`, move: "confirm", topic: [] };
+        const vouched = drafted ? await vouchOf(context.lexicon, words(drafted)) : new Set<string>();
+        const verdict = drafted ? runGate(drafted, asked, {
+          ...context.gate,
+          dealt: dealtNumbers(card ?? draw.card),
+          times: clockInPlay(card ?? draw.card, context.lexicon),
+          vouched: (word: string) => vouched.has(word),
+        }) : null;
+        if (drafted && verdict && passes(verdict)) aside = { text: drafted, provenance: "composed" };
+      }
+      if (wantsAside && !aside && asideOwed(asking)) aside = shrug(context.lexicon);
+
       const cheap = await sceneLine({
         beat: spokenFor, lexicon: context.lexicon,
         // This run's dealt numbers, so the gate's `facts` check is the one the route runs.
-        gate: { ...context.gate, dealt: dealtNumbers(card ?? draw.card) },
+        gate: {
+          ...context.gate, dealt: dealtNumbers(card ?? draw.card),
+          times: clockInPlay(card ?? draw.card, context.lexicon),
+        },
         pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        // Where this run starts reading a beat's own lines, as the route does.
+        rotate: seedFrom(`${scene.id}:${run.seed}`),
+        /*
+          The same question the route asks (`sceneVouch`), minus the course
+          read that needs a database: is this spelling Estonian at all. Without
+          it this harness plays a scene whose other side may only say the few
+          hundred lemmas its units declare, which is not the app.
+        */
+        vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {
@@ -261,6 +343,8 @@ async function play(sceneId: string) {
               .filter(([id]) => id !== spokenFor.id)
               .flatMap(([, lines]) => lines.slice(0, 1))
               .slice(0, 6),
+            // This beat's own, as the route hands them: ask the same thing, in your own words.
+            asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             avoid,
           }, {
             scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,

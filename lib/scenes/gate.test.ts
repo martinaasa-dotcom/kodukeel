@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, subjectsIn, type DictEntry } from "./lexicon";
-import { disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
+import { NEW_WORDS, disagrees, governmentSuspect, passes, runGate, type GateContext } from "./gate";
 import type { BeatSpec } from "./types";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -51,6 +51,69 @@ const ENTRIES: DictEntry[] = [
     lemma: "mina", pos: "PRONOUN", cefr: "A1",
     parts: { NOM_SG: "mina", GEN_SG: "minu", PART_SG: "mind" },
     extraForms: [{ code: "SgN", value: "mina" }, { code: "SgN", value: "ma" }],
+    usages: [],
+  },
+  /*
+    And the one every scene is actually in. `teie` has no singular, so it
+    carries no principal parts at all and `buildLexicon` indexes no case row
+    for it: this is exactly the entry `subjectsIn` could not see when it read
+    the built lexicon. Its nominative and its genitive are the same two
+    spellings, which is why a reading of `te` needs the word after it.
+  */
+  {
+    lemma: "teie", pos: "PRONOUN", cefr: "A1",
+    parts: {},
+    extraForms: [
+      { code: "PlN", value: "teie" }, { code: "PlN", value: "te" },
+      { code: "PlG", value: "teie" }, { code: "PlG", value: "te" },
+      { code: "PlAd", value: "teil" },
+    ],
+    usages: [],
+  },
+  {
+    lemma: "nimi", pos: "NOUN", cefr: "A1",
+    parts: { NOM_SG: "nimi", GEN_SG: "nime", PART_SG: "nime" },
+    usages: [],
+  },
+  /*
+    The two the `infinitive` check needs: one verb that only ever takes the
+    da-infinitive, and one whose ma-infinitive a model put beside it.
+  */
+  {
+    lemma: "saama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "saama", INF_DA: "saada", PRES_1SG: "saan", PAST_1SG: "sain" },
+    usages: [],
+  },
+  {
+    lemma: "aitama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "aitama", INF_DA: "aidata", PRES_1SG: "aitan", PAST_1SG: "aitasin" },
+    usages: [],
+  },
+  {
+    lemma: "hakkama", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "hakkama", INF_DA: "hakata", PRES_1SG: "hakkan", PAST_1SG: "hakkasin" },
+    usages: [],
+  },
+  {
+    lemma: "tundma", pos: "VERB", cefr: "A2",
+    parts: { INF_MA: "tundma", INF_DA: "tunda", PRES_1SG: "tunnen", PAST_1SG: "tundsin" },
+    usages: [],
+  },
+  {
+    lemma: "tulema", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tulema", INF_DA: "tulla", PRES_1SG: "tulen", PAST_1SG: "tulin" },
+    usages: [],
+  },
+  {
+    lemma: "tahtma", pos: "VERB", cefr: "A1",
+    parts: { INF_MA: "tahtma", INF_DA: "tahta", PRES_1SG: "tahan", PAST_1SG: "tahtsin" },
+    extraForms: [{ code: "IndPrPl2", value: "tahate" }],
+    usages: [],
+  },
+  {
+    lemma: "soovima", pos: "VERB", cefr: "A2",
+    parts: { INF_MA: "soovima", INF_DA: "soovida", PRES_1SG: "soovin", PAST_1SG: "soovisin" },
+    extraForms: [{ code: "IndPrSg2", value: "soovid" }, { code: "IndPrPl2", value: "soovite" }],
     usages: [],
   },
 ];
@@ -106,12 +169,29 @@ describe("the gate", () => {
       .toContain("shape");
   });
 
-  it("refuses two sentences, no punctuation, markdown, and a line that runs on", () => {
+  /*
+    THREE SHORT SENTENCES ARE A PERSON AND FOUR ARE A PARAGRAPH. One was the
+    other side never volunteering anything: it answered and asked, answered and
+    asked, and never said a thing nobody had asked for. Two was a person who
+    volunteers exactly once, and some of these moments need explaining: what is
+    missing from a form and what to do about it is three sentences from anybody.
+    The word count covers the whole turn either way, so three are three short
+    ones.
+  */
+  it("takes a person talking, and refuses a paragraph", () => {
     const ctx = context();
-    expect(runGate("Kas teil on valu? Kus?", beat(), ctx).failed).toContain("shape");
+    expect(runGate("Teil on valu. Kus?", beat(), ctx).failed).not.toContain("shape");
+    expect(runGate("Teil on valu. Toas on valu. Valu on. Kus?", beat(), ctx).failed)
+      .not.toContain("shape");
+    const paragraph = `${"Teil on valu. ".repeat(5)}Kus?`;
+    expect(runGate(paragraph, beat(), ctx).failed).toContain("shape");
+  });
+
+  it("refuses no punctuation, markdown, and a line that runs on", () => {
+    const ctx = context();
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
-    expect(runGate(`${"valu ".repeat(20)}?`, beat(), ctx).failed).toContain("shape");
+    expect(runGate(`${"valu ".repeat(50)}?`, beat(), ctx).failed).toContain("shape");
     expect(runGate("", beat(), ctx).failed).toContain("shape");
   });
 
@@ -193,6 +273,23 @@ describe("a number nobody dealt", () => {
     expect(runGate("Kas 15 on valu?", beat(), context({ dealt })).failed).toContain("facts");
   });
 
+  /*
+    A NUMBER SAID IN WORDS IS STILL A NUMBER. `dealtNumbers` reads digits, and
+    a card dealing 16:00 was answered `Teil on kohtumine homme kell kolm`: an
+    appointment nobody offered, in words the course teaches, past every check.
+  */
+  it("is withheld when the hour is told in words, and the hour that was dealt is not", () => {
+    const times = { clock: new Set(["kell"]), hours: new Set(["kolm", "neli"]), dealt: new Set(["neli"]) };
+    expect(runGate("Kas kell neli on valu?", beat(), context({ times })).failed).not.toContain("facts");
+    expect(runGate("Kas kell kolm on valu?", beat(), context({ times })).failed).toContain("facts");
+  });
+
+  it("says nothing about a count, because only a line telling the time is a claim", () => {
+    const times = { clock: new Set(["kell"]), hours: new Set(["kolm"]), dealt: new Set(["neli"]) };
+    // `kolm minutit` is three minutes. Without the clock word there is no appointment in it.
+    expect(runGate("Kas kolm on valu?", beat(), context({ times })).failed).not.toContain("facts");
+  });
+
   it("says nothing about a line with no number in it", () => {
     expect(runGate("Kas teil on valu?", beat(), context({ dealt: new Set() })).failed).not.toContain("facts");
   });
@@ -218,12 +315,19 @@ describe("a number nobody dealt", () => {
  * reading the other side's line cannot check for themselves.
  */
 describe("a verb that does not agree with its subject", () => {
-  const ctx = context({ subjects: subjectsIn(LEXICON) });
+  const ctx = context({ subjects: subjectsIn(ENTRIES) });
 
   it("knows the pronouns off the dictionary rather than off a list", () => {
-    expect(ctx.subjects?.get("sina")).toBe("IndPrSg2");
-    expect(ctx.subjects?.get("sa")).toBe("IndPrSg2");
-    expect(ctx.subjects?.get("ma")).toBe("IndPrSg1");
+    expect(ctx.subjects?.get("sina")?.code).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("sa")?.code).toBe("IndPrSg2");
+    expect(ctx.subjects?.get("ma")?.code).toBe("IndPrSg1");
+    /*
+      And the pronoun that has no singular, so no principal parts and no case
+      row: it was in no reading of the built lexicon, which is why the check
+      had never once looked at the register every one of these scenes is in.
+    */
+    expect(ctx.subjects?.get("te")?.code).toBe("IndPrPl2");
+    expect(ctx.subjects?.get("teie")?.code).toBe("IndPrPl2");
     // An oblique form is not a subject, or `Kas ma aitan sind?` would be read as one.
     expect(ctx.subjects?.has("sind")).toBe(false);
   });
@@ -259,6 +363,100 @@ describe("a verb that does not agree with its subject", () => {
   it("passes a line where one verb agrees and another does not, because it cannot say which is whose", () => {
     expect(disagrees("Kas sina oled see, kes tuleb?", ctx)).toBe(false);
   });
+
+  /*
+    THE REGISTER EVERY ONE OF THESE SCENES IS IN. A clerk speaks to a
+    customer, so nearly every line the other side says is second person
+    plural, and the app's own model wrote `Kuhu te soovid sõita?` past a gate
+    that had never heard of `te`: the pronoun has no singular, so it carries
+    no principal parts and `buildLexicon` indexed no case row for it.
+  */
+  it("reads the pronoun with no singular, which is the one these scenes use", () => {
+    expect(runGate("Kuhu te soovid?", beat(), ctx).failed).toContain("agreement");
+    expect(runGate("Kuhu te soovite?", beat(), ctx).failed).not.toContain("agreement");
+  });
+
+  /*
+    And `te` is its pronoun's genitive as well, which is how Estonian says
+    "your". `Teie nimi on Mari.` holds no subject at all, and the first
+    version of this check dropped every ambiguous spelling rather than reading
+    the word after it, which cost the check the whole second person.
+  */
+  it("does not read a possessive as a subject", () => {
+    expect(disagrees("Teie nimi on Mari.", ctx)).toBe(false);
+    /*
+      AND IT ERRS TOWARD THE POSSESSIVE, WHICH IS THE SAFE SIDE. `Kas te nime
+      tead?` really does have `te` as its subject and `nime` as its object, and
+      this reads the noun after the pronoun and calls it possessed, so the
+      disagreeing `tead` goes unremarked. That costs the check a line it could
+      have caught; the other way round costs a learner a correct line withheld,
+      which is the fault this whole module is built against.
+    */
+    expect(disagrees("Kas te nime tead?", ctx)).toBe(false);
+  });
+});
+
+/**
+ * AND A VERB STILL CARRYING ITS PERSON AFTER THE NEGATOR.
+ *
+ * Estonian negates with `ei` and the bare form: `ei ole`, `ei tea`, `ei saa`,
+ * whoever is speaking. `ei olen` is the same shape of fault as `saan aitama`,
+ * fluent and vouched word by word and not the language, and it is decidable
+ * because the negative has a code of its own: this asks only about the six
+ * present persons, so `ei ole`, `ei oleks` and `ei olnud` are all untouched.
+ */
+describe("a verb that kept its person after the negator", () => {
+  const ctx = context();
+
+  it("withholds the person where the bare form belongs", () => {
+    expect(runGate("Kas te ei tahate valu?", beat(), ctx).failed).toContain("negation");
+  });
+
+  it("says nothing about the bare form, which is what belongs there", () => {
+    expect(runGate("Kas teil ei ole valu?", beat(), ctx).failed).not.toContain("negation");
+  });
+
+  /* `Ei, ma tahan.` is a person answering no and then saying what they want. */
+  it("says nothing across a clause boundary", () => {
+    expect(runGate("Ei, kas te tahate valu?", beat(), ctx).failed).not.toContain("negation");
+  });
+});
+
+/**
+ * AND A MA-INFINITIVE WHERE THE DA-INFINITIVE BELONGS.
+ *
+ * `Tere! Mis needus täna aitama saan?` reached a learner and every other check
+ * on the page passed it: the words are vouched, the beat's own topic is named,
+ * the new word is inside the budget, and it is not the language. Putting the
+ * dictionary form of a verb where the da-infinitive belongs is a mistake a
+ * model makes constantly in Estonian and a person never makes.
+ */
+describe("a verb that cannot take the form beside it", () => {
+  const ctx = context();
+
+  it("withholds the line that reached a learner", () => {
+    expect(runGate("Mis täna aitama saan?", beat(), ctx).failed).toContain("infinitive");
+  });
+
+  it("says nothing about the da-infinitive, which is what belongs there", () => {
+    expect(runGate("Kas ma saan aidata?", beat(), ctx).failed).not.toContain("infinitive");
+  });
+
+  /*
+    `Ma tahan hakata sööma` is right and holds both a da-only verb and a
+    ma-infinitive: the infinitive belongs to `hakata`, which stands between
+    them. So the two have to be next to each other or this says nothing, which
+    is what leaves `tahan minna ostma` alone.
+  */
+  it("says nothing where another verb stands between them", () => {
+    expect(runGate("Kas te tahate tulla valu tundma?", beat(), ctx).failed)
+      .not.toContain("infinitive");
+  });
+
+  /* And the one fixed pair in the language that breaks the rule. */
+  it("takes the one expression that really is a ma-infinitive there", () => {
+    expect(runGate("Kas te saate hakkama?", beat(), ctx).failed).not.toContain("infinitive");
+  });
 });
 
 /**
@@ -275,6 +473,19 @@ describe("a line that is not about its beat", () => {
   it("is withheld, and a line naming the beat's own word is not", () => {
     expect(runGate("Kas teil on valu?", beat(), ctx).failed).not.toContain("topic");
     expect(runGate("Kas teil on tuba?", beat(), ctx).failed).toContain("topic");
+  });
+
+  /*
+    The marker reads `bussipileti` as `pilet` and the gate refused `kellaaeg`
+    on a beat about `aeg`: the app would not say a word it praises the learner
+    for using. Same rule, same guard, both directions.
+  */
+  it("reads a compound as the word it is a compound of", () => {
+    const wide = context({ topic: new Set(["valu", "valud"]), vouched: () => true });
+    expect(runGate("Kas teil on peavalu?", beat(), wide).failed).not.toContain("topic");
+    // And not by accident: the whole spelling still has to be vouched.
+    expect(runGate("Kas teil on xyzvalu?", beat(), context({ topic: new Set(["valu"]) })).failed)
+      .toContain("topic");
   });
 
   it("says nothing where the caller named no topic, which is how an aside is gated", () => {
@@ -303,5 +514,83 @@ describe("a line that gives the answer away", () => {
 
   it("says nothing where the caller named no answer, which is how an aside is gated", () => {
     expect(runGate("Kas sa oled toas?", asks, context()).failed).not.toContain("giveaway");
+  });
+});
+
+/**
+ * BEING ESTONIAN AND BEING TAUGHT HERE ARE TWO QUESTIONS.
+ *
+ * One membership test against the scene's few hundred lemmas was asked as
+ * both, so the only way for a model to say the natural thing was to have the
+ * line withheld: seventeen of the twenty-five lines the gate withheld across
+ * the fourteen scenes were real Estonian refused for one word a person would
+ * obviously have said. `vouching` is now the hard one, against whatever the
+ * caller can account for; `stretch` is the readable one, and it is a budget.
+ */
+describe("a line that reaches past the scene's own list", () => {
+  /* What the forms list answers: everything here is Estonian but `blorp`. */
+  const language = context({ vouched: (word: string) => word !== "blorp" });
+
+  it("passes where the language can vouch for the word, and says which words were new", () => {
+    const verdict = runGate("Kas teil on peavalu?", beat(), language);
+    expect(verdict.failed).not.toContain("vouching");
+    expect(verdict.stretched).toEqual(["peavalu"]);
+  });
+
+  it("is withheld where nothing can vouch for it, which is a word nobody has written down", () => {
+    expect(runGate("Kas teil on blorp?", beat(), language).failed).toContain("vouching");
+  });
+
+  it("is withheld once it reaches further than a learner can read in one line", () => {
+    /*
+      The budget is generous now, because what a person says at a counter
+      routinely carries a handful of words a beginner has not met and refusing
+      the line is not what a person does about that. What it still refuses is a
+      line made of nothing else, which is the wall the number exists for.
+    */
+    const beyond = "peavalu kestab kaua sagedasti harva tugevalt pidevalt";
+    const verdict = runGate(`Kas teil ${beyond}?`, beat(), language);
+    expect(verdict.failed).toContain("stretch");
+    expect(verdict.stretched.length).toBeGreaterThan(NEW_WORDS);
+  });
+
+  it("holds a caller that cannot vouch to the scene's own list, exactly as before", () => {
+    expect(runGate("Kas teil on peavalu?", beat(), context()).failed).toContain("vouching");
+  });
+});
+
+/**
+ * AND THE NINTH: A RUN OF WORDS IS NOT A CLAUSE UNTIL IT HOLDS A VERB.
+ *
+ * The bank has been held to this since it was drafted and the live path never
+ * was. Read off a real transcript: `Mis teie pilet tahta?` at a ticket window
+ * and `Kas te maksete sularaha või kaardiga?` are both inside the word list,
+ * in the right register, and neither is a sentence anybody says.
+ */
+describe("a line with no verb in it", () => {
+  const finite = context({ hasFiniteVerb: (word: string) => word === "on" });
+
+  it("is withheld once it is long enough to have needed one", () => {
+    expect(runGate("Kas teil valu olema?", beat(), finite).failed).toContain("clause");
+    expect(runGate("Kas teil on valu?", beat(), finite).failed).not.toContain("clause");
+  });
+
+  it("says nothing about a short elliptical question, which anybody asks", () => {
+    expect(runGate("Kus valu?", beat(), finite).failed).not.toContain("clause");
+  });
+
+  it("says nothing about a greeting, which is a phrase with no verb in it", () => {
+    expect(runGate("Kas teil valu olema?", beat({ move: "greet" }), finite).failed)
+      .not.toContain("clause");
+  });
+
+  /*
+    And it stands down on a line that reached past the scene's list, because
+    the predicate is built from the scene's own verbs: reading a stretched verb
+    form as "no verb" would withhold the natural line for being natural.
+  */
+  it("says nothing about a line holding a word the scene does not teach", () => {
+    const wide = context({ hasFiniteVerb: (word: string) => word === "on", vouched: () => true });
+    expect(runGate("Kas teil peavalu olema?", beat(), wide).failed).not.toContain("clause");
   });
 });

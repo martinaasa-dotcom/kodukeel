@@ -54,6 +54,9 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
   "gpt-oss-120b": { inputPerMTok: 0.15, outputPerMTok: 0.6 },
+  // Read the same way, off Groq's own `/v1/models`: half its bigger sibling,
+  // and the cheapest input rate any provider on this deployment's keys quotes.
+  "gpt-oss-20b": { inputPerMTok: 0.075, outputPerMTok: 0.3 },
   // Groq publishes no price for this one, so there is none to write down. It is
   // on no purpose chain and is reachable only on an install that sets no
   // GROQ_MODEL; if it ever earns a rate, read it off the API rather than guess.
@@ -99,9 +102,44 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
         -H "Authorization: Bearer $GROQ_API_KEY"
   */
   "qwen3.8-27b": { inputPerMTok: 0.8, outputPerMTok: 4 },
-  "gemini-flash-latest": { inputPerMTok: 0, outputPerMTok: 0 },
-  "gemini-3.6-flash": { inputPerMTok: 0, outputPerMTok: 0 },
-  "gemini-3.5-flash": { inputPerMTok: 0, outputPerMTok: 0 },
+
+  /*
+    AND THE GEMINI ROWS WERE THE SAME FAULT, ONE PROVIDER OVER.
+
+    They sat at zero for the reason the Groq block above sat at zero: the only
+    Gemini access this project had was a free key, and "free" is a property of
+    the account rather than of the model. The moment a paid key is set, and one
+    is now, every one of these prices a real call at nothing, which is the
+    global spend cap switched off on whichever of them a deployment points
+    `GEMINI_SCENE_MODEL` at.
+
+    Read off Google's own page rather than recalled, on 2026-09-06:
+    https://ai.google.dev/gemini-api/docs/pricing. The Flash tier is
+    promotional until the end of 2026 and roughly doubles on 1 January 2027,
+    which is written here rather than in a diary because a table that silently
+    halves the real rate is the fault above wearing a date.
+
+    A model this table does not name prices at `UNKNOWN_MODEL`, which is the
+    dearest row and the honest answer for a rate nobody has looked up. That is
+    what makes the omissions safe and the zeros dangerous.
+  */
+  "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
+  "gemini-3.7-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
+  "gemini-3.6-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
+  "gemini-3.5-flash": { inputPerMTok: 1.5, outputPerMTok: 9 },
+  "gemini-2.5-flash": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
+  "gemini-3.5-flash-lite": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
+  "gemini-3.1-flash-lite": { inputPerMTok: 0.25, outputPerMTok: 1.5 },
+  "gemini-2.5-flash-lite": { inputPerMTok: 0.1, outputPerMTok: 0.4 },
+  "gemini-3.1-pro-preview": { inputPerMTok: 2, outputPerMTok: 12 },
+  /*
+    The two aliases move with whatever Google points them at, so they carry the
+    dearest rate of the tier they name rather than a snapshot: an alias priced
+    at last quarter's model is a cap sized against a model nobody is calling.
+  */
+  "gemini-flash-latest": { inputPerMTok: 1.5, outputPerMTok: 9 },
+  "gemini-flash-lite-latest": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
+  "gemini-pro-latest": { inputPerMTok: 2, outputPerMTok: 12 },
 };
 
 /** Charged when the model is not in the table. Deliberately the dearest rate. */

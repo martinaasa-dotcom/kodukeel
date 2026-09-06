@@ -346,6 +346,44 @@ export function timeWords(value: string): string[] {
 export const TIME_LEMMAS: readonly string[] = [...HOUR_WORDS, HALF];
 
 /**
+ * The word a time is told with, as a lemma request like the hours themselves.
+ *
+ * What makes a line a claim about the clock rather than a line with a number
+ * in it: `kolm minutit` is three minutes and `kell kolm` is an appointment.
+ */
+export const CLOCK_LEMMA = "kell";
+
+/**
+ * The hour words the times on this card name.
+ *
+ * A NUMBER SAID IN WORDS IS STILL A NUMBER, which `dealtNumbers` says it is
+ * not. Its reasoning was that `kolm` is a word the course teaches and a line
+ * saying it has not made anything up, and that was true while a beat naming a
+ * dealt value was answered off the card. With the model asked first it is
+ * false in the way that matters: a card dealing 16:00 was answered `Teil on
+ * kohtumine homme kell kolm`, which is an appointment nobody offered, told in
+ * perfectly in-scope Estonian, and every check on the page passed it.
+ *
+ * Read through `timeWords`, so what the other side may say and what the marker
+ * accepts from the learner are the one table, and split to the hour because
+ * `pool neli` is half past three and the hour is the half that can be wrong.
+ */
+export function dealtHours(card: RoleCard | null): ReadonlySet<string> {
+  const out = new Set<string>();
+  for (const prop of card?.props ?? []) {
+    for (const said of timeWords(prop.value ?? "")) {
+      for (const word of said.split(" ")) {
+        if ((HOUR_WORDS as readonly string[]).includes(word)) out.add(word);
+      }
+    }
+  }
+  return out;
+}
+
+/** Every hour word there is, so the gate can tell one from an ordinary count. */
+export const HOUR_LEMMAS: readonly string[] = [...HOUR_WORDS];
+
+/**
  * Every number this run was dealt, as it may be written.
  *
  * THE GATE'S FIFTH CHECK NEEDS THIS AND NOTHING ELSE DOES. Vouching is about

@@ -28,8 +28,11 @@
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
-import { PERSON_CODES, words, type Lexicon, type PersonCode } from "./lexicon";
-import { MAX_WORDS, isQuestion } from "./retrieval";
+import {
+  DA_ONLY_EXEMPT, DA_ONLY_VERBS, PERSON_CODES, words, type Lexicon, type Subject,
+} from "./lexicon";
+import { compoundOf } from "./nearly";
+import { isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
 
 /**
@@ -41,7 +44,45 @@ import { QUESTION_SHAPE, type BeatSpec } from "./types";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
+  "stretch", "clause", "infinitive", "negation",
 ] as const;
+
+/**
+ * How long a line has to be before it is expected to hold a finite verb.
+ *
+ * Two exemptions and each is a kind of line people say. A greeting or a
+ * farewell is a phrase with no verb in it, and a short elliptical question is
+ * one anybody asks: `Mis kell?`, `Neljapäev?`. Four is where `Kus pood praegu
+ * olema?` sits, which is the line this exists for.
+ */
+export const FINITE_VERB_FLOOR = 4;
+
+/**
+ * How many words of a line may be ones this scene has not declared.
+ *
+ * ONE SET WAS ANSWERING TWO QUESTIONS, AND THAT IS WHY CONVERSATIONS READ AS
+ * STILTED. `vouching` asked "is this Estonian" and "has this learner been
+ * taught it" with one membership test against a few hundred lemmas, so the
+ * only way for a model to say the natural thing was to have the line withheld
+ * whole. `vouching` asks the language now and this is the other half: how much
+ * of a line may be new to the learner.
+ *
+ * SIX, WHICH IS A BUDGET RATHER THAN A LEASH. It was two, on the argument that
+ * every new word arrives underlined with the dictionary under it and one new
+ * word is a lesson where four is a wall. The wall is real and two was not
+ * where it stands: what a person says at a counter routinely carries a handful
+ * of words a beginner has not met, and refusing the line is not what a person
+ * does about that. What makes six survivable is the thing the argument was
+ * missing, which is that the words do not stay new: `growDictionary` fetches
+ * every one of them from Ekilex behind the turn, so the second learner to meet
+ * `vastuvõtule` meets an entry rather than a gap.
+ *
+ * It is still a budget and not an absence of one. A line made entirely of
+ * words the learner has never seen is a line they cannot read, whatever the
+ * dictionary does underneath it, and that is the failure this number exists
+ * for.
+ */
+export const NEW_WORDS = 6;
 
 export type Check = (typeof CHECKS)[number];
 
@@ -54,8 +95,30 @@ export interface GovernedWord {
 }
 
 export interface GateContext {
-  /** The scene's closed word list. Vouching is against this, not the dictionary. */
+  /**
+   * The scene's closed word list: what the learner has been taught to read,
+   * and what a line may reach past by at most `NEW_WORDS` (`stretch`).
+   */
   readonly lexicon: Lexicon;
+  /**
+   * WHETHER A SPELLING IS ESTONIAN AT ALL, which is a different question from
+   * whether this scene teaches it and is the one `vouching` now asks.
+   *
+   * Handed in resolved, because answering it reads the forms list off disk
+   * and this module may reach neither a database nor a filesystem. The route
+   * resolves it for the words a composed line actually used
+   * (`LineRequest.vouch`), so nothing is looked up in advance and a keyless
+   * or scriptless caller that supplies none falls back to the scene's own
+   * list, which is exactly the behaviour this had before.
+   *
+   * WHAT IT MAY NEVER BECOME IS A MODEL'S OPINION. The chain behind it is the
+   * scene's lexicon, the course, and `prisma/data/forms/`, which is Ekilex's
+   * own inflection tables and Vabamorf with guessing off on both sides: a
+   * spelling in it is a real form of a real headword somebody classified. A
+   * word none of them can account for is still withheld whole, because that
+   * is a word nobody has ever written down (ADR-005).
+   */
+  readonly vouched?: (word: string) => boolean;
   /** Every form of the course's question words, which stand in for a governed complement. */
   readonly questionWords?: ReadonlySet<string>;
   /** Forms of the pronoun this scene's register forbids. */
@@ -70,7 +133,7 @@ export interface GateContext {
    * reason: this module may not write Estonian, and which spellings are the
    * nominative of `mina` is the dictionary's answer (ADR-005).
    */
-  readonly subjects?: ReadonlyMap<string, PersonCode>;
+  readonly subjects?: ReadonlyMap<string, Subject>;
   /** The governed words the scene can see. */
   readonly governed: readonly GovernedWord[];
   /** Every case form of every nominal, so a token can be asked which case it is. */
@@ -92,6 +155,39 @@ export interface GateContext {
    * this run dealt no numbers, and then any digit at all is invented.
    */
   readonly dealt?: ReadonlySet<string>;
+  /**
+   * The clock, where this run deals one: every form of the word a time is told
+   * with, every hour word there is, and the hours this card actually named.
+   *
+   * A NUMBER SAID IN WORDS IS STILL A NUMBER, and `dealt` cannot see one:
+   * `words()` keeps `kolm` and the lexicon vouches for it like any other word,
+   * so a card dealing 16:00 was answered `Teil on kohtumine homme kell kolm`
+   * and every check here passed it. That is the same fault `facts` exists for,
+   * wearing vocabulary as a disguise, and the learner is being asked to agree
+   * to an appointment nobody offered.
+   *
+   * Read only where the line is telling the time, which is what `clock` is
+   * for: `kolm minutit` is a count and `kell kolm` is a claim about the run.
+   * Handed in resolved, like everything else here, because this module holds
+   * no Estonian.
+   */
+  /**
+   * Whether a spelling is a finite verb form, which is what makes a run of
+   * words a clause somebody said.
+   *
+   * The bank has been held to this since it was drafted and the live path
+   * never was, which is the third rule the two sides disagreed about. Read on
+   * a real transcript: `Mis teie pilet tahta?` and `Kas te maksete sularaha
+   * või kaardiga?` are both inside the word list, in the right register, and
+   * neither is a sentence. A line with no verb in it is the most obviously
+   * broken thing a model produces here.
+   */
+  readonly hasFiniteVerb?: (word: string) => boolean;
+  readonly times?: {
+    readonly clock: ReadonlySet<string>;
+    readonly hours: ReadonlySet<string>;
+    readonly dealt: ReadonlySet<string>;
+  };
   /**
    * Every form of the beat's own topic words, where the caller has one.
    *
@@ -124,8 +220,17 @@ export interface GateContext {
 export interface Verdict {
   /** Empty when the line may be shown. */
   readonly failed: readonly Check[];
-  /** The words vouching could not account for, named so a retry can be told. */
+  /** The words nothing could vouch for as Estonian, named so a retry can be told. */
   readonly unknown: readonly string[];
+  /**
+   * The words the line reached past the scene's own list for, whether or not
+   * that broke the budget.
+   *
+   * Two readers and they want it for opposite reasons. A retry is told to use
+   * fewer of them; and the route, on a line that passed, looks each one up so
+   * the dictionary holds the word by the time anybody meets it again.
+   */
+  readonly stretched: readonly string[];
 }
 
 /**
@@ -142,6 +247,22 @@ function invented(text: string, dealt: ReadonlySet<string> | undefined): boolean
   if (!runs) return false;
   const said = dealt ?? new Set<string>();
   return runs.some((run) => !said.has(run));
+}
+
+/**
+ * Whether the line tells a time this run did not deal.
+ *
+ * Only where it is telling one: a line has to hold the clock word and an hour
+ * word together, so `kolm minutit` and `kolmas korrus` are counts and say
+ * nothing about the appointment. Every hour word in such a line has to be one
+ * the card named, and a run that dealt no time at all deals no hours, so an
+ * offer in a scene with nothing to offer is invented too.
+ */
+function inventedHour(tokens: readonly string[], times: GateContext["times"]): boolean {
+  if (!times) return false;
+  if (!tokens.some((word) => times.clock.has(word))) return false;
+  const hours = tokens.filter((word) => times.hours.has(word));
+  return hours.length > 0 && hours.some((word) => !times.dealt.has(word));
 }
 
 export function passes(verdict: Verdict): boolean {
@@ -168,8 +289,28 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     choosing inside a box, and a line reaching outside it is a line the learner
     has not been taught to read.
   */
-  const unknown = tokens.filter((word) => !context.lexicon.forms.has(word));
+  /*
+    VOUCHING IS AGAINST THE LANGUAGE, AND READABILITY IS A BUDGET.
+
+    It used to be one test against the scene's own few hundred lemmas, which
+    made "is this Estonian" and "has this learner met it" the same question and
+    refused `Kui kaua teie sümptomid kestavad?` for the one word that makes it
+    a sentence a receptionist says. What a line may not do is invent a word, so
+    that is what this asks: every token has to be a spelling the app can
+    account for, through the scene, the course and the forms list.
+  */
+  const vouched = context.vouched ?? ((word: string) => context.lexicon.forms.has(word));
+  const unknown = tokens.filter((word) => !vouched(word));
   if (unknown.length > 0) failed.push("vouching");
+
+  /*
+    And how far past the scene's own list it reached, which is what keeps the
+    line readable by somebody who has done these units. Every one of these
+    arrives underlined with the dictionary under it, so the cost of one is a
+    word to notice rather than a word that stops the conversation.
+  */
+  const stretched = tokens.filter((word) => !context.lexicon.forms.has(word));
+  if (stretched.length > NEW_WORDS) failed.push("stretch");
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
 
@@ -183,11 +324,15 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     is about its beat if it names the thing the beat is about, and everything
     else in it is the sentence around that.
   */
-  if (context.topic && context.topic.size > 0 && !tokens.some((word) => context.topic!.has(word))) {
+  if (context.topic && context.topic.size > 0 && !onTopic(tokens, context.topic, vouched)) {
     failed.push("topic");
   }
 
   if (context.answers && tokens.some((word) => context.answers!.has(word))) failed.push("giveaway");
+
+  if (noClause(tokens, stretched, beat, context)) failed.push("clause");
+  if (wrongInfinitive(text, context)) failed.push("infinitive");
+  if (inflectedAfterEi(text, context)) failed.push("negation");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -195,9 +340,62 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     exists to find Estonian words and drops digits on the way past, which is
     exactly why nothing here could see this before.
   */
-  if (invented(text, context.dealt)) failed.push("facts");
+  if (invented(text, context.dealt) || inventedHour(tokens, context.times)) failed.push("facts");
 
-  return { failed, unknown };
+  return { failed, unknown, stretched };
+}
+
+/**
+ * WHETHER A RUN OF WORDS IS A CLAUSE SOMEBODY SAID.
+ *
+ * `Kus pood praegu olema?` passes every check about vocabulary and is not a
+ * sentence, and a real transcript produced `Mis teie pilet tahta?` at a ticket
+ * window. What is missing in each is the finite verb, and this app can list
+ * every one it knows without a parser: the stored principal parts plus
+ * `derivedVerbForms`, which `npm run audit:verbs` checked against Ekilex on
+ * 797 verbs.
+ *
+ * DRAWN AS WEAKLY AS IT CAN BE AND STILL BE A CHECK, which here means it
+ * stands down on any line that reached past the scene's own list. The
+ * predicate is built from the scene's own verbs, so a stretched verb form is a
+ * word it has never heard of and reading that as "no verb" would withhold the
+ * natural line for being natural. What is left is the case it is certain
+ * about: every word in the scene's own list, four or more of them, and not one
+ * of them a verb anybody could have said.
+ */
+function noClause(
+  tokens: readonly string[],
+  stretched: readonly string[],
+  beat: BeatSpec,
+  context: GateContext,
+): boolean {
+  if (!context.hasFiniteVerb || stretched.length > 0) return false;
+  if (beat.move === "greet" || beat.move === "close") return false;
+  if (tokens.length < FINITE_VERB_FLOOR) return false;
+  return !tokens.some((word) => context.hasFiniteVerb!(word));
+}
+
+/**
+ * WHETHER THE LINE IS ABOUT ITS BEAT, WITH A COMPOUND READ AS ITS HEAD.
+ *
+ * `A compound of the word is the word, and Estonian is made of compounds` is
+ * the rule the marker reads a learner's turn by (`compoundOf`), and the topic
+ * check was stricter than the marker on exactly the same question: `Kas see
+ * kellaaeg on teie jaoks õige?` was refused on a beat about `aeg`, and
+ * `bussipilet` would be refused on a beat about `pilet`. That is the app
+ * refusing to say a word it would praise the learner for using.
+ *
+ * The head of an Estonian compound is its last part, so a token ending in a
+ * topic form with a modifier in front of it is that topic word. The guard the
+ * marker uses is the same one: the whole spelling has to be vouched, or
+ * `xyzzyaeg` would be about the time.
+ */
+function onTopic(
+  tokens: readonly string[],
+  topic: ReadonlySet<string>,
+  vouched: (word: string) => boolean,
+): boolean {
+  return tokens.some((word) => topic.has(word) || compoundOf(word, topic, vouched) !== null);
 }
 
 /**
@@ -223,6 +421,139 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
  * agree with it. `Kas sina oled see, kes tuleb?` holds a verb that agrees and
  * one that does not, and it passes, which is right.
  */
+/**
+ * Whether a pronoun in this clause is possessing the word after it rather than
+ * standing as the subject of a verb.
+ *
+ * `TE`, `ME` AND `TA` ARE EACH THEIR PRONOUN'S GENITIVE AS WELL, and the
+ * genitive is what Estonian uses for "your", "our" and "his". `Teie nimi on
+ * Mari.` holds no subject at all: the subject is `nimi`, the verb agrees with
+ * it, and a check that read `teie` as a second-person subject would refuse an
+ * ordinary line a clerk says. Dropping those spellings is what the first
+ * version did, and it cost the check the whole second person plural, which is
+ * the register every one of these scenes is in.
+ *
+ * What tells the two apart is the word after it, and only two answers are
+ * needed. A pronoun followed by a word that can be a person of a verb is a
+ * subject: `te soovid`, `ta on`, `me läheme`. A pronoun followed by a word the
+ * scene knows that cannot be a verb person is possessing it: `teie nimi`,
+ * `ta raamat`. Anything else, including the end of the clause, is left to the
+ * check, which fires only where a disagreeing verb is actually present.
+ *
+ * A spelling that is a nominative and nothing else is never read this way, so
+ * `mina`, `sina` and `nemad` are untouched by any of it.
+ */
+function possessive(word: string, clause: readonly string[], context: GateContext): boolean {
+  if (context.subjects?.get(word)?.sure !== false) return false;
+  const next = clause[clause.indexOf(word) + 1];
+  if (!next || isPerson(next, context)) return false;
+  return context.lexicon.forms.has(next);
+}
+
+/** Whether a spelling is one of the persons of a verb the scene holds. */
+function isPerson(word: string, context: GateContext): boolean {
+  for (const table of context.lexicon.persons.values()) {
+    for (const code of PERSON_CODES) if (table.get(code)?.toLowerCase() === word) return true;
+  }
+  return false;
+}
+
+/**
+ * A verb still carrying its person after the negator.
+ *
+ * Estonian negates with `ei` and the *bare* form: `ei ole`, `ei tea`, `ei
+ * saa`, whoever is speaking. `ei olen` and `ei saan` are the other mistake a
+ * model makes constantly here and a person never makes, and they are the same
+ * shape as `saan aitama`: fluent, every word vouched, and not the language.
+ *
+ * `PERSON_CODES` is the present indicative and nothing else, which is what
+ * makes this decidable: the negative form has a code of its own, so `ei ole`
+ * asks about a spelling the person table does not hold and this says nothing.
+ * The conditional, the imperative and both participles have their own codes
+ * too, so `ei oleks`, `ei olnud` and `ärge minge` are all untouched.
+ *
+ * Immediately after, and within a clause, for the reason `wrongInfinitive`
+ * gives: `Ei, ma tean` is a person answering no and then saying what they
+ * know, and the comma is where one stops and the other starts.
+ */
+function inflectedAfterEi(text: string, context: GateContext): boolean {
+  const persons = new Set<string>();
+  for (const table of context.lexicon.persons.values()) {
+    for (const code of PERSON_CODES) {
+      const form = table.get(code);
+      if (form) persons.add(form.toLowerCase());
+    }
+  }
+  if (persons.size === 0) return false;
+
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    for (let at = 0; at < lower.length - 1; at += 1) {
+      if (lower[at] === "ei" && persons.has(lower[at + 1]!)) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * A ma-infinitive standing where the da-infinitive belongs.
+ *
+ * `Tere! Mis needus täna aitama saan?` reached a learner, and every other
+ * check on the page passed it: the words are vouched, the beat's own topic is
+ * named, the new word is inside the budget, and it is not the language. Putting
+ * the dictionary form of a verb where the da-infinitive belongs is a mistake a
+ * model makes constantly in Estonian and a person never makes, so it is worth a
+ * check of its own.
+ *
+ * `DA_ONLY_VERBS` is the short certain list and the reasoning is beside it.
+ * Two guards keep this from refusing correct Estonian, and both matter:
+ *
+ * ADJACENT, AND NOTHING BETWEEN. `Ma tahan hakata sööma` is right, and it holds
+ * a da-only verb and a ma-infinitive in one clause: the ma-infinitive belongs
+ * to `hakata`, which sits between them. So the two have to be next to each
+ * other, in either order, or this says nothing. That is what leaves the whole
+ * of `tahan minna ostma` alone and still catches `aitama saan`.
+ *
+ * AND THE ONE FIXED PAIR IS EXEMPT. `Ma saan hakkama` is what anybody says.
+ *
+ * A verb the scene's list does not hold is invisible to this, which is the safe
+ * direction: it costs a refusal and never a correct line withheld.
+ */
+function wrongInfinitive(text: string, context: GateContext): boolean {
+  const finite = new Map<string, string>();
+  for (const lemma of DA_ONLY_VERBS) {
+    const table = context.lexicon.persons.get(lemma);
+    if (!table) continue;
+    for (const code of PERSON_CODES) {
+      const form = table.get(code);
+      if (form) finite.set(form.toLowerCase(), lemma);
+    }
+  }
+  if (finite.size === 0) return false;
+
+  const infinitive = new Map<string, string>();
+  for (const [lemma, forms] of context.lexicon.infinitives) {
+    for (const form of forms) infinitive.set(form.toLowerCase(), lemma);
+  }
+
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    for (let at = 0; at < lower.length - 1; at += 1) {
+      const here = lower[at]!;
+      const next = lower[at + 1]!;
+      const pair = finite.has(here) && infinitive.has(next)
+        ? { verb: finite.get(here)!, inf: infinitive.get(next)! }
+        : finite.has(next) && infinitive.has(here)
+          ? { verb: finite.get(next)!, inf: infinitive.get(here)! }
+          : null;
+      if (!pair) continue;
+      if ((DA_ONLY_EXEMPT[pair.verb] ?? []).includes(pair.inf)) continue;
+      return true;
+    }
+  }
+  return false;
+}
+
 export function disagrees(text: string, context: GateContext): boolean {
   const subjects = context.subjects;
   if (!subjects) return false;
@@ -236,9 +567,9 @@ export function disagrees(text: string, context: GateContext): boolean {
   */
   for (const clause of text.split(/[,;:]/)) {
     const lower = words(clause);
-    const said = lower.filter((t) => subjects.has(t));
+    const said = lower.filter((t) => subjects.has(t) && !possessive(t, lower, context));
     if (said.length !== 1) continue;
-    const wanted = subjects.get(said[0]!)!;
+    const wanted = subjects.get(said[0]!)!.code;
 
     let agrees = false;
     let person = false;
@@ -257,21 +588,69 @@ export function disagrees(text: string, context: GateContext): boolean {
 }
 
 /**
- * One sentence, inside the word count, punctuated, no markdown, and the shape
- * the move asked for.
+ * How many sentences one turn may be.
+ *
+ * ONE WAS A PERSON WHO NEVER VOLUNTEERS ANYTHING, two was a person who
+ * volunteers exactly once, and three was still a number chosen to be safe
+ * rather than chosen because anybody speaks that way. A landlord saying when
+ * somebody can come and what they will need, a clerk saying what is missing
+ * from a form and what to do about it, a waiter saying what is off the menu
+ * and what is good instead: each of those runs to four short sentences from a
+ * real person and each was being cut.
+ *
+ * Five, which is a person talking rather than a form being filled in, and the
+ * ceiling that matters is `MAX_COMPOSED_WORDS` underneath it: a turn is still
+ * bounded whichever way it is punctuated, so five sentences are five short
+ * ones. What stops this becoming a wall of text is not this number, it is that
+ * a model asked for a role-play line writes a role-play line, and that the
+ * learner reads every word of it with the dictionary underneath.
+ */
+const MAX_SENTENCES = 5;
+
+/**
+ * How long a composed line may be, which is not how long a recorded one may be.
+ *
+ * `MAX_WORDS` is fourteen and is about a *usage*: whether a sentence a
+ * lexicographer filed under a headword is a thing a person says in one breath,
+ * and it decides which of them can be lifted onto a beat. Holding a composed
+ * line to the same number was never argued for; it was inherited.
+ *
+ * IT WAS RAISED TO EIGHTEEN, PUT BACK, AND RAISED AGAIN, AND THE MIDDLE STEP
+ * IS THE ONE WORTH KNOWING. At eighteen the model of the day wrote `Tere! Mis
+ * needus täna aitama saan?`, which is vouched word by word, names the beat's
+ * own topic and is not the language, so the ceiling went back down on the
+ * argument that the only thing keeping a composed line honest is how little
+ * room it has to reach. That argument is wrong in a way the line itself shows,
+ * since it is six words. Length did not produce it and length was not going to
+ * stop it; `infinitive`, the check written for it, is what stops it.
+ *
+ * So the leash is off: forty, which is a paragraph's worth of room that the
+ * model will not usually take, and `MAX_SENTENCES` is the real limit. What
+ * pays for it is a gate with twelve checks in it and, since the scene chain
+ * moved to `gemini-3.8-flash`, a model measured on the beat twenty-four times
+ * out of twenty-four with nothing withheld.
+ */
+export const MAX_COMPOSED_WORDS = 40;
+
+/**
+ * At most two short sentences, inside the word count, punctuated, no markdown,
+ * and the shape the move asked for.
  *
  * A move of `ask` that comes back without a question mark did not do what it
- * was told, and a greeting phrased as a question is not a greeting.
+ * was told, and a greeting phrased as a question is not a greeting. The shape
+ * is read off the whole turn, which is what lets the remark come first and the
+ * question last: `Hästi. Kus te elate?` is a question, and it is what a person
+ * says.
  */
 function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boolean {
   const trimmed = text.trim();
   const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
   const shape = QUESTION_SHAPE[beat.move];
-  return sentences === 1
+  return sentences >= 1 && sentences <= MAX_SENTENCES
     && /[.!?]"?$/.test(trimmed)
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0
-    && tokens.length <= MAX_WORDS
+    && tokens.length <= MAX_COMPOSED_WORDS
     && !(shape === "required" && !isQuestion(text))
     && !(shape === "forbidden" && isQuestion(text));
 }

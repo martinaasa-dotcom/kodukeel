@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  HURDLE_TRIES, advance, advanceHurdle, currentBeat, hurdleBeat, isOver, objectivesOf, outcomeOf,
-  raiseHurdle, startScene, walkOut, type Response, type SceneState,
+  HURDLE_TRIES, advance, advanceHurdle, creditAhead, currentBeat, hurdleBeat, isOver, objectivesOf,
+  outcomeOf, raiseHurdle, startScene, walkOut, type Response, type SceneState,
 } from "./state";
 import type { Evidence, TurnReading } from "./turn";
 import type { SceneSpec } from "./types";
@@ -329,5 +329,50 @@ describe("an offer that is turned down", () => {
     const out = advance(plain, atOffer, evidence("declined", [false]), "Ei");
     expect(out.response).toBe("answer");
     expect(out.state.done).toContain("offer");
+  });
+});
+
+/*
+  A BEAT SOMEBODY HAS ALREADY ANSWERED IS NOT ASKED AGAIN.
+
+  `advance` walks the beats in order, so a turn that answered one further down
+  the scene used to be asked for it again later: told "where are you going",
+  somebody who says `poodi, piima ostma` was asked two beats on what they were
+  buying, and had to say it twice. The pointer still walks forward and the
+  beats between are still asked; what changed is that it steps over one that is
+  already done.
+*/
+describe("a beat answered out of order", () => {
+  it("is stepped over when the pointer reaches it", () => {
+    let state = startScene(SCENE);
+    // The learner volunteers the third beat while answering the first.
+    state = creditAhead(state, evidence("complete"), SCENE.beats[2]!, "ilus ilm");
+    ({ state } = advance(SCENE, state, evidence("complete"), "tere"));
+    expect(state.done).toContain("chat");
+    // Not `chat`, which is answered: the next thing to ask about is `reason`.
+    expect(currentBeat(SCENE, state)?.id).toBe("reason");
+
+    ({ state } = advance(SCENE, state, evidence("complete"), "mul on valu"));
+    expect(isOver(SCENE, state), "the scene asked for a beat it had been told").toBe(true);
+  });
+
+  it("is credited once, however many turns mention it", () => {
+    let state = startScene(SCENE);
+    state = creditAhead(state, evidence("complete"), SCENE.beats[2]!, "ilus ilm");
+    state = creditAhead(state, evidence("complete"), SCENE.beats[2]!, "ilm on ilus");
+    expect(state.done.filter((id) => id === "chat")).toHaveLength(1);
+  });
+
+  /*
+    And a beat nobody answered is still left behind when the other side runs
+    out of patience: an objective the learner did not meet is one the debrief
+    has to be able to say they did not meet.
+  */
+  it("does not bring back a beat that was given up on", () => {
+    let state = startScene(SCENE);
+    ({ state } = advance(SCENE, state, evidence("offtarget", [false]), "midagi"));
+    ({ state } = advance(SCENE, state, evidence("offtarget", [false]), "midagi veel"));
+    expect(state.done).not.toContain("greet");
+    expect(currentBeat(SCENE, state)?.id).toBe("reason");
   });
 });
