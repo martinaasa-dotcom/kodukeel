@@ -2769,3 +2769,114 @@ is a real wall: measured here, one of the three OpenRouter free models answered 
 requests of an evaluation run. On a deployment leaning on one free key the bank is not a rare
 fallback but a regular one, which is an argument for the bank being good rather than for the ladder
 being different.
+
+## 51. What composing every beat costs, and what yields when there is not enough
+
+§50 made the model write every line. This is the bill for that, measured rather than argued about,
+and the four numbers that were wrong once it was true.
+
+`npm run measure:compose` builds every scene's real `composeSystem` and `composeLive` and Anu's real
+system prompt and learner note, and prices them at `claude-sonnet-5`. What is exact is the character
+count of the actual strings; tokens come from a ratio taken by running a tokenizer over those same
+strings, stated in the script's header with the command to re-derive it, because Anthropic publishes
+no tokenizer and a script claiming an exact count would claim more than it can.
+
+### The cached half was the small half
+
+The scene's closed word list is about 918 tokens, nine tenths of the prompt, and identical on every
+turn of one run. It sat in `composeLive`, which is the block *after* the `cache_control` breakpoint,
+so every composed turn paid full price to re-read three hundred and fifty lemmas.
+
+`composeSystem` is now what is constant for a run, the instructions, the register and the list, and
+`composeLive` is the move. The tone examples stay in `live` deliberately even though they look
+constant: the route excludes the beat being asked about, so they change per beat, and a block that
+changes per beat sitting in front of the list would break the list's cache entry every turn. Six
+short lines is about sixty tokens, which is the right thing to pay to keep 918 cached.
+
+| | measured |
+| --- | --- |
+| cached block, per scene | 918 tokens |
+| live block and the run so far, per turn | about 110 tokens |
+| the answer | about 45 tokens |
+| one composed turn, with the retry rate | $0.0018 |
+| the same turn with nothing cached | $0.0035 |
+| a run of ten composed turns | $0.0179 |
+| one question to Anu | $0.0055 |
+
+### And a tight `max_tokens` is the obvious saving that does not work
+
+Fifty tokens is all a gated line can be, so asking for `REPLY_TOKENS` looks like a thousand tokens of
+waste. It is not, because output is billed on what comes back, and §50 already has the measurement
+that settles it: several of the free models this app runs on spend their whole budget in a reasoning
+field and write into `content` only after they have finished, so at 80 tokens `openai/gpt-oss-120b`
+and `gemini-3.6-flash` both answer with an empty string. A tight cap here quietly decides which
+models this app can use. What a low ceiling would buy is a nearly-empty OpenRouter key still being
+able to compose, since that provider holds credit against `max_tokens`; that is a clear 402 a reader
+can act on, and it is the smaller harm. It is written down in `lib/scenes/prompt.ts` because the
+arithmetic invites the change every time somebody reads it.
+
+### Three numbers that stopped being true when the booking moved
+
+**The reservation.** `EXPECTED_TOKENS.SCENE` read 3,500 in and 1,000 out under a comment explaining
+that a scene books one call for a whole conversation. The booking moved per turn in §16 and the
+number did not, so every composed turn reserved about twenty-five times what it costs. Against a
+generous budget that is invisible, since a settlement follows within seconds; against a small one it
+is the whole harm, because the reserve is what the *next* request is checked against, so a scene
+refuses itself at a twenty-fifth of the spending it was allowed and tells the learner the deployment
+has run out when it has spent four cents.
+
+**The allowance.** `SCENE` was one multiple of the base, which is ten calls a day, which with a
+composed line on every beat is one conversation. §50 considered this and left it, pointing an
+operator at `AI_DAILY_CALLS_PER_USER`. That reasoning was written against a $20-a-day ceiling and
+does not survive a five-dollar-a-month one, for two reasons. The money binds now, so the call count
+no longer has to double as a cost control. And the knob it points at cannot express the request:
+`AI_DAILY_CALLS_PER_USER` is the base every kind multiplies, so an operator who wants four
+conversations gets forty tutor answers with them. "More scenes, the same tutor" is only sayable
+through the per-kind multiple.
+
+**The ceiling.** `AI_DAILY_USD_GLOBAL` defaulted to $20 a day, which is $600 a month and was never a
+figure anybody had decided to spend. It is five dollars a month, held as the daily figure the ledger
+compares against. The per-user cap came down with it to the same number, because $0.50 under a
+$0.167 ceiling is a control that can never fire while the Settings meter goes on measuring a learner
+against it; at this budget one person is rationed by the call count and the reserve.
+
+### Scenes yield to Anu, and the refusal says which
+
+`ALLOWANCE` gains a third number: `globalShare`, the fraction of the deployment's daily budget a kind
+may reach before it gives way. Scene composition is at a half and everything else at one, so an
+afternoon of role-play cannot leave the next question to Anu unanswerable.
+
+The reason is not that one is worth more. It is what each does when refused. A refused scene turn
+falls to the bank, which is the same closed word list, the same four checks and a line a person has
+read: the conversation carries on and what it loses is that the lines stop being about this learner.
+A refused question to Anu degrades to nothing. There is no rung under her, the question goes
+unanswered, and the screen has to say so. Where one path has a floor under it and the other does not,
+the one with the floor gives way. Half rather than less, because composition is what this budget is
+mostly for: a share that made scenes yield early would protect a tutor nobody had asked anything.
+
+And it says which it is. `checkQuota` is pure and kind-free and says "this deployment has reached its
+shared daily budget", which is honest when the budget is gone and not when half of it is sitting
+there for Anu, so a kind that yields gets its own sentence.
+
+At five dollars a month that is about four rehearsed conversations and fifteen questions to Anu a
+day, which is a lot for one person and very little for a deployment strangers can sign up to.
+
+### And a run keeps one voice
+
+§50 asks the model on every beat and falls to the bank when it cannot, which is right per turn and
+leaves a run able to change character halfway through: the likeliest cause is not a key being added
+or a redeploy, it is the day's allowance running out at turn six, which on this budget is ordinary
+rather than rare. `LineMode` is stored on the draw beside the persona and the card, decided once when
+the run opens on whether `sceneProviders` has anything in it, and read back by the route every turn.
+A scripted run never asks whatever composer it is handed; a composed run still falls to the bank on a
+call that fails, which is the mid-run failure the bank is for. What the mode removes is a run
+*starting* in one voice and being switched into the other by something outside it. A run written
+before the field reads as `scripted`, since the shipped behaviour of a run already in flight may not
+change under the learner having it.
+
+### What this does not change
+
+The grading, which is `readTurn` and `satisfies` off the dictionary and the drawn card. The gate,
+which still vouches every composed line word by word against the scene's own units and withholds it
+whole. And the keyless deployment, which is `scripted`, plays through to its debrief and writes the
+same grades.

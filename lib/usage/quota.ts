@@ -46,15 +46,53 @@ export interface QuotaLimits {
  * The per-user spend cap is a backstop rather than the control. At ten tutor
  * answers and thirty grader notes it should never be the thing that bites.
  */
+/*
+  THE SHARED CEILING IS A MONTHLY BUDGET DIVIDED BY A MONTH, and it used to be
+  $20 a day, which is $600 a month and was never a figure anybody had decided
+  to spend. It is $5 a month now, held as the daily figure the ledger actually
+  compares against, because a cap expressed in the unit it is checked in is a
+  cap somebody can reason about. Measured against the prompts this repository
+  builds (`npm run measure:compose`, at claude-sonnet-5), that is about five
+  rehearsed conversations and fourteen questions to Anu a day once scene
+  composition has yielded its half (docs/21-situations.md §51).
+
+  It is a **default** and not a policy: a deployment with more money sets
+  `AI_DAILY_USD_GLOBAL`, and a fork inheriting this inherits a small bill
+  rather than a surprising one, which is the right way round for a number
+  nobody has looked at yet.
+
+  AND THE PER-USER SPEND CAP MATCHES IT RATHER THAN SITTING ABOVE IT. It was
+  $0.50, a fortieth of the old ceiling and three times the new one: a limit
+  above the limit it sits inside can never fire, so it would have been a stated
+  control doing nothing while the Settings meter went on measuring a learner
+  against it, which is worse than no control because a reader counts it. At
+  this budget what rations one person is the call count above and the reserve
+  below, so one learner may spend the day and the reserve keeps the last
+  quarter for somebody who has not asked anything yet. That is what the reserve
+  was written for, and on a deployment with one learner it means their own
+  budget is not half wasted.
+*/
 export const DEFAULT_LIMITS: QuotaLimits = {
   burstCalls: 8,
   burstWindowSeconds: 60,
   dailyCallsPerUser: 10,
-  dailyMicrosPerUser: 500_000,        // $0.50
-  dailyMicrosGlobal: 20_000_000,      // $20.00
+  dailyMicrosPerUser: 166_667,        // $5.00 a month, as a day
+  dailyMicrosGlobal: 166_667,         // $5.00 a month, as a day
   globalReserveFraction: 0.25,
   reserveCallsPerUser: 3,
 };
+
+/**
+ * What the daily ceiling above comes to over a month, for copy that talks
+ * about a budget rather than about a day.
+ *
+ * Derived rather than typed, because a page saying "five dollars a month" over
+ * a constant somebody has since raised is the kind of small wrongness a reader
+ * catches once and then stops trusting the page for.
+ */
+export function monthlyBudgetUsd(limits: QuotaLimits = DEFAULT_LIMITS): number {
+  return (limits.dailyMicrosGlobal / 1e6) * 30;
+}
 
 function num(raw: string | undefined, fallback: number): number {
   const n = Number(raw);

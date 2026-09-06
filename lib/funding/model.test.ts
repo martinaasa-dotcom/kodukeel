@@ -221,7 +221,16 @@ describe("the model, which is the only line that could run away", () => {
   });
 
   it("says when the cap rather than the traffic is what decided the figure", () => {
-    expect(billFor(at({ learners: 100 })).modelCapBinds).toBe(false);
+    /*
+      Anchored on sizes that straddle the cap rather than on round numbers,
+      because the cap is a default somebody can change and these two sentences
+      are about the flag rather than about any particular figure. The shipped
+      default is five dollars a month, which the traffic passes somewhere under
+      a hundred learners, so from there up the page says the cap is what is
+      holding the line down and not the traffic. That is the cap working
+      rather than the page being wrong.
+    */
+    expect(billFor(at({ learners: 10 })).modelCapBinds).toBe(false);
     expect(billFor(at({ learners: 100_000 })).modelCapBinds).toBe(true);
   });
 
@@ -331,10 +340,18 @@ describe("which model answers, which is what funding actually changes", () => {
     }
   });
 
-  it("costs more on a better model, in the order the price table has them", () => {
+  it("costs more on a better model, where the cap is not what decides", () => {
+    /*
+      Below the cap, which is what the chooser is answering a question about:
+      above it every model clamps to the same figure, so a size in that band
+      would assert that a dearer model costs more and be satisfied by the cap
+      holding all of them to one number. Ten learners is under it at the
+      shipped default.
+    */
     const totals = TUTOR_MODELS.map(
-      (m) => billFor(at({ learners: 500, tutorModel: m.id })).totalUsd,
+      (m) => billFor(at({ learners: 10, tutorModel: m.id })).totalUsd,
     );
+    expect(billFor(at({ learners: 10 })).modelCapBinds).toBe(false);
     for (let i = 1; i < totals.length; i += 1) {
       expect(totals[i]!, TUTOR_MODELS[i]!.id).toBeGreaterThan(totals[i - 1]!);
     }
@@ -406,13 +423,42 @@ describe("the sentences the page writes about the bill", () => {
     expect(floor).toBeGreaterThan(100);
   });
 
-  it("saves more by turning the tutor off than by turning the audio off", () => {
-    for (const learners of [100, 100_000]) {
-      const on = billFor(at({ learners })).totalUsd;
-      const audioOff = on - billFor(at({ learners, audio: false })).totalUsd;
-      const tutorOff = on - billFor(at({ learners, tutor: "off" })).totalUsd;
-      expect(tutorOff, `at ${learners} learners`).toBeGreaterThan(audioOff);
-    }
+  it("cannot be run away with by the model, because the cap is what holds it", () => {
+    /*
+      THIS SENTENCE TURNED AROUND WHEN THE CAP CAME DOWN, and the new one is
+      the better claim.
+
+      It used to read "turning the tutor off saves more than turning the audio
+      off", which was true at every size while the shared budget was twenty
+      dollars a day. At five dollars a month the model line is $5.07 at a
+      hundred learners and $5.07 at a hundred thousand, so at scale the audio
+      is by far the larger saving and the old sentence is false.
+
+      What is worth asserting is the thing the cap exists to make true: the
+      model line stops growing, whatever the traffic does. Everything else on
+      the page grows with learners and that one line does not, which is the
+      answer to the question a funder actually asks about an app that calls a
+      model.
+    */
+    const small = billFor(at({ learners: 100 }));
+    const large = billFor(at({ learners: 100_000 }));
+    /*
+      The model line itself, rather than what switching the tutor off saves.
+      Those are two different figures and the difference is the point: turning
+      it off also removes the requests it makes, which the hosting is billed
+      for, so the saving grows with learners while the line does not.
+    */
+    const modelUsd = (bill: typeof small) => {
+      const cost = bill.lines.find((line) => line.service.id === "model")!.cost;
+      return cost.kind === "charged" ? cost.usd : 0;
+    };
+
+    expect(modelUsd(large)).toBeCloseTo(modelUsd(small), 2);
+    expect(modelUsd(large)).toBeLessThanOrEqual(MODEL_CAP_USD);
+    // And it is the cap saying so rather than the traffic happening to be flat.
+    expect(large.modelCapBinds).toBe(true);
+    // A thousandfold more learners, and everything that is not the model grows.
+    expect(large.totalUsd).toBeGreaterThan(small.totalUsd * 2);
   });
 
   it("saves nothing at all by turning the audio off at the default size", () => {

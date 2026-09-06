@@ -48,7 +48,7 @@ import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
-import { COMPOSE_SYSTEM, composeLive } from "../lib/scenes/prompt";
+import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
 import { chain as providerChain } from "./lib/sceneDraft";
 
@@ -77,7 +77,11 @@ const LINKS = composing
   : [];
 const COMPOSE_STATUS = new Map<string, number>();
 
-async function askModel(ask: Parameters<typeof composeLive>[0], said: readonly { role: "user" | "assistant"; content: string }[]) {
+async function askModel(
+  ask: Parameters<typeof composeLive>[0],
+  scene: Parameters<typeof composeSystem>[0],
+  said: readonly { role: "user" | "assistant"; content: string }[],
+) {
   for (const link of LINKS) {
     let status = 0;
     try {
@@ -89,7 +93,7 @@ async function askModel(ask: Parameters<typeof composeLive>[0], said: readonly {
           temperature: 0.8,
           max_tokens: 80,
           messages: [
-            { role: "system", content: COMPOSE_SYSTEM },
+            { role: "system", content: composeSystem(scene) },
             { role: "user", content: composeLive(ask) },
             ...said,
             { role: "user", content: "Your line:" },
@@ -186,7 +190,7 @@ async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
   const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
   const run = planRun(scene, `play-${style}`, scene.level, difficulty);
-  const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })) };
+  const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted" };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
@@ -246,19 +250,19 @@ async function play(sceneId: string) {
         pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
+        // The harness composes when it has a link, exactly as a run does.
+        mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {
           compose: (avoid: readonly string[]) => askModel({
             move: spokenFor.move,
             they: spokenFor.they,
-            register: scene.register,
             reading: "",
-            words: [...context.lexicon.byLemma.keys()],
             examples: [...context.scripted.entries()]
               .filter(([id]) => id !== spokenFor.id)
               .flatMap(([, lines]) => lines.slice(0, 1))
               .slice(0, 6),
             avoid,
-          }, talk),
+          }, { register: scene.register, words: [...context.lexicon.byLemma.keys()] }, talk),
         } : {}),
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;

@@ -7,7 +7,7 @@ import { supabaseConfigured } from "@/lib/auth/mode";
 import { ekilexConfigured } from "@/lib/ekilex/client";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { priceFor } from "@/lib/usage/pricing";
-import { DEFAULT_LIMITS } from "@/lib/usage/quota";
+import { monthlyBudgetUsd } from "@/lib/usage/quota";
 import { SERVICES } from "@/lib/funding/model";
 import { CONTINUITY, floorUsd, retrenchment } from "@/lib/funding/sustainability";
 import {
@@ -345,12 +345,13 @@ export default function FundingPage() {
           Four things, in the order they would matter.
         </P>
         <P>
-          <strong>The daily cap on the tutor could go up.</strong> Every model call in the
-          app is booked against a shared budget of{" "}
-          ${(DEFAULT_LIMITS.dailyMicrosGlobal / 1e6).toFixed(0)} a day, which cannot be
-          turned off and is what stops the one line that could run away. Raising it is a
-          knob with a stop on it rather than an open check, and at ten thousand learners
-          it is already the thing holding that line down.
+          <strong>The cap on what a model may be asked could go up.</strong> Every model
+          call in the app is booked against a shared budget of{" "}
+          ${monthlyBudgetUsd().toFixed(2)} a month, which cannot be turned off and is what
+          stops the one line that could run away. Raising it is a knob with a stop on it
+          rather than an open check, and it is already the thing holding that line down at
+          any size at all: at this figure the tutor and the rehearsed conversations ration
+          each other long before the hosting does.
         </P>
         <P>
           <strong>A school could keep its history.</strong> Everything on the progress

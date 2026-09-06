@@ -153,22 +153,29 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
   // A photograph, which is a few thousand input tokens of image.
   SCAN: { input: 3_000, output: 400 },
   /*
-    A WHOLE CONVERSATION, BOOKED ONCE.
+    ONE LINE OF ONE TURN, AND THIS ROW SAID THE OPPOSITE.
 
-    A scene books one call rather than one per turn (docs/19-situations.md §16),
-    because running out of allowance halfway through a conversation is the worst
-    failure available to this module: the other side simply stops talking, and
-    there is no honest thing to put on the screen. So the reservation is the
-    whole scene and the settlement corrects it at the end, which is negative
-    whenever the estimate was generous, exactly as it is for every other kind.
+    It read 3,500 in and 1,000 out under a comment explaining that a scene
+    books one call for the whole conversation and settles at the end. That
+    stopped being true when the booking moved per turn (docs/21-situations.md
+    §16) and the number was never brought with it, so every composed turn
+    reserved about twenty-five times what it costs.
 
-    Roughly five grader calls, which is what a scene composes: the beats
-    retrieval cannot fill, plus the one retry §6 allows on some of them. The
-    static half of the prompt is identical on every turn of every scene, so on
-    Anthropic it sits behind the `cache_control` breakpoint the tutor uses and
-    the real figure comes in under this.
+    Against a generous budget that is invisible: a settlement follows within
+    seconds and the totals come out identical. Against a small one it is the
+    whole harm, because the reserve is what the *next* request is checked
+    against, so a scene refuses itself at a twenty-fifth of the spending it was
+    allowed and the learner is told the deployment has run out when it has
+    spent four cents.
+
+    Measured on the shipped catalogue (`npm run measure:compose`): the cached
+    block is about 918 tokens, the per-turn block and the run so far about 110
+    between them, and the answer is one sentence the gate refuses over fourteen
+    words, which is about 45. This is that rounded up, and it still errs high
+    because it prices the cached block as though every turn were a scene's
+    first.
   */
-  SCENE: { input: 3_500, output: 1_000 },
+  SCENE: { input: 1_100, output: 80 },
 };
 
 /**

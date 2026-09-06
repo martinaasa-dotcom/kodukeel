@@ -39,7 +39,7 @@
  * the transcripts is done over the file rather than by asking again.
  */
 import { appendFileSync, mkdirSync } from "node:fs";
-import { COMPOSE_SYSTEM, composeLive } from "../lib/scenes/prompt";
+import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { runGate, type Check } from "../lib/scenes/gate";
 import { SCENES } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
@@ -112,14 +112,17 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
   const live = composeLive({
     move: beat.move,
     they: stageFor(beat, null),
-    register: scene.register,
     reading: "",
-    words: lemmas,
     examples,
     avoid: [],
   });
 
-  return { system: `${COMPOSE_SYSTEM}\n\n${live}`, user: "Your line:" };
+  /*
+    Joined, because this harness sends one string. The split is about which
+    half a provider caches and it does not change a character of what is asked.
+  */
+  const system = composeSystem({ register: scene.register, words: lemmas });
+  return { system: `${system}\n\n${live}`, user: "Your line:" };
 }
 
 /* ------------------------------------------------------------------ *
