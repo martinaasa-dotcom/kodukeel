@@ -3,7 +3,7 @@
  * Each question has a fact the answer must contain; a wrong grammar explanation is
  * worse than none, because the SRS then drills it.
  */
-import { FREE_OPENROUTER_MODELS } from "../lib/tutor/provider.ts";
+import { ANTHROPIC_THINKING, DEFAULT_ANTHROPIC_MODEL } from "../lib/tutor/provider.ts";
 import { buildSystemPrompt } from "../lib/tutor/prompt.ts";
 
 const QUESTIONS = [
@@ -23,36 +23,39 @@ const QUESTIONS = [
 
 // Anu's own prompt rather than a one-line stand-in, or this measures a model and not her.
 const system = buildSystemPrompt("B1");
-const key = process.env.OPENROUTER_API_KEY;
+const key = process.env.ANTHROPIC_API_KEY;
 
 /*
   THE MODEL THIS ASKS IS THE ONE THE APP WOULD ASK, WHICH IT USED NOT TO BE.
 
-  It read `OPENROUTER_MODEL` and stopped there, where the app falls back to
-  `FREE_OPENROUTER_MODELS` when that is unset — and unset is the default, since
-  the shipped chain is the free one. So on any deployment that had not pinned a
-  model, every request went out as `"model": undefined`, came back 400, and the
-  script printed `0/0 correct on undefined`. It refuses to score a refusal, so
-  it failed honestly rather than reporting a model that knew nothing; but the
-  one check there is on whether Anu knows any Estonian could not be run at all
-  by the deployment shape that most needs it.
+  It read `OPENROUTER_MODEL` and stopped there, where the app fell back to a
+  list of free models when that was unset — and unset was the default. So on
+  any deployment that had not pinned a model, every request went out as
+  `"model": undefined`, came back 400, and the script printed `0/0 correct on
+  undefined`. It refuses to score a refusal, so it failed honestly rather than
+  reporting a model that knew nothing; but the one check there is on whether
+  Anu knows any Estonian could not be run at all by the deployment shape that
+  most needs it.
 
   Imported from `provider.ts` rather than retyped here, which is the argument
-  `PROVIDER_KEY_ENV` already makes three lines above where it is read: a second
-  copy of the list is the same drift waiting to happen. That is what the `tsx`
-  in this script's `package.json` entry buys, exactly as it does for
-  `test:load`.
+  `PROVIDER_KEY_ENV` already makes: a second copy is the same drift waiting to
+  happen. That is what the `tsx` in this script's `package.json` entry buys.
+
+  ONE MODEL RATHER THAN A CHAIN, since the free providers were withdrawn on
+  2026-09-05. The walk below survives a list of one and is kept for the reason
+  `openWithFallback` is: `ANTHROPIC_MODEL` takes a name, and a comma-separated
+  one would still be walked.
 */
-const pinned = (process.env.OPENROUTER_MODEL ?? "")
+const pinned = (process.env.ANTHROPIC_MODEL ?? "")
   .split(",").map((m) => m.trim()).filter(Boolean);
-const chain = pinned.length ? pinned : [...FREE_OPENROUTER_MODELS];
+const chain = pinned.length ? pinned : [DEFAULT_ANTHROPIC_MODEL];
 
 // Six requests to be told six times that there is no key is not a measurement,
 // and the answer is one line rather than a stack trace.
 if (!key) {
-  console.log("Set OPENROUTER_API_KEY and run this again. It asks a real model six grammar");
+  console.log("Set ANTHROPIC_API_KEY and run this again. It asks a real model six grammar");
   console.log("questions with known answers, so without a key there is nothing to ask.");
-  console.log(`It would have asked ${chain[0]}. Set OPENROUTER_MODEL to pin a different one.`);
+  console.log(`It would have asked ${chain[0]}. Set ANTHROPIC_MODEL to pin a different one.`);
   process.exit(1);
 }
 
@@ -63,11 +66,10 @@ if (!key) {
   so a 429 produced an empty string, every `must` pattern failed against it,
   and the model was marked wrong six times out of six. Free models are
   rate-limited hard upstream, which means every free model measured here
-  scored zero for being busy rather than for being ignorant. That reading is
-  written into .env.example, as "*:free models too rate-limited upstream to
-  rely on day to day", and it is what made the shipped default a paid model,
-  which is what made a new key with no credit on it get a 402 and Anu answer
-  nothing at all.
+  scored zero for being busy rather than for being ignorant. Those models are
+  gone from the chain now (2026-09-05) and the reading survives them: a paid
+  key is rate-limited too, and a 429 is still a fact about the minute rather
+  than about whether the model knows Estonian.
 
   So: the status is read, a refusal is its own outcome and never counted as
   knowledge, and a 429 is waited out rather than recorded, because being told
@@ -76,16 +78,29 @@ if (!key) {
 */
 async function askOne(model, question) {
   for (let attempt = 0; attempt < 4; attempt++) {
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    /*
+      Anthropic's own shape, and the app's own two guards with it: thinking off
+      and a ceiling with room under it. 320 tokens with adaptive thinking on is
+      the empty-answer case this script already knows how to report, and it
+      would have reported it as the model knowing no Estonian.
+    */
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-      body: JSON.stringify({ model, max_tokens: 320,
-        messages: [{ role: "system", content: system }, { role: "user", content: question }] }),
+      headers: {
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ model, max_tokens: 1200,
+        thinking: ANTHROPIC_THINKING,
+        system,
+        messages: [{ role: "user", content: question }] }),
       signal: AbortSignal.timeout(90_000),
     });
     if (res.ok) {
       const data = await res.json();
-      const answer = data.choices?.[0]?.message?.content ?? "";
+      const answer = (data.content ?? [])
+        .filter((b) => b.type === "text").map((b) => b.text ?? "").join("");
       if (answer.trim()) return { answer };
       return { refused: "answered with nothing at all" };
     }
@@ -102,10 +117,10 @@ async function askOne(model, question) {
  *
  * `openWithFallback` moves past a link that is throttled or having a bad minute
  * rather than reporting it as the answer, and this has to agree with it or it
- * measures something a learner never meets: the shipped default leads with a
- * free model, so the head of the chain being busy is the ordinary case, and
- * giving up there reported "nothing measurable" about a deployment that would
- * have answered from the next model down.
+ * measures something a learner never meets. That mattered most when the head
+ * of the chain was a free model and being busy was its ordinary state; with
+ * one paid model it is a walk over a list of one, kept because the list can
+ * still grow from `ANTHROPIC_MODEL`.
  *
  * Once one model has answered, every later question goes to that one, so the
  * score at the end belongs to a model rather than being a blend of three.

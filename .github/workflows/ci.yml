@@ -275,8 +275,16 @@ jobs:
         # A provider key has to be *present* or the scan page correctly offers
         # no camera. It may be nonsense: scripts/test-scan.mjs intercepts the
         # route it would authenticate, so no request ever leaves the runner.
+        #
+        # IT HAS TO BE A KEY THE CHAIN STILL READS, which is the whole of what
+        # broke here. This was `OPENROUTER_API_KEY` and stayed correct for as
+        # long as that key put a provider on the chain; withdrawing the free
+        # providers left the line set, spelled right, and inert, so the server
+        # came up with an empty chain, the scan page correctly offered no
+        # camera, and the suite failed on its first check and then on its
+        # floor. A key nothing reads looks exactly like a key.
         env:
-          OPENROUTER_API_KEY: stubbed-by-the-test
+          ANTHROPIC_API_KEY: stubbed-by-the-test
         run: |
           npm start &
           for _ in $(seq 1 60); do
