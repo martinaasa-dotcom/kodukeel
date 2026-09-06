@@ -13374,6 +13374,72 @@ check("the primary button is the last one in its row", () => {
 });
 
 /*
+  A LINE SAYS WHICH RUNG ANSWERED, IN WORDS AND IN THE MARKUP.
+
+  ADR-025's claim is that every line the other side says carries where it came
+  from, and the words under the bubble are how a reader is told. A suite reading
+  the same fact had to walk the markup to pair a line with its label, and
+  `scripts/test-scene.mjs` did it by counting hops. That was true until a line
+  grew the dictionary under it (`GlossedSentence`), which put two more elements
+  between the two: from then on every label the suite read came back empty, the
+  composed and the scripted checks fell into their waivers on every run in every
+  state, and the reason printed was that the bank held no line for a beat this
+  run reached, when the bank had just supplied one. A waiver that fires on every
+  possible run is a hole wearing a waiver's clothes.
+
+  So the rung travels as an attribute on the line's own wrapper, which is a fact
+  about the line rather than a shape in the markup, and the label stays beside
+  it for the reader. Both, or the suite goes blind again in silence.
+*/
+check("every line a scene says carries its rung", () => {
+  const source = code("components/scene/SceneSession.tsx");
+  assert.match(source, /data-rung=\{line\.provenance\}/,
+    "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
+  assert.match(source, /PROVENANCE\[line\.provenance\]/,
+    "and the words under it are what a reader is told, which is ADR-025 itself");
+  const suite = readFileSync("scripts/test-scene.mjs", "utf8");
+  assert.match(suite, /\[data-rung\]/,
+    "test-scene.mjs reads the rung off the attribute rather than by walking the markup");
+});
+
+/*
+  ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
+
+  It says it in the file itself: only the primary carries the gradient, one loud
+  action per screen, everything else quiet. Twenty-one of the twenty-five round
+  screens did that and four did not, and each of the four was the same shape.
+  The lesson offered "Start these 6 words", the only thing to press on the way
+  into the course, in the same weight as the "Leave" two lines above it. The
+  checkpoint drew "Finish" as an ordinary pill. The crossword marked its own
+  "Check" `secondary` beside a ghost that hands over the answer. And a
+  conversation, which is a typed round like flash cards and dictation, drew
+  "Say it" as a secondary first in a row of four, so the thing the screen exists
+  for looked exactly like the button that walks out of it.
+
+  A screen, not a row: where the primary sits in its row is the check above.
+  This one only asks that a round has one at all, which is the half that goes
+  missing when a screen is built out of the neutral default.
+*/
+check("every round paints its one action in the accent", () => {
+  /*
+    Plus the conversation's finish screen, which is the one round whose end is
+    a module of its own rather than a branch inside the session: it recommends
+    in its own words that the second run of a scene is where most of it sticks,
+    and drew that quieter than the link away from it.
+  */
+  const rounds = [...SESSION_FILES(), "components/scene/SceneDebrief.tsx"];
+  assert.ok(rounds.length >= 20, `only ${rounds.length} round screens found; the sweep has stopped seeing them`);
+  for (const file of rounds) {
+    assert.match(
+      code(file),
+      /variant="primary"/,
+      `${file} draws no primary button. The one thing a round is for is the loud one `
+      + "(components/Button.tsx: one loud action per screen, everything else quiet).",
+    );
+  }
+});
+
+/*
   ENTER AND SPACE ARE ONE KEY ON A CARD, AND ONE MODULE SAYS SO.
 
   `lib/ux/advanceKey.ts` is the reading of "the key that moves forward": Enter

@@ -4,7 +4,7 @@ const B = baseUrl();
 // Floor: 10, measured in the state CI seeds. A thinner database reads as short.
 // It was 9 while the suite reached 10, so one check could have stopped running
 // with nothing to notice, which is the one thing a floor is for.
-const { check, done } = suite("Editing", { floor: 10 });
+const { check, absent, done } = suite("Editing", { floor: 10 });
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
 const errors = [];
@@ -86,9 +86,25 @@ check("its cards were rewritten to match, not left stale",
     !renamedCards.some(c => headword(c).includes("kohv")),
   renamedCards.map(c => `${c.front}→${c.back}`).join(" | ").slice(0, 90));
 const attestedCards = renamedCards.filter(c => c.cardType === "CLOZE");
-check("and the attested sentence behind a gap-fill was left exactly as recorded",
-  attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
-  `${attestedCards.length} gap-fill card(s)`);
+/*
+  A CHECK OVER AN EMPTY LIST IS A PASS NOBODY EARNED.
+
+  `every` on nothing is true, so this printed PASS with "0 gap-fill card(s)"
+  beside it on every run there has ever been, and the thing it claims to hold,
+  that a rename leaves an attested sentence exactly as a lexicographer recorded
+  it, was verified by nothing. The deck here is built by the dictionary's own
+  "Add to deck", which offers recognition and production and no more, so this
+  word has never had a gap-fill card to look at. It says so now rather than
+  passing, and names the state that would lift it.
+*/
+if (attestedCards.length > 0) {
+  check("and the attested sentence behind a gap-fill was left exactly as recorded",
+    attestedCards.every(c => !`${c.front}${c.back}`.includes("kohvjook")),
+    `${attestedCards.length} gap-fill card(s)`);
+} else {
+  absent(1, "no gap-fill card for this word: the dictionary's own Add to deck builds recognition "
+    + "and production only, so a deck built from a unit is what would put one here");
+}
 check("scheduling was not reset by the correction",
   renamedCards.every(c => typeof c.stability === "number"), `${renamedCards.length} cards`);
 

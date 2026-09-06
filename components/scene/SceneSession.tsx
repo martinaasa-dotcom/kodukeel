@@ -253,7 +253,12 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
     setShown((was) => (was.has(text) ? was : new Set([...was, text])));
   }, []);
 
-  const log = useRef<HTMLDivElement>(null);
+  /*
+    `ask` is main's, and the panel it points at is what the page comes down to
+    after a reply. There is no `log` ref beside it any more: the transcript is
+    not a scroller of its own (see the effect below), so there is nothing to
+    scroll inside it.
+  */
   const ask = useRef<HTMLDivElement>(null);
   /*
     A scene can end on its own, when the last beat is done or the persona has
@@ -269,14 +274,74 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   );
 
   /*
-    The turns scroll in their own container, per the containment rules, and the
-    newest is scrolled to rather than the page jumping. `scrollTop` rather than
-    `scrollIntoView`, which scrolls every ancestor including the document.
+    THE CONVERSATION IS THE PAGE, AND FOR A WHILE IT WAS A BOX INSIDE ONE.
+
+    The turns were in a `scroll-host` capped at 46vh, on the containment rule,
+    and that is the shape the first-run wizard already removed from its own
+    screen: a nested scroll region inside a page that also scrolls swallows the
+    wheel. Measured on `bussipilet` at 1280x900 after six turns, the page had
+    323px still to go and the log had 1,622px of turns in a 414px box sitting
+    across the middle of the column, with `overscroll-behavior: contain` on it
+    so the scroll could not chain out. A pointer anywhere over the transcript
+    scrolled the transcript, and once that hit its end the page never moved
+    again: the input, the goal for this turn and every button under it were
+    below the fold and unreachable, which reads as an app that has frozen.
+    Auto-scrolling the box to the newest turn is what made it certain, since
+    the box is at its end the moment a reply lands.
+
+    Containment never asked for a second scroller. It asks that nothing is
+    drawn outside the box it was given, and a list that grows downward makes a
+    page taller rather than overflowing anything. So there is one scroller
+    here, the page, and what brings the newest line into view is the effect
+    below, which came down main and is the better half of two answers written
+    the same day: it moves the page to the panel a learner answers in, does
+    nothing at all when that is already on screen, and is still for anybody who
+    asked for less movement. What is left here is the two moments a screen has
+    to open at its own top rather than wherever the screen before it was left.
   */
+  /*
+    THE CARET GOES BACK IN THE BOX, BECAUSE THE BUTTON TAKES IT AND THEN LEAVES.
+
+    "Say it" disables itself the moment the draft is empty, which is the moment
+    the turn is sent, and a browser moves focus off a control that has just been
+    disabled: measured, `document.activeElement` was `BODY` after every turn
+    taken with the mouse. So the learner had to click back into the box for each
+    turn of a conversation, and a keyboard could not carry on at all. Answering
+    with Enter never had the fault, since the box keeps focus, which is why it
+    survived this long.
+
+    Only where focus was lost, never taken: if it sits on a word of the last
+    line, on the report button or anywhere else the learner put it, it stays
+    there. And there is deliberately no focus when a scene opens: the box is at
+    the bottom of the page, so focusing it would scroll the role card off a
+    phone and open the keyboard over the first thing there is to read.
+  */
+  const box = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    const box = log.current;
-    if (box) box.scrollTop = box.scrollHeight;
-  }, [turns]);
+    /*
+      A debrief is read from its own first line. The page is left wherever the
+      last turn put it, which with the transcript in the page rather than in a
+      box of its own is most of a screen down: measured at 827px, with the
+      debrief's own heading 779px above the top of the window, so a scene ended
+      on a page that opened halfway through what it had to say.
+    */
+    if (phase === "debrief") {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+    /*
+      And a conversation opens at its own top. The briefing is taller than a
+      phone, so the button that starts it is below the fold: measured at 360,
+      it sits at 849 in a 740 window, so a learner has scrolled about 300px by
+      the time they press it and the scroll is left there when the screen
+      changes under them. What they were then looking at was the first line
+      with the role card cut off 114px above the top of the window, on the one
+      card the whole conversation is answered from, and the title of the scene
+      gone. Where the briefing fits, which is every desktop width, this is the
+      scroll it is already at and moves nothing.
+    */
+    if (phase === "talking" && turns.length === 0) window.scrollTo({ top: 0 });
+  }, [turns.length, phase]);
 
   /*
     AND THE PAGE COMES DOWN TO THE BOX WHEN IT IS YOUR TURN AGAIN.
@@ -297,9 +362,67 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
   */
   useEffect(() => {
     if (turns[turns.length - 1]?.who !== "them") return;
+    /*
+      EXCEPT ON THE LINE THAT OPENS THE SCENE, WHICH NOBODY HAS ANSWERED YET.
+
+      This says "when it is your turn again", and on the first line there is no
+      again: the learner has said nothing, and what is above the conversation is
+      the role card they answer *from*, with the destination and the time on it.
+      Measured at 360 on the merged tree, coming down to the panel then put the
+      page 531px in, with the card 320px above the top of the window and the
+      scene's title 499px above it, which is the fault `test-mobile.mjs` was
+      written for one pass earlier. So the page comes down once there is a
+      conversation to come back to.
+    */
+    if (!turns.some((turn) => turn.who === "you")) return;
     const still = typeof matchMedia === "function"
       && matchMedia("(prefers-reduced-motion: reduce)").matches;
-    ask.current?.scrollIntoView({ block: "nearest", behavior: still ? "auto" : "smooth" });
+    /*
+      THE WHOLE PANEL, WHICH `nearest` STOPPED REACHING WHEN THE LOG LOST ITS
+      OWN SCROLLER.
+
+      `block: "nearest"` scrolls the least it can, which was right while the
+      transcript was a 46vh box and the panel sat just under it. With the
+      conversation flowing down the page the panel is the last thing on a much
+      taller one, and the least it can do leaves the panel's top on screen and
+      everything under it off: measured at 390 after two turns, the field's
+      bottom edge was the window's bottom edge, "Say it" was 70px below the
+      fold and the page had 347px still to go. That is the report this pass
+      started from, arriving through the fix for it.
+
+      So: nothing at all where the panel is already whole on screen, which is
+      the desktop case and main's own argument; its bottom brought up to the
+      window's where it is not, which shows the ask, the box and the button
+      together; and its top where the panel is taller than the window, since
+      the half worth seeing then is the one you read before you type.
+    */
+    const panel = ask.current;
+    if (!panel) return;
+    const at = panel.getBoundingClientRect();
+    const whole = at.top >= 0 && at.bottom <= window.innerHeight;
+    if (!whole) {
+      panel.scrollIntoView({
+        block: at.height > window.innerHeight ? "start" : "end",
+        behavior: still ? "auto" : "smooth",
+      });
+    }
+    /*
+      And the caret goes back in the box, which is the same moment: "Say it"
+      disables itself as the draft empties, and a browser moves focus off a
+      control it has just disabled, so `document.activeElement` was `BODY`
+      after every turn taken with the mouse and the learner had to click back
+      in for each one. Only where focus was lost, never taken: on a word of
+      the last line or on the report button it stays where the learner put it.
+    */
+    /*
+      `preventScroll`, or the caret does the placing instead of the panel: a
+      browser scrolls a field it is focusing the least it can, which lands the
+      field's bottom edge flush with the window's and leaves "Say it" below the
+      fold. Measured at 390: the field's bottom was 844 in an 844 window and the
+      button 70px under it, on a page with 347px still to go. The panel above
+      decides where the page sits; this only decides where the caret is.
+    */
+    if (document.activeElement === document.body) box.current?.focus({ preventScroll: true });
   }, [turns]);
 
   const speak = useCallback(async (next: Sent[]) => {
@@ -717,8 +840,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
         region that updates constantly reads a number a second at somebody.
       */}
       <div
-        ref={log}
-        className="scroll-host flex max-h-[46vh] flex-col gap-3 overflow-y-auto"
+        className="flex flex-col gap-3"
         role="log"
         aria-live="polite"
         aria-relevant="additions"
@@ -777,7 +899,27 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             <div key={index} className="flex flex-col items-start gap-1.5">
               {turn.lines.map((line, at) => (
                 spoken(line) ? (
-                  <div key={at} className="max-w-full">
+                  /*
+                    THE RUNG IS ON THE LINE, NOT ONLY IN THE SENTENCE UNDER IT.
+
+                    ADR-025's claim is that every line says which rung answered,
+                    and the words under the bubble are how a reader is told. A
+                    suite reading the same fact had to walk the markup to pair a
+                    line with its label, and `scripts/test-scene.mjs` did that by
+                    counting hops: one up from the `p[lang=et]` and along to the
+                    next paragraph. That was true until a line grew the
+                    dictionary under it (`GlossedSentence`), which put two more
+                    elements between the two, and from then on every label the
+                    suite read came back empty. Both checks keyed on it stopped
+                    running and waived themselves with a reason that was not the
+                    reason: it said the bank held no line for this run, and the
+                    bank had just supplied the second one.
+
+                    So the rung is an attribute on the line's own wrapper, which
+                    is a fact about the line rather than a shape in the markup,
+                    and an invariant keeps it there.
+                  */
+                  <div key={at} data-rung={line.provenance} className="max-w-full">
                     <Card className="inline-block max-w-full">
                       {hidesWords(support) && spokenEstonian(line) && !shown.has(line.text) ? (
                         /*
@@ -1054,6 +1196,7 @@ export function SceneSession({ scene }: { scene: SceneSpec }) {
             value={draft}
             onChange={setDraft}
             onEnter={say}
+            inputRef={box}
             ariaLabel="What you say"
             placeholder="Say it in Estonian"
           />

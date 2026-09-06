@@ -5343,6 +5343,57 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   to be added to the allowlist in `middleware.ts` as well.
 - Every interactive element is keyboard-reachable with a visible focus ring, and under a coarse
   pointer every one of them clears 44px.
+- **A check over an empty list is a pass nobody earned, and `A || !A` is a check nobody can fail.**
+  Three of them, found by reading every `.every(` and every `||` in the suites after the one above.
+  The Sonad board asserted `new Set(marked).size > 1 || marked.every((c) => c === marked[0])`, and
+  the second half is true exactly when the first is false: either six things differ or they are all
+  the same, which is true of any six things, so the one claim it makes about the board was never
+  asked. It asks a falsifiable one now, that two circles the app itself calls different states are
+  drawn differently, off the labels a screen reader is given rather than off what the suite assumes,
+  and it was made to fail by painting two of the three states alike. The edit suite claimed a rename
+  leaves an attested sentence exactly as recorded and printed PASS beside "0 gap-fill card(s)" on
+  every run there has ever been, because the dictionary's own Add to deck builds recognition and
+  production and no more. And the scene suite's report-button check opened `spoken === 0 || ...`,
+  which passes when there is nothing on screen to report. Where the subject can honestly be empty,
+  say so with `absent` and name what would fill it; where it cannot, assert the claim.
+- **A suite that pairs two facts by walking the markup goes blind the day the markup moves, and
+  waives itself while it does.** `scripts/test-scene.mjs` asks two questions only a browser can
+  answer, that a composed line and a scripted line are each one short sentence saying which rung
+  wrote them, and it found the label by counting hops from the line: one up, then the next
+  paragraph. True when it was written, and untrue from the day a line grew the dictionary under it,
+  since `GlossedSentence` puts two more elements between the two. Every label came back empty, both
+  checks fell through to their waivers on every run in every state, and the scripted one printed a
+  reason that was not the reason: it said the bank held no line for a beat this run reached, when
+  the bank had just supplied the second line of the scene. A waiver lowers the floor by exactly as
+  much as it skips, so nothing complained. The rung travels as `data-rung` on the line's own
+  wrapper now, which is a fact about the line rather than a shape in the markup, the words under
+  the bubble stay for the reader, and a third check says the two agree for every line said. Both
+  halves are asserted, because a hook nobody renders and a suite that stops reading it are the same
+  silence one file apart.
+- **A control that disables itself hands its focus to nobody.** "Say it" on a conversation disables
+  the moment the draft empties, which is the moment the turn is sent, and a browser moves focus off
+  a control it has just disabled: measured, `document.activeElement` was `BODY` after every turn
+  taken with the mouse, so a learner clicked into the box for every turn and a keyboard could not
+  carry on at all. Answering with Enter never had it, because the box keeps focus there, which is
+  how it survived. The caret goes back where focus was *lost* and never where it was put, so a word
+  of the last line or the report button keeps it; and a screen does not take focus on arrival, since
+  the box is at the bottom of the page and focusing it would scroll the card that is answered from
+  off a phone and open the keyboard over the first thing there is to read.
+- **One loud action per round, which is `components/Button.tsx`'s own header.** It says it in the
+  file: only the primary carries the gradient, one loud action per screen, everything else quiet.
+  Twenty-one of the twenty-five round screens did that and four did not, each the same shape. The
+  conversation was one of them, and two sessions reached the same conclusion about it on the same
+  day from opposite ends, one building the ask panel and one sweeping the rounds; the panel is the
+  version kept, with the send button alone in its row and Leave out of reach of it. The
+  lesson offered "Start these 6 words", the only thing to press on the way into the course, in the
+  same weight as the "Leave" two lines above it; the checkpoint drew "Finish" as an ordinary pill;
+  the crossword marked its own "Check" `secondary` beside a ghost that hands over the answer; and a
+  conversation, which is a typed round like flash cards and dictation, drew "Say it" as a secondary
+  first in a row of four, so the thing the screen exists for looked exactly like the button that
+  walks out of it. The invariant asks only that a round has a primary at all, since where it sits in
+  its row is the rule below; and the conversation's sits in a row of its own rather than at the end
+  of the row under it, because last in that row is next to "Leave", and a submit pressed hundreds of
+  times beside the button that ends the conversation is a thumb away from walking out mid-sentence.
 - **The primary button is the last one in its row.** "Got it", "Save", "Drill it", "Back to Today":
   where a screen ends in two or three buttons side by side, the one painted in the accent sits on
   the right, where a thumb and a reading eye both end up, and the quieter choices sit to its left,
@@ -5499,6 +5550,34 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   instead of viewport ones when it is: a menu hung off the sticky rail or the fixed phone bar is
   then drawn one scroll offset from where it belongs, which on a scrolled phone means open,
   focused and off the top of the screen. Sideways is still clipped, on `body`.
+- **A page that scrolls holds no second scroller, and `overscroll-behavior: contain` is what makes
+  that unforgiving.** `.scroll-host` is right for a thing that owns its own window: the rail, the
+  command palette, Anu's panel, a wide table. Inside the flow of a page that already scrolls it
+  takes the wheel away, because the contain rule stops the scroll chaining out once the inner box
+  is at its end, and a transcript pinned to its newest line is at its end from the moment it
+  answers. The situations screen had the conversation in a `scroll-host` capped at 46vh across the
+  middle of the column: measured on `bussipilet` at 1280x900 after six turns, the page had 323px
+  still to go, 1,622px of turns sat in a 414px box, and a pointer anywhere over them scrolled
+  nothing at all, so the input, the goal for the turn and every button under it could not be
+  reached. It reads as an app that has frozen, and it was reported as one. The first-run wizard
+  had already removed the same shape from its reasons grid. Containment never asked for a second
+  scroller: it asks that nothing is drawn outside the box it was given, and a list that grows
+  downward makes the page taller rather than overflowing anything. So the conversation is the page,
+  what brings the newest line into view is the ask panel's own `scrollIntoView`, which does nothing
+  when the box is already on screen and is still for anybody who asked for less movement, and
+  `scripts/test-scene.mjs` rolls the wheel over the transcript and asks where the page ended up,
+  because no source check can see this and both halves of it were made to fail on the code that
+  shipped. It waits for the page to stop moving before it rolls, since a wheel against a smooth
+  scroll still in flight measures where the two met. A screen that replaces itself opens at its own top, which
+  is the same rule one moment earlier: the briefing is taller than a phone, so the button that
+  starts a scene is at 850 in a 740 window, and the scroll a learner did to reach it was left
+  standing when the screen changed under them, opening the conversation with the card it is
+  answered from cut off above the top of the window. `scripts/test-mobile.mjs` asks that at 360,
+  because at a desktop width the briefing fits and the scroll is nought either way. The same
+  boundary holds the other way round: a screen that follows the conversation down to the box does
+  not do it on the line that opens the scene, since there is no "again" yet and what stands above
+  the conversation is the card the learner answers from. Measured at 531px in, with that card 320px
+  above the top of the window.
 - **Nothing may be `position: fixed` over moving content and carry a `backdrop-filter`.** That
   pairing re-filters its backdrop every frame of every scroll; Upside Lab measured it at 42
   repainted frames in one pass down a phone screen, the worst a third of a screen behind where the
