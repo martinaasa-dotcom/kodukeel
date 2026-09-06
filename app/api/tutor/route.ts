@@ -126,7 +126,7 @@ export async function POST(request: Request) {
     depend on the answer cost nothing extra when they are in flight together.
   */
   const learner = (await learnerPromise) ?? UNKNOWN_LEARNER;
-  const system = buildSystemPrompt(learner.level);
+  const system = buildSystemPrompt();
   const live = learnerNote(learner);
   const encoder = new TextEncoder();
   let full = "";
@@ -151,6 +151,8 @@ export async function POST(request: Request) {
       after(() => recordUsage({
         ownerId, kind: "TUTOR", provider: config.name, model: config.model,
         inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+      // Priced at the cache rates where the provider reported a split.
+      cachedInputTokens: usage.cachedInputTokens, cacheWriteTokens: usage.cacheWriteTokens,
         // Settles the reservation `authoriseCall` already booked, rather than
         // charging a second time. The call was written down before the chain
         // was opened, which is what stops ten tabs reading the same "under the

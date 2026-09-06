@@ -2987,7 +2987,7 @@ check("Anu's reply is drawn as typography, shown once finished, and the marker l
   }
 
   // The prompt says what formatting is allowed, in the terms the renderer understands.
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   assert.match(prompt, /\*\*bold\*\*/, "the prompt no longer says what bold is for");
   assert.match(prompt, /No headings, no tables/, "the prompt no longer rules out the shapes the renderer will not draw");
 });
@@ -3664,7 +3664,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     imports a constant and never interpolates it type-checks perfectly and
     asks the model for nothing, which is the failure worth catching here.
   */
-  const prompt = buildSystemPrompt("A2");
+  const prompt = buildSystemPrompt();
   for (const rule of VOICE_RULES) {
     assert.ok(prompt.includes(rule), `Anu is not given the rule: ${rule.slice(0, 48)}`);
   }
@@ -11449,6 +11449,94 @@ check("the scene gate has one implementation, and a line says where it came from
  * sets an exam can reach the bank at all. `lib/scenes/bank.test.ts` holds
  * the sixth, that every row still passes the gate today.
  */
+/**
+ * A CACHED INPUT TOKEN IS PRICED AS ONE, AND THE STATIC HALF OF A PROMPT DOES
+ * NOT VARY PER LEARNER.
+ *
+ * Two halves of prompt caching, and each fails in a way nothing else notices.
+ *
+ * Every Anthropic call site reports three input buckets and they are billed at
+ * three rates: a read at a tenth of base, a write at 1.25x. Summing them into
+ * one figure priced at base charges a read ten times over, which nothing
+ * refuses and no learner sees; what it costs is the feature, because the
+ * budget then binds ten times too early on exactly the traffic the breakpoint
+ * was added to make cheap. The safe direction is what let it sit there.
+ *
+ * And a cache entry is keyed on the exact prefix, so anything varying inside
+ * the block behind the breakpoint splits it. The learner's level did that from
+ * character 158 of 9,093, which is a cache fragmented six ways by a string
+ * that was already being sent in the block after it.
+ */
+check("a cached input token is priced as one, and the cached prompt is the same for everybody", () => {
+  const pricing = code("lib/usage/pricing.ts");
+  assert.match(pricing, /CACHE_READ_RATE = 0\.1/, "a cache read is no longer priced at a tenth of base");
+  assert.match(pricing, /CACHE_WRITE_RATE = 1\.25/, "a cache write is no longer priced at 1.25x base");
+  assert.match(
+    pricing,
+    /cached \/ 1e6\) \* price\.inputPerMTok \* CACHE_READ_RATE/,
+    "estimateCostMicros no longer prices the cached bucket at the cache rate",
+  );
+
+  /*
+    THE SPLIT HAS TO SURVIVE THE WHOLE JOURNEY, and the middle of it is where
+    it would be dropped. A call site can report the buckets and a route can
+    forget to pass them on, and the result compiles, runs, prices everything at
+    base, and looks exactly like a deployment that never gets a cache hit.
+  */
+  assert.match(code("lib/tutor/provider.ts"), /into\.cachedInputTokens = cached;/,
+    "the streaming path no longer reports which input tokens came off a cache");
+  assert.match(code("lib/tutor/grader.ts"), /usage\.cachedInputTokens = cached;/,
+    "the grader's transport no longer reports which input tokens came off a cache");
+  assert.match(code("lib/usage/ledger.ts"), /cachedInputTokens: input\.cachedInputTokens,/,
+    "recordUsage no longer hands the split to the price table");
+
+  for (const file of [
+    "app/api/tutor/route.ts", "app/api/write/route.ts", "app/api/describe/route.ts",
+    "app/api/exam/write/route.ts", "app/api/scene/route.ts", "lib/tutor/translate.ts",
+  ]) {
+    assert.match(
+      code(file),
+      /cachedInputTokens: usage\.cachedInputTokens/,
+      `${file} settles a call without passing on which of its input tokens were cached, so a cache read is charged ten times over`,
+    );
+  }
+
+  /*
+    AND THE CACHED BLOCK IS BYTE-IDENTICAL FOR EVERY LEARNER. Asserted on the
+    signature rather than on today's sentence: a `buildSystemPrompt` that takes
+    the learner's anything is a prompt that varies per learner, whatever it
+    does with the argument. What is allowed to vary is `learnerNote`, which is
+    the block after the breakpoint and exists for exactly that.
+  */
+  /*
+    AND ONLY THE ONE PROMPT LONG ENOUGH TO BE CACHED ASKS TO BE.
+
+    A `cache_control` breakpoint on a prefix under 1,024 tokens is accepted,
+    ignored, and reads to anybody looking as though caching were switched on.
+    Two of the three were exactly that: the grader's three system prompts are
+    462, 609 and 717 tokens and the scanner's is 221, against the tutor's
+    ~2,275. Asserted as a count rather than by naming the survivor, because
+    what goes wrong here is a fourth call site copying the parameter from a
+    neighbour without measuring its own prompt.
+  */
+  const breakpoints = [...code("lib/tutor/provider.ts").matchAll(/cache_control/g)].length
+    + [...code("lib/tutor/grader.ts").matchAll(/cache_control/g)].length;
+  assert.equal(
+    breakpoints, 1,
+    "a second `cache_control` breakpoint is being asked for. Anthropic creates no cache entry under 1,024 tokens, and only the tutor's prompt clears that; measure the prefix before adding one.",
+  );
+
+  const prompt = code("lib/tutor/prompt.ts");
+  assert.match(prompt, /export function buildSystemPrompt\(\): string \{/,
+    "the static prompt takes an argument again, so it varies per learner and the cache entry splits with it");
+  assert.match(prompt, /system: \[\s*$|ABOUT THIS LEARNER/, "learnerNote no longer names the learner");
+  assert.match(
+    code("lib/tutor/provider.ts"),
+    /cache_control: \{ type: "ephemeral" \} \},\s*\.\.\.\(live/s,
+    "the per-learner block is no longer sent after the cached breakpoint",
+  );
+});
+
 check("a scripted line is drafted by a script, said after a recorded one, and marks nothing", () => {
   const bank = read("lib/scenes/bank.ts");
   assert.match(bank, /^\/\* GENERATED by scripts\/draft-lines\.ts/, "lib/scenes/bank.ts no longer says it is generated");

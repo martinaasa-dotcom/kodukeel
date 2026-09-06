@@ -499,10 +499,23 @@ export class TutorError extends Error {
 
 /** Tokens a completed call actually consumed, for the usage ledger. */
 export interface UsageReport {
+  /** Every input token the call was billed for, cached ones included. */
   inputTokens: number;
   outputTokens: number;
   /** False when the provider never sent a usage frame and this is an estimate. */
   measured: boolean;
+  /**
+   * How much of `inputTokens` came off a cache, where the provider said so.
+   *
+   * Anthropic reports the three buckets separately and they are billed at
+   * three different rates (`CACHE_READ_RATE`, `CACHE_WRITE_RATE`), so keeping
+   * only the total charged a cache read ten times over. They are carried
+   * beside the total rather than subtracted from it, so any reader that only
+   * knows about `inputTokens` still sees the whole call and still errs high.
+   * Absent on every other provider, none of which reports a split.
+   */
+  cachedInputTokens?: number;
+  cacheWriteTokens?: number;
 }
 
 /** A provider that has accepted the question, and the reply it is about to give. */
@@ -537,11 +550,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
   if (provider === "anthropic") {
     if (f.type === "message_start" && f.message?.usage) {
       const u = f.message.usage;
-      // Cache reads and writes are real input tokens and are billed as such.
-      into.inputTokens =
-        (u.input_tokens ?? 0) +
-        (u.cache_creation_input_tokens ?? 0) +
-        (u.cache_read_input_tokens ?? 0);
+      /*
+        Cache reads and writes are real input tokens, and the three buckets are
+        billed at three different rates: a read at a tenth of base, a write at
+        1.25x. The total is what the call was for; the split is what it cost.
+        This used to keep the total alone, which priced a read as though the
+        cache did not exist and hid the whole saving from the ledger.
+      */
+      const cached = u.cache_read_input_tokens ?? 0;
+      const written = u.cache_creation_input_tokens ?? 0;
+      into.inputTokens = (u.input_tokens ?? 0) + written + cached;
+      into.cachedInputTokens = cached;
+      into.cacheWriteTokens = written;
       into.measured = true;
     }
     if (f.type === "message_delta" && f.usage?.output_tokens != null) {
@@ -783,8 +803,21 @@ const OPENAI_COMPATIBLE: Record<
   },
 };
 
-/** The wire details for a provider that is not Anthropic. */
-function openAiCompatible(config: ProviderConfig) {
+/**
+ * The wire details for a provider that is not Anthropic.
+ *
+ * Exported because `lib/tutor/grader.ts` needs the same answer for its own
+ * non-streaming transport and had been reaching it by a two-way ternary:
+ * "OpenRouter, or else OpenAI". That was true when the chain held two
+ * providers and silently wrong once Groq and Gemini joined it, since every
+ * config that was not OpenRouter was then posted to `api.openai.com` with
+ * `OPENAI_API_KEY`, which on a Groq-only or Gemini-only deployment is
+ * undefined. Every GRADER call on such a deployment answered 401, which the
+ * screen reads as "the tutor is unavailable" rather than as a routing fault.
+ * One table rather than two readings of it, which is the rule this repository
+ * keeps rediscovering about a fact written down twice.
+ */
+export function openAiCompatible(config: ProviderConfig) {
   const entry = OPENAI_COMPATIBLE[config.name as keyof typeof OPENAI_COMPATIBLE];
   if (!entry) throw new TutorError(`${config.label} has no endpoint configured.`, 500);
   return entry;
@@ -827,14 +860,46 @@ async function callOpenAiCompatible(
   return res;
 }
 
+/**
+ * The headers every Anthropic call sends, and the one that is not optional for
+ * half of the keys people actually have.
+ *
+ * An Anthropic key is scoped either to a workspace or to the organization. A
+ * workspace key needs nothing beyond the two headers this always sent; an
+ * org-scoped key is refused outright without `anthropic-workspace-id`, with a
+ * 400 whose message names the header. So the app worked with one shape of key
+ * and could not make a single call with the other, on any path: the tutor, the
+ * scanner and the grader all built these headers separately and all three sent
+ * the same two.
+ *
+ * WHAT THAT LOOKED LIKE RATHER THAN WHAT IT WAS. `assertOk` has no branch for a
+ * 400, so it becomes a `TutorError` at 502, which `worthFallingBackFrom` treats
+ * as worth trying the next provider for. So nothing broke loudly: on a chain
+ * with a free provider in front, Anthropic simply never answered and the
+ * fallback leg was dead with nothing on any screen to say so; on a deployment
+ * where Anthropic is the only key, every AI feature degraded to its no-key
+ * state while a key sat correctly configured in the environment.
+ *
+ * Sent only when set, because a workspace-scoped key must not carry it: the
+ * header names a workspace the key may not be in, and Anthropic refuses that
+ * too. Absent is the ordinary case and the one that behaves exactly as before.
+ */
+export function anthropicHeaders(): Record<string, string> {
+  const workspace = process.env.ANTHROPIC_WORKSPACE_ID;
+  return {
+    "content-type": "application/json",
+    // Safe for the reason every other key read here is: a config only reaches
+    // an Anthropic call site from `resolveProviders`, which adds it when set.
+    "x-api-key": process.env.ANTHROPIC_API_KEY!,
+    "anthropic-version": "2023-06-01",
+    ...(workspace ? { "anthropic-workspace-id": workspace } : {}),
+  };
+}
+
 async function callAnthropic(config: ProviderConfig, system: string, messages: ChatMessage[], live = "") {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY!,
-      "anthropic-version": "2023-06-01",
-    },
+    headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
       stream: true,
@@ -1179,17 +1244,25 @@ async function readImageAnthropic(
 ): Promise<CompletedReply> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": process.env.ANTHROPIC_API_KEY!,
-      "anthropic-version": "2023-06-01",
-    },
+    headers: anthropicHeaders(),
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,
-      // The instruction is identical for every scan, so it is worth caching
-      // exactly as the Estonian system prompt is. The picture never is.
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+      /*
+        NO `cache_control` HERE. This said the scanning instruction is worth
+        caching "exactly as the Estonian system prompt is", and the two are not
+        alike in the one dimension that decides it: Anthropic will not create a
+        cache entry under 1,024 tokens, the tutor's prompt is about 2,275 and
+        `SCAN_PROMPT` is 221. The parameter was accepted and ignored.
+
+        And there is nothing to fix by growing it, because the instruction was
+        never where a scan's cost is: a photograph is a few thousand input
+        tokens and the picture is different every time, so the expensive half
+        of this call is uncacheable by construction. The comment that used to
+        sit here said as much in its last sentence and then cached the cheap
+        half anyway.
+      */
+      system,
       messages: [
         {
           role: "user",
@@ -1222,15 +1295,19 @@ async function readImageAnthropic(
     .map((block) => block.text ?? "")
     .join("");
 
-  const input =
-    (body.usage?.input_tokens ?? 0) +
-    (body.usage?.cache_creation_input_tokens ?? 0) +
-    (body.usage?.cache_read_input_tokens ?? 0);
+  // As in `absorbUsage`: the total for the call, and the split for its price.
+  const cached = body.usage?.cache_read_input_tokens ?? 0;
+  const written = body.usage?.cache_creation_input_tokens ?? 0;
+  const input = (body.usage?.input_tokens ?? 0) + written + cached;
 
   return {
     config,
     text,
-    usage: usageFrom(input || undefined, body.usage?.output_tokens, system + prompt, text),
+    usage: {
+      ...usageFrom(input || undefined, body.usage?.output_tokens, system + prompt, text),
+      cachedInputTokens: cached,
+      cacheWriteTokens: written,
+    },
   };
 }
 
