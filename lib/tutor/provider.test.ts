@@ -2,9 +2,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
-  TutorError, visionProviders,
+  SCENE_GROQ_MODELS, TutorError, visionProviders,
 } from "@/lib/tutor/provider";
-import { priceFor } from "@/lib/usage/pricing";
+import { priceFor, UNKNOWN_MODEL } from "@/lib/usage/pricing";
 
 /*
   EVERY CASE STARTS ON A MACHINE WITH NO KEYS, WHATEVER MACHINE IT IS ON.
@@ -73,6 +73,131 @@ function only(name: "openrouter" | "groq" | "gemini" | "anthropic" | "openai") {
   chain: both hand out a real free tier with no card, both speak the OpenAI
   wire format, and neither shares a balance with OpenRouter.
 */
+/*
+  THE SPLIT, AND THE ONE THING THAT WOULD UNDO IT SILENTLY.
+
+  Routing by purpose is only worth anything if a purpose's chain cannot pick up
+  a provider that was configured for the other job. Nothing would fail if it
+  did: the answer still arrives, the header still names whoever wrote it, and
+  the only symptom is Anu's question answered by a model chosen for fourteen-word
+  sentences, or every scene line billed at Sonnet's rate against a $5 balance.
+
+  So the cases below set *every* key rather than only the one they are about.
+  That is the opposite of `only()` next door and it is deliberate: `only()` asks
+  what a chain does with one provider, and the question here is what it does
+  when four others are sitting right there. A purpose that read the general
+  chain would pass a test that stubbed one key and fail this.
+*/
+describe("a chain built for a purpose", () => {
+  /** Every provider configured at once, which is the state the split is for. */
+  function all() {
+    for (const key of PROVIDER_KEY_ENV) vi.stubEnv(key, "k");
+  }
+
+  it("sends scene composition to Groq, and to the model the eval ranked", () => {
+    all();
+    const chain = resolveProviders({ purpose: "scene" });
+    expect(chain.map((c) => c.name)).toEqual(["groq"]);
+    expect(chain[0]?.model).toBe(SCENE_GROQ_MODELS[0]);
+  });
+
+  it("sends Anu to Anthropic", () => {
+    all();
+    const chain = resolveProviders({ purpose: "tutor" });
+    expect(chain.map((c) => c.name)).toEqual(["anthropic"]);
+    expect(chain[0]?.model).toBe("claude-sonnet-5");
+  });
+
+  it("lets neither purpose reach the other's provider", () => {
+    all();
+    // The cost half of the split: Anthropic answering scene lines is the whole
+    // conversation billed at forty times the rate it was measured at.
+    expect(resolveProviders({ purpose: "scene" }).some((c) => c.name === "anthropic")).toBe(false);
+    // And the quality half: Groq was ranked on fourteen-word constrained output.
+    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "groq")).toBe(false);
+  });
+
+  it("keeps OpenRouter and Gemini out of both, however the machine is configured", () => {
+    /*
+      The reason this is its own case rather than a line in the one above. Those
+      two are the free chain's defaults, so they are the providers most likely
+      to be left set on a machine that has since moved to paid keys, and a
+      purpose that quietly inherited one would look exactly like a purpose that
+      was working. Being absent from the environment is not what protects this;
+      being unreachable by construction is.
+    */
+    all();
+    for (const purpose of ["tutor", "scene"] as const) {
+      const names = resolveProviders({ purpose }).map((c) => c.name);
+      expect(names).not.toContain("openrouter");
+      expect(names).not.toContain("gemini");
+      expect(names).not.toContain("openai");
+    }
+  });
+
+  it("falls to scripted on its own provider's absence, independently", () => {
+    /*
+      ITEM FIVE OF THE SPLIT: one balance running out may not take the other
+      feature down. An empty chain is what both routes read as "no model", and
+      each of them has somewhere to go — Anu says she is not set up, a scene
+      plays off its recorded and banked lines.
+    */
+    only("groq");
+    expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
+    expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
+
+    only("anthropic");
+    expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
+    expect(resolveProviders({ purpose: "scene" })).toHaveLength(0);
+  });
+
+  it("gives a deployment with no keys an empty chain for both, as it always did", () => {
+    expect(resolveProviders({ purpose: "tutor" })).toEqual([]);
+    expect(resolveProviders({ purpose: "scene" })).toEqual([]);
+    expect(resolveProviders()).toEqual([]);
+  });
+
+  it("leaves the general chain alone, because twenty callers still read it", () => {
+    all();
+    // `providerResilience`, the Settings panel, the recipients list and every
+    // "is a model configured at all" read take this one, and none of them is
+    // choosing where to send anything.
+    const names = new Set(resolveProviders().map((c) => c.name));
+    expect(names).toEqual(new Set(["openrouter", "groq", "gemini", "anthropic", "openai"]));
+  });
+
+  it("lets SCENE_MODEL name the model, and does not read GROQ_MODEL for it", () => {
+    /*
+      GROQ_MODEL configures the general chain. Inheriting it here would move
+      scene composition off the model `eval:composers` ranked the first time
+      anybody tuned the general chain for some other reason, and nothing would
+      say so.
+    */
+    only("groq");
+    vi.stubEnv("GROQ_MODEL", "openai/gpt-oss-120b");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_GROQ_MODELS]);
+
+    vi.stubEnv("SCENE_MODEL", "some/other-model");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["some/other-model"]);
+  });
+
+  it("prices the scene model as a paid model, because the account is paid", () => {
+    /*
+      THE ROW THAT WOULD SWITCH THE SPEND CAP OFF. `qwen3.8-27b` was priced at
+      zero with the rest of Groq's free tier, which was true of a free account
+      and is not true of this one. Left at zero it is the global cap disabled
+      for the highest-volume path in the app: scene composition would have been
+      unbounded and `AI_DAILY_USD_GLOBAL` would never have known.
+    */
+    const price = priceFor(SCENE_GROQ_MODELS[0]);
+    expect(price.inputPerMTok).toBeGreaterThan(0);
+    expect(price.outputPerMTok).toBeGreaterThan(0);
+    // And not the punitive unknown rate, which would bind forty times too early
+    // and break the feature to protect a bill that was never at risk.
+    expect(price.inputPerMTok).toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+  });
+});
+
 describe("the free providers that are not OpenRouter", () => {
   it("puts every free provider ahead of every paid one", () => {
     vi.stubEnv("OPENROUTER_API_KEY", "k");
@@ -102,13 +227,35 @@ describe("the free providers that are not OpenRouter", () => {
     expect(FREE_GEMINI_MODELS.length).toBeGreaterThan(1);
   });
 
-  it("charges nothing for the models these tiers give away", async () => {
-    const { priceFor } = await import("@/lib/usage/pricing");
+  it("never charges the unknown rate for a model on one of these lists", async () => {
+    /*
+      THIS ASKED FOR ZERO AND CAN NO LONGER, WHICH IS THE POINT OF THE ROW IT
+      BROKE ON.
+
+      The claim it was written for is that a listed model must not meet
+      `UNKNOWN_MODEL`, because the dearest rate in the table charged against a
+      handful of genuinely free calls reads as several dollars and switches the
+      tutor off for everybody. That claim is unchanged and is what is asserted
+      below.
+
+      What changed is that "on the free list" stopped implying "costs nothing".
+      `qwen/qwen3.8-27b` is the scene composer's model on a paid Groq plan
+      (`SCENE_GROQ_MODELS`), and it stays on this list because `eval:composers`
+      reads it to decide what to rank and a free-tier deployment's general chain
+      still wants the link. Its price row is the real one now: pricing a paid
+      model at zero is the global spend cap switched off for the busiest path in
+      the app, which is the larger of the two failures by a distance.
+
+      So the assertion is the bound rather than the number. A model that is
+      actually free still measures zero and is covered by that bound.
+    */
+    const { priceFor, UNKNOWN_MODEL } = await import("@/lib/usage/pricing");
     for (const model of [...FREE_GROQ_MODELS, ...FREE_GEMINI_MODELS]) {
-      expect(priceFor(model), `${model} is not priced as free`).toEqual({
-        inputPerMTok: 0,
-        outputPerMTok: 0,
-      });
+      const price = priceFor(model);
+      expect(price.inputPerMTok, `${model} is priced at the unknown rate`)
+        .toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+      expect(price.outputPerMTok, `${model} is priced at the unknown rate`)
+        .toBeLessThan(UNKNOWN_MODEL.outputPerMTok);
     }
   });
 

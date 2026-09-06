@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  DEFAULT_LIMITS, checkQuota, readLimits, secondsUntilUtcMidnight, utcDay,
+  DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS, checkQuota, readLimits,
+  secondsUntilUtcMidnight, utcDay,
   type UsageSnapshot,
 } from "./quota";
 import {
@@ -8,7 +9,10 @@ import {
   normaliseModel, priceFor,
 } from "./pricing";
 
-const clear: UsageSnapshot = { burstCalls: 0, dailyCalls: 0, dailyCallsAllKinds: 0, dailyMicros: 0, globalMicros: 0 };
+const clear: UsageSnapshot = {
+  burstCalls: 0, dailyCalls: 0, dailyCallsAllKinds: 0, dailyMicros: 0,
+  globalMicros: 0, globalKindMicros: 0,
+};
 const NOON = new Date("2026-08-29T12:00:00.000Z");
 
 describe("checkQuota", () => {
@@ -26,8 +30,75 @@ describe("checkQuota", () => {
       // the threshold a user with nine calls behind them is meant to wait, and
       // that is the rule the block below covers.
       globalMicros: reserveFrom() - 1,
+      globalKindMicros: DEFAULT_LIMITS.dailyMicrosGlobalForKind - 1,
     };
     expect(checkQuota(usage, DEFAULT_LIMITS, NOON).allowed).toBe(true);
+  });
+
+  /*
+    THE CAP THAT PROTECTS A BALANCE RATHER THAN A BILL.
+
+    One global figure was the whole truth while every path spent out of one
+    account. Since the provider split, TUTOR spends an Anthropic balance and
+    SCENE spends a Groq one, and the two are nothing like the same size: an Anu
+    answer is about $0.0144 and a composed scene turn about $0.00044, so the
+    $5 Anthropic balance is roughly 347 answers, which is a quarter of a $20
+    day. The overall cap therefore cannot fire before the money is gone, and a
+    cap that is reached after the money is gone is a receipt.
+  */
+  it("stops a kind that has spent its own slice, with the day's budget untouched", () => {
+    const usage: UsageSnapshot = {
+      ...clear,
+      globalKindMicros: DEFAULT_LIMITS.dailyMicrosGlobalForKind,
+      // Nowhere near the overall cap, which is exactly the case that used to
+      // sail through: the balance runs out and nothing here had an opinion.
+      globalMicros: 0,
+    };
+    const decision = checkQuota(usage, DEFAULT_LIMITS, NOON);
+    expect(decision.allowed).toBe(false);
+    expect(decision.reason).toBe("KIND_SPEND");
+    // Not a provider, not a model, not somebody's balance: what a learner can
+    // act on is that this one part is rested and the rest still works.
+    expect(decision.message).toMatch(/keeps working/);
+  });
+
+  it("leaves a kind one micro under its slice alone", () => {
+    const usage: UsageSnapshot = {
+      ...clear,
+      globalKindMicros: DEFAULT_LIMITS.dailyMicrosGlobalForKind - 1,
+    };
+    expect(checkQuota(usage, DEFAULT_LIMITS, NOON).allowed).toBe(true);
+  });
+
+  it("does not let one purpose's exhausted slice stop the other", () => {
+    /*
+      The independence the split exists for. `globalKindMicros` is the spend of
+      the kind being asked about, so a snapshot taken for SCENE carries none of
+      TUTOR's spend: Anu running her Anthropic balance down to the cap leaves
+      scene composition answering on Groq, and a long evening of scenes leaves
+      Anu answering. Neither can reach the other's provider to spend it, either,
+      because since the split there is no chain from one to the other.
+    */
+    const tutorSpent: UsageSnapshot = {
+      ...clear,
+      globalKindMicros: DEFAULT_LIMITS.dailyMicrosGlobalForKind,
+    };
+    expect(checkQuota(tutorSpent, DEFAULT_LIMITS, NOON).allowed).toBe(false);
+
+    // The same day, asked about the other kind: its own slice is untouched.
+    const sceneUnspent: UsageSnapshot = { ...clear, globalKindMicros: 0 };
+    expect(checkQuota(sceneUnspent, DEFAULT_LIMITS, NOON).allowed).toBe(true);
+  });
+
+  it("still stops everything when the whole day's budget has gone", () => {
+    // The per-kind slice is a second floor, never a replacement: a kind well
+    // inside its own allowance still cannot spend a budget that is finished.
+    const usage: UsageSnapshot = {
+      ...clear,
+      globalKindMicros: 0,
+      globalMicros: DEFAULT_LIMITS.dailyMicrosGlobal,
+    };
+    expect(checkQuota(usage, DEFAULT_LIMITS, NOON).reason).toBe("GLOBAL_SPEND");
   });
 
   it("denies on the burst limit first, since it is the most recoverable", () => {
@@ -70,6 +141,48 @@ describe("checkQuota", () => {
 describe("readLimits", () => {
   it("falls back to the defaults when nothing is configured", () => {
     expect(readLimits({})).toEqual(DEFAULT_LIMITS);
+  });
+
+  it("gives a kind with no slice of its own the whole budget", () => {
+    // SCAN, the writing grader and speech did not change provider, so the split
+    // must not quietly tighten them.
+    const limits = readLimits({ AI_DAILY_USD_GLOBAL: "20" }, "SCAN");
+    expect(limits.dailyMicrosGlobalForKind).toBe(limits.dailyMicrosGlobal);
+  });
+
+  it("gives the two routed purposes their own slices", () => {
+    expect(readLimits({}, "TUTOR").dailyMicrosGlobalForKind)
+      .toBe(DEFAULT_KIND_BUDGETS.TUTOR);
+    expect(readLimits({}, "SCENE").dailyMicrosGlobalForKind)
+      .toBe(DEFAULT_KIND_BUDGETS.SCENE);
+    // And Anu's is the tighter of the two, since hers is the dearer call
+    // against the smaller balance.
+    expect(DEFAULT_KIND_BUDGETS.TUTOR!).toBeLessThan(DEFAULT_KIND_BUDGETS.SCENE!);
+  });
+
+  it("lets a deployment set its own slice per purpose", () => {
+    expect(readLimits({ AI_DAILY_USD_TUTOR: "1.50" }, "TUTOR").dailyMicrosGlobalForKind)
+      .toBe(1_500_000);
+    expect(readLimits({ AI_DAILY_USD_SCENE: "0.10" }, "SCENE").dailyMicrosGlobalForKind)
+      .toBe(100_000);
+  });
+
+  it("clamps a slice bigger than the whole budget down to it", () => {
+    /*
+      A slice above the global reads like a generous allowance and is a
+      configuration mistake, and the failure it produces is the one thing this
+      module may not do: a cap that is never what binds.
+    */
+    const limits = readLimits({ AI_DAILY_USD_GLOBAL: "5", AI_DAILY_USD_SCENE: "50" }, "SCENE");
+    expect(limits.dailyMicrosGlobalForKind).toBe(5_000_000);
+  });
+
+  it("stops a purpose dead when the global budget is set to zero", () => {
+    // `AI_DAILY_USD_GLOBAL="0"` is documented as the way to stop AI spending
+    // entirely, and a per-purpose slice must not become a way around it.
+    const limits = readLimits({ AI_DAILY_USD_GLOBAL: "0", AI_DAILY_USD_TUTOR: "5" }, "TUTOR");
+    expect(limits.dailyMicrosGlobalForKind).toBe(0);
+    expect(checkQuota(clear, limits, NOON).allowed).toBe(false);
   });
 
   it("reads dollars and stores micro-dollars", () => {

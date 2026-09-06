@@ -92,7 +92,132 @@ export const PROVIDER_KEY_ENV = [
   "OPENAI_API_KEY",
 ] as const;
 
-export function resolveProviders(): ProviderConfig[] {
+/**
+ * What a chain is being built *for*.
+ *
+ * "tutor" is Anu: general questions about grammar and vocabulary, asked rarely
+ * and answered at length. "scene" is one line of a role-play conversation:
+ * asked constantly, answered in at most fourteen words, inside a closed word
+ * list the gate then checks four ways.
+ *
+ * They are different jobs and the measurements say so, which is why they no
+ * longer share a chain. See `PURPOSE_CHAINS` for which provider answers which
+ * and what the evidence was.
+ */
+export type ProviderPurpose = "tutor" | "scene";
+
+export interface ChainOptions {
+  /**
+   * Omit for the chain the app has always built: every configured provider,
+   * free first. That default is what the twenty-odd callers asking "is any
+   * model configured at all" mean, and none of them is choosing a model.
+   *
+   * Name a purpose and the chain is built from that purpose's provider alone.
+   */
+  purpose?: ProviderPurpose;
+}
+
+/**
+ * Which provider answers which job, and why it is a routing table rather than
+ * an order.
+ *
+ * THE CHAIN WAS ONE LIST TRIED IN ONE ORDER, and that is the right shape while
+ * every link is a free model and the only question is which of them is awake.
+ * It is the wrong shape once two paid keys are configured for two different
+ * reasons, because then "whichever answers first" is a cost decision and a
+ * quality decision being made by a rate limiter.
+ *
+ * SCENE COMPOSITION GOES TO GROQ. A scene line is one short sentence built out
+ * of a word list the route hands over, and `lib/scenes/gate.ts` checks it four
+ * ways before a learner sees it, so what is wanted from the model is constraint
+ * compliance at speed and nothing deeper. `npm run eval:composers` measured
+ * exactly that and `qwen/qwen3.8-27b` was the strongest link tested for this
+ * one job: 24 of 24 calls answered, every one carrying a finite verb, at a
+ * quarter-second median. It is also about a fortieth of Sonnet's per-token
+ * price, and this is the path that makes calls by the dozen: a conversation is
+ * a dozen turns and a learner plays several.
+ *
+ * ANU GOES TO ANTHROPIC. A tutor answer is the opposite shape. It is asked a
+ * handful of times a day, it is open-ended, and it is read by somebody who
+ * cannot check it, so being right about Estonian matters more than being cheap
+ * or quick. Sonnet scored highest of everything tested on a native-Estonian
+ * benchmark, and at Anu's call volume the per-token difference is small enough
+ * to be worth paying.
+ *
+ * WHAT THIS IS NOT is a change to `openWithFallback`. The mechanism underneath
+ * is untouched: a purpose still gets a chain, the chain is still walked in
+ * order, and the provider that actually answered is still what the ledger and
+ * the response header are told. What changed is which links go in it.
+ */
+const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[]) => void>> = {
+  tutor: (chain) => {
+    if (!process.env.ANTHROPIC_API_KEY) return;
+    chain.push({
+      name: "anthropic",
+      model: process.env.ANTHROPIC_MODEL || "claude-sonnet-5",
+      label: "Anthropic",
+    });
+  },
+  scene: (chain) => {
+    if (!process.env.GROQ_API_KEY) return;
+    /*
+      `SCENE_MODEL` rather than `GROQ_MODEL`, deliberately.
+
+      `GROQ_MODEL` configures the general chain, which is a different decision
+      made for a different reason: a deployment that pins it to whatever is
+      cheapest this week would silently move scene composition off the model the
+      eval actually ranked, and nothing would fail. A measured choice is worth
+      its own variable.
+    */
+    for (const model of configuredModels(process.env.SCENE_MODEL, SCENE_GROQ_MODELS)) {
+      chain.push({ name: "groq", model, label: "Groq" });
+    }
+  },
+};
+
+/**
+ * The model scene composition asks, and why it is one name rather than three.
+ *
+ * `FREE_GROQ_MODELS` carries three because a free model is retired without
+ * notice and walking past a 404 within one provider costs a request where
+ * refusing costs the learner their answer. That reasoning does not survive
+ * `lib/usage/pricing.ts`: this deployment bills for its Groq calls, and the
+ * only model here whose paid rate has been checked against Groq's own pricing
+ * page is this one. A fallback to a model the price table cannot price is a
+ * call charged at `UNKNOWN_MODEL`, which is the dearest rate in the table, so
+ * the fallback that was protecting availability would be spending the scene
+ * budget forty times faster than the line it replaced.
+ *
+ * The scene ladder already has somewhere to go, which is what makes one name
+ * safe here where it would not be for Anu. A composed line is the third rung:
+ * below it are the recorded usages, the drafted bank in `lib/scenes/bank.ts`,
+ * and the phrase the other side says when it did not catch that. A deployment
+ * with no key at all plays all fourteen scenes start to finish (§16), so a
+ * retired slug costs a conversation some freshness and never the conversation.
+ *
+ * Naming a second model here is a two-line change and a price row.
+ */
+export const SCENE_GROQ_MODELS = ["qwen/qwen3.8-27b"] as const;
+
+/**
+ * Every provider with a key, in the order they should be tried.
+ *
+ * With no `purpose` this is what it has always been: free first, paid last, one
+ * link per free model. That chain is what `providerResilience`, the Settings
+ * panel, the recipients list and every "is a model configured" read mean, and
+ * none of them is picking a model to send anything to.
+ *
+ * With a `purpose` it is that purpose's provider and nothing else. There is no
+ * cross-purpose fallback and that is a decision rather than an omission: see
+ * the note on `PURPOSE_CHAINS`, and `docs/05-integrations.md` for the argument
+ * against letting a Groq outage take Anu down with it.
+ */
+export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
+  if (options.purpose) {
+    const chain: ProviderConfig[] = [];
+    PURPOSE_CHAINS[options.purpose](chain);
+    return chain;
+  }
   const chain: ProviderConfig[] = [];
   if (process.env.OPENROUTER_API_KEY) {
     for (const model of openRouterModels()) {

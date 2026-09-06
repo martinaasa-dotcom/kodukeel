@@ -54,8 +54,34 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
   // Keyed the way `normaliseModel` leaves them: the vendor prefix a provider
   // puts in front of a model, "openai/" or "qwen/", is stripped before lookup.
   "gpt-oss-120b": { inputPerMTok: 0, outputPerMTok: 0 },
-  "qwen3.8-27b": { inputPerMTok: 0, outputPerMTok: 0 },
   "compound-mini": { inputPerMTok: 0, outputPerMTok: 0 },
+
+  /*
+    THE ONE ROW THAT IS NOT FREE, AND THE REASON IT STOPPED BEING.
+
+    `qwen3.8-27b` sat in the block above at zero, with the rest of Groq's free
+    tier, and that was true while the only Groq account anybody here had was a
+    free one. It is the scene composer's model now (`SCENE_GROQ_MODELS`) on a
+    paid Groq plan, and a paid model priced at zero is not a rounding error in
+    a cost estimate: it is the global spend cap switched off for the single
+    highest-volume path in the app. A conversation is a dozen turns and a scene
+    composes several of them, so this is the row most likely to be charged and
+    it was the row charging nothing. `AI_DAILY_USD_GLOBAL` would never have
+    bound on scene composition at all.
+
+    The comment above still holds and this is it happening: "free" is a property
+    of the account and this table cannot see the account. So the table takes the
+    side that fails closed. Charging a free-tier deployment 0.29 for a call that
+    cost it nothing makes its cap bind sooner by a fraction of a cent per scene
+    turn, which is the safe direction and, at these rates, not a direction
+    anybody will notice: 54,000 composed turns to reach a $20 day. Charging a
+    paid deployment nothing has no floor under it at all.
+
+    Groq's published rate for this model, per MTok. Checked against the pricing
+    page rather than guessed from the model's size, which is the rule this
+    whole table is written under. Re-check it when the plan changes.
+  */
+  "qwen3.8-27b": { inputPerMTok: 0.29, outputPerMTok: 0.59 },
   "gemini-flash-latest": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.6-flash": { inputPerMTok: 0, outputPerMTok: 0 },
   "gemini-3.5-flash": { inputPerMTok: 0, outputPerMTok: 0 },
@@ -153,22 +179,30 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
   // A photograph, which is a few thousand input tokens of image.
   SCAN: { input: 3_000, output: 400 },
   /*
-    A WHOLE CONVERSATION, BOOKED ONCE.
+    ONE COMPOSED TURN, BOOKED PER TURN, WHICH IS NOT WHAT THIS USED TO SAY.
 
-    A scene books one call rather than one per turn (docs/19-situations.md §16),
-    because running out of allowance halfway through a conversation is the worst
-    failure available to this module: the other side simply stops talking, and
-    there is no honest thing to put on the screen. So the reservation is the
-    whole scene and the settlement corrects it at the end, which is negative
-    whenever the estimate was generous, exactly as it is for every other kind.
+    This row read "a whole conversation, booked once" and was sized for one:
+    3,500 in and 1,000 out, roughly five composed lines. `app/api/scene/route.ts`
+    has booked per turn since, under a comment of its own explaining why ("one
+    `CALL` row in front of twelve settlements is eleven calls the allowance
+    never saw"), and nothing moved this. So every composed line was reserved at
+    about five lines' worth.
 
-    Roughly five grader calls, which is what a scene composes: the beats
-    retrieval cannot fill, plus the one retry §6 allows on some of them. The
-    static half of the prompt is identical on every turn of every scene, so on
-    Anthropic it sits behind the `cache_control` breakpoint the tutor uses and
-    the real figure comes in under this.
+    Over-reserving is the safe direction and a settlement follows within seconds,
+    so no money was mis-counted. What it distorted is the seconds in between,
+    which is exactly what a reservation is for: several turns in flight at once
+    looked like several times as much spend as they were, so the global reserve
+    fraction bit early and a busy evening could refuse a turn on an imaginary
+    bill.
+
+    Measured rather than re-estimated. The static system block is 128 tokens and
+    identical on every turn of every scene; the live block is dominated by the
+    word list the route hands over, which is 714 to 955 tokens across the
+    fourteen shipped scenes (mean 821), plus the stage direction, the register,
+    six banked lines for tone and the turns so far. The reply is capped at
+    `MAX_WORDS`, fourteen words, and comes back as one short sentence.
   */
-  SCENE: { input: 3_500, output: 1_000 },
+  SCENE: { input: 1_400, output: 60 },
 };
 
 /**

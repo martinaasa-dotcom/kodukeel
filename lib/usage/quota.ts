@@ -10,8 +10,12 @@
  * Three limits, because they fail in different ways:
  *   - a burst limit stops a runaway client or a held-down key,
  *   - a per-user daily limit stops one enthusiastic person monopolizing the key,
- *   - a global daily cost cap is the actual guarantee about the bill.
+ *   - a global daily cost cap is the actual guarantee about the bill,
+ *   - and, since two providers are configured for two different jobs, a
+ *     per-kind slice of that cap, because one shared number cannot protect two
+ *     balances that are not the same size. See `DEFAULT_KIND_BUDGETS`.
  */
+import type { UsageKind } from "./pricing";
 
 export interface QuotaLimits {
   /** Calls one user may make in `burstWindowSeconds`. */
@@ -21,8 +25,15 @@ export interface QuotaLimits {
   dailyCallsPerUser: number;
   /** Micro-dollars one user may spend in a UTC day. */
   dailyMicrosPerUser: number;
-  /** Micro-dollars every user together may spend in a UTC day. */
+  /** Micro-dollars every user together may spend in a UTC day, on everything. */
   dailyMicrosGlobal: number;
+  /**
+   * Micro-dollars every user together may spend in a UTC day on *this kind* of
+   * call. Both this and `dailyMicrosGlobal` have to hold: the overall figure is
+   * the ceiling on the bill and this one is the ceiling on one provider's
+   * balance, and neither is a substitute for the other.
+   */
+  dailyMicrosGlobalForKind: number;
   /**
    * The tail of the global budget held back for people who have barely used
    * Anu today. 0.25 means the last quarter is reserved.
@@ -52,8 +63,62 @@ export const DEFAULT_LIMITS: QuotaLimits = {
   dailyCallsPerUser: 10,
   dailyMicrosPerUser: 500_000,        // $0.50
   dailyMicrosGlobal: 20_000_000,      // $20.00
+  // Overridden per kind by `DEFAULT_KIND_BUDGETS`; this is the value a kind
+  // with nothing to say about itself falls back to, which is the whole budget.
+  dailyMicrosGlobalForKind: 20_000_000,
   globalReserveFraction: 0.25,
   reserveCallsPerUser: 3,
+};
+
+/**
+ * A slice of the day's budget per kind of call, and why one number stopped
+ * being enough.
+ *
+ * ONE CAP CANNOT PROTECT TWO BALANCES. Until the provider split there was one
+ * chain, so every path spent out of the same account and a single global figure
+ * was the whole truth about the bill. There are two now and they are nothing
+ * like each other: scene composition runs on Groq at $0.29/$0.59 per MTok, and
+ * Anu runs on Anthropic at $2/$10 against a balance that is currently $5. One
+ * Anu answer costs what thirty-three composed scene turns cost.
+ *
+ * What that does to a single $20/day cap is make it irrelevant to the thing
+ * most worth protecting. Anu's whole $5 balance is about 347 answers, and 347
+ * answers is $5, which is a quarter of the way to a cap that therefore never
+ * fires: the balance runs out first, the provider answers 402, and the first
+ * anybody knows about it is a learner getting a refusal. A cap that is reached
+ * after the money has gone is not a cap, it is a receipt.
+ *
+ * THE ARITHMETIC THESE NUMBERS COME FROM, measured against the real prompts
+ * (`lib/tutor/prompt.ts` builds a 3,031-token system prompt; the scene route's
+ * word list is 714 to 955 tokens across the fourteen shipped scenes):
+ *
+ *   TUTOR   ~3,700 in at $2/MTok + ~700 out at $10/MTok  = $0.0144 an answer.
+ *           $0.50 a day is ~34 answers, so a $5 balance lasts at least ten days
+ *           of the cap being reached every single day, and the *cap* is what
+ *           stops Anu rather than the balance. That is the difference between a
+ *           learner reading "today's shared budget is used up, it resets at
+ *           midnight" and a learner reading nothing while a 402 is logged.
+ *   SCENE   ~1,400 in at $0.29/MTok + ~60 out at $0.59/MTok = $0.00044 a turn.
+ *           $2.00 a day is ~4,500 composed turns, which is around 900
+ *           conversations: more than this deployment will see, and bounded at
+ *           $60 a month if it ever does.
+ *
+ * The rest keep the whole budget, which is what they had: SCAN and GRADER are
+ * on the general chain and unchanged by the split, and TTS is free and rationed
+ * by its call count rather than by money.
+ *
+ * These are defaults. `AI_DAILY_USD_TUTOR` and `AI_DAILY_USD_SCENE` override
+ * them, and `AI_DAILY_USD_GLOBAL` still bounds the lot.
+ */
+export const DEFAULT_KIND_BUDGETS: Readonly<Partial<Record<UsageKind, number>>> = {
+  TUTOR: 500_000,     // $0.50
+  SCENE: 2_000_000,   // $2.00
+};
+
+/** The environment variable that overrides a kind's slice, where it has one. */
+const KIND_BUDGET_ENV: Readonly<Partial<Record<UsageKind, string>>> = {
+  TUTOR: "AI_DAILY_USD_TUTOR",
+  SCENE: "AI_DAILY_USD_SCENE",
 };
 
 function num(raw: string | undefined, fallback: number): number {
@@ -67,13 +132,26 @@ export interface QuotaEnv {
   AI_DAILY_CALLS_PER_USER?: string | undefined;
   AI_DAILY_USD_PER_USER?: string | undefined;
   AI_DAILY_USD_GLOBAL?: string | undefined;
+  AI_DAILY_USD_TUTOR?: string | undefined;
+  AI_DAILY_USD_SCENE?: string | undefined;
   AI_GLOBAL_RESERVE_FRACTION?: string | undefined;
   AI_RESERVE_CALLS_PER_USER?: string | undefined;
   [key: string]: string | undefined;
 }
 
-/** Limits are configurable, but every one of them has a value. There is no "off". */
-export function readLimits(env: QuotaEnv = process.env): QuotaLimits {
+/**
+ * Limits are configurable, but every one of them has a value. There is no "off".
+ *
+ * `kind` is optional for the readers that want the deployment's shape rather
+ * than a verdict about one call: `snapshotUsage` needs the burst window and
+ * nothing else, and `lib/funding` prices a hypothetical month. Without one, the
+ * per-kind slice is the whole budget, which is the honest answer to "what may
+ * be spent" when nobody has said on what.
+ */
+export function readLimits(env: QuotaEnv = process.env, kind?: UsageKind): QuotaLimits {
+  const dailyMicrosGlobal = Math.round(
+    num(env.AI_DAILY_USD_GLOBAL, DEFAULT_LIMITS.dailyMicrosGlobal / 1e6) * 1e6,
+  );
   return {
     burstCalls: num(env.AI_BURST_CALLS, DEFAULT_LIMITS.burstCalls),
     burstWindowSeconds: num(env.AI_BURST_WINDOW_SECONDS, DEFAULT_LIMITS.burstWindowSeconds),
@@ -81,8 +159,19 @@ export function readLimits(env: QuotaEnv = process.env): QuotaLimits {
     dailyMicrosPerUser: Math.round(
       num(env.AI_DAILY_USD_PER_USER, DEFAULT_LIMITS.dailyMicrosPerUser / 1e6) * 1e6,
     ),
-    dailyMicrosGlobal: Math.round(
-      num(env.AI_DAILY_USD_GLOBAL, DEFAULT_LIMITS.dailyMicrosGlobal / 1e6) * 1e6,
+    dailyMicrosGlobal,
+    /*
+      Clamped to the overall budget rather than trusted, for the reason the
+      reserve fraction below is clamped: a per-kind slice larger than the whole
+      is a configuration mistake that reads like a generous allowance, and the
+      failure it produces is the one this app cannot have, which is a cap that
+      is never the thing that binds. Setting `AI_DAILY_USD_SCENE="50"` under a
+      $20 global does not buy $50 of scenes; it buys $20, and says so here
+      rather than in a surprise.
+    */
+    dailyMicrosGlobalForKind: Math.min(
+      dailyMicrosGlobal,
+      kindBudgetMicros(kind, env, dailyMicrosGlobal),
     ),
     // Clamped rather than trusted: a fraction above 1 would reserve more than
     // the budget and refuse the first call of the day.
@@ -92,6 +181,26 @@ export function readLimits(env: QuotaEnv = process.env): QuotaLimits {
     ),
     reserveCallsPerUser: num(env.AI_RESERVE_CALLS_PER_USER, DEFAULT_LIMITS.reserveCallsPerUser),
   };
+}
+
+/**
+ * What one kind of call may spend across the whole deployment in a day.
+ *
+ * A kind with no slice of its own gets the whole budget, which is exactly what
+ * every kind had before the split: adding this must not quietly tighten SCAN or
+ * GRADER, whose providers did not change.
+ */
+function kindBudgetMicros(
+  kind: UsageKind | undefined,
+  env: QuotaEnv,
+  wholeBudget: number,
+): number {
+  if (!kind) return wholeBudget;
+  const fallback = DEFAULT_KIND_BUDGETS[kind];
+  if (fallback === undefined) return wholeBudget;
+  const variable = KIND_BUDGET_ENV[kind];
+  const raw = variable ? env[variable] : undefined;
+  return Math.round(num(raw, fallback / 1e6) * 1e6);
 }
 
 export interface UsageSnapshot {
@@ -112,8 +221,17 @@ export interface UsageSnapshot {
   dailyCallsAllKinds: number;
   /** Micro-dollars this user spent today (UTC). */
   dailyMicros: number;
-  /** Micro-dollars everyone spent today (UTC). */
+  /** Micro-dollars everyone spent today (UTC), on everything. */
   globalMicros: number;
+  /**
+   * Micro-dollars everyone spent today (UTC) on the kind being asked about.
+   *
+   * A separate number rather than a share of the one above, because that is the
+   * only version that can protect a provider's balance: the two purposes are
+   * two accounts now, and Anu's $5 is not made safer by scene composition
+   * having been cheap.
+   */
+  globalKindMicros: number;
 }
 
 export type QuotaDenial =
@@ -122,7 +240,9 @@ export type QuotaDenial =
   | "DAILY_SPEND"
   /** The shared budget is into its reserve, and this user has had their share. */
   | "GLOBAL_BUSY"
-  | "GLOBAL_SPEND";
+  | "GLOBAL_SPEND"
+  /** This kind of call has spent its own slice of the day, whatever is left overall. */
+  | "KIND_SPEND";
 
 export interface QuotaDecision {
   allowed: boolean;
@@ -192,6 +312,39 @@ export function checkQuota(
       message:
         "You have used today's share of the budget for the parts that ask a " +
         "model. It resets at midnight UTC.",
+      retryAfterSeconds: secondsUntilUtcMidnight(now),
+    };
+  }
+
+  /*
+    THIS KIND'S OWN SLICE, CHECKED BEFORE THE SHARED ONE.
+
+    Before the overall cap because it is the tighter and the more specific of
+    the two, so it is the one that will actually fire, and a learner is owed the
+    reason that is true rather than the one that is merely also true. Before the
+    reserve for the same reason: the reserve is about who gets the tail of a
+    budget that still has some left, and this kind's tail has already gone.
+
+    THE FAILURE THIS BUYS IS AN INDEPENDENT ONE, which is the whole point. Anu
+    reaching her slice stops Anu and leaves scene composition running on Groq,
+    and a run of scenes exhausting theirs leaves Anu answering on Anthropic.
+    Neither provider running dry takes the other's feature down with it, and
+    neither can reach across and spend the other's balance, because since the
+    purpose split there is no chain from one to the other.
+
+    The message says which part of the app rather than naming a provider or a
+    model: what a learner can act on is that this one thing is rested until
+    midnight and everything else still works, and a sentence about somebody's
+    Anthropic balance is a fact about the operator.
+  */
+  if (usage.globalKindMicros >= limits.dailyMicrosGlobalForKind) {
+    return {
+      allowed: false,
+      reason: "KIND_SPEND",
+      message:
+        "This part of the app has used today's shared budget for asking a model. " +
+        "The rest of it, and everything that never asks one, keeps working. It " +
+        "resets at midnight UTC.",
       retryAfterSeconds: secondsUntilUtcMidnight(now),
     };
   }

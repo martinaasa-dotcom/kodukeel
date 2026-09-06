@@ -11217,6 +11217,74 @@ check("a class cannot read a conversation", () => {
 });
 
 /**
+ * A ROUTED PURPOSE ASKS FOR ITS OWN CHAIN, AND NOTHING FAILS IF IT STOPS.
+ *
+ * Two paid keys are configured for two different reasons: Anu asks Anthropic
+ * because Sonnet was the best of everything tested on real Estonian, and scene
+ * composition asks Groq because `qwen/qwen3.8-27b` answered 24 of 24 with a
+ * finite verb every time at a quarter-second median, for a fortieth of the
+ * price, on a path that makes calls by the dozen.
+ *
+ * `resolveProviders()` with no argument is still the whole chain, deliberately,
+ * because twenty-odd callers mean "is a model configured at all" by it and none
+ * of them is choosing where to send anything. That is also what makes this
+ * regression invisible: a route that dropped its `purpose` still compiles,
+ * still answers, and still names the model that wrote it in a header nobody
+ * watches. What it stops doing is the split. Anu's question gets answered by a
+ * model ranked on fourteen-word constrained sentences, or every scene line in
+ * every conversation gets billed at Sonnet's rate against a $5 balance, and
+ * a Groq outage starts taking Anu down with it.
+ *
+ * Anchored on the call rather than on the import, for the reason five other
+ * checks in this file are: a file can import the right function and go on
+ * calling it the general way, which is exactly the shape of the fault.
+ *
+ * The screens are in it beside the routes. A screen that reads the general
+ * chain to decide whether to draw Anu's text box promises what `/api/tutor` is
+ * going to refuse, which is a failure misnaming its own cause.
+ */
+check("each routed purpose asks for its own chain", () => {
+  const routed: Readonly<Record<string, "tutor" | "scene">> = {
+    // The two routes that send something to a model.
+    "app/api/tutor/route.ts": "tutor",
+    "app/api/scene/route.ts": "scene",
+    // And the three reads that decide whether a screen offers the feature at all.
+    "app/(app)/layout.tsx": "tutor",
+    "app/(app)/tutor/page.tsx": "tutor",
+    "app/actions.ts": "scene",
+  };
+
+  for (const [file, purpose] of Object.entries(routed)) {
+    const src = code(join(...file.split("/")));
+    assert.match(
+      src,
+      /*
+        `String.raw`, because a template literal eats the backslashes on its way
+        to `RegExp` and the first version of this line built
+        /resolveProviders(s*{s*purpose:s*"tutor"/, which is an unterminated
+        group rather than a check. It threw instead of passing, which is the
+        lucky half; the same mistake inside a character class is a pattern that
+        quietly matches nothing.
+      */
+      new RegExp(String.raw`resolveProviders\(\s*\{\s*purpose:\s*"${purpose}"`),
+      `${file} is a ${purpose} path and never asks for the ${purpose} chain. ` +
+      "Its provider is a measured choice, not whichever key happens to be set.",
+    );
+    /*
+      And never the bare call beside it, which is the half a diff hides: adding
+      the purpose-scoped read and leaving the old line in place is two chains,
+      of which the general one is the one that gets used.
+    */
+    assert.doesNotMatch(
+      src,
+      /resolveProviders\(\s*\)/,
+      `${file} still reads the general chain somewhere. A routed path has one ` +
+      "chain, or the split is a comment.",
+    );
+  }
+});
+
+/**
  * A SCRIPT THAT MEASURES THE CHAIN MEASURES THE WHOLE CHAIN.
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain

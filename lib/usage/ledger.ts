@@ -182,8 +182,23 @@ export async function snapshotUsage(
     WHERE "ownerId" = ${ownerId} AND "day" = ${day}
   `;
 
-  const [global] = await client.$queryRaw<{ globalMicros: bigint | null }[]>`
-    SELECT coalesce(sum("costMicros"), 0) AS "globalMicros"
+  /*
+    Both deployment-wide figures in the one statement that was already reading
+    one of them. A `FILTER` on a scan Postgres is doing anyway is free, and the
+    alternative is a third round trip held under the advisory lock, which is the
+    cost this function's own comment above is written about.
+
+    The second number is what makes the per-kind budget possible: since the
+    provider split, TUTOR spends an Anthropic balance and SCENE spends a Groq
+    one, and a single total cannot say which of the two is nearly gone.
+  */
+  const [global] = await client.$queryRaw<{
+    globalMicros: bigint | null;
+    globalKindMicros: bigint | null;
+  }[]>`
+    SELECT
+      coalesce(sum("costMicros"), 0) AS "globalMicros",
+      coalesce(sum("costMicros") FILTER (WHERE "kind" = ${kind}), 0) AS "globalKindMicros"
     FROM "UsageEvent" WHERE "day" = ${day}
   `;
 
@@ -197,6 +212,7 @@ export async function snapshotUsage(
     dailyCallsAllKinds: Math.max(0, n(row?.allCalls) - n(row?.allReleased)),
     dailyMicros: n(row?.userMicros),
     globalMicros: n(global?.globalMicros),
+    globalKindMicros: n(global?.globalKindMicros),
   };
 }
 
@@ -244,7 +260,14 @@ export async function authoriseCall(
   now = new Date(),
 ): Promise<QuotaDecision & { reservation?: Reservation }> {
   try {
-    const limits = readLimits();
+    /*
+      Read *for this kind*, which is what resolves its slice of the day's
+      budget. `readLimits()` with no kind gives the whole budget, which is right
+      for `snapshotUsage` (it wants the burst window) and would be wrong here:
+      it is the difference between a per-purpose cap and a per-purpose cap that
+      is never reached.
+    */
+    const limits = readLimits(process.env, kind);
     const allowance = ALLOWANCE[kind];
     const scaled = {
       ...limits,

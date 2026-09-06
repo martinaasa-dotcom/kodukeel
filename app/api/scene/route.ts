@@ -361,7 +361,7 @@ export async function POST(request: Request) {
     other side answers with "ei tea", which is at least true.
   */
   if (asideWantsModel) {
-    const chain = resolveProviders();
+    const chain = resolveProviders({ purpose: "scene" });
     const decision = chain.length > 0 ? await authoriseCall(ownerId, "SCENE") : null;
     if (!decision?.allowed || !decision.reservation) {
       aside = shrug(context.lexicon);
@@ -403,7 +403,7 @@ export async function POST(request: Request) {
     `CALL` row in front of twelve settlements is eleven calls the allowance
     never saw.
   */
-  const chain = resolveProviders();
+  const chain = resolveProviders({ purpose: "scene" });
   const decision = chain.length > 0
     ? await authoriseCall(ownerId, "SCENE")
     : null;
