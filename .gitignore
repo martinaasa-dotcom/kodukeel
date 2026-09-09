@@ -16,6 +16,12 @@ tsconfig.tsbuildinfo
 .backups/
 prisma/data/.cache/
 
+# Cached source files for build-frequency.ts and build-emoji.ts. Regenerated
+# by running those scripts; the raw wordlist/emoji-test text has no reason to
+# travel with the repo or a deployment.
+.frequency-cache/
+.emoji-cache/
+
 # Cached Ekilex responses, so a re-harvest costs the service nothing
 .ekilex-cache/
 

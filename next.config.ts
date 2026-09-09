@@ -66,6 +66,52 @@ const config: NextConfig = {
     files either way.
   */
   outputFileTracingIncludes: { "/**": ["./prisma/data/forms/**"] },
+
+  /*
+    THIRTEEN ROUTES PROVABLY NEVER OPEN THE FORMS LIST, AND THE INCLUDE ABOVE
+    WAS COSTING EVERY ONE OF THEM 28 MB THEY NEVER READ.
+
+    The include above is a blanket `/**` because the comment beside it once
+    believed only two things read `lib/dict/forms.ts`: a page and a Server
+    Action. That stopped being true as soon as `app/actions.ts` grew into the
+    one shared Server Actions file most of the app imports, and it stopped
+    being true a second way that is easy to miss: `app/layout.tsx`, the root
+    layout every page in this app renders under, mounts `OfflineProvider`,
+    which references `replayGrades` from `app/actions.ts`. A Server Action
+    referenced from a client component still has to be resolvable on the
+    server that rendered it, so that reference alone was enough to pull the
+    forms-reading code into the bundled function for pages that never
+    mention a dictionary: `/privacy`, `/terms`, `/trust`, `/sign-in`, and
+    every other leaf page in the tree.
+
+    So this was not decided by reading imports. Every route was built once
+    and its real `.nft.json` trace (and the compiled chunk each one actually
+    loads) was inspected for the one function inside `lib/dict/forms.ts` that
+    touches the shard files on disk. Only Route Handlers that render no
+    layout at all, and that do not themselves import anything on the
+    `lib/dict/facts.ts` / `lib/progress/scene.ts` / `app/actions.ts` side of
+    the graph, came back clean: health and metrics, the audio and export and
+    scan endpoints, the auth callback, and the icon/manifest generators.
+    Nothing here was excluded on the strength of reading its source alone —
+    that is exactly the kind of judgement the original two-readers comment
+    got wrong, so this list is only ever grown by rebuilding and checking the
+    trace again, never by re-reading imports and reasoning about them.
+  */
+  outputFileTracingExcludes: {
+    "/api/health": ["./prisma/data/forms/**"],
+    "/api/metrics": ["./prisma/data/forms/**"],
+    "/api/tts": ["./prisma/data/forms/**"],
+    "/api/export": ["./prisma/data/forms/**"],
+    "/api/reminder": ["./prisma/data/forms/**"],
+    "/api/research": ["./prisma/data/forms/**"],
+    "/api/scan": ["./prisma/data/forms/**"],
+    "/api/write": ["./prisma/data/forms/**"],
+    "/api/exam/write": ["./prisma/data/forms/**"],
+    "/auth/callback": ["./prisma/data/forms/**"],
+    "/apple-icon": ["./prisma/data/forms/**"],
+    "/icon.svg": ["./prisma/data/forms/**"],
+    "/manifest.webmanifest": ["./prisma/data/forms/**"],
+  },
   serverExternalPackages: ["@prisma/client"],
   experimental: {
     /*
