@@ -15126,6 +15126,43 @@ check("a marked answer says so out loud", () => {
   assert.ok(marking >= 15, `only ${marking} marking screens found; the sweep has stopped seeing them`);
 });
 
+check("lint runs as part of the build, not only as part of CI", () => {
+  /*
+    NEXT 16 REMOVED THE KEY THAT USED TO CARRY THIS.
+
+    `next.config.ts` had `eslint: { ignoreDuringBuilds: false }` and an
+    argument beside it: the `lint` job in CI covers every push and every pull
+    request, until somebody runs `vercel --prod` by hand or forks this and
+    trims the workflow, and then a rule this repository treats as
+    non-negotiable is enforced by nothing at all.
+
+    The key is gone upstream, so the guarantee moved to `prebuild`, which npm
+    runs before `build` on its own. That is a line in a file anybody can
+    delete, and deleting it is the same decision as setting
+    `ignoreDuringBuilds: true` was, so it is asserted here rather than left to
+    whoever next reads the config. The old key had no such check, which is
+    why this is the version with one.
+  */
+  const pkg = JSON.parse(read("package.json")) as { scripts?: Record<string, string> };
+  const scripts = pkg.scripts ?? {};
+
+  assert.ok(scripts.prebuild, "package.json has no `prebuild` script, so a build no longer lints");
+  assert.match(
+    scripts.prebuild ?? "",
+    /\blint\b/,
+    "`prebuild` no longer runs lint, so `npm run build` and a deploy that calls it enforce nothing",
+  );
+  assert.match(scripts.lint ?? "", /\beslint\b/, "`lint` no longer runs eslint");
+
+  // And the config key really is gone rather than sitting there doing nothing:
+  // a reader who finds both would not know which one is load-bearing.
+  assert.doesNotMatch(
+    code("next.config.ts"),
+    /\beslint\s*:/,
+    "next.config.ts sets an `eslint` key again; Next 16 does not read one, so it is a second answer that cannot work",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

@@ -44,6 +44,40 @@ export type ProviderName = "openrouter" | "groq" | "gemini" | "openai" | "anthro
  */
 export const REPLY_TOKENS = 1200;
 
+/**
+ * THINKING OFF ON THE ANTHROPIC PATH, BECAUSE THE CEILING ABOVE IS SHARED.
+ *
+ * The comment above is about free models that spend their whole budget in a
+ * reasoning field and write nothing into `content`, which reads as an answer.
+ * Claude has that shape too, and nothing here was stopping it. Anthropic's own
+ * troubleshooting page lists Sonnet 5 as "Adaptive only, Default: On", so
+ * omitting this field is not the same as switching it off, and it says thinking
+ * tokens "count toward the `max_tokens` limit for the turn", with the failure
+ * spelled out: the response "stops with `stop_reason: max_tokens`, often with a
+ * truncated or missing text block".
+ *
+ * That is the same bug one provider over, and it lands where it hurts most.
+ * Anthropic is the *last resort* in `resolveProviders`, so it answers on the
+ * day every free link is throttled or out of quota, on `claude-sonnet-5` by
+ * default, into a ceiling sized when nothing in the chain thought. A learner
+ * meets it as Anu going quiet on the one evening nothing else could answer.
+ *
+ * Neither thing this app asks Anthropic for is reasoning-hard: an explanation
+ * of a point the prompt already contains, and one Estonian sentence built from
+ * a word list handed over in full. What thinking buys is nothing measurable and
+ * what it costs is real, since a thinking token bills at the output rate.
+ *
+ * Off rather than a bigger ceiling, which was the other way and is worse: the
+ * ceiling is shared with every other provider, so raising it to buy room for
+ * reasoning nobody wants would move the budget for models that are not doing it
+ * and change what a free link may spend. This touches the one path that thinks.
+ *
+ * A deployment that pins `ANTHROPIC_MODEL` to a model where thinking cannot be
+ * turned off gets a 400 with a clear message, which is the right way for that
+ * to fail: silent truncation is the thing being fixed.
+ */
+const ANTHROPIC_THINKING = { type: "disabled" } as const;
+
 export interface ProviderConfig {
   name: ProviderName;
   model: string;
@@ -992,6 +1026,7 @@ async function callAnthropic(config: ProviderConfig, system: string, messages: C
       model: config.model,
       stream: true,
       max_tokens: REPLY_TOKENS,
+      thinking: ANTHROPIC_THINKING,
       // No stream_options here: Anthropic reports usage natively on
       // message_start and message_delta, and rejects the OpenAI-shaped field.
       // The Estonian reference is identical every turn, so cache it rather than
@@ -1308,6 +1343,7 @@ async function readImageOpenAiCompatible(
     body: JSON.stringify({
       model: config.model,
       max_tokens: IMAGE_REPLY_TOKENS,
+      thinking: ANTHROPIC_THINKING,
       messages: [
         { role: "system", content: system },
         {

@@ -272,7 +272,7 @@ and the Ekilex identifiers stripped.
 
 Size is bounded twice, and both limits are set to the same number on purpose because two limits on
 one upload that disagree is how the last fault happened. `serverActions.bodySizeLimit` and
-`middlewareClientMaxBodySize` in `next.config.ts` are both 16 MB; `/api/restore` declares its own
+`proxyClientMaxBodySize` in `next.config.ts` are both 16 MB; `/api/restore` declares its own
 128 MB ceiling and checks `content-length` before reading. `inspectBackup`, which parses the same
 whole file and writes nothing, is throttled too, because it never looked expensive and is a public
 endpoint like every other `"use server"` export.

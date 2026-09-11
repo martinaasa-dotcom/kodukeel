@@ -20,7 +20,7 @@ export const dynamic = "force-dynamic";
  * that grows without the learner doing anything, so a personal backup got
  * bigger every time somebody else's word was added: 15.9 MB in August and 16.5
  * MB after one correction pass, which crossed `bodySizeLimit` and
- * `middlewareClientMaxBodySize` in `next.config.ts` and left the restore
+ * `proxyClientMaxBodySize` in `next.config.ts` and left the restore
  * refusing a learner's own file. Both limits are 16 MB and both were within a
  * few hundred kilobytes of a file nobody had looked at.
  *

@@ -2678,19 +2678,19 @@ export async function deleteMyAccount(confirmation: string) {
 const BackupSchema = z.object({
   // Accepts the pre-rename id too: a backup written yesterday must still restore.
   format: z.union([z.literal("kodukeel-v1"), z.literal("sonasepp-v1")]),
-  lexemes: z.array(z.record(z.unknown())),
-  cards: z.array(z.record(z.unknown())),
-  reviews: z.array(z.record(z.unknown())),
-  tasks: z.array(z.record(z.unknown())),
+  lexemes: z.array(z.record(z.string(), z.unknown())),
+  cards: z.array(z.record(z.string(), z.unknown())),
+  reviews: z.array(z.record(z.string(), z.unknown())),
+  tasks: z.array(z.record(z.string(), z.unknown())),
   /*
     Optional, because a backup written before scanned pages existed has no such
     key and must still restore. A missing key is an empty list, never a refusal:
     the whole point of the restore path is that a file you saved months ago
     still works.
   */
-  scans: z.array(z.record(z.unknown())).optional(),
+  scans: z.array(z.record(z.string(), z.unknown())).optional(),
   /** The learner's own calendar. Optional for the reason `scans` is. */
-  studyEvents: z.array(z.record(z.unknown())).optional(),
+  studyEvents: z.array(z.record(z.string(), z.unknown())).optional(),
   /*
     Optional for the same reason `scans` is: a file written before the export
     carried them has no such key and must still restore. Every one of these is
@@ -2698,11 +2698,11 @@ const BackupSchema = z.object({
     ignored them would hand somebody a complete copy of their data and then
     refuse to put most of it back.
   */
-  settings: z.array(z.record(z.unknown())).optional(),
-  messages: z.array(z.record(z.unknown())).optional(),
-  assessments: z.array(z.record(z.unknown())).optional(),
-  stars: z.array(z.record(z.unknown())).optional(),
-  achievements: z.array(z.record(z.unknown())).optional(),
+  settings: z.array(z.record(z.string(), z.unknown())).optional(),
+  messages: z.array(z.record(z.string(), z.unknown())).optional(),
+  assessments: z.array(z.record(z.string(), z.unknown())).optional(),
+  stars: z.array(z.record(z.string(), z.unknown())).optional(),
+  achievements: z.array(z.record(z.string(), z.unknown())).optional(),
   /*
     A sat mock paper, which is the one row in a backup holding something the
     learner wrote at length. Restoring it matters more than any other optional
@@ -2715,16 +2715,16 @@ const BackupSchema = z.object({
     roster gone is a room with no one in it. The copy is for the learner to
     read; rejoining is one code away.
   */
-  examAttempts: z.array(z.record(z.unknown())).optional(),
-  sceneRuns: z.array(z.record(z.unknown())).optional(),
-  sceneGaps: z.array(z.record(z.unknown())).optional(),
-  encounters: z.array(z.record(z.unknown())).optional(),
+  examAttempts: z.array(z.record(z.string(), z.unknown())).optional(),
+  sceneRuns: z.array(z.record(z.string(), z.unknown())).optional(),
+  sceneGaps: z.array(z.record(z.string(), z.unknown())).optional(),
+  encounters: z.array(z.record(z.string(), z.unknown())).optional(),
   /**
    * A learner's own named shelves. Optional for the reason `scans` is: a file
    * written before this existed has no such key and must still restore.
    */
-  decks: z.array(z.record(z.unknown())).optional(),
-  deckWords: z.array(z.record(z.unknown())).optional(),
+  decks: z.array(z.record(z.string(), z.unknown())).optional(),
+  deckWords: z.array(z.record(z.string(), z.unknown())).optional(),
 });
 
 export interface RestoreSummary {
