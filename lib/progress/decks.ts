@@ -95,6 +95,29 @@ export async function decksForWord(ownerId: string, lexemeId: string): Promise<s
   return rows.map((r) => r.deckId);
 }
 
+export interface DeckWordRow {
+  lexemeId: string;
+  lemma: string;
+  translation: string;
+}
+
+/** Every word on one shelf, for a learner to look at and thin out. */
+export async function wordsInDeck(ownerId: string, deckId: string): Promise<DeckWordRow[]> {
+  const rows = await prisma.deckWord.findMany({
+    where: { ownerId, deckId },
+    orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    select: { lexeme: { select: { id: true, lemma: true, translation: true } } },
+  });
+  return rows
+    .filter((r) => r.lexeme !== null)
+    .map((r) => ({ lexemeId: r.lexeme!.id, lemma: r.lexeme!.lemma, translation: r.lexeme!.translation }));
+}
+
+/** Takes one word off one shelf. The word, its cards and its history are untouched. */
+export async function removeWordFromDeck(ownerId: string, deckId: string, lexemeId: string): Promise<void> {
+  await prisma.deckWord.deleteMany({ where: { ownerId, deckId, lexemeId } });
+}
+
 /**
  * Files a word under the given decks, and only those: a second visit to the
  * picker with fewer boxes ticked removes the ones that were unticked, which

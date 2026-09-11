@@ -1,6 +1,8 @@
 // Lean MVP schema. Deliberately smaller than docs/04-data-model.md:
-// decks and audio rows are cut. The calendar is `StudyEvent` below, added when
-// a learner asked to keep their class times beside their homework.
+// audio rows are cut. The calendar is `StudyEvent` below, added when a learner
+// asked to keep their class times beside their homework. `Deck` and `DeckWord`
+// came back later, in a different shape from the one cut here: a label a
+// learner can put on some of their words, not a second review pool.
 // Kept Postgres-portable (no SQLite-specific types), which is what made this
 // datasource swap possible — see docs/03-architecture.md ADR-002 and ADR-011.
 

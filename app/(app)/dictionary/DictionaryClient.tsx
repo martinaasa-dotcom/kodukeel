@@ -5,7 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
-import { addToDeck, listMyDecks } from "@/app/actions";
+import { addToDeck, listMyDecks, myDeckMembership } from "@/app/actions";
 import type { DeckSummary } from "@/lib/progress/decks";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -897,17 +897,36 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     asking anyway would be a popup nobody needed. Fetched on open rather than
     carried on every dictionary entry, since most searches never reach this
     panel at all.
+
+    THE CHECKBOXES START WHERE THE WORD ALREADY IS, NOT EMPTY. This is a
+    replace, the same as the card-type list beside it: whatever is ticked
+    when "Add" is pressed is the whole of what the word is filed under
+    afterwards. Starting from an empty list would read as "add to these on
+    top of what is already there" and quietly take the word off every shelf
+    it already sat on the moment somebody ticked one box on a second visit.
   */
   const [decks, setDecks] = useState<DeckSummary[] | null>(null);
   const [deckIds, setDeckIds] = useState<string[]>([]);
   useEffect(() => {
     if (!open || decks !== null) return;
-    listMyDecks().then(setDecks).catch(() => setDecks([]));
-  }, [open, decks]);
+    Promise.all([listMyDecks(), myDeckMembership(entry.id)])
+      .then(([available, current]) => { setDecks(available); setDeckIds(current); })
+      .catch(() => setDecks([]));
+  }, [open, decks, entry.id]);
 
   const submit = () => {
     start(async () => {
-      const result = await addToDeck(entry.id, selected, undefined, deckIds);
+      /*
+        `deckIds` is sent only where the panel actually offered a choice
+        (two or more decks): with fewer, the argument is left out entirely
+        rather than sent as `[]`, because those two mean different things to
+        `addToDeck` — an omitted argument leaves every shelf exactly as it
+        is, an empty list is "take it off all of them" — and a learner who
+        never saw a deck section never asked for either.
+      */
+      const result = await addToDeck(
+        entry.id, selected, undefined, decks && decks.length > 1 ? deckIds : undefined,
+      );
       if (result.ok) { setAdded(true); setOpen(false); }
     });
   };

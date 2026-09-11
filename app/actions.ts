@@ -36,7 +36,8 @@ import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import { resolveStreakFor } from "@/lib/progress/summary";
 import {
-  createDeck, deleteDeck, listDecks, renameDeck, setDecksForWord,
+  createDeck, decksForWord, deleteDeck, listDecks, removeWordFromDeck, renameDeck,
+  setDecksForWord, wordsInDeck,
 } from "@/lib/progress/decks";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
@@ -135,12 +136,18 @@ export async function addToDeck(
     CARD_SOURCES.has(source) ? source : DEFAULT_SOURCE,
   );
   /*
-    Filed under a shelf only where the caller actually offered one. A screen
-    with nothing to choose between (zero or one deck) never sends this, and a
-    word going into a deck-less learner's collection stays exactly what it
-    was before this feature existed: unfiled, and still fully theirs.
+    Filed under a shelf only where the caller actually offered one to choose,
+    and `deckIds` says which by being present at all rather than by being
+    non-empty. A screen with nothing to choose between (zero or one deck)
+    never sends the argument, and a word going into a deck-less learner's
+    collection stays exactly what it was before this feature existed:
+    unfiled, and still fully theirs. A screen that *did* offer a choice and
+    got back an empty list is a different fact — every box was unticked —
+    and `setDecksForWord` already means that as "take it off every shelf",
+    which has to reach the database rather than being read as "nothing to
+    do" the way the length-0 case above is.
   */
-  if (result.ok && Array.isArray(deckIds) && deckIds.length > 0) {
+  if (result.ok && Array.isArray(deckIds)) {
     await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
   }
   return result;
@@ -149,6 +156,22 @@ export async function addToDeck(
 /** Every deck this learner has named, for the picker and the management page. */
 export async function listMyDecks() {
   return listDecks(await requireUserId());
+}
+
+/** Which of the learner's own decks a word is already filed under, for the picker. */
+export async function myDeckMembership(lexemeId: string) {
+  return decksForWord(await requireUserId(), String(lexemeId ?? ""));
+}
+
+/** Every word on one shelf, for the deck management page. */
+export async function listMyDeckWords(deckId: string) {
+  return wordsInDeck(await requireUserId(), String(deckId ?? ""));
+}
+
+/** Takes one word off one shelf. The word, its cards and its history stay. */
+export async function removeMyDeckWord(deckId: string, lexemeId: string) {
+  await removeWordFromDeck(await requireUserId(), String(deckId ?? ""), String(lexemeId ?? ""));
+  return { ok: true as const };
 }
 
 export async function createMyDeck(name: string) {

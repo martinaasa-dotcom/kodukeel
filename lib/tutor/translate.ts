@@ -19,6 +19,30 @@ export type TranslationOutcome =
   | { ok: false; reason: "quota"; message: string; retryAfterSeconds?: number };
 
 /**
+ * Whether an answer to "translate this into English" is the Estonian it was
+ * given, unchanged.
+ *
+ * A model asked to translate a short, plain sentence sometimes answers with
+ * the sentence it was given: a weaker free model reads "Translate this" and
+ * "this" as the whole of the instruction and echoes it back. That is not
+ * English, so it must not be stored and shown as one — a learner who cannot
+ * read Estonian would see a badge promising an English translation sitting
+ * over the very Estonian sentence above it, which teaches nothing and reads
+ * as the app being broken.
+ *
+ * Folded case-insensitively, with runs of whitespace collapsed and a
+ * trailing full stop, question mark or exclamation mark ignored, because the
+ * failure mode is an exact or near-exact echo, not a legitimate translation
+ * that happens to share a few words. Pure and exported so the one thing this
+ * check has to get right — that it fires on the echo and not on a real
+ * translation that is simply short — is testable without a provider.
+ */
+export function looksLikeEcho(answer: string, source: string): boolean {
+  const fold = (s: string) => s.trim().replace(/\s+/g, " ").toLocaleLowerCase("et").replace(/[.!?]+$/, "");
+  return fold(answer) === fold(source);
+}
+
+/**
  * One short answer from whichever provider will give one.
  *
  * These two callers want a handful of words, not a conversation, so they get
@@ -165,20 +189,7 @@ export async function translateSentenceWithAnu(
     if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 240) {
       return { ok: false, reason: "unavailable" };
     }
-    /*
-      A model asked to translate a short, plain sentence sometimes answers
-      with the sentence it was given, unchanged: a weaker free model reads
-      "Translate this" and "this" as the whole of the instruction and echoes
-      it back. That is not English, so it must not be stored and shown as one:
-      a learner who cannot read Estonian would see a badge promising an
-      English translation sitting over the very Estonian sentence above it,
-      which teaches nothing and reads as the app being broken. Folded
-      case-insensitively and with the closing period ignored, since the
-      failure mode is an exact or near-exact echo, not a legitimate
-      translation that happens to share a few words.
-    */
-    if (cleaned.trim().toLocaleLowerCase("et").replace(/[.!?]+$/, "")
-        === sentence.trim().toLocaleLowerCase("et").replace(/[.!?]+$/, "")) {
+    if (looksLikeEcho(cleaned, sentence)) {
       return { ok: false, reason: "unavailable" };
     }
     return { ok: true, text: cleaned };
