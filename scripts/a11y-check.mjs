@@ -348,6 +348,28 @@ const { check, absent, done } = suite("Accessibility", { floor: 578 });
 async function open(page, route, settle) {
   await page.goto(`${BASE}${route}`, { waitUntil: "load" });
   await page.waitForSelector("main", { state: "attached", timeout: 5000 }).catch(() => {});
+  /*
+    AND FOR THE CONTENT, NOT ONLY THE BOX IT ARRIVES IN.
+
+    `main` attached is the streamed shell, which arrives before what is inside
+    it, and every check below reads what is inside it: `main h1`, the
+    interactive elements under `main`, and axe over the whole document. So the
+    wait was for one thing and the assertions were about another, which is the
+    rule this repository already corrected `networkidle` under: a suite waits
+    for what it is about to assert.
+
+    It cost a red CI run on `/dictionary/common`, which is the heaviest page
+    here (four lists of a hundred words) and failed in the dark pass alone,
+    where `settle` is the shortest of the three at 200ms. axe reported
+    `page-has-heading-one` against `html`, which is what an empty `main` looks
+    like from the outside, and the same route passed in the light pass on the
+    same commit and passes locally in both themes.
+
+    Best-effort, like the wait above it: a page that genuinely has no `h1`
+    runs the budget out and reaches the check, which then says so in its own
+    words. Throwing here would report a missing heading as a timeout.
+  */
+  await page.waitForSelector("main h1", { state: "attached", timeout: 5000 }).catch(() => {});
   await page.waitForTimeout(settle);
 }
 
