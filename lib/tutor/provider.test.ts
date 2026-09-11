@@ -830,3 +830,33 @@ describe("the chain that looks at pictures", () => {
     await expect(completeWithImage([], "s", "p", IMAGE)).rejects.toThrow(/No AI provider/);
   });
 });
+
+/*
+  THE ONE PROVIDER IN THE CHAIN THAT THINKS BEFORE IT ANSWERS.
+
+  `REPLY_TOKENS` is sized for a reply, and Anthropic's own troubleshooting page
+  says thinking tokens count toward `max_tokens` and that a turn which runs out
+  in the reasoning field comes back with "a truncated or missing text block".
+  Sonnet 5 is listed there as "Adaptive only, Default: On", so leaving the field
+  out is not the same as switching it off, and the default model on this path is
+  `claude-sonnet-5`.
+
+  Asserted on the outgoing request rather than on the arguments, for the reason
+  the routing test above gives about itself: the fault is invisible in what the
+  caller passed and only the body says what was actually asked for. Both call
+  sites, because the scanner builds its own request and a fix on one of them is
+  the bug still shipping on the other.
+*/
+describe("Anthropic is asked not to think", () => {
+  it("sends thinking disabled on the chat path", async () => {
+    only("anthropic");
+    let body = "";
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      body = String(init.body);
+      return sse("tere");
+    });
+    const chain = resolveProviders();
+    await openWithFallback([chain[0]!], "system", [{ role: "user", content: "hi" }]);
+    expect(JSON.parse(body).thinking).toEqual({ type: "disabled" });
+  });
+});
