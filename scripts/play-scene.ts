@@ -255,7 +255,7 @@ async function play(sceneId: string) {
       `knowing` reads the forms list off disk and touches no database.
     */
     const marking = await knowing(context, turns.map((t) => t.said));
-    const { state, response } = replay(marking, draw, turns);
+    const { state, response, elsewhere } = replay(marking, draw, turns);
     const beat = currentBeat(scene, state);
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
@@ -357,7 +357,7 @@ async function play(sceneId: string) {
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
             // And what happened to the turn, which is the route's own wording.
-            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null),
+            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0),
             avoid,
           }, {
             scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,

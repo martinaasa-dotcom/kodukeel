@@ -5295,6 +5295,30 @@ sentence that check's own comment names as the reason the question words exist, 
 deployment and passed in every measurement of it. When a check is drawn against data handed in, the
 app is the caller that has to hand it in.
 
+**Answering late is answering, and the walk that credits a beat ran one way.** A
+turn is read against beats other than the one it was aimed at, and that walk started
+at `state.beat + 1`: a beat that ran out of patience sits *behind* the pointer, is
+deliberately not `done`, and was never read again. Asked which floor, refused twice,
+a learner watched the neighbor give up and ask where they were from, typed the answer
+and got `Vabandust!` It was the right answer to the question before and the app had
+stopped listening for it. The walk covers the whole scene now, under the forward
+walk's own three guards, and the pointer still does not move, so a beat the learner
+never met is still one the debrief can say they never met. **And the reply is told**:
+`replay` returns `elsewhere`, so the repair word is not said at somebody who has just
+answered something, and `composeNote` tells the model to take the late answer, say it
+has it, and ask again for what it asked last.
+
+**An objective is an instruction, and ninety-one of them were fragments.** `Say since
+when.` on three scenes, `Pay.`, `Say what time.`, `Hold your ground, politely.` A goal
+is the only thing telling somebody what they are trying to accomplish, and a fragment
+gives the shape of an answer without saying what it is about; it was reported as
+dumbed down and vague and it is. Every one is a whole instruction with the situation
+in it now, under the rules it already had: no Estonian, a goal that names its one
+candidate word where a beat has one, and none of them sending anybody off to read
+their card. That last check fired on `agree to the card`, which is how anybody pays at
+a window, so it was widened to the shapes that send somebody away rather than to the
+bare word.
+
 **A turn that missed the point is the turn a person is most needed for, and it was
 the one turn the model never saw.** `wantsFreshLine` returned false on an
 `offtarget` reading, so the route booked no call and the screen printed the repair
@@ -6713,7 +6737,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`, `MAX_COMPOSED_WORDS`,
 `DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
 `VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
-`numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`.
+`numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
+`elsewhere`, `landed`, `creditAhead`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

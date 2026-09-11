@@ -57,7 +57,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 49,
+  floor: 51,
 });
 
 /*
@@ -216,7 +216,18 @@ check("and what is wrong with you, in English", /What is wrong/i.test(card)
   `catalogue.test.ts` reads which props those are off the beats.
 */
 check("and not the time the desk is about to offer", !/The time you were given/.test(card));
-check("and every objective, once it has been opened", card.includes("Say hello back."));
+/*
+  AND EVERY OBJECTIVE, ONCE IT HAS BEEN OPENED, which is asked of the pairing
+  rather than of today's copy. This named the first beat's goal as a literal
+  and failed the day the goals were rewritten, which is this suite asserting
+  the markup rather than the rule: what it is actually claiming is that the
+  list holds the objective the learner is standing on, and the panel under the
+  conversation is where that string comes from.
+*/
+const inPlay = ((await page.locator("main").innerText()).split(/YOUR TURN\s*\n[^\n]*\n/)[1] ?? "")
+  .split("\n").map((line) => line.trim()).find(Boolean) ?? "";
+check("the panel names the objective in play", inPlay.length > 0, inPlay);
+check("and every objective, once it has been opened", card.includes(inPlay), inPlay);
 /*
   AND THE OBJECTIVE CARRIES WHAT THE CARD DEALT FOR IT, WHICH IS WHY NO GOAL
   POINTS AT THE CARD ANY MORE.
@@ -232,16 +243,37 @@ check("and every objective, once it has been opened", card.includes("Say hello b
 */
 const dealtDay = /on this day\.?\s*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
 check("the card dealt a day worth naming", Boolean(dealtDay), card.slice(0, 200));
+/*
+  The value sits under the objective that wants it, wherever in the list that
+  objective is. Read off the checklist rather than off a goal named here, for
+  the reason above: the scene's copy is the scene's, and what this suite is
+  entitled to claim is that the day the card dealt is printed among the
+  objectives rather than only inside the card's own prose.
+*/
 check("and the objective that wants it names it, rather than pointing at the card",
-  Boolean(dealtDay) && new RegExp(`Say since when\\.\\s*${dealtDay}`).test(card),
-  card.slice(card.indexOf("Say since when"), card.indexOf("Say since when") + 60));
+  Boolean(dealtDay) && new RegExp(`\\n\\s*${dealtDay}\\s*(\\n|$)`).test(
+    card.slice(card.search(/what to get done/i)),
+  ),
+  card.slice(card.search(/what to get done/i), card.search(/what to get done/i) + 260));
 /*
   The objective list alone, not the whole card: the scene's `role` opens by
   saying what the card holds ("Your card says what is wrong and since when"),
   which is the sentence that introduces it and is the one place the phrase
   belongs. What may not say it is a line telling somebody to go and read it.
 */
-const checklist = card.slice(card.indexOf("What to get done"));
+/*
+  AND THE HEADING IS UPPERCASED BY THE STYLESHEET, WHICH `innerText` RESPECTS.
+
+  This read `indexOf("What to get done")`, which is -1 against the rendered
+  `WHAT TO GET DONE`, so `slice(-1)` handed every check below a single
+  character: "no objective sends the learner off to read it" has been passing
+  over one letter for as long as it has existed, which is a check over an
+  empty list and a pass nobody earned. Found by a check beside it failing for
+  a real reason.
+*/
+const listAt = card.search(/what to get done/i);
+check("the card lists what there is to get done", listAt >= 0, card.slice(0, 120));
+const checklist = card.slice(listAt);
 check("so no objective sends the learner off to read it", !/your card/i.test(checklist),
   checklist.slice(0, 160));
 await page.locator("details > summary").click();
@@ -251,7 +283,7 @@ await page.locator("details > summary").click();
   on, so the list is a reference rather than something to keep in view.
 */
 check("and the objective in play is named without it",
-  (await page.getByText("Say hello back.").count()) > 0);
+  (await page.getByText(inPlay, { exact: false }).count()) > 0, inPlay);
 
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
@@ -360,8 +392,15 @@ async function say(text) {
 
 // ── A turn that lands ───────────────────────────────────────────────────────
 const waited = await say("Tere!");
-check("a greeting is read as a greeting", (await page.getByText("Say hello back.").count()) > 0
-  && (await page.locator("main").innerText()).includes("done"), `${waited}ms`);
+/*
+  The greeting landed, which is the objective count moving off nought rather
+  than a goal string: this named the first beat's copy and so measured whether
+  the wording had changed rather than whether the turn was read.
+*/
+const afterGreeting = await page.locator("main").innerText();
+check("a greeting is read as a greeting",
+  /\b[1-9]\d* OF \d+/.test(afterGreeting) && afterGreeting.includes("done"),
+  `${waited}ms · ${/\b\d+ OF \d+/.exec(afterGreeting)?.[0] ?? "no count"}`);
 
 /*
   AND THE CARET IS BACK IN THE BOX, WHICH THE BUTTON TAKES AND THEN LEAVES.

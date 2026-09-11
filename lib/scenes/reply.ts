@@ -101,6 +101,18 @@ export interface ReplyInput {
    * for, so nothing here chose it. Null where the beat was met by something
    * that is not a word (a question, a no) or where nothing was met.
    */
+  /**
+   * Whether this turn met a beat away from the one it was read against, ahead
+   * of the pointer or behind it (`replay`'s `elsewhere`).
+   *
+   * THE REPAIR WORD MAY NOT BE SAID AT SOMEBODY WHO JUST ANSWERED SOMETHING.
+   * A beat the other side gave up on is credited where it stands now, so a
+   * learner who was refused twice on the floor and then typed `3` ticks that
+   * objective; the turn still misses the beat in front, so without this the
+   * same turn also got `Vabandust!` A person who has just been given the
+   * answer to what they asked a minute ago does not open with "sorry".
+   */
+  readonly landed?: boolean;
   readonly echo: string | null;
   /**
    * Whether `echo` is the learner's word put right rather than repeated: the
@@ -442,7 +454,20 @@ export function wantsFreshLine(
 export function composeNote(
   response: Response | null,
   reading: TurnReading | null,
+  /** Whether the turn answered something asked earlier (`replay`'s `elsewhere`). */
+  landed = false,
 ): string | undefined {
+  /*
+    They answered a question from further back. A person takes it, says so, and
+    then asks again for the thing they are actually waiting on, which is the
+    one instruction that turns the worst exchange in the transcripts into an
+    ordinary one.
+  */
+  if (landed) {
+    return "They have just answered something you asked earlier, after you had moved on."
+      + " Take it, say briefly that you have it, and then ask again for what you asked them"
+      + " last. Never tell them you did not understand: they answered you.";
+  }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
     return "What they just said is real Estonian and does not answer what you asked."
       + " Answer what they actually said first, in one short natural sentence, and then ask"
@@ -588,7 +613,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     down, for the same reason, and where nothing composed the line is the
     previous one said again and this word is what makes that read as a miss.
   */
-  if ((response === "narrow" || response === "repeat") && reading === "offtarget" && !ownReaction(line)) {
+  if ((response === "narrow" || response === "repeat") && reading === "offtarget"
+      && !input.landed && !ownReaction(line)) {
     out.push(reaction(REACTIONS.missed[0], "?"));
   }
 

@@ -1194,7 +1194,13 @@ export function replay(
   context: SceneContext,
   draw: StoredDraw | null,
   turns: readonly SentTurn[],
-): { state: SceneState; response: Response } {
+): { state: SceneState; response: Response; elsewhere: number } {
+  /*
+    How many beats this run's last turn answered away from the pointer, ahead
+    or behind. The reply reads it, because a turn that met something is never
+    answered with the repair word: see `replyFor`'s `landed`.
+  */
+  let elsewhere = 0;
   const data = draw
     ? dataFor(draw.card, context.lexicon)
     : new Map<string, ReadonlySet<string>>();
@@ -1210,6 +1216,8 @@ export function replay(
   let response: Response = "answer";
   let previous = "";
   for (const sent of turns.slice(0, MAX_TURNS)) {
+    // Per turn, not per run: the reply asks about the turn that has just been taken.
+    elsewhere = 0;
     const beat = currentBeat(context.scene, state);
     if (!beat) break;
     const said = String(sent.said ?? "").slice(0, MAX_TURN_CHARS);
@@ -1326,19 +1334,41 @@ export function replay(
       farewell is left alone, since saying goodbye mid-scene has a rule of its
       own that moves the pointer rather than crediting from a distance.
     */
+    /*
+      AND A BEAT THE OTHER SIDE HAD ALREADY GIVEN UP ON IS CREDITED TOO, WHICH
+      IS THE SAME RULE POINTED THE ONE WAY IT DID NOT REACH.
+
+      This walk started at `state.beat + 1`, so it could only ever see what was
+      still to come. A beat that ran out of patience sits *behind* the pointer
+      and is deliberately not `done`, and nothing read a turn against it again:
+      asked which floor they live on, a learner who was refused twice watched
+      the neighbor give up and ask where they were from, typed `3`, and was
+      told `Vabandust!` The digit was the right answer to the question before
+      and the app had stopped listening for it fifteen seconds earlier. They
+      reported the module as having no clue what they were saying.
+
+      An objective the learner did not meet is still one the debrief has to be
+      able to say they did not meet, and that is untouched: what changes is
+      that answering late is answering. The three guards are the forward
+      walk's own and are what stop this crediting a coincidence, and the
+      pointer still does not move, so the beat in front is still the beat in
+      front.
+    */
     if (!state.hurdle && !isOver(context.scene, state)) {
-      for (let at = state.beat + 1; at < context.scene.beats.length; at += 1) {
-        const ahead = context.scene.beats[at]!;
-        if (ahead.move === "close" || state.done.includes(ahead.id)) continue;
-        const also = readTurn(said, ahead, marker);
+      for (let at = 0; at < context.scene.beats.length; at += 1) {
+        if (at === state.beat) continue;
+        const other = context.scene.beats[at]!;
+        if (other.move === "close" || state.done.includes(other.id)) continue;
+        const also = readTurn(said, other, marker);
         if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
         for (const word of also.satisfiedBy) spent.add(word);
-        state = creditAhead(state, also, ahead, said, heard);
+        state = creditAhead(state, also, other, said, heard);
+        elsewhere += 1;
       }
     }
     previous = heard;
   }
-  return { state, response };
+  return { state, response, elsewhere };
 }
 
 /** The hurdle stood down because the learner answered the beat past it. */

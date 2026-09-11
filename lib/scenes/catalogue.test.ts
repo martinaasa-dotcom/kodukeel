@@ -231,7 +231,16 @@ describe("the scene catalog", () => {
     const pointing: string[] = [];
     for (const scene of SCENES) {
       for (const beat of scene.beats) {
-        if (/card/i.test(beat.goal)) pointing.push(`${scene.id}/${beat.id}: "${beat.goal}"`);
+        /*
+          THE ROLE CARD, NOT EVERY CARD. Written as a bare word this fired on
+          `or just agree to the card`, which is how anybody pays at a ticket
+          window and is not a learner being sent off to read anything. A check
+          that fires on honest copy gets waived, so the rule is widened to the
+          shapes that actually send somebody away.
+        */
+        if (/your card|card says|on the card|off the card/i.test(beat.goal)) {
+          pointing.push(`${scene.id}/${beat.id}: "${beat.goal}"`);
+        }
       }
     }
     expect(pointing, "a goal sends the learner to their card instead of naming the value").toEqual([]);

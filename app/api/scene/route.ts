@@ -165,7 +165,7 @@ export async function POST(request: Request) {
     that file exists.
   */
   const marking = await knowing(context, turns.map((t) => t.said));
-  const { state, response } = replay(marking, draw, turns);
+  const { state, response, elsewhere } = replay(marking, draw, turns);
   const current = currentBeat(scene, state);
   /*
     A curveball in the way is what the other side says next and what the
@@ -284,6 +284,8 @@ export async function POST(request: Request) {
   */
   const reply = (line: SpokenLine | null) => replyFor({
     beat: speaking,
+    // A turn that answered a beat the other side had moved past is not a miss.
+    landed: elsewhere > 0,
     hurdle: standing
       ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said }
       : null,
@@ -752,7 +754,7 @@ export async function POST(request: Request) {
         wording, so the route and `npm run play:scenes` tell the model the same
         thing about the same turn.
       */
-      note: composeNote(turns.length > 0 ? response : null, progress.reading),
+      note: composeNote(turns.length > 0 ? response : null, progress.reading, elsewhere > 0),
       conversation,
       avoid,
     }),

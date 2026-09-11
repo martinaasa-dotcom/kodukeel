@@ -13294,11 +13294,37 @@ check("a beat answered out of order is credited, and never asked twice", () => {
   );
   const replay = code("lib/progress/scene.ts");
   assert.match(
-    replay, /state = creditAhead\(state, also, ahead, said, heard\)/,
-    "the replay stopped crediting a beat the turn answered further down the scene",
+    replay, /state = creditAhead\(state, also, \w+, said, heard\)/,
+    "the replay stopped crediting a beat the turn answered away from the pointer",
+  );
+  /*
+    AND THE WALK COVERS THE WHOLE SCENE RATHER THAN ONLY WHAT IS AHEAD.
+
+    It ran from `state.beat + 1`, so a beat the other side had given up on was
+    never read again: a learner refused twice on the floor, watching the
+    neighbor move on and ask where they were from, typed the answer and got
+    `Vabandust!` The digit was the right answer to the question before and the
+    app had stopped listening for it. Answering late is answering, and the
+    reply is told (`elsewhere`) so the repair word is not said at somebody who
+    just answered something.
+  */
+  assert.match(
+    replay, /for \(let at = 0; at < context\.scene\.beats\.length/,
+    "the out-of-order walk runs forward only again, so a beat the other side gave up on can never "
+    + "be answered late",
   );
   assert.match(
-    replay, /if \(ahead\.move === "close" \|\| state\.done\.includes\(ahead\.id\)\) continue;/,
+    replay, /elsewhere \+= 1;/,
+    "replay no longer counts the beats a turn answered away from the pointer, so replyFor cannot "
+    + "tell a miss from a late answer",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /landed: elsewhere > 0/,
+    "the scene route no longer tells replyFor that the turn landed elsewhere, so the repair word "
+    + "is said at a learner who has just answered an earlier question",
+  );
+  assert.match(
+    replay, /if \((\w+)\.move === "close" \|\| state\.done\.includes\(\1\.id\)\) continue;/,
     "the look-ahead credits the farewell from a distance, which has its own rule, or credits a "
     + "beat twice",
   );

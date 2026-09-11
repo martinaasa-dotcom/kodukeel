@@ -3636,3 +3636,61 @@ nothing into the review log: the lemma is on the card rather than in the beat an
 table and is not made in passing. And a composed line that opens with its own
 remark still keeps that remark when the question is put again, which §60 already
 records.
+
+## §62 Answering late is answering, and an objective is an instruction
+
+Two more things came off the same seven screenshots, and both are the shape §61
+described rather than anything new: a learner did the right thing and the app
+did not take it.
+
+**A beat the other side had given up on was never read again.** The out-of-order
+walk in `replay` ran from `state.beat + 1`, so it could only ever see what was
+still to come. A beat that runs out of patience sits *behind* the pointer and is
+deliberately not `done`, and nothing looked back at it. In the transcript: asked
+which floor, refused twice because a dealt number only counted as a digit, the
+learner watched the neighbor give up and ask where they were from, typed `3`,
+and read `Vabandust!` It was the right answer to the question before and the app
+had stopped listening for it fifteen seconds earlier.
+
+The walk covers the whole scene now. The three guards are the forward walk's own
+and are what stop it crediting a coincidence: the turn has to meet the beat
+outright, with a word this turn has not already spent, and a farewell is never
+credited from a distance. The pointer still does not move, so the beat in front
+is still the beat in front, and an objective the learner did not meet is still
+one the debrief can say they did not meet. What changes is that answering late
+is answering.
+
+**And the reply is told.** `replay` returns `elsewhere`, the count of beats this
+turn answered away from the pointer, because the same turn still misses the beat
+in front and without it the repair word was said at somebody who had just
+answered something. `composeNote` gets it too, and the instruction is the one
+that turns the worst exchange in the transcripts into an ordinary one: they have
+answered something you asked earlier, take it, say you have it, and then ask
+again for what you asked last.
+
+**An objective is an instruction, and ninety-one of them were fragments.** The
+learner said the questions the app asks were dumbed down to the point of being
+vague, and read back they are: `Say since when.` on three scenes, `Pay.`,
+`Say what time.`, `Say what hurts.`, `Hold your ground, politely.` A goal is the
+only thing on the screen telling somebody what they are trying to accomplish,
+and a fragment tells them the shape of an answer without telling them what the
+answer is about. Every one is a whole instruction with the situation in it now:
+`Tell them how long it has been going on.`, `Tell them you will take it, and
+pay.`, `Tell them which departure you want.`, `Tell them what is hurting you.`,
+`They said no. Say again what you want, politely.` The rules they are held to
+are unchanged: no Estonian, a goal that names its one candidate word where a
+beat has one, and none of them sends anybody off to read their card.
+
+**And the check that reads that last rule was firing on `agree to the card`**,
+which is how anybody pays at a ticket window. A check that fires on honest copy
+gets waived, so the rule is widened to the shapes that actually send somebody
+away (`your card`, `card says`, `on the card`) rather than to the bare word.
+
+**What the browser suite found while proving it.** `test-scene.mjs` named four
+goals as literals and failed on all four the moment the copy changed, which is
+this repository's own rule about asserting the markup rather than the rule,
+inside the suite that enforces it. They read the panel's own objective and the
+count of things done now. Fixing them turned up a fifth: `checklist` was
+`card.slice(card.indexOf("What to get done"))` against a heading the stylesheet
+uppercases, so `indexOf` was -1 and every check under it had been reading a
+single character for as long as it had existed.

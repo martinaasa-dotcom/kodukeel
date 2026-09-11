@@ -238,6 +238,48 @@ describe("a scene against the dictionary", () => {
     expect(scene.beats[state.beat]?.id).toBe("inside");
   });
 
+  /*
+    AND A BEAT THE OTHER SIDE GAVE UP ON IS CREDITED WHEN THE ANSWER ARRIVES.
+
+    The walk above ran forward only, so a beat that ran out of patience was
+    never read again. A learner told to say which floor they live on was
+    refused twice, watched the neighbor give up and ask where they were from,
+    typed the answer, and was told `Vabandust!`: the right answer to the
+    question before, refused because the app had stopped listening for it.
+    They reported the module as having no clue what they were saying.
+
+    Answering late is answering. The pointer does not move, so `from` is still
+    the beat in front of them.
+  */
+  it("credits a beat the other side had already given up on", async () => {
+    const scene = sceneById("trepikoda")!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: scene.id, level: "A1", difficulty: "textbook",
+      lines: "scripted",
+    });
+    const context = await sceneContext(scene.id);
+    const row = await prisma.sceneRun.findUnique({ where: { id: opened!.runId } });
+    const draw = readDraw(row!.transcript);
+    const floor = opened!.run.card.props.find((p) => p.slot === "floor")!;
+
+    /*
+      `floor` has patience 2, so two turns that answer nothing walk the pointer
+      past it and leave it unmet. The third turn is the floor, arriving late.
+    */
+    const { state, elsewhere } = replay(context!, draw, [
+      { beatId: "greet", said: "Tere!", helped: false, heard: "" },
+      { beatId: "new", said: "jah, ma just kolisin sisse", helped: false, heard: "" },
+      { beatId: "floor", said: "ilus ilm", helped: false, heard: "" },
+      { beatId: "floor", said: "ilus ilm", helped: false, heard: "" },
+      { beatId: "from", said: floor.value, helped: false, heard: "" },
+    ]);
+
+    expect(state.done, "the late answer was refused").toContain("floor");
+    expect(elsewhere, "the reply was not told the turn landed").toBeGreaterThan(0);
+    // And the pointer is still on what they were actually asked.
+    expect(scene.beats[state.beat]?.id).toBe("from");
+  });
+
   it("refuses to credit a beat the learner never met", async () => {
     const opened = await beginRun({
       ownerId: OWNER, sceneId: DOCTOR.id, level: "A2", difficulty: "textbook",

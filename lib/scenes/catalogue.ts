@@ -253,7 +253,7 @@ const DOCTOR: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to the receptionist.",
       they: "The receptionist looks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -264,7 +264,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "reason",
-      goal: "Say what is wrong with you.",
+      goal: "Tell them what is wrong: the pain, the illness, how you feel.",
       they: "They ask what brings you in.",
       move: "ask",
       topic: ["valu", "haigus", "tervis", "haige", "palavik"],
@@ -281,7 +281,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Say where it hurts.",
+      goal: "Tell them which part of you it is.",
       they: "They ask where it hurts.",
       move: "ask",
       topic: ["pea", "kõrv", "käsi", "jalg", "selg", "silm", "nina", "suu", "keha"],
@@ -292,7 +292,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when.",
+      goal: "Tell them how long it has been going on.",
       they: "They ask how long it has been going on.",
       move: "ask",
       topic: ["päev", "nädal", "hommik", "aeg", "esmaspäev", "teisipäev", "kolmapäev"],
@@ -303,7 +303,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "offer",
-      goal: "Take the time offered, or ask for another.",
+      goal: "Take the time they offered, or ask for a different one.",
       they: "They offer you an appointment at {time}.",
       move: "offer",
       topic: ["aeg", "kell", "tund", "päev"],
@@ -334,7 +334,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Check they have it right.",
+      goal: "Say the time back to them, so you both know it is right.",
       they: "They read the time back to check: {time}.",
       move: "confirm",
       topic: ["aeg", "kell", "päev"],
@@ -346,7 +346,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -445,7 +445,7 @@ const LANDLORD: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to the landlord.",
       they: "The landlord picks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -456,7 +456,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Say what has gone wrong.",
+      goal: "Tell them what has broken.",
       they: "They ask what has gone wrong.",
       move: "ask",
       topic: ["küte", "elekter", "remont", "lekkima", "mööbel"],
@@ -475,7 +475,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Say which room, and which floor.",
+      goal: "Tell them which room it is in, and which floor you are on.",
       they: "They ask which room it is in, and which floor.",
       move: "ask",
       /*
@@ -493,7 +493,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when.",
+      goal: "Tell them how long it has been like this.",
       they: "They ask since when.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
@@ -504,7 +504,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "refuse",
-      goal: "They cannot come this week. Ask when they can.",
+      goal: "Nobody can come this week. Ask them when somebody can.",
       they: "They say nobody can come this week.",
       answer: "They say somebody can come soon, and then offer a day and a time.",
       move: "refuse",
@@ -516,7 +516,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "agree",
-      goal: "Agree a time, or say it will not do.",
+      goal: "Say the day and time suit you, or say they will not do.",
       they: "They offer {day} next week at {time} and ask whether that works.",
       move: "offer",
       topic: ["aeg", "päev", "kell", "üürima"],
@@ -549,7 +549,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -616,7 +616,7 @@ const COUNTER: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to the clerk.",
       they: "The clerk at the desk says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -627,7 +627,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "purpose",
-      goal: "Say what you have come for.",
+      goal: "Tell them what you have come in to do.",
       they: "They ask what you have come for.",
       move: "ask",
       topic: ["avaldus", "dokument", "luba", "teenus", "amet"],
@@ -638,7 +638,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "document",
-      goal: "Give them the paper they ask for, or say you do not have it.",
+      goal: "Hand over the paper they asked for, or tell them you do not have it.",
       they: "They ask for the paper that goes with it.",
       move: "ask",
       topic: ["dokument", "allkiri", "arve", "konto", "number"],
@@ -649,7 +649,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "wait",
-      goal: "They send you to the queue. Ask how long.",
+      goal: "They have sent you to the queue. Ask how long the wait is.",
       they: "They point you to the queue.",
       answer: "They say roughly how long the queue takes.",
       move: "instruct",
@@ -661,7 +661,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "fill",
-      goal: "Give them the details in the order they ask for them.",
+      goal: "Give them each detail as they ask for it, in their order.",
       meanwhile: "Twenty minutes in the queue. Your number comes up and you are back at the desk.",
       they: "They tell you what to fill in, and in what order.",
       move: "instruct",
@@ -673,7 +673,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Check when it will be ready.",
+      goal: "Ask when it will be ready.",
       they: "They say the form has been taken and read the details back.",
       answer: "They say how long it will be before the form is ready.",
       move: "confirm",
@@ -685,7 +685,7 @@ const COUNTER: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -745,7 +745,7 @@ const SHOP: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to your friend.",
       they: "Your friend rings and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -756,7 +756,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "going",
-      goal: "Tell them you are going to the shop.",
+      goal: "Tell them you are on your way to the shop.",
       they: "Your friend asks where you are going.",
       move: "ask",
       topic: ["pood", "minema", "kuhu"],
@@ -768,7 +768,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "inside",
-      goal: "Tell them you are at the shop now.",
+      goal: "Tell them you have got there and are in the shop now.",
       meanwhile: "Five minutes later. You have walked to the shop and you are inside it.",
       they: "A little later they ring again and ask where you are.",
       move: "ask",
@@ -780,7 +780,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "item",
-      goal: "Tell them you want milk.",
+      goal: "Tell them what you came for: milk.",
       they: "They ask what you are buying.",
       move: "ask",
       topic: ["piim", "tahtma", "ostma", "mis"],
@@ -791,7 +791,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "back",
-      goal: "Tell them you are on your way back from the shop.",
+      goal: "Tell them you have left the shop and are heading home.",
       meanwhile: "You have paid, and you are walking home with the milk.",
       they: "They ring once more on your way home and ask where you are coming from.",
       move: "ask",
@@ -803,7 +803,7 @@ const SHOP: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say goodbye.",
+      goal: "Say goodbye before they hang up.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -865,7 +865,7 @@ const CAFE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back over the counter.",
       they: "The person behind the counter says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -876,7 +876,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like.",
+      goal: "Tell them what you would like to drink.",
       they: "They ask what you would like.",
       move: "ask",
       topic: ["kohv", "tee", "jook", "soovima", "tellima"],
@@ -887,7 +887,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "milk",
-      goal: "Say whether you want milk in it.",
+      goal: "Tell them whether you want milk in it.",
       they: "They ask whether you want milk in it.",
       move: "ask",
       topic: ["piim", "suhkur", "kohv"],
@@ -898,7 +898,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "bill",
-      goal: "Ask to pay.",
+      goal: "Tell them you would like to pay.",
       meanwhile: "A couple of minutes later. Your drink is on the counter in front of you.",
       they: "They set it down and ask whether that is everything.",
       move: "ask",
@@ -910,7 +910,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -953,7 +953,7 @@ const DIRECTIONS: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello, or excuse yourself.",
+      goal: "Say hello, or excuse yourself for stopping them.",
       they: "They stop, and say hello.",
       move: "greet",
       topic: [...HELLOS, "Vabandust!"],
@@ -964,7 +964,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Ask where the place is.",
+      goal: "Ask them where the place you are looking for is.",
       they: "They wait for your question.",
       answeredNext: true,
       move: "ask",
@@ -976,7 +976,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "way",
-      goal: "Say the directions back, or say thank you.",
+      goal: "Say the directions back to check you have them, or just thank them.",
       they: "They tell you the way: straight on, then left.",
       move: "instruct",
       topic: ["otse", "vasak", "vasakul", "paremal", "edasi", "kõrval"],
@@ -987,7 +987,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "far",
-      goal: "Ask whether it is near.",
+      goal: "Ask whether it is far, or near enough to walk.",
       they: "They wait in case you have another question.",
       answer: "They say it is close, a few minutes on foot.",
       move: "confirm",
@@ -1000,7 +1000,7 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They wish you luck and go on their way.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1038,7 +1038,7 @@ const TICKET: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back at the window.",
       they: "The person at the window says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1049,7 +1049,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "want",
-      goal: "Say you want a ticket.",
+      goal: "Tell them you would like a ticket.",
       they: "They ask what you need.",
       move: "ask",
       topic: ["pilet", "soovima", "ostma"],
@@ -1060,7 +1060,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "to",
-      goal: "Say where you are going.",
+      goal: "Tell them where you are travelling to.",
       they: "They ask where you are going.",
       move: "ask",
       topic: ["kuhu", "sõitma", "buss"],
@@ -1071,7 +1071,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Say what time.",
+      goal: "Tell them which departure you want.",
       they: "They ask what time.",
       move: "ask",
       topic: ["kell", "aeg", "buss"],
@@ -1082,7 +1082,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Say how you will pay, or just say yes.",
+      goal: "Tell them how you are paying, or just say yes.",
       they: "They ask whether you are paying by card.",
       move: "ask",
       topic: ["maksma", "kaart", "raha"],
@@ -1105,7 +1105,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They hand you the ticket and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1159,7 +1159,7 @@ const RESTAURANT: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say good evening.",
+      goal: "Say hello back to the waiter.",
       they: "The waiter comes over and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1170,7 +1170,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "how-many",
-      goal: "Say how many of you there are.",
+      goal: "Tell them how many of you are eating.",
       they: "They ask how many you are.",
       move: "ask",
       topic: ["mitu", "inimene", "üks", "kaks"],
@@ -1181,7 +1181,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like to eat.",
+      goal: "Tell them what you would like to eat.",
       they: "They ask what you would like to eat.",
       move: "ask",
       topic: ["roog", "menüü", "soovima", "tellima", "sööma"],
@@ -1192,7 +1192,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "contents",
-      goal: "Ask what is in it.",
+      goal: "Ask them what is in the dish they recommended.",
       they: "They recommend a dish and wait.",
       answer: "They say what is in the dish they recommended.",
       move: "offer",
@@ -1204,7 +1204,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "drink",
-      goal: "Say what you would like to drink.",
+      goal: "Tell them what you would like to drink with it.",
       they: "They ask what you would like to drink.",
       move: "ask",
       topic: ["jook", "jooma", "vesi", "mahl"],
@@ -1215,7 +1215,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "bill",
-      goal: "Ask for the bill.",
+      goal: "Ask them for the bill.",
       meanwhile: "You have eaten. The waiter comes back to clear the table.",
       they: "They ask whether it was good.",
       move: "ask",
@@ -1227,7 +1227,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1277,7 +1277,7 @@ const PHONE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back down the phone.",
       they: "Somebody answers the phone and says the name of the shop.",
       move: "greet",
       topic: [...HELLOS],
@@ -1288,7 +1288,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Say why you are ringing.",
+      goal: "Tell them why you are ringing.",
       they: "They ask what it is about.",
       move: "ask",
       topic: ["helistama", "küsima", "aitama", "soovima"],
@@ -1299,7 +1299,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "have",
-      goal: "Ask whether they have it.",
+      goal: "Tell them what you are after, and ask whether they have it.",
       they: "They ask what you are looking for.",
       move: "ask",
       topic: ["kaup", "soovima", "tahtma", "ostma", "müüma"],
@@ -1310,7 +1310,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "hours",
-      goal: "Ask when they are open.",
+      goal: "Ask them what time they open.",
       they: "They say they have it, and wait.",
       answeredNext: true,
       move: "confirm",
@@ -1322,7 +1322,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "confirm",
-      goal: "Say the time back, to check you heard it.",
+      goal: "Say the time back to them, so you know you heard it right.",
       they: "They say when they open tomorrow: {open}.",
       move: "offer",
       topic: ["kell", "aeg", "homme"],
@@ -1334,7 +1334,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1381,7 +1381,7 @@ const NEIGHBOR: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to your neighbor.",
       they: "Your neighbor stops on the landing and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1392,7 +1392,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "new",
-      goal: "Say you are new here.",
+      goal: "Tell them you have just moved in.",
       they: "They ask whether you have just moved in.",
       move: "ask",
       topic: ["uus", "korter", "maja", "elama"],
@@ -1403,7 +1403,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "floor",
-      goal: "Say which floor you live on.",
+      goal: "Tell them which floor your flat is on.",
       they: "They ask which floor you are on.",
       move: "ask",
       topic: ["korrus", "korter", "kus", "elama"],
@@ -1414,7 +1414,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from.",
+      goal: "Tell them which country you came here from.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "välismaalane", "Eesti"],
@@ -1425,7 +1425,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "with",
-      goal: "Say who lives with you.",
+      goal: "Tell them who you live with.",
       they: "They ask whether you live alone.",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
@@ -1436,7 +1436,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "weather",
-      goal: "Say something about the weather.",
+      goal: "Say something back about the weather.",
       they: "They say something about the weather.",
       move: "offer",
       topic: ["ilm", "vihm", "lumi", "tuul", "päike", "ilus"],
@@ -1447,7 +1447,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say goodbye.",
+      goal: "Say goodbye before they carry on down.",
       they: "They say goodbye and go on down.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1497,7 +1497,7 @@ const PHARMACY: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to the pharmacist.",
       they: "The pharmacist looks up and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1508,7 +1508,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "what",
-      goal: "Say what hurts.",
+      goal: "Tell them what is hurting you.",
       they: "They ask what they can help with.",
       move: "ask",
       topic: ["aitama", "valu", "valutama", "tervis", "haige"],
@@ -1519,7 +1519,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when.",
+      goal: "Tell them how long it has been hurting.",
       they: "They ask how long it has hurt.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],
@@ -1530,7 +1530,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "medicine",
-      goal: "Ask what they recommend.",
+      goal: "Ask them what they would recommend for it.",
       they: "They think for a moment.",
       answeredNext: true,
       move: "confirm",
@@ -1542,7 +1542,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "how",
-      goal: "Ask how often to take it.",
+      goal: "Ask them how often you should take it.",
       they: "They put a box on the counter and say what it is.",
       answeredNext: true,
       move: "offer",
@@ -1554,7 +1554,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Pay.",
+      goal: "Tell them you will take it, and pay.",
       they: "They say how to take it, and the price.",
       move: "instruct",
       topic: ["hommik", "õhtu", "päev", "hind", "maksma"],
@@ -1565,7 +1565,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye and look past you at the queue.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1610,7 +1610,7 @@ const COURSE: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back to the teacher.",
       they: "The teacher turns to you and says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1621,7 +1621,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "name",
-      goal: "Say your name. Any name.",
+      goal: "Tell them your name. Any name will do: no transcript here is about you.",
       they: "They ask your name.",
       move: "ask",
       topic: ["nimi", "kes", "olema"],
@@ -1632,7 +1632,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from.",
+      goal: "Tell them which country you came here from.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "Eesti", "välismaalane"],
@@ -1643,7 +1643,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Say why you are learning Estonian.",
+      goal: "Tell them why you are learning Estonian.",
       they: "They ask why you are learning Estonian.",
       move: "ask",
       topic: ["miks", "õppima", "keel", "sest"],
@@ -1654,7 +1654,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "word",
-      goal: "Ask what a word means, or ask them to say it again.",
+      goal: "They used a word you do not know. Ask what it means, or ask them to say it again.",
       they: "They use a word you do not know, and carry on.",
       answer: "They say the word again, slowly, and say what it means in other Estonian words.",
       move: "instruct",
@@ -1666,7 +1666,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "howlong",
-      goal: "Say how long you have been learning.",
+      goal: "Tell them how long you have been learning.",
       they: "They ask how long you have studied Estonian.",
       move: "ask",
       topic: ["kaua", "õppima", "aasta", "kuu", "nädal"],
@@ -1677,7 +1677,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you.",
+      goal: "Thank them before they turn to the next person.",
       they: "They thank you and turn to the next person.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1729,7 +1729,7 @@ const INTERVIEW: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back and take a seat.",
       they: "They stand up, shake your hand and say hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1740,7 +1740,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "before",
-      goal: "Say where you worked before.",
+      goal: "Tell them where you worked before this.",
       they: "They ask what you did before.",
       move: "ask",
       topic: ["töö", "töötama", "varem", "kogemus", "ettevõte"],
@@ -1751,7 +1751,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "skill",
-      goal: "Say what you are good at.",
+      goal: "Tell them the thing you are good at.",
       they: "They ask what you are good at.",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
@@ -1762,7 +1762,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Say why you want this job.",
+      goal: "Tell them why you want this job.",
       they: "They ask why you want this job.",
       move: "ask",
       topic: ["miks", "tahtma", "töö", "ettevõte"],
@@ -1773,7 +1773,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "pay",
-      goal: "Ask about the pay.",
+      goal: "They asked whether you have questions. Ask what the pay is.",
       they: "They ask whether you have any questions.",
       answer: "They say the pay is good and that it is written in the contract.",
       move: "ask",
@@ -1785,7 +1785,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "start",
-      goal: "Say when you could start.",
+      goal: "Tell them which day you could start.",
       they: "They ask when you could start.",
       move: "ask",
       topic: ["millal", "alustama", "algama", "päev"],
@@ -1796,7 +1796,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They thank you for coming and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
@@ -1842,7 +1842,7 @@ const COMPLAINT: SceneSpec = {
   beats: [
     {
       id: "greet",
-      goal: "Say hello back.",
+      goal: "Say hello back at the desk.",
       they: "The person at the desk says hello.",
       move: "greet",
       topic: [...HELLOS],
@@ -1853,7 +1853,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Say what you bought, and that there is a problem with it.",
+      goal: "Tell them what you bought and what is wrong with it.",
       they: "They ask what the matter is.",
       move: "ask",
       topic: ["probleem", "viga", "kaebus", "aitama"],
@@ -1864,7 +1864,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Say when you bought it.",
+      goal: "Tell them when you bought it.",
       they: "They ask when you bought it.",
       move: "ask",
       topic: ["millal", "ostma", "päev", "eile"],
@@ -1875,7 +1875,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "receipt",
-      goal: "Say whether you have the receipt.",
+      goal: "Tell them whether you have the receipt with you.",
       they: "They ask whether you have the receipt.",
       move: "ask",
       topic: ["dokument", "arve", "kaasas"],
@@ -1886,7 +1886,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "want",
-      goal: "Say what you want done about it: your money back, or it repaired.",
+      goal: "Tell them what you want them to do: your money back, or it repaired.",
       they: "They ask what you would like them to do.",
       move: "ask",
       topic: ["raha", "parandama", "lahendus", "uus", "hüvitis"],
@@ -1897,7 +1897,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "insist",
-      goal: "Hold your ground, politely.",
+      goal: "They said no. Say again what you want, politely.",
       they: "They say that is not possible.",
       move: "refuse",
       topic: ["saama", "võimalus", "lahendus", "kaebus"],
@@ -1908,7 +1908,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "close",
-      goal: "Say thank you, and goodbye.",
+      goal: "Thank them and say goodbye.",
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
