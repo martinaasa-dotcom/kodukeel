@@ -202,8 +202,27 @@ export function offerFor(
    * question they were just asked said back at them.
    */
   questionWords: ReadonlySet<string> = new Set(),
+  /**
+   * Which of the beat's requirements the last turn already met, parallel to
+   * `beat.needs`. A hint may not be a word the learner has just used.
+   */
+  met: readonly boolean[] = [],
 ): string | null {
-  for (const { need } of leafNeeds(beat.needs)) {
+  /*
+    THE HINT IS FOR WHAT IS STILL MISSING, NEVER FOR WHAT THEY ALREADY SAID.
+
+    A beat can ask for two things and the walk below returned on the first,
+    whatever had happened: asked which floor they live on, a learner who wrote
+    `kolmandal korrusel` met the case and not the number, and was handed
+    `Korrus?`, which is the word they had just used correctly, twice. That
+    reads as the app not having listened, which is the one impression this
+    module cannot afford, and it points away from the thing that was actually
+    wanted. Needs the turn met are passed over; where the caller knows nothing
+    about the turn, or everything was met and the beat is unmet for some other
+    reason, the walk is what it was.
+  */
+  const wanted = leafNeeds(beat.needs).filter(({ index }) => met[index] !== true);
+  for (const { need } of (wanted.length > 0 ? wanted : leafNeeds(beat.needs))) {
     if (need.kind === "lemma") {
       /*
         THE CARD IS THE TRUTH ABOUT THIS RUN, AND THE HINT HAS TO AGREE WITH

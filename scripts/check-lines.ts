@@ -17,7 +17,7 @@
  */
 import { readFileSync } from "node:fs";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
-import { runGate } from "../lib/scenes/gate";
+import { gateFor, runGate } from "../lib/scenes/gate";
 import { words } from "../lib/scenes/lexicon";
 import { beatById } from "../lib/scenes/scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
@@ -35,7 +35,7 @@ for (const [sceneId, beatId, text] of rows) {
   const beat = scene ? beatById(scene, beatId) : undefined;
   if (!scene || !beat) { console.log(`??   ${sceneId}/${beatId}: no such beat`); failed++; continue; }
   const context = contexts.get(scene.id)!;
-  const verdict = runGate(text, beat, context.gate);
+  const verdict = runGate(text, beat, gateFor(beatId, context.gate));
   const why = verdict.failed.map((f) => (f === "vouching" ? `vouching [${verdict.unknown.join(" ")}]` : f));
   if (/\d/.test(text)) why.push("digit");
   if (/[–—:;]/.test(text)) why.push("dash or colon");

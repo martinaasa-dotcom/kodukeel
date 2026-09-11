@@ -14,14 +14,16 @@ import {
 } from "@/lib/progress/scene";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
-import { cardInPlay, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine } from "@/lib/scenes/reply";
+import {
+  cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine,
+} from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
-import { passes, runGate } from "@/lib/scenes/gate";
+import { gateFor, passes, runGate } from "@/lib/scenes/gate";
 import { words } from "@/lib/scenes/lexicon";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "@/lib/scenes/state";
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
@@ -171,6 +173,19 @@ export async function POST(request: Request) {
   */
   const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
   /*
+    THE ONE LINE THIS SCENE'S REGISTER DOES NOT APPLY TO. `other-register` is
+    the other side switching pronoun, so the check that withholds a line for
+    the wrong pronoun is the check that withheld every line ever drafted for
+    it, and what a learner met in the middle of a conversation was the English
+    stage direction saying what was supposed to be happening. While it stands,
+    the register the composer is asked for is the other one and the check
+    stands down for that line alone; everything else in the gate is untouched.
+  */
+  const switched = Boolean(standing && hurdleSpec(state)?.switchesRegister);
+  const askRegister = switched
+    ? (scene.register === "teie" ? "sina" : "teie")
+    : scene.register;
+  /*
     The offer was turned down and they offer again: the beat is spoken as
     its counter, and from here on every line reads the second offer's values
     off the card, so a time read back later is the one that was accepted.
@@ -302,7 +317,7 @@ export async function POST(request: Request) {
       the question they were asked.
     */
     offer: (response === "help" || response === "moveOn") && answered
-      ? offerFor(answered, card, context.marker.questionWords)
+      ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
       : null,
     met: state.done.length,
     /*
@@ -342,7 +357,7 @@ export async function POST(request: Request) {
               prop.kind === "word" || prop.kind === "weekday" ? [[prop.slot, prop.oneOf] as const] : [],
             ),
           ),
-          roll: state.turns.length,
+          roll: state.turns.length, met: last?.met ?? [],
         })
       : null,
   });
@@ -498,7 +513,9 @@ export async function POST(request: Request) {
       scene, which is why it is joined here rather than in `sceneContext`: the
       card is drawn when the run opens and the scene knows nothing about it.
     */
-    gate: { ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon) },
+    gate: gateFor(beat.id, {
+      ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
+    }),
     topic: context.topic.get(beat.id) ?? new Set<string>(),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
@@ -577,7 +594,21 @@ export async function POST(request: Request) {
       situation: scene.role,
       reservation: decision.reservation,
       move: "answer",
-      they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+      /*
+        WHAT THEY ARE ANSWERING WITH, WHERE THE BEAT KNOWS.
+
+        This said only that a question had been asked and was to be answered
+        briefly, which is a shape and not a subject: a model handed that knows
+        nothing about what the answer *is*, and writes a line agreeing with
+        itself. It is right for a question the scene did not anticipate, which
+        is what this rung was written for and where nobody knows the answer
+        either. It is wrong on a beat whose whole goal is "ask about the pay",
+        where the scene wrote down what they say when asked (`answer`) and the
+        bank had simply run out of rows for it. The same field the drafter is
+        handed, so a live answer and a banked one are about the same thing.
+      */
+      they: answered?.answer
+        ?? "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
@@ -692,7 +723,7 @@ export async function POST(request: Request) {
       reservation,
       move: beat.move,
       they: stageFor(beat, card),
-      register: scene.register,
+      register: askRegister,
       words: [...context.lexicon.byLemma.keys()],
       /*
         The scene's own banked lines, for tone: a model shown six sentences
@@ -713,6 +744,15 @@ export async function POST(request: Request) {
         holds the same beat asked properly by somebody who read it.
       */
       asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
+      /*
+        AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
+        ALL. Without it a model asked to compose after a miss writes the
+        question again, which is what the table did for free; with it the
+        character answers the person and then asks. `composeNote` is the one
+        wording, so the route and `npm run play:scenes` tell the model the same
+        thing about the same turn.
+      */
+      note: composeNote(turns.length > 0 ? response : null, progress.reading),
       conversation,
       avoid,
     }),
@@ -817,6 +857,8 @@ async function compose(
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];
+    /** What happened to the learner's turn, where anything did (`composeNote`). */
+    note?: string;
   },
 ): Promise<string | null> {
   /*

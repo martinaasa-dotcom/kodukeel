@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { advance, startScene, type SceneState } from "./state";
 import { gradesFor, offerFor, stalledWords } from "./grades";
 import type { Evidence, TurnReading } from "./turn";
-import type { SceneSpec } from "./types";
+import type { BeatSpec, SceneSpec } from "./types";
 
 const SCENE: SceneSpec = {
   id: "fixture", title: "A fixture", place: "Nowhere", level: "A2",
@@ -282,5 +282,29 @@ describe("the word the other side offers", () => {
   it("never points at the question word they were just asked", () => {
     const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "aeg"] };
     expect(offerFor(beat, null, new Set(["kuhu"]))).toBe("aeg");
+  });
+
+  /*
+    AND NEVER A WORD THEY HAVE JUST USED CORRECTLY. Asked which floor they live
+    on, a learner who wrote `kolmandal korrusel` met the case and missed the
+    number, and was handed `Korrus?`, the word they had said twice. A hint for
+    the half they got right reads as the app not having listened, and it points
+    away from what was actually wanted.
+  */
+  it("passes over a requirement the turn already met", () => {
+    const beat = {
+      ...SCENE.beats[0]!,
+      needs: [
+        { kind: "case", lemma: "pea", grammCase: "INESSIVE" },
+        { kind: "lemma", oneOf: ["valu"] },
+      ],
+    } as const satisfies BeatSpec;
+    expect(offerFor(beat, null, new Set(), [true, false])).toBe("valu");
+    expect(offerFor(beat, null, new Set(), [false, false])).toBe("pea");
+  });
+
+  it("and falls back to the walk where the caller knows nothing about the turn", () => {
+    expect(offerFor(SCENE.beats[1]!, null, new Set(), [])).toBe("pea");
+    expect(offerFor(SCENE.beats[1]!, null, new Set(), [true])).toBe("pea");
   });
 });

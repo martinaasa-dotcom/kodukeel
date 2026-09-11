@@ -34,6 +34,7 @@ import {
 import { compoundOf } from "./nearly";
 import { isQuestion } from "./retrieval";
 import { QUESTION_SHAPE, type BeatSpec } from "./types";
+import { switchesRegisterAt } from "./curveballs";
 
 /**
  * Which check withheld a line. A line can fail more than one.
@@ -80,9 +81,20 @@ export const FINITE_VERB_FLOOR = 4;
  * It is still a budget and not an absence of one. A line made entirely of
  * words the learner has never seen is a line they cannot read, whatever the
  * dictionary does underneath it, and that is the failure this number exists
- * for.
+ * for. It has to stay a number a learner could read past on the worst line
+ * the gate lets through, because `lib/ux/wordGloss.ts` is a preference and a
+ * learner who has turned the underlines off gets the words bare.
+ *
+ * TEN, BECAUSE A WITHHELD LINE IS WORSE THAN A LONG ONE. Six was set against
+ * a three-sentence ceiling and the ceiling is five sentences and forty words
+ * now: at six, a line of the length the gate allows has to be nine tenths
+ * course vocabulary, which is not how anybody talks, and the cost of missing
+ * is not a clumsy sentence but no sentence at all. A withheld line drops to a
+ * banked one written months ago against the beat alone, which is the stilted
+ * reading a learner reported the whole module as. Ten is a quarter of the
+ * longest line the gate allows and about one word in four of an ordinary one.
  */
-export const NEW_WORDS = 6;
+export const NEW_WORDS = 10;
 
 export type Check = (typeof CHECKS)[number];
 
@@ -93,6 +105,21 @@ export interface GovernedWord {
   /** Every case its entry names, never only the primary. */
   readonly cases: ReadonlySet<CaseKey>;
 }
+
+/**
+ * The gate for one beat, which is the gate plus the one check that stands
+ * down. Only `other-register` reaches it: its whole move is the other side
+ * using the pronoun this scene does not, so the register check is the check
+ * that refused every line ever drafted for it and a learner met an English
+ * stage direction instead. One reader for the route, the line checker and the
+ * bank's own test, or a line banked against one gate would be refused by
+ * another.
+ */
+export function gateFor(beatId: string, context: GateContext): GateContext {
+  return switchesRegisterAt(beatId) ? { ...context, wrongRegister: EMPTY } : context;
+}
+
+const EMPTY: ReadonlySet<string> = new Set<string>();
 
 export interface GateContext {
   /**

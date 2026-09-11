@@ -528,22 +528,32 @@ export function readTurn(
     read, and answering `xyzzy blorp` with "Jah?" as though the rest of the
     sentence were coming is the look-and-wait printed at the wrong person.
 
-    AND A PHRASE THAT ANSWERS THE QUESTION IS NOT A FRAGMENT. The rule exists
-    so that the one required word on its own cannot finish a beat that wanted
-    a sentence, and it was written as "no finite verb", which read `Neljal
-    korrusel` as a learner who had not finished talking. Asked which floor,
-    that is the whole answer, and anybody on the phone would take it: a
-    landlord who says "Jah?" and waits after it is waiting for a verb nobody
-    was going to supply. So a turn of two or more words that meets everything
-    the beat asked for is an answer, and a single word, or a phrase that
-    misses the point, is still what it was.
+    AND A TURN THAT ANSWERS THE QUESTION IS NOT A FRAGMENT, AT ANY LENGTH.
+
+    The rule exists so that the one required word on its own cannot finish a
+    beat that wanted a sentence, and it was written as "no finite verb", which
+    read `Neljal korrusel` as a learner who had not finished talking. Asked
+    which floor, that is the whole answer, and anybody on the phone would take
+    it. That was corrected to "two or more words", which left the one case
+    this module can least afford: asked where they worked before, a learner
+    wrote `ülikoolis`, which is the perfect Estonian answer to that question
+    and the way anybody answers it, and the interviewer looked at them and
+    waited. They reported it as the app having no clue what they were saying.
+
+    A one-word answer is not an unfinished sentence. Refusing it teaches
+    somebody that being right is not enough, which is the one thing this
+    module exists not to do, and it buys a sentence nobody was going to write
+    anyway: what the second wait produced was the same word again. So a turn
+    that meets everything the beat asked for is an answer however short it is,
+    and the look and the wait is kept for what it was written for, a turn that
+    is genuinely cut short and does not answer.
   */
   const anyVouched = marked.some((w) => w.vouched);
   const sentence = looksLikeSentence(text)
     || (spoken.length >= 2 && spoken.some((word) => context.hasFiniteVerb(word)))
     // `Kui kaua?` is a whole question, and a question is a whole turn.
     || text.trim().endsWith("?")
-    || (spoken.length >= 2 && missing.length === 0);
+    || missing.length === 0;
   if (beat.shape === "sentence" && anyVouched && !sentence) return shape("fragment");
 
   if (missing.length === 0) return shape("complete");

@@ -385,8 +385,91 @@ export function wantsFreshLine(
   reading: TurnReading | null = null,
 ): boolean {
   if (response === "wait") return false;
+  /*
+    A TURN THAT MISSED IS THE TURN A PERSON IS MOST NEEDED FOR, AND IT WAS THE
+    ONE THE MODEL WAS NEVER ASKED ABOUT.
+
+    `sayAgainWanted` is right about the *shape* of the answer, which is that
+    the question goes again rather than turning into a new one, and it was
+    reading that as "say the previous line over". So a learner who wrote real
+    Estonian that did not answer the beat got `Vabandust!` and then their own
+    last question back, character for character. Read down a transcript that is
+    the single most mechanical thing in the module: told `Kiire on, ma lähen
+    kohe.`, somebody answered `oota korra, räägime sekundi`, which is a person
+    speaking, and was given the same sentence again with "sorry" in front of
+    it. The learner reported the whole module as broken and they were reading
+    the right thing.
+
+    What a person does there is answer what you said and then ask again. That
+    is a model's job and the model was the one thing not in the loop: the route
+    never booked a call, because this returned false. So a miss composes now,
+    and `sayAgainWanted` governs what is said when nothing composes, which is
+    the keyless deployment and is where saying it again is genuinely the best
+    there is. `ComposeAsk.note` is what the model is told about the miss, and
+    the instruction is still to ask for the same thing rather than something
+    new.
+
+    What still does not compose is the turn there is nothing to answer: an
+    echo, which is the other side's own line handed back, and a turn in
+    English, which the persona either translates or repeats. Both are
+    `sayAgainWanted`'s and both are a booking the ledger never has to make.
+  */
+  if (reading === "offtarget") return true;
   if (sayAgainWanted(response, reading, heard)) return false;
   return true;
+}
+
+/**
+ * WHAT THE MODEL IS TOLD HAPPENED TO THE TURN, WHERE ANYTHING DID.
+ *
+ * It is one sentence of English and it is the difference between a character
+ * and a table. Before a miss composed at all, a turn of real Estonian that did
+ * not answer the beat got one word and the previous line back; the first thing
+ * the model needs in order to do better than that is to know which of those it
+ * is looking at, because the conversation alone does not say whether the beat
+ * was met.
+ *
+ * Null where nothing happened worth saying: a turn that landed is answered by
+ * the move itself, and the model already has the turn in front of it.
+ *
+ * NEVER A JUDGMENT ABOUT THE LEARNER. "They did not answer what you asked" is
+ * a fact about a sentence; "they did not understand" is a claim about a person
+ * and would come back as a line saying so, which is the one thing this module
+ * exists not to say. And never an instruction to correct them: the marking is
+ * not the model's (ADR-025) and a character who corrects somebody's Estonian
+ * mid-conversation is the reason people stop talking.
+ */
+export function composeNote(
+  response: Response | null,
+  reading: TurnReading | null,
+): string | undefined {
+  if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
+    return "What they just said is real Estonian and does not answer what you asked."
+      + " Answer what they actually said first, in one short natural sentence, and then ask"
+      + " again for the same thing in your own words. Never tell them you did not understand"
+      + " them, and never comment on their Estonian: you understood them, they answered"
+      + " something else.";
+  }
+  if (reading === "incomplete") {
+    return "They answered part of what you asked and left the rest out. Say back the part they"
+      + " gave you, and ask only for what is still missing.";
+  }
+  /*
+    The one reading where saying so is honest, and it still may not be said as
+    a verdict on them. The repair phrase the course teaches has already been
+    said above this line, so what the model is for here is the second half: ask
+    again, warmly, so a turn nobody could read does not end in a dead stop.
+  */
+  if (reading === "unrecognised") {
+    return "You could not make out what they said. Ask again for the same thing, gently and in"
+      + " your own words, as a person who did not catch something does. Do not tell them their"
+      + " Estonian is wrong and do not give up on the question.";
+  }
+  if (reading === "lost") {
+    return "They have said they are not following. Hand them the word they need and ask again in"
+      + " the same breath, warmly, the way somebody helping a person out would.";
+  }
+  return undefined;
 }
 
 /**
@@ -394,6 +477,13 @@ export function wantsFreshLine(
  * `poodi` and `kell kaks` are repeated and a sentence is acknowledged instead.
  */
 const ECHO_WORDS = 2;
+
+/**
+ * Words with nothing in them to say back: a yes, a thank-you, a no. Repeating
+ * one is the other side handing a learner their own noise, which is the fault
+ * `acknowledgements` was corrected for one function up.
+ */
+const FLAT_WORDS = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
 
 /** The reply, in the order it is said. Empty once the scene is over and nothing is owed. */
 export function replyFor(input: ReplyInput): SpokenLine[] {
@@ -405,8 +495,31 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     on a screen the look is one word with a question mark. No move follows it,
     because the other side is waiting for the rest of the sentence rather than
     moving on from it.
+
+    AND THE LOOK IS THEIR OWN WORD BACK, WHERE THEY SAID THE RIGHT ONE.
+
+    `Jah?` says "what?", and a learner who has just given the right word in the
+    right case reads it as not having been understood. That is what happened:
+    asked what they did before, somebody wrote `ülikoolis`, which is the answer
+    and is one word, and read the reply as the app having no idea what they
+    were talking about. What a person says there is the word back with a rising
+    tone: `Ülikoolis?` is "I heard you, go on", and it is the difference
+    between being asked to say more and being told you were not understood.
+
+    The same word the answer branch repeats (`matched`, through `echo`), under
+    the same two guards: never a digit, and never a word with nothing in it,
+    since `Jah?` after somebody's own `jah` is the noise this is fixing. Where
+    the fragment met nothing there is no word to say back, and the look is what
+    it was.
   */
-  if (response === "wait") return [reaction(REACTIONS.waiting[0], "?")];
+  if (response === "wait") {
+    const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
+      ? input.echo
+      : null;
+    return [theirs
+      ? { ...reaction(theirs, "?"), provenance: "echo" as const }
+      : reaction(REACTIONS.waiting[0], "?")];
+  }
 
   /*
     THEY SAID THEY ARE NOT FOLLOWING, SO THE WORD IS HANDED OVER.
@@ -465,8 +578,17 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     and asked for it again. Only where the turn missed outright: a turn that
     half landed gets its own word back, and a turn nobody could read already
     has the repair phrase above.
+
+    AND NEVER IN FRONT OF A LINE THAT REACTED FOR ITSELF. A miss composes now
+    (`wantsFreshLine`), and a composed line has the learner's own turn in front
+    of it and opens by answering it. `Vabandust! Väga tore. Mitmendal
+    korrusel...` is this word bolted onto somebody who has already reacted, and
+    it contradicts them in the same breath: "sorry" and "very nice" are not one
+    person. `ownReaction` is the same guard the acknowledgment takes one branch
+    down, for the same reason, and where nothing composed the line is the
+    previous one said again and this word is what makes that read as a miss.
   */
-  if ((response === "narrow" || response === "repeat") && reading === "offtarget") {
+  if ((response === "narrow" || response === "repeat") && reading === "offtarget" && !ownReaction(line)) {
     out.push(reaction(REACTIONS.missed[0], "?"));
   }
 
@@ -529,7 +651,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       `again` means "the line you were answering, once more", so a learner
       who had said the right word read "Said again" under their own word.
     */
-    const flat = new Set<string>([...REACTIONS.acknowledge, ...REACTIONS.waiting, "ei"]);
+    const flat = FLAT_WORDS;
     /*
       AND A WORD IS SAID BACK TO A WORD, NEVER TO A SENTENCE. Repeating the
       answer is what a person does with a one-word one: asked where to and
@@ -619,7 +741,9 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     again where the learner did not answer it, like any other move.
   */
   if (input.hurdle) {
-    if (sayAgainWanted(response, reading, heard)) out.push({ text: heard!, provenance: "again" });
+    // A line composed for this turn wins over the repeat here too, and for its reason.
+    if (input.hurdle.line?.provenance === "composed") out.push(input.hurdle.line);
+    else if (sayAgainWanted(response, reading, heard)) out.push({ text: heard!, provenance: "again" });
     else if (input.hurdle.said) out.push({ text: input.hurdle.said, provenance: "english" });
     else if (input.hurdle.line && input.hurdle.line.provenance !== "fallback") out.push(input.hurdle.line);
     else out.push(stage(stageFor(input.hurdle.beat, card)));
@@ -709,7 +833,24 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     exactly what it was: this can never invent a way of asking.
   */
   const another = sayAgain && (input.tries ?? 0) > NUDGE_AFTER ? input.others?.[0] ?? null : null;
-  if (another) {
+  /*
+    AND A LINE A MODEL WROTE FOR THIS TURN BEATS THE TURN BEFORE IT, ALWAYS.
+
+    `wantsFreshLine` books the call on a miss and this is the other half of
+    the same fix: without it the route paid for a line, the gate passed it, and
+    this pushed the learner's own last question back at them instead, so the
+    model was in the loop and reached nobody. A composed line is the only kind
+    that has seen what the learner just said, which is the whole of what makes
+    it worth more than repeating: it answers them and then asks again. Every
+    other rung of the ladder was written against the beat alone and cannot do
+    that, so a scripted or attested line does not win here and the verbatim
+    repeat still stands where nothing composed, which is the keyless
+    deployment.
+  */
+  const fresh = line?.provenance === "composed" ? line : null;
+  if (fresh) {
+    out.push(fresh);
+  } else if (another) {
     out.push({ text: another, provenance: "scripted" });
   } else if (sayAgain) {
     out.push({ text: heard, provenance: "again" });

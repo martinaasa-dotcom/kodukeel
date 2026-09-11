@@ -234,21 +234,13 @@ describe("waiting", () => {
 });
 
 describe("a one-word answer said twice", () => {
-  it("is taken the second time where it meets the beat, because a person waits once", () => {
-    /*
-      Asked what is wrong, a learner who says `pea`, is looked at, and says
-      `pea` again has answered, and any receptionist takes it. The second
-      fragment used to spend a try like a miss and the third ran the beat
-      out, over an answer that was the right one.
-    */
-    const start = advance(SCENE, startScene(SCENE), evidence("complete"), "Tere!").state;
-    const first = advance(SCENE, start, evidence("fragment", [true]), "valu");
-    expect(first.response).toBe("wait");
-    const second = advance(SCENE, first.state, evidence("fragment", [true]), "valu");
-    expect(second.response).toBe("answer");
-    expect(second.state.done).toContain("reason");
-  });
-
+  /*
+    A one-word answer that meets the beat is never read as a fragment now, at
+    any length, so this machine never sees one: what reaches it is a turn that
+    is genuinely cut short, and that is a miss the second time whether or not
+    it is the same word. The reading that used to arrive here is `complete`
+    and is taken on the first try, which is the whole of the fix.
+  */
   it("is still a miss the second time where it does not meet the beat", () => {
     const start = advance(SCENE, startScene(SCENE), evidence("complete"), "Tere!").state;
     const first = advance(SCENE, start, evidence("fragment", [false]), "ilm");

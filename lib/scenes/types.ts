@@ -238,11 +238,16 @@ export interface BeatSpec {
    *
    * `they` says what the other side *does* on the beat, which here is asking
    * whether the learner has questions; this says what they do when one comes.
-   * Both are read the same three ways: the bank is drafted against it, the
-   * live composer is told it, and the screen prints it where no Estonian line
-   * could be built. Without it a model was told only that it was "answering
-   * the question they were just asked", knew nothing about what the answer
-   * was, and wrote a line agreeing with itself.
+   * Read twice, and by the two things that write Estonian for it: the bank is
+   * drafted against it offline, and the route hands it to the composer when a
+   * question arrives and the bank has run out. Without it both were told only
+   * that a question had been asked and was to be answered briefly, which is a
+   * shape and not a subject, and a model handed that drafted an interviewer
+   * agreeing with himself.
+   *
+   * It reaches no screen. A question nothing can answer gets the shrug rather
+   * than a stage direction, because "they answer it" in English is not an
+   * answer and the reader is owed one of those or nothing.
    *
    * A beat that asks the learner for a question carries this or
    * `answeredNext`, asserted, and neither means anything on any other beat.

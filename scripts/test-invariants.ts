@@ -12047,6 +12047,88 @@ check("the repair move is only used on a turn nobody understood", () => {
   );
 
   /*
+    A TURN THAT MISSED THE POINT COMPOSES, AND THE COMPOSED LINE REACHES THE
+    SCREEN. Two halves of one fault and each was silent on its own. The route
+    used not to book a call at all on a miss, so a learner who wrote real
+    Estonian that did not answer the beat got one word and their own last
+    question back, character for character, which is the most mechanical thing
+    the module has ever done and is what it was reported for. Then, with the
+    call booked and the gate passed, `replyFor` went on pushing the repeat and
+    the paid-for line reached nobody.
+
+    Anchored on both, and on the note the model is told about the turn, because
+    a composed line written against the beat alone is a differently worded
+    question, which is the fault this started as pointed the other way.
+  */
+  assert.match(
+    reply, /if \(reading === "offtarget"\) return true;/,
+    "a turn read as off the point no longer asks the model for a line, so the other side answers " +
+    "a person who spoke real Estonian by repeating itself",
+  );
+  assert.match(
+    reply, /export function composeNote\(/,
+    "lib/scenes/reply.ts lost composeNote, so the model is asked for a line and told nothing about " +
+    "what happened to the turn it is answering",
+  );
+  assert.match(
+    reply, /provenance === "composed" \? line : null/,
+    "replyFor no longer prefers the line composed for this turn, so a booking is spent on a line " +
+    "the screen throws away",
+  );
+  assert.match(
+    route, /note: composeNote\(/,
+    "the scene route no longer tells the composer how the turn was read",
+  );
+  assert.match(
+    code("lib/scenes/prompt.ts"), /ask\.note/,
+    "lib/scenes/prompt.ts no longer renders the note, so composeNote reaches no model",
+  );
+
+  /*
+    ONE CHECK STANDS DOWN, FOR ONE CURVEBALL, AND EVERY GATE READS THE SAME
+    RULE. `other-register` is the other side addressing the learner with the
+    pronoun this scene does not use, which is exactly what the register check
+    withholds a line for: so no line was ever bankable for it, the live line
+    was refused, and what a learner met mid-conversation was an English stage
+    direction describing the thing that was supposed to be happening.
+
+    `gateFor` is the one reader and the route, the line checker, the drafter
+    and the bank's own test all go through it, or a line banked against one
+    gate would be refused by another. Anchored on the flag as well, because a
+    spec that stops declaring it is a curveball silently back in the hole.
+  */
+  assert.match(
+    code("lib/scenes/curveballs.ts"), /switchesRegister: true/,
+    "no curveball declares that it switches pronoun, so the register check refuses its own line again",
+  );
+  for (const file of [
+    "app/api/scene/route.ts", "scripts/check-lines.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
+  ]) {
+    assert.match(
+      code(file), /gateFor\(/,
+      `${file} gates a scene line without asking gateFor, so it disagrees with the gate the app runs`,
+    );
+  }
+
+  /*
+    AND A HINT IS FOR WHAT IS STILL MISSING. `offerFor` and `choiceOf` both
+    walked a beat's requirements in order and returned on the first, whatever
+    the turn had done: asked which floor, a learner who wrote `kolmandal
+    korrusel` met the case and missed the number and was handed `Korrus?`, the
+    word they had just used correctly. Asserted on both, because the two are
+    one rule asked of one beat and a second copy is where they come apart.
+  */
+  for (const [file, why] of [
+    ["lib/scenes/grades.ts", "offerFor hands over a word the learner has already said"],
+    ["lib/scenes/choice.ts", "choiceOf narrows on the half of the beat they got right"],
+  ] as const) {
+    assert.match(
+      code(file), /met\[index\] !== true/,
+      `${file}: ${why}, which reads as the app not having listened`,
+    );
+  }
+
+  /*
     And the screen may not describe a stage direction as a line somebody said.
     An English line about what the other side did, labeled "They did not
     catch that", is the same lie one layer up; drawn as a bubble it reads as
@@ -12677,6 +12759,16 @@ check("every question a beat asks the learner for is answered by somebody", () =
   assert.match(
     code("lib/scenes/scripted.ts"), /they: beat\.answer \?\?/,
     "the answer beat no longer says what the other side is answering with",
+  );
+  /*
+    And the *live* composer is handed the same line. The bank is drafted
+    against the beat's own `answer` and the route was still passing the generic
+    one, so the rung reached exactly when the bank has run out on a beat that
+    knows what the answer is was the rung told nothing about it.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /they: answered\?\.answer\s*\n?\s*\?\?/,
+    "the route composes an aside without telling the model what the beat says they answer with",
   );
 });
 

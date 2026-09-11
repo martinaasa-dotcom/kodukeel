@@ -548,7 +548,7 @@ describe("a line that reaches past the scene's own list", () => {
       the line is not what a person does about that. What it still refuses is a
       line made of nothing else, which is the wall the number exists for.
     */
-    const beyond = "peavalu kestab kaua sagedasti harva tugevalt pidevalt";
+    const beyond = "peavalu kestab kaua sagedasti harva tugevalt pidevalt aeglaselt varsti hiljem kohe";
     const verdict = runGate(`Kas teil ${beyond}?`, beat(), language);
     expect(verdict.failed).toContain("stretch");
     expect(verdict.stretched.length).toBeGreaterThan(NEW_WORDS);

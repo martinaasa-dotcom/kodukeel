@@ -115,7 +115,7 @@ back cut off mid-word and the gate withheld every one of them, which read as a m
 write Estonian.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
-`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is six, where they were three, twenty-two and two. The
+`MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
 reach, and the six-word line that prompted it (`Tere! Mis needus täna aitama saan?`) already showed
 that to be wrong: length did not produce it and length was never going to stop it. What stops it is a
@@ -5295,6 +5295,59 @@ sentence that check's own comment names as the reason the question words exist, 
 deployment and passed in every measurement of it. When a check is drawn against data handed in, the
 app is the caller that has to hand it in.
 
+**A turn that missed the point is the turn a person is most needed for, and it was
+the one turn the model never saw.** `wantsFreshLine` returned false on an
+`offtarget` reading, so the route booked no call and the screen printed the repair
+word and then the learner's own last question back, character for character. The
+argument was sound on its face, that a person who was not understood repeats
+themselves rather than rephrasing, and rephrasing is itself the fault §32
+corrected. What it produced is a learner writing `oota korra, räägime sekundi`,
+which is a person speaking, and reading `Vabandust! Kiire on, ma lähen kohe.` The
+module was reported as broken over it and the reading was right. A miss composes
+now, and `composeNote` is the one sentence of English the model is told about the
+turn: what they said is real Estonian and does not answer what you asked, answer
+it first and then ask again for the same thing, and never tell them you did not
+understand them. **And the composed line is the one that reaches the screen**,
+which was the silent half: with the call booked and the gate passed, `replyFor`
+went on pushing the repeat and threw the line away. Only `composed` wins, because
+only a composed line has seen the turn; a banked line is a fresh wording of the
+same question, which is §32's fault through another door, and the verbatim repeat
+is what a keyless deployment says. What still does not compose is a turn there is
+nothing to answer: an echo, and a turn in English.
+
+**A one-word answer is an answer, at any length.** The fragment rule stops the one
+required word finishing a beat that wanted a sentence, and it had been corrected
+once already, from "no finite verb" to "two or more words". What that left is
+`ülikoolis`, which is how anybody answers "where did you work before?", read as a
+learner who had not finished talking and given a look and a wait. Refusing a right
+answer for being short teaches somebody that being right is not enough, and it
+buys nothing, since what the second wait produced was the same word again. A turn
+meeting everything the beat asked is complete however short; the look and the wait
+is kept for a turn that is genuinely cut short. `advance`'s "a person waits once
+and then takes the word" went with it, because the reading it rescued cannot occur.
+
+**A hint is for what is still missing, never for the half they got right.**
+`offerFor` and `choiceOf` each walked a beat's requirements in order and returned
+on the first, whatever the turn had done: a learner who wrote `kolmandal korrusel`
+met the case, missed the number and was handed `Korrus?`, the word they had just
+used twice; one who named the right word and missed the rest was asked
+`Ülikool või kool?`, their own answer offered back as one of two guesses. Both
+read as the app not having listened. Requirements the turn met are passed over in
+both, because they are one rule asked of one beat.
+
+**One gate check stands down, for one curveball, and every gate reads the same
+rule.** `other-register` is the other side switching pronoun, which is exactly
+what the register check withholds a line for, and it carried no `move`, so
+`sceneBeats` built no beat and nothing could be banked for it either. A learner
+met the English sentence "They use the other pronoun for you." drawn as a stage
+direction in the middle of a conversation, which is the module explaining a thing
+it was supposed to be doing. `switchesRegister` is the spec saying so and `gateFor`
+is the one reader the route, `check:lines`, the drafter and `bank.test.ts` all go
+through, or a line banked against one gate is refused by another. Nothing else
+moves: the line is still vouched word by word and checked the other eleven ways.
+`bank.test.ts` fails on a curveball that makes no beat, which is the hole its own
+coverage sweep could not see.
+
 **A choice is two things a person could have meant, never one thing said two ways.** Narrowing a
 case beat offered the wanted form against another case of the same word, on the argument that the
 ending is what the beat drills. On a card that is a fair question; in a conversation it is a grammar
@@ -6647,7 +6700,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
 `conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
-`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
+`addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `composeNote`, `wantsFreshLine`, `gateFor`,
+`switchesRegisterAt`, `switchesRegister`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
 `claimIndex`, `borrowedSentences`, `formSentencesFor`, `exceptionsFor`, `KIND_NOTES`,
 `wordGlossFrom`, `WORD_GLOSS_CHOICES`, `setWordGloss`,
 `drillable`, `markForm`, `exceptionIndex`, `isAdvanceKey`, `buttonRuns`, `readSsoPolicy`,

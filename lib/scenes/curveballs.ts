@@ -58,6 +58,24 @@ export interface CurveballSpec {
   /** Whether it changes the persona rather than asking for a turn. */
   readonly silent?: true;
   /**
+   * THE ONE CURVEBALL WHOSE LINE BREAKS A GATE CHECK ON PURPOSE.
+   *
+   * `other-register` is the other side addressing the learner with the pronoun
+   * this scene does not use, and the register check is what withholds a line
+   * for doing exactly that. So every line drafted for it failed, no line was
+   * ever banked for it, and what a learner met instead was an English stage
+   * direction reading "They use the other pronoun for you." in the middle of a
+   * conversation: the module explaining a thing it was supposed to do.
+   *
+   * Where this is set the register check stands down for that line and the
+   * composer is told to switch, which is the only place in the module a check
+   * is relaxed and is why it is a field on the one spec rather than a rule
+   * anybody can reach. Nothing else about the gate moves: the line is still
+   * vouched word by word, still held to the beat's topic and still checked the
+   * other ten ways.
+   */
+  readonly switchesRegister?: true;
+  /**
    * The move the other side makes when this happens, for the ladder that
    * writes its line. Absent where the line cannot be Estonian at all (they
    * switched to English) or where what happens is not a line (a queue), and
@@ -179,10 +197,20 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
   },
   {
     id: "other-register",
+    /*
+      They ask, in the other pronoun, which is the whole move. It carried no
+      `move` at all, and `sceneBeats` builds a hurdle beat only for a curveball
+      that has one: so no line was ever bankable for it, the live composer's
+      own line was withheld by the register check it exists to break, and what
+      a learner met in the middle of a conversation was the English sentence
+      describing what was supposed to be happening.
+    */
+    move: "ask",
     cost: 1,
     says: "They use the other pronoun for you.",
     out: "Match them, or do not. Both are things people do.",
     needs: [{ kind: "any" }],
+    switchesRegister: true,
   },
   {
     id: "wrong-price",
@@ -359,6 +387,20 @@ function placeFor(
  * here. An id the catalog does not hold comes back undefined, which is the
  * honest answer for a run written before a curveball was renamed.
  */
+/**
+ * Whether the line said for this beat is allowed the other pronoun.
+ *
+ * Takes a beat id rather than a curveball id, because every caller holds one:
+ * the route holds the standing hurdle as a beat, and `check-lines` and
+ * `bank.test.ts` hold a row keyed on `hurdle:<id>`. One reader, so the gate
+ * the app runs and the gate a line was banked against cannot disagree about
+ * the one check that stands down.
+ */
+export function switchesRegisterAt(beatId: string): boolean {
+  const id = beatId.startsWith("hurdle:") ? beatId.slice("hurdle:".length) : null;
+  return Boolean(id && curveballById(id)?.switchesRegister);
+}
+
 export function curveballById(id: string): CurveballSpec | undefined {
   return CURVEBALLS.find((c) => c.id === id);
 }

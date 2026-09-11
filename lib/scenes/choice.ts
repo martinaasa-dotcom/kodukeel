@@ -67,6 +67,13 @@ export interface ChoiceInput {
    * the transcript was replayed would move under a learner reading it.
    */
   readonly roll: number;
+  /**
+   * Which of the beat's requirements the last turn already met, parallel to
+   * `beat.needs`. A question is narrowed on what is still missing: narrowing
+   * on the half they got right is the app telling somebody their right answer
+   * was one of two guesses.
+   */
+  readonly met?: readonly boolean[];
 }
 
 /** The narrowed question, or null where the beat has no two options to offer. */
@@ -87,7 +94,18 @@ export function choiceOf(input: ChoiceInput): string | null {
  */
 function optionsFor(input: ChoiceInput): string[] {
   const { beat, card, lexicon } = input;
-  for (const { need } of leafNeeds(beat.needs)) {
+  /*
+    AND NEVER ON A REQUIREMENT THE TURN ALREADY MET, which is `offerFor`'s rule
+    one module over and was found the same way: asked where they had worked, a
+    learner who wrote the right word and missed the rest of the beat was asked
+    `Ülikool või kool?`, which is their own correct answer offered back to them
+    as one of two guesses. Where the caller knows nothing about the turn, or
+    everything was met, the walk is what it was.
+  */
+  const met = input.met ?? [];
+  const leaves = leafNeeds(beat.needs);
+  const wanted = leaves.filter(({ index }) => met[index] !== true);
+  for (const { need } of (wanted.length > 0 ? wanted : leaves)) {
     if (need.kind === "lemma") {
       /*
         Any of a beat's own words is a right answer, so both options are true

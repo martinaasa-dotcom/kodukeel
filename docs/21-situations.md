@@ -3211,7 +3211,9 @@ the other direction too: a receptionist explaining what is missing from a form n
 sentences, and a scene that can only ever answer in one is a scene where every character sounds
 like a form letter.
 
-So `MAX_SENTENCES` is five, `MAX_COMPOSED_WORDS` is forty, and `NEW_WORDS` is six. What pays for
+So `MAX_SENTENCES` is five, `MAX_COMPOSED_WORDS` is forty, and `NEW_WORDS` is ten (six until §61,
+where it was raised on the same argument: a withheld line is worse than a long one, and every
+word past the list arrives with the dictionary under it). What pays for
 the room is the gate, which has twelve checks now rather than the five it had when the limits were
 set: `shape`, `vouching`, `register`, `government`, `facts`, `agreement`, `topic`, `giveaway`,
 `stretch`, `clause`, `infinitive`, `negation`. Every one of those is a check on whether the
@@ -3519,8 +3521,118 @@ through one function.
 
 **What is not fixed.** A one-word answer on a beat whose shape is `sentence` is
 still a look and a wait, which is the design and reads as brusque the first time
-it happens. And a composed line that opens with its own remark keeps that remark
+it happens. (§61 reversed that: it is an answer now, at any length.) And a composed line that opens with its own remark keeps that remark
 when the question is put again after a miss, so `Vabandust! Väga tore. Mitmendal
 korrusel teie korter asub?` is a thing the other side can say: the repair word
 and the remark were written for different turns, and telling them apart means
 splitting a composed Estonian line, which is not a thing this app may do.
+
+## §61 The model was in the loop and reached nobody
+
+A learner drove seven conversations and reported the module as broken. Every one
+of their complaints was true, and read together they are not seven faults: they
+are one architectural decision, made for a good reason, that had stopped being
+right.
+
+**The decision was that a turn which missed the point does not need a model.**
+`wantsFreshLine` returned false for a turn read as `offtarget`, so the route
+never booked a call, and what the screen printed was the repair word out of the
+course and then the learner's own last question back, character for character.
+The reasoning was sound on its face: a person who was not understood repeats
+themselves rather than rephrasing, and rephrasing was itself the fault §32
+corrected, where three differently worded questions read as three new ones. It
+was also a booking the ledger never had to make.
+
+What it produced is the single most mechanical thing this module has ever done.
+Told `Kiire on, ma lähen kohe.`, somebody wrote `oota korra, räägime sekundi`,
+which is a person speaking, and got `Vabandust! Kiire on, ma lähen kohe.` back.
+Told to ask about the pay, somebody wrote `Ei, ma tahan palga kohta infot saada`
+and got `Vabandust! Millal te saate alustada?`. In both cases the learner had
+written real Estonian, the app had understood every word of it, and the only
+thing it could think of to say was the sentence before.
+
+**A turn that missed is the turn a person is most needed for, and it was the one
+turn the model never saw.** What anybody at a counter actually does there is
+answer what you said and then ask again, and that is a model's job in a way that
+no bank of lines written months earlier can be: a banked line was drafted against
+the beat alone and has never seen the learner. So a miss composes now, and
+`composeNote` is the one sentence of English the model is told about the turn:
+what they said is real Estonian and does not answer what you asked, answer it
+first, then ask again for the same thing in your own words, and never tell them
+you did not understand them. `unrecognised` and `lost` have their own notes for
+their own reasons. What still does not compose is a turn there is nothing to
+answer: an echo of the other side's own line, and a turn in English, which the
+persona either translates or repeats.
+
+**The second half of that fix was silent on its own.** With the call booked and
+the gate passed, `replyFor` went on pushing the verbatim repeat and threw the
+composed line away, so the route paid for a line that reached nobody. A line
+whose provenance is `composed` now wins, and nothing else does: a scripted or an
+attested line has not seen the turn either, so a fresh wording of the same
+question from the bank would be §32's fault arriving through a different door.
+The verbatim repeat is what a keyless deployment says, which is where saying it
+again genuinely is the best there is.
+
+**A one-word answer is an answer, at any length.** `ülikoolis` is how anybody
+answers "where did you work before?", and the fragment rule read it as a learner
+who had not finished talking and gave them a look and a wait. The rule exists so
+that the one required word cannot finish a beat that wanted a sentence, and it
+had already been corrected once, from "no finite verb" to "two or more words",
+which left exactly this. Refusing a right answer for being short teaches somebody
+that being right is not enough, and it buys nothing: what the second wait
+produced was the same word again. A turn that meets everything the beat asked is
+complete however short it is, and the look and the wait is kept for a turn that
+is genuinely cut short. `advance`'s "a person waits once and then takes the word"
+went with it, because the reading it was written to rescue can no longer occur.
+
+**A hint is for what is still missing.** `offerFor` and `choiceOf` each walked a
+beat's requirements in order and returned on the first, whatever the turn had
+done. Asked which floor they live on, a learner who wrote `kolmandal korrusel`
+met the case and missed the number and was handed `Korrus?`, the word they had
+just used correctly, twice; asked where they had worked, one who wrote the right
+word and missed the rest was offered `Ülikool või kool?`, their own answer handed
+back as one of two guesses. Both read as the app not having listened, which is
+the impression this module can least afford, and both point away from the thing
+that was actually wanted. Requirements the turn met are passed over now, in both,
+because they are one rule asked of one beat and a second copy is where they come
+apart.
+
+**And one curveball printed English into the middle of a conversation for its
+whole life.** `other-register` is the other side addressing the learner with the
+pronoun the scene does not use, which is exactly what the register check
+withholds a line for: every line ever drafted for it failed, and it carried no
+`move`, so `sceneBeats` made no beat for it and nothing could be banked either.
+What a learner met instead was the sentence "They use the other pronoun for you."
+drawn as a stage direction, which is the module explaining a thing it was
+supposed to be doing. `switchesRegister` is the spec saying so, `gateFor` is the
+one reader the route, the line checker, the drafter and the bank's own test all
+go through, and ten lines are banked so a keyless deployment gets Estonian too.
+It is the only check in the gate that ever stands down, and only for this one
+beat: the line is still vouched word by word and still held the other eleven
+ways. `bank.test.ts` now fails on a curveball that makes no beat, which is the
+hole the coverage sweep could not see, since a curveball with no beat was a
+curveball the sweep skipped.
+
+**And the model is told what the module is for.** Everything the prompt said was
+about what a line is made of. What a learner reported is what a line did to them:
+they wrote correct Estonian, met confusion, and read it as being told they were
+not good enough. So the rule is stated as a rule. They leave more confident than
+they arrived and are never left feeling stupid; a one-word answer is an answer,
+an answer with the wrong ending is an answer, and so is one you had to work out;
+a question is answered before anything else, even briefly; and "I did not
+understand" is said only where it is true, and never as a verdict on them.
+
+**Measured.** Every scene still plays keyless from the first line to the debrief
+in all three harness styles. With a key, the interviewer that used to say
+`Mis on teie oskus?` now says `Hotellis on alati palju teha. Mida te eriti hästi
+teete?`, and the neighbour answers the floor and then asks where you are from
+rather than asking the floor again. `npm run probe:turns` reads `ülikoolis` as
+complete where it read it as a fragment.
+
+**What is not fixed.** `gradesFor` still writes no row for a `datum`
+requirement, so a scene whose beats are mostly values off the card writes almost
+nothing into the review log: the lemma is on the card rather than in the beat and
+`gradesFor` is not handed one. That is a change to what reaches an append-only
+table and is not made in passing. And a composed line that opens with its own
+remark still keeps that remark when the question is put again, which §60 already
+records.

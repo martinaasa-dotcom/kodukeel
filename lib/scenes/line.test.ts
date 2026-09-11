@@ -305,7 +305,10 @@ describe("a word the scene does not teach", () => {
       has not met, and refusing the line is not what a person does about that.
       What it still refuses is a line made of nothing else.
     */
-    const words = ["kestab", "kaua", "sagedasti", "harva", "tugevalt", "pidevalt", "ootamatult"];
+    const words = [
+      "kestab", "kaua", "sagedasti", "harva", "tugevalt", "pidevalt", "ootamatult",
+      "aeglaselt", "varsti", "hiljem", "kohe",
+    ];
     const line = await sceneLine(request({
       vouch: async (spellings: readonly string[]) => new Set(spellings),
       compose: async () => `Kas valu ${words.join(" ")}?`,
@@ -321,7 +324,8 @@ describe("a word the scene does not teach", () => {
       compose: async (avoid) => {
         seen.push([...avoid]);
         return seen.length === 1
-          ? "Kas valu kestab kaua sagedasti harva tugevalt pidevalt ootamatult?"
+          ? "Kas valu kestab kaua sagedasti harva tugevalt pidevalt ootamatult"
+            + " aeglaselt varsti hiljem kohe?"
           : "Kas teil on valu?";
       },
     }));

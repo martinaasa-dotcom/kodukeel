@@ -37,7 +37,7 @@ import {
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
-import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
+import { replyFor, composeNote, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
@@ -300,7 +300,9 @@ async function play(sceneId: string) {
       if (wantsAside && !aside && asideOwed(asking) && LINKS.length > 0) {
         const drafted = await askModel({
           move: "answer",
-          they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+          // The beat's own `answer` where it has one, which is the route's rule.
+          they: answered?.answer
+            ?? "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
           reading: "",
           examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
           // An aside answers rather than asks, so no beat's banked line says what to say.
@@ -354,6 +356,8 @@ async function play(sceneId: string) {
               .slice(0, 6),
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
+            // And what happened to the turn, which is the route's own wording.
+            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null),
             avoid,
           }, {
             scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
@@ -369,7 +373,7 @@ async function play(sceneId: string) {
       acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
       aside, offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords) : null,
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null,
       met: state.done.length,
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
@@ -377,7 +381,7 @@ async function play(sceneId: string) {
         beat: answered, card: card ?? draw.card, lexicon: context.lexicon,
         dealt: new Map(scene.props.flatMap((p) =>
           p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
-        roll: state.turns.length,
+        roll: state.turns.length, met: last?.met ?? [],
       }) : null,
       hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
     });

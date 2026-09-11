@@ -85,7 +85,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Count, give your phone number, say a price and tell someone your age.",
-    blurb: "Counting is where the partitive first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and two of each is the whole pattern.",
+    blurb: "Counting is where the partitive first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and the ordinals put -s on the genitive, which is how you say which floor you live on.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["inimesed"],
