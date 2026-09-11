@@ -690,7 +690,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,449 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,452 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -916,8 +916,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,684 forms across 355 of the
-1,449 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,688 forms across 357 of the
+1,452 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -4832,7 +4832,7 @@ out as `Aitäh.` or `Jah.`, the other side thanking somebody for an answer they 
 
 **Telling somebody they were incomprehensible is the worst thing this module can do, and it was the
 default.** `unrecognised` fires where the app can vouch for no word of a turn, and what it vouched
-against was the scene's units widened once to the course, which is 1,449 words: everything else in
+against was the scene's units widened once to the course, which is 1,452 words: everything else in
 the language read as noise. A learner answered `Tere!` with `Tervitused!`, which is Estonian, which
 is a greeting, and which this course does not happen to teach, and was told they had not been
 understood. `knowing` in `lib/progress/scene.ts` asks `prisma/data/forms/` about the spellings in
@@ -5218,6 +5218,75 @@ that as not having been understood. What decides it is the question they were an
 the line they already heard, and a polar question in Estonian opens with `kas`, so `acknowledgements`
 is a reading of one word rather than a parse. It errs the safe way: where there is no line to read,
 or it is not a question, `jah` is left out, which costs the rotation a word and can never be wrong.
+
+**A number on a card is said in words, and for a year only the digit counted.** A card dealing a
+floor accepted `3`. A learner told to say which floor they live on wrote `kolmandal korrusel`, then
+`Mu korter on kolmandal korrusel.`, and the neighbor answered both with "sorry?" and the same
+question again; they reported the module as having zero clue what they were talking about, in
+perfect Estonian. Nobody says a floor as a digit out loud, and the whole of what the beat drills is
+saying it in Estonian, so the one spelling the marker took was the one that is not Estonian at all.
+`numberWords` is the cardinal and the **ordinal**, as lemma requests against `arvud` the way a dealt
+time's hours already are, so the caller resolves them through the dictionary's own case table and
+`props.ts` writes no form. The ordinals stopped at `teine` and the unit was widened for it, which is
+§29's finding a fourth time: the course teaches the nouns of a situation and not the words that do
+things with them. `pool` moved to `aeg` to make room, where telling the time is the can-do anyway.
+
+**And a synonym could meet every requirement except the one the learner did not choose the word
+for.** The `lemma` and `case` branches have read the substitutes and then the English gloss since
+each was written; `datum` never did, and a `datum` is the one requirement whose word the *card*
+picked. Dealt `mees`, the same learner wrote `ma elan siin koos oma abikaasaga`, and then
+`Abikaasa`, and was refused twice for knowing the word anybody reaches for. It is read last, after
+every spelling of the card's own value including the digit runs, so nothing here changes which word
+is repeated back when they used it, and `stoodIn` travels with the hit so no grade claims they
+produced the word the card dealt.
+
+**Every question a beat asks the learner for is answered by somebody, and seven of eleven had
+nobody.** `asideFor` answered out of the bank and returned null where the bank held nothing;
+`asideOwed` then reported that nothing was owed, so neither the model nor the shrug was reached. The
+argument was that the next move is the answer, which is true of four of the eleven beats whose goal
+is to ask something: "where is the station?" is answered by the directions, and a banked line there
+would be the other side saying it twice. At a job interview the next move is "when could you start",
+so a learner who did exactly as the objective told them and asked about the pay was answered with a
+fresh question, three times, while they insisted; they reported it as being left hanging, which is
+the one thing this module exists not to do. So the scene says which it is: `answer`, one line of
+English saying what they say when asked, or `answeredNext`, and `catalogue.test.ts` fails on a beat
+that says neither or both. `sceneBeats` makes no `answer:<beat>` pseudo-beat for an `answeredNext`
+one, so there is nothing for the bank test to waive, and the pseudo-beat's `they` is the beat's own
+`answer` rather than "they answer the question": told only the shape, a model drafted an interviewer
+agreeing with himself.
+
+**And the acknowledgment is never a word the learner has just said.** `jah` was already held to a
+polar question, and the commonest shape of the fault is a polar question answered *with* a yes:
+`Kas te olete siin uus?` met `Jah, ma just kolisin sisse.` and was acknowledged `Jah.`, which is the
+other side handing back somebody's own word. It was reported as a reply that makes zero sense, and
+it is the echo rule arriving through another door. Every word of the turn rather than its first,
+since `Aitäh` and `Hästi` come back the same way, and the rotation is never emptied: a turn holding
+all three gets the word back rather than losing the reaction.
+
+**The objective carries what the card dealt for it, and the conversation says who is talking.** Both
+were reported off one screenshot and both are about looking something up rather than reading it. The
+goal read "Say which floor you live on. It is on your card", and the card was a disclosure with
+three lines of prose in it in which a number, a time and a code each folded their value into their
+own label while a word printed its value underneath: three shapes, one column, and the strip above
+the conversation could not show the floor at all. `DrawnProp.shown` is the value on those three, so
+every line of a card is a label with its value under it, and `dealtFor` puts the same value beside
+the objective and inside the panel a learner types into, behind the same press as the goal on
+`cold`. No goal names the card any more, asserted. And the conversation itself was two columns told
+apart by which edge they sat against and which ink they were in: `SceneFace` is the vignette's own
+figure at thirty pixels, once per run rather than once per bubble, `aria-hidden`, with "They said:"
+and "You said:" beside it doing the saying, because a drawing may not be the only thing carrying a
+distinction any more than a colour may.
+
+**And the harnesses that print these transcripts marked more narrowly than the app.** The route
+widens three times before it reads a turn: the course (`courseForms`), the forms list (`knowing`),
+and the two accept-only halves the dictionary derives. `npm run play:scenes` had the second and
+`npm run probe:turns` had only a course-forms set of its own, so a learner who wrote a second word
+for the same thing or reached for one in English read as off the point on the page a maintainer
+reads before touching the marker, and `kuupalk` read as a word nobody could account for. That is
+§53's rule about `eval:scene` one instrument over, and it sends whoever reads it after a fault that
+is not there. `acceptFromRows` is the pure half of what `sceneContext` resolves with two queries,
+and both build the marker's two fields through one function, so the route's answer and a harness's
+cannot differ.
 
 **And the app's own gate was stricter than the gate it measured itself with.** `gateContext` in the
 eval and in the bank's test has handed in the course's question words since the government check was
@@ -6589,7 +6658,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `dealtHours`, `clockInPlay`, `negatedIn`, `creditAhead`, `addsEvidence`, `moveOn`, `turned`,
 `ownReaction`, `opensWithReaction`, `acknowledgements`, `possessive`, `Subject`, `ComposeAsk`, `MAX_COMPOSED_WORDS`,
 `DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
-`VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`.
+`VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
+`numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

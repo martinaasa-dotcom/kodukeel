@@ -3439,3 +3439,88 @@ drawing, so a new setting cannot fall through to a default; and a beat that
 moves you names a beat that exists and a room that is drawn, read in both
 directions, because a typo in a beat id is an entry nothing matches and leaves
 the learner in the kitchen for a conversation held in a shop.
+
+## 60. The seventeenth pass: what a learner sent back, and what was wrong under it
+
+Seven things, off one set of screenshots and one run of each of two scenes. Four
+of them are one fault wearing four faces, which is that the app kept judging
+correct Estonian wrongly or not answering at all; three are about a screen. The
+learner's own words are worth keeping because they name the stake better than
+any of this does: *the learner cannot be left feeling stupid, the whole point is
+to help them gain confidence.*
+
+**A number on a card was said in words and the app took only the digit.** Told
+to say which floor they live on they wrote `kolmandal korrusel`, and then
+`Mu korter on kolmandal korrusel.`, and were answered "sorry?" both times. A
+`number` prop's accepted spellings were `["3"]`, which is the one spelling of a
+floor that is not Estonian at all, on the beat whose whole job is saying it in
+Estonian. `numberWords` is the cardinal and the ordinal as lemma requests
+against `arvud`, the way a dealt time's hours have always been, so the caller
+resolves them through the dictionary's own case table and nothing here writes a
+form. The ordinals in the course stopped at `teine`, which is §29's finding a
+fourth time, and three were added and confirmed by the harvest.
+
+**A word that means the same thing met every requirement but the one the card
+chose.** Dealt `mees`, the same learner wrote `ma elan siin koos oma
+abikaasaga`, then `Abikaasa`, and was refused for knowing the word anybody
+reaches for. `lemma` and `case` have read the substitutes and then the English
+gloss since each was written; `datum` never did, and a `datum` is exactly where
+a learner is likeliest to know a second word, because nobody chose the first one
+for them. Read last, after every spelling of the card's own value, so nothing
+changes about which word is said back when they used it.
+
+**A question the objective told them to ask was ignored.** At the job interview
+the objective is "Ask about the pay"; they asked, and the interviewer asked when
+they could start, and then asked it again three times while they insisted. Seven
+of the eleven beats whose goal is to ask something had no answer at all:
+`asideFor` returned nothing and `asideOwed` reported that nothing was owed, so
+neither the model nor the shrug was reached. The argument behind that was true
+of four of them and nothing checked which. A scene says which it is now, in
+`answer` or `answeredNext`, and the three beats that needed a line have one.
+
+**And the other side said `Jah.` to somebody who had just said `jah`.** The
+rotation was already held to a polar question; the commonest shape of the fault
+is a polar question answered *with* a yes. It is the echo rule one word over.
+
+**The card was hard to read and the instruction sent them to it.** Three prop
+kinds folded their value into their own label while a fourth printed it
+underneath, so one column held three shapes; the role, the labels, the values
+and the persona were four kinds of thing at one size in two inks; and the
+objective said "It is on your card" rather than saying what was on it. Every
+line of a card is a label with its value under it now, and `dealtFor` puts the
+same value beside the objective and in the panel a learner types into. No goal
+names the card.
+
+**The conversation did not say who was talking.** The drawings are on the
+briefing and on the cover between two rooms, and the conversation itself was two
+columns of cards told apart by which edge they sat against and which ink they
+were in. `SceneFace` is the vignette's own figure at thirty pixels, once per run
+of lines, hidden from a screen reader, with "They said:" and "You said:" beside
+it doing the saying.
+
+**And the end of a run was three loose sentences.** A line about a word going
+into the review schedule, a line about second runs, the buttons, and a line
+about progress counting this as a review: the first and the last were the same
+fact twenty pixels apart, and the middle one was an argument for the button
+under it printed as though it were news. One block now, with the argument under
+the button it argues for.
+
+**What this pass also found is that the instruments were lying in the app's
+favour.** `npm run play:scenes` and `npm run probe:turns` are what a maintainer
+reads before touching the marker, and neither resolved the substitutes or the
+English gloss, and the probe had a course-forms set of its own instead of the
+forms list. So `abikaasaga` read as a turn off the point and `kuupalk` as a word
+nobody could account for, on the page written to be read for exactly those. That
+is §53's rule about `eval:scene` one instrument over, and it is worse here,
+because a transcript that judges more harshly than the app sends somebody after a
+fault that is not there. `acceptFromRows` is the pure half of what `sceneContext`
+resolves with two queries, and both build the marker's two accept-only fields
+through one function.
+
+**What is not fixed.** A one-word answer on a beat whose shape is `sentence` is
+still a look and a wait, which is the design and reads as brusque the first time
+it happens. And a composed line that opens with its own remark keeps that remark
+when the question is put again after a miss, so `Vabandust! Väga tore. Mitmendal
+korrusel teie korter asub?` is a thing the other side can say: the repair word
+and the remark were written for different turns, and telling them apart means
+splitting a composed Estonian line, which is not a thing this app may do.

@@ -33,7 +33,7 @@
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import {
-  clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+  acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
@@ -165,7 +165,7 @@ async function askModel(
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
-  extraForms: e.extraForms, usages: e.usages, government: e.government,
+  extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
 }));
 
 /** What an imperfect learner says for a beat, off its own requirements. */
@@ -222,7 +222,16 @@ function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnTy
 
 async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
-  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  /*
+    MARKED THE WAY THE ROUTE MARKS IT, AND THE ROUTE WIDENS TWICE. `knowing`
+    below is one of them; these are the other two, and this harness resolved
+    neither, so a learner who wrote a second word for the same thing or reached
+    for one in English read as off the point here and as understood in the app.
+    A transcript printed through a narrower marker than the app's is the fault
+    §53 found in `eval:scene`, one instrument over.
+  */
+  const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
   const run = planRun(scene, `play-${style}`, scene.level, difficulty);
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted" };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;

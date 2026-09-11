@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { drawCard, drawProp, propBySlot, type PropSpec } from "./props";
+import { NUMBER_LEMMAS, drawCard, drawProp, propBySlot, type PropSpec } from "./props";
+import { unitById } from "@/lib/collections/syllabus";
 
 function seeded(seed: number): () => number {
   let n = seed >>> 0;
@@ -86,7 +87,37 @@ describe("the role card", () => {
       one and its shape is visibly not a real register's.
     */
     expect(drawn.value).toMatch(/^KK-\d{4}$/);
-    expect(drawn.card).toContain(drawn.value);
+    /*
+      On the card's own value line rather than folded into the label: every
+      line of a card is a label with what you were dealt under it, whichever
+      kind of fact it holds (`DrawnProp.shown`).
+    */
+    expect(drawn.card).toBe("Your reference:");
+    expect(drawn.shown).toEqual([drawn.value]);
+  });
+
+  /*
+    A NUMBER ON A CARD IS SAID IN WORDS. A learner told to say which floor they
+    live on wrote `kolmandal korrusel` and was answered "sorry?", because the
+    card accepted the digit and nothing else. The words are lemma requests, the
+    way a time's are, so the marker resolves them through the dictionary's own
+    case table and `kolmandal` is reached without this file writing a form.
+  */
+  it("says a dealt number in words as well as in digits", () => {
+    const drawn = drawProp({ kind: "number", slot: "floor", min: 3, max: 3, says: "The floor you live on." }, seeded(1));
+    expect(drawn.value).toBe("3");
+    expect(drawn.literal).toEqual(["3"]);
+    expect(drawn.lemmas).toEqual(["kolm", "kolmas"]);
+    /* The label is a label and the value is under it, like every other line. */
+    expect(drawn.card).toBe("The floor you live on.");
+    expect(drawn.shown).toEqual(["3"]);
+  });
+
+  it("names only words the numbers unit teaches, so a card cannot introduce one", () => {
+    const taught = new Set(unitById("arvud")?.lemmas ?? []);
+    for (const lemma of NUMBER_LEMMAS) {
+      expect(taught.has(lemma), `${lemma} is not taught by arvud`).toBe(true);
+    }
   });
 
   it("prefers a value the last runs did not use, and draws one anyway when it must", () => {

@@ -292,7 +292,7 @@ const DOCTOR: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when. Your card says which day.",
+      goal: "Say since when.",
       they: "They ask how long it has been going on.",
       move: "ask",
       topic: ["päev", "nädal", "hommik", "aeg", "esmaspäev", "teisipäev", "kolmapäev"],
@@ -410,7 +410,7 @@ const LANDLORD: SceneSpec = {
     },
     // Theirs, like the day beside it: they say when they can come.
     { kind: "time", slot: "time", from: 8, to: 18, theirs: true },
-    { kind: "number", slot: "floor", min: 1, max: 5, says: "You live on floor" },
+    { kind: "number", slot: "floor", min: 1, max: 5, says: "The floor you live on." },
     /*
       The day the landlord offers, drawn per run so a reload offers the same
       one, and the other side's rather than the learner's: it is not printed
@@ -493,7 +493,7 @@ const LANDLORD: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when. Your card says which day.",
+      goal: "Say since when.",
       they: "They ask since when.",
       move: "ask",
       topic: ["päev", "nädal", "aeg", "õhtu"],
@@ -506,6 +506,7 @@ const LANDLORD: SceneSpec = {
       id: "refuse",
       goal: "They cannot come this week. Ask when they can.",
       they: "They say nobody can come this week.",
+      answer: "They say somebody can come soon, and then offer a day and a time.",
       move: "refuse",
       topic: ["remont", "aeg", "nädal", "üür"],
       needs: [{ kind: "question" }],
@@ -605,8 +606,8 @@ const COUNTER: SceneSpec = {
       typed into a practice app is the one thing this module could collect that
       nobody could ever take back (§3), so no scene invites one.
     */
-    { kind: "code", slot: "ref", says: "The reference you were given:" },
-    { kind: "number", slot: "floor", min: 1, max: 4, says: "The desk you were sent to is on floor" },
+    { kind: "code", slot: "ref", says: "The reference you were given." },
+    { kind: "number", slot: "floor", min: 1, max: 4, says: "The floor the desk is on." },
   ],
   curveballs: [
     "missing-document", "their-order", "place-instruction", "queue", "faster",
@@ -650,6 +651,7 @@ const COUNTER: SceneSpec = {
       id: "wait",
       goal: "They send you to the queue. Ask how long.",
       they: "They point you to the queue.",
+      answer: "They say roughly how long the queue takes.",
       move: "instruct",
       topic: ["järjekord", "aeg", "klient"],
       needs: [{ kind: "question" }],
@@ -673,6 +675,7 @@ const COUNTER: SceneSpec = {
       id: "confirm",
       goal: "Check when it will be ready.",
       they: "They say the form has been taken and read the details back.",
+      answer: "They say how long it will be before the form is ready.",
       move: "confirm",
       topic: ["aeg", "päev", "nädal", "avaldus"],
       needs: [{ kind: "question" }],
@@ -873,7 +876,7 @@ const CAFE: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like. It is on your card.",
+      goal: "Say what you would like.",
       they: "They ask what you would like.",
       move: "ask",
       topic: ["kohv", "tee", "jook", "soovima", "tellima"],
@@ -961,8 +964,9 @@ const DIRECTIONS: SceneSpec = {
     },
     {
       id: "where",
-      goal: "Ask where the place on your card is.",
+      goal: "Ask where the place is.",
       they: "They wait for your question.",
+      answeredNext: true,
       move: "ask",
       topic: ["aitama", "otsima", "koht"],
       needs: [{ kind: "question" }, { kind: "datum", slot: "place" }],
@@ -985,6 +989,7 @@ const DIRECTIONS: SceneSpec = {
       id: "far",
       goal: "Ask whether it is near.",
       they: "They wait in case you have another question.",
+      answer: "They say it is close, a few minutes on foot.",
       move: "confirm",
       awaits: true,
       topic: ["lähedal", "kõndima", "minut"],
@@ -1027,7 +1032,7 @@ const TICKET: SceneSpec = {
       kind: "word", slot: "to", oneOf: ["kesklinn", "jaam", "haigla", "ülikool", "rand"],
       says: "Where you are going.",
     },
-    { kind: "time", slot: "time", from: 8, to: 20 },
+    { kind: "time", slot: "time", from: 8, to: 20, says: "The time you are meeting." },
   ],
   curveballs: ["wrong-price", "queue", "faster", "english", "not-possible", "slot-gone", "small-talk"],
   beats: [
@@ -1055,7 +1060,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "to",
-      goal: "Say where you are going. It is on your card.",
+      goal: "Say where you are going.",
       they: "They ask where you are going.",
       move: "ask",
       topic: ["kuhu", "sõitma", "buss"],
@@ -1066,7 +1071,7 @@ const TICKET: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Say what time. Your card has it.",
+      goal: "Say what time.",
       they: "They ask what time.",
       move: "ask",
       topic: ["kell", "aeg", "buss"],
@@ -1176,7 +1181,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "order",
-      goal: "Say what you would like to eat. Your card says what.",
+      goal: "Say what you would like to eat.",
       they: "They ask what you would like to eat.",
       move: "ask",
       topic: ["roog", "menüü", "soovima", "tellima", "sööma"],
@@ -1189,6 +1194,7 @@ const RESTAURANT: SceneSpec = {
       id: "contents",
       goal: "Ask what is in it.",
       they: "They recommend a dish and wait.",
+      answer: "They say what is in the dish they recommended.",
       move: "offer",
       topic: ["soovitama", "roog", "maitse", "hea"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["roog", "liha", "kala", "köögivili", "salat", "supp", "maitse", "sees"] }],
@@ -1198,7 +1204,7 @@ const RESTAURANT: SceneSpec = {
     },
     {
       id: "drink",
-      goal: "Say what you would like to drink. Your card says what.",
+      goal: "Say what you would like to drink.",
       they: "They ask what you would like to drink.",
       move: "ask",
       topic: ["jook", "jooma", "vesi", "mahl"],
@@ -1293,7 +1299,7 @@ const PHONE: SceneSpec = {
     },
     {
       id: "have",
-      goal: "Ask whether they have it. Your card says what.",
+      goal: "Ask whether they have it.",
       they: "They ask what you are looking for.",
       move: "ask",
       topic: ["kaup", "soovima", "tahtma", "ostma", "müüma"],
@@ -1306,6 +1312,7 @@ const PHONE: SceneSpec = {
       id: "hours",
       goal: "Ask when they are open.",
       they: "They say they have it, and wait.",
+      answeredNext: true,
       move: "confirm",
       topic: ["kaup", "jah", "olema", "siin"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["kell", "millal", "aeg", "homme", "päev", "täna"] }],
@@ -1360,7 +1367,7 @@ const NEIGHBOR: SceneSpec = {
   register: "teie",
   role: "You moved into the building last week. On the stairs you meet the person from the flat opposite, who stops to say hello. Your card says where you are from and who lives with you.",
   props: [
-    { kind: "number", slot: "floor", min: 1, max: 5, says: "You live on floor" },
+    { kind: "number", slot: "floor", min: 1, max: 5, says: "The floor you live on." },
     {
       kind: "word", slot: "from", oneOf: ["Soome", "Läti", "Saksamaa", "Inglismaa", "Ameerika", "Rootsi", "Venemaa"],
       says: "Where you are from.",
@@ -1396,7 +1403,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "floor",
-      goal: "Say which floor you live on. It is on your card.",
+      goal: "Say which floor you live on.",
       they: "They ask which floor you are on.",
       move: "ask",
       topic: ["korrus", "korter", "kus", "elama"],
@@ -1407,7 +1414,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from. It is on your card.",
+      goal: "Say where you are from.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "välismaalane", "Eesti"],
@@ -1418,7 +1425,7 @@ const NEIGHBOR: SceneSpec = {
     },
     {
       id: "with",
-      goal: "Say who lives with you. It is on your card.",
+      goal: "Say who lives with you.",
       they: "They ask whether you live alone.",
       move: "ask",
       topic: ["pere", "inimene", "elama", "ise"],
@@ -1501,7 +1508,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "what",
-      goal: "Say what hurts. It is on your card.",
+      goal: "Say what hurts.",
       they: "They ask what they can help with.",
       move: "ask",
       topic: ["aitama", "valu", "valutama", "tervis", "haige"],
@@ -1512,7 +1519,7 @@ const PHARMACY: SceneSpec = {
     },
     {
       id: "since",
-      goal: "Say since when. Your card says which day.",
+      goal: "Say since when.",
       they: "They ask how long it has hurt.",
       move: "ask",
       topic: ["kaua", "päev", "aeg", "kestma", "eile"],
@@ -1525,6 +1532,7 @@ const PHARMACY: SceneSpec = {
       id: "medicine",
       goal: "Ask what they recommend.",
       they: "They think for a moment.",
+      answeredNext: true,
       move: "confirm",
       topic: ["ravim", "hea", "aitama", "soovitama"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["ravim", "soovitama", "hea", "aitama", "mis"] }],
@@ -1536,6 +1544,7 @@ const PHARMACY: SceneSpec = {
       id: "how",
       goal: "Ask how often to take it.",
       they: "They put a box on the counter and say what it is.",
+      answeredNext: true,
       move: "offer",
       topic: ["ravim", "hea", "valu", "aitama"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["päev", "mitu", "kuidas", "millal", "hommik", "õhtu", "võtma"] }],
@@ -1623,7 +1632,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "from",
-      goal: "Say where you are from. It is on your card.",
+      goal: "Say where you are from.",
       they: "They ask where you are from.",
       move: "ask",
       topic: ["kust", "kodumaa", "Eesti", "välismaalane"],
@@ -1634,7 +1643,7 @@ const COURSE: SceneSpec = {
     },
     {
       id: "why",
-      goal: "Say why you are learning Estonian. It is on your card.",
+      goal: "Say why you are learning Estonian.",
       they: "They ask why you are learning Estonian.",
       move: "ask",
       topic: ["miks", "õppima", "keel", "sest"],
@@ -1647,6 +1656,7 @@ const COURSE: SceneSpec = {
       id: "word",
       goal: "Ask what a word means, or ask them to say it again.",
       they: "They use a word you do not know, and carry on.",
+      answer: "They say the word again, slowly, and say what it means in other Estonian words.",
       move: "instruct",
       topic: ["sõna", "lause", "harjutus", "näide", "kordama"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["sõna", "kordama", "seletama", "uuesti", "aeglane", "tõlkima"] }],
@@ -1730,7 +1740,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "before",
-      goal: "Say where you worked before. It is on your card.",
+      goal: "Say where you worked before.",
       they: "They ask what you did before.",
       move: "ask",
       topic: ["töö", "töötama", "varem", "kogemus", "ettevõte"],
@@ -1741,7 +1751,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "skill",
-      goal: "Say what you are good at. It is on your card.",
+      goal: "Say what you are good at.",
       they: "They ask what you are good at.",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
@@ -1765,6 +1775,7 @@ const INTERVIEW: SceneSpec = {
       id: "pay",
       goal: "Ask about the pay.",
       they: "They ask whether you have any questions.",
+      answer: "They say the pay is good and that it is written in the contract.",
       move: "ask",
       topic: ["küsimus", "küsima", "palk", "leping"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["palk", "raha", "maksma", "leping"] }],
@@ -1774,7 +1785,7 @@ const INTERVIEW: SceneSpec = {
     },
     {
       id: "start",
-      goal: "Say when you could start. Your card says which day.",
+      goal: "Say when you could start.",
       they: "They ask when you could start.",
       move: "ask",
       topic: ["millal", "alustama", "algama", "päev"],
@@ -1842,7 +1853,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "problem",
-      goal: "Say what you bought and that there is a problem with it. Your card says what.",
+      goal: "Say what you bought, and that there is a problem with it.",
       they: "They ask what the matter is.",
       move: "ask",
       topic: ["probleem", "viga", "kaebus", "aitama"],
@@ -1853,7 +1864,7 @@ const COMPLAINT: SceneSpec = {
     },
     {
       id: "when",
-      goal: "Say when you bought it. Your card says which day.",
+      goal: "Say when you bought it.",
       they: "They ask when you bought it.",
       move: "ask",
       topic: ["millal", "ostma", "päev", "eile"],

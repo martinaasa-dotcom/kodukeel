@@ -119,9 +119,26 @@ export const A1 = [
       ["vanus", "age"],
       ["sada", "hundred"],
       ["tuhat", "thousand"],
+      /*
+        THE ORDINALS STOPPED AT TWO, AND A FLOOR IS AN ORDINAL.
+
+        A learner told to say which floor they live on wrote `kolmandal
+        korrusel`, which is the sentence, and the app answered that it had not
+        understood them. The list held `esimene` and `teine` and then nothing,
+        which is the same shape as the gap `docs/21-situations.md` §29 found
+        across the course: the nouns of a situation are taught and the words
+        that do things with them are not. A floor, a course, a try and a street
+        number are all ordinals, and the pattern is `-s` on the genitive of the
+        cardinal, so somebody who has met five of them has met the rule.
+
+        Requests like every other line here: the harvest either confirms each
+        against Ekilex or drops and reports it.
+      */
       ["esimene", "first", "ADJECTIVE"],
       ["teine", "second, other", "ADJECTIVE"],
-      ["pool", "half"],
+      ["kolmas", "third", "ADJECTIVE"],
+      ["neljas", "fourth", "ADJECTIVE"],
+      ["viies", "fifth", "ADJECTIVE"],
     ],
   }),
 
@@ -228,6 +245,13 @@ export const A1 = [
       ["laupäev", "Saturday"],
       ["pühapäev", "Sunday"],
       ["kellaaeg", "time of day"],
+      /*
+        `pool` came over from `arvud` when the ordinals went in, and this is
+        the better home for it either way: half past eleven is `pool
+        kaksteist`, which is this unit's own can-do, and `arvud` is counting.
+        The word and its gloss are unchanged, and the harvest stores no unit.
+      */
+      ["pool", "half"],
       // "Üks hetk" is what anybody behind a counter says while they look.
       ["hetk", "moment"],
     ],

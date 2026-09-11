@@ -328,10 +328,25 @@ function ownReaction(line: SpokenLine | null): boolean {
  * reading of one word rather than a parse, and it errs the safe way: where
  * there is no line to read, or it is not a question at all, `jah` is simply
  * left out, which costs the rotation a word and can never be wrong.
+ *
+ * AND NEVER A WORD THE LEARNER HAS JUST USED. That rule holds for `kas` and
+ * left the commonest shape of the fault standing: a polar question answered
+ * `Jah, ma just kolisin sisse.` was acknowledged `Jah.`, which is the other
+ * side handing back somebody's own yes. It was reported as a response that
+ * makes zero sense, and it is the echo rule arriving through another door.
  */
-function acknowledgements(heard: string | null): readonly string[] {
+function acknowledgements(heard: string | null, said: string | null): readonly string[] {
   const polar = heard ? words(heard)[0] === "kas" : false;
-  return polar ? REACTIONS.acknowledge : REACTIONS.acknowledge.filter((word) => word !== "jah");
+  const mine = polar ? REACTIONS.acknowledge : REACTIONS.acknowledge.filter((word) => word !== "jah");
+  /*
+    Every word of the turn rather than its first, since `Aitäh` and `Hästi`
+    come back the same way a `Jah` does. The rotation is never emptied: a turn
+    holding all three leaves nothing to say, and there the word comes back
+    rather than the reaction going, which is what it did before any of this.
+  */
+  const theirs = new Set(words(said ?? ""));
+  const fresh = mine.filter((word) => !theirs.has(word));
+  return fresh.length > 0 ? fresh : mine;
 }
 
 /**
@@ -544,7 +559,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
         provenance: input.english ? "offered" : input.recast ? "recast" : "echo", reaction: true,
       });
     } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)) {
-      const choices = acknowledgements(heard);
+      const choices = acknowledgements(heard, input.said);
       out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
     }
   }

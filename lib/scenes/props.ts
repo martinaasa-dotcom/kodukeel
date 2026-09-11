@@ -71,6 +71,8 @@ export type PropSpec =
       readonly to: number;
       readonly differentFrom?: string;
       readonly theirs?: true;
+      /** How the card labels it. The value is printed under it like every other. */
+      readonly says?: string;
     }
   /**
    * A weekday, as one of the course's own weekday lemmas.
@@ -115,6 +117,24 @@ export interface DrawnProp {
    * caller, which is what keeps this file free of Estonian forms.
    */
   readonly lemmas: readonly string[];
+  /**
+   * What the card prints as the value, where the value prints itself.
+   *
+   * EVERY LINE OF A CARD IS A LABEL AND A VALUE, AND THREE OF THEM WERE NOT.
+   * A `word` prop drew a lemma and the briefing printed its English gloss
+   * underneath the label; a number, a time and a code each folded the value
+   * into the label instead, so one card read "Where you are from." over
+   * "Finland" and "You live on floor 3" as one sentence with a digit in the
+   * middle of it. A learner sent a screenshot of that card and said it was
+   * hard to tell where the information was, and it is: the three shapes are
+   * three different places to look.
+   *
+   * So a label is a label on every line and this is the other half, which
+   * the briefing prints where the dictionary has no gloss to print. Empty on
+   * a `word` or a `weekday`, whose value is a lemma and whose card says it
+   * in English, because saying it in Estonian is the exercise.
+   */
+  readonly shown: readonly string[];
   /** What was drawn, for the recency rule in §5. */
   readonly value: string;
   /** The other side's fact, drawn and stored but never printed on the card. */
@@ -172,7 +192,7 @@ export function drawProp(
     case "word": {
       const lemma = pick(spec.oneOf, random, avoid, prefer);
       return {
-        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma], value: lemma,
+        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma], shown: [], value: lemma,
         ...worn(lemma, avoid),
         ...(prefer.has(lemma) ? { returned: true as const } : {}),
       };
@@ -180,7 +200,7 @@ export function drawProp(
     case "weekday": {
       const lemma = pick(spec.oneOf, random, avoid);
       return {
-        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma], value: lemma,
+        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma], shown: [], value: lemma,
         ...worn(lemma, avoid),
         ...(spec.theirs ? { theirs: true as const } : {}),
       };
@@ -191,7 +211,8 @@ export function drawProp(
       return {
         ...worn(value, avoid),
         slot: spec.slot,
-        card: `The time you were given: ${value}`,
+        card: spec.says ?? "The time you were given",
+        shown: [value],
         /*
           `14:00`, `14.00` and `14` are all how somebody writes a time down.
 
@@ -224,7 +245,7 @@ export function drawProp(
       const span = Array.from({ length: spec.max - spec.min + 1 }, (_, i) => String(spec.min + i));
       const value = pick(span, random, avoid);
       return {
-        slot: spec.slot, card: `${spec.says} ${value}`, literal: [value], lemmas: [], value,
+        slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [value], value,
         ...worn(value, avoid),
       };
     }
@@ -235,7 +256,7 @@ export function drawProp(
         a real reference and typing their own instead.
       */
       const value = `KK-${digits(random, 4)}`;
-      return { slot: spec.slot, card: `${spec.says} ${value}`, literal: [value, value.slice(3)], lemmas: [], value };
+      return { slot: spec.slot, card: spec.says, literal: [value, value.slice(3)], lemmas: [], shown: [value], value };
     }
   }
 }
@@ -344,6 +365,46 @@ export function timeWords(value: string): string[] {
 
 /** Every lemma `timeWords` can name, for the test that checks they are taught. */
 export const TIME_LEMMAS: readonly string[] = [...HOUR_WORDS, HALF];
+
+/**
+ * A NUMBER ON A CARD IS SAID IN WORDS, AND FOR A YEAR ONLY THE DIGIT COUNTED.
+ *
+ * A card dealing a floor accepted `3` and nothing else. A learner told to say
+ * which floor they live on wrote `kolmandal korrusel`, then `Mu korter on
+ * kolmandal korrusel.`, and the neighbor answered both with "sorry?" and the
+ * same question again. Nobody says a floor as a digit out loud; the whole of
+ * what the beat is drilling is saying it in Estonian, and the one spelling the
+ * marker took was the one spelling that is not Estonian at all.
+ *
+ * So a dealt number carries the words for it, exactly as a dealt time carries
+ * `timeWords`: the cardinal, because `kolm` is an answer to "which floor", and
+ * the **ordinal**, because `kolmas` is the answer anybody gives and its case
+ * forms are where `kolmandal` comes from. Lemmas rather than forms, so the
+ * caller resolves them through the dictionary's own case table and this file
+ * writes no Estonian; every one is a word `arvud` teaches, so a misspelling
+ * here fails the catalog test rather than reaching a marker.
+ *
+ * The ordinals stopped at `teine` when this was written and the unit was
+ * widened for it, which is the finding in `docs/21-situations.md` §29 arriving
+ * a fourth time: the course teaches the nouns of a situation and not the words
+ * that do things with them.
+ */
+const CARDINALS = [
+  "null", "üks", "kaks", "kolm", "neli", "viis", "kuus", "seitse", "kaheksa", "üheksa", "kümme",
+] as const;
+const ORDINALS = [
+  "", "esimene", "teine", "kolmas", "neljas", "viies",
+] as const;
+
+export function numberWords(value: string): string[] {
+  const n = Number(value);
+  if (!Number.isInteger(n) || n < 0) return [];
+  const said: (string | undefined)[] = [CARDINALS[n], ORDINALS[n]];
+  return said.filter((word): word is string => Boolean(word));
+}
+
+/** Every lemma `numberWords` can name, for the test that checks they are taught. */
+export const NUMBER_LEMMAS: readonly string[] = [...CARDINALS, ...ORDINALS].filter((word) => word !== "");
 
 /**
  * The word a time is told with, as a lemma request like the hours themselves.

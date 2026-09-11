@@ -858,7 +858,13 @@ function satisfies(
         does: the case form is the answer, any other form of the word is the
         word understood in the wrong case, and the recast is the table's.
       */
-      const lemmas = need.grammCase ? context.dataLemmas?.get(need.slot) ?? [] : [];
+      /*
+        The lemmas the card dealt for this slot. Read whether or not the beat
+        named a case: a case reads them through the case table below, and
+        everything else reads them for the two rungs a beat's own word has.
+      */
+      const card = context.dataLemmas?.get(need.slot) ?? [];
+      const lemmas = need.grammCase ? card : [];
       for (const lemma of lemmas) {
         const key = caseKeyFor(lemma, need.grammCase!);
         const forms = context.lexicon.byLemma.get(lemma);
@@ -911,6 +917,35 @@ function satisfies(
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
+      /*
+        A WORD THAT MEANS THE SAME THING, AND THE WORD IN ENGLISH, WHICH THIS
+        BRANCH ALONE COULD NOT REACH.
+
+        The `lemma` and `case` branches have gone through the substitutes and
+        then the English gloss since each was written, and the one branch that
+        never did is the one whose word the learner did not choose: a card
+        deals `mees` and the learner has `abikaasa`, which is the word for a
+        husband anybody would reach for, and they were told it was not
+        understood. Reported by somebody using it, twice in one run, in perfect
+        Estonian ("ma elan siin koos oma abikaasaga"). A beat the card decides
+        is exactly where a learner is likeliest to know a second word, because
+        nobody chose the first one for them.
+
+        Last, and in this order, so the card's own word always answers first
+        and nothing here changes which word is repeated back when they used it.
+        `stoodIn` travels with the hit, so the beat is met and no grade claims
+        they produced the word the card dealt.
+      */
+      for (const lemma of card) {
+        const stood = substituteFor(lemma, context, spoken);
+        if (stood) return { word: stood, stoodIn: true };
+      }
+      for (const lemma of card) {
+        const said = englishFor(lemma, context, spoken);
+        if (said) {
+          return { word: lemma, stoodIn: true, slip: { kind: "english", said, form: lemma, lemma } };
+        }
+      }
       return null;
     }
     /*

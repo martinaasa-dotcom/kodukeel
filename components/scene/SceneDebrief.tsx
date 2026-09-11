@@ -445,12 +445,6 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         </section>
       )}
 
-      {graded > 0 && (
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          {graded === 1 ? "One word" : `${graded} words`} you used went into your review schedule.
-        </p>
-      )}
-
       {errand && (
         <section>
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Now the real one</h3>
@@ -471,34 +465,44 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
       )}
 
       {/*
-        The reason to press the button, beside the button. It used to sit under
-        "one thing to work on", which is a heading about a goal rather than
-        about the way back in. Only where something is left undone: a run that
-        got everything done closes on the errand above, which points out of the
-        app rather than back into it (`docs/22-real-life.md`).
-      */}
-      {objectives.missed.length > 0 && (
-        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-          The second run of a scene is where most of it sticks.
-        </p>
-      )}
+        THE WAY OUT IS ONE BLOCK, AND IT WAS THREE LOOSE SENTENCES.
 
-      {/*
-        The quiet way out first and the loud one last, which is the shape every
-        other finish screen in the app has: "Another round" beside a primary
-        that says where to go next. This row had no primary at all, so the way
-        back into the scene was drawn quieter than the link away from it, under
-        the very sentence above that argues for it.
+        A learner read the end of a run and said it was three strings of text
+        with nothing said. It was: a line about a word going into the review
+        schedule, a line about second runs, the two buttons, and then a line
+        about progress counting this as a review. The first and the last were
+        the same fact in different words, twenty pixels apart, and the middle
+        one was an argument for the button underneath it printed as though it
+        were news.
+
+        So the argument sits under the button it is an argument for, the two
+        readings of the schedule are one sentence, and nothing floats. Only the
+        schedule line is conditional, because a run that graded nothing has
+        nothing to say about it, and the button is the point either way.
       */}
-      <div className="flex flex-wrap gap-2">
-        <ButtonLink href="/situations" variant="ghost">Another conversation</ButtonLink>
-        {/* Try it again keeps the scene and redraws everything else. */}
-        <Button variant="primary" onClick={onAgain}>Have it again</Button>
+      <div className="flex flex-col gap-3">
+        {/*
+          The quiet way out first and the loud one last, which is the shape
+          every other finish screen in the app has.
+        */}
+        <div className="flex flex-wrap gap-2">
+          <ButtonLink href="/situations" variant="ghost">Another conversation</ButtonLink>
+          {/* Try it again keeps the scene and redraws everything else. */}
+          <Button variant="primary" onClick={onAgain}>Have it again</Button>
+        </div>
+
+        {(objectives.missed.length > 0 || graded > 0) && (
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {objectives.missed.length > 0 && "The second run of a scene is where most of it sticks. "}
+            {graded > 0 && (
+              <>
+                {graded === 1 ? "One word" : `${graded} words`} you used are in{" "}
+                <Link href="/progress">your review schedule</Link> now, counted the way a review is.
+              </>
+            )}
+          </p>
+        )}
       </div>
-
-      <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        <Link href="/progress">Your progress</Link> counts this the way it counts a review.
-      </p>
     </div>
   );
 }

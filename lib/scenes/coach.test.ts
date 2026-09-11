@@ -18,7 +18,7 @@ const BEAT: BeatSpec = {
 
 const CARD: RoleCard = {
   you: "You are somebody.",
-  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], value: "14:30" }],
+  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], shown: [], value: "14:30" }],
 };
 
 describe("the hint the app gives", () => {

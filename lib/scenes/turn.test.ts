@@ -236,6 +236,39 @@ describe("reading a turn", () => {
       const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
       expect(readTurn("ruum", asks, context()).reading).not.toBe("complete");
     });
+
+    /*
+      AND IT REACHES THE ONE BRANCH WHOSE WORD THE LEARNER DID NOT CHOOSE. A
+      `datum` is a word the card dealt, so it is exactly where somebody is
+      likeliest to know a second one, and it was the one requirement that
+      could not be met by it: a card dealing `tuba` refused `ruum`, and a
+      learner reported the same thing on a card dealing `mees` who wrote
+      `abikaasaga`. Reported as the app having "zero clue what I'm talking
+      about", in perfect Estonian.
+    */
+    it("meets a value off the card, which is where the learner chose none of the words", () => {
+      const asks = beat({ needs: [{ kind: "datum", slot: "with" }] });
+      const dealt = {
+        data: new Map([["with", new Set(["tuba", "toa", "toas"])]]),
+        dataLemmas: new Map([["with", ["tuba"]]]),
+        substitutes: stand,
+      };
+      const seen = readTurn("ma elan koos ruumis", asks, { ...context(), ...dealt });
+      expect(seen.reading).toBe("complete");
+      expect(seen.substituted).toEqual([0]);
+    });
+
+    it("never answers before the word the card dealt does", () => {
+      const asks = beat({ needs: [{ kind: "datum", slot: "with" }] });
+      const dealt = {
+        data: new Map([["with", new Set(["tuba", "toa", "toas"])]]),
+        dataLemmas: new Map([["with", ["tuba"]]]),
+        substitutes: stand,
+      };
+      const seen = readTurn("ma elan toas", asks, { ...context(), ...dealt });
+      expect(seen.substituted).toEqual([]);
+      expect(seen.matched).toEqual(["toas"]);
+    });
   });
 
   /*

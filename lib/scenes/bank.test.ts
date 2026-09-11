@@ -164,11 +164,19 @@ describe("the scripted bank", () => {
         // A beat the other side opens with nothing has no opening line by design; its answers are banked under `answer:`.
         if (beat.awaits) continue;
         /*
-          An answer is owed only where the beat that asked for the question
-          opens with nothing: everywhere else the next move is the answer,
-          and a banked one is a nicety rather than a hole.
+          AND AN ANSWER BEAT IS HELD TO THE SAME CLAIM AS EVERY OTHER, WHICH
+          THIS USED TO WAIVE WHOLESALE.
+
+          It skipped every answer beat whose question beat did not open with
+          nothing, on the argument that the next move is the answer. That is
+          true of four of the eleven beats whose goal is to ask something and
+          false of the rest, and seven of them had no answer banked at all: at
+          a job interview a learner did as they were told, asked about the
+          pay, and was answered with the next question three times while they
+          insisted. `answeredNext` is the scene saying which it is, and
+          `sceneBeats` makes no answer beat for those, so there is nothing
+          left here to waive.
         */
-        if (beat.id.startsWith("answer:") && !scene.beats.find((b) => b.id === beat.id.slice("answer:".length))?.awaits) continue;
         expect(
           scriptedFor(scene, beat).length,
           `${scene.id}/${beat.id} has no line, so keyless it is English`,

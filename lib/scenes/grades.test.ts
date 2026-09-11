@@ -246,13 +246,13 @@ describe("the word the other side offers", () => {
   it("is the one the card dealt, where the card dealt one of the beat's own", () => {
     const card = {
       you: "You.",
-      props: [{ slot: "problem", card: "What is wrong", literal: [], lemmas: ["haigus"], value: "haigus" }],
+      props: [{ slot: "problem", card: "What is wrong", literal: [], lemmas: ["haigus"], shown: [], value: "haigus" }],
     };
     expect(offerFor(beat, card)).toBe("haigus");
   });
 
   it("is the beat's own first word where the card dealt none of them", () => {
-    const card = { you: "You.", props: [{ slot: "x", card: "x", literal: [], lemmas: ["tuba"], value: "tuba" }] };
+    const card = { you: "You.", props: [{ slot: "x", card: "x", literal: [], lemmas: ["tuba"], shown: [], value: "tuba" }] };
     expect(offerFor(beat, card)).toBe("valu");
     expect(offerFor(beat, null)).toBe("valu");
   });

@@ -57,7 +57,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 44,
+  floor: 49,
 });
 
 /*
@@ -98,8 +98,20 @@ page.on("pageerror", (e) => errors.push(e.message));
   never answered read identically without it.
 */
 const TURN_MS = 30_000;
-/** `MAX_WORDS` in `lib/scenes/retrieval.ts`, which is what the gate enforces. */
-const MAX_SPOKEN_WORDS = 14;
+/**
+ * What the gate lets a line be, which is not what this used to say.
+ *
+ * It read `MAX_WORDS` in `lib/scenes/retrieval.ts`, "which is what the gate
+ * enforces", and that was true of a *retrieved* line and never of a composed
+ * one: the leash came off the composer, `MAX_SENTENCES` is five and
+ * `MAX_COMPOSED_WORDS` forty, and twelve checks pay for the room. So this
+ * suite failed on every run with a key, on a line the app had deliberately
+ * decided to allow, which is a check that has stopped saying anything about
+ * the app and says something about the suite instead.
+ */
+const MAX_SPOKEN_WORDS = 40;
+const MAX_SPOKEN_SENTENCES = 5;
+const sentences = (text) => text.split(/(?<=[.!?])\s+/).filter(Boolean).length;
 
 // ── The chooser ─────────────────────────────────────────────────────────────
 await page.goto(`${B}/situations`, { waitUntil: "domcontentloaded" });
@@ -205,6 +217,33 @@ check("and what is wrong with you, in English", /What is wrong/i.test(card)
 */
 check("and not the time the desk is about to offer", !/The time you were given/.test(card));
 check("and every objective, once it has been opened", card.includes("Say hello back."));
+/*
+  AND THE OBJECTIVE CARRIES WHAT THE CARD DEALT FOR IT, WHICH IS WHY NO GOAL
+  POINTS AT THE CARD ANY MORE.
+
+  The goal read "Say since when. Your card says which day", and the card was
+  this disclosure with three lines of prose in it. A learner sent a screenshot
+  and said the information was hard to find and that the instruction should
+  carry the value. A source check cannot see this: the objective's text is the
+  scene's and the value is the run's, and only a rendered row has both.
+
+  The `since` beat is the one that wants a day, and the day is the same string
+  the card's own value line prints, so the two are read off one render.
+*/
+const dealtDay = /on this day\.?\s*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
+check("the card dealt a day worth naming", Boolean(dealtDay), card.slice(0, 200));
+check("and the objective that wants it names it, rather than pointing at the card",
+  Boolean(dealtDay) && new RegExp(`Say since when\\.\\s*${dealtDay}`).test(card),
+  card.slice(card.indexOf("Say since when"), card.indexOf("Say since when") + 60));
+/*
+  The objective list alone, not the whole card: the scene's `role` opens by
+  saying what the card holds ("Your card says what is wrong and since when"),
+  which is the sentence that introduces it and is the one place the phrase
+  belongs. What may not say it is a line telling somebody to go and read it.
+*/
+const checklist = card.slice(card.indexOf("What to get done"));
+check("so no objective sends the learner off to read it", !/your card/i.test(checklist),
+  checklist.slice(0, 160));
 await page.locator("details > summary").click();
 /*
   AND THE ONE IN PLAY IS ON SCREEN WITH THE CARD SHUT, which is what makes
@@ -217,6 +256,16 @@ check("and the objective in play is named without it",
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
 check("they say something before you do", first.trim().length > 0, first);
+/*
+  WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
+  where the drawings had gone and whether the bubbles could say who was
+  speaking: the two columns were told apart by which edge they sat against and
+  which ink they were in, and a colour may not carry a distinction on its own.
+  `SceneFace` is the drawing and the sentence beside it is what a screen reader
+  is told, which is what makes the drawing decoration rather than the only
+  signal. Both halves, because either alone is the fault half fixed.
+*/
+
 const chips = await page.getByRole("log").innerText();
 /*
   Case-insensitive, because `Chip` uppercases through CSS and `innerText`
@@ -358,6 +407,22 @@ const counts = [...afterTwo.matchAll(/(\d+) of (\d+)/g)].map((m) => Number(m[1])
 check("a second objective can be met", counts.some((n) => n >= 2), afterTwo.match(/\d+ of \d+/)?.[0] ?? "no count on screen");
 check("no meter, no timer, no score anywhere on the screen (§7)",
   !/\d+\s*%/.test(afterTwo) && !/\bscore\b/i.test(afterTwo) && !/\bpoints?\b/i.test(afterTwo));
+
+/*
+  WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
+  where the drawings had gone and whether the bubbles could say who was
+  speaking: the two columns were told apart by which edge they sat against and
+  which ink they were in, and a colour may not carry a distinction on its own.
+  `SceneFace` is the drawing and the sentence beside it is what a screen reader
+  is told, which is what makes the drawing decoration rather than the only
+  signal. Both halves, because either alone is the fault half fixed. After two
+  turns, since one side of it cannot be there before the learner has spoken.
+*/
+const sides = await page.getByRole("log").innerText();
+check("every line says who said it, to a reader who cannot see the sides",
+  /They said:/.test(sides) && /You said:/.test(sides), sides.slice(0, 120));
+check("and there is a face beside each run of them",
+  (await page.locator('[role="log"] svg circle').count()) > 0);
 
 // ── The screen a conversation is had on scrolls to its own end ──────────────
 /*
@@ -512,8 +577,9 @@ check("the words it needed are written down", gaps > 0, `${gaps} rows`);
 */
 const composed = heard.find((line) => line.rung === "composed");
 if (composed) {
-  check("a composed line is one short sentence, and says a model wrote it",
-    composed.text.length < 120 && composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+  check("a composed line is inside what the gate allows, and says a model wrote it",
+    composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && sentences(composed.text) <= MAX_SPOKEN_SENTENCES
     && /Written for this turn/i.test(composed.chip),
     `${composed.text} · ${composed.chip}`);
 } else {
@@ -536,8 +602,9 @@ if (composed) {
 */
 const scripted = heard.find((line) => line.rung === "scripted");
 if (scripted) {
-  check("a scripted line is one short sentence and says it was scripted",
-    scripted.text.length < 120 && scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+  check("a scripted line is inside the same gate and says it was scripted",
+    scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && sentences(scripted.text) <= MAX_SPOKEN_SENTENCES
     && /Written for this scene/i.test(scripted.chip),
     `${scripted.text} · ${scripted.chip}`);
 } else {

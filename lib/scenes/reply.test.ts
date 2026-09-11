@@ -20,7 +20,7 @@ const OFFER: BeatSpec = {
 
 const CARD: RoleCard = {
   you: "You are a patient.",
-  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], value: "14:30" }],
+  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], shown: [], value: "14:30" }],
 };
 
 const FRESH: SpokenLine = { text: "Kus teil valutab?", provenance: "scripted" };
@@ -102,6 +102,30 @@ describe("a turn that landed", () => {
     }
     expect(seen).not.toContain("Jah.");
     expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
+  });
+
+  /*
+    AND NEVER THE LEARNER'S OWN WORD BACK. Asked `Kas te olete siin uus?` and
+    answered `Jah, ma just kolisin sisse.`, the neighbor said `Jah.` and moved
+    on: a polar question, so the rule above allowed it, and the learner
+    reported the reply as making zero sense. It is their own yes handed back
+    to them.
+  */
+  it("does not hand back a word the learner has just said", () => {
+    const seen = new Set<string>();
+    for (let met = 0; met < 6; met += 1) {
+      seen.add(replyFor(input({
+        answered: ASK, met, heard: "Kas te olete siin uus?", said: "Jah, ma just kolisin sisse.",
+      }))[0]!.text);
+    }
+    expect(seen).not.toContain("Jah.");
+    expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
+  });
+
+  it("keeps the rotation rather than emptying it where every word was said", () => {
+    const said = REACTIONS.acknowledge.join(" ");
+    const line = replyFor(input({ answered: ASK, heard: "Kas teil on valu?", said }))[0]!.text;
+    expect(REACTIONS.acknowledge).toContain(line.toLowerCase().replace(".", ""));
   });
 
   it("leaves it out rather than guessing where there is no question to read", () => {
@@ -602,7 +626,7 @@ describe("a line off the card", () => {
   const withDay: RoleCard = {
     ...CARD,
     props: [...CARD.props, {
-      slot: "day", card: "The day they can come.", literal: [], lemmas: ["teisipäev"], value: "teisipäev",
+      slot: "day", card: "The day they can come.", literal: [], lemmas: ["teisipäev"], shown: [], value: "teisipäev",
       theirs: true, english: "Tuesday",
     }],
   };
@@ -684,7 +708,7 @@ describe("a second offer", () => {
   };
   const card: RoleCard = {
     ...CARD,
-    props: [...CARD.props, { slot: "time2", card: "", literal: ["10:00"], lemmas: [], value: "10:00" }],
+    props: [...CARD.props, { slot: "time2", card: "", literal: ["10:00"], lemmas: [], shown: [], value: "10:00" }],
   };
 
   it("is spoken as the beat's counter, under an id of its own, off the second slot", () => {

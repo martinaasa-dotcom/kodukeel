@@ -227,6 +227,42 @@ export interface BeatSpec {
     readonly replaces: readonly (readonly [from: string, to: string])[];
   };
   /**
+   * WHAT THEY SAY WHEN THE LEARNER ASKS, IN ENGLISH, FROM THEIR SIDE.
+   *
+   * A beat whose goal is "ask about the pay" is met by a question, and a
+   * question is owed an answer. Seven of the eleven such beats had none: the
+   * learner asked what the pay was, the interviewer said nothing at all and
+   * asked when they could start, and then repeated that three times while the
+   * learner insisted. It was reported as the app leaving somebody hanging, and
+   * that is the one thing this module is built not to do.
+   *
+   * `they` says what the other side *does* on the beat, which here is asking
+   * whether the learner has questions; this says what they do when one comes.
+   * Both are read the same three ways: the bank is drafted against it, the
+   * live composer is told it, and the screen prints it where no Estonian line
+   * could be built. Without it a model was told only that it was "answering
+   * the question they were just asked", knew nothing about what the answer
+   * was, and wrote a line agreeing with itself.
+   *
+   * A beat that asks the learner for a question carries this or
+   * `answeredNext`, asserted, and neither means anything on any other beat.
+   * English is the one language a scene may write.
+   */
+  readonly answer?: string;
+  /**
+   * The beat after this one is the answer, so nothing is banked for it.
+   *
+   * "Ask where the station is" is answered by the directions, and "ask what
+   * they recommend" by the box going on the counter: the aside is said in
+   * front of the next move in the same breath, so a second answer there would
+   * be the other side saying it twice. That was the reasoning behind letting
+   * every question beat go unanswered, and it is true of four of the eleven
+   * and false of the rest, which is how an interviewer came to ignore a
+   * question about the pay. It is a claim the scene makes now rather than one
+   * a test assumes.
+   */
+  readonly answeredNext?: true;
+  /**
    * The other side opens this beat with nothing: they have said their piece
    * and are waiting to see whether the learner has a question. The screen
    * prints the stage direction, the ladder is not walked for an opening line,
