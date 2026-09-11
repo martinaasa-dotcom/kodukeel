@@ -27,6 +27,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 | `Form` | An inflected form. Principal parts are the unpredictable ones a learner memorizes; anything Ekilex retrieved keeps its own slot. |
 | `KnownWord` | Every Estonian headword there is, and nothing else about it. Shared reference data, like `Lexeme`. It answered "is this a word" for the search screen and for a word game's guesses until a learner typed `põhjas`; the forms list below answers that now, and this stays as the enumeration the forms list is built from. |
 | `StarredWord` | One learner bookmarking a word. Per learner, unlike the word. |
+| `Deck`, `DeckWord` | A learner's own named shelf, and which words sit on it. A label over the one review pool rather than a second one of it: `Card.ownerId` still decides what FSRS asks about, and a word in no `DeckWord` row at all is simply unfiled, not outside the learner's deck. |
 | `Card` | One thing to answer about one word, in one of seven shapes, with its FSRS scheduling. |
 | `Review` | Every grade ever given. Append-only, and the one table whose loss cannot be undone. |
 | `Task` | Work a teacher assigned, which is the one thing left of the homework list §24 cut. |

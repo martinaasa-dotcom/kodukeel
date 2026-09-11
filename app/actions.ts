@@ -35,6 +35,9 @@ import { guessPos, MAX_ITEMS as SCAN_MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import { resolveStreakFor } from "@/lib/progress/summary";
+import {
+  createDeck, deleteDeck, listDecks, renameDeck, setDecksForWord,
+} from "@/lib/progress/decks";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
 import {
@@ -118,16 +121,47 @@ const CARD_SOURCES = new Set<string>(KNOWN_SOURCES);
  * the length of that table, and deduplicated: an unbounded array of the same
  * key was a way to make the generator run a thousand times for one word.
  */
-export async function addToDeck(lexemeId: string, types: CardType[], source = "LOOKUP") {
+export async function addToDeck(
+  lexemeId: string, types: CardType[], source = "LOOKUP", deckIds?: string[],
+) {
   const known = new Set(CARD_TYPES.map((t) => t.type));
   const wanted = [...new Set(Array.isArray(types) ? types : [])]
     .filter((t): t is CardType => known.has(t as CardType));
-  return addCardsFor(
-    await requireUserId(),
+  const ownerId = await requireUserId();
+  const result = await addCardsFor(
+    ownerId,
     lexemeId,
     wanted,
     CARD_SOURCES.has(source) ? source : DEFAULT_SOURCE,
   );
+  /*
+    Filed under a shelf only where the caller actually offered one. A screen
+    with nothing to choose between (zero or one deck) never sends this, and a
+    word going into a deck-less learner's collection stays exactly what it
+    was before this feature existed: unfiled, and still fully theirs.
+  */
+  if (result.ok && Array.isArray(deckIds) && deckIds.length > 0) {
+    await setDecksForWord(ownerId, lexemeId, deckIds.filter((id) => typeof id === "string"));
+  }
+  return result;
+}
+
+/** Every deck this learner has named, for the picker and the management page. */
+export async function listMyDecks() {
+  return listDecks(await requireUserId());
+}
+
+export async function createMyDeck(name: string) {
+  return createDeck(await requireUserId(), String(name ?? ""));
+}
+
+export async function renameMyDeck(deckId: string, name: string) {
+  return renameDeck(await requireUserId(), String(deckId ?? ""), String(name ?? ""));
+}
+
+export async function deleteMyDeck(deckId: string) {
+  const ok = await deleteDeck(await requireUserId(), String(deckId ?? ""));
+  return ok ? { ok: true as const } : { ok: false as const, error: "That deck is not yours." };
 }
 
 /**
@@ -2523,6 +2557,13 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.studyEvent.deleteMany({ where: { ownerId } });
       await tx.message.deleteMany({ where: { ownerId } });
       await tx.starredWord.deleteMany({ where: { ownerId } });
+      // Their own shelves. `onDelete: Cascade` on DeckWord.deck would take the
+      // membership rows with each deck; deleted explicitly anyway, since a
+      // promise this absolute is not left to a foreign key to keep. The
+      // words themselves, their cards and every review are untouched, since
+      // a deck was only ever a label.
+      await tx.deckWord.deleteMany({ where: { ownerId } });
+      await tx.deck.deleteMany({ where: { ownerId } });
       await tx.achievement.deleteMany({ where: { ownerId } });
       await tx.setting.deleteMany({ where: { ownerId } });
       forgetSettings(ownerId);
@@ -2655,6 +2696,12 @@ const BackupSchema = z.object({
   sceneRuns: z.array(z.record(z.unknown())).optional(),
   sceneGaps: z.array(z.record(z.unknown())).optional(),
   encounters: z.array(z.record(z.unknown())).optional(),
+  /**
+   * A learner's own named shelves. Optional for the reason `scans` is: a file
+   * written before this existed has no such key and must still restore.
+   */
+  decks: z.array(z.record(z.unknown())).optional(),
+  deckWords: z.array(z.record(z.unknown())).optional(),
 });
 
 export interface RestoreSummary {
@@ -2664,7 +2711,7 @@ export interface RestoreSummary {
   tasks: number;
   /** Photographed pages. Absent from a backup written before they existed. */
   scans: number;
-  /** Settings, messages, level checks, exam papers, stars and badges, together. */
+  /** Settings, messages, level checks, exam papers, stars, badges and decks, together. */
   personal: number;
 }
 
@@ -2708,7 +2755,8 @@ export async function inspectBackup(json: string): Promise<
       personal:
         (b.settings?.length ?? 0) + (b.messages?.length ?? 0) +
         (b.assessments?.length ?? 0) + (b.stars?.length ?? 0) +
-        (b.achievements?.length ?? 0) + (b.examAttempts?.length ?? 0),
+        (b.achievements?.length ?? 0) + (b.examAttempts?.length ?? 0) +
+        (b.decks?.length ?? 0) + (b.deckWords?.length ?? 0),
     },
   };
 }
@@ -2981,6 +3029,53 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         await tx.achievement.upsert({
           where: { ownerId_key: { ownerId, key } },
           create: { ownerId, key, ...(data.earnedAt ? { earnedAt: data.earnedAt as Date } : {}) },
+          update: {},
+        });
+      }
+
+      /*
+        Their own named shelves, on the same terms as everything else here:
+        written by their original id so a second restore changes nothing, and
+        always attributed to whoever is restoring rather than to whatever the
+        file claims. Decks first, because a `DeckWord` points at one.
+      */
+      const deckIdMap = new Map<string, string>();
+      for (const raw of backup.decks ?? []) {
+        const data = revive(raw, ["createdAt"]);
+        const id = String(data.id ?? "");
+        if (!id) continue;
+        const name = String(data.name ?? "").trim().slice(0, 60);
+        if (!name) continue;
+        const existing = await tx.deck.findUnique({ where: { id }, select: { ownerId: true } });
+        if (existing && existing.ownerId !== ownerId) continue; // id collision with another learner's deck
+        await tx.deck.upsert({
+          where: { id },
+          create: {
+            id, ownerId, name,
+            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
+          },
+          update: { name },
+        });
+        deckIdMap.set(id, id);
+      }
+
+      // A word on a shelf points at a dictionary entry with a real foreign
+      // key, the same as a star above: when the backup's dictionary does not
+      // hold it, one dropped shelf entry is the right price for the rest of
+      // the restore completing.
+      for (const raw of backup.deckWords ?? []) {
+        const data = revive(raw, ["createdAt"]);
+        const deckId = String(data.deckId ?? "");
+        const lexemeId = String(data.lexemeId ?? "");
+        if (!deckId || !lexemeId || !deckIdMap.has(deckId)) continue;
+        const lexeme = await tx.lexeme.findUnique({ where: { id: lexemeId }, select: { id: true } });
+        if (!lexeme) continue;
+        await tx.deckWord.upsert({
+          where: { deckId_lexemeId: { deckId, lexemeId } },
+          create: {
+            deckId, ownerId, lexemeId,
+            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
+          },
           update: {},
         });
       }

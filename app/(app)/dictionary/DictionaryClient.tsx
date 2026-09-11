@@ -3,9 +3,10 @@
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
-import { addToDeck } from "@/app/actions";
+import { addToDeck, listMyDecks } from "@/app/actions";
+import type { DeckSummary } from "@/lib/progress/decks";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak, SpeakPair } from "@/components/Speak";
@@ -888,9 +889,25 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     CARD_TYPES.filter((t) => t.defaultOn && available.includes(t.type)).map((t) => t.type),
   );
 
+  /*
+    WHICH DECK, ASKED ONLY WHERE THERE IS SOMETHING TO CHOOSE BETWEEN.
+
+    A learner with no named shelf of their own, or exactly one, has nothing to
+    decide: the word goes into the one place it was always going to go, and
+    asking anyway would be a popup nobody needed. Fetched on open rather than
+    carried on every dictionary entry, since most searches never reach this
+    panel at all.
+  */
+  const [decks, setDecks] = useState<DeckSummary[] | null>(null);
+  const [deckIds, setDeckIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!open || decks !== null) return;
+    listMyDecks().then(setDecks).catch(() => setDecks([]));
+  }, [open, decks]);
+
   const submit = () => {
     start(async () => {
-      const result = await addToDeck(entry.id, selected);
+      const result = await addToDeck(entry.id, selected, undefined, deckIds);
       if (result.ok) { setAdded(true); setOpen(false); }
     });
   };
@@ -924,6 +941,25 @@ function AddToDeck({ entry }: { entry: EntryView }) {
           </label>
         ))}
       </div>
+      {decks && decks.length > 1 && (
+        <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
+          <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which deck?</p>
+          <div className="flex flex-col gap-2">
+            {decks.map((deck) => (
+              <label key={deck.id} className="flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                <input
+                  type="checkbox"
+                  checked={deckIds.includes(deck.id)}
+                  onChange={(e) =>
+                    setDeckIds((d) => (e.target.checked ? [...d, deck.id] : d.filter((x) => x !== deck.id)))
+                  }
+                />
+                <span style={{ color: "var(--ink)" }}>{deck.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="mt-4 flex gap-2">
         <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
         <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">

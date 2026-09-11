@@ -165,6 +165,22 @@ export async function translateSentenceWithAnu(
     if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 240) {
       return { ok: false, reason: "unavailable" };
     }
+    /*
+      A model asked to translate a short, plain sentence sometimes answers
+      with the sentence it was given, unchanged: a weaker free model reads
+      "Translate this" and "this" as the whole of the instruction and echoes
+      it back. That is not English, so it must not be stored and shown as one:
+      a learner who cannot read Estonian would see a badge promising an
+      English translation sitting over the very Estonian sentence above it,
+      which teaches nothing and reads as the app being broken. Folded
+      case-insensitively and with the closing period ignored, since the
+      failure mode is an exact or near-exact echo, not a legitimate
+      translation that happens to share a few words.
+    */
+    if (cleaned.trim().toLocaleLowerCase("et").replace(/[.!?]+$/, "")
+        === sentence.trim().toLocaleLowerCase("et").replace(/[.!?]+$/, "")) {
+      return { ok: false, reason: "unavailable" };
+    }
     return { ok: true, text: cleaned };
   } catch {
     return { ok: false, reason: "unavailable" };
