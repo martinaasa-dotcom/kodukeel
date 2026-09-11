@@ -5295,6 +5295,24 @@ sentence that check's own comment names as the reason the question words exist, 
 deployment and passed in every measurement of it. When a check is drawn against data handed in, the
 app is the caller that has to hand it in.
 
+**A value off the card is a word like any other, and it graded nothing.** ADR-016
+says every mode grades through `gradeCard`, and the beats least covered by it were
+the ones a scene is made of: `gradesFor` wrote a row for a `lemma` and for a `case`
+and nothing for a `datum`, under a comment reasoning that a datum is not a word the
+learner holds a card for. It is one every time, and the only difference is that the
+card named it rather than the beat, so a scene whose subject is telling somebody a
+fact about yourself wrote almost nothing into the log: 66 gradeable requirements
+across the catalogue against 94, and the stairwell three of its six beats against
+six. The draw is stored when a run opens and `finishRun` had it in hand and did not
+pass it. **Two guards keep it out of the log where the word is not certain**, which
+is the substitution guard's argument one branch over: a slot with no lemma is a
+literal (a clock time, a reference code) and grades nothing, and a slot naming two
+words, which is a floor dealt as a digit carrying both the cardinal and the ordinal,
+is **settled by the spellings the turn actually wrote** against the scene's own forms
+rather than guessed at, and grades nothing where they settle it on neither or on
+both. Measured in a browser: three plays of the stairwell put eight rows in the log
+that would have been none, the floor among them as the ordinal the learner typed.
+
 **Answering late is answering, and the walk that credits a beat ran one way.** A
 turn is read against beats other than the one it was aimed at, and that walk started
 at `state.beat + 1`: a beat that ran out of patience sits *behind* the pointer, is
@@ -6738,7 +6756,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
 `VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
-`elsewhere`, `landed`, `creditAhead`.
+`elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

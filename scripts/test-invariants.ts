@@ -12772,6 +12772,51 @@ check("every question a beat asks the learner for is answered by somebody", () =
   );
 });
 
+check("a value off the card is graded, and only where which word is certain", () => {
+  /*
+    EVERY MODE GRADES THROUGH `gradeCard` (ADR-016), AND THE BEATS LEAST
+    COVERED BY IT WERE THE ONES A SCENE IS MADE OF.
+
+    `gradesFor` wrote a row for a `lemma` and for a `case` and nothing for a
+    `datum`, under a comment reasoning that a datum is not a word the learner
+    holds a card for. It is one every time: what is different is that the card
+    named it rather than the beat. So a scene whose subject is telling somebody
+    a fact about yourself graded almost nothing, and measured over the
+    catalogue that is 66 gradeable requirements against 94.
+
+    Two guards keep it out of the append-only log where the word is not
+    certain, and both are what the substitution guard beside them is for. A
+    slot with no lemma is a literal (a clock time, a reference code) and grades
+    nothing. A slot naming two words, which is a floor dealt as a digit
+    carrying both the cardinal and the ordinal, is settled by the spellings the
+    turn actually wrote against the scene's own forms, and grades nothing where
+    they settle it on neither or on both.
+  */
+  const grades = code("lib/scenes/grades.ts");
+  assert.match(
+    grades, /need\.kind === "datum" && answered\(index\)/,
+    "a value off the card writes no review row again, so a scene made of card values grades nothing",
+  );
+  assert.match(
+    grades, /if \(!prop \|\| prop\.lemmas\.length === 0\) return null;/,
+    "a slot holding a clock time or a code is graded as a word, which nobody holds a card for",
+  );
+  assert.match(
+    grades, /return wrote\.length === 1 \? wrote\[0\]! : null;/,
+    "a slot naming two words no longer has to resolve to one, so the log can claim a recall of a "
+    + "word the learner never wrote",
+  );
+  /*
+    And the caller hands over both, which is where the whole fault lived: the
+    card is stored when the run opens and read back to finish it, and the
+    grader was the one reader that never got it.
+  */
+  assert.match(
+    code("lib/progress/scene.ts"), /gradesFor\(scene, state, draw\?\.card \?\? null, context\.lexicon\)/,
+    "finishRun no longer hands the grader the card and the forms, so every datum grades nothing",
+  );
+});
+
 check("a learner who says they are lost is handed the word, never the question again", () => {
   /*
     The moment somebody decides whether they are stupid or simply learning.

@@ -31,6 +31,7 @@
  * Pure: no React, no Next, no Prisma, no clock.
  */
 import type { CaseKey } from "@/lib/estonian/types";
+import type { Lexicon } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { SceneState } from "./state";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
@@ -62,7 +63,23 @@ export interface SceneGrade {
  * grades are derived from it, so the server can recompute them from a run it
  * did not watch and a client cannot send one.
  */
-export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
+export function gradesFor(
+  scene: SceneSpec,
+  state: SceneState,
+  /**
+   * The card this run was dealt, because a `datum` requirement's word is on it
+   * rather than in the beat. Absent where the run stored no draw, and then a
+   * datum grades nothing, which is what it did for every run before this.
+   */
+  card: RoleCard | null = null,
+  /**
+   * The scene's own forms, for the one slot that names two words: a floor
+   * dealt as `3` carries `kolm` and `kolmas`, and which of them the learner
+   * wrote is a fact the dictionary can answer exactly. Absent, and such a slot
+   * grades nothing rather than guessing.
+   */
+  lexicon: Lexicon | null = null,
+): SceneGrade[] {
   const met = new Set(state.done);
   const out: SceneGrade[] = [];
 
@@ -100,6 +117,14 @@ export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
       is read as produced, since a transcript written before the column has
       nothing to say either way and the old reading is the safe one there.
     */
+    /*
+      The words the turns that met a requirement actually wrote, which is what
+      tells `kolm` from `kolmas` where a slot named both.
+    */
+    const producedFor = (index: number) => new Set(
+      turns.filter((turn) => turn.met[index]).flatMap((turn) => turn.produced ?? []),
+    );
+
     const answered = (index: number) => turns.some(
       (turn) => turn.met[index]
         && (turn.produced === undefined || turn.produced.length > 0)
@@ -114,9 +139,10 @@ export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
 
     for (const { need, index } of leafNeeds(beat.needs)) {
       /*
-        Only where the beat named a word. `question`, `negation`, `register`,
-        `datum` and `any` are all things a learner did and none of them is a
-        word they hold a card for, so there is nothing to schedule.
+        Only where a word was asked for. `question`, `negation`, `register` and
+        `any` are things a learner did rather than words they hold a card for,
+        so there is nothing to schedule; a `lemma` and a `case` name their word,
+        and a `datum` names the slot the card named it in.
       */
       const reachedCase = turns
         .flatMap((turn) => turn.slips ?? [])
@@ -136,6 +162,35 @@ export function gradesFor(scene: SceneSpec, state: SceneState): SceneGrade[] {
           lemma: need.lemma, grammCase: need.grammCase, rating, beatId: beat.id,
           reachedCase: reachedCase === need.grammCase ? null : reachedCase,
         });
+      }
+      /*
+        AND A VALUE OFF THE CARD IS A WORD LIKE ANY OTHER, WHICH THIS WROTE
+        NOTHING FOR.
+
+        The comment above used to name `datum` beside `question` and `any`, on
+        the reasoning that none of them is a word the learner holds a card for.
+        That is true of the other four and false of this one: a `datum` is a
+        dictionary word every time, and the only thing different about it is
+        that the *card* named it rather than the beat. So a scene built mostly
+        out of card values wrote almost nothing into the review log, which is
+        every scene whose whole subject is telling somebody a fact about
+        yourself: the stairwell graded one row in six beats, the job interview
+        one in six, the ticket window one in five. ADR-016 says every mode
+        grades through `gradeCard`, and these were the beats least covered by it.
+
+        Where the beat named a case, the row carries it, which is the whole
+        pedagogical point: `bussipilet`'s "where are you travelling to" is the
+        sisseütlev under pressure and lands in the same weakest-case chart as
+        the sisseütlev on a flashcard.
+      */
+      if (need.kind === "datum" && answered(index)) {
+        const lemma = oneWordFor(card, need.slot, producedFor(index), lexicon);
+        if (lemma) {
+          out.push({
+            lemma, grammCase: need.grammCase ?? null, rating, beatId: beat.id,
+            reachedCase: reachedCase === need.grammCase ? null : reachedCase,
+          });
+        }
       }
     }
   }
@@ -256,6 +311,40 @@ export function offerFor(
   */
   const pointer = beat.topic.find((lemma) => !questionWords.has(lemma));
   return pointer ?? null;
+}
+
+/**
+ * The one dictionary word a slot dealt, or nothing.
+ *
+ * A prop with no lemma at all is a literal: a clock time, a reference code.
+ * Those are values rather than vocabulary and nobody holds a card for one, so
+ * six of the seven slots this passes over are the times the scenes deal.
+ *
+ * THE SEVENTH IS RESOLVED RATHER THAN SKIPPED, AND IT IS THE BEAT THE WHOLE
+ * FAULT WAS REPORTED ON. A floor dealt as `3` names `kolm` and `kolmas`, and a
+ * row for whichever came first would tell the scheduler somebody recalled a
+ * word they may never have typed, into the one table nothing repairs. Which
+ * one they wrote is not a guess, though: the turn's own words are on the
+ * record and the scene's forms say which lemma each belongs to, so the
+ * ambiguity is settled exactly. Where the words settle it on neither, or on
+ * both, or where there is no lexicon to ask, the slot grades nothing, which is
+ * what every slot did before this existed.
+ */
+function oneWordFor(
+  card: RoleCard | null,
+  slot: string,
+  produced: ReadonlySet<string>,
+  lexicon: Lexicon | null,
+): string | null {
+  const prop = card?.props.find((one) => one.slot === slot);
+  if (!prop || prop.lemmas.length === 0) return null;
+  if (prop.lemmas.length === 1) return prop.lemmas[0]!;
+  if (!lexicon) return null;
+  const wrote = prop.lemmas.filter((lemma) => {
+    const forms = lexicon.byLemma.get(lemma);
+    return forms ? [...produced].some((word) => forms.has(word)) : false;
+  });
+  return wrote.length === 1 ? wrote[0]! : null;
 }
 
 /**

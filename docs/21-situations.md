@@ -3694,3 +3694,47 @@ count of things done now. Fixing them turned up a fifth: `checklist` was
 `card.slice(card.indexOf("What to get done"))` against a heading the stylesheet
 uppercases, so `indexOf` was -1 and every check under it had been reading a
 single character for as long as it had existed.
+
+
+## §63 A value off the card is a word like any other
+
+ADR-016 says every mode grades through `gradeCard`, and the beats least covered
+by it were the ones a scene is actually made of. `gradesFor` wrote a row for a
+`lemma` requirement and for a `case` requirement and nothing at all for a
+`datum`, under a comment reasoning that a datum, like a question or a negation,
+is not a word the learner holds a card for.
+
+That is true of the other four and false of this one. A `datum` is a dictionary
+word every time: the only thing different about it is that the *card* named it
+rather than the beat. So a scene whose whole subject is telling somebody a fact
+about yourself wrote almost nothing into the review log. Measured over the
+catalogue, 66 gradeable requirements against 94; the stairwell graded three of
+its six beats and now grades six, the job interview four of six and now seven,
+the ticket window six of eight.
+
+**The card reaches the grader, which is where the fault lived.** The draw is
+stored when a run opens and read back to finish it, and `finishRun` had it in
+hand and did not pass it. `gradesFor` takes the card and the scene's forms now,
+and the one production caller hands over both.
+
+**Two guards keep it out of the log where the word is not certain**, and they
+are the substitution guard's own argument one branch over. A slot with no lemma
+is a literal, a clock time or a reference code, and grades nothing: six of the
+seven slots passed over are the times the scenes deal, and nobody holds a card
+for one. A slot naming two words is the floor, dealt as a digit and carrying
+both the cardinal and the ordinal, and writing a row for whichever came first
+would claim a recall that may never have happened in the one table nothing
+repairs.
+
+**The floor is resolved rather than skipped, and it is the beat the whole thing
+was reported on.** Which of the two the learner wrote is not a guess: the turn's
+own words are on the record and the scene's forms say which lemma each belongs
+to. Where the words settle it on neither, or on both, or where there is no
+lexicon to ask, the slot grades nothing, which is what every slot did before
+this existed.
+
+**Measured in a browser.** Three plays of the stairwell against a real database
+put eight rows in the log that would have been none: `Läti`, `Venemaa` and
+`Soome` for where you are from, `laps` and `vend` for who lives with you, and
+`teine`, `neljas` and `viies` for the floor, each the ordinal the learner
+actually typed rather than the cardinal beside it on the card.

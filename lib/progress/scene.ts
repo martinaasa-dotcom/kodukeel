@@ -1063,7 +1063,7 @@ export async function finishRun(input: {
 
   const objectives = objectivesOf(scene, state);
   const outcome = outcomeOf(scene, state);
-  const grades = gradesFor(scene, state);
+  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
   const review = reviewOf(scene, state);
 
   await prisma.sceneRun.update({

@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
 import { planRun } from "@/lib/scenes/run";
+import { numberWords } from "@/lib/scenes/props";
 import { beatNow, beginRun, dataFor, finishRun, readDraw, recencyFor, replay, sceneContext } from "./scene";
 
 /**
@@ -278,6 +279,62 @@ describe("a scene against the dictionary", () => {
     expect(elsewhere, "the reply was not told the turn landed").toBeGreaterThan(0);
     // And the pointer is still on what they were actually asked.
     expect(scene.beats[state.beat]?.id).toBe("from");
+  });
+
+  /*
+    AND A SCENE MADE OF CARD VALUES REACHES THE REVIEW LOG.
+
+    `gradesFor` wrote rows for `lemma` and `case` and nothing for `datum`, so a
+    scene whose beats are mostly facts about yourself graded almost nothing:
+    ADR-016 says every mode grades through `gradeCard`, and these were the beats
+    least covered by it. The stairwell is the extreme, three of its six beats
+    being values the card dealt.
+
+    Driven through `finishRun` rather than `gradesFor` directly, because what
+    this is really claiming is that the card reaches the grader: the draw is
+    stored when the run opens and read back here, and the whole fault was a
+    caller that had one and did not pass it.
+  */
+  it("grades the words a scene's own card dealt", async () => {
+    const ORDINAL: Record<string, string> = {
+      "1": "esimesel korrusel", "2": "teisel korrusel", "3": "kolmandal korrusel",
+      "4": "neljandal korrusel", "5": "viiendal korrusel",
+    };
+    const scene = sceneById("trepikoda")!;
+    const opened = await beginRun({
+      ownerId: OWNER, sceneId: scene.id, level: "A1", difficulty: "textbook",
+      lines: "scripted",
+    });
+    const from = opened!.run.card.props.find((p) => p.slot === "from")!;
+    const withWhom = opened!.run.card.props.find((p) => p.slot === "with")!;
+
+    const finished = await finishRun({
+      ownerId: OWNER,
+      runId: opened!.runId,
+      walkedOut: false,
+      asked: [],
+      turns: [
+        { beatId: "greet", said: "Tere!", helped: false },
+        { beatId: "new", said: "jah, ma just kolisin sisse", helped: false },
+        { beatId: "floor", said: ORDINAL[opened!.run.card.props.find((p) => p.slot === "floor")!.value] ?? "", helped: false },
+        { beatId: "from", said: from.value, helped: false },
+        { beatId: "with", said: withWhom.value, helped: false },
+      ],
+    });
+
+    const graded = finished!.grades.map((g) => g.lemma);
+    /*
+      Including the floor, which names two words: `kolm` and `kolmas` for a
+      card dealing `3`. Which one they wrote is on the record and the scene's
+      forms say which lemma it belongs to, so the slot is resolved rather than
+      passed over.
+    */
+    expect(graded, `nothing was graded for a scene made of card values: ${JSON.stringify(finished!.grades)}`)
+      .toContain(from.lemmas[0]);
+    expect(graded).toContain(withWhom.lemmas[0]);
+    const ordinal = numberWords(opened!.run.card.props.find((p) => p.slot === "floor")!.value)[1];
+    expect(graded, "the floor names two words and was passed over rather than resolved")
+      .toContain(ordinal);
   });
 
   it("refuses to credit a beat the learner never met", async () => {
