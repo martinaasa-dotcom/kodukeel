@@ -12,6 +12,7 @@ import { StarWord } from "@/components/StarWord";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
+import { counted } from "@/lib/copy/values";
 
 export interface SprintCard {
   id: string;
@@ -140,7 +141,7 @@ export function SprintSession({
             Case Sprint
           </h1>
           <p className="mx-auto mt-2 max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            {cards.length} cards loaded. Flip and answer as fast as you can for{" "}
+            {counted(cards.length, "card")} loaded. Flip and answer as fast as you can for{" "}
             {roundLength(seconds)}. {ADVANCE_KEY_LABEL} to flip, again for correct, Backspace for missed.
           </p>
           <p

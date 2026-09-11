@@ -5003,7 +5003,15 @@ check("every dead end in the app offers a way to report it", () => {
       "a screen that threw",
     ],
     [
-      "app/not-found.tsx",
+      /*
+        The 404's own drawing, which is a component now rather than the page.
+        There are two boundaries: the root one wraps it in a `main` because
+        the root layout draws none, and `app/(app)/not-found.tsx` does not
+        because the signed-in layout already has one. Reading the page files
+        would be reading two wrappers and watching neither half of this rule;
+        the content is where both the sentence and the button live.
+      */
+      "components/NoPage.tsx",
       /There&rsquo;s no page here|no page here/,
       "a link that led nowhere",
     ],
@@ -5023,6 +5031,39 @@ check("every dead end in the app offers a way to report it", () => {
       `${file} shows ${what} and offers no way to tell anybody about it`,
     );
   }
+});
+
+check("a not-found boundary draws a main only where its layout does not", () => {
+  /*
+    ONE `main` PER SCREEN, INCLUDING THE SCREEN THAT SAYS THERE IS NO SCREEN.
+
+    `notFound()` renders the nearest `not-found.tsx`, and this app had one, at
+    the root. The root layout draws no `main`, so that file drew its own;
+    `app/(app)/layout.tsx` draws `<main id="main">`, so every missing unit id
+    and every unknown exception kind rendered a second `main` inside the
+    first. Measured on a production build: `/learn/nope` and
+    `/grammar/exceptions/nope` each came back with two landmarks, which is the
+    one claim `a11y-check.mjs` makes about every other screen and the only one
+    it could not make here, because a sweep walks routes that exist.
+
+    The rule is the pairing rather than either file: a boundary under a layout
+    that already has a `main` may not draw one, and the root boundary must.
+    Anchored on the element rather than on a class name, because the fault is
+    the tag.
+  */
+  const root = code("app/not-found.tsx");
+  assert.match(root, /<main/, "the root 404 draws no main, and the root layout has none either");
+
+  const inApp = code("app/(app)/not-found.tsx");
+  assert.ok(
+    !/<main/.test(inApp),
+    "app/(app)/not-found.tsx draws its own main inside the one app/(app)/layout.tsx already draws",
+  );
+  assert.match(
+    code("app/(app)/layout.tsx"),
+    /<main/,
+    "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
 });
 
 check("a category nobody can send is not a tab in the review queue", () => {

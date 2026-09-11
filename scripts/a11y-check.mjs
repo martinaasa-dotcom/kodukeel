@@ -313,7 +313,7 @@ const page = await measuring({ width: 1280, height: 1000 });
   claim on /accessibility, and it is worth it: a phone is where most of this
   app is read.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 576 });
+const { check, absent, done } = suite("Accessibility", { floor: 578 });
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.
@@ -690,6 +690,31 @@ await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
 const langMarked = await page.evaluate(() =>
   document.querySelectorAll("main [lang='et']").length);
 check("Estonian text is marked lang=et", langMarked > 0, `${langMarked} elements`);
+
+/*
+  AND THE PAGE A SWEEP OF ROUTES CANNOT REACH: THE ONE THAT IS NOT THERE.
+
+  Everything above walks `ROUTES`, which is a list of pages that exist. A 404
+  inside the signed-in shell is a screen a learner meets by following a stale
+  link, and it was the one drawing two `main` landmarks: `notFound()` rendered
+  the root `not-found.tsx`, which draws its own `main` because the root layout
+  has none, inside `app/(app)/layout.tsx`'s `<main id="main">`. Exactly one
+  `main` is the claim this suite makes about every other screen in the app and
+  the only one it could not make here.
+
+  A dynamic segment rather than a path that matches no route: `/dictionary/nope`
+  is Next's own 404 and was always right, and `/learn/nope` is the app's, which
+  is the one that was wrong.
+*/
+await page.goto(`${BASE}/learn/no-such-unit`, { waitUntil: "load" });
+await page.waitForTimeout(400);
+const missing = await page.evaluate(() => ({
+  mains: document.querySelectorAll("main").length,
+  h1s: document.querySelectorAll("h1").length,
+}));
+check("a page that is not there still has exactly one main landmark",
+  missing.mains === 1, JSON.stringify(missing));
+check("and exactly one h1", missing.h1s === 1, JSON.stringify(missing));
 
 await browser.close();
 done();

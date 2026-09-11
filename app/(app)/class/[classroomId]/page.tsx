@@ -12,6 +12,7 @@ import { WorkplaceView } from "./WorkplaceView";
 import { LocalDate } from "@/components/LocalDate";
 import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, CopyCode, LeaveClass } from "../ClassForms";
+import { counted } from "@/lib/copy/values";
 
 /*
   The class's own name, and never a fallback that names one to somebody who is
@@ -175,7 +176,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                             : entry.daysSinceLastReview === 0
                               ? "reviewed today"
                               : `last review ${entry.daysSinceLastReview} day${entry.daysSinceLastReview === 1 ? "" : "s"} ago`}
-                          {" · "}{entry.wordsKnown} words known
+                          {" · "}{counted(entry.wordsKnown, "word")} known
                           {entry.weakestCase && (
                             <>
                               {" · weakest: "}

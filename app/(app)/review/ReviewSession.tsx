@@ -847,7 +847,9 @@ export function ReviewSession({
         ) : (
           <Empty
             title="Nothing due, you're caught up"
-            body={nextDue ?? `All ${totalCards} cards are scheduled for later.`}
+            body={nextDue ?? (totalCards === 1
+              ? "Your one card is scheduled for later."
+              : `All ${totalCards} cards are scheduled for later.`)}
             action={<ButtonLink href="/learn/new" variant="primary">Learn new words instead</ButtonLink>}
           />
         )}

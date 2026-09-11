@@ -81,3 +81,35 @@ export const NEEDS_TRANSLATION = `${NO_VALUE} · add a translation`;
  * in one of them, and this one already had.
  */
 export const AI_TAG = "AI · verify";
+
+/**
+ * A count and the thing it counts, agreeing with each other.
+ *
+ * `{n} cards` is written out at about thirty call sites and almost every one
+ * of them says "1 cards" when the number is one. Most are unreachable at one
+ * and a handful are not, which is why this was worth finding rather than
+ * assuming: a learner on their first evening with a single card due reads
+ * "All 1 cards are scheduled for later", the last screen of first run offers
+ * "roughly 1 weeks to work through" on the fastest setting, and the one that
+ * matters most is outside the app entirely, since the report an employer
+ * reads says "1 people have too little history to place yet".
+ *
+ * A learner forgives a rough edge in a game. They do not forgive one in the
+ * sentence a machine is using to describe them to somebody else, and this app
+ * is otherwise careful enough with its English that the one ungrammatical
+ * line is the one a reader notices.
+ *
+ * English only, which is what keeps this small: the plural of an Estonian noun
+ * is a case form and comes from the dictionary (ADR-005), never from a rule
+ * written here. Everything this is given is an English noun the app itself
+ * wrote. The irregular ones are passed in rather than guessed at, because a
+ * rule that turns "person" into "persons" is worse than no rule.
+ */
+export function counted(n: number, one: string, many = `${one}s`): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
+
+/** The noun alone, for a sentence that puts the number somewhere else. */
+export function nounFor(n: number, one: string, many = `${one}s`): string {
+  return n === 1 ? one : many;
+}
