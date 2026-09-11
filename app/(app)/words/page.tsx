@@ -75,6 +75,7 @@ export default async function WordsPage() {
               when the question is "what do I actually know". Counted in words
               rather than cards, which is what the box below is. */}
           <ButtonLink href="/words/mastery">Where your words stand</ButtonLink>
+          <ButtonLink href="/words/decks">Decks</ButtonLink>
           <ButtonLink href="/dictionary" variant="primary">Add words</ButtonLink>
         </>
       }

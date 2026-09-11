@@ -39,6 +39,7 @@ check.
 | Tutor conversation (`Message`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Settings (`Setting`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Starred words (`StarredWord`) | Until unstarred, or the account is deleted | Either | `toggleStar`, `deleteMyAccount` |
+| Named shelves and what is filed on them (`Deck`, `DeckWord`) | Until removed by the learner, or the account is deleted. A label over the one row above (`Card`) rather than a copy of it: deleting a shelf never touches the cards, reviews or mastery of the words that were on it | Either | The deck's own delete cascades its `DeckWord` rows; `deleteMyAccount` for both |
 | Badges (`Achievement`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Level checks (`Assessment`) | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |
 | Mock exam sittings (`ExamAttempt`), including the composition | Until the account is deleted. Append-only | Erasure | `deleteMyAccount` |

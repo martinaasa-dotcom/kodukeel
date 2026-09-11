@@ -1,6 +1,8 @@
 // Lean MVP schema. Deliberately smaller than docs/04-data-model.md:
-// decks and audio rows are cut. The calendar is `StudyEvent` below, added when
-// a learner asked to keep their class times beside their homework.
+// audio rows are cut. The calendar is `StudyEvent` below, added when a learner
+// asked to keep their class times beside their homework. `Deck` and `DeckWord`
+// came back later, in a different shape from the one cut here: a label a
+// learner can put on some of their words, not a second review pool.
 // Kept Postgres-portable (no SQLite-specific types), which is what made this
 // datasource swap possible — see docs/03-architecture.md ADR-002 and ADR-011.
 
@@ -101,6 +103,7 @@ model Lexeme {
   forms     Form[]
   cards     Card[]
   stars     StarredWord[]
+  deckWords DeckWord[]
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -141,6 +144,43 @@ model StarredWord {
     and unstar.
   */
   @@id([ownerId, lexemeId])
+}
+
+/// A learner's own shelf, layered over the one shared review pool rather than
+/// a second one of it. FSRS still schedules every one of a learner's cards
+/// off `Card.ownerId` alone (ADR-003/ADR-014): a Deck never gates what is due,
+/// it only says which named group a word sits in, the way a Spotify playlist
+/// is a view over one library and not a second copy of the songs. A learner
+/// with no Deck of their own has not stopped having a deck — that word still
+/// means "everything I am learning" and always did — this is only for
+/// somebody who wants to name a part of it.
+model Deck {
+  id        String     @id @default(uuid())
+  ownerId   String
+  name      String
+  createdAt DateTime   @default(now())
+  words     DeckWord[]
+
+  @@index([ownerId])
+}
+
+/// One word filed under one shelf. Many-to-many by design: a word may sit in
+/// several decks or none, and a word in no deck at all is still fully in the
+/// learner's review pool through `Card.ownerId` — it is simply unfiled, the
+/// way an unsorted song is still in your library. Deleting a Deck cascades
+/// only this join; it can never take a Card, a Review or the Lexeme itself
+/// with it (ADR-014/ADR-015).
+model DeckWord {
+  id        String   @id @default(uuid())
+  deckId    String
+  deck      Deck     @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  ownerId   String
+  lexemeId  String
+  lexeme    Lexeme   @relation(fields: [lexemeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([deckId, lexemeId])
+  @@index([ownerId, lexemeId])
 }
 
 /// An inflected form.

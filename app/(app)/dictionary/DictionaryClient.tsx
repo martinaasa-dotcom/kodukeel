@@ -3,9 +3,10 @@
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
-import { addToDeck } from "@/app/actions";
+import { addToDeck, listMyDecks, myDeckMembership } from "@/app/actions";
+import type { DeckSummary } from "@/lib/progress/decks";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak, SpeakPair } from "@/components/Speak";
@@ -607,7 +608,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               forms: entry.forms,
             } satisfies WordDraft}
           />
-          <AddToDeck entry={entry} />
+          <AddToDeck key={`deck-${entry.id}`} entry={entry} />
         </div>
       </header>
 
@@ -875,6 +876,24 @@ function EntryProblem({ entry }: { entry: EntryView }) {
   );
 }
 
+/**
+ * MUST BE MOUNTED WITH A KEY THAT CHANGES PER WORD, LIKE `AddWord` BESIDE IT.
+ *
+ * This holds five pieces of state about one word: whether it is already
+ * added, which card types and which decks are ticked, and the fetched deck
+ * list itself. `Entry` re-renders in place when a search finds a different
+ * word rather than remounting, which is why `AddWord` two lines up already
+ * carries a key — without one here, looking up a second word after the
+ * first was already in the deck would draw "In deck" for a word that is
+ * not, and a deck panel opened on it would still be showing the first
+ * word's shelves.
+ *
+ * THE KEY MAY NOT BE THE BARE `entry.id`, though, because `AddWord` right
+ * beside it already is: two siblings under one key is "two children with
+ * the same key", which React logs as a real error and reconciles by neither
+ * component's contract. `deck-${entry.id}` changes on every word exactly
+ * like `AddWord`'s key does, and cannot collide with it.
+ */
 function AddToDeck({ entry }: { entry: EntryView }) {
   const [open, setOpen] = useState(false);
   const [added, setAdded] = useState(entry.inDeck);
@@ -888,9 +907,44 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     CARD_TYPES.filter((t) => t.defaultOn && available.includes(t.type)).map((t) => t.type),
   );
 
+  /*
+    WHICH DECK, ASKED ONLY WHERE THERE IS SOMETHING TO CHOOSE BETWEEN.
+
+    A learner with no named shelf of their own, or exactly one, has nothing to
+    decide: the word goes into the one place it was always going to go, and
+    asking anyway would be a popup nobody needed. Fetched on open rather than
+    carried on every dictionary entry, since most searches never reach this
+    panel at all.
+
+    THE CHECKBOXES START WHERE THE WORD ALREADY IS, NOT EMPTY. This is a
+    replace, the same as the card-type list beside it: whatever is ticked
+    when "Add" is pressed is the whole of what the word is filed under
+    afterwards. Starting from an empty list would read as "add to these on
+    top of what is already there" and quietly take the word off every shelf
+    it already sat on the moment somebody ticked one box on a second visit.
+  */
+  const [decks, setDecks] = useState<DeckSummary[] | null>(null);
+  const [deckIds, setDeckIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!open || decks !== null) return;
+    Promise.all([listMyDecks(), myDeckMembership(entry.id)])
+      .then(([available, current]) => { setDecks(available); setDeckIds(current); })
+      .catch(() => setDecks([]));
+  }, [open, decks, entry.id]);
+
   const submit = () => {
     start(async () => {
-      const result = await addToDeck(entry.id, selected);
+      /*
+        `deckIds` is sent only where the panel actually offered a choice
+        (two or more decks): with fewer, the argument is left out entirely
+        rather than sent as `[]`, because those two mean different things to
+        `addToDeck` — an omitted argument leaves every shelf exactly as it
+        is, an empty list is "take it off all of them" — and a learner who
+        never saw a deck section never asked for either.
+      */
+      const result = await addToDeck(
+        entry.id, selected, undefined, decks && decks.length > 1 ? deckIds : undefined,
+      );
       if (result.ok) { setAdded(true); setOpen(false); }
     });
   };
@@ -924,6 +978,25 @@ function AddToDeck({ entry }: { entry: EntryView }) {
           </label>
         ))}
       </div>
+      {decks && decks.length > 1 && (
+        <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
+          <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which deck?</p>
+          <div className="flex flex-col gap-2">
+            {decks.map((deck) => (
+              <label key={deck.id} className="flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
+                <input
+                  type="checkbox"
+                  checked={deckIds.includes(deck.id)}
+                  onChange={(e) =>
+                    setDeckIds((d) => (e.target.checked ? [...d, deck.id] : d.filter((x) => x !== deck.id)))
+                  }
+                />
+                <span style={{ color: "var(--ink)" }}>{deck.name}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="mt-4 flex gap-2">
         <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
         <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">

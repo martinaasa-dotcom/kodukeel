@@ -146,6 +146,7 @@ const ROUTES = [
   "/dictionary/common",
   "/dictionary?q=tuba",
   "/words",
+  "/words/decks",
   "/grammar",
   "/grammar/partitive",
   "/grammar/topic/object",

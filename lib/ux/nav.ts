@@ -250,6 +250,20 @@ export const SECTIONS: NavSection[] = [
       },
       {
         /*
+          A learner's own named shelves over the one review pool: playlists
+          for a single library rather than a second copy of it. Reached from
+          `/words`, where "add words" already lives, and no `within` of its
+          own for the reason `/words/mastery` states above it: `/words` is
+          one level in already, and a second `within` on top of it is a
+          signpost nothing lists.
+        */
+        href: "/words/decks", label: "Decks",
+        blurb: "Name a shelf, and file words onto it as you add them", icon: "Library",
+        tone: "mint",
+        keywords: "deck decks playlist playlists shelf shelves organize organise folder collection",
+      },
+      {
+        /*
           Which of the course's situations you could follow, take part in or
           lead. A reading of "how am I doing" in the terms somebody outside
           the app asks it, so it lives under Progress with the other three.
