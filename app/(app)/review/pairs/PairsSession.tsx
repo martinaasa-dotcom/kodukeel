@@ -85,7 +85,18 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
       const outcome = await playClip({ text, slow, voice }, { unasked });
       setNeedsPress(outcome === "blocked");
     } catch {
-      setAudioFailed(true);
+      /*
+        AN AUTOPLAY THAT FAILED IS NOT A CLIP THAT IS GONE, which the comment
+        above already argues for the blocked case and did not carry all the
+        way through: a thrown error on the unasked play, a cold start or a
+        slow first round trip to TartuNLP rather than a refused gesture,
+        still ended the whole drill on a word nobody had pressed anything
+        for. `needsPress` puts the same manual button back that the blocked
+        case already draws, so a real press gets a real try rather than a
+        screen blaming the connection over one unlucky autoplay.
+      */
+      if (unasked) setNeedsPress(true);
+      else setAudioFailed(true);
     } finally {
       setPlaying(false);
     }
