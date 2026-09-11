@@ -54,7 +54,7 @@ const small = [];
 let noFocus = [];
 
 for (const url of PAGES) {
-  await p.goto(B + url, { waitUntil: "networkidle", timeout: 60000 });
+  await p.goto(B + url, { waitUntil: "load", timeout: 60000 });
   await p.waitForTimeout(250);
 
   const data = await p.evaluate(() => {
@@ -200,7 +200,7 @@ noFocus = [...new Set(noFocus)];
 */
 let faded = [];
 for (const url of ["/welcome"]) {
-  await p.goto(B + url, { waitUntil: "networkidle", timeout: 60000 });
+  await p.goto(B + url, { waitUntil: "load", timeout: 60000 });
   await p.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
   await p.waitForTimeout(900);
   faded = await p.evaluate((page) =>
@@ -348,7 +348,7 @@ check("a hovered row is drawn, and its words clear AA on the pill behind them",
 const adrift = [], onInk = [], clipped = [], sides = [];
 for (const width of [640, 768, 1280]) {
   await p.setViewportSize({ width, height: 1000 });
-  await p.goto(`${B}/welcome`, { waitUntil: "networkidle", timeout: 60000 });
+  await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
   await p.waitForTimeout(200);
   for (let frame = 0; frame < 12; frame++) {
     const seen = await p.evaluate((frac) => {
@@ -455,7 +455,7 @@ check("no landing letter is clipped by the edge of the page", clipped.length ===
   a keyframe.
 */
 await p.emulateMedia({ reducedMotion: "reduce" });
-await p.goto(`${B}/welcome`, { waitUntil: "networkidle", timeout: 60000 });
+await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
 await p.waitForTimeout(200);
 const unslanted = await p.evaluate(() =>
   [...document.querySelectorAll("#cases span.drift")]
@@ -503,7 +503,7 @@ for (const [width, height, display] of [
   [1512, 982, "88px"], [1920, 1080, "88px"], [1000, 740, "88px"], [1000, 739, "68px"],
 ]) {
   await p.setViewportSize({ width, height });
-  await p.goto(`${B}/welcome`, { waitUntil: "networkidle", timeout: 60000 });
+  await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
   await p.waitForTimeout(200);
   const seen = await p.evaluate(() => {
     const bottom = (el) => el.getBoundingClientRect().bottom;
