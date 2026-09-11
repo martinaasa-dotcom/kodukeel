@@ -271,7 +271,30 @@ async function main() {
       const reviews: { rating: number; at: Date; stateBefore: number }[] = [];
       history.forEach((r, n) => {
         const daysAgo = Math.max(0, 54 - n * 6 - (i % 5));
-        const at = new Date(Date.now() - daysAgo * 86400000 + n * 3600000);
+        /*
+          THE HOUR OFFSET SPREADS A DAY'S REVIEWS OUT AND USED TO WALK OFF THE
+          END OF IT.
+
+          `+ n * 3600000` exists so a day's answers are not all on one
+          timestamp. On the most recent review of a history `daysAgo` is 0, so
+          it was added to *now*, and every run after about four in the
+          afternoon UTC put that review on tomorrow. What the fixture then drew
+          is a Today that contradicts itself on one screen: "21 reviewed today"
+          and the daily goal met, beside a streak of 0 and today unticked on
+          the week strip, because the count and the streak do not read a future
+          day the same way. `Review` is append-only, so nothing takes those
+          rows out again.
+
+          Worse than the wrong figure is that it depended on the hour the
+          fixture was run. Every browser suite runs against this deck, so a
+          suite measured in the morning and the same suite measured in the
+          evening were measuring two different apps, and the one this file's
+          own header promises is the morning one.
+
+          Clamped rather than dropped: a review is a thing that happened, and
+          the latest one a learner can have is now.
+        */
+        const at = new Date(Math.min(Date.now(), Date.now() - daysAgo * 86400000 + n * 3600000));
         // The FSRS state the card was in when the question was asked, exactly as
         // gradeCard records it. Without it the demo's retention reading has
         // nothing mature to measure and the chart it feeds looks broken.

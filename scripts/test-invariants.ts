@@ -1909,6 +1909,43 @@ check("the public path allowlist is the only way past the gate", () => {
   }
 });
 
+check("a page a stranger may read is a page the landing page links to", () => {
+  /*
+    A PUBLIC PAGE NOBODY CAN REACH IS A PAGE NOBODY HAS READ.
+
+    Being in the middleware's allowlist means a signed-out reader is *allowed*
+    to see a page. It says nothing about their being able to find it, and the
+    two drifted: /trust and /accessibility were written for somebody deciding
+    whether to put this in front of a class, both say so in their own first
+    paragraph, and both were linked from every public page except the only one
+    a stranger actually arrives on. Five pages linked them and the front door
+    did not.
+
+    The claim is anchored on the landing page's own source rather than on a
+    rendered footer, so a page added to the allowlist tomorrow fails here
+    until somebody decides where it belongs. Four paths are exempt and each is
+    exempt for a reason that is not "we forgot": /sign-in is a form rather
+    than something to read and the landing page's buttons reach it anyway,
+    /auth/callback is single-use, /offline is a service worker's shell, and
+    the three /api/ paths are not pages.
+  */
+  const middleware = code("middleware.ts");
+  const landing = read("app/(chromeless)/welcome/page.tsx");
+  const notAPage = ["/sign-in", "/auth/callback", "/offline", "/api/"];
+
+  const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
+    .map((m) => m[1]!)
+    .filter((p) => !notAPage.some((skip) => p.startsWith(skip)));
+
+  assert.ok(allowed.length >= 5, `only ${allowed.length} readable public paths found; the scan stopped working`);
+  for (const path of allowed) {
+    assert.ok(
+      landing.includes(`href="${path}"`),
+      `${path} is public and the landing page does not link it, so nobody arriving can find it`,
+    );
+  }
+});
+
 // ── And the gate answers in a bounded time, or says it could not ─────────────
 
 check("nothing on the request path waits on the auth service without a deadline", () => {
@@ -3417,11 +3454,11 @@ check("color comes from a token, never a raw hex", () => {
   const hex = /#[0-9a-fA-F]{3,8}\b/;
   const offenders: string[] = [];
   for (const file of [...COMPONENTS, ...APP]) {
-    // The social card and the app icons are painted outside the browser,
-    // where a CSS custom property does not resolve.
+    // The social card, the link preview and the app icons are painted outside
+    // the browser, where a CSS custom property does not resolve.
     // global-error renders when the root layout itself failed, so globals.css
     // may never have loaded and a custom property would resolve to nothing.
-    if (/api\/share|apple-icon|icon\.tsx|manifest\.ts|layout\.tsx|global-error/.test(file)) continue;
+    if (/api\/share|apple-icon|icon\.tsx|opengraph-image|manifest\.ts|layout\.tsx|global-error/.test(file)) continue;
     for (const [i, line] of read(file).split("\n").entries()) {
       if (!hex.test(line)) continue;
       if (line.trim().startsWith("*") || line.trim().startsWith("//")) continue;

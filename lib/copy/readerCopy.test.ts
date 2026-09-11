@@ -638,3 +638,36 @@ describe("the voice table catches what it claims to and nothing else", () => {
     }
   });
 });
+
+/*
+  A SCREEN MAY NOT PROMISE A FEATURE THE APP WITHDREW.
+
+  XP went with the badges and the daily quest meters, and the sweep that
+  guards that removal reads *code*: it fails on a file reaching for
+  `xpForRating` or `AchievementToasts`, and there are none left. Copy is the
+  half it cannot see, and three sentences went on naming it for as long as the
+  removal has existed. Two of them were the worst places available for it.
+
+  The first is step one of first run, on the line under the only question that
+  screen asks by name, so the first thing this app ever told a stranger about
+  their own data named something that does not exist. The second is the
+  sentence on the class join form saying what a teacher will see, which is the
+  one screen whose entire job is to be accurate about that: it promised a
+  figure nothing shares and left out `lastSeen`, which is shared. The third
+  says the same thing again in Settings.
+
+  A word rather than a symbol, because `XP` is ordinary English in a comment
+  explaining why it went and this reads only what a person sees.
+*/
+describe("nothing on screen names a feature that was taken out", () => {
+  const WITHDRAWN = /\bXP\b/;
+
+  it("no reader-facing line mentions XP", () => {
+    const found = FILES.flatMap((file) =>
+      readerFacingLines(file)
+        .filter(({ text }) => WITHDRAWN.test(text))
+        .map(({ line }) => `${file}:${line}`),
+    );
+    expect(found).toEqual([]);
+  });
+});

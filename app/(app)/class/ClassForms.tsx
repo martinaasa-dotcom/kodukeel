@@ -136,8 +136,9 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         {pending ? "Joining…" : "Join the class"}
       </Button>
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        Joining shares your name, your streak, your XP for the week and how many words you know
-        with your teacher and classmates. It shares one more thing with your teacher alone: which
+        Joining shares your name, your streak, how many reviews you did this week, when you last
+        practiced and how many words you know with your teacher and classmates. It shares one more
+        thing with your teacher alone: which
         grammar case you personally get wrong most, as one percentage across your own reviews,
         never a specific answer. A workplace group shares less: your name, whether you have been
         practicing, and one of four bands for the paper the group works toward. Not your deck, not

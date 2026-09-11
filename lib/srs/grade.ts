@@ -178,3 +178,59 @@ function reachedFor(slot: string, reached: string | null | undefined): string | 
   if (!isFormSlot(reached) || !isFormSlot(slot)) return null;
   return reached;
 }
+
+/**
+ * A `Review` row off a backup file, bounded the way `writeGrade` bounds one.
+ *
+ * EVERY OTHER DOOR INTO THIS TABLE IS GUARDED AND THIS ONE WAS NOT.
+ *
+ * `writeGrade` above is the grading path, and it bounds four things on the way
+ * in: the moment, which `reviewMoment` refuses to book into the future; the
+ * duration, capped at ten minutes so a tab left open at lunch cannot carry
+ * half an hour into a median; the slot, checked against the closed list in
+ * `lib/srs/slots.ts` because the value arrives from a browser; and the reached
+ * slot, narrower still. `restoreBackup` wrote none of that. It took
+ * `reviewedAt`, `rating`, `durationMs`, `slot` and `reachedSlot` exactly as
+ * the file spelled them, into the one table this app never repairs.
+ *
+ * The file is a document somebody hands the server, which is the argument that
+ * already hardened the `Lexeme` half of the same restore. The realistic way it
+ * goes wrong is not malice: it is a device with a wrong clock, or a file
+ * somebody opened and edited. A single review dated next week is enough to
+ * read as a day nobody has lived through yet, and `Review` is append-only, so
+ * there is no path in this app that could ever take it out again.
+ *
+ * Two bounds are deliberately looser here than in `writeGrade`. The moment is
+ * not floored at the card's creation, because a backup carries reviews of
+ * cards that were deleted and `Review` has no relation to `Card` on purpose.
+ * And the slot is passed through the closed list rather than replaced by the
+ * card's own, since there may be no card to ask.
+ *
+ * Returns null for a row this app could not have written, which is a rating
+ * outside the four the scheduler knows. Dropping one row is the right cost:
+ * the alternative is a grade nothing can read sitting in the history for ever.
+ */
+export function boundedRestoredReview(
+  row: Record<string, unknown>,
+  now: Date,
+): Record<string, unknown> | null {
+  const rating = Number(row.rating);
+  if (!Number.isInteger(rating) || rating < 1 || rating > 4) return null;
+
+  const at = row.reviewedAt instanceof Date ? row.reviewedAt : new Date(String(row.reviewedAt));
+  const duration = Number(row.durationMs);
+  const slot = typeof row.slot === "string" && isKnownSlot(row.slot) ? row.slot : null;
+  const reached = typeof row.reachedSlot === "string" ? row.reachedSlot : null;
+
+  return {
+    ...row,
+    rating,
+    reviewedAt: Number.isNaN(at.getTime()) || at > now ? now : at,
+    durationMs: Number.isFinite(duration) ? Math.min(Math.max(duration, 0), 600_000) : 0,
+    slot,
+    // `reachedFor` is the same three-way rule the grading path applies, and it
+    // needs a slot on both sides: with no readable asked slot there is nothing
+    // for a reached one to be different from.
+    reachedSlot: slot ? reachedFor(slot, reached) : null,
+  };
+}

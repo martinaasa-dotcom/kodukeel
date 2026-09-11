@@ -12,7 +12,7 @@
  */
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
-import { ensureLetterBar } from "./lib/prefs.mjs";
+import { ensureLetterBar, requireAppShell } from "./lib/prefs.mjs";
 
 const B = baseUrl();
 
@@ -51,6 +51,16 @@ async function open(width, height, path) {
   const page = await ctx.newPage();
   await page.goto(`${B}${path}`, { waitUntil: "networkidle" });
   return { ctx, page };
+}
+
+// 0 — The precondition, said out loud. Half of what follows measures the phone
+//     bar, and the bar only exists on the signed-in shell: against a deck that
+//     has never been built, `/` is the first-run wizard and draws none. See
+//     scripts/lib/prefs.mjs.
+{
+  const { ctx, page } = await open(390, 844, "/");
+  await requireAppShell(page);
+  await ctx.close();
 }
 
 // 1 — The root declares no overflow, or every menu hung off the chrome opens

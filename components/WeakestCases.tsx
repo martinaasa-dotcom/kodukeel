@@ -70,7 +70,34 @@ export function WeakestCases({ cases, empty }: {
                 of the help link. The case names are one word, so a name that
                 has to give up a few pixels still reads.
               */}
-              <span lang="et" className="w-24 shrink" style={{ color: "var(--ink-2)" }}>{name}</span>
+              {/*
+                AND THE QUESTION IT ANSWERS, WHICH A READER COULD NOT SEE.
+
+                The name leads, which is the rule, and the question a class
+                actually uses to name a case was carried by `title` and
+                `aria-label` alone. A `title` is a hover, this app is measured
+                at 360, and this panel is on Today, on Progress and on
+                Practice, so on the three screens a beginner sees most a case
+                was a word in a language they are learning with a percentage
+                beside it and nothing to hold onto. That is the same fault the
+                dictation notes were fixed for: a tooltip is not text.
+
+                `asksThing` and `asksWhere` rather than `question`, which is
+                all three pronouns and does not fit: what a teacher writes on
+                the board is `kus?`, and the person form is the one a word
+                decides, which this panel has no word to ask. Under the name
+                rather than beside it, so the row grows a line instead of a
+                column: the comment below records that this row had 37px to
+                give back at 768 and it does not have them now either.
+              */}
+              <span className="flex w-24 shrink flex-col leading-tight">
+                <span lang="et" style={{ color: "var(--ink-2)" }}>{name}</span>
+                {spec && (
+                  <span lang="et" className="text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+                    {[spec.asksThing, spec.asksWhere].filter(Boolean).join(" ")}
+                  </span>
+                )}
+              </span>
               <span className="min-w-0 flex-1">
                 <Meter
                   pct={c.accuracy}
