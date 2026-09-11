@@ -199,7 +199,11 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                 <p lang="et" className="text-2xl font-semibold md:text-2xl" style={{ color: "var(--accent-deep)" }}>
                   {card.et}
                 </p>
-                <SpeakPair text={card.et} size={17} />
+                {/* The answer, read aloud as it appears, the same rule
+                    ReviewSession's own reveal states for itself: on a flip
+                    it is the word you were trying to recall, said properly,
+                    and here it is the sentence you just tried to say aloud. */}
+                <SpeakPair text={card.et} size={17} autoplay />
               </div>
               <Recorder />
               <p className="max-w-[44ch] text-xs" style={{ color: "var(--ink-3)" }}>
