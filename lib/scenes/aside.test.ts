@@ -30,8 +30,8 @@ const ASKS_FOR_QUESTION: BeatSpec = {
 const CARD: RoleCard = {
   you: "You.",
   props: [
-    { slot: "time", card: "The time", literal: ["14:30"], lemmas: [], value: "14:30" },
-    { slot: "day", card: "The day", literal: [], lemmas: ["teisipäev"], value: "teisipäev", theirs: true },
+    { slot: "time", card: "The time", literal: ["14:30"], lemmas: [], shown: [], value: "14:30" },
+    { slot: "day", card: "The day", literal: [], lemmas: ["teisipäev"], shown: [], value: "teisipäev", theirs: true },
   ],
 };
 
@@ -77,11 +77,26 @@ describe("a question the scene did not anticipate", () => {
     expect(line).toEqual({ text: "Jah, see on lähedal.", provenance: "scripted" });
   });
 
-  it("owes nothing for a question the beat asked for and the next move answers", () => {
-    const asking = input({ asked: "kus", answered: ASKS_FOR_QUESTION, answers: [] });
+  it("owes nothing for a question the beat says the next move answers", () => {
+    const next: BeatSpec = { ...ASKS_FOR_QUESTION, answeredNext: true };
+    const asking = input({ asked: "kus", answered: next, answers: [] });
     expect(asideFor(asking)).toBeNull();
     // The directions are the answer to "where is it"; a shrug here would be a person contradicting themselves.
     expect(asideOwed(asking)).toBe(false);
+  });
+
+  /*
+    AND OWES ONE WHERE THE BEAT SAYS NOTHING OF THE KIND. "Ask about the pay"
+    is not answered by "when could you start", and for seven of the eleven
+    beats whose goal is to ask something this returned null and reported that
+    nothing was owed, so the model was never asked and the shrug never said:
+    the learner's question was dropped on the floor and the next question put
+    to them instead. Three times running, on the run this was written for.
+  */
+  it("owes an answer for a question the beat asked for and nothing answered", () => {
+    const asking = input({ asked: "kui", answered: ASKS_FOR_QUESTION, answers: [] });
+    expect(asideFor(asking)).toBeNull();
+    expect(asideOwed(asking)).toBe(true);
   });
 
   it("owes an answer for a question nothing else can supply, and the shrug is off the course", () => {

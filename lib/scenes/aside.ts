@@ -10,7 +10,8 @@
  * the one for a beat's own line, cheapest and surest first:
  *
  *   1. the beat's own answer  where the beat asked for the question, the
- *                             bank holds what they say (`answer:<beat>`)
+ *                             bank holds what they say (`answer:<beat>`),
+ *                             written against the beat's own `answer` line
  *   2. how are you            `Hästi, aitäh.`, because that is the answer
  *   3. a fact off the card    "when?" gets the day and the time the run dealt
  *   4. more about it          another line for the beat they just spoke, so
@@ -79,13 +80,29 @@ export function asideFor(input: AsideInput): SpokenLine | null {
   /*
     The beat asked for this question, so the answer is the beat's own and
     was written for it. First, because it is the one rung that knows what
-    was asked rather than guessing from the question word. And where the
-    bank holds none, nothing: the next move is the answer, which is how
-    "where is the station?" is answered by the directions and not by a shrug.
+    was asked rather than guessing from the question word.
   */
   if (answered && wantsQuestion(answered)) {
     const banked = input.answers[0];
-    return banked ? { text: banked, provenance: "scripted" } : null;
+    /*
+      AND WHERE THE BANK HOLDS NONE, THIS RETURNED NOTHING AND SAID NOTHING
+      WAS OWED, WHICH IS HOW A QUESTION CAME TO BE IGNORED.
+
+      The argument was that the next move is the answer, which is how "where
+      is the station?" is answered by the directions rather than by a shrug.
+      That is true of four of the eleven beats whose goal is to ask something
+      and false of the rest, and nothing checked which: at a job interview the
+      learner was told to ask about the pay, asked, and was answered with the
+      next question, three times, while they insisted. They reported it as the
+      app leaving them hanging, and it is.
+
+      So the scene says which it is (`answeredNext`), and where it does not,
+      a question with nothing banked falls through to the rungs below and then
+      to the model and the shrug (`asideOwed`). Silence is the one thing
+      nobody does with a question.
+    */
+    if (banked) return { text: banked, provenance: "scripted" };
+    if (answered.answeredNext) return null;
   }
 
   /*
@@ -127,12 +144,22 @@ export function asideFor(input: AsideInput): SpokenLine | null {
 
 /**
  * Whether a question on this turn is owed an answer nothing else supplies,
- * so the route should ask a model and, failing that, shrug. False where the
- * beat itself wanted the question, since then the next move answers it.
+ * so the route should ask a model and, failing that, shrug. False only where
+ * something has already answered it: the beat says the next move does
+ * (`answeredNext`), or the bank held a line and the rung above said it.
  */
 export function asideOwed(input: AsideInput): boolean {
   if (!input.asked) return false;
-  return !(input.answered && wantsQuestion(input.answered));
+  /*
+    A beat that says the next move answers it owes nothing, and one that
+    wanted the question and has an answer banked has already said it. Every
+    other question is owed something, including one on a beat that asked for
+    it and whose bank came up empty, which is the case that used to be
+    answered with nothing at all.
+  */
+  const beat = input.answered;
+  if (beat && wantsQuestion(beat) && (beat.answeredNext || input.answers.length > 0)) return false;
+  return true;
 }
 
 function wantsQuestion(beat: BeatSpec): boolean {

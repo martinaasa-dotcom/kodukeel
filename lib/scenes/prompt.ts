@@ -109,6 +109,27 @@ export interface ComposeAsk {
   readonly asked: readonly string[];
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
+  /**
+   * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
+   * "THEY ANSWERED YOU".
+   *
+   * The model used to be asked only on a turn that landed, so on every other
+   * turn the screen got a table entry: a turn read as real Estonian off the
+   * point was answered with one word (`Vabandust!`) and the previous line
+   * repeated character for character. That is the most mechanical thing in the
+   * module and it is what a learner read the whole of it as.
+   *
+   * A miss composes now, and this is the difference between the model writing
+   * the same question again and writing what a person says: they said
+   * something real, it was not what you asked, so answer what they said and
+   * then ask again. The model is the only thing in the app that can do the
+   * first half, and it is the half that stops the learner feeling refused.
+   *
+   * English, and about the *turn* rather than about the learner: "they did not
+   * answer" is a fact about a sentence and "they did not understand" is a
+   * judgment about a person, which this module does not make.
+   */
+  readonly note?: string;
 }
 
 /*
@@ -175,6 +196,23 @@ const COMPOSE_RULES = [
   "a word missing or a word in the wrong place. Work out what they meant and answer that,",
   "the way anybody who speaks the language would. Do not repeat a question they have",
   "already answered.",
+  /*
+    AND THE ONE RULE THE WHOLE MODULE IS FOR, SAID TO THE MODEL AS A RULE.
+
+    Everything above is about what a line is made of. This is about what it
+    does to the person reading it, which is the thing a learner reported and
+    the thing no check can measure: they wrote correct Estonian, met confusion,
+    and read it as being told they were not good enough. A character who takes
+    the answer, answers the question and carries on is the whole feature; a
+    character who shrugs at a clear sentence undoes a fortnight of somebody's
+    confidence in one line.
+  */
+  "The point of this is that they leave it more confident than they arrived, so they are never",
+  "left feeling stupid. Take what they gave you: a one-word answer is an answer, an answer with",
+  "the wrong ending is an answer, and so is an answer you had to work out. If they ask you",
+  "something, answer it before you carry on, even briefly, and never ignore it or change the",
+  "subject. Only say you did not understand when you genuinely could not, and even then say it",
+  "the way a friendly person does, without making it their fault.",
   /*
     AND A SENTENCE THAT IS NOT ESTONIAN IS WORSE THAN A SIMPLER ONE. The list
     is what keeps the line readable by somebody who has done these units, and a
@@ -296,5 +334,13 @@ export function composeLive(ask: ComposeAsk): string {
       ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
         + "Say it again without them, using more of the words you were given."
       : "",
+    /*
+      And what happened to their turn, which is the whole reason a miss is
+      worth a call: without it the model writes the question again and the
+      learner reads a machine, and with it the character answers the person in
+      front of them and then asks. Last, because it is about this turn and the
+      lines above it are about the beat.
+    */
+    ask.note ?? "",
   ].filter(Boolean).join("\n");
 }

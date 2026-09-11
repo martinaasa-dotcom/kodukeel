@@ -528,22 +528,32 @@ export function readTurn(
     read, and answering `xyzzy blorp` with "Jah?" as though the rest of the
     sentence were coming is the look-and-wait printed at the wrong person.
 
-    AND A PHRASE THAT ANSWERS THE QUESTION IS NOT A FRAGMENT. The rule exists
-    so that the one required word on its own cannot finish a beat that wanted
-    a sentence, and it was written as "no finite verb", which read `Neljal
-    korrusel` as a learner who had not finished talking. Asked which floor,
-    that is the whole answer, and anybody on the phone would take it: a
-    landlord who says "Jah?" and waits after it is waiting for a verb nobody
-    was going to supply. So a turn of two or more words that meets everything
-    the beat asked for is an answer, and a single word, or a phrase that
-    misses the point, is still what it was.
+    AND A TURN THAT ANSWERS THE QUESTION IS NOT A FRAGMENT, AT ANY LENGTH.
+
+    The rule exists so that the one required word on its own cannot finish a
+    beat that wanted a sentence, and it was written as "no finite verb", which
+    read `Neljal korrusel` as a learner who had not finished talking. Asked
+    which floor, that is the whole answer, and anybody on the phone would take
+    it. That was corrected to "two or more words", which left the one case
+    this module can least afford: asked where they worked before, a learner
+    wrote `ülikoolis`, which is the perfect Estonian answer to that question
+    and the way anybody answers it, and the interviewer looked at them and
+    waited. They reported it as the app having no clue what they were saying.
+
+    A one-word answer is not an unfinished sentence. Refusing it teaches
+    somebody that being right is not enough, which is the one thing this
+    module exists not to do, and it buys a sentence nobody was going to write
+    anyway: what the second wait produced was the same word again. So a turn
+    that meets everything the beat asked for is an answer however short it is,
+    and the look and the wait is kept for what it was written for, a turn that
+    is genuinely cut short and does not answer.
   */
   const anyVouched = marked.some((w) => w.vouched);
   const sentence = looksLikeSentence(text)
     || (spoken.length >= 2 && spoken.some((word) => context.hasFiniteVerb(word)))
     // `Kui kaua?` is a whole question, and a question is a whole turn.
     || text.trim().endsWith("?")
-    || (spoken.length >= 2 && missing.length === 0);
+    || missing.length === 0;
   if (beat.shape === "sentence" && anyVouched && !sentence) return shape("fragment");
 
   if (missing.length === 0) return shape("complete");
@@ -858,7 +868,13 @@ function satisfies(
         does: the case form is the answer, any other form of the word is the
         word understood in the wrong case, and the recast is the table's.
       */
-      const lemmas = need.grammCase ? context.dataLemmas?.get(need.slot) ?? [] : [];
+      /*
+        The lemmas the card dealt for this slot. Read whether or not the beat
+        named a case: a case reads them through the case table below, and
+        everything else reads them for the two rungs a beat's own word has.
+      */
+      const card = context.dataLemmas?.get(need.slot) ?? [];
+      const lemmas = need.grammCase ? card : [];
       for (const lemma of lemmas) {
         const key = caseKeyFor(lemma, need.grammCase!);
         const forms = context.lexicon.byLemma.get(lemma);
@@ -911,6 +927,35 @@ function satisfies(
       if (literal) return { word: literal };
       const near = nearly(accepted);
       if (near) return { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma: near.form } };
+      /*
+        A WORD THAT MEANS THE SAME THING, AND THE WORD IN ENGLISH, WHICH THIS
+        BRANCH ALONE COULD NOT REACH.
+
+        The `lemma` and `case` branches have gone through the substitutes and
+        then the English gloss since each was written, and the one branch that
+        never did is the one whose word the learner did not choose: a card
+        deals `mees` and the learner has `abikaasa`, which is the word for a
+        husband anybody would reach for, and they were told it was not
+        understood. Reported by somebody using it, twice in one run, in perfect
+        Estonian ("ma elan siin koos oma abikaasaga"). A beat the card decides
+        is exactly where a learner is likeliest to know a second word, because
+        nobody chose the first one for them.
+
+        Last, and in this order, so the card's own word always answers first
+        and nothing here changes which word is repeated back when they used it.
+        `stoodIn` travels with the hit, so the beat is met and no grade claims
+        they produced the word the card dealt.
+      */
+      for (const lemma of card) {
+        const stood = substituteFor(lemma, context, spoken);
+        if (stood) return { word: stood, stoodIn: true };
+      }
+      for (const lemma of card) {
+        const said = englishFor(lemma, context, spoken);
+        if (said) {
+          return { word: lemma, stoodIn: true, slip: { kind: "english", said, form: lemma, lemma } };
+        }
+      }
       return null;
     }
     /*

@@ -236,6 +236,39 @@ describe("reading a turn", () => {
       const asks = beat({ needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
       expect(readTurn("ruum", asks, context()).reading).not.toBe("complete");
     });
+
+    /*
+      AND IT REACHES THE ONE BRANCH WHOSE WORD THE LEARNER DID NOT CHOOSE. A
+      `datum` is a word the card dealt, so it is exactly where somebody is
+      likeliest to know a second one, and it was the one requirement that
+      could not be met by it: a card dealing `tuba` refused `ruum`, and a
+      learner reported the same thing on a card dealing `mees` who wrote
+      `abikaasaga`. Reported as the app having "zero clue what I'm talking
+      about", in perfect Estonian.
+    */
+    it("meets a value off the card, which is where the learner chose none of the words", () => {
+      const asks = beat({ needs: [{ kind: "datum", slot: "with" }] });
+      const dealt = {
+        data: new Map([["with", new Set(["tuba", "toa", "toas"])]]),
+        dataLemmas: new Map([["with", ["tuba"]]]),
+        substitutes: stand,
+      };
+      const seen = readTurn("ma elan koos ruumis", asks, { ...context(), ...dealt });
+      expect(seen.reading).toBe("complete");
+      expect(seen.substituted).toEqual([0]);
+    });
+
+    it("never answers before the word the card dealt does", () => {
+      const asks = beat({ needs: [{ kind: "datum", slot: "with" }] });
+      const dealt = {
+        data: new Map([["with", new Set(["tuba", "toa", "toas"])]]),
+        dataLemmas: new Map([["with", ["tuba"]]]),
+        substitutes: stand,
+      };
+      const seen = readTurn("ma elan toas", asks, { ...context(), ...dealt });
+      expect(seen.substituted).toEqual([]);
+      expect(seen.matched).toEqual(["toas"]);
+    });
   });
 
   /*
@@ -397,10 +430,10 @@ describe("reading a turn", () => {
     expect(readTurn("xyzzy blorp", asks, context()).reading).toBe("unrecognised");
   });
 
-  it("waits rather than advancing when a sentence was wanted and a word arrived", () => {
-    const asks = beat({ shape: "sentence" });
+  it("waits when a sentence was wanted and a word that answers nothing arrived", () => {
+    const asks = beat({ shape: "sentence", needs: [{ kind: "lemma", oneOf: ["tuba"] }] });
     expect(readTurn("valu", asks, context()).reading).toBe("fragment");
-    expect(readTurn("Mul on valu", asks, context()).reading).toBe("complete");
+    expect(readTurn("Mul on tuba", asks, context()).reading).toBe("complete");
   });
 
   /*
@@ -554,8 +587,14 @@ describe("a phrase that answers the question", () => {
     expect(readTurn("valu toas", wants, context()).reading).toBe("complete");
   });
 
-  it("while the one required word alone is still a look and a wait", () => {
-    expect(readTurn("toas", wants, context()).reading).toBe("fragment");
+  /*
+    A one-word answer is an answer. Asked where they worked before, a learner
+    wrote `ülikoolis`, which is how anybody answers that, and was looked at and
+    waited for. Refusing a right answer for being short is the one thing this
+    module may not do.
+  */
+  it("and the one required word alone is an answer too, however short", () => {
+    expect(readTurn("toas", wants, context()).reading).toBe("complete");
   });
 
   it("and two words that miss the point are still what they were", () => {

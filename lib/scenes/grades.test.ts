@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import { advance, startScene, type SceneState } from "./state";
 import { gradesFor, offerFor, stalledWords } from "./grades";
 import type { Evidence, TurnReading } from "./turn";
-import type { SceneSpec } from "./types";
+import { buildLexicon } from "./lexicon";
+import type { RoleCard } from "./props";
+import type { BeatSpec, SceneSpec } from "./types";
 
 const SCENE: SceneSpec = {
   id: "fixture", title: "A fixture", place: "Nowhere", level: "A2",
@@ -240,19 +242,153 @@ describe("the words a run needed and the learner did not have", () => {
  * agree with their own card, or they follow the hint and practise saying
  * something that was not true of the run they are in.
  */
+/*
+  A VALUE OFF THE CARD IS A WORD LIKE ANY OTHER.
+
+  `gradesFor` wrote rows for `lemma` and `case` and nothing for `datum`, on the
+  reasoning that a datum is not a word the learner holds a card for. It is one
+  every time: the card named it rather than the beat. So a scene built mostly
+  out of card values wrote almost nothing into the review log, which is every
+  scene whose subject is telling somebody a fact about yourself.
+*/
+describe("a value the card dealt", () => {
+  const DATUM: SceneSpec = {
+    ...SCENE,
+    beats: [
+      {
+        id: "from", goal: "Tell them where you are from.", they: "They ask.", move: "ask",
+        topic: ["kodumaa"], needs: [{ kind: "datum", slot: "from" }],
+        required: true, patience: 3, shape: "word",
+      },
+      {
+        id: "to", goal: "Tell them where you are going.", they: "They ask.", move: "ask",
+        topic: ["jaam"], needs: [{ kind: "datum", slot: "to", grammCase: "ILLATIVE" }],
+        required: true, patience: 3, shape: "word",
+      },
+    ],
+  };
+  const card = (props: { slot: string; lemmas: string[]; value: string }[]): RoleCard => ({
+    you: "You.",
+    props: props.map((one) => ({
+      slot: one.slot, card: one.slot, literal: [], shown: [], value: one.value, lemmas: one.lemmas,
+    })),
+  });
+  const played = () => {
+    let state = startScene(DATUM);
+    ({ state } = advance(DATUM, state, evidence("complete", [true]), "Soomest"));
+    ({ state } = advance(DATUM, state, evidence("complete", [true]), "jaama"));
+    return state;
+  };
+
+  it("is graded as the word it named, so the beat reaches the review log", () => {
+    const grades = gradesFor(DATUM, played(), card([
+      { slot: "from", lemmas: ["Soome"], value: "Soome" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]));
+    expect(grades.map((g) => g.lemma)).toEqual(["Soome", "jaam"]);
+  });
+
+  /*
+    And where the beat named a case the row carries it, which is the whole
+    reason a conversation writes to the log at all: the sisseütlev under
+    pressure lands in the same chart as the sisseütlev on a card.
+  */
+  it("and carries the case the beat asked the value in", () => {
+    const grades = gradesFor(DATUM, played(), card([
+      { slot: "from", lemmas: ["Soome"], value: "Soome" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]));
+    expect(grades.find((g) => g.lemma === "jaam")?.grammCase).toBe("ILLATIVE");
+    expect(grades.find((g) => g.lemma === "Soome")?.grammCase).toBeNull();
+  });
+
+  /*
+    A slot that could mean two words grades nothing. A floor dealt as `3`
+    carries `kolm` and `kolmas` and the turn does not say which was written, so
+    a row for the first would claim a recall that may never have happened, in
+    the one table nothing repairs.
+  */
+  it("but grades nothing where the slot could have meant either of two words", () => {
+    const grades = gradesFor(DATUM, played(), card([
+      { slot: "from", lemmas: ["kolm", "kolmas"], value: "3" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]));
+    expect(grades.map((g) => g.lemma)).toEqual(["jaam"]);
+  });
+
+  /*
+    AND THE TWO-WORD SLOT IS SETTLED BY WHAT THEY WROTE, where there is a
+    lexicon to ask. `kolmandal` is a form of `kolmas` and of nothing else, so
+    the row is `kolmas`; the ambiguity is resolved rather than guessed at.
+  */
+  it("unless the words they wrote say which of the two it was", () => {
+    const lexicon = buildLexicon([
+      { lemma: "kolm", pos: "NUMERAL", cefr: "A1", usages: [], parts: { NOM_SG: "kolm", GEN_SG: "kolme", PART_SG: "kolme" } },
+      { lemma: "kolmas", pos: "ADJECTIVE", cefr: "A1", usages: [], parts: { NOM_SG: "kolmas", GEN_SG: "kolmanda", PART_SG: "kolmandat" } },
+      { lemma: "jaam", pos: "NOUN", cefr: "A1", usages: [], parts: { NOM_SG: "jaam", GEN_SG: "jaama", PART_SG: "jaama" } },
+    ]);
+    let state = startScene(DATUM);
+    ({ state } = advance(DATUM, state, evidence("complete", [true], [], ["kolmandal"]), "kolmandal"));
+    const grades = gradesFor(DATUM, state, card([
+      { slot: "from", lemmas: ["kolm", "kolmas"], value: "3" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]), lexicon);
+    expect(grades.map((g) => g.lemma)).toEqual(["kolmas"]);
+  });
+
+  /*
+    And nothing for a literal: a time, a clock reading, a reference code. Those
+    are values rather than vocabulary and nobody holds a card for one.
+  */
+  it("and nothing for a value that is not a word", () => {
+    const grades = gradesFor(DATUM, played(), card([
+      { slot: "from", lemmas: [], value: "10:30" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]));
+    expect(grades.map((g) => g.lemma)).toEqual(["jaam"]);
+  });
+
+  /*
+    And nothing where the run stored no card, which is what every run before
+    this did for every datum it had.
+  */
+  it("and nothing at all where the caller has no card", () => {
+    expect(gradesFor(DATUM, played())).toEqual([]);
+  });
+
+  /*
+    And never where a second word for the same thing met it: the learner said
+    `abikaasa` where the card dealt `mees`, and a row for the card's own word
+    would tell the scheduler they produced one they never wrote. `substituted`
+    is what says so and `answered` already reads it.
+  */
+  it("and never where a word standing in for it is what met the beat", () => {
+    let state = startScene(DATUM);
+    const stood: Evidence = {
+      ...evidence("complete", [true]), substituted: [0],
+    };
+    ({ state } = advance(DATUM, state, stood, "abikaasaga"));
+    const grades = gradesFor(DATUM, state, card([
+      { slot: "from", lemmas: ["Soome"], value: "Soome" },
+      { slot: "to", lemmas: ["jaam"], value: "jaam" },
+    ]));
+    expect(grades.map((g) => g.lemma)).toEqual([]);
+  });
+});
+
 describe("the word the other side offers", () => {
   const beat = SCENE.beats[0]!;
 
   it("is the one the card dealt, where the card dealt one of the beat's own", () => {
     const card = {
       you: "You.",
-      props: [{ slot: "problem", card: "What is wrong", literal: [], lemmas: ["haigus"], value: "haigus" }],
+      props: [{ slot: "problem", card: "What is wrong", literal: [], lemmas: ["haigus"], shown: [], value: "haigus" }],
     };
     expect(offerFor(beat, card)).toBe("haigus");
   });
 
   it("is the beat's own first word where the card dealt none of them", () => {
-    const card = { you: "You.", props: [{ slot: "x", card: "x", literal: [], lemmas: ["tuba"], value: "tuba" }] };
+    const card = { you: "You.", props: [{ slot: "x", card: "x", literal: [], lemmas: ["tuba"], shown: [], value: "tuba" }] };
     expect(offerFor(beat, card)).toBe("valu");
     expect(offerFor(beat, null)).toBe("valu");
   });
@@ -282,5 +418,29 @@ describe("the word the other side offers", () => {
   it("never points at the question word they were just asked", () => {
     const beat = { ...SCENE.beats[2]!, topic: ["kuhu", "aeg"] };
     expect(offerFor(beat, null, new Set(["kuhu"]))).toBe("aeg");
+  });
+
+  /*
+    AND NEVER A WORD THEY HAVE JUST USED CORRECTLY. Asked which floor they live
+    on, a learner who wrote `kolmandal korrusel` met the case and missed the
+    number, and was handed `Korrus?`, the word they had said twice. A hint for
+    the half they got right reads as the app not having listened, and it points
+    away from what was actually wanted.
+  */
+  it("passes over a requirement the turn already met", () => {
+    const beat = {
+      ...SCENE.beats[0]!,
+      needs: [
+        { kind: "case", lemma: "pea", grammCase: "INESSIVE" },
+        { kind: "lemma", oneOf: ["valu"] },
+      ],
+    } as const satisfies BeatSpec;
+    expect(offerFor(beat, null, new Set(), [true, false])).toBe("valu");
+    expect(offerFor(beat, null, new Set(), [false, false])).toBe("pea");
+  });
+
+  it("and falls back to the walk where the caller knows nothing about the turn", () => {
+    expect(offerFor(SCENE.beats[1]!, null, new Set(), [])).toBe("pea");
+    expect(offerFor(SCENE.beats[1]!, null, new Set(), [true])).toBe("pea");
   });
 });

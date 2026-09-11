@@ -94,5 +94,15 @@
  * which only needed teaching. Eleven words were asked for and eleven arrived;
  * a twelfth, `olemas`, was asked for and Ekilex holds no headword for it, so
  * it is in no unit rather than written down here as a word we decided on.
+ *
+ * The two after that are `neljas` and `viies`, and the sixteen forms with
+ * them are their case tables. A learner told to say which floor they live on
+ * wrote `kolmandal korrusel` and was answered "sorry?", twice, because a
+ * number dealt on a role card accepted the digit and nothing else and the
+ * ordinals in the course stopped at `teine`. That is the gap §29 of the
+ * situations design keeps finding: the nouns of a situation are taught and
+ * the words that do things with them are not. `kolmas` was already in the
+ * built expansion and only needed teaching, which is why three words were
+ * asked for and the count moved by two.
  */
-export const SEED_SET_SIZE = { words: 6_116, forms: 39_450 };
+export const SEED_SET_SIZE = { words: 6_118, forms: 39_466 };

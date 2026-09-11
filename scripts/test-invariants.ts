@@ -12047,6 +12047,88 @@ check("the repair move is only used on a turn nobody understood", () => {
   );
 
   /*
+    A TURN THAT MISSED THE POINT COMPOSES, AND THE COMPOSED LINE REACHES THE
+    SCREEN. Two halves of one fault and each was silent on its own. The route
+    used not to book a call at all on a miss, so a learner who wrote real
+    Estonian that did not answer the beat got one word and their own last
+    question back, character for character, which is the most mechanical thing
+    the module has ever done and is what it was reported for. Then, with the
+    call booked and the gate passed, `replyFor` went on pushing the repeat and
+    the paid-for line reached nobody.
+
+    Anchored on both, and on the note the model is told about the turn, because
+    a composed line written against the beat alone is a differently worded
+    question, which is the fault this started as pointed the other way.
+  */
+  assert.match(
+    reply, /if \(reading === "offtarget"\) return true;/,
+    "a turn read as off the point no longer asks the model for a line, so the other side answers " +
+    "a person who spoke real Estonian by repeating itself",
+  );
+  assert.match(
+    reply, /export function composeNote\(/,
+    "lib/scenes/reply.ts lost composeNote, so the model is asked for a line and told nothing about " +
+    "what happened to the turn it is answering",
+  );
+  assert.match(
+    reply, /provenance === "composed" \? line : null/,
+    "replyFor no longer prefers the line composed for this turn, so a booking is spent on a line " +
+    "the screen throws away",
+  );
+  assert.match(
+    route, /note: composeNote\(/,
+    "the scene route no longer tells the composer how the turn was read",
+  );
+  assert.match(
+    code("lib/scenes/prompt.ts"), /ask\.note/,
+    "lib/scenes/prompt.ts no longer renders the note, so composeNote reaches no model",
+  );
+
+  /*
+    ONE CHECK STANDS DOWN, FOR ONE CURVEBALL, AND EVERY GATE READS THE SAME
+    RULE. `other-register` is the other side addressing the learner with the
+    pronoun this scene does not use, which is exactly what the register check
+    withholds a line for: so no line was ever bankable for it, the live line
+    was refused, and what a learner met mid-conversation was an English stage
+    direction describing the thing that was supposed to be happening.
+
+    `gateFor` is the one reader and the route, the line checker, the drafter
+    and the bank's own test all go through it, or a line banked against one
+    gate would be refused by another. Anchored on the flag as well, because a
+    spec that stops declaring it is a curveball silently back in the hole.
+  */
+  assert.match(
+    code("lib/scenes/curveballs.ts"), /switchesRegister: true/,
+    "no curveball declares that it switches pronoun, so the register check refuses its own line again",
+  );
+  for (const file of [
+    "app/api/scene/route.ts", "scripts/check-lines.ts", "scripts/draft-lines.ts", "lib/scenes/bank.test.ts",
+  ]) {
+    assert.match(
+      code(file), /gateFor\(/,
+      `${file} gates a scene line without asking gateFor, so it disagrees with the gate the app runs`,
+    );
+  }
+
+  /*
+    AND A HINT IS FOR WHAT IS STILL MISSING. `offerFor` and `choiceOf` both
+    walked a beat's requirements in order and returned on the first, whatever
+    the turn had done: asked which floor, a learner who wrote `kolmandal
+    korrusel` met the case and missed the number and was handed `Korrus?`, the
+    word they had just used correctly. Asserted on both, because the two are
+    one rule asked of one beat and a second copy is where they come apart.
+  */
+  for (const [file, why] of [
+    ["lib/scenes/grades.ts", "offerFor hands over a word the learner has already said"],
+    ["lib/scenes/choice.ts", "choiceOf narrows on the half of the beat they got right"],
+  ] as const) {
+    assert.match(
+      code(file), /met\[index\] !== true/,
+      `${file}: ${why}, which reads as the app not having listened`,
+    );
+  }
+
+  /*
     And the screen may not describe a stage direction as a line somebody said.
     An English line about what the other side did, labeled "They did not
     catch that", is the same lie one layer up; drawn as a bubble it reads as
@@ -12527,6 +12609,211 @@ check("a scene understands any ending on a stem it knows", () => {
   assert.match(
     code("lib/scenes/turn.ts"), /const near = folded\(accepted\)/,
     "the case branch reads a one-edit ending as a typo again, which files a case slip under spelling",
+  );
+});
+
+check("a number dealt on a role card is said in words, and a synonym meets a beat the card decided", () => {
+  /*
+    TWO WAYS ONE LEARNER'S PERFECTLY GOOD ESTONIAN WAS REFUSED IN ONE RUN, AND
+    BOTH ARE ABOUT A VALUE THE CARD CHOSE RATHER THAN THE BEAT.
+
+    Told to say which floor they live on they wrote `kolmandal korrusel`, and
+    then `Mu korter on kolmandal korrusel.`, and were answered "sorry?" both
+    times: a `number` prop accepted the digit and nothing else, which is the
+    one spelling that is not Estonian at all. Told to say who lives with them
+    they wrote `abikaasaga` on a card dealing `mees`, and were refused for
+    knowing a second word: the `lemma` and `case` requirements have gone
+    through the substitutes since they were written and `datum`, which is the
+    one whose word the learner did not choose, never did.
+
+    The words are lemma requests against `arvud`, the way a dealt time's are,
+    so the caller resolves them through the dictionary's own case table and
+    nothing here writes a form. `unitById` is asked in `props.test.ts` rather
+    than listed, which is what stops the table drifting from the course.
+  */
+  const props = code("lib/scenes/props.ts");
+  assert.match(
+    props, /lemmas: numberWords\(value\)/,
+    "a dealt number carries no words, so a floor said in Estonian is not an answer to it",
+  );
+  assert.match(
+    code("lib/progress/scene.ts"), /for \(const w of numberWords\(String\(n\)\)\) lemmas\.add\(w\)/,
+    "the words a number could be said with are outside the scene's list, so the lexicon holds no forms for them",
+  );
+  const turn = code("lib/scenes/turn.ts");
+  const datum = turn.slice(turn.indexOf('case "datum": {'));
+  assert.match(
+    datum.slice(0, datum.indexOf('case "question"')),
+    /substituteFor\(lemma, context, spoken\)/,
+    "a value off the card cannot be met by a word that means the same thing",
+  );
+  /*
+    And a card is a label and a value on every line, whichever kind of fact it
+    holds. A number, a time and a code folded the value into the label, so one
+    card read "Where you are from." over "Finland" and then "You live on floor
+    3" as one sentence, and the strip above the conversation could not show
+    the floor at all.
+  */
+  assert.match(
+    props, /readonly shown: readonly string\[\];/,
+    "a prop no longer carries the value the card prints, so three kinds fold it into the label again",
+  );
+  assert.match(
+    code("lib/progress/scene.ts"), /prop\.shown\.length > 0\s*\n?\s*\? prop\.shown/,
+    "the briefing stopped printing a value that prints itself, so a floor is on no line of the card",
+  );
+});
+
+check("an objective carries the value the card dealt for it, and every line says who said it", () => {
+  /*
+    TWO THINGS A LEARNER ASKED FOR IN ONE SCREENSHOT, AND BOTH ARE ABOUT
+    LOOKING SOMETHING UP RATHER THAN READING IT.
+
+    The objective read "Say which floor you live on. It is on your card", and
+    the card was a disclosure above the conversation with three lines of prose
+    in it. They said the card was hard to read and that the instruction should
+    carry the value, and they are right: an instruction that sends somebody
+    off to read something is not an instruction. And the conversation itself
+    was two columns of cards told apart by which edge they sat against and
+    which ink they were in, so they asked where the drawings had gone and
+    whether a bubble could say who was speaking.
+
+    Both are facts about a render, which is why `scripts/test-scene.mjs` has
+    the half only a browser can answer. This is the half that stops the wiring
+    quietly coming apart: the value is read off the beat's own `datum` slots
+    and the same `given` the card prints, the panel a learner types into shows
+    it, and both sides of the conversation carry a face and a sentence.
+  */
+  const session = code("components/scene/SceneSession.tsx");
+  assert.match(
+    session, /const dealtFor = \(beat: SceneSpec\["beats"\]\[number\]\): string\[\] =>/,
+    "the objective list no longer reads what the card dealt for the beat",
+  );
+  assert.match(
+    session, /need\.kind === "datum" \? \[need\.slot\] : \[\]/,
+    "the value beside an objective stopped being read off the beat's own datum slots",
+  );
+  assert.match(
+    session, /\{dealtNow\.join\(" · "\)\}/,
+    "the panel a learner types into no longer carries the value the beat is asking for",
+  );
+  /*
+    And the drawing is the app's own figure rather than a second one, hidden
+    from a screen reader, with the sentence beside it doing the saying: a
+    drawing may not be the only thing carrying a distinction any more than a
+    colour may.
+  */
+  const face = code("components/scene/SceneFace.tsx");
+  assert.match(face, /aria-hidden/, "the speaker's drawing is read out as well as drawn");
+  assert.match(session, /<SceneFace who="you" \/>/, "the learner's own turns lost their speaker");
+  assert.match(session, /<SceneFace who="them" \/>/, "the other side's lines lost their speaker");
+  for (const said of ["You said: ", "They said: "]) {
+    assert.ok(
+      session.includes(`<span className="sr-only">${said}</span>`),
+      `a conversation no longer says "${said.trim()}" to a reader who cannot see the sides`,
+    );
+  }
+});
+
+check("every question a beat asks the learner for is answered by somebody", () => {
+  /*
+    A BEAT WHOSE WHOLE GOAL IS "ASK ABOUT THE PAY" IS OWED AN ANSWER.
+
+    `asideFor` answered a question on such a beat out of the bank, and where
+    the bank held nothing it returned null; `asideOwed` then said nothing was
+    owed, so neither the model nor the shrug was reached and the question was
+    dropped on the floor. The argument was that the next move is the answer,
+    which is true of four of the eleven beats whose goal is to ask something.
+    At a job interview the next move is "when could you start", so a learner
+    who did exactly as the objective told them was answered with a fresh
+    question, three times, while they insisted; they reported it as the app
+    leaving them hanging, and as the thing this module exists not to do.
+
+    Three arms, and the first is the one that was missing: the scene says
+    which it is, the aside falls through where it does not say `answeredNext`,
+    and `asideOwed` is false only where something has already answered.
+  */
+  const aside = code("lib/scenes/aside.ts");
+  assert.match(
+    aside, /if \(banked\) return \{ text: banked, provenance: "scripted" \};\s*\n\s*if \(answered\.answeredNext\) return null;/,
+    "a question on a beat with nothing banked returns nothing again, whatever the scene said about it",
+  );
+  assert.match(
+    aside, /wantsQuestion\(beat\) && \(beat\.answeredNext \|\| input\.answers\.length > 0\)/,
+    "asideOwed reports that nothing is owed for a question the beat asked for and nobody answered",
+  );
+  /*
+    And the pseudo-beat the bank keys on exists only where an answer is owed,
+    so a beat that says the next move answers it is never drafted one and
+    `bank.test.ts` has nothing to waive.
+  */
+  assert.match(
+    code("lib/scenes/scripted.ts"), /\.filter\(\(beat\) => !beat\.answeredNext/,
+    "an answer beat is made for a beat whose next move is the answer, so the bank can say it twice",
+  );
+  /*
+    And what they answer *with*, which the drafter and the live composer are
+    both handed. Told only that it was answering a question, a model wrote an
+    interviewer agreeing with himself.
+  */
+  assert.match(
+    code("lib/scenes/scripted.ts"), /they: beat\.answer \?\?/,
+    "the answer beat no longer says what the other side is answering with",
+  );
+  /*
+    And the *live* composer is handed the same line. The bank is drafted
+    against the beat's own `answer` and the route was still passing the generic
+    one, so the rung reached exactly when the bank has run out on a beat that
+    knows what the answer is was the rung told nothing about it.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /they: answered\?\.answer\s*\n?\s*\?\?/,
+    "the route composes an aside without telling the model what the beat says they answer with",
+  );
+});
+
+check("a value off the card is graded, and only where which word is certain", () => {
+  /*
+    EVERY MODE GRADES THROUGH `gradeCard` (ADR-016), AND THE BEATS LEAST
+    COVERED BY IT WERE THE ONES A SCENE IS MADE OF.
+
+    `gradesFor` wrote a row for a `lemma` and for a `case` and nothing for a
+    `datum`, under a comment reasoning that a datum is not a word the learner
+    holds a card for. It is one every time: what is different is that the card
+    named it rather than the beat. So a scene whose subject is telling somebody
+    a fact about yourself graded almost nothing, and measured over the
+    catalogue that is 66 gradeable requirements against 94.
+
+    Two guards keep it out of the append-only log where the word is not
+    certain, and both are what the substitution guard beside them is for. A
+    slot with no lemma is a literal (a clock time, a reference code) and grades
+    nothing. A slot naming two words, which is a floor dealt as a digit
+    carrying both the cardinal and the ordinal, is settled by the spellings the
+    turn actually wrote against the scene's own forms, and grades nothing where
+    they settle it on neither or on both.
+  */
+  const grades = code("lib/scenes/grades.ts");
+  assert.match(
+    grades, /need\.kind === "datum" && answered\(index\)/,
+    "a value off the card writes no review row again, so a scene made of card values grades nothing",
+  );
+  assert.match(
+    grades, /if \(!prop \|\| prop\.lemmas\.length === 0\) return null;/,
+    "a slot holding a clock time or a code is graded as a word, which nobody holds a card for",
+  );
+  assert.match(
+    grades, /return wrote\.length === 1 \? wrote\[0\]! : null;/,
+    "a slot naming two words no longer has to resolve to one, so the log can claim a recall of a "
+    + "word the learner never wrote",
+  );
+  /*
+    And the caller hands over both, which is where the whole fault lived: the
+    card is stored when the run opens and read back to finish it, and the
+    grader was the one reader that never got it.
+  */
+  assert.match(
+    code("lib/progress/scene.ts"), /gradesFor\(scene, state, draw\?\.card \?\? null, context\.lexicon\)/,
+    "finishRun no longer hands the grader the card and the forms, so every datum grades nothing",
   );
 });
 
@@ -13052,11 +13339,37 @@ check("a beat answered out of order is credited, and never asked twice", () => {
   );
   const replay = code("lib/progress/scene.ts");
   assert.match(
-    replay, /state = creditAhead\(state, also, ahead, said, heard\)/,
-    "the replay stopped crediting a beat the turn answered further down the scene",
+    replay, /state = creditAhead\(state, also, \w+, said, heard\)/,
+    "the replay stopped crediting a beat the turn answered away from the pointer",
+  );
+  /*
+    AND THE WALK COVERS THE WHOLE SCENE RATHER THAN ONLY WHAT IS AHEAD.
+
+    It ran from `state.beat + 1`, so a beat the other side had given up on was
+    never read again: a learner refused twice on the floor, watching the
+    neighbor move on and ask where they were from, typed the answer and got
+    `Vabandust!` The digit was the right answer to the question before and the
+    app had stopped listening for it. Answering late is answering, and the
+    reply is told (`elsewhere`) so the repair word is not said at somebody who
+    just answered something.
+  */
+  assert.match(
+    replay, /for \(let at = 0; at < context\.scene\.beats\.length/,
+    "the out-of-order walk runs forward only again, so a beat the other side gave up on can never "
+    + "be answered late",
   );
   assert.match(
-    replay, /if \(ahead\.move === "close" \|\| state\.done\.includes\(ahead\.id\)\) continue;/,
+    replay, /elsewhere \+= 1;/,
+    "replay no longer counts the beats a turn answered away from the pointer, so replyFor cannot "
+    + "tell a miss from a late answer",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /landed: elsewhere > 0/,
+    "the scene route no longer tells replyFor that the turn landed elsewhere, so the repair word "
+    + "is said at a learner who has just answered an earlier question",
+  );
+  assert.match(
+    replay, /if \((\w+)\.move === "close" \|\| state\.done\.includes\(\1\.id\)\) continue;/,
     "the look-ahead credits the farewell from a distance, which has its own rule, or credits a "
     + "beat twice",
   );
@@ -13107,9 +13420,21 @@ check("the other side may volunteer something, and never says it twice", () => {
     safe way: no line to read means the word is left out.
   */
   assert.match(
-    reply, /const choices = acknowledgements\(heard\);/,
-    "the acknowledgment is drawn without reading what the learner was asked, so the other side says "
-    + "yes to a question that was not a yes-or-no one",
+    reply, /const choices = acknowledgements\(heard, input\.said\);/,
+    "the acknowledgment is drawn without reading what the learner was asked or what they said, so "
+    + "the other side says yes to a question that was not a yes-or-no one, or hands back the yes "
+    + "they were just given",
+  );
+  /*
+    AND NEVER A WORD THE LEARNER HAS JUST SAID. `Kas te olete siin uus?`
+    answered `Jah, ma just kolisin sisse.` was acknowledged `Jah.`: a polar
+    question, so the rule below allowed it, and a yes said back to somebody's
+    own yes. Reported as a reply that makes zero sense, and it is the echo rule
+    arriving through another door.
+  */
+  assert.match(
+    reply, /const fresh = mine\.filter\(\(word\) => !theirs\.has\(word\)\);/,
+    "the rotation may hand the learner their own word back",
   );
   assert.match(
     reply, /words\(heard\)\[0\] === "kas" : false;/,

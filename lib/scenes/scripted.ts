@@ -104,11 +104,28 @@ export function sceneBeats(scene: SceneSpec): BeatSpec[] {
     before anybody had asked, or never.
   */
   const answers = scene.beats
-    .filter((beat) => leafNeeds(beat.needs).some(({ need }) => need.kind === "question"))
+    /*
+      Every beat that asks the learner for a question and does not say that
+      the move after it is the answer. `answeredNext` is the four where it
+      genuinely is: "where is the station?" is answered by the directions and
+      a banked line there would be the other side saying it twice. Everywhere
+      else a question was owed an answer and seven of eleven had none, which
+      is how an interviewer came to ignore one about the pay.
+    */
+    .filter((beat) => !beat.answeredNext
+      && leafNeeds(beat.needs).some(({ need }) => need.kind === "question"))
     .map((beat): BeatSpec => ({
       id: answerBeatId(beat),
       goal: beat.goal,
-      they: "They answer the question they were just asked, briefly, and no more.",
+      /*
+        WHAT THEY ANSWER WITH, RATHER THAN THAT THEY ANSWER. This said only
+        "They answer the question they were just asked, briefly, and no more",
+        which is a shape and not a subject: a model handed it knew a question
+        had been asked and nothing about what the answer was, and drafted an
+        interviewer agreeing with himself. The beat says it, and the catalog
+        test holds every question beat to saying either that or `answeredNext`.
+      */
+      they: beat.answer ?? "They answer the question they were just asked, briefly, and no more.",
       move: "confirm",
       topic: beat.topic,
       needs: [],

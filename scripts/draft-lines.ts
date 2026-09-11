@@ -45,7 +45,7 @@
  * full bank, which is the rule `eval:scene` learned the expensive way.
  */
 import { writeFileSync } from "node:fs";
-import { runGate, passes } from "../lib/scenes/gate";
+import { gateFor, runGate, passes } from "../lib/scenes/gate";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
 import { BANK } from "../lib/scenes/bank";
 import { beatById, sceneBeats, scriptable, type ScriptedLine } from "../lib/scenes/scripted";
@@ -98,7 +98,7 @@ async function main() {
     const beat = scene ? beatById(scene, row.beat) : undefined;
     const context = scene && contexts.get(scene.id);
     if (!scene || !beat || !context || !scriptable(scene, beat)) { dropped++; note("dropped: no such beat"); return false; }
-    const verdict = runGate(row.text, beat, context.gate);
+    const verdict = runGate(row.text, beat, gateFor(row.beat, context.gate));
     if (!passes(verdict)) { dropped++; note(`dropped: gate ${verdict.failed.join("/")}`); return false; }
     const why = refused(row.text, FALLBACK_PHRASE, answerForms(beat, context.lexicon), beat);
     if (why) { dropped++; note(`dropped: ${why}`); return false; }
@@ -121,7 +121,7 @@ async function main() {
         if (!first) break;
         asked++;
         let candidate = first;
-        let verdict = runGate(candidate.text, beat, gate);
+        let verdict = runGate(candidate.text, beat, gateFor(beat.id, gate));
         if (!passes(verdict) && verdict.unknown.length > 0) {
           // The one retry, with the failing words named. The design's rule, not a kindness.
           const second = await compose(scene, beat, lemmas, verdict.unknown, links, withhold);

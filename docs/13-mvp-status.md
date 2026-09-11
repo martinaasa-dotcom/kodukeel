@@ -1731,7 +1731,7 @@ it: Ekilex 213895 is the comparative of `hea`. Directions take the adverbs anywa
 
 ### The dictionary, stated plainly
 
-6,116 words in the seed, 1,415 of them the course harvest with attested sentences, Ekilex CEFR
+6,118 words in the seed, 1,415 of them the course harvest with attested sentences, Ekilex CEFR
 levels and, for most, the Institute's Russian and Ukrainian. More words come from the two live
 paths and never from a model.
 

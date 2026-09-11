@@ -29,11 +29,11 @@ import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gat
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
-import { CLOCK_LEMMA, HOUR_LEMMAS, dealtHours, timeWords, type RoleCard } from "@/lib/scenes/props";
+import { CLOCK_LEMMA, HOUR_LEMMAS, dealtHours, numberWords, timeWords, type RoleCard } from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
-import { sensesOf } from "@/lib/dict/synonyms";
+import { sensesOf, substitutesFrom } from "@/lib/dict/synonyms";
 import { isKnownForm, lemmasOfForm } from "@/lib/dict/forms";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { lookupAndStore } from "@/lib/dict/lookup";
@@ -139,11 +139,7 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
     else. Resolved here because it needs a query, and bounded by the scene's
     own lemmas rather than by the dictionary.
   */
-  const wanted = new Map<string, readonly string[]>();
-  for (const lemma of sceneLemmas(scene)) {
-    const also = stand.get(lemma);
-    if (also && also.length > 0) wanted.set(lemma, also);
-  }
+  const wanted = standingFor(scene, stand);
   const standRows = wanted.size > 0
     ? await readEntries([...new Set([...wanted.values()].flat())])
     : [];
@@ -152,25 +148,55 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
     marker: {
       ...context.marker,
       known: (word: string) => known.has(word),
-      /*
-        The English for each of the scene's own words, so a learner who reaches
-        for one in English is understood and told the Estonian. One sense per
-        entry off the dictionary's own gloss, and single words only: a sense of
-        several words could not be matched against one token without parsing
-        English, which this app does not do.
-      */
-      englishFor: new Map(
-        rows
-          .map((row) => [
-            row.lemma,
-            sensesOf(row.gloss ?? "").map((sense) => sense.of).filter((sense) => !/\s/.test(sense)),
-          ] as const)
-          .filter(([, senses]) => senses.length > 0),
-      ),
-      ...(standRows.length > 0
-        ? { substitutes: { forLemma: wanted, lexicon: buildLexicon(standRows) } }
-        : {}),
+      ...acceptWith(rows, wanted, standRows),
     },
+  };
+}
+
+/** The relation, narrowed to the scene's own lemmas. */
+function standingFor(
+  scene: SceneSpec,
+  stand: ReadonlyMap<string, readonly string[]>,
+): Map<string, readonly string[]> {
+  const wanted = new Map<string, readonly string[]>();
+  for (const lemma of sceneLemmas(scene)) {
+    const also = stand.get(lemma);
+    if (also && also.length > 0) wanted.set(lemma, also);
+  }
+  return wanted;
+}
+
+/**
+ * The two accept-only fields, given the relation and the rows behind it.
+ *
+ * One shape from two sources: the route fetches the standing rows with a
+ * query, a harness filters them out of the shipped dictionary, and neither
+ * decides for itself what the marker is handed.
+ */
+function acceptWith(
+  rows: readonly Row[],
+  wanted: ReadonlyMap<string, readonly string[]>,
+  standRows: readonly Row[],
+): Pick<SceneContext["marker"], "substitutes" | "englishFor"> {
+  return {
+    /*
+      The English for each of the scene's own words, so a learner who reaches
+      for one in English is understood and told the Estonian. One sense per
+      entry off the dictionary's own gloss, and single words only: a sense of
+      several words could not be matched against one token without parsing
+      English, which this app does not do.
+    */
+    englishFor: new Map(
+      rows
+        .map((row) => [
+          row.lemma,
+          sensesOf(row.gloss ?? "").map((sense) => sense.of).filter((sense) => !/\s/.test(sense)),
+        ] as const)
+        .filter(([, senses]) => senses.length > 0),
+    ),
+    ...(standRows.length > 0
+      ? { substitutes: { forLemma: wanted, lexicon: buildLexicon(standRows) } }
+      : {}),
   };
 }
 
@@ -350,6 +376,16 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
   for (const beat of scene.beats) for (const word of beat.topic) lemmas.add(word);
   for (const prop of scene.props) {
     if (prop.kind === "word" || prop.kind === "weekday") for (const w of prop.oneOf) lemmas.add(w);
+    /*
+      AND THE WORDS A DEALT NUMBER IS SAID WITH. A floor is answered
+      `kolmandal korrusel` and never `3`, so the words for every number the
+      prop could deal have to be in the scene's list before the draw, or the
+      lexicon has no forms to accept them with. The same shape as the lemmas
+      above: a request against the dictionary, checked by the catalog test.
+    */
+    if (prop.kind === "number") {
+      for (let n = prop.min; n <= prop.max; n += 1) for (const w of numberWords(String(n))) lemmas.add(w);
+    }
   }
   lemmas.add(FALLBACK_PHRASE);
   return lemmas;
@@ -360,6 +396,38 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
  * against the shipped dictionary with no database (`scripts/play-scene.ts`),
  * which is how the conversations are read for whether they sound like anybody.
  */
+/**
+ * THE TWO ACCEPT-ONLY HALVES OF THE MARKER, FROM ROWS ALREADY IN HAND.
+ *
+ * `sceneContext` resolves these with two queries and the harnesses resolved
+ * neither, so `npm run play:scenes` and `npm run probe:turns` printed their
+ * transcripts through a marker narrower than the app's: a learner who wrote a
+ * second word for the same thing, or reached for one in English, read as
+ * understood in the app and as off the point on the page a maintainer reads
+ * before touching the marker. That is §53's rule about `eval:scene` one
+ * instrument over, and it sends somebody looking for a fault the app does not
+ * have or hides one it does.
+ *
+ * Pure, and accept-only like the fields themselves: the scene's own list is
+ * still what the other side may say, and this is only ever read to decide
+ * whether a turn landed.
+ */
+export function acceptFromRows(
+  scene: SceneSpec,
+  all: readonly Row[],
+): Pick<SceneContext["marker"], "substitutes" | "englishFor"> {
+  const mine = sceneLemmas(scene);
+  const wanted = standingFor(scene, substitutesFrom(all.map((row) => ({
+    lemma: row.lemma, pos: row.pos, gloss: row.gloss ?? "",
+  }))));
+  const standing = new Set([...wanted.values()].flat());
+  return acceptWith(
+    all.filter((row) => mine.has(row.lemma)),
+    wanted,
+    all.filter((row) => standing.has(row.lemma)),
+  );
+}
+
 export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneContext {
   const lexicon = buildLexicon(rows);
 
@@ -795,8 +863,17 @@ export interface Briefing {
      * The gloss rather than the lemma, and that is the exercise rather than a
      * concession to ADR-005: the card tells you what is wrong and you say it
      * in Estonian. Printing `valu` would leave nothing to produce, which is
-     * the fault `audit:questions` exists for one floor down. Empty where the
-     * card carries its own value, which a time and a floor number do.
+     * the fault `audit:questions` exists for one floor down.
+     *
+     * A NUMBER, A TIME AND A CODE PRINT THEMSELVES, AND USED TO PRINT
+     * THEMSELVES SOMEWHERE ELSE. Those three folded the value into the
+     * label, so the card read "Where you are from." over "Finland" and then
+     * "You live on floor 3" as one sentence, and the strip above the
+     * conversation, which reads this field, could not show the floor at all.
+     * A learner said the card was hard to read and named that as the reason.
+     * `DrawnProp.shown` is the value on those three and this is the one place
+     * either is printed, so every line of a card is a label with its value
+     * under it whatever kind of fact it holds.
      */
     given: readonly string[];
   }[];
@@ -844,7 +921,9 @@ function briefingOf(run: SceneRunPlan, glosses: ReadonlyMap<string, string>): Br
         or reports, so this is a gap to notice and not a place to fall back to
         Estonian on a card that says it is English.
       */
-      given: prop.lemmas.map((lemma) => glosses.get(lemma)).filter((v): v is string => !!v),
+      given: prop.shown.length > 0
+        ? prop.shown
+        : prop.lemmas.map((lemma) => glosses.get(lemma)).filter((v): v is string => !!v),
     })),
     persona: run.persona.who,
   };
@@ -984,7 +1063,7 @@ export async function finishRun(input: {
 
   const objectives = objectivesOf(scene, state);
   const outcome = outcomeOf(scene, state);
-  const grades = gradesFor(scene, state);
+  const grades = gradesFor(scene, state, draw?.card ?? null, context.lexicon);
   const review = reviewOf(scene, state);
 
   await prisma.sceneRun.update({
@@ -1115,7 +1194,13 @@ export function replay(
   context: SceneContext,
   draw: StoredDraw | null,
   turns: readonly SentTurn[],
-): { state: SceneState; response: Response } {
+): { state: SceneState; response: Response; elsewhere: number } {
+  /*
+    How many beats this run's last turn answered away from the pointer, ahead
+    or behind. The reply reads it, because a turn that met something is never
+    answered with the repair word: see `replyFor`'s `landed`.
+  */
+  let elsewhere = 0;
   const data = draw
     ? dataFor(draw.card, context.lexicon)
     : new Map<string, ReadonlySet<string>>();
@@ -1131,6 +1216,8 @@ export function replay(
   let response: Response = "answer";
   let previous = "";
   for (const sent of turns.slice(0, MAX_TURNS)) {
+    // Per turn, not per run: the reply asks about the turn that has just been taken.
+    elsewhere = 0;
     const beat = currentBeat(context.scene, state);
     if (!beat) break;
     const said = String(sent.said ?? "").slice(0, MAX_TURN_CHARS);
@@ -1247,19 +1334,41 @@ export function replay(
       farewell is left alone, since saying goodbye mid-scene has a rule of its
       own that moves the pointer rather than crediting from a distance.
     */
+    /*
+      AND A BEAT THE OTHER SIDE HAD ALREADY GIVEN UP ON IS CREDITED TOO, WHICH
+      IS THE SAME RULE POINTED THE ONE WAY IT DID NOT REACH.
+
+      This walk started at `state.beat + 1`, so it could only ever see what was
+      still to come. A beat that ran out of patience sits *behind* the pointer
+      and is deliberately not `done`, and nothing read a turn against it again:
+      asked which floor they live on, a learner who was refused twice watched
+      the neighbor give up and ask where they were from, typed `3`, and was
+      told `Vabandust!` The digit was the right answer to the question before
+      and the app had stopped listening for it fifteen seconds earlier. They
+      reported the module as having no clue what they were saying.
+
+      An objective the learner did not meet is still one the debrief has to be
+      able to say they did not meet, and that is untouched: what changes is
+      that answering late is answering. The three guards are the forward
+      walk's own and are what stop this crediting a coincidence, and the
+      pointer still does not move, so the beat in front is still the beat in
+      front.
+    */
     if (!state.hurdle && !isOver(context.scene, state)) {
-      for (let at = state.beat + 1; at < context.scene.beats.length; at += 1) {
-        const ahead = context.scene.beats[at]!;
-        if (ahead.move === "close" || state.done.includes(ahead.id)) continue;
-        const also = readTurn(said, ahead, marker);
+      for (let at = 0; at < context.scene.beats.length; at += 1) {
+        if (at === state.beat) continue;
+        const other = context.scene.beats[at]!;
+        if (other.move === "close" || state.done.includes(other.id)) continue;
+        const also = readTurn(said, other, marker);
         if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
         for (const word of also.satisfiedBy) spent.add(word);
-        state = creditAhead(state, also, ahead, said, heard);
+        state = creditAhead(state, also, other, said, heard);
+        elsewhere += 1;
       }
     }
     previous = heard;
   }
-  return { state, response };
+  return { state, response, elsewhere };
 }
 
 /** The hurdle stood down because the learner answered the beat past it. */

@@ -57,7 +57,7 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
   */
-  floor: 44,
+  floor: 51,
 });
 
 /*
@@ -98,8 +98,20 @@ page.on("pageerror", (e) => errors.push(e.message));
   never answered read identically without it.
 */
 const TURN_MS = 30_000;
-/** `MAX_WORDS` in `lib/scenes/retrieval.ts`, which is what the gate enforces. */
-const MAX_SPOKEN_WORDS = 14;
+/**
+ * What the gate lets a line be, which is not what this used to say.
+ *
+ * It read `MAX_WORDS` in `lib/scenes/retrieval.ts`, "which is what the gate
+ * enforces", and that was true of a *retrieved* line and never of a composed
+ * one: the leash came off the composer, `MAX_SENTENCES` is five and
+ * `MAX_COMPOSED_WORDS` forty, and twelve checks pay for the room. So this
+ * suite failed on every run with a key, on a line the app had deliberately
+ * decided to allow, which is a check that has stopped saying anything about
+ * the app and says something about the suite instead.
+ */
+const MAX_SPOKEN_WORDS = 40;
+const MAX_SPOKEN_SENTENCES = 5;
+const sentences = (text) => text.split(/(?<=[.!?])\s+/).filter(Boolean).length;
 
 // ── The chooser ─────────────────────────────────────────────────────────────
 await page.goto(`${B}/situations`, { waitUntil: "domcontentloaded" });
@@ -204,7 +216,66 @@ check("and what is wrong with you, in English", /What is wrong/i.test(card)
   `catalogue.test.ts` reads which props those are off the beats.
 */
 check("and not the time the desk is about to offer", !/The time you were given/.test(card));
-check("and every objective, once it has been opened", card.includes("Say hello back."));
+/*
+  AND EVERY OBJECTIVE, ONCE IT HAS BEEN OPENED, which is asked of the pairing
+  rather than of today's copy. This named the first beat's goal as a literal
+  and failed the day the goals were rewritten, which is this suite asserting
+  the markup rather than the rule: what it is actually claiming is that the
+  list holds the objective the learner is standing on, and the panel under the
+  conversation is where that string comes from.
+*/
+const inPlay = ((await page.locator("main").innerText()).split(/YOUR TURN\s*\n[^\n]*\n/)[1] ?? "")
+  .split("\n").map((line) => line.trim()).find(Boolean) ?? "";
+check("the panel names the objective in play", inPlay.length > 0, inPlay);
+check("and every objective, once it has been opened", card.includes(inPlay), inPlay);
+/*
+  AND THE OBJECTIVE CARRIES WHAT THE CARD DEALT FOR IT, WHICH IS WHY NO GOAL
+  POINTS AT THE CARD ANY MORE.
+
+  The goal read "Say since when. Your card says which day", and the card was
+  this disclosure with three lines of prose in it. A learner sent a screenshot
+  and said the information was hard to find and that the instruction should
+  carry the value. A source check cannot see this: the objective's text is the
+  scene's and the value is the run's, and only a rendered row has both.
+
+  The `since` beat is the one that wants a day, and the day is the same string
+  the card's own value line prints, so the two are read off one render.
+*/
+const dealtDay = /on this day\.?\s*\n\s*([A-Z][a-z]+)/i.exec(card)?.[1];
+check("the card dealt a day worth naming", Boolean(dealtDay), card.slice(0, 200));
+/*
+  The value sits under the objective that wants it, wherever in the list that
+  objective is. Read off the checklist rather than off a goal named here, for
+  the reason above: the scene's copy is the scene's, and what this suite is
+  entitled to claim is that the day the card dealt is printed among the
+  objectives rather than only inside the card's own prose.
+*/
+check("and the objective that wants it names it, rather than pointing at the card",
+  Boolean(dealtDay) && new RegExp(`\\n\\s*${dealtDay}\\s*(\\n|$)`).test(
+    card.slice(card.search(/what to get done/i)),
+  ),
+  card.slice(card.search(/what to get done/i), card.search(/what to get done/i) + 260));
+/*
+  The objective list alone, not the whole card: the scene's `role` opens by
+  saying what the card holds ("Your card says what is wrong and since when"),
+  which is the sentence that introduces it and is the one place the phrase
+  belongs. What may not say it is a line telling somebody to go and read it.
+*/
+/*
+  AND THE HEADING IS UPPERCASED BY THE STYLESHEET, WHICH `innerText` RESPECTS.
+
+  This read `indexOf("What to get done")`, which is -1 against the rendered
+  `WHAT TO GET DONE`, so `slice(-1)` handed every check below a single
+  character: "no objective sends the learner off to read it" has been passing
+  over one letter for as long as it has existed, which is a check over an
+  empty list and a pass nobody earned. Found by a check beside it failing for
+  a real reason.
+*/
+const listAt = card.search(/what to get done/i);
+check("the card lists what there is to get done", listAt >= 0, card.slice(0, 120));
+const checklist = card.slice(listAt);
+check("so no objective sends the learner off to read it", !/your card/i.test(checklist),
+  checklist.slice(0, 160));
 await page.locator("details > summary").click();
 /*
   AND THE ONE IN PLAY IS ON SCREEN WITH THE CARD SHUT, which is what makes
@@ -212,11 +283,21 @@ await page.locator("details > summary").click();
   on, so the list is a reference rather than something to keep in view.
 */
 check("and the objective in play is named without it",
-  (await page.getByText("Say hello back.").count()) > 0);
+  (await page.getByText(inPlay, { exact: false }).count()) > 0, inPlay);
 
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
 check("they say something before you do", first.trim().length > 0, first);
+/*
+  WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
+  where the drawings had gone and whether the bubbles could say who was
+  speaking: the two columns were told apart by which edge they sat against and
+  which ink they were in, and a colour may not carry a distinction on its own.
+  `SceneFace` is the drawing and the sentence beside it is what a screen reader
+  is told, which is what makes the drawing decoration rather than the only
+  signal. Both halves, because either alone is the fault half fixed.
+*/
+
 const chips = await page.getByRole("log").innerText();
 /*
   Case-insensitive, because `Chip` uppercases through CSS and `innerText`
@@ -311,8 +392,15 @@ async function say(text) {
 
 // ── A turn that lands ───────────────────────────────────────────────────────
 const waited = await say("Tere!");
-check("a greeting is read as a greeting", (await page.getByText("Say hello back.").count()) > 0
-  && (await page.locator("main").innerText()).includes("done"), `${waited}ms`);
+/*
+  The greeting landed, which is the objective count moving off nought rather
+  than a goal string: this named the first beat's copy and so measured whether
+  the wording had changed rather than whether the turn was read.
+*/
+const afterGreeting = await page.locator("main").innerText();
+check("a greeting is read as a greeting",
+  /\b[1-9]\d* OF \d+/.test(afterGreeting) && afterGreeting.includes("done"),
+  `${waited}ms · ${/\b\d+ OF \d+/.exec(afterGreeting)?.[0] ?? "no count"}`);
 
 /*
   AND THE CARET IS BACK IN THE BOX, WHICH THE BUTTON TAKES AND THEN LEAVES.
@@ -358,6 +446,22 @@ const counts = [...afterTwo.matchAll(/(\d+) of (\d+)/g)].map((m) => Number(m[1])
 check("a second objective can be met", counts.some((n) => n >= 2), afterTwo.match(/\d+ of \d+/)?.[0] ?? "no count on screen");
 check("no meter, no timer, no score anywhere on the screen (§7)",
   !/\d+\s*%/.test(afterTwo) && !/\bscore\b/i.test(afterTwo) && !/\bpoints?\b/i.test(afterTwo));
+
+/*
+  WHO IS TALKING, ON EVERY LINE. A learner read a conversation back and asked
+  where the drawings had gone and whether the bubbles could say who was
+  speaking: the two columns were told apart by which edge they sat against and
+  which ink they were in, and a colour may not carry a distinction on its own.
+  `SceneFace` is the drawing and the sentence beside it is what a screen reader
+  is told, which is what makes the drawing decoration rather than the only
+  signal. Both halves, because either alone is the fault half fixed. After two
+  turns, since one side of it cannot be there before the learner has spoken.
+*/
+const sides = await page.getByRole("log").innerText();
+check("every line says who said it, to a reader who cannot see the sides",
+  /They said:/.test(sides) && /You said:/.test(sides), sides.slice(0, 120));
+check("and there is a face beside each run of them",
+  (await page.locator('[role="log"] svg circle').count()) > 0);
 
 // ── The screen a conversation is had on scrolls to its own end ──────────────
 /*
@@ -512,8 +616,9 @@ check("the words it needed are written down", gaps > 0, `${gaps} rows`);
 */
 const composed = heard.find((line) => line.rung === "composed");
 if (composed) {
-  check("a composed line is one short sentence, and says a model wrote it",
-    composed.text.length < 120 && composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+  check("a composed line is inside what the gate allows, and says a model wrote it",
+    composed.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && sentences(composed.text) <= MAX_SPOKEN_SENTENCES
     && /Written for this turn/i.test(composed.chip),
     `${composed.text} · ${composed.chip}`);
 } else {
@@ -536,8 +641,9 @@ if (composed) {
 */
 const scripted = heard.find((line) => line.rung === "scripted");
 if (scripted) {
-  check("a scripted line is one short sentence and says it was scripted",
-    scripted.text.length < 120 && scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+  check("a scripted line is inside the same gate and says it was scripted",
+    scripted.text.split(/\s+/).length <= MAX_SPOKEN_WORDS
+    && sentences(scripted.text) <= MAX_SPOKEN_SENTENCES
     && /Written for this scene/i.test(scripted.chip),
     `${scripted.text} · ${scripted.chip}`);
 } else {

@@ -53,6 +53,22 @@ describe("narrowing a question to two", () => {
     expect(choiceOf({ beat: asks, card: CARD, lexicon: LEX, roll: 0 })).toBeNull();
   });
 
+  /*
+    AND NEVER ON A REQUIREMENT THEY ALREADY MET, which is `offerFor`'s rule one
+    module over: a learner who said the right word and missed the rest of the
+    beat was asked `Ülikool või kool?`, their own correct answer handed back as
+    one of two guesses.
+  */
+  it("narrows on what is still missing rather than on the half they got right", () => {
+    const beat: BeatSpec = {
+      ...BEAT,
+      needs: [{ kind: "lemma", oneOf: ["valu", "palavik"] }, { kind: "lemma", oneOf: ["tuba"] }],
+    };
+    expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0, met: [true, false] })).toBeNull();
+    expect(choiceOf({ beat, card: CARD, lexicon: LEX, roll: 0, met: [false, false] }))
+      .toBe(`Valu ${CHOICE_WORD} palavik?`);
+  });
+
   it("says nothing where the beat has no two options to offer", () => {
     const asks: BeatSpec = { ...BEAT, needs: [{ kind: "question" }] };
     expect(choiceOf({ beat: asks, card: CARD, lexicon: LEX, roll: 0 })).toBeNull();

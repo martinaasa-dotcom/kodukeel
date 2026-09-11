@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
 import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
-import { cardInPlay, counterBeat, datumLine, replyFor, reaction, stageFor, wantsFreshLine, type ReplyInput } from "./reply";
+import {
+  cardInPlay, composeNote, counterBeat, datumLine, replyFor, reaction, stageFor, wantsFreshLine,
+  type ReplyInput,
+} from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { BeatSpec } from "./types";
@@ -20,7 +23,7 @@ const OFFER: BeatSpec = {
 
 const CARD: RoleCard = {
   you: "You are a patient.",
-  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], value: "14:30" }],
+  props: [{ slot: "time", card: "The time you were given: 14:30", literal: ["14:30"], lemmas: [], shown: [], value: "14:30" }],
 };
 
 const FRESH: SpokenLine = { text: "Kus teil valutab?", provenance: "scripted" };
@@ -102,6 +105,30 @@ describe("a turn that landed", () => {
     }
     expect(seen).not.toContain("Jah.");
     expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
+  });
+
+  /*
+    AND NEVER THE LEARNER'S OWN WORD BACK. Asked `Kas te olete siin uus?` and
+    answered `Jah, ma just kolisin sisse.`, the neighbor said `Jah.` and moved
+    on: a polar question, so the rule above allowed it, and the learner
+    reported the reply as making zero sense. It is their own yes handed back
+    to them.
+  */
+  it("does not hand back a word the learner has just said", () => {
+    const seen = new Set<string>();
+    for (let met = 0; met < 6; met += 1) {
+      seen.add(replyFor(input({
+        answered: ASK, met, heard: "Kas te olete siin uus?", said: "Jah, ma just kolisin sisse.",
+      }))[0]!.text);
+    }
+    expect(seen).not.toContain("Jah.");
+    expect(seen.size, "the rotation collapsed to one word").toBeGreaterThan(1);
+  });
+
+  it("keeps the rotation rather than emptying it where every word was said", () => {
+    const said = REACTIONS.acknowledge.join(" ");
+    const line = replyFor(input({ answered: ASK, heard: "Kas teil on valu?", said }))[0]!.text;
+    expect(REACTIONS.acknowledge).toContain(line.toLowerCase().replace(".", ""));
   });
 
   it("leaves it out rather than guessing where there is no question to read", () => {
@@ -338,10 +365,84 @@ describe("a turn that was understood and missed the point", () => {
     expect(lines[1]?.provenance).toBe("again");
   });
 
-  it("costs the ladder no booking, since the line is one the learner already heard", () => {
-    expect(wantsFreshLine("narrow", "Kus teil valutab?", "offtarget")).toBe(false);
-    // A turn that met part of the beat is asked a narrower question, which is a fresh one.
-    expect(wantsFreshLine("narrow", "Kus teil valutab?", "incomplete")).toBe(true);
+  /*
+    AND THE MODEL IS ASKED, WHICH IS THE TURN IT USED TO BE BYPASSED ON.
+
+    The check above is what a keyless deployment says, and the ladder used to
+    stop there on every deployment: `wantsFreshLine` returned false, so no call
+    was booked and the screen got one word and the learner's own last question
+    back, character for character. A turn of real Estonian that missed the
+    point is the turn a person is most needed for, and it was the one turn the
+    model never saw. `composeNote` is what it is told about it.
+  */
+  it("asks the model, because answering what they said is the whole of what is owed", () => {
+    expect(wantsFreshLine("narrow", "Kus teil valutab?", "offtarget")).toBe(true);
+    expect(composeNote("narrow", "offtarget")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget")).toMatch(/[Nn]ever tell them you did not understand/);
+  });
+
+  it("says nothing about a turn that landed, since the move is the answer to it", () => {
+    expect(composeNote("answer", "complete")).toBeUndefined();
+  });
+
+  it("still repeats it verbatim where nothing composed, which is keyless", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: NOTHING,
+    }));
+    expect(texts(lines)).toEqual([REACTIONS.missed[0], "Kus teil valutab?"]);
+  });
+
+  /*
+    AND THE REPAIR WORD IS NEVER BOLTED ONTO A LINE THAT REACTED FOR ITSELF.
+    A composed line has the learner's turn in front of it and opens by
+    answering it, so `Vabandust! Väga tore. Mitmendal korrusel...` is one
+    person saying sorry and very nice in the same breath.
+  */
+  it("does not say the repair word in front of a line that made its own reaction", () => {
+    const composed: SpokenLine = { text: "Selge. Kus teil valutab?", provenance: "composed" };
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: composed,
+    }));
+    expect(texts(lines)).not.toContain(REACTIONS.missed[0]);
+    expect(texts(lines)).toContain(composed.text);
+  });
+
+  /*
+    AND THE COMPOSED LINE IS THE ONE THAT REACHES THE SCREEN. `wantsFreshLine`
+    books the call; this is the other half. Without it the route paid for a
+    line, the gate passed it, and the learner got their own last question back
+    anyway, so the model was in the loop and reached nobody.
+  */
+  it("says the line the model wrote for this turn rather than the question again", () => {
+    const composed: SpokenLine = { text: "Jalg. Ja kui kaua see nii on olnud?", provenance: "composed" };
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: composed,
+    }));
+    expect(texts(lines)).toContain(composed.text);
+    expect(texts(lines)).not.toContain("Kus teil valutab?");
+  });
+
+  /*
+    A scripted or an attested line does not win here, and that is the whole
+    distinction: neither has seen the turn, so neither can answer it, and a
+    fresh wording of the same question is the fault this started as.
+  */
+  it("but only a line written for this turn, never a banked one", () => {
+    const banked: SpokenLine = { text: "Kas teil on pea valus?", provenance: "scripted" };
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget",
+      heard: "Kus teil valutab?", line: banked,
+    }));
+    expect(texts(lines)).toContain("Kus teil valutab?");
+    expect(texts(lines)).not.toContain(banked.text);
+  });
+
+  it("tells the model what happened where nobody could read the turn at all", () => {
+    expect(wantsFreshLine("narrow", "Kus teil valutab?", "unrecognised")).toBe(true);
+    expect(composeNote("narrow", "unrecognised")).toMatch(/do not give up on the question/);
   });
 
   it("is asked the same question again where it has none", () => {
@@ -461,10 +562,34 @@ describe("a question the scene did not anticipate", () => {
 
 describe("one word where a sentence was due", () => {
   it("gets a look and a wait: one word with a question mark, and no new question", () => {
-    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment" }));
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: null }));
     expect(lines).toHaveLength(1);
     expect(lines[0]?.text).toMatch(/^[A-ZÕÄÖÜ][a-zõäöü]+\?$/);
     expect(lines[0]?.reaction).toBe(true);
+  });
+
+  /*
+    AND THE LOOK IS THEIR OWN WORD BACK WHERE THEY SAID THE RIGHT ONE. `Jah?`
+    says "what?", and a learner who has just given the right word in the right
+    case reads it as not having been understood: asked what they did before,
+    somebody wrote `ülikoolis`, which is the answer, and reported the reply as
+    the app having no idea what they were talking about.
+  */
+  it("says their own word back where the one word was the right one", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: "ülikoolis",
+    }));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]?.text).toBe("Ülikoolis?");
+    expect(lines[0]?.provenance).toBe("echo");
+  });
+
+  it("never hands back a word with nothing in it, which is the noise it is replacing", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "wait", reading: "fragment", echo: "jah",
+    }));
+    expect(lines[0]?.text).toBe("Jah?");
+    expect(lines[0]?.provenance).not.toBe("echo");
   });
 });
 
@@ -602,7 +727,7 @@ describe("a line off the card", () => {
   const withDay: RoleCard = {
     ...CARD,
     props: [...CARD.props, {
-      slot: "day", card: "The day they can come.", literal: [], lemmas: ["teisipäev"], value: "teisipäev",
+      slot: "day", card: "The day they can come.", literal: [], lemmas: ["teisipäev"], shown: [], value: "teisipäev",
       theirs: true, english: "Tuesday",
     }],
   };
@@ -684,7 +809,7 @@ describe("a second offer", () => {
   };
   const card: RoleCard = {
     ...CARD,
-    props: [...CARD.props, { slot: "time2", card: "", literal: ["10:00"], lemmas: [], value: "10:00" }],
+    props: [...CARD.props, { slot: "time2", card: "", literal: ["10:00"], lemmas: [], shown: [], value: "10:00" }],
   };
 
   it("is spoken as the beat's counter, under an id of its own, off the second slot", () => {

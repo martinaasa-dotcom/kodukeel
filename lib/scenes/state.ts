@@ -198,18 +198,17 @@ export function advance(
   }];
 
   /*
-    A PERSON WAITS ONCE, AND THEN TAKES THE WORD. The fragment rule below
-    gives a one-word answer on a sentence beat a look and a wait, once. What
-    happened on the second one was that it spent a try like a miss, so a
-    learner asked what was wrong who said `pea`, was looked at, and said `pea`
-    again was answered with the question a third time and then given up on,
-    over an answer any receptionist takes the second time it is said. A second
-    fragment that meets everything the beat asked is the beat met.
+    A PERSON WAITS ONCE, AND THEN TAKES THE WORD, AND THE SECOND HALF OF THAT
+    IS NOW `readTurn`'S. This used to read a second one-word answer that met
+    the beat as the beat met, because the first one had been refused for being
+    one word. A turn that answers is not a fragment at all now, at any length,
+    so there is no such reading left to take: what is left here is the look and
+    the wait for a turn that is genuinely cut short, which costs nothing once
+    and a try after that, or a scene is held for ever by one word.
   */
   const previous = state.turns[state.turns.length - 1];
   const waitedAlready = previous?.beatId === beat.id
     && (previous.reading === "fragment" || previous.reading === "echo" || previous.reading === "lost");
-  const taken = evidence.reading === "fragment" && waitedAlready && evidence.missing.length === 0;
 
   /*
     SAYING YOU ARE LOST COSTS NOTHING THE FIRST TIME, for the reason a look
@@ -240,7 +239,7 @@ export function advance(
     return { state: { ...state, turns }, response: "english" };
   }
 
-  if (advances(evidence.reading) || taken) {
+  if (advances(evidence.reading)) {
     return {
       state: {
         ...state, ...moveOn(scene, state.beat, [...state.done, beat.id]),
@@ -519,9 +518,8 @@ export function advanceHurdle(
   const previous = state.turns[state.turns.length - 1];
   const waitedAlready = previous?.beatId === `hurdle:${hurdle.id}`
     && (previous.reading === "fragment" || previous.reading === "echo" || previous.reading === "lost");
-  const taken = evidence.reading === "fragment" && waitedAlready && evidence.missing.length === 0;
 
-  if (advances(evidence.reading) || taken) {
+  if (advances(evidence.reading)) {
     return {
       state: {
         ...state, turns, hurdle: null,

@@ -175,29 +175,75 @@ describe("the scene catalog", () => {
   });
 
   /*
-    And where the answer is a value off the card, the goal says so, because
-    the learner cannot know a card holds it unless they are told. This is the
-    other half of the rule above and it is checkable the same way: the word
-    "card" is in the sentence, or it is not.
+    EVERY QUESTION A BEAT ASKS THE LEARNER FOR IS ANSWERED BY SOMEBODY.
+
+    A beat whose whole goal is "ask about the pay" is met by a question, and a
+    question is owed an answer. Seven of the eleven such beats had none and
+    nothing said so: `asideFor` returned nothing and `asideOwed` reported that
+    nothing was owed, on the argument that the next move is the answer. That is
+    true of four of them, and at a job interview the next move is "when could
+    you start", so a learner who did as they were told was answered with a
+    fresh question, three times, while they insisted. It was reported as the
+    app leaving them hanging, which it did.
+
+    So the scene says which it is, and this is the check: `answer` for what
+    they say when asked, or `answeredNext` where the move after it is the
+    answer. Never both, because a beat whose next move answers it has nothing
+    to bank.
   */
-  it("sends the learner to their card wherever the answer is on it", () => {
+  it("says who answers every question a beat asks the learner for", () => {
     const silent: string[] = [];
     for (const scene of SCENES) {
       for (const beat of scene.beats) {
-        const leaves = leafNeeds(beat.needs);
-        if (!leaves.some(({ need }) => need.kind === "datum")) continue;
-        /*
-          Except where they have just been told the value: a beat that reads
-          a time back to check it was heard is about the line above it, not
-          about the card, and sending them to the card there would be sending
-          them to the wrong place.
-        */
-        if (/\{\w+\}/.test(beat.they)) continue;
-        if (/card/i.test(beat.goal)) continue;
-        silent.push(`${scene.id}/${beat.id}: "${beat.goal}"`);
+        const wanted = leafNeeds(beat.needs).some(({ need }) => need.kind === "question");
+        if (!wanted) {
+          expect(beat.answer, `${scene.id}/${beat.id} answers a question nobody asked for`).toBeUndefined();
+          expect(beat.answeredNext, `${scene.id}/${beat.id} answers a question nobody asked for`).toBeUndefined();
+          continue;
+        }
+        if (Boolean(beat.answer) === Boolean(beat.answeredNext)) {
+          silent.push(`${scene.id}/${beat.id}: "${beat.goal}"`);
+        }
       }
     }
-    expect(silent, "a beat wants a value off the card and never says so").toEqual([]);
+    expect(silent, "a beat asks the learner for a question and nothing says who answers it").toEqual([]);
+  });
+
+  /*
+    AND NO GOAL SENDS THE LEARNER TO THEIR CARD, BECAUSE THE VALUE IS BESIDE
+    THE GOAL.
+
+    It used to say so, and had to: the objective read "Say which floor you
+    live on. It is on your card", and the card was a disclosure two lines up
+    with three lines of prose in it. A learner sent a screenshot of that card
+    and said the information was hard to find and that the instruction should
+    carry it. They are right, and the sentence pointing at the card is the
+    thing that was covering for it, exactly as "read it off the word below"
+    covered for a card that printed no word.
+
+    So the objective carries the value (`SceneSession`, checked in the
+    invariant suite because it is a fact about a screen), and a goal that
+    sends somebody somewhere else to read it is the fault coming back. That
+    every datum a beat asks for is a slot the card actually deals is checked
+    below, and is what makes the value there to print.
+  */
+  it("never sends the learner off to read their card, since the objective carries the value", () => {
+    const pointing: string[] = [];
+    for (const scene of SCENES) {
+      for (const beat of scene.beats) {
+        /*
+          THE ROLE CARD, NOT EVERY CARD. Written as a bare word this fired on
+          `or just agree to the card`, which is how anybody pays at a ticket
+          window and is not a learner being sent off to read anything. A check
+          that fires on honest copy gets waived, so the rule is widened to the
+          shapes that actually send somebody away.
+        */
+        if (/your card|card says|on the card|off the card/i.test(beat.goal)) {
+          pointing.push(`${scene.id}/${beat.id}: "${beat.goal}"`);
+        }
+      }
+    }
+    expect(pointing, "a goal sends the learner to their card instead of naming the value").toEqual([]);
   });
 
   /*

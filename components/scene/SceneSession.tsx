@@ -15,9 +15,10 @@ import { GlossedSentence } from "@/components/GlossedSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { beginScene, finishScene, sceneHelp } from "@/app/actions";
-import type { SceneSpec } from "@/lib/scenes/types";
+import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS } from "@/lib/scenes/curveballs";
+import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
@@ -809,11 +810,39 @@ export function SceneSession({ scene, minutes, unit }: {
   */
   const objectives = scene.beats.filter((beat) => beat.required);
   const metCount = objectives.filter((beat) => done.includes(beat.id)).length;
+  /*
+    WHAT THE CARD DEALT FOR THIS OBJECTIVE, BESIDE THE OBJECTIVE.
+
+    The goal used to end "It is on your card", and the card was a disclosure
+    above with three lines of prose in it. A learner sent a screenshot and said
+    the information was hard to find and that the instruction should carry it,
+    and they are right: "say which floor you live on" and the floor are one
+    fact, and a sentence pointing somewhere else is the app asking somebody
+    mid-conversation to go and look something up.
+
+    Read off the beat's own `datum` requirements through `leafNeeds`, so a
+    beat that names two slots shows both and a beat that names none shows
+    nothing, and off the same `given` the card prints, so the two cannot
+    disagree about what was dealt.
+  */
+  const dealtFor = (beat: SceneSpec["beats"][number]): string[] => {
+    const slots = leafNeeds(beat.needs)
+      .flatMap(({ need }) => (need.kind === "datum" ? [need.slot] : []));
+    return slots.flatMap((slot) => opened?.card.props.find((prop) => prop.slot === slot)?.given ?? []);
+  };
   const progress = objectives.map((beat) => ({
     met: done.includes(beat.id),
     now: !done.includes(beat.id) && beat.id === beatId,
     goal: beat.goal,
   }));
+
+  /*
+    What the card dealt for the beat the other side is waiting on. Nothing
+    where the beat is not one of the scene's own, which is a curveball
+    standing in front of it: what that beat wants is on no card.
+  */
+  const inPlay = scene.beats.find((beat) => beat.id === beatId);
+  const dealtNow = inPlay ? dealtFor(inPlay) : [];
 
   if (phase === "debrief" && debrief) {
     /*
@@ -1069,34 +1098,62 @@ export function SceneSession({ scene, minutes, unit }: {
             "Your card"
           )}
         </summary>
-        <Card className="mt-2 flex flex-col gap-3">
+        <Card className="mt-2 flex flex-col gap-4">
+          {/*
+            WHO YOU ARE, THEN THE FACTS, THEN WHO IS ACROSS THE TABLE, AND EACH
+            OF THEM LOOKS LIKE WHAT IT IS.
+
+            A learner sent a screenshot of this card and said it was hard to
+            tell where the information was and that the fonts and colours were
+            arbitrary. They were: the role, the labels, the values and the
+            persona were four kinds of thing in one column, all at `text-sm`,
+            two of them in the same ink, and one prop kind printed its value
+            inside its own label while another printed it underneath. So a
+            label is the small quiet ink on every line, a value is the strong
+            ink at reading size on every line, and the prose the card opens and
+            closes with is separated from the facts by a rule rather than by a
+            gap somebody has to notice.
+          */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened?.card.you}</p>
-          <ul className="flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
+          <ul
+            className="flex flex-col gap-3 border-y py-3"
+            style={{ borderColor: "var(--rule)" }}
+          >
             {(opened?.card.props ?? []).map((prop) => (
               <li key={prop.slot}>
-                {prop.card}
                 {/*
-                  What you were dealt, in English, because the card's own line
-                  points at it: "read it off the word below" with nothing below
-                  it is a card nobody can answer. Saying it in Estonian is the
-                  exercise, so the word itself is not here.
+                  NOT `label-xs`, WHICH UPPERCASES. Half these labels are whole
+                  sentences ("It started earlier this week, on this day."), and
+                  a sentence in capitals is a shouted one, which is the same
+                  argument the hint panel's own eyebrow makes about itself. The
+                  label and the value are told apart by size, weight and ink,
+                  which is three things and enough.
+                */}
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{prop.card}</p>
+                {/*
+                  What you were dealt. In English where the card dealt a word,
+                  because saying it in Estonian is the exercise; as itself
+                  where it is a floor, a time or a reference, which print
+                  themselves (`DrawnProp.shown`). Never empty: a card reading
+                  "read it off the word below" with nothing below it is a card
+                  nobody can answer, and that shipped on two props of three.
                 */}
                 {prop.given.length > 0 && (
-                  <span className="block font-medium" style={{ color: "var(--ink)" }}>
+                  <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                     {prop.given.join(" · ")}
-                  </span>
+                  </p>
                 )}
                 {/* The word came back because it was missing last time. Said, so the card reads as remembering rather than repeating. */}
                 {prop.returned && (
-                  <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
+                  <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
                     You reached for this one in a conversation recently and did not have it.
-                  </span>
+                  </p>
                 )}
               </li>
             ))}
           </ul>
           {opened?.persona && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{opened.persona}</p>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened.persona}</p>
           )}
           {/*
             WHAT TO GET DONE, AND WHICH OF IT IS IN PLAY.
@@ -1121,6 +1178,7 @@ export function SceneSession({ scene, minutes, unit }: {
               {objectives.map((beat) => {
                 const met = done.includes(beat.id);
                 const now = !met && beat.id === beatId;
+                const value = dealtFor(beat);
                 return (
                   <li key={beat.id} className="flex items-start gap-2 text-sm">
                     {/*
@@ -1138,6 +1196,21 @@ export function SceneSession({ scene, minutes, unit }: {
                       <span style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }} className={now ? "font-medium" : undefined}>
                         {beat.goal}
                       </span>
+                      {/*
+                        AND WHAT THE CARD DEALT FOR IT, HERE RATHER THAN
+                        SOMEWHERE ELSE. The goal used to end "It is on your
+                        card" and the card was a disclosure above this one with
+                        three lines of prose in it. A learner said the
+                        instruction should carry the value, and an instruction
+                        that sends somebody off to read something is not an
+                        instruction. The card still prints all of it, which is
+                        the reminder that it is still true while you type.
+                      */}
+                      {value.length > 0 && (
+                        <span className="font-semibold" style={{ color: met || now ? "var(--ink)" : "var(--ink-3)" }}>
+                          {value.join(" · ")}
+                        </span>
+                      )}
                       {now && <Chip tone="accent">Now</Chip>}
                       <span className="sr-only">{met ? "done" : now ? "this is the one they are waiting on" : "not yet"}</span>
                     </span>
@@ -1182,7 +1255,19 @@ export function SceneSession({ scene, minutes, unit }: {
               they were said. Transform and opacity, and nothing at all for
               somebody who asked for less movement.
             */
-            <div key={index} className="scene-say-you flex flex-col items-end">
+            /*
+              WHO IS TALKING, BESIDE THE LINE. A learner asked for it in those
+              words: the drawings are on the briefing and on the cover between
+              two rooms, and the conversation itself was two columns of cards
+              told apart by which edge they sat against and which ink they were
+              written in. `SceneFace` is the vignette's own figure at thirty
+              pixels, once per run rather than once per bubble, and the
+              sentence under it is what a screen reader is told instead.
+            */
+            <div key={index} className="scene-say-you flex flex-row-reverse items-start justify-start gap-2">
+              <SceneFace who="you" />
+              <div className="flex min-w-0 flex-col items-end">
+              <span className="sr-only">You said: </span>
               {/*
                 What you typed, and a button to hear it said by a native
                 voice, which the design (§11) promised and nothing drew: a
@@ -1240,9 +1325,13 @@ export function SceneSession({ scene, minutes, unit }: {
                   )}
                 </p>
               )}
+              </div>
             </div>
           ) : (
-            <div key={index} className="flex flex-col items-start gap-2">
+            <div key={index} className="flex items-start gap-2">
+              <SceneFace who="them" />
+              <div className="flex min-w-0 flex-col items-start gap-2">
+              <span className="sr-only">They said: </span>
               {inOneBreath(turn.lines).map((line, at) => (
                 spoken(line) ? (
                   /*
@@ -1457,6 +1546,7 @@ export function SceneSession({ scene, minutes, unit }: {
                   </p>
                 )
               ))}
+              </div>
             </div>
           )
         ))}
@@ -1478,7 +1568,10 @@ export function SceneSession({ scene, minutes, unit }: {
           the dots are worth most.
         */}
         {busy && turns[turns.length - 1]?.who !== "them" && (
-          <div className="scene-say flex flex-col items-start">
+          <div className="scene-say flex items-start gap-2">
+            {/* Beside the same face their lines arrive beside, or the wait
+                steps a bubble's width to the left of where they speak. */}
+            <SceneFace who="them" />
             {/* The same bubble the lines arrive in, so the wait reads as them
                 about to speak rather than as a panel appearing. */}
             <Card className="inline-block rounded-bl-[var(--r-sm)] px-4 py-3 md:px-5 md:py-3.5">
@@ -1568,7 +1661,20 @@ export function SceneSession({ scene, minutes, unit }: {
                 Show what you are trying to do
               </button>
             ) : (
-              <p className="mt-1 text-lg font-medium leading-snug">{goal ?? "Answer them."}</p>
+              <p className="mt-1 text-lg font-medium leading-snug">
+                {goal ?? "Answer them."}
+                {/*
+                  AND THE VALUE THE CARD DEALT FOR IT, IN THE ONE PLACE THE
+                  LEARNER IS LOOKING WHEN THEY TYPE. Behind the same press as
+                  the goal on `cold`, because on that setting the objective is
+                  the thing being withheld and a value beside it would hand it
+                  over. The card above still prints it, which is what makes
+                  this a reminder rather than a second answer.
+                */}
+                {dealtNow.length > 0 && (
+                  <span style={{ color: "var(--accent-deep)" }}> {dealtNow.join(" · ")}</span>
+                )}
+              </p>
             )}
           </div>
           {lent && (

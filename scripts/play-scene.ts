@@ -33,11 +33,11 @@
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import {
-  clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+  acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
-import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
+import { replyFor, composeNote, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
@@ -165,7 +165,7 @@ async function askModel(
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
-  extraForms: e.extraForms, usages: e.usages, government: e.government,
+  extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss,
 }));
 
 /** What an imperfect learner says for a beat, off its own requirements. */
@@ -222,7 +222,16 @@ function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnTy
 
 async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
-  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  /*
+    MARKED THE WAY THE ROUTE MARKS IT, AND THE ROUTE WIDENS TWICE. `knowing`
+    below is one of them; these are the other two, and this harness resolved
+    neither, so a learner who wrote a second word for the same thing or reached
+    for one in English read as off the point here and as understood in the app.
+    A transcript printed through a narrower marker than the app's is the fault
+    §53 found in `eval:scene`, one instrument over.
+  */
+  const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
   const run = planRun(scene, `play-${style}`, scene.level, difficulty);
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted" };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
@@ -246,7 +255,7 @@ async function play(sceneId: string) {
       `knowing` reads the forms list off disk and touches no database.
     */
     const marking = await knowing(context, turns.map((t) => t.said));
-    const { state, response } = replay(marking, draw, turns);
+    const { state, response, elsewhere } = replay(marking, draw, turns);
     const beat = currentBeat(scene, state);
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
@@ -291,7 +300,9 @@ async function play(sceneId: string) {
       if (wantsAside && !aside && asideOwed(asking) && LINKS.length > 0) {
         const drafted = await askModel({
           move: "answer",
-          they: "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+          // The beat's own `answer` where it has one, which is the route's rule.
+          they: answered?.answer
+            ?? "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
           reading: "",
           examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
           // An aside answers rather than asks, so no beat's banked line says what to say.
@@ -345,6 +356,8 @@ async function play(sceneId: string) {
               .slice(0, 6),
             // This beat's own, as the route hands them: ask the same thing, in your own words.
             asked: (context.scripted.get(spokenFor.id) ?? []).slice(0, 2),
+            // And what happened to the turn, which is the route's own wording.
+            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0),
             avoid,
           }, {
             scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
@@ -360,7 +373,7 @@ async function play(sceneId: string) {
       acknowledges: persona.acknowledges, echo: last?.matched?.[0] ?? null,
       recast: Boolean(last?.slips?.some((s) => s.form && s.form === last?.matched?.[0])),
       aside, offer: (response === "help" || response === "moveOn") && answered
-        ? offerFor(answered, card ?? draw.card, context.marker.questionWords) : null,
+        ? offerFor(answered, card ?? draw.card, context.marker.questionWords, last?.met ?? []) : null,
       met: state.done.length,
       arriving: speaking ? !state.turns.some((t) => t.beatId === speaking.id) : false,
       tries: answered ? state.turns.filter((t) => t.beatId === answered.id).length : 0,
@@ -368,7 +381,7 @@ async function play(sceneId: string) {
         beat: answered, card: card ?? draw.card, lexicon: context.lexicon,
         dealt: new Map(scene.props.flatMap((p) =>
           p.kind === "word" || p.kind === "weekday" ? [[p.slot, p.oneOf] as const] : [])),
-        roll: state.turns.length,
+        roll: state.turns.length, met: last?.met ?? [],
       }) : null,
       hurdle: standing ? { beat: standing, line: standing === spokenFor ? line : null, said: hurdleSpec(state)?.said } : null,
     });

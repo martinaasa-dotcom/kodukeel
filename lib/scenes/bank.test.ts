@@ -3,8 +3,9 @@ import { BANK } from "./bank";
 import { SCENES, FALLBACK_PHRASE, sceneById } from "./catalogue";
 import { isPhrase } from "@/lib/dict/pos";
 import { POOL } from "../../scripts/lib/sceneDraft";
-import { passes, runGate } from "./gate";
+import { passes, gateFor, runGate } from "./gate";
 import { words } from "./lexicon";
+import { curveballById } from "./curveballs";
 import { answerBeatId, beatById, scriptable, scriptedFor, sceneBeats } from "./scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
 
@@ -40,7 +41,7 @@ describe("the scripted bank", () => {
     for (const row of BANK) {
       const scene = sceneById(row.scene)!;
       const beat = beatById(scene, row.beat)!;
-      const verdict = runGate(row.text, beat, contexts.get(scene.id)!.gate);
+      const verdict = runGate(row.text, beat, gateFor(row.beat, contexts.get(scene.id)!.gate));
       expect(passes(verdict), `${row.scene}/${row.beat}: "${row.text}" fails ${verdict.failed.join(", ")} [${verdict.unknown.join(" ")}]`)
         .toBe(true);
     }
@@ -154,6 +155,32 @@ describe("the scripted bank", () => {
     admits that has a move to make has a line for that scene. A scene added
     without its lines fails here rather than greeting a learner in English.
   */
+  /*
+    AND THE CLAIM ABOVE IS ONLY AS WIDE AS `sceneBeats`, WHICH IS WHERE ONE
+    CURVEBALL FELL THROUGH IT.
+
+    A curveball with no `move` makes no beat, so nothing could be banked for it
+    and the sweep above skipped it in silence. `other-register` was in that
+    state for its whole life: the live composer's line was withheld by the very
+    check the curveball exists to break, no line was bankable, and what a
+    learner met mid-conversation was the English sentence describing what was
+    supposed to be happening. Two curveballs are legitimately silent here and
+    both say so in their own spec, so a third arriving without a move fails.
+  */
+  it("and every curveball a scene admits is a beat, unless it is silent or speaks English", () => {
+    for (const scene of SCENES) {
+      for (const id of scene.curveballs) {
+        const spec = curveballById(id);
+        expect(spec, `${scene.id} admits ${id}, which is not a curveball`).toBeTruthy();
+        if (spec!.silent || spec!.said) continue;
+        expect(
+          sceneBeats(scene).some((beat) => beat.id === `hurdle:${id}`),
+          `${scene.id}/${id} makes no beat, so nothing can be said for it and the screen prints English`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it("holds a line for every beat and every curveball of every scene, so keyless is whole", () => {
     const phrases = new Set(POOL.filter((e) => isPhrase(e.pos)).map((e) => e.lemma));
     for (const scene of SCENES) {
@@ -164,11 +191,19 @@ describe("the scripted bank", () => {
         // A beat the other side opens with nothing has no opening line by design; its answers are banked under `answer:`.
         if (beat.awaits) continue;
         /*
-          An answer is owed only where the beat that asked for the question
-          opens with nothing: everywhere else the next move is the answer,
-          and a banked one is a nicety rather than a hole.
+          AND AN ANSWER BEAT IS HELD TO THE SAME CLAIM AS EVERY OTHER, WHICH
+          THIS USED TO WAIVE WHOLESALE.
+
+          It skipped every answer beat whose question beat did not open with
+          nothing, on the argument that the next move is the answer. That is
+          true of four of the eleven beats whose goal is to ask something and
+          false of the rest, and seven of them had no answer banked at all: at
+          a job interview a learner did as they were told, asked about the
+          pay, and was answered with the next question three times while they
+          insisted. `answeredNext` is the scene saying which it is, and
+          `sceneBeats` makes no answer beat for those, so there is nothing
+          left here to waive.
         */
-        if (beat.id.startsWith("answer:") && !scene.beats.find((b) => b.id === beat.id.slice("answer:".length))?.awaits) continue;
         expect(
           scriptedFor(scene, beat).length,
           `${scene.id}/${beat.id} has no line, so keyless it is English`,
