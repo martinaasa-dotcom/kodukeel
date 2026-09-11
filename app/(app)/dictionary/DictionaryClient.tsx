@@ -608,7 +608,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               forms: entry.forms,
             } satisfies WordDraft}
           />
-          <AddToDeck entry={entry} />
+          <AddToDeck key={`deck-${entry.id}`} entry={entry} />
         </div>
       </header>
 
@@ -876,6 +876,24 @@ function EntryProblem({ entry }: { entry: EntryView }) {
   );
 }
 
+/**
+ * MUST BE MOUNTED WITH A KEY THAT CHANGES PER WORD, LIKE `AddWord` BESIDE IT.
+ *
+ * This holds five pieces of state about one word: whether it is already
+ * added, which card types and which decks are ticked, and the fetched deck
+ * list itself. `Entry` re-renders in place when a search finds a different
+ * word rather than remounting, which is why `AddWord` two lines up already
+ * carries a key — without one here, looking up a second word after the
+ * first was already in the deck would draw "In deck" for a word that is
+ * not, and a deck panel opened on it would still be showing the first
+ * word's shelves.
+ *
+ * THE KEY MAY NOT BE THE BARE `entry.id`, though, because `AddWord` right
+ * beside it already is: two siblings under one key is "two children with
+ * the same key", which React logs as a real error and reconciles by neither
+ * component's contract. `deck-${entry.id}` changes on every word exactly
+ * like `AddWord`'s key does, and cannot collide with it.
+ */
 function AddToDeck({ entry }: { entry: EntryView }) {
   const [open, setOpen] = useState(false);
   const [added, setAdded] = useState(entry.inDeck);
