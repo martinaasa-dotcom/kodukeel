@@ -210,6 +210,18 @@ export function stretch(clip: Samples, speed: number): Samples {
   };
 
   const window = Math.max(4, Math.round(rate * WINDOW_S) & ~1);
+  /*
+    A CLIP SHORTER THAN ONE ANALYSIS WINDOW IS RETURNED UNSTRETCHED.
+    Every real word clip is padding plus speech and is comfortably longer
+    than a 30ms window, so this never fires on anything TartuNLP has ever
+    sent back. It is here because `lastStart` below is clamped to zero for
+    such a clip while the search loop still reads a full window's worth of
+    samples from wherever it lands, which would read past the end of the
+    array. A short word played slowly is worth more without this guard than
+    a garbled one is with it, so the safe fallback is the plain recording at
+    its own rate rather than a corrupted stretch.
+  */
+  if (samples.length < window) return clip;
   const hop = window / 2;
   const search = Math.round(rate * SEARCH_S);
   const hann = new Float32Array(window);
