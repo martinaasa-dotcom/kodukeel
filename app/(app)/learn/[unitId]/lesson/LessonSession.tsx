@@ -303,7 +303,13 @@ function StepCard({
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
-            <Speak text={step.lemma} size={20} />
+            {/* Read aloud on arrival, the same rule and the same reason as
+                WordIntro's own "meet" card: the first time a word is met is
+                the one time hearing it is worth more than reading it. This
+                is a second, independent screen for that same moment (the
+                guided unit lesson rather than the daily ladder), and it had
+                drifted without it. */}
+            <Speak text={step.lemma} size={20} autoplay />
           </div>
           <p className="text-lg">{step.gloss}</p>
           {/*
