@@ -41,18 +41,22 @@ const config: NextConfig = {
   poweredByHeader: false,
 
   /*
-    LINT IS PART OF THE BUILD, NOT ONLY PART OF CI.
+    LINT IS PART OF THE BUILD, NOT ONLY PART OF CI, AND IT LIVES IN `prebuild`.
 
-    This was `ignoreDuringBuilds: true`, and the `lint` job in CI was the only
-    thing enforcing it. That covers every push and every pull request, which is
-    where the code actually arrives — until somebody runs `vercel --prod` by
-    hand, or forks this and trims the workflow, and then a rule this repository
-    treats as non-negotiable is enforced by nothing at all.
+    This was `eslint: { ignoreDuringBuilds: false }` here, and the argument for
+    it is unchanged: the `lint` job in CI covers every push and every pull
+    request, which is where the code actually arrives, until somebody runs
+    `vercel --prod` by hand, or forks this and trims the workflow, and then a
+    rule this repository treats as non-negotiable is enforced by nothing at all.
 
-    Every other rule here is asserted by something the build itself runs. This
-    is the same argument, and the cost is a few seconds on a deploy.
+    Next 16 removed the built-in ESLint integration, so the key is gone and the
+    guarantee has to be carried by something else rather than dropped with it.
+    `prebuild` in `package.json` is that something: npm runs it before `build`
+    on its own, so `npm run build` and a deploy that calls it both lint first,
+    which is the set of callers the config key reached. Deleting the script is
+    the same decision as setting `ignoreDuringBuilds: true` was, and an
+    invariant fails on its absence, which the key never had.
   */
-  eslint: { ignoreDuringBuilds: false },
 
   /*
     THE FORMS LIST TRAVELS WITH THE DEPLOYMENT.
@@ -164,8 +168,12 @@ const config: NextConfig = {
       Matched to `bodySizeLimit` above deliberately. Two limits on the same
       upload that disagree is how this happened, and the next person to raise
       one needs to find the other in the same glance.
+
+      Next 16 renamed the key to `proxyClientMaxBodySize`. The old spelling
+      still builds and prints a deprecation on every start, which is the shape
+      of warning a reader learns to scroll past, so it is the new one here.
     */
-    middlewareClientMaxBodySize: "16mb",
+    proxyClientMaxBodySize: "16mb",
 
     /*
       HOW LONG THE BROWSER MAY REUSE A PAGE IT HAS ALREADY FETCHED.

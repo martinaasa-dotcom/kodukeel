@@ -328,9 +328,25 @@ const { check, absent, done } = suite("Accessibility", { floor: 576 });
   So the wait is for the landmark every screen in this app has. A route that
   genuinely renders none still reaches axe and fails on its own terms rather
   than on a timeout.
+
+  AND `networkidle` ON TOP OF THAT IS A SECOND ANSWER, WHICH NEXT 16 BROKE.
+
+  The two lines below are what this function is for, and the goto was asking
+  for quiet as well. Next 16 prefetches a link in view as segments rather than
+  as the one skeleton request Next 15 made, so `/review/clinic`, which carries
+  a tutor link per leech, went from 14 requests to 33. Measured, the page is
+  quiet about a second after it lands; under axe, which pins a core for several
+  seconds a route, those 33 never leave the 500ms gap `networkidle` is defined
+  as, and this suite died on a timeout 484 checks in having found nothing
+  wrong. Playwright discourages `networkidle` for exactly this reason.
+
+  It is changed here and in the two other places a run actually timed out,
+  rather than swept: `networkidle` is doing real work in the suites that assert
+  on a layout a client effect writes, and `test-mobile` fails four checks about
+  the phone bar's clearance the moment it is taken away from them.
 */
 async function open(page, route, settle) {
-  await page.goto(`${BASE}${route}`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE}${route}`, { waitUntil: "load" });
   await page.waitForSelector("main", { state: "attached", timeout: 5000 }).catch(() => {});
   await page.waitForTimeout(settle);
 }

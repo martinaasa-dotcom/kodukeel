@@ -69,7 +69,7 @@ page.on("console", (m) => {
 
 for (const [route, name] of ROUTES) {
   const before = errors.length;
-  const res = await page.goto(`${BASE}${route}`, { waitUntil: "networkidle", timeout: 30000 });
+  const res = await page.goto(`${BASE}${route}`, { waitUntil: "load", timeout: 30000 });
   await page.waitForTimeout(400);
 
   const status = res?.status() ?? 0;
@@ -118,7 +118,7 @@ await page.goto(`${BASE}/words`, { waitUntil: "networkidle" });
 const wordsBody = await page.textContent("body");
 check("diagnosis panel is present", /Diagnosis/i.test(wordsBody ?? ""));
 
-await page.goto(`${BASE}/review/clinic`, { waitUntil: "networkidle" });
+await page.goto(`${BASE}/review/clinic`, { waitUntil: "load" });
 const clinicBody = await page.textContent("body");
 check("clinic renders leeches or an honest empty state",
   /lapses/i.test(clinicBody ?? "") || /No leeches/i.test(clinicBody ?? ""));
