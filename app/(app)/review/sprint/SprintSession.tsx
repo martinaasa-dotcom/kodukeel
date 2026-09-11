@@ -257,7 +257,9 @@ export function SprintSession({
                 >
                   {card.back}
                 </p>
-                {estonianSide(card.cardType, "back") && <Speak text={card.back} />}
+                {/* The answer, read aloud as it appears, the same rule
+                    ReviewSession's own reveal states for itself. */}
+                {estonianSide(card.cardType, "back") && <Speak text={card.back} autoplay />}
               </div>
             </>
           )}

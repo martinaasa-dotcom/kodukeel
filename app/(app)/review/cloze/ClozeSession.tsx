@@ -266,7 +266,11 @@ export function ClozeSession() {
                 <p lang="et" className="text-[15px]" style={{ color: "var(--ink-2)" }}>
                   {item.sentence}
                 </p>
-                <Speak text={item.sentence} />
+                {/* A gap-fill is answered by a word but learned as a
+                    sentence, so the reveal reads the whole thing aloud, the
+                    same rule ReviewSession's own CLOZE reveal states for
+                    itself. */}
+                <Speak text={item.sentence} autoplay />
               </div>
             </div>
           )}

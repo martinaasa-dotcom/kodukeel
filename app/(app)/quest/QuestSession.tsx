@@ -375,7 +375,10 @@ export function QuestSession({
                 <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                   {card.back}
                 </p>
-                <Speak text={card.back.split(" / ")[0]!.trim()} />
+                {/* The answer, read aloud as it appears, the same rule
+                    ReviewSession's own flip reveal states for itself: the
+                    word you were trying to recall, said properly. */}
+                <Speak text={card.back.split(" / ")[0]!.trim()} autoplay />
               </div>
               <div className="mt-2 grid w-full max-w-sm grid-cols-2 gap-2">
                 {/* The two self-grades in the palette's own words, as Sprint

@@ -98,6 +98,24 @@ export function Speak({
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {
+      /*
+        AN AUTOPLAY THAT FAILED IS NOT A CLIP THAT IS GONE.
+        `unasked` covers more than the blocked-autoplay case above catches: a
+        cold start, a slow first round trip to TartuNLP, a rate limit answered
+        while nobody had asked for anything yet. On a word's very first
+        meeting the autoplay fires before the learner has done anything at
+        all, so a single unlucky request there used to remove the only way to
+        hear the word. That is what was reported against üks, the first word
+        first run ever shows, and every learner's first autoplay is exactly
+        this unraced. A press the learner made themselves is the one signal
+        worth reading as "this clip cannot be produced"; a request nobody
+        asked for failing once is not, so it leaves the button standing
+        rather than taking it away.
+      */
+      if (unasked) {
+        setState("idle");
+        return;
+      }
       setState("gone");
       onUnavailable?.();
     }

@@ -285,6 +285,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                   label="Play the sentence"
                   voice={reader.id}
                   condition={condition}
+                  autoplay
+                  onPlay={() => setPlayed(true)}
                   onUnavailable={() => setNoAudio(true)}
                   className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
