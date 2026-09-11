@@ -284,7 +284,10 @@ function Meeting({ task }: { task: ExceptionTask }) {
             <p lang="et" className="text-[27px] font-semibold leading-tight" style={{ color: "var(--ink)" }}>
               {task.accepted.join(" / ")}
             </p>
-            <SpeakPair text={task.accepted[0] ?? task.lemma} />
+            {/* This is the round's own "meet" rung, the same moment
+                WordIntro exists for: the first time a form is met is the
+                one time hearing it is worth more than reading it. */}
+            <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
           <p lang="et" className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
             {task.label}

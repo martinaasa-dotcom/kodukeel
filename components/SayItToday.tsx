@@ -121,8 +121,14 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     return (
       <Card>
         <SectionTitle>Say it today</SectionTitle>
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>Then here is a small one for today.</p>
-        <p className="mt-1 text-md leading-snug" style={{ color: "var(--ink)" }}>{errand.says}</p>
+        {/*
+          A LINE THAT ONLY ANNOUNCES THE NEXT LINE SAYS NOTHING OF ITS OWN.
+          "Then here is a small one for today." sat between the title and the
+          errand and did no work: the title already says this is today's
+          thing to say, and the errand itself is the small one. Removing it
+          took the card from three sizes of text to two.
+        */}
+        <p className="text-md leading-snug" style={{ color: "var(--ink)" }}>{errand.says}</p>
         {/*
           The place reads as part of the errand rather than as a hint in the
           corner of the card. It sat in the SectionTitle's hint slot, which on

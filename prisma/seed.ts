@@ -8,7 +8,7 @@ import { HARVESTED } from "./data/harvested";
 import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
 import { applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
-import { repairCaseFronts, repairProductionBacks } from "./repair";
+import { repairCaseFronts, repairProductionBacks, repairThinExamples } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
 import { courseWords } from "../lib/collections/syllabus/index";
@@ -85,6 +85,18 @@ async function main() {
   const resentenced = await repairCaseFronts(prisma);
   if (resentenced > 0) {
     console.log(`Put ${resentenced} case cards into the sentence their form is used in.`);
+  }
+
+  /*
+    And the words a first meeting could show nothing about, because the row
+    was seeded before the harvest recorded a usable sentence for it and
+    `examples` is never touched by an ordinary reseed. Here for the same
+    reason as the two repairs above it: the fault only exists on a database
+    that was already seeded, which is exactly what `--only-if-empty` skips.
+  */
+  const sentenced = await repairThinExamples(prisma);
+  if (sentenced > 0) {
+    console.log(`Gave ${sentenced} words a first sentence the shipped dictionary has since gained.`);
   }
 
   if (process.argv.includes("--only-if-empty")) {

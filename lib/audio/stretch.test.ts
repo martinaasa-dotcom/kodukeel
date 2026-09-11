@@ -169,4 +169,12 @@ describe("stretch", () => {
     stretch(clip, 0.9);
     expect(performance.now() - t0).toBeLessThan(400);
   });
+
+  it("returns a clip shorter than one analysis window unstretched, rather than reading past it", () => {
+    // Twenty samples at 22050 Hz is under a millisecond: no real word clip is
+    // ever this short, but the search below reads a full ~30ms window from
+    // wherever it lands, and a shorter buffer than that must not be read past.
+    const clip: Samples = { rate: RATE, samples: new Float32Array(20).fill(0.4) };
+    expect(stretch(clip, 0.65)).toEqual(clip);
+  });
 });

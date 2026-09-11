@@ -40,7 +40,11 @@ import { Prisma, type PrismaClient } from "@prisma/client";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
-import { parseExamples } from "../lib/dict/examples";
+import {
+  mergeExamples, parseExamples, serialiseExamples, teachingSentence, type Example,
+} from "../lib/dict/examples";
+import { HARVESTED } from "./data/harvested";
+import { readExpanded } from "./expanded";
 
 /** Postgres binds at most 65,535 parameters, and each row here spends three. */
 const CHUNK = 500;
@@ -198,4 +202,86 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
     `;
   }
   return rewritten;
+}
+
+/**
+ * FILLING IN A WORD'S FIRST SENTENCE WHERE THE SHIPPED DICTIONARY HAS SINCE
+ * GAINED ONE AND A RESEED CANNOT REACH IT.
+ *
+ * `examples` is `reseeded: false` in `columns.ts`, on purpose: it is also
+ * written by a learner's own correction and by the live Ekilex cache, and a
+ * reseed blindly overwriting it would erase either. That is right for a row
+ * somebody has touched and wrong for one that has not: `õpetaja` was seeded
+ * with no usable sentence at all (the row this repair exists for, reported as
+ * "no example sentence for this one yet" on the very first card a learner
+ * meets), and the harvest has since recorded "Õpetaja parandas õpilaste
+ * kontrolltöid." beside it. `--only-if-empty` never sees that, because the
+ * dictionary is not empty, and a plain reseed never sees it either, because
+ * the column it would need to touch is exactly the one it is told to leave
+ * alone. Nothing else in this file reaches a row like that.
+ *
+ * So this asks a narrower question than a reseed does: not "does the shipped
+ * data disagree with the stored row", which is every enrichment and every
+ * hand edit, but "can this word's first meeting show a real sentence today,
+ * and if not, does the shipped data now have one". `teachingSentence` is the
+ * same function the review card and the lesson use, so the check is the exact
+ * one a learner's screen makes rather than a guess at it.
+ *
+ * WHAT IT MAY TOUCH. `examples`, and only by *widening* it: `mergeExamples`
+ * keeps everything already stored, translations included, and only adds the
+ * shipped sentences the row does not already have. A learner's own added
+ * sentence, or one Ekilex has since cached live, is never removed and never
+ * reordered ahead of by this. Nothing here can turn a word that already has a
+ * usable sentence into one that has a different one; it can only turn a word
+ * that has none into one that has some. The guard compares the stored value
+ * against what was just read, so a row enriched or corrected between the read
+ * and the write is left exactly as it is.
+ *
+ * The source is the harvest and the built expansion, the same two the seed
+ * itself reads, not a live call: this runs on every seed, including a
+ * deployment with no provider key at all, and it may not reach one.
+ */
+export async function repairThinExamples(prisma: PrismaClient): Promise<number> {
+  const shipped = new Map<string, string[]>();
+  for (const word of HARVESTED) shipped.set(`${word.lemma}|${word.pos}`, word.usages);
+  for (const entry of readExpanded()) {
+    const key = `${entry.lemma}|${entry.pos}`;
+    if (!shipped.has(key)) shipped.set(key, entry.examples.map((e) => e.et));
+  }
+  if (shipped.size === 0) return 0;
+
+  const lexemes = await prisma.lexeme.findMany({
+    select: { id: true, lemma: true, pos: true, examples: true },
+  });
+
+  const rows: { id: string; from: string; to: string }[] = [];
+  for (const lexeme of lexemes) {
+    const usages = shipped.get(`${lexeme.lemma}|${lexeme.pos}`);
+    if (!usages || usages.length === 0) continue;
+
+    const existing = parseExamples(lexeme.examples);
+    if (teachingSentence(existing, [lexeme.lemma])) continue; // already has one
+
+    const incoming: Example[] = usages.map((et) => ({ et, source: "EKILEX" }));
+    const merged = mergeExamples(existing, incoming);
+    if (!teachingSentence(merged, [lexeme.lemma])) continue; // still has none
+
+    const to = serialiseExamples(merged);
+    if (to === lexeme.examples) continue;
+    rows.push({ id: lexeme.id, from: lexeme.examples, to });
+  }
+  if (rows.length === 0) return 0;
+
+  let widened = 0;
+  for (const batch of chunk(rows, CHUNK)) {
+    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.from}, ${r.to})`);
+    widened += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET examples = v.to_examples
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, from_examples, to_examples)
+      WHERE l.id = v.id
+        AND l.examples = v.from_examples
+    `;
+  }
+  return widened;
 }

@@ -345,6 +345,7 @@ function Question({
             label="Play the sentence"
             slowLabel="Play the sentence slowly"
             onUnavailable={onNoAudio}
+            autoplay
           />
           <span className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>
             Play it, then type the form of {task.lemma} you hear.
