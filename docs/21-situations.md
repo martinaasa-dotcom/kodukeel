@@ -4356,11 +4356,30 @@ app does not have (§30). A harness has no learner, so it says which band it
 plays at (`HARNESS_LEVEL`, or `--level` where the script takes one), and
 `SceneSpec` may not grow a band back, asserted.
 
-What this does not do is reach a keyless deployment: a banked line was drafted
-against the beat with the old prompt and says what it said. The bank could be
-redrafted through `npm run draft:lines -- --refresh` so its lines are pitched
-too, and a native speaker has still read none of them. And the composed lines
-at each band have not yet been read by a person against the operator's own
-dialogues, which is the measurement this needs next: `npm run play:scenes --
---compose` on an A1 scene and a B1 scene, side by side.
+**And the bank is pitched too, which is what reaches a keyless deployment.** A
+banked line is a composed line moved to a different moment (ADR-025 amendment
+1), so it is drafted the way a composed line is now: per band, with `pitchFor`
+in front of the model and the band's own ceiling in the drafter's refusals
+(`fitsPitch`), and the band written on the row. `scriptedFor` reads a run's own
+band first and the unpitched rows after, and never another band's, so an A1
+learner on a deployment with no key meets the A1 lines and a B1 learner the B1
+ones. The rows drafted before bands existed carry no band and stay as the net
+under every band, because 305 of them were typed by hand for the curveballs
+the free models could not write, and a beat no band could be drafted for still
+has a line. `bank.test.ts` holds every pitched row inside its band by count and
+asserts the reading order on a real beat.
 
+The first trial said what the pitch table had got wrong. Told "two or three
+such sentences is a whole turn", the model wrote three at A1 every time, so the
+A1 lines came out longer than the hand-written ones they sat beside; and with
+no conversation in front of it, the drafter opened `going`, `inside` and `item`
+with `Tere!`. A1 is one sentence and two at most now, A2 one to three, and the
+drafter's own instruction says the line is said in the middle of a conversation
+that has begun. After that the A1 corner shop reads `Kus sa nüüd oled?` and
+`Mida sa poest osta tahad?`, which is what the hand-written rows say.
+
+What it does not do is read any of them: a native speaker has still read none
+of the bank, at any band, and the pitched rows arrive `reviewed: false` like
+the rest. `npm run draft:lines -- --level B1` drafts one band, `--unpitched`
+drafts the old shape, and `--refresh` still drops every unreviewed row first,
+which on this bank is every row.

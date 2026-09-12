@@ -25,6 +25,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { CASES } from "@/lib/estonian/cases";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import type { Level } from "@/lib/collections/syllabus/types";
 import type { LineMode } from "@/lib/scenes/line";
 import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
@@ -113,7 +114,7 @@ export type Row = DictEntry & {
  * this app where reading everything is the correct answer rather than the lazy
  * one.
  */
-export async function sceneContext(sceneId: string): Promise<SceneContext | null> {
+export async function sceneContext(sceneId: string, level?: Level): Promise<SceneContext | null> {
   const scene = sceneById(sceneId);
   if (!scene) return null;
   const [rows, known, stand] = await Promise.all([
@@ -136,7 +137,7 @@ export async function sceneContext(sceneId: string): Promise<SceneContext | null
     */
     substitutes(),
   ]);
-  const context = contextFromRows(scene, rows);
+  const context = contextFromRows(scene, rows, level);
   /*
     ACCEPT ONLY, AND A LEXICON OF ITS OWN. The scene's own list stays what the
     other side may say and what a model may compose inside, which is the whole
@@ -457,7 +458,12 @@ export function acceptFromRows(
   );
 }
 
-export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneContext {
+/**
+ * `level` is the band this run talks at, which picks which banked lines lead
+ * (`scriptedFor`); the harnesses pass the band they play at and a test that
+ * passes none reads the whole bank.
+ */
+export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: Level): SceneContext {
   const lexicon = buildLexicon(rows);
 
   const hasFiniteVerb = finiteVerbs(rows);
@@ -506,7 +512,7 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
     topic: new Map(scene.beats.map((beat) => [
       beat.id, new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
     ])),
-    scripted: new Map(sceneBeats(scene).map((beat) => [beat.id, scriptedFor(scene, beat)])),
+    scripted: new Map(sceneBeats(scene).map((beat) => [beat.id, scriptedFor(scene, beat, level)])),
     hasFiniteVerb,
     fallback: rows.find((row) => row.lemma === FALLBACK_PHRASE)?.lemma ?? FALLBACK_PHRASE,
   };

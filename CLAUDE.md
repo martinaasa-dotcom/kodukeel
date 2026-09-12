@@ -5706,8 +5706,19 @@ else, and the route reads the stored band back on every turn so a run keeps one 
 `ComposeScene.level` is required, so a caller that has not decided does not compile, and the
 invariant reads the call sites that build the object from a literal, because a harness pitched at
 nothing measures a conversation the app does not have; a harness has no learner, so it names the
-band it plays at (`HARNESS_LEVEL`). A keyless deployment is untouched: the bank's lines were
-drafted against the beat and say what they said.
+band it plays at (`HARNESS_LEVEL`).
+
+**And the bank is pitched too, which is what reaches a keyless deployment.** A banked line is a
+composed line moved to a different moment, so `npm run draft:lines` drafts per band now, with
+`pitchFor` in front of the model and the band's own ceiling in its refusals (`fitsPitch`), and
+writes the band on the row. `scriptedFor` reads a run's own band first and the unpitched rows
+after, never another band's, so an A1 learner on a deployment with no key meets the A1 lines. The
+rows drafted before bands existed carry no band and stay as the net under every band, since three
+hundred of them were typed by hand for the curveballs no free model could write. The first trial
+corrected the table: told "two or three sentences is a whole turn", the model wrote three at A1
+every time, and with no conversation in front of it opened mid-scene beats with a greeting, so A1
+is one sentence and two at most and the drafter's instruction says the conversation has already
+begun. Nobody has read any of it, at any band.
 
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a

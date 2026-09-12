@@ -47,7 +47,7 @@ function bad(msg: string) { failures++; console.log("BAD " + msg); }
 
 async function main() {
   for (const scene of SCENES) {
-    const context = await sceneContext(scene.id);
+    const context = await sceneContext(scene.id, HARNESS_LEVEL);
     if (!context) { bad(`${scene.id}: no context`); continue; }
     for (const difficulty of ["textbook", "bad"] as const) {
       for (let seedNo = 0; seedNo < 6; seedNo++) {

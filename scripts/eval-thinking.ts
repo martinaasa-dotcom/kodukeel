@@ -151,9 +151,9 @@ function promptFor(sceneId: string, beatId: string) {
     reading: "",
     examples: scene.beats
       .filter((one) => one.id !== beat.id)
-      .flatMap((one) => scriptedFor(scene, one).slice(0, 1))
+      .flatMap((one) => scriptedFor(scene, one, HARNESS_LEVEL).slice(0, 1))
       .slice(0, 6),
-    asked: scriptedFor(scene, beat).slice(0, 2),
+    asked: scriptedFor(scene, beat, HARNESS_LEVEL).slice(0, 2),
     avoid: [],
   });
   return { beat, context, system, live };

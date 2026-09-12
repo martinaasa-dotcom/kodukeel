@@ -140,23 +140,26 @@ export async function POST(request: Request) {
     return Response.json({ error: "That is not a turn in a scene." }, { status: 400 });
   }
 
-  const context = await sceneContext(scene.id);
-  if (!context) {
-    return Response.json({ error: "That scene could not be built." }, { status: 400 });
-  }
-
-  const persona = personaOf(row!.transcript);
-  const voice = persona?.voice ?? DEFAULT_VOICE;
   /*
     HOW THE OTHER SIDE TALKS IS THE BAND THIS RUN WAS OPENED AT, which is the
     learner's own level unless they moved the selector on the briefing, and
     it was written down by `beginRun` so a run keeps one voice. The column is
     a string; a row written by anything but `beginScene` falls back to the
     learner's level rather than to a band of ours (`lib/scenes/pitch.ts`).
+    Read before the context, because the context is built for the band: the
+    bank's lines at this band lead and the unpitched ones follow.
   */
   const level: Level = (LEVELS as readonly string[]).includes(row!.level)
     ? (row!.level as Level)
     : await courseLevelFor(ownerId);
+
+  const context = await sceneContext(scene.id, level);
+  if (!context) {
+    return Response.json({ error: "That scene could not be built." }, { status: 400 });
+  }
+
+  const persona = personaOf(row!.transcript);
+  const voice = persona?.voice ?? DEFAULT_VOICE;
 
   /*
     MARKED HERE, BY THE SAME FUNCTION THAT MARKS IT AT THE END.

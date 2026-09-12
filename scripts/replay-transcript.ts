@@ -66,7 +66,7 @@ async function main() {
   if (!scene) { console.error(`no scene called ${arg("scene")}`); process.exit(1); }
   /** The band the other side talks at, which in the app is the learner's own. */
   const level = (arg("level") ?? HARNESS_LEVEL) as Level;
-  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), level);
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
   const run = planRun(scene, "repro", level, "textbook");
   const card: RoleCard = {

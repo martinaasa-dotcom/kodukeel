@@ -60,8 +60,8 @@ export interface Pitch {
  */
 export const PITCH: Readonly<Record<Level, Pitch>> = {
   A1: {
-    sentences: [1, 3],
-    words: 24,
+    sentences: [1, 2],
+    words: 20,
     newWords: 2,
     listener: "They have been learning Estonian for a few weeks and can follow only the plainest speech.",
     voice: "Speak the way a kind person speaks to somebody with very little of the language:"
@@ -69,17 +69,19 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
       + " time. Ask a yes-or-no question wherever the words allow it, or a question with a single"
       + " question word. Mostly the present tense, the commonest verbs, concrete nouns, numbers and"
       + " times said plainly. No clause inside a clause, no 'if' or 'although', no idiom, no"
-      + " politeness formula longer than one word. Two or three such sentences is a whole turn.",
+      + " politeness formula longer than one word. One short sentence is usually a whole turn,"
+      + " and two is the most it should ever be.",
   },
   A2: {
-    sentences: [2, 3],
-    words: 34,
+    sentences: [1, 3],
+    words: 30,
     newWords: 4,
     listener: "They have a few months of Estonian and can follow short everyday sentences.",
     voice: "Short sentences still, and two thoughts may join with 'and', 'but' or 'because'."
       + " A question may offer a choice of two. The simple past and 'can you' are fine, and one"
       + " short reason or a short instruction is fine. Everyday words for the situation, nothing"
-      + " rare, and still one thing asked at a time. Two or three sentences is a whole turn.",
+      + " rare, and still one thing asked at a time. One or two sentences is a whole turn, three"
+      + " where there is a reason to give.",
   },
   B1: {
     sentences: [2, 4],
@@ -114,6 +116,27 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
       + " simplify anything for them.",
   },
 };
+
+/**
+ * WHETHER A LINE FITS ITS BAND, as far as counting can tell.
+ *
+ * A pitch is mostly a description a model reads, and the two figures in it
+ * are the half a script can check: a banked line drafted at A1 that runs to
+ * forty words is not an A1 line whatever the model was told, so the drafter
+ * refuses it before the gate and `bank.test.ts` holds every pitched row to
+ * the same count. Sentences are split the way the gate splits them. What this
+ * cannot see is whether the sentence is plain, which is the model's job and a
+ * native speaker's to read. Null where the line fits, else why not, in words.
+ */
+export function fitsPitch(text: string, level: Level): string | null {
+  const pitch = PITCH[level];
+  const trimmed = text.trim();
+  const sentences = trimmed.split(/[.!?]+\s+/).filter(Boolean).length;
+  const wordCount = (trimmed.match(/\p{L}+/gu) ?? []).length;
+  if (wordCount > pitch.words) return `${wordCount} words where ${level} allows ${pitch.words}`;
+  if (sentences > pitch.sentences[1]) return `${sentences} sentences where ${level} allows ${pitch.sentences[1]}`;
+  return null;
+}
 
 /** The rows in the course's own order, for anything that walks the ladder. */
 export const PITCHES: readonly (readonly [Level, Pitch])[] = LEVELS.map((level) => [level, PITCH[level]]);

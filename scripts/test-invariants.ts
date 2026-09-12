@@ -5600,6 +5600,27 @@ check("the other side talks at the run's band, and every composer says which ban
     code("app/api/scene/route.ts"), /includes\(row!\.level\)/,
     "the scene route stopped reading the band the run was opened at",
   );
+  /*
+    AND THE BANK IS READ AT THAT BAND. A banked line is a composed line moved
+    to a different moment, so the drafter drafts per band with the pitch in
+    front of the model and writes the band on the row, and `scriptedFor`
+    reads a run's own band first and the unpitched rows after. A route that
+    built its context with no band would say C1 lines to an A1 learner on the
+    one deployment that has no model to fall back on.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /sceneContext\(scene\.id, level\)/,
+    "the scene route builds its context for no band, so the bank's pitched lines are never read first",
+  );
+  const scripted = code("lib/scenes/scripted.ts");
+  assert.match(
+    scripted, /rows\.filter\(\(row\) => row\.level === level\),\s*\.\.\.rows\.filter\(\(row\) => row\.level === undefined\)/,
+    "scriptedFor no longer leads with the run's own band and falls to the unpitched rows",
+  );
+  const draft = code("scripts/draft-lines.ts");
+  assert.match(draft, /fitsPitch\(/, "the drafter no longer refuses a pitched line that runs past its band");
+  assert.match(draft, /compose\(scene, beat, lemmas, undefined, links, withhold, level\)/, "the drafter no longer drafts for a band");
+  assert.match(code("lib/scenes/bank.test.ts"), /fitsPitch\(row\.text, row\.level\)/, "the bank test no longer holds a pitched row to its band");
   const callers = [
     "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
     "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",

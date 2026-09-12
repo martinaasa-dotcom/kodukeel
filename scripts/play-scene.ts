@@ -199,7 +199,7 @@ function learnerTurn(
 
 async function play(sceneId: string) {
   const scene = sceneById(sceneId)!;
-  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), level);
   /*
     MARKED THE WAY THE ROUTE MARKS IT, AND THE ROUTE WIDENS TWICE. `knowing`
     below is one of them; these are the other two, and this harness resolved

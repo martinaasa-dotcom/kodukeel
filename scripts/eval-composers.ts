@@ -106,7 +106,7 @@ function links(): Link[] {
 function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) {
   const examples = scene.beats
     .filter((b) => b.id !== beat.id)
-    .flatMap((b) => scriptedFor(scene, b).slice(0, 1))
+    .flatMap((b) => scriptedFor(scene, b, HARNESS_LEVEL).slice(0, 1))
     .slice(0, 6);
 
   const live = composeLive({

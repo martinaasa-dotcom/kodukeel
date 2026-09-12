@@ -95,7 +95,7 @@ let systemChars = 0;
 let liveChars = 0;
 let beats = 0;
 for (const scene of SCENES) {
-  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+  const context = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), HARNESS_LEVEL);
   const examples = [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6);
   systemChars += composeSystem({
     scene: scene.title,

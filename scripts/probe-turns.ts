@@ -111,7 +111,7 @@ const DEALT: Record<string, Record<string, string>> = {
 async function main() {
   for (const [sceneId, cases] of Object.entries(CASES)) {
     const scene = sceneById(sceneId)!;
-    const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+    const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), HARNESS_LEVEL);
     /*
       MARKED THE WAY THE ROUTE MARKS IT. The route widens three times before it
       reads a turn: the course (`courseForms`), the forms list (`knowing`), and

@@ -5,7 +5,7 @@
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "@/lib/collections/syllabus/types";
 import { MAX_COMPOSED_WORDS, NEW_WORDS } from "./gate";
-import { PITCH, PITCHES, pitchFor } from "./pitch";
+import { PITCH, PITCHES, fitsPitch, pitchFor } from "./pitch";
 
 describe("the pitch of a scene", () => {
   it("has a row for every band the course names", () => {
@@ -67,5 +67,19 @@ describe("the pitch of a scene", () => {
     expect(text).toContain(`at most ${PITCH.A1.words} words`);
     expect(text).toContain(`at most ${PITCH.A1.newWords} words outside`);
     expect(pitchFor("B1")).not.toContain(PITCH.A1.voice);
+  });
+
+  /*
+    The half of a pitch a script can check: the count. A line at or under
+    the band's figures fits, one over either does not, and the reason names
+    the figure so a drafter's report reads as what happened.
+  */
+  it("counts a line against its band's own ceilings", () => {
+    expect(fitsPitch("Tere. Kas te tahate kohvi?", "A1")).toBeNull();
+    const long = Array.from({ length: PITCH.A1.words + 1 }, () => "sona").join(" ") + ".";
+    expect(fitsPitch(long, "A1")).toMatch(/words where A1 allows/);
+    expect(fitsPitch(long, "C1")).toBeNull();
+    const many = Array.from({ length: PITCH.A1.sentences[1] + 1 }, () => "Tere.").join(" ");
+    expect(fitsPitch(many, "A1")).toMatch(/sentences where A1 allows/);
   });
 });
