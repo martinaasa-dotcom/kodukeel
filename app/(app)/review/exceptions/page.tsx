@@ -9,6 +9,7 @@ import { exceptionRound, pickWords, type ExceptionWord } from "@/lib/games/excep
 import { formIndex } from "@/lib/games/flash";
 import { naturalSentencesFor } from "@/lib/srs/cards";
 import { shuffle } from "@/lib/random/shuffle";
+import { resolveProvider } from "@/lib/tutor/provider";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ExceptionsSession } from "./ExceptionsSession";
@@ -48,6 +49,7 @@ export default async function ExceptionsRoundPage({
   searchParams: Promise<{ kind?: string }>;
 }) {
   const ownerId = await requireUserId();
+  const canTranslate = resolveProvider() !== null;
   const { kind } = await searchParams;
   const wanted = kind && (EXCEPTION_KINDS as readonly string[]).includes(kind.toUpperCase())
     ? kind.toUpperCase()
@@ -108,7 +110,8 @@ export default async function ExceptionsRoundPage({
     starred: starred.has(row.id),
     index: {} as Record<string, readonly string[]>,
     forms: [] as { formType: string; value: string; morphCode?: string | null }[],
-    sentences: [] as string[],
+    sentences: [] as { et: string; en: string | null }[],
+    canTranslate,
   })));
 
   /*
@@ -136,7 +139,7 @@ export default async function ExceptionsRoundPage({
       forms: lex.forms,
       sentences: naturalSentencesFor({
         lemma: lex.lemma, pos: lex.pos, examples: lex.examples, forms: lex.forms,
-      }).map((e) => e.et),
+      }).map((e) => ({ et: e.et, en: e.en ?? null })),
     };
   });
 

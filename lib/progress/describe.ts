@@ -206,6 +206,15 @@ export async function describeRound(
 export interface ModelAnswer {
   readonly et: string;
   readonly source: "contributed" | "this-form" | "this-word";
+  /**
+   * The word behind the sentence, and its stored English, where the sentence
+   * is one of that word's own examples: `translateExample` needs both to ask
+   * for one and to keep what comes back. Null on a contributed sentence, which
+   * lives in the scene bank rather than on a lexeme and has nowhere to store
+   * a translation yet.
+   */
+  readonly lexemeId: string | null;
+  readonly en: string | null;
 }
 
 export interface RebuiltTask {
@@ -268,10 +277,16 @@ export async function taskById(
   if (!task) return null;
 
   const contributed = sceneAnswerFor(scene.id);
-  if (contributed) return { task, answer: { et: contributed.et, source: "contributed" } };
+  if (contributed) {
+    return { task, answer: { et: contributed.et, source: "contributed", lexemeId: null, en: null } };
+  }
 
   const asked = chosen.find((r) => r.lemma === askLemma);
-  return { task, answer: modelSentence(parseExamples(asked?.examples), task.shown, askLemma) };
+  const answer = modelSentence(parseExamples(asked?.examples), task.shown, askLemma);
+  return {
+    task,
+    answer: answer && asked ? { ...answer, lexemeId: asked.id } : answer,
+  };
 }
 
 /**
@@ -305,9 +320,9 @@ function modelSentence(
   const usable = examples.filter((e) => naturalSentence(e.et) && looksLikeSentence(e.et));
   for (const form of wanted) {
     const found = sentenceContaining(usable, form);
-    if (found) return { et: found.et, source: "this-form" };
+    if (found) return { et: found.et, source: "this-form", lexemeId: null, en: found.en ?? null };
   }
   const any = usable.find((e) => sentenceWords(e.et).includes(lemma.toLocaleLowerCase("et")))
     ?? usable[0];
-  return any ? { et: any.et, source: "this-word" } : null;
+  return any ? { et: any.et, source: "this-word", lexemeId: null, en: any.en ?? null } : null;
 }

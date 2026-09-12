@@ -109,6 +109,8 @@ export async function POST(request: Request) {
     // illustrate this word" are two different claims and only one of them is
     // about the picture.
     answer,
+    // Whether this deployment has a model that could translate that sentence.
+    canTranslate: resolveProvider() !== null,
   };
 
   const config = resolveProvider();

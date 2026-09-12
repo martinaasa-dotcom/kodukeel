@@ -134,6 +134,8 @@ export interface FlashTask extends FlashSlot {
   label: string;
   /** The sentence a `gap` or `heard` task is built on. Null otherwise. */
   sentence: string | null;
+  /** That same sentence's stored English translation, when there is one. */
+  sentenceEn: string | null;
   /**
    * The spelling of the word that sentence actually carries.
    *
@@ -332,7 +334,7 @@ export function hasSentence(word: FlashWord, slot: FlashSlot): boolean {
  * this agrees in nearly every case; where it does not, the sentence shapes
  * simply are not offered and the round asks the plain way.
  */
-function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; form: string } | null {
+function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; en: string | null; form: string } | null {
   // Nothing to cut a gap out of, so nothing to work out which forms could be
   // cut. Most of the dictionary's entries carry no usage at all.
   if (word.examples.length === 0) return null;
@@ -365,7 +367,7 @@ function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; form: stri
       asked the plain way rather than dropping out of the round.
     */
     if (slot.accepted.some((spelling) => mentions(cloze.text, spelling))) continue;
-    return { et: example.et, form };
+    return { et: example.et, en: example.en ?? null, form };
   }
   return null;
 }
@@ -459,6 +461,7 @@ export function flashTask(input: {
       whatever spelling a lexicographer happened to reach for.
     */
     sentence: aboutASentence ? sentence?.et ?? null : null,
+    sentenceEn: aboutASentence ? sentence?.en ?? null : null,
     sentenceForm: aboutASentence ? sentence?.form ?? null : null,
     gapped: shape === "gap" ? cloze?.text ?? null : null,
     // Where the sentence carries the other spelling of a two-form case, that

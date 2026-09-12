@@ -7,6 +7,7 @@ import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Chip, KeyCap, Stat } from "@/components/ui";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { AI_TAG } from "@/lib/copy/values";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { DescribeMark } from "@/lib/games/describe";
@@ -46,7 +47,12 @@ interface Reveal {
   words: { emoji: string; lemma: string; translation: string }[];
   wanted: string[];
   /** A sentence to read afterwards, and what it is evidence of. See `ModelAnswer`. */
-  answer: { et: string; source: "contributed" | "this-form" | "this-word" } | null;
+  answer: {
+    et: string; source: "contributed" | "this-form" | "this-word";
+    lexemeId: string | null; en: string | null;
+  } | null;
+  /** Whether this deployment has a model that could translate that sentence. */
+  canTranslate: boolean;
 }
 
 interface Marked {
@@ -412,6 +418,15 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           <p lang="et" className="mt-1.5 text-[15px]" style={{ color: "var(--ink)" }}>
             {reveal.answer.et}
           </p>
+          {reveal.answer.lexemeId && (
+            <SentenceTranslation
+              key={reveal.answer.et}
+              lexemeId={reveal.answer.lexemeId}
+              et={reveal.answer.et}
+              en={reveal.answer.en}
+              canTranslate={reveal.canTranslate}
+            />
+          )}
         </div>
       )}
 

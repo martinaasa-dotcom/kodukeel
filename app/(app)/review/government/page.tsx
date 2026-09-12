@@ -10,6 +10,7 @@ import { Empty, Page } from "@/components/ui";
 import { GovernmentSession, type GovernmentQuestion } from "./GovernmentSession";
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
+import { resolveProvider } from "@/lib/tutor/provider";
 
 export const metadata = { title: "Verb government" };
 
@@ -43,6 +44,7 @@ const MIN_VERBS = 40;
  */
 export default async function GovernmentPage() {
   const ownerId = await requireUserId();
+  const canTranslate = resolveProvider() !== null;
 
   const level = await courseLevelFor(ownerId);
   const verbs = {
@@ -162,11 +164,18 @@ export default async function GovernmentPage() {
       answerEt: g.caseEt,
       alsoGoverned: [...g.alsoGoverned],
       example: exampleFor(v, g),
+      exampleEn: g.example ? null : exampleEnFor(v, exampleFor(v, g)),
       maskedExample: maskExample(exampleFor(v, g)),
+      // Only a sentence that actually lives on the lexeme's own examples can be
+      // translated and kept there: `government.example` is a fixed string the
+      // seed carries inside the government column itself, which `translateExample`
+      // has nowhere to store a translation on.
+      exampleTranslatable: !g.example && exampleFor(v, g) !== null,
       gloss: g.gloss,
       experiencer: g.experiencer,
       inDeck: mine.has(v.id),
       options,
+      canTranslate,
     }];
   });
 
@@ -203,4 +212,13 @@ function exampleFor(
   const attested = usableExamples(parseExamples(lexeme.examples));
   const containing = sentenceContaining(attested, lexeme.lemma);
   return (containing ?? attested[0])?.et ?? null;
+}
+
+/** That same sentence's own stored English, when it came off the lexeme. */
+function exampleEnFor(
+  lexeme: { examples: string | null },
+  example: string | null,
+): string | null {
+  if (!example) return null;
+  return parseExamples(lexeme.examples).find((e) => e.et === example)?.en ?? null;
 }

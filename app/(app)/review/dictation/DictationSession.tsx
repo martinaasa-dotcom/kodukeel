@@ -15,7 +15,7 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { VOICES } from "@/lib/audio/voice";
 import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
 import type { RatingValue } from "@/lib/srs/scheduler";
-import { AI_TAG } from "@/lib/copy/values";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -32,6 +32,8 @@ export interface DictationTask {
   /** The attested Estonian sentence, exactly as Ekilex recorded it. */
   et: string;
   en: string | null;
+  /** Whether this deployment has a model to ask for a translation. */
+  canTranslate: boolean;
 }
 
 /**
@@ -334,13 +336,16 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
             />
           )}
 
-          {result && task.en && (
-            <p className="text-center text-sm" style={{ color: "var(--ink-2)" }}>
-              {task.en}
-              <Chip tone="again" title="Machine translation. Trust the Estonian over this.">
-                {AI_TAG}
-              </Chip>
-            </p>
+          {result && (
+            <div className="flex justify-center">
+              <SentenceTranslation
+                key={task.et}
+                lexemeId={task.lexemeId}
+                et={task.et}
+                en={task.en}
+                canTranslate={task.canTranslate}
+              />
+            </div>
           )}
         </div>
 
