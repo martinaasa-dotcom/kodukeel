@@ -116,6 +116,21 @@ const deckPage = () => page.goto(`${B}/words/decks`, { waitUntil: "networkidle" 
 */
 const shown = () => page.locator("main").innerText();
 
+/*
+  AND FOLDED, BECAUSE `innerText` IS THE RENDERED TEXT AND THIS APP UPPERCASES
+  ITS LABELS.
+
+  `.label-xs` carries `text-transform: uppercase`, and `innerText` reflects
+  that where `textContent` would not, so the panel's own heading reaches a
+  reader as "WHICH DECK?" and an exact search for "Which deck?" finds nothing.
+  That cost this suite a false pass as well as a false failure, which is the
+  worse half: `with no deck named, the add panel offers no shelf to choose`
+  asserted the absence of a string that could never have been present, so it
+  was green on a screen nobody had looked at. Folding the case is the
+  difference between asking about the screen and asking about the stylesheet.
+*/
+const shows = async (needle) => (await shown()).toLowerCase().includes(needle.toLowerCase());
+
 // ── With no shelf named, the panel asks nothing about shelves ──────────────
 // The honest half of the gate, and the only check here that a learner's own
 // decks can take away: it is a claim about holding none.
@@ -128,7 +143,7 @@ if (ownDecks === 0) {
   await page.waitForTimeout(600);
   check(
     "with no deck named, the add panel offers no shelf to choose",
-    !(await shown()).includes("Which deck?"),
+    !(await shows("Which deck?")),
   );
 } else {
   absent(1, `this learner already has ${ownDecks} deck(s) of their own, so "no deck named" is unreachable`);
@@ -138,28 +153,24 @@ if (ownDecks === 0) {
 await deckPage();
 await page.locator("#new-deck-name").fill(DECK);
 await page.getByRole("button", { name: /Create/ }).click();
-check("a named deck appears on the page that named it", await eventually(async () =>
-  (await shown()).includes(DECK)));
+check("a named deck appears on the page that named it", await eventually(() => shows(DECK)));
 
 // ── ...is offered by the dictionary. The regression, in one check. ─────────
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(plain)}`, { waitUntil: "networkidle" });
 await page.getByRole("button", { name: /Add to deck|In deck/ }).first().click();
-const offered = await eventually(async () => (await shown()).includes("Which deck?"));
+const offered = await eventually(() => shows("Which deck?"));
 check("one deck is enough for the dictionary to ask which shelf", offered);
-check("and it offers the shelf by the name the learner gave it",
-  (await shown()).includes(DECK));
+check("and it offers the shelf by the name the learner gave it", await shows(DECK));
 
 // ── Filing from there lands on the shelf ───────────────────────────────────
 await page.getByRole("checkbox", { name: DECK }).check();
 await page.getByRole("button", { name: /^Add$/ }).click();
 await page.waitForTimeout(1500);
 await deckPage();
-check(`the word filed from the dictionary is on the shelf`, await eventually(async () =>
-  (await shown()).includes("1 word")));
+check("the word filed from the dictionary is on the shelf", await eventually(() => shows("1 word")));
 
 await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
-check("and the shelf lists it by name", await eventually(async () =>
-  (await shown()).includes(plain)));
+check("and the shelf lists it by name", await eventually(() => shows(plain)));
 
 // ── Filing after the fact, which is what no other screen could do ──────────
 await page.getByRole("button", { name: /Add words/ }).click();
@@ -190,20 +201,19 @@ check(`typing "${second}" narrows the list to it`, await eventually(async () =>
   (await offers.count()) > 0 && (await offers.allInnerTexts()).join(" ").includes(second),
   { timeoutMs: 8000 }));
 await offers.filter({ hasText: second }).first().click();
-check("pressing a word files it, and the count says so", await eventually(async () =>
-  (await shown()).includes("2 words")));
+check("pressing a word files it, and the count says so", await eventually(() => shows("2 words")));
 
 // ── A shelf is a label, never a container ─────────────────────────────────
 const filed = second;
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(filed)}`, { waitUntil: "networkidle" });
-check("a filed word is still in the learner's deck", (await shown()).includes("In deck"));
+check("a filed word is still in the learner's deck", await shows("In deck"));
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
 await deckPage();
 await page.getByRole("button", { name: DECK, exact: true }).click();
 await page.getByRole("textbox", { name: `Rename ${DECK}` }).fill(RENAMED);
 await page.keyboard.press("Enter");
-check("a shelf can be renamed", await eventually(async () => (await shown()).includes(RENAMED)));
+check("a shelf can be renamed", await eventually(() => shows(RENAMED)));
 
 await deckPage();
 await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
@@ -221,8 +231,7 @@ if (had > 0) {
   await takeOff.first().click();
   check("a word comes off the shelf", await eventually(async () => (await takeOff.count()) < had));
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(plain)}`, { waitUntil: "networkidle" });
-  check("and taking it off the shelf leaves it in the deck",
-    (await shown()).includes("In deck"));
+  check("and taking it off the shelf leaves it in the deck", await shows("In deck"));
 } else {
   absent(2, "the shelf listed no words to take off, so the removal path was not reached");
 }
@@ -230,13 +239,12 @@ if (had > 0) {
 // ── Removing the shelf keeps the words ────────────────────────────────────
 await deckPage();
 await page.getByRole("button", { name: /Remove/ }).first().click();
-check("removing a shelf says the words stay", await eventually(async () =>
-  (await shown()).includes("The words stay in your deck")));
+check("removing a shelf says the words stay", await eventually(() => shows("The words stay in your deck")));
 await page.getByRole("button", { name: /^Remove$/ }).last().click();
-check("and the shelf goes", await eventually(async () => !(await shown()).includes(RENAMED)));
+check("and the shelf goes", await eventually(async () => !(await shows(RENAMED))));
 
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(filed)}`, { waitUntil: "networkidle" });
-check("the words it held are still the learner's", (await shown()).includes("In deck"));
+check("the words it held are still the learner's", await shows("In deck"));
 
 check("no console errors anywhere in that", errors.length === 0, errors.slice(0, 2).join(" | "));
 
