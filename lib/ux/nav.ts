@@ -199,7 +199,7 @@ export const SECTIONS: NavSection[] = [
       },
 
       {
-        href: "/progress", label: "Progress", blurb: "Heatmap, retention, weak cases", icon: "ChartNoAxesColumn",
+        href: "/progress", label: "Progress", blurb: "Heatmap, what's sticking, weak cases", icon: "ChartNoAxesColumn",
         tone: "accent", keywords: "stats charts history retention leaderboard",
       },
       /*

@@ -334,7 +334,7 @@ export default async function SettingsPage() {
             <Card>
               <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                 The built-in dictionary has {words} words with checked principal parts, covering A1 up
-                into C1. Search an inflected form you met in class, <span lang="et">toas</span>,{" "}
+                into C1. Search a form of a word you met in class, <span lang="et">toas</span>,{" "}
                 <span lang="et">lugesin</span>, and it will find the word and tell you which form you
                 typed. Audio comes from the University of Tartu&rsquo;s Estonian speech service and
                 needs no key.

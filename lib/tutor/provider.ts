@@ -408,6 +408,29 @@ export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
 export const SCENE_REPLY_TOKENS = 4_000;
 
 /**
+ * How much room Anu's own answer needs, which `REPLY_TOKENS` was never sized
+ * for.
+ *
+ * `REPLY_TOKENS` (1,200) was measured against a *scene* line, one short
+ * Estonian sentence, on the models that spend hundreds of tokens on a hidden
+ * reasoning field before writing anything into `content` (this file's own
+ * note above it: `openai/gpt-oss-120b` alone spends about 380 of those on a
+ * single line). It was then reused as Anu's ceiling, and Anu is not writing
+ * one line: her own prompt asks for a named rule, a minimal pair and a next
+ * step, which is several sentences, sometimes a worked case table, on top of
+ * whatever a reasoning model spends before it writes a word of that. A reply
+ * that runs past its ceiling does not come back empty the way a scene line
+ * does, because by then real content has already been written: it comes back
+ * cut off mid-word, in the middle of a sentence, which is worse, because
+ * nothing about it looks like a failure.
+ *
+ * `TUTOR_MODEL` is a Groq reasoning model for the same reason `SCENE_MODELS`
+ * is one: it is one of the measured, cheap ones. So this takes the same fix
+ * `SCENE_REPLY_TOKENS` already took for the identical shape of the same bug.
+ */
+export const TUTOR_REPLY_TOKENS = 3_000;
+
+/**
  * Every provider with a key, in the order they should be tried.
  *
  * With no `purpose` this is Groq first and the dear keys last, one link per
@@ -647,6 +670,19 @@ export interface UsageReport {
    */
   cachedInputTokens?: number;
   cacheWriteTokens?: number;
+  /**
+   * The provider stopped because the reply hit its token ceiling rather than
+   * because it was finished, so what arrived is a real prefix of an answer
+   * rather than the whole of one.
+   *
+   * A raised `TUTOR_REPLY_TOKENS` makes this rare and does not make it
+   * impossible: a reasoning model can still spend enough of it thinking that
+   * what is left runs out mid-sentence, and a caller reading the finished
+   * text alone cannot tell that case apart from an answer that simply ended.
+   * Read off Anthropic's own `stop_reason` and the OpenAI-compatible
+   * `finish_reason`, both `"length"`/`"max_tokens"` in that one case.
+   */
+  truncated?: boolean;
 }
 
 /** A provider that has accepted the question, and the reply it is about to give. */
@@ -673,6 +709,10 @@ interface UsageFrame {
     };
   };
   usage?: { output_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+  /** Anthropic's own reason the turn stopped, carried on the same `message_delta` frame as the output count. */
+  delta?: { stop_reason?: string | null };
+  /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
+  choices?: { finish_reason?: string | null }[];
 }
 
 function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport): void {
@@ -695,12 +735,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
       into.cacheWriteTokens = written;
       into.measured = true;
     }
-    if (f.type === "message_delta" && f.usage?.output_tokens != null) {
-      into.outputTokens = f.usage.output_tokens;
-      into.measured = true;
+    if (f.type === "message_delta") {
+      if (f.usage?.output_tokens != null) {
+        into.outputTokens = f.usage.output_tokens;
+        into.measured = true;
+      }
+      if (f.delta?.stop_reason === "max_tokens") into.truncated = true;
     }
     return;
   }
+
+  const finishReason = f.choices?.[0]?.finish_reason;
+  if (finishReason === "length") into.truncated = true;
 
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
@@ -745,9 +791,10 @@ export async function openWithFallback(
   live = "",
   /*
     How much room the answer may take, where the caller needs more than the
-    default. Absent for Anu, whose replies are prose inside `REPLY_TOKENS`;
-    set by the scene composer, because several of the models it can be pointed
-    at spend hundreds of tokens thinking before they write the sentence.
+    default `REPLY_TOKENS`. Set by the tutor route (`TUTOR_REPLY_TOKENS`) and
+    by the scene composer (`SCENE_REPLY_TOKENS`), because several of the
+    models either can be pointed at spend hundreds of tokens thinking before
+    they write the sentence, and Anu's own reply is longer than one sentence.
   */
   maxTokens?: number,
 ): Promise<OpenStream> {
