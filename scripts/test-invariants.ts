@@ -15017,6 +15017,35 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     + "curveball's: every cue is dead and nothing says so",
   );
 
+  /*
+    AND THE DRAWING IS SIZED BY THE PROP RATHER THAN BY A CLASS BESIDE IT.
+
+    It used to ship `max-w-[19rem]` in its own class list and take a
+    `className` next to it, and the cover asked for `max-w-[13rem]`: two
+    utilities for one property resolve by their order in the stylesheet rather
+    than by which one the caller wrote, and measured in the built CSS the
+    component's own is emitted second and wins. The cover had been drawing the
+    full-size room for its whole life while asking for two thirds of it, and
+    nothing could see it, because both are a room and neither is wrong on its
+    own. `fit` is the whole of the answer and there is no `className` to fight
+    it with.
+  */
+  assert.doesNotMatch(
+    code("components/scene/SceneVignette.tsx"), /export function SceneVignette\(\{[^}]*className/,
+    "the room takes a className again, which is a second answer to how big it is and loses to its "
+    + "own class list wherever the two disagree",
+  );
+  for (const file of COMPONENTS) {
+    const source = code(file);
+    for (const match of source.matchAll(/<SceneVignette([^>]*)>/g)) {
+      const call = match[1] ?? "";
+      assert.ok(
+        !/className/.test(call),
+        `${file} passes a className to the room: its size is the \`fit\` prop (${call.trim()})`,
+      );
+    }
+  }
+
   const stage = code("components/scene/SceneStage.tsx");
   /*
     Inside the bar rather than beside it: two sticky elements at one offset are

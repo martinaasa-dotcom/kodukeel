@@ -56,7 +56,7 @@ import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
  * just come up. Nothing about the room changes: it is one drawing, drawn twice
  * at two sizes, so a fifteenth scene still costs a branch and no file.
  */
-export function SceneVignette({ sceneId, setting, speaking = null, cue = null, fit = "block", className = "" }: {
+export function SceneVignette({ sceneId, setting, speaking = null, cue = null, fit = "block" }: {
   sceneId: string;
   /**
    * The room to draw, where the caller knows it. A scene can walk somebody out
@@ -76,16 +76,25 @@ export function SceneVignette({ sceneId, setting, speaking = null, cue = null, f
   /** What has just come up, where a curveball is standing (`lib/scenes/scenery.ts`). */
   cue?: Cue | null;
   /**
-   * How it is sized, which is two shapes rather than a className a caller can
-   * fight with. `block` is the drawing on a briefing, which takes the width it
-   * is given; `band` is the strip above a conversation, which takes the height
-   * and centres itself in whatever width is left. Written as a prop because
-   * the two disagree on `width` and `height` both, and two Tailwind classes
-   * for one property resolve by stylesheet order rather than by which one the
-   * caller wrote last.
+   * How it is sized, which is a prop rather than a className a caller can
+   * fight with.
+   *
+   * `block` is the drawing on a briefing, which takes the width it is given;
+   * `band` is the strip above a conversation, which takes the height and
+   * centres itself in whatever width is left; `inset` is the smaller one the
+   * cover draws when a break in time leaves the learner in the same room.
+   *
+   * A PROP BECAUSE A CLASSNAME DID NOT WORK, WHICH WAS FOUND RATHER THAN
+   * REASONED OUT. This used to ship `max-w-[19rem]` in its own class list and
+   * take a `className` beside it, and the cover asked for `max-w-[13rem]`:
+   * two utilities for one property resolve by their order in the stylesheet
+   * and not by which one the caller wrote, and measured in the built CSS the
+   * component's own is emitted second and wins. So the cover had been drawing
+   * the full-size room for the whole of its life while asking for two thirds
+   * of it. There is no `className` now, because a parameter that cannot do
+   * what its caller means is not a feature.
    */
-  fit?: "block" | "band";
-  className?: string;
+  fit?: "block" | "band" | "inset";
 }) {
   const room = setting ?? sceneryFor(sceneId).setting;
   const marks = MARKS[room];
@@ -93,7 +102,7 @@ export function SceneVignette({ sceneId, setting, speaking = null, cue = null, f
     <svg
       aria-hidden
       viewBox="0 0 200 120"
-      className={`${fit === "band" ? "h-full w-auto" : "h-auto w-full max-w-[19rem]"} ${className}`}
+      className={FIT[fit]}
       style={{ color: "var(--ink-2)" }}
       fill="none"
       stroke="currentColor"
@@ -380,6 +389,19 @@ function Room({ of }: { of: Setting }) {
       );
   }
 }
+
+/**
+ * The three shapes this is drawn at, in one place, so no two of them can be
+ * applied to one drawing at once.
+ */
+const FIT = {
+  /** On a briefing, where it takes the width it is given. */
+  block: "h-auto w-full max-w-[19rem]",
+  /** Above a conversation, where it takes the height of the band. */
+  band: "h-full w-auto",
+  /** Under the cover, where a break in time leaves the learner where they were. */
+  inset: "h-auto w-full max-w-[13rem]",
+} as const;
 
 /**
  * WHERE THE PEOPLE IN EACH ROOM ARE, AS NUMBERS RATHER THAN AS STROKES.
