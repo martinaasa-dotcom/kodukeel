@@ -908,13 +908,20 @@ function AddToDeck({ entry }: { entry: EntryView }) {
   );
 
   /*
-    WHICH DECK, ASKED ONLY WHERE THERE IS SOMETHING TO CHOOSE BETWEEN.
+    WHICH DECK, ASKED ONCE THE LEARNER HAS NAMED ONE.
 
-    A learner with no named shelf of their own, or exactly one, has nothing to
-    decide: the word goes into the one place it was always going to go, and
-    asking anyway would be a popup nobody needed. Fetched on open rather than
-    carried on every dictionary entry, since most searches never reach this
-    panel at all.
+    The gate was two decks, on the argument that with exactly one shelf the
+    word goes into the one place it was always going to go. It does not: a
+    word added without this section reaches no shelf at all, so what one deck
+    actually bought was a shelf somebody had deliberately named and the app
+    then never offered. Zero decks is the whole of the case with nothing to
+    decide, and there the argument is sound, because the only honest option
+    would be one nobody has created. Fetched on open rather than carried on
+    every dictionary entry, since most searches never reach this panel at all,
+    and fetched again on every open rather than once per word: `staleTimes`
+    holds a rendered page in the router cache for thirty seconds, so a learner
+    who goes and names their first deck and comes straight back is looking at
+    the very component that already cached the empty answer.
 
     THE CHECKBOXES START WHERE THE WORD ALREADY IS, NOT EMPTY. This is a
     replace, the same as the card-type list beside it: whatever is ticked
@@ -926,24 +933,30 @@ function AddToDeck({ entry }: { entry: EntryView }) {
   const [decks, setDecks] = useState<DeckSummary[] | null>(null);
   const [deckIds, setDeckIds] = useState<string[]>([]);
   useEffect(() => {
-    if (!open || decks !== null) return;
+    if (!open) return;
+    let cancelled = false;
     Promise.all([listMyDecks(), myDeckMembership(entry.id)])
-      .then(([available, current]) => { setDecks(available); setDeckIds(current); })
-      .catch(() => setDecks([]));
-  }, [open, decks, entry.id]);
+      .then(([available, current]) => {
+        if (cancelled) return;
+        setDecks(available);
+        setDeckIds(current);
+      })
+      .catch(() => { if (!cancelled) setDecks([]); });
+    return () => { cancelled = true; };
+  }, [open, entry.id]);
 
   const submit = () => {
     start(async () => {
       /*
-        `deckIds` is sent only where the panel actually offered a choice
-        (two or more decks): with fewer, the argument is left out entirely
-        rather than sent as `[]`, because those two mean different things to
-        `addToDeck` — an omitted argument leaves every shelf exactly as it
-        is, an empty list is "take it off all of them" — and a learner who
-        never saw a deck section never asked for either.
+        `deckIds` is sent only where the panel actually offered a choice,
+        which is any learner holding a deck of their own. With none, the
+        argument is left out entirely rather than sent as `[]`, because those
+        two mean different things to `addToDeck`: an omitted argument leaves
+        every shelf exactly as it is, an empty list is "take it off all of
+        them", and a learner who never saw a deck section asked for neither.
       */
       const result = await addToDeck(
-        entry.id, selected, undefined, decks && decks.length > 1 ? deckIds : undefined,
+        entry.id, selected, undefined, decks && decks.length > 0 ? deckIds : undefined,
       );
       if (result.ok) { setAdded(true); setOpen(false); }
     });
@@ -978,7 +991,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
           </label>
         ))}
       </div>
-      {decks && decks.length > 1 && (
+      {decks && decks.length > 0 && (
         <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
           <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which deck?</p>
           <div className="flex flex-col gap-2">

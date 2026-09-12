@@ -1,4 +1,8 @@
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/db";
+import { likeLiteral } from "@/lib/dict/search";
+import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
 
 /**
  * A LEARNER'S OWN SHELVES, LAYERED OVER THE ONE REVIEW POOL.
@@ -12,10 +16,13 @@ import { prisma } from "@/lib/db";
  * pool, it is simply unfiled, which is the ordinary state for everybody who
  * has never opened this screen.
  *
- * That is also what keeps the picker rare rather than routine: a learner
- * with zero decks of their own has one shelf, the whole of their deck, and
- * `decksFor` reports that as nothing to choose between. Only once somebody
- * has actually named a second shelf does adding a word become a question.
+ * That is what keeps the picker rare rather than routine: a learner with no
+ * deck of their own is offered nothing, because the only option would be one
+ * nobody has created. The gate used to be two, on the reasoning that with one
+ * shelf a word goes where it was always going to go, and that was wrong in a
+ * way somebody hit on the day they named their first deck: a word added
+ * without the picker reaches no shelf at all, so one deck bought a name the
+ * app then never offered.
  */
 
 const MAX_DECK_NAME = 60;
@@ -155,4 +162,103 @@ export async function setDecksForWord(
       }),
     )),
   ]);
+}
+
+/**
+ * THE LEARNER'S OWN WORDS THAT ARE NOT YET ON THIS SHELF, NEWEST FIRST.
+ *
+ * Every other way into a deck files a word at the moment it is added, and
+ * only the dictionary's panel ever offered the choice: a word kept from
+ * Sonad, from the word of the day, from a glossed sentence or from a drill
+ * lands unfiled, and until this there was no way to file it afterwards. The
+ * deck screen could take a word off a shelf and never put one on.
+ *
+ * Newest first rather than alphabetically, because the word somebody came
+ * here to file is nearly always the one they just kept, so the common case
+ * is a list they do not have to search at all. That is also why it is worth
+ * the group: `Card.createdAt` is when the learner took the word, and a word
+ * is several cards, so the newest of them is when the word arrived.
+ *
+ * Bounded in SQL rather than in the client. The pairing rule about `take`
+ * beside `distinct` is the reason this is raw: Prisma deduplicates in the
+ * client, so `distinct` here would read every card a learner holds to hand
+ * back twenty rows, on a screen where they are waiting.
+ *
+ * FOLDED, through the one table every other search here folds with, because
+ * a learner with no diacritic key cannot type the word they are looking for
+ * and this is a search box like any other. The English side is not folded,
+ * since a gloss carries none of the six.
+ */
+export async function wordsToFile(
+  ownerId: string, deckId: string, query: string, limit = 20,
+): Promise<DeckWordRow[]> {
+  const owns = await prisma.deck.count({ where: { id: deckId, ownerId } });
+  if (owns === 0) return [];
+
+  const q = query.trim();
+  const wanted = Math.min(Math.max(limit, 1), 50);
+  /*
+    An empty box is the ordinary way in, so it drops the clause rather than
+    binding a `true` the planner then has to be told to ignore. Branching in
+    SQL on a bound boolean would also be the one part of this query whose
+    behaviour depends on how the driver types a JavaScript value, which is
+    exactly the kind of thing to take out of a statement nothing can unit test.
+  */
+  const match = q === "" ? Prisma.empty : Prisma.sql`
+    AND (
+      translate(lower(l.lemma), ${FOLD_FROM}, ${FOLD_TO})
+          LIKE ${`%${likeLiteral(fold(q))}%`} ESCAPE '\\'
+      OR lower(l.translation)
+          LIKE ${`%${likeLiteral(q.toLowerCase())}%`} ESCAPE '\\'
+    )`;
+
+  return prisma.$queryRaw<DeckWordRow[]>`
+    SELECT l.id AS "lexemeId", l.lemma AS lemma, l.translation AS translation
+    FROM "Lexeme" l
+    JOIN (
+      SELECT "lexemeId", MAX("createdAt") AS added
+      FROM "Card"
+      WHERE "ownerId" = ${ownerId} AND "lexemeId" IS NOT NULL
+      GROUP BY "lexemeId"
+    ) c ON c."lexemeId" = l.id
+    WHERE NOT EXISTS (
+      SELECT 1 FROM "DeckWord" d
+      WHERE d."lexemeId" = l.id AND d."deckId" = ${deckId}
+    )
+    ${match}
+    -- Ordered because it is truncated, and ending on the id because it is
+    -- ordered on a column that ties: a word's cards are written in one
+    -- createMany with one createdAt, so two words taken in the same add
+    -- share this key exactly and which of them made the cut would otherwise
+    -- be the planner's to decide.
+    ORDER BY c.added DESC, l.id ASC
+    LIMIT ${wanted}
+  `;
+}
+
+/**
+ * Files one word the learner already holds under one shelf they already own.
+ *
+ * Both halves are checked rather than trusted, because this is reached from a
+ * `"use server"` export and neither id is ours: the deck, so nobody files a
+ * word onto a stranger's shelf by guessing, and the card, so a shelf only
+ * ever names words that are in the learner's own review pool. Writes nothing
+ * but the membership row, so it cannot move a schedule, a grade or a count.
+ */
+export async function fileWordInDeck(
+  ownerId: string, deckId: string, lexemeId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const [deck, held] = await Promise.all([
+    prisma.deck.count({ where: { id: deckId, ownerId } }),
+    prisma.card.count({ where: { ownerId, lexemeId } }),
+  ]);
+  if (deck === 0) return { ok: false, error: "That deck is not yours." };
+  if (held === 0) return { ok: false, error: "Add that word to your deck first." };
+
+  await prisma.deckWord.upsert({
+    where: { deckId_lexemeId: { deckId, lexemeId } },
+    create: { ownerId, lexemeId, deckId },
+    update: {},
+  });
+  return { ok: true };
 }

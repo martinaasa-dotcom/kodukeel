@@ -36,8 +36,8 @@ import { parseItems, sanitiseItems, serialiseItems } from "@/lib/scan/items";
 import { translateSentenceWithAnu } from "@/lib/tutor/translate";
 import { resolveStreakFor } from "@/lib/progress/summary";
 import {
-  createDeck, decksForWord, deleteDeck, listDecks, removeWordFromDeck, renameDeck,
-  setDecksForWord, wordsInDeck,
+  createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
+  removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "@/lib/progress/decks";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { isTimeZone } from "@/lib/time/day";
@@ -166,6 +166,21 @@ export async function myDeckMembership(lexemeId: string) {
 /** Every word on one shelf, for the deck management page. */
 export async function listMyDeckWords(deckId: string) {
   return wordsInDeck(await requireUserId(), String(deckId ?? ""));
+}
+
+/**
+ * The learner's own words that are not on this shelf yet, newest first, for
+ * filing something after the fact. Every round that keeps a word files it
+ * under nothing, so this is the only way onto a shelf for a word kept from
+ * Sonad, a glossed sentence, the word of the day or a drill.
+ */
+export async function myWordsToFile(deckId: string, query: string) {
+  return wordsToFile(await requireUserId(), String(deckId ?? ""), String(query ?? ""));
+}
+
+/** Puts one word the learner already holds onto one shelf they already own. */
+export async function fileMyWord(deckId: string, lexemeId: string) {
+  return fileWordInDeck(await requireUserId(), String(deckId ?? ""), String(lexemeId ?? ""));
 }
 
 /** Takes one word off one shelf. The word, its cards and its history stay. */
