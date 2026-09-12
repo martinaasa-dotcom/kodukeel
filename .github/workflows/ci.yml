@@ -371,6 +371,15 @@ jobs:
       # It adds rows and removes them, so it is runnable twice and leaves the
       # database as it found it for everything after it.
       - run: node scripts/test-calendar.mjs
+      # A learner's own shelves. Nothing drove these screens, which is how the
+      # dictionary's deck picker came to be gated on holding two decks: every
+      # unit test and every invariant was true, and a learner who named their
+      # first shelf was offered it nowhere. It creates decks, files words onto
+      # them and removes both, so it is runnable twice and leaves the database
+      # as it found it for everything after it, which matters more here than
+      # usual: a deck of this learner's own changes what the dictionary's add
+      # panel draws for every suite that follows.
+      - run: node scripts/test-decks.mjs
       # Paper to deck, driven end to end with only the model stubbed: the
       # picture leaving the device, the confirmation list, a ticked word
       # becoming a card, and the review session asking about it.
