@@ -201,6 +201,64 @@ describe("every conversation happens somewhere", () => {
     }
   });
 
+  /*
+    AND EVERY ONE OF THEM STANDS ON THE FLOOR, FAR ENOUGH APART TO BE TWO
+    PEOPLE.
+
+    `Person` is six lines about a centre: a head of radius 8, legs reaching
+    nine either side and a pair of resting arms reaching eleven. Two marks
+    closer together than that are not two people in a room, they are one
+    scribble, and that is how this table shipped: the stairwell put a queue
+    twenty-two units off the learner and their arms met exactly, the pharmacy
+    stood its own waiting customer eighteen units off the one a curveball adds,
+    and the interloper was put down beyond the counter in five rooms, where
+    there is no floor at all and the furniture is drawn over the legs.
+
+    Read off the drawing rather than typed here, floor included, because the
+    numbers that have to agree are the drawing's own. A room too narrow for a
+    fourth figure is a room where two of them would overlap, and this is what
+    says so before anybody screenshots it.
+  */
+  it("stands every figure on the floor, far enough apart to be two people", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    const floor = drawn.match(/d="M (\d+) 101 H (\d+)"/);
+    expect(floor, "the drawing has no floor to stand anybody on").toBeTruthy();
+    const [from, to] = [Number(floor![1]), Number(floor![2])];
+
+    /* Half a figure: the widest thing a resting one reaches is its arms. */
+    const REACH = 11;
+    /* Legs, which is what has to be over floor rather than over furniture. */
+    const STANCE = 9;
+
+    const rows = [...drawn.matchAll(
+      /^ {2}(\w+): \{ you: (\d+), them: \{ x: (\d+), y: (\d+) \}, behind: (\d+), beside: (\d+),/gm,
+    )];
+    expect(rows.length, "no rooms read out of MARKS").toBeGreaterThan(10);
+
+    for (const [, room, you, themX, themY, behind, beside] of rows) {
+      /*
+        A phone line is not a person: three rooms put `them` above the ringing
+        rather than on a head, and nothing stands there.
+      */
+      const standing = [Number(behind), Number(you), Number(beside)];
+      if (Number(themY) >= 40) standing.push(Number(themX));
+      standing.sort((a, b) => a - b);
+
+      expect(Number(behind), `${room} puts the queue in front of the learner`).toBeLessThan(Number(you));
+      for (const at of standing) {
+        expect(at - STANCE, `${room} stands somebody at ${at}, off the left end of the floor`)
+          .toBeGreaterThanOrEqual(from);
+        expect(at + STANCE, `${room} stands somebody at ${at}, off the right end of the floor`)
+          .toBeLessThanOrEqual(to);
+      }
+      for (let at = 1; at < standing.length; at += 1) {
+        expect(standing[at]! - standing[at - 1]!,
+          `${room} stands two people ${standing[at]! - standing[at - 1]!} apart, which is one scribble`)
+          .toBeGreaterThanOrEqual(REACH * 2);
+      }
+    }
+  });
+
   it("answers for a scene it has never heard of rather than throwing", () => {
     const room = sceneryFor("a-scene-nobody-has-written");
     expect(room.icon).toBeTruthy();

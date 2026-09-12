@@ -15046,6 +15046,86 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     }
   }
 
+  /*
+    AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
+
+    Its own comment says it stays inside the room, and the band arrived with the
+    conversation and left with it, so the one screen a learner reads afterwards
+    was the only one of the three drawn in no particular place. Anchored on the
+    phase rather than on a count of `SceneVignette` calls, because the briefing
+    draws one too and a check that only counted them would pass with this one
+    missing.
+  */
+  assert.match(
+    session,
+    /phase === "debrief"[\s\S]{0,3000}?<SceneStage[^>]*[\s\S]{0,400}?stage=\{<SceneVignette/,
+    "the debrief no longer draws the room the conversation happened in, so how it went is read on "
+    + "a screen that could be any of the fourteen",
+  );
+
+  /*
+    AND NO MARK IN THE DRAWING CARRIES ITS RESTING STATE INLINE.
+
+    `Steam` and `Ringing` each shipped an inline `opacity: 0` so a wisp on a
+    nine-hundred millisecond delay was not drawn at full strength before its own
+    animation reached it. An inline style beats every rule in the stylesheet and
+    the reduced-motion block turns those animations off outright: measured on
+    `helistamine` with the preference set, all three arcs of the telephone read
+    back at nought, so a learner who asked for less movement was shown somebody
+    holding a phone with nothing coming out of it, in the three rooms where the
+    line *is* the other side of the conversation. `animation-fill-mode: both`
+    covers the delay from the stylesheet, where the reduced-motion rule can
+    reach it.
+
+    `stick-legs-b` is the one exception and it is by name: it is the second of
+    two alternating pairs of legs, and stopping the animation is *supposed* to
+    leave one pair standing rather than four legs at once.
+  */
+  {
+    const drawn = code("components/scene/SceneVignette.tsx");
+    for (const match of drawn.matchAll(/className=\{?[`"]([^`"]*stick-[^`"]*)[`"][^>]*?\/>/gs)) {
+      const [tag, classes] = [match[0], match[1] ?? ""];
+      if (classes.includes("stick-legs-b")) continue;
+      assert.ok(
+        !/style=\{\{\s*opacity/.test(tag),
+        `a mark in the room carries its resting opacity inline (${classes.trim()}): the `
+        + "reduced-motion rule takes the animation away and cannot take that with it, so the mark "
+        + "is drawn at nought for anybody who asked for less movement",
+      );
+    }
+    for (const name of ["stick-arc", "stick-steam"]) {
+      assert.match(
+        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]*infinite both;`),
+        `.${name} no longer fills backwards, so the mark it draws is at full strength through its `
+        + "own delay or at nought once the animation is taken away",
+      );
+    }
+  }
+
+  /*
+    AND ONE OF THE TWO ROOMS OF A MOVE IS GONE WHERE NOTHING MOVES.
+
+    `SceneInterlude` stacks the room being left and the room being arrived in
+    `absolute inset-0` so they can pass through each other, and the one going
+    out ends its animation at nought. Stopping both animations, which is what
+    the reduced-motion block does, leaves both at full strength in one box: a
+    learner who asked for less movement was shown their kitchen and the shop
+    drawn on top of one another, on the one screen whose whole job is saying
+    which of the two they are in now.
+  */
+  {
+    const cover = code("components/scene/SceneInterlude.tsx");
+    const sheet = code("app/globals.css");
+    assert.match(
+      cover, /scene-room-out absolute inset-0[\s\S]{0,300}?scene-room-in absolute inset-0/,
+      "the two rooms of a move are no longer stacked, so the rule below is about nothing",
+    );
+    assert.match(
+      sheet, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.scene-room-out \{[^}]*display: none/,
+      "the room being left is still drawn where nothing moves, so a move shows two rooms at once",
+    );
+  }
+
   const stage = code("components/scene/SceneStage.tsx");
   /*
     Inside the bar rather than beside it: two sticky elements at one offset are

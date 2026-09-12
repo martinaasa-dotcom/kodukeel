@@ -62,8 +62,12 @@ const { check, absent, done } = suite("A conversation, end to end", {
     is drawn and a band that sticks are the same markup, and one for the role
     card's own line, which was marked sticky on an element that could not move
     and had never been looked at from a scrolled page.
+
+    And two more for the debrief, which its own comment says stays inside the
+    room and which drew none: that the band is still there once the
+    conversation has ended, and that nobody is talking in it.
   */
-  floor: 54,
+  floor: 56,
 });
 
 /*
@@ -637,6 +641,7 @@ await page.waitForSelector("text=/What you got done/i", { timeout: TURN_MS });
 
 const debrief = await page.locator("main").innerText();
 check("leaving ends in a debrief rather than a reproach", /What you got done/i.test(debrief));
+
 check("which says what happened, in one line", /You left the desk|came back|That is a thing people do/i.test(debrief));
 check("counts what you got done rather than scoring it", /\d+ of \d+ things you came in to get done/.test(debrief));
 check("and prints no percentage anywhere", !/\d+\s*%/.test(debrief));
@@ -661,6 +666,30 @@ const drill = page.locator('main a[href^="/review/"]').first();
 check("points at a drill rather than writing its own advice",
   (await drill.count()) > 0, await drill.getAttribute("href").catch(() => "none"));
 check("and offers the same conversation again", (await page.getByRole("button", { name: /Have it again/i }).count()) > 0);
+
+/*
+  AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
+
+  Its own comment says it stays inside the room, and for a while that was a
+  claim about the bar rather than about the drawing: the band arrived with the
+  conversation and left with it, so the one screen a learner reads afterwards
+  was the only one of the three drawn in no particular place. Nobody is talking
+  on it, because the floor is nobody's once the conversation has ended, and a
+  breath over a room somebody has left is the drawing reporting a fact about a
+  run that is over.
+*/
+const stageAfter = await page.evaluate(() => {
+  const svg = document.querySelector("[data-scene-stage] svg");
+  if (!svg) return null;
+  const box = svg.getBoundingClientRect();
+  return { top: Math.round(box.top), height: Math.round(box.height), say: svg.querySelectorAll(".stick-say").length };
+});
+check("and the room it happened in is still drawn over it",
+  Boolean(stageAfter) && stageAfter.height > 40 && stageAfter.top >= 0,
+  JSON.stringify(stageAfter));
+check("with nobody talking in it, because the conversation is over",
+  Boolean(stageAfter) && stageAfter.say === 0,
+  JSON.stringify(stageAfter));
 
 // ── What was written down ───────────────────────────────────────────────────
 const runs = await prisma.sceneRun.findMany({

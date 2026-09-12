@@ -872,9 +872,27 @@ export function SceneSession({ scene, minutes, unit }: {
       way out is a door on the bar and two buttons at the foot of the debrief
       itself. The pips go, because there is nothing left in play and the
       debrief lists every objective under its own heading.
+
+      AND THE ROOM STAYS, WHICH IS WHAT "INSIDE THE ROOM" HAD BEEN CLAIMING
+      WITHOUT DOING. The band arrived on the conversation and stopped there, so
+      the screen that says how the conversation went was the one screen of the
+      three drawn in no particular place, with an empty bar over a list of what
+      happened at a counter the learner could no longer see. It is the same
+      drawing at the same size, carried across without remounting, so nothing
+      about it arrives a second time.
+
+      Nobody is talking in it and nothing is standing in the way, so it takes
+      neither: the breath says whose floor it is and the floor is nobody's once
+      the conversation has ended, and a queue drawn behind somebody who has
+      already left is a room reporting a fact about a run that is over.
     */
     return (
-      <SceneStage sceneId={scene.id} title={scene.title} place={scene.place}>
+      <SceneStage
+        sceneId={scene.id}
+        title={scene.title}
+        place={scene.place}
+        stage={<SceneVignette sceneId={scene.id} setting={room} fit="band" />}
+      >
         <div className="scene-open">
           <SceneDebrief debrief={debrief} onAgain={() => window.location.reload()} />
         </div>
@@ -1043,10 +1061,20 @@ export function SceneSession({ scene, minutes, unit }: {
     conversation and is exactly when somebody is looking at the box rather than
     at the transcript. Nobody has it while the room is moving, because nobody is
     saying anything under a cover.
+
+    A CONVERSATION NOBODY HAS SPOKEN IN YET IS THEIRS, which is not the same
+    reading and is the one frame it gets wrong. The other side speaks first in
+    every scene, and the briefing says so; the request for that line is sent
+    from an effect, so it is the render *after* the conversation arrives that
+    sets `busy`. For the frame in between there is no turn and nothing in
+    flight, and the learner's own breath was drawn over a room where nobody had
+    said anything at all. Read off the transcript rather than off the wait.
   */
   const saying = moving
     ? null
-    : busy && turns[turns.length - 1]?.who !== "them" ? "them" as const : "you" as const;
+    : (turns.length === 0 || busy) && turns[turns.length - 1]?.who !== "them"
+        ? "them" as const
+        : "you" as const;
   /*
     And what has just come up, which the server says and the screen draws. The
     standing curveball where there is one, and the queue, which never stands as

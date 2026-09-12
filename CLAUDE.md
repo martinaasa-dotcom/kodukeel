@@ -5103,6 +5103,53 @@ further than `nearest`: a card already on screen is not scrolled, because the pr
 rather than to move the page. The offset is the bar plus the room plus the fade under them, which
 is three figures each declared once in `app/globals.css` and read where they are needed.
 
+**And a drawing goes out when somebody asks for less movement, which is how the telephone
+vanished.** `Steam` and `Ringing` each carried an inline `opacity: 0`, so that a wisp on a
+nine-hundred millisecond delay was not drawn at full strength before its turn came. An inline style
+beats every rule in the stylesheet and the reduced-motion block turns those animations off
+outright: measured on `helistamine` with the preference set, all three arcs read back at nought, so
+a learner who asked for less movement was shown somebody holding a phone with nothing coming out of
+it, in the three rooms where the line *is* the other side of the conversation.
+`animation-fill-mode: both` says the same thing where the reduced-motion rule can reach it. **The
+breath arrives and then holds still** for the neighbouring reason: it is drawn over a box somebody
+is typing into for five minutes, and this file's own rule is that a drawing that ticks at the speed
+of a cursor gets read instead of the sentence. It restarts by being drawn again, since the two
+sides are two elements and only one is ever on the page, and the floor moving is the news. **And
+the debrief keeps the room**, which its own comment had been claiming without doing: the screen
+that says how a conversation went was the one of the three drawn in no particular place. No breath
+and no cue on it, because the floor is nobody's once it is over.
+
+**A figure is eighteen units of legs and twenty-two of arms, so two marks closer than that are one
+scribble.** `Marks.beside`, where somebody who has cut in stands, was set beyond the person on the
+other side, and in the five rooms with a counter that is not floor at all: the counter runs to 178
+and the drawing ends at 200, so the figure stood in the furniture with its legs showing through,
+which is the one thing `Person`'s own `behind` exists to prevent. They stand on the learner's side
+of it now, which is also the truer picture, since the way out of `interrupted` is "wait, or say you
+were first"; which way they turn is read off the two numbers rather than typed, or they reach back
+over the learner's head at the person they have just cut in front of. Four more were the same
+arithmetic: the stairwell put a queue twenty-two units off the learner and their arms met exactly,
+the pharmacy stood its own waiting customer eighteen units off the one a curveball adds, the
+clinic's chairs were under the queue's feet, and the floor stopped where the furniture did rather
+than where the thinnest rooms put somebody. `scenery.test.ts` reads the floor and every row of `MARKS` out of the drawing and holds
+all of it, on the floor, in order and far enough apart, made to fail both ways first. A room too
+narrow for a fourth figure is a room where two of them overlap, and that is what says so before
+anybody screenshots it.
+
+**And three more the drawing had, each in a state a screenshot of the ordinary case does not
+reach.** The ground `.scene-sticky::before` brings with the pinned role card reached half a rem
+over the pill's top edge, and a flat rectangle of `--ground` over the room's own light has two hard
+vertical edges and a hard top one: in the dark theme it read as a grey slab hung under the drawing,
+which is the seam `.scene-top::after` exists one element up to prevent. It begins at the pill's own
+midline now, behind an opaque surface, so what shows is the tail that was doing the work. The
+band's height came off a **width** breakpoint and a phone on its side is short rather than narrow:
+at 844x390 the bar and the room came to 185 pixels of a 390 pixel screen, and the objective and the
+box a learner types into could not be on screen together with the room at all, so under 560 pixels
+of height it is 4.25rem, measured in `test-mobile.mjs`, since every other check here pins the
+height at 844 or 900. And a **move drew both rooms at once** for anybody who asked for less
+movement: the two are stacked `absolute inset-0` so they can pass through each other and the one
+going out ends at nought, so stopping both animations left a kitchen and a shop on top of one
+another on the one screen whose job is saying which of the two you are in.
+
 **The gate has eight checks, and the three that arrived late were each a line a learner read.**
 `Kust sina nüüd tuleb?` is inside the scene's word list, in the right register, governs nothing and
 claims no number, so five checks passed a line that is not the language. Vouching asks whether a

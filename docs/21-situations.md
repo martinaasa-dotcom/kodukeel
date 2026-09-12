@@ -3933,3 +3933,92 @@ weekday is a weekday in both languages, so there is no sense to choose between
 and `means` is not on that spec at all; the suite asserts each of them glosses
 to exactly one sense, so the day that stops being true it says so rather than a
 card quietly printing two.
+
+## §67 The room drawn for everybody, and nobody standing inside the furniture
+
+§64 put the room on the bar and left four things unfinished. Each of them is
+the kind that survives a screenshot of the ordinary case, which is why they were
+still there a day later: none is visible from the code, two need a preference
+set or a screen turned on its side to reach at all, and the one that is plainly
+visible is only visible in a room a fixture has no reason to open.
+
+**A drawing that goes out when somebody asks for less movement.** `Steam` and
+`Ringing` each carried an inline `opacity: 0` so a wisp on a nine-hundred
+millisecond delay was not drawn at full strength before its own animation
+reached it. An inline style beats every rule in the stylesheet, and the
+reduced-motion block turns those animations off outright. Measured on
+`helistamine` with the preference set, all three arcs of the telephone read back
+at nought: a learner who asks for less movement was shown a person holding a
+phone with nothing coming out of it, in the three rooms where the line *is* the
+other side of the conversation. `animation-fill-mode: both` says the same thing
+in the stylesheet, where the reduced-motion rule can take it away with the
+animation, and the inline style is gone.
+
+**The screen that says how it went was drawn in no room at all.** The debrief's
+own comment says it stays inside the room, and the band arrived with the
+conversation and left with it, so the one screen a learner reads afterwards was
+the one with an empty bar over it. It is the same drawing carried across, with
+no breath and no cue: the floor is nobody's once the conversation has ended,
+and a queue drawn behind somebody who has already left is a room reporting a
+fact about a run that is over.
+
+**And a cue stood people inside the counter.** `Marks.beside` is where somebody
+who has cut in stands, and it was set beyond the person on the other side. In
+the five rooms with a counter that is not floor: the counter runs to 178 and the
+drawing ends at 200, so the figure came out standing in the furniture with its
+legs showing through, which is the one thing `Person`'s own `behind` exists to
+prevent. They stand on the learner's side of it now, which is the truer picture
+as well, since the way out of `interrupted` is "wait, or say you were first" and
+somebody you could have been first to is somebody who stepped in front of you.
+Which way they turn is read off the two numbers rather than typed, or they reach
+back over the learner's head at the person they have just cut in front of.
+
+**A figure is eighteen units of legs and twenty-two of arms**, so two marks
+closer together than that are not two people, they are one scribble. The stairwell
+put a queue twenty-two units off the learner and their arms met exactly; the
+pharmacy stood its own waiting customer eighteen units off the one a curveball
+adds; the clinic's chairs were under the queue's feet; and the floor stopped
+where the furniture did, seventeen units short of where the thinnest rooms put
+somebody. `scenery.test.ts` reads the floor and every row of `MARKS` out of the
+drawing and holds all of it: on the floor, in order, far enough apart. Made to
+fail both ways first. Six rooms moved, and `restaurant`, `stairwell` and
+`home_phone` moved a person of their own to make room.
+
+## §68 Three more the drawing had, and none of them visible from the code
+
+The round above found three faults by looking at the thing rather than at the
+file it comes out of. These are the three that were left, and each of them is
+in a state a screenshot of the ordinary case does not reach.
+
+**The ground under the pinned card was a slab.** `.scene-sticky::before` brings
+`--ground` with the role card so the conversation scrolling under it does not
+run out either side of the line, and it reached half a rem over the pill's top
+edge. A flat rectangle of ground laid over the room's own light has two hard
+vertical edges and a hard top one, and measured in the dark theme it read as a
+grey slab hung under the drawing with a seam across the screen, which is the
+fault `.scene-top::after` exists one element up to prevent. It buys nothing,
+because the pill pins at the bottom of that fade with no gap between them and
+its own surface is opaque. It begins at the pill's own midline now, so the only
+part of it anybody sees is the tail that was doing the work.
+
+**The band was sized against the wrong axis.** Its height comes off a width
+breakpoint, and a phone on its side is short rather than narrow: at 844x390 it
+took the larger figure and the bar plus the room came to 185 pixels of a 390
+pixel screen, 47%, leaving a transcript and an ask panel in 205, with the
+objective and the box the learner types into unable to be on screen together
+with the room at all. A room nobody can answer from is not context, it is a
+wall. Under 560 pixels of height it is 4.25rem, which is 32% of the bar and the
+room together and still two people and a counter; `test-mobile.mjs` is where
+that is measured, since every other check in this repository pins the height at
+844 or 900 and none of them could see it.
+
+**And a move drew both rooms at once for anybody who asked for less movement.**
+The room being left and the room being arrived in are stacked `absolute
+inset-0` so they can pass through each other, and the one going out ends its
+animation at nought. The reduced-motion block stops both animations, which
+leaves both at full strength in one box: a learner reading "you have walked to
+the shop" was shown their kitchen and the shop drawn on top of one another, on
+the one screen whose whole job is saying which of the two they are in now.
+`SceneInterlude`'s own comment has claimed since it was written that the second
+room is simply there; the leaving one is `display: none` now, which is what
+makes that true.

@@ -110,8 +110,15 @@ export function SceneVignette({ sceneId, setting, speaking = null, cue = null, f
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {/* The floor they are all standing on, quieter than they are. */}
-      <path d="M 22 101 H 178" stroke="var(--rule)" strokeWidth={2} />
+      {/*
+        The floor they are all standing on, quieter than they are. It runs
+        nearly the width of the drawing rather than stopping where the
+        furniture does, because a cue can put somebody down further out than
+        anything a room draws: a queue forms to the left of whoever is already
+        there, and in the thinner rooms that is a pair of feet a dozen units
+        past the end of a floor that stopped at the counter.
+      */}
+      <path d="M 8 101 H 192" stroke="var(--rule)" strokeWidth={2} />
       <Room of={room} />
       {/*
         WHO HAS THE FLOOR, DRAWN OVER THE ROOM RATHER THAN INSIDE IT.
@@ -181,23 +188,39 @@ function Counter({ from = 106, to = 178 }: { from?: number; to?: number } = {}) 
   return <path d={`M ${from} 76 H ${to} V 101 M ${from} 76 V 101`} />;
 }
 
-/** Warmth coming off something, in the drawing's own units. */
+/**
+ * Warmth coming off something, in the drawing's own units.
+ *
+ * NO INLINE `opacity: 0`, WHICH IS WHAT MAKES IT SURVIVE REDUCED MOTION. Both
+ * this and `Ringing` used to carry one, so that a wisp on a nine-hundred
+ * millisecond delay was not drawn at full strength before its own animation
+ * reached it. An inline style beats every rule in the stylesheet, and the
+ * reduced-motion block turns these animations off outright: measured on
+ * `helistamine` with the preference set, all three arcs of the telephone read
+ * back at opacity 0, so a learner who asks for less movement was shown a
+ * person holding a phone with nothing coming out of it, in the three rooms
+ * where the line *is* the other side of the conversation. The delay is
+ * covered by `animation-fill-mode: both` instead, which does the same job and
+ * leaves nothing behind when the animation is taken away.
+ */
 function Steam({ x, y }: { x: number; y: number }) {
   return (
     <>
       {[1, 2, 3].map((at) => (
-        <path
-          key={at}
-          className={`stick-steam amb-${at}`}
-          d={`M ${x + at * 4} ${y} v -8`}
-          style={{ opacity: 0 }}
-        />
+        <path key={at} className={`stick-steam amb-${at}`} d={`M ${x + at * 4} ${y} v -8`} />
       ))}
     </>
   );
 }
 
-/** A line going out, which is a telephone seen from the outside. */
+/**
+ * A line going out, which is a telephone seen from the outside.
+ *
+ * Carries no resting opacity of its own, for the reason `Steam` above gives at
+ * length: this is the only mark saying there is somebody on the other end in
+ * `shop`, `walking` and `home_phone`, and an inline style is what took it off
+ * the screen for anybody who had asked for less movement.
+ */
 function Ringing({ x, y }: { x: number; y: number }) {
   return (
     <>
@@ -206,7 +229,6 @@ function Ringing({ x, y }: { x: number; y: number }) {
           key={at}
           className={`stick-arc amb-${at}`}
           d={`M ${x + at * 10} ${y - at * 3} a ${9 + at * 5} ${9 + at * 5} 0 0 1 0 ${18 + at * 6}`}
-          style={{ opacity: 0 }}
         />
       ))}
     </>
@@ -219,8 +241,11 @@ function Room({ of }: { of: Setting }) {
       // A reception desk, and the chairs you wait in to reach it.
       return (
         <>
-          <path d="M 20 101 V 89 h 11 V 101 M 20 89 V 79" />
-          <path d="M 38 101 V 89 h 11 V 101 M 38 89 V 79" />
+          {/* Shifted left off `behind`, which is where a queue stands: a pair
+              of legs drawn through a waiting-room chair is the same giveaway
+              as a pair drawn through a counter. */}
+          <path d="M 12 101 V 89 h 11 V 101 M 12 89 V 79" />
+          <path d="M 26 101 V 89 h 11 V 101 M 26 89 V 79" />
           <Person x={76} />
           <Counter />
           <Person x={142} arms="out" behind facing="left" className="stick-nod" />
@@ -232,7 +257,7 @@ function Room({ of }: { of: Setting }) {
       // waiting behind you, which is what makes a pharmacy a pharmacy.
       return (
         <>
-          <Person x={26} className="amb-queue" />
+          <Person x={18} className="amb-queue" />
           <Person x={70} />
           <path d="M 154 28 v 16 M 146 36 h 16" />
           <Counter />
@@ -269,11 +294,11 @@ function Room({ of }: { of: Setting }) {
       // restaurant rather than a counter: you sit and they come to you.
       return (
         <>
-          <Person x={40} />
+          <Person x={44} />
           <path d="M 72 78 H 138 M 78 78 V 101 M 132 78 V 101" />
           <ellipse cx={104} cy={75} rx={11} ry={3.5} />
           <Steam x={96} y={70} />
-          <Person x={166} arms="out" facing="left" className="stick-nod" />
+          <Person x={160} arms="out" facing="left" className="stick-nod" />
         </>
       );
 
@@ -330,8 +355,8 @@ function Room({ of }: { of: Setting }) {
       // The stairs in your own building, which is where you meet a neighbour.
       return (
         <>
-          <Person x={36} />
-          <Person x={84} arms="out" facing="left" className="stick-nod" />
+          <Person x={44} />
+          <Person x={96} arms="out" facing="left" className="stick-nod" />
           <path d="M 112 101 h 18 v -13 h 18 v -13 h 18 v -13 h 16" />
         </>
       );
@@ -367,7 +392,9 @@ function Room({ of }: { of: Setting }) {
       // Your own place, and somebody on the other end of a line.
       return (
         <>
-          <path d="M 20 101 V 60 L 62 34 L 104 60 V 101" />
+          {/* Eaves raised and the ridge with them, so a second head on the
+              left of the room is under the roof rather than through it. */}
+          <path d="M 20 101 V 56 L 62 30 L 104 56 V 101" />
           <Person x={62} arms="phone" />
           <Ringing x={122} y={48} />
         </>
@@ -433,7 +460,23 @@ interface Marks {
   readonly them: { readonly x: number; readonly y: number };
   /** Where somebody joining the queue behind the learner stands. */
   readonly behind: number;
-  /** Where somebody with a claim on the other side stands. */
+  /**
+   * Where somebody who has cut in on the learner stands.
+   *
+   * ON FLOOR THIS ROOM ACTUALLY HAS, WHICH IS WHAT THE FIRST VERSION GOT
+   * WRONG. It put them beyond the person on the other side, and in the five
+   * rooms with a counter that is not floor at all: a counter runs to 178 and
+   * the drawing ends at 200, so the figure came out standing inside the
+   * furniture with its legs showing through, which is the one thing `Person`'s
+   * own `behind` exists to prevent and the one thing this file says would give
+   * the whole drawing away.
+   *
+   * Where the room has a counter or a wall in the way they stand on the
+   * learner's side of it, which is also the truer picture: the curveball is
+   * `interrupted`, the way out of it is "wait, or say you were first", and
+   * somebody you could have been first to is somebody who stepped in front of
+   * you rather than somebody standing behind the till.
+   */
   readonly beside: number;
   /**
    * The top left of a sheet of paper: on the counter or the table where the
@@ -445,22 +488,22 @@ interface Marks {
 }
 
 const MARKS: Readonly<Record<Setting, Marks>> = {
-  clinic: { you: 76, them: { x: 142, y: 48 }, behind: 48, beside: 168, thing: { x: 120, y: 64 } },
-  pharmacy: { you: 70, them: { x: 142, y: 48 }, behind: 44, beside: 168, thing: { x: 126, y: 64 } },
-  office: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 168, thing: { x: 136, y: 62 } },
-  cafe: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 168, thing: { x: 136, y: 64 } },
-  restaurant: { you: 40, them: { x: 166, y: 48 }, behind: 16, beside: 188, thing: { x: 120, y: 64 } },
+  clinic: { you: 76, them: { x: 142, y: 48 }, behind: 48, beside: 98, thing: { x: 120, y: 64 } },
+  pharmacy: { you: 70, them: { x: 142, y: 48 }, behind: 44, beside: 96, thing: { x: 126, y: 64 } },
+  office: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 90, thing: { x: 136, y: 62 } },
+  cafe: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 90, thing: { x: 136, y: 64 } },
+  restaurant: { you: 44, them: { x: 160, y: 48 }, behind: 18, beside: 182, thing: { x: 120, y: 64 } },
   /* Nobody is in the room with you: the shop is the shelves and the voice is a phone. */
-  shop: { you: 44, them: { x: 140, y: 28 }, behind: 18, beside: 84, thing: { x: 78, y: 60 } },
-  returns: { you: 58, them: { x: 144, y: 48 }, behind: 30, beside: 170, thing: { x: 136, y: 62 } },
+  shop: { you: 44, them: { x: 140, y: 28 }, behind: 18, beside: 66, thing: { x: 78, y: 60 } },
+  returns: { you: 58, them: { x: 144, y: 48 }, behind: 30, beside: 90, thing: { x: 136, y: 62 } },
   /* The window you buy at is in the bus, so that is where the answer comes from. */
   bus: { you: 44, them: { x: 106, y: 46 }, behind: 18, beside: 70, thing: { x: 84, y: 62 } },
   street: { you: 54, them: { x: 122, y: 48 }, behind: 28, beside: 148, thing: { x: 98, y: 62 } },
-  stairwell: { you: 36, them: { x: 84, y: 48 }, behind: 14, beside: 106, thing: { x: 60, y: 62 } },
+  stairwell: { you: 44, them: { x: 96, y: 48 }, behind: 18, beside: 70, thing: { x: 70, y: 62 } },
   walking: { you: 62, them: { x: 150, y: 28 }, behind: 30, beside: 142, thing: { x: 78, y: 56 } },
-  classroom: { you: 56, them: { x: 150, y: 48 }, behind: 28, beside: 176, thing: { x: 126, y: 62 } },
+  classroom: { you: 56, them: { x: 150, y: 48 }, behind: 28, beside: 100, thing: { x: 126, y: 62 } },
   meeting: { you: 48, them: { x: 156, y: 48 }, behind: 22, beside: 180, thing: { x: 78, y: 64 } },
-  home_phone: { you: 62, them: { x: 160, y: 28 }, behind: 34, beside: 96, thing: { x: 78, y: 62 } },
+  home_phone: { you: 62, them: { x: 160, y: 28 }, behind: 38, beside: 180, thing: { x: 78, y: 62 } },
 };
 
 /**
@@ -469,8 +512,10 @@ const MARKS: Readonly<Record<Setting, Marks>> = {
  *
  * The same shape as `Ringing`, smaller and turned: a telephone throws its
  * sound out in rings and a person throws it at the person opposite, so these
- * open on the side the speaker is facing. Staggered on the same three delays
- * everything else in the drawing uses, so the room keeps one rhythm.
+ * open on the side the speaker is facing. On three delays of their own rather
+ * than the room's, which are two seconds apart to keep the ambience out of
+ * phase with itself: this is one thing happening at one moment, and it arrives
+ * and then holds still rather than pulsing beside somebody who is typing.
  */
 function Saying({ x, y, facing }: { x: number; y: number; facing: "left" | "right" }) {
   const d = facing === "left" ? -1 : 1;
@@ -486,7 +531,7 @@ function Saying({ x, y, facing }: { x: number; y: number; facing: "left" | "righ
         */
         <path
           key={at}
-          className={`stick-say amb-${at}`}
+          className={`stick-say say-${at}`}
           d={`M ${x + (at - 1) * 5 * d} ${y - at * 2} a ${5 + at * 3} ${5 + at * 3} 0 0 ${sweep} 0 ${8 + at * 4}`}
         />
       ))}
@@ -512,8 +557,22 @@ function Cued({ what, marks }: { what: Cue; marks: Marks }) {
       return <Person x={marks.behind} className="scene-cue" />;
 
     case "another":
-      /* Somebody else with a claim on the person you were talking to. */
-      return <Person x={marks.beside} arms="out" facing="left" className="scene-cue" />;
+      /*
+        Somebody else with a claim on the person you were talking to, turned
+        towards whoever that is rather than towards a side typed in here. They
+        stand on the learner's side of a counter where the room has one, so a
+        fixed `facing` had them reaching back over the learner's head in five
+        rooms and at the person they had just cut in front of. Which way they
+        are pointing is a fact about the two numbers, so it is read off them.
+      */
+      return (
+        <Person
+          x={marks.beside}
+          arms="out"
+          facing={marks.beside < marks.them.x ? "right" : "left"}
+          className="scene-cue"
+        />
+      );
 
     case "paper":
       /*
