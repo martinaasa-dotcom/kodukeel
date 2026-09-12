@@ -5684,6 +5684,15 @@ check("nothing is stored on a device that would need asking first", () => {
     // minutes rather than three. Letters and which clues were shown, never the
     // answers, which are rebuilt on the server to mark it.
     "app/(app)/crossword/resume.ts",
+    // Which card a review round was on, so a detour to its dictionary entry
+    // and back does not read as the round restarting. Never necessary in the
+    // sense the outbox is, since nothing is lost by starting over, but the
+    // same shape of loss the exam and Sõnad resumes exist to prevent: a card
+    // id and nothing else, in `sessionStorage` rather than `localStorage` so
+    // it is gone the moment the tab is, and cleared as soon as the round
+    // itself finishes.
+    "lib/ux/resumePosition.ts",
+    "components/useResumeCard.ts",
   ];
   for (const file of storage) {
     assert.ok(
