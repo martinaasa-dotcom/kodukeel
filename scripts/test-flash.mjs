@@ -181,9 +181,25 @@ check(
   ASK_LINES.some((line) => line.test(opening.text)),
   opening.text.split("\n").slice(0, 4).join(" · "),
 );
+/*
+  THE PANEL SAYS THIS IN TWO SHAPES AND THIS ACCEPTED ONE OF THEM.
+
+  `FlashSession` prints "right 15 times, in 4 forms." once a word has the
+  variety the mastery counter wants and "right 2 of 5 times, in 2 of the 3 forms
+  it needs." while it is short of it. Both say how far along the word is, which
+  is what this check is named after; only the second carries "it needs", so
+  matching that alone made the check a question about which word the round
+  happened to open on. The demo fixture gives `aitama` fifteen right answers
+  across four forms, so it opened on the done shape and this failed while the
+  panel was working perfectly.
+
+  The shape of the whole line instead, which is falsifiable in the way that
+  matters: it fails if the line stops naming the word, the count, or the forms.
+*/
 check(
   "it says how far the word is from being done",
-  /of the \d+ forms? it needs/.test(opening.text),
+  /: right \d+( of \d+)? times?, in \d+( of the \d+)? forms?( it needs)?\./.test(opening.text),
+  opening.text.split("\n").filter((l) => /right \d+/.test(l)).join(" · "),
 );
 
 /*
