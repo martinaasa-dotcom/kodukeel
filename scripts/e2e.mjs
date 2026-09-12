@@ -229,9 +229,9 @@ if (shape === "type") {
 }
 // `intro` presses nothing, deliberately: the answer and the ratings are both
 // already on screen, and this is the one shape where the rating keys were
-// unreachable. A right pick or a right typed answer stays on screen for a
-// second before it grades itself, so the wait outlasts that.
-await page.waitForTimeout(1400);
+// unreachable. A right pick or a right typed answer stays on screen for
+// `VERDICT_PAUSE_MS` before it grades itself, so the wait outlasts that.
+await page.waitForTimeout(3600);
 
 // What is on screen now is one of three things: nothing to do because the
 // answer was marked correct and the card has gone; one button, on a miss or on
