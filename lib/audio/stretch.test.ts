@@ -144,6 +144,73 @@ describe("stretch", () => {
     expect(gap.filter((s) => s === "silence").length).toBeGreaterThan(10);
   });
 
+  /*
+    A WINDOW LAID DOWN OUT OF PHASE CANCELS, AND THAT WAS NOT THEORETICAL.
+
+    The search picks the nearby position that lines up best with the tail of the
+    window before it, and nothing used to check that "best" was any good: where
+    every candidate in the neighborhood was in antiphase, the least bad one was
+    laid down anyway and the two summed to nearly nothing. A pure tone is the
+    hardest case, since every candidate is either in phase or exactly against
+    it, so the argument is visible in one signal rather than only in the
+    aggregate over real clips.
+
+    Measured as the quietest twenty milliseconds inside the tone against the
+    level either side of it, which is what a hole in a word looks like.
+  */
+  it("never sums two windows into a hole", () => {
+    const holeIn = ({ rate, samples }: Samples): number => {
+      const frame = Math.round(rate * 0.02);
+      let worst = 0;
+      const level = (at: number) => {
+        let sum = 0;
+        for (let i = at; i < Math.min(samples.length, at + frame); i++) sum += (samples[i] ?? 0) ** 2;
+        return Math.sqrt(sum / frame);
+      };
+      let peak = 0;
+      for (let at = 0; at + frame <= samples.length; at += frame) peak = Math.max(peak, level(at));
+      for (let at = frame; at + 2 * frame <= samples.length; at += frame) {
+        const near = Math.min(level(at - frame), level(at + frame));
+        if (near < peak * 0.2) continue;
+        worst = Math.min(worst, 20 * Math.log10((level(at) || 1e-12) / near));
+      }
+      return worst;
+    };
+    for (const f0 of [140, 180, 210, 260]) {
+      const clip = build([[0.06, "silence"], [0.5, "tone"], [0.3, "silence"]], f0);
+      for (const rate of [0.5, 0.55, 0.6, 0.65, 0.72, 0.8, 0.85, 0.9, 1.3]) {
+        // A tone has no consonant closures in it, so anything at all is the
+        // overlap-add rather than the signal.
+        expect(holeIn(stretch(clip, rate))).toBeGreaterThan(-3);
+      }
+    }
+  });
+
+  /*
+    THE FIRST WINDOW HAS NOTHING TO OVERLAP AND USED TO FADE ITSELF IN. Two Hann
+    windows a hop apart sum to one, and the first one in the output has no
+    predecessor, so the opening fifteen milliseconds of every stretched clip
+    ramped up from silence. It only ever stayed inaudible because `trimSilence`
+    happened to leave more lead than that in front of the word.
+  */
+  it("opens at full strength rather than fading itself in", () => {
+    // No lead at all, so the first sample of the output is the first sample of
+    // the tone and there is nowhere for a fade to hide.
+    const clip = build([[0.4, "tone"], [0.2, "silence"]]);
+    const out = stretch(clip, 0.7);
+    const rms = ({ samples }: Samples, from: number, to: number) => {
+      let sum = 0;
+      for (let i = from; i < to; i++) sum += (samples[i] ?? 0) ** 2;
+      return Math.sqrt(sum / (to - from));
+    };
+    const hop = Math.round(RATE * 0.015);
+    // The opening hop is as loud as the tone a little further in, within a
+    // decibel; under the old shape it measured about half.
+    const opening = rms(out, 0, hop);
+    const settled = rms(out, hop * 4, hop * 8);
+    expect(20 * Math.log10(opening / settled)).toBeGreaterThan(-1);
+  });
+
   it("plays faster the same way, with the pauses taking the most of it", () => {
     const clip = word();
     const out = stretch(clip, 1.3);

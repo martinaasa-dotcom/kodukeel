@@ -3480,26 +3480,83 @@ remembers the stretched clip beside the original in the same bounded cache, so a
 prefetch cost no work at all, and a slow play works offline wherever the normal one does. Nothing
 in `app/`, `lib/` or `components/` may set `playbackRate` again.
 
-**And the normal play is a little under the recording's pace.** TartuNLP reads at a newsreader's
-clip, which was reported as too quick to be clear for a word somebody is meeting for the first
-time, and the report is right about the recording. `NORMAL_RATE` is 0.9, which is a person
-speaking clearly rather than slowly, and every screen that has not asked for a rate gets it; the
-stretch at that rate is inaudible as a stretch. `SLOW_RATE` is 0.65 of the recording, about seven
-tenths of the normal play, with the vowels about 1.6 times as long and the pauses about 2.5 and
-the consonants untouched, which is the part of Estonian a slow play exists to make audible; it
-could not have been that slow on the browser's stretch, which smeared consonants from about 0.7
-down. The rates are of the recording, not of one another, so a condition's `speed` in
-`lib/audio/conditions.ts` still says what it always said. Measured over six real clips at 0.7: the
-median pitch of the voiced frames moved by at most 5 Hz on a 230 Hz voice and not at all on an 86 Hz
-one, every consonant onset in the clip is one onset in the stretched copy, and a two-second
-sentence takes about 30 ms to stretch in Node.
+**How fast Estonian is read aloud is a fact about the learner, and it was one number for
+everybody.** TartuNLP reads at a newsreader's clip, which is the right pace for the news and the
+wrong one for somebody three weeks into their first course. The everyday play was 0.9 of the
+recording from the first evening to C1, it was reported as too fast to be clear, and there is no
+single number to correct that to: it is true at A1 and false at B2, because a beginner is not
+listening to Estonian, they are picking a word out of it, and what lets them is time inside the
+vowels. `lib/audio/pace.ts` is the ladder, read off the level the app already holds: A1 at 0.6, A2
+at 0.72, B1 at 0.85, and from B2 up the recording at its own pace, which is what a receptionist
+will actually do. Both ends of that are the point, since a learner who never hears Estonian at
+speed has learned a pace rather than a language, and one who only ever hears it at speed has
+learned nothing.
+
+**Which level is `courseLevelFor`'s answer and nothing of that module's own**, or the app would
+hold two readings of the same question and let the speaker button decide. The shell resolves it
+once and publishes it with the voice and the autoplay, so every speaker button, every round and
+every prefetch plays at one rate; a prefetch that warmed a different rate would stretch the clip
+twice and warm neither, which is why the pace travels to `prefetchClip` as well. **And it is a
+default rather than a verdict**: a level is a guess about somebody more often than a measurement,
+"this is too fast for me" is a preference the learner is the authority on, and Settings holds the
+override with `auto` following the level. A caller's own rate (`LEARNING_RATE`, the dictation) is
+a **ceiling** rather than a rate, so a screen asking for a gentler play can never speed anybody
+up, and a **condition's `speed` is a multiple of the learner's pace rather than of the
+recording**: "at speed" was 1.3 for everybody, so an A1 learner met one clip in five at more than
+twice their own pace, which reads as the app forgetting the setting rather than as a hard
+delivery. The slow button is 0.72 of whatever their everyday play is, which keeps the pair this app
+shipped (0.9 and 0.65) as a ratio rather than as two numbers: a fixed 0.65 beside an A1 learner's
+own 0.6 is a control that appears to do nothing. It is floored at 0.5, and **the limit is the vowel
+rather than the arithmetic**: the stretch spends the slowing on the steady sounds and none of it on
+the bursts, so the longest a vowel is held is 2.03 times its own length at 0.6, 2.55 at 0.5 and
+3.05 at 0.43, and past about three the overlap-add stops sounding like a held vowel and starts
+sounding like one warbling. The hole the overlap-add can leave is not what decides that and was
+measured to be sure, since the worst interior dip is within five decibels of the recordings' own all
+the way down to 0.3. What the floor costs is stated rather than hidden: a learner at the slowest
+everyday pace has less room below them than one at full speed, which is what a floor means, and the
+alternative is handing exactly them a warble. Measured over six real
+clips at 0.7: the median pitch of the voiced frames moved by at most 5 Hz on a 230 Hz voice and
+not at all on an 86 Hz one, every consonant onset in the clip is one onset in the stretched copy,
+and a two-second sentence takes about 30 ms to stretch in Node.
+
+**And a window laid down out of phase cancels, which put a hole in the release of a word.** The
+search picks the position near the nominal one that lines up best with the tail of the window
+before it, and nothing checked that "best" was any good: where every candidate in the
+neighbourhood was in antiphase, the least bad one was laid down anyway and the two summed to
+nearly nothing. Measured over thirty real clips as the worst dip against the level a hop either
+side, the recordings' own deepest being 9 dB and a consonant closure: 206 dB at the rate the level
+check reads a dictation at, 41 dB at 0.72, 20 dB at the slow button's own rate. **Where they sit is
+worth saying**, because it is not where the report would put them: every one is in the last ten or
+twenty milliseconds of a word's release, at a point the signal is already 25 dB down, and inside the
+body of the word the old code was within 12 dB of the recordings' own throughout. It is the
+overlap-add running out of content rather than a syllable going missing, so this is an artifact
+removed and **not** the truncation that was reported, which the lead answers instead. A search that
+finds nothing in phase takes the natural continuation, the segment one hop on from the last window,
+which is the one position that cannot cancel because it is what the recording does next; after it no
+rate from 1 down to 0.5 dips more than 13 dB inside the body of a word, against the recordings' own
+9.6. **Exact silence is the exception and takes the nominal
+position**, since a pause has no phase to be on the wrong side of and the continuation walks the
+cursor a whole hop per window where the map wants a fraction of one, so through a pause it runs
+ahead and eats the thing it was lengthening. A floor rather than exact zero was tried and is
+wrong: it puts the vocoder's hiss and a quiet fricative on the same side of the line and cancels
+the fricative. Requiring a normalised correlation above a threshold was tried at nine values and
+is worse at every one of them, erratically, because what the search can find inside eight
+milliseconds is not a quantity with a good cut-off in it.
+
+**And the first window had nothing to overlap, so every stretched clip faded itself in.** Two Hann
+windows a hop apart sum to one, which is what makes the overlap-add transparent, and the first one
+in the output has no predecessor: its rising half stood alone, so the opening fifteen milliseconds
+ramped up from silence. Fifteen milliseconds is exactly where a word-initial consonant lives, and
+it stayed inaudible only because the trim happened to leave more lead than that in front of the
+word. A fade that is invisible because of what another module happened to do is a fault waiting for
+the day it does something else.
 
 **And what the service sends is not what is kept.** The worker pads every sentence with half a
 second of digital silence on each side, so a word on a card arrived as 0.85 seconds of nothing,
 0.39 of speech and 0.5 of nothing again: most of a second between the press and the sound, which is
 the delay that makes a voice feel like a machine warming up, and it was being stored, shipped and
 slowed with the rest. `lib/audio/wav.ts` is what happens to a clip between the service and the
-cache, pure and unit tested: the dead air is cut to 40 ms in front and a natural release behind,
+cache, pure and unit tested: the dead air is cut to `LEAD_MS` in front and a natural release behind,
 the cuts are faded so nothing clicks, every voice is leveled so switching from Mari to Kalev in
 Settings does not mean reaching for the volume key, and the 32-bit float is written as 16-bit PCM,
 which halves the store, the egress and the phone's cache for a signal that never carried more than
@@ -3520,8 +3577,7 @@ on every word, on every press, which is the delay the trimmer was written to rem
 decided frame by frame now, ten milliseconds of RMS against the loudest frame, at -42 dB, which
 takes the hiss at -50 and keeps a word-final `s` at -34 to -38 and a word-initial `h` at -37; a run
 under three frames over the floor with silence either side is a blip in the hiss, since nothing
-anybody says is twenty milliseconds long on its own. The first sound is at 40 ms on every clip
-measured. Second, a text of two sentences comes back as two renderings joined with half a second
+anybody says is twenty milliseconds long on its own. Second, a text of two sentences comes back as two renderings joined with half a second
 of zeros and a hiss ramp on each side, so the gap between "Kuidas läheb?" and "Ma lähen poodi"
 measured 0.8 seconds where a speaker leaves about 0.4: `capPauses` cuts a pause inside the clip to
 450 ms, from its middle, faded at the cut, and touches nothing a word is made of. Third, the voices
@@ -3531,6 +3587,37 @@ at the same peak, because one voice is smoother and the other has a sharper plos
 peak, and all five voices measured land within a tenth of a decibel of one another. The worker's
 cache version moved with the route's key, because a phone holding the old clips would otherwise
 keep the hiss until it evicted them.
+
+**And the lead was a maximum, which means it was whatever the recording happened to have.** The
+trim kept *up to* `LEAD_MS` of the silence in front of the word, so a clip with less got less.
+Measured over thirty real clips, the lead that actually reached a learner ran from **40 ms** on
+`ema`, `kass`, `tuba` and `õde` to **370 ms** on `pea`, decided by nothing but how long that clip's
+own vocoder hiss ran before it crossed the floor. Two words in one round starting a third of a
+second apart from the same press is the same fault as two screens disagreeing about a figure, and
+the short end is the end that hurts: 40 ms is inside the window an output device swallows while it
+opens a stream, and a word-initial consonant lives in exactly that window. Nothing was missing from
+the file, and the first thing a learner heard of a short word was its vowel, which is what was
+reported against `õde`.
+
+So it is a **guarantee** rather than a ceiling. The padding is written as true silence and a source
+with less than `LEAD_MS` in front of its word is padded rather than trusted, which is the only
+useful shape for a rule that may never fail on any one word: the guarantee no longer depends on what
+the recording contained. 120 ms, since every millisecond of it is a millisecond between the press
+and the word, and the trail stays the longer of the two because a final `s` falls away slowly.
+**Not one sample of the word pays for it**, asserted against the real clips: what is cut is whole
+frames the floor called silence, what is added is zeros, and the ramp at each seam sits on the frame
+*outside* the speech rather than on its first six milliseconds, or this would cause the fault it
+exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
+exactly as long as they are, so a slow play keeps the same head start.
+
+**And one function faded both ends, which planted a notch wherever it was asked for one.**
+`fadeEdges(samples, from, to)` ramped up at `from` and down before `to`, which is right for the two
+ends of a whole clip and wrong for anything else: `capPauses` called it on the first twelve
+milliseconds of a piece to ask for a fade in and got a ramp up over six milliseconds and a ramp back
+down to zero over the next six, a dip to silence planted inside the audio at every seam it made.
+Nothing reached it, because a pause long enough to cap only occurs in a clip of more than one
+sentence. `fadeIn` and `fadeOut` are two functions now, since a latent fault in the one function
+about seams is a fault in every seam added later.
 
 **A response built out of one learner's own rows says it is theirs and is never kept.** The
 framework's silence is not a cache policy: `ImageResponse` stamps `public, immutable,
@@ -6919,7 +7006,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
-`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SLOW_RATE`, `NORMAL_RATE`,
+`nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
+`PACE_FOR_LEVEL`, `SLOW_OF_NORMAL`, `trimSilence`, `fadeIn`,
 `stretchedClip`, `stretchMap`, `capPauses`, `normaliseLoudness`,
 `billFor`, `reserveMicros`, `distinctClips`, `MEASURED`, `PRICE_REFS`, `SERVICES`, `.range`,
 `MIN_LEARNERS`, `buildSection`, `researchOptOut`, `participationFrom`, `rungOf`,

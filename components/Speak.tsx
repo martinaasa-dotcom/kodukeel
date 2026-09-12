@@ -78,6 +78,10 @@ export function Speak({
   const [state, setState] = useState<"idle" | "loading" | "gone">("idle");
   const prefs = useAudioPrefs();
   const voice = askedVoice ?? prefs.voice;
+  // How fast this learner hears Estonian, off their own level. Read here rather
+  // than taken as a prop, so a screen cannot draw a speaker that plays at a
+  // pace the learner did not choose. See lib/audio/pace.ts.
+  const pace = prefs.pace;
   const wanted = prefs.autoplay;
   const played = useRef<string | null>(null);
 
@@ -94,7 +98,7 @@ export function Speak({
         round paid for it: its own copy of this caught both and told a learner
         their connection was down. `playClip` is the one answer now.
       */
-      const outcome = await playClip({ text, slow, voice, condition, rate }, { unasked });
+      const outcome = await playClip({ text, slow, voice, condition, rate, pace }, { unasked });
       setState("idle");
       if (outcome === "played") onPlay?.();
     } catch {
@@ -123,14 +127,14 @@ export function Speak({
 
   useEffect(() => {
     if (!autoplay || wanted !== "on" || disabled) return;
-    const key = `${text}|${slow ? 1 : 0}|${voice}|${condition?.id ?? ""}`;
+    const key = `${text}|${slow ? 1 : 0}|${voice}|${condition?.id ?? ""}|${pace.id}`;
     if (played.current === key) return;
     played.current = key;
     void play(true);
     // `play` closes over the props it needs; re-running on them would replay
     // the same clip on an unrelated re-render, which `played` also guards.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoplay, wanted, disabled, text, slow, voice, condition?.id]);
+  }, [autoplay, wanted, disabled, text, slow, voice, condition?.id, pace.id]);
 
   if (state === "gone") return null;
 

@@ -45,7 +45,7 @@
   build it had ever seen and every clip it had ever played. The ceilings below
   stop that happening again; this bump is what clears the arrears.
 */
-const VERSION = "kodukeel-v4";
+const VERSION = "kodukeel-v5";
 /*
   Four caches, and the split between the first two is the point of it.
 

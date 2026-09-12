@@ -159,7 +159,7 @@ export function LearnSession({
   const [busy, setBusy] = useState(false);
   const [pendingOffline, setPendingOffline] = useState(0);
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
-  const { voice } = useAudioPrefs();
+  const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
 
   /*
@@ -218,8 +218,8 @@ export function LearnSession({
   useEffect(() => {
     const nextId = queue[1];
     const upcoming = nextId ? byId.get(nextId) : undefined;
-    if (upcoming) prefetchClip({ text: upcoming.lemma, voice });
-  }, [queue, byId, voice]);
+    if (upcoming) prefetchClip({ text: upcoming.lemma, voice, pace });
+  }, [queue, byId, voice, pace]);
 
   const cheer = useCallback((won: boolean) => {
     run.current = won ? run.current + 1 : 0;
