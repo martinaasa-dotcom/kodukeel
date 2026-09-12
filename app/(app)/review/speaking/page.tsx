@@ -41,7 +41,12 @@ export default async function SpeakingPage() {
   if (pool.length < ROUND) {
     const seen = new Set(pool.map((c) => c.id));
     const rest = await prisma.card.findMany({
-      where: { ...base, id: { notIn: [...seen] } },
+      /*
+        state: { not: 0 } here too, matching the due read above: this top-up
+        is for a session shorter than ROUND due cards, not a second door for a
+        word the learner has never met to be asked out loud cold.
+      */
+      where: { ...base, id: { notIn: [...seen] }, state: { not: 0 } },
       orderBy: [{ lapses: "desc" }, { due: "asc" }],
       take: ROUND - pool.length,
       include,
