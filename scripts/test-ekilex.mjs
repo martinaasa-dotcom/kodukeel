@@ -19,9 +19,26 @@ await prisma.lexeme.deleteMany({ where: { lemma: word } });
 await page.goto(`${B}/dictionary?q=${word}`, { waitUntil: "networkidle", timeout: 60000 });
 check("a word outside the seed is fetched from Ekilex",
   (await page.getByText(/Fetched from Ekilex/).count()) > 0);
+/*
+  The gap, by the half of it that does not move.
+
+  This asked for "— add a translation", and `NEEDS_TRANSLATION` in
+  lib/copy/values.ts is `${NO_VALUE} · add a translation`, where `NO_VALUE` has
+  been "n/a" since the em dash was banned from anything a person reads. So the
+  string had not been rendered for as long as that rule had existed: the count
+  was always nought, the negation always true, and this half of the check could
+  not fail. It is the fault scripts/test-decks.mjs found in itself, one suite
+  over: the absence of something that cannot be present.
+
+  Matched on the instruction rather than the whole line because a .mjs cannot
+  import the constant, and values.ts asks in its own comment for a test to
+  assert on the constant rather than on a string somebody retyped. This is as
+  close as a suite outside TypeScript gets, and it survives the next change to
+  `NO_VALUE`, which is what caught it out the first time.
+*/
 check("it comes back with an English translation",
   (await page.locator("h2[lang=et]").innerText()) === word &&
-  !(await page.getByText("— add a translation").count()));
+  !(await page.getByText(/add a translation/).count()));
 check("the authoritative forms are shown, not derived ones",
   (await page.getByText(/Every form, from Ekilex/i).count()) > 0);
 /*

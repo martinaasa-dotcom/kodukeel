@@ -1,8 +1,9 @@
 "use client";
 
-import { useTransition, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { CheckCheck, Plus } from "lucide-react";
 import { createLexeme, addToDeck } from "@/app/actions";
+import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, Chip } from "@/components/ui";
@@ -435,24 +436,6 @@ export function SentenceCheck({
 }
 
 function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
-  const [added, setAdded] = useState<Set<string>>(new Set());
-  const [pending, start] = useTransition();
-
-  const add = (word: { et: string; en: string }) => {
-    start(async () => {
-      const created = await createLexeme({
-        // The provenance carries "a model suggested this and nobody has checked
-        // it", which is what `AI · verify` is drawn from. It used to be a
-        // sentence in `notes`, where nothing read it.
-        lemma: word.et, translation: word.en, pos: "OTHER",
-      });
-      if (created.ok) {
-        await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR");
-        setAdded((s) => new Set(s).add(word.et));
-      }
-    });
-  };
-
   return (
     <div className="mt-4 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
       <div className="mb-2 flex items-center gap-2">
@@ -462,23 +445,64 @@ function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
         </Chip>
       </div>
       <ul className="flex flex-col gap-1.5">
-        {vocab.map((w) => (
-          <li key={w.et} className="flex items-center justify-between gap-3">
-            <span className="text-sm">
-              <span className="font-semibold" style={{ color: "var(--ink)" }}>{w.et}</span>
-              <span style={{ color: "var(--ink-3)" }}>, {w.en}</span>
-            </span>
-            <Button
-              variant="ghost"
-              disabled={pending || added.has(w.et)}
-              onClick={() => add(w)}
-              aria-label={`Add "${w.et}" to your deck`}
-            >
-              {added.has(w.et) ? "Added" : <><Plus size={14} aria-hidden /> Add</>}
-            </Button>
-          </li>
-        ))}
+        {vocab.map((w) => <VocabRow key={w.et} word={w} />)}
       </ul>
     </div>
   );
 }
+
+/*
+  A ROW OF ITS OWN, SO EACH WORD CAN BE ASKED ABOUT.
+
+  These were drawn inside the map with one `pending` and one `added` set
+  between them, which is fine for a button that does one thing and cannot hold
+  a question: the shelf question belongs to one word, and a hook cannot live
+  inside a map. So the row is a component, and `useKeepWord` resets by the word
+  the way `StarWord` does.
+
+  The entry does not exist until the press creates it, which is why the id
+  handed to the keeper is null: a word with no id sits on no shelves, and that
+  is the only thing the id is read for. What comes back from `createLexeme` is
+  what gets filed.
+*/
+function VocabRow({ word }: { word: { et: string; en: string } }) {
+  const [added, setAdded] = useState(false);
+
+  const keeper = useKeepWord(null, async (deckIds) => {
+    const created = await createLexeme({
+      // The provenance carries "a model suggested this and nobody has checked
+      // it", which is what `AI · verify` is drawn from. It used to be a
+      // sentence in `notes`, where nothing read it.
+      lemma: word.et, translation: word.en, pos: "OTHER",
+    });
+    if (!created.ok) return;
+    await addToDeck(created.id, ["RECOGNITION", "PRODUCTION"], "TUTOR", deckIds);
+    setAdded(true);
+  });
+
+  return (
+    <li className="flex flex-col gap-1.5">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm">
+          <span className="font-semibold" style={{ color: "var(--ink)" }}>{word.et}</span>
+          <span style={{ color: "var(--ink-3)" }}>, {word.en}</span>
+        </span>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {keeper.asking && (
+            <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+          )}
+          <Button
+            variant="ghost"
+            disabled={keeper.pending || added}
+            onClick={keeper.press}
+            aria-label={`Add "${word.et}" to your deck`}
+          >
+            {added ? "Added" : keeper.asking ? "Keep it" : <><Plus size={14} aria-hidden /> Add</>}
+          </Button>
+        </div>
+      </div>
+      <KeepWordChoice keeper={keeper} />
+    </li>
+  );
+}
+

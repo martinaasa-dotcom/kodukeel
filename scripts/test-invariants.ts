@@ -14533,6 +14533,75 @@ check("the exceptions round asks nothing whose answer is the word in the questio
  * because that is what makes a second copy impossible rather than merely
  * unlikely, and `app/actions.ts` is where it is declared.
  */
+/**
+ * WHICH SHELF A WORD GOES ON IS ONE QUESTION, ASKED WHEREVER A WORD IS KEPT.
+ *
+ * The dictionary's add panel grew the deck list first and was for a while the
+ * only screen that asked. Every other way of keeping a word called `addToDeck`
+ * with three arguments and filed it under nothing, so a learner who had named
+ * shelves pressed "Add it to my deck" on the home page, the word landed on
+ * none of them, and no screen said so. It was reported exactly that way, and
+ * it was true of six doors rather than one.
+ *
+ * A second copy of the question is how that happens: one door learns to ask
+ * and the next never does. So the fetch pair that backs it has one reader,
+ * `components/DeckChoice.tsx`; the press that resolves it and then decides has
+ * one home, `components/KeepWord.tsx`; and every screen that keeps a single
+ * word reaches for that rather than writing the dance again. The dance is
+ * worth naming: "not fetched yet" and "no shelves at all" are the same empty
+ * answer, and a copy that reads the second as the first is a button that does
+ * nothing on its first press.
+ *
+ * READ OFF THE CALLERS OF `addToDeck` RATHER THAN A LIST HERE, because the
+ * shape of this fault is a screen added later that simply never asks, and a
+ * list in this file is the copy that goes stale. The two exemptions are the
+ * screens that do not keep one word: the dictionary owns the question itself
+ * beside its card-type list, and the offline replay is not a button.
+ */
+check("every screen that keeps a word asks which shelf, through one press", () => {
+  const HOME = join("components", "DeckChoice.tsx");
+  const PRESS = join("components", "KeepWord.tsx");
+
+  const readers = ALL.filter(
+    (file) => file !== join("app", "actions.ts")
+      && /\blistMyDecks\b|\bmyDeckMembership\b/.test(code(file)),
+  );
+  assert.deepEqual(
+    readers.sort(), [HOME],
+    `${readers.join(", ")} read the learner's decks. One place asks which shelf a `
+    + "word goes on, components/DeckChoice.tsx, or the home page grows the button "
+    + "and not the question again.",
+  );
+
+  /*
+    The dictionary asks the question itself, because its panel is a card-type
+    list with the shelves under it rather than a press of its own.
+  */
+  const DICTIONARY = join("app", "(app)", "dictionary", "DictionaryClient.tsx");
+  assert.match(code(DICTIONARY), /useDeckChoice\(/, `${DICTIONARY} stopped asking which shelf.`);
+  assert.match(code(DICTIONARY), /<DeckChoiceList\b/, `${DICTIONARY} resolves the choice and never draws it.`);
+
+  const keepers = ALL.filter(
+    (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      && /\baddToDeck\(/.test(code(file)),
+  );
+  assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
+
+  for (const screen of keepers) {
+    assert.match(
+      code(screen), /useKeepWord\(/,
+      `${screen} keeps a word without asking which shelf. A learner with shelves `
+      + "named gets it filed under none of them and no word about it, which is "
+      + "what was reported from the home page.",
+    );
+    assert.match(
+      code(screen), /<KeepWordChoice\b/,
+      `${screen} resolves the shelf question and never draws it, so the learner `
+      + "is asked nothing and whatever was fetched decides on its own.",
+    );
+  }
+});
+
 check("a word is favourited by one button, and the toggle has one caller", () => {
   const callers = ALL.filter((file) => /\btoggleStar\b/.test(code(file)));
   assert.deepEqual(

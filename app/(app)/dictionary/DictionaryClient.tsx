@@ -3,10 +3,10 @@
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
-import { addToDeck, listMyDecks, myDeckMembership } from "@/app/actions";
-import type { DeckSummary } from "@/lib/progress/decks";
+import { addToDeck } from "@/app/actions";
+import { DeckChoiceList, useDeckChoice } from "@/components/DeckChoice";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak, SpeakPair } from "@/components/Speak";
@@ -911,39 +911,23 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     WHICH DECK, ASKED ONCE THE LEARNER HAS NAMED ONE.
 
     The gate was two decks, on the argument that with exactly one shelf the
-    word goes into the one place it was always going to go. It does not: a
-    word added without this section reaches no shelf at all, so what one deck
-    actually bought was a shelf somebody had deliberately named and the app
-    then never offered. Zero decks is the whole of the case with nothing to
-    decide, and there the argument is sound, because the only honest option
-    would be one nobody has created. Fetched on open rather than carried on
-    every dictionary entry, since most searches never reach this panel at all,
-    and fetched again on every open rather than once per word: `staleTimes`
-    holds a rendered page in the router cache for thirty seconds, so a learner
-    who goes and names their first deck and comes straight back is looking at
-    the very component that already cached the empty answer.
+    word goes into the one place it was always going to go. It does not: a word
+    added without this section reaches no shelf at all, so what one deck
+    actually bought was a shelf somebody had deliberately named and the app then
+    never offered. Zero decks is the whole of the case with nothing to decide.
 
     THE CHECKBOXES START WHERE THE WORD ALREADY IS, NOT EMPTY. This is a
-    replace, the same as the card-type list beside it: whatever is ticked
-    when "Add" is pressed is the whole of what the word is filed under
-    afterwards. Starting from an empty list would read as "add to these on
-    top of what is already there" and quietly take the word off every shelf
-    it already sat on the moment somebody ticked one box on a second visit.
+    replace, the same as the card-type list beside it: whatever is ticked when
+    "Add" is pressed is the whole of what the word is filed under afterwards.
+    Starting from an empty list would read as "add to these on top of what is
+    already there" and quietly take the word off every shelf it already sat on
+    the moment somebody ticked one box on a second visit.
+
+    The list itself lives in `components/DeckChoice.tsx`, because this was the
+    only screen that asked and a second copy is how the home page came to have
+    the button and not the question.
   */
-  const [decks, setDecks] = useState<DeckSummary[] | null>(null);
-  const [deckIds, setDeckIds] = useState<string[]>([]);
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    Promise.all([listMyDecks(), myDeckMembership(entry.id)])
-      .then(([available, current]) => {
-        if (cancelled) return;
-        setDecks(available);
-        setDeckIds(current);
-      })
-      .catch(() => { if (!cancelled) setDecks([]); });
-    return () => { cancelled = true; };
-  }, [open, entry.id]);
+  const choice = useDeckChoice(entry.id, open);
 
   const submit = () => {
     start(async () => {
@@ -955,9 +939,7 @@ function AddToDeck({ entry }: { entry: EntryView }) {
         every shelf exactly as it is, an empty list is "take it off all of
         them", and a learner who never saw a deck section asked for neither.
       */
-      const result = await addToDeck(
-        entry.id, selected, undefined, decks && decks.length > 0 ? deckIds : undefined,
-      );
+      const result = await addToDeck(entry.id, selected, undefined, choice.argument);
       if (result.ok) { setAdded(true); setOpen(false); }
     });
   };
@@ -991,23 +973,9 @@ function AddToDeck({ entry }: { entry: EntryView }) {
           </label>
         ))}
       </div>
-      {decks && decks.length > 0 && (
+      {choice.asks && choice.decks && (
         <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
-          <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which deck?</p>
-          <div className="flex flex-col gap-2">
-            {decks.map((deck) => (
-              <label key={deck.id} className="flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
-                <input
-                  type="checkbox"
-                  checked={deckIds.includes(deck.id)}
-                  onChange={(e) =>
-                    setDeckIds((d) => (e.target.checked ? [...d, deck.id] : d.filter((x) => x !== deck.id)))
-                  }
-                />
-                <span style={{ color: "var(--ink)" }}>{deck.name}</span>
-              </label>
-            ))}
-          </div>
+          <DeckChoiceList decks={choice.decks} deckIds={choice.deckIds} toggle={choice.toggle} />
         </div>
       )}
       <div className="mt-4 flex gap-2">

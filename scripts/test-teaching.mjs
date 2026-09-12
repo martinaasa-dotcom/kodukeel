@@ -15,7 +15,7 @@ import { retypeMiss, revealAnswer } from "./lib/review.mjs";
  */
 const B = baseUrl();
 // Floor: 55, measured in the state CI seeds. A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 56 });
+const { check, absent, done } = suite("Teaching layer", { floor: 58 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -264,14 +264,32 @@ check("built from principal parts the dictionary holds",
 check("and it credits Ekilex, as CC BY requires",
   (await page.getByText(/Institute of the Estonian Language/).count()) > 0);
 
-// Printed, the app's own furniture has to disappear: a worksheet with a
-// navigation rail down the side is not a worksheet.
+/*
+  Printed, the app's own furniture has to disappear: a worksheet with a
+  navigation rail down the side is not a worksheet.
+
+  ON SCREEN FIRST, WHICH IS WHAT MAKES THE TWO BELOW MEAN ANYTHING.
+
+  An element that is not there reports not-visible, so `!visible` is true of a
+  rail that print hides and equally true of a selector that has stopped
+  matching anything: rename the rail's label and both checks below go green
+  having looked at nothing. The `.catch(() => false)` they used to carry widened
+  it a second way, swallowing a strict-mode violation, so two matching elements
+  would also have read as success. Asserting each is drawn before the media
+  changes is what turns a rotted selector into a failure one line earlier, and
+  dropping the catch is what lets a genuine ambiguity be reported rather than
+  passed. Same fault as the one scripts/test-decks.mjs found in itself: a check
+  whose subject can be absent is a check that can pass without looking.
+*/
+const rail = page.locator('nav[aria-label="Main"]').first();
+const printButton = page.getByRole("button", { name: /Print this worksheet/ });
+check("the rail is on the screen to begin with", await rail.isVisible());
+check("and so is the print button", await printButton.isVisible());
+
 await page.emulateMedia({ media: "print" });
 await page.waitForTimeout(200);
-check("the rail comes off the paper",
-  !(await page.locator('nav[aria-label="Main"]').first().isVisible().catch(() => false)));
-check("so does the print button",
-  !(await page.getByRole("button", { name: /Print this worksheet/ }).isVisible().catch(() => false)));
+check("the rail comes off the paper", !(await rail.isVisible()));
+check("so does the print button", !(await printButton.isVisible()));
 check("the answer key still prints, on its own sheet",
   (await page.getByText("Answer key").count()) > 0);
 await page.emulateMedia({ media: "screen" });
