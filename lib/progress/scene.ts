@@ -45,7 +45,7 @@ import {
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
-import { addsEvidence, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -789,6 +789,21 @@ export interface SentTurn {
    * whether its own parroting is noticed, which advances nothing either way.
    */
   readonly heard?: string;
+  /**
+   * Which requirements a judge conceded on this turn after the dictionary
+   * refused it (`concede`), as the route wrote them back and the client echoes
+   * them. The client's word, like `helped`: a client that forges one ends a
+   * beat in its own transcript and grades nothing by it, since a conceded
+   * requirement writes no row (`gradesFor`).
+   */
+  readonly conceded?: readonly number[];
+}
+
+/** The `conceded` field off the wire: whole numbers only, deduplicated, bounded. */
+export function concededOf(input: unknown): number[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = [...new Set(input.filter((n): n is number => Number.isInteger(n) && n >= 0 && n < 16))];
+  return out.length > 0 ? out : undefined;
 }
 
 /** What the transcript holds about the draw, so a run can be marked long after it. */
@@ -1292,7 +1307,14 @@ export function replay(
       turn, because the server keeps nothing between turns.
     */
     const heard = heardNow;
-    const evidence = readTurn(said, beat, marker);
+    /*
+      The dictionary reads first, and a judge's concession stored on the turn
+      is applied over its reading (`concede`): only what the dictionary
+      refused can be conceded, so the same turn re-marked at the end of the
+      run reaches the same state the learner saw.
+    */
+    const read = readTurn(said, beat, marker);
+    const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
     ({ state, response } = advance(
       context.scene, state, evidence, said, Boolean(sent.helped), heard,
     ));

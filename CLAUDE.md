@@ -56,10 +56,15 @@ front of it and `runGate` checked five ways, shape, vouching, register, governme
 withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
 line the beat says off the card, and where every rung fails the other side says they did not catch
 that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
-model writes what the other person says and never decides whether the learner was understood**
-(ADR-025 amendment 1): the bank is the net under composition rather than a rung above it, which is
-what a deployment with no key, a spent allowance or a withheld line falls to, so nothing about the
-keyless claim moved. The fifth check exists because the other four are about words and a number is
+model writes what the other person says, may end a beat the dictionary refused, and never writes a
+grade** (ADR-025 amendments 1 and 2): the bank is the net under composition rather than a rung above
+it, which is what a deployment with no key, a spent allowance or a withheld line falls to, so nothing
+about the keyless claim moved. The dictionary reads every turn first; where it refuses one, the route
+may ask a judge on the grader's chain whether the learner did what the beat asked in any words, and a
+yes ends the beat through `concede`, the only other producer of `Evidence`, which can mark as met only
+what the dictionary left missing. A conceded requirement writes no row (`gradesFor` skips it), a value
+off the role card is never conceded, and a turn nobody could read is never put to the judge. The
+operator asked for this so a conversation can flow and end naturally. The fifth check exists because the other four are about words and a number is
 not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
 asked first on a beat that names a time invites the learner to agree to an appointment nobody
 offered. What the learner

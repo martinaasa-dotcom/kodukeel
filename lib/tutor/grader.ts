@@ -213,7 +213,7 @@ export const JSON_REPLY_TOKENS = 1_000;
  * there is no half-written answer for a second attempt to talk over, and
  * whether a model can return the JSON asked for is a fact about that model.
  */
-async function callChainForJson(
+export async function callChainForJson(
   chain: readonly ProviderConfig[],
   system: string,
   user: string,

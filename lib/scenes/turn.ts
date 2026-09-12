@@ -162,6 +162,15 @@ export interface Evidence {
    */
   readonly substituted: readonly number[];
   /**
+   * The indices of the requirements the model conceded (`concede`): the
+   * dictionary refused the turn, a judge read the goal and the turn and said
+   * the learner had done what the beat asked, in their own words. The beat
+   * is met and, exactly as with `substituted`, **no grade is written** for a
+   * conceded requirement: nothing a model decided reaches the review log
+   * (ADR-025 amendment 2). Absent on a turn the dictionary read for itself.
+   */
+  readonly conceded?: readonly number[];
+  /**
    * Whether the learner asked for English. A phrase the course teaches and
    * the move anybody makes in their first month, which read as an ordinary
    * turn meets nothing: the other side said "sorry?" and asked again, which
@@ -1227,4 +1236,44 @@ export function advances(reading: TurnReading): boolean {
  */
 export function addsEvidence(next: Evidence, spent: ReadonlySet<string>): boolean {
   return next.satisfiedBy.some((word) => !spent.has(word) && !BARE_POLARITY.has(word));
+}
+
+/**
+ * THE ONE OTHER WAY A BEAT IS MET, AND WHAT IT MAY NOT DO.
+ *
+ * `readTurn` is the dictionary's reading and for a year it was the only way a
+ * beat could be met: a turn that did what the beat asked in words the beat had
+ * not named was refused, the other side asked again, and the conversation
+ * stuck on a requirement the learner had already met in substance. The
+ * operator asked for the model to be allowed to say when a beat is done, so
+ * that a conversation can flow and end naturally (ADR-025 amendment 2).
+ *
+ * This is that, and it is deliberately a *derivation* rather than a second
+ * producer: it takes the dictionary's own `Evidence` and marks as met only
+ * what the dictionary had refused, so it cannot be reached without the
+ * dictionary having read the turn first and it cannot invent a word the
+ * learner produced. `satisfiedBy` and `matched` are left exactly as they were,
+ * which is empty for anything conceded, so the reply repeats nothing back
+ * that the learner did not say and `gradesFor` writes no row for it: a beat
+ * ended on a model's say-so is a beat ended, never a form recalled.
+ *
+ * Only indices the reading left missing are conceded. A caller handing in an
+ * index the dictionary already met changes nothing, and one out of range is
+ * dropped, so a stored concession from a client transcript can end a beat and
+ * can do nothing else.
+ */
+export function concede(evidence: Evidence, indices: readonly number[]): Evidence {
+  const conceded = [...new Set(indices)]
+    .filter((i) => Number.isInteger(i) && evidence.missing.includes(i))
+    .sort((a, b) => a - b);
+  if (conceded.length === 0) return evidence;
+  const met = evidence.met.map((ok, i) => ok || conceded.includes(i));
+  const missing = evidence.missing.filter((i) => !conceded.includes(i));
+  return {
+    ...evidence,
+    reading: missing.length === 0 ? "complete" : "incomplete",
+    met,
+    missing,
+    conceded,
+  };
 }

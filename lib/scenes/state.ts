@@ -72,6 +72,13 @@ export interface TurnRecord {
    */
   readonly substituted?: readonly number[];
   /**
+   * Which of the beat's requirements a model conceded after the dictionary
+   * refused the turn (`concede`, ADR-025 amendment 2). The beat is met and the
+   * grades skip these, because a model's reading of a turn never reaches the
+   * review log. Absent on a turn the dictionary read for itself.
+   */
+  readonly conceded?: readonly number[];
+  /**
    * What was understood despite itself: a dropped diacritic, the right word
    * in the wrong case, an infinitive where a person was due. Absent where the
    * turn was right, and on a row written before slips were read. The grades
@@ -192,6 +199,7 @@ export function advance(
     ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
     produced: evidence.satisfiedBy,
     substituted: evidence.substituted,
+    ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
     ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),
@@ -510,6 +518,7 @@ export function advanceHurdle(
     helped: false,
     produced: evidence.satisfiedBy,
     substituted: evidence.substituted,
+    ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
     ...(heard ? { heard } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),

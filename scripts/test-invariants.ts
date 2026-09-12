@@ -13138,7 +13138,7 @@ check("a learner who says they are lost is handed the word, never the question a
   {
     const route = code("app/api/scene/route.ts");
     assert.match(
-      route, /const readingOf = async/,
+      route, /(const readingOf = async|async function readingOf)/,
       "the composer is no longer told what the learner's turn means, so its line answers the beat "
       + "rather than the person",
     );
@@ -13819,20 +13819,70 @@ check("nothing but the dictionary can advance a scene", () => {
   );
 
   /*
-    One producer, asserted by counting. A second function returning Evidence is
-    the door a model's verdict walks through, and it would look entirely
-    reasonable in review.
+    TWO PRODUCERS, AND THE SECOND MAY ONLY DERIVE FROM THE FIRST. `readTurn`
+    is the dictionary's reading. `concede` is the one door a model's verdict
+    walks through (ADR-025 amendment 2): it takes an `Evidence` the dictionary
+    produced and may mark as met only what that reading left `missing`, so it
+    cannot be reached without the dictionary having read the turn, and it
+    cannot invent a word the learner produced. A third function returning
+    Evidence would look entirely reasonable in review and is the thing this
+    counts to refuse.
   */
   const producers = [...turn.matchAll(/\): Evidence \{/g)].length;
   assert.equal(
-    producers, 1,
-    `lib/scenes/turn.ts has ${producers} functions returning Evidence. There is exactly one.`,
+    producers, 2,
+    `lib/scenes/turn.ts has ${producers} functions returning Evidence. There are exactly two: readTurn and concede.`,
+  );
+  assert.match(
+    turn,
+    /export function concede\(evidence: Evidence, indices: readonly number\[\]\): Evidence \{/,
+    "concede no longer takes the dictionary's Evidence as its input, so a model could end a beat the dictionary never read.",
+  );
+  assert.match(
+    turn.slice(turn.indexOf("export function concede(")),
+    /evidence\.missing\.includes\(i\)/,
+    "concede no longer limits itself to what the dictionary left missing.",
   );
   assert.doesNotMatch(
     state,
     /\): Evidence\b/,
-    "lib/scenes/state.ts builds Evidence. Only readTurn may, or the consumer becomes its own producer.",
+    "lib/scenes/state.ts builds Evidence. Only readTurn and concede may, or the consumer becomes its own producer.",
   );
+
+  /*
+    AND A CONCEDED REQUIREMENT NEVER REACHES THE REVIEW LOG. The judge may end
+    a beat; it may not put "they recalled this form" into the append-only log,
+    which is what `gradesFor` writing a row for a conceded index would be.
+  */
+  const grades = code("lib/scenes/grades.ts");
+  assert.match(
+    grades,
+    /!\(turn\.conceded \?\? \[\]\)\.includes\(index\)/,
+    "gradesFor no longer skips a requirement the model conceded, so a model's verdict reaches the review log.",
+  );
+
+  /*
+    The judge is asked only after the dictionary has read the turn, on the
+    grader's chain, metered as a GRADER call, and its module holds no Estonian
+    and reaches no provider.
+  */
+  const route = code("app/api/scene/route.ts");
+  const replayAt = route.indexOf("replay(marking, draw, turns)");
+  const judgeAt = route.indexOf("parseJudgement(");
+  assert.ok(replayAt > 0 && judgeAt > replayAt, "the scene route asks the judge before the dictionary has read the turn, or not at all.");
+  assert.match(
+    route.slice(replayAt, judgeAt),
+    /authoriseCall\(ownerId, "GRADER"\)/,
+    "the judge's call is not booked in the ledger before it is made.",
+  );
+  assert.match(
+    route.slice(replayAt, judgeAt),
+    /resolveProviders\(\s*\{\s*purpose:\s*"grader"/,
+    "the judge does not ask the grader's chain, which is the one measured for returning JSON.",
+  );
+  const judge = code("lib/scenes/judge.ts");
+  assert.doesNotMatch(judge, /[õäöüšž]/i, "lib/scenes/judge.ts writes Estonian.");
+  assert.doesNotMatch(judge, /fetch\(|@\/lib\/tutor|@\/lib\/db|prisma/, "lib/scenes/judge.ts reaches a provider or the database.");
 });
 
 check("the scene route marks mechanically before it reaches a provider", () => {

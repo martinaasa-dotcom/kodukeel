@@ -116,6 +116,12 @@ interface Sent {
   helped: boolean;
   /** The Estonian line this turn answers, for the echo rule and for saying it again. */
   heard: string;
+  /**
+   * Which requirements a judge conceded on this turn, as the server said. Sent
+   * back with every later turn so the server's replay reaches the same state,
+   * since the server keeps nothing between turns.
+   */
+  conceded?: number[];
 }
 
 /**
@@ -574,8 +580,22 @@ export function SceneSession({ scene, minutes, unit }: {
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
         slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
+        conceded?: number[] | null;
       };
       if (data.error) { setError(data.error); return; }
+      /*
+        A beat the judge conceded on this turn is written onto the turn, so the
+        next request carries it and the server's replay ends the beat again.
+      */
+      if (data.conceded && data.conceded.length > 0) {
+        const conceded = data.conceded;
+        setSent((was) => {
+          const at = was.length - 1;
+          const last = was[at];
+          if (!last) return was;
+          return [...was.slice(0, at), { ...last, conceded }];
+        });
+      }
       if (data.composed === false && data.note) setNote(data.note);
 
       /*

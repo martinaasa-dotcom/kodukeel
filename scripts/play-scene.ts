@@ -49,6 +49,7 @@ import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
 import { caseKeyFor, words, type Lexicon } from "../lib/scenes/lexicon";
 import { leafNeeds, type BeatSpec } from "../lib/scenes/types";
+import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "../lib/scenes/judge";
 import { propBySlot } from "../lib/scenes/props";
 import { fold } from "../lib/estonian/fold";
 import { shippedDictionary } from "./lib/dictionary";
@@ -259,7 +260,7 @@ async function play(sceneId: string) {
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
 
-  const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
+  const turns: { beatId: string; said: string; helped: boolean; heard: string; conceded?: number[] }[] = [];
   const used = new Set<string>();
   let heard = "";
   /*
@@ -286,7 +287,44 @@ async function play(sceneId: string) {
       `knowing` reads the forms list off disk and touches no database.
     */
     const marking = await knowing(context, turns.map((t) => t.said));
-    const { state, response, elsewhere } = replay(marking, draw, turns);
+    let { state, response, elsewhere } = replay(marking, draw, turns);
+    /*
+      THE JUDGE, AS THE ROUTE ASKS IT (ADR-025 amendment 2). Where the
+      dictionary refused the turn and a model is on, one JSON question on the
+      first link: did they do what the beat asked, in any words. A yes ends
+      the beat through `concede`, stored on the turn so the replay reaches the
+      same state, exactly as the client echoes it back to the route.
+    */
+    const lastSent = turns[turns.length - 1];
+    const lastRead = state.turns[state.turns.length - 1];
+    const judged = currentBeat(scene, state);
+    const isDatum = (need: BeatSpec["needs"][number]) =>
+      need.kind === "datum" || (need.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "datum"));
+    if (LINKS.length > 0 && lastSent && lastRead && judged && !state.hurdle && !lastSent.conceded
+      && lastRead.beatId === judged.id
+      && ["offtarget", "incomplete", "english"].includes(lastRead.reading)
+      && lastRead.met.some((ok, i) => !ok && !isDatum(judged.needs[i]!))) {
+      const link = LINKS[0]!;
+      const res = await fetch(link.url, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
+        body: JSON.stringify({
+          model: link.model, temperature: 0, max_tokens: JUDGE_REPLY_TOKENS,
+          messages: [
+            { role: "system", content: buildJudgeSystemPrompt() },
+            { role: "user", content: buildJudgeUserPrompt({ goal: judged.goal, they: judged.they, said: lastSent.said, reading: "", dealt: [] }) },
+          ],
+        }),
+      }).catch(() => null);
+      const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
+      const verdict = parseJudgement(text);
+      if (verdict) console.log(`      ~ judge: ${verdict.done ? "done" : "not done"} (${verdict.why})`);
+      if (verdict?.done) {
+        const conceded = lastRead.met.flatMap((ok, i) => (ok || isDatum(judged.needs[i]!) ? [] : [i]));
+        turns[turns.length - 1] = { ...lastSent, conceded };
+        ({ state, response, elsewhere } = replay(marking, draw, turns));
+      }
+    }
     const beat = currentBeat(scene, state);
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
