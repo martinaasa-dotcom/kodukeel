@@ -47,7 +47,7 @@ import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
 
 export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
-import { LEVELS, SYLLABUS, unitById } from "../../lib/collections/syllabus";
+import { LEVELS, SYLLABUS, unitById, type Level } from "../../lib/collections/syllabus";
 import { shippedDictionary } from "./dictionary";
 
 /* ------------------------------------------------------------------ *
@@ -69,18 +69,32 @@ const byLemma = new Map(POOL.map((e) => [`${e.lemma}|${e.pos}`, e]));
 export type Allowlist = "units" | "course";
 
 /**
+ * THE BAND A HARNESS PLAYS AT UNLESS TOLD OTHERWISE.
+ *
+ * A scene carries no band: the other side talks at whatever level a run is
+ * opened at, which in the app is the learner's own (`lib/scenes/pitch.ts`).
+ * A harness has no learner, so it says which band it is measuring, and every
+ * one of them reads this or an explicit `--level` rather than a literal of
+ * its own, because a harness pitched at a band the app never uses measures a
+ * conversation the app does not have (§30). A2 because that is where most of
+ * the catalogue's units sit and where the first learners are.
+ */
+export const HARNESS_LEVEL: Level = "A2";
+
+/**
  * The lemmas one scene may use.
  *
  * `units` is the design's own answer, the lemmas of the units a scene
- * declares; `course` is every word the syllabus teaches up to the scene's
- * level, which the eval measures to find out whether the box is too small.
+ * declares; `course` is every word the syllabus teaches up to `upTo`, which
+ * the eval measures to find out whether the box is too small. A scene has no
+ * band of its own, so the band is the harness's (`HARNESS_LEVEL`).
  */
-export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units"): string[] {
+export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units", upTo: Level = HARNESS_LEVEL): string[] {
   const out = new Set<string>();
   if (allowlist === "course") {
-    const upTo = LEVELS.indexOf(scene.level);
+    const top = LEVELS.indexOf(upTo);
     for (const unit of SYLLABUS) {
-      if (LEVELS.indexOf(unit.level) > upTo) continue;
+      if (LEVELS.indexOf(unit.level) > top) continue;
       for (const spec of unit.words) out.add(spec[0]);
     }
     return [...out];

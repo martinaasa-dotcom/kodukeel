@@ -31,7 +31,6 @@ import type { CaseKey } from "@/lib/estonian/types";
 import type { DerivedVerbCode } from "@/lib/estonian/conjugate";
 import type { CurveballId } from "./curveballs";
 import type { PropSpec } from "./props";
-import type { Level } from "@/lib/collections/syllabus";
 
 /**
  * What the other side is doing this turn.
@@ -346,8 +345,14 @@ export interface SceneSpec {
   readonly title: string;
   /** English. Where you are standing. */
   readonly place: string;
-  /** The band the scene is written for. */
-  readonly level: Level;
+  /*
+    THERE IS NO BAND ON A SCENE. There was, and it decided two things: where
+    the tile sat on the listing and, later, how the other side talked. Both
+    are the learner's now. A situation is as hard as the person on the other
+    side makes it, and that is chosen when a run opens, defaulting to the
+    learner's own level (`SceneRun.level`, `lib/scenes/pitch.ts`). The
+    vocabulary is still the units the scene declares.
+  */
   /**
    * The unit whose `canDo` this scene takes apart.
    *

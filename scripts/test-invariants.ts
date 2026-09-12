@@ -5545,17 +5545,19 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   );
 });
 
-check("the other side talks at the scene's band, and every composer says which band", () => {
+check("the other side talks at the run's band, and every composer says which band", () => {
   /*
-    Every scene carries a `level` and nothing about the composed line read it:
-    the prompt said "they are a beginner" on the B1 landlord as readily as on
-    the A1 corner shop and asked for the same two to four sentences at both.
-    `lib/scenes/pitch.ts` is the one table of what a turn sounds like at each
-    band, `ComposeScene.level` is required so a caller that has not decided
-    does not compile, and `composeSystem` reads the table behind the cache
-    breakpoint. What a type cannot see is a script building the object with a
-    literal of its own, and a harness pitched at nothing measures a
-    conversation the app does not have (§30), so every call site is read.
+    A scene carries no band of its own. It did, and the composed line never
+    read it: the prompt said "they are a beginner" on every scene and asked
+    for the same two to four sentences at all of them. `lib/scenes/pitch.ts`
+    is the one table of what a turn sounds like at each band, the band is the
+    run's (`SceneRun.level`), which defaults to the learner's own and is moved
+    by the selector on the briefing, and `composeSystem` reads the table
+    behind the cache breakpoint. `ComposeScene.level` is required so a caller
+    that has not decided does not compile. What a type cannot see is a script
+    building the object with a literal of its own, and a harness pitched at
+    nothing measures a conversation the app does not have (§30), so every
+    call site is read, and a `SceneSpec` may not grow a band back.
   */
   const prompt = code("lib/scenes/prompt.ts");
   assert.match(prompt, /readonly level: Level;/, "ComposeScene.level stopped being required");
@@ -5569,15 +5571,34 @@ check("the other side talks at the scene's band, and every composer says which b
     prompt, /They are a beginner\./,
     "the prompt calls every learner a beginner, which is the B1 interviewer speaking like the A1 shop",
   );
-  const pitch = code("lib/scenes/pitch.ts");
   /*
     The gate is not relaxed by any of this: the band narrows what is asked for
     and the ceilings stay the gate's. `pitch.test.ts` holds the figures under
     them; this holds the module to reading them rather than typing its own.
   */
   assert.ok(
-    !/MAX_COMPOSED_WORDS\s*=|NEW_WORDS\s*=/.test(pitch),
+    !/MAX_COMPOSED_WORDS\s*=|NEW_WORDS\s*=/.test(code("lib/scenes/pitch.ts")),
     "lib/scenes/pitch.ts declares a ceiling of its own beside the gate's",
+  );
+  /*
+    And no scene says which band it is. The tile sorted on it and the other
+    side talked at it, and both are the learner's now; a scene that grew a
+    band back would be a second answer to how the other side talks.
+  */
+  const spec = /export interface SceneSpec \{[\s\S]*?\n\}/.exec(code("lib/scenes/types.ts"))?.[0] ?? "";
+  assert.doesNotMatch(spec, /\blevel\b/, "SceneSpec carries a band again");
+  assert.doesNotMatch(code("lib/scenes/catalogue.ts"), /^\s*level: "/m, "a scene in the catalogue names a band");
+  assert.match(
+    code("app/actions.ts"), /level: pitched,/,
+    "beginScene stopped opening the run at the band the learner chose",
+  );
+  assert.match(
+    code("components/scene/SceneSession.tsx"), /beginScene\(scene\.id, difficulty, level\)/,
+    "the briefing no longer sends the band the learner picked",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /includes\(row!\.level\)/,
+    "the scene route stopped reading the band the run was opened at",
   );
   const callers = [
     "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
@@ -5588,7 +5609,7 @@ check("the other side talks at the scene's band, and every composer says which b
     const calls = source.match(/(?:composeSystem\(\{|scene: scene\.title,)[\s\S]{0,400}?(?:words:)/g) ?? [];
     assert.ok(calls.length > 0, `${file} no longer builds a ComposeScene, so this check reads nothing there`);
     for (const call of calls) {
-      assert.match(call, /level: (?:scene|input)\.level/, `${file} composes a line without saying which band`);
+      assert.match(call, /\blevel(?:: (?:input\.level|HARNESS_LEVEL))?,/, `${file} composes a line without saying which band`);
     }
   }
 });

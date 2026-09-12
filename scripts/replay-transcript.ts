@@ -32,7 +32,8 @@ import { shippedDictionary } from "./lib/dictionary";
 import { dealtNumbers, type RoleCard } from "../lib/scenes/props";
 import { stageFor, composeNote } from "../lib/scenes/reply";
 import { isKnownForm } from "../lib/dict/forms";
-import { askLine, chain as providerChain } from "./lib/sceneDraft";
+import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
+import type { Level } from "../lib/collections/syllabus";
 import type { Lexicon } from "../lib/scenes/lexicon";
 
 const rows: Row[] = shippedDictionary().map((e) => ({
@@ -63,9 +64,11 @@ const SAID = args("say").length > 0 ? args("say") : [
 async function main() {
   const scene = sceneById(arg("scene") ?? "bussipilet");
   if (!scene) { console.error(`no scene called ${arg("scene")}`); process.exit(1); }
+  /** The band the other side talks at, which in the app is the learner's own. */
+  const level = (arg("level") ?? HARNESS_LEVEL) as Level;
   const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, "repro", scene.level, "textbook");
+  const run = planRun(scene, "repro", level, "textbook");
   const card: RoleCard = {
     ...run.card,
     props: run.card.props.map((p) => p.slot === "to"
@@ -150,7 +153,7 @@ async function main() {
             note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
             avoid,
           }, {
-            scene: scene.title, place: scene.place, level: scene.level, persona: persona.who, situation: scene.role,
+            scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
           }, talk, () => {}, (l) => { if (argv.includes("--drafts")) console.log(`      ~ drafted: ${l}`); }),
         } : {}),

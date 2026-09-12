@@ -5,7 +5,7 @@ import type { Slip } from "./turn";
 import type { SceneSpec } from "./types";
 
 const SCENE: SceneSpec = {
-  id: "fixture", title: "A fixture", place: "Nowhere", level: "A2",
+  id: "fixture", title: "A fixture", place: "Nowhere",
   tests: "keha-ja-tervis", units: ["tervitused"], register: "teie",
   role: "You are somebody, and it is not you.", props: [], curveballs: [],
   beats: [

@@ -165,7 +165,6 @@ export interface SceneSpec {
   id: string;                          // "arsti-aeg"
   title: string;                       // "Booking a doctor's appointment"
   place: string;                       // "The reception desk at a health centre"
-  level: Level;                        // the band the scene is written for
   /** Which of the course's units supply its vocabulary. Ids, never words. */
   units: readonly string[];            // ["keha-ja-tervis", "aeg", "arvud"]
   /** What the other side calls you, and expects back. */
@@ -4340,16 +4339,22 @@ twelve checks reads the band: a B1 line is still vouched word by word, still
 held to its topic, still refused for a giveaway. What changed is what is asked
 for, and the gate is what pays for the room exactly as before.
 
-It keys on the scene's band and deliberately not the learner's. The band is the
-difficulty printed beside the title and the one the learner chose when they
-opened the scene; a learner who opens a scene above their own band has asked
-for the harder conversation, and one rehearsing a scene below it is owed the
-conversation the scene said it would be. The learner's own level is on the run
-for the errand and the grades and stays there. `ComposeScene.level` is required
-rather than optional, for the reason `illSgShort` is, and the invariant reads
-the six places that build the object from a literal, the route and the five
-harnesses, because a harness pitched at nothing measures a conversation the app
-does not have, which is §30's lesson one field over.
+It keyed on the scene's band for about an hour, and then the operator asked for
+the bands to go entirely. They were right about the shape of it: a situation
+is not A1 or B1, the person on the other side is, and which that should be is
+about the learner, not the tile. So `SceneSpec` carries no `level`, the
+listing is one list ordered by title with no chip, and the band is the run's
+own: `beginScene` writes `SceneRun.level` at the level the app already holds
+for the learner (`courseLevelFor`), and the briefing carries a selector of the
+five bands beside the difficulty dial, defaulting to theirs, so somebody can
+go lower for plainer sentences or higher to be spoken to like anybody else.
+The route reads the stored band back on every turn, so a run keeps one voice.
+`ComposeScene.level` is still required, for the reason `illSgShort` is, and
+the invariant reads the eight places that plan a run or build the object from
+a literal, because a harness pitched at nothing measures a conversation the
+app does not have (§30). A harness has no learner, so it says which band it
+plays at (`HARNESS_LEVEL`, or `--level` where the script takes one), and
+`SceneSpec` may not grow a band back, asserted.
 
 What this does not do is reach a keyless deployment: a banked line was drafted
 against the beat with the old prompt and says what it said. The bank could be

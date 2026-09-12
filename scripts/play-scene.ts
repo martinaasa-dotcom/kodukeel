@@ -59,12 +59,15 @@ import { shippedDictionary } from "./lib/dictionary";
 import { isKnownForm } from "../lib/dict/forms";
 import type { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { dealtNumbers } from "../lib/scenes/props";
-import { askLine, chain as providerChain } from "./lib/sceneDraft";
+import { askLine, chain as providerChain, HARNESS_LEVEL } from "./lib/sceneDraft";
+import type { Level } from "../lib/collections/syllabus";
 
 const arg = (name: string) => { const i = process.argv.indexOf(`--${name}`); return i >= 0 ? process.argv[i + 1] : undefined; };
 const only = arg("scene");
 const style = (arg("style") ?? "curious") as "clean" | "sloppy" | "curious" | "lost";
 const difficulty = (arg("difficulty") ?? "textbook") as "textbook" | "good" | "ordinary" | "bad";
+/** The band the other side talks at, which in the app is the learner's own. */
+const level = (arg("level") ?? HARNESS_LEVEL) as Level;
 const composing = process.argv.includes("--compose");
 const pinned = arg("model");
 /**
@@ -206,7 +209,7 @@ async function play(sceneId: string) {
     §53 found in `eval:scene`, one instrument over.
   */
   const context = { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows) } };
-  const run = planRun(scene, `play-${style}`, scene.level, difficulty);
+  const run = planRun(scene, `play-${style}`, level, difficulty);
   const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: LINKS.length > 0 ? "composed" : "scripted", patience: run.patience };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
@@ -402,7 +405,7 @@ async function play(sceneId: string) {
             ),
             avoid,
           }, {
-            scene: scene.title, place: scene.place, level: scene.level, persona: persona.who, situation: scene.role,
+            scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
           }, talk),
         } : {}),

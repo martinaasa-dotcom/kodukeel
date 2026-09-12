@@ -80,7 +80,7 @@ describe("planning a run", () => {
 
   it("hands out a card whose every prop the scene declared", () => {
     for (const scene of SCENES) {
-      const run = planRun(scene, "x", scene.level, "ordinary");
+      const run = planRun(scene, "x", "A2", "ordinary");
       expect(run.card.props.map((p) => p.slot)).toEqual(scene.props.map((p) => p.slot));
       expect(run.card.you).toBe(scene.role);
       expect(run.patience).toHaveLength(scene.beats.length);
@@ -91,7 +91,7 @@ describe("planning a run", () => {
   it("draws only curveballs the scene admits, whatever the persona leans on", () => {
     for (const scene of SCENES) {
       for (let i = 0; i < 40; i += 1) {
-        const run = planRun(scene, `s${i}`, scene.level, "bad");
+        const run = planRun(scene, `s${i}`, "A2", "bad");
         for (const drawn of run.curveballs) {
           expect(scene.curveballs, `${scene.id} drew ${drawn.id}, which it does not admit`)
             .toContain(drawn.id);

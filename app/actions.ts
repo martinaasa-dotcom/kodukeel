@@ -1051,7 +1051,7 @@ export async function recordSonad(day: string, guesses: unknown) {
  * The seed is the server's. A seed a learner picks is a learner picking their
  * persona, their card and their curveballs, which is every axis of §5 at once.
  */
-export async function beginScene(sceneId: unknown, difficulty: unknown) {
+export async function beginScene(sceneId: unknown, difficulty: unknown, level?: unknown) {
   const ownerId = await requireUserId();
   // Its own allowance, not the one finishing a conversation needs: see
   // `lib/security/actionLimits.ts`.
@@ -1062,11 +1062,21 @@ export async function beginScene(sceneId: unknown, difficulty: unknown) {
   if (!scene) return { ok: false as const, error: "No scene by that name." };
   const chosen = text(difficulty);
   if (!(chosen in BUDGETS)) return { ok: false as const, error: "Not a difficulty." };
+  /*
+    THE BAND THE OTHER SIDE TALKS AT IS THE LEARNER'S, UNLESS THEY MOVED IT. A
+    scene carries no level of its own: the selector on the briefing defaults
+    to the learner's level and lets them go lower for plainer sentences or
+    higher to be spoken to like anybody else. Checked against the closed list
+    rather than trusted, since this is a public endpoint, and absent reads as
+    the learner's own rather than as a band of ours.
+  */
+  const pitched = level === undefined ? await courseLevelFor(ownerId) : text(level);
+  if (!(LEVELS as readonly string[]).includes(pitched)) return { ok: false as const, error: "Not a level." };
 
   const opened = await beginRun({
     ownerId,
     sceneId: scene.id,
-    level: await courseLevelFor(ownerId),
+    level: pitched,
     difficulty: chosen as Difficulty,
     /*
       WHETHER THIS CONVERSATION IS SPOKEN LIVE OR OUT OF THE BANK, DECIDED HERE

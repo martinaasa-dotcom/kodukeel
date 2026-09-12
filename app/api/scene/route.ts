@@ -23,7 +23,8 @@ import {
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
-import type { Level } from "@/lib/collections/syllabus/types";
+import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
+import { courseLevelFor } from "@/lib/progress/level";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -131,7 +132,7 @@ export async function POST(request: Request) {
   const row = runId
     ? await prisma.sceneRun.findFirst({
         where: { id: runId, ownerId, endedAt: null },
-        select: { sceneId: true, transcript: true },
+        select: { sceneId: true, transcript: true, level: true },
       })
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
@@ -146,6 +147,16 @@ export async function POST(request: Request) {
 
   const persona = personaOf(row!.transcript);
   const voice = persona?.voice ?? DEFAULT_VOICE;
+  /*
+    HOW THE OTHER SIDE TALKS IS THE BAND THIS RUN WAS OPENED AT, which is the
+    learner's own level unless they moved the selector on the briefing, and
+    it was written down by `beginRun` so a run keeps one voice. The column is
+    a string; a row written by anything but `beginScene` falls back to the
+    learner's level rather than to a band of ours (`lib/scenes/pitch.ts`).
+  */
+  const level: Level = (LEVELS as readonly string[]).includes(row!.level)
+    ? (row!.level as Level)
+    : await courseLevelFor(ownerId);
 
   /*
     MARKED HERE, BY THE SAME FUNCTION THAT MARKS IT AT THE END.
@@ -979,8 +990,8 @@ export async function POST(request: Request) {
       */
       scene: scene.title,
       place: scene.place,
-      // The band the scene is written for, which is how the other side talks (`pitchFor`).
-      level: scene.level,
+      // The band this run was opened at, which is how the other side talks (`pitchFor`).
+      level,
       persona: persona?.who ?? "",
       situation: scene.role,
       reservation,

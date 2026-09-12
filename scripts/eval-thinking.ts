@@ -45,7 +45,7 @@ import { sceneById } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
 import { SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
-import { keylessContext } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext } from "./lib/sceneDraft";
 
 interface Combo {
   readonly label: string;
@@ -142,7 +142,7 @@ function promptFor(sceneId: string, beatId: string) {
   const context = keylessContext(scene);
   const beat = scene.beats.find((one) => one.id === beatId) ?? scene.beats[1]!;
   const system = composeSystem({
-    scene: scene.title, place: scene.place, level: scene.level, persona: PERSONAS[0]!.who, situation: scene.role,
+    scene: scene.title, place: scene.place, level: HARNESS_LEVEL, persona: PERSONAS[0]!.who, situation: scene.role,
     register: scene.register, words: [...context.lexicon.byLemma.keys()],
   });
   const live = composeLive({

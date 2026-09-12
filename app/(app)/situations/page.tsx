@@ -1,11 +1,9 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
-import { courseLevelFor } from "@/lib/progress/level";
-import { bandsAround } from "@/lib/collections/levels";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
-import { LEVELS, unitById } from "@/lib/collections/syllabus";
-import { Card, Chip, Empty, Page, Stack } from "@/components/ui";
+import { unitById } from "@/lib/collections/syllabus";
+import { Card, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { errandForScene } from "@/lib/collections/errands";
@@ -24,10 +22,13 @@ export const dynamic = "force-dynamic";
  * and how long it takes, which is what somebody deciding whether they have time
  * for one actually needs (`docs/19-situations.md` §13).
  *
- * A scene is offered one band either side of the learner's level, through
- * `lib/collections/levels.ts`, which is the same table the minimal pairs round
- * and the government drill draw from. A second answer to "what is around this
- * learner's level" is how the first one rots.
+ * NO SCENE HAS A BAND OF ITS OWN. They did, and the page sorted them into
+ * "at your level" and "a bit above or below you" on it. What a band on a tile
+ * actually decided was how the other side talked, and that is chosen on the
+ * briefing now, defaulting to the learner's own level, so every situation is
+ * at your level until you move the selector (`lib/scenes/pitch.ts`). One
+ * list, ordered by title, because the catalog's own order is the order the
+ * scenes were written and reads as a wall.
  *
  * The difficulty dial sits on the scene rather than in Settings, because it is
  * a decision about this conversation rather than a preference about the app,
@@ -36,21 +37,8 @@ export const dynamic = "force-dynamic";
  */
 export default async function SituationsPage() {
   const ownerId = await requireUserId();
-  const [level, history] = await Promise.all([courseLevelFor(ownerId), sceneHistoryFor(ownerId)]);
-  const band = bandsAround(level);
-
-  /*
-    Ordered by level inside each group, because the catalog's order is the
-    order the scenes were written and with fourteen of them that reads as a
-    wall: an A1 learner saw A1, A2, A2, A1, A2, A1 down the page. The level is
-    on every tile, so the only thing sorting adds is that the ones a learner
-    can walk into come first. Ordering and never filtering, which is
-    `aroundFirst`'s rule about a learner's own deck one file over.
-  */
-  const byLevel = (a: (typeof SCENES)[number], b: (typeof SCENES)[number]) =>
-    LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || a.title.localeCompare(b.title);
-  const near = SCENES.filter((scene) => band.includes(scene.level)).sort(byLevel);
-  const rest = SCENES.filter((scene) => !band.includes(scene.level)).sort(byLevel);
+  const history = await sceneHistoryFor(ownerId);
+  const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
 
   return (
     <Page
@@ -58,33 +46,21 @@ export default async function SituationsPage() {
       lead="Somebody wants something from you, and you have to sort it out in Estonian."
     >
       <Stack>
-        {near.length === 0 && rest.length === 0 ? (
+        {scenes.length === 0 ? (
           /*
             The empty state is a door rather than an explanation, and its body
             stays under 100 characters. There is nothing to explain here that
             opening one would not explain better.
           */
           <Empty
-            title="No conversations at your level yet"
+            title="No conversations yet"
             body="More are coming. A practice round is the quickest thing to do in the meantime."
             action={<ButtonLink href="/practice">Practice</ButtonLink>}
           />
         ) : (
-          <>
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {near.map((scene) => <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} />)}
-            </ul>
-            {rest.length > 0 && (
-              <div>
-                <p className="mb-3 text-sm" style={{ color: "var(--ink-3)" }}>
-                  A bit above or below you. Worth a go anyway.
-                </p>
-                <ul className="grid gap-3 sm:grid-cols-2">
-                  {rest.map((scene) => <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} />)}
-                </ul>
-              </div>
-            )}
-          </>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {scenes.map((scene) => <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} />)}
+          </ul>
         )}
 
         {/*
@@ -154,8 +130,6 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
               which is the argument for putting it there.
             */}
             <h2 className="min-w-0 flex-1 text-md font-medium">{scene.title}</h2>
-            {/* A level never wraps: "B1" on two lines reads as two chips. */}
-            <span className="shrink-0"><Chip tone="neutral">{scene.level}</Chip></span>
           </div>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>{scene.place}</p>
           {/*

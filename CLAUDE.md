@@ -5680,26 +5680,34 @@ app's own hint instead, in English and out of character, which is the honest thi
 moment (`lib/scenes/coach.ts`). The word-shaped and card-shaped choices are untouched, since
 `Valu või palavik?` is two things somebody could have meant.
 
-**And how the other side talks is the scene's band, said once, behind the cache breakpoint.** Every
-scene has carried a `level` since the catalogue was written and nothing about a composed line read
-it: the prompt told the model "they are a beginner" on the B1 landlord as readily as on the A1
-corner shop and asked for the same two to four sentences at both, so a learner three weeks in met a
-ticket clerk who spoke like a B1 receptionist and a B1 candidate met an interviewer who spoke like
-an A1 shopkeeper. The operator wrote out, per band, what a person has to sound like for a learner
-at that band to follow without stopping, thirty interview dialogues over three files, and
-`lib/scenes/pitch.ts` is what those say in English: at A1 one short sentence per thought, one
-question at a time and a yes-or-no question wherever the words allow one; at A2 two thoughts on a
-conjunction and a question offering a choice of two; at B1 a whole sentence with one clause inside
-it and a reason or a consequence in a second; at B2 how you speak to any adult; at C1 how you speak
-to a colleague. Each row also narrows the ask, fewer sentences, fewer words and fewer words outside
-the list as the band drops, and **every figure sits under the gate's own ceiling**, asserted, since
-the gate is what keeps a composed line honest and none of its twelve checks was touched. It keys
-on the scene's band and not the learner's, because the band is the difficulty printed beside the
-title and the one they chose when they opened it. `ComposeScene.level` is required, so a caller
-that has not decided does not compile, and the invariant reads the six call sites that build the
-object from a literal, because a harness pitched at nothing measures a conversation the app does
-not have. A keyless deployment is untouched: the bank's lines were drafted against the beat and
-say what they said.
+**And how the other side talks is the run's band, which is the learner's own unless they moved
+it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are
+a beginner" on the landlord as readily as on the corner shop and asked for the same two to four
+sentences at both, so a learner three weeks in met a ticket clerk who spoke like a B1 receptionist
+and a B1 candidate met an interviewer who spoke like an A1 shopkeeper. The operator wrote out, per
+band, what a person has to sound like for a learner at that band to follow without stopping, thirty
+interview dialogues over three files, and `lib/scenes/pitch.ts` is what those say in English: at A1
+one short sentence per thought, one question at a time and a yes-or-no question wherever the words
+allow one; at A2 two thoughts on a conjunction and a question offering a choice of two; at B1 a
+whole sentence with one clause inside it and a reason or a consequence in a second; at B2 how you
+speak to any adult; at C1 how you speak to a colleague. Each row also narrows the ask, fewer
+sentences, fewer words and fewer words outside the list as the band drops, and **every figure sits
+under the gate's own ceiling**, asserted, since the gate is what keeps a composed line honest and
+none of its twelve checks was touched.
+
+**A scene has no band of its own.** It did, and it decided where a tile sat on the listing and, for
+an hour, how the other side talked; the operator asked for the bands to go, and they were right
+about the shape: a situation is not A1 or B1, the person on the other side is, and which they should
+be is about the learner rather than the tile. So `SceneSpec` carries no `level` and may not grow one
+back, the listing is one list, and the band is the run's: `beginScene` opens it at the level the
+app already holds for the learner, the briefing carries a selector of the five bands beside the
+difficulty dial so they can go lower for plainer sentences or higher to be spoken to like anybody
+else, and the route reads the stored band back on every turn so a run keeps one voice.
+`ComposeScene.level` is required, so a caller that has not decided does not compile, and the
+invariant reads the call sites that build the object from a literal, because a harness pitched at
+nothing measures a conversation the app does not have; a harness has no learner, so it names the
+band it plays at (`HARNESS_LEVEL`). A keyless deployment is untouched: the bank's lines were
+drafted against the beat and say what they said.
 
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a

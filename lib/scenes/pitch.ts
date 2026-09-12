@@ -1,12 +1,12 @@
 /**
  * HOW THE OTHER SIDE PITCHES THEIR ESTONIAN AT THE SCENE'S BAND.
  *
- * Every scene carries a `level`, and until this existed nothing about the
- * composed line read it: the prompt told the model "they are a beginner" on
- * the B1 landlord as readily as on the A1 corner shop, and asked for the same
- * two to four sentences of whatever length at both. So an A1 learner at a
- * ticket window met a clerk who spoke like a B1 receptionist, and a B1 learner
- * at a job interview met an interviewer speaking like an A1 shopkeeper. The
+ * Nothing about the composed line used to read a band at all: the prompt
+ * told the model "they are a beginner" on the landlord as readily as on the
+ * corner shop, and asked for the same two to four sentences of whatever
+ * length at both. So a learner three weeks in met a clerk who spoke like a
+ * B1 receptionist, and a B1 candidate met an interviewer speaking like an A1
+ * shopkeeper. The
  * operator wrote out, per band, what a person has to sound like for a learner
  * at that band to follow them without stopping, thirty interview dialogues
  * across three files, and this table is what those dialogues say in English.
@@ -23,13 +23,14 @@
  * ceilings for every band, and the per-band figures here sit under them,
  * asserted. A band asks for less room than the gate allows and never more.
  *
- * IT KEYS ON THE SCENE'S BAND RATHER THAN THE LEARNER'S. The scene is the
- * situation's difficulty, which is what the screen shows beside the title and
- * what the learner chose when they opened it; the learner's own level is on
- * the run for the errand and the grades. A learner who opens a scene above
- * their band has asked for the harder conversation, and one who opens a scene
- * below it is rehearsing, and in both cases the other side speaks the way the
- * scene said it would.
+ * IT KEYS ON THE RUN'S BAND, WHICH IS THE LEARNER'S UNLESS THEY MOVED IT. A
+ * scene carries no band of its own: the first version keyed on one and the
+ * operator asked for it to go, since a situation is as hard as the person on
+ * the other side makes it and that should follow the learner. So the band is
+ * the learner's own level by default (`courseLevelFor`) and the briefing
+ * carries a selector to go lower, for plainer sentences, or higher, to be
+ * spoken to like anybody else. `beginScene` writes it to `SceneRun.level` and
+ * the route reads it back, so a run keeps one voice.
  *
  * English only, and no Estonian at all: what is written here is a description
  * of a register, never a line in it (ADR-005), and `pitch.test.ts` says so.

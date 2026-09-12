@@ -42,6 +42,7 @@ import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { priceFor } from "../lib/usage/pricing";
 import { DEFAULT_KIND_BUDGETS } from "../lib/usage/quota";
 import { shippedDictionary } from "./lib/dictionary";
+import { HARNESS_LEVEL } from "./lib/sceneDraft";
 
 /** Measured on these prompts. See the header. */
 const CHARS_PER_TOKEN = { estonianList: 3.64, prose: 4.1 };
@@ -99,7 +100,7 @@ for (const scene of SCENES) {
   systemChars += composeSystem({
     scene: scene.title,
     place: scene.place,
-    level: scene.level,
+    level: HARNESS_LEVEL,
     // No draw here: this measures the size of the prompt, not a run.
     persona: "",
     situation: scene.role,

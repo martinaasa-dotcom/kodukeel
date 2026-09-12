@@ -208,7 +208,6 @@ const DOCTOR: SceneSpec = {
   id: "arsti-aeg",
   title: "Booking a doctor's appointment",
   place: "The reception desk at a health center",
-  level: "A2",
   tests: "keha-ja-tervis",
   /*
     `inimesed` teaches `arst`, and a scene at a health center whose word list
@@ -401,7 +400,6 @@ const LANDLORD: SceneSpec = {
   id: "uuri-remont",
   title: "Telling a landlord something is broken",
   place: "A phone call to the person you rent from",
-  level: "B1",
   tests: "eluase",
   /*
     `eluase` is the vocabulary of renting; `kodu` is the vocabulary of the flat
@@ -606,7 +604,6 @@ const COUNTER: SceneSpec = {
   id: "ametiasutus",
   title: "Handing in a form at a counter",
   place: "The desk at an office that wants your paperwork",
-  level: "A2",
   tests: "linn-ja-teenused",
   /*
     `suhtlemine` teaches `aadress`, `kiri`, `teatama` and `helistama`, which is
@@ -767,7 +764,6 @@ const SHOP: SceneSpec = {
   id: "poodi-piima",
   title: "Going to the shop for milk",
   place: "Your kitchen, then the corner shop, with a friend on the phone",
-  level: "A1",
   tests: "ostmine",
   units: [...COMMON, "ostmine", "sook-ja-jook", "pohiverbid", "kodu", "kus-ja-kuhu", "omadussonad"],
   register: "sina",
@@ -877,7 +873,6 @@ const CAFE: SceneSpec = {
   id: "kohvikus",
   title: "Ordering a drink",
   place: "The counter of a small café",
-  level: "A1",
   tests: "sook-ja-jook",
   /*
     THE TITLE SAYS "A DRINK" RATHER THAN NAMING ONE, BECAUSE THE CARD DEALS
@@ -996,7 +991,6 @@ const DIRECTIONS: SceneSpec = {
   id: "tee-kusimine",
   title: "Asking the way",
   place: "A street corner, with somebody who looks local",
-  level: "A2",
   tests: "kus-ja-kuhu",
   /*
     `kohasonad` for `lähedal` and `kõrval`, `korraldused` for `aitama`, which
@@ -1102,7 +1096,6 @@ const TICKET: SceneSpec = {
   id: "bussipilet",
   title: "Buying a bus ticket",
   place: "The ticket window at the bus station",
-  level: "A1",
   tests: "reisimine",
   units: [...COMMON, "ostmine", "reisimine", "kus-ja-kuhu", "omadussonad"],
   register: "teie",
@@ -1228,7 +1221,6 @@ const RESTAURANT: SceneSpec = {
   id: "restoranis-tellimine",
   title: "Ordering a meal",
   place: "A table in a restaurant, with the menu in front of you",
-  level: "A2",
   tests: "restoranis",
   units: [...COMMON, "restoranis", "sook-ja-jook", "ostmine", "omadussonad", "inimesed"],
   register: "teie",
@@ -1352,7 +1344,6 @@ const PHONE: SceneSpec = {
   id: "helistamine",
   title: "Ringing a shop before you go",
   place: "Your kitchen, on the phone to a shop across town",
-  level: "A2",
   tests: "suhtlemine",
   /*
     `kodu` for the thing you are after, `plaanid` for `sobima`, `ostmine` for
@@ -1459,7 +1450,6 @@ const NEIGHBOR: SceneSpec = {
   id: "trepikoda",
   title: "The neighbor on the stairs",
   place: "The stairwell of your building, on your way up",
-  level: "A1",
   tests: "inimesed",
   /*
     `riigid` for where you are from, which is the second question anybody in
@@ -1573,7 +1563,6 @@ const PHARMACY: SceneSpec = {
   id: "apteek",
   title: "At the pharmacy counter",
   place: "The counter of a pharmacy, with a queue behind you",
-  level: "A2",
   tests: "keha-ja-tervis",
   /*
     `restoranis` for `soovitama`, since a pharmacist recommends; `plaanid` for
@@ -1700,7 +1689,6 @@ const COURSE: SceneSpec = {
   id: "keeletund",
   title: "The first evening of a language course",
   place: "A classroom, the teacher going round the room",
-  level: "A2",
   tests: "kool-ja-keel",
   /*
     `riigid` for where you are from and `inimesed` for the people you are
@@ -1812,7 +1800,6 @@ const INTERVIEW: SceneSpec = {
   id: "toovestlus",
   title: "A job interview",
   place: "A small meeting room, across the table from the person hiring",
-  level: "B1",
   tests: "too-ja-raha",
   /*
     `kus-ja-kuhu` and `ostmine` for the places you worked before, `kodu` for
@@ -1932,7 +1919,6 @@ const COMPLAINT: SceneSpec = {
   id: "kaebus",
   title: "Taking something back to the shop",
   place: "The service desk of the shop you bought it from",
-  level: "B1",
   tests: "probleemid",
   /*
     `kodu` for the thing you bought, `linn-ja-teenused` for the receipt and
