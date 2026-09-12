@@ -119,6 +119,23 @@ carried `max_tokens: 80` where the route asks `SCENE_REPLY_TOKENS`, so a thinkin
 back cut off mid-word and the gate withheld every one of them, which read as a model that cannot
 write Estonian.
 
+**And Groq backs up Gemini everywhere Gemini answers, scenes included.** The grader already put
+`openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`, ungated, on whichever keys a deployment holds;
+the scanner already reaches it too, since `visionProviders` appends the general chain behind its
+Gemini lead. Scene composition did not, on the argument that the bounded Anthropic fallback existed
+precisely so a Groq outage could not drain the balance Anu runs on, and Groq had no business in the
+purpose chain for the same reason Anthropic's *place* in it is gated. That argument was about the
+dear tail, not about Groq: at a fortieth of Anthropic's rate, Groq is not the thing the budget gate
+exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link behind `SCENE_MODELS`, the same model
+`TUTOR_MODEL` already trusts with Estonian output, kept as its own constant rather than a reuse of
+`TUTOR_MODEL` so a later retune of Anu's model does not silently retune the scene composer's. It is
+**pinned exactly like `SCENE_MODELS`**, for the reason the paragraph above gives at length: an
+environment variable that could move it is the door the `SCENE_MODEL` fault came through once, one
+provider over. It answers on every budget, `allowFallback` included, because it is not the bounded
+last resort: a Gemini-only deployment is unchanged, a Groq-only one now composes scenes on Groq
+directly rather than falling straight to the bank, and the bounded Anthropic tail still sits behind
+both as the last resort of last resorts.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to

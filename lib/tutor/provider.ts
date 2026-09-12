@@ -214,6 +214,15 @@ export interface ChainOptions {
  * 3.8 times the price and is the only one the gate had to withhold from.
  * Spending up buys a model that repeats itself.
  *
+ * AND GROQ BACKS UP GEMINI EVERYWHERE GEMINI ANSWERS, SCENES INCLUDED. The
+ * grader already put `openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`;
+ * `SCENE_FALLBACK_MODEL` puts the same model behind `SCENE_MODELS`, and the
+ * vision chain already reaches it too, through the general chain appended
+ * behind Gemini in `visionProviders`. It is a fixed second link on every
+ * budget, not the bounded Anthropic last resort, because it costs a
+ * fortieth of Anthropic's rate and carries none of the risk that fallback
+ * is gated against.
+ *
  * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
  * was that being right about Estonian matters more than being cheap, which is
  * still true and is not an argument for a particular vendor. Asked the six
@@ -252,13 +261,12 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
     });
   },
   scene: (chain) => {
-    if (!process.env.GEMINI_API_KEY) return;
-    // Gemini leads; `resolveProviders` appends the fallback behind it, if the
-    // day's fallback budget still has room for one.
+    // Gemini leads; `resolveProviders` appends the bounded Anthropic fallback
+    // behind whatever this pushes, if the day's fallback budget has room.
     /*
-      PINNED, AND NO VARIABLE MOVES IT. Scenes always compose on `SCENE_MODELS`,
-      which is the one model `eval:composers` ranked for writing Estonian, and
-      nothing in the environment is read here.
+      PINNED, AND NO VARIABLE MOVES EITHER LINK. Scenes always compose on
+      `SCENE_MODELS`, which is the one model `eval:composers` ranked for
+      writing Estonian, and nothing in the environment is read here.
 
       It used to read `SCENE_MODEL`, and that is how the model came to be out
       of the loop for a week on production. Scenes ran on Groq once and the
@@ -273,10 +281,33 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       as nobody touches the dashboard. This one is a constant, and the operator
       asked for it to be one.
     */
-    for (const model of SCENE_MODELS) {
-      chain.push({ name: "gemini", model, label: "Google Gemini" });
+    if (process.env.GEMINI_API_KEY) {
+      for (const model of SCENE_MODELS) {
+        chain.push({ name: "gemini", model, label: "Google Gemini" });
+      }
+      warnIfSceneModelSet();
     }
-    warnIfSceneModelSet();
+    /*
+      GROQ IS A SECOND FIXED LINK BEHIND GEMINI, NOT THE BOUNDED LAST RESORT.
+
+      The bounded Anthropic fallback below exists because Groq having a bad
+      hour must not drain the Anthropic balance Anu depends on (see the note
+      on `allowFallback`). Groq itself carries no such risk to anything: it
+      is a fortieth of Anthropic's rate, and `SCENE_FALLBACK_MODEL` is the
+      same measured model `TUTOR_MODEL` already trusts with Estonian output.
+      So it answers whenever Gemini is unconfigured, throttled, or having a
+      bad minute, on every budget, the same way `GRADER_MODELS` already puts
+      Groq behind Gemini for the grader.
+
+      Hardcoded like `SCENE_MODELS`, for the reason the block above gives at
+      length: an environment variable that can silently repoint a scene's
+      composer is the exact door `SCENE_MODEL` came through once. It is a
+      distinct constant from `TUTOR_MODEL` rather than a reuse of it, so a
+      future change to one does not silently retune the other's job.
+    */
+    if (process.env.GROQ_API_KEY) {
+      chain.push({ name: "groq", model: SCENE_FALLBACK_MODEL, label: "Groq" });
+    }
   },
   grader: (chain) => {
     /*
@@ -385,6 +416,25 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
  * changing it, and the price row before believing a version number.
  */
 export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
+
+/**
+ * The fixed second link behind `SCENE_MODELS`, on Groq, once Gemini is
+ * unconfigured, throttled, or having a bad minute.
+ *
+ * The same string as `TUTOR_MODEL`, because it is the same finding: measured
+ * against the tutor's six grammar questions (`npm run eval:anu`),
+ * `openai/gpt-oss-120b` answered every one correctly at a fortieth of
+ * Anthropic's rate. A scene line is a smaller ask than a grammar
+ * explanation, so a model already trusted with the harder job is trusted
+ * with this one. Kept as its own named constant rather than a reference to
+ * `TUTOR_MODEL`, so a later change to Anu's model does not silently retune
+ * the scene composer's as well.
+ *
+ * PINNED, EXACTLY LIKE `SCENE_MODELS`. See `PURPOSE_CHAINS.scene` for why: an
+ * environment variable that can move it is the door `SCENE_MODEL` came
+ * through once, one provider over.
+ */
+export const SCENE_FALLBACK_MODEL = "openai/gpt-oss-120b";
 
 /**
  * How much room a scene line needs, which is not what Anu needs.
