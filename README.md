@@ -259,30 +259,35 @@ Everything except the two things that need a model, Anu and reading a photograph
 
 ## Turning on Anu, the tutor
 
-Anu needs one API key, and so does scanning a page. **Settings** in the app walks through it, but in short:
+Anu needs one API key, and Situations and scanning a page need a second. Both are free and neither
+asks for a card. **Settings** in the app walks through it, but in short:
 
-1. Sign in at [openrouter.ai](https://openrouter.ai) with Google, free, no card.
-2. Avatar (top right) → **Keys** → **Create Key**. Copy it; you only see it once.
+1. Sign in at [console.groq.com](https://console.groq.com), free, no card.
+2. **API Keys** → **Create API Key**. Copy it; you only see it once.
 3. Open the file `.env` in this folder and fill in:
    ```
-   OPENROUTER_API_KEY="paste-your-key-here"
-   OPENROUTER_MODEL="z-ai/glm-5.2:free"
+   GROQ_API_KEY="paste-your-key-here"
    ```
 4. Stop the app (Ctrl-C) and run `npm run dev` again.
 
-That model costs nothing. If Anu ever feels vague about Estonian, swap the model line for
-`anthropic/claude-sonnet-5` or `openai/gpt-4o`, a fraction of a cent per question and noticeably
-sharper. An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` works instead of OpenRouter if you prefer;
-whichever key is present is the one used.
+That is Anu. **Situations** and **Scan a page** compose and read with Gemini, so for those add a
+second key from [aistudio.google.com](https://aistudio.google.com/apikey) (Create API key, free
+tier, no card) on a line of its own:
+   ```
+   GEMINI_API_KEY="paste-your-key-here"
+   ```
 
-**Scan a page** needs the same key and one more line, because reading a photograph needs a model
-that can look at one and the free chain above cannot. Scanning uses whatever model is configured
-above unless you say otherwise, deliberately: switching the camera on must never move a free
-deployment onto a paid model by itself. So add
-`OPENROUTER_VISION_MODEL="openai/gpt-4o"` (or `ANTHROPIC_VISION_MODEL` / `OPENAI_VISION_MODEL`) and
-it is used for scanning and nothing else. A page is roughly a third of a cent.
+An `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is optional and paid: it sits behind the two free keys as
+a fallback for the minute one of them is throttled, inside a daily budget of its own, and is never
+the first thing asked.
 
-**Situations** take the same key and, if you want them good, one more line. A scene asks a model to
+**Scan a page** uses `gemini-3.1-flash-lite`, which read 144 of 144 diacritic-carrying words exactly
+when measured. Scanning uses that model unless you say otherwise, deliberately: switching the camera
+on must never move a free deployment onto a dearer model by itself. `GEMINI_VISION_MODEL`,
+`GROQ_VISION_MODEL`, `ANTHROPIC_VISION_MODEL` and `OPENAI_VISION_MODEL` are the overrides, used for
+scanning and nothing else.
+
+**Situations** take the Gemini key and, if you want them good, nothing more. A scene asks a model to
 follow a conversation with a beginner, in a language most models are thin on, inside a closed word
 list, and write one line that answers what the person actually said. Anything reaching outside that
 list is withheld whole, and `npm run eval:scene` has measured between 43 and 70 percent of composed
@@ -294,8 +299,9 @@ forces one model at a time, sends the route's own prompt, judges with the shippe
 per model rather than in total. Measured here on 2026-09-05, the two that answered cleanly and in
 scope were `qwen/qwen3.8-27b` on Groq and `gemini-3.6-flash`; `groq/compound-mini` wrote statements
 where the beat wanted a question; and two of the three OpenRouter free models answered 429 to every
-request for the rest of the day, which is what a free tier is and is the argument for the lines
-written in advance being good rather than for the ladder being different.
+request for the rest of the day (OpenRouter is no longer in the chain), which is what a free tier is
+and is the argument for the lines written in advance being good rather than for the ladder being
+different.
 
 **Conversations are pinned to `gemini-3.8-flash`, and no variable moves them.** They compose on it
 when `GEMINI_API_KEY` is set, with Anthropic behind it only as the gated last resort, and play off
@@ -325,7 +331,8 @@ rebuild, documented in `docs/03-architecture.md` ADR-011:
    through it, which the transaction pooler cannot.
 2. In Vercel, import this repo and set the environment variables (Production, and Preview if you
    want preview deploys to work): `DATABASE_URL`, `DIRECT_URL`, plus whichever of
-   `OPENROUTER_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` and `EKILEX_API_KEY` you're using.
+   `GROQ_API_KEY` / `GEMINI_API_KEY` / `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` and `EKILEX_API_KEY`
+   you're using.
    Never prefix any of these `NEXT_PUBLIC_`, they must stay server-side.
 
    **Run the app in the same region as the database, and put the pair as near Estonia as you

@@ -198,7 +198,7 @@ check("no secret carries a NEXT_PUBLIC_ prefix", () => {
 });
 
 check("no server-only key is read from a file that runs in the browser", () => {
-  const serverOnly = /process\.env\.(ANTHROPIC_API_KEY|OPENAI_API_KEY|OPENROUTER_API_KEY|EKILEX_API_KEY|SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL|DIRECT_URL)/;
+  const serverOnly = /process\.env\.(ANTHROPIC_API_KEY|OPENAI_API_KEY|GROQ_API_KEY|GEMINI_API_KEY|EKILEX_API_KEY|SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL|DIRECT_URL)/;
   for (const file of CLIENT) {
     const hit = serverOnly.exec(read(file));
     assert.equal(hit, null, `${file} reads ${hit?.[1]} in the browser`);
@@ -5182,7 +5182,7 @@ check("nothing a model wrote can reach the dictionary through the queue", () => 
     const source = read(file);
     assert.doesNotMatch(
       source,
-      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
       `${file} can reach a model, and this path writes Estonian into the shared dictionary`,
     );
   }
@@ -9123,7 +9123,7 @@ check("the almanac asks for a meaning and never supplies a word", () => {
   for (const file of ["lib/progress/wordOfDay.ts", "lib/copy/almanac.ts", "lib/dict/gloss.ts"]) {
     assert.doesNotMatch(
       code(file),
-      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
       `${file} can reach a model, and this path decides what Estonian goes on the home page`,
     );
   }
@@ -9560,7 +9560,7 @@ check("the commonest words are counted, gated, and never written down twice", ()
     "the frequency builder stopped requiring a band, so the Wiktionary tail can reach the list",
   );
   assert.doesNotMatch(
-    builder, /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+    builder, /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
     "the frequency builder can reach a model, and this path decides which words a learner is offered",
   );
 
@@ -11700,12 +11700,19 @@ check("each routed purpose asks for its own chain", () => {
     "whatever the general chain holds and the per-purpose budget stops meaning anything.",
   );
 
-  const routed: Readonly<Record<string, "tutor" | "scene">> = {
+  const routed: Readonly<Record<string, "tutor" | "scene" | "grader">> = {
     // The routes and reads that must not take the general chain by accident.
     "app/api/tutor/route.ts": "tutor",
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
     "app/actions.ts": "scene",
+    // The three graders and the translation fallback: metered as GRADER and
+    // pinned to the model `eval:grader` measured, so none may take the
+    // general head, which is whatever the environment happened to make it.
+    "app/api/write/route.ts": "grader",
+    "app/api/describe/route.ts": "grader",
+    "app/api/exam/write/route.ts": "grader",
+    "lib/tutor/translate.ts": "grader",
   };
 
   for (const [file, purpose] of Object.entries(routed)) {
@@ -11802,7 +11809,7 @@ check("a metered route asks the ledger before offering a last resort", () => {
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain
  * rather than naming one, for the reason `PROVIDER_KEY_ENV` is imported and not
- * retyped, and then built OpenRouter and Groq and stopped. `resolveProviders`
+ * retyped, and then built a gateway and Groq and stopped. `resolveProviders`
  * has put every free Gemini model on the chain since the provider was added, so
  * `eval:scene` measured a rejection rate over two thirds of the chain and
  * `draft:lines` drafted the whole bank without ever asking a provider the app
@@ -11820,8 +11827,10 @@ check("a metered route asks the ledger before offering a last resort", () => {
 check("every free provider the app would ask, a measuring script can ask too", () => {
   const provider = code(join("lib", "tutor", "provider.ts"));
   const lists = [...provider.matchAll(/export const (FREE_\w+_MODELS) = \[/g)].map((m) => m[1]!);
+  // Two free providers, Groq and Gemini. The floor was three while a gateway
+  // was in the chain; a third free provider raises it again.
   assert.ok(
-    lists.length >= 3,
+    lists.length >= 2,
     `only found ${lists.length} free model lists in provider.ts, so this check stopped looking`,
   );
 
@@ -11849,7 +11858,7 @@ check("every free provider the app would ask, a measuring script can ask too", (
     pointed at `sceneDraft.ts`, and it went stale the day scenes were given a
     purpose chain of their own: the free lists are the *general* chain now,
     `sceneProviders` is what a scene asks, and a harness reading the three
-    lists printed lines from three OpenRouter models the route would never
+    lists printed lines from three gateway models the route would never
     reach while `draft:lines` drafted the bank with them. So what is asserted
     is the stronger property, that the harness reads the app's own scene chain
     and keeps no list at all, and that it asks for the budget the route asks

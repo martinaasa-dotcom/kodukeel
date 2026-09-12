@@ -35,7 +35,6 @@ export interface Recipient {
  * choice are recorded as unknown rather than guessed.
  */
 const PROVIDER_HOME: Record<string, boolean | null> = {
-  OpenRouter: false,
   Groq: false,
   "Google Gemini": false,
   Anthropic: false,

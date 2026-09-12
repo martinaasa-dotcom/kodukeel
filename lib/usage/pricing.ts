@@ -146,8 +146,8 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
 export const UNKNOWN_MODEL: ModelPrice = { inputPerMTok: 10, outputPerMTok: 50 };
 
 /**
- * OpenRouter slugs carry a vendor prefix and sometimes a variant suffix —
- * `anthropic/claude-sonnet-5`, `openai/gpt-4o:free`. Both are stripped so one
+ * Groq and Gemini slugs carry a vendor prefix and sometimes a variant suffix,
+ * `openai/gpt-oss-120b`, `openai/gpt-4o:free`. Both are stripped so one
  * table serves every provider.
  */
 export function normaliseModel(model: string): string {

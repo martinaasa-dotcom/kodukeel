@@ -311,9 +311,9 @@ async function callForJson(
     /*
       WHICH ENDPOINT AND WHICH KEY IS ONE TABLE, AND THIS READ ITS OWN.
 
-      It was `isOpenRouter ? OpenRouter : OpenAI`, written when the chain held
+      It was `isGateway ? gateway : OpenAI`, written when the chain held
       exactly those two, and `resolveProviders` has offered Groq and Gemini
-      since. Neither is OpenRouter, so both fell down the else side of that
+      since. Neither is the gateway, so both fell down the else side of that
       ternary and were posted to `api.openai.com` carrying `OPENAI_API_KEY`,
       which on a deployment configured with Groq or Gemini and nothing else is
       undefined. Every GRADER call there answered 401: the writing exercise,

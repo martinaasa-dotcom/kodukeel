@@ -302,7 +302,7 @@ describe("utcDay", () => {
 });
 
 describe("pricing", () => {
-  it("strips an OpenRouter vendor prefix and a variant suffix", () => {
+  it("strips a Groq or Gemini vendor prefix and a variant suffix", () => {
     expect(normaliseModel("anthropic/claude-sonnet-5")).toBe("claude-sonnet-5");
     expect(normaliseModel("openai/gpt-4o:extended")).toBe("gpt-4o");
     expect(normaliseModel("GPT-4O")).toBe("gpt-4o");

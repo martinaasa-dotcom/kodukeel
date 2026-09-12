@@ -145,9 +145,9 @@ export interface ComposeAsk {
   an empty string and at 1200 both write a clean line. An empty answer is
   indistinguishable from a bad minute one rung down, so a tight cap here
   quietly decides which models this app can use. What a low ceiling would buy
-  is a nearly-empty OpenRouter key still being able to compose, since that
-  provider holds credit against `max_tokens`; that is a clear 402 a reader can
-  act on, and it is the smaller harm.
+  is a nearly-empty free key still being able to compose, since a provider
+  that bills holds credit against `max_tokens`; that is a clear 402 a reader
+  can act on, and it is the smaller harm.
 */
 
 const COMPOSE_RULES = [

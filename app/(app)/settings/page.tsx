@@ -398,7 +398,7 @@ export default async function SettingsPage() {
                   </p>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of
-                    several OpenRouter models reads as redundancy and is not: they
+                    several Groq models reads as redundancy and is not: they
                     share one account and one balance, so when it ran out here
                     every link answered 402 at the same moment and the tutor went
                     down. A second provider is the only thing that changes that.
