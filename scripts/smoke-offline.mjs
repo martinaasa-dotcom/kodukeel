@@ -115,8 +115,9 @@ async function answerOneCard(depth = 0) {
     // The keyboard rather than a click on the option, because it is what the
     // app itself offers and what test-modes.mjs drives.
     await page.keyboard.press("1");
-    // A right pick stays on screen for a second before it grades itself.
-    await page.waitForTimeout(1400);
+    // A right pick stays on screen for `VERDICT_PAUSE_MS` before it grades
+    // itself, so the wait here has to outlast it.
+    await page.waitForTimeout(3600);
   } else {
     const input = page.locator("main input[type='text'], main input:not([type])").first();
     if (await input.count()) {

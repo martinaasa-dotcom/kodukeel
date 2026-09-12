@@ -29,7 +29,7 @@
  * there was no card to answer, so a caller can say which of those it got
  * rather than only that something happened.
  */
-export async function revealAnswer(page, { timeout = 2500 } = {}) {
+export async function revealAnswer(page, { timeout = 3600 } = {}) {
   const app = page.locator("main");
 
   /*
@@ -63,12 +63,15 @@ export async function revealAnswer(page, { timeout = 2500 } = {}) {
     await page.keyboard.press("1");
     await page.waitForTimeout(timeout);
     /*
-      A right pick now grades itself after `VERDICT_PAUSE_MS` (2200ms), which
-      this helper promises not to do, so the wait here has to outlast it. One guess in four lands on the answer and there is no way to
-      know which before picking, so when it does the grade is taken straight
-      back through the app's own undo. Undo is disabled until something has
-      been graded in this page's session, and a first meeting writes nothing,
-      so an enabled button here means exactly one thing.
+      A right pick now grades itself after `VERDICT_PAUSE_MS`, which this
+      helper promises not to do, so the default wait here has to outlast it
+      rather than name it, since a suite reading this file should not have to
+      know the exact figure to trust the margin. One guess in four lands on
+      the answer and there is no way to know which before picking, so when it
+      does the grade is taken straight back through the app's own undo. Undo
+      is disabled until something has been graded in this page's session, and
+      a first meeting writes nothing, so an enabled button here means exactly
+      one thing.
     */
     const undo = page.locator("main").getByRole("button", { name: /Undo/ });
     if ((await undo.count()) && (await undo.first().isEnabled())) {
@@ -104,7 +107,7 @@ export async function revealAnswer(page, { timeout = 2500 } = {}) {
  *
  * Returns false when no retype was being asked for.
  */
-export async function retypeMiss(page, { settle = 1500 } = {}) {
+export async function retypeMiss(page, { settle = 3600 } = {}) {
   const box = page.locator("main").getByLabel(/Type the (answer|word) again/);
   if (!(await box.count())) return false;
   const answer = (await page.locator("main [data-answer]").first().textContent())?.trim();
