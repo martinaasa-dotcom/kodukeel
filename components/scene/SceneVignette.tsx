@@ -394,10 +394,11 @@ function Room({ of }: { of: Setting }) {
  * So a room says where its people are and the marks are drawn over it. Every
  * figure stands on the floor at 101 with its head at 54, so `you`, `behind`
  * and `beside` are one number each; `them` is a point rather than a number
- * because on the three scenes held over a telephone there is nobody on the
- * other side of the room at all, and what speaks is the line going out. There
- * the point is put above the ringing, which is where a voice coming down a
- * wire has to be if it is anywhere.
+ * because four of the rooms have nobody on the other side to measure. Three
+ * are held over a telephone and what speaks is the line going out, so the
+ * point sits above the ringing, which is where a voice coming down a wire has
+ * to be if it is anywhere; the fourth is a ticket window, where the answer
+ * comes out of the bus.
  *
  * Checked against the drawing in `scenery.test.ts`: every room drawn has a row
  * and every row is a room, for the reason the scenery table itself is checked
@@ -412,7 +413,12 @@ interface Marks {
   readonly behind: number;
   /** Where somebody with a claim on the other side stands. */
   readonly beside: number;
-  /** The top left of a sheet of paper on whatever surface is between them. */
+  /**
+   * The top left of a sheet of paper: on the counter or the table where the
+   * room has one, and in the hand of whoever is holding it out where it does
+   * not. Seven of the fourteen have no surface between two people at all, and
+   * a sheet floating in the middle of those reads as a rendering fault.
+   */
   readonly thing: { readonly x: number; readonly y: number };
 }
 
@@ -450,10 +456,15 @@ function Saying({ x, y, facing }: { x: number; y: number; facing: "left" | "righ
   return (
     <>
       {[1, 2, 3].map((at) => (
+        /*
+          No `opacity: 0` of its own, which is what the ring beside it carries
+          and is wrong here: this one has to be visible with the animation
+          stopped, since somebody who asked for less movement still has to be
+          able to see whose turn it is.
+        */
         <path
           key={at}
           className={`stick-say amb-${at}`}
-          style={{ opacity: 0 }}
           d={`M ${x + (at - 1) * 5 * d} ${y - at * 2} a ${5 + at * 3} ${5 + at * 3} 0 0 ${sweep} 0 ${8 + at * 4}`}
         />
       ))}

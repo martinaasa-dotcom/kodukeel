@@ -57,11 +57,13 @@ const { check, absent, done } = suite("A conversation, end to end", {
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
 
-    Two more since the room was put back above the conversation, which is one
-    check where it opens and one at the bottom of a scrolled page, because a
-    band that is drawn and a band that sticks are the same markup.
+    Three more since the room was put back above the conversation: one check
+    where it opens and one at the bottom of a scrolled page, because a band that
+    is drawn and a band that sticks are the same markup, and one for the role
+    card's own line, which was marked sticky on an element that could not move
+    and had never been looked at from a scrolled page.
   */
-  floor: 53,
+  floor: 54,
 });
 
 /*
@@ -306,7 +308,12 @@ check("and the objective in play is named without it",
   sticks at, and only a browser knows either.
 */
 const stageBox = async () => page.evaluate(() => {
-  const svg = document.querySelector(".scene-room header svg");
+  /*
+    Off the band's own marker rather than off "an svg in the header": the bar
+    also holds the door out and the room's eighteen-pixel mark, and the first
+    of those in document order is an arrow.
+  */
+  const svg = document.querySelector("[data-scene-stage] svg");
   if (!svg) return null;
   const box = svg.getBoundingClientRect();
   return { top: Math.round(box.top), bottom: Math.round(box.bottom), height: Math.round(box.height) };
@@ -546,6 +553,7 @@ await page.waitForFunction(() => new Promise((settled) => {
 }), null, { timeout: 10_000 }).catch(() => {});
 await page.mouse.wheel(0, 4_000);
 await page.waitForTimeout(600);
+const innerHeightOf = await page.evaluate(() => window.innerHeight);
 const reached = await page.evaluate(() => {
   const input = document.querySelector('input[aria-label="What you say"]').getBoundingClientRect();
   return {
@@ -571,6 +579,38 @@ const stageAtEnd = await stageBox();
 check("and the room is still on screen once the conversation has scrolled",
   Boolean(stageAtEnd) && stageAtEnd.top >= 0 && stageAtEnd.bottom <= 240,
   JSON.stringify(stageAtEnd));
+
+/*
+  AND SO IS THE CARD, WHICH IS THE OTHER THING THAT HAS TO BE TRUE WHILE
+  SOMEBODY TYPES.
+
+  A beat asks the learner to read a value off their card, so the one line
+  carrying those values is pinned under the bar and the room. It was marked
+  sticky on the `summary`, which cannot move: a sticky box travels inside its
+  own containing block, and a closed `details` is exactly as tall as its
+  summary. So the pill scrolled away with the page for the whole of this
+  feature's life while the comment beside it explained why it had to stay, and
+  no check here could see that, because the page was never scrolled at the
+  moment the pill was looked at.
+
+  Measured at the bottom of a scrolled page, where the fault lived: on screen,
+  and under the room rather than over it.
+*/
+const pinned = await page.evaluate(() => {
+  const pill = document.querySelector("details.scene-sticky summary");
+  const svg = document.querySelector("[data-scene-stage] svg");
+  if (!pill || !svg) return null;
+  const box = pill.getBoundingClientRect();
+  return {
+    top: Math.round(box.top),
+    bottom: Math.round(box.bottom),
+    under: Math.round(svg.getBoundingClientRect().bottom),
+    text: pill.textContent.trim().slice(0, 40),
+  };
+});
+check("and the card you answer from is pinned under it, not scrolled away",
+  Boolean(pinned) && pinned.top >= pinned.under && pinned.bottom <= innerHeightOf,
+  JSON.stringify(pinned));
 
 /*
   And the words under every line are the rung it actually came from. The chip is

@@ -14976,6 +14976,31 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     session, /cue=\{cue\}/,
     "the room is no longer told what has come up, so a curveball is a sentence of English again",
   );
+  /*
+    AND WHAT COMES UP IS THE CURVEBALL THE SERVER NAMES, NEVER THE BEAT.
+
+    The first version of this read the id off `beatId`, on the reading that a
+    curveball becomes a beat of its own. It does, inside the machine, and that
+    beat is not what goes on the wire: `beatId` is the scene's own beat, the one
+    waiting *behind* the curveball, and only the objective comes off the one in
+    front. So every cue was dead. It typechecked, both tables were complete and
+    read both ways, and the only thing that found it was playing a conversation
+    on the hard setting until one fired. Both ends are asserted, because either
+    alone leaves the room silent about the very thing it was put there for.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
+    "the route no longer says which curveball is standing, so the room cannot draw it",
+  );
+  assert.match(
+    session, /cueFor\(hurdle\)/,
+    "the room reads what came up off something other than the curveball the server named",
+  );
+  assert.doesNotMatch(
+    session, /cueFor\(beatId\)/,
+    "the room is reading the cue off the beat again, which is the scene's own beat and never the "
+    + "curveball's: every cue is dead and nothing says so",
+  );
 
   const stage = code("components/scene/SceneStage.tsx");
   /*
@@ -14986,6 +15011,20 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
   assert.match(
     stage, /<header[\s\S]{0,4000}?\{stage && \([\s\S]{0,600}?\{stage\}[\s\S]{0,200}?<\/header>/,
     "the room is drawn outside the bar, so it scrolls away with the first turn",
+  );
+  /*
+    And it carries its own marker. The bar holds two other drawings, the door
+    out and the room's mark, so anything reaching for "the svg in the header"
+    measures an eighteen-pixel arrow: `test-scene.mjs` did, and would have
+    reported the room as missing on a screen that had it.
+  */
+  assert.match(
+    stage, /data-scene-stage/,
+    "the band has no marker of its own, so a suite looking for the room in the bar finds the door out",
+  );
+  assert.match(
+    readFileSync("scripts/test-scene.mjs", "utf8"), /\[data-scene-stage\] svg/,
+    "test-scene.mjs no longer measures the room off its own marker",
   );
   assert.match(
     stage, /height: "var\(--scene-stage\)"/,
@@ -15005,9 +15044,25 @@ check("a conversation draws the room it is had in, for the whole of it", () => {
     /\.scene-room\[data-stage\] \{ --scene-stage: [\d.]+rem; \}\s*@media \(min-width: 768px\)/,
     "the band has no height before the first breakpoint, so the room is drawn at nothing on a phone",
   );
+  /*
+    AND THE CARD STICKS UNDER IT, WHICH IS A RULE ON THE DISCLOSURE RATHER THAN
+    ON ITS SUMMARY.
+
+    `position: sticky` moves a box within its own containing block, and a
+    `summary`'s is the `details` around it: closed, that is exactly as tall as
+    the summary, so the line this class used to sit on could never travel and
+    scrolled away with the page while the comment beside it explained why it
+    had to stay. The disclosure is what sticks now, and only while it is closed,
+    or opening it pins four hundred pixels over the conversation.
+  */
   assert.match(
-    css, /\.scene-sticky \{ position: sticky; top: calc\(var\(--scene-top[^)]*\) \+ var\(--scene-stage/,
-    "the role card no longer sticks under the room, so it is drawn behind it",
+    css, /\.scene-sticky:not\(\[open\]\) \{\s*position: sticky;\s*top: calc\(var\(--scene-top[^)]*\) \+ var\(--scene-stage/,
+    "the role card no longer sticks under the room, or it sticks while it is open as well",
+  );
+  assert.match(
+    code("components/scene/SceneSession.tsx"), /<details\s+className="scene-sticky/,
+    "the class that pins the role card is back on something that cannot move: a summary inside a "
+    + "closed details has nowhere to travel, which is the fault this replaced",
   );
 });
 

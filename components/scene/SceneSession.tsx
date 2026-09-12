@@ -316,17 +316,22 @@ export function SceneSession({ scene, minutes, unit }: {
   */
   const [room, setRoom] = useState<Setting>(() => sceneryFor(scene.id).setting);
   /*
-    WHETHER A QUEUE HAS FORMED BEHIND THE LEARNER.
+    WHAT HAS COME UP, WHICH IS TWO FACTS RATHER THAN ONE.
 
-    Thirteen of the fourteen curveballs reach the screen as a beat of their own
-    and say which one they are in their id, so the room can draw what has come
-    up without being told twice. The queue is the fourteenth and is `silent`:
-    it never becomes a beat, it asks for nothing, and its whole effect is one
-    number of patience. Its own entry calls that "pressure that is felt rather
-    than announced", and for its whole life nothing on the screen let anybody
-    feel it. It is the one curveball that is entirely a picture, so the server
-    says it happened and the room draws the person.
+    A curveball standing in the way is the one the room draws now, and it
+    clears when the learner deals with it. It is sent rather than read off the
+    beat, because the beat on the wire is the *scene's* own, the one waiting
+    behind the curveball: only the objective comes off the one in front of it,
+    which is why the first version of this drew no cue at all, ever.
+
+    The queue is the other fact and it does not clear. It is the one curveball
+    of the fourteen that is `silent`: it never becomes a beat, it asks for
+    nothing, and its whole effect is one number of patience. Its own entry
+    calls that "pressure that is felt rather than announced", and for its whole
+    life nothing on the screen let anybody feel it. It is also the one that is
+    entirely a picture, which is what makes a drawing the right place to say it.
   */
+  const [hurdle, setHurdle] = useState<string | null>(null);
   const [queued, setQueued] = useState(false);
   /*
     HOW THE OTHER SIDE SOUNDS, WHICH IS THE ROOM THIS FEATURE WAS WRITTEN FOR.
@@ -568,7 +573,7 @@ export function SceneSession({ scene, minutes, unit }: {
         beatId?: string | null; goal?: string | null; done?: string[];
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
-        slips?: SlipNote[]; queued?: boolean;
+        slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
       };
       if (data.error) { setError(data.error); return; }
       if (data.composed === false && data.note) setNote(data.note);
@@ -639,6 +644,7 @@ export function SceneSession({ scene, minutes, unit }: {
       });
       if (data.voice) setVoice(data.voice);
       if (typeof data.speed === "number" && data.speed > 0) setSpeed(data.speed);
+      setHurdle(data.hurdle ?? null);
       if (data.queued) setQueued(true);
       setDone(data.done ?? []);
       if (said.length > 0) setTurns((was) => [...was, { who: "them", lines: said }]);
@@ -1042,12 +1048,11 @@ export function SceneSession({ scene, minutes, unit }: {
     ? null
     : busy && turns[turns.length - 1]?.who !== "them" ? "them" as const : "you" as const;
   /*
-    And what has just come up. The beat the other side is waiting on is a
-    curveball's own beat where one is standing (`hurdleBeat`), so the id is the
-    whole of what the room needs; the queue is the one that never becomes a beat
-    and is carried beside it.
+    And what has just come up, which the server says and the screen draws. The
+    standing curveball where there is one, and the queue, which never stands as
+    a beat at all and stays for the rest of the run once it has formed.
   */
-  const cue = cueFor(beatId) ?? (queued ? "behind" : null);
+  const cue = cueFor(hurdle) ?? (queued ? "behind" : null);
 
   return (
     <SceneStage
@@ -1110,28 +1115,63 @@ export function SceneSession({ scene, minutes, unit }: {
         A `details` rather than a state flag, because the browser gives the
         disclosure a keyboard and a screen reader for free.
       */}
-      <details>
-        {/*
-          THE SUMMARY STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
-          NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
+      {/*
+        THE ONE LINE STICKS AND THE PROSE DOES NOT, BECAUSE ONE OF THEM IS
+        NEEDED AT THE MOMENT OF TYPING AND THE OTHER IS READ ONCE.
 
-          Measured at 360x640, which is the width this app is measured at: the
-          card open is 300 to 400 pixels, the log is capped at 46vh and the
-          composer with its four buttons is another 200, so the column is half
-          again as tall as the screen and the card is off the top of it for the
-          whole conversation. With a keyboard up it is off the top twice over.
-          That is not a cosmetic loss: the values on the card are exactly what a
-          beat asks for, so a learner asked what time suits them was being asked
-          about a time they could no longer see.
+        Measured at 360x640, which is the width this app is measured at: the
+        card open is 300 to 400 pixels and the composer with its buttons is
+        another 200, so the column is half again as tall as the screen and the
+        card is off the top of it for the whole conversation. With a keyboard up
+        it is off the top twice over. That is not a cosmetic loss: the values on
+        the card are exactly what a beat asks for, so a learner asked what time
+        suits them was being asked about a time they could no longer see.
 
-          Sticking the whole disclosure is the obvious fix and is worse, since a
-          40vh block pinned over a 46vh log leaves the conversation reading
-          underneath it. What has to stay is the facts, and they are one line.
-          They are also drawn twice, here and under the prop line that asks for
-          them, and that is the right kind of twice: the pairing in the body says
-          which value answers which line, and this says the value is still true
-          while you type. A reminder is not a second answer to a question.
-        */}
+        Sticking the whole disclosure is the obvious fix and is worse, since a
+        40vh block pinned over the conversation leaves it reading underneath.
+        What has to stay is the facts, and they are one line. They are also
+        drawn twice, here and under the prop line that asks for them, and that
+        is the right kind of twice: the pairing in the body says which value
+        answers which line, and this says the value is still true while you
+        type. A reminder is not a second answer to a question.
+
+        AND THE THING THAT STICKS IS THE DISCLOSURE, NOT ITS SUMMARY, WHICH IS
+        THE HALF THAT WAS WRONG FOR THE WHOLE OF THIS FEATURE'S LIFE.
+
+        `position: sticky` moves a box inside its own containing block and no
+        further, and a `summary`'s containing block is the `details` around it.
+        Closed, that is exactly as tall as the summary: there is nowhere to
+        travel, so the line marked sticky scrolled away with the page like
+        anything else, and every word of the paragraph above described a thing
+        that never happened. Driven in a browser at 390 after two turns, the
+        pill was simply gone.
+
+        So the `details` is what sticks, and only while it is closed, which is
+        when it *is* the one line. Open it and it is an ordinary block in the
+        flow again, which is the whole of the rule above kept: nothing pins 400
+        pixels over a conversation. `:not([open])` is the browser's own
+        attribute rather than a flag of ours, so this stays a real disclosure
+        with the keyboard and the screen reader it came with.
+      */}
+      <details
+        className="scene-sticky z-10"
+        /*
+          Opening it while it is pinned unpins it, and its place in the flow can
+          be a screenful above where the learner is standing, so the card would
+          open somewhere they cannot see. It is brought to them instead, under
+          the bar and the room, which `scroll-margin-top` in the stylesheet is
+          the offset for. `nearest` because a card already on screen must not be
+          scrolled at all: the press was to read it, not to move the page.
+
+          On the next frame, because the browser sets `open` and fires this
+          before it has laid the card out, so a measurement taken here is of the
+          box as it was.
+        */
+        onToggle={(event) => {
+          const card = event.currentTarget;
+          if (card.open) requestAnimationFrame(() => card.scrollIntoView({ block: "nearest" }));
+        }}
+      >
         {/*
           The values first, because they are the reason this line is on the
           screen at all, and the place not at all: the bar two lines above
@@ -1139,7 +1179,7 @@ export function SceneSession({ scene, minutes, unit }: {
           same sentence twice on a screen with room for neither.
         */}
         <summary
-          className="scene-sticky z-10 cursor-pointer rounded-full px-4 py-2 text-sm"
+          className="cursor-pointer rounded-full px-4 py-2 text-sm"
           style={{ background: "var(--surface)", boxShadow: "var(--shadow-sm)", color: "var(--ink-2)" }}
         >
           {dealt.length > 0 ? (

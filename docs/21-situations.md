@@ -3821,15 +3821,64 @@ panel, and what a curveball wants is the objective in play, named in English in
 the panel the learner types into. A drawing may not be the only thing carrying a
 distinction any more than a colour may.
 
-**And the queue is the one fact the screen cannot work out for itself.** Thirteen
-curveballs reach the browser as a beat of their own and name themselves in its
-id, so the room draws what came up off `beatId` and nothing was added to the
-wire for them. The silent one is a boolean beside the speed the same curveball
-table already changes: a curveball that alters how a conversation goes and says
-so nowhere is one the learner is paying for and cannot see.
+**What has come up is the server's to say, and reading it off the beat was the
+one thing that shipped broken.** A curveball does become a beat inside the
+machine, and that beat is not what goes on the wire: `beatId` is the scene's own
+beat, the one waiting *behind* the curveball, and only the objective comes off
+the one standing in front of it. So the first version drew no cue at all, ever,
+with both tables complete and read both ways and the types satisfied. What found
+it was playing a conversation on the hard setting until one fired, and reading
+"Ask them to slow down" under a room where nothing had happened. The route sends
+the curveball's own id now, and the queue beside it: that one is `silent`, never
+stands as a beat, and stays for the rest of the run once it has formed, which is
+the same argument the speed it already sends makes about itself.
 
 **What a source check cannot say**, and why `scripts/test-scene.mjs` asks it in a
 browser: a band drawn at the top of the column and a band that sticks under the
 bar are the same markup and the same props, and only one of them is a room. It
 is measured where the conversation opens and again with the page rolled to its
 own end, which is the state a learner is in for every turn after the first.
+
+## §65 The line that was supposed to stick, and never had
+
+The role card above a conversation is a `details` whose one-line summary carries
+what the card dealt, because a beat asks the learner to read a value off it and
+that is two words. The comment beside it argues the case with measurements: the
+card open is 300 to 400 pixels on a phone, the composer is another 200, so the
+column is half again as tall as the screen and the card is off the top of it for
+the whole conversation, which means a learner asked what time suits them is
+being asked about a time they can no longer see. It then argues that sticking
+the whole disclosure is worse, since 400 pixels pinned over a conversation
+leaves it reading underneath.
+
+Both halves are right and the thing they describe never happened. `position:
+sticky` moves a box inside its own containing block and no further, and a
+`summary`'s containing block is the `details` around it. Closed, that is exactly
+as tall as the summary: there is nowhere to travel, so the line marked sticky
+scrolled away with the page like anything else, for the whole of this feature's
+life, under a paragraph explaining why it could not be allowed to.
+
+**Nothing could see it**, which is the part worth keeping. `test-scene.mjs` had
+two checks on the strip and both read it from the top of the page, where a thing
+that sticks and a thing that does not look identical. It was found by putting
+the room above the conversation, screenshotting a real run at 390 after two
+turns, and noticing what was missing from a picture.
+
+**The disclosure is what sticks now, and only while it is closed.** That is the
+rule the original comment was written for, kept exactly: while it is one line it
+is pinned, and the moment it is four hundred pixels it is an ordinary block in
+the flow again. `:not([open])` is the browser's own attribute rather than a flag
+of ours, so this stays a real disclosure with the keyboard and the screen reader
+it came with.
+
+**Opening it from the top of the screen brings it to you.** Unpinning puts the
+card back at its place in the flow, which can be a screenful above where the
+learner is standing, so it would open somewhere they cannot see. `scrollIntoView`
+with `block: "nearest"` and a `scroll-margin-top` that clears the bar and the
+room is the whole of it: a card already on screen is not scrolled at all,
+because the press was to read it rather than to move the page.
+
+**And the offset is three figures, each declared once.** The bar's height, the
+room band's, and the fade under them, so the pill starts where the fade ends
+rather than under it. `test-scene.mjs` measures it at the bottom of a scrolled
+page, which is the state the fault lived in and the one nothing had looked at.

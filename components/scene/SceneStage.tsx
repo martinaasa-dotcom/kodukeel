@@ -183,8 +183,21 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
           painted in rather than a second thing to look at.
         */}
         {stage && (
+          /*
+            `data-scene-stage` is how anything else finds this, and it is the
+            marker rather than a shape in the markup for the reason a line
+            carries its own rung: the bar already holds two other `svg`s, the
+            door out and the room's mark, so a suite reaching for "the drawing
+            in the header" measures an eighteen-pixel arrow and reports the
+            room as missing.
+
+            It arrives with the conversation rather than appearing: the
+            briefing has the room in its own body at full size, and this is
+            that room settling onto the bar as the screen changes under it.
+          */
           <div
-            className="mx-auto flex w-full max-w-3xl items-end justify-center px-4 pb-1 md:px-6"
+            data-scene-stage
+            className="scene-open mx-auto flex w-full max-w-3xl items-end justify-center px-4 pb-1 md:px-6"
             style={{ height: "var(--scene-stage)" }}
           >
             {stage}

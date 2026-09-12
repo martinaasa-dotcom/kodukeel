@@ -5058,13 +5058,32 @@ arriving as English and a cue nobody throws is a drawing nobody sees. The rooms 
 cue is stroked first in the ground and then in the ink, which knocks a clear space out of whatever
 is behind it, in one `d` rather than two elements so the knockout cannot come apart from the mark.
 It stays decoration and says so: the band is `aria-hidden`, who said a line is in words beside it,
-and what a curveball wants is the objective named in the panel the learner types into. The one fact
-the screen cannot work out for itself is the queue, which is `silent`, never becomes a beat and so
-never reached the browser at all: it is a boolean beside the speed that same table already changes,
-because a curveball that alters a conversation and says so nowhere is one the learner is paying for
-and cannot see. And `scripts/test-scene.mjs` measures it in a browser, where the conversation opens
+and what a curveball wants is the objective named in the panel the learner types into. **What has
+come up is the server's to say**, which is the one thing that shipped broken: a curveball becomes a
+beat inside the machine and that beat is not what goes on the wire, since `beatId` is the scene's
+own beat waiting behind it and only the objective comes off the one in front, so a screen reading
+the beat drew no cue at all with both tables complete and the types satisfied. The route sends the
+curveball's id, and the queue beside it, which is `silent`, never stands as a beat and stays for the
+rest of the run once it has formed. And `scripts/test-scene.mjs` measures it in a browser, where the conversation opens
 and again with the page rolled to its end, because a band drawn at the top of the column and a band
 that sticks under the bar are the same markup and only one of them is a room.
+
+**And the line that was already supposed to stick never had.** The role card above a conversation
+is a `details` whose one-line summary carries the values a beat is about to ask the learner to read
+back, and the comment beside it argues at length, with measurements, that it has to stay on screen
+while they type. It did not. `position: sticky` moves a box inside its own containing block and no
+further, and a `summary`'s containing block is the `details` around it: closed, that is exactly as
+tall as the summary, so there was nowhere to travel and the pill scrolled away with the page like
+anything else. Every check on it read the strip from the top of the page, where a thing that does
+not stick and a thing that does look identical. So the **disclosure** is what sticks, and
+`:not([open])` is what keeps the rule the comment was written for: opened, it is an ordinary block
+in the flow again rather than four hundred pixels pinned over the conversation, and it is the
+browser's own attribute rather than a flag of ours, so it stays a real disclosure with the keyboard
+and the screen reader it came with. Opening it while it is pinned would leave the card a screenful
+above where the learner is standing, so it is brought to them, at `scroll-margin-top` and never
+further than `nearest`: a card already on screen is not scrolled, because the press was to read it
+rather than to move the page. The offset is the bar plus the room plus the fade under them, which
+is three figures each declared once in `app/globals.css` and read where they are needed.
 
 **The gate has eight checks, and the three that arrived late were each a line a learner read.**
 `Kust sina nüüd tuleb?` is inside the scene's word list, in the right register, governs nothing and

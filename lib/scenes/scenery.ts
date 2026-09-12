@@ -211,8 +211,11 @@ export type Cue = "behind" | "another" | "paper" | "attention";
  *
  * Every curveball, including the silent one: `queue` never becomes a beat and
  * so never reaches the screen as a question, and a queue forming behind you is
- * the one of the fourteen that is *entirely* visual. It is the reason this
- * table is keyed on the curveball rather than on the beat.
+ * the one of the fourteen that is *entirely* visual.
+ *
+ * Keyed on the curveball rather than on the beat it stands as, because the
+ * beat is a thing inside the machine and never reaches a browser: the route
+ * sends the curveball's own id, and `cueFor` says why.
  */
 export const CUES: Readonly<Record<string, Cue>> = {
   /* Somebody behind you, which is pressure rather than a question. */
@@ -237,14 +240,22 @@ export const CUES: Readonly<Record<string, Cue>> = {
 };
 
 /**
- * The cue for the curveball standing in the way, off the beat the screen is on.
+ * The cue for the curveball standing in the way.
  *
- * A curveball reaches the screen as a beat of its own (`hurdleBeat`), which is
- * the only thing about it the browser is told, so this reads the id back out
- * rather than asking for a second field on the wire. A beat that is one of the
- * scene's own is nothing having come up, which is most of a conversation.
+ * THE ID IS ASKED FOR RATHER THAN READ OFF THE BEAT, which was the first
+ * version of this and was wrong on every one of the thirteen. A curveball does
+ * become a beat of its own inside the machine (`hurdleBeat`), and the route
+ * does not send that beat: `beatId` is the scene's own beat, which is the one
+ * waiting behind the curveball, and only the *objective* comes off the one
+ * standing in front of it. So a screen reading the beat saw a health centre
+ * asking for the next thing on the card while the panel underneath said "ask
+ * them to slow down", and drew nothing at all. It was written, it typechecked,
+ * the tables were complete and read both ways, and the one thing that found it
+ * was playing a conversation on a hard setting until one fired.
+ *
+ * Nothing standing is most of a conversation, which is why this answers null
+ * for a missing id rather than being called only where there is one.
  */
-export function cueFor(beatId: string | null | undefined): Cue | null {
-  if (!beatId?.startsWith("hurdle:")) return null;
-  return CUES[beatId.slice("hurdle:".length)] ?? null;
+export function cueFor(curveball: string | null | undefined): Cue | null {
+  return curveball ? CUES[curveball] ?? null : null;
 }

@@ -164,17 +164,20 @@ describe("every conversation happens somewhere", () => {
   });
 
   /*
-    A curveball reaches the browser as a beat of its own and nothing else, so
-    the id is read back out of the beat. A beat that is one of the scene's own
-    is nothing having come up, which is most of a conversation, and reading one
-    as a cue would leave a room permanently surprised.
+    The curveball is asked for by name, and nothing standing is most of a
+    conversation. The first version read the id off the beat the screen was on,
+    which is the scene's own beat and never the curveball's, so no cue was ever
+    drawn: the tables were complete, read both ways, and pointed at a field that
+    does not carry this.
   */
-  it("reads a cue off the beat a curveball stands as", () => {
-    expect(cueFor("hurdle:queue")).toBe("behind");
-    expect(cueFor("hurdle:interrupted")).toBe("another");
-    expect(cueFor("ask-time")).toBe(null);
+  it("answers for the curveball itself, and for nothing standing", () => {
+    expect(cueFor("queue")).toBe("behind");
+    expect(cueFor("interrupted")).toBe("another");
     expect(cueFor(null)).toBe(null);
-    expect(cueFor("hurdle:a-curveball-nobody-has-written")).toBe(null);
+    expect(cueFor(undefined)).toBe(null);
+    expect(cueFor("a-curveball-nobody-has-written")).toBe(null);
+    /* And never off a beat id, which is what it used to be handed. */
+    expect(cueFor("hurdle:queue")).toBe(null);
   });
 
   /*

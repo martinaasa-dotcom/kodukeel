@@ -1078,6 +1078,34 @@
   }
 
   /*
+    AND ITS EDGE IS A FADE RATHER THAN A STEP.
+
+    The bar has to be opaque, because a filtered layer over a transcript that
+    scrolls is re-filtered every frame and this app does not put one over moving
+    content. So it paints `--ground` over the room's own light, and where it
+    ends the light starts: a hard horizontal edge across the screen. At
+    fifty-six pixels that was a hairline's worth of it and the wash was softened
+    to live with it; with the room under the name it is a hundred and sixty, and
+    the step reads as two screens stacked rather than as one room.
+
+    A short gradient below the bar in the same ground is the whole fix. It
+    cannot be a filter and it does not need to be: what scrolls under it fades
+    out over twenty pixels, which is what the eye expects at the edge of
+    something pinned. Untouchable, or it would take the presses meant for the
+    first line of the conversation.
+  */
+  .scene-top::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    height: var(--scene-fade);
+    pointer-events: none;
+    background: linear-gradient(var(--ground), transparent);
+  }
+
+  /*
     AND WHAT STICKS UNDER IT KNOWS HOW TALL IT IS.
 
     Two sticky things at `top: 0` are one sticky thing with the other drawn
@@ -1096,14 +1124,66 @@
     bar now, for the whole of the conversation, and its height is declared here
     rather than in the markup for the same reason the bar's is: two numbers that
     have to agree are one number that is about to be wrong. The band takes its
-    height from this and the summary sticks under the pair of them.
+    height from this and the role card sticks under the pair of them, clear of
+    the fade as well, which is the third figure declared here: it is the fade's
+    own height, the offset the card pins at, and the margin it is scrolled to.
   */
-  .scene-room { --scene-top: 3.5rem; --scene-stage: 0px; }
+  .scene-room { --scene-top: 3.5rem; --scene-stage: 0px; --scene-fade: 1.25rem; }
   .scene-room[data-stage] { --scene-stage: 6.5rem; }
   @media (min-width: 768px) {
     .scene-room[data-stage] { --scene-stage: 8rem; }
   }
-  .scene-sticky { position: sticky; top: calc(var(--scene-top, 0px) + var(--scene-stage, 0px)); }
+
+  /*
+    AND THE CARD PINS ONLY WHILE IT IS THE ONE LINE.
+
+    `position: sticky` moves a box within its own containing block and no
+    further, and this class was on the role card's `summary`, whose containing
+    block is the `details` around it: closed, that is exactly as tall as the
+    summary, so there was nowhere to travel. The line marked sticky scrolled
+    away with the page for the whole of this feature's life, while the comment
+    beside it explained at length why it had to stay.
+
+    So the disclosure is what sticks, and `:not([open])` is what keeps the rule
+    that comment was written for: opened, it is an ordinary block in the flow
+    again rather than four hundred pixels pinned over the conversation. It is
+    the browser's own attribute, so this stays a real disclosure with the
+    keyboard and the screen reader it came with.
+
+    The offset clears the bar, the room and the fade under them both, so the
+    pill starts where the fade ends rather than under it; `scroll-margin-top` is
+    the same distance, for the card being brought into view when somebody opens
+    it from the top of the screen.
+  */
+  .scene-sticky {
+    scroll-margin-top: calc(var(--scene-top, 0px) + var(--scene-stage, 0px) + var(--scene-fade, 0px));
+  }
+  .scene-sticky:not([open]) {
+    position: sticky;
+    top: calc(var(--scene-top, 0px) + var(--scene-stage, 0px) + var(--scene-fade, 0px));
+  }
+
+  /*
+    AND THE PILL CARRIES ITS OWN GROUND, BECAUSE IT IS NARROWER THAN THE COLUMN.
+
+    A pinned line is opaque where it is drawn and the column is wider than it:
+    the provenance under a bubble ran out either side of it and was cut in half
+    by its top edge, which reads as a rendering fault rather than as something
+    pinned. The bar's own fade cannot reach this, since the bar ends where the
+    room does and the pill hangs below it.
+
+    So the ground comes with it, full bleed past the column's gutters and fading
+    out under its bottom edge, which is the same shape the bar makes at its own
+    edge. Behind the pill rather than over it, and untouchable.
+  */
+  .scene-sticky:not([open])::before {
+    content: "";
+    position: absolute;
+    inset: -0.5rem -1.5rem -0.9rem;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(var(--ground) 62%, transparent);
+  }
 
   /*
     ONE LINE ARRIVING, WHICH IS THE MOVEMENT THIS SCREEN IS MADE OF.
@@ -1312,11 +1392,18 @@
   .stick-arc { animation: stick-arc 2600ms ease-out infinite; }
   /*
     Somebody talking, which is the one thing in the drawing that is not
-    ambience: it says whose floor it is while a conversation is running. Faster
-    than the room around it, because a breath is not a queue shuffling forward,
-    and still slow enough to sit above a sentence somebody is reading.
+    ambience: it says whose floor it is while a conversation is running.
+
+    So it never goes out, which is where the first version of it was wrong. It
+    was `Ringing`'s own animation, a mark that appears and is gone, and a
+    telephone can afford that because the ring is decoration either side of a
+    fact the screen states in words. This is the fact: measured on the opening
+    screen of a scene, three arcs on those delays are dark for three fifths of
+    every cycle, so a glance at the room usually found nobody talking at all.
+    It breathes between a quarter and full instead, which reads at a glance and
+    still moves.
   */
-  .stick-say { animation: stick-say 1800ms ease-out infinite; }
+  .stick-say { animation: stick-say 1800ms ease-in-out infinite; }
   /*
     And something that has just come up, arriving once and staying. A cue that
     pulsed would be a second thing moving on a screen that already has somebody
@@ -1387,10 +1474,10 @@
     0%, 60%, 100% { opacity: 0; }
     20%, 40% { opacity: 1; }
   }
-  /* Out of the mouth, at the person opposite, and gone. */
+  /* Out of the mouth, at the person opposite. Quieter, never gone. */
   @keyframes stick-say {
-    0%, 70%, 100% { opacity: 0; }
-    25%, 45% { opacity: 0.9; }
+    0%, 100% { opacity: 0.28; }
+    35% { opacity: 1; }
   }
   @keyframes scene-cue {
     0% { opacity: 0; transform: translateY(6px); }
@@ -1407,13 +1494,7 @@
     .amb-queue, .scene-room-out, .scene-room-in,
     .stick-bob, .stick-nod, .stick-arc, .stick-steam, .scene-cue,
     .stick-legs-a, .stick-legs-b { animation: none; }
-    /*
-      The breath keeps its animation and loses its motion: the arcs carry their
-      own `opacity: 0` and are drawn by the animation alone, so stopping it
-      would leave the one mark saying who is talking invisible. Held open
-      instead, which is a speaker rather than somebody mid-breath.
-    */
-    .stick-say { animation: none; opacity: 0.9 !important; }
+    .stick-say { animation: none; }
     /*
       The walker keeps one pair of legs rather than both. `-b` carries its own
       `opacity: 0` and only the animation ever shows it, so stopping the
