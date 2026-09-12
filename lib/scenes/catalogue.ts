@@ -964,16 +964,20 @@ const DIRECTIONS: SceneSpec = {
     },
   ],
   /*
-    `interrupted` and `place-instruction` are gone from this list. Both
-    presuppose a transaction: `interrupted` is a queue, "wait, or say you were
-    first", and `place-instruction` is a clerk sending you somewhere before
-    they will help. A stranger stopped on a street corner has neither, and a
-    learner who met either read a goal that made no sense next to the
-    conversation they were having. `misheard` replaces them: mishearing the
-    name of the place you asked for is the one thing that genuinely happens
-    here, and it is drawn only where the prop word has a real minimal pair.
+    `place-instruction` and `not-possible` are gone from this list, and both
+    for the same reason: they presuppose an institution with a schedule or a
+    gatekeeping step, "come back tomorrow" or "go to window 3 first", and a
+    stranger on a street corner has neither to offer. Their bank lines here
+    had drifted into meaning something else entirely ("I don't know that
+    place"), which is not what either curveball's own goal text says, so a
+    learner met a goal that made no sense next to the conversation. `misheard`
+    takes their place: mishearing the name of the place you asked for is the
+    one thing that genuinely happens here, drawn only where the prop word has
+    a real minimal pair. `interrupted` stays, now that its own goal text no
+    longer presumes a queue (`lib/scenes/curveballs.ts`): a passerby stopped
+    mid-conversation can perfectly well have somebody else call out to them.
   */
-  curveballs: ["faster", "small-talk", "english", "not-possible", "misheard"],
+  curveballs: ["faster", "small-talk", "english", "interrupted", "misheard"],
   beats: [
     {
       id: "greet",
@@ -1179,7 +1183,13 @@ const RESTAURANT: SceneSpec = {
       says: "What you would like to drink.",
     },
   ],
-  curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "english", "interrupted", "their-order", "queue"],
+  /*
+    No `queue`: you are seated at a table rather than standing at a counter,
+    and "a queue forms behind you" is a thing that happens to somebody
+    waiting their turn, not somebody who already has one. `their-order`
+    stays, because a waiter genuinely does want the drink before the food.
+  */
+  curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "english", "interrupted", "their-order"],
   beats: [
     {
       id: "greet",

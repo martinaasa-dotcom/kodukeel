@@ -152,7 +152,17 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     move: "instruct",
     cost: 2,
     says: "Somebody else starts talking to them.",
-    out: "Wait, or say you were first.",
+    /*
+      NOT A QUEUE, AND THE COPY USED TO SAY IT WAS. "Wait, or say you were
+      first" is a line for somebody standing in a line, and this curveball is
+      admitted by phone calls, a stairwell, a classroom and a job interview,
+      none of which has one: the actual bank lines everywhere it fires are
+      "one moment, someone's talking to me", which is what anybody who has
+      just been interrupted says regardless of whether a queue is anywhere in
+      the room. The goal text has to be true of all of them, not just a
+      counter.
+    */
+    out: "Wait a moment, then go on.",
     needs: [{ kind: "any" }],
   },
   {
@@ -183,8 +193,16 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "their-order",
     move: "instruct",
     cost: 2,
-    says: "The form has to be filled in their order, not yours.",
-    out: "Give them the part they asked for.",
+    /*
+      NOT ALWAYS A FORM. This is admitted by a restaurant table (drink before
+      food) and a job interview (your history before your salary) as well as
+      an office desk with an actual form on it, and "the form" read oddly on
+      the two that have none. What is true of all three is the order itself:
+      they want one thing at a time, in the sequence they ask for it, not
+      however the learner would rather lay it out.
+    */
+    says: "They want things in their order, not yours.",
+    out: "Give them the one thing they just asked for.",
     needs: [{ kind: "any" }],
   },
   {
