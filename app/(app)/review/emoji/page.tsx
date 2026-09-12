@@ -96,8 +96,15 @@ export default async function EmojiPage() {
     courseLevelFor(ownerId),
     prisma.card.findMany({
       where: {
+        /*
+          state: { not: 0 } because a learner matching a picture to a case
+          form "has to know the word", per the header above. A brand-new
+          card is due the moment it is created, so `orderBy due asc` with no
+          state filter would put an unmet word's own case form on the board
+          first, asked before it was ever taught.
+        */
         ownerId, suspended: false, cardType: "CASE_FORM", targetCase: { not: null },
-        lexeme: { pos: "NOUN" },
+        lexeme: { pos: "NOUN" }, state: { not: 0 },
       },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: POOL,

@@ -36,16 +36,17 @@ import type { Setting } from "@/lib/scenes/scenery";
  * made to sit through the rest of an animation.
  *
  * IT IS NOT A JAIL AND IT IS NOT A METER. There is no bar filling and no
- * countdown (§7). It clears itself after a hold long enough to read the
- * sentence twice, and under `prefers-reduced-motion` nothing moves at all, the
- * panel is simply there, and the hold is shorter, because a still panel is read
- * in less time than a moving one is watched.
+ * countdown (§7). IT DOES NOT CLEAR ITSELF EITHER. A learner reported that the
+ * first version, which timed out on its own, went past before the sentence
+ * was read twice: reading speed is not a constant this screen can guess, and
+ * a break in a conversation is exactly the moment somebody might want to stop
+ * and think rather than be timed. So the animation runs once, to its own end,
+ * and then simply holds; nothing about the screen moves again while it waits.
+ * The only way past it is the learner saying so, the button, Enter, Escape,
+ * Space or a press on the cover, which was already true and is now the whole
+ * of it.
  */
 
-/** Long enough to read the sentence twice, and not long enough to wait through. */
-const HOLD_MS = 3_200;
-/** Nothing is moving, so nothing has to be waited out. */
-const STILL_MS = 1_600;
 /**
  * How long the cover takes to fade once it has been read, so the caller can
  * hold it on screen for exactly that long.
@@ -99,8 +100,6 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
   }, [onDone]);
 
   useEffect(() => {
-    const still = typeof matchMedia === "function"
-      && matchMedia("(prefers-reduced-motion: reduce)").matches;
     /*
       Focus moves here, which is the one place in this app that takes it: the
       screen has stopped for a moment that has to be read, and a learner on a
@@ -109,7 +108,6 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
       resumes (`SceneSession`).
     */
     carryOn.current?.focus({ preventScroll: true });
-    const at = window.setTimeout(finish, still ? STILL_MS : HOLD_MS);
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === "Escape" || e.key === " ") {
         e.preventDefault();
@@ -118,7 +116,6 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
     };
     window.addEventListener("keydown", onKey);
     return () => {
-      window.clearTimeout(at);
       window.removeEventListener("keydown", onKey);
     };
   }, [finish]);

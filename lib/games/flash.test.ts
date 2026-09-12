@@ -124,6 +124,18 @@ describe("askableSlots", () => {
     expect(slotKeys(TERE)).toEqual(["PRODUCTION"]);
   });
 
+  it("drops a phrase's own exclamation mark, on the slot and on the task", () => {
+    const slot = askableSlots(TERE)[0]!;
+    expect(slot.value).toBe("Tere hommikust");
+    expect(slot.accepted).toEqual(["Tere hommikust"]);
+
+    const task = flashTask({ word: TERE, slot, cardId: "c", step: 0 })!;
+    expect(task.lemma).toBe("Tere hommikust");
+    // Typing it was never required — `checkAnswer` already ignores
+    // punctuation — so dropping the mark changes nothing about grading.
+    expect(task.accepted).toEqual(["Tere hommikust"]);
+  });
+
   it("never asks a form the English gloss beside it already prints", () => {
     /*
       Found by `npm run audit:questions` over the shipped dictionary, thirteen

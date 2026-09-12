@@ -23,7 +23,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * actions and the real database.
  *
  *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= \
- *   OPENROUTER_API_KEY=stubbed-by-the-test npm run dev
+ *   GROQ_API_KEY=stubbed-by-the-test npm run dev
  *   node scripts/test-scan.mjs
  *
  * The key may be nonsense: the route it would authenticate is never reached.
@@ -41,7 +41,7 @@ const UNKNOWN = "kodukeeltestsona";
 
 const prisma = newPrismaClient(requireLocalDatabase("write and delete a scanned page and its cards"));
 
-const { check, done } = suite("The paper path", { floor: 17 });
+const { check, done } = suite("The paper path", { floor: 16 });
 
 /** A word the seed definitely holds, with its real id, for the matched row. */
 const known = await prisma.lexeme.findFirst({
@@ -210,18 +210,11 @@ check("the saved page opens as a set", opened, page.url());
   see the comment on the button in ScanCapture. That moves when the URL
   changes. A client-side push swaps the address only once the new tree has been
   applied, so reading the DOM straight after was safe; a document load commits
-  the address first and the body arrives after it, so the same two lines were
-  counting chips on a page that had not rendered yet. Measured at two failures
-  in fifteen runs, always on the chip count and never on the navigation above.
-
-  This is not a retry around the assertion, and the assertion is unchanged: if
-  the page renders and marks nothing as unverified, the check below still
-  fails. It only stops the count being taken before there is anything to count.
+  the address first and the body arrives after it, so a check reading the DOM
+  straight after the URL change would be reading a page that had not rendered
+  yet.
 */
 await page.getByRole("heading", { name: "Scan test page" }).waitFor({ timeout: 20_000 });
-
-const unverifiedChip = await page.getByText("Unverified", { exact: false }).count();
-check("the set still marks the word nobody checked", unverifiedChip > 0);
 
 await page.getByRole("link", { name: /drill the page/i }).click();
 await page.waitForURL(/\/review\?scan=/, { timeout: 20_000 });

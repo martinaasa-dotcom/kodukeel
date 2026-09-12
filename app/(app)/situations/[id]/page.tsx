@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
+import { courseLevelFor } from "@/lib/progress/level";
 import { SceneSession } from "@/components/scene/SceneSession";
 
 export const dynamic = "force-dynamic";
@@ -38,17 +39,19 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  * asks for, moved rather than dropped.
  */
 export default async function ScenePage({ params }: { params: Promise<{ id: string }> }) {
-  await requireUserId();
+  const ownerId = await requireUserId();
   const scene = sceneById((await params).id);
   if (!scene) notFound();
 
   const unit = unitById(scene.tests);
+  const learnerLevel = await courseLevelFor(ownerId);
 
   return (
     <SceneSession
       scene={scene}
       minutes={minutesFor(scene)}
       unit={unit ? { id: unit.id, title: unit.title } : null}
+      learnerLevel={learnerLevel}
     />
   );
 }

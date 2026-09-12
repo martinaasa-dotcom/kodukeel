@@ -252,8 +252,8 @@ export default async function ProgressPage() {
                 }
                 label={
                   retention.retention === null
-                    ? "Not enough mature reviews to measure retention yet"
-                    : `${retention.retention}% of mature cards recalled, against a ${retention.target}% target`
+                    ? "Not enough long-term reviews to measure retention yet"
+                    : `${retention.retention}% of long-term cards recalled, against a ${retention.target}% target`
                 }
               >
                 <span className="tnum text-lg font-bold" style={{ color: "var(--ink)" }}>
@@ -268,7 +268,7 @@ export default async function ProgressPage() {
                   {retention.advice}
                 </p>
                 <p className="tnum mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                  {retention.recalled} recalled of {retention.reviews} mature reviews · target {retention.target}%
+                  {retention.recalled} recalled of {retention.reviews} long-term reviews · target {retention.target}%
                 </p>
               </div>
             </div>

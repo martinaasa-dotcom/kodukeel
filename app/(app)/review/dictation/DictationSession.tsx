@@ -8,6 +8,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
+import { useResumeCard } from "@/components/useResumeCard";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -15,7 +16,7 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { VOICES } from "@/lib/audio/voice";
 import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
 import type { RatingValue } from "@/lib/srs/scheduler";
-import { AI_TAG } from "@/lib/copy/values";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -32,6 +33,8 @@ export interface DictationTask {
   /** The attested Estonian sentence, exactly as Ekilex recorded it. */
   et: string;
   en: string | null;
+  /** Whether this deployment has a model to ask for a translation. */
+  canTranslate: boolean;
 }
 
 /**
@@ -80,7 +83,10 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   // shrinking prop mid-round would swap the last sentence out from under the
   // summary (the same trap ListeningSession documents).
   const [round] = useState(tasks);
-  const [index, setIndex] = useState(0);
+  // Which task to reopen on after a detour to its dictionary entry. See
+  // components/useResumeCard.ts.
+  const { initialIndex, remember: rememberTask } = useResumeCard(tasks.map((t) => ({ id: t.cardId })));
+  const [index, setIndex] = useState(initialIndex);
   const [typed, setTyped] = useState("");
   const [result, setResult] = useState<DictationResult | null>(null);
   const [played, setPlayed] = useState(false);
@@ -96,6 +102,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
   const task = round[index];
   const finished = !task;
+
+  useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
   /*
     A different reader each sentence, as the listening round already does,
     and a room and a rate from the card's own history. Said after the answer,
@@ -334,13 +342,16 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
             />
           )}
 
-          {result && task.en && (
-            <p className="text-center text-sm" style={{ color: "var(--ink-2)" }}>
-              {task.en}
-              <Chip tone="again" title="Machine translation. Trust the Estonian over this.">
-                {AI_TAG}
-              </Chip>
-            </p>
+          {result && (
+            <div className="flex justify-center">
+              <SentenceTranslation
+                key={task.et}
+                lexemeId={task.lexemeId}
+                et={task.et}
+                en={task.en}
+                canTranslate={task.canTranslate}
+              />
+            </div>
           )}
         </div>
 

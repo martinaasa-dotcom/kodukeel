@@ -145,6 +145,13 @@ export type SaysPart =
    * does not reach the verb, like every other part.
    */
   | { readonly lemma: string; readonly verb: DerivedVerbCode }
+  /**
+   * A nominal in a named case, read off `Lexicon.caseForm` the way a drawn
+   * word is: `eurot` after a price is `euro` in the osastav, and the table
+   * every case card reads is what spells it. Withheld whole where the table
+   * holds no form, like every other part.
+   */
+  | { readonly lemma: string; readonly grammCase: CaseKey }
   | { readonly slot: string; readonly grammCase?: CaseKey };
 
 export interface BeatSpec {

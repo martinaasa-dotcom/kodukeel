@@ -14,6 +14,7 @@ import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
+import { useResumeCard } from "@/components/useResumeCard";
 import { prefetchClip } from "@/lib/audio/clip";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { BLANK } from "@/lib/estonian/cloze";
@@ -106,7 +107,20 @@ export function LearnSession({
     empty prop and render the empty state instead of the summary.
   */
   const [words] = useState(initial);
-  const [queue, setQueue] = useState<string[]>(() => initial.map((w) => w.cardId));
+  /*
+    Which word to reopen the seat on after a detour to its dictionary entry,
+    rather than the batch's own first word. See components/useResumeCard.ts.
+  */
+  const { initialIndex, remember: rememberWord } = useResumeCard(initial.map((w) => ({ id: w.cardId })));
+  /*
+    Rotated rather than left in the batch's own order, so the resumed word
+    sits at the front: `advance` below always treats `queue[0]` as the word
+    the seat just held, and a seat resumed out of step with the queue would
+    have `advance` grade the wrong word on the very next answer.
+  */
+  const [queue, setQueue] = useState<string[]>(
+    () => [...initial.slice(initialIndex), ...initial.slice(0, initialIndex)].map((w) => w.cardId),
+  );
   const [rungs, setRungs] = useState<Record<string, Rung>>(
     () => Object.fromEntries(initial.map((w) => [w.cardId, w.rung])),
   );
@@ -123,9 +137,10 @@ export function LearnSession({
     So the seat holds the card and the rung it is being asked at, and only
     `advance` changes it. Null is the end of the round.
   */
-  const [seat, setSeat] = useState<{ cardId: string; rung: Rung } | null>(
-    () => (initial[0] ? { cardId: initial[0].cardId, rung: initial[0].rung } : null),
-  );
+  const [seat, setSeat] = useState<{ cardId: string; rung: Rung } | null>(() => {
+    const first = initial[initialIndex] ?? initial[0];
+    return first ? { cardId: first.cardId, rung: first.rung } : null;
+  });
   const [phase, setPhase] = useState<Phase>("ask");
   const [result, setResult] = useState<Result | null>(null);
   const [typed, setTyped] = useState("");
@@ -190,6 +205,8 @@ export function LearnSession({
   const finished = !word;
   const total = words.length;
   const left = queue.length;
+
+  useEffect(() => { rememberWord(word ? { id: word.cardId } : undefined); }, [rememberWord, word]);
 
   useEffect(() => { setPendingOffline(outboxPending); }, [outboxPending]);
 

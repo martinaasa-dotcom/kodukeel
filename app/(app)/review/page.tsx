@@ -72,7 +72,7 @@ export default async function ReviewPage({
   // and the shared reasoning in ReviewSession.tsx.
   if (targetCase) {
     const drill = await prisma.card.findMany({
-      where: { ownerId, suspended: false, targetCase },
+      where: { ownerId, suspended: false, targetCase, ...notOnLadder(ownerId) },
       orderBy: [{ lapses: "desc" }, { due: "asc" }],
       take: 30,
       include,
@@ -92,7 +92,11 @@ export default async function ReviewPage({
     const unit = unitById(unitId);
     const drill = unit
       ? await prisma.card.findMany({
-          where: { ownerId, suspended: false, lexeme: { lemma: { in: [...unit.lemmas] } } },
+          where: {
+            ownerId, suspended: false,
+            lexeme: { lemma: { in: [...unit.lemmas] } },
+            ...notOnLadder(ownerId),
+          },
           // The id last, for the reason the due read below gives: a word's
           // cards share a `due` and usually a `lapses` too, so the cut is the
           // plan's choice without it.
@@ -310,6 +314,25 @@ function pastTheLadder(ownerId: string): Prisma.CardWhereInput {
       },
     ],
   };
+}
+
+/**
+ * WHAT A CASE OR UNIT DRILL MAY SERVE OF A WORD STILL BEING LEARNED.
+ *
+ * The two drills above ignore scheduling on purpose, which means they also
+ * ignore `pastTheLadder`'s own guard: unlike the due and fresh reads, they
+ * ask for every card matching a case or a unit, whatever its state. A word
+ * added moments ago carries a CASE_FORM card at `state: 0` from the same
+ * `createCards` batch as its recognition card, and a drill would hand that
+ * out as a first meeting, in a case, before Learn ever taught the word: a
+ * neljast the learner had never been shown "neli" for.
+ *
+ * Only an unseen card is at risk of this, so a card already past state 0 is
+ * let through unconditionally: the ladder has already had its say about it.
+ * `pastTheLadder` is asked only of the ones still at `state: 0`.
+ */
+function notOnLadder(ownerId: string): Prisma.CardWhereInput {
+  return { OR: [{ state: { not: 0 } }, pastTheLadder(ownerId)] };
 }
 
 /**

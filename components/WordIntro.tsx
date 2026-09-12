@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { Languages, Loader2 } from "lucide-react";
-import { Chip } from "@/components/ui";
+import { useState } from "react";
 import { Speak } from "@/components/Speak";
 import { GlossedSentence } from "@/components/GlossedSentence";
-import { translateExample } from "@/app/actions";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { splitOnForm } from "@/lib/dict/examples";
 import type { GlossedToken } from "@/lib/dict/glossed";
-import { AI_TAG, SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 
 /**
  * A WORD'S FIRST OUTING: WHAT IT MEANS, AND IT DOING ITS JOB IN A SENTENCE
@@ -135,7 +133,7 @@ export function WordIntro({
           {/* Keyed on the sentence, because a session draws one card after
               another through this same position: without it the word after a
               translated one opens carrying the last word's English. */}
-          <SentenceEnglish
+          <SentenceTranslation
             key={sentence.et}
             lexemeId={lexemeId}
             et={sentence.et}
@@ -170,86 +168,6 @@ export function WordIntro({
       )}
 
       {children}
-    </>
-  );
-}
-
-/**
- * The whole sentence in English: the one already stored, or the offer to have
- * one made.
- *
- * Tagged wherever it came from a model, because a learner deciding how much to
- * trust a line has to know who wrote it, and the Estonian above it is the part
- * that is attested. A refusal is printed as itself: the allowance running out
- * and the sentence being hard are different problems and only one of them is
- * worth waiting a day over.
- */
-function SentenceEnglish({ lexemeId, et, en, canTranslate }: {
-  lexemeId: string | null;
-  et: string;
-  en: string | null;
-  canTranslate: boolean;
-}) {
-  const [got, setGot] = useState<string | null>(en);
-  const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-  const asked = useRef(false);
-
-  const translate = () => {
-    if (!lexemeId) return;
-    setError(null);
-    start(async () => {
-      const result = await translateExample(lexemeId, et);
-      if (result.ok) setGot(result.en);
-      else setError(result.error);
-    });
-  };
-
-  /*
-    ASKED FOR ON ARRIVAL, NOT ON A PRESS.
-
-    The sentence a word is taught with is the one line on the screen a
-    beginner most needs in English and it used to sit behind a button, so
-    most people met the word glossed and the sentence not. The call is made
-    once per sentence per deployment: `translateExample` stores what comes
-    back, so the second learner to meet this word reads it for free, and it is
-    metered like every other call. A deployment with no model is offered
-    nothing rather than promised something (`canTranslate`).
-  */
-  useEffect(() => {
-    if (got || !canTranslate || !lexemeId || asked.current) return;
-    asked.current = true;
-    translate();
-    // Once per sentence: the ref is the guard, and the sentence is the key
-    // the parent mounts this on.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (got) {
-    return (
-      <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-        {got}
-        <Chip tone="again">{AI_TAG}</Chip>
-      </p>
-    );
-  }
-
-  if (!canTranslate || !lexemeId) return null;
-
-  return (
-    <>
-      <button
-        type="button"
-        disabled={pending}
-        onClick={translate}
-        className="tap-tint mt-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs font-semibold disabled:opacity-50"
-        style={{ color: "var(--accent-deep)" }}
-      >
-        {pending
-          ? <><Loader2 size={12} className="animate-spin" aria-hidden /> Putting it into English…</>
-          : <><Languages size={12} aria-hidden /> Say the whole thing in English</>}
-      </button>
-      {error && <p role="alert" className="mt-1 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
     </>
   );
 }

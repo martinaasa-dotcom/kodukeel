@@ -8,6 +8,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
+import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceMatches, sentenceTiles } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -44,7 +45,10 @@ const PREVIEW_MS = 4500;
  */
 export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[] }) {
   const [tasks, setTasks] = useState(initialTasks);
-  const [index, setIndex] = useState(0);
+  // Which task to reopen on after a detour to its dictionary entry. See
+  // components/useResumeCard.ts.
+  const { initialIndex, remember: rememberTask } = useResumeCard(initialTasks.map((t) => ({ id: t.cardId })));
+  const [index, setIndex] = useState(initialIndex);
   const [built, setBuilt] = useState<number[]>([]);
   const [checked, setChecked] = useState<null | "right" | "wrong">(null);
   const [attempts, setAttempts] = useState(0);
@@ -56,6 +60,8 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
 
   const task = tasks[index];
   const finished = !task;
+
+  useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
 
   // Shuffling happens after mount, never during the server render: the server
   // and the browser would draw different orders from Math.random and React

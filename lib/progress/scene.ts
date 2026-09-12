@@ -22,8 +22,9 @@ import { unitById } from "@/lib/collections/syllabus";
 import { parseGovernment } from "@/lib/estonian/government";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
+import { CASES } from "@/lib/estonian/cases";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
-import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { LineMode } from "@/lib/scenes/line";
 import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
@@ -41,11 +42,13 @@ import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } 
 import { randomUUID } from "node:crypto";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import {
-  advance, creditAhead, currentBeat, isOver, objectivesOf, outcomeOf, startScene, walkOut, type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle, type HurdleRecord,
+  advance, creditAhead, currentBeat, isOver, objectivesOf, outcomeOf, patienceAt, startScene, walkOut,
+  type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle,
+  type HurdleRecord,
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
-import { addsEvidence, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -383,7 +386,7 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
       lexicon has no forms to accept them with. The same shape as the lemmas
       above: a request against the dictionary, checked by the catalog test.
     */
-    if (prop.kind === "number") {
+    if (prop.kind === "number" || prop.kind === "price") {
       for (let n = prop.min; n <= prop.max; n += 1) for (const w of numberWords(String(n))) lemmas.add(w);
     }
   }
@@ -464,7 +467,17 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
     },
     marker,
     pool: poolsFor(scene, rows),
-    topic: new Map(scene.beats.map((beat) => [beat.id, topicForms(beat, lexicon)])),
+    /*
+      A beat's subject is its topic lemmas' forms and the words its own banked
+      lines are made of (`bankTopic`), so a composed line that answers what the
+      learner just said and then asks the beat's question in the bank's own
+      words is on topic. Without the second half the bill beat refused every
+      line that did not mention money, including the one that did exactly what
+      `composeNote` asked of it.
+    */
+    topic: new Map(scene.beats.map((beat) => [
+      beat.id, new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
+    ])),
     scripted: new Map(sceneBeats(scene).map((beat) => [beat.id, scriptedFor(scene, beat)])),
     hasFiniteVerb,
     fallback: rows.find((row) => row.lemma === FALLBACK_PHRASE)?.lemma ?? FALLBACK_PHRASE,
@@ -587,10 +600,29 @@ function governedIn(rows: readonly Row[]): GovernedWord[] {
     out.push({
       lemma: row.lemma,
       forms,
-      cases: new Set([government.caseKey, ...government.alsoGoverned]),
+      cases: new Set([government.caseKey, ...government.alsoGoverned, ...placeCases(row.government ?? "")]),
     });
   }
   return out;
+}
+
+/**
+ * THE CASES THAT ANSWER A PLACE QUESTION A GOVERNMENT NAMES.
+ *
+ * Ekilex records `sõitma` as "kuhu (direction) · millega (comitative)", and
+ * `parseGovernment` names a case for the second and none for the first, since
+ * `kuhu` is not a case. So the gate held `sõitma` to the comitative alone and
+ * withheld `Buss sõidab jaama kell kaks`, three times running, on the one
+ * beat that had to say where the bus goes. `kuhu` is answered by the
+ * sisseütlev and the alaleütlev, `kus` and `kust` by their pairs, which is
+ * what `CASES` already records as `asksWhere`, so a government naming a place
+ * question governs every case that answers it. Read off the table rather
+ * than typed, for the reason the question words themselves are.
+ */
+function placeCases(government: string): CaseKey[] {
+  const asked = new Set((government.toLowerCase().match(/\b(kuhu|kus|kust)\b/g) ?? []).map((w) => `${w}?`));
+  if (asked.size === 0) return [];
+  return CASES.filter((spec) => spec.asksWhere && asked.has(spec.asksWhere)).map((spec) => spec.key);
 }
 
 /** `lemma|CASE` inverted into `form -> cases`, which is what the gate asks. */
@@ -779,6 +811,21 @@ export interface SentTurn {
    * whether its own parroting is noticed, which advances nothing either way.
    */
   readonly heard?: string;
+  /**
+   * Which requirements a judge conceded on this turn after the dictionary
+   * refused it (`concede`), as the route wrote them back and the client echoes
+   * them. The client's word, like `helped`: a client that forges one ends a
+   * beat in its own transcript and grades nothing by it, since a conceded
+   * requirement writes no row (`gradesFor`).
+   */
+  readonly conceded?: readonly number[];
+}
+
+/** The `conceded` field off the wire: whole numbers only, deduplicated, bounded. */
+export function concededOf(input: unknown): number[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = [...new Set(input.filter((n): n is number => Number.isInteger(n) && n >= 0 && n < 16))];
+  return out.length > 0 ? out : undefined;
 }
 
 /** What the transcript holds about the draw, so a run can be marked long after it. */
@@ -798,6 +845,13 @@ export interface StoredDraw {
    * ordinary case.
    */
   readonly lines: LineMode;
+  /**
+   * How many tries each beat gives this run, the persona's delta applied
+   * (`planRun`). Absent on a row written before it was stored, and then the
+   * scene's own figures hold, since a conversation in flight may not get
+   * brisker under the learner having it.
+   */
+  readonly patience?: readonly number[];
 }
 
 export interface FinishedRun {
@@ -997,6 +1051,7 @@ export async function beginRun(input: {
     card,
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
     lines: input.lines,
+    patience: run.patience,
   };
 
   const created = await prisma.sceneRun.create({
@@ -1212,7 +1267,7 @@ export function replay(
   const closeAt = context.scene.beats.findIndex((b) => b.move === "close");
   const closeBeat = context.scene.beats[closeAt];
 
-  let state = raiseHurdle(context.scene, startScene(context.scene), drawn);
+  let state = raiseHurdle(context.scene, startScene(context.scene, draw?.patience), drawn);
   let response: Response = "answer";
   let previous = "";
   for (const sent of turns.slice(0, MAX_TURNS)) {
@@ -1268,7 +1323,7 @@ export function replay(
       const bye = readTurn(said, closeBeat, marker);
       const here = readTurn(said, beat, marker);
       if (bye.reading === "complete" && here.reading !== "complete") {
-        state = { ...state, beat: closeAt, patience: closeBeat.patience, hurdle: null };
+        state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;
         continue;
@@ -1282,7 +1337,14 @@ export function replay(
       turn, because the server keeps nothing between turns.
     */
     const heard = heardNow;
-    const evidence = readTurn(said, beat, marker);
+    /*
+      The dictionary reads first, and a judge's concession stored on the turn
+      is applied over its reading (`concede`): only what the dictionary
+      refused can be conceded, so the same turn re-marked at the end of the
+      run reaches the same state the learner saw.
+    */
+    const read = readTurn(said, beat, marker);
+    const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
     ({ state, response } = advance(
       context.scene, state, evidence, said, Boolean(sent.helped), heard,
     ));
@@ -1412,6 +1474,9 @@ export function readDraw(transcript: string): StoredDraw | null {
         conversation and change its voice at the same moment.
       */
       lines: parsed.lines === "composed" ? "composed" : "scripted",
+      ...(Array.isArray(parsed.patience) && parsed.patience.every((n) => typeof n === "number" && n >= 1)
+        ? { patience: parsed.patience }
+        : {}),
     };
   } catch {
     return null;

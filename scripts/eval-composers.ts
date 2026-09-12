@@ -47,7 +47,7 @@ import { stageFor } from "../lib/scenes/reply";
 import { words } from "../lib/scenes/lexicon";
 import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
-  FREE_GEMINI_MODELS, FREE_GROQ_MODELS, FREE_OPENROUTER_MODELS,
+  FREE_GEMINI_MODELS, FREE_GROQ_MODELS,
 } from "../lib/tutor/provider";
 import { keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
 
@@ -80,7 +80,6 @@ function links(): Link[] {
     if (!key) return;
     for (const model of models) out.push({ provider, model, url, key });
   };
-  add("OpenRouter", "https://openrouter.ai/api/v1/chat/completions", "OPENROUTER_API_KEY", FREE_OPENROUTER_MODELS);
   add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", FREE_GROQ_MODELS);
   add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", FREE_GEMINI_MODELS);
   return out.filter((l) => !ONLY_MODEL || l.model === ONLY_MODEL);
@@ -221,7 +220,6 @@ const DEFAULT_PACE: Record<string, number> = {
   Groq: 18_000,
   // Requests per minute, and generous: measured comfortable at one a second.
   Gemini: 1_500,
-  OpenRouter: 3_000,
 };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -241,9 +239,6 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
         headers: {
           "content-type": "application/json",
           authorization: `Bearer ${link.key}`,
-          ...(link.provider === "OpenRouter"
-            ? { "HTTP-Referer": "http://localhost:3000", "X-Title": "Kodukeel Estonian study" }
-            : {}),
         },
         // The route's own body, minus the stream: what is judged here is the
         // finished line, and a stream would only add a reassembly step.
@@ -295,7 +290,7 @@ async function main() {
   const chain = links();
   if (chain.length === 0) {
     console.log("No free provider key is set, so there is nothing to measure.");
-    console.log("Set OPENROUTER_API_KEY, GROQ_API_KEY or GEMINI_API_KEY.");
+    console.log("Set GROQ_API_KEY or GEMINI_API_KEY.");
     return;
   }
   const scenes = SCENES.filter((s) => SCENE_IDS.includes(s.id));

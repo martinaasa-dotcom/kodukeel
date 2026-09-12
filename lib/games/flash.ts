@@ -84,6 +84,30 @@ import type { CaseKey } from "@/lib/estonian/types";
 
 export type FlashShape = "recall" | "inflect" | "gap" | "heard" | "build";
 
+/**
+ * A phrase's own punctuation, dropped for this round and nowhere else.
+ *
+ * `Tere hommikust!` is filed with its exclamation mark because that is how a
+ * greeting is written down, and the dictionary, the review card and every
+ * other screen keep printing it exactly as stored: this app edits neither
+ * the lemma nor the Estonian it holds. The mark carries no answer of its own
+ * here either, since `checkAnswer` already strips punctuation before
+ * comparing, so typing it was never required. What it did was print on the
+ * card, on the reveal, on the star label and in the round's mastery meter,
+ * which reads as the app shouting the word rather than teaching it.
+ *
+ * Applied inside `askableSlots` and `flashTask`, the two places a word's
+ * lemma becomes something a screen shows, rather than at each caller: this
+ * module has two of those (the flash round and `audit:questions`, which
+ * builds the same tasks to check what a screen shows), and a strip left to
+ * the caller is a strip the second one would forget. Trailing only, and only
+ * `!`, so a sentence a learner writes and a question mark a phrase genuinely
+ * ends on (`Kuidas läheb?`) are untouched.
+ */
+export function dropTrailingBang(text: string): string {
+  return text.replace(/!+\s*$/, "").trimEnd();
+}
+
 /** A dictionary entry, in the shape a round needs it. */
 export interface FlashWord {
   lexemeId: string;
@@ -134,6 +158,8 @@ export interface FlashTask extends FlashSlot {
   label: string;
   /** The sentence a `gap` or `heard` task is built on. Null otherwise. */
   sentence: string | null;
+  /** That same sentence's stored English translation, when there is one. */
+  sentenceEn: string | null;
   /**
    * The spelling of the word that sentence actually carries.
    *
@@ -201,11 +227,12 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     asked, in its cases, where there is something to produce.
   */
   if (!sameSpelling(word.lemma, word.translation) && !shownInGloss([word.lemma])) {
+    const value = dropTrailingBang(word.lemma);
     out.push({
       slot: "PRODUCTION",
-      value: word.lemma,
+      value,
       alsoRight: null,
-      accepted: [word.lemma],
+      accepted: [value],
       provenance: "ekilex",
     });
   }
@@ -332,7 +359,7 @@ export function hasSentence(word: FlashWord, slot: FlashSlot): boolean {
  * this agrees in nearly every case; where it does not, the sentence shapes
  * simply are not offered and the round asks the plain way.
  */
-function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; form: string } | null {
+function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; en: string | null; form: string } | null {
   // Nothing to cut a gap out of, so nothing to work out which forms could be
   // cut. Most of the dictionary's entries carry no usage at all.
   if (word.examples.length === 0) return null;
@@ -365,7 +392,7 @@ function sentenceFor(word: FlashWord, slot: FlashSlot): { et: string; form: stri
       asked the plain way rather than dropping out of the round.
     */
     if (slot.accepted.some((spelling) => mentions(cloze.text, spelling))) continue;
-    return { et: example.et, form };
+    return { et: example.et, en: example.en ?? null, form };
   }
   return null;
 }
@@ -436,7 +463,7 @@ export function flashTask(input: {
     id: `${word.lexemeId}:${slot.slot}`,
     cardId,
     lexemeId: word.lexemeId,
-    lemma: word.lemma,
+    lemma: dropTrailingBang(word.lemma),
     translation: word.translation,
     pos: word.pos,
     shape,
@@ -459,6 +486,7 @@ export function flashTask(input: {
       whatever spelling a lexicographer happened to reach for.
     */
     sentence: aboutASentence ? sentence?.et ?? null : null,
+    sentenceEn: aboutASentence ? sentence?.en ?? null : null,
     sentenceForm: aboutASentence ? sentence?.form ?? null : null,
     gapped: shape === "gap" ? cloze?.text ?? null : null,
     // Where the sentence carries the other spelling of a two-form case, that

@@ -38,7 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     conversation. A screen may not promise what the route will refuse: since
     the purpose split, `/api/tutor` asks Anthropic and nothing else, so reading
     the general chain here would draw a live button on a deployment that has
-    OpenRouter configured and no Anthropic key.
+    Gemini configured and no Groq key.
   */
   const chain = resolveProviders({ purpose: "tutor" });
   /*

@@ -14,6 +14,7 @@ import { prefetchClip } from "@/lib/audio/clip";
 import { SuggestFix } from "@/components/SuggestFix";
 import { StarWord } from "@/components/StarWord";
 import { WordIntro } from "@/components/WordIntro";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -28,6 +29,7 @@ import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState }
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { useResumeCard } from "@/components/useResumeCard";
 
 export interface ReviewCard {
   id: string;
@@ -113,6 +115,14 @@ export interface ReviewCard {
   /** Four options including the right one, when this card can be asked as multiple choice. */
   choices: string[] | null;
   scheduling: Omit<SchedulingState, "due" | "lastReview"> & { due: string; lastReview: string | null };
+  /**
+   * The stored English translation of a `CLOZE` card's own sentence, matched
+   * off the lexeme's examples. Null on every other card type, and on a CLOZE
+   * card whose sentence has not been translated yet.
+   */
+  sentenceEn: string | null;
+  /** Whether this deployment has a model that could translate the sentence. */
+  canTranslate: boolean;
 }
 
 
@@ -408,7 +418,10 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
-  const [index, setIndex] = useState(0);
+  // Which card to reopen on if this mount is a resume after a dictionary
+  // detour, rather than a fresh start. See `components/useResumeCard.ts`.
+  const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
+  const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
   const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
@@ -480,6 +493,11 @@ export function ReviewSession({
   const card = queue[index];
   const finished = !card;
   const ask = card ? askFor(card, mode, met) : "flip";
+
+  // Remembered so a detour to the dictionary can come back to this card
+  // rather than to whatever a fresh queue opens with; cleared once the round
+  // actually finishes.
+  useEffect(() => { rememberCard(card); }, [rememberCard, card]);
 
   /*
     Whether the answer is on the screen, which is not the same question as
@@ -1171,6 +1189,13 @@ export function ReviewSession({
                     {card.front.split(BLANK)[1]}
                   </p>
                   <Speak text={card.front.replace(BLANK, card.back)} label="Hear the whole sentence" autoplay />
+                  <SentenceTranslation
+                    key={card.front}
+                    lexemeId={card.lexemeId}
+                    et={card.front.replace(BLANK, card.back)}
+                    en={card.sentenceEn}
+                    canTranslate={card.canTranslate}
+                  />
                 </div>
               ) : (
                 <div className="flex items-center gap-2">

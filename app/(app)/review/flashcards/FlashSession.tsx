@@ -12,13 +12,14 @@ import { Chip, KeyCap, Meter, Stat } from "@/components/ui";
 import { useOffline } from "@/components/OfflineProvider";
 import { StarWord } from "@/components/StarWord";
 import { enqueueGrade } from "@/lib/offline/db";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { englishName } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -270,11 +271,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{shape === "build" ? "⌘ Enter" : ADVANCE_KEY_LABEL}</KeyCap>
+              Check it <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -487,18 +488,35 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
       </div>
 
       {task.sentence && (
-        <p lang="et" className="mt-4 text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
-          {/* The spelling the sentence itself carries, which is not always the
-              one the slot leads with: `tuppa` and `toasse` are both the
-              illative and a lexicographer writes whichever the sentence
-              wanted. */}
-          {splitOnForm(task.sentence, task.sentenceForm ?? task.value)
-            .map((part, i) =>
-              part.match
-                ? <strong key={i} style={{ color: "var(--ink)" }}>{part.text}</strong>
-                : <span key={i}>{part.text}</span>,
-            )}
-        </p>
+        <>
+          <p lang="et" className="mt-4 text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
+            {/* The spelling the sentence itself carries, which is not always the
+                one the slot leads with: `tuppa` and `toasse` are both the
+                illative and a lexicographer writes whichever the sentence
+                wanted. */}
+            {splitOnForm(task.sentence, task.sentenceForm ?? task.value)
+              .map((part, i) =>
+                part.match
+                  ? <strong key={i} style={{ color: "var(--ink)" }}>{part.text}</strong>
+                  : <span key={i}>{part.text}</span>,
+              )}
+          </p>
+          {/*
+            Always offered rather than gated on a page-side check: this file
+            and everything under lib/games/flash.ts may not reach a provider,
+            since whether a form is right is the dictionary's answer alone
+            (`npm run test:invariants`). A deployment with no model simply
+            answers the press with a refusal, through the same server action
+            every other sentence translation goes through.
+          */}
+          <SentenceTranslation
+            key={task.sentence}
+            lexemeId={task.lexemeId}
+            et={task.sentence}
+            en={task.sentenceEn}
+            canTranslate
+          />
+        </>
       )}
 
       <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>

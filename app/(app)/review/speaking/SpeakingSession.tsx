@@ -10,6 +10,7 @@ import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { SpeakPair } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
+import { useResumeCard } from "@/components/useResumeCard";
 import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 
@@ -51,7 +52,14 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     ReviewSession's frozen queue.
   */
   const [cards] = useState(initialCards);
-  const [index, setIndex] = useState(0);
+  /*
+    Which card to reopen on after a detour to its dictionary entry. Read once,
+    inside `useResumeCard`'s own lazy initializer, so handing it a freshly
+    mapped array on every render costs nothing beyond the first. See
+    components/useResumeCard.ts.
+  */
+  const { initialIndex, remember: rememberCard } = useResumeCard(initialCards.map((c) => ({ id: c.cardId })));
+  const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
   const [done, setDone] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -60,6 +68,8 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
 
   const card = cards[index];
   const finished = !card;
+
+  useEffect(() => { rememberCard(card ? { id: card.cardId } : undefined); }, [rememberCard, card]);
 
   useEffect(() => {
     setRevealed(false);
