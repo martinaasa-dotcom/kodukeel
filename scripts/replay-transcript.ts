@@ -19,7 +19,7 @@ import {
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
-import { replyFor, datumLine, cardAfterHurdles, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
+import { replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
@@ -92,7 +92,11 @@ async function main() {
     const beat = currentBeat(scene, state);
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-    const inPlay = cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state);
+    const inPlay = cardChosen(
+      cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
+      state.turns,
+      (lemma) => context.marker.englishFor?.get(lemma)?.[0],
+    );
     const last = state.turns[state.turns.length - 1] ?? null;
     const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
     const spokenFor = standing ?? speaking ?? (answered?.move === "close" ? answered : undefined);

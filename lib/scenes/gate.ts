@@ -216,6 +216,22 @@ export interface GateContext {
     readonly dealt: ReadonlySet<string>;
   };
   /**
+   * A PRICE SAID IN WORDS IS STILL A PRICE. `facts` read digits, and the hour
+   * check read an hour word beside the clock word; a composed line saying
+   * `Pilet maksab neli eurot` on a card that dealt five went straight through,
+   * and a learner who read it had been told the wrong price by the one
+   * character who is supposed to know it. A number word directly before a form
+   * of the unit is a price, and it has to be one the card dealt or the learner
+   * named. Every form of the unit, every form of every number word to its
+   * lemma, and the number words the run has dealt, resolved by the caller off
+   * the scene's own lexicon (`moneyInPlay`).
+   */
+  readonly money?: {
+    readonly unit: ReadonlySet<string>;
+    readonly numbers: ReadonlyMap<string, string>;
+    readonly dealt: ReadonlySet<string>;
+  };
+  /**
    * Every form of the beat's own topic words, where the caller has one.
    *
    * A LINE FOR A BEAT HAS TO BE ABOUT THE BEAT. Retrieval has asked this of a
@@ -292,6 +308,23 @@ function inventedHour(tokens: readonly string[], times: GateContext["times"]): b
   return hours.length > 0 && hours.some((word) => !times.dealt.has(word));
 }
 
+/**
+ * Whether the line names a price this run did not deal: a number word with a
+ * form of the unit straight after it, where the number is not one the card
+ * dealt or the learner named. `kaks minutit` and `kolmas korrus` have no unit
+ * beside them and say nothing about money.
+ */
+function inventedPrice(tokens: readonly string[], money: GateContext["money"]): boolean {
+  if (!money) return false;
+  for (let at = 0; at + 1 < tokens.length; at += 1) {
+    const lemma = money.numbers.get(tokens[at]!.toLowerCase());
+    if (!lemma) continue;
+    if (!money.unit.has(tokens[at + 1]!.toLowerCase())) continue;
+    if (!money.dealt.has(lemma)) return true;
+  }
+  return false;
+}
+
 export function passes(verdict: Verdict): boolean {
   return verdict.failed.length === 0;
 }
@@ -341,7 +374,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
 
   if (tokens.some((word) => context.wrongRegister.has(word))) failed.push("register");
 
-  if (governmentSuspect(tokens, context)) failed.push("government");
+  if (governmentSuspect(tokens, context, text)) failed.push("government");
 
   if (disagrees(text, context)) failed.push("agreement");
 
@@ -367,7 +400,9 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
     exists to find Estonian words and drops digits on the way past, which is
     exactly why nothing here could see this before.
   */
-  if (invented(text, context.dealt) || inventedHour(tokens, context.times)) failed.push("facts");
+  if (invented(text, context.dealt) || inventedHour(tokens, context.times) || inventedPrice(tokens, context.money)) {
+    failed.push("facts");
+  }
 
   return { failed, unknown, stretched };
 }
@@ -657,7 +692,15 @@ const MAX_SENTENCES = 5;
  * moved to `gemini-3.8-flash`, a model measured on the beat twenty-four times
  * out of twenty-four with nothing withheld.
  */
-export const MAX_COMPOSED_WORDS = 40;
+/*
+  AND FIFTY-FIVE, BECAUSE THE PROMPT NOW ASKS FOR A WHOLE PERSON. A learner
+  asked for context, for the other side to explain what they need in more than
+  one sentence, and forty words is three short sentences with nothing spare
+  for the remark that makes a counter a counter. Five sentences is still the
+  limit, `NEW_WORDS` is still the budget on what a beginner has not met, and
+  the learner still reads every word with the dictionary underneath.
+*/
+export const MAX_COMPOSED_WORDS = 55;
 
 /**
  * At most two short sentences, inside the word count, punctuated, no markdown,
@@ -707,7 +750,21 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
  * real errors and 8.3% of good lines over 494 pairs, so §2's condition is met.
  * A check that fires on honest output is a check somebody waives.
  */
-export function governmentSuspect(tokens: readonly string[], context: GateContext): boolean {
+export function governmentSuspect(tokens: readonly string[], context: GateContext, text?: string): boolean {
+  /*
+    ONE CLAUSE AT A TIME, NOW THAT A LINE IS SEVERAL. The check was written
+    for one sentence and read the whole line as one: `Jah, muidugi saab.
+    Palun, siin on teie pilet. Head reisi ja nägemist!` holds a governed verb
+    in its first sentence and a partitive in its third, and was held to the
+    pair three times over. A noun governs nothing across a full stop. Where
+    the caller hands in the text, each clause is read on its own and the line
+    is suspect only where one of them is; the token-only reading stays for a
+    caller that has none.
+  */
+  if (text !== undefined) {
+    return text.split(/[.!?,;:]+/).map((clause) => words(clause)).filter((clause) => clause.length > 0)
+      .some((clause) => governmentSuspect(clause, context));
+  }
   const lower = tokens.map((t) => t.toLowerCase());
   /*
     EVERY GOVERNED VERB IN THE LINE, NOT THE FIRST ONE FOUND. `Buss sõidab
@@ -721,6 +778,9 @@ export function governmentSuspect(tokens: readonly string[], context: GateContex
   if (present.length === 0) return false;
   return present.every((word) => suspectFor(word, lower, context));
 }
+
+/** The cases an adverbial of manner, place or time takes with any verb. */
+const ADJUNCT_CASES: ReadonlySet<CaseKey> = new Set<CaseKey>(["COMITATIVE", "INESSIVE", "ADESSIVE", "ABESSIVE"]);
 
 function suspectFor(word: GovernedWord, lower: readonly string[], context: GateContext): boolean {
 
@@ -746,6 +806,20 @@ function suspectFor(word: GovernedWord, lower: readonly string[], context: GateC
   const nominals = lower.filter((t) => context.caseOf.has(t) && !word.forms.has(t));
   const governed = nominals.some((t) => [...(context.caseOf.get(t) ?? [])].some((c) => word.cases.has(c)));
   if (governed) return false;
-  const oblique = nominals.filter((t) => !context.caseOf.get(t)?.has("NOMINATIVE"));
+  /*
+    AND AN ADJUNCT IS NOT A COMPLEMENT EITHER. `Poes maksan kaardiga` is the
+    dictionary's own sentence for `maksma`, whose government is the allative and
+    `mille eest`, and the check withheld `Jah, muidugi saab kaardiga maksta` on
+    it three times over: the card is the instrument, and an instrument, a place
+    or a time goes with any verb in the language. The cases an adverbial takes
+    freely are left out of the count; direction (the illative, the allative, the
+    elative and the ablative) stays in, because direction is what government is
+    mostly about (`sõitma jaama`).
+  */
+  const oblique = nominals.filter((t) => {
+    const cases = context.caseOf.get(t);
+    if (!cases || cases.has("NOMINATIVE")) return false;
+    return ![...cases].some((c) => ADJUNCT_CASES.has(c));
+  });
   return oblique.length > 0;
 }

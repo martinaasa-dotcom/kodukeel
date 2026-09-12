@@ -32,6 +32,7 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { words, type Lexicon } from "./lexicon";
 import { caseKeyFor, caseOfForm } from "./lexicon";
 import { compoundOf, foldedOnly, nearlyInflected, nearlySpelled, personAsked } from "./nearly";
+import { numberFromText, timeFromText, type SlotKind } from "./props";
 import { leafNeeds, type BeatSpec, type Requirement } from "./types";
 
 /**
@@ -188,6 +189,28 @@ export interface Evidence {
    * other side can say).
    */
   readonly asked: string | null;
+  /**
+   * A FACT THE LEARNER CHANGED ON THEIR OWN CARD (ADR-025 amendment 3).
+   *
+   * The card deals a destination, a time, a floor, a drink, so the learner
+   * has something to say, and it is not a marking target: somebody who says
+   * `Tartusse` at a window whose card said the station has said where they
+   * are going, and the person behind the counter goes with it. One entry per
+   * `datum` requirement met by a value the card did not deal, carrying the
+   * slot and the value as the dictionary read it, so the run adopts it
+   * (`cardChosen`) and every later line reads the learner's own value back.
+   * Absent or empty where the turn kept to the card, which is the ordinary case.
+   */
+  readonly chose?: readonly Chosen[];
+}
+
+/** A value the learner put on their own card, in place of the one it dealt. */
+export interface Chosen {
+  readonly slot: string;
+  /** The value as a card would hold it: `HH:MM`, a digit string, or a lemma. */
+  readonly value: string;
+  /** The dictionary word behind it, where the value is a word. */
+  readonly lemma?: string;
 }
 
 /**
@@ -214,6 +237,14 @@ export interface TurnContext {
    * words, and then a cased datum reads like a plain one.
    */
   readonly dataLemmas?: ReadonlyMap<string, readonly string[]>;
+  /**
+   * What kind of thing each slot holds (`slotKinds`), so a `datum` can be
+   * met by a value the card did not deal: another of the words the slot could
+   * have drawn, any clock time, any number in the slot's span. Absent on a
+   * caller that has not resolved it, and then a datum takes the dealt value
+   * and nothing else, which is what it did before.
+   */
+  readonly slots?: ReadonlyMap<string, SlotKind>;
   /** The line the other side just said, for the echo rule. */
   readonly previous: string;
   /**
@@ -408,6 +439,7 @@ export function readTurn(
   */
   const substituted = found.flatMap((hit, i) => (hit && hit !== YES && hit.stoodIn ? [i] : []));
   const slips = found.flatMap((hit) => (hit && hit !== YES && hit.slip ? [hit.slip] : []));
+  const chose = found.flatMap((hit) => (hit && hit !== YES && hit.chose ? [hit.chose] : []));
   /*
     A question the beat did not ask for. A person caught off guard by one
     still answers it before going on, and this is what tells the reply that
@@ -418,7 +450,7 @@ export function readTurn(
   const asked = questionWord ?? (text.includes("?") ? "?" : null);
   const wantsEnglish = spoken.includes(ASK_ENGLISH);
   const shape = (reading: TurnReading): Evidence =>
-    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted, wantsEnglish });
+    ({ reading, met, missing, words: marked, matched, satisfiedBy, slips, asked, substituted, wantsEnglish, chose });
 
   /*
     No letters at all is nothing anybody could read, unless the beat wanted a
@@ -485,7 +517,7 @@ export function readTurn(
   if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked) && !isLost(spoken, context)) {
     return {
       reading: "complete", met: beat.needs.map(() => true), missing: [],
-      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [], wantsEnglish,
+      words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [], wantsEnglish, chose: [],
     };
   }
 
@@ -510,6 +542,7 @@ export function readTurn(
     return {
       reading: "declined", met: beat.needs.map(() => false), missing: beat.needs.map((_, i) => i),
       words: marked, matched: [], satisfiedBy: [], slips: [], asked: null, substituted: [], wantsEnglish: false,
+      chose: [],
     };
   }
   /*
@@ -646,6 +679,8 @@ interface Hit {
   readonly slip?: Slip;
   /** Met by a word standing in for the one the beat named, not by that word. */
   readonly stoodIn?: true;
+  /** Met by a value of the slot's kind that the card did not deal (`Evidence.chose`). */
+  readonly chose?: Chosen;
 }
 
 /**
@@ -907,8 +942,14 @@ function satisfies(
       */
       const card = context.dataLemmas?.get(need.slot) ?? [];
       const lemmas = need.grammCase ? card : [];
-      for (const lemma of lemmas) {
-        const key = caseKeyFor(lemma, need.grammCase!);
+      /*
+        One word's whole ladder, so the card's own word and a word the learner
+        chose instead are read the same way: the case form, any other form of
+        the word understood in the wrong case, a folded diacritic, a stem with
+        an ending it does not have, a letter out.
+      */
+      const readWord = (lemma: string, grammCase: CaseKey): Hit | null => {
+        const key = caseKeyFor(lemma, grammCase);
         const forms = context.lexicon.byLemma.get(lemma);
         const cased = (said: string): Hit => {
           if (!isAnswer(said)) return { word: said };
@@ -917,8 +958,8 @@ function satisfies(
             word: said,
             slip: {
               kind: "case" as const, said, form: context.lexicon.caseForm.get(key) ?? null,
-              lemma, grammCase: need.grammCase!,
-              ...(reached && reached !== need.grammCase ? { reached } : {}),
+              lemma, grammCase,
+              ...(reached && reached !== grammCase ? { reached } : {}),
             },
           };
         };
@@ -931,6 +972,11 @@ function satisfies(
         if (nearCase) return { word: nearCase.form, slip: { kind: "spelling", said: nearCase.said, form: nearCase.form, lemma } };
         const other = folded(forms)?.said ?? inflected(forms)?.said ?? nearly(forms)?.said ?? null;
         if (other) return cased(other);
+        return null;
+      };
+      for (const lemma of lemmas) {
+        const found = readWord(lemma, need.grammCase!);
+        if (found) return found;
       }
       const hit = exact(accepted);
       if (hit) return { word: hit };
@@ -986,6 +1032,64 @@ function satisfies(
         const said = englishFor(lemma, context, spoken);
         if (said) {
           return { word: lemma, stoodIn: true, slip: { kind: "english", said, form: lemma, lemma } };
+        }
+      }
+      /*
+        AND A VALUE OF THE SAME KIND THAT THE CARD DID NOT DEAL, WHICH IS THE
+        LEARNER CHANGING A FACT ON THEIR OWN CARD (ADR-025 amendment 3).
+
+        Everything above holds the learner to the dealt value, and for a year
+        that was final: asked where they were going, somebody who wrote `ma
+        lähen jaama` at a window whose card said the city centre was told they
+        had not been understood, and so was somebody who asked for tea where
+        the card said coffee, and somebody who said the trouble began on
+        Monday where the card said Tuesday. Every one of those is perfect
+        Estonian and a person behind a counter takes it. The card exists so a
+        learner has something to say; it is not a marking target.
+
+        So a slot is met by any value of its kind the dictionary can read:
+        another of the words the slot could have drawn, read through the same
+        ladder as the dealt one so the case is still corrected; any clock
+        time, in digits or in the words the card's own time is said in; any
+        number inside the slot's span, as a digit or a number word. The hit
+        carries `chose`, so the run adopts the value and later lines read it
+        back, and the grade for it is never written, since the card's word is
+        not the word they produced.
+
+        Never for a fact that belongs to the other side (`theirs`): the time a
+        receptionist offers is hers to offer, and a learner naming another is
+        countering, which the beat reads for itself.
+      */
+      const kind = context.slots?.get(need.slot);
+      if (kind && !("theirs" in kind && kind.theirs)) {
+        if (kind.kind === "word" || kind.kind === "weekday") {
+          const others = kind.oneOf.filter((lemma) => !card.includes(lemma));
+          const chosen = (lemma: string, hit: Hit): Hit => ({ ...hit, chose: { slot: need.slot, value: lemma, lemma } });
+          for (const lemma of others) {
+            if (need.grammCase) {
+              const found = readWord(lemma, need.grammCase);
+              if (found) return chosen(lemma, found);
+              continue;
+            }
+            const forms = context.lexicon.byLemma.get(lemma);
+            const found = exact(forms);
+            if (found) return chosen(lemma, { word: found });
+            const near = folded(forms) ?? nearly(forms);
+            if (near) return chosen(lemma, { word: near.form, slip: { kind: "spelling", said: near.said, form: near.form, lemma } });
+          }
+        }
+        if (kind.kind === "time") {
+          const value = timeFromText(text, kind);
+          if (value) return { word: value, chose: { slot: need.slot, value } };
+        }
+        if (kind.kind === "number" || kind.kind === "price") {
+          const found = numberFromText(text, kind, (lemma) => context.lexicon.byLemma.get(lemma));
+          if (found) {
+            return {
+              word: found.lemma ?? found.value,
+              chose: { slot: need.slot, value: found.value, ...(found.lemma ? { lemma: found.lemma } : {}) },
+            };
+          }
         }
       }
       return null;

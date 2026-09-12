@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
-import { beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
+import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
 import { sceneProviders } from "@/lib/tutor/provider";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { formName } from "@/lib/estonian/morph";
@@ -1157,6 +1157,7 @@ export async function sceneHelp(runId: unknown, turns: unknown) {
           helped: row.helped === true,
           heard: text(row.heard).slice(0, MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
+          alsoDone: alsoDoneOf(row.alsoDone),
         };
       })
     : [];
@@ -1242,6 +1243,7 @@ export async function finishScene(input: {
           helped: row.helped === true,
           heard: text(row.heard).slice(0, MAX_TURN_CHARS),
           conceded: concededOf(row.conceded),
+          alsoDone: alsoDoneOf(row.alsoDone),
         };
       })
     : [];

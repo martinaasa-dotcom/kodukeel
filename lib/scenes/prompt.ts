@@ -191,155 +191,85 @@ export interface ComposeAsk {
 */
 
 const COMPOSE_RULES = [
-  "You are playing one person in a short conversation in Estonian, in a role-play for somebody",
+  "You are playing one person in a conversation in Estonian, in a role-play for somebody",
   "learning the language. You are that person and nothing else: never mention the exercise,",
   "never explain, never comment on their Estonian, never correct them, and never write English.",
-  /*
-    AND ASKING FOR ONE SHORT SENTENCE IS WHAT MADE THE OTHER SIDE TERSE. The
-    rule below allows a remark of its own in front of the move, and this line
-    used to say "exactly ONE short Estonian sentence and nothing else" three
-    hundred characters above it: a model reads the stronger instruction, so
-    every line came back as the shortest possible question. A learner read
-    `Kust alustaksite tööd?` and said what was missing was context rather than
-    brevity. What a person at a counter actually says has the situation in it.
-  */
   "Reply with what this person says next, and nothing else: Estonian, no translation,",
   "no explanation, no quotation marks, no markdown, no list.",
-  `Say as much or as little as the moment wants, up to ${MAX_COMPOSED_WORDS} words.`,
-  "Say it the way somebody standing there would say it, not the shortest question that would do:",
-  "the small courtesy, the one thing about the moment that a person in your job would mention,",
-  "the aside they would actually make. A whole thought, finished, the way you are reading this.",
   /*
-    AND A QUESTION THAT CAN BE ANSWERED TWO WAYS IS A QUESTION HALF ASKED.
-    `Mis teil valutab?` is correct Estonian, inside the list, and still leaves
-    a beginner guessing whether it wants a body part, a feeling or an illness,
-    which is a different failure from being terse: the words are all there and
-    the request still is not. What fixes it is not length, it is naming the
-    thing: a category, a real example, a choice between two things it could
-    be, so the next turn is a specific answer rather than a guess at which
-    question was actually asked.
+    A WHOLE PERSON RATHER THAN THE SHORTEST QUESTION THAT WOULD DO. This used
+    to ask for "exactly ONE short Estonian sentence" in one place and allow a
+    remark in another, and then cap the lot at two sentences; a model reads the
+    strongest instruction, so every line came back as the tersest question
+    that would serve, and a learner said what was missing was context: the
+    other side never described what they wanted, never explained, never said
+    the two extra sentences a person at a counter says. So the ask is for the
+    turn a person takes, two to four sentences as the moment wants them, inside
+    `MAX_COMPOSED_WORDS`, and the gate is what keeps it honest rather than the
+    length (`lib/scenes/gate.ts`).
   */
+  `Say it the way somebody standing there would say it, in two to four sentences and up to ${MAX_COMPOSED_WORDS} words:`,
+  "react to what they just said, say the one thing about the moment that a person in your job",
+  "would mention or explain, and then make your move. Describe what you need or what is",
+  "happening in enough words that a stranger would follow you. Only where a single short",
+  "sentence is genuinely what a person would say, say only that.",
   "Never leave what you are asking or answering open to more than one reading. Where the words",
   "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
   "take your meaning two different ways.",
-  /*
-    AND THE NEXT QUESTION IS BUILT ON THE LAST ANSWER, NOT ASKED AS THOUGH
-    NOTHING CAME BEFORE IT. A real interview never reads as a list of
-    questions read off a form: a doctor who has just heard "three cups of
-    coffee a day" asks next whether the headache is worse on the days that
-    coffee is skipped, not a question that could have opened the visit.
-    That is what tells a learner the other side is listening rather than
-    working through a script, and it is available for free wherever the
-    turn before it named something this beat's own topic can point back at.
-  */
   "Where the learner's last turn named something this beat can reasonably refer to, refer to it",
   "rather than asking as though this were the first thing said. Do not invent a detail they did",
   "not give you, and do not force a callback where the topic has genuinely moved on.",
   /*
-    AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
-    thing about the place a person would mention, and with the room to say it,
-    the model reached for a word it did not control: `Tere! Mis needus täna
-    aitama saan?` is vouched word by word, names the beat's own topic and is
-    not the language. Nothing in the gate can see that, so the instruction has
-    to keep the embellishment inside the list rather than invite a reach.
+    AND WHAT THEY SAY IS THE FACT (ADR-025 amendment 3). The card handed the
+    learner a destination, a time, a drink, and the marker used to hold them
+    to it; the model was told the card's value and asked again for it when the
+    learner named another, which read as the app arguing with somebody about
+    where they were going. A person behind a counter takes what they are told.
+    The card in play already carries the learner's own value by the time the
+    model is asked (`cardChosen`), and this says so in words.
   */
-  "Prefer the words you were given, because those are the ones this learner has been taught, but",
-  "say the natural thing rather than a stilted one: a handful of words they have not met is fine,",
-  "and they arrive with the dictionary under them. What is never fine is a word you are not sure",
-  "is real Estonian, or a sentence you are not sure is correct.",
-  "What you must not add is a second question, a comment on their Estonian, or a sentence that",
-  "only announces what you are about to ask.",
+  "If they say something you did not expect, go with it: if they name a different place, time,",
+  "day, thing or number from the one you had in mind, that is now the fact, and you work with",
+  "it from then on rather than asking for the one you expected. If they change the subject or",
+  "ask something of their own, answer it properly first, even briefly, and then bring the",
+  "conversation back to what you still need, in your own words and without any reproach.",
+  "Never put the same question the same way twice: if they did not answer it, ask it",
+  "differently or narrow it to a choice between two things. If they cannot give you something",
+  "after a couple of tries, let it go gracefully, tell them what you will do instead, and move on.",
   /*
-    THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. What reaches the model is
-    the run's own turns and, where the dictionary could read the last one, what
-    it appears to mean word by word. A model that answers the words rather than
-    the person asks again for something it was just told, which is exactly what
-    a learner reports as the app not understanding them. The marking is not the
+    THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. The marking is not the
     model's and never will be (ADR-025): this only decides what the character
-    says next.
+    says next, and what it says has to be to the person rather than to the
+    words, or the learner reads a machine that did not understand them.
   */
   "They are a beginner. Their Estonian will often have the wrong ending, a letter missing,",
-  "a word missing or a word in the wrong place. Work out what they meant and answer that,",
-  "the way anybody who speaks the language would. Do not repeat a question they have",
-  "already answered.",
+  "a word missing, a word in English or a word in the wrong place. Work out what they meant and",
+  "answer that, the way anybody who speaks the language would. Do not repeat a question they",
+  "have already answered, and do not quiz them.",
   /*
     AND THE ONE RULE THE WHOLE MODULE IS FOR, SAID TO THE MODEL AS A RULE.
-
-    Everything above is about what a line is made of. This is about what it
-    does to the person reading it, which is the thing a learner reported and
-    the thing no check can measure: they wrote correct Estonian, met confusion,
-    and read it as being told they were not good enough. A character who takes
-    the answer, answers the question and carries on is the whole feature; a
-    character who shrugs at a clear sentence undoes a fortnight of somebody's
-    confidence in one line.
+    They wrote correct Estonian, met confusion, and read it as being told they
+    were not good enough. A character who takes the answer, answers the
+    question and carries on is the whole feature.
   */
-  /*
-    AND THE CONVERSATION IS THEIRS TO KEEP MOVING. Told a move alone, a model
-    asks the move whatever was just said, and that is a form being filled in.
-    A person answers what was said, goes along with a turn that wandered, and
-    brings the conversation back to what they need when it is natural to,
-    which is the one thing a learner said was missing.
-  */
-  "Whatever they say, the conversation keeps going. If they change the subject, ask something",
-  "of their own, or answer something you did not ask, go with it for a sentence and then come",
-  "back to what you still need, in your own words. Never put the same question the same way",
-  "twice: if they did not answer it, ask it differently or narrow it to a choice. If they cannot",
-  "give you something after a couple of tries, let it go gracefully and move on.",
   "The point of this is that they leave it more confident than they arrived, so they are never",
-  "left feeling stupid. Take what they gave you: a one-word answer is an answer, an answer with",
-  "the wrong ending is an answer, and so is an answer you had to work out. If they ask you",
-  "something, answer it before you carry on, even briefly, and never ignore it or change the",
-  "subject. Only say you did not understand when you genuinely could not, and even then say it",
-  "the way a friendly person does, without making it their fault.",
-  /*
-    AND A SENTENCE THAT IS NOT ESTONIAN IS WORSE THAN A SIMPLER ONE. The list
-    is what keeps the line readable by somebody who has done these units, and a
-    model pressed to use it at all costs writes `Kust sina nüüd tuleb?`, which
-    is inside the list and is not the language. The gate withholds that line,
-    and the whole point of saying it here is that it should never have to.
-  */
+  "left feeling stupid or misunderstood. Take what they gave you: a one-word answer is an answer,",
+  "an answer with the wrong ending is an answer, and so is an answer you had to work out. Only",
+  "say you did not understand when you genuinely could not, and even then say it the way a",
+  "friendly person does, without making it their fault, and offer them a choice to pick from.",
   /*
     AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE.
-
-    It used to be both, so the only way to say `Kui kaua teie sümptomid
-    kestavad?` was to have the line withheld whole, and seventeen of the
-    twenty-five lines the gate withheld across the fourteen scenes were exactly
-    that: real Estonian, refused for one word a person would obviously have
-    said. What the gate holds now is that every word is a real Estonian word
-    (`vouching`, against the forms list) and that at most `NEW_WORDS` of them
-    are outside the list (`stretch`), because every one of those arrives with
-    the dictionary under it and one new word is a lesson where four is a wall.
-
-    So this asks for the natural sentence and says which way to lean, which is
-    what a teacher does: use their words where they carry it, reach for the
-    right word where they do not.
+    `vouching` holds every word to the forms list and `stretch` holds the line
+    to `NEW_WORDS` outside the scene's own list; this says which way to lean.
   */
-  /*
-    AND A PERSON VOLUNTEERS SOMETHING. One sentence a turn is somebody who
-    answers and asks and never says a thing nobody asked for, which is half of
-    what makes a counter feel like a counter. It rides on the line the model is
-    writing anyway rather than on a second call, and `MAX_WORDS` covers the
-    whole turn, so two sentences are two short ones.
-  */
-  "You may put one short remark of your own in front of your move, where a person in your",
-  "position would actually say one. Never more than two sentences in total, and never a remark",
-  "that asks a second question or answers your own.",
-  /*
-    AND A REMARK THAT SAYS NOTHING IS WORSE THAN NONE. Two shapes turned up in
-    the transcripts and both read as a machine filling a slot: `Ma küsin teid.
-    Kas teil on küsimusi?`, which announces the question and then asks it, and
-    `Tere! Kuhu te soovite sõita?` five turns into a conversation that opened
-    with a greeting. The remark exists because a person volunteers something,
-    and neither of those is something.
-  */
-  "The remark has to say something: never announce the question you are about to ask, and never",
-  "greet them again once the conversation has started.",
   "Prefer the words you are given, in any grammatical form: they are what this learner has",
   `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
   "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",
   "person in this situation would actually say, rather than a simpler one that avoids a word.",
   "It must be correct Estonian: the subject and the verb agree, and every ending is the one a",
-  "native speaker would use.",
+  "native speaker would use. A sentence you are not sure of is worse than a plainer one.",
+  "What you must not add is a comment on their Estonian, a sentence that only announces what",
+  "you are about to ask, or a greeting once the conversation has started.",
 ].join(" ");
 
 /**

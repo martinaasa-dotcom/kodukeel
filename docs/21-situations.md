@@ -4229,3 +4229,75 @@ destination the card did not deal is still off the point, because the card is
 the role and the marker decides against it. What the model does with such a
 turn is answer it as a person and steer back, which is the flow that was asked
 for; what it may never do is decide the beat was met (ADR-025, unchanged).
+
+## §71 The card is a suggestion, and the other side goes with what you say
+
+The operator played it again and said the module was flaky: turns not
+recognised, turns the model was never asked about, a conversation that did not
+adapt to what they were trying to say, and a screen with too much on it. Read
+against `npm run probe:turns`, most of the refusals were one thing. The card
+deals a value so the learner has something to say, and the marker held them to
+it: `tartusse`, `ma lähen jaama`, `jaam palun`, `kell kaheksa`, `08:30` and
+`hommikul` were all refused at a window whose card said the city centre at
+half past ten; `mulle üks tee` was refused where the card said coffee;
+`esmaspäevast` where the card said Thursday. Every one of those is perfect
+Estonian, and a clerk takes it. The judge could not help, because a value off
+the card was the one thing it was told never to concede, and a capitalised
+place name reached no rung at all: the forms list holds none on purpose, so
+`Tartusse` read as nothing anybody could make out and the turn was never put
+to the judge.
+
+**ADR-025 amendment 3.** A `datum` is met by any value of the slot's kind the
+dictionary can read (`slotKinds`, `timeFromText`, `numberFromText`): another of
+the words the slot could have dealt, read through the same ladder as the dealt
+one so a wrong case is still recast; any clock time, in digits or in the hour
+words a card's own time is said in; any number inside the slot's span, as a
+digit or a number word. The hit carries `chose`, the turn records it, and
+`cardChosen` stands the learner's value into the card in play, so the line that
+reads the time back, the facts the composer is told, the numbers the gate lets a
+composed line say and the value beside the objective all read the learner's
+from that turn on. A fact marked `theirs` is never the learner's to change. A
+chosen value writes no grade, for the reason a substituted word writes none.
+
+**The judge is asked on every miss.** It used to be asked on three readings of
+nine and never about a datum or a curveball. It is asked wherever the turn
+holds a word and the beat is not met, a curveball standing in the way included,
+it may concede a datum, and it is told the card is a suggestion they may change.
+And where a turn that landed also held a word nobody could place, it is asked
+once more about the beat ahead, and a yes is stored on the turn as `alsoDone`
+for the cascade in `replay` to read: `ma tahan pileti Tartusse` asks for a
+ticket and says where to, and the second half is a word no list holds.
+
+**The composer is asked for a person, not the shortest question.** The prompt
+said "exactly ONE short Estonian sentence" in one place, allowed a remark in
+another, and capped the lot at two sentences, and a model reads the strongest
+instruction. It asks now for the turn a person takes, two to four sentences
+inside `MAX_COMPOSED_WORDS`, which went from forty to fifty-five: react, say
+the one thing a person in that job would mention, then the move; go with a
+changed detail as the fact; answer a question first; never quiz. A one-word
+turn that did not answer composes too, so `Jah?` is the keyless answer and a
+keyed one takes the word as far as it goes and asks for the rest. And the words
+the learner used are on topic on every turn rather than only where the turn
+deviated, and a figure they typed may be said back, since repeating somebody
+is not inventing a fact.
+
+**And the screen has less on it.** The briefing is two sentences and says the
+card is a suggestion. The card's disclosure holds the facts and the objectives
+and no longer repeats the persona, the "Now" chip is gone from a row that is
+already bold, and the words under a bubble name the move's own rung rather than
+every piece that made it, which under every line of a conversation had become a
+second conversation. Difficulty opens on one curveball at A1 rather than none,
+because a beginner's counter with nothing ever going wrong is not the thing
+being rehearsed.
+
+Measured with `npm run probe:turns`: nine refusals where there were twenty-one,
+and the nine that remain (`tartusse`, `ma tahan arsti juurde`, `mul on
+migraine`, `ma otsin panka`) are exactly the turns the judge is now asked about.
+`npm run play:scenes -- --compose --say "tere|ma tahan pileti tartusse|kell
+kaheksa hommikul|..."` reads the changed time back (`Kell kaheksa hommikul,
+väga hea`) where it used to ask again for half past eight.
+
+What this does not do is make a keyless deployment adaptive: the bank is still
+lines drafted against the beat alone, so the two-word questions a keyless run
+asks are what they were, and a deployment that wants a person behind the
+counter wants a key.

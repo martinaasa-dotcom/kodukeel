@@ -516,6 +516,74 @@ describe("reading a turn", () => {
   });
 });
 
+describe("a fact the learner changed on their own card", () => {
+  /*
+    The card deals a value so the learner has something to say, and it is not
+    a marking target (ADR-025 amendment 3): `Tartusse` at a window whose card
+    said the station is where somebody is going, and the person behind the
+    counter goes with it.
+  */
+  const slots = new Map<string, import("./props").SlotKind>([
+    ["place", { kind: "word", oneOf: ["tuba", "kõrv"] }],
+    ["since", { kind: "weekday", oneOf: ["teisipäev", "kõrv"] }],
+    ["time", { kind: "time", from: 8, to: 18 }],
+    ["floor", { kind: "number", min: 1, max: 5 }],
+    ["offered", { kind: "time", from: 8, to: 18, theirs: true }],
+  ]);
+  const ctx = () => context({
+    slots,
+    data: new Map([
+      ["place", new Set(["tuba", "toa", "tuppa"])],
+      ["since", new Set(["teisipäev"])],
+      ["time", new Set(["14:00", "14.00", "14"])],
+      ["floor", new Set(["3"])],
+      ["offered", new Set(["14:00"])],
+    ]),
+    dataLemmas: new Map([["place", ["tuba"]], ["since", ["teisipäev"]]]),
+    lexicon: buildLexicon([...ENTRIES, { lemma: "kolm", pos: "NUMERAL", cefr: "A1", parts: { NOM_SG: "kolm", GEN_SG: "kolme", PART_SG: "kolme" }, usages: [] }]),
+  });
+
+  it("takes another of the words the slot could have dealt, in the case asked for, and says which", () => {
+    const seen = readTurn("kõrva", beat({ needs: [{ kind: "datum", slot: "place", grammCase: "ILLATIVE" }] }), ctx());
+    expect(seen.reading).toBe("complete");
+    expect(seen.chose).toEqual([{ slot: "place", value: "kõrv", lemma: "kõrv" }]);
+  });
+
+  it("still takes the card's own word first, with no change recorded", () => {
+    const seen = readTurn("tuppa", beat({ needs: [{ kind: "datum", slot: "place", grammCase: "ILLATIVE" }] }), ctx());
+    expect(seen.reading).toBe("complete");
+    expect(seen.chose ?? []).toEqual([]);
+  });
+
+  it("takes another day of the week", () => {
+    const seen = readTurn("kõrv", beat({ needs: [{ kind: "datum", slot: "since" }] }), ctx());
+    expect(seen.reading).toBe("complete");
+    expect(seen.chose?.[0]?.value).toBe("kõrv");
+  });
+
+  it("takes any clock time, in digits or in words, as the time from then on", () => {
+    for (const [said, value] of [["kell 8", "08:00"], ["16.30 sobib", "16:30"], ["kell kolm", "15:00"], ["pool neli", "15:30"]] as const) {
+      const seen = readTurn(said, beat({ needs: [{ kind: "datum", slot: "time" }] }), ctx());
+      expect(seen.reading, said).toBe("complete");
+      expect(seen.chose, said).toEqual([{ slot: "time", value }]);
+    }
+  });
+
+  it("takes any number in the slot's span, as a digit or a number word", () => {
+    expect(readTurn("5", beat({ needs: [{ kind: "datum", slot: "floor" }] }), ctx()).chose).toEqual([{ slot: "floor", value: "5" }]);
+    expect(readTurn("kolme", beat({ needs: [{ kind: "datum", slot: "floor" }] }), ctx()).chose)
+      .toEqual([{ slot: "floor", value: "3", lemma: "kolm" }]);
+    // Out of the span is not a floor.
+    expect(readTurn("12", beat({ needs: [{ kind: "datum", slot: "floor" }] }), ctx()).reading).not.toBe("complete");
+  });
+
+  it("never changes a fact that belongs to the other side", () => {
+    const seen = readTurn("kell 9", beat({ needs: [{ kind: "datum", slot: "offered" }] }), ctx());
+    expect(seen.reading).not.toBe("complete");
+    expect(seen.chose ?? []).toEqual([]);
+  });
+});
+
 describe("what was matched", () => {
   it("names the learner's own word that met a requirement, and nothing for a question", () => {
     const seen = readTurn("valu", beat(), context());

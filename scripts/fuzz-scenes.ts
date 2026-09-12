@@ -22,7 +22,7 @@ import { prisma } from "../lib/db";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
 import { replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
-import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/reply";
+import { replyFor, datumLine, cardChosen, cardInPlay, counterBeat } from "../lib/scenes/reply";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
@@ -71,7 +71,7 @@ async function main() {
             const beat = currentBeat(scene, state);
             const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
             const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
-            const card = cardInPlay(draw.card, scene.beats, state.countered);
+            const card = cardChosen(cardInPlay(draw.card, scene.beats, state.countered), state.turns);
             const spokenFor = standing ?? speaking;
             let line = null;
             if (spokenFor) {

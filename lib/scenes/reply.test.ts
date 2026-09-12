@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
+import { propBySlot } from "./props";
 import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
-  cardAfterHurdles, cardInPlay, composeNote, counterBeat, datumLine, partsLine, replyFor, reaction, stageFor,
-  wantsAsideFor, wantsFreshLine,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, replyFor,
+  reaction, stageFor, wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
@@ -908,6 +909,54 @@ describe("a question asked on a turn that missed", () => {
   A CURVEBALL THAT CHANGES A FACT CHANGES IT FOR THE REST OF THE RUN, and the
   card every later line reads is the one with the new value in the slot.
 */
+describe("the card with a fact the learner changed", () => {
+  const card = {
+    you: "You.",
+    props: [
+      { slot: "to", card: "Where you are going.", literal: [], lemmas: ["jaam"], shown: ["station"], value: "jaam", english: "station" },
+      { slot: "time", card: "The time.", literal: ["14:00", "14.00", "14"], lemmas: [], shown: ["14:00"], value: "14:00" },
+      { slot: "price2", card: "What it costs now.", literal: ["6"], lemmas: [], shown: ["6 €"], value: "6", theirs: true as const, price: true as const },
+    ],
+  };
+
+  it("stands the learner's own value in, last wins, and never touches the draw", () => {
+    const turns = [
+      { chose: [{ slot: "to", value: "rand", lemma: "rand" }] },
+      { chose: [{ slot: "time", value: "09:30" }] },
+      { chose: [{ slot: "to", value: "haigla", lemma: "haigla" }] },
+    ];
+    const seen = cardChosen(card, turns, (lemma) => (lemma === "haigla" ? "hospital" : undefined));
+    expect(propBySlot(seen!, "to")).toMatchObject({ value: "haigla", lemmas: ["haigla"], shown: ["hospital"], english: "hospital" });
+    expect(propBySlot(seen!, "time")).toMatchObject({ value: "09:30", shown: ["09:30"], literal: ["09:30", "09.30", "9:30"] });
+    expect(propBySlot(card, "to")?.value).toBe("jaam");
+  });
+
+  it("leaves the card alone where nothing was changed, and the other side's facts always", () => {
+    expect(cardChosen(card, [{}, { chose: [] }])).toBe(card);
+    const seen = cardChosen(card, [{ chose: [{ slot: "price2", value: "3" }] }]);
+    expect(propBySlot(seen!, "price2")?.value).toBe("6");
+  });
+});
+
+describe("what the model is told off the cards", () => {
+  it("leaves a value held in reserve out until it has replaced the one it stands for", () => {
+    const card = {
+      you: "You.",
+      props: [
+        { slot: "price", card: "What a ticket costs, in euros.", literal: ["5"], lemmas: [], shown: ["5 €"], value: "5", price: true as const },
+        { slot: "price2", card: "What it costs now.", literal: ["4"], lemmas: [], shown: ["4 €"], value: "4", price: true as const, theirs: true as const },
+        { slot: "time", card: "The time.", literal: ["14:00"], lemmas: [], shown: ["14:00"], value: "14:00", theirs: true as const },
+      ],
+    };
+    const facts = factsFor(card, []);
+    expect(facts).toEqual(["What a ticket costs, in euros: 5 € (on the learner's card)", "The time: 14:00 (yours to tell them)"]);
+    // Once the curveball has stood it in, it is told under the slot it replaced.
+    const raised = cardAfterHurdles(card, { hurdle: { id: "wrong-price", beat: 3, tries: 0 }, hurdles: [] });
+    expect(factsFor(raised, []).some((fact) => /: 4 €/.test(fact))).toBe(true);
+    expect(factsFor(raised, []).some((fact) => /: 5 €/.test(fact))).toBe(false);
+  });
+});
+
 describe("the card after a curveball", () => {
   const priced: RoleCard = {
     you: "You.",

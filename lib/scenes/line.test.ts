@@ -348,7 +348,7 @@ describe("what a retry is told", () => {
   it("names the check that withheld the line, in English, and nothing for a line that passed", () => {
     expect(whyWithheld(null)).toBeUndefined();
     expect(whyWithheld({ failed: [], unknown: [], stretched: [] })).toBeUndefined();
-    expect(whyWithheld({ failed: ["facts"], unknown: [], stretched: [] })).toMatch(/number or a time/);
+    expect(whyWithheld({ failed: ["facts"], unknown: [], stretched: [] })).toMatch(/number, a time or a price/);
     expect(whyWithheld({ failed: ["facts", "giveaway"], unknown: [], stretched: [] })).toMatch(/hand them the answer/);
     // Words are the retry note's job; the reason says nothing about them.
     expect(whyWithheld({ failed: ["vouching"], unknown: ["blorp"], stretched: [] })).toBeUndefined();
@@ -365,6 +365,6 @@ describe("what a retry is told", () => {
     }));
     expect(line.provenance).toBe("composed");
     expect(heard[0]).toBeUndefined();
-    expect(heard[1]).toMatch(/number or a time/);
+    expect(heard[1]).toMatch(/number, a time or a price/);
   });
 });

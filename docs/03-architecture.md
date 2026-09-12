@@ -828,6 +828,33 @@ verdict, to save a call. The line goes through the gate as one sentence of Eston
 wrapper around it would break every shape check; and the composer is the model measured for writing
 Estonian, not for returning JSON, which is a different model on this deployment.
 
+**ADR-025 amendment 3: the card is the learner's, and a fact on it is theirs to change.**
+*Context:* amendment 2 let a judge end a beat the dictionary refused and drew one line around it:
+a value off the role card was never conceded, because whether the learner said the dealt time or
+another one is a fact the dictionary can check. Played, that line was the module's commonest
+refusal. The card deals a destination, a drink, a day, a floor so that a learner has something to
+say, and the marker held them to it: `Tartusse` at a window whose card said the station, `tee`
+where the card said coffee, `esmaspäeval` where the card said Tuesday were all read as real
+Estonian off the point, or as nothing anybody could make out, and the other side asked again. Every
+one of those is perfect Estonian and a person behind a counter takes it. The operator asked for the
+conversation to go with whatever the learner says and to bring them back to the goal by talking,
+never by refusing. *Decision:* a `datum` requirement is met by any value of the slot's kind the
+dictionary can read (`slotKinds`, `timeFromText`, `numberFromText` in `lib/scenes/props.ts`): another
+of the words the slot could have dealt, read through the same ladder as the dealt one so the case is
+still corrected; any clock time, in digits or in the words a card's time is said in; any number in
+the slot's span. The hit carries `chose`, the run adopts it (`TurnRecord.chose`, `cardChosen`), and
+from that turn on the line that reads the value back, the facts the composer is told, the numbers
+the gate lets a composed line say and the value beside the objective all read the learner's. A fact
+marked `theirs` (an offered time, a price the other side holds) is never the learner's to change. The
+judge is asked on every miss rather than three of them, a curveball included, may concede a datum,
+and is told the card is a suggestion. *What does not move:* the dictionary still reads first and
+`readTurn` is still the only producer of `Evidence` from a turn; a conceded requirement and a chosen
+value both write no grade, since the card's word is not the word the learner produced; and a value
+the dictionary cannot read (a capitalised place name, which the forms list holds none of on purpose)
+ends the beat only through the judge and reaches no card, so the composed line, which has the
+conversation in front of it, is what reads it back. *Rejected:* widening `oneOf` on every prop until
+it held every place in the country, which refuses the next learner instead.
+
 **ADR-026: Readiness for real life is read per situation on three rungs, and recognition alone
 never clears the second.**
 *Context:* a vocabulary app can compute "you would understand 81 percent of everyday situations"

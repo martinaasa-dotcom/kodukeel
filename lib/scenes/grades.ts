@@ -141,7 +141,16 @@ export function gradesFor(
           thing, but the dictionary could not see the word, and a row here
           would put a model's verdict into the append-only log as a recall.
         */
-        && !(turn.conceded ?? []).includes(index),
+        && !(turn.conceded ?? []).includes(index)
+        /*
+          And not where the learner changed the fact on their card
+          (`chose`, ADR-025 amendment 3): the word they produced is theirs
+          and not the one the card dealt, and `oneWordFor` below reads the
+          card, so a row here would credit the card's word to a turn that
+          said another.
+        */
+        && !(turn.chose ?? []).some((one) => leafNeeds(beat.needs)[index]?.need.kind === "datum"
+          && (leafNeeds(beat.needs)[index]?.need as { slot?: string }).slot === one.slot),
     );
 
     for (const { need, index } of leafNeeds(beat.needs)) {

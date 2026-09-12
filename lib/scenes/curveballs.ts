@@ -338,7 +338,7 @@ export type Difficulty = keyof typeof BUDGETS;
  * from B2 up rather than inventing a fifth tier the budgets do not have.
  */
 const DEFAULT_DIFFICULTY: Record<Level, Difficulty> = {
-  A1: "textbook",
+  A1: "good",
   A2: "good",
   B1: "ordinary",
   B2: "bad",

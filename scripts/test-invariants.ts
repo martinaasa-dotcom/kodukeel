@@ -13626,7 +13626,7 @@ check("the other side may volunteer something, and never says it twice", () => {
   );
   const prompt = code("lib/scenes/prompt.ts");
   assert.match(
-    prompt, /one short remark of your own in front of your move/,
+    prompt, /react to what they just said, say the one thing about the moment/,
     "the prompt stopped asking for the remark, so the sentence the gate now allows is never written",
   );
   /*
@@ -15027,12 +15027,13 @@ check("every line a scene says carries its rung", () => {
   assert.match(source, /data-rung=\{line\.provenance\}/,
     "a line has to carry the rung the server chose, or test-scene.mjs cannot pair a line with its label");
   /*
-    Every rung that wrote a piece of the bubble, since two lines said in one
-    breath are one bubble (`inOneBreath`): "your word, said back" and then a
-    question written for this turn is two claims, and a label naming one of
-    them would be the screen vouching for the other.
+    The move's own rung, in words, under the bubble. Every rung that wrote a
+    piece of it used to be named, and under every line of a conversation that
+    was a second conversation; the word said back is the dictionary's by
+    construction, and what a reader is owed is which lines a model wrote
+    (ADR-025), which is the move's rung.
   */
-  assert.match(source, /line\.rungs \?\? \[line\.provenance\][\s\S]{0,40}?PROVENANCE\[rung\]/,
+  assert.match(source, /PROVENANCE\[line\.provenance\]/,
     "and the words under it are what a reader is told, which is ADR-025 itself");
   const suite = readFileSync("scripts/test-scene.mjs", "utf8");
   assert.match(suite, /\[data-rung\]/,

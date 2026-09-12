@@ -5,7 +5,7 @@ import { BookOpen, Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card, CardLink, Chip } from "@/components/ui";
+import { Card, CardLink } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import { Speak } from "@/components/Speak";
@@ -107,7 +107,7 @@ interface Opened {
   runId: string;
   /** Runs of this scene before this one, which opens the hearing pool. */
   plays: number;
-  card: { you: string; props: { slot: string; card: string; given: readonly string[]; returned?: true }[] };
+  card: { you: string; props: { slot: string; card: string; given: readonly string[]; returned?: true; chosen?: true }[] };
   persona: string;
   composed: boolean;
 }
@@ -124,6 +124,8 @@ interface Sent {
    * since the server keeps nothing between turns.
    */
   conceded?: number[];
+  /** Beats further along a judge said this same turn met, echoed like `conceded`. */
+  alsoDone?: string[];
 }
 
 /**
@@ -592,6 +594,8 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
         composed?: boolean; note?: string | null;
         slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
         conceded?: number[] | null;
+        alsoDone?: string[] | null;
+        chosen?: { slot: string; given: string[] }[];
       };
       if (data.error) { setError(data.error); return; }
       /*
@@ -607,7 +611,35 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           return [...was.slice(0, at), { ...last, conceded }];
         });
       }
+      if (data.alsoDone && data.alsoDone.length > 0) {
+        const alsoDone = data.alsoDone;
+        setSent((was) => {
+          const at = was.length - 1;
+          const last = was[at];
+          if (!last) return was;
+          return [...was.slice(0, at), { ...last, alsoDone }];
+        });
+      }
       if (data.composed === false && data.note) setNote(data.note);
+      /*
+        A fact the learner changed on their own card is the fact now, beside
+        the objective and on the card alike (ADR-025 amendment 3): somebody who
+        said Tartu is going to Tartu, and a card still saying the station would
+        be the app arguing with them.
+      */
+      if (data.chosen && data.chosen.length > 0) {
+        const chosen = data.chosen;
+        setOpened((was) => was && ({
+          ...was,
+          card: {
+            ...was.card,
+            props: was.card.props.map((prop) => {
+              const pick = chosen.find((one) => one.slot === prop.slot);
+              return pick ? { ...prop, given: pick.given, chosen: true as const } : prop;
+            }),
+          },
+        }));
+      }
 
       /*
         What the last turn was understood despite, written onto that turn so
@@ -992,14 +1024,21 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             You will need {joinWithAnd(practises(scene))}.
           </p>
+          {/*
+            TWO SENTENCES RATHER THAN FOUR, AND ONE NEW PROMISE. The card is a
+            suggestion (ADR-025 amendment 3): somebody who wants to go
+            somewhere else, or drink something else, says so and the other
+            side goes with it. That is said here because it is the one thing
+            about this screen a learner could not guess, and the rest was
+            three sentences describing the layout.
+          */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            They speak first. Reply in Estonian, and the panel under the conversation always
-            tells you what to say next.
+            They speak first. Say what you would say in real life, in Estonian: your card
+            suggests the details, and if you say something else they will go with it.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Don&apos;t worry about getting an ending wrong. They will still understand you, the
-            way any Estonian speaker would, and say the word back correctly. You will see
-            everything they corrected once the conversation ends.
+            Wrong endings, a missing word, a word in English: they will still understand you,
+            and you will see what they would have said at the end.
           </p>
           {/*
             What is coming, in the scene's own terms. It is the count the bar
@@ -1305,9 +1344,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
               </li>
             ))}
           </ul>
-          {opened?.persona && (
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>{opened.persona}</p>
-          )}
+          {/* The persona was here too, and it is a fact about the briefing rather than one to type from. */}
           {/*
             WHAT TO GET DONE, AND WHICH OF IT IS IN PLAY.
 
@@ -1364,7 +1401,6 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                           {value.join(" · ")}
                         </span>
                       )}
-                      {now && <Chip tone="accent">Now</Chip>}
                       <span className="sr-only">{met ? "done" : now ? "this is the one they are waiting on" : "not yet"}</span>
                     </span>
                   </li>
@@ -1607,7 +1643,16 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
                         the course in one breath is one claim, not the same
                         sentence twice.
                       */}
-                      <span>{[...new Set(line.rungs ?? [line.provenance])].map((rung) => PROVENANCE[rung]).join(" · ")}</span>
+                      {/*
+                        The move's own rung, in a few words. Every piece of the
+                        bubble used to be named, "your word, the way they say
+                        it · written for this turn", which under every line of
+                        a conversation is a second conversation; the word the
+                        other side said back is the dictionary's by
+                        construction, and what a reader is owed is which lines
+                        a model wrote (ADR-025), which is the move's rung.
+                      */}
+                      <span>{PROVENANCE[line.provenance]}</span>
                       {reportable(line) && (
                         <SuggestFix
                           category="WRONG_CONTENT"
@@ -1923,7 +1968,7 @@ const PROVENANCE: Record<Provenance, string> = {
     "from the course" would read as the other side making a move.
   */
   offered: "The word you were reaching for",
-  english: "They said it in English",
+  english: "Said in English",
   /*
     This one is not a line they said, it is what they did, and the label has
     to say so or the sentence reads as Estonian rendered in English. It was
