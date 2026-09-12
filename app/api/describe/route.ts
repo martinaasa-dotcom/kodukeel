@@ -9,7 +9,7 @@ import { reportError } from "@/lib/observability/report";
 import { taskById } from "@/lib/progress/describe";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { gradeDescription } from "@/lib/tutor/grader";
-import { resolveProviders, TutorError } from "@/lib/tutor/provider";
+import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import { authoriseCall, recordUsage, releaseReservation } from "@/lib/usage/ledger";
 import { courseLevelFor } from "@/lib/progress/level";
