@@ -130,7 +130,12 @@ async function main() {
     if (why) { dropped++; note(`dropped: ${why}`); return false; }
     return true;
   });
-  const seen = new Set(kept.map((row) => `${row.scene}|${row.beat}|${row.level ?? ""}|${row.text.toLowerCase()}`));
+  /*
+    Keyed on the text and not on the band: the ladder's `used` set is keyed
+    on text, so one line at two bands is one line said once, and the bank
+    test refuses a beat repeating itself whatever the rows say about bands.
+  */
+  const seen = new Set(kept.map((row) => `${row.scene}|${row.beat}|${row.text.toLowerCase()}`));
 
   /*
     EVERY (SCENE, BEAT, BAND) IS ONE TASK, AND A FEW RUN AT ONCE. Five bands
@@ -168,7 +173,7 @@ async function main() {
             if (!passes(verdict)) { withheld++; for (const c of verdict.failed) note(`gate: ${c}`); continue; }
             const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat, level);
             if (why) { withheld++; note(why); continue; }
-            const key = `${scene.id}|${beat.id}|${level ?? ""}|${candidate.text.toLowerCase()}`;
+            const key = `${scene.id}|${beat.id}|${candidate.text.toLowerCase()}`;
             if (seen.has(key)) { note("duplicate"); continue; }
             seen.add(key);
             kept.push({
