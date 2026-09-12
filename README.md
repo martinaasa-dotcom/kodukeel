@@ -303,14 +303,16 @@ request for the rest of the day (OpenRouter is no longer in the chain), which is
 and is the argument for the lines written in advance being good rather than for the ladder being
 different.
 
-**Conversations are pinned to `gemini-3.8-flash`, and no variable moves them.** They compose on it
-when `GEMINI_API_KEY` is set, with Anthropic behind it only as the gated last resort, and play off
-their recorded and banked lines when it is not. There is no `SCENE_MODEL` and no `*_SCENE_MODEL`
-override any more: the first held a Groq model name from the days scenes ran on Groq, the chain
-moved to Gemini and kept reading it, and Google refused every composed turn for a week while the
-route answered 200, so every conversation on production fell to its script and nothing said so. A
-measured choice an environment variable can silently move stays measured only until somebody
-touches the dashboard. A `SCENE_MODEL` still set is ignored and reported once in the error log.
+**Conversations are pinned to `gemini-3.8-flash`, with Groq's `openai/gpt-oss-120b` a fixed second
+link behind it, and no variable moves either.** They compose on Gemini when `GEMINI_API_KEY` is set,
+fall to Groq when it is not or is having a bad minute, and only fall to their recorded and banked
+lines once both are unavailable. Anthropic sits behind both, still only as the gated last resort.
+There is no `SCENE_MODEL` and no `*_SCENE_MODEL` override any more: the first held a Groq model name
+from the days scenes ran on Groq, the chain moved to Gemini and kept reading it, and Google refused
+every composed turn for a week while the route answered 200, so every conversation on production
+fell to its script and nothing said so. A measured choice an environment variable can silently move
+stays measured only until somebody touches the dashboard. A `SCENE_MODEL` still set is ignored and
+reported once in the error log.
 
 ## Deploying it as a real website
 
