@@ -70,6 +70,27 @@ const LEVELS = [
   { key: "C1", label: "Fluent", detail: "Anything, near enough. Here for the shades of meaning." },
 ] as const;
 
+/*
+  A1 (AND BELOW IT) IS WHERE FOUR NEW LETTERS FIRST APPEAR, SO THAT IS WHERE THEY ARE NAMED.
+
+  õ, ä, ö and ü are not on an English keyboard and are not in English at all,
+  so a beginner meets them on their very first word. Naming them here, once, at
+  the level where they start mattering, beats a learner wondering what they
+  are three screens later. Reassurance rather than a lesson: saying how each
+  sounds is the recordings' job, not this note's. Shown wherever this screen
+  lands somebody at A1 or below it, whether they picked the chip themselves or
+  the check just placed them there, since both are the same beginner meeting
+  the same four letters for the first time.
+*/
+function NewLettersNote() {
+  return (
+    <Note tone="sky">
+      Estonian has four letters English does not: õ, ä, ö, ü. You will see them
+      everywhere. Do not worry about saying them right yet. That comes with time.
+    </Note>
+  );
+}
+
 /**
  * The four paces, as review counts.
  *
@@ -488,6 +509,11 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
             {measured ? (
               <div className="mt-6">
                 <ResultPanel result={measured} heading="Measured just now" />
+                {(measured.overall === "A1" || measured.overall === PRE_A1) && (
+                  <div className="mt-4">
+                    <NewLettersNote />
+                  </div>
+                )}
                 <Button variant="ghost" className="mt-4" onClick={() => { setMeasured(null); setChecking(true); }}>
                   Sit it again
                 </Button>
@@ -524,23 +550,9 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                   ))}
                 </ChoiceGroup>
 
-                {/*
-                  A1 IS WHERE FOUR NEW LETTERS FIRST APPEAR, SO IT IS WHERE THEY ARE NAMED.
-
-                  õ, ä, ö and ü are not on an English keyboard and are not in
-                  English at all, so a beginner meets them on their very first
-                  word. Naming them here, once, at the level where they start
-                  mattering, beats a learner wondering what they are three
-                  screens later. Reassurance rather than a lesson: saying how
-                  each sounds is the recordings' job, not this note's.
-                */}
                 {estimated === "A1" && (
                   <div className="mt-4">
-                    <Note tone="sky">
-                      Estonian has four letters English does not: õ, ä, ö, ü. You will see
-                      them everywhere. Do not worry about saying them right yet. That comes
-                      with time.
-                    </Note>
+                    <NewLettersNote />
                   </div>
                 )}
               </>
