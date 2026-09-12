@@ -40,7 +40,7 @@ const browser = await launchChromium();
   65 rather than 62: a conversation is started on a phone and asked where it
   opened, which is three checks and the one width that can fail them.
 */
-const { check, done } = suite("The phone", { floor: 69 });
+const { check, done } = suite("The phone", { floor: 71 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -500,6 +500,45 @@ for (const width of [480, 640, 760]) {
   check("with the card it is answered from whole on the screen",
     (opened.cardTop ?? -1) >= 0 && (opened.cardBottom ?? Infinity) <= opened.vh,
     JSON.stringify(opened));
+  await ctx.close();
+}
+
+// 13 — And a phone on its side is short rather than narrow, which is the axis
+//      the room was sized against. The band takes its height from a width
+//      breakpoint, so at 844x390 it took the larger figure and the bar plus the
+//      room came to 185 pixels of a 390 pixel screen: 47%, with the objective
+//      and the box a learner types into unable to be on screen together with
+//      the room at all. Every other measurement in this file pins the height at
+//      844 and could not see it.
+{
+  const { ctx, page } = await open(844, 390, "/situations/bussipilet");
+  /*
+    Pressed until it lands, for the reason check 12 above gives: a button
+    rendered on the server is clickable and inert until React has attached a
+    handler, so a single click is swallowed and every measurement after it is
+    of the briefing.
+  */
+  const start = page.getByRole("button", { name: /Start the conversation/i });
+  for (let i = 0; i < 40 && (await page.locator('[role="log"] p').count()) === 0; i += 1) {
+    await start.click().catch(() => {});
+    await page.waitForTimeout(400);
+  }
+  await page.waitForSelector('[role="log"] p', { timeout: 30_000 }).catch(() => {});
+  await page.waitForTimeout(600);
+  const sideways = await page.evaluate(() => {
+    const head = document.querySelector("header.scene-top")?.getBoundingClientRect();
+    const room = document.querySelector("[data-scene-stage] svg")?.getBoundingClientRect();
+    return {
+      header: head ? Math.round(head.height) : null,
+      room: room ? Math.round(room.height) : null,
+      vh: innerHeight,
+      share: head ? Math.round((head.height / innerHeight) * 100) : null,
+    };
+  });
+  check("a phone on its side keeps most of the screen for the conversation",
+    (sideways.share ?? 100) <= 35, JSON.stringify(sideways));
+  check("and the room is still drawn in it rather than dropped",
+    (sideways.room ?? 0) > 30, JSON.stringify(sideways));
   await ctx.close();
 }
 

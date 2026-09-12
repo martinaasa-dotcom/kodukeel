@@ -236,6 +236,7 @@ const DOCTOR: SceneSpec = {
     {
       kind: "word", slot: "symptom", oneOf: ["valu", "palavik", "haigus", "haige", "väsinud"],
       says: "What is wrong. Say it in your own sentence.",
+      means: { haige: "ill" },
     },
     {
       kind: "weekday", slot: "since",
@@ -614,6 +615,7 @@ const COUNTER: SceneSpec = {
     {
       kind: "word", slot: "paper", oneOf: ["avaldus", "dokument", "luba", "arve", "allkiri"],
       says: "What you have come to hand in.",
+      means: { luba: "permit", arve: "bill" },
     },
     /*
       A fictional reference, supplied rather than asked for. An identity code
@@ -873,6 +875,7 @@ const CAFE: SceneSpec = {
     {
       kind: "word", slot: "drink", oneOf: ["kohv", "tee", "vesi", "mahl"],
       says: "What you would like. Ask for it in Estonian.",
+      means: { tee: "tea" },
     },
   ],
   curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "queue", "english", "interrupted", "misheard"],
@@ -1183,6 +1186,7 @@ const RESTAURANT: SceneSpec = {
     {
       kind: "word", slot: "drink", oneOf: ["vesi", "mahl", "kohv", "tee"],
       says: "What you would like to drink.",
+      means: { tee: "tea" },
     },
   ],
   /*
@@ -1411,6 +1415,7 @@ const NEIGHBOR: SceneSpec = {
     {
       kind: "word", slot: "with", oneOf: ["naine", "mees", "laps", "sõber", "ema", "vend", "õde"],
       says: "Who lives with you.",
+      means: { naine: "wife", mees: "husband" },
     },
   ],
   curveballs: ["small-talk", "faster", "english", "interrupted", "misheard"],
@@ -1522,6 +1527,7 @@ const PHARMACY: SceneSpec = {
     {
       kind: "word", slot: "hurts", oneOf: ["pea", "kõrv", "selg", "jalg", "käsi", "silm"],
       says: "What hurts.",
+      means: { jalg: "leg", "käsi": "hand" },
     },
     {
       kind: "weekday", slot: "since",
@@ -1754,6 +1760,7 @@ const INTERVIEW: SceneSpec = {
     {
       kind: "word", slot: "skill", oneOf: ["keel", "arvuti", "projekt", "inimene"],
       says: "What you are good at: this.",
+      means: { keel: "language", inimene: "person" },
     },
     {
       kind: "weekday", slot: "start",

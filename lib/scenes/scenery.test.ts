@@ -5,7 +5,15 @@ import { describe, expect, it } from "vitest";
 
 import { ICONS } from "../../components/icons";
 import { SCENES } from "./catalogue";
-import { MOVES, SCENERY, movesTo, sceneryFor, type Setting } from "./scenery";
+import { CURVEBALLS } from "./curveballs";
+import { CUES, MOVES, SCENERY, cueFor, movesTo, sceneryFor, type Cue, type Setting } from "./scenery";
+
+/*
+  The drawing's `switch` statements are read by the checks below, and there are
+  two of them in one file: one over the rooms and one over the cues. A check
+  that did not know the difference would ask MARKS for a row called "paper".
+*/
+const CUE_KINDS: ReadonlySet<string> = new Set<Cue>(["behind", "another", "paper", "attention"]);
 
 /*
   A table keyed on ids is a table that goes stale in one direction and lies in
@@ -72,6 +80,9 @@ describe("every conversation happens somewhere", () => {
     ]);
     const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
     for (const [, setting] of drawn.matchAll(/case "(\w+)":/g)) {
+      /* The file has a second `switch`, over what has just come up rather than
+         over where it happened. Those are checked two blocks down. */
+      if (CUE_KINDS.has(setting!)) continue;
       expect(used.has(setting as Setting), `${setting} is drawn and no scene is set in it`).toBe(true);
     }
   });
@@ -111,6 +122,139 @@ describe("every conversation happens somewhere", () => {
           scene?.beats.some((beat) => beat.id === beatId),
           `${sceneId} moves on ${beatId}, which is not one of its beats`,
         ).toBe(true);
+      }
+    }
+  });
+
+  /*
+    WHAT COMES UP IN A CONVERSATION IS DRAWN, AND THE TABLE OF IT IS KEYED ON
+    THE FOURTEEN CURVEBALLS RATHER THAN ON THE FOUR CUES.
+
+    Read both ways, for the reason the scenery table is: a curveball with no row
+    is the one that goes on arriving as a sentence of English above a question
+    in Estonian, silently, and a row for a curveball nobody throws is a drawing
+    nobody sees. The silent one is in it on purpose, because a queue forming
+    behind you is the one of the fourteen that is entirely a picture.
+  */
+  it("has a cue for every curveball", () => {
+    for (const one of CURVEBALLS) {
+      expect(CUES[one.id], `${one.id} has no cue, so nothing in the room says it happened`)
+        .toBeDefined();
+    }
+  });
+
+  it("and no cue for a curveball that is not thrown", () => {
+    const ids = new Set(CURVEBALLS.map((one) => one.id as string));
+    for (const id of Object.keys(CUES)) {
+      expect(ids.has(id), `${id} has a cue and is not a curveball`).toBe(true);
+    }
+  });
+
+  /*
+    And every kind this table can ask for is one the drawing has. A cue that
+    falls through the `switch` draws nothing at all, which looks exactly like a
+    conversation in which nothing has come up.
+  */
+  it("names only cues the drawing has", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    for (const [id, cue] of Object.entries(CUES)) {
+      expect(drawn, `${id} is cued as ${cue}, which SceneVignette does not draw`)
+        .toContain(`case "${cue}":`);
+    }
+  });
+
+  /*
+    The curveball is asked for by name, and nothing standing is most of a
+    conversation. The first version read the id off the beat the screen was on,
+    which is the scene's own beat and never the curveball's, so no cue was ever
+    drawn: the tables were complete, read both ways, and pointed at a field that
+    does not carry this.
+  */
+  it("answers for the curveball itself, and for nothing standing", () => {
+    expect(cueFor("queue")).toBe("behind");
+    expect(cueFor("interrupted")).toBe("another");
+    expect(cueFor(null)).toBe(null);
+    expect(cueFor(undefined)).toBe(null);
+    expect(cueFor("a-curveball-nobody-has-written")).toBe(null);
+    /* And never off a beat id, which is what it used to be handed. */
+    expect(cueFor("hurdle:queue")).toBe(null);
+  });
+
+  /*
+    WHO IS TALKING AND WHAT CAME UP ARE DRAWN OVER THE ROOM RATHER THAN INSIDE
+    IT, so every room has to say where its people are. A room drawn with no
+    marks is a room where the breath and the cue land at `undefined`, which is
+    an SVG path that silently draws nothing: the band would go on saying whose
+    floor it is everywhere except the one room somebody had just added.
+  */
+  it("knows where the people are in every room it draws", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    const marked = new Set([...drawn.matchAll(/^ {2}(\w+): \{ you:/gm)].map((m) => m[1]!));
+    const rooms = new Set([...drawn.matchAll(/case "(\w+)":/g)].map((m) => m[1]!));
+    for (const room of rooms) {
+      if (!CUE_KINDS.has(room)) {
+        expect(marked.has(room), `${room} is drawn and MARKS does not say where its people are`).toBe(true);
+      }
+    }
+    for (const room of marked) {
+      expect(rooms.has(room), `MARKS names ${room}, which is not a room the drawing has`).toBe(true);
+    }
+  });
+
+  /*
+    AND EVERY ONE OF THEM STANDS ON THE FLOOR, FAR ENOUGH APART TO BE TWO
+    PEOPLE.
+
+    `Person` is six lines about a centre: a head of radius 8, legs reaching
+    nine either side and a pair of resting arms reaching eleven. Two marks
+    closer together than that are not two people in a room, they are one
+    scribble, and that is how this table shipped: the stairwell put a queue
+    twenty-two units off the learner and their arms met exactly, the pharmacy
+    stood its own waiting customer eighteen units off the one a curveball adds,
+    and the interloper was put down beyond the counter in five rooms, where
+    there is no floor at all and the furniture is drawn over the legs.
+
+    Read off the drawing rather than typed here, floor included, because the
+    numbers that have to agree are the drawing's own. A room too narrow for a
+    fourth figure is a room where two of them would overlap, and this is what
+    says so before anybody screenshots it.
+  */
+  it("stands every figure on the floor, far enough apart to be two people", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    const floor = drawn.match(/d="M (\d+) 101 H (\d+)"/);
+    expect(floor, "the drawing has no floor to stand anybody on").toBeTruthy();
+    const [from, to] = [Number(floor![1]), Number(floor![2])];
+
+    /* Half a figure: the widest thing a resting one reaches is its arms. */
+    const REACH = 11;
+    /* Legs, which is what has to be over floor rather than over furniture. */
+    const STANCE = 9;
+
+    const rows = [...drawn.matchAll(
+      /^ {2}(\w+): \{ you: (\d+), them: \{ x: (\d+), y: (\d+) \}, behind: (\d+), beside: (\d+),/gm,
+    )];
+    expect(rows.length, "no rooms read out of MARKS").toBeGreaterThan(10);
+
+    for (const [, room, you, themX, themY, behind, beside] of rows) {
+      /*
+        A phone line is not a person: three rooms put `them` above the ringing
+        rather than on a head, and nothing stands there.
+      */
+      const standing = [Number(behind), Number(you), Number(beside)];
+      if (Number(themY) >= 40) standing.push(Number(themX));
+      standing.sort((a, b) => a - b);
+
+      expect(Number(behind), `${room} puts the queue in front of the learner`).toBeLessThan(Number(you));
+      for (const at of standing) {
+        expect(at - STANCE, `${room} stands somebody at ${at}, off the left end of the floor`)
+          .toBeGreaterThanOrEqual(from);
+        expect(at + STANCE, `${room} stands somebody at ${at}, off the right end of the floor`)
+          .toBeLessThanOrEqual(to);
+      }
+      for (let at = 1; at < standing.length; at += 1) {
+        expect(standing[at]! - standing[at - 1]!,
+          `${room} stands two people ${standing[at]! - standing[at - 1]!} apart, which is one scribble`)
+          .toBeGreaterThanOrEqual(REACH * 2);
       }
     }
   });

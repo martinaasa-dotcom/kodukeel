@@ -298,6 +298,27 @@ export async function POST(request: Request) {
       said. Empty on a turn that was right.
     */
     slips: last?.slips ?? [],
+    /*
+      WHAT HAS COME UP, WHICH THE SCREEN CANNOT WORK OUT FOR ITSELF.
+
+      A curveball becomes a beat inside the machine and that beat is not what
+      goes on the wire: `beatId` above is the scene's own beat, the one waiting
+      behind it, and only `goal` comes off the one standing in front. So the
+      room has to be told, and it is told the curveball rather than a drawing,
+      because which mark a room makes of it is a question about a screen
+      (`lib/scenes/scenery.ts`) and this is the conversation.
+
+      Two fields, because they are two facts. One is standing now and clears
+      when it is dealt with. The other is the queue, which is `silent`: it asks
+      for nothing, never becomes a beat, and its whole effect is a point of
+      patience that does not come back. Its own entry calls that pressure felt
+      rather than announced, and for its whole life nothing on the screen let
+      anybody feel it, for the same reason `speed` had to be sent: a curveball
+      that changes how a conversation goes and says so nowhere is one the
+      learner is paying for and cannot see.
+    */
+    hurdle: state.hurdle?.id ?? null,
+    queued: state.hurdles.some((one) => one.id === "queue"),
   };
 
   /*

@@ -14961,6 +14961,21 @@ check("a conversation takes the website off the screen, and stops when the scene
     "the shell is no longer hidden while a conversation is running, so a situation is a page again",
   );
   /*
+    AND THE BROWSER'S OWN SCROLLING IS OFF ON IT. Anchoring holds whatever you
+    are looking at still when content is inserted above it, and on a transcript
+    that only appends the anchor it picks is the panel at the foot of the page:
+    every line that lands above it drags the scroll down by its own height. So a
+    conversation reset itself to the top, exactly as `SceneSession` asks, and
+    the opening line pulled it to the very bottom of the document with the room
+    and the scene's name off the top of the window. Every scroll on this screen
+    is a decision it makes out loud; this is the one it was not making.
+  */
+  assert.match(
+    css, /body:has\(\.scene-room\) \{ overflow-anchor: none; \}/,
+    "scroll anchoring is back on a conversation, so the page drifts to the bottom as lines arrive "
+    + "and the screen's own scroll to the top is undone a frame later",
+  );
+  /*
     And there is something to hide. Three parts of the shell draw themselves
     over or beside a page, and the set is asserted rather than each file being
     asked whether it carries a mark at all: the rail and the phone bar are both
@@ -15004,6 +15019,244 @@ check("a conversation takes the website off the screen, and stops when the scene
   assert.match(session, /disabled=\{moving\}/, "the box a learner types into stays live while the scene is moving");
   assert.match(session, /disabled=\{busy \|\| moving \|\| !draft\.trim\(\)\}/,
     "the button that sends a turn stays live while the scene is moving");
+});
+
+/*
+  A CONVERSATION IS HAD IN A ROOM YOU CAN STILL SEE.
+
+  `SceneVignette` draws fourteen rooms with the people in them, and it was
+  drawn on the briefing and on the cover between two rooms and nowhere else. So
+  a learner stepped into a health centre, read one sentence, pressed a button,
+  and held the rest of the conversation on a screen that could have been any of
+  the fourteen: an eighteen-pixel icon on the bar and two columns of cards. It
+  was reported in those words, twice, and the second time with what the drawing
+  is actually for, which is everything that happens *during* a conversation
+  rather than before it. Where you are is what every beat asks about. Who is
+  talking is what a column of bubbles carries worst. How many people are in the
+  room is pressure nobody announces. And a curveball was a sentence of English
+  above a question in Estonian, where anybody standing at a counter would have
+  seen the man who started talking over them.
+
+  Four halves, and each fails on its own and in silence. The band is not
+  passed, and the room is gone again with nothing broken. The band is passed
+  and does not stick, so it scrolls away with the first turn, which is the same
+  screen arrived at more slowly. Its height and the offset the role card sticks
+  at come apart, and the card hides under the room. Or the drawing stops being
+  told who is talking and what has come up, and the band is a picture of a
+  place rather than a picture of a conversation.
+*/
+check("a conversation draws the room it is had in, for the whole of it", () => {
+  const session = code("components/scene/SceneSession.tsx");
+  assert.match(
+    session, /stage=\{<SceneVignette[^>]*fit="band"/,
+    "the conversation no longer hands SceneStage a room to draw, so it is had on a screen that "
+    + "could be any of the fourteen (components/scene/SceneVignette.tsx)",
+  );
+  assert.match(
+    session, /speaking=\{saying\}/,
+    "the room is no longer told who has the floor, which is the thing a column of bubbles says worst",
+  );
+  assert.match(
+    session, /cue=\{cue\}/,
+    "the room is no longer told what has come up, so a curveball is a sentence of English again",
+  );
+  /*
+    AND WHAT COMES UP IS THE CURVEBALL THE SERVER NAMES, NEVER THE BEAT.
+
+    The first version of this read the id off `beatId`, on the reading that a
+    curveball becomes a beat of its own. It does, inside the machine, and that
+    beat is not what goes on the wire: `beatId` is the scene's own beat, the one
+    waiting *behind* the curveball, and only the objective comes off the one in
+    front. So every cue was dead. It typechecked, both tables were complete and
+    read both ways, and the only thing that found it was playing a conversation
+    on the hard setting until one fired. Both ends are asserted, because either
+    alone leaves the room silent about the very thing it was put there for.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /hurdle: state\.hurdle\?\.id \?\? null/,
+    "the route no longer says which curveball is standing, so the room cannot draw it",
+  );
+  assert.match(
+    session, /cueFor\(hurdle\)/,
+    "the room reads what came up off something other than the curveball the server named",
+  );
+  assert.doesNotMatch(
+    session, /cueFor\(beatId\)/,
+    "the room is reading the cue off the beat again, which is the scene's own beat and never the "
+    + "curveball's: every cue is dead and nothing says so",
+  );
+
+  /*
+    AND THE DRAWING IS SIZED BY THE PROP RATHER THAN BY A CLASS BESIDE IT.
+
+    It used to ship `max-w-[19rem]` in its own class list and take a
+    `className` next to it, and the cover asked for `max-w-[13rem]`: two
+    utilities for one property resolve by their order in the stylesheet rather
+    than by which one the caller wrote, and measured in the built CSS the
+    component's own is emitted second and wins. The cover had been drawing the
+    full-size room for its whole life while asking for two thirds of it, and
+    nothing could see it, because both are a room and neither is wrong on its
+    own. `fit` is the whole of the answer and there is no `className` to fight
+    it with.
+  */
+  assert.doesNotMatch(
+    code("components/scene/SceneVignette.tsx"), /export function SceneVignette\(\{[^}]*className/,
+    "the room takes a className again, which is a second answer to how big it is and loses to its "
+    + "own class list wherever the two disagree",
+  );
+  for (const file of COMPONENTS) {
+    const source = code(file);
+    for (const match of source.matchAll(/<SceneVignette([^>]*)>/g)) {
+      const call = match[1] ?? "";
+      assert.ok(
+        !/className/.test(call),
+        `${file} passes a className to the room: its size is the \`fit\` prop (${call.trim()})`,
+      );
+    }
+  }
+
+  /*
+    AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
+
+    Its own comment says it stays inside the room, and the band arrived with the
+    conversation and left with it, so the one screen a learner reads afterwards
+    was the only one of the three drawn in no particular place. Anchored on the
+    phase rather than on a count of `SceneVignette` calls, because the briefing
+    draws one too and a check that only counted them would pass with this one
+    missing.
+  */
+  assert.match(
+    session,
+    /phase === "debrief"[\s\S]{0,3000}?<SceneStage[^>]*[\s\S]{0,400}?stage=\{<SceneVignette/,
+    "the debrief no longer draws the room the conversation happened in, so how it went is read on "
+    + "a screen that could be any of the fourteen",
+  );
+
+  /*
+    AND NO MARK IN THE DRAWING CARRIES ITS RESTING STATE INLINE.
+
+    `Steam` and `Ringing` each shipped an inline `opacity: 0` so a wisp on a
+    nine-hundred millisecond delay was not drawn at full strength before its own
+    animation reached it. An inline style beats every rule in the stylesheet and
+    the reduced-motion block turns those animations off outright: measured on
+    `helistamine` with the preference set, all three arcs of the telephone read
+    back at nought, so a learner who asked for less movement was shown somebody
+    holding a phone with nothing coming out of it, in the three rooms where the
+    line *is* the other side of the conversation. `animation-fill-mode: both`
+    covers the delay from the stylesheet, where the reduced-motion rule can
+    reach it.
+
+    `stick-legs-b` is the one exception and it is by name: it is the second of
+    two alternating pairs of legs, and stopping the animation is *supposed* to
+    leave one pair standing rather than four legs at once.
+  */
+  {
+    const drawn = code("components/scene/SceneVignette.tsx");
+    for (const match of drawn.matchAll(/className=\{?[`"]([^`"]*stick-[^`"]*)[`"][^>]*?\/>/gs)) {
+      const [tag, classes] = [match[0], match[1] ?? ""];
+      if (classes.includes("stick-legs-b")) continue;
+      assert.ok(
+        !/style=\{\{\s*opacity/.test(tag),
+        `a mark in the room carries its resting opacity inline (${classes.trim()}): the `
+        + "reduced-motion rule takes the animation away and cannot take that with it, so the mark "
+        + "is drawn at nought for anybody who asked for less movement",
+      );
+    }
+    for (const name of ["stick-arc", "stick-steam"]) {
+      assert.match(
+        code("app/globals.css"), new RegExp(`\\.${name} \\{ animation:[^}]*infinite both;`),
+        `.${name} no longer fills backwards, so the mark it draws is at full strength through its `
+        + "own delay or at nought once the animation is taken away",
+      );
+    }
+  }
+
+  /*
+    AND ONE OF THE TWO ROOMS OF A MOVE IS GONE WHERE NOTHING MOVES.
+
+    `SceneInterlude` stacks the room being left and the room being arrived in
+    `absolute inset-0` so they can pass through each other, and the one going
+    out ends its animation at nought. Stopping both animations, which is what
+    the reduced-motion block does, leaves both at full strength in one box: a
+    learner who asked for less movement was shown their kitchen and the shop
+    drawn on top of one another, on the one screen whose whole job is saying
+    which of the two they are in now.
+  */
+  {
+    const cover = code("components/scene/SceneInterlude.tsx");
+    const sheet = code("app/globals.css");
+    assert.match(
+      cover, /scene-room-out absolute inset-0[\s\S]{0,300}?scene-room-in absolute inset-0/,
+      "the two rooms of a move are no longer stacked, so the rule below is about nothing",
+    );
+    assert.match(
+      sheet, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.scene-room-out \{[^}]*display: none/,
+      "the room being left is still drawn where nothing moves, so a move shows two rooms at once",
+    );
+  }
+
+  const stage = code("components/scene/SceneStage.tsx");
+  /*
+    Inside the bar rather than beside it: two sticky elements at one offset are
+    one sticky element with the other drawn underneath it, which is the lesson
+    the role card's own summary already taught this file.
+  */
+  assert.match(
+    stage, /<header[\s\S]{0,4000}?\{stage && \([\s\S]{0,600}?\{stage\}[\s\S]{0,200}?<\/header>/,
+    "the room is drawn outside the bar, so it scrolls away with the first turn",
+  );
+  /*
+    And it carries its own marker. The bar holds two other drawings, the door
+    out and the room's mark, so anything reaching for "the svg in the header"
+    measures an eighteen-pixel arrow: `test-scene.mjs` did, and would have
+    reported the room as missing on a screen that had it.
+  */
+  assert.match(
+    stage, /data-scene-stage/,
+    "the band has no marker of its own, so a suite looking for the room in the bar finds the door out",
+  );
+  assert.match(
+    readFileSync("scripts/test-scene.mjs", "utf8"), /\[data-scene-stage\] svg/,
+    "test-scene.mjs no longer measures the room off its own marker",
+  );
+  assert.match(
+    stage, /height: "var\(--scene-stage\)"/,
+    "the band's height is typed into the markup rather than read off the stylesheet, so it and the "
+    + "offset the role card sticks at are two numbers that have to agree",
+  );
+
+  const css = read("app/globals.css");
+  /*
+    A height for a phone first and a wider one after it, in that order. The
+    obvious way to lose this is to leave the height inside the `min-width`
+    block alone, which draws the room at nothing on the width this app is
+    measured at and at full size on the one it is developed on.
+  */
+  assert.match(
+    css,
+    /\.scene-room\[data-stage\] \{ --scene-stage: [\d.]+rem; \}\s*@media \(min-width: 768px\)/,
+    "the band has no height before the first breakpoint, so the room is drawn at nothing on a phone",
+  );
+  /*
+    AND THE CARD STICKS UNDER IT, WHICH IS A RULE ON THE DISCLOSURE RATHER THAN
+    ON ITS SUMMARY.
+
+    `position: sticky` moves a box within its own containing block, and a
+    `summary`'s is the `details` around it: closed, that is exactly as tall as
+    the summary, so the line this class used to sit on could never travel and
+    scrolled away with the page while the comment beside it explained why it
+    had to stay. The disclosure is what sticks now, and only while it is closed,
+    or opening it pins four hundred pixels over the conversation.
+  */
+  assert.match(
+    css, /\.scene-sticky:not\(\[open\]\) \{\s*position: sticky;\s*top: calc\(var\(--scene-top[^)]*\) \+ var\(--scene-stage/,
+    "the role card no longer sticks under the room, or it sticks while it is open as well",
+  );
+  assert.match(
+    code("components/scene/SceneSession.tsx"), /<details\s+className="scene-sticky/,
+    "the class that pins the role card is back on something that cannot move: a summary inside a "
+    + "closed details has nowhere to travel, which is the fault this replaced",
+  );
 });
 
 /*

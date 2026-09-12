@@ -56,8 +56,18 @@ const { check, absent, done } = suite("A conversation, end to end", {
     label it read came back empty whatever the run did (see `listen`). It runs
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
+
+    Three more since the room was put back above the conversation: one check
+    where it opens and one at the bottom of a scrolled page, because a band that
+    is drawn and a band that sticks are the same markup, and one for the role
+    card's own line, which was marked sticky on an element that could not move
+    and had never been looked at from a scrolled page.
+
+    And two more for the debrief, which its own comment says stays inside the
+    room and which drew none: that the band is still there once the
+    conversation has ended, and that nobody is talking in it.
   */
-  floor: 51,
+  floor: 56,
 });
 
 /*
@@ -284,6 +294,38 @@ await page.locator("details > summary").click();
 */
 check("and the objective in play is named without it",
   (await page.getByText(inPlay, { exact: false }).count()) > 0, inPlay);
+
+// ── The room, still there while the conversation is had in it ──────────────
+/*
+  A learner asked where the drawings had gone. They had stepped into a health
+  centre, read one sentence, pressed a button, and been put on a screen that
+  could have been any of the fourteen: the vignette was on the briefing and on
+  the cover between two rooms, and the conversation itself had an eighteen-pixel
+  icon on the bar and two columns of cards.
+
+  Everything a drawing is for happens during a conversation rather than before
+  it, so the room is a band under the bar for the whole of it. Measured rather
+  than read off the source, because the source check one file over can say the
+  band is passed and drawn and cannot say it is on screen: what makes it a room
+  rather than a picture is that it is still there on the fortieth turn, which
+  is a question about `position: sticky` and about the height the role card
+  sticks at, and only a browser knows either.
+*/
+const stageBox = async () => page.evaluate(() => {
+  /*
+    Off the band's own marker rather than off "an svg in the header": the bar
+    also holds the door out and the room's eighteen-pixel mark, and the first
+    of those in document order is an arrow.
+  */
+  const svg = document.querySelector("[data-scene-stage] svg");
+  if (!svg) return null;
+  const box = svg.getBoundingClientRect();
+  return { top: Math.round(box.top), bottom: Math.round(box.bottom), height: Math.round(box.height) };
+});
+const stageAtFirst = await stageBox();
+check("the room a conversation happens in is drawn above it",
+  Boolean(stageAtFirst) && stageAtFirst.height > 40 && stageAtFirst.top >= 0,
+  JSON.stringify(stageAtFirst));
 
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
@@ -515,6 +557,7 @@ await page.waitForFunction(() => new Promise((settled) => {
 }), null, { timeout: 10_000 }).catch(() => {});
 await page.mouse.wheel(0, 4_000);
 await page.waitForTimeout(600);
+const innerHeightOf = await page.evaluate(() => window.innerHeight);
 const reached = await page.evaluate(() => {
   const input = document.querySelector('input[aria-label="What you say"]').getBoundingClientRect();
   return {
@@ -526,6 +569,52 @@ const reached = await page.evaluate(() => {
 check("and a wheel over it reaches the box you answer in",
   reached.inputInView && reached.y >= reached.end - 2,
   `scrolled to ${reached.y} of ${reached.end}`);
+
+/*
+  AND THE ROOM IS STILL THERE AT THE BOTTOM OF IT.
+
+  This is the half a source check cannot make: a band drawn at the top of the
+  column and a band that sticks under the bar are the same markup and the same
+  props, and only one of them is a room. The page has just been rolled to its
+  own end, which is the state a learner is in for every turn after the first,
+  and the drawing has to be on screen and under the bar rather than over it.
+*/
+const stageAtEnd = await stageBox();
+check("and the room is still on screen once the conversation has scrolled",
+  Boolean(stageAtEnd) && stageAtEnd.top >= 0 && stageAtEnd.bottom <= 240,
+  JSON.stringify(stageAtEnd));
+
+/*
+  AND SO IS THE CARD, WHICH IS THE OTHER THING THAT HAS TO BE TRUE WHILE
+  SOMEBODY TYPES.
+
+  A beat asks the learner to read a value off their card, so the one line
+  carrying those values is pinned under the bar and the room. It was marked
+  sticky on the `summary`, which cannot move: a sticky box travels inside its
+  own containing block, and a closed `details` is exactly as tall as its
+  summary. So the pill scrolled away with the page for the whole of this
+  feature's life while the comment beside it explained why it had to stay, and
+  no check here could see that, because the page was never scrolled at the
+  moment the pill was looked at.
+
+  Measured at the bottom of a scrolled page, where the fault lived: on screen,
+  and under the room rather than over it.
+*/
+const pinned = await page.evaluate(() => {
+  const pill = document.querySelector("details.scene-sticky summary");
+  const svg = document.querySelector("[data-scene-stage] svg");
+  if (!pill || !svg) return null;
+  const box = pill.getBoundingClientRect();
+  return {
+    top: Math.round(box.top),
+    bottom: Math.round(box.bottom),
+    under: Math.round(svg.getBoundingClientRect().bottom),
+    text: pill.textContent.trim().slice(0, 40),
+  };
+});
+check("and the card you answer from is pinned under it, not scrolled away",
+  Boolean(pinned) && pinned.top >= pinned.under && pinned.bottom <= innerHeightOf,
+  JSON.stringify(pinned));
 
 /*
   And the words under every line are the rung it actually came from. The chip is
@@ -552,6 +641,7 @@ await page.waitForSelector("text=/What you got done/i", { timeout: TURN_MS });
 
 const debrief = await page.locator("main").innerText();
 check("leaving ends in a debrief rather than a reproach", /What you got done/i.test(debrief));
+
 check("which says what happened, in one line", /You left the desk|came back|That is a thing people do/i.test(debrief));
 check("counts what you got done rather than scoring it", /\d+ of \d+ things you came in to get done/.test(debrief));
 check("and prints no percentage anywhere", !/\d+\s*%/.test(debrief));
@@ -576,6 +666,30 @@ const drill = page.locator('main a[href^="/review/"]').first();
 check("points at a drill rather than writing its own advice",
   (await drill.count()) > 0, await drill.getAttribute("href").catch(() => "none"));
 check("and offers the same conversation again", (await page.getByRole("button", { name: /Have it again/i }).count()) > 0);
+
+/*
+  AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.
+
+  Its own comment says it stays inside the room, and for a while that was a
+  claim about the bar rather than about the drawing: the band arrived with the
+  conversation and left with it, so the one screen a learner reads afterwards
+  was the only one of the three drawn in no particular place. Nobody is talking
+  on it, because the floor is nobody's once the conversation has ended, and a
+  breath over a room somebody has left is the drawing reporting a fact about a
+  run that is over.
+*/
+const stageAfter = await page.evaluate(() => {
+  const svg = document.querySelector("[data-scene-stage] svg");
+  if (!svg) return null;
+  const box = svg.getBoundingClientRect();
+  return { top: Math.round(box.top), height: Math.round(box.height), say: svg.querySelectorAll(".stick-say").length };
+});
+check("and the room it happened in is still drawn over it",
+  Boolean(stageAfter) && stageAfter.height > 40 && stageAfter.top >= 0,
+  JSON.stringify(stageAfter));
+check("with nobody talking in it, because the conversation is over",
+  Boolean(stageAfter) && stageAfter.say === 0,
+  JSON.stringify(stageAfter));
 
 // ── What was written down ───────────────────────────────────────────────────
 const runs = await prisma.sceneRun.findMany({

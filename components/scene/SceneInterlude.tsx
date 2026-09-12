@@ -186,7 +186,7 @@ export function SceneInterlude({ sceneId, from, to, text, onDone }: {
             </span>
           ) : (
             <span className="flex items-center gap-5">
-              <SceneVignette sceneId={sceneId} setting={from} className="max-w-[13rem]" />
+              <SceneVignette sceneId={sceneId} setting={from} fit="inset" />
               <Dial />
             </span>
           )}

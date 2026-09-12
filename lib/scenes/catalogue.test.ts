@@ -560,4 +560,95 @@ describe("the scene catalog", () => {
       }
     }
   });
+
+  /*
+    A CARD HANDS OVER ONE FACT, AND A GLOSS IS NOT ALWAYS ONE.
+
+    An Estonian word covers what it covers and the dictionary says so: `tee` is
+    "road, tea" and `keel` is "language, tongue". That is right on an entry and
+    wrong on a card, which is not teaching the word's range but handing
+    somebody one thing to say. A learner at a café counter read "Tell them what
+    you would like to drink." over "road, tea", and one of those is not a
+    drink.
+
+    So `means` narrows it, and these three keep the narrowing honest. It may
+    only ever name a sense the harvest's own gloss already lists, word for
+    word, so a card cannot quietly teach a meaning the dictionary would not
+    stand behind. It may not name a lemma the prop cannot draw, or the entry is
+    about nothing. And every lemma whose gloss carries more than one sense has
+    one, which is what makes this a rule rather than a list of the ones
+    somebody noticed: a word prop with no `means` is a card that prints
+    whatever the dictionary happens to say.
+  */
+  describe("a card says which sense of a word it means", () => {
+    const senses = (lemma: string) =>
+      HARVESTED.filter((word) => word.lemma === lemma)
+        .flatMap((word) => word.gloss.split(",").map((one) => one.trim()))
+        .filter(Boolean);
+
+    const wordProps = SCENES.flatMap((scene) =>
+      scene.props.filter((prop) => prop.kind === "word").map((prop) => ({ scene, prop } as const)));
+
+    it("names only a sense the dictionary already gives the word", () => {
+      for (const { scene, prop } of wordProps) {
+        for (const [lemma, sense] of Object.entries(prop.means ?? {})) {
+          expect(
+            senses(lemma),
+            `${scene.id}'s ${prop.slot} says ${lemma} means "${sense}", which its gloss does not list`,
+          ).toContain(sense);
+        }
+      }
+    });
+
+    it("and only about a word it can draw", () => {
+      for (const { scene, prop } of wordProps) {
+        for (const lemma of Object.keys(prop.means ?? {})) {
+          expect(prop.oneOf, `${scene.id}'s ${prop.slot} narrows ${lemma}, which it never draws`)
+            .toContain(lemma);
+        }
+      }
+    });
+
+    /*
+      And the other kind that prints a gloss needs none, which is checked
+      rather than assumed: a weekday is a weekday in both languages, so there
+      is no sense to choose between and `means` is not on that spec at all.
+      The day one of them grows a second sense this says so, rather than a card
+      quietly printing it.
+    */
+    it("and a weekday has one sense, so it needs no such choice", () => {
+      for (const scene of SCENES) {
+        for (const prop of scene.props) {
+          if (prop.kind !== "weekday") continue;
+          for (const lemma of prop.oneOf) {
+            expect(
+              senses(lemma),
+              `${scene.id}'s ${prop.slot} deals ${lemma}, whose gloss is not one sense`,
+            ).toHaveLength(1);
+          }
+        }
+      }
+    });
+
+    it("for every word whose gloss carries more than one, and no other", () => {
+      for (const { scene, prop } of wordProps) {
+        for (const lemma of prop.oneOf) {
+          const many = senses(lemma).length > 1;
+          const said = prop.means?.[lemma];
+          if (many) {
+            expect(
+              said,
+              `${scene.id}'s ${prop.slot} can deal ${lemma}, glossed "${senses(lemma).join(", ")}", `
+              + "and does not say which of those the situation means",
+            ).toBeDefined();
+          } else {
+            expect(
+              said,
+              `${scene.id}'s ${prop.slot} narrows ${lemma}, whose gloss carries one sense already`,
+            ).toBeUndefined();
+          }
+        }
+      }
+    });
+  });
 });

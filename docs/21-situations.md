@@ -3738,3 +3738,287 @@ put eight rows in the log that would have been none: `Läti`, `Venemaa` and
 `Soome` for where you are from, `laps` and `vend` for who lives with you, and
 `teine`, `neljas` and `viies` for the floor, each the ordinal the learner
 actually typed rather than the cardinal beside it on the card.
+
+## §64 The room a conversation is had in, still there while it is had
+
+`SceneVignette` draws fourteen rooms out of strokes: a counter with somebody
+behind it, a table with a plate on it, a stairwell with stairs, a phone ringing
+out of a kitchen. It was drawn on the briefing and on the cover between two
+rooms, and nowhere else. So a learner stepped into a health centre, read one
+sentence, pressed a button, and held the whole conversation on a screen that
+could have been any of the fourteen: an eighteen-pixel icon on the bar, and two
+columns of cards. They asked where the drawings had gone.
+
+**Everything a drawing is for happens during a conversation rather than before
+it**, which is the argument, and it is four things rather than one.
+
+*Where you are* is what every beat asks about. The scene that walks somebody
+from their kitchen to a corner shop already had a cover saying so (§57); what it
+did not have was anything on screen afterwards that was still true.
+
+*Who is talking* is what a column of bubbles carries worst. `SceneFace` put a
+head and shoulders beside each run of lines, which says who *said* a line; it
+cannot say whose turn it is now, and the gap between a reply landing and the
+learner typing is where somebody wonders whether the app is waiting for them.
+
+*How many people are in the room* is pressure nobody announces. `queue` is the
+one curveball of the fourteen with no words in it at all: it costs a point of
+the persona's patience and its own entry calls that "pressure that is felt
+rather than announced". Nothing on the screen let anybody feel it, because it
+never becomes a beat and so never reached the browser at all.
+
+*And a curveball was a sentence of English above a question in Estonian.*
+Somebody standing at a counter does not read that a second person has started
+talking to the clerk. They see him.
+
+**So the room is a band under the bar for the whole conversation.** Inside the
+bar rather than beside it, because two sticky elements at one offset are one
+sticky element with the other drawn underneath it, which is the lesson the role
+card's own summary taught this screen once already. Its height is declared in
+`app/globals.css` and the offset the role card sticks at is that height plus the
+bar's: two numbers that have to agree are one number about to be wrong.
+
+**Who has the floor is the same reading the wait already takes.** A turn is with
+the server and the last thing in the log is not theirs, so they are the ones
+about to speak; anything else and the floor is the learner's, which is most of a
+conversation and is exactly when somebody is looking at the box rather than at
+the transcript. Nobody has it while the room is moving. It is drawn as three
+arcs out of the speaker's mouth, on the side they are facing, which is
+`Ringing`'s own shape turned: a telephone throws sound out in rings and a person
+throws it at the person opposite.
+
+**And the marks are drawn over the room rather than into it.** Each of the
+fourteen is a `switch` branch with its people written into it, and threading a
+flag through twenty `Person` calls would put the same three lines in twenty
+places and leave the twenty-first out, which is how a table in this repository
+usually goes wrong. `MARKS` says where each room's people are instead: `you`,
+`behind` and `beside` are one number each, because every figure stands on the
+same floor with its head at the same height, and `them` is a point rather than a
+number because in the three scenes held over a telephone there is nobody on the
+other side of the room and what speaks is the line going out.
+
+**Four cues for fourteen curveballs, and the fourteen really do fall into
+four.** Somebody behind you (`queue`). Somebody beside them, with a claim on the
+person you were talking to (`interrupted`). The thing between you being the
+problem, which is a form, a price, a slot or a refusal. Or the person themselves
+being what changed, which is how they heard you, how fast they are talking, and
+which language or which pronoun they have switched to. Four is what strokes can
+carry without the drawing becoming a puzzle of its own, and `scenery.test.ts`
+reads the table both ways: a curveball with no cue goes on arriving as a
+sentence of English, and a cue nobody throws is a drawing nobody sees.
+
+**A cue is laid down twice, which is what makes it legible at all.** The rooms
+are full: a counter has a cup on it and a classroom has a board across the back
+of it, and there is no corner of a two-hundred-unit sketch free in all fourteen.
+The same path is stroked first in the ground the room is painted on and then in
+the ink, so it knocks a clear space out of whatever is behind it. One `d` with
+two or three subpaths rather than two elements, so the knockout cannot come
+apart from the thing it is clearing space for.
+
+**It stays decoration and says so.** The band is `aria-hidden`, like every other
+drawing here. Who said a line is in words beside it, whose turn it is is the ask
+panel, and what a curveball wants is the objective in play, named in English in
+the panel the learner types into. A drawing may not be the only thing carrying a
+distinction any more than a colour may.
+
+**What has come up is the server's to say, and reading it off the beat was the
+one thing that shipped broken.** A curveball does become a beat inside the
+machine, and that beat is not what goes on the wire: `beatId` is the scene's own
+beat, the one waiting *behind* the curveball, and only the objective comes off
+the one standing in front of it. So the first version drew no cue at all, ever,
+with both tables complete and read both ways and the types satisfied. What found
+it was playing a conversation on the hard setting until one fired, and reading
+"Ask them to slow down" under a room where nothing had happened. The route sends
+the curveball's own id now, and the queue beside it: that one is `silent`, never
+stands as a beat, and stays for the rest of the run once it has formed, which is
+the same argument the speed it already sends makes about itself.
+
+**What a source check cannot say**, and why `scripts/test-scene.mjs` asks it in a
+browser: a band drawn at the top of the column and a band that sticks under the
+bar are the same markup and the same props, and only one of them is a room. It
+is measured where the conversation opens and again with the page rolled to its
+own end, which is the state a learner is in for every turn after the first.
+
+## §65 The line that was supposed to stick, and never had
+
+The role card above a conversation is a `details` whose one-line summary carries
+what the card dealt, because a beat asks the learner to read a value off it and
+that is two words. The comment beside it argues the case with measurements: the
+card open is 300 to 400 pixels on a phone, the composer is another 200, so the
+column is half again as tall as the screen and the card is off the top of it for
+the whole conversation, which means a learner asked what time suits them is
+being asked about a time they can no longer see. It then argues that sticking
+the whole disclosure is worse, since 400 pixels pinned over a conversation
+leaves it reading underneath.
+
+Both halves are right and the thing they describe never happened. `position:
+sticky` moves a box inside its own containing block and no further, and a
+`summary`'s containing block is the `details` around it. Closed, that is exactly
+as tall as the summary: there is nowhere to travel, so the line marked sticky
+scrolled away with the page like anything else, for the whole of this feature's
+life, under a paragraph explaining why it could not be allowed to.
+
+**Nothing could see it**, which is the part worth keeping. `test-scene.mjs` had
+two checks on the strip and both read it from the top of the page, where a thing
+that sticks and a thing that does not look identical. It was found by putting
+the room above the conversation, screenshotting a real run at 390 after two
+turns, and noticing what was missing from a picture.
+
+**The disclosure is what sticks now, and only while it is closed.** That is the
+rule the original comment was written for, kept exactly: while it is one line it
+is pinned, and the moment it is four hundred pixels it is an ordinary block in
+the flow again. `:not([open])` is the browser's own attribute rather than a flag
+of ours, so this stays a real disclosure with the keyboard and the screen reader
+it came with.
+
+**Opening it from the top of the screen brings it to you.** Unpinning puts the
+card back at its place in the flow, which can be a screenful above where the
+learner is standing, so it would open somewhere they cannot see. `scrollIntoView`
+with `block: "nearest"` and a `scroll-margin-top` that clears the bar and the
+room is the whole of it: a card already on screen is not scrolled at all,
+because the press was to read it rather than to move the page.
+
+**And the offset is three figures, each declared once.** The bar's height, the
+room band's, and the fade under them, so the pill starts where the fade ends
+rather than under it. `test-scene.mjs` measures it at the bottom of a scrolled
+page, which is the state the fault lived in and the one nothing had looked at.
+
+## §66 A card hands over one fact, and a gloss is not always one
+
+A `word` prop draws a lemma off the scene's own units and the briefing prints
+its English gloss, because saying it in Estonian is the exercise. That is right
+until the gloss carries more than one sense.
+
+A learner at a café counter read
+
+    Tell them what you would like to drink.
+    road, tea
+
+`tee` is both, and the dictionary is right to say so. The card is not teaching
+the word's range: it is handing somebody one thing to say, and one of those is
+not a drink. The same shape put a tongue among the things to be good at in a
+job interview (`keel`), and a woman rather than a wife among the people who
+live with you.
+
+**Measured before it was fixed**: of the 90 values the fourteen scenes can deal
+from a word prop, 11 have a gloss carrying more than one sense. Two of those
+are the fault in its plain form, `tee` at a café and at a restaurant, and one
+is `keel` at an interview; the rest are pairs where both senses fit, which is
+`haige` as "ill, sick" and `luba` as "permit, permission". Narrowing all of
+them is what makes this a rule rather than a list of the three somebody
+noticed, and the pairs read better narrowed anyway: "Who lives with you: wife"
+rather than "woman, wife".
+
+**The scene says which sense, and may only ever narrow.** `PropSpec.means` is
+keyed on the lemma and holds English, which is the one language a scene may
+write and never the Estonian (ADR-005). `catalogue.test.ts` holds every value
+in it to a sense the harvest's own gloss already lists, word for word, so a
+card cannot teach a meaning the dictionary would not stand behind; it may not
+name a lemma the prop never draws; and every lemma whose gloss carries more
+than one sense has an entry, while one whose gloss carries a single sense may
+not. All four were made to fail before they were trusted.
+
+**Nothing else moved.** The gloss in the dictionary, on a flashcard and in a
+crossword clue is exactly what it was: `tee` is still "road, tea" wherever a
+learner is being told what the word means. What changed is the one place that
+was printing a meaning instead of a fact.
+
+**And the card needed no second reader for it.** `DrawnProp.shown` is already
+"what the card prints as the value, where the value prints itself", which the
+briefing prefers over the dictionary's gloss for a number, a time and a code.
+A narrowed sense is that, so the draw fills it and `briefingOf` is untouched.
+
+**The other kind that prints a gloss is checked rather than assumed.** A
+weekday is a weekday in both languages, so there is no sense to choose between
+and `means` is not on that spec at all; the suite asserts each of them glosses
+to exactly one sense, so the day that stops being true it says so rather than a
+card quietly printing two.
+
+## §67 The room drawn for everybody, and nobody standing inside the furniture
+
+§64 put the room on the bar and left four things unfinished. Each of them is
+the kind that survives a screenshot of the ordinary case, which is why they were
+still there a day later: none is visible from the code, two need a preference
+set or a screen turned on its side to reach at all, and the one that is plainly
+visible is only visible in a room a fixture has no reason to open.
+
+**A drawing that goes out when somebody asks for less movement.** `Steam` and
+`Ringing` each carried an inline `opacity: 0` so a wisp on a nine-hundred
+millisecond delay was not drawn at full strength before its own animation
+reached it. An inline style beats every rule in the stylesheet, and the
+reduced-motion block turns those animations off outright. Measured on
+`helistamine` with the preference set, all three arcs of the telephone read back
+at nought: a learner who asks for less movement was shown a person holding a
+phone with nothing coming out of it, in the three rooms where the line *is* the
+other side of the conversation. `animation-fill-mode: both` says the same thing
+in the stylesheet, where the reduced-motion rule can take it away with the
+animation, and the inline style is gone.
+
+**The screen that says how it went was drawn in no room at all.** The debrief's
+own comment says it stays inside the room, and the band arrived with the
+conversation and left with it, so the one screen a learner reads afterwards was
+the one with an empty bar over it. It is the same drawing carried across, with
+no breath and no cue: the floor is nobody's once the conversation has ended,
+and a queue drawn behind somebody who has already left is a room reporting a
+fact about a run that is over.
+
+**And a cue stood people inside the counter.** `Marks.beside` is where somebody
+who has cut in stands, and it was set beyond the person on the other side. In
+the five rooms with a counter that is not floor: the counter runs to 178 and the
+drawing ends at 200, so the figure came out standing in the furniture with its
+legs showing through, which is the one thing `Person`'s own `behind` exists to
+prevent. They stand on the learner's side of it now, which is the truer picture
+as well, since the way out of `interrupted` is "wait, or say you were first" and
+somebody you could have been first to is somebody who stepped in front of you.
+Which way they turn is read off the two numbers rather than typed, or they reach
+back over the learner's head at the person they have just cut in front of.
+
+**A figure is eighteen units of legs and twenty-two of arms**, so two marks
+closer together than that are not two people, they are one scribble. The stairwell
+put a queue twenty-two units off the learner and their arms met exactly; the
+pharmacy stood its own waiting customer eighteen units off the one a curveball
+adds; the clinic's chairs were under the queue's feet; and the floor stopped
+where the furniture did, seventeen units short of where the thinnest rooms put
+somebody. `scenery.test.ts` reads the floor and every row of `MARKS` out of the
+drawing and holds all of it: on the floor, in order, far enough apart. Made to
+fail both ways first. Six rooms moved, and `restaurant`, `stairwell` and
+`home_phone` moved a person of their own to make room.
+
+## §68 Three more the drawing had, and none of them visible from the code
+
+The round above found three faults by looking at the thing rather than at the
+file it comes out of. These are the three that were left, and each of them is
+in a state a screenshot of the ordinary case does not reach.
+
+**The ground under the pinned card was a slab.** `.scene-sticky::before` brings
+`--ground` with the role card so the conversation scrolling under it does not
+run out either side of the line, and it reached half a rem over the pill's top
+edge. A flat rectangle of ground laid over the room's own light has two hard
+vertical edges and a hard top one, and measured in the dark theme it read as a
+grey slab hung under the drawing with a seam across the screen, which is the
+fault `.scene-top::after` exists one element up to prevent. It buys nothing,
+because the pill pins at the bottom of that fade with no gap between them and
+its own surface is opaque. It begins at the pill's own midline now, so the only
+part of it anybody sees is the tail that was doing the work.
+
+**The band was sized against the wrong axis.** Its height comes off a width
+breakpoint, and a phone on its side is short rather than narrow: at 844x390 it
+took the larger figure and the bar plus the room came to 185 pixels of a 390
+pixel screen, 47%, leaving a transcript and an ask panel in 205, with the
+objective and the box the learner types into unable to be on screen together
+with the room at all. A room nobody can answer from is not context, it is a
+wall. Under 560 pixels of height it is 4.25rem, which is 32% of the bar and the
+room together and still two people and a counter; `test-mobile.mjs` is where
+that is measured, since every other check in this repository pins the height at
+844 or 900 and none of them could see it.
+
+**And a move drew both rooms at once for anybody who asked for less movement.**
+The room being left and the room being arrived in are stacked `absolute
+inset-0` so they can pass through each other, and the one going out ends its
+animation at nought. The reduced-motion block stops both animations, which
+leaves both at full strength in one box: a learner reading "you have walked to
+the shop" was shown their kitchen and the shop drawn on top of one another, on
+the one screen whose whole job is saying which of the two they are in now.
+`SceneInterlude`'s own comment has claimed since it was written that the second
+room is simply there; the leaving one is `display: none` now, which is what
+makes that true.
