@@ -36,6 +36,12 @@ function sse(text: string): Response {
   return new Response(body, { status: 200 });
 }
 
+/** A server-sent event stream carrying whatever frames a case needs, in order. */
+function sseFrames(...frames: unknown[]): Response {
+  const body = frames.map((frame) => `data: ${JSON.stringify(frame)}\n\n`).join("");
+  return new Response(body, { status: 200 });
+}
+
 /**
  * Exactly one provider configured, whichever the case is about.
  *
@@ -858,5 +864,76 @@ describe("Anthropic is asked not to think", () => {
     const chain = resolveProviders();
     await openWithFallback([chain[0]!], "system", [{ role: "user", content: "hi" }]);
     expect(JSON.parse(body).thinking).toEqual({ type: "disabled" });
+  });
+});
+
+/*
+  A REPLY THAT HIT ITS OWN CEILING SAYS SO, NOT ONLY WHAT IT COST.
+
+  `TUTOR_REPLY_TOKENS` makes running out rare; it does not make it impossible,
+  and a caller reading the finished text alone cannot tell "the model stopped
+  because it was done" apart from "the model stopped because the ceiling made
+  it stop", which is a real prefix of an answer wearing the clothes of a whole
+  one. `usage.truncated` is that distinction, read off the one frame each shape
+  carries it on: Anthropic's `message_delta.delta.stop_reason` and the
+  OpenAI-shaped `choices[0].finish_reason`, both `"length"`/`"max_tokens"` in
+  that one case and something else (usually `"stop"`) in every other.
+
+  Driven through `openWithFallback` and drained to the end, because the flag
+  is set inside `readStream`'s own `finally`, which only runs once the
+  generator has been consumed to completion, exactly as the tutor route
+  consumes it.
+*/
+describe("a reply that hit its own ceiling says so, not only what it cost", () => {
+  async function drain(open: { chunks: AsyncGenerator<string> }) {
+    let out = "";
+    for await (const chunk of open.chunks) out += chunk;
+    return out;
+  }
+
+  it("reads finish_reason: length off an OpenAI-shaped stream", async () => {
+    only("groq");
+    vi.stubGlobal("fetch", async () => sseFrames(
+      { choices: [{ delta: { content: "Osastav on" } }] },
+      { choices: [{ delta: {}, finish_reason: "length" }] },
+    ));
+    const seen: (boolean | undefined)[] = [];
+    const open = await openWithFallback(
+      resolveProviders(), "system", [{ role: "user", content: "hi" }],
+      (usage) => seen.push(usage.truncated),
+    );
+    await drain(open);
+    expect(seen).toEqual([true]);
+  });
+
+  it("does not flag an ordinary finish", async () => {
+    only("groq");
+    vi.stubGlobal("fetch", async () => sseFrames(
+      { choices: [{ delta: { content: "Tere!" } }] },
+      { choices: [{ delta: {}, finish_reason: "stop" }] },
+    ));
+    const seen: (boolean | undefined)[] = [];
+    const open = await openWithFallback(
+      resolveProviders(), "system", [{ role: "user", content: "hi" }],
+      (usage) => seen.push(usage.truncated),
+    );
+    await drain(open);
+    expect(seen).toEqual([undefined]);
+  });
+
+  it("reads stop_reason: max_tokens off Anthropic's own shape", async () => {
+    only("anthropic");
+    vi.stubGlobal("fetch", async () => sseFrames(
+      { type: "message_start", message: { usage: { input_tokens: 10 } } },
+      { type: "content_block_delta", delta: { type: "text_delta", text: "Osastav on" } },
+      { type: "message_delta", delta: { stop_reason: "max_tokens" }, usage: { output_tokens: 5 } },
+    ));
+    const seen: (boolean | undefined)[] = [];
+    const open = await openWithFallback(
+      resolveProviders(), "system", [{ role: "user", content: "hi" }],
+      (usage) => seen.push(usage.truncated),
+    );
+    await drain(open);
+    expect(seen).toEqual([true]);
   });
 });

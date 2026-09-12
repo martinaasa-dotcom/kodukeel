@@ -653,6 +653,19 @@ export interface UsageReport {
    */
   cachedInputTokens?: number;
   cacheWriteTokens?: number;
+  /**
+   * The provider stopped because the reply hit its token ceiling rather than
+   * because it was finished, so what arrived is a real prefix of an answer
+   * rather than the whole of one.
+   *
+   * A raised `TUTOR_REPLY_TOKENS` makes this rare and does not make it
+   * impossible: a reasoning model can still spend enough of it thinking that
+   * what is left runs out mid-sentence, and a caller reading the finished
+   * text alone cannot tell that case apart from an answer that simply ended.
+   * Read off Anthropic's own `stop_reason` and the OpenAI-compatible
+   * `finish_reason`, both `"length"`/`"max_tokens"` in that one case.
+   */
+  truncated?: boolean;
 }
 
 /** A provider that has accepted the question, and the reply it is about to give. */
@@ -679,6 +692,10 @@ interface UsageFrame {
     };
   };
   usage?: { output_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+  /** Anthropic's own reason the turn stopped, carried on the same `message_delta` frame as the output count. */
+  delta?: { stop_reason?: string | null };
+  /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
+  choices?: { finish_reason?: string | null }[];
 }
 
 function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport): void {
@@ -701,12 +718,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
       into.cacheWriteTokens = written;
       into.measured = true;
     }
-    if (f.type === "message_delta" && f.usage?.output_tokens != null) {
-      into.outputTokens = f.usage.output_tokens;
-      into.measured = true;
+    if (f.type === "message_delta") {
+      if (f.usage?.output_tokens != null) {
+        into.outputTokens = f.usage.output_tokens;
+        into.measured = true;
+      }
+      if (f.delta?.stop_reason === "max_tokens") into.truncated = true;
     }
     return;
   }
+
+  const finishReason = f.choices?.[0]?.finish_reason;
+  if (finishReason === "length") into.truncated = true;
 
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;

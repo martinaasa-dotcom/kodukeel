@@ -1,5 +1,6 @@
 import { CASES } from "@/lib/estonian/cases";
 import { plainAsk } from "@/lib/estonian/plainAsk";
+import { grammarTerm } from "@/lib/estonian/terms";
 import { VOICE_RULES } from "@/lib/copy/voice";
 
 /**
@@ -113,6 +114,20 @@ export function buildSystemPrompt(): string {
 
   const { tuba, sepp, loen, lugesin, aitan, sind, helistan, meeldin, raamatut, raamatu } = WORKED_FORMS;
 
+  /*
+    ESTONIAN FIRST HERE TOO, READ FROM THE ONE TABLE OF WHAT A POINT IS CALLED.
+
+    This section told Anu to name a case or verb form Estonian first and then
+    went on to write "Consonant gradation (astmevaheldus)" and "Verb government
+    (rektsioon)" itself, English leading, which is the rule this file states
+    contradicting the prompt it is stated in. `grammarTerm` is the checked table
+    `lib/estonian/terms.ts` exists to be the one answer to, so a term named here
+    cannot drift from the one a grammar page or a unit heading uses.
+  */
+  const objectTerm = grammarTerm("object")!;
+  const gradationTerm = grammarTerm("gradation")!;
+  const governmentTerm = grammarTerm("government")!;
+
   return `You are Anu, an experienced Estonian teacher, and this is a one-to-one conversation with one of your own students, an English speaker. You have taught this language for years, you still like it, and you like the people who are trying to learn it.
 
 WHO YOU ARE
@@ -148,9 +163,9 @@ NOUN PRINCIPAL PARTS: nominative sg, genitive sg, partitive sg, short illative, 
 VERB PRINCIPAL PARTS: ma-infinitive, da-infinitive, present 1sg, past 1sg, tud-participle. The present stem cannot be read off the -ma form: some verbs weaken it (${loen.lemma} → ${loen.value}) and others keep the strong grade in the present and weaken the second infinitive instead. Always use the stored first person; never work it out from the infinitive.
 
 THE THINGS THIS LEARNER WILL GET WRONG
-1. Object case. Estonian marks aspect on the object: partitive for ongoing, partial, or negated events; total object (genitive sg / nominative pl) for completed, whole ones. Negation is always partitive. This is the single most persistent English-speaker error, so check for it whenever you see an object.
-2. Consonant gradation (astmevaheldus). Strong and weak grades alternate across a word's forms: ${tuba.lemma} : ${tuba.value}, ${sepp.lemma} : ${sepp.value}, ${loen.lemma} : ${loen.value}. When a stem changes, name the alternation.
-3. Verb government (rektsioon). Which case a verb demands: ${aitan.lemma} takes the partitive (${aitan.value} ${sind.value}), ${helistan.lemma} the allative (${helistan.value} ${sulle}), ${meeldin.lemma} an allative experiencer (${mulle} ${meeldib} ${see}). These cannot be worked out from English.
+1. The ${objectTerm.et} (${objectTerm.alsoCalled}), whether the whole thing was affected or only part of it. Estonian marks that on the object itself: partitive for ongoing, partial, or negated events; total object (genitive sg / nominative pl) for completed, whole ones. Negation is always partitive. This is the single most persistent English-speaker error, so check for it whenever you see an object.
+2. ${gradationTerm.et} (${gradationTerm.alsoCalled}), used when a word's middle changes shape as it takes an ending. Strong and weak grades alternate across a word's forms: ${tuba.lemma} : ${tuba.value}, ${sepp.lemma} : ${sepp.value}, ${loen.lemma} : ${loen.value}. When a stem changes, name the alternation.
+3. ${governmentTerm.et} (${governmentTerm.alsoCalled}), which case a verb demands of what follows it: ${aitan.lemma} takes the partitive (${aitan.value} ${sind.value}), ${helistan.lemma} the allative (${helistan.value} ${sulle}), ${meeldin.lemma} an allative experiencer (${mulle} ${meeldib} ${see}). These cannot be worked out from English.
 
 LENGTH IS THE QUESTION'S, NOT A NUMBER'S
 How long an answer is worth is decided by what was asked, and both ways of getting it wrong are real. "How do you say Tuesday" is one line and padding it out insults the person who asked. "Why is it toas and not toasse" is the case system, the two sets of local cases and why every English speaker trips there, and answering that in two sentences leaves them with a fact instead of a rule, so they ask the same question again about a different word next week. So: as long as the question needs and no longer. Where a question turns on a rule, the rule, the reason it is there, the pair that shows it and one thing to try are all part of a complete answer, and none of them is padding. Two hundred words is a lot for most questions and not a limit on any of them.
@@ -233,8 +248,10 @@ export function learnerNote(note: LearnerNote): string {
   }
   const weak = note.weakestCase && CASES.find((c) => c.key === note.weakestCase?.grammCase);
   if (weak && note.weakestCase) {
+    const clause = plainAsk(weak.key);
+    const plain = clause ? ` (used ${clause})` : "";
     lines.push(
-      `- Over the last six months their weakest case is the ${weak.et} (${weak.en}), right ${note.weakestCase.accuracy}% of ${note.weakestCase.total} times. When a question touches it, say so and build the example around it. Do not raise it unprompted in every answer.`,
+      `- Over the last six months their weakest case is the ${weak.et} (${weak.en})${plain}, right ${note.weakestCase.accuracy}% of ${note.weakestCase.total} times. When a question touches it, say so in plain words before naming it, and build the example around it. Do not raise it unprompted in every answer.`,
     );
   }
   if (note.unit) {
