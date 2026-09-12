@@ -170,6 +170,19 @@ const COMPOSE_RULES = [
   "the small courtesy, the one thing about the moment that a person in your job would mention,",
   "the aside they would actually make. A whole thought, finished, the way you are reading this.",
   /*
+    AND A QUESTION THAT CAN BE ANSWERED TWO WAYS IS A QUESTION HALF ASKED.
+    `Mis teil valutab?` is correct Estonian, inside the list, and still leaves
+    a beginner guessing whether it wants a body part, a feeling or an illness,
+    which is a different failure from being terse: the words are all there and
+    the request still is not. What fixes it is not length, it is naming the
+    thing: a category, a real example, a choice between two things it could
+    be, so the next turn is a specific answer rather than a guess at which
+    question was actually asked.
+  */
+  "Never leave what you are asking or answering open to more than one reading. Where the words",
+  "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
+  "take your meaning two different ways.",
+  /*
     AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
     thing about the place a person would mention, and with the room to say it,
     the model reached for a word it did not control: `Tere! Mis needus täna
