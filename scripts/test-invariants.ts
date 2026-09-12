@@ -11917,7 +11917,7 @@ check("the scene gate has one implementation, and a line says where it came from
   */
   assert.match(
     line,
-    /if \(first && firstVerdict && passes\(firstVerdict\)\)/,
+    /if \(line && verdict && passes\(verdict\)\)/,
     "lib/scenes/line.ts no longer requires a composed line to pass the gate before showing it.",
   );
 });
@@ -12052,7 +12052,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   const line = code("lib/scenes/line.ts");
   const attestedAt = line.indexOf("pickAttested(request)");
   const scriptedAt = line.indexOf('provenance: "scripted"');
-  const composeAt = line.indexOf("request.compose([])");
+  const composeAt = line.indexOf("request.compose(retryNote(");
   assert.ok(attestedAt > 0 && scriptedAt > 0 && composeAt > 0, "the ladder lost a rung");
   assert.ok(
     attestedAt < composeAt && composeAt < scriptedAt,
