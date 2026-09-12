@@ -110,6 +110,46 @@ export interface ComposeAsk {
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
   /**
+   * Why the last attempt was withheld, where it was withheld for something
+   * other than its words (`whyWithheld`). A retry told only "those words" when
+   * the fault was a number nobody dealt wrote the number again.
+   */
+  readonly because?: string;
+  /**
+   * WHAT THIS PERSON KNOWS, OFF THE CARDS, IN ENGLISH.
+   *
+   * The model was told a move and a word list and nothing about the run: not
+   * where the learner is going, not the time on their card, not the price the
+   * other side is holding. So it could not react to "jaama" as a destination
+   * it had heard, and it could not answer "how much?" at all, because any
+   * number it reached for was one the gate withholds as invented. Every value
+   * the card dealt, told and theirs, is here, so the character can say what
+   * they know and the gate's `facts` check accepts it as dealt. A card read
+   * through the curveballs and the counters (`cardAfterHurdles`,
+   * `cardInPlay`), so the price named is the price now.
+   */
+  readonly facts?: readonly string[];
+  /**
+   * WHAT THIS PERSON STILL NEEDS FROM THE LEARNER, IN ORDER, IN ENGLISH.
+   *
+   * The model was handed one move and could not see the conversation's shape:
+   * it did not know what had already been settled or what came after this,
+   * so it could neither skip a question the learner had answered in passing
+   * nor bring a conversation that had wandered back to where it needed to go.
+   * The first entry is what to steer to now (`they`); the rest is what is
+   * still to come. It is the agenda of the person behind the counter and
+   * never the learner's objectives (`goal`), for §32's reason.
+   */
+  readonly agenda?: readonly string[];
+  /**
+   * What this person has already settled with the learner, in English, off
+   * the done beats' own `they`, so it is not asked for again. NEVER THE
+   * LEARNER'S GOALS: the first version passed those, "Tell them you would
+   * like a ticket", and the model read the imperative as its own line and
+   * answered the next turn as the customer (§32, a second time).
+   */
+  readonly settled?: readonly string[];
+  /**
    * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
    * "THEY ANSWERED YOU".
    *
@@ -233,6 +273,18 @@ const COMPOSE_RULES = [
     character who shrugs at a clear sentence undoes a fortnight of somebody's
     confidence in one line.
   */
+  /*
+    AND THE CONVERSATION IS THEIRS TO KEEP MOVING. Told a move alone, a model
+    asks the move whatever was just said, and that is a form being filled in.
+    A person answers what was said, goes along with a turn that wandered, and
+    brings the conversation back to what they need when it is natural to,
+    which is the one thing a learner said was missing.
+  */
+  "Whatever they say, the conversation keeps going. If they change the subject, ask something",
+  "of their own, or answer something you did not ask, go with it for a sentence and then come",
+  "back to what you still need, in your own words. Never put the same question the same way",
+  "twice: if they did not answer it, ask it differently or narrow it to a choice. If they cannot",
+  "give you something after a couple of tries, let it go gracefully and move on.",
   "The point of this is that they leave it more confident than they arrived, so they are never",
   "left feeling stupid. Take what they gave you: a one-word answer is an answer, an answer with",
   "the wrong ending is an answer, and so is an answer you had to work out. If they ask you",
@@ -303,8 +355,19 @@ export function composeSystem(scene: ComposeScene): string {
       is looking at on their own screen.
     */
     `The scene: ${scene.scene}. ${scene.place}.`,
-    `You are the other person in it. ${scene.persona}`,
-    `Why they are here, which you know: ${scene.situation}`,
+    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
+    /*
+      THE ROLE CARD IS WRITTEN TO THE LEARNER, AND THE MODEL READ "YOU" AS
+      ITSELF. "You need a bus ticket. Your card says where to" handed over as
+      "why they are here" had the model answering as the customer three turns
+      out of seven: `Ma soovin sõita randa, palun`, `Kas ma maksan kaardiga?`.
+      Quoted as theirs, with the pronoun explained, and said once more in the
+      plainest words there are.
+    */
+    `The learner's own card, written to them, says why they are here: "${scene.situation}"`
+      + " In that sentence and in every fact from their card, \"you\" and \"your\" mean the learner,"
+      + " never you. You are never the learner: you never ask for what they came for, never say"
+      + " what is on their card as if it were yours, and never answer your own questions.",
     `Address them as "${scene.register}".`,
     `Words you may use: ${scene.words.join(" ")}`,
   ].filter(Boolean).join("\n");
@@ -321,12 +384,26 @@ export function composeLive(ask: ComposeAsk): string {
   return [
     `Your move: ${ask.move}.`,
     `What you are doing, in English: ${ask.they}`,
+    ask.settled && ask.settled.length > 0
+      ? `Already settled, so never asked for again: ${ask.settled.join("; ")}.`
+      : "",
+    ask.agenda && ask.agenda.length > 1
+      ? `What you still need from them after this, in order: ${ask.agenda.slice(1).join("; ")}.`
+        + " If they give you one of these before you ask, take it and do not ask for it later."
+      : "",
     /*
       What they appear to have said, which is the dictionary's reading rather
       than a second model's. A beginner's Estonian is short, endingless and
       often a word off, and a line written against the raw text answers the beat
       rather than the person.
     */
+    ask.facts && ask.facts.length > 0
+      ? `Facts in play, off the cards. Each is written to the learner, so \"you\" means them:`
+        + ` ${ask.facts.join("; ")}.`
+        + " The ones marked as yours to tell them are what you know and they do not; say those"
+        + " when your move calls for them or when they ask. Those are the only numbers, times"
+        + " and prices you may ever say."
+      : "",
     ask.reading
       ? `What they just said appears to mean, word by word: ${ask.reading}. `
         + "Answer what they actually said. Reply in Estonian only."
@@ -359,6 +436,9 @@ export function composeLive(ask: ComposeAsk): string {
     ask.avoid.length > 0
       ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
         + "Say it again without them, using more of the words you were given."
+      : "",
+    ask.because
+      ? `Your last line did not get through: ${ask.because}. Say it again, differently, so that it does.`
       : "",
     /*
       And what happened to their turn, which is the whole reason a miss is

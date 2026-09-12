@@ -124,6 +124,19 @@ export interface SceneState {
   readonly beat: number;
   /** Tries left on this beat before the other side moves on. */
   readonly patience: number;
+  /**
+   * How many tries each beat gives this run, once the persona has had their
+   * say (`planRun`'s `patience`, through `patienceFor`).
+   *
+   * THE BRISK PERSONA HAD NEVER BEEN ONE TRY SHORTER. `planRun` worked the
+   * figure out and stored it on the plan, `PersonaSpec.patience` documented
+   * it, and nothing read it: every run started from `scene.beats` and every
+   * `moveOn` read the beat's own number. It is on the state so `moveOn` can
+   * read it without every caller threading an array through, and absent on
+   * a run written before the draw carried one, which keeps the scene's own
+   * figures for a conversation already in flight.
+   */
+  readonly tries?: readonly number[];
   /** Beat ids met, in the order they were met. */
   readonly done: readonly string[];
   /**
@@ -138,19 +151,25 @@ export interface SceneState {
   readonly walkedOut: boolean;
 }
 
-export function startScene(scene: SceneSpec): SceneState {
-  const first = scene.beats[0];
-  return {
+export function startScene(scene: SceneSpec, tries?: readonly number[]): SceneState {
+  const state: SceneState = {
     sceneId: scene.id,
     hurdle: null,
     hurdles: [],
     beat: 0,
-    patience: first ? first.patience : 0,
+    patience: 0,
     done: [],
     countered: [],
     turns: [],
     walkedOut: false,
+    ...(tries ? { tries } : {}),
   };
+  return { ...state, patience: patienceAt(scene, state, 0) };
+}
+
+/** The tries a beat gives this run: the persona's figure where the draw carried one, the beat's own otherwise. */
+export function patienceAt(scene: SceneSpec, state: Pick<SceneState, "tries">, beat: number): number {
+  return state.tries?.[beat] ?? scene.beats[beat]?.patience ?? 0;
 }
 
 export function currentBeat(scene: SceneSpec, state: SceneState): BeatSpec | undefined {
@@ -250,7 +269,7 @@ export function advance(
   if (advances(evidence.reading)) {
     return {
       state: {
-        ...state, ...moveOn(scene, state.beat, [...state.done, beat.id]),
+        ...state, ...moveOn(scene, state, [...state.done, beat.id]),
         done: [...state.done, beat.id], turns,
       },
       response: "answer",
@@ -273,7 +292,7 @@ export function advance(
     }
     return {
       state: {
-        ...state, ...moveOn(scene, state.beat, [...state.done, beat.id]),
+        ...state, ...moveOn(scene, state, [...state.done, beat.id]),
         done: [...state.done, beat.id], turns,
       },
       response: "answer",
@@ -295,6 +314,22 @@ export function advance(
     };
   }
 
+  /*
+    A QUESTION IS NOT A TRY. A learner who misses the beat because they asked
+    what the price is now, or what time the bus goes, is taking part rather
+    than failing, and a person answering a question does not run out of
+    patience for having been asked it: at a ticket window somebody asked the
+    price twice, was answered twice, and watched the clerk give up on them.
+    The first such turn on a beat costs nothing, the way saying you are lost
+    costs nothing; a second spends a try like any miss, so a scene cannot be
+    held for ever by a question mark, which is the rule the fuzz harness proved
+    was needed for the fragment.
+  */
+  const askedAlready = state.turns.some((turn) => turn.beatId === beat.id && turn.asked);
+  if (evidence.asked && evidence.reading === "offtarget" && !askedAlready) {
+    return { state: { ...state, turns }, response: "narrow" };
+  }
+
   const patience = state.patience - 1;
   if (patience <= 0) {
     /*
@@ -304,7 +339,7 @@ export function advance(
       being persistent would be a scene with a score hidden inside it.
     */
     return {
-      state: { ...state, ...moveOn(scene, state.beat, state.done), turns },
+      state: { ...state, ...moveOn(scene, state, state.done), turns },
       response: "moveOn",
     };
   }
@@ -338,12 +373,12 @@ export function walkOut(state: SceneState): SceneState {
  */
 function moveOn(
   scene: SceneSpec,
-  from: number,
+  state: Pick<SceneState, "beat" | "tries">,
   done: readonly string[],
 ): { beat: number; patience: number } {
-  let beat = from + 1;
+  let beat = state.beat + 1;
   while (scene.beats[beat] && done.includes(scene.beats[beat]!.id)) beat += 1;
-  return { beat, patience: scene.beats[beat]?.patience ?? 0 };
+  return { beat, patience: patienceAt(scene, state, beat) };
 }
 
 function responseFor(reading: TurnReading): Response {
@@ -393,6 +428,9 @@ export function creditAhead(
       produced: evidence.satisfiedBy,
       substituted: evidence.substituted,
       ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
+      // The question travels with the credit, or a turn that asked the price
+      // and met a beat two along is answered about neither.
+      ...(evidence.asked ? { asked: evidence.asked } : {}),
     }],
   };
 }
@@ -476,13 +514,16 @@ export function hurdleBeat(hurdle: Hurdle): BeatSpec | null {
   return {
     id: `hurdle:${spec.id}`,
     goal: spec.out,
-    they: spec.says,
+    they: spec.they ?? spec.says,
     move: spec.move ?? "ask",
     topic: [],
     needs: spec.needs,
     required: false,
     patience: HURDLE_TRIES,
     shape: "word",
+    // A curveball that changes a value the card dealt says it off the card, and answers about it.
+    ...(spec.line ? { says: spec.line } : {}),
+    ...(spec.answer ? { answer: spec.answer } : {}),
   };
 }
 

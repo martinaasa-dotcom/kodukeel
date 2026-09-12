@@ -4022,3 +4022,210 @@ the one screen whose whole job is saying which of the two they are in now.
 `SceneInterlude`'s own comment has claimed since it was written that the second
 room is simply there; the leaving one is `display: none` now, which is what
 makes that true.
+
+## §69 A curveball that changes a fact carries the fact
+
+A learner sent a transcript of the bus ticket scene and said the module was
+unusable, and they were reading the right thing. The price curveball had been
+drawn at the beat that asks how they are paying. The window said `See maksab
+nüüd rohkem.`, the learner asked `Kui palju?`, which is the way out the
+curveball's own entry names, and was answered `Ei tea.` They asked `Mis hind
+on?` on the next beat and read `Vabandust! Kas te maksate kaardiga või rahaga?`,
+and then the same sentence five more times, and then `Kaart? Head aega!`
+
+**The curveball had no fact behind it.** `wrong-price` said the amount was not
+the one the learner was told, in seven scenes, and none of them had told the
+learner an amount: there was no price on any card. So the other side could
+announce that the price had changed and could not say what it was, in Estonian
+or in English, keyless or keyed. Keyed was no better, and that is the part
+worth writing down: a composed line naming a price is a line with a number in
+it, `facts` withholds any number the card did not deal (§ on `dealtNumbers`),
+and the retry was told which *words* had failed and nothing about a number, so
+a model that wrote `See maksab nüüd 5 eurot.` was refused three times for the
+one thing that made the line an answer and the run fell to a banked line
+saying the price was different. The gate was doing exactly what it was
+written to do, against a scene that had never given it the fact.
+
+**Every scene that admits it deals two prices now.** `price`, in whole euros,
+printed on the learner's card under "What a ticket costs, in euros", and
+`price2`, theirs and drawn to differ, never printed. The curveball carries
+`line`, parts off the card the way a beat's `says` is, so the hurdle says `See
+maksab nüüd 5 eurot.` through `partsLine` with nothing typed; `they` carries
+the slot so a model is told the price it is announcing; `answer` says what
+they say when asked; and `replaces` stands the second price in for the first
+from the moment the curveball is raised (`cardAfterHurdles`, which is
+`cardInPlay` one door over). `catalogue.test.ts` holds a curveball's line and
+its slots to every scene that admits it, and the check that a fact the other
+side says is never printed on the learner's card reads the curveballs too.
+The sixteen banked rows for the beat went, because a beat naming a value off
+the card is not scriptable and the bank's own test says so.
+
+**A question about money is answered with the price, from the card.**
+`priceOffCard` is a rung on the aside ladder between "how are you" and the
+day and time, read on `asksPrice`: a form of `hind`, `maksma` or `euro`, or
+`palju` or `mitu`. `Kui palju?` is `See maksab 5 eurot.`; `Kas 5 eurot?` and
+a bare `5?` are somebody checking what they heard and get `Jah, see maksab 5
+eurot.` or `Ei, see maksab 2 eurot.`, whole digit runs compared the way the
+marker compares a dealt number. Every word is a lemma `ostmine`, `asesonad`
+and `vastused` teach, `eurot` is read off the case table through a new
+`{ lemma, grammCase }` part, and a lexicon that cannot supply the verb says
+`5 eurot.` rather than nothing.
+
+**And a question asked on a turn that missed is still a question.**
+`wantsAside` was true on a turn that landed and on nothing else, on the
+argument (§39) that "sorry, what?" on a miss is a request to hear the
+question again rather than a question owed a shrug. That is right about the
+shrug and wrong about `Mis hind on?`. `wantsAsideFor` owes a real question an
+answer on a miss too, and what may answer it there is narrower: a fact off the
+card (`AsideInput.missed` stands the banked answer and "more of what they
+said" down, since both are about a beat nobody has met), the model's own
+composed line, which the note now tells to answer first, and never the shrug.
+The word for "that was not what I asked" is not said in front of an answer,
+and a question is not a try: the first one on a beat spends no patience, the
+way saying you are lost spends none, so somebody who asks the price twice is
+answered twice rather than given up on. A turn credited with a beat further
+along carries its question with the credit, or a learner asking how much
+while meeting a beat two along was answered about neither.
+
+**The model is briefed as a participant.** It was told a move, one sentence
+about what to do and a word list, and nothing about the run: not where the
+learner is going, not the time on their card, not the price the other side is
+holding. `ComposeAsk.facts` is every value on the card in play, told and
+theirs, in English off the same labels the briefing prints, so the character
+can state a price the gate then accepts as dealt. A retry is told why the last
+line was withheld (`whyWithheld`), one clause per check, beside the words
+`retryNote` already named. And on a turn that asked something or missed, the
+words the dictionary vouched in the learner's own turn count as on topic, so
+a line that answers them before asking again is not withheld for answering.
+
+Measured keyless on the reported transcript, through `npm run replay:scene`,
+which replays a learner's exact turns through the route's own functions:
+
+```
+THEM: See maksab nüüd 2 eurot.
+YOU:  Kui palju?
+THEM: See maksab 2 eurot. Kas te maksate kaardiga või rahaga?
+YOU:  Mis hind on?
+THEM: See maksab 2 eurot. Kas te maksate kaardiga või rahaga?
+YOU:  5?
+THEM: Ei, see maksab 2 eurot. Jah või ei?
+```
+
+where before it read `Ei tea.`, then `Vabandust!` and the same question, then
+`Vabandust!` and the same question again.
+
+**What this does not explain.** Five of the learner's turns in the screenshot
+drew empty bubbles and were each answered with the same repeated line, and
+none of them spent the beat's patience. Nothing in the replay produces that:
+a turn read as off the point spends a try, and the beat has two. The client
+refuses to send an empty draft. It could not be reproduced from the transcript
+alone and is left as a report rather than a claim.
+
+**And persona patience was a field nobody read.** `planRun` computed a
+patience per beat with the persona's delta and stored it on the plan;
+`replay` started every run from `scene.beats` and never read it, so the brisk
+persona had never been one try shorter and the patient one never one longer.
+Found while reading why the beat in the screenshot held for six turns, which
+it does not explain either. The draw carries the figures now (`StoredDraw.patience`),
+`startScene` takes them and `moveOn` reads them off the state (`SceneState.tries`,
+`patienceAt`), and a row written before the field keeps the scene's own, since a
+conversation in flight may not get brisker under the learner having it.
+
+## §70 One reply per turn, and the person behind the counter keeps the conversation moving
+
+The learner who sent §69's transcript asked for the thing underneath it: no
+right or wrong, the conversation has to advance and flow, and when either side
+deviates the whole thing adapts and keeps going. Read against the composed
+transcripts on `gemini-3.8-flash`, which the scene chain runs, the model's own
+lines were already that (`Väga hea, pilet randa. Millal te soovite sõita?`)
+and the machinery around them was not. Every question the learner asked went
+to a second call, an "aside", which came back `Ei tea.` because the model was
+told only that a question had been asked; and on those turns the move itself
+was never composed, so a bank line followed the shrug. A learner curious enough
+to ask "and where then?" got a machine three times in one conversation.
+
+**One reply per turn.** The composed move carries the whole reaction: the
+question answered inside it, the word handed over inside it, the beat let go
+inside it. `composeNote` tells the model what was asked, what the scene says
+the answer is (`BeatSpec.answer` with the card's values filled in), which word
+it was waiting for, and that it is letting the beat go; `ComposeAsk.agenda`
+and `settled` give it the shape of the conversation, what is still to come and
+what has been given, so it can take an answer given early and bring a wandering
+turn back. The keyless reactions stand down where a line composed and stand
+exactly as they were where nothing did (`replyFor`'s `composed`): the shrug,
+the repair phrase, the offered word, the narrowed choice and the app's own
+hint. A turn nobody could read composes too, since the note for it had existed
+since the miss started composing. The aside ladder is the keyless net and the
+shrug is what a landed question gets only where nothing composed and no fact
+answered.
+
+**The model was switching sides, and the prompt was why.** Three turns out
+of seven in one run had the ticket seller speaking as the customer: `Ma soovin
+sõita randa, palun`, `Kas ma maksan kaardiga?`, and in the stairwell `minu
+kodumaa on Läti`, which is the learner's card. The role card and every fact
+on it are written to the learner ("You need a bus ticket. Your card says where
+to"), and the prompt handed them over under "what you know". The first fix
+made it worse: `settled` was built from the learner's goals, "Tell them you
+would like a ticket", which is exactly the line §32 warned a model reads as its
+own. The card is quoted as theirs now, with the pronoun explained and the rule
+said in the plainest words there are; `settled` and `agenda` are the beats'
+own stage directions, asserted never to be goals; and the other side's facts
+are marked as the ones it knows and the learner does not. After it, the health
+centre run is in character for the whole of the conversation and offers the
+time off the card.
+
+**Three checks were refusing correct lines.** Gemini wrote `Hästi, buss
+sõidab jaama kell kaks. See pilet maksab nüüd kaks eurot.` three ways and the
+gate refused all three on `government`: Ekilex records `sõitma` as "kuhu
+(direction) · millega", the parser names a case for the second and none for
+the first, so the verb was held to the comitative alone; and the check read
+only the first governed verb the table listed, which was `maksma`. A
+government naming a place question now governs the cases that answer it, read
+off `CASES.asksWhere` rather than typed, and the check reads every governed
+verb in the line and passes where any is satisfied, which is the same weak
+claim made honestly. And `shape` wanted an `ask` to *end* on the question
+mark, refusing `Mis kell te sõidate? Buss läheb kell kaksteist.`, which is a
+person asking and then volunteering; an ask holds a question now and need not
+end on it.
+
+**And "sorry, what?" gets the line again.** `vabandust, mida?` on a beat that
+takes anything met the beat, left a question word over, and was answered `Ei
+tea.`: §39's fault through the one door it had not been closed on. A turn made
+of nothing but question words and the course's own "sorry" is asking to hear
+the line again (`asksToHearAgain`), and gets it, or a composed line that says
+it in its own words. The `english` curveball is said in English and never
+composed, since composed it came back as `Kas te räägite inglise keelt?`,
+which is the other side asking rather than switching.
+
+Measured on the reported transcript, composed on `gemini-3.8-flash`, after all
+of it (`npm run replay:scene -- --compose`):
+
+```
+THEM: Palun, mida te osta soovite?
+YOU:  Ma tahan pilet
+THEM: Pileti saab ikka. Kuhu te sõita soovite?
+YOU:  Ma lähen peatusse
+THEM: Mis linna või peatusesse te sõita soovite?
+YOU:  Vabandust, ma lähen jaama
+THEM: Hästi, pilet jaama. Mis kell te minna soovite?
+YOU:  Kell 14.00
+THEM: Hästi, buss jaama läheb kell 14.00. See pilet maksab nüüd kaks eurot.
+YOU:  Kui palju?
+THEM: See maksab kaks eurot. Kas te maksate kaardiga või sularahas?
+YOU:  Mis hind on?
+THEM: Hind on kaks eurot. Kas maksate selle eest kaardiga või sularahas?
+```
+
+Every line composed, every one about the person in front of it, and the price
+announced, answered and answered again. `npm run play:scenes -- --compose` on
+the bus scene as a curious learner, the health centre as a sloppy one and the
+stairwell as a lost one on a bad day read the same way; the harnesses share
+one model call with the route's own prompt (`askLine`) and mirror the route's
+decisions about when the courtesy rung stands down, so a transcript printed
+here is the app's.
+
+What this does not do is let the learner change the facts on their card: a
+destination the card did not deal is still off the point, because the card is
+the role and the marker decides against it. What the model does with such a
+turn is answer it as a person and steer back, which is the flow that was asked
+for; what it may never do is decide the beat was met (ADR-025, unchanged).

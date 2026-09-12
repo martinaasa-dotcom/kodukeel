@@ -27,6 +27,7 @@ export function practises(scene: SceneSpec): string[] {
         if (prop?.kind === "time") add("the time");
         else if (prop?.kind === "weekday") add("a day of the week");
         else if (prop?.kind === "number") add("a number");
+        else if (prop?.kind === "price") add("a price");
         else if (prop?.kind === "word") add("a word off your card");
       } else if (need.kind === "question") {
         add("asking a question");

@@ -294,7 +294,7 @@ export interface LineRequest {
    * an ordinary case rather than an error: a keyless deployment runs this module
    * with the attested rungs alone.
    */
-  readonly compose?: (avoid: readonly string[]) => Promise<string | null>;
+  readonly compose?: (avoid: readonly string[], because?: string) => Promise<string | null>;
   /**
    * Whether this run speaks its model-written lines live or out of the bank.
    *
@@ -435,7 +435,8 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
     const attempts: (string | null)[] = [];
     const verdicts: (Verdict | null)[] = [];
     for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
-      const line = await request.compose(retryNote(verdicts.at(-1) ?? null));
+      const last = verdicts.at(-1) ?? null;
+      const line = await request.compose(retryNote(last), whyWithheld(last));
       const verdict = await judge(line);
       attempts.push(line);
       verdicts.push(verdict);
@@ -473,6 +474,35 @@ function retryNote(verdict: Verdict | null): readonly string[] {
   if (!verdict) return [];
   if (verdict.unknown.length > 0) return verdict.unknown;
   return verdict.failed.includes("stretch") ? verdict.stretched : [];
+}
+
+/**
+ * WHY THE LAST LINE WAS WITHHELD, IN ENGLISH, FOR THE RETRY.
+ *
+ * `retryNote` names words, and a line withheld for anything but its words
+ * got a retry told nothing: a model that had stated a price the card did not
+ * deal wrote the same price again, three times, and the run fell to the bank
+ * with the learner none the wiser. A retry is a model reasoning from a
+ * concrete failure it was told about, which is the whole argument for three
+ * attempts, so the failure has to be said. One clause per check, about the
+ * line and never about Estonian this file does not hold.
+ */
+export function whyWithheld(verdict: Verdict | null): string | undefined {
+  if (!verdict) return undefined;
+  const reasons: Partial<Record<Check, string>> = {
+    facts: "it stated a number or a time that is not among the facts you were given; you may only ever say those",
+    giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
+    topic: "it was not about what you are doing at this moment, or about what they just said",
+    shape: "it was the wrong shape: an ask ends in a question, an instruction or an answer does not, and it has to be punctuated, unformatted and at most forty words",
+    agreement: "its subject and its verb did not agree in person",
+    infinitive: "it put the ma-infinitive where the da-infinitive belongs",
+    negation: "a verb after the negator kept its personal ending",
+    register: "it addressed them with the pronoun this conversation does not use",
+    clause: "it had no finite verb, so it was not a sentence",
+    government: "a noun was in a case the verb beside it does not take",
+  };
+  const said = verdict.failed.flatMap((check) => (reasons[check] ? [reasons[check]!] : []));
+  return said.length > 0 ? said.join("; ") : undefined;
 }
 
 /**

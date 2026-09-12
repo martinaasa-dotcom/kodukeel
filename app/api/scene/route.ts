@@ -18,15 +18,16 @@ import type { Requirement } from "@/lib/scenes/types";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine,
+  cardAfterHurdles, cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsAsideFor,
+  wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
-import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
-import { gateFor, passes, runGate } from "@/lib/scenes/gate";
+import { gateFor } from "@/lib/scenes/gate";
 import { words } from "@/lib/scenes/lexicon";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "@/lib/scenes/state";
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
@@ -268,7 +269,13 @@ export async function POST(request: Request) {
     off the card, so a time read back later is the one that was accepted.
   */
   const speaking = response === "counter" && current?.counter ? counterBeat(current) : current;
-  const card = cardInPlay(draw?.card ?? null, scene.beats, state.countered);
+  /*
+    The card as the other side knows it now: a counter-offer's second values
+    stood in for the first, and a curveball's changed fact stood in for the
+    one the learner was told, so "how much?" after the price curveball is
+    answered with the price the other side actually has (`cardAfterHurdles`).
+  */
+  const card = cardAfterHurdles(cardInPlay(draw?.card ?? null, scene.beats, state.countered), state);
   const last = state.turns[state.turns.length - 1] ?? null;
   /*
     THE BEAT JUST ANSWERED IS OFTEN A HURDLE, AND `scene.beats` HAS NEVER
@@ -316,22 +323,83 @@ export async function POST(request: Request) {
     learner has not answered yet, the human move is to ask again, which is
     what `narrow` already does.
   */
+  /*
+    AND A REAL QUESTION ON A TURN THAT MISSED IS STILL A QUESTION. That
+    reasoning is right about "sorry, what?" and wrong about "what is the price
+    now?", which a learner asked after being told it had changed, on a beat
+    that wanted how they were paying, and read `Vabandust!` and the same
+    question again for. On a miss, a fact off the card answers it before the
+    question is put again (`wantsAsideFor`, `AsideInput.missed`); the model's
+    own line answers it where one composes, since the note tells it to; and
+    the shrug is never said at somebody who missed, since "I don't know" to
+    "sorry, what?" is the fault the paragraph above describes.
+  */
   const askedNow = last?.asked ?? null;
-  const wantsAside = Boolean(askedNow) && (response === "answer" || response === "counter");
+  const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
+  const wantsAside = wantsAsideFor(askedNow, turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0);
   const fresh = (id: string | undefined) =>
     (id ? context.scripted.get(id) ?? [] : []).filter((text) => !used.has(text));
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
+    said: last?.said ?? "",
     answered,
     card,
     lexicon: context.lexicon,
     more: fresh(answered?.id),
     answers: answered ? fresh(answerBeatId(answered)) : [],
+    missed: !landedNow,
   };
   let aside = wantsAside ? asideFor(asking) : null;
-  /* Whether the model, if any, is asked for the aside rather than for the move. */
-  const asideWantsModel = wantsAside && aside === null && asideOwed(asking);
+  /*
+    ONE REPLY PER TURN, AND THE QUESTION IS ANSWERED INSIDE IT. A question the
+    bank and the card could not answer used to book the turn's one call for
+    an aside, and the move itself then came out of the bank: a learner who
+    asked anything got `Ei tea.` from a model told only that a question had
+    been asked, and a scripted question after it. The composed move now
+    carries the answer (`composeNote` tells it what was asked and what the
+    scene says the answer is), so the aside here is the keyless rungs only,
+    and the shrug is what a landed turn gets where nothing composed and no
+    fact answered.
+  */
+  /*
+    AND "SORRY, WHAT?" IS ANSWERED WITH THE LINE AGAIN, NEVER WITH A SHRUG.
+    On a beat that takes anything the turn lands, the question word is left
+    over, and nothing on the card or in the bank answers "what?": the honest
+    answer is what was just said, said once more, and a composed line says it
+    in its own words.
+  */
+  const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
+  if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" };
+  const shrugOwed = wantsAside && landedNow && aside === null && asideOwed(asking) && !hearAgain;
+
+  /*
+    WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
+    learner's and the other side's, in English, off the same labels the
+    briefing prints. Without it a model told "they ask what time" could not
+    react to the time on the card, and one asked the price could only invent
+    a number the gate withholds. The card is the one in play, so a changed
+    price is the new price.
+  */
+  const facts = (card?.props ?? []).map((prop) => {
+    const value = prop.english ?? prop.shown[0] ?? prop.value;
+    const label = prop.card.replace(/\.$/, "");
+    return `${label}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
+  });
+  /*
+    AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
+    holds a composed line to the beat's own words, which is right for a line
+    that asks and wrong for one that first answers: a learner who asked the
+    price and was answered about the price, then asked how they were paying,
+    has been answered on both, and a check that sees only `kaart` and `raha`
+    withholds the half that answered them. So on a turn that asked something
+    or missed, the words the dictionary vouched in the learner's own turn are
+    on topic too.
+  */
+  const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
+  const theirs = deviated
+    ? words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word))
+    : [];
 
   /*
     WHERE THE CONVERSATION IS, AND EVERY BRANCH RETURNS IT. Three of the four
@@ -548,14 +616,47 @@ export async function POST(request: Request) {
     waiting, so no line is built and the screen prints what they are doing.
   */
   if (!spokenFor || (spokenFor.awaits && !standing)) {
-    if (asideWantsModel) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
   if (!wantsFreshLine(turns.length > 0 ? response : null, heard, progress.reading)) {
-    if (asideWantsModel) aside = shrug(context.lexicon);
+    if (shrugOwed) aside = shrug(context.lexicon);
+    return answer(reply(null));
+  }
+  /*
+    A CURVEBALL SAID IN ENGLISH IS SAID IN ENGLISH. "They switch to English"
+    carries its own line (`said`) and no Estonian is wanted for it; composed,
+    it came back as `Kas te räägite inglise keelt?`, which is the other side
+    asking rather than switching, and the whole point is that they switched.
+  */
+  if (standing && hurdleSpec(state)?.said) {
+    if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(null));
   }
   const beat = spokenFor;
+
+  /*
+    THE PERSON'S OWN AGENDA, FOR THE MODEL: what they still need from the
+    learner, in order, and what has already been given, both in English off
+    the beats' own stage directions and goals. A model that can see the shape
+    of the conversation can take an answer given early and bring a wandering
+    one back, which a model handed one move could not.
+  */
+  const agenda = scene.beats
+    .slice(state.beat)
+    .filter((b) => !state.done.includes(b.id))
+    .map((b) => stageFor(b, card));
+  const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
+  /*
+    And what the scene says the answer to the learner's question is, where it
+    anticipated one: the beat's own `answer`, with the card's values filled
+    in, which is what the bank was drafted against.
+  */
+  const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, card) : null;
+  /* The word the beat was waiting for, where the other side is letting it go or was asked for help. */
+  const handing = (response === "help" || response === "moveOn") && answered
+    ? offerFor(answered, card, context.marker.questionWords, last?.met ?? [])
+    : null;
 
   /*
     THE CONVERSATION SO FAR, BOTH SIDES, RATHER THAN THE LEARNER'S LAST TWO
@@ -642,7 +743,7 @@ export async function POST(request: Request) {
     gate: gateFor(beat.id, {
       ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
     }),
-    topic: context.topic.get(beat.id) ?? new Set<string>(),
+    topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
     scripted: context.scripted.get(beat.id) ?? [],
@@ -679,89 +780,6 @@ export async function POST(request: Request) {
   const move = cheap.provenance !== "fallback" ? cheap : dealt ?? cheap;
 
   /*
-    THE TURN'S ONE BOOKING GOES TO THE QUESTION WHERE THERE IS ONE. A learner
-    who asked something is owed an answer more than a fresh phrasing of the
-    next move, which the bank usually has anyway. The model is asked for one
-    line answering what they asked, inside the list, and the gate reads it as
-    a `confirm` (a question or a statement, either); what it withholds, the
-    other side answers with "ei tea", which is at least true.
-  */
-  if (asideWantsModel) {
-    /*
-      Asked whether anything could answer before booking, then rebuilt once the
-      ledger has said whether the last resort is still affordable today. Two
-      reads of a pure function rather than one, because the first has to include
-      the fallback (a deployment with only an Anthropic key can still compose)
-      and the second has to reflect what the budget allows.
-    */
-    const configured = sceneProviders().length > 0;
-    const decision = configured ? await authoriseCall(ownerId, "SCENE") : null;
-    if (!decision?.allowed || !decision.reservation) {
-      aside = shrug(context.lexicon);
-      return answer(reply(move), { composed: false, note: decision?.message ?? null });
-    }
-    const chain = sceneProviders({ allowFallback: decision.fallbackAllowed });
-    const asking: typeof beat = { ...beat, id: `aside:${beat.id}`, move: "confirm", topic: [] };
-    const drafted = await compose(chain, {
-      ownerId,
-      reading: last?.said ? await readingOf(last.said) : "",
-      // The booking this turn already made, so the settlement is a settlement
-      // rather than a second `CALL` at the full estimate. Required rather than
-      // optional for exactly this: a call site that has not thought about it
-      // does not compile, and this one arrived on a merge.
-      /*
-        Who they are and where this is happening (`ComposeAsk`). Every line of
-        it is on the learner's own briefing screen: a character told none of it
-        is answering a beat rather than playing a part.
-      */
-      scene: scene.title,
-      place: scene.place,
-      persona: persona?.who ?? "",
-      situation: scene.role,
-      reservation: decision.reservation,
-      move: "answer",
-      /*
-        WHAT THEY ARE ANSWERING WITH, WHERE THE BEAT KNOWS.
-
-        This said only that a question had been asked and was to be answered
-        briefly, which is a shape and not a subject: a model handed that knows
-        nothing about what the answer *is*, and writes a line agreeing with
-        itself. It is right for a question the scene did not anticipate, which
-        is what this rung was written for and where nobody knows the answer
-        either. It is wrong on a beat whose whole goal is "ask about the pay",
-        where the scene wrote down what they say when asked (`answer`) and the
-        bank had simply run out of rows for it. The same field the drafter is
-        handed, so a live answer and a banked one are about the same thing.
-      */
-      they: answered?.answer
-        ?? "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
-      register: scene.register,
-      words: [...context.lexicon.byLemma.keys()],
-      examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
-      /*
-        An aside is a question the scene did not anticipate, so there is no
-        beat whose banked line says what to ask for: the model is answering
-        rather than asking, and has nothing to be steered onto.
-      */
-      asked: [],
-      conversation,
-      avoid: [],
-    });
-    const verdict = drafted
-      ? runGate(drafted, asking, {
-        ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
-      })
-      : null;
-    if (drafted && verdict && passes(verdict)) {
-      aside = { text: drafted, provenance: "composed" };
-    } else {
-      after(() => releaseReservation(decision.reservation!));
-      aside = shrug(context.lexicon);
-    }
-    return answer(reply(move));
-  }
-
-  /*
     A COURTESY IS THE LINE, AND A MODEL ONLY PARAPHRASES IT INTO SOMETHING
     NOBODY SAYS.
 
@@ -773,7 +791,14 @@ export async function POST(request: Request) {
     that makes a scene this scene, the model is asked. See `sceneLine` for the
     rest of the argument.
   */
-  if (cheap.provenance === "attested") return answer(reply(cheap));
+  /*
+    AND NOT WHERE THE TURN NEEDS ANSWERING. A learner who asked something on
+    the way out, or was being handed the word they could not find, was
+    answered `Ei tea. Head aega!` because the farewell is a courtesy and the
+    courtesy rung stands above the model. The model is asked then, told what
+    was asked and what to hand over, and the courtesy is still the net.
+  */
+  if (cheap.provenance === "attested" && !shrugOwed && !handing && !askedNow) return answer(reply(cheap));
 
   /*
     THE BOOKING IS PER TURN, because a call is what the ledger counts. Booking
@@ -800,6 +825,7 @@ export async function POST(request: Request) {
       time used to be answered with the repair phrase where a perfectly good
       line was sitting one variable away.
     */
+    if (shrugOwed) aside = shrug(context.lexicon);
     return answer(reply(move), { composed: false, note: decision?.message ?? null });
   }
   /*
@@ -832,9 +858,11 @@ export async function POST(request: Request) {
       what this answers, off the course and the forms list.
     */
     vouch: (spellings) => sceneVouch(context, spellings),
-    compose: (avoid) => compose(chain, {
+    compose: (avoid, because) => compose(chain, {
       ownerId,
       reading: learnerReading,
+      facts,
+      because,
       // The booking this turn was authorised under, so the settlement corrects
       // it rather than being written down as a second call. See `compose`.
       /*
@@ -870,6 +898,8 @@ export async function POST(request: Request) {
         holds the same beat asked properly by somebody who read it.
       */
       asked: (context.scripted.get(beat.id) ?? []).slice(0, 2),
+      agenda,
+      settled,
       /*
         AND WHAT HAPPENED TO THEIR TURN, WHICH IS WHY A MISS IS WORTH A CALL AT
         ALL. Without it a model asked to compose after a miss writes the
@@ -878,7 +908,10 @@ export async function POST(request: Request) {
         wording, so the route and `npm run play:scenes` tell the model the same
         thing about the same turn.
       */
-      note: composeNote(turns.length > 0 ? response : null, progress.reading, elsewhere > 0),
+      note: composeNote(
+        turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
+        { offer: handing, answer: anticipated },
+      ),
       conversation,
       avoid,
     }),
@@ -892,6 +925,7 @@ export async function POST(request: Request) {
     an ordinary one here rather than an error.
   */
   if (line.provenance !== "composed") {
+    if (shrugOwed) aside = shrug(context.lexicon);
     after(() => releaseReservation(reservation));
     /*
       AND THE NET CATCHES IT. The model was asked, and it did not answer or the
@@ -921,6 +955,12 @@ export async function POST(request: Request) {
     after(() => growDictionary(ownerId, line.stretched!));
   }
 
+  /*
+    The composed line answered what was asked, so a fact off the card or a
+    banked answer in front of it would be the same thing said twice, and the
+    shrug would contradict it.
+  */
+  aside = null;
   return answer(reply(line), { composed: true });
 }
 
@@ -978,8 +1018,15 @@ async function compose(
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
+    /** What this person knows off the cards, in English (`ComposeAsk.facts`). */
+    facts: readonly string[];
+    /** Why the last attempt was withheld, where it was not its words (`whyWithheld`). */
+    because?: string;
     /** What this character has asked for at this very beat before, from the bank. */
     asked: readonly string[];
+    /** What they still need, in order, and what is already settled (`ComposeAsk`). */
+    agenda?: readonly string[];
+    settled?: readonly string[];
     /** The run so far, both sides, alternating. Empty on the opening line. */
     conversation: readonly ChatMessage[];
     avoid: readonly string[];

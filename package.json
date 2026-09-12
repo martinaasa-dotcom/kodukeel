@@ -50,6 +50,7 @@
     "measure:scenes": "tsx scripts/measure-scenes.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
+    "replay:scene": "tsx scripts/replay-transcript.ts",
     "probe:turns": "tsx scripts/probe-turns.ts",
     "eval:scene": "tsx scripts/eval-scene.ts",
     "eval:composers": "tsx scripts/eval-composers.ts",

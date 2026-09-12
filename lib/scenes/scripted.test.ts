@@ -19,7 +19,13 @@ describe("a beat's banked lines are its subject", () => {
     */
     const topic = bankTopic(scene, bill);
     for (const word of ["kõik", "veel", "midagi"]) expect(topic.has(word), word).toBe(true);
-    for (const word of ["kas", "see", "te", "on"]) expect(topic.has(word), word).toBe(false);
+    /*
+      `see` was in this list, and it stopped being furniture the day the price
+      curveball's banked rows went (§69): "See maksab nüüd rohkem." was where
+      the café's other beats said it. Counting rather than listing is the rule,
+      so what the count says is what the test asserts.
+    */
+    for (const word of ["kas", "te", "on"]) expect(topic.has(word), word).toBe(false);
     expect(SHARED_BEATS).toBeLessThan(scene.beats.length - 1);
   });
 
