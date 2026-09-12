@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { parseExamples, teachingSentence } from "@/lib/dict/examples";
+import { BLANK } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
@@ -167,6 +168,21 @@ async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<Review
   });
 }
 
+/**
+ * The stored English translation of a CLOZE card's own sentence, or null.
+ *
+ * A `CLOZE` card's front and back are the sentence with the answer taken out
+ * (`BLANK`), reconstructed by putting it back, and matched against the
+ * lexeme's own examples by exact spelling: the same sentence, if Ekilex or a
+ * learner's own request already put an English line on it.
+ */
+function clozeSentenceEn(c: CardRow): string | null {
+  if (c.cardType !== "CLOZE" || !c.lexeme) return null;
+  const whole = c.front.replace(BLANK, c.back);
+  const example = parseExamples(c.lexeme.examples).find((e) => e.et === whole);
+  return example?.en ?? null;
+}
+
 function toReviewCard(c: CardRow, glossLanguage: GlossLanguage): ReviewCard {
   return {
     id: c.id,
@@ -189,6 +205,8 @@ function toReviewCard(c: CardRow, glossLanguage: GlossLanguage): ReviewCard {
     // Only on a card that has never been seen. Every other card in the session
     // would carry a sentence nothing renders.
     intro: c.state === 0 ? introFor(c, glossLanguage) : null,
+    sentenceEn: clozeSentenceEn(c),
+    canTranslate: resolveProvider() !== null,
     choices: null,
     scheduling: {
       due: c.due.toISOString(),

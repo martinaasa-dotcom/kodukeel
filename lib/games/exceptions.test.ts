@@ -36,7 +36,7 @@ const tubaIndex = { tuppa: ["ILLATIVE"], toa: ["GENITIVE"], tuba: ["NOMINATIVE",
 const word = (over: Partial<ExceptionWord> = {}): ExceptionWord => ({
   lexemeId: "lex-1", lemma: "tuba", translation: "room", pos: "NOUN",
   exception: illative, cardId: "card-1", index: tubaIndex, forms: tubaForms, sentences: [],
-  starred: false,
+  starred: false, canTranslate: false,
   ...over,
 });
 
@@ -46,7 +46,7 @@ describe("tasksFor", () => {
   });
 
   it("adds the sentence rung where a lexicographer wrote one with the form in it", () => {
-    const tasks = tasksFor(word({ sentences: ["Ma lähen tuppa ja panen ukse kinni."] }));
+    const tasks = tasksFor(word({ sentences: [{ et: "Ma lähen tuppa ja panen ukse kinni.", en: null }] }));
     expect(tasks.map((t) => t.rung)).toEqual(["meet", "produce", "use"]);
     const use = tasks[2]!;
     expect(use.gapped).toContain("____");
@@ -60,7 +60,7 @@ describe("tasksFor", () => {
     learner right for a sentence they did not reconstruct.
   */
   it("asks the sentence for the spelling the sentence carries", () => {
-    const tasks = tasksFor(word({ sentences: ["Ma lähen tuppa ja panen ukse kinni."] }));
+    const tasks = tasksFor(word({ sentences: [{ et: "Ma lähen tuppa ja panen ukse kinni.", en: null }] }));
     expect(tasks[2]!.accepted).toEqual(["tuppa"]);
     expect(tasks[1]!.accepted).toEqual(["tuppa"]);
   });
@@ -71,7 +71,7 @@ describe("tasksFor", () => {
     then file the answer under the illative.
   */
   it("refuses a sentence that does not hold the form", () => {
-    const tasks = tasksFor(word({ sentences: ["Ma olen toas."] }));
+    const tasks = tasksFor(word({ sentences: [{ et: "Ma olen toas.", en: null }] }));
     expect(tasks.map((t) => t.rung)).toEqual(["meet", "produce"]);
   });
 
@@ -82,7 +82,7 @@ describe("tasksFor", () => {
   */
   it("hides only what gapForms allows", () => {
     const tasks = tasksFor(word({
-      forms: [], sentences: ["Ma lähen tuppa ja panen ukse kinni."],
+      forms: [], sentences: [{ et: "Ma lähen tuppa ja panen ukse kinni.", en: null }],
     }));
     expect(tasks.map((t) => t.rung)).toEqual(["meet", "produce"]);
   });
@@ -96,14 +96,14 @@ describe("tasksFor", () => {
   it("refuses a gap the sentence cannot name on its own", () => {
     const ambiguous = tasksFor(word({
       exception: { ...illative, forms: ["tuba"] },
-      sentences: ["Ma näen seda tuba igal hommikul."],
+      sentences: [{ et: "Ma näen seda tuba igal hommikul.", en: null }],
     }));
     expect(ambiguous.map((t) => t.rung)).not.toContain("use");
   });
 
   it("refuses a gap when nothing was indexed, rather than guessing", () => {
     const tasks = tasksFor(word({
-      index: {}, sentences: ["Ma lähen tuppa ja panen ukse kinni."],
+      index: {}, sentences: [{ et: "Ma lähen tuppa ja panen ukse kinni.", en: null }],
     }));
     expect(tasks.map((t) => t.rung)).toEqual(["meet", "produce"]);
   });
@@ -128,7 +128,7 @@ describe("tasksFor", () => {
 
 describe("exceptionRound", () => {
   const words = [
-    word({ lexemeId: "a", lemma: "tuba", sentences: ["Ma lähen tuppa ja panen ukse kinni."] }),
+    word({ lexemeId: "a", lemma: "tuba", sentences: [{ et: "Ma lähen tuppa ja panen ukse kinni.", en: null }] }),
     word({ lexemeId: "b", lemma: "aeg", exception: stem }),
   ];
 

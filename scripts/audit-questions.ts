@@ -489,9 +489,9 @@ for (const e of entries) {
       lexemeId: e.lemma, lemma: e.lemma, translation: e.translation, pos: e.pos,
       // The word's own index, because the gap rung refuses a spelling more
       // than one slot claims and an empty index would quietly drop the rung.
-      exception, cardId: null, starred: false,
+      exception, cardId: null, starred: false, canTranslate: false,
       index: formIndex({ lemma: e.lemma, pos: e.pos, forms }), forms,
-      sentences: (e.examples ?? []).map((x) => x.et),
+      sentences: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
     };
     if (!drillable(word)) continue;
     for (const task of tasksFor(word)) {

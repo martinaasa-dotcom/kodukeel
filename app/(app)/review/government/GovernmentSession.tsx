@@ -9,6 +9,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { CASES } from "@/lib/estonian/cases";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import type { CaseKey } from "@/lib/estonian/types";
@@ -27,8 +28,16 @@ export interface GovernmentQuestion {
   /** The other cases this word governs, kept out of the options and named after. */
   alsoGoverned: CaseKey[];
   example: string | null;
+  /** That sentence's own stored English, where the sentence can carry one. */
+  exampleEn: string | null;
+  /** Whether the sentence is one of the lexeme's own examples, so it may be
+   *  translated and kept there, rather than a fixed string the government
+   *  column carries with nowhere to store a translation. */
+  exampleTranslatable: boolean;
   maskedExample: string | null;
   gloss: string | null;
+  /** Whether this deployment has a model that could translate the sentence. */
+  canTranslate: boolean;
   experiencer: boolean;
   inDeck: boolean;
   /** Whether this word is already one of the learner's favorites. */
@@ -244,6 +253,15 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                 </p>
                 <Speak text={question.example} />
               </div>
+            )}
+            {question.example && question.exampleTranslatable && (
+              <SentenceTranslation
+                key={question.example}
+                lexemeId={question.lexemeId}
+                et={question.example}
+                en={question.exampleEn}
+                canTranslate={question.canTranslate}
+              />
             )}
             {question.gloss && (
               <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-2)" }}>{question.gloss}</p>

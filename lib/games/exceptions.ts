@@ -68,9 +68,11 @@ export interface ExceptionWord {
    */
   readonly forms: readonly { formType: string; value: string; morphCode?: string | null }[];
   /** Sentences a lexicographer wrote that hold the wanted form. */
-  readonly sentences: readonly string[];
+  readonly sentences: readonly { et: string; en: string | null }[];
   /** Whether the learner has favourited this word. See `ExceptionTask`. */
   readonly starred: boolean;
+  /** Whether this deployment has a model that could translate a sentence. */
+  readonly canTranslate: boolean;
 }
 
 export interface ExceptionTask {
@@ -122,10 +124,16 @@ export interface ExceptionTask {
   /** The other form that is also right, where there genuinely is one. */
   readonly alsoRight: string | null;
   readonly index: Readonly<Record<string, readonly string[]>>;
+  /** Whether this deployment has a model that could translate the sentence. */
+  readonly canTranslate: boolean;
   /** The sentence with the form taken out. `use` only. */
   readonly gapped: string | null;
   /** The spelling that sentence carries, which is what the gap wants. */
   readonly gapForm: string | null;
+  /** The whole sentence behind `gapped`, once the answer is put back. `use` only. */
+  readonly sentence: string | null;
+  /** That sentence's stored English translation, when there is one. */
+  readonly sentenceEn: string | null;
 }
 
 /**
@@ -207,20 +215,24 @@ export function tasksFor(word: ExceptionWord): ExceptionTask[] {
     note: ex.note,
     alsoRight: ex.ruleFormIsAlsoRight ? ex.ruleForm : null,
     index: word.index,
+    canTranslate: word.canTranslate,
   };
   const key = `${word.lexemeId}:${ex.kind}`;
 
   const out: ExceptionTask[] = [
-    { ...base, id: `${key}:meet`, rung: "meet", gapped: null, gapForm: null },
+    { ...base, id: `${key}:meet`, rung: "meet", gapped: null, gapForm: null, sentence: null, sentenceEn: null },
   ];
 
   // Nothing to type where the dictionary holds no form, which is the word with
   // no plural: there is a fact to meet and no answer to produce.
   if (ex.forms.length > 0) {
-    out.push({ ...base, id: `${key}:produce`, rung: "produce", gapped: null, gapForm: null });
+    out.push({
+      ...base, id: `${key}:produce`, rung: "produce", gapped: null, gapForm: null,
+      sentence: null, sentenceEn: null,
+    });
 
     for (const sentence of word.sentences) {
-      const cloze = buildCloze(sentence, wanted(word));
+      const cloze = buildCloze(sentence.et, wanted(word));
       if (!cloze) continue;
       /*
         THE SENTENCE HAS TO NAME THE FORM ON ITS OWN.
@@ -255,6 +267,7 @@ export function tasksFor(word: ExceptionWord): ExceptionTask[] {
       out.push({
         ...base, id: `${key}:use`, rung: "use", translation: meaning,
         gapped: cloze.text, gapForm: cloze.answer,
+        sentence: sentence.et, sentenceEn: sentence.en,
         // The gap wants the spelling the sentence actually carries, which for
         // the illative is whichever of the two the writer chose.
         accepted: [cloze.answer],

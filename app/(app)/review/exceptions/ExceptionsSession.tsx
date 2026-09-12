@@ -12,6 +12,7 @@ import { useOffline } from "@/components/OfflineProvider";
 import { enqueueGrade } from "@/lib/offline/db";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { markForm, type FlashMark } from "@/lib/games/flash";
 import { departureLine, rungLine, type ExceptionTask } from "@/lib/games/exceptions";
 import { grammarTopic } from "@/lib/estonian/grammar";
@@ -445,6 +446,21 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
           {task.label}
         </p>
       </div>
+
+      {task.rung === "use" && task.sentence && (
+        <div className="mt-4">
+          <p lang="et" className="text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
+            {task.sentence}
+          </p>
+          <SentenceTranslation
+            key={task.sentence}
+            lexemeId={task.lexemeId}
+            et={task.sentence}
+            en={task.sentenceEn}
+            canTranslate={task.canTranslate}
+          />
+        </div>
+      )}
 
       <p className="mt-4 text-[13.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {departureLine(task)}

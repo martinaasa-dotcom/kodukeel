@@ -6,6 +6,7 @@ import { dictationWords } from "@/lib/estonian/dictation";
 import { starredAmong } from "@/lib/progress/stars";
 import { DictationSession, type DictationTask } from "./DictationSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { resolveProvider } from "@/lib/tutor/provider";
 
 export const metadata = { title: "Dictation" };
 
@@ -32,6 +33,7 @@ const MAX_CHARS = 80;
  */
 export default async function DictationPage() {
   const ownerId = await requireUserId();
+  const canTranslate = resolveProvider() !== null;
 
   const cards = await prisma.card.findMany({
     /*
@@ -104,6 +106,7 @@ export default async function DictationPage() {
         lemma: entry.lemma,
         et: example.et,
         en: example.en ?? null,
+        canTranslate,
       });
       break; // one sentence per word keeps a round varied
     }
