@@ -33,7 +33,7 @@
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import {
-  acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+  MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
@@ -241,7 +241,17 @@ async function play(sceneId: string) {
   const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
   const used = new Set<string>();
   let heard = "";
-  for (let n = 0; n < 24; n++) {
+  /*
+    THE ROUTE'S OWN CEILING, NOT A SHORTER ONE INVENTED FOR THIS SCRIPT. It was
+    24, and a sweep of every scene under the harshest built-in settings (`bad`
+    difficulty, `lost` style) found ametiasutus never finishing in eleven runs
+    out of eleven, reading as a scene that hangs. It does not: at `MAX_TURNS`
+    it resolves in eighteen, well inside the room the route actually gives it,
+    because the base beats plus the curveballs `bad` can stack onto it plus a
+    persona that never once cooperates add up to more than 24 exchanges. A cap
+    shorter than the app's own reports a bug that is the harness's.
+  */
+  for (let n = 0; n < MAX_TURNS; n++) {
     /*
       MARKED THE WAY THE ROUTE MARKS IT, OR THIS TOOL IS A SECOND MARKER.
 
