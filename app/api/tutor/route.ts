@@ -11,6 +11,7 @@ import { chatEstonianTokens } from "@/lib/tutor/verify";
 import {
   openWithFallback,
   resolveProviders,
+  TUTOR_REPLY_TOKENS,
   TutorError,
   type ChatMessage,
 } from "@/lib/tutor/provider";
@@ -159,7 +160,7 @@ export async function POST(request: Request) {
         // limit" while none of them has been recorded yet.
         reservation: decision.reservation,
       }));
-    }, live);
+    }, live, TUTOR_REPLY_TOKENS);
   } catch (error) {
     // Nothing was spent and nothing was answered, so the authorization is
     // handed back: a deployment with a bad key must not ration its learners
