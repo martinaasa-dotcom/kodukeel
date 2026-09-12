@@ -23,8 +23,13 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } });
  */
 const app = page.locator("main");
 
-// Floor: measured 11, which was 13 until the homework list and its two checks were cut. It cannot run against a production build at all: `page.waitForFunction` evaluates a string, which the production Content Security Policy refuses.
-const { absent, check, done } = suite("The new modes, driven", { floor: 11 });
+// Floor: measured 10, which was 13 until the homework list and its two checks
+// were cut, and 11 until the writing round's mechanical verdict stopped also
+// asserting an "AI · verify" label that no longer exists (the round marks its
+// own verdict now with nothing left needing a separate flag). It cannot run
+// against a production build at all: `page.waitForFunction` evaluates a
+// string, which the production Content Security Policy refuses.
+const { absent, check, done } = suite("The new modes, driven", { floor: 10 });
 
 /**
  * Wait from Node, by polling, rather than with `page.waitForFunction`.

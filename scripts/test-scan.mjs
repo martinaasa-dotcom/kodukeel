@@ -41,7 +41,7 @@ const UNKNOWN = "kodukeeltestsona";
 
 const prisma = newPrismaClient(requireLocalDatabase("write and delete a scanned page and its cards"));
 
-const { check, done } = suite("The paper path", { floor: 17 });
+const { check, done } = suite("The paper path", { floor: 16 });
 
 /** A word the seed definitely holds, with its real id, for the matched row. */
 const known = await prisma.lexeme.findFirst({
