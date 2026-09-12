@@ -472,18 +472,26 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         // The genitive singular of a word with no singular is another word's,
         // so `jõulud → mille?` wanted `jõulu`. See `caseFits`.
         if (lex.gradation === "NONE" || !genSg || !caseFits("GENITIVE", subject)) break;
+        /*
+          The meaning leads the hint here exactly as it does on every other
+          typeable card, so a learner is not left guessing what `hammas` is
+          while they are asked for its genitive. Only the meaning: the
+          hint may not carry the pattern, since `astmevaheldus mm : mb` over
+          `hammas → kelle? mille?` hands `hamba` straight over and the card
+          stops being a question. The pattern is on the entry, on the grammar
+          page the answer links to, and in the chip beside the word wherever
+          it is printed.
+
+          Same ladder as `CASE_FORM`, `CONJUGATION` and `CLOZE`: the meaning
+          alone, or nothing where the meaning itself spells the answer.
+        */
+        const askedMeaning = [lex.translation];
+        const meaning = askedMeaning.find((line) => !mentions(line, genSg)) ?? null;
         out.push({
           cardType: type,
           front: `${lex.lemma} → ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`,
           back: genSg,
-          /*
-            The hint is shown before the answer, so it may not carry the
-            pattern: `astmevaheldus mm : mb` over `hammas → kelle? mille?`
-            hands `hamba` straight over and the card stops being a question.
-            The pattern is on the entry, on the grammar page the answer links
-            to, and in the chip beside the word wherever it is printed.
-          */
-          hint: "astmevaheldus · consonant gradation",
+          hint: meaning ? `${meaning} · astmevaheldus` : "astmevaheldus · consonant gradation",
           targetCase: "GENITIVE",
           slot: null,
         });
