@@ -73,6 +73,15 @@ import { wordGlossFrom } from "@/lib/ux/wordGloss";
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/*
+  A TURN CAN NOW ASK A MODEL UP TO MAX_COMPOSE_ATTEMPTS TIMES (`sceneLine`),
+  which went from two to three so a learner reading a run of composed lines
+  is less likely to meet the seam where one drops to the bank. The platform's
+  own default is too short a bet on three sequential provider round trips
+  going well, the way `/api/describe`, `/api/scan`, `/api/tutor` and
+  `/api/write` already decided about their own calls.
+*/
+export const maxDuration = 60;
 
 /** A bound on a body rather than on a scene. */
 const MAX_CONTEXT_CHARS = 600;

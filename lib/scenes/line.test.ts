@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import type { GateContext } from "./gate";
-import { pickAttested, sceneLine, type LineRequest } from "./line";
+import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
 
@@ -111,12 +111,12 @@ describe("the ladder", () => {
     expect(seen[1], "the retry was not told which word failed").toContain("peavalu");
   });
 
-  it("stops after one retry, because somebody is standing there waiting", async () => {
+  it("stops after MAX_COMPOSE_ATTEMPTS, not before and not after", async () => {
     let asked = 0;
     const line = await sceneLine(request({
       compose: async () => { asked += 1; return "Kas teil on peavalu?"; },
     }));
-    expect(asked).toBe(2);
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
     expect(line.provenance).toBe("fallback");
   });
 
@@ -200,8 +200,8 @@ describe("the scripted rung", () => {
       compose: async () => { asked++; return null; },
     }));
     expect(line).toEqual({ text: "Kas teil on valu?", provenance: "scripted" });
-    // Asked, retried once, and then the net: a third attempt is the learner waiting.
-    expect(asked).toBe(2);
+    // Asked MAX_COMPOSE_ATTEMPTS times, and only then the net.
+    expect(asked).toBe(MAX_COMPOSE_ATTEMPTS);
   });
 
   it("says the banked line where the gate withheld what the model wrote", async () => {
