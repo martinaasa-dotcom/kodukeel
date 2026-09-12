@@ -290,8 +290,27 @@ describe("a chain built for a purpose", () => {
     vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
 
-    vi.stubEnv("SCENE_MODEL", "some/other-model");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["some/other-model"]);
+    vi.stubEnv("SCENE_MODEL", "gemini-3.5-flash-lite");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["gemini-3.5-flash-lite"]);
+  });
+
+  it("does not hand Gemini a model id from another provider's catalogue", () => {
+    /*
+      THE PRODUCTION FAULT, VERBATIM. Scenes ran on Groq and `SCENE_MODEL` was
+      `qwen/qwen3.8-27b`; the chain moved to Gemini, went on reading the same
+      variable, and Google answered 404 on every composed turn for a week. The
+      ladder fell to the bank, the route answered 200, and the learner reported
+      a conversation that could not leave its script. A namespaced id is how
+      OpenRouter and Groq spell a model and how Google never does, so it is
+      dropped for the measured default and reported once, rather than sent.
+    */
+    only("gemini");
+    vi.stubEnv("SCENE_MODEL", "qwen/qwen3.8-27b");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
+
+    // A list mixing the two keeps what Gemini can answer for.
+    vi.stubEnv("SCENE_MODEL", "qwen/qwen3.8-27b, gemini-3.5-flash-lite");
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["gemini-3.5-flash-lite"]);
   });
 
   it("prices the scene model as a paid model, because the account is paid", () => {
