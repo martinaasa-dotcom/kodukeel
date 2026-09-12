@@ -180,7 +180,7 @@ export const BANK: readonly ScriptedLine[] = [
   { scene: "uuri-remont", beat: "answer:refuse", text: "Varsti.", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei ole aega.", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei ole mul aega.", model: "authored", draftedAt: "2026-09-05", reviewed: false },
-  { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei saa keegi tulla.", model: "authored", draftedAt: "2026-09-12", reviewed: false },
+  { scene: "uuri-remont", beat: "refuse", text: "Sel nädalal ei ole kellelgi aega.", model: "authored", draftedAt: "2026-09-12", reviewed: false },
   { scene: "uuri-remont", beat: "since", text: "Millisest päevast alates on küte katki olnud?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewed: false },
   { scene: "uuri-remont", beat: "since", text: "Millisest päevast alates?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewed: false },
   { scene: "uuri-remont", beat: "where", text: "Millisel korrusel see ruum asub?", model: "minimax/minimax-m3:free", draftedAt: "2026-09-04", reviewed: false },
