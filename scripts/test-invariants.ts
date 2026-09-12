@@ -5545,6 +5545,54 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   );
 });
 
+check("the other side talks at the scene's band, and every composer says which band", () => {
+  /*
+    Every scene carries a `level` and nothing about the composed line read it:
+    the prompt said "they are a beginner" on the B1 landlord as readily as on
+    the A1 corner shop and asked for the same two to four sentences at both.
+    `lib/scenes/pitch.ts` is the one table of what a turn sounds like at each
+    band, `ComposeScene.level` is required so a caller that has not decided
+    does not compile, and `composeSystem` reads the table behind the cache
+    breakpoint. What a type cannot see is a script building the object with a
+    literal of its own, and a harness pitched at nothing measures a
+    conversation the app does not have (§30), so every call site is read.
+  */
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(prompt, /readonly level: Level;/, "ComposeScene.level stopped being required");
+  const system = /export function composeSystem\([\s\S]*?\n\}/.exec(prompt)?.[0] ?? "";
+  assert.match(system, /pitchFor\(scene\.level\)/, "composeSystem no longer reads the band's pitch");
+  assert.doesNotMatch(
+    prompt, /two to four sentences/,
+    "the prompt names a sentence count for every band beside the one the band's pitch names",
+  );
+  assert.doesNotMatch(
+    prompt, /They are a beginner\./,
+    "the prompt calls every learner a beginner, which is the B1 interviewer speaking like the A1 shop",
+  );
+  const pitch = code("lib/scenes/pitch.ts");
+  /*
+    The gate is not relaxed by any of this: the band narrows what is asked for
+    and the ceilings stay the gate's. `pitch.test.ts` holds the figures under
+    them; this holds the module to reading them rather than typing its own.
+  */
+  assert.ok(
+    !/MAX_COMPOSED_WORDS\s*=|NEW_WORDS\s*=/.test(pitch),
+    "lib/scenes/pitch.ts declares a ceiling of its own beside the gate's",
+  );
+  const callers = [
+    "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
+    "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+  ];
+  for (const file of callers) {
+    const source = code(file);
+    const calls = source.match(/(?:composeSystem\(\{|scene: scene\.title,)[\s\S]{0,400}?(?:words:)/g) ?? [];
+    assert.ok(calls.length > 0, `${file} no longer builds a ComposeScene, so this check reads nothing there`);
+    for (const call of calls) {
+      assert.match(call, /level: (?:scene|input)\.level/, `${file} composes a line without saying which band`);
+    }
+  }
+});
+
 check("nothing reaches a paid provider without going through the ledger", () => {
   /*
     CLAUDE.md: "Any new path that calls a paid provider goes through

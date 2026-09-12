@@ -125,6 +125,7 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
   const system = composeSystem({
     scene: scene.title,
     place: scene.place,
+    level: scene.level,
     // The eval draws no persona: what it measures is one model against the beat.
     persona: "",
     situation: scene.role,

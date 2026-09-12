@@ -23,6 +23,7 @@ import {
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
+import type { Level } from "@/lib/collections/syllabus/types";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -978,6 +979,8 @@ export async function POST(request: Request) {
       */
       scene: scene.title,
       place: scene.place,
+      // The band the scene is written for, which is how the other side talks (`pitchFor`).
+      level: scene.level,
       persona: persona?.who ?? "",
       situation: scene.role,
       reservation,
@@ -1108,6 +1111,8 @@ async function compose(
     /** The scene, the place, the character and why the learner is here (`ComposeAsk`). */
     scene: string;
     place: string;
+    /** The band the scene is written for: how the other side talks (`lib/scenes/pitch.ts`). */
+    level: Level;
     persona: string;
     situation: string;
     move: string;
@@ -1151,8 +1156,8 @@ async function compose(
     prompt (`lib/scenes/prompt.ts`).
   */
   const system = composeSystem({
-    scene: input.scene, place: input.place, persona: input.persona, situation: input.situation,
-    register: input.register, words: input.words,
+    scene: input.scene, place: input.place, level: input.level, persona: input.persona,
+    situation: input.situation, register: input.register, words: input.words,
   });
   const live = composeLive(input);
 

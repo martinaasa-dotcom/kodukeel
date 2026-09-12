@@ -142,7 +142,7 @@ function promptFor(sceneId: string, beatId: string) {
   const context = keylessContext(scene);
   const beat = scene.beats.find((one) => one.id === beatId) ?? scene.beats[1]!;
   const system = composeSystem({
-    scene: scene.title, place: scene.place, persona: PERSONAS[0]!.who, situation: scene.role,
+    scene: scene.title, place: scene.place, level: scene.level, persona: PERSONAS[0]!.who, situation: scene.role,
     register: scene.register, words: [...context.lexicon.byLemma.keys()],
   });
   const live = composeLive({

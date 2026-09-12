@@ -150,7 +150,7 @@ async function main() {
             note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
             avoid,
           }, {
-            scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+            scene: scene.title, place: scene.place, level: scene.level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
           }, talk, () => {}, (l) => { if (argv.includes("--drafts")) console.log(`      ~ drafted: ${l}`); }),
         } : {}),

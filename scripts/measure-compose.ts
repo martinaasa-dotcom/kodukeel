@@ -99,6 +99,7 @@ for (const scene of SCENES) {
   systemChars += composeSystem({
     scene: scene.title,
     place: scene.place,
+    level: scene.level,
     // No draw here: this measures the size of the prompt, not a run.
     persona: "",
     situation: scene.role,

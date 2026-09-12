@@ -402,7 +402,7 @@ async function play(sceneId: string) {
             ),
             avoid,
           }, {
-            scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+            scene: scene.title, place: scene.place, level: scene.level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
           }, talk),
         } : {}),

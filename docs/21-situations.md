@@ -4301,3 +4301,61 @@ What this does not do is make a keyless deployment adaptive: the bank is still
 lines drafted against the beat alone, so the two-word questions a keyless run
 asks are what they were, and a deployment that wants a person behind the
 counter wants a key.
+
+## §72 The other side talks at the scene's band
+
+The operator asked whether a situation's difficulty could decide how the other
+side talks: an A1 scene answered in the plainest Estonian there is, a B1 scene
+in whole sentences, and the same again for B2 and C1 when scenes exist there.
+It could not, and the reason was one line of the prompt. Every scene has
+carried a `level` since the catalogue was written, and `composeSystem` never
+read it: the rules said "they are a beginner" and asked for "two to four
+sentences" on every scene, so the model pitched the A1 ticket clerk and the B1
+landlord at the same place, which was roughly A2 and wrong at both ends.
+
+The operator wrote out what a person has to sound like for a learner at each
+band to follow them without stopping: thirty interview dialogues, a doctor, a
+police officer, a customer survey, a visa desk, an estate agent, a school
+admissions panel and four more, each written three times over, at A1 to A2, at
+B1 and at B2 to C1. Read side by side the difference is the shape of a turn
+and not the subject of it. The A1 doctor asks `Kas valu on hommikul või
+õhtul?`, six words, one question, a yes-or-no; the B1 doctor asks the same
+thing with an alternative folded in and a clause in front; the B2 doctor asks
+for a description, names three kinds of pain, and recaps what the patient said
+before moving on. Every turn at A1 is one short sentence per thought; at B1 a
+subordinate clause is ordinary and a reason or a consequence follows in a second
+sentence; at B2 and C1 several points arrive in one turn with hedging and the
+vocabulary of the job.
+
+`lib/scenes/pitch.ts` is that table in English, one row per band the course
+names, and `pitchFor(level)` is the block the system prompt carries behind the
+cache breakpoint beside the word list, since it is the same on every turn of a
+run. A row is a description of a register and holds no Estonian, which
+`pitch.test.ts` asserts. Each row also narrows the ask: one to three sentences
+and 24 words at A1, up to five sentences and 55 at C1, and a reach past the
+scene's list of two words at A1 against ten at C1. **None of that widens
+anything.** `MAX_COMPOSED_WORDS` and `NEW_WORDS` are still the ceilings for
+every band, every row is asserted to sit under them, and not one of the gate's
+twelve checks reads the band: a B1 line is still vouched word by word, still
+held to its topic, still refused for a giveaway. What changed is what is asked
+for, and the gate is what pays for the room exactly as before.
+
+It keys on the scene's band and deliberately not the learner's. The band is the
+difficulty printed beside the title and the one the learner chose when they
+opened the scene; a learner who opens a scene above their own band has asked
+for the harder conversation, and one rehearsing a scene below it is owed the
+conversation the scene said it would be. The learner's own level is on the run
+for the errand and the grades and stays there. `ComposeScene.level` is required
+rather than optional, for the reason `illSgShort` is, and the invariant reads
+the six places that build the object from a literal, the route and the five
+harnesses, because a harness pitched at nothing measures a conversation the app
+does not have, which is §30's lesson one field over.
+
+What this does not do is reach a keyless deployment: a banked line was drafted
+against the beat with the old prompt and says what it said. The bank could be
+redrafted through `npm run draft:lines -- --refresh` so its lines are pitched
+too, and a native speaker has still read none of them. And the composed lines
+at each band have not yet been read by a person against the operator's own
+dialogues, which is the measurement this needs next: `npm run play:scenes --
+--compose` on an A1 scene and a B1 scene, side by side.
+
