@@ -28,6 +28,7 @@ import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState }
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { useResumeCard } from "@/components/useResumeCard";
 
 export interface ReviewCard {
   id: string;
@@ -408,7 +409,10 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
-  const [index, setIndex] = useState(0);
+  // Which card to reopen on if this mount is a resume after a dictionary
+  // detour, rather than a fresh start. See `components/useResumeCard.ts`.
+  const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
+  const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
   const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
@@ -480,6 +484,11 @@ export function ReviewSession({
   const card = queue[index];
   const finished = !card;
   const ask = card ? askFor(card, mode, met) : "flip";
+
+  // Remembered so a detour to the dictionary can come back to this card
+  // rather than to whatever a fresh queue opens with; cleared once the round
+  // actually finishes.
+  useEffect(() => { rememberCard(card); }, [rememberCard, card]);
 
   /*
     Whether the answer is on the screen, which is not the same question as

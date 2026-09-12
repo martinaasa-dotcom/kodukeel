@@ -229,7 +229,9 @@ export default function PrivacyPage() {
           network was down, so that grade is not lost and is sent with the time you actually
           answered it, a mock exam paper you have started but not handed in, so that
           closing the tab three hours into a B2 paper does not throw the whole sitting away,
-          and today&apos;s word puzzle, so a reload does not lose the guesses you have made.
+          today&apos;s word puzzle, so a reload does not lose the guesses you have made, and
+          which card a review round was on, so opening a word&apos;s dictionary entry and
+          coming back returns you to it.
         </P>
         <P>
           The unfinished paper holds your answers and when each part&apos;s clock runs out. It
@@ -237,7 +239,8 @@ export default function PrivacyPage() {
           server, so nothing kept here can change a score. It is replaced as you write and
           removed the moment the paper is handed in. The puzzle keeps your guesses and
           nothing else, and today&apos;s word is worked out from the date rather than kept
-          beside them.
+          beside them. The card you were on is only its id, gone the moment the round ends or
+          the tab does, whichever comes first.
         </P>
         <P>
           None of that is a tracker and none of it is shared with anybody. Estonian law
