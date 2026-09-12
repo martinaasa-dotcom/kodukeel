@@ -14892,6 +14892,21 @@ check("a conversation takes the website off the screen, and stops when the scene
     "the shell is no longer hidden while a conversation is running, so a situation is a page again",
   );
   /*
+    AND THE BROWSER'S OWN SCROLLING IS OFF ON IT. Anchoring holds whatever you
+    are looking at still when content is inserted above it, and on a transcript
+    that only appends the anchor it picks is the panel at the foot of the page:
+    every line that lands above it drags the scroll down by its own height. So a
+    conversation reset itself to the top, exactly as `SceneSession` asks, and
+    the opening line pulled it to the very bottom of the document with the room
+    and the scene's name off the top of the window. Every scroll on this screen
+    is a decision it makes out loud; this is the one it was not making.
+  */
+  assert.match(
+    css, /body:has\(\.scene-room\) \{ overflow-anchor: none; \}/,
+    "scroll anchoring is back on a conversation, so the page drifts to the bottom as lines arrive "
+    + "and the screen's own scroll to the top is undone a frame later",
+  );
+  /*
     And there is something to hide. Three parts of the shell draw themselves
     over or beside a page, and the set is asserted rather than each file being
     asked whether it carries a mark at all: the rail and the phone bar are both

@@ -1022,6 +1022,31 @@
     of it stop reserving room for a bar nobody can see.
   */
   body:has(.scene-room) [data-chrome] { display: none !important; }
+
+  /*
+    AND THE PAGE MOVES WHEN THIS SCREEN SAYS SO, WHICH IS NOT WHAT THE BROWSER
+    WAS DOING.
+
+    Scroll anchoring keeps whatever you are looking at still when content is
+    inserted above it, which is right for a page that grows in the middle and
+    wrong for a conversation: the transcript only ever appends, and the anchor
+    the browser picked was the panel at the foot of the page, so every line
+    that landed above it dragged the scroll down by exactly its height to hold
+    it where it was. Measured at 360 with a phone's viewport: the screen reset
+    itself to the top when a scene opened, exactly as `SceneSession` asks, and
+    the opening line then pulled it to the very bottom of the document, 81 of a
+    possible 81, with the room and the scene's own name off the top of the
+    window. The card was on screen and nothing had thrown, which is why this
+    survived until the room made the page tall enough to have somewhere to
+    drift to.
+
+    Every scroll on this screen is a decision it makes out loud: the top when a
+    conversation opens, the top when the debrief does, and the panel once there
+    is a conversation to come back to. So the browser's own is off, on the
+    scroller rather than on an element inside it, since anchoring belongs to
+    whatever is doing the scrolling and here that is the page.
+  */
+  body:has(.scene-room) { overflow-anchor: none; }
   body:has(.scene-room) #main { padding-right: 0; }
   body:has(.scene-room) .dock-pad { padding-bottom: 0; }
 
