@@ -859,14 +859,21 @@ const SHOP: SceneSpec = {
 */
 const CAFE: SceneSpec = {
   id: "kohvikus",
-  title: "Ordering a coffee",
+  title: "Ordering a drink",
   place: "The counter of a small café",
   level: "A1",
   tests: "sook-ja-jook",
   /*
+    THE TITLE SAYS "A DRINK" RATHER THAN NAMING ONE, BECAUSE THE CARD DEALS
+    ONE OF FOUR. It used to say "Ordering a coffee" while the `drink` prop
+    below could just as well deal `mahl`, so a learner whose card said juice
+    opened a scene that had already told them what they were about to order,
+    wrongly. The title is a fact about the scene rather than about a run.
+
     `restoranis` for `arve` and `tellima`, which is how the bill is asked for
     and the order taken; `kus-ja-kuhu` for the café itself; `omadussonad` for
-    "large" and "hot".
+    "large" and "small", which is what the beat below asks about rather than
+    milk, for the reason given there.
   */
   units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
   register: "teie",
@@ -903,12 +910,21 @@ const CAFE: SceneSpec = {
       shape: "word",
     },
     {
-      id: "milk",
-      goal: "Tell them whether you want milk in it.",
-      they: "They ask whether you want milk in it.",
+      /*
+        THIS WAS "MILK", ASKED WHATEVER THE CARD DEALT. "Kas piima ka?" over
+        a card that said `mahl` or `vesi` asked a beginner whether they wanted
+        milk in their juice, which is not a question anybody at a real
+        counter would ask: milk goes in coffee and tea and in nothing else on
+        this card. Size is the question every one of the four drinks can
+        honestly be asked, so it stands in for it. `suur` and `väike` are
+        `omadussonad` words the unit list already declares.
+      */
+      id: "size",
+      goal: "Say whether you would like a large one or a small one.",
+      they: "They ask whether you would like a large one or a small one.",
       move: "ask",
-      topic: ["piim", "suhkur", "kohv"],
-      needs: [{ kind: "lemma", oneOf: ["jah", "ei", "piim", "suhkur"] }],
+      topic: ["suur", "väike"],
+      needs: [{ kind: "lemma", oneOf: ["suur", "väike"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -920,7 +936,14 @@ const CAFE: SceneSpec = {
       they: "They set it down and ask whether that is everything.",
       move: "ask",
       topic: ["arve", "maksma", "raha", "hind"],
-      needs: [{ kind: "lemma", oneOf: ["arve", "maksma", "raha"] }],
+      /*
+        "JAH" IS AN ANSWER TO A YES-OR-NO QUESTION, AND IT WAS REFUSED. "Kas
+        on kõik?" is a yes-or-no question, and the beat's own goal is met by
+        confirming and moving to pay, so a plain "Jah" belongs beside
+        `arve`/`maksma`/`raha` the way the offer beats in this file already
+        take `jah` and `ei` beside their drawn value.
+      */
+      needs: [{ kind: "lemma", oneOf: ["jah", "arve", "maksma", "raha"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -938,7 +961,7 @@ const CAFE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "served", when: ["greet", "order", "milk", "bill", "close"], says: "You have your drink, you paid, and you made the bus." },
+    { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You have your drink, you paid, and you made the bus." },
     { id: "served-quiet", when: ["order", "bill"], says: "You have your drink and you paid. Not much was said, and that is fine in a café." },
     { id: "out", when: ["greet", "order"], says: "They were out of it today. You said what you wanted, and that was the part that was yours." },
     { id: "left", when: [], says: "You left without ordering. The bus was coming anyway." },
