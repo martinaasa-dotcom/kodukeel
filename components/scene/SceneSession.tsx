@@ -17,7 +17,8 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { beginScene, finishScene, sceneHelp } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
-import { BUDGETS } from "@/lib/scenes/curveballs";
+import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
+import type { Level } from "@/lib/collections/syllabus";
 import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
@@ -226,7 +227,7 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel }: {
   scene: SceneSpec;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
@@ -240,9 +241,18 @@ export function SceneSession({ scene, minutes, unit }: {
    * where a link to a lesson is a door out of the room.
    */
   unit?: { id: string; title: string } | null;
+  /**
+   * The learner's own course level, for where the dial opens.
+   *
+   * Not the scene's own `level`: a beginner opening a B1 scene from the
+   * "rest of the course" list should still meet it on `textbook`, since the
+   * dial is about how hard a day the other side is having and not about
+   * which scene this is. The learner can still move it before they start.
+   */
+  learnerLevel: Level;
 }) {
   const [phase, setPhase] = useState<Phase>("briefing");
-  const [difficulty, setDifficulty] = useState<Difficulty>("good");
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(learnerLevel));
   const [opened, setOpened] = useState<Opened | null>(null);
   const [turns, setTurnsState] = useState<Turn[]>([]);
   /*

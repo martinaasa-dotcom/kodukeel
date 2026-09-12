@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BUDGETS, CURVEBALLS, curveballById, drawCurveballs, type CurveballId } from "./curveballs";
+import { BUDGETS, CURVEBALLS, curveballById, defaultDifficultyFor, drawCurveballs, type CurveballId } from "./curveballs";
 
 /** A generator with no clock and no `Math.random` in it, so a draw is a fact. */
 function seeded(seed: number): () => number {
@@ -59,6 +59,22 @@ describe("the curveball catalog", () => {
   it("has one entry per id and no id without an entry", () => {
     expect(new Set(ALL).size).toBe(CURVEBALLS.length);
     for (const id of ALL) expect(curveballById(id)?.id).toBe(id);
+  });
+});
+
+describe("the default difficulty", () => {
+  it("opens easiest at A1 and climbs to the hardest budget by B2, never past it", () => {
+    expect(defaultDifficultyFor("A1")).toBe("textbook");
+    expect(defaultDifficultyFor("A2")).toBe("good");
+    expect(defaultDifficultyFor("B1")).toBe("ordinary");
+    expect(defaultDifficultyFor("B2")).toBe("bad");
+    expect(defaultDifficultyFor("C1")).toBe("bad");
+  });
+
+  it("only ever returns a real preset", () => {
+    for (const level of ["A1", "A2", "B1", "B2", "C1"] as const) {
+      expect(Object.keys(BUDGETS)).toContain(defaultDifficultyFor(level));
+    }
   });
 });
 
