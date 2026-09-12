@@ -12887,8 +12887,9 @@ check("every question a beat asks the learner for is answered by somebody", () =
     knows what the answer is was the rung told nothing about it.
   */
   assert.match(
-    code("app/api/scene/route.ts"), /they: answered\?\.answer\s*\n?\s*\?\?/,
-    "the route composes an aside without telling the model what the beat says they answer with",
+    code("app/api/scene/route.ts"), /they: answered\?\.answer\s*\n?\s*\?\s*stageFor\(\{ \.\.\.answered, they: answered\.answer \}, card\)/,
+    "the route composes an aside without telling the model what the beat says they answer with, "
+      + "with the card's values filled in",
   );
 });
 
@@ -12974,12 +12975,27 @@ check("a learner who says they are lost is handed the word, never the question a
     And the shrug is not the answer to somebody who has not answered yet. A
     question asked while the floor is still theirs is a learner who is
     confused, and the human move is to ask again rather than to say "I do
-    not know" at them (§39).
+    not know" at them (§39). A real question on such a turn is still answered
+    where a fact off the card can answer it (§69), so what is held here is
+    narrower than it was: the model and the shrug are reached only on a turn
+    that landed, and the aside on a miss is a fact or nothing.
   */
+  const sceneRoute = code("app/api/scene/route.ts");
   assert.match(
-    code("app/api/scene/route.ts"),
-    /wantsAside = Boolean\(askedNow\) && \(response === "answer" \|\| response === "counter"\)/,
-    "the scene route answers a question from a turn that missed the beat, which shrugs at somebody who is lost",
+    sceneRoute, /wantsAside = wantsAsideFor\(askedNow, /,
+    "the scene route decides for itself which turns are owed an answer, rather than through wantsAsideFor",
+  );
+  assert.match(
+    sceneRoute, /asideWantsModel = wantsAside && landedNow && aside === null && asideOwed\(asking\)/,
+    "the scene route asks the model, and so shrugs, at somebody whose turn missed the beat",
+  );
+  assert.match(
+    sceneRoute, /missed: !landedNow,/,
+    "the aside on a turn that missed is not told so, and may answer with a banked line for a beat nobody met",
+  );
+  assert.match(
+    code("lib/scenes/reply.ts"), /if \(response === "answer" \|\| response === "counter" \|\| landed\) return true;\s*\n\s*const missed = reading === "offtarget" \|\| reading === "incomplete";/,
+    "wantsAsideFor answers a question on a turn nobody could read, where the repair phrase is the whole reaction",
   );
   /*
     And the hint agrees with the learner's own card. A beat lists every word
@@ -13444,7 +13460,7 @@ check("a learner who says they are lost is handed the word, never the question a
 check("a beat answered out of order is credited, and never asked twice", () => {
   const state = code("lib/scenes/state.ts");
   assert.match(
-    state, /function moveOn\(\s*scene: SceneSpec,\s*from: number,\s*done: readonly string\[\],/,
+    state, /function moveOn\(\s*scene: SceneSpec,\s*state: Pick<SceneState, "beat" \| "tries">,\s*done: readonly string\[\],/,
     "the scene machine advances without reading what is done, so a beat the learner already "
     + "answered is asked again",
   );

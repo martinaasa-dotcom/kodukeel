@@ -41,7 +41,9 @@ import { planRun, RECENCY_WINDOW, type Recency, type SceneRun as SceneRunPlan } 
 import { randomUUID } from "node:crypto";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import {
-  advance, creditAhead, currentBeat, isOver, objectivesOf, outcomeOf, startScene, walkOut, type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle, type HurdleRecord,
+  advance, creditAhead, currentBeat, isOver, objectivesOf, outcomeOf, patienceAt, startScene, walkOut,
+  type Objectives, type Response, type SceneState, type TurnRecord, advanceHurdle, hurdleBeat, raiseHurdle,
+  type HurdleRecord,
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
@@ -383,7 +385,7 @@ export function sceneLemmas(scene: SceneSpec): Set<string> {
       lexicon has no forms to accept them with. The same shape as the lemmas
       above: a request against the dictionary, checked by the catalog test.
     */
-    if (prop.kind === "number") {
+    if (prop.kind === "number" || prop.kind === "price") {
       for (let n = prop.min; n <= prop.max; n += 1) for (const w of numberWords(String(n))) lemmas.add(w);
     }
   }
@@ -798,6 +800,13 @@ export interface StoredDraw {
    * ordinary case.
    */
   readonly lines: LineMode;
+  /**
+   * How many tries each beat gives this run, the persona's delta applied
+   * (`planRun`). Absent on a row written before it was stored, and then the
+   * scene's own figures hold, since a conversation in flight may not get
+   * brisker under the learner having it.
+   */
+  readonly patience?: readonly number[];
 }
 
 export interface FinishedRun {
@@ -997,6 +1006,7 @@ export async function beginRun(input: {
     card,
     curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })),
     lines: input.lines,
+    patience: run.patience,
   };
 
   const created = await prisma.sceneRun.create({
@@ -1212,7 +1222,7 @@ export function replay(
   const closeAt = context.scene.beats.findIndex((b) => b.move === "close");
   const closeBeat = context.scene.beats[closeAt];
 
-  let state = raiseHurdle(context.scene, startScene(context.scene), drawn);
+  let state = raiseHurdle(context.scene, startScene(context.scene, draw?.patience), drawn);
   let response: Response = "answer";
   let previous = "";
   for (const sent of turns.slice(0, MAX_TURNS)) {
@@ -1268,7 +1278,7 @@ export function replay(
       const bye = readTurn(said, closeBeat, marker);
       const here = readTurn(said, beat, marker);
       if (bye.reading === "complete" && here.reading !== "complete") {
-        state = { ...state, beat: closeAt, patience: closeBeat.patience, hurdle: null };
+        state = { ...state, beat: closeAt, patience: patienceAt(context.scene, state, closeAt), hurdle: null };
         ({ state, response } = advance(context.scene, state, bye, said, false, heardNow));
         previous = heardNow;
         continue;
@@ -1412,6 +1422,9 @@ export function readDraw(transcript: string): StoredDraw | null {
         conversation and change its voice at the same moment.
       */
       lines: parsed.lines === "composed" ? "composed" : "scripted",
+      ...(Array.isArray(parsed.patience) && parsed.patience.every((n) => typeof n === "number" && n >= 1)
+        ? { patience: parsed.patience }
+        : {}),
     };
   } catch {
     return null;

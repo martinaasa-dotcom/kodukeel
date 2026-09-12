@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { NUMBER_LEMMAS, drawCard, drawProp, propBySlot, type PropSpec } from "./props";
+import { NUMBER_LEMMAS, drawCard, drawProp, priceOnCard, propBySlot, type PropSpec } from "./props";
 import { unitById } from "@/lib/collections/syllabus";
 
 function seeded(seed: number): () => number {
@@ -198,5 +198,33 @@ describe("a second offer's slot", () => {
       const card = drawCard("you", days, seeded(seed));
       expect(propBySlot(card, "day2")?.value).not.toBe(propBySlot(card, "since")?.value);
     }
+  });
+});
+
+describe("a price on the card", () => {
+  const PRICE: PropSpec = { kind: "price", slot: "price", min: 2, max: 6, says: "What a ticket costs, in euros." };
+
+  it("is dealt in whole euros inside its window, shown as money, and said in words where the numbers unit has them", () => {
+    for (let seed = 1; seed < 40; seed += 1) {
+      const drawn = drawProp(PRICE, seeded(seed));
+      const n = Number(drawn.value);
+      expect(n).toBeGreaterThanOrEqual(2);
+      expect(n).toBeLessThanOrEqual(6);
+      expect(drawn.price).toBe(true);
+      expect(drawn.literal).toEqual([drawn.value]);
+      expect(drawn.shown[0]).toMatch(/\u20ac/);
+      expect(drawn.lemmas.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("is found on the card by its job, and the other side's own is never the one found", () => {
+    const specs: PropSpec[] = [PRICE, { ...PRICE, slot: "price2", theirs: true, differentFrom: "price" }];
+    for (let seed = 1; seed < 60; seed += 1) {
+      const card = drawCard("you", specs, seeded(seed));
+      expect(priceOnCard(card)?.slot).toBe("price");
+      expect(propBySlot(card, "price2")?.theirs).toBe(true);
+      expect(propBySlot(card, "price2")?.value).not.toBe(propBySlot(card, "price")?.value);
+    }
+    expect(priceOnCard({ you: "you", props: [] })).toBeUndefined();
   });
 });

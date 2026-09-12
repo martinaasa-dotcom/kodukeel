@@ -5511,6 +5511,34 @@ moves: the line is still vouched word by word and checked the other eleven ways.
 `bank.test.ts` fails on a curveball that makes no beat, which is the hole its own
 coverage sweep could not see.
 
+**A curveball that changes a fact carries the fact, and a question is answered whatever the turn
+did with the beat.** `wrong-price` said "the amount is not the one you were told" in seven scenes
+and not one of them had told the learner an amount: the other side could announce that the price
+had changed and could not say what it was. A learner at a ticket window asked `Kui palju?`, which
+is the very way out the curveball names, and was told `Ei tea.`; asked `Mis hind on?` on the next
+beat and read `Vabandust!` and the same question again, six times. The model was no help, because
+a composed line naming a price is a line with a number in it and `facts` withholds any number the
+card did not deal, and a retry was told which *words* failed and nothing about a number, so it
+wrote the same price three times and the run fell to the bank. Every scene that admits it deals a
+`price` on the learner's card and a `price2` that is theirs and drawn to differ; the hurdle says the
+new one off the card (`CurveballSpec.line`, through the same `partsLine` every `says` goes
+through), stands it in for the old one for the rest of the run (`cardAfterHurdles`, which is
+`cardInPlay` one door over), and a question about money is answered with it, keyless, as a fact
+off the card (`priceOffCard`), with a yes or a no in front where the learner named a figure.
+`wantsAsideFor` owes a real question an answer on a miss as on a hit, and what may answer it on a
+miss is a fact and never the shrug, so "sorry, what?" still gets the question again and nothing in
+front of it; a question is not a try, so the first one on a beat spends no patience. **The model is
+briefed as a participant**: every value on the card in play, told and theirs (`ComposeAsk.facts`),
+which is what lets it state a price the gate then accepts; and a retry is told why the line was
+withheld (`whyWithheld`) rather than only which words. The topic check accepts a line that answers
+what the learner said, on a turn that asked or missed. `npm run replay:scene` replays a reported
+transcript keyless through the app's own ladder, and is how this one was read before and after.
+`docs/21-situations.md` §69. **And the persona's patience is read now**: `planRun` had worked out a
+figure per beat and stored it on the plan since the personas were written, and `replay` started every
+run from the scene's own, so the brisk one had never been a try shorter. The draw carries it, the
+state carries it (`SceneState.tries`, `patienceAt`), and a run written before the field keeps the
+scene's figures.
+
 **A choice is two things a person could have meant, never one thing said two ways.** Narrowing a
 case beat offered the wanted form against another case of the same word, on the argument that the
 ending is what the beat drills. On a card that is a fair question; in a conversation it is a grammar
@@ -6877,7 +6905,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
 `VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
-`elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`.
+`elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
+`priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -6912,6 +6941,7 @@ npm run forms            # rebuild the forms list: every spelling of every word,
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
+npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)
 npm run eval:composers   # which free model writes the best Estonian for a scene line, one model at a time (--samples, --model, --scenes)

@@ -30,6 +30,32 @@ describe("the curveball catalog", () => {
     }
   });
 
+  /*
+    A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. `wrong-price` announced
+    that the price had changed in seven scenes and could not say what it was.
+    A curveball whose line or stage direction names a slot has to say which
+    slot it stands in for, and one that stands a slot in has to be able to
+    say it.
+  */
+  it("says the fact it changes, off the card, and says which slot gives way", () => {
+    const price = curveballById("wrong-price")!;
+    expect(price.they).toMatch(/\{price2\}/);
+    expect(price.line?.some((part) => "slot" in part && part.slot === "price2")).toBe(true);
+    expect(price.answer).toMatch(/\{price2\}/);
+    expect(price.replaces).toEqual([["price", "price2"]]);
+    // The debrief's sentence is never a slot, since it is printed raw.
+    for (const ball of CURVEBALLS) expect(ball.says).not.toMatch(/\{\w+\}/);
+    for (const ball of CURVEBALLS) {
+      const uttered = new Set<string>();
+      for (const part of ball.line ?? []) if ("slot" in part) uttered.add(part.slot);
+      for (const found of `${ball.they ?? ""} ${ball.answer ?? ""}`.matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
+      const standsIn = new Set((ball.replaces ?? []).map(([, to]) => to));
+      for (const slot of uttered) {
+        expect(standsIn.has(slot), `${ball.id} says {${slot}} and never says what it stands in for`).toBe(true);
+      }
+    }
+  });
+
   it("has one entry per id and no id without an entry", () => {
     expect(new Set(ALL).size).toBe(CURVEBALLS.length);
     for (const id of ALL) expect(curveballById(id)?.id).toBe(id);

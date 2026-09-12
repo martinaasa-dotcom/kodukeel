@@ -15,7 +15,8 @@ import {
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsFreshLine,
+  cardAfterHurdles, cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsAsideFor,
+  wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
@@ -200,7 +201,13 @@ export async function POST(request: Request) {
     off the card, so a time read back later is the one that was accepted.
   */
   const speaking = response === "counter" && current?.counter ? counterBeat(current) : current;
-  const card = cardInPlay(draw?.card ?? null, scene.beats, state.countered);
+  /*
+    The card as the other side knows it now: a counter-offer's second values
+    stood in for the first, and a curveball's changed fact stood in for the
+    one the learner was told, so "how much?" after the price curveball is
+    answered with the price the other side actually has (`cardAfterHurdles`).
+  */
+  const card = cardAfterHurdles(cardInPlay(draw?.card ?? null, scene.beats, state.countered), state);
   const last = state.turns[state.turns.length - 1] ?? null;
   /*
     THE BEAT JUST ANSWERED IS OFTEN A HURDLE, AND `scene.beats` HAS NEVER
@@ -248,22 +255,64 @@ export async function POST(request: Request) {
     learner has not answered yet, the human move is to ask again, which is
     what `narrow` already does.
   */
+  /*
+    AND A REAL QUESTION ON A TURN THAT MISSED IS STILL A QUESTION. That
+    reasoning is right about "sorry, what?" and wrong about "what is the price
+    now?", which a learner asked after being told it had changed, on a beat
+    that wanted how they were paying, and read `Vabandust!` and the same
+    question again for. On a miss, a fact off the card answers it before the
+    question is put again (`wantsAsideFor`, `AsideInput.missed`); the model's
+    own line answers it where one composes, since the note tells it to; and
+    the shrug is never said at somebody who missed, since "I don't know" to
+    "sorry, what?" is the fault the paragraph above describes.
+  */
   const askedNow = last?.asked ?? null;
-  const wantsAside = Boolean(askedNow) && (response === "answer" || response === "counter");
+  const landedNow = response === "answer" || response === "counter" || elsewhere > 0;
+  const wantsAside = wantsAsideFor(askedNow, turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0);
   const fresh = (id: string | undefined) =>
     (id ? context.scripted.get(id) ?? [] : []).filter((text) => !used.has(text));
   const asking = {
     asked: askedNow,
     spoken: words(last?.said ?? ""),
+    said: last?.said ?? "",
     answered,
     card,
     lexicon: context.lexicon,
     more: fresh(answered?.id),
     answers: answered ? fresh(answerBeatId(answered)) : [],
+    missed: !landedNow,
   };
   let aside = wantsAside ? asideFor(asking) : null;
   /* Whether the model, if any, is asked for the aside rather than for the move. */
-  const asideWantsModel = wantsAside && aside === null && asideOwed(asking);
+  const asideWantsModel = wantsAside && landedNow && aside === null && asideOwed(asking);
+
+  /*
+    WHAT THIS PERSON KNOWS, FOR THE MODEL. Every value on the card, the
+    learner's and the other side's, in English, off the same labels the
+    briefing prints. Without it a model told "they ask what time" could not
+    react to the time on the card, and one asked the price could only invent
+    a number the gate withholds. The card is the one in play, so a changed
+    price is the new price.
+  */
+  const facts = (card?.props ?? []).map((prop) => {
+    const value = prop.english ?? prop.shown[0] ?? prop.value;
+    const label = prop.card.replace(/\.$/, "");
+    return `${label}: ${value}${prop.theirs ? " (yours to tell them, if it comes up)" : ""}`;
+  });
+  /*
+    AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
+    holds a composed line to the beat's own words, which is right for a line
+    that asks and wrong for one that first answers: a learner who asked the
+    price and was answered about the price, then asked how they were paying,
+    has been answered on both, and a check that sees only `kaart` and `raha`
+    withholds the half that answered them. So on a turn that asked something
+    or missed, the words the dictionary vouched in the learner's own turn are
+    on topic too.
+  */
+  const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
+  const theirs = deviated
+    ? words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word))
+    : [];
 
   /*
     WHERE THE CONVERSATION IS, AND EVERY BRANCH RETURNS IT. Three of the four
@@ -566,7 +615,7 @@ export async function POST(request: Request) {
     gate: gateFor(beat.id, {
       ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
     }),
-    topic: context.topic.get(beat.id) ?? new Set<string>(),
+    topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
     hasFiniteVerb: context.hasFiniteVerb,
     fallback: context.fallback,
     scripted: context.scripted.get(beat.id) ?? [],
@@ -658,9 +707,11 @@ export async function POST(request: Request) {
         handed, so a live answer and a banked one are about the same thing.
       */
       they: answered?.answer
-        ?? "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
+        ? stageFor({ ...answered, they: answered.answer }, card)
+        : "They were just asked a question they did not expect. They answer it briefly, as best they can from what they know, and no more.",
       register: scene.register,
       words: [...context.lexicon.byLemma.keys()],
+      facts,
       examples: [...context.scripted.values()].flatMap((lines) => lines.slice(0, 1)).slice(0, 6),
       /*
         An aside is a question the scene did not anticipate, so there is no
@@ -756,9 +807,11 @@ export async function POST(request: Request) {
       what this answers, off the course and the forms list.
     */
     vouch: (spellings) => sceneVouch(context, spellings),
-    compose: (avoid) => compose(chain, {
+    compose: (avoid, because) => compose(chain, {
       ownerId,
       reading: learnerReading,
+      facts,
+      because,
       // The booking this turn was authorised under, so the settlement corrects
       // it rather than being written down as a second call. See `compose`.
       /*
@@ -802,7 +855,7 @@ export async function POST(request: Request) {
         wording, so the route and `npm run play:scenes` tell the model the same
         thing about the same turn.
       */
-      note: composeNote(turns.length > 0 ? response : null, progress.reading, elsewhere > 0),
+      note: composeNote(turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow),
       conversation,
       avoid,
     }),
@@ -902,6 +955,10 @@ async function compose(
     words: readonly string[];
     /** Lines this character has said on other beats, for tone. Never for this beat. */
     examples: readonly string[];
+    /** What this person knows off the cards, in English (`ComposeAsk.facts`). */
+    facts: readonly string[];
+    /** Why the last attempt was withheld, where it was not its words (`whyWithheld`). */
+    because?: string;
     /** What this character has asked for at this very beat before, from the bank. */
     asked: readonly string[];
     /** The run so far, both sides, alternating. Empty on the opening line. */

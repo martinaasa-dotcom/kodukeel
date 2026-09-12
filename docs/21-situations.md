@@ -4022,3 +4022,111 @@ the one screen whose whole job is saying which of the two they are in now.
 `SceneInterlude`'s own comment has claimed since it was written that the second
 room is simply there; the leaving one is `display: none` now, which is what
 makes that true.
+
+## §69 A curveball that changes a fact carries the fact
+
+A learner sent a transcript of the bus ticket scene and said the module was
+unusable, and they were reading the right thing. The price curveball had been
+drawn at the beat that asks how they are paying. The window said `See maksab
+nüüd rohkem.`, the learner asked `Kui palju?`, which is the way out the
+curveball's own entry names, and was answered `Ei tea.` They asked `Mis hind
+on?` on the next beat and read `Vabandust! Kas te maksate kaardiga või rahaga?`,
+and then the same sentence five more times, and then `Kaart? Head aega!`
+
+**The curveball had no fact behind it.** `wrong-price` said the amount was not
+the one the learner was told, in seven scenes, and none of them had told the
+learner an amount: there was no price on any card. So the other side could
+announce that the price had changed and could not say what it was, in Estonian
+or in English, keyless or keyed. Keyed was no better, and that is the part
+worth writing down: a composed line naming a price is a line with a number in
+it, `facts` withholds any number the card did not deal (§ on `dealtNumbers`),
+and the retry was told which *words* had failed and nothing about a number, so
+a model that wrote `See maksab nüüd 5 eurot.` was refused three times for the
+one thing that made the line an answer and the run fell to a banked line
+saying the price was different. The gate was doing exactly what it was
+written to do, against a scene that had never given it the fact.
+
+**Every scene that admits it deals two prices now.** `price`, in whole euros,
+printed on the learner's card under "What a ticket costs, in euros", and
+`price2`, theirs and drawn to differ, never printed. The curveball carries
+`line`, parts off the card the way a beat's `says` is, so the hurdle says `See
+maksab nüüd 5 eurot.` through `partsLine` with nothing typed; `they` carries
+the slot so a model is told the price it is announcing; `answer` says what
+they say when asked; and `replaces` stands the second price in for the first
+from the moment the curveball is raised (`cardAfterHurdles`, which is
+`cardInPlay` one door over). `catalogue.test.ts` holds a curveball's line and
+its slots to every scene that admits it, and the check that a fact the other
+side says is never printed on the learner's card reads the curveballs too.
+The sixteen banked rows for the beat went, because a beat naming a value off
+the card is not scriptable and the bank's own test says so.
+
+**A question about money is answered with the price, from the card.**
+`priceOffCard` is a rung on the aside ladder between "how are you" and the
+day and time, read on `asksPrice`: a form of `hind`, `maksma` or `euro`, or
+`palju` or `mitu`. `Kui palju?` is `See maksab 5 eurot.`; `Kas 5 eurot?` and
+a bare `5?` are somebody checking what they heard and get `Jah, see maksab 5
+eurot.` or `Ei, see maksab 2 eurot.`, whole digit runs compared the way the
+marker compares a dealt number. Every word is a lemma `ostmine`, `asesonad`
+and `vastused` teach, `eurot` is read off the case table through a new
+`{ lemma, grammCase }` part, and a lexicon that cannot supply the verb says
+`5 eurot.` rather than nothing.
+
+**And a question asked on a turn that missed is still a question.**
+`wantsAside` was true on a turn that landed and on nothing else, on the
+argument (§39) that "sorry, what?" on a miss is a request to hear the
+question again rather than a question owed a shrug. That is right about the
+shrug and wrong about `Mis hind on?`. `wantsAsideFor` owes a real question an
+answer on a miss too, and what may answer it there is narrower: a fact off the
+card (`AsideInput.missed` stands the banked answer and "more of what they
+said" down, since both are about a beat nobody has met), the model's own
+composed line, which the note now tells to answer first, and never the shrug.
+The word for "that was not what I asked" is not said in front of an answer,
+and a question is not a try: the first one on a beat spends no patience, the
+way saying you are lost spends none, so somebody who asks the price twice is
+answered twice rather than given up on. A turn credited with a beat further
+along carries its question with the credit, or a learner asking how much
+while meeting a beat two along was answered about neither.
+
+**The model is briefed as a participant.** It was told a move, one sentence
+about what to do and a word list, and nothing about the run: not where the
+learner is going, not the time on their card, not the price the other side is
+holding. `ComposeAsk.facts` is every value on the card in play, told and
+theirs, in English off the same labels the briefing prints, so the character
+can state a price the gate then accepts as dealt. A retry is told why the last
+line was withheld (`whyWithheld`), one clause per check, beside the words
+`retryNote` already named. And on a turn that asked something or missed, the
+words the dictionary vouched in the learner's own turn count as on topic, so
+a line that answers them before asking again is not withheld for answering.
+
+Measured keyless on the reported transcript, through `npm run replay:scene`,
+which replays a learner's exact turns through the route's own functions:
+
+```
+THEM: See maksab nüüd 2 eurot.
+YOU:  Kui palju?
+THEM: See maksab 2 eurot. Kas te maksate kaardiga või rahaga?
+YOU:  Mis hind on?
+THEM: See maksab 2 eurot. Kas te maksate kaardiga või rahaga?
+YOU:  5?
+THEM: Ei, see maksab 2 eurot. Jah või ei?
+```
+
+where before it read `Ei tea.`, then `Vabandust!` and the same question, then
+`Vabandust!` and the same question again.
+
+**What this does not explain.** Five of the learner's turns in the screenshot
+drew empty bubbles and were each answered with the same repeated line, and
+none of them spent the beat's patience. Nothing in the replay produces that:
+a turn read as off the point spends a try, and the beat has two. The client
+refuses to send an empty draft. It could not be reproduced from the transcript
+alone and is left as a report rather than a claim.
+
+**And persona patience was a field nobody read.** `planRun` computed a
+patience per beat with the persona's delta and stored it on the plan;
+`replay` started every run from `scene.beats` and never read it, so the brisk
+persona had never been one try shorter and the patient one never one longer.
+Found while reading why the beat in the screenshot held for six turns, which
+it does not explain either. The draw carries the figures now (`StoredDraw.patience`),
+`startScene` takes them and `moveOn` reads them off the state (`SceneState.tries`,
+`patienceAt`), and a row written before the field keeps the scene's own, since a
+conversation in flight may not get brisker under the learner having it.

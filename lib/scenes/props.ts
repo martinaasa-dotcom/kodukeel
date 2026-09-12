@@ -125,6 +125,34 @@ export type PropSpec =
     }
   /** A plain number: a floor, a room, an amount. */
   | { readonly kind: "number"; readonly slot: string; readonly min: number; readonly max: number; readonly says: string }
+  /**
+   * A PRICE, IN WHOLE EUROS, WHICH IS THE FACT THE PRICE CURVEBALL CHANGES.
+   *
+   * `wrong-price` said "the amount is not the one you were told" in seven
+   * scenes, and not one of them had told the learner an amount: there was no
+   * price on the card, so the other side could say the price had changed and
+   * could not say what it was. A learner at a ticket window asked "kui
+   * palju?", which is exactly the way out the curveball names, and was told
+   * `Ei tea.` The model was no help either, because a composed line naming a
+   * price is a line with a number in it and the gate withholds any number
+   * the card did not deal. So the curveball was a trap in a costume.
+   *
+   * A scene that admits it deals two: what the learner was told, printed on
+   * their card, and the price the other side has now, `theirs` and drawn to
+   * differ. The curveball's line says the second off the card, "how much?"
+   * is answered with it, and the gate counts both as dealt. A price is a
+   * `number` with a job, and it carries `price` on the drawn prop so the
+   * aside can find the one fact a question about money is asking for.
+   */
+  | {
+      readonly kind: "price";
+      readonly slot: string;
+      readonly min: number;
+      readonly max: number;
+      readonly says: string;
+      readonly theirs?: true;
+      readonly differentFrom?: string;
+    }
   /** A fictional reference, which is the only kind of code this module ever holds. */
   | { readonly kind: "code"; readonly slot: string; readonly says: string };
 
@@ -169,6 +197,8 @@ export interface DrawnProp {
   readonly value: string;
   /** The other side's fact, drawn and stored but never printed on the card. */
   readonly theirs?: true;
+  /** A price, so a question about money can find it (`priceOffCard`). */
+  readonly price?: true;
   /**
    * The English of a drawn lemma, for a stage direction that names it: "They
    * offer Tuesday at 14:00" rather than the lemma inside an English sentence.
@@ -287,6 +317,22 @@ export function drawProp(
         ...worn(value, avoid),
       };
     }
+    case "price": {
+      const span = Array.from({ length: spec.max - spec.min + 1 }, (_, i) => String(spec.min + i));
+      const value = pick(span, random, avoid);
+      /*
+        Digits, and the words for it where the numbers unit has them, exactly
+        as a floor is dealt: a learner told the price is five euros may say
+        `viis` back. Shown with the unit so the card reads as money rather
+        than as a bare figure.
+      */
+      return {
+        slot: spec.slot, card: spec.says, literal: [value], lemmas: numberWords(value), shown: [`${value} €`], value,
+        price: true,
+        ...worn(value, avoid),
+        ...(spec.theirs ? { theirs: true as const } : {}),
+      };
+    }
     case "code": {
       /*
         Fictional, and visibly so. Letters and digits in a shape no Estonian
@@ -326,6 +372,17 @@ export function drawCard(
 /** The slot a beat's `datum` requirement names, as the marker wants it. */
 export function propBySlot(card: RoleCard, slot: string): DrawnProp | undefined {
   return card.props.find((prop) => prop.slot === slot);
+}
+
+/**
+ * The price on the card, where the scene deals one.
+ *
+ * The learner's own, unless the caller has already stood the other side's in
+ * for it (`cardAfterHurdles`): once the price has changed, the price is the
+ * new one, and a card read through that swap carries it under the same slot.
+ */
+export function priceOnCard(card: RoleCard | null): DrawnProp | undefined {
+  return card?.props.find((prop) => prop.price && !prop.theirs);
 }
 
 /**

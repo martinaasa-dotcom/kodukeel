@@ -37,7 +37,8 @@ import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
 import { propBySlot, type RoleCard } from "./props";
-import type { Response } from "./state";
+import { curveballById } from "./curveballs";
+import type { Response, SceneState } from "./state";
 import type { TurnReading } from "./turn";
 import { leafNeeds, type BeatSpec, type SaysPart } from "./types";
 
@@ -229,6 +230,11 @@ export function partsLine(
         const form = input.lexicon?.persons.get(part.lemma)?.get(part.verb);
         if (!form) return null;
         pieces.push(form);
+      } else if ("grammCase" in part && part.grammCase) {
+        // `eurot` after a price: the same table every case card reads, never joined here.
+        const form = input.lexicon?.caseForm.get(caseKeyFor(part.lemma, part.grammCase));
+        if (!form) return null;
+        pieces.push(form);
       } else {
         pieces.push(part.lemma);
       }
@@ -299,6 +305,65 @@ export function cardInPlay(
       return stand ? { ...stand, slot: prop.slot } : prop;
     }),
   };
+}
+
+/**
+ * The card with every value a raised curveball has changed stood in for by
+ * the value it changed it to.
+ *
+ * A CURVEBALL THAT CHANGES A FACT CHANGES IT FOR THE REST OF THE RUN. The
+ * price curveball says the price is now different, and from that moment "how
+ * much?" has one honest answer and it is not the number on the learner's
+ * card. `cardInPlay` does this for a counter-offer and this is the same view
+ * one door over: a curveball's `replaces` names which slot gives way to which,
+ * and it holds from the moment the curveball is raised, whether or not the
+ * learner has dealt with it yet, because the other side knows the new price
+ * before anybody asks. The card itself is never rewritten.
+ */
+export function cardAfterHurdles(card: RoleCard | null, state: Pick<SceneState, "hurdle" | "hurdles">): RoleCard | null {
+  if (!card) return null;
+  const raised = [...state.hurdles.map((h) => h.id), ...(state.hurdle ? [state.hurdle.id] : [])];
+  const swaps = new Map<string, string>();
+  for (const id of raised) for (const [from, to] of curveballById(id)?.replaces ?? []) swaps.set(from, to);
+  if (swaps.size === 0) return card;
+  return {
+    ...card,
+    props: card.props.map((prop) => {
+      const to = swaps.get(prop.slot);
+      const stand = to ? propBySlot(card, to) : undefined;
+      if (!stand) return prop;
+      // The value that stood in takes the slot's own standing: it is the fact now, not a secret.
+      const { theirs: _theirs, ...rest } = stand;
+      return { ...rest, slot: prop.slot, ...(prop.theirs ? { theirs: true as const } : {}) };
+    }),
+  };
+}
+
+/**
+ * Whether a question the learner asked is owed something before the move.
+ *
+ * ON A TURN THAT LANDED, ALWAYS. And on a turn that missed, where the question
+ * is a real one: `wantsAside` used to be true only on `answer` and `counter`,
+ * on the argument that a learner who missed and asked "sorry, what?" is
+ * asking to hear the question again rather than owed a shrug. That is right
+ * about a bare `?` and wrong about `Mis hind on?`: a learner at a ticket
+ * window who was told the price had changed asked what it was now, missed the
+ * beat (which wanted how they were paying), and read `Vabandust!` and the same
+ * question again. A person answers the question and then asks again. What is
+ * different on a miss is what may answer it, which is `asideFor`'s `missed`:
+ * a fact off the card, and never the shrug.
+ */
+export function wantsAsideFor(
+  asked: string | null,
+  response: Response | null,
+  reading: TurnReading | null,
+  /** Whether the turn met a beat away from the one it was read against (`replay`'s `elsewhere`). */
+  landed = false,
+): boolean {
+  if (!asked) return false;
+  if (response === "answer" || response === "counter" || landed) return true;
+  const missed = reading === "offtarget" || reading === "incomplete";
+  return missed && (response === "narrow" || response === "repeat");
 }
 
 /**
@@ -456,7 +521,21 @@ export function composeNote(
   reading: TurnReading | null,
   /** Whether the turn answered something asked earlier (`replay`'s `elsewhere`). */
   landed = false,
+  /** The question word of a question the learner asked, or `?`, where they asked one. */
+  asked: string | null = null,
 ): string | undefined {
+  /*
+    THEY ASKED SOMETHING, AND A QUESTION IS ANSWERED BEFORE ANYTHING ELSE. The
+    conversation is in front of the model and the card's facts are in the
+    prompt; what this adds is that the question is not to be walked past, on
+    a turn that landed and on one that missed alike. Where the beat's own
+    stage direction is already the answer the model says it once.
+  */
+  const question = asked
+    ? " They also asked you something: answer it first, from what you know, in a few words, and"
+      + " only then carry on. Never ignore a question and never say you do not know something"
+      + " that is in what you know."
+    : "";
   /*
     They answered a question from further back. A person takes it, says so, and
     then asks again for the thing they are actually waiting on, which is the
@@ -466,18 +545,18 @@ export function composeNote(
   if (landed) {
     return "They have just answered something you asked earlier, after you had moved on."
       + " Take it, say briefly that you have it, and then ask again for what you asked them"
-      + " last. Never tell them you did not understand: they answered you.";
+      + " last. Never tell them you did not understand: they answered you." + question;
   }
   if (reading === "offtarget" && (response === "narrow" || response === "repeat")) {
     return "What they just said is real Estonian and does not answer what you asked."
       + " Answer what they actually said first, in one short natural sentence, and then ask"
       + " again for the same thing in your own words. Never tell them you did not understand"
       + " them, and never comment on their Estonian: you understood them, they answered"
-      + " something else.";
+      + " something else." + question;
   }
   if (reading === "incomplete") {
     return "They answered part of what you asked and left the rest out. Say back the part they"
-      + " gave you, and ask only for what is still missing.";
+      + " gave you, and ask only for what is still missing." + question;
   }
   /*
     The one reading where saying so is honest, and it still may not be said as
@@ -494,7 +573,7 @@ export function composeNote(
     return "They have said they are not following. Hand them the word they need and ask again in"
       + " the same breath, warmly, the way somebody helping a person out would.";
   }
-  return undefined;
+  return question ? question.trim() : undefined;
 }
 
 /**
@@ -613,11 +692,6 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     down, for the same reason, and where nothing composed the line is the
     previous one said again and this word is what makes that read as a miss.
   */
-  if ((response === "narrow" || response === "repeat") && reading === "offtarget"
-      && !input.landed && !ownReaction(line)) {
-    out.push(reaction(REACTIONS.missed[0], "?"));
-  }
-
   /*
     A QUESTION THE SCENE DID NOT ANTICIPATE IS ANSWERED BEFORE ANYTHING ELSE.
     The learner asked where to go next, or how much, or how they are; the
@@ -628,6 +702,18 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     "ei tea". It is the reaction, so no echo or "hästi" is stacked on it.
   */
   const aside = input.aside && reading !== "unrecognised" && reading !== "echo" ? input.aside : null;
+
+  /*
+    AND NEVER "SORRY?" IN FRONT OF AN ANSWER. A turn that missed the beat and
+    asked something is answered and then asked again; opening that with the
+    word for "that was not what I asked" is the other side contradicting
+    itself in one breath, and it was the whole of what a learner read when
+    they asked the price at a ticket window.
+  */
+  if ((response === "narrow" || response === "repeat") && reading === "offtarget"
+      && !input.landed && !ownReaction(line) && !aside) {
+    out.push(reaction(REACTIONS.missed[0], "?"));
+  }
 
   /*
     An acknowledgment after an answer that landed, rotating so the same word

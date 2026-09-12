@@ -110,6 +110,26 @@ export interface ComposeAsk {
   /** Words the last attempt reached for that the list could not vouch for. */
   readonly avoid: readonly string[];
   /**
+   * Why the last attempt was withheld, where it was withheld for something
+   * other than its words (`whyWithheld`). A retry told only "those words" when
+   * the fault was a number nobody dealt wrote the number again.
+   */
+  readonly because?: string;
+  /**
+   * WHAT THIS PERSON KNOWS, OFF THE CARDS, IN ENGLISH.
+   *
+   * The model was told a move and a word list and nothing about the run: not
+   * where the learner is going, not the time on their card, not the price the
+   * other side is holding. So it could not react to "jaama" as a destination
+   * it had heard, and it could not answer "how much?" at all, because any
+   * number it reached for was one the gate withholds as invented. Every value
+   * the card dealt, told and theirs, is here, so the character can say what
+   * they know and the gate's `facts` check accepts it as dealt. A card read
+   * through the curveballs and the counters (`cardAfterHurdles`,
+   * `cardInPlay`), so the price named is the price now.
+   */
+  readonly facts?: readonly string[];
+  /**
    * WHAT JUST HAPPENED TO THEIR TURN, IN ENGLISH, WHERE IT IS NOT SIMPLY
    * "THEY ANSWERED YOU".
    *
@@ -327,6 +347,10 @@ export function composeLive(ask: ComposeAsk): string {
       often a word off, and a line written against the raw text answers the beat
       rather than the person.
     */
+    ask.facts && ask.facts.length > 0
+      ? `What you know, which you may state and they may ask about: ${ask.facts.join("; ")}.`
+        + " Those are the only numbers, times and prices you may ever say."
+      : "",
     ask.reading
       ? `What they just said appears to mean, word by word: ${ask.reading}. `
         + "Answer what they actually said. Reply in Estonian only."
@@ -359,6 +383,9 @@ export function composeLive(ask: ComposeAsk): string {
     ask.avoid.length > 0
       ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
         + "Say it again without them, using more of the words you were given."
+      : "",
+    ask.because
+      ? `Your last line did not get through: ${ask.because}. Say it again, differently, so that it does.`
       : "",
     /*
       And what happened to their turn, which is the whole reason a miss is
