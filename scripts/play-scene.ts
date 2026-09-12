@@ -33,7 +33,7 @@
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import {
-  acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+  MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
@@ -43,7 +43,7 @@ import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state
 import { sceneLine } from "../lib/scenes/line";
 import { passes, runGate } from "../lib/scenes/gate";
 import { PERSONAS } from "../lib/scenes/personas";
-import { answerBeatId } from "../lib/scenes/scripted";
+import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
@@ -184,7 +184,10 @@ const LOST = [
   "tervitused", "see on keeruline", "ma mõtlen"
 ];
 
-function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number): string {
+function learnerTurn(
+  beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number,
+  register: "teie" | "sina" = "teie",
+): string {
   if (style === "lost") return LOST[n % LOST.length]!;
   const parts: string[] = [];
   for (const { need } of leafNeeds(beat.needs)) {
@@ -205,7 +208,16 @@ function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnTy
     } else if (need.kind === "negation") {
       parts.push("ei ole");
     } else if (need.kind === "register") {
-      parts.push("teie");
+      /*
+        THE SCENE'S OWN REGISTER, NOT ALWAYS "teie". A curveball asking the
+        learner to prove they are still speaking Estonian is answered with the
+        pronoun the scene is actually conducted in: `poodi-piima` is `sina`,
+        and a hardcoded `teie` there is a word `registerForms` never holds, so
+        this curveball read as unwinnable in every run of that one scene while
+        every `teie` scene passed it outright. The app was never wrong; the
+        harness was answering every scene as the same one.
+      */
+      parts.push(register);
     }
     break; // one option is enough
   }
@@ -241,7 +253,17 @@ async function play(sceneId: string) {
   const turns: { beatId: string; said: string; helped: boolean; heard: string }[] = [];
   const used = new Set<string>();
   let heard = "";
-  for (let n = 0; n < 24; n++) {
+  /*
+    THE ROUTE'S OWN CEILING, NOT A SHORTER ONE INVENTED FOR THIS SCRIPT. It was
+    24, and a sweep of every scene under the harshest built-in settings (`bad`
+    difficulty, `lost` style) found ametiasutus never finishing in eleven runs
+    out of eleven, reading as a scene that hangs. It does not: at `MAX_TURNS`
+    it resolves in eighteen, well inside the room the route actually gives it,
+    because the base beats plus the curveballs `bad` can stack onto it plus a
+    persona that never once cooperates add up to more than 24 exchanges. A cap
+    shorter than the app's own reports a bug that is the harness's.
+  */
+  for (let n = 0; n < MAX_TURNS; n++) {
     /*
       MARKED THE WAY THE ROUTE MARKS IT, OR THIS TOOL IS A SECOND MARKER.
 
@@ -261,7 +283,8 @@ async function play(sceneId: string) {
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
     const card = cardInPlay(draw.card, scene.beats, state.countered);
     const last = state.turns[state.turns.length - 1] ?? null;
-    const answered = last ? scene.beats.find((b) => b.id === last.beatId) ?? null : null;
+    // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
+    const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
     const spokenFor = standing ?? speaking ?? (answered?.move === "close" ? answered : undefined);
 
     const askedNow = last?.asked ?? null;
@@ -413,7 +436,7 @@ async function play(sceneId: string) {
     }
     const target = standing ?? beat;
     if (!target) break;
-    const said = learnerTurn(target, card ?? draw.card, context.lexicon, n);
+    const said = learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });
   }

@@ -299,9 +299,9 @@ export function passes(verdict: Verdict): boolean {
 /**
  * Runs them all and reports every failure rather than the first.
  *
- * All of them rather than short-circuiting, because §6 allows one retry with
- * the failing words named and a retry told about one problem out of two comes
- * back with the other.
+ * All of them rather than short-circuiting, because §6 allows a composed line
+ * a further try with the failing words named, and a retry told about one
+ * problem out of two comes back with the other.
  */
 export function runGate(text: string, beat: BeatSpec, context: GateContext): Verdict {
   const failed: Check[] = [];

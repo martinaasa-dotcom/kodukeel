@@ -29,6 +29,17 @@ import { answerForms, fits, type Line } from "./retrieval";
 import { words, type Lexicon } from "./lexicon";
 import type { BeatSpec } from "./types";
 
+/**
+ * How many tries a composed line gets before the bank. Three, not one: the
+ * bank is a gate-passed, once-reviewed line written against the beat alone,
+ * months before this conversation happened, and every rejected attempt here
+ * is the model reasoning from a concrete failure it was told about, not a
+ * blind restart. A learner reading a run of composed lines notices the seam
+ * where one drops to a generic one, and that costs more than the couple of
+ * seconds a live provider takes to answer twice more.
+ */
+export const MAX_COMPOSE_ATTEMPTS = 3;
+
 /** Where a line came from. Printed beside it, every time (ADR-025). */
 export type Provenance =
   /** A sentence a lexicographer recorded, used whole. Nothing was generated. */
@@ -276,7 +287,8 @@ export interface LineRequest {
   readonly used: ReadonlySet<string>;
   /**
    * Asks a model for one line. `avoid` names the words the last attempt reached
-   * for that the list could not vouch for, which is what §6 gives the one retry.
+   * for that the list could not vouch for, which is what §6 gives each retry up
+   * to `MAX_COMPOSE_ATTEMPTS`.
    *
    * Returns null where there is no key, no allowance, or no answer, and that is
    * an ordinary case rather than an error: a keyless deployment runs this module
@@ -319,9 +331,8 @@ export function fallbackLine(text: string, withheld: readonly Check[] = []): Spo
  * is §5's third promise. When it is exhausted the run says so by falling
  * through rather than quietly cycling.
  *
- * One retry, and only one. §6 allows it with the failing words named, and the
- * second failure is the fallback: a third attempt is a slower way to reach the
- * same place, and the learner is waiting through every one of them.
+ * Up to `MAX_COMPOSE_ATTEMPTS` tries at a composed line before the bank, told
+ * the specific failing words each time (§6). Only the last one falls through.
  */
 export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
   /* Which checks withheld the model's line, carried to the fallback so the run can say. */
@@ -405,28 +416,34 @@ export async function sceneLine(request: LineRequest): Promise<SpokenLine> {
       return runGate(line, request.beat, vouched ? { ...gate, vouched: (w) => vouched.has(w) } : gate);
     };
 
-    const first = await request.compose([]);
-    const firstVerdict = await judge(first);
-    if (first && firstVerdict && passes(firstVerdict)) {
-      return { text: first, provenance: "composed", stretched: firstVerdict.stretched };
-    }
-
     /*
-      One retry, and only one. §6 allows it with the failing words named, and
-      the second failure is the bank: a third attempt is a slower way to reach
-      the same place, and the learner is waiting through every one of them.
+      THREE ATTEMPTS RATHER THAN TWO, BECAUSE THE ALTERNATIVE IS THE BANK AND
+      THE BANK IS THE LESS SPONTANEOUS LINE.
 
-      What it is told is what actually went wrong: a word nothing could vouch
-      for is a word to drop, and a line that simply reached too far is told to
-      reach less far, which is a different instruction and used to be the same
-      one.
+      This used to stop after one retry on the argument that a third attempt
+      is a slower way to reach the bank and the learner is waiting through
+      every one of them. That argument weighs a few seconds of waiting against
+      the wrong thing: a couple more seconds of the learner's own connection
+      is a smaller cost than the conversation dropping out of the voice it has
+      been in for the rest of the scene and into a generic, months-old line.
+      A learner reading a run of composed lines notices the seam where one
+      isn't. So two retries, told what actually went wrong each time exactly
+      as the first retry always was, and only then the bank, which is still
+      what a deployment with no key, a spent allowance, or a provider having a
+      bad minute falls to unconditionally.
     */
-    const second = await request.compose(retryNote(firstVerdict));
-    const secondVerdict = await judge(second);
-    if (second && secondVerdict && passes(secondVerdict)) {
-      return { text: second, provenance: "composed", stretched: secondVerdict.stretched };
+    const attempts: (string | null)[] = [];
+    const verdicts: (Verdict | null)[] = [];
+    for (let n = 0; n < MAX_COMPOSE_ATTEMPTS; n += 1) {
+      const line = await request.compose(retryNote(verdicts.at(-1) ?? null));
+      const verdict = await judge(line);
+      attempts.push(line);
+      verdicts.push(verdict);
+      if (line && verdict && passes(verdict)) {
+        return { text: line, provenance: "composed", stretched: verdict.stretched };
+      }
     }
-    withheld = secondVerdict?.failed ?? firstVerdict?.failed ?? [];
+    withheld = verdicts.at(-1)?.failed ?? [];
   }
 
   /*

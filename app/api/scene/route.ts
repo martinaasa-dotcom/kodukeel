@@ -21,7 +21,7 @@ import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
 import { asideFor, asideOwed, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
-import { answerBeatId } from "@/lib/scenes/scripted";
+import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { gateFor, passes, runGate } from "@/lib/scenes/gate";
 import { words } from "@/lib/scenes/lexicon";
@@ -73,6 +73,15 @@ import { wordGlossFrom } from "@/lib/ux/wordGloss";
  */
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/*
+  A TURN CAN NOW ASK A MODEL UP TO MAX_COMPOSE_ATTEMPTS TIMES (`sceneLine`),
+  which went from two to three so a learner reading a run of composed lines
+  is less likely to meet the seam where one drops to the bank. The platform's
+  own default is too short a bet on three sequential provider round trips
+  going well, the way `/api/describe`, `/api/scan`, `/api/tutor` and
+  `/api/write` already decided about their own calls.
+*/
+export const maxDuration = 60;
 
 /** A bound on a body rather than on a scene. */
 const MAX_CONTEXT_CHARS = 600;
@@ -193,7 +202,25 @@ export async function POST(request: Request) {
   const speaking = response === "counter" && current?.counter ? counterBeat(current) : current;
   const card = cardInPlay(draw?.card ?? null, scene.beats, state.countered);
   const last = state.turns[state.turns.length - 1] ?? null;
-  const answered = last ? scene.beats.find((b) => b.id === last.beatId) ?? null : null;
+  /*
+    THE BEAT JUST ANSWERED IS OFTEN A HURDLE, AND `scene.beats` HAS NEVER
+    HEARD OF ONE.
+
+    A curveball's beat is synthetic (`hurdle:<id>`, built by `hurdleBeat`)
+    and lives nowhere in the catalogue's own `beats` array, so the moment a
+    learner resolved one, this lookup came back empty. `answered` feeds the
+    whole reaction system below: the acknowledgment after a landed turn is
+    gated on `answered` being truthy, so every turn that resolved a curveball
+    skipped it in silence and went straight to the next beat's bare opening
+    line with nothing said about what had just happened. A learner who
+    corrected a mishearing ("ei ole") read the "where" beat's ordinary
+    opener next, "Jah, palun?", which answers a yes/no question nobody had
+    asked and reads as agreeing with the "no" they had just said. `sceneBeats`
+    is the one function that also knows about hurdle and `answer:<beat>`
+    beats, and it is what every other reader of "which beat was this turn
+    about" already uses (`bank.test.ts`, `scriptedFor`).
+  */
+  const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
   const heard = last?.heard ?? null;
 
   const used = new Set(

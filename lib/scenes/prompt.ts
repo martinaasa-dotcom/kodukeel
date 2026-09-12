@@ -170,6 +170,32 @@ const COMPOSE_RULES = [
   "the small courtesy, the one thing about the moment that a person in your job would mention,",
   "the aside they would actually make. A whole thought, finished, the way you are reading this.",
   /*
+    AND A QUESTION THAT CAN BE ANSWERED TWO WAYS IS A QUESTION HALF ASKED.
+    `Mis teil valutab?` is correct Estonian, inside the list, and still leaves
+    a beginner guessing whether it wants a body part, a feeling or an illness,
+    which is a different failure from being terse: the words are all there and
+    the request still is not. What fixes it is not length, it is naming the
+    thing: a category, a real example, a choice between two things it could
+    be, so the next turn is a specific answer rather than a guess at which
+    question was actually asked.
+  */
+  "Never leave what you are asking or answering open to more than one reading. Where the words",
+  "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
+  "take your meaning two different ways.",
+  /*
+    AND THE NEXT QUESTION IS BUILT ON THE LAST ANSWER, NOT ASKED AS THOUGH
+    NOTHING CAME BEFORE IT. A real interview never reads as a list of
+    questions read off a form: a doctor who has just heard "three cups of
+    coffee a day" asks next whether the headache is worse on the days that
+    coffee is skipped, not a question that could have opened the visit.
+    That is what tells a learner the other side is listening rather than
+    working through a script, and it is available for free wherever the
+    turn before it named something this beat's own topic can point back at.
+  */
+  "Where the learner's last turn named something this beat can reasonably refer to, refer to it",
+  "rather than asking as though this were the first thing said. Do not invent a detail they did",
+  "not give you, and do not force a callback where the topic has genuinely moved on.",
+  /*
     AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
     thing about the place a person would mention, and with the room to say it,
     the model reached for a word it did not control: `Tere! Mis needus täna
