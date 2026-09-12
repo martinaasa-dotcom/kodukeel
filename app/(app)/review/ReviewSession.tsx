@@ -28,6 +28,7 @@ import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState }
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { resumeIndex, resumeStorageKey } from "@/lib/ux/resumePosition";
 
 export interface ReviewCard {
   id: string;
@@ -408,7 +409,20 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
-  const [index, setIndex] = useState(0);
+  /*
+    A resume key is read once, from the URL the browser actually has rather
+    than from a hook: this component is client-rendered under a
+    `force-dynamic` page already, so nothing here needs to react to the URL
+    changing, only to remember where it was reached from. See
+    `lib/ux/resumePosition.ts`.
+  */
+  const [resumeKey] = useState(() =>
+    typeof window === "undefined" ? null : resumeStorageKey(window.location.pathname + window.location.search),
+  );
+  const [index, setIndex] = useState(() => {
+    if (!resumeKey || typeof window === "undefined") return 0;
+    return resumeIndex(initialCards, window.sessionStorage.getItem(resumeKey));
+  });
   const [revealed, setRevealed] = useState(false);
   const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
@@ -480,6 +494,18 @@ export function ReviewSession({
   const card = queue[index];
   const finished = !card;
   const ask = card ? askFor(card, mode, met) : "flip";
+
+  /*
+    The card on screen is remembered so a detour to its dictionary entry can
+    come back to it rather than to whatever a fresh queue opens with. Cleared
+    once the round is actually finished, so a later visit to the same route
+    after a real finish does not try to reopen a card that is done with.
+  */
+  useEffect(() => {
+    if (!resumeKey) return;
+    if (card) window.sessionStorage.setItem(resumeKey, card.id);
+    else window.sessionStorage.removeItem(resumeKey);
+  }, [resumeKey, card]);
 
   /*
     Whether the answer is on the screen, which is not the same question as
