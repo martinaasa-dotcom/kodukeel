@@ -1,4 +1,4 @@
-import { sceneryFor, type Setting } from "@/lib/scenes/scenery";
+import { sceneryFor, type Cue, type Setting } from "@/lib/scenes/scenery";
 
 /**
  * THE ROOM A CONVERSATION HAPPENS IN, DRAWN.
@@ -37,8 +37,26 @@ import { sceneryFor, type Setting } from "@/lib/scenes/scenery";
  * something, a queue steps up, a phone rings out, a bus idles. Slow and out of
  * phase with the rest, because this sits above a sentence somebody is reading
  * and a drawing that ticks at the speed of a cursor gets read instead of it.
+ *
+ * AND IT STAYS UP WHILE THE CONVERSATION RUNS, WHICH IS WHAT IT IS FOR.
+ *
+ * It was drawn on the briefing and on the cover between two rooms, and then
+ * the conversation itself had nothing but an eighteen-pixel icon on the bar. A
+ * learner asked where the drawings had gone: they had stepped into a health
+ * centre, read one sentence, and been put back on a screen that could have
+ * been any of the fourteen. Everything a drawing is for happens *during* a
+ * conversation rather than before it. Where you are is the thing every beat is
+ * asked about, who is talking is the thing a wall of bubbles says least well,
+ * how many people are in the room is pressure nobody announces, and a
+ * curveball is a change to the room that arrived as a sentence in English.
+ *
+ * So `fit="band"` is the same drawing sized for the strip that sticks under
+ * the bar for the whole of a conversation (`components/scene/SceneStage.tsx`),
+ * `speaking` puts the breath on whoever has the floor, and `cue` is what has
+ * just come up. Nothing about the room changes: it is one drawing, drawn twice
+ * at two sizes, so a fifteenth scene still costs a branch and no file.
  */
-export function SceneVignette({ sceneId, setting, className = "" }: {
+export function SceneVignette({ sceneId, setting, speaking = null, cue = null, fit = "block", className = "" }: {
   sceneId: string;
   /**
    * The room to draw, where the caller knows it. A scene can walk somebody out
@@ -46,14 +64,36 @@ export function SceneVignette({ sceneId, setting, className = "" }: {
    * in now (`SceneSession`); without it this is the room the scene opens in.
    */
   setting?: Setting;
+  /**
+   * Whose floor it is, where the caller knows that too.
+   *
+   * The briefing and the cover between two rooms pass nothing, because nobody
+   * is talking yet in either. The band above a running conversation passes the
+   * side that has the floor, and that is the whole of what it adds: the same
+   * room, with the speaking in it.
+   */
+  speaking?: "you" | "them" | null;
+  /** What has just come up, where a curveball is standing (`lib/scenes/scenery.ts`). */
+  cue?: Cue | null;
+  /**
+   * How it is sized, which is two shapes rather than a className a caller can
+   * fight with. `block` is the drawing on a briefing, which takes the width it
+   * is given; `band` is the strip above a conversation, which takes the height
+   * and centres itself in whatever width is left. Written as a prop because
+   * the two disagree on `width` and `height` both, and two Tailwind classes
+   * for one property resolve by stylesheet order rather than by which one the
+   * caller wrote last.
+   */
+  fit?: "block" | "band";
   className?: string;
 }) {
   const room = setting ?? sceneryFor(sceneId).setting;
+  const marks = MARKS[room];
   return (
     <svg
       aria-hidden
       viewBox="0 0 200 120"
-      className={`h-auto w-full max-w-[19rem] ${className}`}
+      className={`${fit === "band" ? "h-full w-auto" : "h-auto w-full max-w-[19rem]"} ${className}`}
       style={{ color: "var(--ink-2)" }}
       fill="none"
       stroke="currentColor"
@@ -64,6 +104,24 @@ export function SceneVignette({ sceneId, setting, className = "" }: {
       {/* The floor they are all standing on, quieter than they are. */}
       <path d="M 22 101 H 178" stroke="var(--rule)" strokeWidth={2} />
       <Room of={room} />
+      {/*
+        WHO HAS THE FLOOR, DRAWN OVER THE ROOM RATHER THAN INSIDE IT.
+
+        Every room is a `switch` branch with its people written into it, and
+        threading a flag through twenty of them would put the same three lines
+        in twenty places and leave the twenty-first out. `MARKS` is where each
+        room's people are instead, so this is one drawing for all fourteen: the
+        side with the floor gets the breath coming out of them, on the side
+        they are facing.
+
+        It is never the only thing saying so. Every line in the log says who
+        said it in words, the wait has the other side's own face beside it, and
+        the panel the learner types into is the ask. This is what a glance
+        gets.
+      */}
+      {speaking === "you" && <Saying x={marks.you + 11} y={48} facing="right" />}
+      {speaking === "them" && <Saying x={marks.them.x - 11} y={marks.them.y} facing="left" />}
+      {cue && <Cued what={cue} marks={marks} />}
     </svg>
   );
 }
@@ -321,4 +379,160 @@ function Room({ of }: { of: Setting }) {
         </>
       );
   }
+}
+
+/**
+ * WHERE THE PEOPLE IN EACH ROOM ARE, AS NUMBERS RATHER THAN AS STROKES.
+ *
+ * `Room` draws each of the fourteen as its own branch, which is right for
+ * furniture and wrong for anything that has to be drawn *about* a room from
+ * outside it: who has the floor, and what has just come up. Threading either
+ * through twenty `Person` calls would put the same three lines in twenty
+ * places and leave the twenty-first out, which is how this repository's
+ * tables usually go wrong.
+ *
+ * So a room says where its people are and the marks are drawn over it. Every
+ * figure stands on the floor at 101 with its head at 54, so `you`, `behind`
+ * and `beside` are one number each; `them` is a point rather than a number
+ * because on the three scenes held over a telephone there is nobody on the
+ * other side of the room at all, and what speaks is the line going out. There
+ * the point is put above the ringing, which is where a voice coming down a
+ * wire has to be if it is anywhere.
+ *
+ * Checked against the drawing in `scenery.test.ts`: every room drawn has a row
+ * and every row is a room, for the reason the scenery table itself is checked
+ * both ways.
+ */
+interface Marks {
+  /** The learner's own head. */
+  readonly you: number;
+  /** Where the other side's voice comes from: their head, or the end of the line. */
+  readonly them: { readonly x: number; readonly y: number };
+  /** Where somebody joining the queue behind the learner stands. */
+  readonly behind: number;
+  /** Where somebody with a claim on the other side stands. */
+  readonly beside: number;
+  /** The top left of a sheet of paper on whatever surface is between them. */
+  readonly thing: { readonly x: number; readonly y: number };
+}
+
+const MARKS: Readonly<Record<Setting, Marks>> = {
+  clinic: { you: 76, them: { x: 142, y: 48 }, behind: 48, beside: 168, thing: { x: 120, y: 64 } },
+  pharmacy: { you: 70, them: { x: 142, y: 48 }, behind: 44, beside: 168, thing: { x: 126, y: 64 } },
+  office: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 168, thing: { x: 136, y: 62 } },
+  cafe: { you: 58, them: { x: 142, y: 48 }, behind: 30, beside: 168, thing: { x: 136, y: 64 } },
+  restaurant: { you: 40, them: { x: 166, y: 48 }, behind: 16, beside: 188, thing: { x: 120, y: 64 } },
+  /* Nobody is in the room with you: the shop is the shelves and the voice is a phone. */
+  shop: { you: 44, them: { x: 140, y: 28 }, behind: 18, beside: 84, thing: { x: 78, y: 60 } },
+  returns: { you: 58, them: { x: 144, y: 48 }, behind: 30, beside: 170, thing: { x: 136, y: 62 } },
+  /* The window you buy at is in the bus, so that is where the answer comes from. */
+  bus: { you: 44, them: { x: 106, y: 46 }, behind: 18, beside: 70, thing: { x: 84, y: 62 } },
+  street: { you: 54, them: { x: 122, y: 48 }, behind: 28, beside: 148, thing: { x: 98, y: 62 } },
+  stairwell: { you: 36, them: { x: 84, y: 48 }, behind: 14, beside: 106, thing: { x: 60, y: 62 } },
+  walking: { you: 62, them: { x: 150, y: 28 }, behind: 30, beside: 142, thing: { x: 78, y: 56 } },
+  classroom: { you: 56, them: { x: 150, y: 48 }, behind: 28, beside: 176, thing: { x: 126, y: 62 } },
+  meeting: { you: 48, them: { x: 156, y: 48 }, behind: 22, beside: 180, thing: { x: 78, y: 64 } },
+  home_phone: { you: 62, them: { x: 160, y: 28 }, behind: 34, beside: 96, thing: { x: 78, y: 62 } },
+};
+
+/**
+ * Somebody talking, which is three arcs and the only thing in this app that
+ * says who has the floor without using a word.
+ *
+ * The same shape as `Ringing`, smaller and turned: a telephone throws its
+ * sound out in rings and a person throws it at the person opposite, so these
+ * open on the side the speaker is facing. Staggered on the same three delays
+ * everything else in the drawing uses, so the room keeps one rhythm.
+ */
+function Saying({ x, y, facing }: { x: number; y: number; facing: "left" | "right" }) {
+  const d = facing === "left" ? -1 : 1;
+  const sweep = facing === "left" ? 0 : 1;
+  return (
+    <>
+      {[1, 2, 3].map((at) => (
+        <path
+          key={at}
+          className={`stick-say amb-${at}`}
+          style={{ opacity: 0 }}
+          d={`M ${x + (at - 1) * 5 * d} ${y - at * 2} a ${5 + at * 3} ${5 + at * 3} 0 0 ${sweep} 0 ${8 + at * 4}`}
+        />
+      ))}
+    </>
+  );
+}
+
+/**
+ * WHAT HAS JUST COME UP, IN THE ROOM RATHER THAN IN A SENTENCE ABOVE IT.
+ *
+ * Four kinds for fourteen curveballs (`lib/scenes/scenery.ts`), because four
+ * is what strokes can carry without the drawing becoming a puzzle of its own,
+ * and because the fourteen really do fall into four shapes. It arrives rather
+ * than being there, which is the half that makes it a cue: a room that was one
+ * way a moment ago and is another way now is the thing a learner notices out
+ * of the corner of their eye, and the objective in the panel below says what
+ * to do about it in words.
+ */
+function Cued({ what, marks }: { what: Cue; marks: Marks }) {
+  switch (what) {
+    case "behind":
+      /* A queue, which is the one curveball with no words in it at all. */
+      return <Person x={marks.behind} className="scene-cue" />;
+
+    case "another":
+      /* Somebody else with a claim on the person you were talking to. */
+      return <Person x={marks.beside} arms="out" facing="left" className="scene-cue" />;
+
+    case "paper":
+      /*
+        The thing between you is the problem: a form you were not given, a
+        price that is not the one you were told, a slot that has gone. A sheet
+        with a line through it, on whatever surface this room puts between two
+        people, or in the hand of whoever is holding it out where the room has
+        no surface at all.
+      */
+      return (
+        <Mark
+          d={`M ${marks.thing.x} ${marks.thing.y} h 16 v 14 h -16 z`
+            + ` M ${marks.thing.x + 3} ${marks.thing.y + 3} l 10 8`}
+        />
+      );
+
+    case "attention":
+      /*
+        The person is what changed: how they heard you, how fast they are
+        talking, which language or which pronoun they have switched to. Three
+        short rays over whoever is speaking, which is the oldest drawing there
+        is for somebody having done something unexpected.
+      */
+      return (
+        <Mark
+          d={`M ${marks.them.x} ${marks.them.y - 14} v -7`
+            + ` M ${marks.them.x - 10} ${marks.them.y - 11} l -4 -6`
+            + ` M ${marks.them.x + 10} ${marks.them.y - 11} l 4 -6`}
+        />
+      );
+  }
+}
+
+/**
+ * A cue laid over a room that was already drawn.
+ *
+ * The rooms are full: a counter has a cup on it, a classroom has a board
+ * across the back of it, and there is no corner of a two-hundred-unit sketch
+ * that is free in all fourteen. A mark drawn into that comes out as a scribble
+ * on the furniture, which is worse than no cue at all, because the thing a cue
+ * has to do is read at a glance.
+ *
+ * So it is laid down twice: once wide in the ground the room is painted on,
+ * which knocks a clear space out of whatever is behind it, and once in the ink.
+ * One `d` with two or three subpaths rather than two elements, so the knockout
+ * cannot come apart from the thing it is clearing space for.
+ */
+function Mark({ d }: { d: string }) {
+  return (
+    <g className="scene-cue">
+      <path d={d} stroke="var(--ground)" strokeWidth={6} />
+      <path d={d} />
+    </g>
+  );
 }

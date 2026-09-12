@@ -3738,3 +3738,98 @@ put eight rows in the log that would have been none: `Läti`, `Venemaa` and
 `Soome` for where you are from, `laps` and `vend` for who lives with you, and
 `teine`, `neljas` and `viies` for the floor, each the ordinal the learner
 actually typed rather than the cardinal beside it on the card.
+
+## §64 The room a conversation is had in, still there while it is had
+
+`SceneVignette` draws fourteen rooms out of strokes: a counter with somebody
+behind it, a table with a plate on it, a stairwell with stairs, a phone ringing
+out of a kitchen. It was drawn on the briefing and on the cover between two
+rooms, and nowhere else. So a learner stepped into a health centre, read one
+sentence, pressed a button, and held the whole conversation on a screen that
+could have been any of the fourteen: an eighteen-pixel icon on the bar, and two
+columns of cards. They asked where the drawings had gone.
+
+**Everything a drawing is for happens during a conversation rather than before
+it**, which is the argument, and it is four things rather than one.
+
+*Where you are* is what every beat asks about. The scene that walks somebody
+from their kitchen to a corner shop already had a cover saying so (§57); what it
+did not have was anything on screen afterwards that was still true.
+
+*Who is talking* is what a column of bubbles carries worst. `SceneFace` put a
+head and shoulders beside each run of lines, which says who *said* a line; it
+cannot say whose turn it is now, and the gap between a reply landing and the
+learner typing is where somebody wonders whether the app is waiting for them.
+
+*How many people are in the room* is pressure nobody announces. `queue` is the
+one curveball of the fourteen with no words in it at all: it costs a point of
+the persona's patience and its own entry calls that "pressure that is felt
+rather than announced". Nothing on the screen let anybody feel it, because it
+never becomes a beat and so never reached the browser at all.
+
+*And a curveball was a sentence of English above a question in Estonian.*
+Somebody standing at a counter does not read that a second person has started
+talking to the clerk. They see him.
+
+**So the room is a band under the bar for the whole conversation.** Inside the
+bar rather than beside it, because two sticky elements at one offset are one
+sticky element with the other drawn underneath it, which is the lesson the role
+card's own summary taught this screen once already. Its height is declared in
+`app/globals.css` and the offset the role card sticks at is that height plus the
+bar's: two numbers that have to agree are one number about to be wrong.
+
+**Who has the floor is the same reading the wait already takes.** A turn is with
+the server and the last thing in the log is not theirs, so they are the ones
+about to speak; anything else and the floor is the learner's, which is most of a
+conversation and is exactly when somebody is looking at the box rather than at
+the transcript. Nobody has it while the room is moving. It is drawn as three
+arcs out of the speaker's mouth, on the side they are facing, which is
+`Ringing`'s own shape turned: a telephone throws sound out in rings and a person
+throws it at the person opposite.
+
+**And the marks are drawn over the room rather than into it.** Each of the
+fourteen is a `switch` branch with its people written into it, and threading a
+flag through twenty `Person` calls would put the same three lines in twenty
+places and leave the twenty-first out, which is how a table in this repository
+usually goes wrong. `MARKS` says where each room's people are instead: `you`,
+`behind` and `beside` are one number each, because every figure stands on the
+same floor with its head at the same height, and `them` is a point rather than a
+number because in the three scenes held over a telephone there is nobody on the
+other side of the room and what speaks is the line going out.
+
+**Four cues for fourteen curveballs, and the fourteen really do fall into
+four.** Somebody behind you (`queue`). Somebody beside them, with a claim on the
+person you were talking to (`interrupted`). The thing between you being the
+problem, which is a form, a price, a slot or a refusal. Or the person themselves
+being what changed, which is how they heard you, how fast they are talking, and
+which language or which pronoun they have switched to. Four is what strokes can
+carry without the drawing becoming a puzzle of its own, and `scenery.test.ts`
+reads the table both ways: a curveball with no cue goes on arriving as a
+sentence of English, and a cue nobody throws is a drawing nobody sees.
+
+**A cue is laid down twice, which is what makes it legible at all.** The rooms
+are full: a counter has a cup on it and a classroom has a board across the back
+of it, and there is no corner of a two-hundred-unit sketch free in all fourteen.
+The same path is stroked first in the ground the room is painted on and then in
+the ink, so it knocks a clear space out of whatever is behind it. One `d` with
+two or three subpaths rather than two elements, so the knockout cannot come
+apart from the thing it is clearing space for.
+
+**It stays decoration and says so.** The band is `aria-hidden`, like every other
+drawing here. Who said a line is in words beside it, whose turn it is is the ask
+panel, and what a curveball wants is the objective in play, named in English in
+the panel the learner types into. A drawing may not be the only thing carrying a
+distinction any more than a colour may.
+
+**And the queue is the one fact the screen cannot work out for itself.** Thirteen
+curveballs reach the browser as a beat of their own and name themselves in its
+id, so the room draws what came up off `beatId` and nothing was added to the
+wire for them. The silent one is a boolean beside the speed the same curveball
+table already changes: a curveball that alters how a conversation goes and says
+so nowhere is one the learner is paying for and cannot see.
+
+**What a source check cannot say**, and why `scripts/test-scene.mjs` asks it in a
+browser: a band drawn at the top of the column and a band that sticks under the
+bar are the same markup and the same props, and only one of them is a room. It
+is measured where the conversation opens and again with the page rolled to its
+own end, which is the state a learner is in for every turn after the first.

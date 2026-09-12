@@ -181,3 +181,70 @@ export function movesTo(sceneId: string, beatId: string | null): Setting | null 
   if (!beatId) return null;
   return MOVES[sceneId]?.[beatId] ?? null;
 }
+
+/**
+ * WHAT HAS JUST COME UP, DRAWN.
+ *
+ * A curveball is the one thing in a conversation that arrives without being
+ * asked for, and it arrived as English: a sentence describing what had
+ * happened, above a question in Estonian. The learner reads the sentence,
+ * works out what changed, and then answers. Somebody standing at a counter
+ * does none of that, because they can see it: the person who started talking
+ * over them is standing there, the queue behind them got longer, the form on
+ * the counter is the thing being pointed at.
+ *
+ * So the room says it too. This is a *cue*, not an illustration of each of the
+ * fourteen: four kinds, because four is what a drawing made of strokes can
+ * carry without becoming a puzzle of its own, and because the fourteen really
+ * do fall into four shapes. Somebody behind you, somebody beside them,
+ * something on the counter, or the person themselves being the thing that
+ * changed.
+ *
+ * It is never the only thing saying so. The objective in play still names the
+ * way out in words, in the panel the learner types into, which is where
+ * somebody looks when they are stuck; this is what tells them to look.
+ */
+export type Cue = "behind" | "another" | "paper" | "attention";
+
+/**
+ * One row per curveball, checked both ways in `scenery.test.ts`.
+ *
+ * Every curveball, including the silent one: `queue` never becomes a beat and
+ * so never reaches the screen as a question, and a queue forming behind you is
+ * the one of the fourteen that is *entirely* visual. It is the reason this
+ * table is keyed on the curveball rather than on the beat.
+ */
+export const CUES: Readonly<Record<string, Cue>> = {
+  /* Somebody behind you, which is pressure rather than a question. */
+  queue: "behind",
+  /* Somebody else with a claim on the person you are talking to. */
+  interrupted: "another",
+  /* The thing between you is the problem: a form, a price, a slot, a refusal. */
+  "missing-document": "paper",
+  "wrong-price": "paper",
+  "slot-gone": "paper",
+  "not-possible": "paper",
+  "their-order": "paper",
+  /* The person is what changed: how they heard you, how fast, which language,
+     which pronoun, what they now say, or where they are sending you. */
+  misheard: "attention",
+  faster: "attention",
+  english: "attention",
+  "other-register": "attention",
+  contradiction: "attention",
+  "small-talk": "attention",
+  "place-instruction": "attention",
+};
+
+/**
+ * The cue for the curveball standing in the way, off the beat the screen is on.
+ *
+ * A curveball reaches the screen as a beat of its own (`hurdleBeat`), which is
+ * the only thing about it the browser is told, so this reads the id back out
+ * rather than asking for a second field on the wire. A beat that is one of the
+ * scene's own is nothing having come up, which is most of a conversation.
+ */
+export function cueFor(beatId: string | null | undefined): Cue | null {
+  if (!beatId?.startsWith("hurdle:")) return null;
+  return CUES[beatId.slice("hurdle:".length)] ?? null;
+}

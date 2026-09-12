@@ -271,6 +271,18 @@ export async function POST(request: Request) {
       said. Empty on a turn that was right.
     */
     slips: last?.slips ?? [],
+    /*
+      Whether a queue has formed behind the learner, which is the one curveball
+      the screen cannot work out for itself. The other thirteen arrive as a beat
+      of their own and name themselves in its id, so the room draws what came up
+      off `beatId` (`cueFor`); this one is `silent`, asks for nothing and never
+      becomes a beat, and its whole effect is a point of patience. Its own entry
+      calls that pressure felt rather than announced, and nothing on the screen
+      let anybody feel it. One boolean, for the same reason `speed` is already
+      here: a curveball that changed how the conversation goes and said so
+      nowhere is a curveball the learner is paying for and cannot see.
+    */
+    queued: state.hurdles.some((one) => one.id === "queue"),
   };
 
   /*

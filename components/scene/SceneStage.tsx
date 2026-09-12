@@ -49,7 +49,7 @@ import { SceneMotif } from "./SceneMotif";
  * every phase, which is what the accessibility sweep asks for and what
  * somebody moving by headings needs when the screen changes under them.
  */
-export function SceneStage({ sceneId, title, place, minutes, progress, children }: {
+export function SceneStage({ sceneId, title, place, minutes, progress, stage, children }: {
   /** Which room this is, for the mark on the bar (`lib/scenes/scenery.ts`). */
   sceneId: string;
   title: string;
@@ -64,12 +64,23 @@ export function SceneStage({ sceneId, title, place, minutes, progress, children 
    * off the same list, so the two cannot disagree.
    */
   progress?: { met: boolean; now: boolean; goal: string }[];
+  /**
+   * The room itself, drawn, for as long as the conversation lasts.
+   *
+   * Sticky under the bar rather than at the top of the column, which is the
+   * whole of the fix: a drawing that scrolls away with the briefing is a
+   * drawing a learner sees once, and every question after that is asked about
+   * a place they can no longer see. Its height is `--scene-stage` in
+   * `app/globals.css` and so is the offset the role card sticks at, because
+   * two numbers that have to agree are one number about to be wrong.
+   */
+  stage?: ReactNode;
   children: ReactNode;
 }) {
   const met = progress?.filter((one) => one.met).length ?? 0;
 
   return (
-    <div className="scene-room relative flex min-h-screen flex-col">
+    <div className="scene-room relative flex min-h-screen flex-col" data-stage={stage ? "" : undefined}>
       {/* The room's own light, behind everything and fixed, so a long
           transcript does not drag it up the screen. */}
       <div aria-hidden className="scene-ground" />
@@ -155,6 +166,30 @@ export function SceneStage({ sceneId, title, place, minutes, progress, children 
           )}
 
         </div>
+
+        {/*
+          THE ROOM, UNDER THE ROOM'S NAME, FOR THE WHOLE CONVERSATION.
+
+          Inside the bar rather than beside it, so the two stick as one thing:
+          two sticky elements at the same offset are one sticky element with the
+          other drawn underneath it, which is the lesson the role card's summary
+          already taught this file.
+
+          It takes its height from the stylesheet and the drawing takes the
+          height, so the band is one figure on a phone and the same figure a
+          little larger where there is room. Centred, because a room seen across
+          a counter is a room seen from where you are standing, and what is
+          either side of it on a wide screen is the same quiet ground the bar is
+          painted in rather than a second thing to look at.
+        */}
+        {stage && (
+          <div
+            className="mx-auto flex w-full max-w-3xl items-end justify-center px-4 pb-1 md:px-6"
+            style={{ height: "var(--scene-stage)" }}
+          >
+            {stage}
+          </div>
+        )}
       </header>
 
       <div className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-5 md:px-6">{children}</div>

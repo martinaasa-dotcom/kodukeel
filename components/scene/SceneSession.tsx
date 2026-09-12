@@ -23,7 +23,7 @@ import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
 import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
-import { movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
+import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 
 /**
@@ -316,6 +316,19 @@ export function SceneSession({ scene, minutes, unit }: {
   */
   const [room, setRoom] = useState<Setting>(() => sceneryFor(scene.id).setting);
   /*
+    WHETHER A QUEUE HAS FORMED BEHIND THE LEARNER.
+
+    Thirteen of the fourteen curveballs reach the screen as a beat of their own
+    and say which one they are in their id, so the room can draw what has come
+    up without being told twice. The queue is the fourteenth and is `silent`:
+    it never becomes a beat, it asks for nothing, and its whole effect is one
+    number of patience. Its own entry calls that "pressure that is felt rather
+    than announced", and for its whole life nothing on the screen let anybody
+    feel it. It is the one curveball that is entirely a picture, so the server
+    says it happened and the room draws the person.
+  */
+  const [queued, setQueued] = useState(false);
+  /*
     HOW THE OTHER SIDE SOUNDS, WHICH IS THE ROOM THIS FEATURE WAS WRITTEN FOR.
 
     `lib/audio/conditions.ts` opens with a counter, a clinic ringing back on a
@@ -555,7 +568,7 @@ export function SceneSession({ scene, minutes, unit }: {
         beatId?: string | null; goal?: string | null; done?: string[];
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
-        slips?: SlipNote[];
+        slips?: SlipNote[]; queued?: boolean;
       };
       if (data.error) { setError(data.error); return; }
       if (data.composed === false && data.note) setNote(data.note);
@@ -626,6 +639,7 @@ export function SceneSession({ scene, minutes, unit }: {
       });
       if (data.voice) setVoice(data.voice);
       if (typeof data.speed === "number" && data.speed > 0) setSpeed(data.speed);
+      if (data.queued) setQueued(true);
       setDone(data.done ?? []);
       if (said.length > 0) setTurns((was) => [...was, { who: "them", lines: said }]);
       /*
@@ -1014,9 +1028,48 @@ export function SceneSession({ scene, minutes, unit }: {
     themselves is how one of them comes to be the one that stayed live.
   */
   const moving = interlude !== null;
+  /*
+    WHOSE FLOOR IT IS, WHICH IS THE ONE THING A WALL OF BUBBLES SAYS LEAST WELL.
+
+    The same reading the wait already takes: a turn is with the server, and the
+    last thing in the log is not theirs, so they are the ones about to speak.
+    Anything else and the floor is the learner's, which is most of a
+    conversation and is exactly when somebody is looking at the box rather than
+    at the transcript. Nobody has it while the room is moving, because nobody is
+    saying anything under a cover.
+  */
+  const saying = moving
+    ? null
+    : busy && turns[turns.length - 1]?.who !== "them" ? "them" as const : "you" as const;
+  /*
+    And what has just come up. The beat the other side is waiting on is a
+    curveball's own beat where one is standing (`hurdleBeat`), so the id is the
+    whole of what the room needs; the queue is the one that never becomes a beat
+    and is carried beside it.
+  */
+  const cue = cueFor(beatId) ?? (queued ? "behind" : null);
 
   return (
-    <SceneStage sceneId={scene.id} title={scene.title} place={scene.place} progress={progress}>
+    <SceneStage
+      sceneId={scene.id}
+      title={scene.title}
+      place={scene.place}
+      progress={progress}
+      /*
+        THE ROOM, STILL THERE WHILE THE CONVERSATION IS HAD IN IT.
+
+        It was drawn on the briefing and then taken away, so every question
+        after the first was asked about a place the learner could no longer
+        see, and a learner said so: the drawings were gone. All four things a
+        drawing is for happen here rather than on the briefing. Where you are
+        is what every beat asks about. Who is talking is what a column of
+        bubbles carries worst. How many people are in the room is pressure
+        nobody announces. And a curveball was a sentence of English above a
+        question in Estonian, where a person at a counter would simply have
+        seen the man who started talking over them.
+      */
+      stage={<SceneVignette sceneId={scene.id} setting={room} speaking={saying} cue={cue} fit="band" />}
+    >
     {/*
       THE COVER, WHICH IS THE ONE MOMENT NOTHING CAN BE TYPED.
 

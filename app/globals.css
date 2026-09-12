@@ -1088,8 +1088,22 @@
     reads it: one figure, in one place, and a card that cannot end up hidden
     behind the room's own name.
   */
-  .scene-room { --scene-top: 3.5rem; }
-  .scene-sticky { position: sticky; top: var(--scene-top, 0px); }
+  /*
+    AND THE ROOM STICKS UNDER THE BAR, WHICH IS WHAT MAKES IT A ROOM AT ALL.
+
+    The drawing was on the briefing and nowhere else, so a conversation was had
+    on a screen that could have been any of the fourteen. It is a band under the
+    bar now, for the whole of the conversation, and its height is declared here
+    rather than in the markup for the same reason the bar's is: two numbers that
+    have to agree are one number that is about to be wrong. The band takes its
+    height from this and the summary sticks under the pair of them.
+  */
+  .scene-room { --scene-top: 3.5rem; --scene-stage: 0px; }
+  .scene-room[data-stage] { --scene-stage: 6.5rem; }
+  @media (min-width: 768px) {
+    .scene-room[data-stage] { --scene-stage: 8rem; }
+  }
+  .scene-sticky { position: sticky; top: calc(var(--scene-top, 0px) + var(--scene-stage, 0px)); }
 
   /*
     ONE LINE ARRIVING, WHICH IS THE MOVEMENT THIS SCREEN IS MADE OF.
@@ -1296,6 +1310,20 @@
   .stick-legs-a { animation: stick-legs 900ms steps(1, end) infinite; }
   .stick-legs-b { animation: stick-legs 900ms steps(1, end) infinite reverse; }
   .stick-arc { animation: stick-arc 2600ms ease-out infinite; }
+  /*
+    Somebody talking, which is the one thing in the drawing that is not
+    ambience: it says whose floor it is while a conversation is running. Faster
+    than the room around it, because a breath is not a queue shuffling forward,
+    and still slow enough to sit above a sentence somebody is reading.
+  */
+  .stick-say { animation: stick-say 1800ms ease-out infinite; }
+  /*
+    And something that has just come up, arriving once and staying. A cue that
+    pulsed would be a second thing moving on a screen that already has somebody
+    talking on it; what makes this a cue is that the room was one way a moment
+    ago and is another way now.
+  */
+  .scene-cue { animation: scene-cue 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
   /*
     ONE ROOM LEAVING AND THE NEXT ONE ARRIVING.
@@ -1359,6 +1387,15 @@
     0%, 60%, 100% { opacity: 0; }
     20%, 40% { opacity: 1; }
   }
+  /* Out of the mouth, at the person opposite, and gone. */
+  @keyframes stick-say {
+    0%, 70%, 100% { opacity: 0; }
+    25%, 45% { opacity: 0.9; }
+  }
+  @keyframes scene-cue {
+    0% { opacity: 0; transform: translateY(6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .quest-pulse, .quest-card, .quest-pop, .emoji-shake,
@@ -1368,8 +1405,15 @@
     .scene-veil, .scene-veil-out, .scene-bloom, .scene-dial, .scene-hand,
     .scene-thread, .scene-told, .scene-place,
     .amb-queue, .scene-room-out, .scene-room-in,
-    .stick-bob, .stick-nod, .stick-arc, .stick-steam,
+    .stick-bob, .stick-nod, .stick-arc, .stick-steam, .scene-cue,
     .stick-legs-a, .stick-legs-b { animation: none; }
+    /*
+      The breath keeps its animation and loses its motion: the arcs carry their
+      own `opacity: 0` and are drawn by the animation alone, so stopping it
+      would leave the one mark saying who is talking invisible. Held open
+      instead, which is a speaker rather than somebody mid-breath.
+    */
+    .stick-say { animation: none; opacity: 0.9 !important; }
     /*
       The walker keeps one pair of legs rather than both. `-b` carries its own
       `opacity: 0` and only the animation ever shows it, so stopping the

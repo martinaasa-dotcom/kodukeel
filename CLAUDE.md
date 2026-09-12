@@ -5029,6 +5029,43 @@ is drawn as the panel the app's own hint uses, with a clock beside it, and it ar
 drawing out from the middle and the words settling onto the thread (`.scene-break`). Under
 `prefers-reduced-motion` it is still a panel and still says what happened.
 
+**And the room a conversation happens in is on the screen for the whole of it.** `SceneVignette`
+draws fourteen rooms out of strokes and drew them on the briefing and on the cover between two
+rooms and nowhere else, so somebody stepped into a health centre, read one sentence, and held the
+rest of the conversation on a screen that could have been any of the fourteen. Everything a drawing
+is for happens during a conversation rather than before it: where you are is what every beat asks
+about, who is talking is what a column of bubbles carries worst, how many people are in the room is
+pressure nobody announces, and a curveball was a sentence of English above a question in Estonian
+where anybody at a counter would simply have seen the man who started talking over them. It is a
+band under the bar now, inside the bar rather than beside it, because two sticky things at one
+offset are one sticky thing with the other drawn underneath it; its height is declared in
+`app/globals.css` and the offset the role card sticks at is that height plus the bar's, since two
+numbers that have to agree are one number about to be wrong.
+
+**Who has the floor is the reading the wait already takes**, a turn with the server and the last
+thing in the log not theirs, and nobody has it while the room is moving. It is three arcs out of
+the speaker's mouth, which is `Ringing`'s own shape turned, and it is drawn *over* the room rather
+than into it: each of the fourteen is a `switch` branch with its people written in, and threading a
+flag through twenty `Person` calls would put the same three lines in twenty places and leave the
+twenty-first out. `MARKS` says where each room's people are instead, and `them` is a point rather
+than a number because in the three scenes held over a telephone there is nobody on the other side
+of the room and what speaks is the line going out.
+
+**Four cues for fourteen curveballs, laid down twice so they can be seen.** Somebody behind you,
+somebody beside them, the thing between you being the problem, or the person themselves being what
+changed: `CUES` is keyed on the curveball and read both ways, because one with no cue goes on
+arriving as English and a cue nobody throws is a drawing nobody sees. The rooms are full, so every
+cue is stroked first in the ground and then in the ink, which knocks a clear space out of whatever
+is behind it, in one `d` rather than two elements so the knockout cannot come apart from the mark.
+It stays decoration and says so: the band is `aria-hidden`, who said a line is in words beside it,
+and what a curveball wants is the objective named in the panel the learner types into. The one fact
+the screen cannot work out for itself is the queue, which is `silent`, never becomes a beat and so
+never reached the browser at all: it is a boolean beside the speed that same table already changes,
+because a curveball that alters a conversation and says so nowhere is one the learner is paying for
+and cannot see. And `scripts/test-scene.mjs` measures it in a browser, where the conversation opens
+and again with the page rolled to its end, because a band drawn at the top of the column and a band
+that sticks under the bar are the same markup and only one of them is a room.
+
 **The gate has eight checks, and the three that arrived late were each a line a learner read.**
 `Kust sina nüüd tuleb?` is inside the scene's word list, in the right register, governs nothing and
 claims no number, so five checks passed a line that is not the language. Vouching asks whether a

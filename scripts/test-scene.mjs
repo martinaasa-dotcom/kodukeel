@@ -56,8 +56,12 @@ const { check, absent, done } = suite("A conversation, end to end", {
     label it read came back empty whatever the run did (see `listen`). It runs
     keyless now, which is the state the default deployment is in and the one
     the bank exists for.
+
+    Two more since the room was put back above the conversation, which is one
+    check where it opens and one at the bottom of a scrolled page, because a
+    band that is drawn and a band that sticks are the same markup.
   */
-  floor: 51,
+  floor: 53,
 });
 
 /*
@@ -284,6 +288,33 @@ await page.locator("details > summary").click();
 */
 check("and the objective in play is named without it",
   (await page.getByText(inPlay, { exact: false }).count()) > 0, inPlay);
+
+// ── The room, still there while the conversation is had in it ──────────────
+/*
+  A learner asked where the drawings had gone. They had stepped into a health
+  centre, read one sentence, pressed a button, and been put on a screen that
+  could have been any of the fourteen: the vignette was on the briefing and on
+  the cover between two rooms, and the conversation itself had an eighteen-pixel
+  icon on the bar and two columns of cards.
+
+  Everything a drawing is for happens during a conversation rather than before
+  it, so the room is a band under the bar for the whole of it. Measured rather
+  than read off the source, because the source check one file over can say the
+  band is passed and drawn and cannot say it is on screen: what makes it a room
+  rather than a picture is that it is still there on the fortieth turn, which
+  is a question about `position: sticky` and about the height the role card
+  sticks at, and only a browser knows either.
+*/
+const stageBox = async () => page.evaluate(() => {
+  const svg = document.querySelector(".scene-room header svg");
+  if (!svg) return null;
+  const box = svg.getBoundingClientRect();
+  return { top: Math.round(box.top), bottom: Math.round(box.bottom), height: Math.round(box.height) };
+});
+const stageAtFirst = await stageBox();
+check("the room a conversation happens in is drawn above it",
+  Boolean(stageAtFirst) && stageAtFirst.height > 40 && stageAtFirst.top >= 0,
+  JSON.stringify(stageAtFirst));
 
 // ── The first line, and where it came from ──────────────────────────────────
 const first = await page.locator('[role="log"] p').first().innerText();
@@ -526,6 +557,20 @@ const reached = await page.evaluate(() => {
 check("and a wheel over it reaches the box you answer in",
   reached.inputInView && reached.y >= reached.end - 2,
   `scrolled to ${reached.y} of ${reached.end}`);
+
+/*
+  AND THE ROOM IS STILL THERE AT THE BOTTOM OF IT.
+
+  This is the half a source check cannot make: a band drawn at the top of the
+  column and a band that sticks under the bar are the same markup and the same
+  props, and only one of them is a room. The page has just been rolled to its
+  own end, which is the state a learner is in for every turn after the first,
+  and the drawing has to be on screen and under the bar rather than over it.
+*/
+const stageAtEnd = await stageBox();
+check("and the room is still on screen once the conversation has scrolled",
+  Boolean(stageAtEnd) && stageAtEnd.top >= 0 && stageAtEnd.bottom <= 240,
+  JSON.stringify(stageAtEnd));
 
 /*
   And the words under every line are the rung it actually came from. The chip is

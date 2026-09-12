@@ -5,7 +5,15 @@ import { describe, expect, it } from "vitest";
 
 import { ICONS } from "../../components/icons";
 import { SCENES } from "./catalogue";
-import { MOVES, SCENERY, movesTo, sceneryFor, type Setting } from "./scenery";
+import { CURVEBALLS } from "./curveballs";
+import { CUES, MOVES, SCENERY, cueFor, movesTo, sceneryFor, type Cue, type Setting } from "./scenery";
+
+/*
+  The drawing's `switch` statements are read by the checks below, and there are
+  two of them in one file: one over the rooms and one over the cues. A check
+  that did not know the difference would ask MARKS for a row called "paper".
+*/
+const CUE_KINDS: ReadonlySet<string> = new Set<Cue>(["behind", "another", "paper", "attention"]);
 
 /*
   A table keyed on ids is a table that goes stale in one direction and lies in
@@ -72,6 +80,9 @@ describe("every conversation happens somewhere", () => {
     ]);
     const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
     for (const [, setting] of drawn.matchAll(/case "(\w+)":/g)) {
+      /* The file has a second `switch`, over what has just come up rather than
+         over where it happened. Those are checked two blocks down. */
+      if (CUE_KINDS.has(setting!)) continue;
       expect(used.has(setting as Setting), `${setting} is drawn and no scene is set in it`).toBe(true);
     }
   });
@@ -112,6 +123,78 @@ describe("every conversation happens somewhere", () => {
           `${sceneId} moves on ${beatId}, which is not one of its beats`,
         ).toBe(true);
       }
+    }
+  });
+
+  /*
+    WHAT COMES UP IN A CONVERSATION IS DRAWN, AND THE TABLE OF IT IS KEYED ON
+    THE FOURTEEN CURVEBALLS RATHER THAN ON THE FOUR CUES.
+
+    Read both ways, for the reason the scenery table is: a curveball with no row
+    is the one that goes on arriving as a sentence of English above a question
+    in Estonian, silently, and a row for a curveball nobody throws is a drawing
+    nobody sees. The silent one is in it on purpose, because a queue forming
+    behind you is the one of the fourteen that is entirely a picture.
+  */
+  it("has a cue for every curveball", () => {
+    for (const one of CURVEBALLS) {
+      expect(CUES[one.id], `${one.id} has no cue, so nothing in the room says it happened`)
+        .toBeDefined();
+    }
+  });
+
+  it("and no cue for a curveball that is not thrown", () => {
+    const ids = new Set(CURVEBALLS.map((one) => one.id as string));
+    for (const id of Object.keys(CUES)) {
+      expect(ids.has(id), `${id} has a cue and is not a curveball`).toBe(true);
+    }
+  });
+
+  /*
+    And every kind this table can ask for is one the drawing has. A cue that
+    falls through the `switch` draws nothing at all, which looks exactly like a
+    conversation in which nothing has come up.
+  */
+  it("names only cues the drawing has", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    for (const [id, cue] of Object.entries(CUES)) {
+      expect(drawn, `${id} is cued as ${cue}, which SceneVignette does not draw`)
+        .toContain(`case "${cue}":`);
+    }
+  });
+
+  /*
+    A curveball reaches the browser as a beat of its own and nothing else, so
+    the id is read back out of the beat. A beat that is one of the scene's own
+    is nothing having come up, which is most of a conversation, and reading one
+    as a cue would leave a room permanently surprised.
+  */
+  it("reads a cue off the beat a curveball stands as", () => {
+    expect(cueFor("hurdle:queue")).toBe("behind");
+    expect(cueFor("hurdle:interrupted")).toBe("another");
+    expect(cueFor("ask-time")).toBe(null);
+    expect(cueFor(null)).toBe(null);
+    expect(cueFor("hurdle:a-curveball-nobody-has-written")).toBe(null);
+  });
+
+  /*
+    WHO IS TALKING AND WHAT CAME UP ARE DRAWN OVER THE ROOM RATHER THAN INSIDE
+    IT, so every room has to say where its people are. A room drawn with no
+    marks is a room where the breath and the cue land at `undefined`, which is
+    an SVG path that silently draws nothing: the band would go on saying whose
+    floor it is everywhere except the one room somebody had just added.
+  */
+  it("knows where the people are in every room it draws", () => {
+    const drawn = readFileSync(join("components", "scene", "SceneVignette.tsx"), "utf8");
+    const marked = new Set([...drawn.matchAll(/^ {2}(\w+): \{ you:/gm)].map((m) => m[1]!));
+    const rooms = new Set([...drawn.matchAll(/case "(\w+)":/g)].map((m) => m[1]!));
+    for (const room of rooms) {
+      if (!CUE_KINDS.has(room)) {
+        expect(marked.has(room), `${room} is drawn and MARKS does not say where its people are`).toBe(true);
+      }
+    }
+    for (const room of marked) {
+      expect(rooms.has(room), `MARKS names ${room}, which is not a room the drawing has`).toBe(true);
     }
   });
 

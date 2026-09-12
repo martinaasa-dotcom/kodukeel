@@ -14938,6 +14938,80 @@ check("a conversation takes the website off the screen, and stops when the scene
 });
 
 /*
+  A CONVERSATION IS HAD IN A ROOM YOU CAN STILL SEE.
+
+  `SceneVignette` draws fourteen rooms with the people in them, and it was
+  drawn on the briefing and on the cover between two rooms and nowhere else. So
+  a learner stepped into a health centre, read one sentence, pressed a button,
+  and held the rest of the conversation on a screen that could have been any of
+  the fourteen: an eighteen-pixel icon on the bar and two columns of cards. It
+  was reported in those words, twice, and the second time with what the drawing
+  is actually for, which is everything that happens *during* a conversation
+  rather than before it. Where you are is what every beat asks about. Who is
+  talking is what a column of bubbles carries worst. How many people are in the
+  room is pressure nobody announces. And a curveball was a sentence of English
+  above a question in Estonian, where anybody standing at a counter would have
+  seen the man who started talking over them.
+
+  Four halves, and each fails on its own and in silence. The band is not
+  passed, and the room is gone again with nothing broken. The band is passed
+  and does not stick, so it scrolls away with the first turn, which is the same
+  screen arrived at more slowly. Its height and the offset the role card sticks
+  at come apart, and the card hides under the room. Or the drawing stops being
+  told who is talking and what has come up, and the band is a picture of a
+  place rather than a picture of a conversation.
+*/
+check("a conversation draws the room it is had in, for the whole of it", () => {
+  const session = code("components/scene/SceneSession.tsx");
+  assert.match(
+    session, /stage=\{<SceneVignette[^>]*fit="band"/,
+    "the conversation no longer hands SceneStage a room to draw, so it is had on a screen that "
+    + "could be any of the fourteen (components/scene/SceneVignette.tsx)",
+  );
+  assert.match(
+    session, /speaking=\{saying\}/,
+    "the room is no longer told who has the floor, which is the thing a column of bubbles says worst",
+  );
+  assert.match(
+    session, /cue=\{cue\}/,
+    "the room is no longer told what has come up, so a curveball is a sentence of English again",
+  );
+
+  const stage = code("components/scene/SceneStage.tsx");
+  /*
+    Inside the bar rather than beside it: two sticky elements at one offset are
+    one sticky element with the other drawn underneath it, which is the lesson
+    the role card's own summary already taught this file.
+  */
+  assert.match(
+    stage, /<header[\s\S]{0,4000}?\{stage && \([\s\S]{0,600}?\{stage\}[\s\S]{0,200}?<\/header>/,
+    "the room is drawn outside the bar, so it scrolls away with the first turn",
+  );
+  assert.match(
+    stage, /height: "var\(--scene-stage\)"/,
+    "the band's height is typed into the markup rather than read off the stylesheet, so it and the "
+    + "offset the role card sticks at are two numbers that have to agree",
+  );
+
+  const css = read("app/globals.css");
+  /*
+    A height for a phone first and a wider one after it, in that order. The
+    obvious way to lose this is to leave the height inside the `min-width`
+    block alone, which draws the room at nothing on the width this app is
+    measured at and at full size on the one it is developed on.
+  */
+  assert.match(
+    css,
+    /\.scene-room\[data-stage\] \{ --scene-stage: [\d.]+rem; \}\s*@media \(min-width: 768px\)/,
+    "the band has no height before the first breakpoint, so the room is drawn at nothing on a phone",
+  );
+  assert.match(
+    css, /\.scene-sticky \{ position: sticky; top: calc\(var\(--scene-top[^)]*\) \+ var\(--scene-stage/,
+    "the role card no longer sticks under the room, so it is drawn behind it",
+  );
+});
+
+/*
   ONE LOUD ACTION PER ROUND, WHICH IS `components/Button.tsx`'S OWN HEADER.
 
   It says it in the file itself: only the primary carries the gradient, one loud
