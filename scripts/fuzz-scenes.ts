@@ -26,6 +26,7 @@ import { replyFor, datumLine, cardInPlay, counterBeat } from "../lib/scenes/repl
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { isSpokenEstonian, sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
+import { sceneBeats } from "../lib/scenes/scripted";
 
 const NASTY = [
   "", " ", "\t\n", "?", "!!!", "...", "1234", "13:30", "kell 13:30", "Tere Tere Tere Tere Tere Tere Tere Tere Tere",
@@ -85,7 +86,8 @@ async function main() {
               line = cheap.provenance !== "fallback" ? cheap : (datumLine(spokenFor, card, context.lexicon) ?? cheap);
             }
             const last = state.turns[state.turns.length - 1] ?? null;
-            const answered = last ? scene.beats.find((b) => b.id === last.beatId) ?? null : null;
+            // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
+            const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
             let lines;
             try {
               lines = replyFor({

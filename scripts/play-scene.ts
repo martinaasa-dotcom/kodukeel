@@ -43,7 +43,7 @@ import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state
 import { sceneLine } from "../lib/scenes/line";
 import { passes, runGate } from "../lib/scenes/gate";
 import { PERSONAS } from "../lib/scenes/personas";
-import { answerBeatId } from "../lib/scenes/scripted";
+import { answerBeatId, sceneBeats } from "../lib/scenes/scripted";
 import { reviewOf } from "../lib/scenes/review";
 import { offerFor } from "../lib/scenes/grades";
 import { choiceOf } from "../lib/scenes/choice";
@@ -261,7 +261,8 @@ async function play(sceneId: string) {
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
     const card = cardInPlay(draw.card, scene.beats, state.countered);
     const last = state.turns[state.turns.length - 1] ?? null;
-    const answered = last ? scene.beats.find((b) => b.id === last.beatId) ?? null : null;
+    // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
+    const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
     const spokenFor = standing ?? speaking ?? (answered?.move === "close" ? answered : undefined);
 
     const askedNow = last?.asked ?? null;
