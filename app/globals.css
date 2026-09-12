@@ -1197,14 +1197,23 @@
     pinned. The bar's own fade cannot reach this, since the bar ends where the
     room does and the pill hangs below it.
 
-    So the ground comes with it, full bleed past the column's gutters and fading
-    out under its bottom edge, which is the same shape the bar makes at its own
-    edge. Behind the pill rather than over it, and untouchable.
+    So the ground comes with it, fading out under its bottom edge, which is the
+    same shape the bar makes at its own. Behind the pill rather than over it,
+    and untouchable.
+
+    AND IT STOPS AT THE COLUMN'S EDGE. The first version reached a gutter's
+    width past it on each side to read as full bleed, which at 360 is eight
+    pixels past the window: the page scrolled sideways by exactly that, which
+    `test-containment.mjs` measures and nothing else would have seen, since the
+    body clips the axis and there is no scrollbar to notice. It buys nothing
+    either, because the column's padding is padding: no line of the
+    conversation is ever drawn in it, so the content width is the whole of what
+    there is to cover.
   */
   .scene-sticky:not([open])::before {
     content: "";
     position: absolute;
-    inset: -0.5rem -1.5rem -0.9rem;
+    inset: -0.5rem 0 -0.9rem;
     z-index: -1;
     pointer-events: none;
     background: linear-gradient(var(--ground) 62%, transparent);
