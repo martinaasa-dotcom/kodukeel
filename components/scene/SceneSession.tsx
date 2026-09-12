@@ -1348,7 +1348,7 @@ export function SceneSession({ scene, minutes, unit }: {
       {opened && (!opened.composed || note) && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {note
-            ?? "No model today: the lines are the course's own and the ones written for this scene, and a turn nothing was written for is described instead."}
+            ?? "No model key is set, so the other side's lines come from the course and from lines written for this scene. Where nothing fits what you said, you will see a short note about what they did instead of a spoken line."}
         </p>
       )}
 
