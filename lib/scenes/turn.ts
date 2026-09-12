@@ -515,10 +515,24 @@ export function readTurn(
 
     Not on a beat that wanted a no: there `ei` is the answer, and reading
     the answer as a cry for help would be the opposite of understanding it.
+
+    AND NOT WHERE THE ONLY THING MET WAS THE BARE PARTICLE ITSELF. A beat
+    that accepts a bare `jah` or `ei` as one of its answers (`milk`'s needs,
+    `pay`'s, `receipt`'s) never reached this line for "ma ei saa aru",
+    because the `ei` inside it satisfies that need on its own and
+    `missing.length` came back short of `beat.needs.length`: `satisfies`
+    cannot tell "no" from the negator of `saama`. So a learner who typed the
+    exact phrase this app teaches for "I don't follow", at exactly such a
+    beat, had their confusion read as a "no", which is the same misreading
+    `wantsNo` already refuses for a beat that named a negation outright.
+    `metByBarePolarity` widens that refusal to a lemma-shaped need: every
+    requirement this turn met, it met with nothing but `jah` or `ei`.
   */
   const wantsNo = beat.needs.some((need) =>
     need.kind === "negation" || (need.kind === "anyOf" && need.of.some((o) => o.kind === "negation")));
-  if (missing.length === beat.needs.length && !wantsNo && isLost(spoken, context)) {
+  const metByBarePolarity = found.every((hit) =>
+    hit === null || hit === YES || BARE_POLARITY.has((hit as Hit).word));
+  if ((missing.length === beat.needs.length || metByBarePolarity) && !wantsNo && isLost(spoken, context)) {
     return shape("lost");
   }
 
@@ -604,6 +618,15 @@ export function readTurn(
  * sentence whose middle this module may not make claims about.
  */
 const ANSWER_WORDS = 2;
+
+/**
+ * `jah` and `ei`, the two commonest, most contentless words in the language.
+ * Read by both `readTurn`'s own lost-check below and by `addsEvidence`
+ * further down this file, for the same reason in two different rooms: either
+ * turning up is not evidence of much, unlike a real word such as `poodi` or
+ * `kohvi`, which mean one thing.
+ */
+const BARE_POLARITY = new Set(["jah", "ei"]);
 
 /** A requirement met by something other than a word: a question mark, small talk. */
 const YES = "\u0001";
@@ -1202,7 +1225,6 @@ export function advances(reading: TurnReading): boolean {
  * which mean one thing. A cascade or a credit at a distance may still be won
  * on a real word; it may never be won on `jah` or `ei` alone.
  */
-const BARE_POLARITY = new Set(["jah", "ei"]);
 export function addsEvidence(next: Evidence, spent: ReadonlySet<string>): boolean {
   return next.satisfiedBy.some((word) => !spent.has(word) && !BARE_POLARITY.has(word));
 }
