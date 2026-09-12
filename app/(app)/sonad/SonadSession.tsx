@@ -381,7 +381,57 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
   onSubmit: () => void;
 }) {
   return (
-    <Card>
+    /*
+      PINNED ABOVE THE TAB BAR ON A PHONE, BECAUSE THIS ROUND IS ALL TAPS.
+
+      The board is seven rows tall and the keys and buttons under it did not
+      fit any phone: measured at 390x664, Guess was 261px below the fold and
+      the bottom row of keys was behind the bar. Every other typed round has a
+      field to focus, which scrolls itself into view and submits on the
+      keyboard's own go key; there is no field here and no Enter on a phone,
+      so the game simply could not be played without discovering that the page
+      scrolls. See `.sonad-keys` in globals.css for why sticky rather than
+      fixed, and for what the suites were measuring instead.
+    */
+    <Card className="sonad-keys">
+      {/*
+        WHAT THE THREE CIRCLES MEAN, IN WORDS, ON THE SCREEN.
+
+        `SPOKEN` says it, and until now said it only into an `aria-label`. So
+        the reader this game explained its own rules to was the one using a
+        screen reader, and the sighted beginner was left to infer them from
+        three shapes. Anyone who has played the English game knows them
+        already; somebody learning Estonian who has not is exactly the reader
+        this app is for, and "a tooltip is not text" is the rule this
+        repository has already been corrected by twice, on the dictation notes
+        and on the weakest-case panel.
+
+        On this card rather than under the board, which is where it was first
+        put and is wrong on the surface it is for: the keys are pinned on a
+        phone and the tail of the board scrolls underneath them, so a legend
+        sitting after the last row was a legend nobody on a phone could see.
+        Here it rides with the keys at every width, and it is directly under
+        the board on a desktop, which is where it reads anyway.
+
+        Drawn from the same `HUE` and `RING` tables the circles are, so a
+        legend cannot go on describing a colour the board has stopped using.
+      */}
+      <ul className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+        {(["here", "elsewhere", "absent"] as const).map((mark) => (
+          <li key={mark} className="flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="h-3.5 w-3.5 rounded-full"
+              style={{
+                background: HUE[mark].bg,
+                boxShadow: RING[mark] === "0" ? "none" : `inset 0 0 0 2px ${HUE[mark].ring}`,
+              }}
+            />
+            {SPOKEN[mark]}
+          </li>
+        ))}
+      </ul>
+
       {/*
         Three rows rather than a grid, because the rows are the layout: a key
         is found by where it sits relative to the ones round it, and a grid

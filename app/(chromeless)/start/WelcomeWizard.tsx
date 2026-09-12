@@ -18,6 +18,7 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
+import { counted } from "@/lib/copy/values";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -348,7 +349,7 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
               style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
             />
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-              Only used to greet you, and shown beside your XP if you ever join a class.
+              Only used to greet you, and shown to your teacher if you ever join a class.
             </p>
 
             {/*
@@ -721,10 +722,10 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
               })}
             </ul>
             <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-              {deck.words} words, {deck.cards} cards.{" "}
+              {counted(deck.words, "word")}, {counted(deck.cards, "card")}.{" "}
               {deck.remaining > 0 && (
-                <>The other {deck.remaining} units at {startBand}, and every other level, are on the
-                path whenever you want them. </>
+                <>The other {counted(deck.remaining, "unit")} at {startBand}, and every other level, are on
+                the path whenever you want them. </>
               )}
               Nothing here is locked in.
             </p>
@@ -787,8 +788,8 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
             <p className="mt-2.5 max-w-[62ch] text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
               {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That is {goal} cards to
               answer, not {goal} new ones. About nine in ten will be words you have already met,
-              coming back right when you are starting to forget them. These {deck.cards} cards take
-              roughly {weeksToLearn(deck.cards, goal, daysPerWeek)} weeks to work through this way,
+              coming back right when you are starting to forget them. These {counted(deck.cards, "card")} take
+              roughly {counted(weeksToLearn(deck.cards, goal, daysPerWeek), "week")} to work through this way,
               and a faster setting really does bring them in sooner. It also makes every day&rsquo;s
               session longer, for the next year. Pick the one you would still open on a bad
               Wednesday.

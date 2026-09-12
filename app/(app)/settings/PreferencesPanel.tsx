@@ -215,7 +215,7 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
         <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>
       )}
       <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-        Used to greet you, and shown beside your XP for the week if you join a class. Nothing else,
+        Used to greet you, and shown beside your reviews for the week if you join a class. Nothing else,
         not your email, not your words, not your history, goes with it. Leaving the class takes it
         back off.
       </p>

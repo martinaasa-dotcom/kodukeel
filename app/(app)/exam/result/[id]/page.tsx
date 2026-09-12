@@ -398,9 +398,29 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
         )}
       </section>
 
+      {/*
+        WHAT THIS RESULT IS NOT, ON THE SCREEN WHERE SOMEBODY READS A NUMBER
+        ABOUT THEMSELVES.
+
+        "The structure of this paper is real" was the whole of it, and it is
+        true and it is the half that raises the stakes: a learner who has just
+        spent ninety minutes on something headed "Mock state examination" and
+        scored 72 reads that sentence as a prediction. The level check has said
+        the other half since it was written, in `ResultPanel`: not a
+        certificate, and the exams that count are the state ones. The longer
+        paper, which looks far more like the real thing, never did.
+
+        Naming the body is the part worth having. Somebody deciding whether to
+        book the real examination needs to know who runs it, and somebody
+        seeing a result on a screen needs to know this app has nothing to do
+        with them. Both sentences are facts about the paper rather than about
+        the learner, so they go under the result rather than beside the score.
+      */}
       <p className="mt-8 text-sm" style={{ color: "var(--ink-3)" }}>
         {spec.official
-          ? "The structure of this paper is real. The questions aren't."
+          ? "The structure of this paper is real. The questions aren't, and neither is the result: "
+            + "this is practice, not a certificate, and Kodukeel has no connection with "
+            + "Haridus- ja Noorteamet, who run the exams that count."
           : "Estonia doesn't test at this level, so nothing about this paper is official."}
         {" "}
         <Link href="/exam" className="underline underline-offset-4">Back to the exam hub</Link>

@@ -56,7 +56,7 @@ import { roundPaceFrom } from "@/lib/ux/roundClock";
 import {
   availableCardTypes, CARD_TYPES, generateCards, type CardType, type LexemeForCards,
 } from "@/lib/srs/cards";
-import { writeGrade } from "@/lib/srs/grade";
+import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
@@ -2887,11 +2887,23 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         await tx.card.upsert({ where: { id: String(data.id) }, create: data as never, update: data as never });
       }
 
-      // Reviews are append-only, so they are created if absent and never updated.
-      // Always attributed to the person restoring: a backup is your own history,
-      // and the file cannot be allowed to name someone else as its owner.
+      /*
+        Reviews are append-only, so they are created if absent and never
+        updated. Always attributed to the person restoring: a backup is your
+        own history, and the file cannot be allowed to name someone else as
+        its owner.
+
+        AND BOUNDED, WHICH IS THE OTHER HALF THE FILE GETS NO SAY IN. Every
+        field here used to go in exactly as written: a `reviewedAt` next week,
+        a rating outside the four the scheduler knows, a slot outside the
+        closed list `gradeCard` checks its own against. See
+        `boundedRestoredReview`, which is `writeGrade`'s own bounds with the
+        two that need a card left out.
+      */
+      const restoredAt = new Date();
       for (const raw of backup.reviews) {
-        const data = revive(raw, ["reviewedAt"]);
+        const data = boundedRestoredReview(revive(raw, ["reviewedAt"]), restoredAt);
+        if (!data) continue;
         const exists = await tx.review.findUnique({ where: { id: String(data.id) }, select: { id: true } });
         if (exists) continue;
         data.ownerId = ownerId;

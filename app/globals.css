@@ -691,6 +691,70 @@
   :root[data-dock] .dock-clear { scroll-margin-bottom: calc(var(--dock-clearance) + 1.5rem); }
 
   /*
+    THE SAME MEASUREMENT A FOURTH TIME, SPENT ON KEEPING A GAME PLAYABLE.
+
+    Sõnad is the one round with no text input in it. Every other typed round
+    has a field, so tapping it scrolls it into view and the phone keyboard's
+    own go key submits; this one is played entirely by tapping the keys the
+    page draws, and Enter is a key a phone does not have.
+
+    Measured on the real thing: the board is seven rows of circles, and under
+    it the keys and the two buttons come to more than any phone viewport
+    holds. At 390x664, which is an iPhone with its toolbar showing, the Guess
+    button sat 261px below the fold and the bottom row of keys, `z x c v b n
+    m š ž`, was behind the tab bar. So the daily word game opened with its
+    board visible, half a keyboard, and no way to send a guess: a first-time
+    player has to work out that the page scrolls before they can play at all.
+
+    Nothing about that was visible to the suites, and that is the finding
+    rather than the game. `test-mobile.mjs` varies the width across 360, 390
+    and 430 and pins the height at 844; `test-containment.mjs` measures at
+    900. Both are taller than any phone actually is, so the app has been
+    measured at a phone's width and never at a phone's height.
+
+    Sticky rather than fixed: it stays in the flow, so it is pinned only
+    while its own place is below the window and comes to rest naturally once
+    the page is scrolled down, which is what stops it covering anything after
+    it. The board scrolls under it, which is what a phone word game does.
+    Phones only: above `md` the page fits and a pinned keyboard would be a
+    control that follows you down a page that does not need it.
+  */
+  @media (max-width: 767px) {
+    .sonad-keys {
+      position: sticky;
+      bottom: 7rem;
+      z-index: 20;
+    }
+    :root[data-dock] .sonad-keys {
+      bottom: calc(var(--dock-clearance) + 0.5rem);
+    }
+
+    /*
+      And the one thing that was already floating there stands down while the
+      keys are pinned, because two things cannot have the same corner.
+
+      `AnuFab` is anchored to the dock by the same `.bottom-notice` clearance,
+      which is now exactly where the Guess button sits: measured after the
+      pinning above, the launcher covered the right third of it. Hiding the
+      floating chrome while a round owns the screen is what
+      `body:has(.scene-room) [data-chrome]` already does one rule up, and this
+      is the narrower version of it: phones only, where the pinning happens,
+      and only while `.sonad-keys` is on the page at all. The board replaces
+      the keys with the finish card the moment the word is guessed, so Anu is
+      back on the screen the learner would actually ask her about, and she is
+      untouched on every other page and at every other width.
+
+      THE ATTRIBUTE ALONE IS THE WRONG SELECTOR, WHICH COST A ROUND OF THIS.
+      `data-chrome` is carried by the rail and by the phone bar as well as by
+      Anu, because the scene room means to hide all three: it draws its own
+      way out. This round does not, so the bare attribute took the navigation
+      off the one screen it was pinning a keyboard to, and left a learner on a
+      phone with a word game and no way out of it. The value is the point.
+    */
+    body:has(.sonad-keys) [data-chrome="anu"] { display: none !important; }
+  }
+
+  /*
     THE ESTONIAN LETTER BAR, WHICH IS A DESKTOP THING AND A CHOICE.
 
     Two rules, in one place, because they were previously neither: the bar was

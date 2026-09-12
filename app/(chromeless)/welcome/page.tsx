@@ -1183,10 +1183,20 @@ function Footer() {
           </div>
 
           {/*
-            The three pages a stranger is entitled to read before signing up,
-            and until recently the landing page linked none of them: they were
+            The pages a stranger is entitled to read before signing up, and
+            until recently the landing page linked none of them: they were
             reachable only from each other and from two screens inside the
             app, which is behind the sign-in they exist to inform.
+
+            AND THAT FIX STOPPED AT THREE, WHICH LEFT OUT THE TWO WRITTEN FOR
+            EXACTLY THIS READER. /trust and /accessibility arrived after it and
+            were never added here, so the landing page was the only public page
+            in the app that did not link them: every one of the other five
+            links both. They are the two a school administrator, a teacher or a
+            grant reviewer is sent to, they say in their own words that they
+            are for somebody with no account, and the one page such a person
+            actually arrives on had no route to either. A page nobody can reach
+            is a page nobody has read.
           */}
           <div>
             <p className="label-xs" style={{ color: "var(--ink-3)" }}>Read</p>
@@ -1194,6 +1204,8 @@ function Footer() {
               <li><Link href="/privacy" className="underline underline-offset-4 transition-opacity hover:opacity-70">Privacy</Link></li>
               <li><Link href="/terms" className="underline underline-offset-4 transition-opacity hover:opacity-70">Terms</Link></li>
               <li><Link href="/funding" className="underline underline-offset-4 transition-opacity hover:opacity-70">What it costs to run</Link></li>
+              <li><Link href="/trust" className="underline underline-offset-4 transition-opacity hover:opacity-70">Security and trust</Link></li>
+              <li><Link href="/accessibility" className="underline underline-offset-4 transition-opacity hover:opacity-70">Accessibility</Link></li>
               <li><Link href="/sign-in" className="underline underline-offset-4 transition-opacity hover:opacity-70">Sign in</Link></li>
             </ul>
           </div>

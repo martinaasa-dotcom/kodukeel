@@ -79,3 +79,35 @@ export async function requireLetterBar(page) {
     "before the checks that type through it. See scripts/lib/prefs.mjs.",
   );
 }
+
+/**
+ * Fails now, and in words, rather than in nineteen checks and in geometry.
+ *
+ * THE PHONE BAR ONLY EXISTS ON THE SIGNED-IN SHELL.
+ *
+ * `/` redirects to the first-run wizard for a learner who holds no
+ * `onboardedAt` and no cards, and the wizard is in `app/(chromeless)/`, which
+ * draws no navigation at all. So against a database nobody has walked through
+ * first run on, half of `test-mobile.mjs` measures a chromeless page and
+ * reports `the bar publishes its own height (barHeight: 0)`, which sends
+ * whoever reads it into `lib/layout/dockClearance.ts` after a fault that is
+ * not there: the bar is correctly absent, because there is no shell to draw it
+ * on. Measured on a fresh seed, that is six failures and a suite that throws
+ * after 19 of at least 65 checks.
+ *
+ * A suite states its preconditions rather than inheriting them, and this is
+ * the one it was inheriting from whatever happened to have been run first. CI
+ * escapes it only because `scripts/demo-data.ts` runs before the browser job,
+ * which means the one place it bites is somebody's own machine, in their own
+ * order, with the least context for reading it.
+ */
+export async function requireAppShell(page) {
+  const drawn = await page.evaluate(() =>
+    [...document.querySelectorAll("[data-nav-surface], nav")].filter((n) => n.getClientRects().length > 0).length);
+  if (drawn > 0) return;
+  throw new Error(
+    "No navigation is drawn, so this is the first-run wizard rather than the app: " +
+    "`/` redirects there while the deck has never been built. Run `npm run demo` " +
+    "(or walk through first run) before this suite. See scripts/lib/prefs.mjs.",
+  );
+}

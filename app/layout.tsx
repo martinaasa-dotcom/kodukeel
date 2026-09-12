@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { OfflineProvider } from "@/components/OfflineProvider";
+import { canonicalOrigin } from "@/lib/auth/canonical";
 import "./globals.css";
 
 /**
@@ -18,6 +19,22 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  /*
+    WHERE THE ABSOLUTE URLS IN THE TAGS BELOW ARE MEASURED FROM.
+
+    `openGraph` was set and the share image it needs was not, and without a
+    base neither the image nor `og:url` can be written at all: a share card
+    wants absolute URLs and a page has no way to know its own host. This is
+    the same `NEXT_PUBLIC_SITE_URL` the sign-in redirect is anchored on
+    (lib/auth/canonical.ts), read through the same function, because a
+    deployment cannot be canonical for sign-in and anonymous for the link
+    somebody pastes into a message.
+
+    Null where nobody set it, which is a fork running on its own domain. Next
+    then leaves the URLs relative, exactly as it did before this existed, so
+    the unset case is no worse than it was rather than wrong.
+  */
+  ...(canonicalOrigin() ? { metadataBase: canonicalOrigin()! } : {}),
   /*
     A title per screen, and a template so none of them has to remember the
     app's name.
@@ -50,7 +67,24 @@ export const metadata: Metadata = {
     description:
       "Practice that sticks, a conversation to rehearse, and one thing to say to a real person today. Real forms from Ekilex, never from a model.",
     type: "website",
+    siteName: "Kodukeel",
+    /*
+      The app is written in English about Estonian, and it is read in Estonia.
+      A share card says which language it is in so a reader in a Russian or
+      Ukrainian speaking household is not shown it as though it were theirs.
+    */
+    locale: "en_EE",
+    url: "/welcome",
   },
+  /*
+    THE BIG CARD RATHER THAN THE SMALL ONE.
+
+    Without a declared card type this fell to `summary`, which is the narrow
+    grey row with a favicon on it, and that is what a link to this app looked
+    like in every message anybody has ever sent about it. `app/opengraph-image.tsx`
+    is the picture; this is the line that asks for it to be shown at full size.
+  */
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {

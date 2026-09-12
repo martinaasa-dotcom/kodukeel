@@ -76,7 +76,28 @@ export function SetupGuide() {
             {copied ? <><Check size={13} aria-hidden /> Copied</> : <><Copy size={13} aria-hidden /> Copy</>}
           </button>
         </div>
-        <pre className="overflow-x-auto px-3 py-3 text-xs leading-relaxed" style={{ color: "var(--ink-2)" }}>
+        {/*
+          A BOX THAT SCROLLS IS A BOX A KEYBOARD HAS TO BE ABLE TO REACH.
+
+          The line is longer than the card at 360, so this scrolls sideways,
+          and a pointer is the only thing that could move it: nothing inside is
+          focusable, so tabbing went straight past and the half of the line off
+          the right edge could not be read at all without a mouse. axe calls it
+          `scrollable-region-focusable` and it was the one failure left in the
+          sweep. `tabIndex` puts it in the tab order and the label says what
+          the reader has landed on, since a focus stop announced as nothing is
+          its own small fault.
+
+          The name says which key, and it has to: both setup guides draw this
+          box on the same Settings page, and two regions sharing one name is
+          `landmark-unique`, which is the failure the first version of this
+          traded the first one for.
+        */}
+        <pre
+          tabIndex={0}
+          role="region"
+          aria-label="The line to add to .env for the tutor"
+          className="overflow-x-auto px-3 py-3 text-xs leading-relaxed" style={{ color: "var(--ink-2)" }}>
 {SNIPPET}
         </pre>
       </div>

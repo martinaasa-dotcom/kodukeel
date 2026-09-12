@@ -1909,6 +1909,43 @@ check("the public path allowlist is the only way past the gate", () => {
   }
 });
 
+check("a page a stranger may read is a page the landing page links to", () => {
+  /*
+    A PUBLIC PAGE NOBODY CAN REACH IS A PAGE NOBODY HAS READ.
+
+    Being in the middleware's allowlist means a signed-out reader is *allowed*
+    to see a page. It says nothing about their being able to find it, and the
+    two drifted: /trust and /accessibility were written for somebody deciding
+    whether to put this in front of a class, both say so in their own first
+    paragraph, and both were linked from every public page except the only one
+    a stranger actually arrives on. Five pages linked them and the front door
+    did not.
+
+    The claim is anchored on the landing page's own source rather than on a
+    rendered footer, so a page added to the allowlist tomorrow fails here
+    until somebody decides where it belongs. Four paths are exempt and each is
+    exempt for a reason that is not "we forgot": /sign-in is a form rather
+    than something to read and the landing page's buttons reach it anyway,
+    /auth/callback is single-use, /offline is a service worker's shell, and
+    the three /api/ paths are not pages.
+  */
+  const middleware = code("middleware.ts");
+  const landing = read("app/(chromeless)/welcome/page.tsx");
+  const notAPage = ["/sign-in", "/auth/callback", "/offline", "/api/"];
+
+  const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
+    .map((m) => m[1]!)
+    .filter((p) => !notAPage.some((skip) => p.startsWith(skip)));
+
+  assert.ok(allowed.length >= 5, `only ${allowed.length} readable public paths found; the scan stopped working`);
+  for (const path of allowed) {
+    assert.ok(
+      landing.includes(`href="${path}"`),
+      `${path} is public and the landing page does not link it, so nobody arriving can find it`,
+    );
+  }
+});
+
 // ── And the gate answers in a bounded time, or says it could not ─────────────
 
 check("nothing on the request path waits on the auth service without a deadline", () => {
@@ -3417,11 +3454,11 @@ check("color comes from a token, never a raw hex", () => {
   const hex = /#[0-9a-fA-F]{3,8}\b/;
   const offenders: string[] = [];
   for (const file of [...COMPONENTS, ...APP]) {
-    // The social card and the app icons are painted outside the browser,
-    // where a CSS custom property does not resolve.
+    // The social card, the link preview and the app icons are painted outside
+    // the browser, where a CSS custom property does not resolve.
     // global-error renders when the root layout itself failed, so globals.css
     // may never have loaded and a custom property would resolve to nothing.
-    if (/api\/share|apple-icon|icon\.tsx|manifest\.ts|layout\.tsx|global-error/.test(file)) continue;
+    if (/api\/share|apple-icon|icon\.tsx|opengraph-image|manifest\.ts|layout\.tsx|global-error/.test(file)) continue;
     for (const [i, line] of read(file).split("\n").entries()) {
       if (!hex.test(line)) continue;
       if (line.trim().startsWith("*") || line.trim().startsWith("//")) continue;
@@ -4966,7 +5003,15 @@ check("every dead end in the app offers a way to report it", () => {
       "a screen that threw",
     ],
     [
-      "app/not-found.tsx",
+      /*
+        The 404's own drawing, which is a component now rather than the page.
+        There are two boundaries: the root one wraps it in a `main` because
+        the root layout draws none, and `app/(app)/not-found.tsx` does not
+        because the signed-in layout already has one. Reading the page files
+        would be reading two wrappers and watching neither half of this rule;
+        the content is where both the sentence and the button live.
+      */
+      "components/NoPage.tsx",
       /There&rsquo;s no page here|no page here/,
       "a link that led nowhere",
     ],
@@ -4986,6 +5031,39 @@ check("every dead end in the app offers a way to report it", () => {
       `${file} shows ${what} and offers no way to tell anybody about it`,
     );
   }
+});
+
+check("a not-found boundary draws a main only where its layout does not", () => {
+  /*
+    ONE `main` PER SCREEN, INCLUDING THE SCREEN THAT SAYS THERE IS NO SCREEN.
+
+    `notFound()` renders the nearest `not-found.tsx`, and this app had one, at
+    the root. The root layout draws no `main`, so that file drew its own;
+    `app/(app)/layout.tsx` draws `<main id="main">`, so every missing unit id
+    and every unknown exception kind rendered a second `main` inside the
+    first. Measured on a production build: `/learn/nope` and
+    `/grammar/exceptions/nope` each came back with two landmarks, which is the
+    one claim `a11y-check.mjs` makes about every other screen and the only one
+    it could not make here, because a sweep walks routes that exist.
+
+    The rule is the pairing rather than either file: a boundary under a layout
+    that already has a `main` may not draw one, and the root boundary must.
+    Anchored on the element rather than on a class name, because the fault is
+    the tag.
+  */
+  const root = code("app/not-found.tsx");
+  assert.match(root, /<main/, "the root 404 draws no main, and the root layout has none either");
+
+  const inApp = code("app/(app)/not-found.tsx");
+  assert.ok(
+    !/<main/.test(inApp),
+    "app/(app)/not-found.tsx draws its own main inside the one app/(app)/layout.tsx already draws",
+  );
+  assert.match(
+    code("app/(app)/layout.tsx"),
+    /<main/,
+    "the signed-in layout no longer draws a main, so the boundary below it has to",
+  );
 });
 
 check("a category nobody can send is not a tab in the review queue", () => {

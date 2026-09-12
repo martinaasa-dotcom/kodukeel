@@ -10,6 +10,7 @@ import { ExceptionNote } from "@/components/WordExceptions";
 import { DrillLink } from "@/components/DrillLink";
 import { Card, Chip, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { sameSpelling, SAME_SPELLING } from "@/lib/copy/values";
+import { counted } from "@/lib/copy/values";
 
 export const dynamic = "force-dynamic";
 
@@ -98,7 +99,7 @@ export default async function ExceptionKindPage({ params }: { params: Promise<{ 
           />
         ) : (
           <section>
-            <SectionTitle hint={`${group.entries.length} words`}>Learn these one at a time</SectionTitle>
+            <SectionTitle hint={counted(group.entries.length, "word")}>Learn these one at a time</SectionTitle>
             <ul className="flex flex-col gap-3">
               {group.entries.map((entry) => {
                 const exception = entry.exceptions.find((e) => e.kind === group.kind);

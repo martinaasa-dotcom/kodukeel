@@ -313,7 +313,7 @@ const page = await measuring({ width: 1280, height: 1000 });
   claim on /accessibility, and it is worth it: a phone is where most of this
   app is read.
 */
-const { check, absent, done } = suite("Accessibility", { floor: 576 });
+const { check, absent, done } = suite("Accessibility", { floor: 578 });
 
 /*
   OPENING A ROUTE, INCLUDING THE PART THAT IS NOT THE NETWORK.
@@ -348,6 +348,28 @@ const { check, absent, done } = suite("Accessibility", { floor: 576 });
 async function open(page, route, settle) {
   await page.goto(`${BASE}${route}`, { waitUntil: "load" });
   await page.waitForSelector("main", { state: "attached", timeout: 5000 }).catch(() => {});
+  /*
+    AND FOR THE CONTENT, NOT ONLY THE BOX IT ARRIVES IN.
+
+    `main` attached is the streamed shell, which arrives before what is inside
+    it, and every check below reads what is inside it: `main h1`, the
+    interactive elements under `main`, and axe over the whole document. So the
+    wait was for one thing and the assertions were about another, which is the
+    rule this repository already corrected `networkidle` under: a suite waits
+    for what it is about to assert.
+
+    It cost a red CI run on `/dictionary/common`, which is the heaviest page
+    here (four lists of a hundred words) and failed in the dark pass alone,
+    where `settle` is the shortest of the three at 200ms. axe reported
+    `page-has-heading-one` against `html`, which is what an empty `main` looks
+    like from the outside, and the same route passed in the light pass on the
+    same commit and passes locally in both themes.
+
+    Best-effort, like the wait above it: a page that genuinely has no `h1`
+    runs the budget out and reaches the check, which then says so in its own
+    words. Throwing here would report a missing heading as a timeout.
+  */
+  await page.waitForSelector("main h1", { state: "attached", timeout: 5000 }).catch(() => {});
   await page.waitForTimeout(settle);
 }
 
@@ -690,6 +712,31 @@ await page.goto(`${BASE}/review/government`, { waitUntil: "networkidle" });
 const langMarked = await page.evaluate(() =>
   document.querySelectorAll("main [lang='et']").length);
 check("Estonian text is marked lang=et", langMarked > 0, `${langMarked} elements`);
+
+/*
+  AND THE PAGE A SWEEP OF ROUTES CANNOT REACH: THE ONE THAT IS NOT THERE.
+
+  Everything above walks `ROUTES`, which is a list of pages that exist. A 404
+  inside the signed-in shell is a screen a learner meets by following a stale
+  link, and it was the one drawing two `main` landmarks: `notFound()` rendered
+  the root `not-found.tsx`, which draws its own `main` because the root layout
+  has none, inside `app/(app)/layout.tsx`'s `<main id="main">`. Exactly one
+  `main` is the claim this suite makes about every other screen in the app and
+  the only one it could not make here.
+
+  A dynamic segment rather than a path that matches no route: `/dictionary/nope`
+  is Next's own 404 and was always right, and `/learn/nope` is the app's, which
+  is the one that was wrong.
+*/
+await page.goto(`${BASE}/learn/no-such-unit`, { waitUntil: "load" });
+await page.waitForTimeout(400);
+const missing = await page.evaluate(() => ({
+  mains: document.querySelectorAll("main").length,
+  h1s: document.querySelectorAll("h1").length,
+}));
+check("a page that is not there still has exactly one main landmark",
+  missing.mains === 1, JSON.stringify(missing));
+check("and exactly one h1", missing.h1s === 1, JSON.stringify(missing));
 
 await browser.close();
 done();

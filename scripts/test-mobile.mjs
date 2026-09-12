@@ -12,7 +12,7 @@
  */
 import { launchChromium } from "./lib/browser.mjs";
 import { baseUrl, suite } from "./lib/checks.mjs";
-import { ensureLetterBar } from "./lib/prefs.mjs";
+import { ensureLetterBar, requireAppShell } from "./lib/prefs.mjs";
 
 const B = baseUrl();
 
@@ -40,7 +40,7 @@ const browser = await launchChromium();
   65 rather than 62: a conversation is started on a phone and asked where it
   opened, which is three checks and the one width that can fail them.
 */
-const { check, done } = suite("The phone", { floor: 65 });
+const { check, done } = suite("The phone", { floor: 69 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -51,6 +51,16 @@ async function open(width, height, path) {
   const page = await ctx.newPage();
   await page.goto(`${B}${path}`, { waitUntil: "networkidle" });
   return { ctx, page };
+}
+
+// 0 — The precondition, said out loud. Half of what follows measures the phone
+//     bar, and the bar only exists on the signed-in shell: against a deck that
+//     has never been built, `/` is the first-run wizard and draws none. See
+//     scripts/lib/prefs.mjs.
+{
+  const { ctx, page } = await open(390, 844, "/");
+  await requireAppShell(page);
+  await ctx.close();
 }
 
 // 1 — The root declares no overflow, or every menu hung off the chrome opens
@@ -493,6 +503,54 @@ for (const width of [480, 640, 760]) {
   await ctx.close();
 }
 
+/*
+  THE DAILY WORD GAME IS PLAYABLE AT THE HEIGHT A PHONE ACTUALLY IS.
+
+  Every measurement in this file varies the width and pins the height at 844,
+  and `test-containment.mjs` measures at 900. Both are taller than any phone
+  browser viewport: an iPhone with its toolbar showing is 390x664 and a small
+  Android is 360x640. So the app had been measured at a phone's width and
+  never at a phone's height, and what that hid is a whole round.
+
+  Sõnad is the one round with no text input in it. Every other typed round has
+  a field, so tapping it scrolls it into view and the phone keyboard's own go
+  key submits; this one is played by tapping the keys the page draws, and
+  Enter is a key a phone does not have. Measured before the fix at 390x664:
+  the board filled the screen, the bottom row of keys was behind the tab bar
+  and the Guess button was 261px below the fold, so the game opened with no
+  way to send a guess and no hint that the page scrolled.
+
+  Asked at the two real heights rather than one, because the fix is a sticky
+  card and the thing that breaks a sticky card is a window shorter than the
+  one it was tried in.
+*/
+for (const [width, height] of [[390, 664], [360, 640]]) {
+  const { ctx, page } = await open(width, height, "/sonad");
+  const m = await page.evaluate(() => {
+    const nav = [...document.querySelectorAll("nav")].find((n) => getComputedStyle(n).position === "fixed");
+    const keys = [...document.querySelectorAll("button")].filter((b) => /^[a-zõäöüšž]$/i.test((b.getAttribute("aria-label") || "").trim()));
+    const guess = [...document.querySelectorAll("button")].find((b) => /Guess/.test(b.textContent || ""));
+    if (!nav || !guess || keys.length === 0) return null;
+    const fold = nav.getBoundingClientRect().top;
+    const below = keys.filter((k) => k.getBoundingClientRect().bottom > fold).length;
+    return { scrolled: Math.round(scrollY), keys: keys.length, keysBelow: below,
+      guessBottom: Math.round(guess.getBoundingClientRect().bottom), fold: Math.round(fold) };
+  });
+  check(`the word game can be played without scrolling at ${width}x${height}`,
+    m !== null && m.scrolled === 0 && m.keysBelow === 0 && m.guessBottom <= m.fold,
+    JSON.stringify(m));
+  /*
+    And the rules are on the screen rather than only in an `aria-label`. The
+    three circle states were named for a screen reader and nowhere else, so
+    the sighted beginner, who is the reader this game is for, was left to
+    infer them. Read off the page's own text, not off a class.
+  */
+  const text = await page.locator("main").innerText();
+  check(`and it says what its three marks mean at ${width}x${height}`,
+    /in place/.test(text) && /in the word, elsewhere/.test(text) && /not in the word/.test(text),
+    text.slice(0, 80).replace(/\n+/g, " "));
+  await ctx.close();
+}
 
 await browser.close();
 

@@ -100,5 +100,47 @@ export function acceptedUses(word: RequiredWord): Set<string> {
 export function usesRequiredWord(word: RequiredWord, text: string): boolean {
   const accepted = acceptedUses(word);
   if (accepted.size === 0) return false;
-  return wordsOf(text).some((written) => accepted.has(tidy(written)));
+
+  const written = wordsOf(text).map(tidy).filter(Boolean);
+  if (written.some((one) => accepted.has(one))) return true;
+
+  /*
+    AND A PHRASE IS SEVERAL WORDS, WHICH THIS COULD NOT SEE.
+
+    `tidy` strips everything that is not a letter, spaces included, so a
+    required word whose lemma is a phrase arrives in `accepted` as one
+    spaceless string: `Kas sa räägid inglise keelt?` is stored as
+    `kassaräägidinglisekeelt`. The comparison above is against single
+    whitespace-delimited tokens, and no token can ever equal that. So a
+    candidate told to use a phrase, who then used it perfectly, was credited
+    with nothing: the chip never ticked while they wrote, and the server
+    marked it unused when they handed in.
+
+    The course teaches twenty of these in its first unit, `Tere hommikust!`,
+    `Aitäh!`, `Kuidas läheb?`, `Ma ei saa aru`, and they are `PHRASE` entries
+    with no forms, so the whole of what counts as using one is the phrase
+    itself. A mock exam that marks a right answer wrong is the fault this
+    file's own header is about, pointed the other way.
+
+    Joining consecutive tokens is all it takes, because `tidy` has already
+    removed the spaces from both sides: the window `kas sa räägid inglise
+    keelt` tidies and joins to exactly the string `accepted` holds. Bounded by
+    the longest phrase the word actually carries, so an ordinary one-word
+    entry does no extra work at all.
+  */
+  const span = longestSpan(word);
+  if (span < 2) return false;
+  for (let size = 2; size <= span; size += 1) {
+    for (let at = 0; at + size <= written.length; at += 1) {
+      if (accepted.has(written.slice(at, at + size).join(""))) return true;
+    }
+  }
+  return false;
+}
+
+/** How many words the longest spelling of this entry is written in. */
+function longestSpan(word: RequiredWord): number {
+  let span = wordsOf(word.lemma).length;
+  for (const form of word.forms) span = Math.max(span, wordsOf(form.value).length);
+  return span;
 }

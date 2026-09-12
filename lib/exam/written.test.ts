@@ -121,3 +121,46 @@ describe("the forms behind the marking", () => {
     expect(kiri.has("kirjutan")).toBe(false);
   });
 });
+
+/*
+  A PHRASE IS A REQUIRED WORD LIKE ANY OTHER, AND COULD NOT BE CREDITED.
+
+  `tidy` strips spaces along with the punctuation, so a phrase lemma arrives in
+  `acceptedUses` as one spaceless string and the comparison against single
+  whitespace-delimited tokens can never match it. The course's first unit is
+  twenty of these, so a candidate asked to use one wrote it correctly and was
+  marked as not having used it, on a paper this app tells them to trust.
+*/
+describe("a required word written in more than one word", () => {
+  const phrase = {
+    lemma: "Kas sa räägid inglise keelt?",
+    pos: "PHRASE",
+    forms: [] as { formType: string; value: string }[],
+  };
+
+  it("credits the phrase when it is written out", () => {
+    expect(usesRequiredWord(phrase, "Tere! Kas sa räägid inglise keelt? Ma olen uus siin.")).toBe(true);
+  });
+
+  it("credits it whatever the punctuation and case around it", () => {
+    expect(usesRequiredWord(phrase, "ma küsisin kas sa räägid inglise keelt, ja ta noogutas")).toBe(true);
+  });
+
+  it("does not credit a phrase that was not written", () => {
+    expect(usesRequiredWord(phrase, "Tere! Ma olen uus siin ja ma õpin eesti keelt.")).toBe(false);
+  });
+
+  it("does not credit the words of the phrase out of order", () => {
+    expect(usesRequiredWord(phrase, "keelt inglise räägid sa kas")).toBe(false);
+  });
+
+  it("leaves a one-word entry deciding on single words alone", () => {
+    const raamat = {
+      lemma: "raamat",
+      pos: "NOUN",
+      forms: [{ formType: "GEN_SG", value: "raamatu" }, { formType: "PART_SG", value: "raamatut" }],
+    };
+    expect(usesRequiredWord(raamat, "Ma lugesin raamatut.")).toBe(true);
+    expect(usesRequiredWord(raamat, "Ma kirjutan kirja.")).toBe(false);
+  });
+});
