@@ -253,9 +253,9 @@ function Hero({ stats }: { stats: { words: number; forms: number } }) {
         className="fade-up hero-lead hero-sub max-w-[52ch] leading-relaxed"
         style={{ color: "var(--ink-2)", animationDelay: "420ms" }}
       >
-        Kodukeel means home language. This is where Estonian starts to feel like yours: fifteen
-        quiet minutes a day, a real conversation to rehearse, and one small thing to go and say
-        out loud today.
+        The neighbor says hello. Your coworker asks you a question. The dog wants to be petted.
+        You need the right words when someone&rsquo;s actually looking at you. Kodukeel gets you
+        there, fifteen minutes at a time.
       </p>
 
       {/*
