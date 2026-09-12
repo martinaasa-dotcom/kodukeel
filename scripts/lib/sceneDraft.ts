@@ -47,7 +47,8 @@ import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
 
 export { answerForms };
 import { QUESTION_SHAPE, type BeatSpec, type SceneSpec } from "../../lib/scenes/types";
-import { LEVELS, SYLLABUS, unitById } from "../../lib/collections/syllabus";
+import { LEVELS, SYLLABUS, unitById, type Level } from "../../lib/collections/syllabus";
+import { PITCH, pitchFor } from "../../lib/scenes/pitch";
 import { shippedDictionary } from "./dictionary";
 
 /* ------------------------------------------------------------------ *
@@ -69,18 +70,32 @@ const byLemma = new Map(POOL.map((e) => [`${e.lemma}|${e.pos}`, e]));
 export type Allowlist = "units" | "course";
 
 /**
+ * THE BAND A HARNESS PLAYS AT UNLESS TOLD OTHERWISE.
+ *
+ * A scene carries no band: the other side talks at whatever level a run is
+ * opened at, which in the app is the learner's own (`lib/scenes/pitch.ts`).
+ * A harness has no learner, so it says which band it is measuring, and every
+ * one of them reads this or an explicit `--level` rather than a literal of
+ * its own, because a harness pitched at a band the app never uses measures a
+ * conversation the app does not have (§30). A2 because that is where most of
+ * the catalogue's units sit and where the first learners are.
+ */
+export const HARNESS_LEVEL: Level = "A2";
+
+/**
  * The lemmas one scene may use.
  *
  * `units` is the design's own answer, the lemmas of the units a scene
- * declares; `course` is every word the syllabus teaches up to the scene's
- * level, which the eval measures to find out whether the box is too small.
+ * declares; `course` is every word the syllabus teaches up to `upTo`, which
+ * the eval measures to find out whether the box is too small. A scene has no
+ * band of its own, so the band is the harness's (`HARNESS_LEVEL`).
  */
-export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units"): string[] {
+export function sceneLemmas(scene: SceneSpec, allowlist: Allowlist = "units", upTo: Level = HARNESS_LEVEL): string[] {
   const out = new Set<string>();
   if (allowlist === "course") {
-    const upTo = LEVELS.indexOf(scene.level);
+    const top = LEVELS.indexOf(upTo);
     for (const unit of SYLLABUS) {
-      if (LEVELS.indexOf(unit.level) > upTo) continue;
+      if (LEVELS.indexOf(unit.level) > top) continue;
       for (const spec of unit.words) out.add(spec[0]);
     }
     return [...out];
@@ -327,6 +342,32 @@ export function chain(): Link[] {
 export const REFUSALS = new Map<string, number>();
 export const ANSWERED = new Map<string, number>();
 
+/**
+ * The drafter's own instruction, in two shapes.
+ *
+ * Unpitched, it asks for one sentence inside `MAX_WORDS`, which is the shape
+ * every row drafted before bands existed was written to. Pitched, the band
+ * says how many sentences and how long (`pitchFor`), so a B1 landlord may
+ * explain and an A1 shopkeeper may not, and the sentence count is the band's
+ * rather than this file's.
+ */
+export function systemFor(level?: Level): string {
+  return level === undefined ? SYSTEM : SYSTEM_PITCHED;
+}
+
+const SYSTEM_PITCHED = [
+  "You are one side of a short conversation in Estonian, in a role-play for a language learner.",
+  "Write the line this character says next, and nothing else: no more sentences than the band",
+  "below allows, and fewer where the moment wants fewer, pitched exactly as it says.",
+  "The line is said in the middle of a conversation that has already begun, so it never opens",
+  "with a greeting or a hello unless the move itself is to greet.",
+  "Use ONLY words from the list you are given. Any form of a listed word is allowed.",
+  "No English, no markdown, no quotation marks, no explanation.",
+  "It must be correct Estonian: the subject and the verb agree, and every ending",
+  "is the one a native speaker would use. If a correct sentence needs a word that is not on",
+  "the list, write a simpler sentence with the words that are.",
+].join(" ");
+
 export const SYSTEM = [
   "You are one side of a short conversation in Estonian, in a role-play for a language learner.",
   "Write exactly ONE Estonian sentence: the line this character says next. Nothing else.",
@@ -365,9 +406,16 @@ export async function compose(
    * fighting it. Empty for the eval, which measures the gate and not this.
    */
   withhold: readonly string[] = [],
+  /**
+   * The band the line is drafted for. With one, the pitch goes in front of
+   * the move and the ceiling is the band's (`PITCH`); without one the row is
+   * unpitched and the ceiling is `MAX_WORDS`, exactly as before bands existed.
+   */
+  level?: Level,
 ): Promise<Composed | null> {
   const user = [
     `You are the ${scene.place}. The learner is a member of the public and you address them as "${scene.register}".`,
+    level ? pitchFor(level) : "",
     `Your move now: ${beat.move}. In English, what you are doing is: ${beat.they}`,
     `The learner is then expected to: ${beat.goal}`,
     `The line must be about: ${beat.topic.filter((t) => !withhold.includes(t)).join(", ")}`,
@@ -376,7 +424,7 @@ export async function compose(
       : "",
     QUESTION_SHAPE[beat.move] === "required" ? "It must be a question." : "",
     QUESTION_SHAPE[beat.move] === "forbidden" ? "It must not be a question." : "",
-    `At most ${MAX_WORDS} words. Words you may use:`,
+    `At most ${level ? PITCH[level].words : MAX_WORDS} words. Words you may use:`,
     lemmas.join(", "),
     retryOver && retryOver.length > 0
       ? `\nYour last line used words that are not on the list: ${retryOver.join(", ")}. `
@@ -392,7 +440,7 @@ export async function compose(
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
           model: link.model, temperature: 0.8, max_tokens: SCENE_REPLY_TOKENS,
-          messages: [{ role: "system", content: SYSTEM }, { role: "user", content: user }],
+          messages: [{ role: "system", content: systemFor(level) }, { role: "user", content: user }],
         }),
       });
       status = res.status;

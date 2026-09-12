@@ -5545,6 +5545,96 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   );
 });
 
+check("the other side talks at the run's band, and every composer says which band", () => {
+  /*
+    A scene carries no band of its own. It did, and the composed line never
+    read it: the prompt said "they are a beginner" on every scene and asked
+    for the same two to four sentences at all of them. `lib/scenes/pitch.ts`
+    is the one table of what a turn sounds like at each band, the band is the
+    run's (`SceneRun.level`), which defaults to the learner's own and is moved
+    by the selector on the briefing, and `composeSystem` reads the table
+    behind the cache breakpoint. `ComposeScene.level` is required so a caller
+    that has not decided does not compile. What a type cannot see is a script
+    building the object with a literal of its own, and a harness pitched at
+    nothing measures a conversation the app does not have (§30), so every
+    call site is read, and a `SceneSpec` may not grow a band back.
+  */
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(prompt, /readonly level: Level;/, "ComposeScene.level stopped being required");
+  const system = /export function composeSystem\([\s\S]*?\n\}/.exec(prompt)?.[0] ?? "";
+  assert.match(system, /pitchFor\(scene\.level\)/, "composeSystem no longer reads the band's pitch");
+  assert.doesNotMatch(
+    prompt, /two to four sentences/,
+    "the prompt names a sentence count for every band beside the one the band's pitch names",
+  );
+  assert.doesNotMatch(
+    prompt, /They are a beginner\./,
+    "the prompt calls every learner a beginner, which is the B1 interviewer speaking like the A1 shop",
+  );
+  /*
+    The gate is not relaxed by any of this: the band narrows what is asked for
+    and the ceilings stay the gate's. `pitch.test.ts` holds the figures under
+    them; this holds the module to reading them rather than typing its own.
+  */
+  assert.ok(
+    !/MAX_COMPOSED_WORDS\s*=|NEW_WORDS\s*=/.test(code("lib/scenes/pitch.ts")),
+    "lib/scenes/pitch.ts declares a ceiling of its own beside the gate's",
+  );
+  /*
+    And no scene says which band it is. The tile sorted on it and the other
+    side talked at it, and both are the learner's now; a scene that grew a
+    band back would be a second answer to how the other side talks.
+  */
+  const spec = /export interface SceneSpec \{[\s\S]*?\n\}/.exec(code("lib/scenes/types.ts"))?.[0] ?? "";
+  assert.doesNotMatch(spec, /\blevel\b/, "SceneSpec carries a band again");
+  assert.doesNotMatch(code("lib/scenes/catalogue.ts"), /^\s*level: "/m, "a scene in the catalogue names a band");
+  assert.match(
+    code("app/actions.ts"), /level: pitched,/,
+    "beginScene stopped opening the run at the band the learner chose",
+  );
+  assert.match(
+    code("components/scene/SceneSession.tsx"), /beginScene\(scene\.id, difficulty, level\)/,
+    "the briefing no longer sends the band the learner picked",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /includes\(row!\.level\)/,
+    "the scene route stopped reading the band the run was opened at",
+  );
+  /*
+    AND THE BANK IS READ AT THAT BAND. A banked line is a composed line moved
+    to a different moment, so the drafter drafts per band with the pitch in
+    front of the model and writes the band on the row, and `scriptedFor`
+    reads a run's own band first and the unpitched rows after. A route that
+    built its context with no band would say C1 lines to an A1 learner on the
+    one deployment that has no model to fall back on.
+  */
+  assert.match(
+    code("app/api/scene/route.ts"), /sceneContext\(scene\.id, level\)/,
+    "the scene route builds its context for no band, so the bank's pitched lines are never read first",
+  );
+  const scripted = code("lib/scenes/scripted.ts");
+  assert.match(
+    scripted, /rows\.filter\(\(row\) => row\.level === level\),\s*\.\.\.rows\.filter\(\(row\) => row\.level === undefined\)/,
+    "scriptedFor no longer leads with the run's own band and falls to the unpitched rows",
+  );
+  const draft = code("scripts/draft-lines.ts");
+  assert.match(draft, /fitsPitch\(/, "the drafter no longer refuses a pitched line that runs past its band");
+  assert.match(draft, /compose\(scene, beat, lemmas, undefined, links, withhold, level\)/, "the drafter no longer drafts for a band");
+  assert.match(code("lib/scenes/bank.test.ts"), /fitsPitch\(row\.text, row\.level\)/, "the bank test no longer holds a pitched row to its band");
+  const callers = [
+    "app/api/scene/route.ts", "scripts/eval-composers.ts", "scripts/eval-thinking.ts",
+    "scripts/measure-compose.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+  ];
+  for (const file of callers) {
+    const source = code(file);
+    const calls = source.match(/(?:composeSystem\(\{|scene: scene\.title,)[\s\S]{0,400}?(?:words:)/g) ?? [];
+    assert.ok(calls.length > 0, `${file} no longer builds a ComposeScene, so this check reads nothing there`);
+    for (const call of calls) {
+      assert.match(call, /\blevel(?:: (?:input\.level|HARNESS_LEVEL))?,/, `${file} composes a line without saying which band`);
+    }
+  }
+});
+
 check("nothing reaches a paid provider without going through the ledger", () => {
   /*
     CLAUDE.md: "Any new path that calls a paid provider goes through

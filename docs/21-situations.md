@@ -165,7 +165,6 @@ export interface SceneSpec {
   id: string;                          // "arsti-aeg"
   title: string;                       // "Booking a doctor's appointment"
   place: string;                       // "The reception desk at a health centre"
-  level: Level;                        // the band the scene is written for
   /** Which of the course's units supply its vocabulary. Ids, never words. */
   units: readonly string[];            // ["keha-ja-tervis", "aeg", "arvud"]
   /** What the other side calls you, and expects back. */
@@ -4301,3 +4300,86 @@ What this does not do is make a keyless deployment adaptive: the bank is still
 lines drafted against the beat alone, so the two-word questions a keyless run
 asks are what they were, and a deployment that wants a person behind the
 counter wants a key.
+
+## §72 The other side talks at the scene's band
+
+The operator asked whether a situation's difficulty could decide how the other
+side talks: an A1 scene answered in the plainest Estonian there is, a B1 scene
+in whole sentences, and the same again for B2 and C1 when scenes exist there.
+It could not, and the reason was one line of the prompt. Every scene has
+carried a `level` since the catalogue was written, and `composeSystem` never
+read it: the rules said "they are a beginner" and asked for "two to four
+sentences" on every scene, so the model pitched the A1 ticket clerk and the B1
+landlord at the same place, which was roughly A2 and wrong at both ends.
+
+The operator wrote out what a person has to sound like for a learner at each
+band to follow them without stopping: thirty interview dialogues, a doctor, a
+police officer, a customer survey, a visa desk, an estate agent, a school
+admissions panel and four more, each written three times over, at A1 to A2, at
+B1 and at B2 to C1. Read side by side the difference is the shape of a turn
+and not the subject of it. The A1 doctor asks `Kas valu on hommikul või
+õhtul?`, six words, one question, a yes-or-no; the B1 doctor asks the same
+thing with an alternative folded in and a clause in front; the B2 doctor asks
+for a description, names three kinds of pain, and recaps what the patient said
+before moving on. Every turn at A1 is one short sentence per thought; at B1 a
+subordinate clause is ordinary and a reason or a consequence follows in a second
+sentence; at B2 and C1 several points arrive in one turn with hedging and the
+vocabulary of the job.
+
+`lib/scenes/pitch.ts` is that table in English, one row per band the course
+names, and `pitchFor(level)` is the block the system prompt carries behind the
+cache breakpoint beside the word list, since it is the same on every turn of a
+run. A row is a description of a register and holds no Estonian, which
+`pitch.test.ts` asserts. Each row also narrows the ask: one to three sentences
+and 24 words at A1, up to five sentences and 55 at C1, and a reach past the
+scene's list of two words at A1 against ten at C1. **None of that widens
+anything.** `MAX_COMPOSED_WORDS` and `NEW_WORDS` are still the ceilings for
+every band, every row is asserted to sit under them, and not one of the gate's
+twelve checks reads the band: a B1 line is still vouched word by word, still
+held to its topic, still refused for a giveaway. What changed is what is asked
+for, and the gate is what pays for the room exactly as before.
+
+It keyed on the scene's band for about an hour, and then the operator asked for
+the bands to go entirely. They were right about the shape of it: a situation
+is not A1 or B1, the person on the other side is, and which that should be is
+about the learner, not the tile. So `SceneSpec` carries no `level`, the
+listing is one list ordered by title with no chip, and the band is the run's
+own: `beginScene` writes `SceneRun.level` at the level the app already holds
+for the learner (`courseLevelFor`), and the briefing carries a selector of the
+five bands beside the difficulty dial, defaulting to theirs, so somebody can
+go lower for plainer sentences or higher to be spoken to like anybody else.
+The route reads the stored band back on every turn, so a run keeps one voice.
+`ComposeScene.level` is still required, for the reason `illSgShort` is, and
+the invariant reads the eight places that plan a run or build the object from
+a literal, because a harness pitched at nothing measures a conversation the
+app does not have (§30). A harness has no learner, so it says which band it
+plays at (`HARNESS_LEVEL`, or `--level` where the script takes one), and
+`SceneSpec` may not grow a band back, asserted.
+
+**And the bank is pitched too, which is what reaches a keyless deployment.** A
+banked line is a composed line moved to a different moment (ADR-025 amendment
+1), so it is drafted the way a composed line is now: per band, with `pitchFor`
+in front of the model and the band's own ceiling in the drafter's refusals
+(`fitsPitch`), and the band written on the row. `scriptedFor` reads a run's own
+band first and the unpitched rows after, and never another band's, so an A1
+learner on a deployment with no key meets the A1 lines and a B1 learner the B1
+ones. The rows drafted before bands existed carry no band and stay as the net
+under every band, because 305 of them were typed by hand for the curveballs
+the free models could not write, and a beat no band could be drafted for still
+has a line. `bank.test.ts` holds every pitched row inside its band by count and
+asserts the reading order on a real beat.
+
+The first trial said what the pitch table had got wrong. Told "two or three
+such sentences is a whole turn", the model wrote three at A1 every time, so the
+A1 lines came out longer than the hand-written ones they sat beside; and with
+no conversation in front of it, the drafter opened `going`, `inside` and `item`
+with `Tere!`. A1 is one sentence and two at most now, A2 one to three, and the
+drafter's own instruction says the line is said in the middle of a conversation
+that has begun. After that the A1 corner shop reads `Kus sa nüüd oled?` and
+`Mida sa poest osta tahad?`, which is what the hand-written rows say.
+
+What it does not do is read any of them: a native speaker has still read none
+of the bank, at any band, and the pitched rows arrive `reviewed: false` like
+the rest. `npm run draft:lines -- --level B1` drafts one band, `--unpitched`
+drafts the old shape, and `--refresh` still drops every unreviewed row first,
+which on this bank is every row.

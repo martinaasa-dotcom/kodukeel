@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { BookOpen, Clock, CornerDownLeft, DoorOpen, LifeBuoy, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
-import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
+import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Card, CardLink } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
@@ -18,7 +18,7 @@ import { beginScene, finishScene, sceneHelp } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
 import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
-import type { Level } from "@/lib/collections/syllabus";
+import { LEVELS, type Level } from "@/lib/collections/syllabus";
 import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
@@ -255,6 +255,17 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
 }) {
   const [phase, setPhase] = useState<Phase>("briefing");
   const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(learnerLevel));
+  /*
+    HOW THE OTHER SIDE TALKS, WHICH IS THE LEARNER'S OWN LEVEL UNLESS THEY
+    SAY OTHERWISE. A scene carries no band of its own: the person behind the
+    counter speaks at whatever band this run is opened at (`lib/scenes/pitch.ts`),
+    and that defaults to the level the app already holds for this learner.
+    Lower is plainer sentences and one question at a time; higher is being
+    spoken to like anybody else. A decision about this conversation, so it
+    sits beside the difficulty dial rather than in Settings, and for the same
+    reason.
+  */
+  const [level, setLevel] = useState<Level>(learnerLevel);
   const [opened, setOpened] = useState<Opened | null>(null);
   const [turns, setTurnsState] = useState<Turn[]>([]);
   /*
@@ -779,7 +790,7 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
   async function start() {
     setBusy(true);
     setError(null);
-    const result = await beginScene(scene.id, difficulty);
+    const result = await beginScene(scene.id, difficulty, level);
     setBusy(false);
     if (!result.ok) { setError(result.error); return; }
 
@@ -1083,6 +1094,23 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           written for exactly this shape and every other pick-one in the app
           already uses it.
         */}
+        {/*
+          The band the other side talks at. Five chips rather than a card each,
+          since the choice is one of five short names a learner already knows
+          from every other screen, and the hint says which one is theirs so
+          the default reads as a default rather than as a verdict.
+        */}
+        <ChoiceGroup
+          label="How they talk to you"
+          hint={`Your level is ${learnerLevel}. Go lower for plainer sentences, higher to be spoken to like anybody else.`}
+        >
+          {LEVELS.map((one) => (
+            <ChoiceChip key={one} selected={level === one} onSelect={() => setLevel(one)} even>
+              {one}
+            </ChoiceChip>
+          ))}
+        </ChoiceGroup>
+
         <ChoiceGroup
           label="How hard do you want it"
           className="grid gap-2 sm:grid-cols-2"

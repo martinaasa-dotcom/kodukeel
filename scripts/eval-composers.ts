@@ -49,7 +49,7 @@ import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
   FREE_GEMINI_MODELS, FREE_GROQ_MODELS,
 } from "../lib/tutor/provider";
-import { keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
+import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
 
 const arg = (name: string, fallback: string) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -62,9 +62,10 @@ const OUT = arg("out", "/tmp/composers.jsonl");
 /*
   Three scenes rather than fourteen, and these three.
 
-  A level each and both registers: `poodi-piima` is A1 and the only `sina`
-  scene in the catalogue, `arsti-aeg` is A2 at a health centre, `uuri-remont`
-  is B1 and the one whose beats need a time and a day off the role card. Twenty
+  Both registers and three kinds of room: `poodi-piima` is the only `sina`
+  scene in the catalogue, `arsti-aeg` is a health centre, `uuri-remont` is
+  the one whose beats need a time and a day off the role card. All three are
+  pitched at `HARNESS_LEVEL`, since a scene has no band of its own. Twenty
   beats between them, which at two samples is forty calls per model, and the
   point of forty rather than four is that a free tier's behaviour under a burst
   is one of the things being measured.
@@ -105,7 +106,7 @@ function links(): Link[] {
 function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) {
   const examples = scene.beats
     .filter((b) => b.id !== beat.id)
-    .flatMap((b) => scriptedFor(scene, b).slice(0, 1))
+    .flatMap((b) => scriptedFor(scene, b, HARNESS_LEVEL).slice(0, 1))
     .slice(0, 6);
 
   const live = composeLive({
@@ -125,6 +126,7 @@ function promptFor(scene: SceneSpec, beat: BeatSpec, lemmas: readonly string[]) 
   const system = composeSystem({
     scene: scene.title,
     place: scene.place,
+    level: HARNESS_LEVEL,
     // The eval draws no persona: what it measures is one model against the beat.
     persona: "",
     situation: scene.role,

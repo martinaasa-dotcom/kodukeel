@@ -44,6 +44,8 @@
  */
 import { NEW_WORDS } from "./gate";
 import { MAX_COMPOSED_WORDS } from "./gate";
+import { pitchFor } from "./pitch";
+import type { Level } from "@/lib/collections/syllabus/types";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -68,6 +70,17 @@ export interface ComposeScene {
    */
   readonly scene: string;
   readonly place: string;
+  /**
+   * THE BAND THE SCENE IS WRITTEN FOR, WHICH IS HOW THE OTHER SIDE TALKS.
+   *
+   * Required rather than optional for the reason `illSgShort` is: a caller
+   * that has not decided which band the conversation is pitched at does not
+   * compile. `pitchFor` turns it into the block that says how long a turn is,
+   * what shape its sentences take and how far it may reach past the list,
+   * and the general rules below say only what holds at every band
+   * (`lib/scenes/pitch.ts`).
+   */
+  readonly level: Level;
   /** The drawn character's one sentence, from `PERSONAS`. Empty where none was drawn. */
   readonly persona: string;
   /** The learner's role card: why they are here, never what they have to say next. */
@@ -208,11 +221,18 @@ const COMPOSE_RULES = [
     `MAX_COMPOSED_WORDS`, and the gate is what keeps it honest rather than the
     length (`lib/scenes/gate.ts`).
   */
-  `Say it the way somebody standing there would say it, in two to four sentences and up to ${MAX_COMPOSED_WORDS} words:`,
+  /*
+    AND HOW MANY SENTENCES, HOW LONG AND HOW PLAIN IS THE BAND'S TO SAY. This
+    used to name "two to four sentences" here for every scene, so the A1
+    corner shop and the B1 landlord were asked for the same turn; the count
+    and the shape now come from `pitchFor`, and what is said here is the
+    ceiling that holds whatever the band, which is the gate's own.
+  */
+  `Say it the way somebody standing there would say it, never over ${MAX_COMPOSED_WORDS} words:`,
   "react to what they just said, say the one thing about the moment that a person in your job",
   "would mention or explain, and then make your move. Describe what you need or what is",
-  "happening in enough words that a stranger would follow you. Only where a single short",
-  "sentence is genuinely what a person would say, say only that.",
+  "happening in enough words that a listener at this band would follow you. Only where a",
+  "single short sentence is genuinely what a person would say, say only that.",
   "Never leave what you are asking or answering open to more than one reading. Where the words",
   "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
   "take your meaning two different ways.",
@@ -242,7 +262,7 @@ const COMPOSE_RULES = [
     says next, and what it says has to be to the person rather than to the
     words, or the learner reads a machine that did not understand them.
   */
-  "They are a beginner. Their Estonian will often have the wrong ending, a letter missing,",
+  "They are learning. Their Estonian will often have the wrong ending, a letter missing,",
   "a word missing, a word in English or a word in the wrong place. Work out what they meant and",
   "answer that, the way anybody who speaks the language would. Do not repeat a question they",
   "have already answered, and do not quiz them.",
@@ -263,9 +283,10 @@ const COMPOSE_RULES = [
     to `NEW_WORDS` outside the scene's own list; this says which way to lean.
   */
   "Prefer the words you are given, in any grammatical form: they are what this learner has",
-  `been taught. Where the natural thing to say needs another word, use it, but at most ${NEW_WORDS}`,
-  "such words in a line, and never a word you are not sure is real Estonian. Say the sentence a",
-  "person in this situation would actually say, rather than a simpler one that avoids a word.",
+  `been taught. Where the natural thing to say needs another word, use it, but never more than ${NEW_WORDS}`,
+  "such words in a line, fewer where the band says so, and never a word you are not sure is real",
+  "Estonian. Say the sentence a person in this situation would actually say, rather than a",
+  "simpler one that avoids a word.",
   "It must be correct Estonian: the subject and the verb agree, and every ending is the one a",
   "native speaker would use. A sentence you are not sure of is worse than a plainer one.",
   "What you must not add is a comment on their Estonian, a sentence that only announces what",
@@ -299,6 +320,12 @@ export function composeSystem(scene: ComposeScene): string {
       + " never you. You are never the learner: you never ask for what they came for, never say"
       + " what is on their card as if it were yours, and never answer your own questions.",
     `Address them as "${scene.register}".`,
+    /*
+      How the other side talks, off the scene's band: how long a turn runs,
+      what shape its sentences take, how far past the list it may reach. Same
+      on every turn of a run, so it sits behind the breakpoint with the list.
+    */
+    pitchFor(scene.level),
     `Words you may use: ${scene.words.join(" ")}`,
   ].filter(Boolean).join("\n");
 }

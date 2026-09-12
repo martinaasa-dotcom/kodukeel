@@ -19,6 +19,7 @@
  * dictionary, which is where every rule about a turn lives.
  */
 import { prisma } from "../lib/db";
+import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
 import { replay, sceneContext, type StoredDraw } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
@@ -46,11 +47,11 @@ function bad(msg: string) { failures++; console.log("BAD " + msg); }
 
 async function main() {
   for (const scene of SCENES) {
-    const context = await sceneContext(scene.id);
+    const context = await sceneContext(scene.id, HARNESS_LEVEL);
     if (!context) { bad(`${scene.id}: no context`); continue; }
     for (const difficulty of ["textbook", "bad"] as const) {
       for (let seedNo = 0; seedNo < 6; seedNo++) {
-        const run = planRun(scene, `fuzz-${seedNo}`, scene.level, difficulty);
+        const run = planRun(scene, `fuzz-${seedNo}`, HARNESS_LEVEL, difficulty);
         const draw: StoredDraw = { persona: run.persona.id, card: run.card, curveballs: run.curveballs.map((c) => ({ id: c.id, at: c.at })), lines: "scripted", patience: run.patience };
         const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
         // sequences: pure garbage, alternating garbage/real, and all-real

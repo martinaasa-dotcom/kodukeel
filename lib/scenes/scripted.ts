@@ -2,6 +2,7 @@ import { BANK } from "./bank";
 import { curveballById } from "./curveballs";
 import { hurdleBeat } from "./state";
 import { leafNeeds, type BeatSpec, type SceneSpec } from "./types";
+import type { Level } from "@/lib/collections/syllabus/types";
 
 /**
  * LINES WRITTEN BEFORE ANYBODY PLAYED, AND WHICH BEATS MAY HAVE ONE.
@@ -52,6 +53,18 @@ export interface ScriptedLine {
    * true is set by a person editing this file, and the chip changes with it.
    */
   readonly reviewed: boolean;
+  /**
+   * THE BAND THE LINE WAS DRAFTED FOR, where it was drafted for one.
+   *
+   * A composed line is pitched at the run's band (`lib/scenes/pitch.ts`) and
+   * a banked line is a composed line moved to a different moment, so the
+   * drafter drafts per band with the same pitch in front of it and writes the
+   * band down. A row without one was drafted before bands existed, at no
+   * band in particular, and stays as the net under every band: `scriptedFor`
+   * reads a run's own band first and those after, so an A1 learner on a
+   * keyless deployment meets the A1 lines and never the C1 ones.
+   */
+  readonly level?: Level;
 }
 
 /**
@@ -120,9 +133,20 @@ function tokens(text: string): string[] {
   return (text.match(/\p{L}+/gu) ?? []).map((w) => w.toLowerCase());
 }
 
-export function scriptedFor(scene: SceneSpec, beat: BeatSpec): readonly string[] {
+export function scriptedFor(scene: SceneSpec, beat: BeatSpec, level?: Level): readonly string[] {
   if (!scriptable(scene, beat)) return [];
-  return BANK.filter((row) => row.scene === scene.id && row.beat === beat.id).map((row) => row.text);
+  const rows = BANK.filter((row) => row.scene === scene.id && row.beat === beat.id);
+  if (level === undefined) return rows.map((row) => row.text);
+  /*
+    This band's own lines lead and the unpitched ones follow; another band's
+    are never said. The ladder walks the pool in order and passes over what
+    this run has used, so a beat with two A1 lines says both before it falls
+    to a line drafted at no band, and a beat with none at A1 still has a line.
+  */
+  return [
+    ...rows.filter((row) => row.level === level),
+    ...rows.filter((row) => row.level === undefined),
+  ].map((row) => row.text);
 }
 
 /** Whether a native speaker has read a given line. */

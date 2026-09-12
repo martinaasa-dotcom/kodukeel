@@ -5680,6 +5680,46 @@ app's own hint instead, in English and out of character, which is the honest thi
 moment (`lib/scenes/coach.ts`). The word-shaped and card-shaped choices are untouched, since
 `Valu või palavik?` is two things somebody could have meant.
 
+**And how the other side talks is the run's band, which is the learner's own unless they moved
+it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are
+a beginner" on the landlord as readily as on the corner shop and asked for the same two to four
+sentences at both, so a learner three weeks in met a ticket clerk who spoke like a B1 receptionist
+and a B1 candidate met an interviewer who spoke like an A1 shopkeeper. The operator wrote out, per
+band, what a person has to sound like for a learner at that band to follow without stopping, thirty
+interview dialogues over three files, and `lib/scenes/pitch.ts` is what those say in English: at A1
+one short sentence per thought, one question at a time and a yes-or-no question wherever the words
+allow one; at A2 two thoughts on a conjunction and a question offering a choice of two; at B1 a
+whole sentence with one clause inside it and a reason or a consequence in a second; at B2 how you
+speak to any adult; at C1 how you speak to a colleague. Each row also narrows the ask, fewer
+sentences, fewer words and fewer words outside the list as the band drops, and **every figure sits
+under the gate's own ceiling**, asserted, since the gate is what keeps a composed line honest and
+none of its twelve checks was touched.
+
+**A scene has no band of its own.** It did, and it decided where a tile sat on the listing and, for
+an hour, how the other side talked; the operator asked for the bands to go, and they were right
+about the shape: a situation is not A1 or B1, the person on the other side is, and which they should
+be is about the learner rather than the tile. So `SceneSpec` carries no `level` and may not grow one
+back, the listing is one list, and the band is the run's: `beginScene` opens it at the level the
+app already holds for the learner, the briefing carries a selector of the five bands beside the
+difficulty dial so they can go lower for plainer sentences or higher to be spoken to like anybody
+else, and the route reads the stored band back on every turn so a run keeps one voice.
+`ComposeScene.level` is required, so a caller that has not decided does not compile, and the
+invariant reads the call sites that build the object from a literal, because a harness pitched at
+nothing measures a conversation the app does not have; a harness has no learner, so it names the
+band it plays at (`HARNESS_LEVEL`).
+
+**And the bank is pitched too, which is what reaches a keyless deployment.** A banked line is a
+composed line moved to a different moment, so `npm run draft:lines` drafts per band now, with
+`pitchFor` in front of the model and the band's own ceiling in its refusals (`fitsPitch`), and
+writes the band on the row. `scriptedFor` reads a run's own band first and the unpitched rows
+after, never another band's, so an A1 learner on a deployment with no key meets the A1 lines. The
+rows drafted before bands existed carry no band and stay as the net under every band, since three
+hundred of them were typed by hand for the curveballs no free model could write. The first trial
+corrected the table: told "two or three sentences is a whole turn", the model wrote three at A1
+every time, and with no conversation in front of it opened mid-scene beats with a greeting, so A1
+is one sentence and two at most and the drafter's instruction says the conversation has already
+begun. Nobody has read any of it, at any band.
+
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a
 scene. `ComposeAsk` carries the scene, the place, the drawn persona and the learner's own role card,

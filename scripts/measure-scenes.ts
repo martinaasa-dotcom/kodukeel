@@ -21,6 +21,7 @@
  * figure is an input to a decision, not a check somebody can break.
  */
 import { LEVELS, SYLLABUS, unitById } from "../lib/collections/syllabus";
+import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { SCENES } from "../lib/scenes/catalogue";
 import { buildLexicon, formsOf, withExtras, words, type DictEntry, type Lexicon } from "../lib/scenes/lexicon";
 import { fits, isQuestion, spokenLine, topicForms, unknownWords, type Line } from "../lib/scenes/retrieval";
@@ -184,7 +185,8 @@ function report(scene: SceneSpec) {
     if (!unit) throw new Error(`scene ${scene.id} names a unit that does not exist: ${id}`);
     for (const lemma of unit.lemmas) sceneWords.add(lemma);
   }
-  const courseWords = courseWordsTo(scene.level);
+  // A scene has no band of its own, so the course is read to the harness's band.
+  const courseWords = courseWordsTo(HARNESS_LEVEL);
   for (const lemma of sceneWords) courseWords.add(lemma);
 
   const sceneLex = lexiconFor(sceneWords);
@@ -193,7 +195,7 @@ function report(scene: SceneSpec) {
 
   console.log(`\n${scene.id}  ${scene.title}`);
   console.log(
-    `  ${scene.level}, tests ${scene.tests}, ${sceneWords.size} words in its own units and ${courseWords.size} in the course to here`,
+    `  ${HARNESS_LEVEL}, tests ${scene.tests}, ${sceneWords.size} words in its own units and ${courseWords.size} in the course to here`,
   );
   console.log("  beat        move       topical  +shape  +spoken   scene  scene+1  course  course+1  +floor");
 

@@ -2,9 +2,21 @@
  * Draft the other side's lines before anybody plays, and keep only what the
  * gate lets through.
  *
- *   npm run draft:lines                    # every scriptable beat short of WANT lines
+ *   npm run draft:lines                    # every scriptable beat short of WANT lines, at every band
  *   npm run draft:lines -- --scene poodi-piima
+ *   npm run draft:lines -- --level A1      # one band only
+ *   npm run draft:lines -- --unpitched     # the net under every band, as the bank was first drafted
  *   npm run draft:lines -- --refresh       # drop unreviewed rows first and draft again
+ *
+ * A LINE IS DRAFTED FOR A BAND. The other side talks at the run's band
+ * (`lib/scenes/pitch.ts`) and a banked line is a composed line moved to a
+ * different moment, so it is drafted per band with the same pitch in front of
+ * it and the band is written on the row; `scriptedFor` reads a run's own band
+ * first. The rows drafted before bands existed carry none and stay as the net
+ * under every band, so a beat no band could be drafted for still has a line.
+ * A pitched row is refused before the gate where it runs past its band's own
+ * ceiling (`fitsPitch`), since a forty-word A1 line is not an A1 line whatever
+ * the model was told.
  *
  * ADR-025 amendment 1 (`lib/scenes/scripted.ts`). This is the composer moved
  * to a different moment: the same chain, the same prompt and the same four
@@ -46,6 +58,8 @@
  */
 import { writeFileSync } from "node:fs";
 import { gateFor, runGate, passes } from "../lib/scenes/gate";
+import { fitsPitch } from "../lib/scenes/pitch";
+import { LEVELS, type Level } from "../lib/collections/syllabus";
 import { SCENES, FALLBACK_PHRASE } from "../lib/scenes/catalogue";
 import { BANK } from "../lib/scenes/bank";
 import { beatById, sceneBeats, scriptable, type ScriptedLine } from "../lib/scenes/scripted";
@@ -57,18 +71,30 @@ import type { BeatSpec } from "../lib/scenes/types";
 
 /** How many lines a beat is drafted up to. Three is enough variety for one run, and few enough to read. */
 const WANT = 3;
+/** And per band: two, because five bands of three is a bank nobody reads in a pull request. */
+const WANT_PITCHED = 2;
 /** How many attempts a beat gets before this gives up on it for today. */
 const ATTEMPTS = 8;
+/** How many beats are drafted at once. Twelve, measured against the paid key this was drafted with; a free tier may want fewer. */
+const POOL_SIZE = 12;
 
 const sceneArg = process.argv.indexOf("--scene");
 const onlyScene = sceneArg >= 0 ? process.argv[sceneArg + 1] : undefined;
 const refresh = process.argv.includes("--refresh");
+const levelArg = process.argv.indexOf("--level");
+/** Which bands to draft for: one, all five, or none (`--unpitched`, the old shape). */
+const BANDS: readonly (Level | undefined)[] = process.argv.includes("--unpitched")
+  ? [undefined]
+  : levelArg >= 0 ? [process.argv[levelArg + 1] as Level] : LEVELS;
 
 const OUT = "lib/scenes/bank.ts";
 
 /** A line the gate should not even be asked about. */
-function refused(text: string, fallback: string, answers: ReadonlySet<string>, beat: BeatSpec): string | null {
+function refused(
+  text: string, fallback: string, answers: ReadonlySet<string>, beat: BeatSpec, level?: Level,
+): string | null {
   if (/\d/.test(text)) return "digit";
+  if (level) { const why = fitsPitch(text, level); if (why) return `over the band: ${why}`; }
   if (/[\u2013\u2014:;]/.test(text)) return "dash or colon";
   if (words(text).join(" ") === words(fallback).join(" ")) return "the way out";
   if (!/[.?!]$/.test(text.trim())) return "no end";
@@ -100,50 +126,74 @@ async function main() {
     if (!scene || !beat || !context || !scriptable(scene, beat)) { dropped++; note("dropped: no such beat"); return false; }
     const verdict = runGate(row.text, beat, gateFor(row.beat, context.gate));
     if (!passes(verdict)) { dropped++; note(`dropped: gate ${verdict.failed.join("/")}`); return false; }
-    const why = refused(row.text, FALLBACK_PHRASE, answerForms(beat, context.lexicon), beat);
+    const why = refused(row.text, FALLBACK_PHRASE, answerForms(beat, context.lexicon), beat, row.level);
     if (why) { dropped++; note(`dropped: ${why}`); return false; }
     return true;
   });
+  /*
+    Keyed on the text and not on the band: the ladder's `used` set is keyed
+    on text, so one line at two bands is one line said once, and the bank
+    test refuses a beat repeating itself whatever the rows say about bands.
+  */
   const seen = new Set(kept.map((row) => `${row.scene}|${row.beat}|${row.text.toLowerCase()}`));
 
+  /*
+    EVERY (SCENE, BEAT, BAND) IS ONE TASK, AND A FEW RUN AT ONCE. Five bands
+    over fourteen scenes is about eight hundred and seventy slots at two to
+    eight calls each, which serially is an afternoon; a pool cuts that to a
+    fraction. `kept` and `seen` are shared and that is safe, because every
+    write to them happens between awaits on one thread, and the duplicate
+    check runs on the same tick as the push.
+  */
+  const tasks: (() => Promise<void>)[] = [];
   for (const scene of SCENES) {
     if (onlyScene && scene.id !== onlyScene) continue;
     const { lemmas, gate, lexicon } = contexts.get(scene.id)!;
     for (const beat of sceneBeats(scene)) {
       if (!scriptable(scene, beat)) { skipped++; continue; }
-      const have = () => kept.filter((row) => row.scene === scene.id && row.beat === beat.id).length;
       // The lemmas the beat asks the learner for, which the line may not say.
       const withhold = beat.needs.flatMap((need) => (need.kind === "case" ? [need.lemma] : []));
-      let attempts = 0;
-      while (have() < WANT && attempts < ATTEMPTS) {
-        attempts++;
-        const first = await compose(scene, beat, lemmas, undefined, links, withhold);
-        if (!first) break;
-        asked++;
-        let candidate = first;
-        let verdict = runGate(candidate.text, beat, gateFor(beat.id, gate));
-        if (!passes(verdict) && verdict.unknown.length > 0) {
-          // The one retry, with the failing words named. The design's rule, not a kindness.
-          const second = await compose(scene, beat, lemmas, verdict.unknown, links, withhold);
-          if (second) { asked++; candidate = second; verdict = runGate(candidate.text, beat, gate); }
-        }
-        if (!passes(verdict)) { withheld++; for (const c of verdict.failed) note(`gate: ${c}`); continue; }
-        const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat);
-        if (why) { withheld++; note(why); continue; }
-        const key = `${scene.id}|${beat.id}|${candidate.text.toLowerCase()}`;
-        if (seen.has(key)) { note("duplicate"); continue; }
-        seen.add(key);
-        kept.push({
-          scene: scene.id, beat: beat.id, text: candidate.text,
-          model: candidate.model, draftedAt: today, reviewed: false,
+      for (const level of BANDS) {
+        tasks.push(async () => {
+          const want = level ? WANT_PITCHED : WANT;
+          const have = () => kept.filter((row) => row.scene === scene.id && row.beat === beat.id && row.level === level).length;
+          let attempts = 0;
+          while (have() < want && attempts < ATTEMPTS) {
+            attempts++;
+            const first = await compose(scene, beat, lemmas, undefined, links, withhold, level);
+            if (!first) break;
+            asked++;
+            let candidate = first;
+            let verdict = runGate(candidate.text, beat, gateFor(beat.id, gate));
+            if (!passes(verdict) && verdict.unknown.length > 0) {
+              // The one retry, with the failing words named. The design's rule, not a kindness.
+              const second = await compose(scene, beat, lemmas, verdict.unknown, links, withhold, level);
+              if (second) { asked++; candidate = second; verdict = runGate(candidate.text, beat, gate); }
+            }
+            if (!passes(verdict)) { withheld++; for (const c of verdict.failed) note(`gate: ${c}`); continue; }
+            const why = refused(candidate.text, FALLBACK_PHRASE, answerForms(beat, lexicon), beat, level);
+            if (why) { withheld++; note(why); continue; }
+            const key = `${scene.id}|${beat.id}|${candidate.text.toLowerCase()}`;
+            if (seen.has(key)) { note("duplicate"); continue; }
+            seen.add(key);
+            kept.push({
+              scene: scene.id, beat: beat.id, text: candidate.text,
+              model: candidate.model, draftedAt: today, reviewed: false,
+              ...(level ? { level } : {}),
+            });
+            drafted++;
+          }
+          console.log(`  ${scene.id}/${beat.id}${level ? ` @${level}` : ""}: ${have()} of ${want}${attempts >= ATTEMPTS && have() < want ? " (gave up for today)" : ""}`);
         });
-        drafted++;
       }
-      console.log(`  ${scene.id}/${beat.id}: ${have()} of ${WANT}${attempts >= ATTEMPTS && have() < WANT ? " (gave up for today)" : ""}`);
     }
   }
+  await Promise.all(Array.from({ length: POOL_SIZE }, async () => {
+    for (let next = tasks.shift(); next; next = tasks.shift()) await next();
+  }));
 
-  kept.sort((a, b) => a.scene.localeCompare(b.scene) || a.beat.localeCompare(b.beat) || a.text.localeCompare(b.text));
+  kept.sort((a, b) => a.scene.localeCompare(b.scene) || a.beat.localeCompare(b.beat)
+    || (a.level ?? "").localeCompare(b.level ?? "") || a.text.localeCompare(b.text));
   writeFileSync(OUT, render(kept));
 
   console.log(`\n${drafted} new line${drafted === 1 ? "" : "s"} kept, ${withheld} withheld, ${asked} asked, ${dropped} already-banked row${dropped === 1 ? "" : "s"} dropped by today's rules; ${skipped} beat${skipped === 1 ? "" : "s"} not scriptable. ${kept.length} rows in ${OUT}.`);
@@ -159,7 +209,8 @@ async function main() {
 function render(rows: readonly ScriptedLine[]): string {
   const body = rows.map((row) =>
     `  { scene: ${JSON.stringify(row.scene)}, beat: ${JSON.stringify(row.beat)}, text: ${JSON.stringify(row.text)},`
-    + ` model: ${JSON.stringify(row.model)}, draftedAt: ${JSON.stringify(row.draftedAt)}, reviewed: ${row.reviewed} },`,
+    + ` model: ${JSON.stringify(row.model)}, draftedAt: ${JSON.stringify(row.draftedAt)}, reviewed: ${row.reviewed}`
+    + (row.level ? `, level: ${JSON.stringify(row.level)}` : "") + " },",
   ).join("\n");
   return [
     "/* GENERATED by scripts/draft-lines.ts. Do not add a line by hand.",
@@ -172,7 +223,9 @@ function render(rows: readonly ScriptedLine[]): string {
     "   keeps rows that are already here and only drafts what is missing. A row",
     "   whose model is `authored` was typed in a session rather than drafted, and",
     "   went through the same checks on its way in; a beat named `hurdle:<id>` is",
-    "   a curveball's line (lib/scenes/scripted.ts is what reads this; ADR-025",
+    "   a curveball's line; a row carrying `level` was drafted for that band with",
+    "   the band's pitch in front of the model, and a row carrying none is the net",
+    "   under every band (lib/scenes/scripted.ts is what reads this; ADR-025",
     "   amendment 1.) */",
     'import type { ScriptedLine } from "./scripted";',
     "",

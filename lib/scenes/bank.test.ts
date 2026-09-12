@@ -8,6 +8,8 @@ import { words } from "./lexicon";
 import { curveballById } from "./curveballs";
 import { answerBeatId, beatById, scriptable, scriptedFor, sceneBeats } from "./scripted";
 import { answerForms, keylessContext, lacksFiniteVerb } from "../../scripts/lib/sceneDraft";
+import { fitsPitch } from "./pitch";
+import { LEVELS } from "@/lib/collections/syllabus";
 
 /**
  * The bank is Estonian a model wrote, so it is held to the gate every time
@@ -77,6 +79,36 @@ describe("the scripted bank", () => {
       expect(row.text, `${row.scene}/${row.beat} holds a digit`).not.toMatch(/\d/);
       expect(row.text, `${row.scene}/${row.beat} holds a dash or colon`).not.toMatch(/[\u2013\u2014:;]/);
       expect(words(row.text).join(" ")).not.toBe(words(FALLBACK_PHRASE).join(" "));
+    }
+  });
+
+  /*
+    A ROW DRAFTED FOR A BAND FITS IT, as far as counting can tell. The pitch
+    is mostly a description the model reads, and the two figures in it are
+    the half a test can hold a row to: a forty-word A1 line is not an A1 line
+    whatever the model was told. What a band a row names is one the course
+    names, since `scriptedFor` reads rows by it and a typo there is a row no
+    run ever says.
+  */
+  it("holds every pitched row inside its own band, and names only bands the course has", () => {
+    for (const row of BANK) {
+      if (row.level === undefined) continue;
+      expect(LEVELS, `${row.scene}/${row.beat} names band ${row.level}`).toContain(row.level);
+      expect(fitsPitch(row.text, row.level), `${row.scene}/${row.beat} @${row.level}: "${row.text}"`).toBeNull();
+    }
+  });
+
+  it("reads a run's own band first and never another band's", () => {
+    const shop = sceneById("poodi-piima")!;
+    const beat = shop.beats[1]!;
+    const all = scriptedFor(shop, beat);
+    for (const level of LEVELS) {
+      const mine = scriptedFor(shop, beat, level);
+      const rows = BANK.filter((row) => row.scene === shop.id && row.beat === beat.id);
+      const own = rows.filter((row) => row.level === level).map((row) => row.text);
+      const unpitched = rows.filter((row) => row.level === undefined).map((row) => row.text);
+      expect(mine).toEqual([...own, ...unpitched]);
+      for (const text of mine) expect(all).toContain(text);
     }
   });
 

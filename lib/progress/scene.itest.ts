@@ -280,8 +280,18 @@ describe("a scene against the dictionary", () => {
 
     expect(state.done, "the late answer was refused").toContain("floor");
     expect(elsewhere, "the reply was not told the turn landed").toBeGreaterThan(0);
-    // And the pointer is still on what they were actually asked.
-    expect(scene.beats[state.beat]?.id).toBe("from");
+    /*
+      And the pointer is still on what they were actually asked, unless that
+      beat had exactly one try to give. The late answer is a miss on the beat
+      it was said at, and the brisk persona takes one try off every beat, so on
+      that draw `from` is let go by the very turn that credits `floor` and the
+      pointer is on `with`. The seed is random, so this read as a flake once
+      in about four runs; the claim is the same either way, that the pointer
+      moved forward off the beat and never back to the one just credited.
+    */
+    const from = scene.beats.findIndex((beat) => beat.id === "from");
+    expect(scene.beats[state.beat]?.id).toBe(opened!.run.patience[from]! > 1 ? "from" : "with");
+    expect(state.beat).toBeGreaterThan(at);
   });
 
   /*

@@ -31,6 +31,7 @@ import { planRun } from "../lib/scenes/run";
 import { numberWords } from "../lib/scenes/props";
 import { shippedDictionary } from "./lib/dictionary";
 import { SYLLABUS } from "../lib/collections/syllabus";
+import { HARNESS_LEVEL } from "./lib/sceneDraft";
 import { formsOf } from "../lib/scenes/lexicon";
 
 const rows: Row[] = shippedDictionary().map((e) => ({ id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts, extraForms: e.extraForms, usages: e.usages, government: e.government, gloss: e.gloss }));
@@ -110,7 +111,7 @@ const DEALT: Record<string, Record<string, string>> = {
 async function main() {
   for (const [sceneId, cases] of Object.entries(CASES)) {
     const scene = sceneById(sceneId)!;
-    const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)));
+    const base = contextFromRows(scene, rows.filter((r) => sceneLemmas(scene).has(r.lemma)), HARNESS_LEVEL);
     /*
       MARKED THE WAY THE ROUTE MARKS IT. The route widens three times before it
       reads a turn: the course (`courseForms`), the forms list (`knowing`), and
@@ -124,7 +125,7 @@ async function main() {
       { ...base, marker: { ...base.marker, ...acceptFromRows(scene, rows), known: (w: string) => KNOWN.has(w) } },
       cases.map(([, said]) => said),
     );
-    const run = planRun(scene, "probe", scene.level, "textbook");
+    const run = planRun(scene, "probe", HARNESS_LEVEL, "textbook");
     const forced = DEALT[sceneId] ?? {};
     const card = {
       ...run.card,

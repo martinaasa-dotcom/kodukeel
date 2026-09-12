@@ -23,6 +23,8 @@ import {
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
+import { LEVELS, type Level } from "@/lib/collections/syllabus/types";
+import { courseLevelFor } from "@/lib/progress/level";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "@/lib/scenes/aside";
 import { choiceOf } from "@/lib/scenes/choice";
 import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
@@ -130,7 +132,7 @@ export async function POST(request: Request) {
   const row = runId
     ? await prisma.sceneRun.findFirst({
         where: { id: runId, ownerId, endedAt: null },
-        select: { sceneId: true, transcript: true },
+        select: { sceneId: true, transcript: true, level: true },
       })
     : null;
   const scene = row ? sceneById(row.sceneId) : null;
@@ -138,7 +140,20 @@ export async function POST(request: Request) {
     return Response.json({ error: "That is not a turn in a scene." }, { status: 400 });
   }
 
-  const context = await sceneContext(scene.id);
+  /*
+    HOW THE OTHER SIDE TALKS IS THE BAND THIS RUN WAS OPENED AT, which is the
+    learner's own level unless they moved the selector on the briefing, and
+    it was written down by `beginRun` so a run keeps one voice. The column is
+    a string; a row written by anything but `beginScene` falls back to the
+    learner's level rather than to a band of ours (`lib/scenes/pitch.ts`).
+    Read before the context, because the context is built for the band: the
+    bank's lines at this band lead and the unpitched ones follow.
+  */
+  const level: Level = (LEVELS as readonly string[]).includes(row!.level)
+    ? (row!.level as Level)
+    : await courseLevelFor(ownerId);
+
+  const context = await sceneContext(scene.id, level);
   if (!context) {
     return Response.json({ error: "That scene could not be built." }, { status: 400 });
   }
@@ -978,6 +993,8 @@ export async function POST(request: Request) {
       */
       scene: scene.title,
       place: scene.place,
+      // The band this run was opened at, which is how the other side talks (`pitchFor`).
+      level,
       persona: persona?.who ?? "",
       situation: scene.role,
       reservation,
@@ -1108,6 +1125,8 @@ async function compose(
     /** The scene, the place, the character and why the learner is here (`ComposeAsk`). */
     scene: string;
     place: string;
+    /** The band the scene is written for: how the other side talks (`lib/scenes/pitch.ts`). */
+    level: Level;
     persona: string;
     situation: string;
     move: string;
@@ -1151,8 +1170,8 @@ async function compose(
     prompt (`lib/scenes/prompt.ts`).
   */
   const system = composeSystem({
-    scene: input.scene, place: input.place, persona: input.persona, situation: input.situation,
-    register: input.register, words: input.words,
+    scene: input.scene, place: input.place, level: input.level, persona: input.persona,
+    situation: input.situation, register: input.register, words: input.words,
   });
   const live = composeLive(input);
 
