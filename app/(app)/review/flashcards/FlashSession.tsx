@@ -18,11 +18,7 @@ import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { englishName } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
-
-/** The cap shows the glyph rather than spelling the word out; the key itself
- *  is still whatever `isAdvanceKey` answers to. */
-const ENTER_GLYPH = "↵";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -274,11 +270,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ENTER_GLYPH}` : ENTER_GLYPH}</KeyCap>
+              Check it <KeyCap className="ml-1">{shape === "build" ? `⌘ ${ADVANCE_KEY_GLYPH}` : ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ENTER_GLYPH}</KeyCap>
+              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
