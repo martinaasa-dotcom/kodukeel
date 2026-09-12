@@ -78,6 +78,10 @@ const FIX = fixtures(TRIALS);
 const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
+  { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
+  { name: "groq", model: "groq/compound-mini", label: "Groq" },
+  { name: "groq", model: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Groq" },
+  { name: "groq", model: "moonshotai/kimi-k2-instruct", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },
