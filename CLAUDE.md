@@ -82,7 +82,7 @@ what landed before you merge, not just the conflict status.
 for the reason the Groq block above them sat at zero: the only Gemini access this project had was a
 free key, and "free" is a property of the account rather than of the model. The moment a paid key is
 set, every one of them prices a real call at nothing, which is the global spend cap switched off on
-whichever model a deployment points `GEMINI_SCENE_MODEL` at. Read off Google's own page rather than
+the model scenes are pinned to. Read off Google's own page rather than
 recalled, with the day on the entry, and the Flash tier's promotional rate is written down beside
 the date it doubles rather than left in a diary. A model the table does not name prices at
 `UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:

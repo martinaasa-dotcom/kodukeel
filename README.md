@@ -297,18 +297,14 @@ where the beat wanted a question; and two of the three OpenRouter free models an
 request for the rest of the day, which is what a free tier is and is the argument for the lines
 written in advance being good rather than for the ladder being different.
 
-**Setting a paid key is not the same as using it here.** The chain is free first by policy, so a
-deployment that sets `ANTHROPIC_API_KEY` and nothing else still asks three free models before it
-reaches the paid one, on every turn, and mostly gets a line from the bank instead. What points
-conversations at the paid model is naming it: `ANTHROPIC_SCENE_MODEL="claude-sonnet-5"`. A provider
-named there goes to the front, and everything else stays behind it as the fallback it already was.
-
-So `OPENROUTER_SCENE_MODEL` (or `GROQ_` / `GEMINI_` / `ANTHROPIC_` / `OPENAI_SCENE_MODEL`) points
-conversations at a better model than the rest of the app uses, and a provider you name here is asked
-*first* rather than after the free chain, since naming one is choosing it. Nothing is set by default,
-for the reason scanning sets nothing: opening a conversation must never move a free deployment onto
-a paid model by itself. A turn is one short answer, so this is the cheapest paid path in the app to
-run well.
+**Conversations are pinned to `gemini-3.8-flash`, and no variable moves them.** They compose on it
+when `GEMINI_API_KEY` is set, with Anthropic behind it only as the gated last resort, and play off
+their recorded and banked lines when it is not. There is no `SCENE_MODEL` and no `*_SCENE_MODEL`
+override any more: the first held a Groq model name from the days scenes ran on Groq, the chain
+moved to Gemini and kept reading it, and Google refused every composed turn for a week while the
+route answered 200, so every conversation on production fell to its script and nothing said so. A
+measured choice an environment variable can silently move stays measured only until somebody
+touches the dashboard. A `SCENE_MODEL` still set is ignored and reported once in the error log.
 
 ## Deploying it as a real website
 

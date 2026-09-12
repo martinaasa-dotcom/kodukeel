@@ -231,37 +231,25 @@ describe("a chain built for a purpose", () => {
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "anthropic"]);
   });
 
-  it("keeps both halves of the two sessions that built the scene chain", () => {
+  it("keeps the scene chain isolated, and lets no override put another provider in front", () => {
     /*
-      Main added `sceneProviders`, a `*_SCENE_MODEL` override per provider with
-      the named one moved to the front, and the README documents it. This branch
-      added the purpose chain, which is what stops a scene spending the balance
-      Anu runs on. A clean three-way merge would have shipped two answers to one
-      question; this asserts the merged one still does both jobs.
+      Two sessions built this chain: one added a per-provider `*_SCENE_MODEL`
+      override that moved a named provider to the front, the other the purpose
+      chain that stops a scene spending the balance Anu runs on. The override
+      went when the operator pinned the model, since a second variable that can
+      move conversations is the door the `SCENE_MODEL` fault came through, one
+      name over. What this asserts is what is left: Gemini on the pinned model
+      leads, Anthropic sits behind it only as the gated last resort, and naming
+      another provider for scenes changes nothing.
     */
-    // Isolation, with nothing named: Gemini leads, Anthropic behind it as the
-    // gated last resort, and nothing else however many keys are set.
     all();
     expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "anthropic"]);
     expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini"]);
 
-    // Selection: a named model is asked, and asked first.
-    vi.stubEnv("GEMINI_SCENE_MODEL", "gemini/some-better-model");
-    expect(sceneProviders()[0]).toMatchObject({
-      name: "gemini", model: "gemini/some-better-model",
-    });
-
-    /*
-      And main's real point: an operator may point conversations at a provider
-      the purpose chain would not otherwise reach. Naming one has to work, or
-      the feature was deleted rather than merged. It leads even with the
-      fallback budget spent, because a model somebody named is a primary.
-    */
-    vi.stubEnv("GEMINI_SCENE_MODEL", "");
     vi.stubEnv("OPENROUTER_SCENE_MODEL", "some/scene-model");
-    expect(sceneProviders({ allowFallback: false })[0]).toMatchObject({
-      name: "openrouter", model: "some/scene-model",
-    });
+    vi.stubEnv("ANTHROPIC_SCENE_MODEL", "claude-sonnet-5");
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini"]);
+    expect(sceneProviders()[0]).toMatchObject({ name: "gemini", model: SCENE_MODELS[0] });
   });
 
   it("gives a deployment with no keys an empty chain for both, as it always did", () => {
@@ -279,38 +267,24 @@ describe("a chain built for a purpose", () => {
     expect(names).toEqual(new Set(["openrouter", "groq", "gemini", "anthropic", "openai"]));
   });
 
-  it("lets SCENE_MODEL name the model, and does not read GEMINI_MODEL for it", () => {
-    /*
-      GEMINI_MODEL configures the general chain. Inheriting it here would move
-      scene composition off the model `eval:thinking` ranked the first time
-      anybody tuned the general chain for some other reason, and nothing would
-      say so.
-    */
-    only("gemini");
-    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
-
-    vi.stubEnv("SCENE_MODEL", "gemini-3.5-flash-lite");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["gemini-3.5-flash-lite"]);
-  });
-
-  it("does not hand Gemini a model id from another provider's catalogue", () => {
+  it("composes scenes on the pinned model whatever the environment says", () => {
     /*
       THE PRODUCTION FAULT, VERBATIM. Scenes ran on Groq and `SCENE_MODEL` was
       `qwen/qwen3.8-27b`; the chain moved to Gemini, went on reading the same
       variable, and Google answered 404 on every composed turn for a week. The
       ladder fell to the bank, the route answered 200, and the learner reported
-      a conversation that could not leave its script. A namespaced id is how
-      OpenRouter and Groq spell a model and how Google never does, so it is
-      dropped for the measured default and reported once, rather than sent.
+      a conversation that could not leave its script. The operator's answer was
+      to pin it: scenes always compose on `SCENE_MODELS`, and neither the old
+      variable nor the general chain's model nor a per-provider override can
+      move them.
     */
     only("gemini");
+    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
     vi.stubEnv("SCENE_MODEL", "qwen/qwen3.8-27b");
+    vi.stubEnv("GEMINI_SCENE_MODEL", "gemini-3.5-flash-lite");
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
-
-    // A list mixing the two keeps what Gemini can answer for.
-    vi.stubEnv("SCENE_MODEL", "qwen/qwen3.8-27b, gemini-3.5-flash-lite");
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual(["gemini-3.5-flash-lite"]);
+    expect(sceneProviders().map((c) => c.model)).toEqual([...SCENE_MODELS]);
+    expect(SCENE_MODELS).toEqual(["gemini-3.8-flash"]);
   });
 
   it("prices the scene model as a paid model, because the account is paid", () => {

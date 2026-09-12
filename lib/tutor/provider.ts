@@ -264,49 +264,45 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       silently move scene composition off the model the eval actually ranked,
       and nothing would fail. A measured choice is worth its own variable.
     */
-    for (const model of geminiSceneModels()) {
+    /*
+      PINNED, AND NO VARIABLE MOVES IT. Scenes always compose on `SCENE_MODELS`,
+      which is the one model `eval:composers` ranked for writing Estonian, and
+      nothing in the environment is read here.
+
+      It used to read `SCENE_MODEL`, and that is how the model came to be out
+      of the loop for a week on production. Scenes ran on Groq once and the
+      variable held its model, `qwen/qwen3.8-27b`; the chain moved to Gemini
+      and went on reading the same name, Google answered 404 on every composed
+      turn, `openWithFallback` correctly never walks past a model that does not
+      exist, and the ladder fell to the bank. The route answered 200, so every
+      off-script turn was the scripted repeat with "Vabandust!" in front of it
+      and the learner reported a conversation that could not leave its script,
+      which is exactly what it could not do. A measured choice that an
+      environment variable can silently move is a measured choice for as long
+      as nobody touches the dashboard. This one is a constant, and the operator
+      asked for it to be one.
+    */
+    for (const model of SCENE_MODELS) {
       chain.push({ name: "gemini", model, label: "Google Gemini" });
     }
+    warnIfSceneModelSet();
   },
 };
 
 /**
- * `SCENE_MODEL` read as a list of Gemini models, which is the only thing this
- * link can ask for.
- *
- * WHAT A STALE VALUE DID. Scenes ran on Groq for a while and `SCENE_MODEL` was
- * its model, `qwen/qwen3.8-27b`; the chain moved to Gemini and went on reading
- * the same variable, so a deployment that had set it for Groq handed Google a
- * Groq id. Gemini answered 404 on every composed turn, `openWithFallback`
- * correctly never walks past a model that does not exist, and the ladder fell
- * to the bank. For a week every off-script turn on production was the scripted
- * repeat with "Vabandust!" in front of it, and the log said why in a line that
- * nobody reads because the route answers 200: the model was configured, paid
- * for and never once in the loop. The learner reported the module as unable to
- * deviate from the script, which is exactly what it could not do.
- *
- * A namespaced id (`vendor/model`) is how OpenRouter and Groq spell a model
- * and how Google never does, so one is not a Gemini model whatever else it is.
- * It is dropped, said once in the error log naming the variable, and the
- * measured default takes its place: a misconfiguration costs a warning rather
- * than the whole feature. A plain id is passed through as typed, because this
- * file does not keep a list of Google's catalogue and a name it does not know
- * is still Google's to refuse.
+ * The one courtesy the pin owes an operator: a `SCENE_MODEL` still set in the
+ * environment does nothing, and a variable that does nothing looks exactly
+ * like one that works. Said once per process, in the error log, naming it.
  */
-function geminiSceneModels(): string[] {
-  const configured = configuredModels(process.env.SCENE_MODEL, []);
-  const gemini = configured.filter((model) => !model.includes("/"));
-  const rejected = configured.filter((model) => model.includes("/"));
-  if (rejected.length > 0 && !warnedSceneModel) {
-    warnedSceneModel = true;
-    reportError(
-      new Error(`SCENE_MODEL names ${rejected.map((m) => `"${m}"`).join(", ")}, which is not a Gemini model; using ${SCENE_MODELS.join(", ")} instead.`),
-      { at: "provider/scene", extra: { variable: "SCENE_MODEL" } },
-    );
-  }
-  return gemini.length > 0 ? gemini : [...SCENE_MODELS];
-}
 let warnedSceneModel = false;
+function warnIfSceneModelSet(): void {
+  if (warnedSceneModel || !(process.env.SCENE_MODEL ?? "").trim()) return;
+  warnedSceneModel = true;
+  reportError(
+    new Error(`SCENE_MODEL is set and not read: scenes always compose on ${SCENE_MODELS.join(", ")}.`),
+    { at: "provider/scene", extra: { variable: "SCENE_MODEL" } },
+  );
+}
 
 /**
  * The model Anu asks, and the reason it is not the dearest one available.
@@ -1213,36 +1209,17 @@ export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
     ledger to know which link was chosen rather than inferring it from the
     provider. Not built here.
   */
-  const override: Record<ProviderName, string | undefined> = {
-    openrouter: process.env.OPENROUTER_SCENE_MODEL,
-    groq: process.env.GROQ_SCENE_MODEL,
-    gemini: process.env.GEMINI_SCENE_MODEL,
-    anthropic: process.env.ANTHROPIC_SCENE_MODEL,
-    openai: process.env.OPENAI_SCENE_MODEL,
-  };
-
   /*
-    The purpose chain first, then anything an operator has explicitly named for
-    scenes that is not already in it. Without the second half, naming
-    `OPENROUTER_SCENE_MODEL` on an install that has an OpenRouter key would do
-    nothing, which is main's feature deleted rather than merged.
+    AND THEN THE OVERRIDE WENT, BECAUSE THE OPERATOR PINNED THE MODEL. The
+    `*_SCENE_MODEL` map that used to live here let a deployment point
+    conversations at any provider and put it in front; with scenes fixed on
+    `SCENE_MODELS` a second variable that can move them is the same door the
+    `SCENE_MODEL` fault came through, one name over. What survives of main's
+    half is the wrapper itself, which every scene path still asks so the
+    briefing and the route promise the same chain, and the invariant that it
+    is built on the scene purpose.
   */
-  const base = resolveProviders({ ...options, purpose: "scene" });
-  const named = resolveProviders({ allowFallback: true })
-    .filter((c) => override[c.name]?.trim());
-
-  const seen = new Set<string>();
-  const chosen: ProviderConfig[] = [];
-  const rest: ProviderConfig[] = [];
-  for (const config of [...base, ...named]) {
-    const explicit = override[config.name]?.trim();
-    const model = explicit || config.model;
-    const key = `${config.name}:${model}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    (explicit ? chosen : rest).push({ ...config, model });
-  }
-  return [...chosen, ...rest];
+  return resolveProviders({ ...options, purpose: "scene" });
 }
 
 /**
