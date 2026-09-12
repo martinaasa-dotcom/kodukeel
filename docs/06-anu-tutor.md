@@ -12,12 +12,15 @@ confidently wrong case explanation teaches an error that then gets rehearsed by 
 Design rules, chosen against specific failure modes:
 
 - **Answer the question first, then explain.** Not a lecture with the answer buried at the bottom.
-- **Always name the rule.** "Partitive because the action is ongoing", not "it just sounds right".
-  A named rule transfers to the next sentence; a vibe does not.
-- **Always give a minimal pair** where one exists. `raamatut` vs `raamatu` teaches more than either
-  alone.
-- **Use Estonian grammatical terms alongside English**: *osastav* (partitive), *astmevaheldus*
-  (gradation). The learner is in a class where these terms are used.
+- **Simple beats thorough, by default.** "Because you mean part of it, not all of it" is a better
+  answer than "because of aspect and the partitive object" every time, because it is the one a
+  learner can actually use. A grammar term (Estonian first, the English name in brackets: *osastav*
+  (partitive)) is a tool reached for sometimes, when it genuinely helps or the learner is already
+  using it, never a habit stacked into every answer. Most answers need none. This reverses what the
+  prompt asked for until a learner who is native in both languages reported it as "way too
+  complicated... basically useless", which is the failure mode this rule exists against.
+- **Give a minimal pair when it helps.** `raamatut` vs `raamatu` teaches more than either alone, and
+  more than a paragraph explaining why would.
 - **Never fabricate an inflected form.** If unsure, say so and offer to look it up. (ADR-005.)
 - **Correct errors directly**, then say what was right. Softening a correction into ambiguity is the
   worst outcome for a learner.

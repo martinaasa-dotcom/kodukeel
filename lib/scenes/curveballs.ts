@@ -19,7 +19,8 @@
  * Pure: no React, no Next, no Prisma, no clock.
  */
 import { shuffle } from "@/lib/random/shuffle";
-import type { MoveKind, Requirement } from "./types";
+import type { MoveKind, Requirement, SaysPart } from "./types";
+import type { Level } from "@/lib/collections/syllabus";
 
 export type CurveballId =
   | "missing-document"
@@ -41,8 +42,37 @@ export interface CurveballSpec {
   readonly id: CurveballId;
   /** What it costs out of the run's budget. */
   readonly cost: number;
-  /** English. What the learner is told has happened. */
+  /** English. What the learner is told has happened, in the debrief. Never a slot. */
   readonly says: string;
+  /**
+   * WHAT THE OTHER SIDE DOES, FROM THEIR SIDE, WHERE IT NAMES A VALUE OFF THE
+   * CARD. `says` is the debrief's sentence and holds no slot; this is the
+   * beat's stage direction and may carry `{slot}` the way a beat's `they`
+   * does, so a curveball that changes a fact can say which fact and to what.
+   * Absent, the beat is told `says`.
+   */
+  readonly they?: string;
+  /**
+   * The line the other side says for it, as parts off the card, where the
+   * curveball changes a value the card dealt (`BeatSpec.says`). A curveball
+   * whose whole point is that the price is now different has to be able to
+   * say the price, and a line drafted in advance cannot: the card draws it
+   * per run. Withheld whole where a part is missing, like every `says`.
+   */
+  readonly line?: readonly SaysPart[];
+  /**
+   * What they say when asked about it, in English, from their side
+   * (`BeatSpec.answer`). May carry `{slot}`.
+   */
+  readonly answer?: string;
+  /**
+   * Which of the card's values this curveball stands another in for, from
+   * the moment it is raised: the price the learner was told gives way to the
+   * price the other side has now, so every later line and every answer to
+   * "how much?" reads the new one (`cardAfterHurdles`). Both slots are the
+   * scene's own props, checked in the catalog test.
+   */
+  readonly replaces?: readonly (readonly [from: string, to: string])[];
   /** English. The way out, printed beside it, because a trap is not difficulty. */
   readonly out: string;
   /**
@@ -234,9 +264,32 @@ export const CURVEBALLS: readonly CurveballSpec[] = [
     id: "wrong-price",
     move: "confirm",
     cost: 2,
-    says: "The amount is not the one you were told.",
-    out: "Query it.",
-    needs: [{ kind: "question" }],
+    says: "The amount was not the one you were told.",
+    /*
+      A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. This said "the amount
+      is not the one you were told" in seven scenes and none of them had told
+      the learner an amount: the other side could announce that the price had
+      changed and could not say what it was, so "how much?", which is the way
+      out this entry names, was answered `Ei tea.` at a ticket window. Every
+      scene that admits it deals `price`, what the learner was told, and
+      `price2`, what the other side has now, and the line says the second off
+      the card. A question about it is answered with the same value
+      (`priceOffCard`), and the gate counts it as dealt.
+    */
+    they: "They tell you the price is not what you were told: it is {price2} euros now.",
+    line: [
+      { lemma: "see" }, { lemma: "maksma", verb: "IndPrSg3" }, { lemma: "nüüd" },
+      { slot: "price2" }, { lemma: "euro", grammCase: "PARTITIVE" },
+    ],
+    answer: "They say it costs {price2} euros now.",
+    replaces: [["price", "price2"]],
+    /*
+      Querying it, accepting it or refusing it are all dealing with it; what
+      is not is carrying on as though nothing was said, which the beat behind
+      it reads as letting it go.
+    */
+    out: "Query it, or say whether that is all right.",
+    needs: [{ kind: "anyOf", of: [{ kind: "question" }, { kind: "lemma", oneOf: ["jah", "ei", "hea"] }] }],
   },
   {
     id: "queue",
@@ -274,6 +327,27 @@ export const BUDGETS = {
 } as const;
 
 export type Difficulty = keyof typeof BUDGETS;
+
+/**
+ * Where the dial opens, before anybody has touched it.
+ *
+ * The dial is about the other side and the learner is still free to move it;
+ * this only says where it starts. A1 is `textbook`, because a beginner's
+ * first counter should go the way the lesson said it would, and it climbs a
+ * rung a band for the levels the catalogue actually uses, landing on `bad`
+ * from B2 up rather than inventing a fifth tier the budgets do not have.
+ */
+const DEFAULT_DIFFICULTY: Record<Level, Difficulty> = {
+  A1: "textbook",
+  A2: "good",
+  B1: "ordinary",
+  B2: "bad",
+  C1: "bad",
+};
+
+export function defaultDifficultyFor(level: Level): Difficulty {
+  return DEFAULT_DIFFICULTY[level];
+}
 
 /** The setting above which a second expensive curveball may be drawn (§9). */
 const ORDINARY = BUDGETS.ordinary;

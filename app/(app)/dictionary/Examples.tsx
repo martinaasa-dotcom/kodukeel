@@ -5,11 +5,9 @@ import { Languages, Loader2, Plus } from "lucide-react";
 import { addExample, translateExample } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Chip } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
-import { AI_TAG } from "@/lib/copy/values";
 
 /**
  * Example sentences on a dictionary entry.
@@ -141,9 +139,6 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
       {example.en ? (
         <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
           {example.en}
-          <Chip tone="again" title="Machine translation. Trust the Estonian above, not this.">
-            {AI_TAG}
-          </Chip>
         </p>
       ) : tutorReady ? (
         <button

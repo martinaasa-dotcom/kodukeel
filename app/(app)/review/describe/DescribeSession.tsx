@@ -458,7 +458,6 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{AI_TAG}</p>
           <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-2 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{graded.rule}</p>

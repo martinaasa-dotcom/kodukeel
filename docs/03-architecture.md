@@ -801,6 +801,33 @@ structural are per-minute rate limits that recover inside a single conversation,
 commit would spend a whole conversation on one bad minute. The remaining source of mixing is the
 chain walking to a second model, which happens only when the alternative is no line at all.
 
+**ADR-025 amendment 2: the model may end a beat the dictionary refused, and still writes nothing
+into the log.**
+*Context:* amendment 1 put the model in the loop on every beat and kept the one line that mattered,
+that the dictionary alone decides whether a turn met a beat. Played with the model live, that line
+is where the conversation still stuck: a learner who did what the beat asked in words the beat had
+not named was refused, the other side asked again, and a scene could hold on a requirement the
+learner had already met in substance. The operator asked for the model to be allowed to say when a
+beat is done, so that a conversation can flow and end naturally. *Decision:* the dictionary still
+reads every turn first (`readTurn`). Where it refuses one and a grader chain is configured, the route
+asks a judge (`lib/scenes/judge.ts`, a pure prompt and a parser) one question on the grader's chain,
+which is the model measured for returning JSON, booked and settled as a `GRADER` call: did the
+learner accomplish this beat's goal on this turn, in any words. A yes ends the beat through
+`concede`, the second and last producer of `Evidence`, which takes the dictionary's own reading and
+may mark as met only what that reading left missing, so it cannot be reached without the dictionary
+having read the turn and cannot invent a word the learner produced. The concession is stored on the
+turn and the client echoes it, so the server's re-marking at the end of the run reaches the same
+state the learner saw. *What does not move:* a conceded requirement writes no grade (`gradesFor`
+skips it, exactly as it skips a substituted one), so nothing a model decided reaches the append-only
+review log, the scheduler, or the readiness figures; the reply repeats back nothing the learner did
+not write, since `satisfiedBy` and `matched` are untouched; a value off the role card (a `datum`
+requirement) is never conceded, because whether the learner said the dealt time or a different one
+is a fact the dictionary can check and a model cannot; and a turn nobody could read at all
+(`unrecognised`) is never put to the judge. *Rejected:* letting the composer's own line carry the
+verdict, to save a call. The line goes through the gate as one sentence of Estonian and a JSON
+wrapper around it would break every shape check; and the composer is the model measured for writing
+Estonian, not for returning JSON, which is a different model on this deployment.
+
 **ADR-026: Readiness for real life is read per situation on three rungs, and recognition alone
 never clears the second.**
 *Context:* a vocabulary app can compute "you would understand 81 percent of everyday situations"

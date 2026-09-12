@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import type { GateContext } from "./gate";
-import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, type LineRequest } from "./line";
+import { MAX_COMPOSE_ATTEMPTS, pickAttested, sceneLine, whyWithheld, type LineRequest } from "./line";
 import { topicForms } from "./retrieval";
 import type { BeatSpec } from "./types";
 
@@ -337,5 +337,34 @@ describe("a word the scene does not teach", () => {
     const line = await sceneLine(request({ compose: async () => "Kas valu kestab kaua?" }));
     expect(line.provenance).toBe("fallback");
     expect(line.withheld).toContain("vouching");
+  });
+});
+
+/*
+  A RETRY IS TOLD WHY, NOT ONLY WHICH WORDS. A line withheld for stating a
+  number nobody dealt got a retry told nothing and wrote the number again.
+*/
+describe("what a retry is told", () => {
+  it("names the check that withheld the line, in English, and nothing for a line that passed", () => {
+    expect(whyWithheld(null)).toBeUndefined();
+    expect(whyWithheld({ failed: [], unknown: [], stretched: [] })).toBeUndefined();
+    expect(whyWithheld({ failed: ["facts"], unknown: [], stretched: [] })).toMatch(/number or a time/);
+    expect(whyWithheld({ failed: ["facts", "giveaway"], unknown: [], stretched: [] })).toMatch(/hand them the answer/);
+    // Words are the retry note's job; the reason says nothing about them.
+    expect(whyWithheld({ failed: ["vouching"], unknown: ["blorp"], stretched: [] })).toBeUndefined();
+  });
+
+  it("reaches the composer beside the words, so a number nobody dealt is not written three times", async () => {
+    const heard: (string | undefined)[] = [];
+    const line = await sceneLine(request({
+      gate: { ...GATE, dealt: new Set(["5"]) },
+      compose: async (_avoid, because) => {
+        heard.push(because);
+        return heard.length === 1 ? "Kas teil on valu 7?" : "Kas teil on valu?";
+      },
+    }));
+    expect(line.provenance).toBe("composed");
+    expect(heard[0]).toBeUndefined();
+    expect(heard[1]).toMatch(/number or a time/);
   });
 });

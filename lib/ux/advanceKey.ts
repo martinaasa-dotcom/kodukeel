@@ -58,3 +58,13 @@ export function isAdvanceKey(e: KeyLike): boolean {
  * down, because that is a reference rather than a button.
  */
 export const ADVANCE_KEY_LABEL = "Enter";
+
+/**
+ * The word, drawn as the key it names. A cap is a badge rather than a
+ * sentence, so it can show the glyph a keyboard prints on the key itself
+ * without losing which key that is: `isAdvanceKey` still answers to
+ * `"Enter"`, never to this. Read this into a `<KeyCap>`; read
+ * `ADVANCE_KEY_LABEL` into a sentence, where a word reads better than a
+ * character somebody has to recognise.
+ */
+export const ADVANCE_KEY_GLYPH = "↵";

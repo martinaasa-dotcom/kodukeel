@@ -23,9 +23,24 @@
 
     TRIALS=12 npx tsx scripts/eval-grader.ts
 
-  runs the two Groq models, and, with ANTHROPIC_API_KEY set, sonnet and haiku
-  behind them. An org-scoped Anthropic key also needs ANTHROPIC_WORKSPACE_ID,
-  which the app reads for itself.
+  runs every Groq model the chain can reach and the Gemini tier, and, with
+  ANTHROPIC_API_KEY set, sonnet and haiku behind them. An org-scoped Anthropic
+  key also needs ANTHROPIC_WORKSPACE_ID, which the app reads for itself.
+
+  MEASURED ON 2026-09-12, AND WHAT IT DECIDED. Twelve trials a cell on the
+  deployment's own Groq and Gemini keys. `gemini-3.1-flash-lite` returned
+  36 of 36 verdicts with one note withheld at $0.17 to $0.25 per thousand
+  calls; `openai/gpt-oss-120b` also 36 of 36, two withheld, at $0.33 to
+  $0.39; `groq/compound-mini` 36 of 36 and none withheld, but Groq publishes
+  no price for it and the table holds it at zero, which is the spend cap
+  switched off; `qwen/qwen3.8-27b` 34 of 36 with five withheld at up to
+  $0.83; `gemini-3.8-flash` 33 of 36; `openai/gpt-oss-20b` 31 of 36 with
+  400s. Llama 4 Scout, Kimi K2 and both Gemini 2.5 models answered 404 on
+  these accounts. So `GRADER_MODELS` in `lib/tutor/provider.ts` is
+  `gemini-3.1-flash-lite` first and `gpt-oss-120b` behind it: the only two
+  that never failed, cheapest first. What this measures is whether a valid
+  verdict comes back and whether the note quotes only forms the learner
+  wrote; it does not judge the prose of the English feedback.
 */
 import { readFileSync } from "node:fs";
 import {
@@ -78,6 +93,10 @@ const FIX = fixtures(TRIALS);
 const CANDIDATES: ProviderConfig[] = [
   { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
   { name: "groq", model: "openai/gpt-oss-20b", label: "Groq" },
+  { name: "groq", model: "qwen/qwen3.8-27b", label: "Groq" },
+  { name: "groq", model: "groq/compound-mini", label: "Groq" },
+  { name: "groq", model: "meta-llama/llama-4-scout-17b-16e-instruct", label: "Groq" },
+  { name: "groq", model: "moonshotai/kimi-k2-instruct", label: "Groq" },
   ...(process.env.ANTHROPIC_API_KEY
     ? ([
         { name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" },

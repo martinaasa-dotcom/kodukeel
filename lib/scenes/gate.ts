@@ -678,7 +678,15 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
     && !/[*_`#[\]]/.test(text)
     && tokens.length > 0
     && tokens.length <= MAX_COMPOSED_WORDS
-    && !(shape === "required" && !isQuestion(text))
+    /*
+      A MOVE THAT ASKS HOLDS A QUESTION, AND NEED NOT END ON IT. `Mis kell te
+      soovite sõita? Buss läheb kell kaksteist.` asks and then volunteers,
+      which is what a person at a window does, and a rule reading the last
+      character withheld it for the volunteering. A move that may not ask is
+      still read off the end, since an answer that trails off into a question
+      has asked one.
+    */
+    && !(shape === "required" && !/\?/.test(trimmed))
     && !(shape === "forbidden" && isQuestion(text));
 }
 
@@ -701,8 +709,20 @@ function shapeOk(text: string, tokens: readonly string[], beat: BeatSpec): boole
  */
 export function governmentSuspect(tokens: readonly string[], context: GateContext): boolean {
   const lower = tokens.map((t) => t.toLowerCase());
-  const word = context.governed.find((g) => lower.some((t) => g.forms.has(t)));
-  if (!word) return false;
+  /*
+    EVERY GOVERNED VERB IN THE LINE, NOT THE FIRST ONE FOUND. `Buss sõidab
+    jaama. Pilet maksab kaks eurot.` holds two, and reading the first the
+    table happened to list held `jaama` to what `maksma` governs and withheld
+    a correct line three times. A line is suspect only where no governed verb
+    in it has a nominal in a case it governs, which is the same weak claim
+    made across all of them rather than about whichever came first.
+  */
+  const present = context.governed.filter((g) => lower.some((t) => g.forms.has(t)));
+  if (present.length === 0) return false;
+  return present.every((word) => suspectFor(word, lower, context));
+}
+
+function suspectFor(word: GovernedWord, lower: readonly string[], context: GateContext): boolean {
 
   /*
     A QUESTION WORD IS THE COMPLEMENT. `Kust sa tuled?` holds a governed verb

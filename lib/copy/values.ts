@@ -59,30 +59,6 @@ export const SAME_SPELLING = "Spelled the same in English.";
 export const NEEDS_TRANSLATION = `${NO_VALUE} · add a translation`;
 
 /**
- * How anything a model wrote is marked, wherever a learner meets it.
- *
- * `/terms` promises this in as many words: what the AI suggests "is marked
- * *AI · verify* and needs your confirmation". That is a statement about the
- * app on a page a person can hold it to, so the app has to actually say it.
- *
- * IT HAD ALREADY DRIFTED. Six places said `AI · verify`; the grammar case
- * page and the dictation round said a bare `AI` and put the rest in a `title`,
- * which is a hover. This app is measured at 360px and its README leads with
- * "works on a phone", where there is no hover at all, so on the two screens
- * that most needed it the useful half of the tag did not exist. The same
- * argument `wordNote` makes about dictation: a tooltip is not text.
- *
- * The word that matters is `verify`. `AI` alone says where a sentence came
- * from; `verify` says what to do about it, which is the whole point of
- * marking it, and it is the half that was missing.
- *
- * One constant, for the reason `NO_VALUE` gives above and `PROVIDER_KEY_ENV`
- * gives about itself: a phrase retyped in eight places is a phrase that drifts
- * in one of them, and this one already had.
- */
-export const AI_TAG = "AI · verify";
-
-/**
  * A count and the thing it counts, agreeing with each other.
  *
  * `{n} cards` is written out at about thirty call sites and almost every one
@@ -112,4 +88,21 @@ export function counted(n: number, one: string, many = `${one}s`): string {
 /** The noun alone, for a sentence that puts the number somewhere else. */
 export function nounFor(n: number, one: string, many = `${one}s`): string {
   return n === 1 ? one : many;
+}
+
+/**
+ * A list read the way a person reads one aloud, with "and" before the last
+ * item rather than another comma.
+ *
+ * `practises(scene).join(", ")` had two callers and both had the same fault:
+ * a plain comma join turned two items into something that reads as one, "a
+ * word off your card, the polite you", which looks like the second half is
+ * describing the first, as though the card itself were the polite you. "and"
+ * before the last item is what a sentence needs to say two separate things
+ * are both required.
+ */
+export function joinWithAnd(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }

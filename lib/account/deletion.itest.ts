@@ -64,7 +64,7 @@ async function populate(ownerId: string, lexemeId: string) {
   await prisma.achievement.create({ data: { ownerId, key: "first-review" } });
   await prisma.setting.create({ data: { ownerId, key: "dailyGoal", value: "15" } });
   await prisma.usageEvent.create({
-    data: { ownerId, kind: "TUTOR", provider: "openrouter", model: "gpt-4o", day: "2026-08-29" },
+    data: { ownerId, kind: "TUTOR", provider: "groq", model: "gpt-4o", day: "2026-08-29" },
   });
   await prisma.scan.create({ data: { ownerId, title: "itest page", items: "[]" } });
   await prisma.assessment.create({

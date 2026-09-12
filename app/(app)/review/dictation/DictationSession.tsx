@@ -8,6 +8,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
+import { useResumeCard } from "@/components/useResumeCard";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -82,7 +83,10 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
   // shrinking prop mid-round would swap the last sentence out from under the
   // summary (the same trap ListeningSession documents).
   const [round] = useState(tasks);
-  const [index, setIndex] = useState(0);
+  // Which task to reopen on after a detour to its dictionary entry. See
+  // components/useResumeCard.ts.
+  const { initialIndex, remember: rememberTask } = useResumeCard(tasks.map((t) => ({ id: t.cardId })));
+  const [index, setIndex] = useState(initialIndex);
   const [typed, setTyped] = useState("");
   const [result, setResult] = useState<DictationResult | null>(null);
   const [played, setPlayed] = useState(false);
@@ -98,6 +102,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
   const task = round[index];
   const finished = !task;
+
+  useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
   /*
     A different reader each sentence, as the listening round already does,
     and a room and a rate from the card's own history. Said after the answer,

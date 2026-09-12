@@ -171,7 +171,7 @@ export function CommandPalette() {
       {
         id: "search",
         label: `Look up “${query.trim()}” in the dictionary`,
-        hint: "Estonian or English, inflected forms included",
+        hint: "Estonian or English, other word forms included",
         group: "Look it up",
         href: `/dictionary?q=${encodeURIComponent(query.trim())}`,
         keywords: "",
