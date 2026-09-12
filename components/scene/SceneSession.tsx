@@ -25,6 +25,7 @@ import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
+import { joinWithAnd } from "@/lib/copy/values";
 
 /**
  * One conversation, from the desk to the debrief.
@@ -959,15 +960,16 @@ export function SceneSession({ scene, minutes, unit }: {
             who expects to be understood, and being understood is the point.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            You will need {practises(scene).join(", ")}.
+            You will need {joinWithAnd(practises(scene))}.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            They speak first. Answer them in Estonian, and the panel under the conversation says
-            what to say each time.
+            They speak first. Reply in Estonian, and the panel under the conversation always
+            tells you what to say next.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Get an ending wrong and they will still understand you, the way anybody would. They
-            say the word back the way it is said, and you can read the list at the end.
+            Don&apos;t worry about getting an ending wrong. They will still understand you, the
+            way any Estonian speaker would, and say the word back correctly. You will see
+            everything they corrected once the conversation ends.
           </p>
           {/*
             What is coming, in the scene's own terms. It is the count the bar
