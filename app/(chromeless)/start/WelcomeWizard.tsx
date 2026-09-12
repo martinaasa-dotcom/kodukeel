@@ -746,8 +746,8 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                 <p className="mt-1 text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{firstScene.title}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--mint-ink)" }}>
                   {firstScene.place}. Once these words are in, you can rehearse this exact
-                  conversation, out loud, with a stranger who wants something from you. Then go
-                  have the real one.
+                  conversation here, typing your side to a stranger who wants something from you.
+                  Then go have the real one.
                 </p>
               </div>
             )}
