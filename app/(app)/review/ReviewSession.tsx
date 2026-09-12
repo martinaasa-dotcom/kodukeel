@@ -468,7 +468,7 @@ export function ReviewSession({
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
-  const { voice } = useAudioPrefs();
+  const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
 
   /*
@@ -565,8 +565,11 @@ export function ReviewSession({
     if (estonianSide(upcoming.cardType, "front") && upcoming.cardType !== "CLOZE") heard.add(upcoming.lemma ?? upcoming.front);
     else if (upcoming.intro?.lemma ?? upcoming.lemma) heard.add(upcoming.intro?.lemma ?? upcoming.lemma!);
     if (estonianSide(upcoming.cardType, "back")) heard.add(upcoming.back);
-    for (const text of heard) prefetchClip({ text: spoken(text), voice });
-  }, [index, queue, voice]);
+    // The pace is part of what is warmed: `prefetchClip` stretches the clip to
+    // the rate it will be played at, so warming a different one is two passes
+    // over the samples and a cold press.
+    for (const text of heard) prefetchClip({ text: spoken(text), voice, pace });
+  }, [index, queue, voice, pace]);
 
   // Interval previews are computed after mount, never during the server render.
   // FSRS scheduling is fuzzed (deliberately — see lib/srs/scheduler.ts), so the

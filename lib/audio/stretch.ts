@@ -226,6 +226,22 @@ export function stretch(clip: Samples, speed: number): Samples {
   const search = Math.round(rate * SEARCH_S);
   const hann = new Float32Array(window);
   for (let i = 0; i < window; i++) hann[i] = 0.5 - 0.5 * Math.cos((2 * Math.PI * (i + 0.5)) / window);
+  /*
+    THE FIRST WINDOW HAS NOTHING TO OVERLAP, SO IT CARRIES ITS OWN OPENING.
+
+    Two Hann windows a half-window apart sum to one, which is what makes the
+    overlap-add transparent, and the first window in the output has no
+    predecessor to sum with: its rising half stood alone, so the opening hop
+    of every stretched clip was faded in from silence. Fifteen milliseconds is
+    not much and it is exactly where a word-initial consonant lives, and it
+    only stayed inaudible because `trimSilence` happened to leave more lead
+    than that in front of the word. A fade that is invisible because of what
+    another module happened to do is a fault waiting for the day it does
+    something else. The rising half is held at full gain instead, so the first
+    hop sums to one like every other.
+  */
+  const opening = new Float32Array(hann);
+  for (let i = 0; i < window / 2; i++) opening[i] = 1;
 
   const out = new Float32Array(outLength + window);
   const lastStart = Math.max(0, samples.length - window);
@@ -253,7 +269,8 @@ export function stretch(clip: Samples, speed: number): Samples {
   let previous = -1; // The input position the last window was actually taken from.
   for (let o = 0; o + hop <= out.length; o += hop) {
     const nominal = Math.round(inputAt(Math.min(o, outLength)));
-    let position = Math.min(nominal, lastStart);
+    const nominalPosition = Math.min(nominal, lastStart);
+    let position = nominalPosition;
     if (previous >= 0 && transientAt(nominal)) {
       position = Math.min(previous + hop, lastStart);
     } else if (previous >= 0) {
@@ -269,6 +286,14 @@ export function stretch(clip: Samples, speed: number): Samples {
       const target = Math.min(previous + hop, lastStart);
       const lo = Math.max(0, nominal - search);
       const hi = Math.min(lastStart, nominal + search);
+      // What the new window has to sit on top of. Its own energy is what says
+      // whether there is a phase here to get wrong at all: see the fallback
+      // below the search.
+      let targetEnergy = 0;
+      for (let i = 0; i < window; i++) {
+        const t = samples[target + i] as number;
+        targetEnergy += t * t;
+      }
       let best = -Infinity;
       let bestAt = Math.min(Math.max(lo, nominal), hi);
       for (let c = lo; c <= hi; c += 3) {
@@ -301,11 +326,63 @@ export function stretch(clip: Samples, speed: number): Samples {
           bestAt = c;
         }
       }
-      position = bestAt;
+      /*
+        A MATCH THAT IS OUT OF PHASE IS NOT A MATCH, AND TWO OF THEM CANCEL.
+
+        The score above is the projection of a candidate onto the tail of the
+        window before it, and it can be negative: every candidate in the search
+        neighborhood is then in antiphase with what it has to be added to, and
+        taking the least bad one lays a window down that cancels rather than
+        continues. Measured over thirty real TartuNLP clips as the worst dip
+        against the level a hop either side of it, the recordings' own deepest
+        being 9 dB and a consonant closure: 206 dB at the rate the level check
+        reads a dictation sentence at, 41 dB at 0.72, 20 dB at the slow button's
+        own rate.
+
+        WHERE THEY SIT IS WORTH SAYING, because it is not where a learner's
+        report about a word being cut off would put them. Every one of those dips
+        is in the last ten or twenty milliseconds of a word's release, at a point
+        the signal is already 25 dB down: it is the overlap-add running out of
+        content rather than a syllable going missing, and inside the body of the
+        word the old code was within 12 dB of the recordings' own throughout.
+        So this is an artifact being removed rather than the truncation that was
+        reported, which `lib/audio/wav.ts` answers instead.
+
+        A search whose every candidate is in antiphase falls back to the natural
+        continuation, which is the segment one hop on from the last window. That
+        is the one position that cannot cancel: the overlap is then the recording
+        against itself, sample for sample, since it is what the recording
+        actually does next. After it, no rate from 1 down to 0.5 dips more than
+        13 dB inside the body of a word, against the recordings' own 9.6.
+
+        A SCORE THAT IS MERELY UNCONVINCING COUNTS, AND THAT WAS MEASURED RATHER
+        THAN REASONED. A window laid over a consonant closure can be nearly
+        orthogonal to what is under it rather than opposed, and adding it still
+        removes most of what is there: holding out only for a strictly negative
+        score left the worst dip at 30 dB, and requiring a normalised
+        correlation above a threshold instead was tried at nine values and was
+        worse at every one of them, erratically, because what the search can
+        find within eight milliseconds is not a quantity there is a good cut-off
+        in. Anything that is not positively in phase takes the continuation.
+
+        WHERE THERE IS NOTHING UNDER THE WINDOW, THE MAP WINS INSTEAD. Silence
+        has no phase to be on the wrong side of, and the continuation walks the
+        cursor forward a whole hop per window where the map wants a fraction of
+        one, so through a pause the cursor runs ahead and eats the very thing it
+        was lengthening. `stretch.test.ts` caught that as the gap between a
+        burst and its vowel coming out two frames short of the stretch it asked
+        for. Exact silence rather than a floor, deliberately: a floor put the
+        vocoder's own hiss and a quiet fricative on the same side of the line
+        and cancelled the fricative, and the only clips with true zeros inside
+        them are synthetic ones, so a real recording always takes the rule
+        above.
+      */
+      position = targetEnergy === 0 ? nominalPosition : best > 0 ? bestAt : target;
     }
     const span = Math.min(window, out.length - o);
+    const shape = o === 0 ? opening : hann;
     for (let i = 0; i < span; i++) {
-      out[o + i] = (out[o + i] as number) + (samples[position + i] as number) * (hann[i] as number);
+      out[o + i] = (out[o + i] as number) + (samples[position + i] as number) * (shape[i] as number);
     }
     previous = position;
   }

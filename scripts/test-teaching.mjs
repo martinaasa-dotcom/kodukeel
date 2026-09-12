@@ -299,9 +299,25 @@ await page.emulateMedia({ media: "screen" });
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 check("progress reports true retention, not just raw accuracy",
   (await page.getByText("True retention").count()) > 0);
-const reading = await page.locator("text=/mature review/").first().innerText();
+/*
+  THE COPY MOVED AND THE LOCATOR DID NOT. `lib/stats/history.ts` and this panel
+  called these "mature reviews" until the pass that took the borrowed scheduler
+  jargon out of every learner-facing string; they are "long-term reviews" now,
+  and this waited thirty seconds for a phrase that no longer exists anywhere on
+  the page, threw, and took the twelve checks after it down with it.
+
+  AND THE ASSERTION WAS THE LOCATOR AGAIN. It tested the text it had just been
+  found by, so it could not fail: if the locator returned at all the regex
+  passed, and if it did not the suite threw before reaching the check. That is
+  the `A || !A` shape this repository has a section about. What the panel is
+  actually claiming is that the figure is a count of the reviews the scheduler
+  had already thought were known, out of a total, against a target, so that is
+  what is read off it.
+*/
+const reading = await page.locator("text=/long-term reviews/").first().innerText();
 check("it counts only the cards the scheduler thought were known",
-  /mature review/.test(reading), reading.trim().slice(0, 80));
+  /\d+ recalled of \d+ long-term reviews · target \d+%/.test(reading),
+  reading.trim().slice(0, 80));
 
 // ─── "Why?", at the moment it is asked ────────────────────────────────────────
 

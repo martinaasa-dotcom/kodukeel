@@ -2,13 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AudioLines, BookOpen, Coffee, Ear, EarOff, Music, Sparkles, VolumeX } from "lucide-react";
-import { setAutoplay, setFeedbackSounds, setHearing, setSupport, setVoice } from "@/app/actions";
+import { AudioLines, BookOpen, Coffee, Ear, EarOff, Gauge, Music, Sparkles, VolumeX } from "lucide-react";
+import { setAutoplay, setFeedbackSounds, setHearing, setSpeechPace, setSupport, setVoice } from "@/app/actions";
 import { CONDITIONS, removesWords, type Hearing, type Support } from "@/lib/audio/conditions";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { Speak } from "@/components/Speak";
 import { playFeedback } from "@/lib/audio/feedback";
 import { type Autoplay, type FeedbackSounds, VOICES } from "@/lib/audio/voice";
+import { SPEECH_PACES, type Pace, type SpeechPaceId } from "@/lib/audio/pace";
 
 /**
  * The voice, and whether it speaks unasked.
@@ -48,6 +49,73 @@ export function VoicePanel({ current }: { current: string }) {
   );
 }
 
+
+
+/**
+ * HOW FAST ESTONIAN IS READ ALOUD, WHERE THE LEVEL ANSWERS UNLESS THE LEARNER
+ * DOES.
+ *
+ * The ladder in lib/audio/pace.ts is the default and this is the override, and
+ * `auto` leads because it is what everybody has: a settings screen that lists
+ * the option nobody has second reads as though the app were set the other way.
+ * The row says which pace the level is currently giving them, since "follow my
+ * level" with no number beside it is a promise a learner cannot check.
+ *
+ * A speaker for the pace they are on, for the same reason the voices have one:
+ * the only thing that tells two speeds apart is hearing them, and a paragraph
+ * about a pace is a paragraph nobody can act on. The sample is the commonest
+ * three words in the language rather than the app's own name, because a pace is
+ * judged on how much of a short phrase a learner can pick apart, which is a
+ * question a single word cannot ask.
+ */
+const PACE_SAMPLE = "Kuidas läheb?";
+
+export function SpeechPacePanel({ current, fromLevel, level }: { current: Pace; fromLevel: Pace; level: string }) {
+  const [value, setValue] = useState<SpeechPaceId | "auto">(current.chosen ? current.id : "auto");
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const pick = (next: SpeechPaceId | "auto") => {
+    setValue(next);
+    start(async () => {
+      await setSpeechPace(next);
+      router.refresh();
+    });
+  };
+
+  const levelPace = SPEECH_PACES.find((p) => p.id === fromLevel.id);
+
+  return (
+    <ChoiceGroup ariaLabel="How fast Estonian is read aloud" className="grid gap-2 sm:grid-cols-2">
+      <ChoiceCard
+        layout="stacked"
+        disabled={pending}
+        selected={value === "auto"}
+        onSelect={() => pick("auto")}
+        icon={<Gauge size={16} aria-hidden />}
+        title="Follow my level"
+        detail={`At ${level} that is ${levelPace?.label.toLowerCase() ?? "full speed"}, and it moves up as your level does.`}
+      />
+      {SPEECH_PACES.map((p) => (
+        <ChoiceCard
+          key={p.id}
+          layout="stacked"
+          disabled={pending}
+          selected={value === p.id}
+          onSelect={() => pick(p.id)}
+          icon={<Gauge size={16} aria-hidden />}
+          title={p.label}
+          detail={p.detail}
+        />
+      ))}
+    </ChoiceGroup>
+  );
+}
+
+/** A speaker for the pace sample, at whatever the learner currently hears. */
+export function CurrentPaceSample() {
+  return <Speak text={PACE_SAMPLE} label="Hear the pace you are on" />;
+}
 
 /**
  * The silent option leads, because it is the default. A settings screen that

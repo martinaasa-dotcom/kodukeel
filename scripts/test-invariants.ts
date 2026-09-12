@@ -600,8 +600,8 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   );
   const player = code("lib/audio/clip.ts");
   assert.match(player, /stretch\(decodeWav\(/, "the player stopped stretching the clip it plays");
-  assert.match(player, /request\.slow\) return SLOW_RATE/, "the slow play stopped reading SLOW_RATE");
-  assert.match(player, /return NORMAL_RATE/, "the everyday play stopped reading NORMAL_RATE");
+  assert.match(player, /request\.slow\) return pace\.slow/, "the slow play stopped reading the learner's own slow rate");
+  assert.match(player, /pace = request\.pace \?\? DEFAULT_PACE/, "the everyday play stopped reading the learner's own pace");
   assert.match(player, /stretchedClip\(request, rateFor\(request\)\)/, "playClip plays a clip at a rate it did not work out through rateFor");
   const browserStretch = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
@@ -614,6 +614,78 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   assert.deepEqual(importers, ["lib/audio/clip.ts"], "a second file decides how a clip is stretched");
   const stretcher = code("lib/audio/stretch.ts");
   assert.doesNotMatch(stretcher, /AudioContext|window\.|document\.|import /, "the stretch stopped being pure");
+});
+
+/*
+  HOW FAST ESTONIAN IS READ ALOUD IS ONE ANSWER, PUBLISHED ONCE.
+
+  The everyday play was 0.9 of the recording for everybody and was reported as
+  too fast to be clear, which is true at A1 and false at B2, so the rate is read
+  off the level (lib/audio/pace.ts). Two things can rot. A screen that works out
+  a pace of its own is a second answer to a question `courseLevelFor` already
+  settles, and a caller that plays or prefetches without one silently falls back
+  to `DEFAULT_PACE`, which is nobody's: on a prefetch that is worse than falling
+  back, since it warms a rate the button will not ask for and the press pays for
+  the stretch twice.
+*/
+check("the pace Estonian is read at is the learner's own, resolved once and passed to every play", () => {
+  const pace = code("lib/audio/pace.ts");
+  assert.doesNotMatch(pace, /prisma|useState|from "react"/, "the pace ladder stopped being pure");
+  assert.match(pace, /PACE_FOR_LEVEL/, "the ladder stopped naming a pace per level");
+
+  // The shell resolves it, off `courseLevelFor` and not a reading of its own.
+  const shell = code("app/(app)/layout.tsx");
+  assert.match(shell, /courseLevelFor\(ownerId\)/, "the shell stopped reading the level the rest of the app goes on");
+  assert.match(shell, /pace: paceFrom\(settings\[SETTING_KEYS\.speechPace\], level\)/, "the shell stopped publishing the learner's own pace");
+
+  // And nobody else works one out. `paceFor` is the level's own pace, which the
+  // shell does not need and Settings prints beside the row that follows it.
+  const readers = ["app", "lib", "components"]
+    .flatMap((dir) => sourceFiles(dir))
+    .filter((file) => !/\.(test|itest)\.tsx?$/.test(file))
+    .filter((file) => file !== join("lib", "audio", "pace.ts"))
+    .filter((file) => /\bpaceFrom\(|\bpaceFor\(/.test(code(file)))
+    .sort();
+  assert.deepEqual(
+    readers,
+    ["app/(app)/layout.tsx", "app/(app)/settings/page.tsx"],
+    "a third screen works out a pace of its own, so two screens can disagree about how fast this learner hears Estonian",
+  );
+
+  /*
+    Every play and every prefetch carries it. Anchored on the call rather than on
+    an import, because a file can read `useAudioPrefs()` and then hand
+    `playClip` a request without the pace, which is exactly the shape the voice
+    had to be fixed into every caller as.
+  */
+  for (const file of ["app", "lib", "components"].flatMap((dir) => sourceFiles(dir))) {
+    const body = code(file);
+    for (const call of body.match(/(?:playClip|prefetchClip)\(\{[^}]*\}/g) ?? []) {
+      assert.match(call, /\bpace\b/, `${file} plays or prefetches a clip without the learner's pace: ${call}`);
+    }
+  }
+});
+
+/*
+  THE LEAD IS A GUARANTEE AND NOT A CEILING, WHICH IS WHAT MAKES IT TRUE OF EVERY
+  WORD RATHER THAN OF MOST OF THEM.
+
+  It used to keep *up to* `LEAD_MS` of whatever silence the recording had in
+  front of the word, so across thirty real clips the lead that reached a learner
+  ran from 40 ms to 370 ms, and 40 ms is inside the window a device swallows
+  opening a stream. Written as a `slice` between a clamped start and end, which
+  is the shape that reads as a guarantee and is not one.
+*/
+check("every clip is given the same lead and trail, however little the recording had", () => {
+  const wav = code("lib/audio/wav.ts");
+  assert.match(
+    wav,
+    /const out = new Float32Array\(lead \+ \(to - from\) \+ trail\)/,
+    "the trim went back to keeping whatever lead the recording had rather than writing one",
+  );
+  assert.doesNotMatch(wav, /function fadeEdges/, "the one function that faded both ends is back, and it plants a notch wherever a seam asks for one");
+  assert.match(wav, /function fadeIn\(/, "the trim stopped fading a seam in on its own");
+  assert.match(wav, /function fadeOut\(/, "the trim stopped fading a seam out on its own");
 });
 
 check("nothing plays a clip outside lib/audio/clip.ts", () => {
@@ -662,7 +734,12 @@ check("the room a clip is heard in is made in one module, and only the rounds th
   assert.match(code("lib/audio/clip.ts"), /playThrough\(/, "playClip stopped routing a condition through the mixer");
   // The rate is the one stretch over the one clip, never a number sent to the
   // service, which is the rule the slow play states.
-  assert.match(code("lib/audio/clip.ts"), /return request\.condition\.speed/, "the player stopped reading the condition's speed");
+  assert.match(
+    code("lib/audio/clip.ts"),
+    /base \* \(request\.condition\?\.speed \?\? 1\)/,
+    "the player stopped scaling a condition against the learner's own pace, so \"at speed\" "
+      + "is a fraction of the recording again and a beginner meets it at twice their own",
+  );
   assert.doesNotMatch(code("lib/audio/clip.ts"), /speed:/, "a speed is being sent to the speech service again");
 
   for (const file of [

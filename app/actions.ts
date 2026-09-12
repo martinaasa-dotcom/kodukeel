@@ -48,6 +48,7 @@ import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { SPEECH_PACES } from "@/lib/audio/pace";
 import { kindFrom } from "@/lib/ux/schedule";
 import { participationValue } from "@/lib/research/participation";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
@@ -1430,6 +1431,23 @@ export async function setAutoplay(value: string) {
   await writeSetting(ownerId, SETTING_KEYS.autoplayAudio, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
+}
+
+/**
+ * How fast Estonian is read aloud, overriding the pace this learner's level
+ * opens at. `"auto"` is how a screen asks to go back to the level's own, and
+ * anything that is not a pace we offer is stored as that, which is also what an
+ * unset row reads as (`paceFrom` in lib/audio/pace.ts). Revalidated at the
+ * layout, since the shell publishes the pace for every speaker button in the
+ * app.
+ */
+export async function setSpeechPace(value: string) {
+  const ownerId = await requireUserId();
+  const known = SPEECH_PACES.find((p) => p.id === text(value));
+  const stored = known?.id ?? "auto";
+  await writeSetting(ownerId, SETTING_KEYS.speechPace, stored);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: stored };
 }
 
 /**

@@ -71,8 +71,14 @@ const SPEECH_PER_MINUTE = 120;
  * vocoder hiss that pass measured, while the worker bump made every phone
  * throw away its local copy and fetch the stale one again. Two spellings of
  * one version is one spelling too many.
+ *
+ * v5 is the pass that made the lead a guarantee rather than a ceiling: a clip
+ * now carries exactly `LEAD_MS` of silence in front of its first sound instead
+ * of up to that much of whatever the recording happened to have, which measured
+ * anywhere from 40 ms to 370 ms across thirty words. A clip written under v4
+ * keeps the lead it was given, so this moves with the worker's cache version.
  */
-const CLIP_SHAPE = "v4";
+const CLIP_SHAPE = "v5";
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId().catch(() => null);

@@ -2,9 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Languages, Loader2 } from "lucide-react";
-import { Chip } from "@/components/ui";
 import { translateExample } from "@/app/actions";
-import { AI_TAG } from "@/lib/copy/values";
 
 /**
  * THE WHOLE SENTENCE IN ENGLISH, WHEREVER AN ATTESTED SENTENCE IS SHOWN AS THE
@@ -62,7 +60,6 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate }: {
     return (
       <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {got}
-        <Chip tone="again">{AI_TAG}</Chip>
       </p>
     );
   }

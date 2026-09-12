@@ -72,6 +72,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
   const prefs = useAudioPrefs();
   const [voiceStart] = useState(() => Math.floor(Math.random() * VOICES.length));
   const voice = VOICES[(voiceStart + index) % VOICES.length]?.id ?? prefs.voice;
+  // How fast this learner hears Estonian (lib/audio/pace.ts). A dependency of
+  // the play below rather than read inside it, so a learner who changes it
+  // mid-round gets the new pace on the next word rather than on the next visit.
+  const pace = prefs.pace;
   const play = useCallback(async (text: string, slow = false, unasked = false) => {
     try {
       setPlaying(true);
@@ -82,7 +86,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         words a minute and every one of them stayed. `fetchClip` is the one
         reader of that cache and the one place the key is built.
       */
-      const outcome = await playClip({ text, slow, voice }, { unasked });
+      const outcome = await playClip({ text, slow, voice, pace }, { unasked });
       setNeedsPress(outcome === "blocked");
     } catch {
       /*
@@ -100,7 +104,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     } finally {
       setPlaying(false);
     }
-  }, [voice]);
+  }, [voice, pace]);
 
   /*
     Play as soon as the question appears: this is a listening drill, and making

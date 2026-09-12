@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  capPauses, decodeWav, encodeWav16, FADE_MS, LEAD_MS, MAX_PAUSE_MS, normaliseLoudness, prepareClip,
+  capPauses, decodeWav, encodeWav16, FADE_MS, FRAME_MS, LEAD_MS, MAX_PAUSE_MS, normaliseLoudness, prepareClip,
   SILENCE_SHARE, TARGET_PEAK, TARGET_RMS, TRAIL_MS, trimSilence, WavError,
 } from "./wav";
 
@@ -73,8 +73,56 @@ describe("trimming", () => {
     const out = trimSilence(decodeWav(wavOf([[0.5, 0], [0.35, hiss], [0.4, 0.7], [0.35, hiss], [0.5, 0]])));
     let first = 0;
     while (Math.abs(out.samples[first] ?? 0) < 0.1) first++;
-    expect(first / RATE).toBeLessThan(0.07);
+    // Inside the lead, which is the whole of what is kept, rather than most of
+    // a second in: the hiss is gone as well as the zeros.
+    expect(first / RATE).toBeLessThan((LEAD_MS + FADE_MS) / 1000 + 0.015);
     expect(SILENCE_SHARE).toBeGreaterThan(0.0032 * 1.5);
+  });
+
+  /*
+    THE LEAD IS A GUARANTEE, WHICH IS THE POINT OF IT. It used to be a maximum,
+    so a recording with less silence than this in front of its word kept less,
+    and across thirty real clips what reached a learner ran from 40 ms to 370 ms.
+    40 ms is inside the window a device swallows opening a stream, which is where
+    the front of a short word went.
+  */
+  it("gives every clip the same lead, however little the recording had", () => {
+    for (const pad of [0.5, 0.05, 0.01, 0]) {
+      const out = trimSilence(decodeWav(tartuLike(pad, 0.3)));
+      let first = 0;
+      while (Math.abs(out.samples[first] ?? 0) < 0.1) first++;
+      // Frame-aligned and past the fade, so within a frame and a fade of asked.
+      expect(first / RATE).toBeGreaterThan((LEAD_MS - FRAME_MS - FADE_MS) / 1000);
+      expect(first / RATE).toBeLessThan((LEAD_MS + FRAME_MS + FADE_MS) / 1000 + 0.005);
+      // And the trail is there whether the recording had one or not.
+      let last = out.samples.length - 1;
+      while (Math.abs(out.samples[last] ?? 0) < 0.1) last--;
+      expect((out.samples.length - last) / RATE).toBeGreaterThan((TRAIL_MS - FRAME_MS - FADE_MS) / 1000);
+    }
+  });
+
+  /*
+    AND NOT ONE SAMPLE OF THE WORD PAYS FOR IT. The seam has to be faded or a
+    cut from zero onto a sample that is not zero clicks, and the ramp goes on
+    the frame outside the speech rather than on the front of the word, which
+    would be this function causing the fault it exists to prevent.
+  */
+  it("leaves the word itself untouched, fading only what is outside it", () => {
+    const source = decodeWav(tartuLike(0.5, 0.3));
+    const out = trimSilence(source);
+    const loud = (s: Float32Array) => {
+      let i = 0;
+      while (Math.abs(s[i] ?? 0) < 0.1) i++;
+      return i;
+    };
+    // Lined up on the first loud sample of each, since what is kept is whole
+    // frames and the word does not begin on a frame boundary. From there every
+    // sample is the recording's own, unscaled.
+    const a = loud(source.samples);
+    const b = loud(out.samples);
+    for (let i = 0; i < Math.round(RATE * 0.29); i += 71) {
+      expect(out.samples[b + i]).toBeCloseTo(source.samples[a + i] ?? 0, 6);
+    }
   });
 
   it("keeps a quiet final consonant, which sits well over the hiss", () => {
@@ -84,8 +132,45 @@ describe("trimming", () => {
     expect(out.samples.length / RATE).toBeGreaterThan(0.04 + 0.3 + 0.15 + 0.3);
   });
 
-  it("fades the cut so an edge cannot click", () => {
-    const out = trimSilence(decodeWav(tartuLike(0.01, 0.3)));
+  /*
+    THE SEAM IS THE THING TO CHECK, NOT THE EDGES. Both ends of the output are
+    written silence now, so "the first sample is zero" is true by construction
+    and cannot fail: what can is the join between that silence and whatever the
+    recording had, which for a vocoder is hiss rather than zeros. A cut there
+    lands on a sample that is not zero, and that is a click.
+
+    Measured as the largest jump between neighbouring samples, against the
+    largest inside the speech itself: a step at a seam shows up as a jump bigger
+    than anything the signal does on its own.
+  */
+  /*
+    THE SEAM IS THE THING TO CHECK, NOT THE EDGES. Both ends of the output are
+    written silence now, so "the first sample is zero" is true by construction
+    and could not fail whatever the fades did. What can fail is the join between
+    that silence and what the recording had just before its word, which for a
+    vocoder is hiss rather than zeros: cut without a ramp, the output steps from
+    nothing onto a hiss sample, and a step is a click.
+
+    Measured against the source over the same samples, which is what makes it
+    falsifiable: a ramp from nothing to full gain carries about 0.58 of the
+    energy that was there, and no ramp at all carries exactly all of it.
+  */
+  it("ramps the seam rather than stepping onto it", () => {
+    const hiss = 0.5 * 0.004;
+    const source = decodeWav(wavOf([[0.3, 0], [0.3, hiss], [0.3, 0.5], [0.3, hiss], [0.3, 0]]));
+    const out = trimSilence(source);
+    const lead = Math.round((RATE * LEAD_MS) / 1000);
+    const fade = Math.round((RATE * FADE_MS) / 1000);
+    const rms = (s: Float32Array, from: number, length: number) => {
+      let sum = 0;
+      for (let i = from; i < from + length; i++) sum += (s[i] ?? 0) ** 2;
+      return Math.sqrt(sum / length);
+    };
+    // The word begins at a frame boundary at 0.6 s, so the fade sits on the
+    // hiss immediately before it, in both the source and the output.
+    const speechAt = Math.round(RATE * 0.6);
+    expect(rms(out.samples, lead - fade, fade)).toBeLessThan(0.7 * rms(source.samples, speechAt - fade, fade));
+    // And the clip still opens and closes on silence, which is what the lead is.
     expect(Math.abs(out.samples[0] ?? 1)).toBe(0);
     expect(Math.abs(out.samples[out.samples.length - 1] ?? 1)).toBe(0);
   });

@@ -8,7 +8,6 @@ import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { AI_TAG } from "@/lib/copy/values";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { DescribeMark } from "@/lib/games/describe";
 import type { GradedSentence } from "@/lib/tutor/grader";
