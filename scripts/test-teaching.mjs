@@ -299,9 +299,9 @@ await page.emulateMedia({ media: "screen" });
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 check("progress reports true retention, not just raw accuracy",
   (await page.getByText("True retention").count()) > 0);
-const reading = await page.locator("text=/mature review/").first().innerText();
+const reading = await page.locator("text=/long-term review/").first().innerText();
 check("it counts only the cards the scheduler thought were known",
-  /mature review/.test(reading), reading.trim().slice(0, 80));
+  /long-term review/.test(reading), reading.trim().slice(0, 80));
 
 // ─── "Why?", at the moment it is asked ────────────────────────────────────────
 
