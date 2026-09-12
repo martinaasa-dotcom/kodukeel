@@ -523,6 +523,26 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                     />
                   ))}
                 </ChoiceGroup>
+
+                {/*
+                  A1 IS WHERE FOUR NEW LETTERS FIRST APPEAR, SO IT IS WHERE THEY ARE NAMED.
+
+                  õ, ä, ö and ü are not on an English keyboard and are not in
+                  English at all, so a beginner meets them on their very first
+                  word. Naming them here, once, at the level where they start
+                  mattering, beats a learner wondering what they are three
+                  screens later. Reassurance rather than a lesson: saying how
+                  each sounds is the recordings' job, not this note's.
+                */}
+                {estimated === "A1" && (
+                  <div className="mt-4">
+                    <Note tone="sky">
+                      Estonian has four letters English does not: õ, ä, ö, ü. You will see
+                      them everywhere. Do not worry about saying them right yet. That comes
+                      with time.
+                    </Note>
+                  </div>
+                )}
               </>
             )}
           </section>
