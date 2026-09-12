@@ -70,6 +70,56 @@ export function scriptable(_scene: SceneSpec, beat: BeatSpec): boolean {
 }
 
 /** The drafted lines for one beat, in the bank's order. Empty where there are none. */
+/**
+ * THE WORDS A BEAT'S OWN LINES ARE MADE OF ARE ITS SUBJECT TOO.
+ *
+ * The gate's `topic` check holds a composed line to naming one of the beat's
+ * topic lemmas, and a beat's topic lemmas are what its *question* is about:
+ * the café's bill beat names `arve`, `maksma`, `raha`, `hind`, and its banked
+ * line is "Kas see on kõik?", which names none of them. A learner answered
+ * that with "ei, ma tahan ka ühe saiakese", the model wrote "Palun, siin on
+ * teile hea sai. Kas te soovite veel midagi?", which is exactly the person
+ * answering what was said and asking again, and the gate refused it for not
+ * mentioning money. The scripted line survived only because the bank is not
+ * held to that check. So the one turn the model exists for, the deviation,
+ * was the one turn it could never win.
+ *
+ * A beat's banked lines were gated, reviewed and written as what that beat
+ * says, so the words they are made of are the beat's subject as surely as its
+ * topic lemmas are. Not every word: `kas`, `te`, `see` and `on` are in most
+ * beats' lines and would let anything through. A word counts where it is
+ * this beat's rather than the scene's, which is read off the bank itself
+ * rather than off a list of Estonian function words: a word appearing in the
+ * lines of more than `SHARED_BEATS` other beats of the same scene is the
+ * scene's furniture and not this beat's subject. No Estonian is written here.
+ */
+export function bankTopic(scene: SceneSpec, beat: BeatSpec): ReadonlySet<string> {
+  const rows = BANK.filter((row) => row.scene === scene.id);
+  const byBeat = new Map<string, Set<string>>();
+  for (const row of rows) {
+    const set = byBeat.get(row.beat) ?? new Set<string>();
+    for (const word of tokens(row.text)) set.add(word);
+    byBeat.set(row.beat, set);
+  }
+  const own = byBeat.get(beat.id);
+  if (!own) return new Set();
+  const out = new Set<string>();
+  for (const word of own) {
+    let elsewhere = 0;
+    for (const [id, set] of byBeat) if (id !== beat.id && set.has(word)) elsewhere++;
+    if (elsewhere <= SHARED_BEATS) out.add(word);
+  }
+  return out;
+}
+
+/** How many other beats of a scene may share a word before it stops being any beat's subject. */
+export const SHARED_BEATS = 1;
+
+/** Lowercased word tokens of a banked line; letters only, so `14:00` and `?` are not words. */
+function tokens(text: string): string[] {
+  return (text.match(/\p{L}+/gu) ?? []).map((w) => w.toLowerCase());
+}
+
 export function scriptedFor(scene: SceneSpec, beat: BeatSpec): readonly string[] {
   if (!scriptable(scene, beat)) return [];
   return BANK.filter((row) => row.scene === scene.id && row.beat === beat.id).map((row) => row.text);

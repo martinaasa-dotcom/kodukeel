@@ -3,7 +3,8 @@ import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
 import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
-  cardInPlay, composeNote, counterBeat, datumLine, replyFor, reaction, stageFor, wantsFreshLine,
+  cardAfterHurdles, cardInPlay, composeNote, counterBeat, datumLine, partsLine, replyFor, reaction, stageFor,
+  wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
 import { caseKeyFor, type Lexicon } from "./lexicon";
@@ -865,5 +866,130 @@ describe("a move that opens with a reaction of its own", () => {
       answered: ASK, beat: OFFER, response: "answer", reading: "complete", line: said, said: "Ma tulen homme",
     }));
     expect(lines[0]?.reaction).toBe(true);
+  });
+});
+
+/*
+  A QUESTION ASKED ON A TURN THAT MISSED IS STILL A QUESTION. A learner told
+  the price had changed asked what it was now, missed the beat (which wanted
+  how they were paying), and read `Vabandust!` and the same question again.
+*/
+describe("a question asked on a turn that missed", () => {
+  const aside: SpokenLine = { text: "See maksab 5 eurot.", provenance: "attested" };
+
+  it("is owed an answer on a miss as on a hit, and a bare mark on a turn nobody read is not", () => {
+    expect(wantsAsideFor("mis", "answer", "complete")).toBe(true);
+    expect(wantsAsideFor("mis", "narrow", "offtarget")).toBe(true);
+    expect(wantsAsideFor("?", "narrow", "offtarget")).toBe(true);
+    expect(wantsAsideFor("mis", "repeat", "unrecognised")).toBe(false);
+    // A turn credited with a beat elsewhere has landed, whatever the beat in front made of it.
+    expect(wantsAsideFor("kui", "narrow", "complete", true)).toBe(true);
+    expect(wantsAsideFor("mis", "wait", "fragment")).toBe(false);
+    expect(wantsAsideFor(null, "answer", "complete")).toBe(false);
+  });
+
+  it("is answered, and then the question is put again, with no sorry in front of it", () => {
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", aside, line: NOTHING, heard: "Kas te maksate kaardiga?" }));
+    expect(texts(lines)).toEqual([aside.text, "Kas te maksate kaardiga?"]);
+    // Where nothing answered it, the miss is still said as a miss.
+    const bare = replyFor(input({ answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING, heard: "Kas te maksate kaardiga?" }));
+    expect(texts(bare)).toEqual([REACTIONS.missed[0], "Kas te maksate kaardiga?"]);
+  });
+
+  it("tells the model a question was asked, on a hit and on a miss alike", () => {
+    expect(composeNote("answer", "complete", false, "mis")).toMatch(/answer it first/);
+    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/does not answer what you asked/);
+    expect(composeNote("narrow", "offtarget", false, "mis")).toMatch(/answer it first/);
+    expect(composeNote("answer", "complete", false, null)).toBeUndefined();
+  });
+});
+
+/*
+  A CURVEBALL THAT CHANGES A FACT CHANGES IT FOR THE REST OF THE RUN, and the
+  card every later line reads is the one with the new value in the slot.
+*/
+describe("the card after a curveball", () => {
+  const priced: RoleCard = {
+    you: "You.",
+    props: [
+      { slot: "price", card: "What it costs.", literal: ["5"], lemmas: [], shown: ["5"], value: "5", price: true },
+      { slot: "price2", card: "What it costs now.", literal: ["7"], lemmas: [], shown: ["7"], value: "7", price: true, theirs: true },
+    ],
+  };
+
+  it("stands the new price in for the old one from the moment the curveball is raised", () => {
+    const standing = cardAfterHurdles(priced, { hurdle: { id: "wrong-price", beat: 3, tries: 0 }, hurdles: [] });
+    expect(standing?.props.find((p) => p.slot === "price")?.value).toBe("7");
+    expect(standing?.props.find((p) => p.slot === "price")?.theirs).toBeUndefined();
+    const played = cardAfterHurdles(priced, { hurdle: null, hurdles: [{ id: "wrong-price", beat: 3, met: false }] });
+    expect(played?.props.find((p) => p.slot === "price")?.value).toBe("7");
+  });
+
+  it("leaves the card alone where nothing changed a fact", () => {
+    expect(cardAfterHurdles(priced, { hurdle: null, hurdles: [] })).toBe(priced);
+    expect(cardAfterHurdles(priced, { hurdle: { id: "queue", beat: 2, tries: 0 }, hurdles: [] })).toBe(priced);
+    expect(cardAfterHurdles(null, { hurdle: null, hurdles: [] })).toBeNull();
+  });
+
+  it("says a nominal in a named case off the case table, and withholds the line where it has none", () => {
+    const lexicon = {
+      byLemma: new Map(), byCase: new Map(), forms: new Set<string>(), folded: new Set<string>(),
+      persons: new Map(), infinitives: new Map(),
+      caseForm: new Map([[caseKeyFor("euro", "PARTITIVE"), "eurot"]]),
+    } as unknown as Lexicon;
+    const line = partsLine([{ slot: "price" }, { lemma: "euro", grammCase: "PARTITIVE" }], { card: priced, lexicon, mark: "." });
+    expect(line?.text).toBe("5 eurot.");
+    expect(partsLine([{ slot: "price" }, { lemma: "kroon", grammCase: "PARTITIVE" }], { card: priced, lexicon, mark: "." })).toBeNull();
+  });
+});
+
+/*
+  ONE MODEL REPLY PER TURN CARRIES THE WHOLE REACTION (§70). A line composed
+  with the turn in front of it has already reacted, so every keyless reaction
+  stands down where it composed and stands exactly as it was where nothing did.
+*/
+describe("a line a model wrote for this turn", () => {
+  const composed: SpokenLine = { text: "Selge, jaama. Mis kell te sõita soovite?", provenance: "composed" };
+
+  it("composes on a turn nobody could read, and the repair phrase is not said in front of it", () => {
+    expect(wantsFreshLine("repeat", "Kus teil valutab?", "unrecognised")).toBe(true);
+    expect(wantsFreshLine("repeat", "Kus teil valutab?", "echo")).toBe(false);
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: composed }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: NOTHING }));
+    expect(texts(keyless)[0]).toBe(FALLBACK_PHRASE);
+  });
+
+  it("hands the word over inside the sentence where the learner was lost", () => {
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "help", reading: "lost", offer: "pea", line: composed, heard: "Kus teil valutab?" }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "help", reading: "lost", offer: "pea", line: NOTHING, heard: "Kus teil valutab?" }));
+    expect(texts(keyless)).toEqual(["Pea?", "Kus teil valutab?"]);
+  });
+
+  it("lets a beat go inside the sentence, with no word bolted on in front", () => {
+    const lines = replyFor(input({ answered: ASK, beat: OFFER, response: "moveOn", reading: "offtarget", line: composed, offer: "pea" }));
+    expect(texts(lines)).toEqual([composed.text]);
+  });
+
+  it("is not pre-empted by the narrowed choice or the app's own hint", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: composed,
+      tries: NUDGE_AFTER, choice: "Pea või selg?", heard: "Kus teil valutab?",
+    }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING,
+      tries: NUDGE_AFTER, choice: "Pea või selg?", heard: "Kus teil valutab?",
+    }));
+    expect(texts(keyless)).toEqual([REACTIONS.missed[0], "Pea või selg?"]);
+  });
+
+  it("is told the word to hand over and what the scene says the answer is", () => {
+    expect(composeNote("moveOn", "offtarget", false, null, { offer: "pea" })).toMatch(/Let it go/);
+    expect(composeNote("moveOn", "offtarget", false, null, { offer: "pea" })).toMatch(/"pea"/);
+    expect(composeNote("help", "lost", false, null, { offer: "pea" })).toMatch(/"pea"/);
+    expect(composeNote("answer", "complete", false, "kui", { answer: "They say it costs 5 euros now." }))
+      .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
   });
 });

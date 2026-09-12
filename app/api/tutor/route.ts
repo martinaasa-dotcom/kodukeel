@@ -11,6 +11,7 @@ import { chatEstonianTokens } from "@/lib/tutor/verify";
 import {
   openWithFallback,
   resolveProviders,
+  TUTOR_REPLY_TOKENS,
   TutorError,
   type ChatMessage,
 } from "@/lib/tutor/provider";
@@ -144,8 +145,21 @@ export async function POST(request: Request) {
     browser exposes.
   */
   let open;
+  /*
+    SET BY THE SAME CALLBACK THAT RECORDS USAGE, READ ONCE THE STREAM IS DONE.
+
+    `onUsage` fires as the stream's own generator unwinds, which is exactly
+    when its `stop_reason`/`finish_reason` frame has been seen, so this is
+    known by the time the `for await` loop below has finished consuming
+    `open.chunks`. `TUTOR_REPLY_TOKENS` makes hitting the ceiling rare; it
+    does not make it impossible, and the honest thing on the rare turn that
+    still runs out is to say so rather than let a sentence stop mid-word with
+    nothing marking it as unfinished.
+  */
+  let truncated = false;
   try {
     open = await openWithFallback(chain, system, messages, (usage, config) => {
+      truncated = usage.truncated === true;
       // Charged to the provider that actually answered, not the head of the
       // chain: falling back to a dearer model must not go unmetered.
       after(() => recordUsage({
@@ -159,7 +173,7 @@ export async function POST(request: Request) {
         // limit" while none of them has been recorded yet.
         reservation: decision.reservation,
       }));
-    }, live);
+    }, live, TUTOR_REPLY_TOKENS);
   } catch (error) {
     // Nothing was spent and nothing was answered, so the authorization is
     // handed back: a deployment with a bad key must not ration its learners
@@ -190,6 +204,11 @@ export async function POST(request: Request) {
       try {
         for await (const chunk of open.chunks) say(prose.push(chunk));
         say(prose.end());
+        // The reply hit its own ceiling rather than finishing on its own, so
+        // what is on screen is a real prefix of an answer and not the whole
+        // of one. Say so rather than leaving a sentence stopped mid-word with
+        // nothing marking it as unfinished, which reads as Anu going quiet.
+        if (truncated) say("\n\n⚠ That ran long and got cut off. Ask again, or ask for the short version.");
         await flagUnverifiedEstonian(say, full);
       } catch (error) {
         // A TutorError is an upstream condition already explained to the learner

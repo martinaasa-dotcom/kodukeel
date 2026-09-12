@@ -17,7 +17,8 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { beginScene, finishScene, sceneHelp } from "@/app/actions";
 import { leafNeeds, type SceneSpec } from "@/lib/scenes/types";
 import type { Difficulty } from "@/lib/scenes/curveballs";
-import { BUDGETS } from "@/lib/scenes/curveballs";
+import { BUDGETS, defaultDifficultyFor } from "@/lib/scenes/curveballs";
+import type { Level } from "@/lib/collections/syllabus";
 import { SceneFace } from "./SceneFace";
 import { SceneDebrief, type Debrief } from "./SceneDebrief";
 import { SceneStage } from "./SceneStage";
@@ -25,6 +26,7 @@ import { SceneInterlude, VEIL_OUT_MS } from "./SceneInterlude";
 import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
+import { joinWithAnd } from "@/lib/copy/values";
 
 /**
  * One conversation, from the desk to the debrief.
@@ -116,6 +118,12 @@ interface Sent {
   helped: boolean;
   /** The Estonian line this turn answers, for the echo rule and for saying it again. */
   heard: string;
+  /**
+   * Which requirements a judge conceded on this turn, as the server said. Sent
+   * back with every later turn so the server's replay reaches the same state,
+   * since the server keeps nothing between turns.
+   */
+  conceded?: number[];
 }
 
 /**
@@ -219,7 +227,7 @@ function moveIn(lines: readonly Line[]): string | null {
   return null;
 }
 
-export function SceneSession({ scene, minutes, unit }: {
+export function SceneSession({ scene, minutes, unit, learnerLevel }: {
   scene: SceneSpec;
   /** How long it takes, printed on the briefing beside where you are standing. */
   minutes: number;
@@ -233,9 +241,18 @@ export function SceneSession({ scene, minutes, unit }: {
    * where a link to a lesson is a door out of the room.
    */
   unit?: { id: string; title: string } | null;
+  /**
+   * The learner's own course level, for where the dial opens.
+   *
+   * Not the scene's own `level`: a beginner opening a B1 scene from the
+   * "rest of the course" list should still meet it on `textbook`, since the
+   * dial is about how hard a day the other side is having and not about
+   * which scene this is. The learner can still move it before they start.
+   */
+  learnerLevel: Level;
 }) {
   const [phase, setPhase] = useState<Phase>("briefing");
-  const [difficulty, setDifficulty] = useState<Difficulty>("good");
+  const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(learnerLevel));
   const [opened, setOpened] = useState<Opened | null>(null);
   const [turns, setTurnsState] = useState<Turn[]>([]);
   /*
@@ -574,8 +591,22 @@ export function SceneSession({ scene, minutes, unit }: {
         over?: boolean; error?: string;
         composed?: boolean; note?: string | null;
         slips?: SlipNote[]; hurdle?: string | null; queued?: boolean;
+        conceded?: number[] | null;
       };
       if (data.error) { setError(data.error); return; }
+      /*
+        A beat the judge conceded on this turn is written onto the turn, so the
+        next request carries it and the server's replay ends the beat again.
+      */
+      if (data.conceded && data.conceded.length > 0) {
+        const conceded = data.conceded;
+        setSent((was) => {
+          const at = was.length - 1;
+          const last = was[at];
+          if (!last) return was;
+          return [...was.slice(0, at), { ...last, conceded }];
+        });
+      }
       if (data.composed === false && data.note) setNote(data.note);
 
       /*
@@ -959,15 +990,16 @@ export function SceneSession({ scene, minutes, unit }: {
             who expects to be understood, and being understood is the point.
           */}
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            You will need {practises(scene).join(", ")}.
+            You will need {joinWithAnd(practises(scene))}.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            They speak first. Answer them in Estonian, and the panel under the conversation says
-            what to say each time.
+            They speak first. Reply in Estonian, and the panel under the conversation always
+            tells you what to say next.
           </p>
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-            Get an ending wrong and they will still understand you, the way anybody would. They
-            say the word back the way it is said, and you can read the list at the end.
+            Don&apos;t worry about getting an ending wrong. They will still understand you, the
+            way any Estonian speaker would, and say the word back correctly. You will see
+            everything they corrected once the conversation ends.
           </p>
           {/*
             What is coming, in the scene's own terms. It is the count the bar
@@ -1346,7 +1378,7 @@ export function SceneSession({ scene, minutes, unit }: {
       {opened && (!opened.composed || note) && (
         <p className="text-xs" style={{ color: "var(--ink-3)" }}>
           {note
-            ?? "No model today: the lines are the course's own and the ones written for this scene, and a turn nothing was written for is described instead."}
+            ?? "No model key is set, so the other side's lines come from the course and from lines written for this scene. Where nothing fits what you said, you will see a short note about what they did instead of a spoken line."}
         </p>
       )}
 

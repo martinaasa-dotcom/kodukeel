@@ -56,10 +56,15 @@ front of it and `runGate` checked five ways, shape, vouching, register, governme
 withheld whole when it fails, otherwise a line drafted in advance and gated then, otherwise the
 line the beat says off the card, and where every rung fails the other side says they did not catch
 that, in a phrase the course teaches and in character, never a repair line this app wrote. **The
-model writes what the other person says and never decides whether the learner was understood**
-(ADR-025 amendment 1): the bank is the net under composition rather than a rung above it, which is
-what a deployment with no key, a spent allowance or a withheld line falls to, so nothing about the
-keyless claim moved. The fifth check exists because the other four are about words and a number is
+model writes what the other person says, may end a beat the dictionary refused, and never writes a
+grade** (ADR-025 amendments 1 and 2): the bank is the net under composition rather than a rung above
+it, which is what a deployment with no key, a spent allowance or a withheld line falls to, so nothing
+about the keyless claim moved. The dictionary reads every turn first; where it refuses one, the route
+may ask a judge on the grader's chain whether the learner did what the beat asked in any words, and a
+yes ends the beat through `concede`, the only other producer of `Evidence`, which can mark as met only
+what the dictionary left missing. A conceded requirement writes no row (`gradesFor` skips it), a value
+off the role card is never conceded, and a turn nobody could read is never put to the judge. The
+operator asked for this so a conversation can flow and end naturally. The fifth check exists because the other four are about words and a number is
 not one: a digit in a composed line has to be one `dealtNumbers` says the card dealt, or a model
 asked first on a beat that names a time invites the learner to agree to an appointment nobody
 offered. What the learner
@@ -82,7 +87,7 @@ what landed before you merge, not just the conflict status.
 for the reason the Groq block above them sat at zero: the only Gemini access this project had was a
 free key, and "free" is a property of the account rather than of the model. The moment a paid key is
 set, every one of them prices a real call at nothing, which is the global spend cap switched off on
-whichever model a deployment points `GEMINI_SCENE_MODEL` at. Read off Google's own page rather than
+the model scenes are pinned to. Read off Google's own page rather than
 recalled, with the day on the entry, and the Flash tier's promotional rate is written down beside
 the date it doubles rather than left in a diary. A model the table does not name prices at
 `UNKNOWN_MODEL`, which is the dearest row, so an omission fails expensive and a zero fails silently:
@@ -5511,6 +5516,53 @@ moves: the line is still vouched word by word and checked the other eleven ways.
 `bank.test.ts` fails on a curveball that makes no beat, which is the hole its own
 coverage sweep could not see.
 
+**A curveball that changes a fact carries the fact, and a question is answered whatever the turn
+did with the beat.** `wrong-price` said "the amount is not the one you were told" in seven scenes
+and not one of them had told the learner an amount: the other side could announce that the price
+had changed and could not say what it was. A learner at a ticket window asked `Kui palju?`, which
+is the very way out the curveball names, and was told `Ei tea.`; asked `Mis hind on?` on the next
+beat and read `Vabandust!` and the same question again, six times. The model was no help, because
+a composed line naming a price is a line with a number in it and `facts` withholds any number the
+card did not deal, and a retry was told which *words* failed and nothing about a number, so it
+wrote the same price three times and the run fell to the bank. Every scene that admits it deals a
+`price` on the learner's card and a `price2` that is theirs and drawn to differ; the hurdle says the
+new one off the card (`CurveballSpec.line`, through the same `partsLine` every `says` goes
+through), stands it in for the old one for the rest of the run (`cardAfterHurdles`, which is
+`cardInPlay` one door over), and a question about money is answered with it, keyless, as a fact
+off the card (`priceOffCard`), with a yes or a no in front where the learner named a figure.
+`wantsAsideFor` owes a real question an answer on a miss as on a hit, and what may answer it on a
+miss is a fact and never the shrug, so "sorry, what?" still gets the question again and nothing in
+front of it; a question is not a try, so the first one on a beat spends no patience. **The model is
+briefed as a participant**: every value on the card in play, told and theirs (`ComposeAsk.facts`),
+which is what lets it state a price the gate then accepts; and a retry is told why the line was
+withheld (`whyWithheld`) rather than only which words. The topic check accepts a line that answers
+what the learner said, on a turn that asked or missed. `npm run replay:scene` replays a reported
+transcript keyless through the app's own ladder, and is how this one was read before and after.
+`docs/21-situations.md` §69. **And the persona's patience is read now**: `planRun` had worked out a
+figure per beat and stored it on the plan since the personas were written, and `replay` started every
+run from the scene's own, so the brisk one had never been a try shorter. The draw carries it, the
+state carries it (`SceneState.tries`, `patienceAt`), and a run written before the field keeps the
+scene's figures.
+
+**One reply per turn, and the person behind the counter keeps the conversation moving.** Read on
+`gemini-3.8-flash`, the model's own lines were already a person and the machinery round them was
+not: every question the learner asked went to a second call that came back `Ei tea.`, and on those
+turns the move was never composed at all, so a bank line followed the shrug. The composed move
+carries the whole reaction now, the question answered inside it (`composeNote` is told what was
+asked and what the scene says the answer is), the word handed over inside it, the beat let go inside
+it, with `ComposeAsk.agenda` and `settled` giving it the shape of the conversation; every keyless
+reaction stands down where a line composed and stands exactly as it was where nothing did
+(`replyFor`'s `composed`), so the keyless deployment is untouched. **The model was switching sides
+and the prompt was why**: the role card and its facts are written to the learner and were handed over
+under "what you know", and `settled` built from the learner's *goals* made it worse, which is §32 a
+second time. The card is quoted as theirs with the pronoun explained, and `settled` is asserted never
+to be a goal. Three checks were refusing correct lines and each was widened honestly: a government
+naming a place question governs the cases that answer it, read off `CASES.asksWhere`; the government
+check reads every governed verb in a line rather than the first the table lists; and an `ask` holds
+a question rather than ending on one. "Sorry, what?" gets the line again and never the shrug
+(`asksToHearAgain`), and the `english` curveball is said in English and never composed.
+`docs/21-situations.md` §70.
+
 **A choice is two things a person could have meant, never one thing said two ways.** Narrowing a
 case beat offered the wanted form against another case of the same word, on the argument that the
 ending is what the beat drills. On a card that is a fair question; in a conversation it is a grammar
@@ -6877,7 +6929,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `DA_ONLY_VERBS`, `wrongInfinitive`, `inflectedAfterEi`, `SCENE_MODELS`, `TUTOR_MODEL`,
 `VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
-`elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`.
+`elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
+`priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
+`shrugOwed`, `anticipated`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -6912,6 +6966,7 @@ npm run forms            # rebuild the forms list: every spelling of every word,
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
+npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)
 npm run probe:turns      # what the marker makes of sentences a real person would type; hunt the !! lines
 npm run eval:scene       # what a model reaches for in a scene, and what the gate withholds (three runs so far; read the ranked list)
 npm run eval:composers   # which free model writes the best Estonian for a scene line, one model at a time (--samples, --model, --scenes)

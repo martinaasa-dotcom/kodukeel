@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BUDGETS, CURVEBALLS, curveballById, drawCurveballs, type CurveballId } from "./curveballs";
+import { BUDGETS, CURVEBALLS, curveballById, defaultDifficultyFor, drawCurveballs, type CurveballId } from "./curveballs";
 
 /** A generator with no clock and no `Math.random` in it, so a draw is a fact. */
 function seeded(seed: number): () => number {
@@ -30,9 +30,51 @@ describe("the curveball catalog", () => {
     }
   });
 
+  /*
+    A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. `wrong-price` announced
+    that the price had changed in seven scenes and could not say what it was.
+    A curveball whose line or stage direction names a slot has to say which
+    slot it stands in for, and one that stands a slot in has to be able to
+    say it.
+  */
+  it("says the fact it changes, off the card, and says which slot gives way", () => {
+    const price = curveballById("wrong-price")!;
+    expect(price.they).toMatch(/\{price2\}/);
+    expect(price.line?.some((part) => "slot" in part && part.slot === "price2")).toBe(true);
+    expect(price.answer).toMatch(/\{price2\}/);
+    expect(price.replaces).toEqual([["price", "price2"]]);
+    // The debrief's sentence is never a slot, since it is printed raw.
+    for (const ball of CURVEBALLS) expect(ball.says).not.toMatch(/\{\w+\}/);
+    for (const ball of CURVEBALLS) {
+      const uttered = new Set<string>();
+      for (const part of ball.line ?? []) if ("slot" in part) uttered.add(part.slot);
+      for (const found of `${ball.they ?? ""} ${ball.answer ?? ""}`.matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
+      const standsIn = new Set((ball.replaces ?? []).map(([, to]) => to));
+      for (const slot of uttered) {
+        expect(standsIn.has(slot), `${ball.id} says {${slot}} and never says what it stands in for`).toBe(true);
+      }
+    }
+  });
+
   it("has one entry per id and no id without an entry", () => {
     expect(new Set(ALL).size).toBe(CURVEBALLS.length);
     for (const id of ALL) expect(curveballById(id)?.id).toBe(id);
+  });
+});
+
+describe("the default difficulty", () => {
+  it("opens easiest at A1 and climbs to the hardest budget by B2, never past it", () => {
+    expect(defaultDifficultyFor("A1")).toBe("textbook");
+    expect(defaultDifficultyFor("A2")).toBe("good");
+    expect(defaultDifficultyFor("B1")).toBe("ordinary");
+    expect(defaultDifficultyFor("B2")).toBe("bad");
+    expect(defaultDifficultyFor("C1")).toBe("bad");
+  });
+
+  it("only ever returns a real preset", () => {
+    for (const level of ["A1", "A2", "B1", "B2", "C1"] as const) {
+      expect(Object.keys(BUDGETS)).toContain(defaultDifficultyFor(level));
+    }
   });
 });
 

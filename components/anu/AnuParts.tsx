@@ -85,8 +85,8 @@ export function sentenceCheckPrompt(estonian: string, meaning: string): string {
  * exist yet; and which model actually wrote what is on screen. Only the last
  * is a fact about the answer, and it is the only one a 24rem panel has room
  * for. So the standing fact is said once, in the line under her name in the
- * panel's header, and the prediction is not made at all: "Will ask OpenRouter
- * · google/gemma-4-31b-it:free." was the largest thing on the panel a learner
+ * panel's header, and the prediction is not made at all: "Will ask Groq
+ * · openai/gpt-oss-120b." was the largest thing on the panel a learner
  * had not asked anything yet, and it named a model that had answered nothing.
  *
  * Nothing is softened by dropping it. What makes Anu's Estonian checkable is

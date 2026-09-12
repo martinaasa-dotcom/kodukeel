@@ -38,7 +38,7 @@ export function GlossLanguagePanel({ current }: { current: GlossLanguage }) {
           selected={value === option.id}
           onSelect={() => pick(option.id)}
           title={option.label}
-          detail={option.id === "en" ? "The course's own glosses" : option.native}
+          detail={option.id === "en" ? "The course's own English meanings" : option.native}
         />
       ))}
     </ChoiceGroup>

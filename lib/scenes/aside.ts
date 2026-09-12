@@ -33,7 +33,7 @@
 import { ASIDES } from "./catalogue";
 import type { SpokenLine } from "./line";
 import { caseKeyFor, type Lexicon } from "./lexicon";
-import type { RoleCard } from "./props";
+import { priceOnCard, type RoleCard } from "./props";
 import { partsLine } from "./reply";
 import { leafNeeds, type BeatSpec, type MoveKind } from "./types";
 
@@ -42,6 +42,12 @@ export interface AsideInput {
   readonly asked: string | null;
   /** Every lowercased word of the learner's turn. */
   readonly spoken: readonly string[];
+  /**
+   * The turn as typed, for the one question `spoken` cannot carry: `5?` is
+   * somebody checking the price and holds no letters at all. Absent on a
+   * caller that has not kept it, and then a bare mark is a bare mark.
+   */
+  readonly said?: string;
   /** The beat the turn was read against, whose line the question is probably about. */
   readonly answered: BeatSpec | null;
   readonly card: RoleCard | null;
@@ -55,12 +61,27 @@ export interface AsideInput {
    * question or the bank has nothing for it.
    */
   readonly answers: readonly string[];
+  /**
+   * Whether the question came on a turn that missed the beat. Then only a
+   * fact can answer it: the bank's answer and "more of what they said" are
+   * both about a beat the learner has not met, and stacking either on the
+   * question said again is two questions. A fact off the card is one
+   * sentence, and it is the one a learner who asked the price was owed.
+   */
+  readonly missed?: boolean;
 }
 
 /** Question words that ask about a place, a time, a price. Keys, not vocabulary. */
 const PLACE = new Set(["kus", "kuhu", "kust"]);
 const TIME = new Set(["millal"]);
 const HOW = new Set(["kuidas"]);
+/**
+ * The words a question about money is made of, as lemma requests against
+ * `ostmine` and `kusisonad`: `kui palju`, `mis hind`, `maksab`, `eurot`.
+ * Resolved through the scene's own lexicon, so nothing here is a form.
+ */
+const MONEY = ["hind", "maksma", "euro"] as const;
+const HOW_MUCH = ["palju", "mitu"] as const;
 
 /**
  * Moves on which the other side was giving information, so "more" is more of
@@ -82,7 +103,7 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     was written for it. First, because it is the one rung that knows what
     was asked rather than guessing from the question word.
   */
-  if (answered && wantsQuestion(answered)) {
+  if (answered && wantsQuestion(answered) && !input.missed) {
     const banked = input.answers[0];
     /*
       AND WHERE THE BANK HOLDS NONE, THIS RETURNED NOTHING AND SAID NOTHING
@@ -116,6 +137,22 @@ export function asideFor(input: AsideInput): SpokenLine | null {
   }
 
   /*
+    THE PRICE, WHICH IS THE ONE FACT A QUESTION ABOUT MONEY IS ASKING FOR.
+
+    "Kui palju?" at a ticket window was answered `Ei tea.`, because nothing
+    on the card held an amount and nothing could say one. A scene that deals
+    a price says it here, and the card handed in is the one in play, so once
+    the price curveball has been raised the answer is the new price rather
+    than the one the learner was told (`cardAfterHurdles`). The line is parts
+    off the card and the dictionary's case table, and it is withheld whole
+    where a part is missing, like every other line said off the card.
+  */
+  if (asksPrice(spoken, lexicon) || (asked === "?" && /\d/.test(input.said ?? ""))) {
+    const price = priceOffCard(card, lexicon, input.said ?? "");
+    if (price) return price;
+  }
+
+  /*
     A fact off the card. "When?" is answered with the day and the time this
     run dealt, in the shape an offer already takes: the weekday in the
     adessive off the case table, and the clock time as the card spells it.
@@ -133,7 +170,7 @@ export function asideFor(input: AsideInput): SpokenLine | null {
     vasakule, see on lähedal." A place question in particular; a bare `?` or
     a `mis` too, since those are "sorry, what?" as often as anything.
   */
-  const about = answered && INFORMING.has(answered.move);
+  const about = answered && INFORMING.has(answered.move) && !input.missed;
   if (about && (PLACE.has(asked) || asked === "?" || asked === "mis" || asked === "kuidas")) {
     const next = input.more[0];
     if (next) return { text: next, provenance: "scripted" };
@@ -169,6 +206,64 @@ function wantsQuestion(beat: BeatSpec): boolean {
 /** `Ei tea.`, off the course: what a stranger says to a question they cannot answer. */
 export function shrug(lexicon: Lexicon): SpokenLine | null {
   return partsLine(ASIDES.unknown, { lexicon, mark: "." });
+}
+
+/**
+ * WHETHER THE QUESTION IS "SORRY, WHAT?", WHICH IS A REQUEST TO HEAR IT AGAIN.
+ *
+ * `vabandust, mida?` on a beat that accepts anything met the beat, left a
+ * question word over, and the other side answered it `Ei tea.`: a shrug at
+ * somebody asking to hear the line again, which is §39's fault through the
+ * one door it had not been closed on. A turn made of nothing but question
+ * words and the course's own "sorry" is asking for the line again, and the
+ * answer to that is the line again. The phrase is a lemma request against
+ * `tervitused`, resolved through the lexicon, so nothing here is Estonian.
+ */
+export function asksToHearAgain(spoken: readonly string[], questionWords: ReadonlySet<string>, lexicon: Lexicon): boolean {
+  if (spoken.length === 0 || spoken.length > 3) return false;
+  const sorry = lexicon.byLemma.get(SORRY) ?? new Set<string>();
+  return spoken.every((word) => questionWords.has(word) || sorry.has(word))
+    && spoken.some((word) => questionWords.has(word));
+}
+const SORRY = "Vabandust!";
+
+/** Whether the turn asks what something costs: a money word, or "how much/many". */
+export function asksPrice(spoken: readonly string[], lexicon: Lexicon): boolean {
+  const said = new Set(spoken);
+  for (const lemma of MONEY) {
+    for (const form of lexicon.byLemma.get(lemma) ?? []) if (said.has(form)) return true;
+  }
+  return HOW_MUCH.some((word) => said.has(word));
+}
+
+/**
+ * `See maksab 5 eurot.`, off the card. The verb and the unit are lemma
+ * requests the scenes that deal a price all teach (`ostmine`, `asesonad`),
+ * and the shorter `5 eurot.` stands in where the lexicon cannot supply the
+ * longer one, so a thin lexicon costs a verb and never the answer.
+ */
+export function priceOffCard(card: RoleCard | null, lexicon: Lexicon, said = ""): SpokenLine | null {
+  const price = priceOnCard(card);
+  if (!price) return null;
+  const unit = { lemma: "euro", grammCase: "PARTITIVE" as const };
+  const line = partsLine([{ lemma: "see" }, { lemma: "maksma", verb: "IndPrSg3" }, { slot: price.slot }, unit], { card, lexicon, mark: "." })
+    ?? partsLine([{ slot: price.slot }, unit], { card, lexicon, mark: "." })
+    ?? partsLine([{ slot: price.slot }], { card, lexicon, mark: "." });
+  if (!line) return null;
+  /*
+    A PRICE THE LEARNER NAMED IS ANSWERED YES OR NO. `Kas 5 eurot?` and `5?`
+    are somebody checking what they heard, and a person says "jah" or "ei,
+    see maksab 2 eurot" rather than stating the price as though nothing had
+    been asked. The digit runs are compared whole, as the marker compares a
+    dealt number, so `15` is not `5`. Both words are the course's own and the
+    price line is the same one, lowercased into the second half.
+  */
+  const runs: readonly string[] = said.match(/\d+/g) ?? [];
+  if (runs.length === 0) return line;
+  const word = runs.includes(price.value) ? "jah" : "ei";
+  const yes = partsLine([{ lemma: word }], { lexicon, mark: "." });
+  if (!yes) return line;
+  return { ...line, text: `${yes.text.slice(0, -1)}, ${line.text.charAt(0).toLowerCase()}${line.text.slice(1)}` };
 }
 
 function whenOffCard(card: RoleCard | null, lexicon: Lexicon): SpokenLine | null {

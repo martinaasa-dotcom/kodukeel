@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   HURDLE_TRIES, advance, advanceHurdle, creditAhead, currentBeat, hurdleBeat, isOver, objectivesOf,
-  outcomeOf, raiseHurdle, startScene, walkOut, type Response, type SceneState,
+  outcomeOf, patienceAt, raiseHurdle, startScene, walkOut, type Response, type SceneState,
 } from "./state";
 import type { Evidence, TurnReading } from "./turn";
 import type { SceneSpec } from "./types";
@@ -366,5 +366,67 @@ describe("a beat answered out of order", () => {
     ({ state } = advance(SCENE, state, evidence("offtarget", [false]), "midagi veel"));
     expect(state.done).not.toContain("greet");
     expect(currentBeat(SCENE, state)?.id).toBe("reason");
+  });
+});
+
+/*
+  A QUESTION IS NOT A TRY. Somebody who asked the price twice at a ticket
+  window was answered twice and then watched the clerk give up on them.
+*/
+describe("a turn that missed because it asked something", () => {
+  const asking = (): Evidence => ({ ...evidence("offtarget", [false]), asked: "mis" });
+
+  it("costs nothing the first time on a beat, and is answered rather than refused", () => {
+    const start = { ...startScene(SCENE), beat: 1, patience: 2 };
+    const first = advance(SCENE, start, asking(), "mis hind on?");
+    expect(first.response).toBe("narrow");
+    expect(first.state.patience).toBe(2);
+    expect(first.state.beat).toBe(1);
+    expect(first.state.turns.at(-1)?.asked).toBe("mis");
+  });
+
+  it("spends a try the second time, so a scene cannot be held for ever by a question mark", () => {
+    const start = { ...startScene(SCENE), beat: 1, patience: 2 };
+    const first = advance(SCENE, start, asking(), "mis hind on?");
+    const second = advance(SCENE, first.state, asking(), "mis hind on?");
+    expect(second.state.patience).toBe(1);
+    const third = advance(SCENE, second.state, asking(), "mis hind on?");
+    expect(third.response).toBe("moveOn");
+  });
+
+  it("carries the question with a credit at a distance, so it can still be answered", () => {
+    const start = { ...startScene(SCENE), beat: 0 };
+    const credited = creditAhead(start, asking(), SCENE.beats[2]!, "kui palju?");
+    expect(credited.turns.at(-1)?.asked).toBe("mis");
+  });
+
+  it("is a miss like any other where nothing was asked", () => {
+    const start = { ...startScene(SCENE), beat: 1, patience: 2 };
+    expect(advance(SCENE, start, evidence("offtarget", [false]), "kool").state.patience).toBe(1);
+  });
+});
+
+/*
+  THE PERSONA'S PATIENCE, WHICH THE MACHINE NEVER READ. `planRun` worked out a
+  figure per beat and stored it, and every run started from the scene's own.
+*/
+describe("the tries a run gives each beat", () => {
+  it("are the run's where the draw carried them, on the first beat and on every move", () => {
+    const brisk = startScene(SCENE, [1, 1, 1]);
+    expect(brisk.patience).toBe(1);
+    const moved = advance(SCENE, brisk, evidence("complete"), "tere");
+    expect(moved.state.patience).toBe(1);
+    // One miss and the brisk one moves on, where the scene's own two would wait.
+    const missed = advance(SCENE, moved.state, evidence("offtarget", [false]), "kool");
+    expect(missed.response).toBe("moveOn");
+    expect(advance(SCENE, startScene(SCENE), evidence("complete"), "tere").state.patience).toBe(2);
+  });
+
+  it("are the scene's own where the draw carried none, so a run in flight keeps its figures", () => {
+    const plain = startScene(SCENE);
+    expect(plain.tries).toBeUndefined();
+    expect(plain.patience).toBe(SCENE.beats[0]!.patience);
+    expect(patienceAt(SCENE, plain, 1)).toBe(2);
+    expect(patienceAt(SCENE, { tries: [3, 4, 5] }, 1)).toBe(4);
   });
 });

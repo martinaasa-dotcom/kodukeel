@@ -215,16 +215,16 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   {
     href: "/review/dictation", title: "Dictation", subtitle: "Hear it, write it", icon: "Ear", tone: "peach",
     group: "quick", note: "Needs sentences",
-    blurb: "Hear a sentence and write it down, diacritics and all.",
+    blurb: "Hear a sentence and write it down, Estonian letters and all.",
   },
   {
     href: "/review/speaking", title: "Speaking", subtitle: "Out loud", icon: "Mic", tone: "blush",
-    group: "quick", note: "Shadowing",
+    group: "quick", note: "Say it, then hear it",
     blurb: "Say it, then compare yourself with a native rendering. Nothing scores your pronunciation.",
   },
   {
     href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "mint",
-    group: "targeted", note: "Free production",
+    group: "targeted", note: "You write it",
     blurb:
       "Use a word in a named case. The form is checked against the dictionary before Anu ever " +
       "sees it, so the verdict is certain even when the AI is off.",
