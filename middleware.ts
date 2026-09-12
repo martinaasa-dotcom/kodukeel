@@ -144,6 +144,32 @@ export async function middleware(request: NextRequest) {
     // The offline fallback holds no data and has to render from the service
     // worker's cache, where there is no session to check.
     path.startsWith("/offline") ||
+    /*
+      THE THREE FILES WHOSE WHOLE JOB IS TO BE READ BY SOMETHING WITH NO
+      ACCOUNT.
+
+      `app/robots.ts`, `app/sitemap.ts` and `app/opengraph-image.tsx` are
+      generated metadata routes, and every one of them is requested by a
+      crawler or by whatever renders a link preview in a message. Neither has
+      a session, so without this the gate below answered all three with a 307
+      to the sign-in page: measured on the deployment, `/robots.txt` redirected
+      to `/sign-in?next=%2Frobots.txt`.
+
+      They were added and verified in local mode, where `supabaseConfigured()`
+      is false and this whole branch steps aside, so the one mode they exist
+      for is the one mode they had never been tried in. That is the fault this
+      file's own history names about the hosted sign-in screen: every browser
+      suite runs against a local-mode build.
+
+      None of the three holds anything about anybody. The robots file and the
+      sitemap name only the public paths already in this list, and the image is
+      the front of the site drawn the same for every reader, which is what
+      separates it from `/api/share`: that one draws a learner's own figures
+      and is `private, no-store` precisely because it does.
+    */
+    path.startsWith("/robots.txt") ||
+    path.startsWith("/sitemap.xml") ||
+    path.startsWith("/opengraph-image") ||
     // Aggregate metrics carry their own bearer token and are read by whoever
     // runs the deployment, not by a signed-in learner. Past this gate it
     // authenticates itself, and with no token configured it 404s.

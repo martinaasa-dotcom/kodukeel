@@ -1931,7 +1931,13 @@ check("a page a stranger may read is a page the landing page links to", () => {
   */
   const middleware = code("middleware.ts");
   const landing = read("app/(chromeless)/welcome/page.tsx");
-  const notAPage = ["/sign-in", "/auth/callback", "/offline", "/api/"];
+  const notAPage = [
+    "/sign-in", "/auth/callback", "/offline", "/api/",
+    // Generated metadata routes: read by a crawler and by whatever draws a
+    // link preview, never by a person following a link. See the check below,
+    // which asserts the other half, that they are in the allowlist at all.
+    "/robots.txt", "/sitemap.xml", "/opengraph-image",
+  ];
 
   const allowed = [...middleware.matchAll(/path\.startsWith\("(\/[^"]*)"\)/g)]
     .map((m) => m[1]!)
@@ -5029,6 +5035,42 @@ check("every dead end in the app offers a way to report it", () => {
       source,
       /<SuggestFix/,
       `${file} shows ${what} and offers no way to tell anybody about it`,
+    );
+  }
+});
+
+check("a file written for a crawler is a file a crawler can reach", () => {
+  /*
+    THE ONE MODE THEY EXIST FOR IS THE ONE MODE NOTHING RUNS IN.
+
+    `app/robots.ts`, `app/sitemap.ts` and `app/opengraph-image.tsx` are read by
+    a crawler and by whatever draws a link preview in a message, and neither
+    carries a session. The middleware's matcher covers them, so unless they are
+    named in `isPublicPath` the gate answers each with a redirect to the
+    sign-in page. Measured on the deployment before this: `/robots.txt` came
+    back 307 to `/sign-in?next=%2Frobots.txt`, and so did the sitemap and the
+    image.
+
+    They shipped that way because they were verified in local mode, where
+    `supabaseConfigured()` is false and the gate steps aside entirely. Every
+    browser suite runs against a local-mode build, which this repository
+    already knows costs it the hosted sign-in screen; this is the same blind
+    spot one file over, and a source check is the cheap half of covering it.
+
+    Read off the filesystem rather than a list typed here, so a metadata route
+    added tomorrow has to be decided about rather than quietly gated.
+  */
+  const served: Record<string, string> = {
+    "app/robots.ts": "/robots.txt",
+    "app/sitemap.ts": "/sitemap.xml",
+    "app/opengraph-image.tsx": "/opengraph-image",
+  };
+  const middleware = code("middleware.ts");
+  for (const [file, path] of Object.entries(served)) {
+    if (!existsSync(file)) continue;
+    assert.ok(
+      middleware.includes(`path.startsWith("${path}")`),
+      `${file} serves ${path}, which the gate redirects to sign-in unless isPublicPath names it`,
     );
   }
 });
