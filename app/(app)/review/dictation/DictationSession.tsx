@@ -15,7 +15,6 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { VOICES } from "@/lib/audio/voice";
 import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
 import type { RatingValue } from "@/lib/srs/scheduler";
-import { AI_TAG } from "@/lib/copy/values";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -337,9 +336,6 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           {result && task.en && (
             <p className="text-center text-sm" style={{ color: "var(--ink-2)" }}>
               {task.en}
-              <Chip tone="again" title="Machine translation. Trust the Estonian over this.">
-                {AI_TAG}
-              </Chip>
             </p>
           )}
         </div>

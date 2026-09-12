@@ -6,12 +6,11 @@ import { createLexeme, addToDeck } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Card, Chip } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { SuggestFix } from "@/components/SuggestFix";
 import { Dots } from "@/components/Dots";
 import type { Msg } from "./useAnuChat";
-import { AI_TAG } from "@/lib/copy/values";
 import { fixFrom, vocabFrom } from "@/lib/tutor/markers";
 import { AnuProse } from "./Prose";
 
@@ -235,9 +234,6 @@ export function Bubble({ message, streaming }: { message: Msg; streaming: boolea
           <div className="mt-3 rounded-[var(--r)] px-4 py-3" style={{ background: "var(--accent-soft)" }}>
             <div className="mb-1 flex items-center gap-2">
               <span className="label-xs" style={{ color: "var(--accent-deep)" }}>Corrected</span>
-              <Chip tone="again" title="Anu wrote this, it isn't a dictionary form.">
-                {AI_TAG}
-              </Chip>
             </div>
             <p lang="et" className="text-md" style={{ color: "var(--ink)" }}>{fix}</p>
           </div>
@@ -298,9 +294,6 @@ function UnverifiedNotice({ words }: { words: string[] }) {
       className="mt-3 flex flex-wrap items-baseline gap-x-1.5 gap-y-1 rounded-[var(--r)] px-4 py-3 text-sm"
       style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}
     >
-      <Chip tone="again" title="Not a stored form, so the dictionary could not confirm it">
-        {AI_TAG}
-      </Chip>
       <span>{plural ? "Anu used words above" : "Anu used a word above"} the dictionary does not recognize yet:</span>
       <span>
         {words.map((w, i) => (
@@ -440,9 +433,6 @@ function VocabBridge({ vocab }: { vocab: { et: string; en: string }[] }) {
     <div className="mt-4 border-t pt-3" style={{ borderColor: "var(--rule-soft)" }}>
       <div className="mb-2 flex items-center gap-2">
         <span className="label-xs" style={{ color: "var(--ink-3)" }}>Vocabulary</span>
-        <Chip tone="again" title="Anu's forms haven't been checked. Look them up in the dictionary to be sure.">
-          {AI_TAG}
-        </Chip>
       </div>
       <ul className="flex flex-col gap-1.5">
         {vocab.map((w) => <VocabRow key={w.et} word={w} />)}

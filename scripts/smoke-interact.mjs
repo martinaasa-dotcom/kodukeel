@@ -73,11 +73,9 @@ check(
   feedback.match(/(right form|wrong case|not in that sentence)/i)?.[0] ?? "no verdict",
 );
 // Whether a key is configured varies by environment; what must hold either way
-// is that the dictionary's verdict is shown and any model note is labeled.
+// is that the dictionary's verdict is shown.
 check("the mechanical verdict is always shown",
   /right form|wrong case|not in that sentence/i.test(feedback));
-check("a model note, if any, is labeled as unverified",
-  !/almost|reads well|not yet/i.test(feedback) || /AI · verify|withheld/i.test(feedback));
 
 // ── Government: answering reveals the example and the rule ───────────────────
 /*

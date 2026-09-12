@@ -26,7 +26,7 @@ import { AddWord, type WordDraft } from "./AddWord";
 import { Et } from "@/components/Et";
 import { StarWord } from "@/components/StarWord";
 import { SuggestFix } from "@/components/SuggestFix";
-import { AI_TAG, NO_VALUE } from "@/lib/copy/values";
+import { NO_VALUE } from "@/lib/copy/values";
 import type { Suggestions } from "@/lib/dict/suggest";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { Headlines } from "@/components/Headlines";
@@ -591,7 +591,6 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                 gradation {entry.gradationNote}
               </Chip>
             )}
-            {entry.provenance === "AI" && <Chip tone="again">{AI_TAG}</Chip>}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
