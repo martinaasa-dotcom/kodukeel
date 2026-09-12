@@ -69,15 +69,15 @@ const config = [
        * `eslint-config-next` 16 brings `eslint-plugin-react-hooks` 7 with it and
        * enables sixteen `react-hooks/*` rules as errors, eleven of which did not
        * exist in 15. Eleven hold in this tree already and stay errors, so none of
-       * them can regress quietly. Five do not: 116 findings over about forty
-       * files, listed here with their counts, because a warning nobody has
-       * counted is a warning nobody reads.
+       * them can regress quietly. Five do not: 119 findings over 50 files,
+       * listed here with their counts, because a warning nobody has counted
+       * is a warning nobody reads.
        *
        *   purity              49  (46 are `Date.now()` read during render)
        *   set-state-in-effect 34
        *   refs                25
-       *   static-components    7
-       *   immutability         1
+       *   static-components    8
+       *   immutability         3
        *
        * These are a backlog rather than a bar being lowered, and the difference
        * is worth being exact about, because `.github/workflows/ci.yml` says of

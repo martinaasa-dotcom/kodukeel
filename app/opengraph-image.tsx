@@ -57,7 +57,6 @@ export default function OpenGraphImage() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={`data:image/svg+xml;base64,${Buffer.from(MARK).toString("base64")}`} width={128} height={128} alt="" />
           <div style={{ display: "flex", fontSize: 54, fontWeight: 700, color: "#1c1633" }}>Kodukeel</div>
         </div>
