@@ -1,8 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import {
-  createDeck, decksForWord, deleteDeck, listDecks, removeWordFromDeck,
-  renameDeck, setDecksForWord, wordsInDeck,
+  createDeck, decksForWord, deleteDeck, fileWordInDeck, listDecks,
+  removeWordFromDeck, renameDeck, setDecksForWord, wordsInDeck, wordsToFile,
 } from "./decks";
 
 /**
@@ -25,6 +25,22 @@ const OTHER = "itest-owner-decks-other";
 async function wipe(owner: string) {
   await prisma.deckWord.deleteMany({ where: { ownerId: owner } });
   await prisma.deck.deleteMany({ where: { ownerId: owner } });
+  await prisma.card.deleteMany({ where: { ownerId: owner } });
+}
+
+/**
+ * A card for a word, which is what makes it one of the learner's own. Takes
+ * the moment it was added, because `wordsToFile` orders on exactly that and a
+ * test that let two words share a timestamp would be asserting the planner's
+ * answer rather than the function's.
+ */
+async function hold(owner: string, lexemeId: string, addedAt: Date) {
+  await prisma.card.create({
+    data: {
+      ownerId: owner, lexemeId, cardType: "RECOGNITION",
+      front: "x", back: "y", createdAt: addedAt,
+    },
+  });
 }
 
 beforeEach(async () => { await wipe(MINE); await wipe(OTHER); });
@@ -183,6 +199,107 @@ describe("deleteDeck", () => {
     expect(rows).toHaveLength(0);
     // ...and the shared dictionary entry never moved.
     const after = await prisma.lexeme.findUnique({ where: { id: word }, select: { id: true } });
+    expect(after).toEqual(before);
+  });
+});
+
+/**
+ * FILING A WORD AFTER THE FACT.
+ *
+ * Against a real database because the query is raw: the ordering, the fold and
+ * the "not on this shelf" exclusion are all in SQL, so nothing smaller than
+ * Postgres can say whether any of them is true. The ordering especially, since
+ * a wrong one still returns the right rows and only ever shows up as a list
+ * that puts the word somebody just kept somewhere down the page.
+ */
+describe("wordsToFile / fileWordInDeck", () => {
+  it("offers the learner's own words, newest first, and drops each as it is filed", async () => {
+    const { first, second } = await twoWords();
+    await hold(MINE, first, new Date("2026-01-01T00:00:00Z"));
+    await hold(MINE, second, new Date("2026-02-01T00:00:00Z"));
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    const before = await wordsToFile(MINE, deck.deck.id, "");
+    expect(before.map((w) => w.lexemeId)).toEqual([second, first]); // newest first
+
+    const filed = await fileWordInDeck(MINE, deck.deck.id, second);
+    expect(filed.ok).toBe(true);
+
+    // Off the candidate list and onto the shelf, which are the same fact read
+    // from the two sides that have to agree.
+    const after = await wordsToFile(MINE, deck.deck.id, "");
+    expect(after.map((w) => w.lexemeId)).toEqual([first]);
+    expect((await wordsInDeck(MINE, deck.deck.id)).map((w) => w.lexemeId)).toEqual([second]);
+  });
+
+  it("finds a word typed without its diacritics", async () => {
+    const { first } = await twoWords(); // õpetaja
+    await hold(MINE, first, new Date("2026-01-01T00:00:00Z"));
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    // The learner with no õ key is the whole reason this folds.
+    expect((await wordsToFile(MINE, deck.deck.id, "opetaja")).map((w) => w.lexemeId)).toEqual([first]);
+    expect((await wordsToFile(MINE, deck.deck.id, "õpetaja")).map((w) => w.lexemeId)).toEqual([first]);
+  });
+
+  it("finds a word by its English, and matches nothing on a word nobody holds", async () => {
+    const { second } = await twoWords(); // kohv, coffee
+    await hold(MINE, second, new Date("2026-01-01T00:00:00Z"));
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    expect((await wordsToFile(MINE, deck.deck.id, "coffee")).map((w) => w.lexemeId)).toEqual([second]);
+    expect(await wordsToFile(MINE, deck.deck.id, "qwertyx")).toEqual([]);
+  });
+
+  it("never offers or files a word the learner holds no card for", async () => {
+    const { first } = await twoWords();
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    // No card, so the word is not in this learner's pool and a shelf may not
+    // name it: a deck is a label over what somebody is learning.
+    expect(await wordsToFile(MINE, deck.deck.id, "")).toEqual([]);
+    const refused = await fileWordInDeck(MINE, deck.deck.id, first);
+    expect(refused.ok).toBe(false);
+    expect(await wordsInDeck(MINE, deck.deck.id)).toEqual([]);
+  });
+
+  it("cannot file a word onto somebody else's shelf, or read what is missing from one", async () => {
+    const { first } = await twoWords();
+    await hold(MINE, first, new Date("2026-01-01T00:00:00Z"));
+    const theirs = await createDeck(OTHER, "Not mine");
+    if (!theirs.ok) throw new Error("deck");
+
+    const refused = await fileWordInDeck(MINE, theirs.deck.id, first);
+    expect(refused.ok).toBe(false);
+    expect(await wordsInDeck(OTHER, theirs.deck.id)).toEqual([]);
+    // And the candidate list gives away nothing about a shelf that is not ours.
+    expect(await wordsToFile(MINE, theirs.deck.id, "")).toEqual([]);
+  });
+
+  it("files the same word twice without complaining or duplicating it", async () => {
+    const { first } = await twoWords();
+    await hold(MINE, first, new Date("2026-01-01T00:00:00Z"));
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    expect((await fileWordInDeck(MINE, deck.deck.id, first)).ok).toBe(true);
+    expect((await fileWordInDeck(MINE, deck.deck.id, first)).ok).toBe(true);
+    expect(await wordsInDeck(MINE, deck.deck.id)).toHaveLength(1);
+  });
+
+  it("leaves the schedule alone: filing writes a membership row and nothing else", async () => {
+    const { first } = await twoWords();
+    await hold(MINE, first, new Date("2026-01-01T00:00:00Z"));
+    const deck = await createDeck(MINE, "Work Estonian");
+    if (!deck.ok) throw new Error("deck");
+
+    const before = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { id: "asc" } });
+    await fileWordInDeck(MINE, deck.deck.id, first);
+    const after = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { id: "asc" } });
     expect(after).toEqual(before);
   });
 });

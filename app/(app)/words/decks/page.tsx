@@ -27,7 +27,7 @@ export default async function DecksPage() {
   return (
     <Page
       title="Decks"
-      lead="Name a shelf, and choose it when you add a word that belongs there."
+      lead="Name a shelf, and put words on it as you add them or any time after."
     >
       <DecksClient decks={decks} />
     </Page>
