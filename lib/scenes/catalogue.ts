@@ -972,9 +972,11 @@ const DIRECTIONS: SceneSpec = {
     place"), which is not what either curveball's own goal text says, so a
     learner met a goal that made no sense next to the conversation. `misheard`
     takes their place: mishearing the name of the place you asked for is the
-    one thing that genuinely happens here, drawn only where the prop word has
-    a real minimal pair. `interrupted` stays, now that its own goal text no
-    longer presumes a queue (`lib/scenes/curveballs.ts`): a passerby stopped
+    one thing that genuinely happens here, and its two bank lines offer one
+    prop word against another of the same `place` set (`hurdle:misheard` in
+    `bank.ts`), the same pairing every other scene that admits it uses.
+    `interrupted` stays, now that its own goal text no longer presumes a
+    queue (`lib/scenes/curveballs.ts`): a passerby stopped
     mid-conversation can perfectly well have somebody else call out to them.
   */
   curveballs: ["faster", "small-talk", "english", "interrupted", "misheard"],
