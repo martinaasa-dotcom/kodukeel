@@ -130,7 +130,7 @@ export default function TrustPage() {
           rather than a gesture.
         </P>
         <P>
-          <strong>Erasure.</strong> The same screen deletes the account and everything in it,
+          <strong>Deleting everything.</strong> The same screen deletes the account and everything in it,
           including the sign-in record, in one action and with no request to write. Where an
           installation is not configured to remove the sign-in record itself, the button says
           so plainly instead of reporting a success it did not achieve. Both live under{" "}

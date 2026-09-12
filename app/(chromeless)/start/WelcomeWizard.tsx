@@ -431,7 +431,7 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                     selected={gloss === o.id}
                     onSelect={() => setGloss(o.id)}
                     title={o.label}
-                    detail={o.id === "en" ? "The course's own glosses" : o.native}
+                    detail={o.id === "en" ? "The course's own translations" : o.native}
                   />
                 ))}
               </ChoiceGroup>
