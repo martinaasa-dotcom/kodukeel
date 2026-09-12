@@ -198,7 +198,7 @@ check("no secret carries a NEXT_PUBLIC_ prefix", () => {
 });
 
 check("no server-only key is read from a file that runs in the browser", () => {
-  const serverOnly = /process\.env\.(ANTHROPIC_API_KEY|OPENAI_API_KEY|OPENROUTER_API_KEY|EKILEX_API_KEY|SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL|DIRECT_URL)/;
+  const serverOnly = /process\.env\.(ANTHROPIC_API_KEY|OPENAI_API_KEY|GROQ_API_KEY|GEMINI_API_KEY|EKILEX_API_KEY|SUPABASE_SERVICE_ROLE_KEY|DATABASE_URL|DIRECT_URL)/;
   for (const file of CLIENT) {
     const hit = serverOnly.exec(read(file));
     assert.equal(hit, null, `${file} reads ${hit?.[1]} in the browser`);
@@ -5182,7 +5182,7 @@ check("nothing a model wrote can reach the dictionary through the queue", () => 
     const source = read(file);
     assert.doesNotMatch(
       source,
-      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
       `${file} can reach a model, and this path writes Estonian into the shared dictionary`,
     );
   }
@@ -9123,7 +9123,7 @@ check("the almanac asks for a meaning and never supplies a word", () => {
   for (const file of ["lib/progress/wordOfDay.ts", "lib/copy/almanac.ts", "lib/dict/gloss.ts"]) {
     assert.doesNotMatch(
       code(file),
-      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+      /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
       `${file} can reach a model, and this path decides what Estonian goes on the home page`,
     );
   }
@@ -9560,7 +9560,7 @@ check("the commonest words are counted, gated, and never written down twice", ()
     "the frequency builder stopped requiring a band, so the Wiktionary tail can reach the list",
   );
   assert.doesNotMatch(
-    builder, /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|OPENROUTER/,
+    builder, /lib\/tutor|openWithFallback|ANTHROPIC|OPENAI|GROQ|GEMINI/,
     "the frequency builder can reach a model, and this path decides which words a learner is offered",
   );
 
@@ -11700,12 +11700,19 @@ check("each routed purpose asks for its own chain", () => {
     "whatever the general chain holds and the per-purpose budget stops meaning anything.",
   );
 
-  const routed: Readonly<Record<string, "tutor" | "scene">> = {
+  const routed: Readonly<Record<string, "tutor" | "scene" | "grader">> = {
     // The routes and reads that must not take the general chain by accident.
     "app/api/tutor/route.ts": "tutor",
     "app/(app)/layout.tsx": "tutor",
     "app/(app)/tutor/page.tsx": "tutor",
     "app/actions.ts": "scene",
+    // The three graders and the translation fallback: metered as GRADER and
+    // pinned to the model `eval:grader` measured, so none may take the
+    // general head, which is whatever the environment happened to make it.
+    "app/api/write/route.ts": "grader",
+    "app/api/describe/route.ts": "grader",
+    "app/api/exam/write/route.ts": "grader",
+    "lib/tutor/translate.ts": "grader",
   };
 
   for (const [file, purpose] of Object.entries(routed)) {
@@ -11802,7 +11809,7 @@ check("a metered route asks the ledger before offering a last resort", () => {
  *
  * `scripts/lib/sceneDraft.ts` says of itself that it imports the model chain
  * rather than naming one, for the reason `PROVIDER_KEY_ENV` is imported and not
- * retyped, and then built OpenRouter and Groq and stopped. `resolveProviders`
+ * retyped, and then built a gateway and Groq and stopped. `resolveProviders`
  * has put every free Gemini model on the chain since the provider was added, so
  * `eval:scene` measured a rejection rate over two thirds of the chain and
  * `draft:lines` drafted the whole bank without ever asking a provider the app
@@ -11820,8 +11827,10 @@ check("a metered route asks the ledger before offering a last resort", () => {
 check("every free provider the app would ask, a measuring script can ask too", () => {
   const provider = code(join("lib", "tutor", "provider.ts"));
   const lists = [...provider.matchAll(/export const (FREE_\w+_MODELS) = \[/g)].map((m) => m[1]!);
+  // Two free providers, Groq and Gemini. The floor was three while a gateway
+  // was in the chain; a third free provider raises it again.
   assert.ok(
-    lists.length >= 3,
+    lists.length >= 2,
     `only found ${lists.length} free model lists in provider.ts, so this check stopped looking`,
   );
 
@@ -11849,7 +11858,7 @@ check("every free provider the app would ask, a measuring script can ask too", (
     pointed at `sceneDraft.ts`, and it went stale the day scenes were given a
     purpose chain of their own: the free lists are the *general* chain now,
     `sceneProviders` is what a scene asks, and a harness reading the three
-    lists printed lines from three OpenRouter models the route would never
+    lists printed lines from three gateway models the route would never
     reach while `draft:lines` drafted the bank with them. So what is asserted
     is the stronger property, that the harness reads the app's own scene chain
     and keeps no list at all, and that it asks for the budget the route asks
@@ -11874,9 +11883,10 @@ check("every free provider the app would ask, a measuring script can ask too", (
   for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
     const text = code(file);
     if (!/max_tokens/.test(text)) continue;
-    assert.match(
+    // The composer's budget for a line, the judge's for a verdict, and never a number of the script's.
+    assert.doesNotMatch(
       text,
-      /max_tokens: SCENE_REPLY_TOKENS/,
+      /max_tokens: (?!SCENE_REPLY_TOKENS|JUDGE_REPLY_TOKENS)/,
       `${file} asks for a max_tokens of its own. A thinking model spends its budget in a ` +
       "reasoning field and writes the line after it, so a tight cap returns a sentence cut " +
       "off mid-word and the gate withholds every one, which reads as a model that cannot " +
@@ -13166,7 +13176,7 @@ check("a learner who says they are lost is handed the word, never the question a
   {
     const route = code("app/api/scene/route.ts");
     assert.match(
-      route, /const readingOf = async/,
+      route, /(const readingOf = async|async function readingOf)/,
       "the composer is no longer told what the learner's turn means, so its line answers the beat "
       + "rather than the person",
     );
@@ -13847,20 +13857,70 @@ check("nothing but the dictionary can advance a scene", () => {
   );
 
   /*
-    One producer, asserted by counting. A second function returning Evidence is
-    the door a model's verdict walks through, and it would look entirely
-    reasonable in review.
+    TWO PRODUCERS, AND THE SECOND MAY ONLY DERIVE FROM THE FIRST. `readTurn`
+    is the dictionary's reading. `concede` is the one door a model's verdict
+    walks through (ADR-025 amendment 2): it takes an `Evidence` the dictionary
+    produced and may mark as met only what that reading left `missing`, so it
+    cannot be reached without the dictionary having read the turn, and it
+    cannot invent a word the learner produced. A third function returning
+    Evidence would look entirely reasonable in review and is the thing this
+    counts to refuse.
   */
   const producers = [...turn.matchAll(/\): Evidence \{/g)].length;
   assert.equal(
-    producers, 1,
-    `lib/scenes/turn.ts has ${producers} functions returning Evidence. There is exactly one.`,
+    producers, 2,
+    `lib/scenes/turn.ts has ${producers} functions returning Evidence. There are exactly two: readTurn and concede.`,
+  );
+  assert.match(
+    turn,
+    /export function concede\(evidence: Evidence, indices: readonly number\[\]\): Evidence \{/,
+    "concede no longer takes the dictionary's Evidence as its input, so a model could end a beat the dictionary never read.",
+  );
+  assert.match(
+    turn.slice(turn.indexOf("export function concede(")),
+    /evidence\.missing\.includes\(i\)/,
+    "concede no longer limits itself to what the dictionary left missing.",
   );
   assert.doesNotMatch(
     state,
     /\): Evidence\b/,
-    "lib/scenes/state.ts builds Evidence. Only readTurn may, or the consumer becomes its own producer.",
+    "lib/scenes/state.ts builds Evidence. Only readTurn and concede may, or the consumer becomes its own producer.",
   );
+
+  /*
+    AND A CONCEDED REQUIREMENT NEVER REACHES THE REVIEW LOG. The judge may end
+    a beat; it may not put "they recalled this form" into the append-only log,
+    which is what `gradesFor` writing a row for a conceded index would be.
+  */
+  const grades = code("lib/scenes/grades.ts");
+  assert.match(
+    grades,
+    /!\(turn\.conceded \?\? \[\]\)\.includes\(index\)/,
+    "gradesFor no longer skips a requirement the model conceded, so a model's verdict reaches the review log.",
+  );
+
+  /*
+    The judge is asked only after the dictionary has read the turn, on the
+    grader's chain, metered as a GRADER call, and its module holds no Estonian
+    and reaches no provider.
+  */
+  const route = code("app/api/scene/route.ts");
+  const replayAt = route.indexOf("replay(marking, draw, turns)");
+  const judgeAt = route.indexOf("parseJudgement(");
+  assert.ok(replayAt > 0 && judgeAt > replayAt, "the scene route asks the judge before the dictionary has read the turn, or not at all.");
+  assert.match(
+    route.slice(replayAt, judgeAt),
+    /authoriseCall\(ownerId, "GRADER"\)/,
+    "the judge's call is not booked in the ledger before it is made.",
+  );
+  assert.match(
+    route.slice(replayAt, judgeAt),
+    /resolveProviders\(\s*\{\s*purpose:\s*"grader"/,
+    "the judge does not ask the grader's chain, which is the one measured for returning JSON.",
+  );
+  const judge = code("lib/scenes/judge.ts");
+  assert.doesNotMatch(judge, /[õäöüšž]/i, "lib/scenes/judge.ts writes Estonian.");
+  assert.doesNotMatch(judge, /fetch\(|@\/lib\/tutor|@\/lib\/db|prisma/, "lib/scenes/judge.ts reaches a provider or the database.");
 });
 
 check("the scene route marks mechanically before it reaches a provider", () => {

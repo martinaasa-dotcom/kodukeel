@@ -10,10 +10,10 @@
  * scheduler then drills what they took away. That part is the old
  * `scripts/eval-anu.mjs` and is unchanged in substance.
  *
- * WHAT CHANGED IS WHO IT CAN ASK. That file posted to OpenRouter itself and
- * could only ever measure OpenRouter, which by its own header meant measuring
+ * WHAT CHANGED IS WHO IT CAN ASK. That file posted to one gateway itself and
+ * could only ever measure that gateway, which by its own header meant measuring
  * free models being rate-limited rather than being ignorant. Anu's chain is
- * Anthropic, the app can be pointed at any provider, and a comparison that
+ * Groq, the app can be pointed at any provider, and a comparison that
  * cannot reach them answers nothing. This goes through `openWithFallback`, the
  * transport the route uses, so what is measured is the call the app makes:
  * that is the rule `eval-grader.ts` states about itself and the reason it

@@ -118,7 +118,7 @@ describe("the grader prompt", () => {
 /**
  * WHERE A GRADER CALL IS ACTUALLY POSTED.
  *
- * `callForJson` chose its endpoint with `isOpenRouter ? OpenRouter : OpenAI`,
+ * `callForJson` chose its endpoint with `isGateway ? gateway : OpenAI`,
  * which was a complete description of the chain on the day it was written and
  * stopped being one when Groq and Gemini were added to `resolveProviders`.
  * Both fell down the else side and were posted to `api.openai.com` carrying
@@ -193,7 +193,7 @@ describe("the grader's non-streaming transport", () => {
   it("has an endpoint for every provider the chain can offer", () => {
     for (const env of PROVIDER_KEY_ENV) {
       if (env === "ANTHROPIC_API_KEY") continue;
-      const name = env.replace(/_API_KEY$/, "").toLowerCase() as "openrouter" | "groq" | "gemini" | "openai";
+      const name = env.replace(/_API_KEY$/, "").toLowerCase() as "groq" | "gemini" | "openai";
       const wire = openAiCompatible({ name, model: "m", label: name });
       expect(wire.keyEnv, `${name} reads the wrong key`).toBe(env);
       expect(wire.url).toMatch(/^https:\/\//);

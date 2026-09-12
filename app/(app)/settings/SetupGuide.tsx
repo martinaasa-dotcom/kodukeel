@@ -4,22 +4,22 @@ import { useState } from "react";
 import { Check, Copy } from "lucide-react";
 
 const STEPS = [
-  { text: "Go to ", link: { href: "https://openrouter.ai", label: "openrouter.ai" }, after: " and sign in with Google. It's free and takes no card." },
-  { text: "Click your avatar in the top right, then ", strong: "Keys", after: "." },
-  { text: "Click ", strong: "Create Key", after: ". Give it any name. Copy the key it shows you: you only see it once." },
+  { text: "Go to ", link: { href: "https://console.groq.com", label: "console.groq.com" }, after: " and sign in. It's free and takes no card." },
+  { text: "Open ", strong: "API Keys", after: " in the left-hand menu." },
+  { text: "Click ", strong: "Create API Key", after: ". Give it any name. Copy the key it shows you: you only see it once." },
   { text: "In this project's folder, open the file called ", code: ".env", after: " and paste the key between the quotes, like the example below." },
   { text: "Stop the app (Ctrl-C in the terminal) and run ", code: "npm run dev", after: " again. Anu will be waiting." },
 ];
 
 /*
-  The key and nothing else. This used to pin OPENROUTER_MODEL to one free
-  model, which reads as helpful and is the opposite: setting it replaces the
+  The key and nothing else. This used to pin the model to one free name as
+  well, which reads as helpful and is the opposite: setting it replaces the
   whole free chain with that single name, so the learner who follows this
   guide opts out of the fallback in the act of setting Anu up. Free models are
   rate-limited hard and retired without notice, and both were true of the one
   named here within a day of it being written.
 */
-const SNIPPET = 'OPENROUTER_API_KEY="paste-your-key-here"';
+const SNIPPET = 'GROQ_API_KEY="paste-your-key-here"';
 
 export function SetupGuide() {
   const [copied, setCopied] = useState(false);
@@ -103,16 +103,19 @@ export function SetupGuide() {
       </div>
 
       {/*
-        The snippet is one line, and this told the reader to change its second
-        one. There has never been a second line: the model is not named there
-        at all, it comes from `OPENROUTER_MODEL` with a free default, so the
+        The snippet is one line, and this used to tell the reader to change its
+        second one. There has never been a second line: the model is not named
+        there at all, it comes from `GROQ_MODEL` with a free default, so the
         instruction pointed at nothing and the reader who followed it would
         have been looking for a line that does not exist.
       */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
-        The models Anu asks are free. If she ever feels vague about Estonian, adding{" "}
-        <code>OPENROUTER_MODEL=&quot;anthropic/claude-sonnet-5&quot;</code> on a line of its own
-        buys a noticeably sharper answer for a fraction of a cent a question.
+        Anu asks Groq. Conversations (Situations) need a second free key,{" "}
+        <code>GEMINI_API_KEY</code>, from{" "}
+        <a href="https://aistudio.google.com" target="_blank" rel="noreferrer" className="underline" style={{ color: "var(--accent-deep)" }}>
+          aistudio.google.com
+        </a>
+        , on a line of its own in the same file.
       </p>
     </div>
   );

@@ -74,7 +74,9 @@ async function ask(
   instruction: string,
   cap: number,
 ): Promise<TranslationOutcome> {
-  const chain = resolveProviders();
+  // The grader's chain, since this is metered as a GRADER call and wants the
+  // same cheap, measured model the three graders use (`PURPOSE_CHAINS`).
+  const chain = resolveProviders({ purpose: "grader" });
   if (chain.length === 0) return { ok: false, reason: "unavailable" };
 
   const decision = await authoriseCall(ownerId, "GRADER");

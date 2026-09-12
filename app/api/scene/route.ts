@@ -6,12 +6,15 @@ import { authoriseCall, recordUsage, releaseReservation, type Reservation } from
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { reportError } from "@/lib/observability/report";
 import {
-  SCENE_REPLY_TOKENS, openWithFallback, sceneProviders, type ChatMessage,
+  SCENE_REPLY_TOKENS, openWithFallback, resolveProviders, sceneProviders, type ChatMessage,
 } from "@/lib/tutor/provider";
+import { callChainForJson } from "@/lib/tutor/grader";
 import {
-  MAX_TURNS, MAX_TURN_CHARS, clockInPlay, growDictionary, knowing, readDraw, replay, sceneContext,
-  sceneVouch,
+  MAX_TURNS, MAX_TURN_CHARS, clockInPlay, concededOf, growDictionary, knowing, readDraw, replay,
+  sceneContext, sceneVouch,
 } from "@/lib/progress/scene";
+import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
+import type { Requirement } from "@/lib/scenes/types";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
@@ -160,6 +163,7 @@ export async function POST(request: Request) {
           said: String(one.said ?? "").slice(0, MAX_TURN_CHARS),
           helped: one.helped === true,
           heard: String(one.heard ?? "").slice(0, MAX_TURN_CHARS),
+          conceded: concededOf(one.conceded),
         };
       })
     : [];
@@ -175,7 +179,71 @@ export async function POST(request: Request) {
     that file exists.
   */
   const marking = await knowing(context, turns.map((t) => t.said));
-  const { state, response, elsewhere } = replay(marking, draw, turns);
+  let { state, response, elsewhere } = replay(marking, draw, turns);
+
+  /*
+    THE MODEL MAY END A BEAT THE DICTIONARY REFUSED (ADR-025 amendment 2).
+
+    The dictionary has just read every turn, and the last one missed: real
+    Estonian off the point, half an answer, or English. For a year that was
+    final, and a learner who did what the beat asked in words the beat had not
+    named was asked again until the other side ran out of patience. So one
+    question goes to a judge, on the grader's chain, which is the model
+    measured for returning JSON, booked as a GRADER call: did they accomplish
+    the goal on this turn, in any words. A yes is written onto the turn as a
+    concession and the run is replayed, so the state the learner sees now and
+    the state `finishRun` re-marks later are one function over one input.
+
+    Three things it may not do, each a decision. A value off the role card is
+    never conceded, because whether they said the dealt time or another one is
+    a fact the dictionary can check and a model cannot. A turn nobody could
+    read is never put to it, since there is nothing to judge. And a conceded
+    requirement writes no grade (`gradesFor`): the beat ends, and nothing a
+    model decided reaches the append-only log.
+  */
+  const isDatum = (need: Requirement | undefined) =>
+    need?.kind === "datum" || (need?.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "datum"));
+  const lastSent = turns[turns.length - 1];
+  const lastRead = state.turns[state.turns.length - 1];
+  const judged = currentBeat(scene, state);
+  const judgeable = Boolean(
+    lastSent && lastRead && judged && !state.hurdle && !isOver(scene, state) && !lastSent.conceded
+      && lastRead.beatId === judged.id
+      && (lastRead.reading === "offtarget" || lastRead.reading === "incomplete" || lastRead.reading === "english")
+      && lastRead.met.some((ok, i) => !ok && !isDatum(judged.needs[i])),
+  );
+  if (judgeable && lastSent && lastRead && judged) {
+    const decision = resolveProviders({ purpose: "grader" }).length > 0
+      ? await authoriseCall(ownerId, "GRADER")
+      : null;
+    if (decision?.allowed && decision.reservation) {
+      const booking = decision.reservation;
+      try {
+        const { text, usage, config } = await callChainForJson(
+          resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+          buildJudgeSystemPrompt(),
+          buildJudgeUserPrompt({
+            goal: judged.goal, they: judged.they, said: lastSent.said,
+            reading: await readingOf(lastSent.said), dealt: [],
+          }),
+          JUDGE_REPLY_TOKENS,
+        );
+        after(() => recordUsage({
+          ownerId, kind: "GRADER", provider: config.name, model: config.model,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+        }));
+        const verdict = parseJudgement(text);
+        if (verdict?.done) {
+          const conceded = lastRead.met.flatMap((ok, i) => (ok || isDatum(judged.needs[i]) ? [] : [i]));
+          turns[turns.length - 1] = { ...lastSent, conceded };
+          ({ state, response, elsewhere } = replay(marking, draw, turns));
+        }
+      } catch (error) {
+        after(() => releaseReservation(booking));
+        reportError(error, { at: "api/scene/judge", ownerId });
+      }
+    }
+  }
   const current = currentBeat(scene, state);
   /*
     A curveball in the way is what the other side says next and what the
@@ -366,6 +434,12 @@ export async function POST(request: Request) {
       said. Empty on a turn that was right.
     */
     slips: last?.slips ?? [],
+    /*
+      Which requirements the judge conceded on this turn, so the client writes
+      them onto the turn and the next request carries them (ADR-025 amendment
+      2). Null where the dictionary read the turn for itself.
+    */
+    conceded: last?.conceded ?? null,
     /*
       WHAT HAS COME UP, WHICH THE SCREEN CANNOT WORK OUT FOR ITSELF.
 
@@ -637,13 +711,15 @@ export async function POST(request: Request) {
     Only on a turn that is going to book a call anyway, so the ordinary turn
     pays nothing for it.
   */
-  const readingOf = async (text: string): Promise<string> => {
+  // A declaration rather than a const, so the judge above can read it before
+  // this line: it closes over nothing but the module's own imports.
+  async function readingOf(text: string): Promise<string> {
     const [tokens] = await glossSentences([{ et: text, form: null }]);
     const seen = (tokens ?? [])
       .filter((token) => token.word && token.entry)
       .map((token) => `${token.text}: ${token.entry!.gloss.split(/[,;]/)[0]!.trim()}`);
     return seen.join("; ");
-  };
+  }
 
   const shared = {
     beat,

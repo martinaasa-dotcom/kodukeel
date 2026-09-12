@@ -24,7 +24,7 @@ import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CASES } from "@/lib/estonian/cases";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
-import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { LineMode } from "@/lib/scenes/line";
 import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
@@ -48,7 +48,7 @@ import {
 } from "@/lib/scenes/state";
 import { gradesFor, stalledWords, type SceneGrade } from "@/lib/scenes/grades";
 import { reviewOf, type SceneReview } from "@/lib/scenes/review";
-import { addsEvidence, readTurn } from "@/lib/scenes/turn";
+import { addsEvidence, concede, readTurn } from "@/lib/scenes/turn";
 
 /**
  * The units that supply the machinery every scene's marker needs.
@@ -467,7 +467,17 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
     },
     marker,
     pool: poolsFor(scene, rows),
-    topic: new Map(scene.beats.map((beat) => [beat.id, topicForms(beat, lexicon)])),
+    /*
+      A beat's subject is its topic lemmas' forms and the words its own banked
+      lines are made of (`bankTopic`), so a composed line that answers what the
+      learner just said and then asks the beat's question in the bank's own
+      words is on topic. Without the second half the bill beat refused every
+      line that did not mention money, including the one that did exactly what
+      `composeNote` asked of it.
+    */
+    topic: new Map(scene.beats.map((beat) => [
+      beat.id, new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
+    ])),
     scripted: new Map(sceneBeats(scene).map((beat) => [beat.id, scriptedFor(scene, beat)])),
     hasFiniteVerb,
     fallback: rows.find((row) => row.lemma === FALLBACK_PHRASE)?.lemma ?? FALLBACK_PHRASE,
@@ -801,6 +811,21 @@ export interface SentTurn {
    * whether its own parroting is noticed, which advances nothing either way.
    */
   readonly heard?: string;
+  /**
+   * Which requirements a judge conceded on this turn after the dictionary
+   * refused it (`concede`), as the route wrote them back and the client echoes
+   * them. The client's word, like `helped`: a client that forges one ends a
+   * beat in its own transcript and grades nothing by it, since a conceded
+   * requirement writes no row (`gradesFor`).
+   */
+  readonly conceded?: readonly number[];
+}
+
+/** The `conceded` field off the wire: whole numbers only, deduplicated, bounded. */
+export function concededOf(input: unknown): number[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = [...new Set(input.filter((n): n is number => Number.isInteger(n) && n >= 0 && n < 16))];
+  return out.length > 0 ? out : undefined;
 }
 
 /** What the transcript holds about the draw, so a run can be marked long after it. */
@@ -1312,7 +1337,14 @@ export function replay(
       turn, because the server keeps nothing between turns.
     */
     const heard = heardNow;
-    const evidence = readTurn(said, beat, marker);
+    /*
+      The dictionary reads first, and a judge's concession stored on the turn
+      is applied over its reading (`concede`): only what the dictionary
+      refused can be conceded, so the same turn re-marked at the end of the
+      run reaches the same state the learner saw.
+    */
+    const read = readTurn(said, beat, marker);
+    const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
     ({ state, response } = advance(
       context.scene, state, evidence, said, Boolean(sent.helped), heard,
     ));
