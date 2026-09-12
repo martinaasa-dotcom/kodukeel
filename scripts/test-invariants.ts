@@ -14533,6 +14533,57 @@ check("the exceptions round asks nothing whose answer is the word in the questio
  * because that is what makes a second copy impossible rather than merely
  * unlikely, and `app/actions.ts` is where it is declared.
  */
+/**
+ * WHICH SHELF A WORD GOES ON IS ONE QUESTION, ASKED IN ONE PLACE.
+ *
+ * The dictionary's add panel grew the deck list first and was for a while the
+ * only screen that asked. Every other way of keeping a word called `addToDeck`
+ * with three arguments and filed it under nothing, so a learner who had named
+ * shelves pressed "Add it to my deck" on the home page, the word landed on
+ * none of them, and no screen said so. It was reported exactly that way.
+ *
+ * A second copy of the question is how that happens: one door learns to ask
+ * and the next never does. So the fetch pair that backs it has one reader,
+ * `components/DeckChoice.tsx`, and a screen that wants to ask reaches for the
+ * hook rather than writing the list again.
+ *
+ * Anchored on the reads rather than on the rendered list, because those are
+ * what a copy would have to duplicate: a component cannot ask which shelves
+ * exist, or which of them a word already sits on, without them.
+ */
+check("the deck question has one home, and the screens that ask reach for it", () => {
+  const HOME = join("components", "DeckChoice.tsx");
+  const readers = ALL.filter(
+    (file) => file !== join("app", "actions.ts")
+      && /\blistMyDecks\b|\bmyDeckMembership\b/.test(code(file)),
+  );
+  assert.deepEqual(
+    readers.sort(), [HOME],
+    `${readers.join(", ")} read the learner's decks. One place asks which shelf a `
+    + "word goes on, components/DeckChoice.tsx, or the home page grows the button "
+    + "and not the question again.",
+  );
+
+  /*
+    And the two browsing surfaces really do ask. A hook nobody calls is the
+    same silence one file along, which is the fault this file has now made
+    five times: an import that renders nothing passes a check looking for the
+    import.
+  */
+  for (const asker of [join("components", "AddWordButton.tsx"), join("app", "(app)", "dictionary", "DictionaryClient.tsx")]) {
+    assert.match(
+      code(asker), /useDeckChoice\(/,
+      `${asker} adds a word without asking which shelf. A learner with shelves `
+      + "named gets the word filed under none of them and no word about it.",
+    );
+    assert.match(
+      code(asker), /<DeckChoiceList\b/,
+      `${asker} resolves the deck choice and never draws it, so the learner is `
+      + "asked nothing and whatever was fetched decides on its own.",
+    );
+  }
+});
+
 check("a word is favourited by one button, and the toggle has one caller", () => {
   const callers = ALL.filter((file) => /\btoggleStar\b/.test(code(file)));
   assert.deepEqual(

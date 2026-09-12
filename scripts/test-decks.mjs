@@ -60,7 +60,7 @@ const prisma = newPrismaClient(requireLocalDatabase("create decks and file words
   off. Every other block that could stop running trips the floor, because
   nothing waives it.
 */
-const { check, absent, done } = suite("The deck screens", { floor: 18 });
+const { check, absent, done } = suite("The deck screens", { floor: 20 });
 
 async function dropOurDecks() {
   // Scoped to the two names this suite uses rather than to every deck this
@@ -207,6 +207,39 @@ check("pressing a word files it, and the count says so", await eventually(() => 
 const filed = second;
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(filed)}`, { waitUntil: "networkidle" });
 check("a filed word is still in the learner's deck", await shows("In deck"));
+
+// ── The home page, which is where this was reported ───────────────────────
+/*
+  THE BUG THIS SUITE DID NOT COVER THE FIRST TIME.
+
+  `AddWordButton` is the word of the day and the words a conversation showed
+  the learner they were missing, and it called `addToDeck` with three arguments
+  for the life of the feature: with shelves named, the word landed on none of
+  them and nothing on the screen said so. The dictionary was the only door that
+  asked, this suite only drove the dictionary, and so the suite reported the
+  feature as covered while the screen a learner opens every morning had the
+  button and not the question.
+
+  WAIVED WHERE THE CARD IS NOT DRAWN, and that is a real state rather than a
+  hedge: Today names seven cards in priority order and draws the first five, so
+  whether the word of the day makes the cut depends on how many of the errand,
+  the calendar, the homework, the round and the streak have something to say on
+  the day the fixture lands on. The invariant "the deck question has one home"
+  is what holds this without a fixture, since it fails on an add button that
+  stops reaching for the shared question at all.
+*/
+await page.goto(`${B}/`, { waitUntil: "networkidle" });
+const keep = page.getByRole("button", { name: /Add it to my deck/i }).first();
+if ((await keep.count()) > 0) {
+  await keep.click();
+  check("the home page asks which shelf, rather than filing it nowhere",
+    await eventually(() => shows("Which deck?"), { timeoutMs: 8000 }));
+  await page.getByRole("checkbox", { name: DECK }).first().check();
+  await page.getByRole("button", { name: /^Add it$/ }).first().click();
+  check("and says which shelf it went on", await eventually(() => shows(DECK), { timeoutMs: 8000 }));
+} else {
+  absent(2, "the word of the day was not among today's five cards, so the home page drew no add button");
+}
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
 await deckPage();
