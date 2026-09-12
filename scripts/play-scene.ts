@@ -184,7 +184,10 @@ const LOST = [
   "tervitused", "see on keeruline", "ma mõtlen"
 ];
 
-function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number): string {
+function learnerTurn(
+  beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnType<typeof contextFromRows>["lexicon"], n: number,
+  register: "teie" | "sina" = "teie",
+): string {
   if (style === "lost") return LOST[n % LOST.length]!;
   const parts: string[] = [];
   for (const { need } of leafNeeds(beat.needs)) {
@@ -205,7 +208,16 @@ function learnerTurn(beat: BeatSpec, card: StoredDraw["card"], lexicon: ReturnTy
     } else if (need.kind === "negation") {
       parts.push("ei ole");
     } else if (need.kind === "register") {
-      parts.push("teie");
+      /*
+        THE SCENE'S OWN REGISTER, NOT ALWAYS "teie". A curveball asking the
+        learner to prove they are still speaking Estonian is answered with the
+        pronoun the scene is actually conducted in: `poodi-piima` is `sina`,
+        and a hardcoded `teie` there is a word `registerForms` never holds, so
+        this curveball read as unwinnable in every run of that one scene while
+        every `teie` scene passed it outright. The app was never wrong; the
+        harness was answering every scene as the same one.
+      */
+      parts.push(register);
     }
     break; // one option is enough
   }
@@ -424,7 +436,7 @@ async function play(sceneId: string) {
     }
     const target = standing ?? beat;
     if (!target) break;
-    const said = learnerTurn(target, card ?? draw.card, context.lexicon, n);
+    const said = learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });
   }
