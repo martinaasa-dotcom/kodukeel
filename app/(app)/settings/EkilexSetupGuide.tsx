@@ -27,7 +27,7 @@ export function EkilexSetupGuide() {
   // Empty on purpose, matching .env.example: the value is never rendered
   // whole, since the assignment shape "EKILEX_API_KEY=<8+ chars>" is exactly
   // what CI's credential scan watches for on this key. Ekilex keys carry no
-  // prefix the way an OpenRouter or Anthropic key does, so the scan cannot
+  // prefix the way a Groq or Anthropic key does, so the scan cannot
   // tell a real one from a placeholder by its shape alone.
   const snippet = 'EKILEX_API_KEY=""';
 

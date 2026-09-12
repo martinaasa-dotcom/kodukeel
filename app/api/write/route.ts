@@ -2,7 +2,7 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
-import { resolveProvider, resolveProviders, TutorError } from "@/lib/tutor/provider";
+import { resolveProviders, TutorError } from "@/lib/tutor/provider";
 import { gradeSentence } from "@/lib/tutor/grader";
 import { verifyVerdict, type WithholdReason } from "@/lib/tutor/verify";
 import {
@@ -99,7 +99,9 @@ export async function POST(request: Request) {
   // The part that is never in doubt, computed before anything can fail.
   const formCheck = checkForm(sentence, task, lexeme.forms.map((f) => f.value));
 
-  const config = resolveProvider();
+  // The grader's own chain, not the general head: a screen may not promise a
+  // note the route is about to refuse (see `PURPOSE_CHAINS`).
+  const config = resolveProviders({ purpose: "grader" })[0];
   if (!config) {
     return Response.json({ formCheck, graded: null, aiAvailable: false });
   }
@@ -120,13 +122,14 @@ export async function POST(request: Request) {
   let settled = false;
   try {
       /*
-    A chain rather than the head of one, so a grader note has a last resort.
-    Anthropic sits behind Groq only while the day's fallback budget has room:
-    past it the chain is one link, and a note that cannot be written is dropped
-    exactly as it was before this existed. The verdict the learner acts on was
-    decided by string comparison against the dictionary before any of this ran.
+    The grader's chain (`PURPOSE_CHAINS`): the model `eval:grader` measured
+    first, the other measured one behind it, and the paid tail only while the
+    day's fallback budget has room. Past that it is what can be reached for
+    nothing, and a note that cannot be written is dropped exactly as it was
+    before this existed. The verdict the learner acts on was decided by string
+    comparison against the dictionary before any of this ran.
   */
-  const chain = resolveProviders({ purpose: undefined, allowFallback: decision.fallbackAllowed });
+  const chain = resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed });
   const { graded, usage, config: answered } = await gradeSentence(chain, {
       task,
       sentence,

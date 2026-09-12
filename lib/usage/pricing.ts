@@ -110,8 +110,8 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
     Gemini access this project had was a free key, and "free" is a property of
     the account rather than of the model. The moment a paid key is set, and one
     is now, every one of these prices a real call at nothing, which is the
-    global spend cap switched off on whichever of them a deployment points
-    `GEMINI_SCENE_MODEL` at.
+    global spend cap switched off on the one scenes are pinned to
+    (`SCENE_MODELS`) and on whichever the general chain names.
 
     Read off Google's own page rather than recalled, on 2026-09-06:
     https://ai.google.dev/gemini-api/docs/pricing. The Flash tier is
@@ -146,8 +146,8 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
 export const UNKNOWN_MODEL: ModelPrice = { inputPerMTok: 10, outputPerMTok: 50 };
 
 /**
- * OpenRouter slugs carry a vendor prefix and sometimes a variant suffix —
- * `anthropic/claude-sonnet-5`, `openai/gpt-4o:free`. Both are stripped so one
+ * Groq and Gemini slugs carry a vendor prefix and sometimes a variant suffix,
+ * `openai/gpt-oss-120b`, `openai/gpt-4o:free`. Both are stripped so one
  * table serves every provider.
  */
 export function normaliseModel(model: string): string {

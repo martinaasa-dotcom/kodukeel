@@ -75,7 +75,7 @@ describe("authoriseCall", () => {
     expect(reserved).toBeGreaterThan(0);
 
     await recordUsage({
-      ownerId: MINE, kind: "GRADER", provider: "openrouter", model: "gpt-4o-mini",
+      ownerId: MINE, kind: "GRADER", provider: "groq", model: "gpt-4o-mini",
       inputTokens: 400, outputTokens: 60, reservation: decision.reservation,
     });
 
@@ -136,7 +136,7 @@ describe("authoriseCall", () => {
     */
     const decision = await authoriseCall(MINE, "GRADER");
     await recordUsage({
-      ownerId: MINE, kind: "GRADER", provider: "openrouter", model: "gpt-4o-mini",
+      ownerId: MINE, kind: "GRADER", provider: "groq", model: "gpt-4o-mini",
       inputTokens: 400, outputTokens: 60, reservation: decision.reservation,
     });
 

@@ -280,22 +280,18 @@ export function chain(): Link[] {
   /*
     THE APP'S OWN SCENE CHAIN, not a list of this script's.
 
-    This built OpenRouter, then Groq, then Gemini out of the three free-model
+    This built a gateway, then Groq, then Gemini out of the free-model
     constants, which was right while a scene asked the general chain and became
     a measurement of nothing the day scenes were given a purpose chain of their
     own: `sceneProviders` answers Gemini and this went on asking three free
-    OpenRouter models first, so a transcript printed lines from a model the
+    gateway models first, so a transcript printed lines from a model the
     route would never reach and `draft:lines` drafted the bank with it. That is
     the same fault the Gemini paragraph below already records, one layer up,
     which is why the fix is to stop keeping a list at all rather than to correct
-    this one. `OPENROUTER_MODEL` and friends still pin, because pinning one
+    this one. `GROQ_MODEL` and friends still pin, because pinning one
     model is how a per-model question gets a per-model answer.
   */
   const wire: Readonly<Record<string, { keyEnv: string; modelEnv: string; url: string }>> = {
-    openrouter: {
-      keyEnv: "OPENROUTER_API_KEY", modelEnv: "OPENROUTER_MODEL",
-      url: "https://openrouter.ai/api/v1/chat/completions",
-    },
     groq: {
       keyEnv: "GROQ_API_KEY", modelEnv: "GROQ_MODEL",
       url: "https://api.groq.com/openai/v1/chat/completions",

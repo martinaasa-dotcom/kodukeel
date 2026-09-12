@@ -134,7 +134,14 @@ export function gradesFor(
           writing a row for the word the beat named would tell the scheduler
           they had produced a word they never wrote.
         */
-        && !(turn.substituted ?? []).includes(index),
+        && !(turn.substituted ?? []).includes(index)
+        /*
+          And not where a model conceded it (`concede`). The beat ended on a
+          judge's reading of the turn; the learner may well have said the
+          thing, but the dictionary could not see the word, and a row here
+          would put a model's verdict into the append-only log as a recall.
+        */
+        && !(turn.conceded ?? []).includes(index),
     );
 
     for (const { need, index } of leafNeeds(beat.needs)) {

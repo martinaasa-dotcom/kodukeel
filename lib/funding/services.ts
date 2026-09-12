@@ -173,12 +173,12 @@ export const SERVICES: readonly Service[] = [
   {
     id: "model",
     name: "The language model",
-    who: "OpenRouter, Anthropic, OpenAI, Groq or Google, whichever has a key",
+    who: "Groq or Google, with Anthropic or OpenAI as a paid fallback",
     does: "Anu, the note on a piece of writing, and reading a photographed page. Never a single Estonian form.",
     whenItIsGone: "Anu says she cannot reach anybody. Review, the dictionary and every drill are untouched.",
-    setBy: "OPENROUTER_API_KEY",
+    setBy: "GROQ_API_KEY",
     ref: {
-      source: "https://openrouter.ai/models",
+      source: "https://groq.com/pricing",
       checked: SPEECH_MARKET.ref.checked,
     },
     bill(v: Volume, shape: Shape): ServiceCost {
