@@ -26,7 +26,17 @@ export default async function WritePage() {
   const ownerId = await requireUserId();
 
   const cards = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null } },
+    /*
+      state: { not: 0 } is what makes "everything here is a word they have
+      already met" above true rather than aspirational: `lapses desc` does not
+      reliably push a brand-new card to the back, because a word that has
+      never been reviewed and a word that has been reviewed and never gotten
+      wrong both carry `lapses: 0`, and on a deck thinner than the take a
+      never-met word could be asked to write a sentence with a form it was
+      never shown. The same rule sprint, speaking, listening and Match already
+      apply to their own pools.
+    */
+    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
     select: { id: true, lexemeId: true, lapses: true, cardType: true },
     orderBy: { lapses: "desc" },
     take: 200,

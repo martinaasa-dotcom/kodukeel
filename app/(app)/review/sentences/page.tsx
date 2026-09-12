@@ -28,7 +28,15 @@ export default async function SentencesPage() {
   const ownerId = await requireUserId();
 
   const cards = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null } },
+    /*
+      state: { not: 0 } is what makes "a word they are already studying" above
+      true rather than aspirational: a brand-new card is due the moment it is
+      created, so `orderBy due asc` with no state filter put an unmet word's
+      sentence at the front of the round, its order being asked for before the
+      word itself was ever taught. The same rule sprint, speaking, listening
+      and Match already apply to their own pools.
+    */
+    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
     orderBy: [{ due: "asc" }],
     take: 300,
     select: {
