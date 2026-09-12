@@ -16,7 +16,7 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { advances, type Evidence, type Slip, type TurnReading } from "./turn";
+import { advances, type Chosen, type Evidence, type Slip, type TurnReading } from "./turn";
 import { curveballById, type CurveballId, type CurveballSpec } from "./curveballs";
 import type { BeatSpec, SceneSpec } from "./types";
 
@@ -78,6 +78,14 @@ export interface TurnRecord {
    * review log. Absent on a turn the dictionary read for itself.
    */
   readonly conceded?: readonly number[];
+  /**
+   * A fact the learner changed on their own card on this turn
+   * (`Evidence.chose`, ADR-025 amendment 3): the slot and the value the
+   * dictionary read. `cardChosen` reads every turn's, last wins, so the card
+   * in play is the learner's from that turn on. Absent where the turn kept
+   * to the card, and on a row written before the field.
+   */
+  readonly chose?: readonly Chosen[];
   /**
    * What was understood despite itself: a dropped diacritic, the right word
    * in the wrong case, an infinitive where a person was due. Absent where the
@@ -219,6 +227,7 @@ export function advance(
     produced: evidence.satisfiedBy,
     substituted: evidence.substituted,
     ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
+    ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
     ...(evidence.wantsEnglish ? { wantsEnglish: true } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),
@@ -427,6 +436,7 @@ export function creditAhead(
       ...(evidence.matched.length > 0 ? { matched: evidence.matched } : {}),
       produced: evidence.satisfiedBy,
       substituted: evidence.substituted,
+      ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
       ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
       // The question travels with the credit, or a turn that asked the price
       // and met a beat two along is answered about neither.
@@ -560,6 +570,7 @@ export function advanceHurdle(
     produced: evidence.satisfiedBy,
     substituted: evidence.substituted,
     ...(evidence.conceded && evidence.conceded.length > 0 ? { conceded: evidence.conceded } : {}),
+    ...(evidence.chose && evidence.chose.length > 0 ? { chose: evidence.chose } : {}),
     ...(heard ? { heard } : {}),
     ...(evidence.slips.length > 0 ? { slips: evidence.slips } : {}),
     ...(evidence.asked ? { asked: evidence.asked } : {}),

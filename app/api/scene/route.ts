@@ -10,16 +10,16 @@ import {
 } from "@/lib/tutor/provider";
 import { callChainForJson } from "@/lib/tutor/grader";
 import {
-  MAX_TURNS, MAX_TURN_CHARS, clockInPlay, concededOf, growDictionary, knowing, readDraw, replay,
-  sceneContext, sceneVouch,
+  MAX_TURNS, MAX_TURN_CHARS, alsoDoneOf, clockInPlay, concededOf, growDictionary, knowing, moneyInPlay, readDraw,
+  replay, sceneContext, sceneVouch,
 } from "@/lib/progress/scene";
 import { JUDGE_REPLY_TOKENS, buildJudgeSystemPrompt, buildJudgeUserPrompt, parseJudgement } from "@/lib/scenes/judge";
-import type { Requirement } from "@/lib/scenes/types";
+import { leafNeeds } from "@/lib/scenes/types";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { isSpokenEstonian, sceneLine, type SpokenLine } from "@/lib/scenes/line";
 import {
-  cardAfterHurdles, cardInPlay, composeNote, counterBeat, datumLine, replyFor, stageFor, wantsAsideFor,
-  wantsFreshLine,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, replyFor,
+  stageFor, wantsAsideFor, wantsFreshLine,
 } from "@/lib/scenes/reply";
 import { dealtNumbers } from "@/lib/scenes/props";
 import { composeLive, composeSystem } from "@/lib/scenes/prompt";
@@ -29,6 +29,7 @@ import { answerBeatId, sceneBeats } from "@/lib/scenes/scripted";
 import { offerFor } from "@/lib/scenes/grades";
 import { gateFor } from "@/lib/scenes/gate";
 import { words } from "@/lib/scenes/lexicon";
+import { fold } from "@/lib/estonian/fold";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "@/lib/scenes/state";
 import { personaById, type PersonaSpec } from "@/lib/scenes/personas";
 import { DEFAULT_VOICE } from "@/lib/audio/voice";
@@ -164,6 +165,7 @@ export async function POST(request: Request) {
           helped: one.helped === true,
           heard: String(one.heard ?? "").slice(0, MAX_TURN_CHARS),
           conceded: concededOf(one.conceded),
+          alsoDone: alsoDoneOf(one.alsoDone),
         };
       })
     : [];
@@ -194,23 +196,32 @@ export async function POST(request: Request) {
     concession and the run is replayed, so the state the learner sees now and
     the state `finishRun` re-marks later are one function over one input.
 
-    Three things it may not do, each a decision. A value off the role card is
-    never conceded, because whether they said the dealt time or another one is
-    a fact the dictionary can check and a model cannot. A turn nobody could
-    read is never put to it, since there is nothing to judge. And a conceded
-    requirement writes no grade (`gradesFor`): the beat ends, and nothing a
-    model decided reaches the append-only log.
+    IT IS ASKED ON EVERY MISS, WHICH IT WAS NOT (ADR-025 amendment 3). The
+    first version put to it only a turn read as real Estonian off the point,
+    half an answer or English, and never a value off the card, on the
+    argument that whether they said the dealt time or another one is a fact
+    the dictionary can check. That argument held the learner to the card, and
+    the card is a suggestion rather than a marking target: a learner who
+    wrote `Tartusse` at a window whose card said the station was read as
+    nobody could make it out (a capitalised word is in no forms list), never
+    put to the judge, and told they had not been understood, in the one place
+    being wrong is supposed to be survivable. So a turn nobody could read is
+    judged where it holds a word at all, a one-word turn on a beat that wanted
+    a sentence is judged, a value off the card may be conceded, and a
+    curveball standing in the way is judged like a beat. What still may not
+    happen is a grade: a conceded requirement writes no row (`gradesFor`), so
+    nothing a model decided reaches the append-only log.
   */
-  const isDatum = (need: Requirement | undefined) =>
-    need?.kind === "datum" || (need?.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "datum"));
   const lastSent = turns[turns.length - 1];
   const lastRead = state.turns[state.turns.length - 1];
-  const judged = currentBeat(scene, state);
+  const judged = state.hurdle ? hurdleBeat(state.hurdle) : currentBeat(scene, state);
+  const JUDGED_READINGS = new Set(["offtarget", "incomplete", "english", "unrecognised", "fragment"]);
   const judgeable = Boolean(
-    lastSent && lastRead && judged && !state.hurdle && !isOver(scene, state) && !lastSent.conceded
+    lastSent && lastRead && judged && !isOver(scene, state) && !lastSent.conceded
       && lastRead.beatId === judged.id
-      && (lastRead.reading === "offtarget" || lastRead.reading === "incomplete" || lastRead.reading === "english")
-      && lastRead.met.some((ok, i) => !ok && !isDatum(judged.needs[i])),
+      && JUDGED_READINGS.has(lastRead.reading)
+      && /\p{L}/u.test(lastSent.said)
+      && lastRead.met.some((ok) => !ok),
   );
   if (judgeable && lastSent && lastRead && judged) {
     const decision = resolveProviders({ purpose: "grader" }).length > 0
@@ -224,7 +235,17 @@ export async function POST(request: Request) {
           buildJudgeSystemPrompt(),
           buildJudgeUserPrompt({
             goal: judged.goal, they: judged.they, said: lastSent.said,
-            reading: await readingOf(lastSent.said), dealt: [],
+            reading: await readingOf(lastSent.said),
+            /*
+              What the card dealt for this beat, so the judge knows what the
+              goal's value is and that another value of the same kind counts:
+              the card is the learner's, and they may change what is on it.
+            */
+            dealt: leafNeeds(judged.needs).flatMap(({ need }) => {
+              if (need.kind !== "datum" || !draw?.card) return [];
+              const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
+              return prop ? [`${prop.card.replace(/\.$/, "")}: ${prop.english ?? prop.shown[0] ?? prop.value}`] : [];
+            }),
           }),
           JUDGE_REPLY_TOKENS,
         );
@@ -234,13 +255,70 @@ export async function POST(request: Request) {
         }));
         const verdict = parseJudgement(text);
         if (verdict?.done) {
-          const conceded = lastRead.met.flatMap((ok, i) => (ok || isDatum(judged.needs[i]) ? [] : [i]));
+          const conceded = lastRead.met.flatMap((ok, i) => (ok ? [] : [i]));
           turns[turns.length - 1] = { ...lastSent, conceded };
           ({ state, response, elsewhere } = replay(marking, draw, turns));
         }
       } catch (error) {
         after(() => releaseReservation(booking));
         reportError(error, { at: "api/scene/judge", ownerId });
+      }
+    }
+  }
+  /*
+    AND THE BEAT AFTER THE ONE THEY ANSWERED, WHERE THE TURN SAID TWO THINGS
+    AND THE DICTIONARY COULD READ ONE. `ma tahan pileti Tartusse` asks for a
+    ticket and says where to; the cascade in `replay` credits a beat further
+    along only on a word it can read, and Tartu is a capitalised word the
+    forms list holds none of on purpose, so the destination stayed open and
+    the other side went on asking where. One more question to the judge, only
+    on a turn that landed and only where a word in it could not be placed,
+    and a yes is stored on the turn as `alsoDone` for the cascade to read.
+  */
+  const landedOn = state.turns[state.turns.length - 1];
+  const ahead = currentBeat(scene, state);
+  const askAhead = Boolean(
+    lastSent && landedOn && ahead && response === "answer" && !state.hurdle && !isOver(scene, state)
+      && landedOn.beatId !== ahead.id && !state.done.includes(ahead.id)
+      && !lastSent.alsoDone?.includes(ahead.id)
+      /*
+        A word this scene's own list cannot place, whether or not the language
+        can: `tartusse` is in the forms list and in no slot's `oneOf`, and the
+        beat ahead is exactly where such a word tends to belong.
+      */
+      && words(lastSent.said).some((word) => !context.lexicon.forms.has(word) && !context.lexicon.folded.has(fold(word)))
+      && resolveProviders({ purpose: "grader" }).length > 0,
+  );
+  if (askAhead && lastSent && ahead) {
+    const decision = await authoriseCall(ownerId, "GRADER");
+    if (decision.allowed && decision.reservation) {
+      const booking = decision.reservation;
+      try {
+        const { text, usage, config } = await callChainForJson(
+          resolveProviders({ purpose: "grader", allowFallback: decision.fallbackAllowed }),
+          buildJudgeSystemPrompt(),
+          buildJudgeUserPrompt({
+            goal: ahead.goal, they: ahead.they, said: lastSent.said,
+            reading: await readingOf(lastSent.said),
+            dealt: leafNeeds(ahead.needs).flatMap(({ need }) => {
+              if (need.kind !== "datum" || !draw?.card) return [];
+              const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
+              return prop ? [`${prop.card.replace(/\.$/, "")}: ${prop.english ?? prop.shown[0] ?? prop.value}`] : [];
+            }),
+          }),
+          JUDGE_REPLY_TOKENS,
+        );
+        after(() => recordUsage({
+          ownerId, kind: "GRADER", provider: config.name, model: config.model,
+          inputTokens: usage.inputTokens, outputTokens: usage.outputTokens, reservation: booking,
+        }));
+        if (parseJudgement(text)?.done) {
+          turns[turns.length - 1] = { ...lastSent, alsoDone: [...(lastSent.alsoDone ?? []), ahead.id] };
+          ({ state, response, elsewhere } = replay(marking, draw, turns));
+        }
+      } catch (error) {
+        after(() => releaseReservation(booking));
+        reportError(error, { at: "api/scene/judge-ahead", ownerId });
       }
     }
   }
@@ -275,7 +353,22 @@ export async function POST(request: Request) {
     one the learner was told, so "how much?" after the price curveball is
     answered with the price the other side actually has (`cardAfterHurdles`).
   */
-  const card = cardAfterHurdles(cardInPlay(draw?.card ?? null, scene.beats, state.countered), state);
+  /*
+    And with every fact the learner changed on it (`cardChosen`, ADR-025
+    amendment 3): a destination, a time, a floor or a drink they named
+    themselves is the fact from that turn on, for the line that reads it back,
+    the composer, the gate and the objective on the screen alike.
+  */
+  const glossOf = (lemma: string) => marking.marker.englishFor?.get(lemma)?.[0];
+  const card = cardChosen(
+    cardAfterHurdles(cardInPlay(draw?.card ?? null, scene.beats, state.countered), state),
+    state.turns,
+    glossOf,
+  );
+  /* The values the learner changed, as the briefing prints a value, so the screen can say so beside the objective. */
+  const chosen = (card?.props ?? [])
+    .filter((prop) => state.turns.some((turn) => turn.chose?.some((one) => one.slot === prop.slot)))
+    .map((prop) => ({ slot: prop.slot, given: prop.shown.length > 0 ? prop.shown : [prop.value] }));
   const last = state.turns[state.turns.length - 1] ?? null;
   /*
     THE BEAT JUST ANSWERED IS OFTEN A HURDLE, AND `scene.beats` HAS NEVER
@@ -381,11 +474,7 @@ export async function POST(request: Request) {
     a number the gate withholds. The card is the one in play, so a changed
     price is the new price.
   */
-  const facts = (card?.props ?? []).map((prop) => {
-    const value = prop.english ?? prop.shown[0] ?? prop.value;
-    const label = prop.card.replace(/\.$/, "");
-    return `${label}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
-  });
+  const facts = factsFor(card, scene.beats);
   /*
     AND WHAT THE LEARNER JUST SAID IS A TOPIC A LINE MAY BE ABOUT. The gate
     holds a composed line to the beat's own words, which is right for a line
@@ -396,10 +485,13 @@ export async function POST(request: Request) {
     or missed, the words the dictionary vouched in the learner's own turn are
     on topic too.
   */
-  const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
-  const theirs = deviated
-    ? words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word))
-    : [];
+  /*
+    ON EVERY TURN, NOT ONLY ONE THAT DEVIATED. A line that takes up the word
+    the learner used ("Tartusse, hästi") is on topic whatever the turn was
+    read as, and holding it to the beat's own words alone withheld exactly the
+    lines that made the other side sound like they had listened.
+  */
+  const theirs = words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word));
 
   /*
     WHERE THE CONVERSATION IS, AND EVERY BRANCH RETURNS IT. Three of the four
@@ -440,6 +532,9 @@ export async function POST(request: Request) {
       2). Null where the dictionary read the turn for itself.
     */
     conceded: last?.conceded ?? null,
+    /* Beats further along the judge said this turn met, for the client to echo like `conceded`. */
+    alsoDone: turns[turns.length - 1]?.alsoDone ?? null,
+    chosen,
     /*
       WHAT HAS COME UP, WHICH THE SCREEN CANNOT WORK OUT FOR ITSELF.
 
@@ -741,7 +836,18 @@ export async function POST(request: Request) {
       card is drawn when the run opens and the scene knows nothing about it.
     */
     gate: gateFor(beat.id, {
-      ...context.gate, dealt: dealtNumbers(card), times: clockInPlay(card, context.lexicon),
+      ...context.gate,
+      /*
+        The numbers the card dealt, and every number the learner has typed in
+        this run: a line saying back a figure the learner gave is repeating
+        them, not inventing a fact, and `facts` withheld it as invented.
+      */
+      dealt: new Set([
+        ...dealtNumbers(card),
+        ...state.turns.flatMap((turn) => turn.said.match(/\d{1,2}[:.]\d{2}|\d+/g) ?? []),
+      ]),
+      times: clockInPlay(card, context.lexicon),
+      money: moneyInPlay(card, context.lexicon),
     }),
     topic: new Set<string>([...(context.topic.get(beat.id) ?? []), ...theirs]),
     hasFiniteVerb: context.hasFiniteVerb,

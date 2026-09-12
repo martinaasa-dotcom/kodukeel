@@ -63,7 +63,8 @@ export function buildJudgeSystemPrompt(): string {
     "Answer one question: did the learner accomplish that goal, in substance, on this turn?",
     "Be generous about wording: any words, any spelling, a different word for the same thing, a mix of Estonian and English all count if the thing was done.",
     "Be strict about substance: asking a question instead, changing the subject, answering something else, saying only hello, or saying nothing to the point is not done.",
-    "If the goal asks them to state a specific value from their card and they stated a different one, it is not done.",
+    "The learner's card gives them a value to say, and it is only a suggestion: if the goal asks for a value from the card and they stated a different value of the same kind, another destination, another day, another time, another drink, another number, that is done. Only a turn that states no such value at all is not done.",
+    "A turn that answers the question in one word, in the wrong grammatical form, with a typo, or in English, is done if the thing was said.",
     "Reply with a JSON object only, no prose around it: {\"done\": true or false, \"why\": \"one short sentence\"}.",
   ].join("\n");
 }
@@ -72,7 +73,9 @@ export function buildJudgeUserPrompt(ask: JudgeAsk): string {
   const lines = [
     `The other person had just: ${ask.they}`,
     `The learner's goal for this turn: ${ask.goal}`,
-    ...(ask.dealt.length > 0 ? [`On the learner's card: ${ask.dealt.join("; ")}`] : []),
+    ...(ask.dealt.length > 0
+      ? [`On the learner's card, as a suggestion they may change: ${ask.dealt.join("; ")}`]
+      : []),
     `The learner wrote: ${JSON.stringify(ask.said)}`,
     ...(ask.reading ? [`Word by word, the dictionary reads that as: ${ask.reading}`] : []),
     "Did the learner accomplish the goal on this turn?",

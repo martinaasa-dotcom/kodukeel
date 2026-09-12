@@ -193,8 +193,21 @@ describe("the gate", () => {
     const ctx = context();
     expect(runGate("Kas teil on valu", beat(), ctx).failed).toContain("shape");
     expect(runGate("**Kas** teil on valu?", beat(), ctx).failed).toContain("shape");
-    expect(runGate(`${"valu ".repeat(50)}?`, beat(), ctx).failed).toContain("shape");
+    expect(runGate(`${"valu ".repeat(60)}?`, beat(), ctx).failed).toContain("shape");
     expect(runGate("", beat(), ctx).failed).toContain("shape");
+  });
+
+  it("refuses a price in words the card did not deal, and lets a dealt one through", () => {
+    const money = {
+      unit: new Set(["euro", "eurot"]),
+      numbers: new Map([["neli", "neli"], ["nelja", "neli"], ["viis", "viis"], ["viie", "viis"]]),
+      dealt: new Set(["viis"]),
+    };
+    const ctx = context({ money });
+    expect(runGate("Kas teil on valu? Pilet maksab neli eurot.", beat(), ctx).failed).toContain("facts");
+    expect(runGate("Kas teil on valu? Pilet maksab viis eurot.", beat(), ctx).failed).not.toContain("facts");
+    // A count with no unit beside it is not a price.
+    expect(runGate("Kas teil on valu? Neli tuba on valu.", beat(), ctx).failed).not.toContain("facts");
   });
 
   it("refuses the register the scene did not ask for", () => {
@@ -230,6 +243,7 @@ describe("the government check", () => {
       ["tuba", new Set(["NOMINATIVE", "PARTITIVE"])],
       ["toas", new Set(["INESSIVE"])],
       ["toa", new Set(["GENITIVE"])],
+      ["tuppa", new Set(["ILLATIVE"])],
     ]),
   });
 
@@ -237,8 +251,19 @@ describe("the government check", () => {
     expect(governmentSuspect(["ta", "aitab", "tuba"], ctx)).toBe(false);
   });
 
-  it("flags a line whose only nominal is in a case it does not", () => {
-    expect(governmentSuspect(["ta", "aitab", "toas"], ctx)).toBe(true);
+  it("flags a line whose only nominal is in a direction case it does not govern", () => {
+    expect(governmentSuspect(["ta", "aitab", "tuppa"], ctx)).toBe(true);
+  });
+
+  it("says nothing about an adjunct, since a place, a time or an instrument goes with any verb", () => {
+    // `toas` is the inessive: where it happened, which is not what `aitama` governs and not a fault.
+    expect(governmentSuspect(["ta", "aitab", "toas"], ctx)).toBe(false);
+  });
+
+  it("reads a line of several sentences one clause at a time", () => {
+    // The illative belongs to a sentence with no governed verb in it, so the verb in the first is not held to it.
+    expect(governmentSuspect(["ta", "aitab", "tuba", "ma", "lähen", "tuppa"], ctx, "Ta aitab tuba. Ma lähen tuppa.")).toBe(false);
+    expect(governmentSuspect(["ta", "aitab", "tuba", "ta", "aitab", "tuppa"], ctx, "Ta aitab tuba. Ta aitab tuppa.")).toBe(true);
   });
 
   it("says nothing about a line with no governed word, or with no nominal", () => {

@@ -298,12 +298,7 @@ export function drawProp(
           could write the hour the way anybody writes it depended on a leading
           zero the card printed and they did not.
         */
-        literal: [
-          value,
-          value.replace(":", "."),
-          stripLeadingZero(value),
-          ...(value.endsWith(":00") ? [value.slice(0, 2), stripLeadingZero(value.slice(0, 2))] : []),
-        ],
+        literal: timeLiterals(value),
         lemmas: [],
         value,
         ...(spec.theirs ? { theirs: true as const } : {}),
@@ -564,4 +559,138 @@ export function dealtNumbers(card: RoleCard | null): ReadonlySet<string> {
     }
   }
   return out;
+}
+
+/**
+ * Every spelling a clock time on a card is accepted in: `14:00`, `14.00`, and
+ * on the hour `14` and `2`. One builder, because the card and a time the
+ * learner named themselves (`timeFromText`) have to be accepted the same way.
+ */
+export function timeLiterals(value: string): string[] {
+  return [
+    value,
+    value.replace(":", "."),
+    stripLeadingZero(value),
+    ...(value.endsWith(":00") ? [value.slice(0, 2), stripLeadingZero(value.slice(0, 2))] : []),
+  ];
+}
+
+/**
+ * WHAT KIND OF THING A SLOT HOLDS, FOR A MARKER THAT LETS THE LEARNER CHANGE IT.
+ *
+ * The card deals a value so a learner has something to say, and for a year
+ * the marker held them to it: somebody who wrote `Tartusse` at a ticket
+ * window whose card said the station was told they had not been understood,
+ * for naming a real place in perfect Estonian. A person behind a counter
+ * takes the destination they are given. So a `datum` requirement is met by
+ * any value of the slot's kind the dictionary can read (ADR-025 amendment 3),
+ * and this is the kind: which words a word slot could have dealt, the hours a
+ * time slot spans, whether a number is a floor or a price.
+ *
+ * `theirs` marks a fact that belongs to the other side, a time they offer or
+ * a price they are holding, which is not the learner's to change: a learner
+ * who answers an offered time with another time is countering, which the
+ * beat reads for itself.
+ */
+export type SlotKind =
+  | { readonly kind: "word" | "weekday"; readonly oneOf: readonly string[]; readonly theirs?: true }
+  | { readonly kind: "time"; readonly from: number; readonly to: number; readonly theirs?: true }
+  | { readonly kind: "number" | "price"; readonly min: number; readonly max: number; readonly theirs?: true }
+  | { readonly kind: "code" };
+
+/** Slot to what it holds, read off a scene's own props. */
+export function slotKinds(specs: readonly PropSpec[]): Map<string, SlotKind> {
+  const out = new Map<string, SlotKind>();
+  for (const spec of specs) {
+    switch (spec.kind) {
+      case "word":
+        out.set(spec.slot, { kind: "word", oneOf: spec.oneOf });
+        break;
+      case "weekday":
+        out.set(spec.slot, { kind: "weekday", oneOf: spec.oneOf, ...(spec.theirs ? { theirs: true as const } : {}) });
+        break;
+      case "time":
+        out.set(spec.slot, { kind: "time", from: spec.from, to: spec.to, ...(spec.theirs ? { theirs: true as const } : {}) });
+        break;
+      case "number":
+        out.set(spec.slot, { kind: "number", min: spec.min, max: spec.max });
+        break;
+      case "price":
+        out.set(spec.slot, { kind: "price", min: spec.min, max: spec.max, ...(spec.theirs ? { theirs: true as const } : {}) });
+        break;
+      case "code":
+        out.set(spec.slot, { kind: "code" });
+        break;
+    }
+  }
+  return out;
+}
+
+/**
+ * A clock time the learner wrote, as `HH:MM`, or null where the turn names
+ * none.
+ *
+ * Digits first (`14:30`, `14.30`, `kell 14`), then the hour said in words
+ * the way `timeWords` spells a card's (`kell kaks`, `pool kolm`), read off
+ * the same lemma list, so what a card is dealt and what a learner may name
+ * are one vocabulary. An hour in words is on a twelve-hour clock, so it is
+ * read into the span the slot covers where that settles it, and as the
+ * afternoon otherwise, since the scenes' windows all fall there.
+ */
+export function timeFromText(text: string, span: { from: number; to: number }): string | null {
+  const lower = text.toLowerCase();
+  const digits = /(?:^|\D)(\d{1,2})[:.](\d{2})(?!\d)/.exec(lower);
+  if (digits) {
+    const hour = Number(digits[1]);
+    const minute = Number(digits[2]);
+    if (hour <= 23 && minute <= 59) return `${pad(hour)}:${pad(minute)}`;
+  }
+  const bare = /\bkell\s+(\d{1,2})(?![:.\d])/.exec(lower);
+  if (bare) {
+    const hour = Number(bare[1]);
+    if (hour <= 23) return `${pad(hour)}:00`;
+  }
+  const spoken = lower.split(/[^a-zõäöüšž]+/).filter(Boolean);
+  const place = (hour12: number) => {
+    const morning = hour12 % 12;
+    const afternoon = morning + 12;
+    const fits = (h: number) => h >= span.from && h <= span.to;
+    return fits(afternoon) || !fits(morning) ? afternoon : morning;
+  };
+  for (let at = 0; at < spoken.length; at += 1) {
+    const word = spoken[at]!;
+    const hour = (HOUR_WORDS as readonly string[]).indexOf(word);
+    if (hour < 0) continue;
+    const before = spoken[at - 1];
+    if (before === HALF) return `${pad(place(hour === 0 ? 11 : hour - 1))}:30`;
+    if (before === CLOCK_LEMMA) return `${pad(place(hour))}:00`;
+  }
+  return null;
+}
+
+/**
+ * A whole number the learner wrote, as a digit string, with the number word
+ * it was said in where it was said in one. Digits first, then a form of a
+ * number lemma the lexicon holds, read off the same lists a card's number is
+ * said with, so `kolmandal` reads as 3 exactly as `kolmas` on the card does.
+ * Bounded to the slot's own span, so a house number is not read as a floor.
+ */
+export function numberFromText(
+  text: string,
+  span: { min: number; max: number },
+  formsOf: (lemma: string) => ReadonlySet<string> | undefined,
+): { value: string; lemma?: string } | null {
+  const fits = (n: number) => Number.isInteger(n) && n >= span.min && n <= span.max;
+  for (const run of text.match(/\d+/g) ?? []) {
+    if (fits(Number(run))) return { value: String(Number(run)) };
+  }
+  const spoken = new Set(text.toLowerCase().split(/[^a-zõäöüšž]+/).filter(Boolean));
+  for (let n = span.min; n <= span.max; n += 1) {
+    for (const lemma of numberWords(String(n))) {
+      const forms = formsOf(lemma);
+      if (!forms) continue;
+      if ([...forms].some((form) => spoken.has(form))) return { value: String(n), lemma };
+    }
+  }
+  return null;
 }

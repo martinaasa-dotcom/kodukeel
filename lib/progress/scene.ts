@@ -30,7 +30,9 @@ import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gat
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
 import { topicForms, type Line } from "@/lib/scenes/retrieval";
 import type { TurnContext } from "@/lib/scenes/turn";
-import { CLOCK_LEMMA, HOUR_LEMMAS, dealtHours, numberWords, timeWords, type RoleCard } from "@/lib/scenes/props";
+import {
+  CLOCK_LEMMA, HOUR_LEMMAS, NUMBER_LEMMAS, dealtHours, numberWords, slotKinds, timeWords, type RoleCard,
+} from "@/lib/scenes/props";
 import type { BeatSpec, SceneSpec } from "@/lib/scenes/types";
 import { isPhrase } from "@/lib/dict/pos";
 import { courseForms, substitutes } from "@/lib/dict/facts";
@@ -372,6 +374,30 @@ export function clockInPlay(card: RoleCard | null, lexicon: Lexicon): GateContex
   return { clock, hours, dealt: dealtHours(card) };
 }
 
+/**
+ * The unit, the number words and the prices this run has dealt, for the gate's
+ * price check (`GateContext.money`). Resolved through the scene's own lexicon
+ * so `kolme eurot` and `kolm eurot` are one number; the prices are every
+ * `price` prop's value in words, which is what `dealtHours` is for a time.
+ * Undefined where the scene has no word for the unit, and then no line can be
+ * a price and nothing is checked.
+ */
+export function moneyInPlay(card: RoleCard | null, lexicon: Lexicon): GateContext["money"] {
+  const unit = lexicon.byLemma.get(MONEY_UNIT);
+  if (!unit || unit.size === 0) return undefined;
+  const numbers = new Map<string, string>();
+  for (const lemma of NUMBER_LEMMAS) for (const form of lexicon.byLemma.get(lemma) ?? []) numbers.set(form, lemma);
+  const dealt = new Set<string>();
+  for (const prop of card?.props ?? []) {
+    if (!prop.price) continue;
+    for (const word of numberWords(prop.value)) dealt.add(word);
+  }
+  return { unit, numbers, dealt };
+}
+
+/** The word a price is told in, as a lemma request against the course like the hours. */
+const MONEY_UNIT = "euro";
+
 /** Every lemma a scene may reach: its units, its beats' topics, its props, and the way out. */
 export function sceneLemmas(scene: SceneSpec): Set<string> {
   const lemmas = new Set<string>();
@@ -437,6 +463,8 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
   const hasFiniteVerb = finiteVerbs(rows);
   const marker = {
     lexicon,
+    // What each slot on the card holds, so a datum can take a value the learner chose (ADR-025 amendment 3).
+    slots: slotKinds(scene.props),
     questionWords: formsOfUnit(rows, QUESTION_UNIT),
     negators: formsOfLemmas(rows, [NEGATOR]),
     registerForms: formsOfLemmas(rows, [REGISTER_PRONOUN[scene.register]]),
@@ -819,6 +847,23 @@ export interface SentTurn {
    * requirement writes no row (`gradesFor`).
    */
   readonly conceded?: readonly number[];
+  /**
+   * Beats further along that a judge said this same turn met, by id, where
+   * the dictionary could not read the word that met them (ADR-025 amendment
+   * 3). `ma tahan pileti Tartusse` asks for a ticket and says where to, and
+   * the second half is a capitalised word the forms list holds none of on
+   * purpose, so the cascade in `replay` could not credit the destination and
+   * the other side went on asking where. Echoed by the client like
+   * `conceded`, and read only where the cascade reaches that beat.
+   */
+  readonly alsoDone?: readonly string[];
+}
+
+/** The `alsoDone` field off the wire: beat ids only, deduplicated, bounded. */
+export function alsoDoneOf(input: unknown): string[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out = [...new Set(input.filter((id): id is string => typeof id === "string" && id.length > 0 && id.length <= 64))];
+  return out.length > 0 ? out.slice(0, 8) : undefined;
 }
 
 /** The `conceded` field off the wire: whole numbers only, deduplicated, bounded. */
@@ -1287,7 +1332,9 @@ export function replay(
     */
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     if (standing) {
-      const evidence = readTurn(said, standing, marker);
+      const read = readTurn(said, standing, marker);
+      // A judge may end a curveball the dictionary refused, exactly as a beat (ADR-025 amendment 2).
+      const evidence = sent.conceded && sent.conceded.length > 0 ? concede(read, sent.conceded) : read;
       const beatToo = readTurn(said, beat, marker);
       /*
         A learner who ignores what went wrong and answers the question anyway
@@ -1372,9 +1419,17 @@ export function replay(
       if (state.hurdle || response === "moveOn") break;
       const next = currentBeat(context.scene, state);
       if (!next) break;
-      const more = readTurn(said, next, marker);
+      const read = readTurn(said, next, marker);
+      /*
+        A judge may have said this same turn met the next beat too, in a word
+        the dictionary could not read (`alsoDone`). Then the beat is conceded
+        whole, and the two-words rule stands down, since a concession carries
+        no word to weigh.
+      */
+      const vouchedAhead = sent.alsoDone?.includes(next.id) && read.reading !== "complete";
+      const more = vouchedAhead ? concede(read, read.missing) : read;
       if (more.reading !== "complete") break;
-      if (!addsEvidence(more, spent)) break;
+      if (!vouchedAhead && !addsEvidence(more, spent)) break;
       for (const word of more.satisfiedBy) spent.add(word);
       ({ state, response } = advance(context.scene, state, more, said, false, heard));
     }

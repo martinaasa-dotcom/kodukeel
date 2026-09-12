@@ -36,9 +36,9 @@ import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
 import { fallbackLine, type SpokenLine } from "./line";
 import { caseKeyFor, words, type Lexicon } from "./lexicon";
-import { propBySlot, type RoleCard } from "./props";
-import { curveballById } from "./curveballs";
-import type { Response, SceneState } from "./state";
+import { propBySlot, timeLiterals, type DrawnProp, type RoleCard } from "./props";
+import { CURVEBALLS, curveballById } from "./curveballs";
+import type { Response, SceneState, TurnRecord } from "./state";
 import type { TurnReading } from "./turn";
 import { leafNeeds, type BeatSpec, type SaysPart } from "./types";
 
@@ -308,6 +308,81 @@ export function cardInPlay(
 }
 
 /**
+ * THE CARD WITH EVERY FACT THE LEARNER CHANGED ON IT, WHICH IS THE THIRD DOOR
+ * ONTO `cardInPlay` (ADR-025 amendment 3).
+ *
+ * A learner who says `Tartusse` where the card said the station has changed
+ * where they are going, and from that turn on the person behind the counter
+ * knows Tartu and nothing else: the line that reads the destination back, the
+ * facts the composer is told, the numbers the gate lets a composed line say,
+ * and the value printed beside the objective all read the learner's. Read off
+ * the run's own turns (`TurnRecord.chose`), last wins, so a reload and the
+ * debrief reach the same card. The draw itself is never rewritten.
+ *
+ * `gloss` names a chosen word in English for the stage direction and the
+ * model, since a card prints a word's meaning rather than the word; absent,
+ * the lemma stands, which is still true and still the learner's.
+ */
+export function cardChosen(
+  card: RoleCard | null,
+  turns: readonly Pick<TurnRecord, "chose">[],
+  gloss: (lemma: string) => string | undefined = () => undefined,
+): RoleCard | null {
+  if (!card) return null;
+  const chosen = new Map<string, { value: string; lemma?: string }>();
+  for (const turn of turns) for (const one of turn.chose ?? []) chosen.set(one.slot, one);
+  if (chosen.size === 0) return card;
+  return {
+    ...card,
+    props: card.props.map((prop): DrawnProp => {
+      const pick = chosen.get(prop.slot);
+      if (!pick || prop.theirs) return prop;
+      const { value, lemma } = pick;
+      const { english: _english, ...rest } = prop;
+      if (lemma) {
+        const said = gloss(lemma);
+        return { ...rest, value: lemma, lemmas: [lemma], literal: [], shown: said ? [said] : [], ...(said ? { english: said } : {}) };
+      }
+      if (/^\d{1,2}:\d{2}$/.test(value)) {
+        return { ...rest, value, lemmas: [], literal: timeLiterals(value), shown: [value] };
+      }
+      return { ...rest, value, lemmas: [], literal: [value], shown: prop.price ? [`${value} €`] : [value] };
+    }),
+  };
+}
+
+/**
+ * WHAT THIS PERSON KNOWS, OFF THE CARDS, IN ENGLISH, FOR THE MODEL.
+ *
+ * One builder, because the route and `npm run play:scenes` each wrote their
+ * own and the harness then measured a conversation the app did not have.
+ *
+ * A VALUE HELD IN RESERVE IS NOT A FACT YET. The second price a curveball
+ * changes the first to, and the second day and time a counter-offer falls
+ * back on, are dealt when the run opens and marked as the other side's, and
+ * both were handed to the model as "yours to tell them" from the first line.
+ * So a ticket seller whose card said five euros announced four on every run,
+ * three drafts in a row, and the gate withheld each one for the price the
+ * model had been told was its own. A slot that only exists to replace another
+ * (`replaces` on a curveball or a counter) is left out until it has replaced
+ * it, at which point `cardAfterHurdles` and `cardInPlay` have already stood
+ * it in under the original slot and it is told as that.
+ */
+export function factsFor(card: RoleCard | null, beats: readonly BeatSpec[]): string[] {
+  if (!card) return [];
+  const reserve = new Set<string>();
+  for (const beat of beats) for (const [, to] of beat.counter?.replaces ?? []) reserve.add(to);
+  for (const spec of CURVEBALLS) for (const [, to] of spec.replaces ?? []) reserve.add(to);
+  return card.props
+    .filter((prop) => !reserve.has(prop.slot))
+    .map((prop) => {
+      const value = prop.english ?? prop.shown[0] ?? prop.value;
+      const label = prop.card.replace(/\.$/, "");
+      return `${label}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
+    });
+}
+
+/**
  * The card with every value a raised curveball has changed stood in for by
  * the value it changed it to.
  *
@@ -461,7 +536,14 @@ export function wantsFreshLine(
   heard: string | null,
   reading: TurnReading | null = null,
 ): boolean {
-  if (response === "wait") return false;
+  /*
+    A ONE-WORD TURN THAT DID NOT ANSWER COMPOSES TOO. The look and the wait
+    is the keyless answer and it stays: `Jah?` is what a person does with a
+    word that trails off. A model that has the word in front of it does better,
+    taking the word as far as it goes and asking for the rest in the same
+    breath, which is what `composeNote` tells it to do.
+  */
+  if (response === "wait") return heard !== null;
   /*
     A TURN THAT MISSED IS THE TURN A PERSON IS MOST NEEDED FOR, AND IT WAS THE
     ONE THE MODEL WAS NEVER ASKED ABOUT.
@@ -606,6 +688,16 @@ export function composeNote(
       + " gave you, and ask only for what is still missing." + question;
   }
   /*
+    One word, where the beat wanted more. A person takes the word as far as it
+    goes and asks for the rest, warmly: "Piima? Kui palju?" rather than a bare
+    look, which is what the keyless deployment gives.
+  */
+  if (reading === "fragment" || response === "wait") {
+    return "They answered with a single word that does not yet say what you asked for. Take the word"
+      + " as far as it goes, then ask them, in a friendly way, for the rest of what you need."
+      + " Never say you did not understand: you did." + question;
+  }
+  /*
     The one reading where saying so is honest, and it still may not be said as
     a verdict on them. The repair phrase the course teaches has already been
     said above this line, so what the model is for here is the second half: ask
@@ -660,6 +752,8 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     it was.
   */
   if (response === "wait") {
+    // A line written for this turn already took the word and asked for the rest.
+    if (line?.provenance === "composed") return [line];
     const theirs = input.echo && !/\d/.test(input.echo) && !FLAT_WORDS.has(input.echo)
       ? input.echo
       : null;

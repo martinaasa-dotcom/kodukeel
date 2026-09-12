@@ -83,6 +83,11 @@ describe("the judge's question", () => {
     expect(user).toContain("saiakese");
     expect(user).toContain("one bun");
     expect(system).toMatch(/JSON/);
+    // The card is a suggestion (ADR-025 amendment 3): another value of the same kind is done.
+    expect(system).toMatch(/different value of the same kind/);
+    expect(system).not.toMatch(/it is not done\.$/m);
+    expect(buildJudgeUserPrompt({ goal: "g", they: "t", said: "s", reading: "", dealt: ["Where you are going: station"] }))
+      .toMatch(/as a suggestion they may change: Where you are going: station/);
     // The module writes no Estonian of its own; the turn is the only Estonian in the prompt.
     expect(system).not.toMatch(/[õäöüšž]/i);
   });

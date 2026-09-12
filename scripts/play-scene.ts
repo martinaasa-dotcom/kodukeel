@@ -33,12 +33,14 @@
  */
 import { SCENES, sceneById } from "../lib/scenes/catalogue";
 import {
-  MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, replay, sceneLemmas, type Row, type StoredDraw,
+  MAX_TURNS, acceptFromRows, clockInPlay, contextFromRows, knowing, moneyInPlay, replay, sceneLemmas, type Row,
+  type StoredDraw,
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
 import {
-  replyFor, composeNote, datumLine, cardAfterHurdles, cardInPlay, counterBeat, stageFor, wantsAsideFor,
+  replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
+  wantsAsideFor,
 } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
@@ -210,7 +212,7 @@ async function play(sceneId: string) {
   console.log(`\n=== ${scene.title} (${scene.id}) · ${persona.id} · ${style} · ${difficulty} ===`);
   for (const prop of run.card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : `= ${prop.value}`}`);
 
-  const turns: { beatId: string; said: string; helped: boolean; heard: string; conceded?: number[] }[] = [];
+  const turns: { beatId: string; said: string; helped: boolean; heard: string; conceded?: number[]; alsoDone?: string[] }[] = [];
   const used = new Set<string>();
   let heard = "";
   /*
@@ -248,13 +250,19 @@ async function play(sceneId: string) {
     const lastSent = turns[turns.length - 1];
     const lastRead = state.turns[state.turns.length - 1];
     const judged = currentBeat(scene, state);
-    const isDatum = (need: BeatSpec["needs"][number]) =>
-      need.kind === "datum" || (need.kind === "anyOf" && need.of.some((leaf) => leaf.kind === "datum"));
-    if (LINKS.length > 0 && lastSent && lastRead && judged && !state.hurdle && !lastSent.conceded
-      && lastRead.beatId === judged.id
-      && ["offtarget", "incomplete", "english"].includes(lastRead.reading)
-      && lastRead.met.some((ok, i) => !ok && !isDatum(judged.needs[i]!))) {
+    /*
+      The route's own rules, mirrored (ADR-025 amendment 3): every miss is put
+      to the judge, a curveball included, a value off the card may be conceded,
+      and the card is a suggestion. A harness judging more narrowly than the
+      app prints a conversation the app does not have.
+    */
+    const askJudge = async (beat: BeatSpec, said: string): Promise<boolean> => {
       const link = LINKS[0]!;
+      const dealt = leafNeeds(beat.needs).flatMap(({ need }) => {
+        if (need.kind !== "datum") return [];
+        const prop = draw.card.props.find((one) => one.slot === need.slot && !one.theirs);
+        return prop ? [`${prop.card.replace(/\.$/, "")}: ${prop.english ?? prop.shown[0] ?? prop.value}`] : [];
+      });
       const res = await fetch(link.url, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
@@ -262,16 +270,36 @@ async function play(sceneId: string) {
           model: link.model, temperature: 0, max_tokens: JUDGE_REPLY_TOKENS,
           messages: [
             { role: "system", content: buildJudgeSystemPrompt() },
-            { role: "user", content: buildJudgeUserPrompt({ goal: judged.goal, they: judged.they, said: lastSent.said, reading: "", dealt: [] }) },
+            { role: "user", content: buildJudgeUserPrompt({ goal: beat.goal, they: beat.they, said, reading: "", dealt }) },
           ],
         }),
       }).catch(() => null);
       const text = res && res.ok ? ((await res.json()) as { choices?: { message?: { content?: string } }[] }).choices?.[0]?.message?.content ?? "" : "";
       const verdict = parseJudgement(text);
-      if (verdict) console.log(`      ~ judge: ${verdict.done ? "done" : "not done"} (${verdict.why})`);
-      if (verdict?.done) {
-        const conceded = lastRead.met.flatMap((ok, i) => (ok || isDatum(judged.needs[i]!) ? [] : [i]));
+      if (verdict) console.log(`      ~ judge (${beat.id}): ${verdict.done ? "done" : "not done"} (${verdict.why})`);
+      return verdict?.done === true;
+    };
+    const judgedBeat = state.hurdle ? hurdleBeat(state.hurdle) : judged;
+    if (LINKS.length > 0 && lastSent && lastRead && judgedBeat && !lastSent.conceded
+      && lastRead.beatId === judgedBeat.id
+      && ["offtarget", "incomplete", "english", "unrecognised", "fragment"].includes(lastRead.reading)
+      && /\p{L}/u.test(lastSent.said)
+      && lastRead.met.some((ok) => !ok)) {
+      if (await askJudge(judgedBeat, lastSent.said)) {
+        const conceded = lastRead.met.flatMap((ok, i) => (ok ? [] : [i]));
         turns[turns.length - 1] = { ...lastSent, conceded };
+        ({ state, response, elsewhere } = replay(marking, draw, turns));
+      }
+    }
+    // And the beat ahead, where the turn landed and held a word nobody could place.
+    const landedOn = state.turns[state.turns.length - 1];
+    const ahead = currentBeat(scene, state);
+    const sentNow = turns[turns.length - 1];
+    if (LINKS.length > 0 && sentNow && landedOn && ahead && response === "answer" && !state.hurdle
+      && landedOn.beatId !== ahead.id && !state.done.includes(ahead.id) && !sentNow.alsoDone?.includes(ahead.id)
+      && words(sentNow.said).some((w) => !context.lexicon.forms.has(w) && !context.lexicon.folded.has(fold(w)))) {
+      if (await askJudge(ahead, sentNow.said)) {
+        turns[turns.length - 1] = { ...sentNow, alsoDone: [...(sentNow.alsoDone ?? []), ahead.id] };
         ({ state, response, elsewhere } = replay(marking, draw, turns));
       }
     }
@@ -279,7 +307,11 @@ async function play(sceneId: string) {
     const standing = state.hurdle ? hurdleBeat(state.hurdle) : null;
     const speaking = response === "counter" && beat?.counter ? counterBeat(beat) : beat;
     // The card as the other side knows it: counters and changed facts stood in, as the route reads it.
-    const card = cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state);
+    const card = cardChosen(
+      cardAfterHurdles(cardInPlay(draw.card, scene.beats, state.countered), state),
+      state.turns,
+      (lemma) => context.marker.englishFor?.get(lemma)?.[0],
+    );
     const last = state.turns[state.turns.length - 1] ?? null;
     // See app/api/scene/route.ts: `scene.beats` has never heard of a hurdle.
     const answered = last ? sceneBeats(scene).find((b) => b.id === last.beatId) ?? null : null;
@@ -299,10 +331,7 @@ async function play(sceneId: string) {
     const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
     if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
     // What this person knows off the card, in English, as the route hands it to the model.
-    const facts = (card?.props ?? []).map((prop) => {
-      const value = prop.english ?? prop.shown[0] ?? prop.value;
-      return `${prop.card.replace(/\.$/, "")}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
-    });
+    const facts = factsFor(card, scene.beats);
 
     let line = null;
     // A curveball said in English is said in English, never composed (the route's rule).
@@ -330,6 +359,7 @@ async function play(sceneId: string) {
         gate: {
           ...context.gate, dealt: dealtNumbers(card ?? draw.card),
           times: clockInPlay(card ?? draw.card, context.lexicon),
+          money: moneyInPlay(card ?? draw.card, context.lexicon),
         },
         /*
           The courtesy rung stands down where the turn needs answering, as it

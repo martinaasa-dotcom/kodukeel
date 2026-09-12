@@ -4816,6 +4816,27 @@ is wrong with you" refused `valutama`, which is §29's finding about the whole c
 one beat. `npm run probe:turns` is the instrument: sixty sentences a real person would type, and the
 `unrecognised` lines are the ones to hunt. `docs/21-situations.md` §41.
 
+**The card is the learner's, and a fact on it is theirs to change (ADR-025 amendment 3).** The
+card deals a destination, a drink, a day and a floor so that a learner has something to say, and
+for a year the marker held them to it: `Tartusse` at a window whose card said the station, `tee`
+where it said coffee, `esmaspäeval` where it said Tuesday were all refused, in perfect Estonian, by
+a clerk who in real life takes what they are told. `npm run probe:turns` listed twenty refusals and
+a dozen of them were this. So a `datum` is met by any value of the slot's kind the dictionary can
+read: another of the words the slot could have dealt, through the same ladder as the dealt one so
+the case is still corrected; any clock time in digits or in the words a card's time is said in;
+any number inside the slot's span (`slotKinds`, `timeFromText`, `numberFromText`). The hit carries
+`chose`, `cardChosen` stands the learner's value into the card in play, and the line that reads it
+back, the composer's facts, the numbers the gate lets a line say and the value beside the objective
+all read the learner's from that turn on. A fact marked `theirs` is never the learner's to change.
+**A chosen value writes no grade**, since the card's word is not the one they produced. The judge is
+asked on every miss now rather than three of them, a curveball included, may concede a datum, and
+is told the card is a suggestion; where a turn that landed also held a word nobody could place, it
+is asked once more about the beat ahead (`alsoDone`), which is how `ma tahan pileti Tartusse` stops
+being answered with "where to?". The composer is told the same rule in words and asked for the turn
+a person takes, two to four sentences inside `MAX_COMPOSED_WORDS`, rather than the shortest question
+that would do. Every learner-facing rule stayed where it was: the dictionary reads first, the model
+never writes a grade, and a composed line still passes the twelve checks.
+
 **Every failure in a conversation looked exactly like a success, and that is why the whole module
 was reported as unusable.** A turn that landed got a word back and then the next question. A turn
 that was real Estonian off the point got nothing back and then a question, and where the ladder had

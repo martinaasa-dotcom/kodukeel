@@ -490,10 +490,10 @@ function retryNote(verdict: Verdict | null): readonly string[] {
 export function whyWithheld(verdict: Verdict | null): string | undefined {
   if (!verdict) return undefined;
   const reasons: Partial<Record<Check, string>> = {
-    facts: "it stated a number or a time that is not among the facts you were given; you may only ever say those",
+    facts: "it stated a number, a time or a price that is not among the facts you were given; you may only ever say those, in digits or in words",
     giveaway: "it said the very form you are waiting for them to produce, which would hand them the answer",
     topic: "it was not about what you are doing at this moment, or about what they just said",
-    shape: "it was the wrong shape: an ask ends in a question, an instruction or an answer does not, and it has to be punctuated, unformatted and at most forty words",
+    shape: "it was the wrong shape: an ask holds a question, an instruction or an answer does not, and it has to be punctuated, unformatted, at most five sentences and at most fifty-five words",
     agreement: "its subject and its verb did not agree in person",
     infinitive: "it put the ma-infinitive where the da-infinitive belongs",
     negation: "a verb after the negator kept its personal ending",

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { NUMBER_LEMMAS, drawCard, drawProp, priceOnCard, propBySlot, type PropSpec } from "./props";
+import {
+  NUMBER_LEMMAS, drawCard, drawProp, numberFromText, priceOnCard, propBySlot, slotKinds, timeFromText, timeLiterals,
+  type PropSpec,
+} from "./props";
 import { unitById } from "@/lib/collections/syllabus";
 
 function seeded(seed: number): () => number {
@@ -226,5 +229,45 @@ describe("a price on the card", () => {
       expect(propBySlot(card, "price2")?.value).not.toBe(propBySlot(card, "price")?.value);
     }
     expect(priceOnCard({ you: "you", props: [] })).toBeUndefined();
+  });
+});
+
+describe("a value the learner names themselves", () => {
+  it("reads a clock time in digits, after kell, and in the words a card's time is said in", () => {
+    const span = { from: 8, to: 18 };
+    expect(timeFromText("14:30 palun", span)).toBe("14:30");
+    expect(timeFromText("kell 9", span)).toBe("09:00");
+    expect(timeFromText("kell 14.00", span)).toBe("14:00");
+    // Twelve-hour words land inside the span where that settles it.
+    expect(timeFromText("kell kolm", span)).toBe("15:00");
+    expect(timeFromText("kell üheksa", span)).toBe("09:00");
+    expect(timeFromText("pool neli", span)).toBe("15:30");
+    expect(timeFromText("ma tulen homme", span)).toBeNull();
+    expect(timeFromText("2015", span)).toBeNull();
+  });
+
+  it("reads a number inside the slot's span, as a digit or a number word", () => {
+    const forms = (lemma: string) => (lemma === "neljas" ? new Set(["neljas", "neljandal"]) : undefined);
+    expect(numberFromText("neljandal korrusel", { min: 1, max: 5 }, forms)).toEqual({ value: "4", lemma: "neljas" });
+    expect(numberFromText("korter 3", { min: 1, max: 5 }, forms)).toEqual({ value: "3" });
+    expect(numberFromText("korter 30", { min: 1, max: 5 }, forms)).toBeNull();
+  });
+
+  it("names what each slot holds, and which are the other side's", () => {
+    const kinds = slotKinds([
+      { kind: "word", slot: "to", oneOf: ["jaam"], says: "Where you are going." },
+      { kind: "time", slot: "time", from: 8, to: 20, theirs: true },
+      { kind: "price", slot: "price", min: 2, max: 6, says: "The price." },
+      { kind: "code", slot: "ref", says: "The reference." },
+    ]);
+    expect(kinds.get("to")).toEqual({ kind: "word", oneOf: ["jaam"] });
+    expect(kinds.get("time")).toEqual({ kind: "time", from: 8, to: 20, theirs: true });
+    expect(kinds.get("price")).toEqual({ kind: "price", min: 2, max: 6 });
+    expect(kinds.get("ref")).toEqual({ kind: "code" });
+  });
+
+  it("accepts a chosen time in every spelling a dealt one is", () => {
+    expect(timeLiterals("08:00")).toEqual(["08:00", "08.00", "8:00", "08", "8"]);
+    expect(timeLiterals("14:30")).toEqual(["14:30", "14.30", "14:30"]);
   });
 });

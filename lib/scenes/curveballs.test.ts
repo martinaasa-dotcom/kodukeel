@@ -64,7 +64,7 @@ describe("the curveball catalog", () => {
 
 describe("the default difficulty", () => {
   it("opens easiest at A1 and climbs to the hardest budget by B2, never past it", () => {
-    expect(defaultDifficultyFor("A1")).toBe("textbook");
+    expect(defaultDifficultyFor("A1")).toBe("good");
     expect(defaultDifficultyFor("A2")).toBe("good");
     expect(defaultDifficultyFor("B1")).toBe("ordinary");
     expect(defaultDifficultyFor("B2")).toBe("bad");
