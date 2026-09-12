@@ -21,7 +21,7 @@ import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
-import { AutoplayPanel, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SupportPanel, VoicePanel } from "./AudioPanel";
+import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
 import { RoundPacePanel } from "./RoundPacePanel";
@@ -31,6 +31,7 @@ import { isDefaultTodayOrder, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { TODAY_CARDS } from "@/lib/ux/disclosure";
 import { GLOSS_LANGUAGES, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom, VOICES } from "@/lib/audio/voice";
+import { paceFor, paceFrom } from "@/lib/audio/pace";
 import { RestorePanel } from "./RestorePanel";
 import { UsagePanel } from "./UsagePanel";
 import { DangerZone } from "./DangerZone";
@@ -106,7 +107,8 @@ export default async function SettingsPage() {
       SETTING_KEYS.letterBar, SETTING_KEYS.researchOptOut,
       SETTING_KEYS.displayName,
       SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-      SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
+      SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
+      SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
     ]),
@@ -133,6 +135,15 @@ export default async function SettingsPage() {
   const sounds = feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]);
   const hearing = hearingFrom(settings[SETTING_KEYS.hearing]);
   const support = supportFrom(settings[SETTING_KEYS.support]);
+  /*
+    The pace Estonian is read aloud at, and the pace the level alone would give,
+    since the row that follows the level has to be able to say which that is.
+    `courseLevel` is `courseLevelFor`'s answer, which the shell publishes the
+    pace off: reading a level of our own here would print one pace in Settings
+    and play another on every card.
+  */
+  const speechPace = paceFrom(settings[SETTING_KEYS.speechPace], courseLevel);
+  const levelPace = paceFor(courseLevel);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
@@ -172,10 +183,10 @@ export default async function SettingsPage() {
           </section>
 
           {/*
-            How Estonian sounds. Three questions in one section because they
-            are one decision about the same thing: who says it, whether they
-            say it unasked, and whether the app answers back. The voices come
-            from the same Tartu service every clip in the app does.
+            How Estonian sounds. Four questions in one section because they
+            are one decision about the same thing: who says it, how fast,
+            whether they say it unasked, and whether the app answers back. The
+            voices come from the same Tartu service every clip in the app does.
           */}
           <section>
             <SectionTitle hint={voiceName}>Voice</SectionTitle>
@@ -187,8 +198,20 @@ export default async function SettingsPage() {
                 </p>
                 <VoicePanel current={voice} />
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                  Twelve voices from the University of Tartu&rsquo;s speech synthesis. The state examination
+                  Ten voices from the University of Tartu&rsquo;s speech synthesis. The state examination
                   is read by more than one speaker, so it is worth changing this now and then.
+                </p>
+              </div>
+              <div>
+                <h3 className="label-xs mb-2 flex flex-wrap items-center gap-2" style={{ color: "var(--ink-3)" }}>
+                  How fast
+                  <CurrentPaceSample />
+                </h3>
+                <SpeechPacePanel current={speechPace} fromLevel={levelPace} level={courseLevel} />
+                <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                  Every speed is the one recording, slowed in your browser with the voice and the pitch
+                  left alone, so the consonants stay as sharp as they were. The slow button beside a
+                  word is always slower again than whatever you pick here.
                 </p>
               </div>
               <div>

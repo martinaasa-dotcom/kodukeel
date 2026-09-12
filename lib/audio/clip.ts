@@ -2,6 +2,7 @@ import { cachedBlob, cachedClip, rememberClip } from "./clipCache";
 import { CLEAN, type Condition } from "./conditions";
 import { needsMixer, playThrough } from "./mixer";
 import { stretch } from "./stretch";
+import { DEFAULT_PACE, type Pace } from "./pace";
 import { decodeWav, encodeWav16 } from "./wav";
 
 /**
@@ -36,11 +37,20 @@ export interface ClipRequest {
    */
   readonly condition?: Condition;
   /**
-   * A gentler rate than the normal one, for a screen where the learner is
-   * writing down what they hear. Applied exactly as `slow` is and ignored
-   * where `slow` or a condition already decides the rate.
+   * A CEILING, NOT A RATE: a screen that wants a gentler play than the
+   * everyday one, for a learner writing down what they hear. Read as the
+   * slower of it and this learner's own pace, because a fixed 0.8 handed to
+   * somebody whose everyday play is 0.6 would be the dictation speeding up.
+   * Ignored where `slow` or a condition already decides the rate.
    */
   readonly rate?: number;
+  /**
+   * How fast this learner hears Estonian, off their own level (lib/audio/pace.ts).
+   * Published once by the shell and read by every speaker button and every
+   * prefetch inside it; absent is `DEFAULT_PACE`, which is what a screen
+   * outside the shell gets.
+   */
+  readonly pace?: Pace;
 }
 
 /**
@@ -67,34 +77,25 @@ export interface ClipRequest {
  * were. Pitch, formants and voice are the recording's own throughout,
  * because every output sample is one of the recording's.
  *
- * THE NORMAL RATE IS A LITTLE UNDER THE RECORDING'S. TartuNLP reads at a
- * newsreader's clip, which is a fine pace for the news and a fast one for a
- * word somebody is meeting for the first time: reported as too quick to be
- * clear, and the report is right about the recording. So the everyday play is
- * the recording at 0.9, which is a person speaking clearly rather than
- * slowly, and every screen that has not asked for a rate gets it. The
- * stretch at that rate is inaudible as a stretch and audible as a speaker
- * taking their time over the word.
- *
- * Slow is 0.65 of the recording, which is about seven tenths of the normal
- * play: the vowels come out about 1.6 times as long and the pauses about
- * 2.5, and the consonants are untouched, which is the part of Estonian a
- * slow play exists to make audible. It could not have been this slow on the
- * browser's stretch, which smeared consonants from about 0.7 down.
+ * AND HOW FAST THE EVERYDAY PLAY IS, IS A FACT ABOUT THE LEARNER. It was one
+ * number for everybody, 0.9 of the recording from the first evening to C1, and
+ * it was reported as too fast to be clear: true at A1, false at B2, so there
+ * was no single number to correct it to. `lib/audio/pace.ts` is the ladder, off
+ * the level the app already holds, and `rateFor` below is the one place a
+ * request turns into a rate.
  *
  * The rates are of the recording, not of one another, so a condition's
  * `speed` in `lib/audio/conditions.ts` still says what it always said.
  */
-export const NORMAL_RATE = 0.9;
-export const SLOW_RATE = 0.65;
 
 /**
  * The rate a whole sentence is read at when somebody has to write it down.
  *
  * The dictation in the level check was reported as far too fast at the
  * recording's own pace, where a learner has to hold four words in their head
- * long enough to type them. 0.8 is a step under the normal play and a step
- * over slow: careful, not slowed.
+ * long enough to type them. A ceiling rather than a rate, since `rateFor` reads
+ * it as the slower of it and the learner's own pace: careful for anybody whose
+ * everyday play is faster than this, and never a speed-up for anybody slower.
  */
 export const LEARNING_RATE = 0.8;
 
@@ -107,14 +108,28 @@ export function clipKey({ text, voice }: ClipRequest): string {
 }
 
 /**
- * The rate this request plays at, of the recording. `slow` wins, then the
- * round's condition, then a caller's own rate, then the normal play.
+ * The rate this request plays at, as a fraction of the recording.
+ *
+ * The learner's own pace is the base and the round's condition is a multiplier
+ * over it, which is the ordering the pace ladder needs: a condition used to be
+ * a fraction of the *recording*, so "at speed" was 1.3 whoever was listening,
+ * and an A1 learner whose everyday play is 0.6 met one clip in five at more
+ * than twice their own pace. That reads as the app forgetting the setting
+ * rather than as a hard delivery. Multiplied instead, "at speed" is thirty
+ * percent faster than however this learner hears Estonian, which is what the
+ * condition was for: the receptionist will not slow down, and she is not
+ * reading from a different table either.
+ *
+ * A caller's own rate is a ceiling on the base rather than a rate, so a screen
+ * asking for a gentler play cannot speed anybody up. `slow` is the learner
+ * pressing a button and wins outright, and `playClip` hears it in a quiet room
+ * for the same reason.
  */
 export function rateFor(request: ClipRequest): number {
-  if (request.slow) return SLOW_RATE;
-  if (request.condition && request.condition.speed !== 1) return request.condition.speed;
-  if (request.rate !== undefined) return request.rate;
-  return NORMAL_RATE;
+  const pace = request.pace ?? DEFAULT_PACE;
+  if (request.slow) return pace.slow;
+  const base = request.rate !== undefined ? Math.min(request.rate, pace.normal) : pace.normal;
+  return base * (request.condition?.speed ?? 1);
 }
 
 /** A clip in hand: the url an element plays and the bytes behind it. */

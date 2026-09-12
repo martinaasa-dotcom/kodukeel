@@ -17,6 +17,8 @@ import { letterBarFrom } from "@/lib/ux/letterBar";
 import { AudioPrefsProvider } from "@/components/AudioPrefs";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
+import { paceFrom } from "@/lib/audio/pace";
+import { courseLevelFor } from "@/lib/progress/level";
 
 // Not cached at build time: `configured` below is read from the environment,
 // and a notice baked in from the build machine's environment describes
@@ -54,14 +56,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     lib/time/day.ts for what the zone is worth.
   */
   const ownerId = await requireUserId();
-  const settings = await readSettings(
-    ownerId,
-    [
-      SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
-      SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
-      SETTING_KEYS.hearing,
-    ],
-  );
+  /*
+    The level is here for the pace Estonian is read aloud at, which the shell
+    publishes with the rest of the audio settings so that every speaker button
+    and every prefetch in the app plays at one rate (lib/audio/pace.ts). It is
+    `courseLevelFor`'s answer and not a reading of our own, which is the rule in
+    lib/progress/level.ts: whichever of the measurement and the learner's own
+    correction was stated later. Asked beside the settings rather than after
+    them, since neither needs the other.
+
+    `support` was in the object below and not in this list, so the conversation
+    screens have been reading the default however the learner set it.
+  */
+  const [settings, level] = await Promise.all([
+    readSettings(
+      ownerId,
+      [
+        SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
+        SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
+        SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
+      ],
+    ),
+    courseLevelFor(ownerId),
+  ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
   // How Estonian is read aloud, published once for every speaker button and
@@ -72,6 +89,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     sounds: feedbackSoundsFrom(settings[SETTING_KEYS.feedbackSounds]),
     hearing: hearingFrom(settings[SETTING_KEYS.hearing]),
     support: supportFrom(settings[SETTING_KEYS.support]),
+    pace: paceFrom(settings[SETTING_KEYS.speechPace], level),
   };
   return (
     <AudioPrefsProvider value={audio}>

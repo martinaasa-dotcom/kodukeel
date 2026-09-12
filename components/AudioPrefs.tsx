@@ -4,6 +4,7 @@ import { createContext, useContext, type ReactNode } from "react";
 import { DEFAULT_AUTOPLAY, DEFAULT_FEEDBACK_SOUNDS, DEFAULT_VOICE, type Autoplay, type FeedbackSounds } from "@/lib/audio/voice";
 import { playFeedback, type Feedback } from "@/lib/audio/feedback";
 import { DEFAULT_HEARING, DEFAULT_SUPPORT, type Hearing, type Support } from "@/lib/audio/conditions";
+import { DEFAULT_PACE, type Pace } from "@/lib/audio/pace";
 
 /**
  * How this learner wants to hear things, published once by the signed-in
@@ -23,6 +24,14 @@ export interface AudioPrefs {
   readonly hearing: Hearing;
   /** Whether a conversation is heard before its words are shown. */
   readonly support: Support;
+  /**
+   * How fast Estonian is read aloud, off this learner's own level or their own
+   * answer (lib/audio/pace.ts). Every caller of `playClip` and `prefetchClip`
+   * inside the shell reads it from here: a prefetch that warmed a different
+   * rate from the one the button plays would stretch the clip twice and warm
+   * neither.
+   */
+  readonly pace: Pace;
 }
 
 const Context = createContext<AudioPrefs>({
@@ -31,6 +40,7 @@ const Context = createContext<AudioPrefs>({
   sounds: DEFAULT_FEEDBACK_SOUNDS,
   hearing: DEFAULT_HEARING,
   support: DEFAULT_SUPPORT,
+  pace: DEFAULT_PACE,
 });
 
 export const useAudioPrefs = () => useContext(Context);

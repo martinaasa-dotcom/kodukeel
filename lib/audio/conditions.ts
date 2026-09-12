@@ -108,9 +108,15 @@ export interface Condition {
   /** How the screen says it after the answer: "Read by Mari, {said}." */
   readonly said: string;
   /**
-   * The rate it is played at, of the recording, through the one stretch in
-   * `lib/audio/stretch.ts`. 1 is the recording's own pace; the normal play
-   * sits a little under it (`NORMAL_RATE` in `lib/audio/clip.ts`).
+   * The rate it is played at, as a multiple of however fast this learner hears
+   * Estonian (`lib/audio/pace.ts`), through the one stretch in
+   * `lib/audio/stretch.ts`. 1 is their own everyday pace.
+   *
+   * A MULTIPLE OF THE LEARNER'S PACE RATHER THAN OF THE RECORDING, which is a
+   * correction: "at speed" was 1.3 of the recording for everybody, so a
+   * beginner whose everyday play is 0.6 met one clip in five at more than twice
+   * their own. A condition is a delivery being harder than usual, and "usual"
+   * is a fact about the listener.
    */
   readonly speed: number;
   /**

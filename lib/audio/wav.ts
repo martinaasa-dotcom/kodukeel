@@ -36,15 +36,39 @@ export interface Pcm {
 }
 
 /**
- * How much silence stays before the first sound and after the last.
+ * HOW MUCH SILENCE SITS BEFORE THE FIRST SOUND AND AFTER THE LAST. EXACTLY
+ * THIS MUCH, ON EVERY CLIP, WHATEVER THE SOURCE SENT.
  *
- * The trail is longer than the lead on purpose. A final `s` is quiet, long
- * and falls away slowly, so a trail measured from the last loud frame has to
- * reach past the whole of it: at 160 ms `tingimus` came back as `tingimu`,
- * reported by a learner on the word's own first meeting, and a word cut short
- * is a form this app never taught.
+ * This used to be a maximum: the trim kept *up to* this much of whatever the
+ * recording happened to have in front of the word, and a recording with less
+ * got less. Measured over thirty real TartuNLP clips, the lead that actually
+ * reached a learner ran from 40 ms on `ema`, `kass`, `tuba` and `õde` to 370 ms
+ * on `pea`, decided by nothing but how long that clip's own vocoder hiss
+ * happened to run before it crossed the floor. Two words in one round starting
+ * a third of a second apart from the same press is the same fault as two
+ * screens disagreeing about a figure, and the short end of that range is the
+ * end that hurts: 40 ms is inside the window an output device swallows while
+ * it opens a stream, and a word-initial consonant lives in exactly that window.
+ * Nothing in the file was missing, and the first thing a learner heard of a
+ * short word was its vowel.
+ *
+ * So it is a guarantee and not a ceiling. The padding is written here, as true
+ * silence, and a source with less than this in front of its word is padded
+ * rather than trusted. That is what makes it impossible for any one word to be
+ * the exception, which is the only useful shape for this rule: the guarantee no
+ * longer depends on what the recording contained. `lib/audio/stretch.ts` marks
+ * the lead and the trail as padding and leaves them exactly as long as they
+ * are, so a slow play keeps the same head start.
+ *
+ * The trail is longer than the lead on purpose. A final `s` is quiet, long and
+ * falls away slowly, so a trail measured from the last loud frame has to reach
+ * past the whole of it: at 160 ms `tingimus` came back as `tingimu`, reported
+ * by a learner on the word's own first meeting, and a word cut short is a form
+ * this app never taught. The lead only has to cover a device opening a stream,
+ * which is why it is the shorter of the two: every millisecond of it is a
+ * millisecond between the press and the word.
  */
-export const LEAD_MS = 40;
+export const LEAD_MS = 120;
 export const TRAIL_MS = 320;
 /** A cut at a sample that is not zero clicks; this many milliseconds of ramp hides it. */
 export const FADE_MS = 6;
@@ -200,22 +224,52 @@ function soundFrames(pcm: Pcm): { frame: number; sound: boolean[] } {
   return { frame, sound };
 }
 
-/** A short ramp in at `from` and out before `to`, in place. */
-function fadeEdges(samples: Float32Array, rate: number, from: number, to: number): void {
-  const fade = Math.min(Math.round((rate * FADE_MS) / 1000), Math.floor((to - from) / 2));
-  for (let i = 0; i < fade; i++) {
-    const g = i / fade;
-    samples[from + i] = (samples[from + i] ?? 0) * g;
+/** How many samples a `FADE_MS` ramp is, never more than half of what it has to fit in. */
+function fadeLength(rate: number, room: number): number {
+  return Math.max(0, Math.min(Math.round((rate * FADE_MS) / 1000), Math.floor(room / 2)));
+}
+
+/**
+ * A ramp up over the `length` samples starting at `from`, in place.
+ *
+ * SEPARATE FROM THE RAMP DOWN, BECAUSE ONE FUNCTION DOING BOTH PUNCHED A NOTCH.
+ * There was a single `fadeEdges(samples, rate, from, to)` that faded in at
+ * `from` and out before `to`, which is right for the two ends of a whole clip
+ * and wrong for anything else. `capPauses` called it on the first twelve
+ * milliseconds of a piece to ask for a fade in, and got a fade in over six
+ * milliseconds and a fade back down to zero over the next six: a dip to silence
+ * planted inside the audio, at every seam it made. Nothing reached it, because
+ * a pause long enough to cap only occurs in a clip of more than one sentence,
+ * and a latent fault in a function about seams is a fault in every seam added
+ * later.
+ */
+function fadeIn(samples: Float32Array, from: number, length: number): void {
+  for (let i = 0; i < length; i++) samples[from + i] = (samples[from + i] ?? 0) * (i / length);
+}
+
+/** A ramp down over the `length` samples ending at `to`, in place. */
+function fadeOut(samples: Float32Array, to: number, length: number): void {
+  for (let i = 0; i < length; i++) {
     const j = to - 1 - i;
-    samples[j] = (samples[j] ?? 0) * g;
+    samples[j] = (samples[j] ?? 0) * (i / length);
   }
 }
 
 /**
- * The clip with its dead air taken off, keeping `LEAD_MS` before the first
- * sound and `TRAIL_MS` after the last, and a short fade at each cut. A clip
- * that is silent throughout is returned as it came, since there is nothing to
- * keep and nothing to say about it.
+ * The clip with its dead air replaced by exactly `LEAD_MS` of silence before
+ * the first sound and `TRAIL_MS` after the last, whatever the source had. A
+ * clip that is silent throughout is returned as it came, since there is nothing
+ * to keep and nothing to say about it.
+ *
+ * Every sample of the speech survives, which is the claim that matters and the
+ * one `wav.test.ts` checks against the real clips: what is cut is whole
+ * ten-millisecond frames the floor called silence, so a frame holding the first
+ * breath of a word is kept whole, and what is added is zeros. The only thing
+ * written over the recording is the ramp at each seam, and that is taken from
+ * the frame *outside* the speech rather than from its first six milliseconds:
+ * a cut from zero straight onto a sample that is not zero clicks, and paying
+ * for that with the front of the word would be this function causing the fault
+ * it exists to prevent.
  */
 export function trimSilence(pcm: Pcm): Pcm {
   const { rate, samples } = pcm;
@@ -224,10 +278,22 @@ export function trimSilence(pcm: Pcm): Pcm {
   if (first < 0) return pcm;
   const last = sound.lastIndexOf(true);
 
-  const start = Math.max(0, first * frame - Math.round((rate * LEAD_MS) / 1000));
-  const end = Math.min(samples.length, (last + 1) * frame + Math.round((rate * TRAIL_MS) / 1000));
-  const out = samples.slice(start, end);
-  fadeEdges(out, rate, 0, out.length);
+  const lead = Math.round((rate * LEAD_MS) / 1000);
+  const trail = Math.round((rate * TRAIL_MS) / 1000);
+  const from = first * frame;
+  const to = Math.min(samples.length, (last + 1) * frame);
+  // The seams sit on whatever the recording has just outside the speech, up to
+  // a fade's worth of it, so the ramps never touch a sample of the word.
+  // Clamped against the padding as well as against the recording, so the ramps
+  // fit inside what is written whatever the two constants above are set to.
+  const fade = fadeLength(rate, to - from);
+  const back = Math.min(fade, from, lead);
+  const forward = Math.min(fade, samples.length - to, trail);
+
+  const out = new Float32Array(lead + (to - from) + trail);
+  out.set(samples.subarray(from - back, to + forward), lead - back);
+  fadeIn(out, lead - back, back);
+  fadeOut(out, lead + (to - from) + forward, forward);
   return { rate, samples: out };
 }
 
@@ -271,10 +337,9 @@ export function capPauses(pcm: Pcm): Pcm {
   for (const [a, b] of keep) {
     const piece = samples.slice(a, b);
     // The cut lands in near silence, so the fade is only there for the seam.
-    if (a > 0) fadeEdges(piece, rate, 0, Math.min(piece.length, Math.round((rate * FADE_MS) / 1000) * 2));
-    if (b < samples.length) {
-      fadeEdges(piece, rate, Math.max(0, piece.length - Math.round((rate * FADE_MS) / 1000) * 2), piece.length);
-    }
+    const fade = fadeLength(rate, piece.length);
+    if (a > 0) fadeIn(piece, 0, fade);
+    if (b < samples.length) fadeOut(piece, piece.length, fade);
     out.set(piece, o);
     o += piece.length;
   }

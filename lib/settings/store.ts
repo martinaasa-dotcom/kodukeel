@@ -105,6 +105,14 @@ export const SETTING_KEYS = {
   autoplayAudio: "autoplayAudio",
   feedbackSounds: "feedbackSounds",
   /**
+   * How fast Estonian is read aloud, where an unset row means the pace this
+   * learner's own level opens at rather than a fixed speed for everybody. The
+   * ladder and the reasoning live in lib/audio/pace.ts; the value stored here
+   * is a pace by name, so it keeps meaning the same thing if the levels move
+   * under it.
+   */
+  speechPace: "speechPace",
+  /**
    * Whether the listening rounds vary how a sentence is delivered: at speed,
    * over café noise, down a phone line, from halfway through. On by default,
    * deliberately, because the counter is what this app is for; the values
