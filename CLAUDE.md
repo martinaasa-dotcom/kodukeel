@@ -5018,6 +5018,24 @@ bubble carries every rung that wrote a piece of it and the words under it name t
 Asserted on both readers, because a merge on the round and none on the transcript is the fault half
 fixed.
 
+**A card hands over one fact, and a gloss is not always one.** A `word` prop draws a lemma off the
+scene's own units and the briefing prints its English gloss, because saying it in Estonian is the
+exercise. A learner at a café counter read "Tell them what you would like to drink." over
+"road, tea": `tee` is both and the dictionary is right to say so, but a card is not teaching the
+word's range, it is handing somebody one thing to say. Measured over the catalogue, 11 of the 90
+values a word prop can deal have a gloss carrying more than one sense, and three of them are plainly
+wrong for their situation: a road to drink, a tongue to be good at, a woman rather than a wife among
+the people who live with you. `PropSpec.means` is the scene saying which sense it means, keyed on the
+lemma, in English, which is the one language a scene may write and never the Estonian (ADR-005). It
+may only ever **narrow**: `catalogue.test.ts` holds every value to a sense the harvest's own gloss
+already lists word for word, refuses one naming a lemma the prop cannot draw, and requires one for
+every multi-sense lemma and none for a single-sense one, so this is a rule rather than a list of the
+three somebody noticed. The dictionary, the flashcard and the crossword clue are untouched: `tee` is
+still "road, tea" wherever a learner is being told what the word means. `DrawnProp.shown` carries it,
+because that is already what a card prints where the value prints itself, so the briefing needed no
+second reader; and a weekday needs none of this and is asserted to gloss to one sense, so the day one
+of them stops doing that the suite says so.
+
 **A scene that walks somebody across town says so, and it is not a grey sentence between two
 rules.** `BeatSpec.meanwhile` existed and a learner walked to a shop saw neither of the two
 `poodi-piima` carries. It was printed on a response of `answer` or `moveOn`, which is the commonest

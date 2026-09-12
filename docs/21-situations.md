@@ -3882,3 +3882,54 @@ because the press was to read it rather than to move the page.
 room band's, and the fade under them, so the pill starts where the fade ends
 rather than under it. `test-scene.mjs` measures it at the bottom of a scrolled
 page, which is the state the fault lived in and the one nothing had looked at.
+
+## §66 A card hands over one fact, and a gloss is not always one
+
+A `word` prop draws a lemma off the scene's own units and the briefing prints
+its English gloss, because saying it in Estonian is the exercise. That is right
+until the gloss carries more than one sense.
+
+A learner at a café counter read
+
+    Tell them what you would like to drink.
+    road, tea
+
+`tee` is both, and the dictionary is right to say so. The card is not teaching
+the word's range: it is handing somebody one thing to say, and one of those is
+not a drink. The same shape put a tongue among the things to be good at in a
+job interview (`keel`), and a woman rather than a wife among the people who
+live with you.
+
+**Measured before it was fixed**: of the 90 values the fourteen scenes can deal
+from a word prop, 11 have a gloss carrying more than one sense. Two of those
+are the fault in its plain form, `tee` at a café and at a restaurant, and one
+is `keel` at an interview; the rest are pairs where both senses fit, which is
+`haige` as "ill, sick" and `luba` as "permit, permission". Narrowing all of
+them is what makes this a rule rather than a list of the three somebody
+noticed, and the pairs read better narrowed anyway: "Who lives with you: wife"
+rather than "woman, wife".
+
+**The scene says which sense, and may only ever narrow.** `PropSpec.means` is
+keyed on the lemma and holds English, which is the one language a scene may
+write and never the Estonian (ADR-005). `catalogue.test.ts` holds every value
+in it to a sense the harvest's own gloss already lists, word for word, so a
+card cannot teach a meaning the dictionary would not stand behind; it may not
+name a lemma the prop never draws; and every lemma whose gloss carries more
+than one sense has an entry, while one whose gloss carries a single sense may
+not. All four were made to fail before they were trusted.
+
+**Nothing else moved.** The gloss in the dictionary, on a flashcard and in a
+crossword clue is exactly what it was: `tee` is still "road, tea" wherever a
+learner is being told what the word means. What changed is the one place that
+was printing a meaning instead of a fact.
+
+**And the card needed no second reader for it.** `DrawnProp.shown` is already
+"what the card prints as the value, where the value prints itself", which the
+briefing prefers over the dictionary's gloss for a number, a time and a code.
+A narrowed sense is that, so the draw fills it and `briefingOf` is untouched.
+
+**The other kind that prints a gloss is checked rather than assumed.** A
+weekday is a weekday in both languages, so there is no sense to choose between
+and `means` is not on that spec at all; the suite asserts each of them glosses
+to exactly one sense, so the day that stops being true it says so rather than a
+card quietly printing two.

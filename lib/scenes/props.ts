@@ -51,6 +51,36 @@ export type PropSpec =
       readonly oneOf: readonly string[];
       /** How the card says it, with the gloss standing in for the word. */
       readonly says: string;
+      /**
+       * WHICH SENSE OF A WORD THIS SITUATION MEANS, WHERE ITS GLOSS CARRIES
+       * MORE THAN ONE.
+       *
+       * An Estonian word covers what it covers, and the dictionary's gloss says
+       * so: `tee` is "road, tea", `keel` is "language, tongue", `käsi` is
+       * "hand, arm". That is right on an entry and wrong on a card, because a
+       * card is not teaching the word's range, it is handing somebody one fact
+       * and asking them to say it. A learner at a café counter read
+       *
+       *     Tell them what you would like to drink.
+       *     road, tea
+       *
+       * and one of those is not a drink. The same card at a job interview
+       * offered a tongue as something to be good at.
+       *
+       * So a scene says which sense it means, keyed on the lemma, and it may
+       * only ever *narrow*: `catalogue.test.ts` holds every value here to a
+       * sense the harvest's own gloss already lists, word for word, so a card
+       * cannot invent a meaning the dictionary would not stand behind and the
+       * entry everywhere else in the app is untouched. It is English, which is
+       * the one language this file may write, and it is never the Estonian
+       * (ADR-005): saying that is the exercise.
+       *
+       * Total rather than optional in practice: every lemma in `oneOf` whose
+       * gloss carries more than one sense has an entry, and an entry for a
+       * lemma whose gloss carries one is dead and fails. A rule with an
+       * exemption list is the parking space that list becomes.
+       */
+      readonly means?: Readonly<Record<string, string>>;
     }
   /**
    * A time of day, on the hour or the half hour, inside a window.
@@ -191,8 +221,16 @@ export function drawProp(
   switch (spec.kind) {
     case "word": {
       const lemma = pick(spec.oneOf, random, avoid, prefer);
+      /*
+        The sense this situation means, where the word has more than one, and
+        the whole gloss otherwise. `shown` is what a card prints as the value,
+        so the briefing needs no second reader: it already prefers this over
+        the dictionary's gloss for the three kinds whose value prints itself.
+      */
+      const sense = spec.means?.[lemma];
       return {
-        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma], shown: [], value: lemma,
+        slot: spec.slot, card: spec.says, literal: [], lemmas: [lemma],
+        shown: sense ? [sense] : [], value: lemma,
         ...worn(lemma, avoid),
         ...(prefer.has(lemma) ? { returned: true as const } : {}),
       };
