@@ -8,7 +8,7 @@ import { unitProgress } from "@/lib/collections/syllabus";
 import { MAX_ITEMS } from "@/lib/scan/extract";
 import { parseItems, summarise } from "@/lib/scan/items";
 import { Speak } from "@/components/Speak";
-import { Card, Chip, Meter, Note, Page, Ring, SectionTitle } from "@/components/ui";
+import { Card, Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { ScanActions } from "./ScanActions";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +54,7 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           where: { id: { in: ids } },
           select: {
             id: true, lemma: true, translation: true, pos: true, cefr: true,
-            gradationNote: true, provenance: true,
+            gradationNote: true,
           },
         })
       : Promise.resolve([]),
@@ -74,7 +74,6 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
   });
 
   const inDeck = progress.started;
-  const unverified = words.filter((w) => w.lexeme!.provenance === "USER").length;
 
   return (
     <Page
@@ -135,15 +134,6 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
           </section>
         )}
 
-        {unverified > 0 && (
-          <Note tone="again">
-            {unverified} of these {unverified === 1 ? "word wasn't" : "words weren't"} in the
-            dictionary when we read this page, so {unverified === 1 ? "it has" : "they have"} just
-            the English from the photo, and no verified forms. Open one in the dictionary to fix it,
-            and the fix applies everywhere.
-          </Note>
-        )}
-
         <section>
           <SectionTitle hint={summary.inflected > 0 ? `${summary.inflected} inflected on the page` : undefined}>
             The words
@@ -171,7 +161,6 @@ export default async function ScanSetPage({ params }: { params: Promise<{ scanId
                     {lexeme!.gradationNote && (
                       <Chip tone="hard" caseSensitive>{lexeme!.gradationNote}</Chip>
                     )}
-                    {lexeme!.provenance === "USER" && <Chip tone="again">Unverified</Chip>}
                     {snapshot.knownLemmas.has(lexeme!.lemma) ? (
                       <Chip tone="good">Known</Chip>
                     ) : snapshot.startedLemmas.has(lexeme!.lemma) ? (

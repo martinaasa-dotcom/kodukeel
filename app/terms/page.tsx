@@ -1,7 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Legal, P, S } from "@/components/Legal";
 import { resolveOperator } from "@/lib/legal/operator";
-import { AI_TAG } from "@/lib/copy/values";
 
 export const metadata = { title: "Terms" };
 
@@ -70,9 +69,7 @@ export default function TermsPage() {
         </P>
         <P>
           She is not the final word on anything. She can explain grammar and suggest an
-          English translation, and she is built so she can never hand you an Estonian
-          dictionary form, but her explanations can still be wrong. Anything she suggests is
-          marked <em>{AI_TAG}</em> and needs your confirmation before it becomes a card. Do
+          English translation, but her explanations can still be wrong. Do
           not rely on her for an exam answer without checking it yourself.
         </P>
         <P>

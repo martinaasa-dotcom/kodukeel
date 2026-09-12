@@ -7,7 +7,6 @@ import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Chip, KeyCap, Stat } from "@/components/ui";
-import { AI_TAG } from "@/lib/copy/values";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { DescribeMark } from "@/lib/games/describe";
 import type { GradedSentence } from "@/lib/tutor/grader";
@@ -443,7 +442,6 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="label-xs" style={{ color: "var(--ink-3)" }}>{AI_TAG}</p>
           <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-2 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{graded.rule}</p>

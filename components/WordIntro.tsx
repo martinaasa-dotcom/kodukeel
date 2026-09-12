@@ -2,13 +2,12 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Languages, Loader2 } from "lucide-react";
-import { Chip } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { GlossedSentence } from "@/components/GlossedSentence";
 import { translateExample } from "@/app/actions";
 import { splitOnForm } from "@/lib/dict/examples";
 import type { GlossedToken } from "@/lib/dict/glossed";
-import { AI_TAG, SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 
 /**
  * A WORD'S FIRST OUTING: WHAT IT MEANS, AND IT DOING ITS JOB IN A SENTENCE
@@ -229,7 +228,6 @@ function SentenceEnglish({ lexemeId, et, en, canTranslate }: {
     return (
       <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
         {got}
-        <Chip tone="again">{AI_TAG}</Chip>
       </p>
     );
   }
