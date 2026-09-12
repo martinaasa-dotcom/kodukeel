@@ -4130,3 +4130,102 @@ it does not explain either. The draw carries the figures now (`StoredDraw.patien
 `startScene` takes them and `moveOn` reads them off the state (`SceneState.tries`,
 `patienceAt`), and a row written before the field keeps the scene's own, since a
 conversation in flight may not get brisker under the learner having it.
+
+## §70 One reply per turn, and the person behind the counter keeps the conversation moving
+
+The learner who sent §69's transcript asked for the thing underneath it: no
+right or wrong, the conversation has to advance and flow, and when either side
+deviates the whole thing adapts and keeps going. Read against the composed
+transcripts on `gemini-3.8-flash`, which the scene chain runs, the model's own
+lines were already that (`Väga hea, pilet randa. Millal te soovite sõita?`)
+and the machinery around them was not. Every question the learner asked went
+to a second call, an "aside", which came back `Ei tea.` because the model was
+told only that a question had been asked; and on those turns the move itself
+was never composed, so a bank line followed the shrug. A learner curious enough
+to ask "and where then?" got a machine three times in one conversation.
+
+**One reply per turn.** The composed move carries the whole reaction: the
+question answered inside it, the word handed over inside it, the beat let go
+inside it. `composeNote` tells the model what was asked, what the scene says
+the answer is (`BeatSpec.answer` with the card's values filled in), which word
+it was waiting for, and that it is letting the beat go; `ComposeAsk.agenda`
+and `settled` give it the shape of the conversation, what is still to come and
+what has been given, so it can take an answer given early and bring a wandering
+turn back. The keyless reactions stand down where a line composed and stand
+exactly as they were where nothing did (`replyFor`'s `composed`): the shrug,
+the repair phrase, the offered word, the narrowed choice and the app's own
+hint. A turn nobody could read composes too, since the note for it had existed
+since the miss started composing. The aside ladder is the keyless net and the
+shrug is what a landed question gets only where nothing composed and no fact
+answered.
+
+**The model was switching sides, and the prompt was why.** Three turns out
+of seven in one run had the ticket seller speaking as the customer: `Ma soovin
+sõita randa, palun`, `Kas ma maksan kaardiga?`, and in the stairwell `minu
+kodumaa on Läti`, which is the learner's card. The role card and every fact
+on it are written to the learner ("You need a bus ticket. Your card says where
+to"), and the prompt handed them over under "what you know". The first fix
+made it worse: `settled` was built from the learner's goals, "Tell them you
+would like a ticket", which is exactly the line §32 warned a model reads as its
+own. The card is quoted as theirs now, with the pronoun explained and the rule
+said in the plainest words there are; `settled` and `agenda` are the beats'
+own stage directions, asserted never to be goals; and the other side's facts
+are marked as the ones it knows and the learner does not. After it, the health
+centre run is in character for the whole of the conversation and offers the
+time off the card.
+
+**Three checks were refusing correct lines.** Gemini wrote `Hästi, buss
+sõidab jaama kell kaks. See pilet maksab nüüd kaks eurot.` three ways and the
+gate refused all three on `government`: Ekilex records `sõitma` as "kuhu
+(direction) · millega", the parser names a case for the second and none for
+the first, so the verb was held to the comitative alone; and the check read
+only the first governed verb the table listed, which was `maksma`. A
+government naming a place question now governs the cases that answer it, read
+off `CASES.asksWhere` rather than typed, and the check reads every governed
+verb in the line and passes where any is satisfied, which is the same weak
+claim made honestly. And `shape` wanted an `ask` to *end* on the question
+mark, refusing `Mis kell te sõidate? Buss läheb kell kaksteist.`, which is a
+person asking and then volunteering; an ask holds a question now and need not
+end on it.
+
+**And "sorry, what?" gets the line again.** `vabandust, mida?` on a beat that
+takes anything met the beat, left a question word over, and was answered `Ei
+tea.`: §39's fault through the one door it had not been closed on. A turn made
+of nothing but question words and the course's own "sorry" is asking to hear
+the line again (`asksToHearAgain`), and gets it, or a composed line that says
+it in its own words. The `english` curveball is said in English and never
+composed, since composed it came back as `Kas te räägite inglise keelt?`,
+which is the other side asking rather than switching.
+
+Measured on the reported transcript, composed on `gemini-3.8-flash`, after all
+of it (`npm run replay:scene -- --compose`):
+
+```
+THEM: Palun, mida te osta soovite?
+YOU:  Ma tahan pilet
+THEM: Pileti saab ikka. Kuhu te sõita soovite?
+YOU:  Ma lähen peatusse
+THEM: Mis linna või peatusesse te sõita soovite?
+YOU:  Vabandust, ma lähen jaama
+THEM: Hästi, pilet jaama. Mis kell te minna soovite?
+YOU:  Kell 14.00
+THEM: Hästi, buss jaama läheb kell 14.00. See pilet maksab nüüd kaks eurot.
+YOU:  Kui palju?
+THEM: See maksab kaks eurot. Kas te maksate kaardiga või sularahas?
+YOU:  Mis hind on?
+THEM: Hind on kaks eurot. Kas maksate selle eest kaardiga või sularahas?
+```
+
+Every line composed, every one about the person in front of it, and the price
+announced, answered and answered again. `npm run play:scenes -- --compose` on
+the bus scene as a curious learner, the health centre as a sloppy one and the
+stairwell as a lost one on a bad day read the same way; the harnesses share
+one model call with the route's own prompt (`askLine`) and mirror the route's
+decisions about when the courtesy rung stands down, so a transcript printed
+here is the app's.
+
+What this does not do is let the learner change the facts on their card: a
+destination the card did not deal is still off the point, because the card is
+the role and the marker decides against it. What the model does with such a
+turn is answer it as a person and steer back, which is the flow that was asked
+for; what it may never do is decide the beat was met (ADR-025, unchanged).

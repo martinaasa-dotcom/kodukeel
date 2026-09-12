@@ -5539,6 +5539,25 @@ run from the scene's own, so the brisk one had never been a try shorter. The dra
 state carries it (`SceneState.tries`, `patienceAt`), and a run written before the field keeps the
 scene's figures.
 
+**One reply per turn, and the person behind the counter keeps the conversation moving.** Read on
+`gemini-3.8-flash`, the model's own lines were already a person and the machinery round them was
+not: every question the learner asked went to a second call that came back `Ei tea.`, and on those
+turns the move was never composed at all, so a bank line followed the shrug. The composed move
+carries the whole reaction now, the question answered inside it (`composeNote` is told what was
+asked and what the scene says the answer is), the word handed over inside it, the beat let go inside
+it, with `ComposeAsk.agenda` and `settled` giving it the shape of the conversation; every keyless
+reaction stands down where a line composed and stands exactly as it was where nothing did
+(`replyFor`'s `composed`), so the keyless deployment is untouched. **The model was switching sides
+and the prompt was why**: the role card and its facts are written to the learner and were handed over
+under "what you know", and `settled` built from the learner's *goals* made it worse, which is §32 a
+second time. The card is quoted as theirs with the pronoun explained, and `settled` is asserted never
+to be a goal. Three checks were refusing correct lines and each was widened honestly: a government
+naming a place question governs the cases that answer it, read off `CASES.asksWhere`; the government
+check reads every governed verb in a line rather than the first the table lists; and an `ask` holds
+a question rather than ending on one. "Sorry, what?" gets the line again and never the shrug
+(`asksToHearAgain`), and the `english` curveball is said in English and never composed.
+`docs/21-situations.md` §70.
+
 **A choice is two things a person could have meant, never one thing said two ways.** Narrowing a
 case beat offered the wanted form against another case of the same word, on the argument that the
 ending is what the beat drills. On a card that is a fair question; in a conversation it is a grammar
@@ -6906,7 +6925,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `VISION_MODEL`, `SCENE_REPLY_TOKENS`, `PURPOSE_CHAINS`, `NEW_WORDS`, `sceneProviders`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
-`priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`.
+`priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
+`shrugOwed`, `anticipated`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

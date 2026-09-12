@@ -492,6 +492,14 @@ export function wantsFreshLine(
     `sayAgainWanted`'s and both are a booking the ledger never has to make.
   */
   if (reading === "offtarget") return true;
+  /*
+    AND A TURN NOBODY COULD READ COMPOSES TOO. The repair phrase is the
+    course's own and stays the keyless answer; a person who did not catch
+    something says so and asks again in their own words, and the note for it
+    (`composeNote`) has existed since the miss started composing. Only the
+    echo and a turn in English are still nothing to answer.
+  */
+  if (reading === "unrecognised") return true;
   if (sayAgainWanted(response, reading, heard)) return false;
   return true;
 }
@@ -523,19 +531,58 @@ export function composeNote(
   landed = false,
   /** The question word of a question the learner asked, or `?`, where they asked one. */
   asked: string | null = null,
+  extra: {
+    /**
+     * The word the beat was waiting for, where the other side is letting the
+     * beat go or the learner said they were lost: the model says it for them
+     * and carries on, which is what `offerFor` hands over keyless.
+     */
+    readonly offer?: string | null;
+    /**
+     * What this person says when asked what the learner just asked, in
+     * English off the beat's own `answer`, with the card's values filled in.
+     * The model knows the situation and not the plot, so a question the scene
+     * anticipated is answered from the scene rather than guessed at.
+     */
+    readonly answer?: string | null;
+  } = {},
 ): string | undefined {
   /*
     THEY ASKED SOMETHING, AND A QUESTION IS ANSWERED BEFORE ANYTHING ELSE. The
     conversation is in front of the model and the card's facts are in the
     prompt; what this adds is that the question is not to be walked past, on
-    a turn that landed and on one that missed alike. Where the beat's own
-    stage direction is already the answer the model says it once.
+    a turn that landed and on one that missed alike, and what the scene says
+    the answer is where it says one.
   */
   const question = asked
     ? " They also asked you something: answer it first, from what you know, in a few words, and"
       + " only then carry on. Never ignore a question and never say you do not know something"
       + " that is in what you know."
+      + (extra.answer ? ` What you say when asked this: ${extra.answer}` : "")
     : "";
+  /*
+    THE WORD THEY COULD NOT FIND IS SAID FOR THEM. Keyless the other side hands
+    it over as one word and moves on; a person says it inside the sentence
+    that moves on, which is what the model is for here.
+  */
+  const handing = extra.offer
+    ? ` The word you were waiting for is "${extra.offer}": say it for them, kindly, as part of what`
+      + " you say next, so they leave knowing it."
+    : "";
+  /*
+    RUNNING OUT OF PATIENCE IS A PERSON DECIDING TO CARRY ON. The machine has
+    already moved to the next thing; the model is told so, or it asks a fourth
+    time for something the scene has given up on.
+  */
+  if (response === "moveOn") {
+    return "You have asked for something a few times and not got it. Let it go the way a"
+      + " person does, without any reproach, and carry on to the next thing you need."
+      + handing + question;
+  }
+  if (response === "help" || reading === "lost") {
+    return "They have said they are not following. Hand them the word they need and ask again in"
+      + " the same breath, warmly, the way somebody helping a person out would." + handing;
+  }
   /*
     They answered a question from further back. A person takes it, says so, and
     then asks again for the thing they are actually waiting on, which is the
@@ -568,10 +615,6 @@ export function composeNote(
     return "You could not make out what they said. Ask again for the same thing, gently and in"
       + " your own words, as a person who did not catch something does. Do not tell them their"
       + " Estonian is wrong and do not give up on the question.";
-  }
-  if (reading === "lost") {
-    return "They have said they are not following. Hand them the word they need and ask again in"
-      + " the same breath, warmly, the way somebody helping a person out would.";
   }
   return question ? question.trim() : undefined;
 }
@@ -640,16 +683,27 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     which is still the right thing: it is what a person does when there is no
     word to point at.
   */
+  /*
+    A LINE A MODEL WROTE FOR THIS TURN IS THE WHOLE REACTION. It was written
+    with the turn in front of it and told what happened to it, so the word
+    handed over, the shrug, the "sorry?", the narrowed choice and the app's own
+    hint are all things it has already done or was told not to need. Each of
+    those stands down where the line composed, and stands exactly as it was
+    where nothing did, which is the keyless deployment.
+  */
+  const composed = line?.provenance === "composed";
+
   if (response === "help") {
     const word = input.offer;
     const offered = word ? { ...reaction(word, "?"), provenance: "offered" as const } : null;
-    if (offered) out.push(offered);
+    if (offered && !composed) out.push(offered);
     /*
       And the question again, unless the word *was* the question: a greeting
       beat's word and its line are the same, and nobody says `Tere!` twice in
-      one breath.
+      one breath. A composed line hands the word over inside the sentence.
     */
-    if (heard && heard !== offered?.text) out.push({ text: heard, provenance: "again" });
+    if (composed) out.push(line!);
+    else if (heard && heard !== offered?.text) out.push({ text: heard, provenance: "again" });
     else if (!heard && beat) out.push(stage(stageFor(beat, card)));
     return out;
   }
@@ -662,7 +716,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     side's own line handed back, which is not an answer either, and the honest
     reaction to it is the same: they did not get what they asked for.
   */
-  if (response === "repeat" && (reading === "unrecognised" || reading === "echo")) {
+  if (response === "repeat" && (reading === "unrecognised" || reading === "echo") && !composed) {
     out.push({ ...fallbackLine(FALLBACK_PHRASE, line?.withheld ?? []), reaction: true });
   }
 
@@ -830,7 +884,7 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     the word is one every scene teaches. The move follows it, so the
     conversation is steered on rather than stopped and annotated.
   */
-  if (response === "moveOn" && !aside) {
+  if (response === "moveOn" && !aside && !composed) {
     /*
       NOBODY LEAVES A BEAT WITHOUT HAVING BEEN TOLD WHAT IT WANTED.
 
@@ -941,12 +995,12 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
     which the hint below is not, so the app steps out only where no choice
     could be built.
   */
-  const narrowed = input.tries === NUDGE_AFTER && !advancing(response) ? input.choice : null;
+  const narrowed = input.tries === NUDGE_AFTER && !advancing(response) && !composed ? input.choice : null;
   if (narrowed) {
     out.push({ text: narrowed, provenance: "attested", from: CHOICE_WORD });
     return out;
   }
-  if (input.tries === NUDGE_AFTER && !advancing(response)) {
+  if (input.tries === NUDGE_AFTER && !advancing(response) && !composed) {
     const hint = coachFor(beat, card);
     if (hint) out.push({ text: hint, provenance: "coach" });
   }

@@ -208,6 +208,25 @@ export function shrug(lexicon: Lexicon): SpokenLine | null {
   return partsLine(ASIDES.unknown, { lexicon, mark: "." });
 }
 
+/**
+ * WHETHER THE QUESTION IS "SORRY, WHAT?", WHICH IS A REQUEST TO HEAR IT AGAIN.
+ *
+ * `vabandust, mida?` on a beat that accepts anything met the beat, left a
+ * question word over, and the other side answered it `Ei tea.`: a shrug at
+ * somebody asking to hear the line again, which is §39's fault through the
+ * one door it had not been closed on. A turn made of nothing but question
+ * words and the course's own "sorry" is asking for the line again, and the
+ * answer to that is the line again. The phrase is a lemma request against
+ * `tervitused`, resolved through the lexicon, so nothing here is Estonian.
+ */
+export function asksToHearAgain(spoken: readonly string[], questionWords: ReadonlySet<string>, lexicon: Lexicon): boolean {
+  if (spoken.length === 0 || spoken.length > 3) return false;
+  const sorry = lexicon.byLemma.get(SORRY) ?? new Set<string>();
+  return spoken.every((word) => questionWords.has(word) || sorry.has(word))
+    && spoken.some((word) => questionWords.has(word));
+}
+const SORRY = "Vabandust!";
+
 /** Whether the turn asks what something costs: a money word, or "how much/many". */
 export function asksPrice(spoken: readonly string[], lexicon: Lexicon): boolean {
   const said = new Set(spoken);

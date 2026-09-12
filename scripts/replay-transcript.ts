@@ -20,7 +20,7 @@ import {
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
 import { replyFor, datumLine, cardAfterHurdles, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
-import { asideFor, asideOwed, shrug } from "../lib/scenes/aside";
+import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
 import { PERSONAS } from "../lib/scenes/personas";
@@ -30,6 +30,10 @@ import { choiceOf } from "../lib/scenes/choice";
 import { words } from "../lib/scenes/lexicon";
 import { shippedDictionary } from "./lib/dictionary";
 import { dealtNumbers, type RoleCard } from "../lib/scenes/props";
+import { stageFor, composeNote } from "../lib/scenes/reply";
+import { isKnownForm } from "../lib/dict/forms";
+import { askLine, chain as providerChain } from "./lib/sceneDraft";
+import type { Lexicon } from "../lib/scenes/lexicon";
 
 const rows: Row[] = shippedDictionary().map((e) => ({
   id: e.lemma, lemma: e.lemma, pos: e.pos, cefr: e.cefr, parts: e.parts,
@@ -39,6 +43,16 @@ const rows: Row[] = shippedDictionary().map((e) => ({
 const argv = process.argv.slice(2);
 const arg = (name: string) => { const i = argv.indexOf(`--${name}`); return i >= 0 ? argv[i + 1] : undefined; };
 const args = (name: string) => argv.flatMap((v, i) => (v === `--${name}` && argv[i + 1] !== undefined ? [argv[i + 1]!] : []));
+
+/** `--compose` plays it through the app's own scene chain, as `play:scenes` does. */
+const LINKS = argv.includes("--compose") ? providerChain().filter((l) => !arg("model") || l.model === arg("model")) : [];
+async function vouchOf(lexicon: Lexicon, spellings: readonly string[]): Promise<ReadonlySet<string>> {
+  const out = new Set<string>();
+  await Promise.all([...new Set(spellings)].map(async (word) => {
+    if (lexicon.forms.has(word) || await isKnownForm(word)) out.add(word);
+  }));
+  return out;
+}
 
 const SAID = args("say").length > 0 ? args("say") : [
   "Tervist", "Ma tahan pilet", "Ma lähen peatusse", "Vabandust, ma lähen jaama", "Kell 14.00",
@@ -65,7 +79,7 @@ async function main() {
   const pin = (arg("curveball") ?? (scene.id === "bussipilet" ? "wrong-price@pay" : "")).split("@");
   const at = pin[1] ? scene.beats.findIndex((b) => b.id === pin[1]) : -1;
   const curveballs = pin[0] && at > 0 ? [{ id: pin[0], at }] : [];
-  const draw: StoredDraw = { persona: run.persona.id, card, curveballs, lines: "scripted", patience: run.patience };
+  const draw: StoredDraw = { persona: run.persona.id, card, curveballs, lines: LINKS.length > 0 ? "composed" : "scripted", patience: run.patience };
   const persona = PERSONAS.find((p) => p.id === run.persona.id)!;
   for (const prop of card.props) console.log(`   card: ${prop.card} ${prop.theirs ? "(theirs)" : ""} = ${prop.value}`);
 
@@ -92,19 +106,54 @@ async function main() {
       more: fresh(answered?.id), answers: answered ? fresh(answerBeatId(answered)) : [], missed: !landedNow,
     };
     let aside = wantsAside ? asideFor(asking) : null;
-    if (wantsAside && landedNow && !aside && asideOwed(asking)) aside = shrug(context.lexicon);
+    // "Sorry, what?" gets the line again, never the shrug (the route's rule).
+    const hearAgain = asksToHearAgain(words(last?.said ?? ""), context.marker.questionWords, context.lexicon);
+    if (wantsAside && aside === null && hearAgain && heard) aside = { text: heard, provenance: "again" as const };
 
     let line = null;
-    if (spokenFor && !(spokenFor.awaits && !standing)) {
+    const speaksEnglish = Boolean(standing && hurdleSpec(state)?.said);
+    if (spokenFor && !(spokenFor.awaits && !standing) && !speaksEnglish) {
+      const talk = state.turns.slice(-6).flatMap((t) => [
+        ...(t.heard ? [{ role: "assistant" as const, content: t.heard }] : []),
+        { role: "user" as const, content: t.said },
+      ]);
+      const agenda = scene.beats.slice(state.beat).filter((b) => !state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
+      const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, inPlay));
+      const anticipated = askedNow && answered?.answer ? stageFor({ ...answered, they: answered.answer }, inPlay) : null;
+      const handing = (response === "help" || response === "moveOn") && answered
+        ? offerFor(answered, inPlay, context.marker.questionWords, last?.met ?? []) : null;
+      const facts = (inPlay?.props ?? []).map((prop) => {
+        const value = prop.english ?? prop.shown[0] ?? prop.value;
+        return `${prop.card.replace(/\.$/, "")}: ${value}${prop.theirs ? " (yours to tell them)" : " (on the learner's card)"}`;
+      });
+      const deviated = Boolean(askedNow) || last?.reading === "offtarget" || last?.reading === "incomplete";
+      const theirs = deviated ? words(last?.said ?? "").filter((w) => context.lexicon.forms.has(w) || marking.marker.known?.(w)) : [];
+      const beatFor = spokenFor;
       const cheap = await sceneLine({
-        beat: spokenFor, lexicon: context.lexicon,
+        beat: beatFor, lexicon: context.lexicon,
         gate: { ...context.gate, dealt: dealtNumbers(inPlay), times: clockInPlay(inPlay, context.lexicon) },
-        pool: context.pool.get(spokenFor.id) ?? [], topic: context.topic.get(spokenFor.id) ?? new Set(),
+        pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(beatFor.id) ?? [],
+        topic: new Set([...(context.topic.get(beatFor.id) ?? []), ...theirs]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
-        scripted: context.scripted.get(spokenFor.id) ?? [], used,
-        rotate: seedFrom(`${scene.id}:${run.seed}`), mode: "scripted",
+        scripted: context.scripted.get(beatFor.id) ?? [], used,
+        rotate: seedFrom(`${scene.id}:${run.seed}`), mode: LINKS.length > 0 ? "composed" : "scripted",
+        vouch: (spellings: readonly string[]) => vouchOf(context.lexicon, spellings),
+        ...(LINKS.length > 0 ? {
+          compose: (avoid: readonly string[], because?: string) => askLine(LINKS, {
+            move: beatFor.move, they: stageFor(beatFor, inPlay), reading: "", facts, because, agenda, settled,
+            examples: [...context.scripted.entries()].filter(([id]) => id !== beatFor.id).flatMap(([, l]) => l.slice(0, 1)).slice(0, 6),
+            asked: (context.scripted.get(beatFor.id) ?? []).slice(0, 2),
+            note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
+            avoid,
+          }, {
+            scene: scene.title, place: scene.place, persona: persona.who, situation: scene.role,
+            register: scene.register, words: [...context.lexicon.byLemma.keys()],
+          }, talk, () => {}, (l) => { if (argv.includes("--drafts")) console.log(`      ~ drafted: ${l}`); }),
+        } : {}),
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, inPlay, context.lexicon) ?? cheap;
+      if (line.provenance === "composed") aside = null;
+      else if (wantsAside && landedNow && !aside && asideOwed(asking) && !hearAgain) aside = shrug(context.lexicon);
     }
     const lines = replyFor({
       beat: speaking, answered: turns.length ? answered : null, response: turns.length ? response : null,

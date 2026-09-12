@@ -22,6 +22,7 @@ import { unitById } from "@/lib/collections/syllabus";
 import { parseGovernment } from "@/lib/estonian/government";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
+import { CASES } from "@/lib/estonian/cases";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
 import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { LineMode } from "@/lib/scenes/line";
@@ -589,10 +590,29 @@ function governedIn(rows: readonly Row[]): GovernedWord[] {
     out.push({
       lemma: row.lemma,
       forms,
-      cases: new Set([government.caseKey, ...government.alsoGoverned]),
+      cases: new Set([government.caseKey, ...government.alsoGoverned, ...placeCases(row.government ?? "")]),
     });
   }
   return out;
+}
+
+/**
+ * THE CASES THAT ANSWER A PLACE QUESTION A GOVERNMENT NAMES.
+ *
+ * Ekilex records `sõitma` as "kuhu (direction) · millega (comitative)", and
+ * `parseGovernment` names a case for the second and none for the first, since
+ * `kuhu` is not a case. So the gate held `sõitma` to the comitative alone and
+ * withheld `Buss sõidab jaama kell kaks`, three times running, on the one
+ * beat that had to say where the bus goes. `kuhu` is answered by the
+ * sisseütlev and the alaleütlev, `kus` and `kust` by their pairs, which is
+ * what `CASES` already records as `asksWhere`, so a government naming a place
+ * question governs every case that answers it. Read off the table rather
+ * than typed, for the reason the question words themselves are.
+ */
+function placeCases(government: string): CaseKey[] {
+  const asked = new Set((government.toLowerCase().match(/\b(kuhu|kus|kust)\b/g) ?? []).map((w) => `${w}?`));
+  if (asked.size === 0) return [];
+  return CASES.filter((spec) => spec.asksWhere && asked.has(spec.asksWhere)).map((spec) => spec.key);
 }
 
 /** `lemma|CASE` inverted into `form -> cases`, which is what the gate asks. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { asideFor, asideOwed, asksPrice, priceOffCard, shrug } from "./aside";
+import { asideFor, asideOwed, asksPrice, asksToHearAgain, priceOffCard, shrug } from "./aside";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { BeatSpec } from "./types";
@@ -174,5 +174,19 @@ describe("a question about the price", () => {
     expect(asideFor(input({ more, missed: true }))).toBeNull();
     const banked = ["Jah, see on lähedal."];
     expect(asideFor(input({ asked: "kas", answered: ASKS_FOR_QUESTION, answers: banked, missed: true }))).toBeNull();
+  });
+});
+
+describe("sorry, what?", () => {
+  const questions = new Set(["mis", "mida", "kuidas", "kus"]);
+  const lex = buildLexicon([...ENTRIES, { lemma: "Vabandust!", pos: "PHRASE", cefr: "A1", parts: {}, usages: [] }]);
+
+  it("is a request to hear the line again, and never owed a shrug", () => {
+    expect(asksToHearAgain(["vabandust", "mida"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["mida"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["kuidas"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["mis", "hind", "on"], questions, lex)).toBe(false);
+    expect(asksToHearAgain(["vabandust"], questions, lex)).toBe(false);
+    expect(asksToHearAgain([], questions, lex)).toBe(false);
   });
 });

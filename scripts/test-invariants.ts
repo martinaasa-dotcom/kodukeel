@@ -12075,7 +12075,7 @@ check("a scripted line is drafted by a script, said after a recorded one, and ma
   const bookAt = route.indexOf('authoriseCall(ownerId, "SCENE")');
   assert.ok(netAt > 0 && bookAt > 0 && netAt < bookAt,
     "the route books a call before working out what it would say without one, so the net is assembled while somebody is waiting");
-  assert.match(route, /if \(cheap\.provenance === "attested"\) return/,
+  assert.match(route, /if \(cheap\.provenance === "attested" && !shrugOwed && !handing && !askedNow\) return/,
     "the route no longer answers a courtesy off the dictionary before asking a model to paraphrase it");
   assert.match(route, /scripted: context\.scripted\.get\(beat\.id\)/, "the route no longer hands the ladder the bank");
 
@@ -12886,10 +12886,19 @@ check("every question a beat asks the learner for is answered by somebody", () =
     one, so the rung reached exactly when the bank has run out on a beat that
     knows what the answer is was the rung told nothing about it.
   */
+  /*
+    The aside is no longer a call of its own: the composed move carries the
+    answer, and what the scene says the answer is reaches it through the note
+    (`composeNote`'s `answer`), with the card's values filled in.
+  */
   assert.match(
-    code("app/api/scene/route.ts"), /they: answered\?\.answer\s*\n?\s*\?\s*stageFor\(\{ \.\.\.answered, they: answered\.answer \}, card\)/,
-    "the route composes an aside without telling the model what the beat says they answer with, "
+    code("app/api/scene/route.ts"), /anticipated = askedNow && answered\?\.answer \? stageFor\(\{ \.\.\.answered, they: answered\.answer \}, card\)/,
+    "the route composes a move without telling the model what the beat says they answer with, "
       + "with the card's values filled in",
+  );
+  assert.match(
+    code("app/api/scene/route.ts"), /\{ offer: handing, answer: anticipated \}/,
+    "the anticipated answer is worked out and never handed to the composer",
   );
 });
 
@@ -12986,9 +12995,21 @@ check("a learner who says they are lost is handed the word, never the question a
     "the scene route decides for itself which turns are owed an answer, rather than through wantsAsideFor",
   );
   assert.match(
-    sceneRoute, /asideWantsModel = wantsAside && landedNow && aside === null && asideOwed\(asking\)/,
-    "the scene route asks the model, and so shrugs, at somebody whose turn missed the beat",
+    sceneRoute, /shrugOwed = wantsAside && landedNow && aside === null && asideOwed\(asking\) && !hearAgain/,
+    "the scene route shrugs at somebody whose turn missed the beat, or at somebody asking to hear the line again",
   );
+  /*
+    WHAT IS SETTLED IS SAID FROM THE OTHER SIDE, NEVER AS THE LEARNER'S GOALS.
+    The first version handed the model "Tell them you would like a ticket" as
+    settled, and it answered the next turn as the customer (§70).
+  */
+  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts"]) {
+    assert.doesNotMatch(
+      code(file), /settled = [^\n]*\.goal\)/,
+      `${file} hands the model the learner's goals as what is settled, which it reads as its own lines`,
+    );
+    assert.match(code(file), /settled = [^\n]*stageFor\(b, /, `${file} no longer tells the model what is settled`);
+  }
   assert.match(
     sceneRoute, /missed: !landedNow,/,
     "the aside on a turn that missed is not told so, and may answer with a banked line for a beat nobody met",
@@ -13095,7 +13116,7 @@ check("a learner who says they are lost is handed the word, never the question a
     `Aitäh.` or `Jah.`
   */
   assert.match(
-    answering, /response === "moveOn" && !aside\) \{[\s\S]{0,600}?REACTIONS\.letGo/,
+    answering, /response === "moveOn" && !aside && !composed\) \{[\s\S]{0,600}?REACTIONS\.letGo/,
     "running out of patience is acknowledged like an answer, so giving up reads as agreement",
   );
   /*

@@ -942,3 +942,54 @@ describe("the card after a curveball", () => {
     expect(partsLine([{ slot: "price" }, { lemma: "kroon", grammCase: "PARTITIVE" }], { card: priced, lexicon, mark: "." })).toBeNull();
   });
 });
+
+/*
+  ONE MODEL REPLY PER TURN CARRIES THE WHOLE REACTION (§70). A line composed
+  with the turn in front of it has already reacted, so every keyless reaction
+  stands down where it composed and stands exactly as it was where nothing did.
+*/
+describe("a line a model wrote for this turn", () => {
+  const composed: SpokenLine = { text: "Selge, jaama. Mis kell te sõita soovite?", provenance: "composed" };
+
+  it("composes on a turn nobody could read, and the repair phrase is not said in front of it", () => {
+    expect(wantsFreshLine("repeat", "Kus teil valutab?", "unrecognised")).toBe(true);
+    expect(wantsFreshLine("repeat", "Kus teil valutab?", "echo")).toBe(false);
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: composed }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "repeat", reading: "unrecognised", line: NOTHING }));
+    expect(texts(keyless)[0]).toBe(FALLBACK_PHRASE);
+  });
+
+  it("hands the word over inside the sentence where the learner was lost", () => {
+    const lines = replyFor(input({ answered: ASK, beat: ASK, response: "help", reading: "lost", offer: "pea", line: composed, heard: "Kus teil valutab?" }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({ answered: ASK, beat: ASK, response: "help", reading: "lost", offer: "pea", line: NOTHING, heard: "Kus teil valutab?" }));
+    expect(texts(keyless)).toEqual(["Pea?", "Kus teil valutab?"]);
+  });
+
+  it("lets a beat go inside the sentence, with no word bolted on in front", () => {
+    const lines = replyFor(input({ answered: ASK, beat: OFFER, response: "moveOn", reading: "offtarget", line: composed, offer: "pea" }));
+    expect(texts(lines)).toEqual([composed.text]);
+  });
+
+  it("is not pre-empted by the narrowed choice or the app's own hint", () => {
+    const lines = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: composed,
+      tries: NUDGE_AFTER, choice: "Pea või selg?", heard: "Kus teil valutab?",
+    }));
+    expect(texts(lines)).toEqual([composed.text]);
+    const keyless = replyFor(input({
+      answered: ASK, beat: ASK, response: "narrow", reading: "offtarget", line: NOTHING,
+      tries: NUDGE_AFTER, choice: "Pea või selg?", heard: "Kus teil valutab?",
+    }));
+    expect(texts(keyless)).toEqual([REACTIONS.missed[0], "Pea või selg?"]);
+  });
+
+  it("is told the word to hand over and what the scene says the answer is", () => {
+    expect(composeNote("moveOn", "offtarget", false, null, { offer: "pea" })).toMatch(/Let it go/);
+    expect(composeNote("moveOn", "offtarget", false, null, { offer: "pea" })).toMatch(/"pea"/);
+    expect(composeNote("help", "lost", false, null, { offer: "pea" })).toMatch(/"pea"/);
+    expect(composeNote("answer", "complete", false, "kui", { answer: "They say it costs 5 euros now." }))
+      .toMatch(/What you say when asked this: They say it costs 5 euros now\./);
+  });
+});
