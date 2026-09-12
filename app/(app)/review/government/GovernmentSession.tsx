@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Scale, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { addToDeck, gradeCard } from "@/app/actions";
+import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
@@ -61,6 +62,18 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   const startedAt = useRef(Date.now());
 
   const question = questions[index];
+  /*
+    Asked here too, mid-round, because a learner with shelves named who keeps a
+    word from a drill has the same claim on choosing where it goes as one who
+    keeps it from the dictionary. It costs a press only once there is a shelf
+    to choose between, and `useKeepWord` closes the question when the word
+    underneath it changes.
+  */
+  const keeper = useKeepWord(question?.lexemeId ?? null, async (deckIds) => {
+    if (!question) return;
+    await addToDeck(question.lexemeId, ["RECOGNITION", "GOVERNMENT"], "LOOKUP", deckIds);
+    setAdded(question.lexemeId);
+  });
   const finished = !question;
   const revealed = picked !== null;
 
@@ -262,20 +275,22 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
               </p>
             )}
 
+            <KeepWordChoice keeper={keeper} className="mt-4" />
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="primary" onClick={next} autoFocus>
                 Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
               </Button>
               {!question.inDeck && (
-                <Button
-                  disabled={added === question.lexemeId}
-                  onClick={async () => {
-                    await addToDeck(question.lexemeId, ["RECOGNITION", "GOVERNMENT"], "LOOKUP");
-                    setAdded(question.lexemeId);
-                  }}
-                >
-                  {added === question.lexemeId ? "Added to your deck" : "Add to my deck"}
-                </Button>
+                <>
+                  {keeper.asking && (
+                    <Button variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+                  )}
+                  <Button disabled={added === question.lexemeId || keeper.pending} onClick={keeper.press}>
+                    {added === question.lexemeId
+                      ? "Added to your deck"
+                      : keeper.asking ? "Keep it" : "Add to my deck"}
+                  </Button>
+                </>
               )}
             </div>
           </div>

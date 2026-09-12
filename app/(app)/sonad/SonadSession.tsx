@@ -12,6 +12,7 @@ import {
 } from "@/lib/games/sonad";
 import type { Puzzle } from "@/lib/progress/sonad";
 import { addToDeck, recordSonad } from "@/app/actions";
+import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
 
 /**
@@ -492,7 +493,10 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   kept: boolean;
   onKeep: () => void;
 }) {
-  const [pending, setPending] = useState(false);
+  const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
+    const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds);
+    if (result.ok) onKeep();
+  });
 
   return (
     <Card>
@@ -519,20 +523,17 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
         the scheduler at somebody who came here to play.
       */}
       {!kept && (
-        <Button
-          type="button"
-          variant="primary"
-          className="mt-4"
-          disabled={pending}
-          onClick={async () => {
-            setPending(true);
-            const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP");
-            setPending(false);
-            if (result.ok) onKeep();
-          }}
-        >
-          {pending ? "Adding" : "Keep this word"}
-        </Button>
+        <>
+          <KeepWordChoice keeper={keeper} className="mt-4" />
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {keeper.asking && (
+              <Button type="button" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+            )}
+            <Button type="button" variant="primary" disabled={keeper.pending} onClick={keeper.press}>
+              {keeper.pending ? "Adding" : keeper.asking ? "Keep it" : "Keep this word"}
+            </Button>
+          </div>
+        </>
       )}
       {kept && (
         <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>

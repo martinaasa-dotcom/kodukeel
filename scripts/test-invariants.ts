@@ -14534,25 +14534,34 @@ check("the exceptions round asks nothing whose answer is the word in the questio
  * unlikely, and `app/actions.ts` is where it is declared.
  */
 /**
- * WHICH SHELF A WORD GOES ON IS ONE QUESTION, ASKED IN ONE PLACE.
+ * WHICH SHELF A WORD GOES ON IS ONE QUESTION, ASKED WHEREVER A WORD IS KEPT.
  *
  * The dictionary's add panel grew the deck list first and was for a while the
  * only screen that asked. Every other way of keeping a word called `addToDeck`
  * with three arguments and filed it under nothing, so a learner who had named
  * shelves pressed "Add it to my deck" on the home page, the word landed on
- * none of them, and no screen said so. It was reported exactly that way.
+ * none of them, and no screen said so. It was reported exactly that way, and
+ * it was true of six doors rather than one.
  *
  * A second copy of the question is how that happens: one door learns to ask
  * and the next never does. So the fetch pair that backs it has one reader,
- * `components/DeckChoice.tsx`, and a screen that wants to ask reaches for the
- * hook rather than writing the list again.
+ * `components/DeckChoice.tsx`; the press that resolves it and then decides has
+ * one home, `components/KeepWord.tsx`; and every screen that keeps a single
+ * word reaches for that rather than writing the dance again. The dance is
+ * worth naming: "not fetched yet" and "no shelves at all" are the same empty
+ * answer, and a copy that reads the second as the first is a button that does
+ * nothing on its first press.
  *
- * Anchored on the reads rather than on the rendered list, because those are
- * what a copy would have to duplicate: a component cannot ask which shelves
- * exist, or which of them a word already sits on, without them.
+ * READ OFF THE CALLERS OF `addToDeck` RATHER THAN A LIST HERE, because the
+ * shape of this fault is a screen added later that simply never asks, and a
+ * list in this file is the copy that goes stale. The two exemptions are the
+ * screens that do not keep one word: the dictionary owns the question itself
+ * beside its card-type list, and the offline replay is not a button.
  */
-check("the deck question has one home, and the screens that ask reach for it", () => {
+check("every screen that keeps a word asks which shelf, through one press", () => {
   const HOME = join("components", "DeckChoice.tsx");
+  const PRESS = join("components", "KeepWord.tsx");
+
   const readers = ALL.filter(
     (file) => file !== join("app", "actions.ts")
       && /\blistMyDecks\b|\bmyDeckMembership\b/.test(code(file)),
@@ -14565,21 +14574,30 @@ check("the deck question has one home, and the screens that ask reach for it", (
   );
 
   /*
-    And the two browsing surfaces really do ask. A hook nobody calls is the
-    same silence one file along, which is the fault this file has now made
-    five times: an import that renders nothing passes a check looking for the
-    import.
+    The dictionary asks the question itself, because its panel is a card-type
+    list with the shelves under it rather than a press of its own.
   */
-  for (const asker of [join("components", "AddWordButton.tsx"), join("app", "(app)", "dictionary", "DictionaryClient.tsx")]) {
+  const DICTIONARY = join("app", "(app)", "dictionary", "DictionaryClient.tsx");
+  assert.match(code(DICTIONARY), /useDeckChoice\(/, `${DICTIONARY} stopped asking which shelf.`);
+  assert.match(code(DICTIONARY), /<DeckChoiceList\b/, `${DICTIONARY} resolves the choice and never draws it.`);
+
+  const keepers = ALL.filter(
+    (file) => file !== DICTIONARY && file !== PRESS && file !== join("app", "actions.ts")
+      && /\baddToDeck\(/.test(code(file)),
+  );
+  assert.ok(keepers.length >= 6, `only ${keepers.length} screens keep a word, so this check has stopped looking`);
+
+  for (const screen of keepers) {
     assert.match(
-      code(asker), /useDeckChoice\(/,
-      `${asker} adds a word without asking which shelf. A learner with shelves `
-      + "named gets the word filed under none of them and no word about it.",
+      code(screen), /useKeepWord\(/,
+      `${screen} keeps a word without asking which shelf. A learner with shelves `
+      + "named gets it filed under none of them and no word about it, which is "
+      + "what was reported from the home page.",
     );
     assert.match(
-      code(asker), /<DeckChoiceList\b/,
-      `${asker} resolves the deck choice and never draws it, so the learner is `
-      + "asked nothing and whatever was fetched decides on its own.",
+      code(screen), /<KeepWordChoice\b/,
+      `${screen} resolves the shelf question and never draws it, so the learner `
+      + "is asked nothing and whatever was fetched decides on its own.",
     );
   }
 });

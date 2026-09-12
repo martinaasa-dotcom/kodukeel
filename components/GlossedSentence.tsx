@@ -6,6 +6,7 @@ import { BookOpen, Check, Loader2, Plus, Underline, X } from "lucide-react";
 import { addToDeck, setWordGloss } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Speak } from "@/components/Speak";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import type { Condition } from "@/lib/audio/conditions";
@@ -181,7 +182,6 @@ function WordPanel({ entry, onClose, onTurnOff }: {
   /** Draw the sentence plain, now, while the answer is on its way to the server. */
   onTurnOff: () => void;
 }) {
-  const [pending, start] = useTransition();
   const [result, setResult] = useState<string | null>(null);
   /*
     Its own transition, not the one the add button reads. Sharing it made
@@ -205,18 +205,21 @@ function WordPanel({ entry, onClose, onTurnOff }: {
     });
   };
 
-  const add = () => {
-    start(async () => {
-      /*
-        A press, never a render. Recognition and production both, which is what
-        every other one-word add in this app offers: a word you can read and
-        cannot say is half learned. It does not refresh the route, because the
-        route behind this is a review session holding its own queue.
-      */
-      const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE");
-      setResult(r.ok ? (r.added === 0 ? "Already in your deck." : `Added ${r.added} cards.`) : r.error);
-    });
-  };
+  /*
+    A press, never a render. Recognition and production both, which is what
+    every other one-word add in this app offers: a word you can read and cannot
+    say is half learned. It does not refresh the route, because the route behind
+    this is a review session holding its own queue, and that is the reason the
+    write stays here while the shelf question comes from `useKeepWord`: a shared
+    press that owned this one would have to carry a flag for it.
+  */
+  const keeper = useKeepWord(entry.lexemeId, async (deckIds) => {
+    const r = await addToDeck(entry.lexemeId, ["RECOGNITION", "PRODUCTION"], "SENTENCE", deckIds);
+    if (!r.ok) { setResult(r.error); return; }
+    const named = keeper.choice.decks?.filter((d) => deckIds?.includes(d.id)).map((d) => d.name) ?? [];
+    const where = named.length > 0 ? ` On ${named.join(", ")}.` : "";
+    setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${r.added} cards.${where}`);
+  });
 
   return (
     <div
@@ -255,14 +258,18 @@ function WordPanel({ entry, onClose, onTurnOff }: {
           <X size={15} aria-hidden />
         </button>
       </div>
-      <div className="mt-2">
-        <Button size="sm" variant="soft" onClick={add} disabled={pending || result !== null}>
-          {pending ? (
+      <KeepWordChoice keeper={keeper} className="mt-2.5" />
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {keeper.asking && (
+          <Button size="sm" variant="ghost" onClick={keeper.cancel}>Cancel</Button>
+        )}
+        <Button size="sm" variant="soft" onClick={keeper.press} disabled={keeper.pending || result !== null}>
+          {keeper.pending ? (
             <><Loader2 size={13} className="animate-spin" aria-hidden /> Adding…</>
           ) : result ? (
             <><Check size={13} aria-hidden /> {result}</>
           ) : (
-            <><Plus size={13} aria-hidden /> Add to my deck</>
+            <><Plus size={13} aria-hidden /> {keeper.asking ? "Keep it" : "Add to my deck"}</>
           )}
         </Button>
       </div>
