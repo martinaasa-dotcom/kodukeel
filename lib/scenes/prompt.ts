@@ -183,6 +183,19 @@ const COMPOSE_RULES = [
   "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
   "take your meaning two different ways.",
   /*
+    AND THE NEXT QUESTION IS BUILT ON THE LAST ANSWER, NOT ASKED AS THOUGH
+    NOTHING CAME BEFORE IT. A real interview never reads as a list of
+    questions read off a form: a doctor who has just heard "three cups of
+    coffee a day" asks next whether the headache is worse on the days that
+    coffee is skipped, not a question that could have opened the visit.
+    That is what tells a learner the other side is listening rather than
+    working through a script, and it is available for free wherever the
+    turn before it named something this beat's own topic can point back at.
+  */
+  "Where the learner's last turn named something this beat can reasonably refer to, refer to it",
+  "rather than asking as though this were the first thing said. Do not invent a detail they did",
+  "not give you, and do not force a callback where the topic has genuinely moved on.",
+  /*
     AND THE REMARK IS MADE OUT OF THE WORDS IT WAS GIVEN. Asked for the one
     thing about the place a person would mention, and with the room to say it,
     the model reached for a word it did not control: `Tere! Mis needus täna

@@ -1189,7 +1189,20 @@ export function advances(reading: TurnReading): boolean {
  * being met by the same breath as the beat before it, which is the case it
  * exists to refuse. A beat that wants a question *and* something else still
  * cascades on the something else: `Tere, kus on pank?` greets and asks.
+ *
+ * AND A BARE `JAH` OR `EI` CREDITS NOTHING AT A DISTANCE. Both are accepted
+ * answers to a beat that only wants a yes or a no (`milk`'s is `jah, ei,
+ * piim, suhkur`), which is right where the learner was actually asked. It is
+ * not right here: "ma ei tea" negates `tea`, said at the greeting, and this
+ * walk read the bare `ei` sitting in it as the answer to a milk beat three
+ * turns downstream nobody had asked about yet, crediting it and skipping the
+ * question outright. `ei` is the commonest negator in the language and `jah`
+ * the commonest filler, so either turning up in an unrelated sentence is the
+ * ordinary case rather than evidence of anything, unlike `poodi` or `kohvi`,
+ * which mean one thing. A cascade or a credit at a distance may still be won
+ * on a real word; it may never be won on `jah` or `ei` alone.
  */
+const BARE_POLARITY = new Set(["jah", "ei"]);
 export function addsEvidence(next: Evidence, spent: ReadonlySet<string>): boolean {
-  return next.satisfiedBy.some((word) => !spent.has(word));
+  return next.satisfiedBy.some((word) => !spent.has(word) && !BARE_POLARITY.has(word));
 }

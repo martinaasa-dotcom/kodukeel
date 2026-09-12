@@ -775,9 +775,22 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
   /*
     Over. If the learner said goodbye first, they are owed one back, and the
     route walked the ladder for the farewell; otherwise nothing is owed.
+
+    AND NOT A SECOND TIME, WHERE THE CLOSE BEAT WAS ALREADY LET GO.
+
+    A close beat's `needs` is a farewell, so `offerFor` above hands over a
+    farewell word the moment patience runs out on it, and that word is the
+    same thing the scene's own closing line says: `Head aega!` offered, and
+    then `Head aega!` said again as the farewell, from one speaker, with
+    nothing between them. `response === "help"` already guards this for a
+    greeting ("nobody says `Tere!` twice in one breath"); this is the same
+    guard for the beat that ends the scene rather than moves past it.
   */
   if (!beat) {
-    if (answered?.move === "close" && line && line.provenance !== "fallback") out.push(line);
+    const said = out.at(-1)?.text.toLowerCase();
+    if (answered?.move === "close" && line && line.provenance !== "fallback" && line.text.toLowerCase() !== said) {
+      out.push(line);
+    }
     return out;
   }
 
