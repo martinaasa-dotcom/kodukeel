@@ -70,6 +70,27 @@ const LEVELS = [
   { key: "C1", label: "Fluent", detail: "Anything, near enough. Here for the shades of meaning." },
 ] as const;
 
+/*
+  A1 (AND BELOW IT) IS WHERE FOUR NEW LETTERS FIRST APPEAR, SO THAT IS WHERE THEY ARE NAMED.
+
+  õ, ä, ö and ü are not on an English keyboard and are not in English at all,
+  so a beginner meets them on their very first word. Naming them here, once, at
+  the level where they start mattering, beats a learner wondering what they
+  are three screens later. Reassurance rather than a lesson: saying how each
+  sounds is the recordings' job, not this note's. Shown wherever this screen
+  lands somebody at A1 or below it, whether they picked the chip themselves or
+  the check just placed them there, since both are the same beginner meeting
+  the same four letters for the first time.
+*/
+function NewLettersNote() {
+  return (
+    <Note tone="sky">
+      Estonian has four letters English does not: õ, ä, ö, ü. You will see them
+      everywhere. Do not worry about saying them right yet. That comes with time.
+    </Note>
+  );
+}
+
 /**
  * The four paces, as review counts.
  *
@@ -431,7 +452,7 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                     selected={gloss === o.id}
                     onSelect={() => setGloss(o.id)}
                     title={o.label}
-                    detail={o.id === "en" ? "The course's own glosses" : o.native}
+                    detail={o.id === "en" ? "The course's own translations" : o.native}
                   />
                 ))}
               </ChoiceGroup>
@@ -488,6 +509,11 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
             {measured ? (
               <div className="mt-6">
                 <ResultPanel result={measured} heading="Measured just now" />
+                {(measured.overall === "A1" || measured.overall === PRE_A1) && (
+                  <div className="mt-4">
+                    <NewLettersNote />
+                  </div>
+                )}
                 <Button variant="ghost" className="mt-4" onClick={() => { setMeasured(null); setChecking(true); }}>
                   Sit it again
                 </Button>
@@ -523,6 +549,12 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                     />
                   ))}
                 </ChoiceGroup>
+
+                {estimated === "A1" && (
+                  <div className="mt-4">
+                    <NewLettersNote />
+                  </div>
+                )}
               </>
             )}
           </section>
@@ -679,9 +711,8 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
               Your first words
             </h1>
             <p className="mt-2 max-w-[54ch] text-base" style={{ color: "var(--ink-2)" }}>
-              The course starts you here, at {startBand}. These are the words you actually need to
-              begin, taught in the order a course teaches them, and each one turns into real
-              flashcards with audio and every form of the word.
+              Your first {counted(deck.units.length, "unit")} at {startBand}, in the order below.
+              Each word becomes a flashcard, with audio and every form.
             </p>
 
             {/*
@@ -746,8 +777,9 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                 <p className="label-xs" style={{ color: "var(--mint-ink)" }}>Your first conversation</p>
                 <p className="mt-1 text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{firstScene.title}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--mint-ink)" }}>
-                  {firstScene.place}. Once these words are in, Situations plays it on somebody who
-                  wants something from you, and then there is a real one to go and do.
+                  {firstScene.place}. Once these words are in, you can rehearse this exact
+                  conversation here, typing your side to a stranger who wants something from you.
+                  Then go have the real one.
                 </p>
               </div>
             )}

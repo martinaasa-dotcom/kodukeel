@@ -113,3 +113,20 @@ export function counted(n: number, one: string, many = `${one}s`): string {
 export function nounFor(n: number, one: string, many = `${one}s`): string {
   return n === 1 ? one : many;
 }
+
+/**
+ * A list read the way a person reads one aloud, with "and" before the last
+ * item rather than another comma.
+ *
+ * `practises(scene).join(", ")` had two callers and both had the same fault:
+ * a plain comma join turned two items into something that reads as one, "a
+ * word off your card, the polite you", which looks like the second half is
+ * describing the first, as though the card itself were the polite you. "and"
+ * before the last item is what a sentence needs to say two separate things
+ * are both required.
+ */
+export function joinWithAnd(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
+}

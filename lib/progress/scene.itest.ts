@@ -264,14 +264,17 @@ describe("a scene against the dictionary", () => {
     const floor = opened!.run.card.props.find((p) => p.slot === "floor")!;
 
     /*
-      `floor` has patience 2, so two turns that answer nothing walk the pointer
-      past it and leave it unmet. The third turn is the floor, arriving late.
+      As many turns that answer nothing as this run's `floor` beat gives,
+      which is the persona's figure now rather than the scene's own two: they
+      walk the pointer past it and leave it unmet. The turn after is the
+      floor, arriving late.
     */
+    const at = scene.beats.findIndex((beat) => beat.id === "floor");
+    const tries = opened!.run.patience[at]!;
     const { state, elsewhere } = replay(context!, draw, [
       { beatId: "greet", said: "Tere!", helped: false, heard: "" },
       { beatId: "new", said: "jah, ma just kolisin sisse", helped: false, heard: "" },
-      { beatId: "floor", said: "ilus ilm", helped: false, heard: "" },
-      { beatId: "floor", said: "ilus ilm", helped: false, heard: "" },
+      ...Array.from({ length: tries }, () => ({ beatId: "floor", said: "ilus ilm", helped: false, heard: "" })),
       { beatId: "from", said: floor.value, helped: false, heard: "" },
     ]);
 

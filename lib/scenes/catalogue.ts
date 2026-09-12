@@ -446,6 +446,14 @@ const LANDLORD: SceneSpec = {
       says: "The other day they can come.",
     },
     { kind: "time", slot: "time2", from: 8, to: 18, differentFrom: "time", theirs: true },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 20, max: 60, says: "What the repair was quoted at, in euros." },
+    { kind: "price", slot: "price2", min: 20, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   /*
     No queue: this one is a telephone call, so the only curveball in the
@@ -624,6 +632,14 @@ const COUNTER: SceneSpec = {
     */
     { kind: "code", slot: "ref", says: "The reference you were given." },
     { kind: "number", slot: "floor", min: 1, max: 4, says: "The floor the desk is on." },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 5, max: 20, says: "The fee you were told, in euros." },
+    { kind: "price", slot: "price2", min: 5, max: 20, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: [
     "missing-document", "their-order", "place-instruction", "queue", "faster",
@@ -859,14 +875,21 @@ const SHOP: SceneSpec = {
 */
 const CAFE: SceneSpec = {
   id: "kohvikus",
-  title: "Ordering a coffee",
+  title: "Ordering a drink",
   place: "The counter of a small café",
   level: "A1",
   tests: "sook-ja-jook",
   /*
+    THE TITLE SAYS "A DRINK" RATHER THAN NAMING ONE, BECAUSE THE CARD DEALS
+    ONE OF FOUR. It used to say "Ordering a coffee" while the `drink` prop
+    below could just as well deal `mahl`, so a learner whose card said juice
+    opened a scene that had already told them what they were about to order,
+    wrongly. The title is a fact about the scene rather than about a run.
+
     `restoranis` for `arve` and `tellima`, which is how the bill is asked for
     and the order taken; `kus-ja-kuhu` for the café itself; `omadussonad` for
-    "large" and "hot".
+    "large" and "small", which is what the beat below asks about rather than
+    milk, for the reason given there.
   */
   units: [...COMMON, "sook-ja-jook", "ostmine", "kus-ja-kuhu", "restoranis", "omadussonad"],
   register: "teie",
@@ -877,6 +900,14 @@ const CAFE: SceneSpec = {
       says: "What you would like. Ask for it in Estonian.",
       means: { tee: "tea" },
     },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 2, max: 5, says: "What the drink costs on the board, in euros." },
+    { kind: "price", slot: "price2", min: 2, max: 5, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "queue", "english", "interrupted", "misheard"],
   beats: [
@@ -903,12 +934,21 @@ const CAFE: SceneSpec = {
       shape: "word",
     },
     {
-      id: "milk",
-      goal: "Tell them whether you want milk in it.",
-      they: "They ask whether you want milk in it.",
+      /*
+        THIS WAS "MILK", ASKED WHATEVER THE CARD DEALT. "Kas piima ka?" over
+        a card that said `mahl` or `vesi` asked a beginner whether they wanted
+        milk in their juice, which is not a question anybody at a real
+        counter would ask: milk goes in coffee and tea and in nothing else on
+        this card. Size is the question every one of the four drinks can
+        honestly be asked, so it stands in for it. `suur` and `väike` are
+        `omadussonad` words the unit list already declares.
+      */
+      id: "size",
+      goal: "Say whether you would like a large one or a small one.",
+      they: "They ask whether you would like a large one or a small one.",
       move: "ask",
-      topic: ["piim", "suhkur", "kohv"],
-      needs: [{ kind: "lemma", oneOf: ["jah", "ei", "piim", "suhkur"] }],
+      topic: ["suur", "väike"],
+      needs: [{ kind: "lemma", oneOf: ["suur", "väike"] }],
       required: true,
       patience: 2,
       shape: "word",
@@ -920,7 +960,14 @@ const CAFE: SceneSpec = {
       they: "They set it down and ask whether that is everything.",
       move: "ask",
       topic: ["arve", "maksma", "raha", "hind"],
-      needs: [{ kind: "lemma", oneOf: ["arve", "maksma", "raha"] }],
+      /*
+        "JAH" IS AN ANSWER TO A YES-OR-NO QUESTION, AND IT WAS REFUSED. "Kas
+        on kõik?" is a yes-or-no question, and the beat's own goal is met by
+        confirming and moving to pay, so a plain "Jah" belongs beside
+        `arve`/`maksma`/`raha` the way the offer beats in this file already
+        take `jah` and `ei` beside their drawn value.
+      */
+      needs: [{ kind: "lemma", oneOf: ["jah", "arve", "maksma", "raha"] }],
       required: true,
       patience: 2,
       shape: "sentence",
@@ -938,7 +985,7 @@ const CAFE: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "served", when: ["greet", "order", "milk", "bill", "close"], says: "You have your drink, you paid, and you made the bus." },
+    { id: "served", when: ["greet", "order", "size", "bill", "close"], says: "You have your drink, you paid, and you made the bus." },
     { id: "served-quiet", when: ["order", "bill"], says: "You have your drink and you paid. Not much was said, and that is fine in a café." },
     { id: "out", when: ["greet", "order"], says: "They were out of it today. You said what you wanted, and that was the part that was yours." },
     { id: "left", when: [], says: "You left without ordering. The bus was coming anyway." },
@@ -1066,6 +1113,14 @@ const TICKET: SceneSpec = {
       says: "Where you are going.",
     },
     { kind: "time", slot: "time", from: 8, to: 20, says: "The time you are meeting." },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 2, max: 6, says: "What a ticket costs, in euros." },
+    { kind: "price", slot: "price2", min: 2, max: 6, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: ["wrong-price", "queue", "faster", "english", "not-possible", "slot-gone", "small-talk"],
   beats: [
@@ -1188,6 +1243,14 @@ const RESTAURANT: SceneSpec = {
       says: "What you would like to drink.",
       means: { tee: "tea" },
     },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 8, max: 20, says: "What the menu says your meal costs, in euros." },
+    { kind: "price", slot: "price2", min: 8, max: 20, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   /*
     No `queue`: you are seated at a table rather than standing at a counter,
@@ -1534,6 +1597,14 @@ const PHARMACY: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "It started on this day.",
     },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 3, max: 12, says: "What you were told it costs, in euros." },
+    { kind: "price", slot: "price2", min: 3, max: 12, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: ["not-possible", "wrong-price", "queue", "faster", "english", "small-talk", "misheard", "place-instruction", "missing-document"],
   beats: [
@@ -1880,6 +1951,14 @@ const COMPLAINT: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "When you bought it.",
     },
+    /*
+      THE PRICE, TOLD AND THEN CHANGED. `wrong-price` says the amount is not
+      the one the learner was told, so the card tells them one, and the other
+      side holds the one it has now, drawn to differ and never printed: the
+      curveball says it off the card and "how much?" is answered with it.
+    */
+    { kind: "price", slot: "price", min: 15, max: 60, says: "What you paid for it, in euros." },
+    { kind: "price", slot: "price2", min: 15, max: 60, says: "What it costs now.", theirs: true, differentFrom: "price" },
   ],
   curveballs: ["not-possible", "contradiction", "their-order", "missing-document", "queue", "english", "faster", "wrong-price", "small-talk"],
   beats: [

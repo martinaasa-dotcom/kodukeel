@@ -470,6 +470,12 @@ describe("the scene catalog", () => {
           for (const found of (side.they ?? "").matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
         }
       }
+      // And a curveball the scene admits says its changed fact off the card too.
+      for (const id of scene.curveballs) {
+        const ball = curveballById(id);
+        for (const part of ball?.line ?? []) if ("slot" in part) uttered.add(part.slot);
+        for (const found of `${ball?.they ?? ""} ${ball?.answer ?? ""}`.matchAll(/\{(\w+)\}/g)) uttered.add(found[1]!);
+      }
       for (const prop of scene.props) {
         expect(
           "theirs" in prop && Boolean(prop.theirs),
@@ -495,10 +501,28 @@ describe("the scene catalog", () => {
       const taught = new Set(scene.units.flatMap((id) => unitById(id)?.lemmas ?? []));
       expect(new Set(scene.curveballs).size, `${scene.id} admits one twice`)
         .toBe(scene.curveballs.length);
+      const slots = new Set(scene.props.map((p) => p.slot));
 
       for (const id of scene.curveballs) {
         const ball = curveballById(id);
         expect(ball, `${scene.id} admits ${id}, which is not in the catalog`).toBeDefined();
+        /*
+          AND WHOSE LINE IT CAN SAY. A curveball that names a fact off the
+          card has to be admitted only by a scene that deals that fact and
+          teaches the words the line is made of, or it announces a changed
+          price and cannot say one, which is how "how much?" came to be
+          answered "don't know" at a ticket window.
+        */
+        for (const part of ball?.line ?? []) {
+          if ("lemma" in part) {
+            expect(taught, `${scene.id} admits ${id}, whose line needs ${part.lemma}, which it does not teach`).toContain(part.lemma);
+          } else {
+            expect(slots.has(part.slot), `${scene.id} admits ${id}, whose line says {${part.slot}}, which its card never deals`).toBe(true);
+          }
+        }
+        for (const [from, to] of ball?.replaces ?? []) {
+          expect(slots.has(from) && slots.has(to), `${scene.id} admits ${id}, which stands ${to} in for ${from}, and the card deals neither`).toBe(true);
+        }
         for (const { need } of leafNeeds(ball?.needs ?? [])) {
           if (need.kind === "lemma") {
             for (const lemma of need.oneOf) {

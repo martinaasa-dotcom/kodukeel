@@ -49,7 +49,15 @@ export default async function MatchPage() {
   if (pool.length < PAIRS) {
     const seen = new Set(pool.map((c) => c.id));
     const rest = await prisma.card.findMany({
-      where: { ...base, id: { notIn: [...seen] } },
+      /*
+        state: { not: 0 } here too: this top-up is for a learner who is caught
+        up, so they can still play, not a second door for a brand-new word to
+        reach the board cold. Without it, a deck with fewer than PAIRS due
+        cards filled the rest of the board from whatever came next by lapses
+        and due, id included, which is exactly the unmet cards the due query
+        above was built to keep out.
+      */
+      where: { ...base, id: { notIn: [...seen] }, state: { not: 0 } },
       orderBy: [{ lapses: "desc" }, { due: "asc" }],
       take: PAIRS * 2 - pool.length,
       include,

@@ -58,7 +58,7 @@ const CASES: Record<string, [string, string][]> = {
   ],
   "kohvikus": [
     ["order", "üks kohv palun"], ["order", "ma tahan kohvi"], ["order", "kohvi palun"], ["order", "mulle üks tee"],
-    ["milk", "jah palun"], ["milk", "ei aitäh"], ["milk", "piimaga palun"], ["milk", "ilma piimata"],
+    ["size", "suur palun"], ["size", "väike palun"], ["size", "suur"], ["size", "väike"],
     ["bill", "arve palun"], ["bill", "ma tahan maksta"], ["bill", "kui palju see maksab"], ["bill", "palun arve"],
   ],
   "tee-kusimine": [

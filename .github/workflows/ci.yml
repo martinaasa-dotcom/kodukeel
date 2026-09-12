@@ -163,7 +163,6 @@ jobs:
           CI_CANARY: canary-CI_CANARY-must-not-ship
           DATABASE_URL: postgresql://ci:canary-DATABASE_URL-must-not-ship@127.0.0.1:5432/ci
           DIRECT_URL: postgresql://ci:canary-DIRECT_URL-must-not-ship@127.0.0.1:5432/ci
-          OPENROUTER_API_KEY: canary-OPENROUTER_API_KEY-must-not-ship
           ANTHROPIC_API_KEY: canary-ANTHROPIC_API_KEY-must-not-ship
           OPENAI_API_KEY: canary-OPENAI_API_KEY-must-not-ship
           GROQ_API_KEY: canary-GROQ_API_KEY-must-not-ship
@@ -283,7 +282,7 @@ jobs:
         # no camera. It may be nonsense: scripts/test-scan.mjs intercepts the
         # route it would authenticate, so no request ever leaves the runner.
         env:
-          OPENROUTER_API_KEY: stubbed-by-the-test
+          GROQ_API_KEY: stubbed-by-the-test
         run: |
           npm start &
           for _ in $(seq 1 60); do

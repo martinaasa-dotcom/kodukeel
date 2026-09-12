@@ -213,7 +213,7 @@ export const JSON_REPLY_TOKENS = 1_000;
  * there is no half-written answer for a second attempt to talk over, and
  * whether a model can return the JSON asked for is a fact about that model.
  */
-async function callChainForJson(
+export async function callChainForJson(
   chain: readonly ProviderConfig[],
   system: string,
   user: string,
@@ -311,9 +311,9 @@ async function callForJson(
     /*
       WHICH ENDPOINT AND WHICH KEY IS ONE TABLE, AND THIS READ ITS OWN.
 
-      It was `isOpenRouter ? OpenRouter : OpenAI`, written when the chain held
+      It was `isGateway ? gateway : OpenAI`, written when the chain held
       exactly those two, and `resolveProviders` has offered Groq and Gemini
-      since. Neither is OpenRouter, so both fell down the else side of that
+      since. Neither is the gateway, so both fell down the else side of that
       ternary and were posted to `api.openai.com` carrying `OPENAI_API_KEY`,
       which on a deployment configured with Groq or Gemini and nothing else is
       undefined. Every GRADER call there answered 401: the writing exercise,

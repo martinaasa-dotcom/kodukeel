@@ -34,7 +34,15 @@ export default async function DictationPage() {
   const ownerId = await requireUserId();
 
   const cards = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null } },
+    /*
+      state: { not: 0 } is what makes "already studying" above true rather than
+      aspirational: a brand-new card is due at the moment it is created, so
+      `orderBy due asc` with no state filter put an unmet word's own sentence
+      at the front of the round, dictated cold. A card graded at least once, in
+      any mode, is what this round means by "already studying", the same rule
+      sprint, speaking, listening and Match already apply to their own pools.
+    */
+    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
     orderBy: [{ due: "asc" }],
     take: 300,
     select: {

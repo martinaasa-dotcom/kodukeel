@@ -30,11 +30,13 @@ export type Verdict = "right" | "nearly" | "wrong";
  * A right pick and a right typed answer used to move on after 420 ms, which
  * is under the time it takes to look from the option you pressed to the tint
  * it turned: a learner reported the card "flashing away" before they knew
- * whether they had it. A second and a bit is long enough to read a green
- * tile as green and short enough that nobody reaches for a button. Undo is
+ * whether they had it. It was doubled to 1100 ms and reported again as too
+ * quick, so it is doubled once more: over two seconds is long enough to
+ * actually read a green tile as green rather than merely register the color
+ * change, and still short enough that nobody reaches for a button. Undo is
  * still there for the moment somebody wanted longer.
  */
-export const VERDICT_PAUSE_MS = 1100;
+export const VERDICT_PAUSE_MS = 2200;
 
 /** The class a panel, a chip or a self-grade button wears for a verdict. */
 export const VERDICT_CLASS: Record<Verdict, string> = {

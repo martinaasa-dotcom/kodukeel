@@ -29,7 +29,7 @@
  * there was no card to answer, so a caller can say which of those it got
  * rather than only that something happened.
  */
-export async function revealAnswer(page, { timeout = 1400 } = {}) {
+export async function revealAnswer(page, { timeout = 2500 } = {}) {
   const app = page.locator("main");
 
   /*
@@ -63,7 +63,7 @@ export async function revealAnswer(page, { timeout = 1400 } = {}) {
     await page.keyboard.press("1");
     await page.waitForTimeout(timeout);
     /*
-      A right pick now grades itself after `VERDICT_PAUSE_MS` (1100ms), which
+      A right pick now grades itself after `VERDICT_PAUSE_MS` (2200ms), which
       this helper promises not to do, so the wait here has to outlast it. One guess in four lands on the answer and there is no way to
       know which before picking, so when it does the grade is taken straight
       back through the app's own undo. Undo is disabled until something has

@@ -1,10 +1,10 @@
 /**
  * Provider-agnostic chat streaming, with a fallback chain behind it.
  *
- * The app works with whichever keys are configured: OpenRouter (which has
- * genuinely free models), Anthropic, or OpenAI. Nothing above this layer
- * knows which. Keys are read from the environment on the server and never
- * leave it.
+ * The app works with whichever keys are configured: Groq and Google Gemini
+ * (both with a real free tier and no card), and Anthropic or OpenAI as the
+ * dear, gated fallback behind them. Nothing above this layer knows which. Keys
+ * are read from the environment on the server and never leave it.
  *
  * WHY A CHAIN RATHER THAN A CHOICE. The default provider is a free model, and
  * a free model is rate-limited hard upstream by design: a 429 is the ordinary
@@ -23,7 +23,7 @@
 import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
 
-export type ProviderName = "openrouter" | "groq" | "gemini" | "openai" | "anthropic";
+export type ProviderName = "groq" | "gemini" | "openai" | "anthropic";
 
 /**
  * How much a reply may cost in tokens, and why it is not small.
@@ -100,11 +100,11 @@ export interface ChatMessage {
  * How many *independent* things can answer, which is not the length of the
  * chain.
  *
- * OpenRouter contributes one link per free model, so a chain of four can still
- * be a single account with a single balance. When that balance ran out here
- * every link returned 402 together and Anu went down, which is exactly the
- * failure a fallback chain is supposed to absorb. What protects availability
- * is a second *provider*, not a fifth model.
+ * Groq contributes one link per free model, so a chain of three can still be a
+ * single account with a single allowance. When one account's balance ran out
+ * here every link behind it returned 402 together and Anu went down, which is
+ * exactly the failure a fallback chain is supposed to absorb. What protects
+ * availability is a second *provider*, not a fourth model.
  *
  * Pure, so Settings can say this without asking anything upstream.
  */
@@ -138,7 +138,6 @@ export function providerResilience(chain = resolveProviders()): {
  * machine that had either. The suite was reporting the machine.
  */
 export const PROVIDER_KEY_ENV = [
-  "OPENROUTER_API_KEY",
   "GROQ_API_KEY",
   "GEMINI_API_KEY",
   "ANTHROPIC_API_KEY",
@@ -157,7 +156,7 @@ export const PROVIDER_KEY_ENV = [
  * longer share a chain. See `PURPOSE_CHAINS` for which provider answers which
  * and what the evidence was.
  */
-export type ProviderPurpose = "tutor" | "scene";
+export type ProviderPurpose = "tutor" | "scene" | "grader";
 
 export interface ChainOptions {
   /**
@@ -257,18 +256,77 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
     // Gemini leads; `resolveProviders` appends the fallback behind it, if the
     // day's fallback budget still has room for one.
     /*
-      `SCENE_MODEL` rather than `GEMINI_MODEL`, deliberately, and the reason is
-      unchanged from when this named a Groq model: `GEMINI_MODEL` configures the
-      general chain, which is a different decision made for a different reason.
-      A deployment that pins that to whatever is cheapest this week would
-      silently move scene composition off the model the eval actually ranked,
-      and nothing would fail. A measured choice is worth its own variable.
+      PINNED, AND NO VARIABLE MOVES IT. Scenes always compose on `SCENE_MODELS`,
+      which is the one model `eval:composers` ranked for writing Estonian, and
+      nothing in the environment is read here.
+
+      It used to read `SCENE_MODEL`, and that is how the model came to be out
+      of the loop for a week on production. Scenes ran on Groq once and the
+      variable held its model, `qwen/qwen3.8-27b`; the chain moved to Gemini
+      and went on reading the same name, Google answered 404 on every composed
+      turn, `openWithFallback` correctly never walks past a model that does not
+      exist, and the ladder fell to the bank. The route answered 200, so every
+      off-script turn was the scripted repeat with "Vabandust!" in front of it
+      and the learner reported a conversation that could not leave its script,
+      which is exactly what it could not do. A measured choice that an
+      environment variable can silently move is a measured choice for as long
+      as nobody touches the dashboard. This one is a constant, and the operator
+      asked for it to be one.
     */
-    for (const model of configuredModels(process.env.SCENE_MODEL, SCENE_MODELS)) {
+    for (const model of SCENE_MODELS) {
       chain.push({ name: "gemini", model, label: "Google Gemini" });
+    }
+    warnIfSceneModelSet();
+  },
+  grader: (chain) => {
+    /*
+      The three graders and the dictionary's translation fallback, which are
+      metered as one kind (`GRADER`) and want one answer: a model that returns
+      the JSON asked for, every time, for as little as possible. Measured
+      through the graders' own transport (`npm run eval:grader`, the figures
+      are in its header): `gemini-3.1-flash-lite` and `openai/gpt-oss-120b`
+      were the only two that never failed to return a verdict, and the first
+      is about half the price of the second, so it leads and the other stands
+      behind it for a bad minute at Google. Pinned like the scene model and
+      for the same reason: this used to be the head of the general chain,
+      which is whatever the environment happened to make it.
+
+      Each link only where its key is set, so a Groq-only or Gemini-only
+      install still has a grader, and an install with neither has none, which
+      the routes already answer with `aiAvailable: false`. `resolveProviders`
+      appends the paid tail behind both while the fallback budget has room.
+    */
+    for (const link of GRADER_MODELS) {
+      if (link.name === "gemini" && !process.env.GEMINI_API_KEY) continue;
+      if (link.name === "groq" && !process.env.GROQ_API_KEY) continue;
+      chain.push({ ...link });
     }
   },
 };
+
+/**
+ * The graders' chain, in order. See `PURPOSE_CHAINS.grader` for the
+ * measurement; `scripts/eval-grader.ts` is the instrument.
+ */
+export const GRADER_MODELS: readonly ProviderConfig[] = [
+  { name: "gemini", model: "gemini-3.1-flash-lite", label: "Google Gemini" },
+  { name: "groq", model: "openai/gpt-oss-120b", label: "Groq" },
+];
+
+/**
+ * The one courtesy the pin owes an operator: a `SCENE_MODEL` still set in the
+ * environment does nothing, and a variable that does nothing looks exactly
+ * like one that works. Said once per process, in the error log, naming it.
+ */
+let warnedSceneModel = false;
+function warnIfSceneModelSet(): void {
+  if (warnedSceneModel || !(process.env.SCENE_MODEL ?? "").trim()) return;
+  warnedSceneModel = true;
+  reportError(
+    new Error(`SCENE_MODEL is set and not read: scenes always compose on ${SCENE_MODELS.join(", ")}.`),
+    { at: "provider/scene", extra: { variable: "SCENE_MODEL" } },
+  );
+}
 
 /**
  * The model Anu asks, and the reason it is not the dearest one available.
@@ -350,6 +408,29 @@ export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
 export const SCENE_REPLY_TOKENS = 4_000;
 
 /**
+ * How much room Anu's own answer needs, which `REPLY_TOKENS` was never sized
+ * for.
+ *
+ * `REPLY_TOKENS` (1,200) was measured against a *scene* line, one short
+ * Estonian sentence, on the models that spend hundreds of tokens on a hidden
+ * reasoning field before writing anything into `content` (this file's own
+ * note above it: `openai/gpt-oss-120b` alone spends about 380 of those on a
+ * single line). It was then reused as Anu's ceiling, and Anu is not writing
+ * one line: her own prompt asks for a named rule, a minimal pair and a next
+ * step, which is several sentences, sometimes a worked case table, on top of
+ * whatever a reasoning model spends before it writes a word of that. A reply
+ * that runs past its ceiling does not come back empty the way a scene line
+ * does, because by then real content has already been written: it comes back
+ * cut off mid-word, in the middle of a sentence, which is worse, because
+ * nothing about it looks like a failure.
+ *
+ * `TUTOR_MODEL` is a Groq reasoning model for the same reason `SCENE_MODELS`
+ * is one: it is one of the measured, cheap ones. So this takes the same fix
+ * `SCENE_REPLY_TOKENS` already took for the identical shape of the same bug.
+ */
+export const TUTOR_REPLY_TOKENS = 3_000;
+
+/**
  * Every provider with a key, in the order they should be tried.
  *
  * With no `purpose` this is Groq first and the dear keys last, one link per
@@ -411,7 +492,7 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
     GROQ LEADS, AND THE POLICY THIS REPLACED WAS "FREE FIRST".
 
     That rule was written when the only way to run this app without a card was
-    OpenRouter's free models, so the order encoded "everything a stranger can
+    a gateway's free models, so the order encoded "everything a stranger can
     set up for nothing is tried before anything that bills". It is still the
     right instinct for an install with a free key and no budget, and it is no
     longer the right *default*, for a reason the price table now makes plain:
@@ -422,26 +503,19 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
     "free first" spends the learner's wait rather than the operator's money.
 
     So the ordering rule is now: the measured, cheap, reliable provider first,
-    then whatever free tiers an install has, then the dear ones. `worthFalling
-    BackFrom` is untouched, so a throttled Groq still walks to whatever is
-    behind it.
+    then Gemini's free tier where an install has it, then the dear ones.
+    `worthFallingBackFrom` is untouched, so a throttled Groq still walks to
+    whatever is behind it.
 
     THIS IS THE GENERAL CHAIN ONLY. Anu and scene composition do not read it
     (see `PURPOSE_CHAINS`); what it serves is the writing grader, the
-    dictionary's translation and the page scanner. On an install carrying only
-    the two keys this app is now run with, it is Groq then Anthropic, which is
-    exactly the ranking above and was already the ranking before this moved.
-    What the move changes is that it stays the ranking on an install that also
-    has a free key, rather than depending on which keys happen to be set.
+    dictionary's translation and the page scanner. On an install carrying the
+    two free keys this app is now run with, it is Groq then Gemini, and a paid
+    key behind them only while the day's fallback budget has room.
   */
   if (process.env.GROQ_API_KEY) {
     for (const model of configuredModels(process.env.GROQ_MODEL, FREE_GROQ_MODELS)) {
       chain.push({ name: "groq", model, label: "Groq" });
-    }
-  }
-  if (process.env.OPENROUTER_API_KEY) {
-    for (const model of openRouterModels()) {
-      chain.push({ name: "openrouter", model, label: "OpenRouter" });
     }
   }
   if (process.env.GEMINI_API_KEY) {
@@ -473,42 +547,16 @@ export function resolveProviders(options: ChainOptions = {}): ProviderConfig[] {
 }
 
 /**
- * The free models Anu asks first, in order, and why there is more than one.
- *
- * This default used to be `openai/gpt-4o`, which is a paid model at
- * OpenRouter's full rate, three lines under a comment saying the default
- * provider is a free one. A key with no credit on it therefore got a 402 and
- * Anu could not answer at all, which is what a new install looks like:
- * somebody follows the setup, pastes a free key, and the tutor is dead.
- *
- * A free model is rate-limited hard upstream by design, so one of them is a
- * name rather than a plan. Measured on 2026-08-29 against Anu's own system
- * prompt and a real question ("Why is it 'Lugesin raamatut' and not 'Lugesin
- * raamatu'?"), two of the five free models tried answered 429 in the same
- * minute, and these three answered in six to seven seconds, each naming the
- * partitive and the Estonian term beside it, with the minimal pair the prompt
- * asks for. They are ordered by how cleanly they wrote it: the third reaches
- * for a dash, which `humanize.ts` then has to take back out.
- *
- * `OPENROUTER_MODEL` still overrides, and takes a comma-separated list, so a
- * deployment with credit can point the whole chain at a paid model without
- * touching this. `priceFor` already charges a `:free` slug nothing, so the
- * spend cap is not confused by any of it.
- */
-export const FREE_OPENROUTER_MODELS = [
-  "google/gemma-4-31b-it:free",
-  "minimax/minimax-m3:free",
-  "nvidia/nemotron-3-super-120b-a12b:free",
-] as const;
-
-/**
- * Free-tier providers other than OpenRouter, and the models they give away.
+ * The two free-tier providers, and the models they give away.
  *
  * These exist so that a second provider does not mean a credit card. Both hand
  * out a real free tier with no card, both speak the OpenAI wire format, and
- * neither shares an account with OpenRouter, which is the entire point: when
- * the OpenRouter balance ran out here, every free model behind it answered 402
- * in the same second because they were one account wearing several hats.
+ * neither shares an account with the other, which is the entire point: one
+ * account is one balance, and when a gateway account's balance ran out here
+ * every free model behind it answered 402 in the same second, because they
+ * were one account wearing several hats. `GROQ_MODEL` and `GEMINI_MODEL` each
+ * take a comma-separated list, so a deployment can point a provider at a paid
+ * model without touching this.
  *
  * Three models each, because a model name that has been retired is walkable
  * within a provider but ends the chain if it is that provider's only link.
@@ -563,14 +611,6 @@ export const FREE_GEMINI_MODELS = [
 function configuredModels(raw: string | undefined, fallback: readonly string[]): string[] {
   const configured = (raw ?? "").split(",").map((m) => m.trim()).filter(Boolean);
   return configured.length > 0 ? configured : [...fallback];
-}
-
-function openRouterModels(): string[] {
-  const configured = (process.env.OPENROUTER_MODEL ?? "")
-    .split(",")
-    .map((model) => model.trim())
-    .filter(Boolean);
-  return configured.length > 0 ? configured : [...FREE_OPENROUTER_MODELS];
 }
 
 /** The head of the chain, for the places that only need to say whether Anu is set up at all. */
@@ -630,6 +670,19 @@ export interface UsageReport {
    */
   cachedInputTokens?: number;
   cacheWriteTokens?: number;
+  /**
+   * The provider stopped because the reply hit its token ceiling rather than
+   * because it was finished, so what arrived is a real prefix of an answer
+   * rather than the whole of one.
+   *
+   * A raised `TUTOR_REPLY_TOKENS` makes this rare and does not make it
+   * impossible: a reasoning model can still spend enough of it thinking that
+   * what is left runs out mid-sentence, and a caller reading the finished
+   * text alone cannot tell that case apart from an answer that simply ended.
+   * Read off Anthropic's own `stop_reason` and the OpenAI-compatible
+   * `finish_reason`, both `"length"`/`"max_tokens"` in that one case.
+   */
+  truncated?: boolean;
 }
 
 /** A provider that has accepted the question, and the reply it is about to give. */
@@ -656,6 +709,10 @@ interface UsageFrame {
     };
   };
   usage?: { output_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+  /** Anthropic's own reason the turn stopped, carried on the same `message_delta` frame as the output count. */
+  delta?: { stop_reason?: string | null };
+  /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
+  choices?: { finish_reason?: string | null }[];
 }
 
 function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport): void {
@@ -678,12 +735,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
       into.cacheWriteTokens = written;
       into.measured = true;
     }
-    if (f.type === "message_delta" && f.usage?.output_tokens != null) {
-      into.outputTokens = f.usage.output_tokens;
-      into.measured = true;
+    if (f.type === "message_delta") {
+      if (f.usage?.output_tokens != null) {
+        into.outputTokens = f.usage.output_tokens;
+        into.measured = true;
+      }
+      if (f.delta?.stop_reason === "max_tokens") into.truncated = true;
     }
     return;
   }
+
+  const finishReason = f.choices?.[0]?.finish_reason;
+  if (finishReason === "length") into.truncated = true;
 
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
@@ -728,9 +791,10 @@ export async function openWithFallback(
   live = "",
   /*
     How much room the answer may take, where the caller needs more than the
-    default. Absent for Anu, whose replies are prose inside `REPLY_TOKENS`;
-    set by the scene composer, because several of the models it can be pointed
-    at spend hundreds of tokens thinking before they write the sentence.
+    default `REPLY_TOKENS`. Set by the tutor route (`TUTOR_REPLY_TOKENS`) and
+    by the scene composer (`SCENE_REPLY_TOKENS`), because several of the
+    models either can be pointed at spend hundreds of tokens thinking before
+    they write the sentence, and Anu's own reply is longer than one sentence.
   */
   maxTokens?: number,
 ): Promise<OpenStream> {
@@ -860,8 +924,8 @@ function extractText(provider: ProviderName, frame: unknown): string {
 }
 
 /**
- * OpenRouter's free models are aggressively rate-limited upstream, so a single
- * 429 is normal rather than fatal. Waiting a moment and asking again turns
+ * Free models are aggressively rate-limited upstream, so a single 429 is
+ * normal rather than fatal. Waiting a moment and asking again turns
  * most of them into an answer.
  *
  * WAITING IS ONLY THE RIGHT ANSWER WHEN THERE IS NOWHERE ELSE TO ASK, which
@@ -899,14 +963,9 @@ async function withRetry(send: () => Promise<Response>, patient: boolean): Promi
  * over-counts on purpose and so keeps the cap failing closed.
  */
 const OPENAI_COMPATIBLE: Record<
-  "openrouter" | "groq" | "gemini" | "openai",
+  "groq" | "gemini" | "openai",
   { url: string; keyEnv: string; usageFrames: boolean }
 > = {
-  openrouter: {
-    url: "https://openrouter.ai/api/v1/chat/completions",
-    keyEnv: "OPENROUTER_API_KEY",
-    usageFrames: true,
-  },
   groq: {
     url: "https://api.groq.com/openai/v1/chat/completions",
     keyEnv: "GROQ_API_KEY",
@@ -929,14 +988,14 @@ const OPENAI_COMPATIBLE: Record<
  *
  * Exported because `lib/tutor/grader.ts` needs the same answer for its own
  * non-streaming transport and had been reaching it by a two-way ternary:
- * "OpenRouter, or else OpenAI". That was true when the chain held two
- * providers and silently wrong once Groq and Gemini joined it, since every
- * config that was not OpenRouter was then posted to `api.openai.com` with
- * `OPENAI_API_KEY`, which on a Groq-only or Gemini-only deployment is
- * undefined. Every GRADER call on such a deployment answered 401, which the
- * screen reads as "the tutor is unavailable" rather than as a routing fault.
- * One table rather than two readings of it, which is the rule this repository
- * keeps rediscovering about a fact written down twice.
+ * the one gateway the chain first held, or else OpenAI. That was true when the
+ * chain held two providers and silently wrong once Groq and Gemini joined it,
+ * since every config that was not the gateway was then posted to
+ * `api.openai.com` with `OPENAI_API_KEY`, which on a Groq-only or Gemini-only
+ * deployment is undefined. Every GRADER call on such a deployment answered
+ * 401, which the screen reads as "the tutor is unavailable" rather than as a
+ * routing fault. One table rather than two readings of it, which is the rule
+ * this repository keeps rediscovering about a fact written down twice.
  */
 export function openAiCompatible(config: ProviderConfig) {
   const entry = OPENAI_COMPATIBLE[config.name as keyof typeof OPENAI_COMPATIBLE];
@@ -962,9 +1021,6 @@ async function callOpenAiCompatible(
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${key}`,
-      ...(config.name === "openrouter"
-        ? { "HTTP-Referer": "http://localhost:3000", "X-Title": "Kodukeel Estonian study" }
-        : {}),
     },
     body: JSON.stringify({
       model: config.model,
@@ -1053,8 +1109,8 @@ async function assertOk(res: Response, config: ProviderConfig) {
   if (res.status === 429) {
     throw new TutorError(
       `${config.label} is rate-limiting this model. Free models are throttled hard upstream, so ` +
-      `wait a moment, or set OPENROUTER_MODEL to a paid one in .env (openai/gpt-4o is about ` +
-      `half a cent per question).`,
+      `wait a moment, or set GROQ_MODEL or GEMINI_MODEL to a paid one in .env, or add a paid ` +
+      `provider key so the chain has somewhere to fall through to.`,
       429,
     );
   }
@@ -1068,7 +1124,7 @@ async function assertOk(res: Response, config: ProviderConfig) {
     the person who can fix it is whoever runs the deployment rather than the
     learner reading the message.
 
-    Found on a live deployment: OpenRouter answered 402 and the learner was
+    Found on a live deployment: a gateway answered 402 and the learner was
     shown a slice of the raw JSON, "This request requires more credits, or
     fewer max_tokens. You requested up to 1200 tokens, but can only afford
     898". Accurate, and addressed to nobody who was there.
@@ -1175,36 +1231,17 @@ export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
     ledger to know which link was chosen rather than inferring it from the
     provider. Not built here.
   */
-  const override: Record<ProviderName, string | undefined> = {
-    openrouter: process.env.OPENROUTER_SCENE_MODEL,
-    groq: process.env.GROQ_SCENE_MODEL,
-    gemini: process.env.GEMINI_SCENE_MODEL,
-    anthropic: process.env.ANTHROPIC_SCENE_MODEL,
-    openai: process.env.OPENAI_SCENE_MODEL,
-  };
-
   /*
-    The purpose chain first, then anything an operator has explicitly named for
-    scenes that is not already in it. Without the second half, naming
-    `OPENROUTER_SCENE_MODEL` on an install that has an OpenRouter key would do
-    nothing, which is main's feature deleted rather than merged.
+    AND THEN THE OVERRIDE WENT, BECAUSE THE OPERATOR PINNED THE MODEL. The
+    `*_SCENE_MODEL` map that used to live here let a deployment point
+    conversations at any provider and put it in front; with scenes fixed on
+    `SCENE_MODELS` a second variable that can move them is the same door the
+    `SCENE_MODEL` fault came through, one name over. What survives of main's
+    half is the wrapper itself, which every scene path still asks so the
+    briefing and the route promise the same chain, and the invariant that it
+    is built on the scene purpose.
   */
-  const base = resolveProviders({ ...options, purpose: "scene" });
-  const named = resolveProviders({ allowFallback: true })
-    .filter((c) => override[c.name]?.trim());
-
-  const seen = new Set<string>();
-  const chosen: ProviderConfig[] = [];
-  const rest: ProviderConfig[] = [];
-  for (const config of [...base, ...named]) {
-    const explicit = override[config.name]?.trim();
-    const model = explicit || config.model;
-    const key = `${config.name}:${model}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    (explicit ? chosen : rest).push({ ...config, model });
-  }
-  return [...chosen, ...rest];
+  return resolveProviders({ ...options, purpose: "scene" });
 }
 
 /**
@@ -1214,8 +1251,8 @@ export function sceneProviders(options: ChainOptions = {}): ProviderConfig[] {
  * the operator picked that model and picking a different one behind their back
  * is how a deployment that chose a free model ends up with an invoice. The
  * override exists for the case that default cannot serve: a text-only model
- * cannot read a photograph, and `OPENROUTER_VISION_MODEL` and friends are how
- * a free-model deployment points the one feature that needs eyes at something
+ * cannot read a photograph, and `GROQ_VISION_MODEL` and friends are how a
+ * free-model deployment points the one feature that needs eyes at something
  * that has them.
  */
 export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
@@ -1243,7 +1280,6 @@ export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
     : [];
 
   const override: Record<ProviderName, string | undefined> = {
-    openrouter: process.env.OPENROUTER_VISION_MODEL,
     groq: process.env.GROQ_VISION_MODEL,
     gemini: process.env.GEMINI_VISION_MODEL,
     anthropic: process.env.ANTHROPIC_VISION_MODEL,
@@ -1252,9 +1288,10 @@ export function visionProviders(options: ChainOptions = {}): ProviderConfig[] {
 
   /*
     Collapsed to one entry per model, because the chat chain is no longer one
-    entry per provider: OpenRouter contributes a link per free model, so an
-    override would otherwise ask the same model the same question three times
-    and call the third refusal a fallback. Order is kept, first occurrence wins.
+    entry per provider: Groq and Gemini each contribute a link per free model,
+    so an override would otherwise ask the same model the same question three
+    times and call the third refusal a fallback. Order is kept, first
+    occurrence wins.
   */
   const seen = new Set<string>();
   const chain: ProviderConfig[] = [];
@@ -1329,16 +1366,12 @@ async function readImageOpenAiCompatible(
   // Same invariant as callOpenAiCompatible above: the chain only ever offers
   // a config whose key env var was set.
   const key = process.env[keyEnv]!;
-  const isOpenRouter = config.name === "openrouter";
 
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${key}`,
-      ...(isOpenRouter
-        ? { "HTTP-Referer": "http://localhost:3000", "X-Title": "Kodukeel Estonian study" }
-        : {}),
     },
     body: JSON.stringify({
       model: config.model,

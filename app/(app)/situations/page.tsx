@@ -10,6 +10,7 @@ import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import { errandForScene } from "@/lib/collections/errands";
 import { practises } from "@/lib/scenes/practises";
+import { joinWithAnd } from "@/lib/copy/values";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneMotif } from "@/components/scene/SceneMotif";
 
@@ -164,7 +165,9 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
           */}
           {drills.length > 0 && (
             <p className="text-xs" style={{ color: "var(--ink-2)" }}>
-              Practices {drills.slice(0, 4).join(", ")}{drills.length > 4 ? " and more" : ""}.
+              {drills.length > 4
+                ? `Practices ${drills.slice(0, 4).join(", ")}, and more.`
+                : `Practices ${joinWithAnd(drills)}.`}
             </p>
           )}
           {/*

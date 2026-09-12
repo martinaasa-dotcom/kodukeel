@@ -40,6 +40,7 @@ import type { CaseKey } from "../../lib/estonian/types";
   disqualifies a model the app can use is worse than no measurement.
 */
 import { SCENE_REPLY_TOKENS, sceneProviders } from "../../lib/tutor/provider";
+import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
@@ -280,22 +281,18 @@ export function chain(): Link[] {
   /*
     THE APP'S OWN SCENE CHAIN, not a list of this script's.
 
-    This built OpenRouter, then Groq, then Gemini out of the three free-model
+    This built a gateway, then Groq, then Gemini out of the free-model
     constants, which was right while a scene asked the general chain and became
     a measurement of nothing the day scenes were given a purpose chain of their
     own: `sceneProviders` answers Gemini and this went on asking three free
-    OpenRouter models first, so a transcript printed lines from a model the
+    gateway models first, so a transcript printed lines from a model the
     route would never reach and `draft:lines` drafted the bank with it. That is
     the same fault the Gemini paragraph below already records, one layer up,
     which is why the fix is to stop keeping a list at all rather than to correct
-    this one. `OPENROUTER_MODEL` and friends still pin, because pinning one
+    this one. `GROQ_MODEL` and friends still pin, because pinning one
     model is how a per-model question gets a per-model answer.
   */
   const wire: Readonly<Record<string, { keyEnv: string; modelEnv: string; url: string }>> = {
-    openrouter: {
-      keyEnv: "OPENROUTER_API_KEY", modelEnv: "OPENROUTER_MODEL",
-      url: "https://openrouter.ai/api/v1/chat/completions",
-    },
     groq: {
       keyEnv: "GROQ_API_KEY", modelEnv: "GROQ_MODEL",
       url: "https://api.groq.com/openai/v1/chat/completions",
@@ -409,6 +406,62 @@ export async function compose(
     }
     const why = `${link.model} ${status}`;
     REFUSALS.set(why, (REFUSALS.get(why) ?? 0) + 1);
+  }
+  return null;
+}
+
+/**
+ * ONE LINE FROM THE ROUTE'S OWN PROMPT, FOR THE HARNESSES.
+ *
+ * `npm run play:scenes` and `npm run replay:scene` both compose the way the
+ * route does, through `composeSystem` and `composeLive`, with the conversation
+ * as messages. Two copies of this call had already drifted once in the
+ * `max_tokens` they sent; one function, and the caller says what to do with a
+ * status. Returns null where nobody in the chain answered.
+ */
+export async function askLine(
+  links: readonly Link[],
+  ask: Parameters<typeof composeLive>[0],
+  scene: Parameters<typeof composeSystem>[0],
+  said: readonly { role: "user" | "assistant"; content: string }[],
+  onStatus: (why: string) => void = () => {},
+  onDraft: (line: string) => void = () => {},
+): Promise<string | null> {
+  for (const link of links) {
+    let status = 0;
+    try {
+      const res = await fetch(link.url, {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
+        body: JSON.stringify({
+          model: link.model,
+          temperature: 0.8,
+          // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
+          max_tokens: SCENE_REPLY_TOKENS,
+          messages: [
+            { role: "system", content: composeSystem(scene) },
+            { role: "user", content: composeLive(ask) },
+            ...said,
+            { role: "user", content: "Your line:" },
+          ],
+        }),
+      });
+      status = res.status;
+      if (res.ok) {
+        const data = await res.json() as { choices?: { message?: { content?: string } }[] };
+        const text = data.choices?.[0]?.message?.content?.trim();
+        if (text) {
+          onStatus(`${link.model} ok`);
+          const line = text.replace(/^["'«]|["'»]$/g, "");
+          onDraft(line);
+          return line;
+        }
+        status = 204;
+      }
+    } catch {
+      status = 0;
+    }
+    onStatus(`${link.model} ${status}`);
   }
   return null;
 }

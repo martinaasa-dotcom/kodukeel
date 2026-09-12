@@ -167,6 +167,8 @@ describe("the gate", () => {
     expect(runGate("Teil on valu.", beat(), context()).failed).toContain("shape");
     expect(runGate("Kas teil on valu?", beat({ move: "instruct" }), context()).failed)
       .toContain("shape");
+    // A move that asks holds a question and need not end on it: a person asks and then volunteers.
+    expect(runGate("Kas teil on valu? Teil on valu.", beat(), context()).failed).not.toContain("shape");
   });
 
   /*
@@ -248,6 +250,26 @@ describe("the government check", () => {
     // `toas` is an adjunct and `tuba` is the object. A stricter reading would
     // fire on this, which is most sentences.
     expect(governmentSuspect(["ta", "aitab", "tuba", "toas"], ctx)).toBe(false);
+  });
+
+  /*
+    EVERY GOVERNED VERB IN THE LINE, NOT THE FIRST THE TABLE LISTS. `Buss
+    sõidab jaama. Pilet maksab kaks eurot.` was withheld three times because
+    the first governed verb found was the one whose case `jaama` is not.
+  */
+  it("reads every governed verb in the line, and passes where any of them is satisfied", () => {
+    const two = context({
+      governed: [
+        { lemma: "maksma", forms: new Set(["maksab"]), cases: new Set(["ALLATIVE"]) },
+        { lemma: "sõitma", forms: new Set(["sõidab"]), cases: new Set(["ILLATIVE"]) },
+      ],
+      caseOf: new Map<string, ReadonlySet<CaseKey>>([
+        ["jaama", new Set(["GENITIVE", "ILLATIVE"])],
+        ["eurot", new Set(["PARTITIVE"])],
+      ]),
+    });
+    expect(governmentSuspect(["buss", "sõidab", "jaama", "pilet", "maksab", "eurot"], two)).toBe(false);
+    expect(governmentSuspect(["pilet", "maksab", "eurot"], two)).toBe(true);
   });
 });
 

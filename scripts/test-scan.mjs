@@ -23,7 +23,7 @@ import { requireLocalDatabase } from "./lib/local-db.mjs";
  * actions and the real database.
  *
  *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_ANON_KEY= \
- *   OPENROUTER_API_KEY=stubbed-by-the-test npm run dev
+ *   GROQ_API_KEY=stubbed-by-the-test npm run dev
  *   node scripts/test-scan.mjs
  *
  * The key may be nonsense: the route it would authenticate is never reached.

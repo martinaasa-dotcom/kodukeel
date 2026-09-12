@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { asideFor, asideOwed, shrug } from "./aside";
+import { asideFor, asideOwed, asksPrice, asksToHearAgain, priceOffCard, shrug } from "./aside";
 import { buildLexicon, type DictEntry } from "./lexicon";
 import type { RoleCard } from "./props";
 import type { BeatSpec } from "./types";
@@ -16,6 +16,12 @@ const ENTRIES: DictEntry[] = [
   { lemma: "aitäh", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
   { lemma: "kell", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "kell", GEN_SG: "kella", PART_SG: "kella" }, usages: [] },
   { lemma: "teisipäev", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "teisipäev", GEN_SG: "teisipäeva", PART_SG: "teisipäeva" }, usages: [] },
+  { lemma: "jah", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
+  { lemma: "see", pos: "PRONOUN", cefr: "A1", parts: { NOM_SG: "see", GEN_SG: "selle", PART_SG: "seda" }, usages: [] },
+  { lemma: "maksma", pos: "VERB", cefr: "A1", parts: { INF_MA: "maksma", INF_DA: "maksta", PRES_1SG: "maksan", PAST_1SG: "maksin" }, usages: [] },
+  { lemma: "euro", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "euro", GEN_SG: "euro", PART_SG: "eurot" }, usages: [] },
+  { lemma: "hind", pos: "NOUN", cefr: "A1", parts: { NOM_SG: "hind", GEN_SG: "hinna", PART_SG: "hinda" }, usages: [] },
+  { lemma: "palju", pos: "ADVERB", cefr: "A1", parts: {}, usages: [] },
 ];
 const LEX = buildLexicon(ENTRIES);
 
@@ -111,5 +117,76 @@ describe("a question the scene did not anticipate", () => {
   it("withholds the shrug whole where the verb cannot be derived", () => {
     const thin = buildLexicon(ENTRIES.filter((e) => e.lemma !== "teadma"));
     expect(shrug(thin)).toBeNull();
+  });
+});
+
+/*
+  A CURVEBALL THAT CHANGES A FACT CARRIES THE FACT. "Kui palju?" at a ticket
+  window was answered `Ei tea.`, because no scene dealt a price and nothing
+  could say one. The card the aside reads is the one in play, so once the
+  price has changed the answer is the new price.
+*/
+describe("a question about the price", () => {
+  const PRICED: RoleCard = {
+    ...CARD,
+    props: [...CARD.props, { slot: "price", card: "What it costs, in euros.", literal: ["5"], lemmas: ["viis"], shown: ["5 \u20ac"], value: "5", price: true }],
+  };
+
+  it("is recognised by a money word or by how much, and by nothing else", () => {
+    expect(asksPrice(["kui", "palju"], LEX)).toBe(true);
+    expect(asksPrice(["mis", "hind", "on"], LEX)).toBe(true);
+    expect(asksPrice(["kas", "see", "maksab"], LEX)).toBe(true);
+    expect(asksPrice(["kas", "eurot"], LEX)).toBe(true);
+    expect(asksPrice(["kuhu", "siis"], LEX)).toBe(false);
+  });
+
+  it("is answered with the price off the card, in a sentence made of course words", () => {
+    const line = asideFor(input({ asked: "kui", spoken: ["kui", "palju"], card: PRICED }));
+    expect(line?.text).toBe("See maksab 5 eurot.");
+    expect(line?.provenance).toBe("attested");
+    // And on a turn that missed the beat, where the bank's answer and "more" may not answer.
+    expect(asideFor(input({ asked: "mis", spoken: ["mis", "hind", "on"], card: PRICED, missed: true }))?.text)
+      .toBe("See maksab 5 eurot.");
+  });
+
+  it("is nothing where the scene deals no price, so the question falls through as before", () => {
+    expect(asideFor(input({ asked: "kui", spoken: ["kui", "palju"] }))).toBeNull();
+    expect(priceOffCard(CARD, LEX)).toBeNull();
+  });
+
+  /*
+    `Kas 5 eurot?` and `5?` are somebody checking what they heard, and the
+    answer to that is yes or no and then the price, not the price stated as
+    though nothing had been asked. Whole digit runs, so `15` is not `5`.
+  */
+  it("answers a price the learner named with yes or no", () => {
+    expect(asideFor(input({ asked: "kas", spoken: ["kas", "eurot"], said: "Kas 5 eurot?", card: PRICED }))?.text)
+      .toBe("Jah, see maksab 5 eurot.");
+    expect(asideFor(input({ asked: "?", spoken: [], said: "4?", card: PRICED, missed: true }))?.text)
+      .toBe("Ei, see maksab 5 eurot.");
+    expect(asideFor(input({ asked: "?", spoken: [], said: "15?", card: PRICED }))?.text)
+      .toBe("Ei, see maksab 5 eurot.");
+  });
+
+  it("on a turn that missed, only a fact may answer", () => {
+    const more = ["Otse edasi ja siis vasakule."];
+    expect(asideFor(input({ more }))?.text).toBe(more[0]);
+    expect(asideFor(input({ more, missed: true }))).toBeNull();
+    const banked = ["Jah, see on lähedal."];
+    expect(asideFor(input({ asked: "kas", answered: ASKS_FOR_QUESTION, answers: banked, missed: true }))).toBeNull();
+  });
+});
+
+describe("sorry, what?", () => {
+  const questions = new Set(["mis", "mida", "kuidas", "kus"]);
+  const lex = buildLexicon([...ENTRIES, { lemma: "Vabandust!", pos: "PHRASE", cefr: "A1", parts: {}, usages: [] }]);
+
+  it("is a request to hear the line again, and never owed a shrug", () => {
+    expect(asksToHearAgain(["vabandust", "mida"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["mida"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["kuidas"], questions, lex)).toBe(true);
+    expect(asksToHearAgain(["mis", "hind", "on"], questions, lex)).toBe(false);
+    expect(asksToHearAgain(["vabandust"], questions, lex)).toBe(false);
+    expect(asksToHearAgain([], questions, lex)).toBe(false);
   });
 });
