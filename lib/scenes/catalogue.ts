@@ -185,8 +185,22 @@ export const ASIDES = {
   unknown: [{ lemma: "ei" }, { lemma: "teadma", verb: "IndPrPs_" }],
 } as const satisfies Record<string, readonly SaysPart[]>;
 
-/** The closing phrases, which are the same wherever you are leaving. */
-const FAREWELLS = ["Head aega!", "Nägemist!", "Aitäh!"] as const;
+/**
+ * The closing phrases, which are the same wherever you are leaving.
+ *
+ * `Aitäh!` is not in it. It is thanks, not a farewell, and `topic` is what
+ * decides which recorded sentence retrieval may hand the OTHER SIDE as their
+ * own closing line: a passerby who has just given directions for free does
+ * not then thank the learner for asking, so a usage filed under `aitäh` was
+ * being read as their goodbye and came out backwards. `CLOSING_WORDS` is the
+ * wider set of things the *learner* may say to end a scene, thanks included,
+ * since a learner thanking somebody and walking off is an ordinary way to
+ * close a conversation.
+ */
+const FAREWELLS = ["Head aega!", "Nägemist!"] as const;
+
+/** What the learner may say to end a scene: a farewell, or a plain thanks. */
+const CLOSING_WORDS = [...FAREWELLS, "Aitäh!"] as const;
 
 const HELLOS = ["Tere!", "Tere hommikust!"] as const;
 
@@ -350,7 +364,7 @@ const DOCTOR: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -553,7 +567,7 @@ const LANDLORD: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -689,7 +703,7 @@ const COUNTER: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -807,7 +821,7 @@ const SHOP: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -914,7 +928,7 @@ const CAFE: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -949,7 +963,23 @@ const DIRECTIONS: SceneSpec = {
       says: "Where you are trying to get to.",
     },
   ],
-  curveballs: ["faster", "small-talk", "english", "place-instruction", "not-possible", "interrupted"],
+  /*
+    `place-instruction` and `not-possible` are gone from this list, and both
+    for the same reason: they presuppose an institution with a schedule or a
+    gatekeeping step, "come back tomorrow" or "go to window 3 first", and a
+    stranger on a street corner has neither to offer. Their bank lines here
+    had drifted into meaning something else entirely ("I don't know that
+    place"), which is not what either curveball's own goal text says, so a
+    learner met a goal that made no sense next to the conversation. `misheard`
+    takes their place: mishearing the name of the place you asked for is the
+    one thing that genuinely happens here, and its two bank lines offer one
+    prop word against another of the same `place` set (`hurdle:misheard` in
+    `bank.ts`), the same pairing every other scene that admits it uses.
+    `interrupted` stays, now that its own goal text no longer presumes a
+    queue (`lib/scenes/curveballs.ts`): a passerby stopped
+    mid-conversation can perfectly well have somebody else call out to them.
+  */
+  curveballs: ["faster", "small-talk", "english", "interrupted", "misheard"],
   beats: [
     {
       id: "greet",
@@ -1004,7 +1034,7 @@ const DIRECTIONS: SceneSpec = {
       they: "They wish you luck and go on their way.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1109,7 +1139,7 @@ const TICKET: SceneSpec = {
       they: "They hand you the ticket and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1155,7 +1185,13 @@ const RESTAURANT: SceneSpec = {
       says: "What you would like to drink.",
     },
   ],
-  curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "english", "interrupted", "their-order", "queue"],
+  /*
+    No `queue`: you are seated at a table rather than standing at a counter,
+    and "a queue forms behind you" is a thing that happens to somebody
+    waiting their turn, not somebody who already has one. `their-order`
+    stays, because a waiter genuinely does want the drink before the food.
+  */
+  curveballs: ["not-possible", "wrong-price", "small-talk", "faster", "english", "interrupted", "their-order"],
   beats: [
     {
       id: "greet",
@@ -1231,7 +1267,7 @@ const RESTAURANT: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1338,7 +1374,7 @@ const PHONE: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1451,7 +1487,7 @@ const NEIGHBOR: SceneSpec = {
       they: "They say goodbye and go on down.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1569,7 +1605,7 @@ const PHARMACY: SceneSpec = {
       they: "They say goodbye and look past you at the queue.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1681,7 +1717,7 @@ const COURSE: SceneSpec = {
       they: "They thank you and turn to the next person.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1800,7 +1836,7 @@ const INTERVIEW: SceneSpec = {
       they: "They thank you for coming and say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
@@ -1912,7 +1948,7 @@ const COMPLAINT: SceneSpec = {
       they: "They say goodbye.",
       move: "close",
       topic: [...FAREWELLS],
-      needs: [{ kind: "lemma", oneOf: [...FAREWELLS] }],
+      needs: [{ kind: "lemma", oneOf: [...CLOSING_WORDS] }],
       required: true,
       patience: 1,
       shape: "word",
