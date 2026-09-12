@@ -679,9 +679,8 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
               Your first words
             </h1>
             <p className="mt-2 max-w-[54ch] text-base" style={{ color: "var(--ink-2)" }}>
-              The course starts you here, at {startBand}. These are the words you actually need to
-              begin, taught in the order a course teaches them, and each one turns into real
-              flashcards with audio and every form of the word.
+              Your first {counted(deck.units.length, "unit")} at {startBand}, in the order below.
+              Each word becomes a flashcard, with audio and every form.
             </p>
 
             {/*
@@ -746,8 +745,9 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                 <p className="label-xs" style={{ color: "var(--mint-ink)" }}>Your first conversation</p>
                 <p className="mt-1 text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{firstScene.title}</p>
                 <p className="mt-1 text-sm" style={{ color: "var(--mint-ink)" }}>
-                  {firstScene.place}. Once these words are in, Situations plays it on somebody who
-                  wants something from you, and then there is a real one to go and do.
+                  {firstScene.place}. Once these words are in, you can rehearse this exact
+                  conversation here, typing your side to a stranger who wants something from you.
+                  Then go have the real one.
                 </p>
               </div>
             )}

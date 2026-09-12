@@ -253,9 +253,9 @@ function Hero({ stats }: { stats: { words: number; forms: number } }) {
         className="fade-up hero-lead hero-sub max-w-[52ch] leading-relaxed"
         style={{ color: "var(--ink-2)", animationDelay: "420ms" }}
       >
-        Kodukeel means home language. You live here now, and this is where the words start to
-        hold up: fifteen quiet minutes a day of practice that sticks, a conversation to rehearse
-        with somebody who has an agenda of their own, and one small thing to say out loud today.
+        The neighbor says hello. Your coworker asks you a question. The dog wants to be petted.
+        You need the right words when someone&rsquo;s actually looking at you. Kodukeel gets you
+        there, fifteen minutes at a time.
       </p>
 
       {/*
