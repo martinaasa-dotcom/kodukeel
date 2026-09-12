@@ -23,6 +23,12 @@ import { requireAppShell } from "./lib/prefs.mjs";
  *
  * Local mode, for the reason every browser suite here runs in it.
  *
+ * Its first run found three faults, and all three were in this file rather
+ * than in the app: two branches that could never execute, and an assertion
+ * against `page.content()`, which carries every render's flight payload in a
+ * script tag and so can never go back to not containing a name it has shown
+ * once. That last one failed on a deck that had been deleted perfectly well.
+ *
  * IT LEAVES THE DATABASE AS IT FOUND IT, and that is load-bearing rather than
  * tidy. A deck of this learner's own changes what the dictionary's add panel
  * draws for *every* suite after this one, which is the shape `test-restore.mjs`
@@ -40,10 +46,19 @@ const RENAMED = "Deck suite shelf renamed";
 const prisma = newPrismaClient(requireLocalDatabase("create decks and file words onto them"));
 
 /*
-  Eighteen, which is every `check` below. Each block that a database can fail to
-  reach carries its own `absent`, so the count is a property of this file rather
-  than of the fixture: no branch here can stop running and still clear the
-  floor.
+  Eighteen, which is every `check` below, and read off a real run rather than
+  counted: the first execution of this suite reached fourteen and waived four,
+  and both waivers were faults in the suite rather than facts about the
+  machine. One asked for a word with an õ in it, which the demo deck does not
+  have and never will, so two checks read as covered and had never executed.
+  The other counted the shelf's word list before the disclosure had fetched it.
+  A waiver that no state can lift is the thing a floor exists to make visible,
+  so neither is a waiver now.
+
+  What is left is conditional on the database and can honestly fire: a learner
+  who already has decks of their own, and a shelf that listed nothing to take
+  off. Every other block that could stop running trips the floor, because
+  nothing waives it.
 */
 const { check, absent, done } = suite("The deck screens", { floor: 18 });
 
@@ -70,12 +85,7 @@ const held = await prisma.card.findMany({
   orderBy: { id: "asc" },
 });
 const lemmas = [...new Set(held.map((c) => c.lexeme?.lemma).filter(Boolean))];
-/* One of the six letters an English keyboard has no key for, named here as an
-   example the way any test must name one. The table is lib/estonian/fold.ts and
-   lib/progress/decks.itest.ts asks it directly; this asks whether the screen
-   reaches it. */
-const withDiacritic = lemmas.find((l) => l.includes("õ"));
-const plain = lemmas.find((l) => l !== withDiacritic);
+const [plain, second] = lemmas;
 
 if (lemmas.length < 2) {
   console.log("\nFAIL  this learner holds fewer than two words, so there is nothing to file.");
@@ -90,6 +100,22 @@ page.on("pageerror", (e) => errors.push(e.message));
 
 const deckPage = () => page.goto(`${B}/words/decks`, { waitUntil: "networkidle" });
 
+/*
+  WHAT A READER CAN SEE, WHICH IS NOT WHAT `page.content()` RETURNS.
+
+  That returns the whole document, and this app is a React server-component
+  tree: every render's flight payload sits in the DOM as `self.__next_f.push`
+  inside a script tag, and those are appended rather than replaced. So a name
+  that has been rendered once is in `content()` for the life of the page, and a
+  check of the shape "the shelf is gone" can never pass. It did not: the first
+  run of this suite failed `and the shelf goes` against a deck that had been
+  deleted correctly, for fifteen seconds of polling.
+
+  Every assertion here reads the rendered text instead, so a negative one means
+  what it says and a positive one cannot be satisfied by a payload nobody sees.
+*/
+const shown = () => page.locator("main").innerText();
+
 // ── With no shelf named, the panel asks nothing about shelves ──────────────
 // The honest half of the gate, and the only check here that a learner's own
 // decks can take away: it is a claim about holding none.
@@ -102,7 +128,7 @@ if (ownDecks === 0) {
   await page.waitForTimeout(600);
   check(
     "with no deck named, the add panel offers no shelf to choose",
-    !(await page.content()).includes("Which deck?"),
+    !(await shown()).includes("Which deck?"),
   );
 } else {
   absent(1, `this learner already has ${ownDecks} deck(s) of their own, so "no deck named" is unreachable`);
@@ -113,15 +139,15 @@ await deckPage();
 await page.locator("#new-deck-name").fill(DECK);
 await page.getByRole("button", { name: /Create/ }).click();
 check("a named deck appears on the page that named it", await eventually(async () =>
-  (await page.content()).includes(DECK)));
+  (await shown()).includes(DECK)));
 
 // ── ...is offered by the dictionary. The regression, in one check. ─────────
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(plain)}`, { waitUntil: "networkidle" });
 await page.getByRole("button", { name: /Add to deck|In deck/ }).first().click();
-const offered = await eventually(async () => (await page.content()).includes("Which deck?"));
+const offered = await eventually(async () => (await shown()).includes("Which deck?"));
 check("one deck is enough for the dictionary to ask which shelf", offered);
 check("and it offers the shelf by the name the learner gave it",
-  (await page.content()).includes(DECK));
+  (await shown()).includes(DECK));
 
 // ── Filing from there lands on the shelf ───────────────────────────────────
 await page.getByRole("checkbox", { name: DECK }).check();
@@ -129,11 +155,11 @@ await page.getByRole("button", { name: /^Add$/ }).click();
 await page.waitForTimeout(1500);
 await deckPage();
 check(`the word filed from the dictionary is on the shelf`, await eventually(async () =>
-  (await page.content()).includes("1 word")));
+  (await shown()).includes("1 word")));
 
 await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
 check("and the shelf lists it by name", await eventually(async () =>
-  (await page.content()).includes(plain)));
+  (await shown()).includes(plain)));
 
 // ── Filing after the fact, which is what no other screen could do ──────────
 await page.getByRole("button", { name: /Add words/ }).click();
@@ -147,40 +173,56 @@ check("the filing panel offers words with nothing typed", await eventually(async
 const offeredNames = (await offers.allInnerTexts()).join("\n").split(/\s+/);
 check("and does not offer a word already on the shelf", !offeredNames.includes(plain));
 
-if (withDiacritic) {
-  const typed = withDiacritic.replace("õ", "o");
-  await page.locator(`input[id^="file-"]`).fill(typed);
-  check(`searching "${typed}" finds ${withDiacritic}`, await eventually(async () =>
-    (await page.content()).includes(withDiacritic), { timeoutMs: 8000 }));
-  await offers.filter({ hasText: withDiacritic }).first().click();
-  check("pressing a word files it, and the count says so", await eventually(async () =>
-    (await page.content()).includes("2 words")));
-} else {
-  absent(2, "no word in this deck carries an õ, so the folded search has nothing to find");
-}
+/*
+  THE SEARCH, AND DELIBERATELY NOT THE FOLD.
+
+  The first version of this typed a word with its diacritic stripped, to prove
+  the box reaches `lib/estonian/fold.ts`. It waived itself on every run there
+  will ever be, because the demo deck carries no word with an õ in it, and a
+  waiver that can never lift is a hole wearing a waiver's clothes: two checks
+  that read as covered and had never once executed. The fold is asked directly,
+  against a real Postgres, in lib/progress/decks.itest.ts, which is where a
+  claim about a query belongs. What only a browser can say is whether typing in
+  this box narrows this list, and that is what this asks.
+*/
+await page.locator(`input[id^="file-"]`).fill(second);
+check(`typing "${second}" narrows the list to it`, await eventually(async () =>
+  (await offers.count()) > 0 && (await offers.allInnerTexts()).join(" ").includes(second),
+  { timeoutMs: 8000 }));
+await offers.filter({ hasText: second }).first().click();
+check("pressing a word files it, and the count says so", await eventually(async () =>
+  (await shown()).includes("2 words")));
 
 // ── A shelf is a label, never a container ─────────────────────────────────
-const filed = withDiacritic ?? plain;
+const filed = second;
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(filed)}`, { waitUntil: "networkidle" });
-check("a filed word is still in the learner's deck", (await page.content()).includes("In deck"));
+check("a filed word is still in the learner's deck", (await shown()).includes("In deck"));
 
 // ── Renaming, and taking a word off ───────────────────────────────────────
 await deckPage();
 await page.getByRole("button", { name: DECK, exact: true }).click();
 await page.getByRole("textbox", { name: `Rename ${DECK}` }).fill(RENAMED);
 await page.keyboard.press("Enter");
-check("a shelf can be renamed", await eventually(async () => (await page.content()).includes(RENAMED)));
+check("a shelf can be renamed", await eventually(async () => (await shown()).includes(RENAMED)));
 
 await deckPage();
 await page.getByRole("button", { name: /^\d+ words?$/ }).first().click();
 const takeOff = page.getByRole("button", { name: /Take .* off this shelf/ });
+/*
+  The shelf's own list is fetched when the disclosure opens rather than handed
+  down by the server render, so counting straight after the click counts the
+  word "Loading…". The first run of this suite did exactly that and waived the
+  two checks behind it, reporting a shelf with nothing on it one line after
+  asserting two words were.
+*/
+await eventually(async () => (await takeOff.count()) > 0, { timeoutMs: 8000 });
 const had = await takeOff.count();
 if (had > 0) {
   await takeOff.first().click();
   check("a word comes off the shelf", await eventually(async () => (await takeOff.count()) < had));
   await page.goto(`${B}/dictionary?q=${encodeURIComponent(plain)}`, { waitUntil: "networkidle" });
   check("and taking it off the shelf leaves it in the deck",
-    (await page.content()).includes("In deck"));
+    (await shown()).includes("In deck"));
 } else {
   absent(2, "the shelf listed no words to take off, so the removal path was not reached");
 }
@@ -189,12 +231,12 @@ if (had > 0) {
 await deckPage();
 await page.getByRole("button", { name: /Remove/ }).first().click();
 check("removing a shelf says the words stay", await eventually(async () =>
-  (await page.content()).includes("The words stay in your deck")));
+  (await shown()).includes("The words stay in your deck")));
 await page.getByRole("button", { name: /^Remove$/ }).last().click();
-check("and the shelf goes", await eventually(async () => !(await page.content()).includes(RENAMED)));
+check("and the shelf goes", await eventually(async () => !(await shown()).includes(RENAMED)));
 
 await page.goto(`${B}/dictionary?q=${encodeURIComponent(filed)}`, { waitUntil: "networkidle" });
-check("the words it held are still the learner's", (await page.content()).includes("In deck"));
+check("the words it held are still the learner's", (await shown()).includes("In deck"));
 
 check("no console errors anywhere in that", errors.length === 0, errors.slice(0, 2).join(" | "));
 
