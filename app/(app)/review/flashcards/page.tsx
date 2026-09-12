@@ -2,7 +2,9 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
 import { borrowedSentences } from "@/lib/dict/facts";
-import { askableSlots, flashTask, hasSentence, type FlashWord } from "@/lib/games/flash";
+import {
+  askableSlots, dropTrailingBang, flashTask, hasSentence, type FlashWord,
+} from "@/lib/games/flash";
 import { masteryFor, type MasteredWord } from "@/lib/progress/mastery";
 import { MASTERY_CORRECT, MASTERY_ORDER } from "@/lib/srs/mastery";
 import { slotOfCard } from "@/lib/srs/slots";
@@ -187,7 +189,7 @@ function promptFor(
 
   const source: FlashWord = {
     lexemeId: word.lexemeId,
-    lemma: lexeme.lemma,
+    lemma: dropTrailingBang(lexeme.lemma),
     translation: lexeme.translation,
     pos: lexeme.pos,
     semanticTypes: lexeme.semanticTypes,

@@ -84,6 +84,22 @@ import type { CaseKey } from "@/lib/estonian/types";
 
 export type FlashShape = "recall" | "inflect" | "gap" | "heard" | "build";
 
+/**
+ * A phrase's own punctuation, dropped for the round.
+ *
+ * `Tere hommikust!` is filed with its exclamation mark because that is how a
+ * greeting is written down, and the mark carries no answer of its own: typing
+ * it was never required, since `checkAnswer` already strips punctuation
+ * before comparing. What it did was print on the card, on the reveal and in
+ * the round's own labels, which reads as the app shouting the word rather
+ * than teaching it. Trailing only, and only `!`, so a sentence a learner
+ * writes and a question mark a phrase genuinely ends on (`Kuidas läheb?`) are
+ * untouched.
+ */
+export function dropTrailingBang(text: string): string {
+  return text.replace(/!+\s*$/, "").trimEnd();
+}
+
 /** A dictionary entry, in the shape a round needs it. */
 export interface FlashWord {
   lexemeId: string;
