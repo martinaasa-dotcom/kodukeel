@@ -20,6 +20,7 @@
  */
 import { shuffle } from "@/lib/random/shuffle";
 import type { MoveKind, Requirement } from "./types";
+import type { Level } from "@/lib/collections/syllabus";
 
 export type CurveballId =
   | "missing-document"
@@ -274,6 +275,27 @@ export const BUDGETS = {
 } as const;
 
 export type Difficulty = keyof typeof BUDGETS;
+
+/**
+ * Where the dial opens, before anybody has touched it.
+ *
+ * The dial is about the other side and the learner is still free to move it;
+ * this only says where it starts. A1 is `textbook`, because a beginner's
+ * first counter should go the way the lesson said it would, and it climbs a
+ * rung a band for the levels the catalogue actually uses, landing on `bad`
+ * from B2 up rather than inventing a fifth tier the budgets do not have.
+ */
+const DEFAULT_DIFFICULTY: Record<Level, Difficulty> = {
+  A1: "textbook",
+  A2: "good",
+  B1: "ordinary",
+  B2: "bad",
+  C1: "bad",
+};
+
+export function defaultDifficultyFor(level: Level): Difficulty {
+  return DEFAULT_DIFFICULTY[level];
+}
 
 /** The setting above which a second expensive curveball may be drawn (§9). */
 const ORDINARY = BUDGETS.ordinary;
