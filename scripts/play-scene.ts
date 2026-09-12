@@ -64,6 +64,15 @@ const style = (arg("style") ?? "curious") as "clean" | "sloppy" | "curious" | "l
 const difficulty = (arg("difficulty") ?? "textbook") as "textbook" | "good" | "ordinary" | "bad";
 const composing = process.argv.includes("--compose");
 const pinned = arg("model");
+/**
+ * `--say "tere|ma tahan kohvi|ei, ma tahan ka saiakest"`: the learner's turns,
+ * typed, played in order and then the style takes over. The generated styles
+ * answer each beat from its own requirements, which is the right instrument
+ * for the marker's tolerance and the wrong one for the question a learner
+ * actually asked of this module: what happens when I say something the beat
+ * did not ask for. That is a turn somebody has to type.
+ */
+const SAY = (arg("say") ?? "").split("|").map((s) => s.trim()).filter(Boolean);
 
 /**
  * One line from a real model, through the route's own prompt.
@@ -436,7 +445,7 @@ async function play(sceneId: string) {
     }
     const target = standing ?? beat;
     if (!target) break;
-    const said = learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
+    const said = SAY[n] ?? learnerTurn(target, card ?? draw.card, context.lexicon, n, scene.register);
     console.log(`   YOU: ${said}      (goal: ${target.goal})`);
     turns.push({ beatId: target.id, said, helped: false, heard });
   }

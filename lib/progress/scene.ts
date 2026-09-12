@@ -23,7 +23,7 @@ import { parseGovernment } from "@/lib/estonian/government";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
 import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
-import { sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
+import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { LineMode } from "@/lib/scenes/line";
 import { NEW_WORDS, type GateContext, type GovernedWord } from "@/lib/scenes/gate";
 import { buildLexicon, subjectsIn, words, type DictEntry, type Lexicon } from "@/lib/scenes/lexicon";
@@ -464,7 +464,17 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[]): SceneCo
     },
     marker,
     pool: poolsFor(scene, rows),
-    topic: new Map(scene.beats.map((beat) => [beat.id, topicForms(beat, lexicon)])),
+    /*
+      A beat's subject is its topic lemmas' forms and the words its own banked
+      lines are made of (`bankTopic`), so a composed line that answers what the
+      learner just said and then asks the beat's question in the bank's own
+      words is on topic. Without the second half the bill beat refused every
+      line that did not mention money, including the one that did exactly what
+      `composeNote` asked of it.
+    */
+    topic: new Map(scene.beats.map((beat) => [
+      beat.id, new Set([...topicForms(beat, lexicon), ...bankTopic(scene, beat)]),
+    ])),
     scripted: new Map(sceneBeats(scene).map((beat) => [beat.id, scriptedFor(scene, beat)])),
     hasFiniteVerb,
     fallback: rows.find((row) => row.lemma === FALLBACK_PHRASE)?.lemma ?? FALLBACK_PHRASE,
