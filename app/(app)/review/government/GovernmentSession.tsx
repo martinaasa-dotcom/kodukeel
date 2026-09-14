@@ -23,7 +23,6 @@ export interface GovernmentQuestion {
   translation: string;
   cefr: string | null;
   answer: CaseKey;
-  answerEn: string;
   /**
    * The Estonian question the governed case answers, so the line after the
    * answer can say what it asks rather than naming it in Latin. A learner

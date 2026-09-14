@@ -332,7 +332,7 @@ function nameForm(word: WordRow, value: string): FormName | null {
   */
   const names = specs.map((spec) => ({
     et: precise?.et ?? spec.et,
-    en: precise?.en ?? spec.questionEn,
+    en: precise?.en ?? spec.asksEn,
   }));
   return {
     names,

@@ -67,6 +67,24 @@ describe("what each question word is asking", () => {
   });
 });
 
+describe("the short reading, for a label with no word in front of it", () => {
+  it("is the thing question and the place adverb, and never the person one", () => {
+    // A search result naming the form somebody typed and a chip under a
+    // heading hold a spelling rather than a subject, so they read the `mis`
+    // series: see `asksEn`. The case's whole name stays `questionEn`.
+    expect(caseByKey("INESSIVE")!.asksEn).toBe("what is it in? where?");
+    expect(caseByKey("COMITATIVE")!.asksEn).toBe("with what?");
+    expect(caseByKey("NOMINATIVE")!.asksEn).toBe("what?");
+  });
+
+  it("is shorter than the whole name wherever the two differ", () => {
+    for (const spec of CASES) {
+      expect(spec.asksEn.length, spec.key).toBeLessThan(spec.questionEn.length);
+      expect(spec.questionEn.endsWith(spec.asksEn), spec.key).toBe(true);
+    }
+  });
+});
+
 describe("reading a whole question", () => {
   it("reads a case's own name, every word of it", () => {
     const inessive = caseByKey("INESSIVE")!;

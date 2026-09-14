@@ -419,6 +419,25 @@ reading under it rather than inside it. Two invariants, both made to fail on a r
 screen that prints a case question says what it is asking, and the older one, that a screen naming
 a case in Latin names it in Estonian too.
 
+**And three files were still handing over the Latin name with both checks passing.** The two
+invariants above ask that a screen naming a case in Latin names it in Estonian too, and that a
+screen printing the question says what it asks. The dictionary's search ranker, which names the
+form somebody has just typed, the flash round's line under the plain ask and the diagnosis panel
+all named the case in Estonian first, so neither had anything to say, and each was a second copy
+of the naming `cases.ts` exists to be the one of: the browser suite caught the first as
+`toas is the seesütlev (inessive) of tuba`. So `CaseSpec.en` has a **closed list of readers**
+with a reason apiece, in the shape `lib/legal/exportCoverage.ts` takes for its exemptions, and a
+fourth reader fails until somebody decides which side of the line it is on. Made to fail both
+ways, on a real file and on an entry nobody reaches.
+
+**A label with no word in front of it reads the `mis` series, which is `asksEn`.** `questionEn` is
+the case's whole *name* and runs to three questions, which is right on the reference page beside
+the Estonian it translates and is a mouthful inside a sentence: "toas is the seesütlev (in whom?
+what is it in? where?) of tuba" is a note nobody finishes. The short one is the thing question and
+the place adverb, which is what `cases.ts` printed for eleven of the fourteen before `asksPerson`
+existed. It is deliberately not `caseQuestionEnglishFor`, which knows the word and picks the
+pronoun to match: this is for the places holding a spelling rather than a subject.
+
 **Anu is told the readings and told to use them.** The case table in her system prompt carries each
 question with what it asks after an equals sign, and the rule about naming a term says to give the
 reading rather than the Latin name, so the sentence she writes about `milles?` and the line under
@@ -7244,7 +7263,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
-`questionInEnglish`, `questionEn`, `asksThingEn`, `CaseQuestion`.
+`questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

@@ -135,7 +135,7 @@ export interface FormName {
    *
    * It was the Latin name, so a learner who searched `toas` was told it is
    * "seesütlev (inessive)": the Estonian name their teacher uses, and then one
-   * English word that is a translation of a translation. `questionEn` is what
+   * English word that is a translation of a translation. `asksEn` is what
    * the case is actually asking, off the one table in `lib/estonian/cases.ts`,
    * so the note on a search result and the Answers column on the entry under
    * it say the same thing. A verb slot keeps its own English name, which is
@@ -145,7 +145,7 @@ export interface FormName {
 }
 
 /** What a case asks, for the two tables below, so neither retypes it. */
-const asks = (key: string): string => caseByKey(key)?.questionEn ?? key.toLowerCase();
+const asks = (key: string): string => caseByKey(key)?.asksEn ?? key.toLowerCase();
 
 /** The slots the seed stores by `formType`, which carry no morph code. */
 const STORED_NAMES: Record<string, FormName> = {
@@ -185,7 +185,7 @@ function caseName(code: string): FormName | null {
   const plural = numberFromMorphCode(code) === "PLURAL";
   return {
     et: plural ? `mitmuse ${spec.et}` : spec.et,
-    en: plural ? `${spec.questionEn}, plural` : spec.questionEn,
+    en: plural ? `${spec.asksEn}, plural` : spec.asksEn,
   };
 }
 

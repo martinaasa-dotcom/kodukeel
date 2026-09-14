@@ -96,8 +96,9 @@ describe("a grammar point carries both names", () => {
     // nothing, so the Estonian question that used to sit here was read out by
     // a screen reader with English sounds and said nothing to a learner who
     // had not met it. The questions themselves are on the reference page for
-    // the ending, in both languages.
-    expect(inessive?.english).toBe("in whom? what is it in? where?");
+    // the ending, in both languages. The short reading rather than the case's
+    // whole name, because this is a chip under a heading: see `asksEn`.
+    expect(inessive?.english).toBe("what is it in? where?");
 
     const pluperfect = grammarPoint("pluperfect");
     expect(pluperfect?.title).toBe("enneminevik");

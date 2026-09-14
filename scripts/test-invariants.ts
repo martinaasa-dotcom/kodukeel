@@ -6608,6 +6608,63 @@ check("a screen that names a case in Latin names it in Estonian too", () => {
 });
 
 /**
+ * WHO MAY READ A CASE'S LATIN NAME AT ALL IS A CLOSED LIST.
+ *
+ * The two checks below say a screen printing the Latin name prints the
+ * Estonian one too, and that a screen printing the question says what it
+ * asks. Both were satisfied by three files that were still handing a learner
+ * "the inessive" as the only English in a sentence: the dictionary's search
+ * ranker naming the form somebody had just typed, the flash round's line under
+ * the plain ask, and the diagnosis panel. Each named the case in Estonian
+ * first, so neither check had anything to say, and each was a second copy of
+ * the naming that `lib/estonian/cases.ts` exists to be the one of.
+ *
+ * So `CaseSpec.en` has a reader list with a reason apiece, in the shape
+ * `lib/legal/exportCoverage.ts` takes for its exemptions: a fourth reader
+ * fails until somebody decides which side of the line it is on, rather than
+ * quietly printing a Latin name on a screen nobody swept. What a label should
+ * read instead is `asksEn`, and what a card should read is
+ * `caseQuestionEnglishFor`, which knows the word.
+ */
+check("a case's Latin name has a closed list of readers", () => {
+  const ALLOWED: Record<string, string> = {
+    "lib/estonian/terms.ts":
+      "alsoCalled, the labelled cross-reference for somebody reading an English grammar",
+    "lib/estonian/government.ts":
+      "parses the stored government string, which annotates each question word with a case name",
+    "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
+    "lib/estonian/writing.ts": "carries caseEn on the task; the screen prints the reading",
+    "lib/progress/exam.ts": "carries caseEn to the exam paper, which prints the reading",
+    "lib/exam/paper.ts": "passes that caseEn through onto the item",
+    "lib/exam/readiness.ts": "carries caseEn on the signal; the title prints the reading",
+    "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
+    "app/(app)/grammar/[caseKey]/page.tsx":
+      "the reference page for the ending, the one place the Latin name is the point",
+    "app/(chromeless)/welcome/page.tsx": "carries it on the demo row; the card prints neither name",
+    "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
+  };
+  // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
+  // which is the anchor the check below this one already argues for.
+  const READS = /\b(?:spec|c|named|row\.spec|caseByKey\([^)]*\))\??\.en\b|\bcaseEn\b/;
+  const found: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.test\.ts|\.itest\.ts/.test(file)) continue;
+    if (!READS.test(code(file))) continue;
+    found.push(file);
+    assert.ok(
+      file in ALLOWED,
+      `${file} reads a case's Latin name and is not on the list in this check. `
+        + "A label wants `asksEn` and a card wants `caseQuestionEnglishFor`; if it really "
+        + "needs the Latin name, add it here with the reason.",
+    );
+  }
+  // And an entry nobody reaches is an exemption that has outlived its reason.
+  for (const file of Object.keys(ALLOWED)) {
+    assert.ok(found.includes(file), `${file} is listed here and no longer reads a case's Latin name`);
+  }
+});
+
+/**
  * AND A CASE QUESTION SAYS WHAT IT IS ASKING.
  *
  * The rule above keeps the Estonian name beside the Latin one. This is the

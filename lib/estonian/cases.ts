@@ -52,6 +52,23 @@ export interface CaseSpec {
   readonly question: string;
   /** The same name in English, joined the same way: "in whom? what is it in? where?" */
   readonly questionEn: string;
+  /**
+   * The short reading, for a label with no word in front of it to decide with.
+   *
+   * `questionEn` is the case's whole *name* and runs to three questions, which
+   * is right on the reference page beside the Estonian name it translates and
+   * is a mouthful inside a sentence: "toas is the seesütlev (in whom? what is
+   * it in? where?) of tuba" is a note nobody finishes. This is the `mis` series
+   * and the place adverb, which is what `cases.ts` printed for eleven of the
+   * fourteen before `asksPerson` existed at all.
+   *
+   * It is deliberately not `caseQuestionFor`'s job. That function knows which
+   * word the question is about and picks the pronoun to match; this is for the
+   * places that hold a spelling rather than a subject, a search result saying
+   * which form was typed and a chip under a grammar heading. Where the word is
+   * known, ask `caseQuestionEnglishFor` instead.
+   */
+  readonly asksEn: string;
   /** Suffix added to the genitive stem. Empty for the three principal parts. */
   readonly suffix: string;
   /** True when the form must be stored, not derived. */
@@ -60,7 +77,7 @@ export interface CaseSpec {
 }
 
 /** A row of the table below: everything a case is, bar its assembled name. */
-type CaseRow = Omit<CaseSpec, "question" | "questionEn">;
+type CaseRow = Omit<CaseSpec, "question" | "questionEn" | "asksEn">;
 
 /**
  * The 14 Estonian cases in their traditional order.
@@ -122,6 +139,7 @@ export const CASES: readonly CaseSpec[] = ROWS.map((row) => ({
   ...row,
   question: [row.asksPerson, row.asksThing, row.asksWhere].filter(Boolean).join(" "),
   questionEn: [row.asksPersonEn, row.asksThingEn, row.asksWhereEn].filter(Boolean).join(" "),
+  asksEn: [row.asksThingEn, row.asksWhereEn].filter(Boolean).join(" "),
 }));
 
 /**

@@ -843,7 +843,7 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
                   is wanted in words they have met gives nothing away; being
                   unable to read the instruction is not the thing being
                   measured. See `lib/estonian/cases.ts`. */}
-              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion) ?? `the ${item.caseEn.toLowerCase()}`}</span>
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <Options
@@ -900,13 +900,13 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
                   is wanted in words they have met gives nothing away; being
                   unable to read the instruction is not the thing being
                   measured. See `lib/estonian/cases.ts`. */}
-              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion) ?? `the ${item.caseEn.toLowerCase()}`}</span>
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`${item.caseEt} of ${item.lemma}, ${questionInEnglish(item.caseQuestion) ?? `the ${item.caseEn.toLowerCase()}`}`}
+            ariaLabel={`${item.caseEt} of ${item.lemma}, ${questionInEnglish(item.caseQuestion)}`}
             placeholder="Write the form"
           />
         </div>
