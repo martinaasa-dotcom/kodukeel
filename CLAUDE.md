@@ -5147,8 +5147,8 @@ because somebody who says goodbye in the middle has left, so a `close` beat that
 would end every conversation on its first turn.
 
 **A phrase this app teaches is answered rather than punished.** `Kas sa räägid inglise keelt?` is
-in `tervitused`, the first unit anybody opens, and it is the move everybody makes in their first
-month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
+in `tervitused`, one of the first units anybody opens, and it is the move everybody makes in their
+first month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
 asked the same thing again: the app teaching a phrase on one screen and ignoring it on another. It
 costs no patience, for the reason saying you are lost costs none, and it is answered whatever the
 persona would have done on its own, because being asked is not the same as being written to in a
