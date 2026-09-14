@@ -17,7 +17,7 @@
  * sceneDraft.ts` carries the prompt the drafter and the rejection-rate eval
  * share, and it is not the one production sends: the route merges system and
  * live into one system message, hands the banked lines of the scene's other
- * beats over for tone, sets no temperature and allows 1200 tokens. A model
+ * beats over for tone, sets no temperature and allows `SCENE_REPLY_TOKENS`. A model
  * ranked on a prompt it will never be sent is a ranking for nothing, so the
  * prompt below is `compose` in `app/api/scene/route.ts`, kept in step with it.
  *
@@ -47,7 +47,7 @@ import { stageFor } from "../lib/scenes/reply";
 import { words } from "../lib/scenes/lexicon";
 import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
-  FREE_GEMINI_MODELS, FREE_GROQ_MODELS,
+  FREE_GEMINI_MODELS, FREE_GROQ_MODELS, SCENE_REPLY_TOKENS,
 } from "../lib/tutor/provider";
 import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
 
@@ -208,7 +208,7 @@ const BACKOFF_MS = [2_000, 6_000, 15_000, 30_000];
  * headers read `x-ratelimit-limit-tokens: 8000` against
  * `x-ratelimit-limit-requests: 1000`, so what runs out is the token budget and
  * it runs out first. A scene prompt is large because the word list *is* the
- * prompt, a few hundred lemmas, and the route reserves `max_tokens: 1200` on
+ * prompt, a few hundred lemmas, and the route reserves `SCENE_REPLY_TOKENS` on
  * top; at roughly 2,200 tokens a call that is about three calls a minute.
  * Pacing at one a second therefore measured the harness again, one layer below
  * where the first version did.
@@ -242,11 +242,18 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
           "content-type": "application/json",
           authorization: `Bearer ${link.key}`,
         },
-        // The route's own body, minus the stream: what is judged here is the
-        // finished line, and a stream would only add a reassembly step.
+        /*
+          The route's own body, minus the stream: what is judged here is the
+          finished line, and a stream would only add a reassembly step. The
+          token budget is the route's constant and not a number typed here,
+          which is `scripts/play-scene.ts`'s fault (docs/21 §55) one harness
+          over: this carried `max_tokens: 1200` after the route moved to 4,000,
+          so a model that thinks before it writes came back empty on a fifth of
+          its calls and read as a model that cannot write a line.
+        */
         body: JSON.stringify({
           model: link.model,
-          max_tokens: 1200,
+          max_tokens: SCENE_REPLY_TOKENS,
           messages: [{ role: "system", content: system }, { role: "user", content: user }],
         }),
         signal: AbortSignal.timeout(90_000),
