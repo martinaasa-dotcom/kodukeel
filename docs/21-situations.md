@@ -3171,7 +3171,7 @@ Estonian called horrible on sight. A harness is not the app. Every figure below 
 |---|---|---|---|
 | scene | `qwen/qwen3.8-27b` | **`gemini-3.8-flash`** | 9/12 to 24/24 clean lines, $0.00132 to $0.00118 a line |
 | vision | fell through the general chain | **`gemini-3.1-flash-lite`** | 144/144 words read exactly, both pages, three runs |
-| tutor | `claude-sonnet-5` | **`openai/gpt-oss-120b`** | 6/6 three runs, $12.44 to $0.72 per thousand |
+| tutor | `claude-sonnet-5`, then `openai/gpt-oss-120b` | **`gemini-3.8-flash`**, Groq behind it | 29/29 on the wide eval, no wrong form; $1.28 per thousand held |
 | grader | `openai/gpt-oss-120b` | unchanged | 24/24 twice; nothing beat it at the price |
 
 **And the tutor's reasoning effort was measured and left where it is.** `openai/gpt-oss-120b`
@@ -3191,6 +3191,47 @@ to 31 output tokens for a line of about 120 characters, so there was nothing to 
 |---|---|---|---|---|
 | default | 28/30 | ~410 | ~470 | $0.70 |
 | low | 26/30 | ~150 | ~470 | $0.54 |
+
+**And six questions measured whether a model knows Estonian, not whether Anu teaches it.** The
+wide eval, `npm run eval:anu` on 2026-09-14, asks thirty-seven questions of seven kinds through the
+route's own call: seventeen facts, six learner sentences to correct, four questions whose answer is
+one line, four that ask for forms in bulk, two that ask for words, one asked in Estonian, two
+follow-ups that name their word one turn back, and one briefed as A1. Beside the fact each answer
+has to contain it counts what the six could not see: a `FIX:` line under a question that had no
+sentence to correct, a `VOCAB:` line carrying an inflected form rather than a headword, a heading,
+a table or a rule the renderer will not draw, the length of a one-line answer, the tells in
+`lib/copy/voice.ts`, and every bold, quoted, diacritic, `FIX:` and `VOCAB:` spelling vouched against
+`prisma/data/forms/`, exact. The first run on `openai/gpt-oss-120b`, on the prompt as it stood, put
+a `FIX:` line under nine of thirty-one answers that had nothing to fix, two `VOCAB:` lines an answer
+with a third of them inflected forms, a correct sentence corrected twice over, `Soome` in the
+allative, and fourteen cases of `jalg` with eleven of them wrong, every one built on a genitive the
+model guessed.
+
+**The last of those is the finding, and it is the grader's finding from years ago.** The briefing
+held the rules and none of the facts, and Estonian is a language where the rule is the easy half.
+`lib/tutor/words.ts` picks the words a question is about, `lib/progress/tutorWords.ts` asks the
+dictionary for each one exactly as a scanned page is asked (ADR-021), and the route sends the
+principal parts, the government and, for a spelling the question used, which case it is, one case or
+the honest list off `whichCase`, in the live block after the learner's note. With that and the
+`FIX:` and `VOCAB:` rules tightened, gpt-oss-120b over three runs went to 83 of 87 facts, seven
+stray `FIX:` lines in ninety-three answers and six inflected `VOCAB:` entries in forty-five, and
+still put `Soome` in the allative with the dictionary's own forms in front of it, wrote `koolil` for
+"at school", built `jale` and corrected the correct sentence again. `gemini-3.8-flash`, thinking
+off, on the same shape: 29 of 29, no stray `FIX:` line, six `VOCAB:` lines in thirty-seven answers,
+nothing the renderer cannot draw, 1.2 grammar terms an answer against 3.1. So it leads and
+gpt-oss-120b is the fixed Groq link behind it, which is the shape every other Gemini purpose already
+had. What it costs is $3.27 a thousand answers against $0.32, and then $1.28 with the static prompt
+held on Google's side the way the scene prompt is: 3,070 of a 3,335-token question served off the
+entry, which Anu's prompt was already shaped for when the level moved out of it. Read the lines
+rather than the rate: the misses the eval still reports on Gemini are answers that explained the
+partitive without naming it, which is what the prompt asks for.
+
+| model, on the finished shape | facts | stray FIX | VOCAB lines (inflected) | terms/answer | per thousand |
+|---|---|---|---|---|---|
+| `openai/gpt-oss-120b`, three runs | 83/87 | 7 in 93 | 45 (6) | 3.1 | $0.32 |
+| `gemini-3.8-flash`, thinking off | 29/29 | 0 | 6 (0) | 1.2 | $3.27, $1.28 held |
+| `gemini-3.1-flash-lite` | 25/29 | 8 in 37 | 36 (0) | 1.8 | $0.97 |
+| `openai/gpt-oss-20b`, old prompt | 21/29 | 4 | 29 (9) | 2.3 | $0.44 |
 
 **Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
 Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the

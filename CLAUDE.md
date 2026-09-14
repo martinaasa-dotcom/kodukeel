@@ -6751,6 +6751,24 @@ type because it was measured, and the figures sit on `ProviderConfig.reasoning`.
 Lite link does not think on a JSON call, 26 to 31 output tokens a verdict, so nothing was switched
 off there.
 
+**And she is handed the dictionary's forms for the words in the question, because the briefing
+held the rules and none of the facts.** Asked for every case of `jalg`, Anu built fourteen forms on
+a genitive she guessed and eleven were wrong; asked about `Soome` she put it in the allative; a
+correct sentence was corrected twice over, and a `FIX:` line sat under nine answers in thirty-one
+that had no sentence to correct. Six grammar facts could see none of that, so `npm run eval:anu`
+asks thirty-seven questions of seven kinds and counts the stray `FIX:` line, the inflected `VOCAB:`
+entry, the shape the renderer will not draw, the length of a one-line answer and every Estonian
+spelling against `prisma/data/forms/`. `lib/tutor/words.ts` picks the words a question is about
+and prints what the dictionary holds for each, the principal parts, the government and which case
+a spelling in the question is, off `whichCase` and never off the model; `lib/progress/tutorWords.ts`
+reads them, vouching each token the way a photographed page is vouched (ADR-021); the route sends the
+block after the learner's note and the harness builds the same block off the shipped file, asserted.
+Measured on that shape, `openai/gpt-oss-120b` still taught a wrong form three times in ninety-three
+answers and `gemini-3.8-flash`, thinking off, taught none, so Anu answers on Gemini with Groq as
+her fixed backup, both pinned like the scene links, and her static prompt is held on Google's side:
+$1.28 a thousand answers against $0.32, for the faults a learner cannot see (`docs/21-situations.md`
+§55).
+
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather
 than keeping a list of its own. It streams, holding text back only where a
