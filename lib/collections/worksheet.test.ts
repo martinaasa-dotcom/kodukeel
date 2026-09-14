@@ -78,6 +78,45 @@ describe("buildWorksheet", () => {
     expect(buildWorksheet([principalOnly]).gaps[0]?.answer).toBe("toas");
   });
 
+  /*
+    THE THREE NAMED PLURAL PRINCIPAL PARTS. Nothing in this course teaches how
+    Estonian forms a plural, so a worksheet may not ask for one even though it
+    is a real, attested spelling of the word.
+  */
+  it("never gaps the plural, even where a sentence carries it", () => {
+    const plural = word({
+      lemma: "sõber", translation: "friend",
+      forms: [
+        { formType: "NOM_SG", value: "sõber" },
+        { formType: "GEN_SG", value: "sõbra" },
+        { formType: "PART_SG", value: "sõpra" },
+        { formType: "NOM_PL", value: "sõbrad" },
+      ],
+      examples: [{ et: "Oleme ikka sõbrad edasi!", en: null, source: "EKILEX" }],
+    });
+    expect(buildWorksheet([plural]).gaps).toEqual([]);
+  });
+
+  /*
+    AND A RETRIEVED PLURAL OBLIQUE, WHICH gapForms CANNOT LABEL APART FROM ITS
+    SINGULAR. `caseFromMorphCode` reads `SgKom` and `PlKom` alike as
+    `COMITATIVE`, so `tubadega` (`morphCode: "PlKom"`, a real row this
+    dictionary stores: see lib/dict/edit.itest.ts) would otherwise be offered
+    as though it were the singular comitative `tubaga`.
+  */
+  it("never gaps a retrieved plural oblique case either", () => {
+    const pluralOblique = word({
+      forms: [
+        { formType: "NOM_SG", value: "tuba" },
+        { formType: "GEN_SG", value: "toa" },
+        { formType: "PART_SG", value: "tuba" },
+        { formType: "EKILEX:PlKom", value: "tubadega", morphCode: "PlKom" },
+      ],
+      examples: [{ et: "Nad said tubadega hakkama.", en: null, source: "EKILEX" }],
+    });
+    expect(buildWorksheet([pluralOblique]).gaps).toEqual([]);
+  });
+
   it("hides a verb person worked out from the stored first person", () => {
     const verb = word({
       lemma: "algama", translation: "to begin", pos: "VERB",

@@ -47,6 +47,20 @@ describe("buildCheckpoint", () => {
     }
   });
 
+  /*
+    A CHECKPOINT REVIEWS A LEVEL ALREADY STUDIED, AND NO UNIT AT ANY LEVEL
+    TEACHES HOW ESTONIAN FORMS A PLURAL. A gap wanting `sõbrad` for `sõber`
+    tests the dictionary rather than the learner.
+  */
+  it("never gaps a plural, even where an attested sentence carries one", () => {
+    const friend = word("sõber", {
+      examples: ["Oleme ikka sõbrad edasi!"],
+      parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
+    });
+    const gaps = buildCheckpoint([friend], 1, 1).filter((q) => q.kind === "gap");
+    for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
+  });
+
   it("falls back to production for a word with no sentence", () => {
     const bare = buildCheckpoint(WORDS.filter((w) => w.examples.length === 0), 8, 3);
     expect(bare.every((q) => q.kind === "type")).toBe(true);
