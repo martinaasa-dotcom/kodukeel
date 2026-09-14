@@ -101,12 +101,19 @@ describe("reading a whole question", () => {
   });
 
   it("says nothing rather than guessing at a question it does not know", () => {
-    // `kellel on?` is the olema page's question and is not a case. A screen
-    // handed null prints the Estonian on its own, which is what it did before
-    // any of this existed.
-    expect(questionInEnglish("kellel on?")).toBeNull();
+    // A screen handed null prints the Estonian on its own, which is what it
+    // did before any of this existed.
+    expect(questionInEnglish("kuidas?")).toBeNull();
     expect(questionInEnglish(null)).toBeNull();
     expect(questionInEnglish("")).toBeNull();
+  });
+
+  it("reads a question word with the mark left off, which is how Ekilex writes one", () => {
+    // `Lexeme.government` records the bare word: `kellelt (ablative)`. A reader
+    // that answered only the spelling with a mark on it would have said
+    // nothing about every government string in the dictionary.
+    expect(questionInEnglish("kellelt")).toBe("from whom?");
+    expect(questionInEnglish("kellel on")).toBe("who has it?");
   });
 
   it("drops a word it does not know rather than the words it does", () => {

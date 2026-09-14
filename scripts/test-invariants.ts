@@ -6580,34 +6580,6 @@ check("no screen writes a hue's ink on that hue's own fill", () => {
 });
 
 /**
- * The same rule where it is actually broken: a screen.
- *
- * Every place that puts a case in front of a learner holds both names already,
- * so showing one is a choice rather than a shortage. This is the shape of the
- * ledger check above, and for the same reason: prose in CLAUDE.md kept four
- * screens honest and did not catch the fifth, which was the level check
- * offering "Inessive, Elative, Allative" to somebody who had been learning for
- * a week.
- */
-check("a screen that names a case in Latin names it in Estonian too", () => {
-  // Anchored on a member access rather than on the word, because a file
-  // declaring `caseEt: string` in an interface and then never rendering it
-  // satisfied the first version of this check. That is the same fault the
-  // comment on `code()` above describes: naming a thing is not using it.
-  const LATIN = /\.caseEn\b|\bspec\.en\b/;
-  const ESTONIAN = /\.caseEt\b|\.caseQuestion\b|\bspec\.et\b|\bspec\.question\b|caseOptionLabel/;
-  for (const file of [...APP, ...COMPONENTS]) {
-    const source = code(file);
-    if (!LATIN.test(source)) continue;
-    assert.match(
-      source,
-      ESTONIAN,
-      `${file} shows a learner the Latin case name with no Estonian name or question beside it`,
-    );
-  }
-});
-
-/**
  * WHO MAY READ A CASE'S LATIN NAME AT ALL IS A CLOSED LIST.
  *
  * The two checks below say a screen printing the Latin name prints the
@@ -6625,11 +6597,17 @@ check("a screen that names a case in Latin names it in Estonian too", () => {
  * quietly printing a Latin name on a screen nobody swept. What a label should
  * read instead is `asksEn`, and what a card should read is
  * `caseQuestionEnglishFor`, which knows the word.
+ *
+ * AND IT REPLACED THE CHECK THAT USED TO SIT HERE, WHICH ASKED THAT A SCREEN
+ * NAMING A CASE IN LATIN NAME IT IN ESTONIAN TOO. That was the right rule
+ * while the Latin name was allowed on a screen at all. It is not allowed on
+ * one now, so that check could only ever have fired on a file this one
+ * refuses outright, and a check that cannot fail on anything this one passes
+ * is a check nobody is reading. The list below is the stronger claim and the
+ * one to add to: a reader is named with its reason, or it does not ship.
  */
 check("a case's Latin name has a closed list of readers", () => {
   const ALLOWED: Record<string, string> = {
-    "lib/estonian/terms.ts":
-      "alsoCalled, the labelled cross-reference for somebody reading an English grammar",
     "lib/estonian/government.ts":
       "parses the stored government string, which annotates each question word with a case name",
     "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
@@ -6638,8 +6616,6 @@ check("a case's Latin name has a closed list of readers", () => {
     "lib/exam/paper.ts": "passes that caseEn through onto the item",
     "lib/exam/readiness.ts": "carries caseEn on the signal; the title prints the reading",
     "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
-    "app/(app)/grammar/[caseKey]/page.tsx":
-      "the reference page for the ending, the one place the Latin name is the point",
     "app/(chromeless)/welcome/page.tsx": "carries it on the demo row; the card prints neither name",
     "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
   };

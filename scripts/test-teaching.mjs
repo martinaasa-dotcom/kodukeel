@@ -86,9 +86,19 @@ check("and the ending itself is printed as written, never uppercased into someth
 check("a case page explains what the case is for in English",
   (await page.getByText(/Being inside something/i).count()) > 0);
 check("it names the case in Estonian too", (await page.getByText("seesütlev").count()) > 0);
-check("it keeps the Latin name as a labelled cross-reference",
-  (await page.getByText(/the inessive, in an English grammar/i).count()) > 0,
-  "the Latin name is not labelled as one");
+/*
+  THE LATIN NAME IS NOT ON THIS PAGE EITHER, WHICH IT USED TO BE.
+
+  It was here as the cross-reference for somebody reading an English reference
+  grammar, and the operator's reading is that it was never worth a line: an
+  English speaker who has not met `seesütlev` has not met "the inessive"
+  either, and what they can act on is the question. So the page says what the
+  case asks, in both languages, and names it in Latin nowhere.
+*/
+check("it says what the case asks rather than naming it in Latin",
+  (await page.getByText("in whom? what is it in? where?").count()) > 0
+    && (await page.getByText(/inessive/i).count()) === 0,
+  "the Latin name is back on the case page");
 check("it gives the question the case answers",
   (await page.getByText("kelles? milles? kus?").count()) > 0);
 check("it warns about the mistake English speakers make",

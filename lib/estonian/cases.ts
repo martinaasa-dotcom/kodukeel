@@ -183,7 +183,17 @@ export function questionInEnglish(question: string | null | undefined): string |
   const read = question
     .trim()
     .split(/\s+/)
-    .map((word) => ENGLISH_FOR_QUESTION[word])
+    /*
+      THE MARK IS OPTIONAL, BECAUSE NOT EVERY SOURCE WRITES ONE.
+
+      A screen holds `milles?` and Ekilex's stored government holds `milles`,
+      the same word doing the same job with the punctuation left off, and a
+      reader that answered only one of the two would have quietly said nothing
+      about every government string in the dictionary. Adding the mark where it
+      is missing only widens what this can read: a word the table does not hold
+      still comes back as nothing either way.
+    */
+    .map((word) => ENGLISH_FOR_QUESTION[word.endsWith("?") ? word : `${word}?`])
     .filter((x): x is string => Boolean(x));
   return read.length > 0 ? read.join(" ") : null;
 }

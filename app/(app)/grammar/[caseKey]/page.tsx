@@ -138,9 +138,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
                 {ref.spec.et}
               </dd>
-              <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
-                the {ref.spec.en.toLowerCase()}, in an English grammar
-              </dd>
+
             </div>
             <div className="min-w-0">
               <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>Answers</dt>
@@ -350,7 +348,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
           </p>
           <SuggestFix
             category="WRONG_CONTENT"
-            trigger={`The grammar reference for ${ref.spec.et} (${ref.spec.en})`}
+            trigger={`The grammar reference for ${ref.spec.et}`}
             label="Tell us what is wrong"
           />
         </div>

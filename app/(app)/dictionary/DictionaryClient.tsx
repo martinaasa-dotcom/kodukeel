@@ -15,7 +15,7 @@ import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { exceptionsFor } from "@/lib/estonian/exceptions";
 import { WordExceptions } from "@/components/WordExceptions";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
-import { parseGovernment } from "@/lib/estonian/government";
+import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
@@ -684,24 +684,24 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
             Government · rektsioon
           </h3>
-          <p className="rounded-[var(--r)] px-4 py-3.5 text-base" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-            {entry.government}
-          </p>
           {/*
-            WHAT THE CASE IT GOVERNS IS ASKING.
+            EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.
 
-            The string itself is stored and is Ekilex's own: the question word
-            it records, annotated with the case that question signals. Both
-            halves are opaque to an English speaker, and government is the one
-            thing in this language they cannot reason their way to, so the
-            entry printed the one fact a learner most has to take on trust in
-            two names they have met neither of. The reading is added under it
-            rather than substituted into it, because `parseGovernment` reads
-            that string back and the string is data.
+            The stored string annotates each question word with the case that
+            question signals, `kellelt (ablative)`, and the bracket was the only
+            English on the one fact in this language nobody can reason their way
+            to. `readableGovernment` rewrites it to what the word in front of it
+            is asking; the column itself is untouched, because `parseGovernment`
+            reads it and it is Ekilex's.
           */}
+          <p className="rounded-[var(--r)] px-4 py-3.5 text-base" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
+            {readableGovernment(entry.government)}
+          </p>
+          {/* Which of several is the primary, named the way a class names it.
+              The list above says what each asks and not which one leads. */}
           {governs && (
             <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-              It pairs with the <span lang="et">{governs.et}</span>: {governs.questionEn}
+              It pairs above all with the <span lang="et">{governs.et}</span>.
             </p>
           )}
         </div>
