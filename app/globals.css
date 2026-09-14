@@ -2009,10 +2009,20 @@
     transition-duration: 200ms;
     transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
+  /*
+    No `translateY` here on purpose. A row of these sits `gap-2` to `gap-3`
+    apart (`components/Choice.tsx`), and a hover transform hit-tests against
+    its own *moved* box: shifting the button up loses contact with a pointer
+    resting near its lower edge, which un-hovers it, which undoes the shift,
+    which re-hovers it, over and over, visible as the button flickering under
+    a still mouse. A pure `scale` grows the box outward from its own centre
+    in every direction at once, so it can only gain area under the pointer,
+    never lose it, and the lift still reads through the shadow.
+  */
   .choice-btn:hover:not(:disabled) {
     border-color: var(--accent);
     background: var(--accent-soft);
-    transform: translateY(-2px) scale(1.015);
+    transform: scale(1.015);
     box-shadow: var(--shadow-sm);
   }
   .choice-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); }
