@@ -122,7 +122,7 @@ const LEX = buildLexicon(ENTRIES);
 // `teil` and `mul` are the short pronoun forms a sentence is actually made of,
 // and no rule over a genitive stem reaches them, so the fixture lends them the
 // way the harvest stores them.
-const EXTRA = new Set(["teil", "mul", "kus", "kas"]);
+const EXTRA = new Set(["teil", "mul", "kus", "kas", "te", "teie", "see", "millal", "peas", "katki"]);
 const LEXICON = { ...LEX, forms: new Set([...LEX.forms, ...EXTRA]) };
 
 function context(over: Partial<GateContext> = {}): GateContext {
@@ -639,6 +639,54 @@ describe("a line with no verb in it", () => {
   it("says nothing about a line holding a word the scene does not teach", () => {
     const wide = context({ hasFiniteVerb: (word: string) => word === "on", vouched: () => true });
     expect(runGate("Kas teil peavalu olema?", beat(), wide).failed).not.toContain("clause");
+  });
+});
+
+/**
+ * AND A QUESTION WITH NO VERB IN IT, which is what the two Groq models the
+ * composer eval ranked write most and what `noClause` cannot see: too short
+ * for its floor, or carrying `kas` from a unit the scene does not declare.
+ */
+describe("a question with no verb in it", () => {
+  const ctx = context({
+    questionWords: new Set(["kas", "kus", "millal", "mis", "millisest"]),
+    hasFiniteVerb: (word: string) => word === "on",
+    subjects: new Map([["te", { code: "IndPrPl2", sure: false }], ["teie", { code: "IndPrPl2", sure: false }], ["see", { code: "IndPrSg3", sure: true }]]),
+  });
+
+  it("withholds the questions that reached the gate", () => {
+    expect(runGate("Kus teie valu?", beat(), ctx).failed).toContain("question");
+    expect(runGate("Kas teie valu peas?", beat(), ctx).failed).toContain("question");
+    expect(runGate("Millal see katki?", beat(), ctx).failed).toContain("question");
+  });
+
+  it("passes the same question with its verb", () => {
+    expect(runGate("Kus teie valu on?", beat(), ctx).failed).not.toContain("question");
+    expect(runGate("Kas teil on valu?", beat(), ctx).failed).not.toContain("question");
+    // A derived person counts as a verb, through the lexicon's own table.
+    expect(runGate("Kas te tahate valu?", beat(), ctx).failed).not.toContain("question");
+  });
+
+  it("says nothing about the two-word ellipsis anybody asks", () => {
+    expect(runGate("Kas see?", beat(), ctx).failed).not.toContain("question");
+  });
+
+  it("says nothing about an elliptical question with no pronoun in it", () => {
+    // `Millisest päevast alates?` is in the bank and is what a landlord asks.
+    expect(runGate("Kus valu peas?", beat(), ctx).failed).not.toContain("question");
+  });
+
+  it("says nothing about a clause that does not open on a question word", () => {
+    expect(runGate("Teie valu peas?", beat(), ctx).failed).not.toContain("question");
+  });
+
+  it("stands down where a word past the scene's list could be the verb", () => {
+    const wide = context({ ...ctx, vouched: () => true });
+    expect(runGate("Kas teie peavalu?", beat(), wide).failed).not.toContain("question");
+  });
+
+  it("reads a clause at a time, so a verbless aside before the question is not the question", () => {
+    expect(runGate("Hästi, kas teie valu on?", beat(), ctx).failed).not.toContain("question");
   });
 });
 

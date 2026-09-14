@@ -45,7 +45,7 @@ import { switchesRegisterAt } from "./curveballs";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "negation", "farewell",
+  "stretch", "clause", "infinitive", "negation", "farewell", "question",
 ] as const;
 
 /**
@@ -57,6 +57,14 @@ export const CHECKS = [
  * olema?` sits, which is the line this exists for.
  */
 export const FINITE_VERB_FLOOR = 4;
+
+/**
+ * How long a question naming a pronoun has to be before it is expected to
+ * hold a verb. One shorter than `FINITE_VERB_FLOOR`, because a question word
+ * and a pronoun together say a clause is coming: `Kus teie valu?` is three
+ * words and not Estonian, while `Mis kell?` is two and is.
+ */
+export const QUESTION_FLOOR = 3;
 
 /**
  * How many words of a line may be ones this scene has not declared.
@@ -415,6 +423,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (wrongInfinitive(text, context)) failed.push("infinitive");
   if (inflectedAfterEi(text, context)) failed.push("negation");
   if (saysGoodbye(tokens, beat, context)) failed.push("farewell");
+  if (verblessQuestion(text, context)) failed.push("question");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -446,6 +455,50 @@ function saysGoodbye(tokens: readonly string[], beat: BeatSpec, context: GateCon
     }
     return false;
   });
+}
+
+/**
+ * A QUESTION WITH NO VERB IN IT, WHICH IS THE LINE THE CLAUSE CHECK CANNOT SEE.
+ *
+ * `Kus teie valu?`, `Kas teie valu peas?`, `Millal see katki?` and `Teie mis
+ * katki?` all reached the gate from the two Groq models `npm run
+ * eval:composers` ranked (docs/21 §61), and every one passed: `noClause`
+ * stands down under `FINITE_VERB_FLOOR` and on any line with a word outside
+ * the scene's list, so a three-word question and a four-word one carrying `kas`
+ * from a unit the scene does not declare are both outside its reach. They are
+ * the commonest shape of pidgin a weak model writes, and the shape a learner
+ * three weeks in cannot tell from Estonian.
+ *
+ * What every one of them has and a real ellipsis does not is a pronoun with
+ * nothing predicated of it: `teie valu`, `see katki`, `teie tuba`. A question
+ * that opens on a question word, names a personal pronoun and holds no verb
+ * is not a sentence in Estonian, at any length: `Kus sa oled?`, `Kas teil on
+ * valu?`, `Millal see algas?` all carry theirs. The pronoun is read off
+ * `context.subjects`, both readings, since `Kas teie valu?` is the possessive
+ * and is pidgin all the same. A three-word question with no pronoun in it is
+ * left alone, because `Millisest päevast alates?` is in the bank and is what
+ * anybody asks; a floor of three words alone was tried first and refused it.
+ * The two-word ellipsis, `Mis kell?`, is under the floor either way. It stands
+ * down where any word after the question word is outside the scene's own
+ * list, for the reason `noClause` does: the verb table is the scene's own,
+ * and a stretched verb form is a word it has never heard of. `on`, `pole` and
+ * the persons the harvest stored reach it through `hasFiniteVerb`; the
+ * derived persons through `isPerson`.
+ */
+function verblessQuestion(text: string, context: GateContext): boolean {
+  const questions = context.questionWords;
+  if (!questions || questions.size === 0 || !context.subjects) return false;
+  for (const clause of text.split(/[,;:]/)) {
+    const lower = words(clause);
+    if (lower.length < QUESTION_FLOOR) continue;
+    if (!questions.has(lower[0]!)) continue;
+    const rest = lower.slice(1);
+    if (!rest.some((word) => context.subjects?.has(word))) continue;
+    if (!rest.every((word) => context.lexicon.forms.has(word) || questions.has(word))) continue;
+    const verb = rest.some((word) => isPerson(word, context) || context.hasFiniteVerb?.(word));
+    if (!verb) return true;
+  }
+  return false;
 }
 
 /**

@@ -15796,7 +15796,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
     gate, /if \(beat\.move === "close" \|\| !context\.farewells\) return false;/,
     "the farewell check no longer stands down on the close beat, so every scene's goodbye is refused",
   );
-  assert.match(gate, /"negation", "farewell",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
+  assert.match(gate, /"negation", "farewell", "question",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
   /*
     Both context builders hand the phrases in, resolved from the catalogue's
     own farewells, or the app and its harnesses would disagree about the gate

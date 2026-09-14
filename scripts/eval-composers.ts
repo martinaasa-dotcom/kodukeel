@@ -342,6 +342,12 @@ async function main() {
 
     const answered = rows.filter((r) => r.status === 200 && r.text);
     const clean = answered.filter((r) => r.failed.length === 0);
+    /*
+      Printed beside the gate count because it decided the last ranking
+      (docs/21 §61) and was in every row and on no summary line: the two
+      models the gate passed most were the two writing lines with no verb.
+    */
+    const verbless = answered.filter((r) => r.noFiniteVerb).length;
     const secs = Math.round((Date.now() - t0) / 1000);
     const median = answered.length
       ? answered.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(answered.length / 2)]
@@ -351,6 +357,7 @@ async function main() {
     console.log(
       `${link.model.padEnd(36)} answered ${String(answered.length).padStart(2)}/${rows.length}` +
       `  passed gate ${String(clean.length).padStart(2)}` +
+      `  no verb ${String(verbless).padStart(2)}` +
       `  median ${String(median).padStart(5)}ms  ${secs}s` +
       `  429s ${rows.reduce((n, r) => n + r.rateLimits, 0)}` +
       (statuses.size ? `  [${[...statuses].map(([s, n]) => `${s}x${n}`).join(" ")}]` : ""),

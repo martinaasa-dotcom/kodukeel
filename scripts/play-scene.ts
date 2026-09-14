@@ -385,7 +385,15 @@ async function play(sceneId: string) {
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {
-          compose: (avoid: readonly string[], because?: string) => askModel({
+          compose: (avoid: readonly string[], because?: string) => {
+            /*
+              Why the last draft was withheld, which is what the retry is told
+              (`whyWithheld`) and what a reader of the transcript needs beside
+              the draft: 126 drafts for 69 lines on the first live run of the
+              fallback said nothing about which check took the other 57.
+            */
+            if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld: ${because}`);
+            return askModel({
             move: spokenFor.move,
             they: stageFor(spokenFor, card),
             reading: "",
@@ -407,7 +415,8 @@ async function play(sceneId: string) {
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
-          }, talk),
+          }, talk);
+          },
         } : {}),
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;
