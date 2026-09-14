@@ -39,10 +39,17 @@
  * from the eye on purpose: the answer being written beside it is the exercise.
  * Both were reported by the first version of this and both were the harness.
  *
- * No database, no network: it reads `prisma/data/expanded.json`, which is what
- * `npm run db:seed` loads.
+ * No database, no network: it reads every entry the seed writes, through
+ * `scripts/lib/dictionary.ts`.
+ *
+ * IT USED TO READ HALF OF THEM. This opened `prisma/data/expanded.json` under
+ * a comment calling that file "what the seed loads", and the seed loads it and
+ * `prisma/data/harvested.ts`: 761 of the 1,514 course words are in no
+ * expansion row, so half the course had never been asked a single one of these
+ * questions. That is what let `kes` and `mis` keep a gradation card asking the
+ * genitive as `kelle? mille?`, which are the two words it wants back.
  */
-import { readExpanded } from "./lib/expandedFile";
+import { dictionaryRows, type DictionaryRow } from "./lib/dictionary";
 import { exceptionsFor } from "../lib/estonian/exceptions";
 import { drillable, tasksFor } from "../lib/games/exceptions";
 import { formIndex } from "../lib/games/flash";
@@ -62,12 +69,7 @@ import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
 
-interface Row { lemma: string; pos: string; cefr: string | null; translation: string;
-  forms: { formType: string; value: string }[]; examples: { et: string; en?: string | null }[];
-  government: string | null; gradation?: string | null; gradationNote?: string | null;
-  semanticTypes?: string | null }
-
-const entries = readExpanded() as unknown as Row[];
+const entries = dictionaryRows();
 
 /*
   What each word may borrow from the rest of the dictionary for its case and
@@ -136,20 +138,33 @@ const REACHES: Record<string, number> = {
     whichever the grid wanted the other was a right answer marked wrong. See
     `lib/games/clue.ts`.
   */
-  deck: 10_887, exam: 2_500, crossword: 3_991, scene: 1_409, target: 4_658,
+  /*
+    AND THEN EVERY ONE OF THEM MOVED, because the dictionary this reads
+    doubled its course half. Each figure below is the count printed by the run
+    that set it, over the 6,153 entries the seed writes rather than the
+    expansion's 5,363: the deck 13,540 against 10,887, the flash round 52,028
+    against 45,856. Re-measured rather than scaled, which is what the paragraph
+    above says about `exam` having been guessed once.
+  */
+  deck: 10_800, exam: 2_000, crossword: 3_700, scene: 1_100, target: 4_100,
   // 627 while a `heard` item was skipped outright; the listening items are
-  // asked the "also right" question now and counted.
-  check: 740,
+  // asked the "also right" question now and counted. The placement draws a
+  // fixed number of items per band, so this one does not move with the
+  // dictionary.
+  check: 590,
   // Measured on the merged tree once the flash round read `caseFits`: the
   // local cases it may ask narrowed with everything else's, from 46,851. Then
   // 45,856 once the round led with the sentence: a gap whose English gloss
-  // spells the form is refused rather than asked the plain way.
-  flash: 45_856,
+  // spells the form is refused rather than asked the plain way. Then 52,028
+  // over the whole dictionary, less the fifteen cases of `kes` and `mis` whose
+  // own question word was the answer.
+  flash: 41_600,
   // The two asked rungs of the exceptions round, over the graded dictionary.
   // Measured at 4,788, then 4,254 once the gap rung learned `readCase`'s rule:
   // a sentence has to name the form on its own, and two thirds of the short
-  // illatives in this dictionary are spelled like a principal part.
-  exceptions: 4_200,
+  // illatives in this dictionary are spelled like a principal part. 5,216 over
+  // the whole of it.
+  exceptions: 4_100,
 };
 
 /*
@@ -390,7 +405,7 @@ for (const e of entries) {
   `emojiFor` says which have a picture, and `taskFor` builds the task.
 */
 timed("scene", () => {
-const nouns = new Map<string, Row>();
+const nouns = new Map<string, DictionaryRow>();
 for (const e of entries) if (e.pos === "NOUN" && !nouns.has(e.lemma)) nouns.set(e.lemma, e);
 
 for (const scene of SCENES) {

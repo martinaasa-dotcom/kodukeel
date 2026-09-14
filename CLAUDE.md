@@ -3370,25 +3370,65 @@ all three: **zero cards print their own answer**, measured the same way.
 
 **And the fifth was the question itself, on the two words every beginner meets first.** The
 gradation card asks the genitive as `kelle? mille?`, and those two words *are* the genitives of
-`kes` and `mis`, so the card read `kes → kelle? mille?` and took `kelle`. Unfailable, in
-`kusisonad`, which is the A1 unit that teaches them. The builder had already held the *hint* off
-the answer two lines above, on the ladder every typeable card uses, and nothing held the front,
-because the front is the lemma and a word is not its own genitive: it is the lemma **and the
-question**, and the question is built from a table `lib/srs/cards.ts` does not own. The guard is
-`mentions(front, genSg)` rather than a rule about those two words, for that reason. Measured over
-the shipped dictionary: 1,045 gradation cards, and exactly those two.
+`kes` and `mis`, so the card read `kes → kelle? mille?` and took `kelle`. The builder had already
+held the *hint* off the answer two lines above, on the ladder every typeable card uses, and nothing
+held the front, because the front is the lemma and a word is not its own genitive: it is the lemma
+**and the question**, and the question is built from a table `lib/srs/cards.ts` does not own. The
+guard is `mentions(front, genSg)` rather than a rule about those two words, for that reason.
 
-**And `npm run audit:questions` could not have found it, because it reads half the course.** Both
-it and `npm run audit:sense` open `prisma/data/expanded.json` under a comment calling it "what the
-seed loads", and the seed loads that file *and* `prisma/data/harvested.ts`: `scripts/lib/dictionary.ts`
-exists to merge the two and `seedSize.test.ts` counts 6,153 entries off it against the expansion's
-5,363. 758 of the 1,514 course words are in no expansion row, so the two audits have never seen
-them, and `kes` and `mis` are among them. Stood the merged set in place as a scratch run,
-`audit:sense` asks 59,051 questions rather than 51,940 and stays clean. **The merge is the part to
-get right before that becomes the default**, and the first attempt proves why: it carried
-`gradation: null` where the seed carries `classifyGradation`'s answer, and `null !== "NONE"` builds
-a gradation card for every non-gradating word, so the run reported sixty-odd faults that the app
-does not have. A harness that is not the app measures the harness.
+**The door is the live lookup rather than the seed, which took a second look to get right.** A
+seeded `kes` cannot reach that card: `prisma/seed.ts` computes gradation only where `gradates(pos)`
+says the word class has one, so a pronoun is `NONE` and the builder breaks before it. What has no
+stored part of speech to consult is `runLookup`, which creates the entry for a word a learner
+searched for out of Ekilex alone, and **Ekilex calls every nominal `noomen`**: read off
+`.ekilex-cache`, the only word classes it sends are `noomen`, `verb` and `muutumatu`. So
+`mapEkilexDetails` labels `kes` a NOUN, a NOUN gradates, `classifyGradation("kes", "kelle")` returns
+`s : ll`, and the entry is created with it. Driven through the real mapper and the real builder: one
+gradation card, front `kes → kelle? mille?`, back `kelle`, and none with the guard in. Reachable on
+any deployment seeded before the pronouns unit existed, which is where `kes` is not yet a row.
+Gating the mapper on the part of speech was tried first and reverted: it can only fire on
+`muutumatu`, which carries no `SgN` or `SgG` for the classifier to read, so it is a no-op, and the
+test that appeared to prove it fired had invented a `wordClass` Ekilex does not send. A harness that
+is not the app measures the harness.
+
+**And the two audits that ask whether a question is answerable read half the dictionary.** Both
+`npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
+comment calling it "what the seed loads", and the seed loads that file *and*
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,153 entries against the expansion's 5,363,
+and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
+`scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
+still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
+what the seed does. `audit:sense` asks 60,118 questions rather than 51,940 and is clean;
+`audit:questions` asks 85,224 rather than about 46,000 and **reported 21 faults nobody had seen**.
+
+**The merge has to be faithful or it invents faults**, and the first attempt proves it: written with
+`gradation: null` on the course rows it reported sixty-odd gradation faults the app does not have,
+because `lib/srs/cards.ts` breaks on `lex.gradation === "NONE"` and `null` is not `"NONE"`. So the
+adapter computes gradation exactly as the seed computes it, off the part of speech first, and
+carries `semanticTypes`, which nothing could compute and which decides whether a case card asks a
+person or a thing. Checked both ways before a single fault was believed: recomputing gradation from
+the expansion's own principal parts agrees with what `expand-seed` stored on all 5,363 entries, no
+expansion row goes missing from the merge, and the 738 that differ are exactly the harvest
+superseding one on a shared key, with the course's authored gloss, its extra forms and its
+government. The `B1` floor on a missing level is the harvest's alone, because that is where the seed
+applies it: handing it to the expansion would tell the exam pool that 2,090 words are B1.
+
+**And all 21 were one fault in two more generators, which is the fault above wearing the case's
+question instead of the genitive's.** The flash round and the exceptions round each already refuse a
+form spelled like the lemma and a form spelled like a word in the English gloss, and every shape
+both draw prints a third thing: the question the case answers. That is a property of the *case*, so
+no amount of looking at one entry finds it. The round asked `kes · who · sisseütlev · kellesse?
+millesse?` and wanted `kellesse` typed back, on all eleven cases of both words, and
+`kes · omastav · kelle? mille?` wanting `kelle`. It costs those two words their case slots and
+nothing else, which is the right price: there is no way to ask somebody to produce `kelle` while
+printing `kelle?` as the question, and both keep their production card and their sentence shapes.
+
+**Every floor in both scripts moved with the dictionary and was re-measured rather than scaled.**
+`audit:sense` was 30,000 against 51,940 asked and is 48,000 against 60,118; the per-section figures
+in `audit-questions.ts` are four fifths of what the run over 6,153 entries actually prints, the deck
+13,540 against 10,887 and the flash round 52,028 against 45,856. Both were made to fail once: a
+section forced to produce nothing names itself and the count it missed, and a truncated entry list
+trips the whole-run floor. A floor left where it was is a floor that waves a generator through.
 
 **A generator fix settles the cards built from now on and not one card already in a deck.** That is
 the half the audit cannot see, because it reads `prisma/data/expanded.json` and a learner's deck is

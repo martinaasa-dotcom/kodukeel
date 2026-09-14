@@ -164,6 +164,29 @@ describe("drillable", () => {
     expect(drillable(word())).toBe(true);
   });
 
+  /*
+    And the label is the other half of what a screen prints. A slot's label is
+    the Estonian name and the question a class asks it with, and for `kes` and
+    `mis` those question words are the forms themselves: the round put
+    `kes · omastav · kelle? mille?` up and wanted `kelle` typed back.
+
+    Six faults over the whole dictionary, found the day `audit:questions` was
+    pointed at the course half rather than at the expansion alone. Not visible
+    on any one word, because the question comes from a table this module does
+    not own.
+  */
+  it("refuses an exception the slot's own question spells", () => {
+    const genitive: WordException = {
+      kind: "STEM", slot: "GENITIVE", forms: ["kelle"],
+      ruleForm: null, ruleFormIsAlsoRight: false, note: null,
+    };
+    expect(drillable(word({ lemma: "kes", exception: genitive }))).toBe(false);
+    const mille: WordException = { ...genitive, forms: ["mille"] };
+    expect(drillable(word({ lemma: "mis", exception: mille }))).toBe(false);
+    // And an ordinary word, whose genitive the same question does not spell.
+    expect(drillable(word())).toBe(true);
+  });
+
   it("refuses an exception with no form to type", () => {
     const none: WordException = {
       kind: "NO_PLURAL", slot: "NOMINATIVE", forms: [],
