@@ -40,7 +40,7 @@ check("it comes back with an English translation",
   (await page.locator("h2[lang=et]").innerText()) === word &&
   !(await page.getByText(/add a translation/).count()));
 check("the authoritative forms are shown, not derived ones",
-  (await page.getByText(/Every form, from Ekilex/i).count()) > 0);
+  (await page.getByText(/Every form/i).count()) > 0);
 /*
   The retrieved forms are a table now (app/dictionary/Forms.tsx): one row
   per case, naming it in both languages. Asserted on the row's text rather than
@@ -76,7 +76,7 @@ check("and no longer claims to have just fetched it",
 // A seeded word gets upgraded in place.
 await page.goto(`${B}/dictionary?q=jalg`, { waitUntil: "networkidle", timeout: 60000 });
 check("a seeded word is upgraded to the real forms",
-  (await page.getByText(/Every form, from Ekilex/i).count()) > 0);
+  (await page.getByText(/Every form/i).count()) > 0);
 check("its hand-written English is kept", (await page.getByText(/leg, foot/).count()) > 0);
 
 check("no page errors", errors.length === 0, errors.join("; "));

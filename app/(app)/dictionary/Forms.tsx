@@ -43,7 +43,7 @@ export function WordForms({ forms, pos, subject }: {
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Every form, from Ekilex
+        Every form
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         These are the real forms, not worked out from a stem. Irregular plurals and the
