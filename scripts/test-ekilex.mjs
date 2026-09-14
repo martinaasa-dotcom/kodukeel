@@ -18,7 +18,7 @@ const word = "raudteejaam"; // railway station
 await prisma.lexeme.deleteMany({ where: { lemma: word } });
 await page.goto(`${B}/dictionary?q=${word}`, { waitUntil: "networkidle", timeout: 60000 });
 check("a word outside the seed is fetched from Ekilex",
-  (await page.getByText(/Fetched from Ekilex/).count()) > 0);
+  (await page.getByText(/We found this word and saved it/).count()) > 0);
 /*
   The gap, by the half of it that does not move.
 
@@ -40,7 +40,7 @@ check("it comes back with an English translation",
   (await page.locator("h2[lang=et]").innerText()) === word &&
   !(await page.getByText(/add a translation/).count()));
 check("the authoritative forms are shown, not derived ones",
-  (await page.getByText(/Every form, from Ekilex/i).count()) > 0);
+  (await page.getByText(/^Every form$/i).count()) > 0);
 /*
   The retrieved forms are a table now (app/dictionary/Forms.tsx): one row
   per case, naming it in both languages. Asserted on the row's text rather than
@@ -62,8 +62,22 @@ const comitativeRow = await page
 check("case names are given in English as well as Estonian",
   /comitative/i.test(comitativeRow) && comitativeRow.includes("kaasaütlev"),
   comitativeRow.replace(/\s+/g, " ").trim() || "no comitative row");
-check("Ekilex is credited, as CC BY requires",
-  (await page.getByText(/Institute of the Estonian Language · CC BY 4.0/).count()) > 0);
+/*
+  Ekilex used to be credited a second time on every entry, "Forms from Ekilex,
+  Institute of the Estonian Language · CC BY 4.0" under the case table. CC BY
+  asks for attribution "in any reasonable manner based on the medium", and a
+  live page one click from a persistent footer and /terms is reasonable for
+  that; a printed worksheet, which carries no footer with it, is not, so that
+  one keeps its own line (test-teaching.mjs). The entry page reads simply now,
+  and the citation this check reads instead is the one that actually has to
+  hold: /terms names Ekilex under CC BY 4.0.
+*/
+const termsPage = await (await browser.newContext()).newPage();
+await termsPage.goto(`${B}/terms`, { waitUntil: "networkidle" });
+check("Ekilex is credited on /terms, as CC BY requires",
+  (await termsPage.getByText(/Ekilex/).count()) > 0 &&
+  (await termsPage.getByText(/CC BY 4\.0/).count()) > 0);
+await termsPage.close();
 
 // Second visit must be local.
 const t0 = Date.now();
@@ -71,12 +85,12 @@ await page.goto(`${B}/dictionary?q=${word}`, { waitUntil: "networkidle" });
 const ms = Date.now() - t0;
 check("the second lookup is served locally", ms < 2500, `${ms}ms`);
 check("and no longer claims to have just fetched it",
-  (await page.getByText(/Fetched from Ekilex/).count()) === 0);
+  (await page.getByText(/We found this word and saved it/).count()) === 0);
 
 // A seeded word gets upgraded in place.
 await page.goto(`${B}/dictionary?q=jalg`, { waitUntil: "networkidle", timeout: 60000 });
 check("a seeded word is upgraded to the real forms",
-  (await page.getByText(/Every form, from Ekilex/i).count()) > 0);
+  (await page.getByText(/^Every form$/i).count()) > 0);
 check("its hand-written English is kept", (await page.getByText(/leg, foot/).count()) > 0);
 
 check("no page errors", errors.length === 0, errors.join("; "));

@@ -104,7 +104,7 @@ check("it shows the case on real words", rowCount > 0, `${rowCount} words`);
 let labelled = 0;
 for (let i = 0; i < rowCount; i++) {
   const text = await rows.nth(i).innerText();
-  if (/Ekilex|principal part|from the genitive/i.test(text)) labelled++;
+  if (/recorded|memorized|from the genitive/i.test(text)) labelled++;
 }
 check("every form on it says where it came from", labelled === rowCount, `${labelled}/${rowCount}`);
 
@@ -205,12 +205,12 @@ if (hasRound) {
 } else {
   const empty = await page.locator("main").innerText();
   check("with no sentences yet, dictation says so instead of showing an empty round",
-    /No sentences/i.test(empty) && /Ekilex/i.test(empty));
+    /No sentences/i.test(empty) && /deck/i.test(empty));
   check("and points somewhere that would fill them in",
     (await page.locator('main a[href*="/dictionary"], main a[href*="/learn"]').count()) > 0);
   // The round itself is eight checks and this state reaches two of them. Said
   // out loud, with the number, so the floor still means what it says.
-  absent(6, "sentences from Ekilex, which this database has none of");
+  absent(6, "sentences, which this database has none of");
 }
 
 if (hasRound) {
