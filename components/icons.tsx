@@ -1,8 +1,8 @@
 import {
-  Award, BookCheck, BookmarkCheck, BookOpen, BrainCircuit, Briefcase, CalendarCheck, CalendarDays, CalendarRange, Camera,
+  Award, BookCheck, BookmarkCheck, BookOpen, BrainCircuit, Briefcase, Bus, Calculator, CalendarCheck, CalendarDays, CalendarRange, Camera,
   ChartNoAxesColumn, CheckCheck, CircleHelp, ClipboardCheck,
-  CircleDot, Clock, Compass, Ear, Eye, Flame, Footprints, GraduationCap, Grid2x2, Grid3x3, Hand, Headphones, Heart, HeartPulse,
-  Hourglass, House, Landmark, Languages, Layers, Library, Link, Map, MessageCircleQuestion,
+  CircleDot, Clock, Compass, Ear, Eye, Flame, Footprints, GraduationCap, Grid2x2, Grid3x3, Hand, Handshake, Headphones, Heart, HeartPulse,
+  Hourglass, House, Landmark, Languages, Layers, Library, LifeBuoy, Link, Map, MessageCircleQuestion,
   MessageSquareWarning, MessagesSquare, Mic, Moon, Mountain, Palette, PenLine, Plane, Plus, Puzzle, Repeat, Scale, School, ScissorsLineDashed,
   ScrollText, Settings, ShoppingBag, SlidersHorizontal, Sparkles, Stamp, Stethoscope, Sun,
   Sunrise, Swords, Target, Trees, TrendingUp, TriangleAlert, Trophy, Users, Utensils, WifiOff, Zap, type LucideIcon,
@@ -17,10 +17,10 @@ import {
  * string means, and the fallback keeps a typo from crashing a page.
  */
 export const ICONS: Record<string, LucideIcon> = {
-  Award, BookCheck, BookmarkCheck, BookOpen, BrainCircuit, Briefcase, CalendarCheck, CalendarDays, CalendarRange, Camera,
+  Award, BookCheck, BookmarkCheck, BookOpen, BrainCircuit, Briefcase, Bus, Calculator, CalendarCheck, CalendarDays, CalendarRange, Camera,
   ChartNoAxesColumn, CheckCheck, CircleHelp, ClipboardCheck,
-  CircleDot, Clock, Compass, Ear, Eye, Flame, Footprints, GraduationCap, Grid2x2, Grid3x3, Hand, Headphones, Heart, HeartPulse,
-  Hourglass, House, Landmark, Languages, Layers, Library, Link, Map, MessageCircleQuestion,
+  CircleDot, Clock, Compass, Ear, Eye, Flame, Footprints, GraduationCap, Grid2x2, Grid3x3, Hand, Handshake, Headphones, Heart, HeartPulse,
+  Hourglass, House, Landmark, Languages, Layers, Library, LifeBuoy, Link, Map, MessageCircleQuestion,
   MessageSquareWarning, MessagesSquare, Mic, Moon, Mountain, Palette, PenLine, Plane, Plus, Puzzle, Repeat, Scale, School, ScissorsLineDashed,
   ScrollText, Settings, ShoppingBag, SlidersHorizontal, Sparkles, Stamp, Stethoscope, Sun,
   Sunrise, Swords, Target, Trees, TrendingUp, TriangleAlert, Trophy, Users, Utensils, WifiOff, Zap,

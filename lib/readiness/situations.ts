@@ -187,6 +187,26 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     live: false, needs: [], cases: ["PARTITIVE"],
     tryThis: "Say how much you like three things, with a different degree word for each.",
   },
+  "suured-arvud": {
+    live: true, needs: ["numbers", "replies"], cases: ["PARTITIVE", "GENITIVE"],
+    tryThis: "Ask the price of three things in a shop and say each number back before you pay.",
+    expect: "A price said once and fast, with the cents run together with the euros.",
+  },
+  transport: {
+    live: true, needs: ["questions", "numbers", "replies"], cases: ["COMITATIVE", "ILLATIVE", "ELATIVE", "ADESSIVE"],
+    tryThis: "Ask a driver or somebody at the stop whether this bus goes where you are going.",
+    expect: "A yes or a no and then a stop name you have to catch the first time.",
+  },
+  abi: {
+    live: true, needs: ["greetings", "questions", "replies"], cases: ["PARTITIVE", "GENITIVE", "ALLATIVE"],
+    tryThis: "Ask somebody in a shop or an office to help you with one thing, in Estonian, before you explain in English.",
+    expect: "Either the help you asked for or a question about what exactly you need.",
+  },
+  tutvumine: {
+    live: true, needs: ["greetings", "questions", "pronouns"], cases: ["NOMINATIVE", "GENITIVE", "INESSIVE"],
+    tryThis: "Introduce yourself to somebody new: your name, where you live, and what you do.",
+    expect: "The same back, and then a question about where you are from and how long you have been here.",
+  },
 
   // ── A2 ──────────────────────────────────────────────────────────────────
   minevik: {
