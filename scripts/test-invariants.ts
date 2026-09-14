@@ -14231,20 +14231,13 @@ check("learn teaches a word and practice drills it, never both at once", () => {
 check("a word is introduced by one drawing", () => {
   /*
     A first meeting shows the word, what it means, and an attested sentence with
-    the form marked in it, and it says where the sentence came from. Review had
-    that drawing and Learn needs the same one: two copies would be two answers
-    to how a word is introduced, and the one nobody was looking at would be the
-    one that stopped naming its source.
+    the form marked in it. Review had that drawing and Learn needs the same one:
+    two copies would be two answers to how a word is introduced.
   */
   assert.ok(existsSync("components/WordIntro.tsx"), "the shared first meeting is gone");
   for (const file of ["app/(app)/review/ReviewSession.tsx", "app/(app)/learn/new/LearnSession.tsx"]) {
     assert.match(code(file), /<WordIntro\b/, `${file} draws a first meeting of its own again`);
   }
-  const provenance = ALL.filter((f) => /A real sentence, from Ekilex/.test(read(f)));
-  assert.deepEqual(
-    provenance, ["components/WordIntro.tsx"],
-    "more than one screen says where a teaching sentence came from",
-  );
 });
 
 check("no rung of the ladder prints the answer it is asking for", () => {

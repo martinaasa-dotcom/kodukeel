@@ -45,7 +45,7 @@ import type { Condition } from "@/lib/audio/conditions";
  * off is handed no tokens on the next screen, so this component is never asked
  * to draw a feature nobody wants.
  */
-export function GlossedSentence({ tokens, sentence, speak, onTurnedOff }: {
+export function GlossedSentence({ tokens, sentence, speak }: {
   tokens: GlossedToken[];
   /** The sentence as recorded, for the speaker. Joining the tokens gives the same string. */
   sentence: string;
@@ -64,18 +64,6 @@ export function GlossedSentence({ tokens, sentence, speak, onTurnedOff }: {
     rate?: number;
     autoplay?: boolean;
   };
-  /**
-   * Told once, where the screen around the sentence says something about the
-   * underlines being there.
-   *
-   * The first meeting's provenance line reads "Any underlined word opens its
-   * meaning", which is true of the server's answer and false for the second
-   * between the press and the refresh landing. A screen may not say a thing is
-   * there while the reader is looking at it not being there, and the caption
-   * cannot see this component's own state. A conversation says nothing about
-   * underlines and passes none.
-   */
-  onTurnedOff?: () => void;
 }) {
   const panelId = useId();
   const [open, setOpen] = useState<number | null>(null);
@@ -159,7 +147,7 @@ export function GlossedSentence({ tokens, sentence, speak, onTurnedOff }: {
             key={chosen.entry.lexemeId}
             entry={chosen.entry}
             onClose={() => setOpen(null)}
-            onTurnOff={() => { setDismissed(true); onTurnedOff?.(); }}
+            onTurnOff={() => setDismissed(true)}
           />
         )}
       </div>
