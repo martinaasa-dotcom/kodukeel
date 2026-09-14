@@ -8,7 +8,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
 import {
-  isConversation, OUTCOMES, OUTCOME_LABEL, sceneForErrand,
+  errandPlaces, isConversation, OUTCOMES, OUTCOME_LABEL, sceneForErrand,
   type Conversation, type Errand, type Outcome,
 } from "@/lib/collections/errands";
 
@@ -136,7 +136,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           corridor" was a caption belonging to nothing.
         */}
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          {errand.where}. The words are in{" "}
+          {errandPlaces(errand)}. The words are in{" "}
           <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
           {" "}Nobody will slow down for you, and that is the practice.
         </p>
