@@ -613,20 +613,21 @@ in the whole pipeline, and English is the one language this project may write.
 bring back, which is what makes this mechanical rather than aspirational. Re-run the harvest with
 `npm run harvest`; responses are cached, so it costs Ekilex nothing.
 
-**And the harvest may not delete what it exists to fetch.** `npm run harvest -- --only=plaanid` on a
-withdrawn key wrote `prisma/data/harvested.ts` with nothing in it, twice over. The fetch read every
-non-OK status as "Ekilex has no such word", so a 401 dropped every word of the run, and `--only`
-never merged: it filtered the requests to one unit and wrote that unit's survivors as the whole file,
-so even on a working key a partial run cut 1,452 course words to seventeen. `syllabus.test.ts` would
-have failed on the next `npm test`, which is the right backstop and the wrong first line.
-`lib/ekilex/harvestGuard.ts` is the two rules, pure and unit tested: a 401 or 403 is a fact about the
-key and never about a word, so the first one ends the run with nothing written and nothing cached,
-and `mergeHarvest` replaces exactly the rows a partial run asked for and keeps every other row as it
-was, in the full run's own order, so a word Ekilex dropped this time is dropped exactly as on a full
-run rather than kept from an older answer. `nõus` is the first word to arrive through it: a learner
-offered a wage wrote `ma olen nõus`, which is how anybody agrees to one, and the course taught
-`nõustuma` and not the word people say.
-
+**And a refusal is not a miss, which the harvest was the last path to learn.** Run with a key
+ekilex.ee answers 403 to, `npm run harvest -- --only=plaanid` printed every word of the unit as "not
+in Ekilex" and rewrote `prisma/data/harvested.ts` from about 17,400 lines to two, because its
+transport returned one `null` for "Ekilex holds no such word" and for "Ekilex would not say". And
+`--only` wrote the words it had asked about and nothing else, so re-harvesting one unit deleted the
+other seventy with a working key too. `lib/ekilex/harvestGuard.ts` decides both, pure and tested
+against a stubbed transport: `readAnswer` says whether a request was answered, refused or failed, a
+refused or failed request keeps the row the word had rather than dropping it, one refusal anywhere
+means nothing is written, a run that answered for nobody writes nothing, `--only` stands its answers
+into the previous file rather than replacing it, and a harvest that would drop more than half the
+file is refused without `--force`. Made to fail on the real key first: the same command now ends in
+"Not written: Ekilex refused 16 requests (HTTP 403 x16)" with the file untouched. Two sessions built
+this guard on the same day and the one on main is the one kept; the other's `nõus` is the first word
+through it, a learner offered a wage having written `ma olen nõus`, which is how anybody agrees to
+one, where the course taught `nõustuma` and not the word people say.
 
 **A meaning is given in the language the learner thinks in, and Ekilex is the one that gives it.**
 Most people learning Estonian in Estonia already speak Russian or Ukrainian, and an app that can
@@ -5739,8 +5740,7 @@ figures of the interviewer's, the pay question is answered by the next move, whi
 off the card, a no gets the second figure through `counter`, and only then is a start day asked for.
 An offer nobody has made cannot be taken, so `creditAhead` passes over an `offer` beat ahead of the
 pointer: `hea` two beats earlier had met it and the figure was never said. `docs/21-situations.md`
-§61, including the measurement that could not be taken, since the fallback composer has never been
-through `eval:composers` and both keys here answer 401.
+§61, and the paragraph on `SCENE_FALLBACK_MODEL` above for the measurement that pass could not take.
 
 **And how the other side talks is the run's band, which is the learner's own unless they moved
 it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are

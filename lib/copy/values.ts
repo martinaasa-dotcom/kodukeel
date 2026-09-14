@@ -106,3 +106,16 @@ export function joinWithAnd(items: readonly string[]): string {
   if (items.length === 2) return `${items[0]} and ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, and ${items[items.length - 1]}`;
 }
+
+/**
+ * The same reading, for a list of alternatives rather than a list of
+ * requirements: an errand's `where` is a set of places any one of which
+ * would do, and joined on `joinWithAnd` it reads as a place you would have
+ * to visit all of. "Work, a party" is two options; "Work and a party" is an
+ * itinerary.
+ */
+export function joinWithOr(items: readonly string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} or ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")}, or ${items[items.length - 1]}`;
+}

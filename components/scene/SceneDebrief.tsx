@@ -11,7 +11,7 @@ import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
 import { splitOnForm } from "@/lib/dict/examples";
 import { curveballById } from "@/lib/scenes/curveballs";
-import { errandForScene } from "@/lib/collections/errands";
+import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 
@@ -44,14 +44,15 @@ export const SCENE_SOURCE = "SCENE";
  *    bound on its length, so it sits under the things a learner can act on
  *    rather than between them and the outcome
  *    (`docs/21-situations.md` §12, amendment 1).
- * 7. **The real one.** The errand this scene rehearses, and where the people
- *    are. This is the screen a learner is on the moment they have just proved
- *    they can book the appointment, and it used to end in "have it again":
- *    the purpose of the app is to be left (`docs/22-real-life.md`), and a
- *    rehearsal that ends in another rehearsal keeps somebody inside. Shown
- *    only where every required beat was met, because sending somebody out on
- *    the strength of a conversation they did not get through is the false
- *    confidence the readiness screen is built against.
+ * 7. **Say it today.** The errand this scene rehearses, and where the people
+ *    are, under the same name Today uses for the same card: this is the
+ *    screen a learner is on the moment they have just proved they can book
+ *    the appointment, and it used to end in "have it again". The purpose of
+ *    the app is to be left (`docs/22-real-life.md`), and a rehearsal that
+ *    ends in another rehearsal keeps somebody inside. Shown only where every
+ *    required beat was met, because sending somebody out on the strength of
+ *    a conversation they did not get through is the false confidence the
+ *    readiness screen is built against.
  * 8. **Try it again**, which is one button, because the second run is where
  *    most of the learning is.
  *
@@ -447,12 +448,30 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
 
       {errand && (
         <section>
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Now the real one</h3>
+          {/*
+            "Now the real one" implied the conversation just had was not real,
+            which is not the argument this section is making and read as a
+            put-down of ten minutes somebody just spent. `SAY_IT_TODAY` is
+            the same heading Today itself uses for the same errand when the
+            answer to "did you speak any Estonian yesterday" is no
+            (`components/SayItToday.tsx`), read off one constant rather than
+            typed twice, so the two screens cannot drift into naming it
+            differently.
+          */}
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{SAY_IT_TODAY}</h3>
           <Card tone="mint">
             <p className="text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{errand.says}</p>
+            {/*
+              `errandPlaces` leads the sentence rather than following a colon.
+              Every `where` in `lib/collections/errands.ts` is authored
+              capitalized as a sentence's first word ("Work, a party" is
+              "Work" then lowercase "a party"), so a lead-in like "Try it:"
+              would put that capital mid-sentence instead, on every errand
+              but the single-place ones.
+            */}
             <p className="mt-1.5 text-sm" style={{ color: "var(--mint-ink)" }}>
-              {errand.where}. Nobody there has read the card, and that is the practice.
-              Tomorrow, <Link href="/">Today</Link> asks how it went.
+              {errandPlaces(errand)}. Nobody there has read the card, and that is the
+              practice. Tomorrow, <Link href="/">Today</Link> asks how it went.
             </p>
             {cafe && (
               <p className="mt-2 text-xs" style={{ color: "var(--mint-ink)" }}>
@@ -479,6 +498,20 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         readings of the schedule are one sentence, and nothing floats. Only the
         schedule line is conditional, because a run that graded nothing has
         nothing to say about it, and the button is the point either way.
+
+        THE BUTTONS NAME THE PRACTICE RATHER THAN BORROW THE ERRAND'S WORD.
+        "Have it again" and "Another conversation" both named the bare noun
+        "a conversation", which the errand card two inches above also uses
+        for the real one ("Say it today"): a learner could not tell at a
+        glance whether the second button was still about the errand. The
+        landing page, the manifest and this app's own tagline already draw
+        the line between the two with a verb rather than a second noun, "a
+        conversation to rehearse" (`app/layout.tsx`, `app/manifest.ts`,
+        `/situations`'s own "The rehearsal is here. The conversation is out
+        there."): nobody rehearses a real conversation, they have one, so
+        putting "rehearse" on both buttons here says which kind each is
+        without inventing a new word for what this app has always called a
+        scene, "a conversation", everywhere a learner reads it.
       */}
       <div className="flex flex-col gap-3">
         {/*
@@ -486,9 +519,9 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           every other finish screen in the app has.
         */}
         <div className="flex flex-wrap gap-2">
-          <ButtonLink href="/situations" variant="ghost">Another conversation</ButtonLink>
-          {/* Try it again keeps the scene and redraws everything else. */}
-          <Button variant="primary" onClick={onAgain}>Have it again</Button>
+          <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>
+          {/* Redoing it keeps this scene and redraws everything else. */}
+          <Button variant="primary" onClick={onAgain}>Rehearse this conversation again</Button>
         </div>
 
         {(objectives.missed.length > 0 || graded > 0) && (
@@ -496,8 +529,8 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
             {objectives.missed.length > 0 && "The second run of a scene is where most of it sticks. "}
             {graded > 0 && (
               <>
-                {graded === 1 ? "One word" : `${graded} words`} you used are in{" "}
-                <Link href="/progress">your review schedule</Link> now, counted the way a review is.
+                {graded === 1 ? "One word you used is" : `${graded} words you used are`} now in{" "}
+                <Link href="/progress">your review schedule</Link>.
               </>
             )}
           </p>

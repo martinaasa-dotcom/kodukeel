@@ -1,43 +1,92 @@
 import { describe, expect, it } from "vitest";
+import { MAX_DROP_SHARE, planHarvestWrite, readAnswer, rowKey } from "./harvestGuard";
 
-import { mergeHarvest, refusesKey, rowKey } from "./harvestGuard";
+const row = (lemma: string, pos = "NOUN") => ({ lemma, pos, gloss: lemma });
+const previous = [row("tuba"), row("maja"), row("kool"), row("pood")];
 
-const row = (lemma: string, pos = "NOUN", tag = "old") => ({ lemma, pos, tag });
-
-describe("refusesKey", () => {
-  it("reads a withdrawn key off the two statuses that mean it", () => {
-    expect(refusesKey(401)).toBe(true);
-    expect(refusesKey(403)).toBe(true);
+describe("readAnswer", () => {
+  it("tells a refusal from a miss: a 403 is refused, an empty body is answered", async () => {
+    const refused = await readAnswer(async () => ({ ok: false, status: 403, json: async () => ({}) }));
+    expect(refused).toEqual({ kind: "refused", status: 403 });
+    const miss = await readAnswer(async () => ({ ok: true, status: 200, json: async () => ({ words: [] }) }));
+    expect(miss).toEqual({ kind: "answered", value: { words: [] } });
   });
-  it("never reads a missing word or a bad minute as a refusal", () => {
-    for (const status of [200, 404, 429, 500, 503]) expect(refusesKey(status)).toBe(false);
+
+  it("reads a bad minute as failed, which is worth a retry, and a rejected key as refused, which is not", async () => {
+    expect((await readAnswer(async () => ({ ok: false, status: 503, json: async () => ({}) }))).kind).toBe("failed");
+    expect((await readAnswer(async () => ({ ok: false, status: 429, json: async () => ({}) }))).kind).toBe("failed");
+    expect((await readAnswer(async () => { throw new Error("timeout"); })).kind).toBe("failed");
+    expect((await readAnswer(async () => ({ ok: false, status: 401, json: async () => ({}) }))).kind).toBe("refused");
   });
 });
 
-describe("mergeHarvest", () => {
-  const existing = [row("auto"), row("kool"), row("nõustuma", "VERB"), row("sobima", "VERB")];
-
-  it("replaces the rows it asked for and keeps every other row as it was", () => {
-    const requested = new Set(["nõustuma|VERB", "sobima|VERB", "nõus|ADVERB"]);
-    const fresh = [row("sobima", "VERB", "new"), row("nõus", "ADVERB", "new"), row("nõustuma", "VERB", "new")];
-    const merged = mergeHarvest(existing, fresh, requested);
-    expect(merged.map(rowKey)).toEqual(["auto|NOUN", "kool|NOUN", "nõus|ADVERB", "nõustuma|VERB", "sobima|VERB"]);
-    expect(merged.filter((r) => r.tag === "old").map((r) => r.lemma)).toEqual(["auto", "kool"]);
+describe("planHarvestWrite", () => {
+  it("writes nothing when the key was refused, whatever else came back", () => {
+    // The run that emptied the file: every request 403, every word "not in Ekilex".
+    const plan = planHarvestWrite({
+      previous, asked: new Set(previous.map(rowKey)), harvested: [],
+      unanswered: new Set(previous.map(rowKey)), refused: new Map([[403, 4]]), force: false,
+    });
+    expect(plan.write).toBe(false);
+    if (!plan.write) expect(plan.why).toMatch(/refused 4 requests \(HTTP 403 x4\)/);
+    // Even with --force: a refusal is never a miss.
+    expect(planHarvestWrite({
+      previous, asked: new Set(previous.map(rowKey)), harvested: [row("tuba")],
+      unanswered: new Set(), refused: new Map([[403, 1]]), force: true,
+    }).write).toBe(false);
   });
 
-  it("drops a requested word Ekilex no longer answers for, rather than keeping the stale row", () => {
-    const merged = mergeHarvest(existing, [row("sobima", "VERB", "new")], new Set(["sobima|VERB", "nõustuma|VERB"]));
-    expect(merged.map(rowKey)).toEqual(["auto|NOUN", "kool|NOUN", "sobima|VERB"]);
+  it("writes nothing when the source answered for nobody", () => {
+    const plan = planHarvestWrite({
+      previous, asked: new Set([rowKey(row("tuba"))]), harvested: [],
+      unanswered: new Set([rowKey(row("tuba"))]), refused: new Map(), force: false,
+    });
+    expect(plan.write).toBe(false);
   });
 
-  it("keeps the other part of speech of a lemma, since the key is lemma and pos", () => {
-    const both = [row("hall", "NOUN"), row("hall", "ADJECTIVE")];
-    const merged = mergeHarvest(both, [row("hall", "ADJECTIVE", "new")], new Set(["hall|ADJECTIVE"]));
-    expect(merged.map((r) => `${r.pos}:${r.tag}`).sort()).toEqual(["ADJECTIVE:new", "NOUN:old"]);
+  it("keeps the words --only did not ask about, and stands the fresh row in for the ones it did", () => {
+    const fresh = { ...row("tuba"), gloss: "room" };
+    const plan = planHarvestWrite({
+      previous, asked: new Set([rowKey(fresh)]), harvested: [fresh],
+      unanswered: new Set(), refused: new Map(), force: false,
+    });
+    expect(plan.write).toBe(true);
+    if (plan.write) {
+      expect(plan.rows).toHaveLength(4);
+      expect(plan.rows.find((r) => r.lemma === "tuba")?.gloss).toBe("room");
+      expect(plan.kept).toBe(3);
+    }
   });
 
-  it("leaves the file in the full run's own order", () => {
-    const merged = mergeHarvest([row("õun"), row("aeg")], [row("maja", "NOUN", "new")], new Set(["maja|NOUN"]));
-    expect(merged.map((r) => r.lemma)).toEqual(["aeg", "maja", "õun"]);
+  it("keeps the row of a word Ekilex did not answer for, and drops the one it answered nothing for", () => {
+    const plan = planHarvestWrite({
+      previous, asked: new Set([rowKey(row("tuba")), rowKey(row("maja"))]), harvested: [row("tuba")],
+      unanswered: new Set([rowKey(row("maja"))]), refused: new Map(), force: false,
+    });
+    expect(plan.write).toBe(true);
+    if (plan.write) expect(plan.rows.map((r) => r.lemma).sort()).toEqual(["kool", "maja", "pood", "tuba"]);
+    // `maja` asked, answered, and dropped by Ekilex: it leaves.
+    const dropped = planHarvestWrite({
+      previous, asked: new Set([rowKey(row("maja"))]), harvested: [],
+      unanswered: new Set(), refused: new Map(), force: false,
+    });
+    // One of four is under the half, so it writes, without maja.
+    expect(dropped.write).toBe(true);
+    if (dropped.write) expect(dropped.rows.map((r) => r.lemma)).toEqual(["tuba", "kool", "pood"]);
+  });
+
+  it("refuses a harvest that drops more than half the file, unless forced", () => {
+    const asked = new Set(previous.map(rowKey));
+    const plan = planHarvestWrite({ previous, asked, harvested: [row("tuba")], unanswered: new Set(), refused: new Map(), force: false });
+    expect(plan.write).toBe(false);
+    if (!plan.write) expect(plan.why).toMatch(/drop 3 of the 4/);
+    const forced = planHarvestWrite({ previous, asked, harvested: [row("tuba")], unanswered: new Set(), refused: new Map(), force: true });
+    expect(forced.write).toBe(true);
+    expect(MAX_DROP_SHARE).toBeLessThanOrEqual(0.5);
+  });
+
+  it("writes a first harvest into an empty file", () => {
+    const plan = planHarvestWrite({ previous: [], asked: new Set([rowKey(row("tuba"))]), harvested: [row("tuba")], unanswered: new Set(), refused: new Map(), force: false });
+    expect(plan.write).toBe(true);
   });
 });

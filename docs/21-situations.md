@@ -4501,7 +4501,8 @@ above are from the corrected run.
 `ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
 `plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
 on the wage beat's accept list, and `npm run probe:turns` reads the turn as
-complete. Harvesting it found that the harvest itself could delete the course
-on a refused key (CLAUDE.md, "the harvest may not delete what it exists to
-fetch").
+complete. Harvesting it went through the guard the other session had landed the
+same day (CLAUDE.md, "a refusal is not a miss, which the harvest was the last
+path to learn"), which is what it exists for: one row added, nothing else in
+the file touched.
 

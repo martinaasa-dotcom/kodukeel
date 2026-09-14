@@ -38,10 +38,10 @@ import { RETIRED_WORDS } from "../lib/collections/syllabus/retired";
 import { inferPos } from "../lib/collections/syllabus/types";
 import { primarySemanticTypes } from "../lib/ekilex/client";
 import { formatGovernment } from "../lib/ekilex/mapper";
-import { mergeHarvest, refusesKey, rowKey } from "../lib/ekilex/harvestGuard";
-import { HARVESTED } from "../prisma/data/harvested";
 import { unreachableSlots } from "../lib/estonian/conjugate";
 import { unreachableCaseForms } from "../lib/estonian/derive";
+import { planHarvestWrite, readAnswer, rowKey } from "../lib/ekilex/harvestGuard";
+import { HARVESTED } from "../prisma/data/harvested";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
@@ -80,6 +80,8 @@ const CEFR_ORDER = ["A1", "A2", "B1", "B2", "C1", "C2"];
 const args = process.argv.slice(2);
 const REFRESH = args.includes("--refresh");
 const ONLY = args.find((a) => a.startsWith("--only="))?.slice("--only=".length);
+/** Write a harvest that drops more than half the file. See `planHarvestWrite`. */
+const FORCE = args.includes("--force");
 const CONCURRENCY = Number(args.find((a) => a.startsWith("--jobs="))?.slice("--jobs=".length) ?? 6);
 
 if (!KEY) {
@@ -87,8 +89,6 @@ if (!KEY) {
   process.exit(1);
 }
 const API_KEY: string = KEY;
-/** Set by the first 401 or 403; the run then writes nothing. */
-let REFUSED: string | null = null;
 
 interface RawForm { value?: string; morphCode?: string }
 /** One set of forms, as Ekilex groups them. Their JSON's own key is `paradigms`. */
@@ -139,44 +139,49 @@ async function cached<T>(name: string, fn: () => Promise<T>): Promise<T> {
       /* a truncated cache entry is just a cache miss */
     }
   }
+  // Never cache a failure: `call` throws `NoAnswer` when Ekilex was unreachable
+  // or unhappy, and writing that down turns one bad minute into a permanent answer.
   const value = await fn();
-  // Never cache a failure. `call` returns null when Ekilex was unreachable or
-  // unhappy, and writing that down turns one bad minute into a permanent answer.
-  if (value !== null) await writeFile(file, JSON.stringify(value));
+  await writeFile(file, JSON.stringify(value));
   return value;
 }
 
-async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
-  try {
-    const res = await fetch(`${BASE}${pathname}`, {
-      headers: { "ekilex-api-key": API_KEY },
-      signal: AbortSignal.timeout(30_000),
-    });
-    if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
-    /*
-      A refusal is about the key and never about the word. Read as "not found"
-      it drops every word of the run and the file is then written without
-      them, which on a withdrawn key is the whole course deleted by a script
-      whose job is to fetch it (lib/ekilex/harvestGuard.ts). Nothing is
-      cached for it either, since the miss cache would then answer "no such
-      word" on the next run with a working key.
-    */
-    if (refusesKey(res.status)) {
-      REFUSED = `Ekilex answered ${res.status} on ${pathname}: the key was refused.`;
-      return null;
-    }
-    if (!res.ok) return null;
-    return (await res.json()) as T;
-  } catch (err) {
-    // Ekilex is a public service run by a research institute, not a CDN. Being
-    // patient with it is the whole etiquette of a bulk read.
-    if (attempt >= 4) {
-      console.warn(`  ! giving up on ${pathname}: ${(err as Error).message}`);
-      return null;
-    }
-    await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
-    return call<T>(pathname, attempt + 1);
+/**
+ * A REFUSAL IS NOT A MISS, AND THIS IS WHERE THE TWO WERE ONE `null`.
+ *
+ * A key ekilex.ee answers 403 to used to come back through here exactly as a
+ * word Ekilex does not hold, so every word of the run was reported "not in
+ * Ekilex" and the file was rewritten without them. `readAnswer` says which of
+ * three things happened; a refusal or a failure is counted here and thrown as
+ * `NoAnswer`, so `harvestWord` reports the word as unanswered rather than
+ * dropped and `planHarvestWrite` refuses to write at all where the key was
+ * rejected.
+ */
+class NoAnswer extends Error {}
+/** Refusals this run, by status. Any at all and nothing is written. */
+const REFUSED = new Map<number, number>();
+/** Requests that failed after every retry. */
+let FAILED = 0;
+
+async function call<T>(pathname: string, attempt = 0): Promise<T> {
+  const answer = await readAnswer<T>(() => fetch(`${BASE}${pathname}`, {
+    headers: { "ekilex-api-key": API_KEY },
+    signal: AbortSignal.timeout(30_000),
+  }));
+  if (answer.kind === "answered") return answer.value;
+  if (answer.kind === "refused") {
+    REFUSED.set(answer.status, (REFUSED.get(answer.status) ?? 0) + 1);
+    throw new NoAnswer(`Ekilex refused ${pathname}: HTTP ${answer.status}`);
   }
+  // Ekilex is a public service run by a research institute, not a CDN. Being
+  // patient with it is the whole etiquette of a bulk read.
+  if (attempt >= 4) {
+    FAILED += 1;
+    console.warn(`  ! giving up on ${pathname}: ${answer.reason}`);
+    throw new NoAnswer(`Ekilex did not answer ${pathname}: ${answer.reason}`);
+  }
+  await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+  return call<T>(pathname, attempt + 1);
 }
 
 const search = (lemma: string) =>
@@ -376,7 +381,7 @@ interface Harvested {
   rus: string[];
   ukr: string[];
 }
-interface Dropped { lemma: string; gloss: string; pos: string; error: string }
+interface Dropped { lemma: string; gloss: string; pos: string; error: string; unanswered?: true }
 
 /**
  * Lemmas Ekilex spells more than one way, collected as the run goes.
@@ -387,6 +392,16 @@ interface Dropped { lemma: string; gloss: string; pos: string; error: string }
 const AMBIGUOUS: { lemma: string; gloss: string; took: number; rivals: number[] }[] = [];
 
 async function harvestWord(word: CourseWord): Promise<Harvested | Dropped> {
+  try {
+    return await askEkilex(word);
+  } catch (err) {
+    if (!(err instanceof NoAnswer)) throw err;
+    // Not a miss: the row it had stays, and the run says the source did not answer.
+    return { lemma: word.lemma, gloss: word.gloss, pos: word.pos, error: err.message, unanswered: true };
+  }
+}
+
+async function askEkilex(word: CourseWord): Promise<Harvested | Dropped> {
   const { lemma, gloss, pos } = word;
   const wantVerb = pos === "VERB";
   const found = await search(lemma);
@@ -783,32 +798,46 @@ async function main() {
     }
   }
 
-  if (REFUSED) {
-    console.error(`\n${REFUSED}`);
-    console.error(`Nothing was written to ${path.relative(ROOT, OUT)}. Set a working EKILEX_API_KEY and run again.`);
+  /*
+    WHAT GETS WRITTEN IS PLANNED, NOT TAKEN. `--only` used to write the words it
+    had asked about and nothing else, so re-harvesting one unit deleted the
+    other seventy; and a run whose every request was refused wrote an empty
+    file. The previous file is the base, this run's answers stand in for the
+    words it asked, a word Ekilex did not answer for keeps its row, and a
+    harvest that would drop most of the file is refused (`planHarvestWrite`).
+  */
+  const dropped = failed.filter((r) => !r.unanswered);
+  const unanswered = failed.filter((r) => r.unanswered);
+  const plan = planHarvestWrite<Harvested>({
+    previous: HARVESTED as readonly Harvested[],
+    asked: new Set(requests.map(rowKey)),
+    harvested: ok,
+    unanswered: new Set(unanswered.map(rowKey)),
+    refused: REFUSED,
+    force: FORCE,
+  });
+  if (unanswered.length > 0) {
+    console.log(`\n${unanswered.length} not answered by Ekilex this run (their rows are kept as they were):`);
+    for (const f of unanswered) console.log(`  ${f.lemma} (${f.pos}): ${f.error}`);
+  }
+  if (!plan.write) {
+    console.error(`\nNot written: ${plan.why}`);
     process.exit(1);
   }
-
-  /*
-    A partial run replaces the rows it asked for and nothing else. Without
-    this, --only wrote the one unit's words as the whole file, which is the
-    fault lib/ekilex/harvestGuard.ts describes.
-  */
-  const rows = ONLY
-    ? mergeHarvest(HARVESTED as unknown as Harvested[], ok, new Set(requests.map(rowKey)))
-    : [...ok].sort((a, b) => a.lemma.localeCompare(b.lemma, "et"));
+  const rows = [...plan.rows].sort((a, b) => a.lemma.localeCompare(b.lemma, "et"));
   await writeFile(OUT, render(rows));
 
-  const withUsages = ok.filter((r) => r.usages.length > 0).length;
-  const withCefr = ok.filter((r) => r.cefr).length;
-  console.log(`\nWrote ${rows.length} words to ${path.relative(ROOT, OUT)}${ONLY ? ` (${ok.length} of them re-harvested for ${ONLY})` : ""}`);
+  const withUsages = rows.filter((r) => r.usages.length > 0).length;
+  const withCefr = rows.filter((r) => r.cefr).length;
+  console.log(`\nWrote ${rows.length} words to ${path.relative(ROOT, OUT)} (${ok.length} harvested this run, ${plan.kept} kept)`);
   console.log(`  ${withUsages} carry at least one attested sentence`);
   console.log(`  ${withCefr} carry an Ekilex CEFR level`);
-  if (failed.length > 0) {
-    console.log(`\n${failed.length} dropped — Ekilex does not have them as asked:`);
-    for (const f of failed) console.log(`  ${f.lemma} (${f.pos}): ${f.error}`);
+  if (FAILED > 0) console.log(`  ${FAILED} request${FAILED === 1 ? "" : "s"} failed after every retry`);
+  if (dropped.length > 0) {
+    console.log(`\n${dropped.length} dropped, Ekilex does not have them as asked:`);
+    for (const f of dropped) console.log(`  ${f.lemma} (${f.pos}): ${f.error}`);
   }
-  await writeFile(path.join(CACHE, "dropped.json"), JSON.stringify(failed, null, 2));
+  await writeFile(path.join(CACHE, "dropped.json"), JSON.stringify(dropped, null, 2));
 }
 
 main().catch((err) => {

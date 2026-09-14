@@ -1,55 +1,138 @@
 /**
- * What the harvest may write, and when it may not write at all.
+ * WHAT THE HARVEST MAY WRITE, DECIDED WITHOUT A NETWORK OR A FILESYSTEM.
  *
- * Two faults, both found by running `npm run harvest -- --only=plaanid` on a
- * machine whose EKILEX_API_KEY had been withdrawn. Ekilex answered 401, the
- * fetch layer read every non-OK status as "this word does not exist", every
- * word of the unit was dropped, and the script wrote what was left to
- * `prisma/data/harvested.ts`. What was left was nothing, because `--only`
- * never merged: it filtered the requests to one unit and then wrote the
- * results of that unit as the whole file, so 1,452 course words became
- * twenty on a full run and none on a refused one. `syllabus.test.ts` would
- * have caught the empty file on the next `npm test`, which is the right
- * backstop and the wrong first line: a generator that can delete the data it
- * generates on a bad key is a generator with a door open.
+ * `npm run harvest -- --only=plaanid` was run with a key ekilex.ee answers 403
+ * to, and the script printed every word of the unit as "not in Ekilex" and
+ * rewrote `prisma/data/harvested.ts` from about 17,400 lines to two. Two faults
+ * in one run, and neither was the key. The transport returned the same `null`
+ * for "Ekilex holds no such word" and "Ekilex refused to say", so a refusal
+ * was written down as a miss, which is the rule this repository states twice
+ * and had already learned in the seed and in `enrichFromEkilex`. And `--only`
+ * wrote only the words it had asked about, so a unit re-harvested on its own
+ * deleted the other seventy, key or no key.
  *
- * So two rules, pure, tested, and read by the script rather than restated in
- * it. A refusal is a fact about the key and never about a word, so one 401 or
- * 403 aborts the run before anything is written. And `--only` replaces exactly
- * the rows it asked for and keeps every other row as it was, so a partial run
- * is a partial run and not a smaller file.
+ * So the transport says which of three things happened (`readAnswer`), and the
+ * write is planned rather than taken (`planHarvestWrite`): a refused request
+ * writes nothing, a run that answered nothing writes nothing, a word that was
+ * not answered keeps the row it had, a word that was not asked keeps its row,
+ * and a harvest that would drop most of what the file holds is refused unless
+ * somebody says `--force`. Pure, so the guard is tested against a stubbed
+ * transport rather than against the Institute's service.
  */
 
-/** A status that says the key is the problem, not the word. */
-export function refusesKey(status: number): boolean {
-  return status === 401 || status === 403;
-}
+/** What one request to Ekilex came back as. */
+export type Answer<T> =
+  /** Ekilex answered. An empty body is a real miss and is the caller's to read. */
+  | { readonly kind: "answered"; readonly value: T }
+  /** Ekilex would not answer this key or this request: 401, 403, 404 and the rest of 4xx. */
+  | { readonly kind: "refused"; readonly status: number }
+  /** The service or the network did not answer at all: 429, 5xx, a timeout. Worth a retry. */
+  | { readonly kind: "failed"; readonly reason: string };
 
-export interface HarvestRow {
-  lemma: string;
-  pos: string;
+/** The part of a `Response` the reading needs, so a test can hand one in. */
+export interface ResponseLike {
+  readonly ok: boolean;
+  readonly status: number;
+  json(): Promise<unknown>;
 }
-
-/** The unique key `Lexeme` uses and `syllabus.test.ts` keys the course on. */
-export const rowKey = (row: HarvestRow): string => `${row.lemma}|${row.pos}`;
 
 /**
- * The file after a partial harvest.
- *
- * Every existing row whose key was requested is replaced by what came back,
- * which for a word Ekilex dropped this time is nothing: a request the
- * Institute refused is dropped on a partial run exactly as on a full one,
- * loudly, and never kept from an older file it once answered on. Every row
- * that was not requested is kept untouched. Sorted the way the full run
- * sorts, so a partial run and a full run leave the file in one order.
+ * One request, read into an `Answer`. The transport is handed in, so nothing
+ * here opens a socket.
  */
-export function mergeHarvest<T extends HarvestRow>(
-  existing: readonly T[],
-  fresh: readonly T[],
-  requested: ReadonlySet<string>,
-): T[] {
-  const kept = existing.filter((row) => !requested.has(rowKey(row)));
-  const out = [...kept, ...fresh];
-  out.sort((a, b) => a.lemma.localeCompare(b.lemma, "et"));
-  return out;
+export async function readAnswer<T>(doFetch: () => Promise<ResponseLike>): Promise<Answer<T>> {
+  let res: ResponseLike;
+  try {
+    res = await doFetch();
+  } catch (err) {
+    return { kind: "failed", reason: err instanceof Error ? err.message : String(err) };
+  }
+  if (res.status === 429 || res.status >= 500) return { kind: "failed", reason: `HTTP ${res.status}` };
+  if (!res.ok) return { kind: "refused", status: res.status };
+  try {
+    return { kind: "answered", value: (await res.json()) as T };
+  } catch (err) {
+    return { kind: "failed", reason: `unreadable body: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
+/** A row the harvest file holds, by the key the seed conflicts on. */
+export interface Keyed { readonly lemma: string; readonly pos: string }
+
+export const rowKey = (row: Keyed): string => `${row.lemma}|${row.pos}`;
+
+/**
+ * The share of the previous file a harvest may drop before it is refused
+ * without `--force`. Half, because a real change to the course moves a unit
+ * or two and a run that loses more than that has lost the source, not the
+ * words.
+ */
+export const MAX_DROP_SHARE = 0.5;
+
+export interface HarvestPlanInput<T extends Keyed> {
+  /** What the file held before this run. */
+  readonly previous: readonly T[];
+  /** Every word this run asked Ekilex about, by `rowKey`. */
+  readonly asked: ReadonlySet<string>;
+  /** What came back with forms, this run. */
+  readonly harvested: readonly T[];
+  /** Words asked that Ekilex never answered for, by `rowKey`. Kept, never dropped. */
+  readonly unanswered: ReadonlySet<string>;
+  /** How many requests came back `refused`, by status. */
+  readonly refused: ReadonlyMap<number, number>;
+  /** `--force`: write even a harvest that drops most of the file. */
+  readonly force: boolean;
+}
+
+export type HarvestPlan<T extends Keyed> =
+  | { readonly write: true; readonly rows: readonly T[]; readonly kept: number }
+  | { readonly write: false; readonly why: string };
+
+/**
+ * Whether to write, and what. The rows are the previous file with this run's
+ * answers stood in: a word asked and answered takes its new row, a word asked
+ * and not answered keeps its old one, a word not asked (`--only`) keeps its old
+ * one, and a word asked and genuinely dropped by Ekilex leaves.
+ */
+export function planHarvestWrite<T extends Keyed>(input: HarvestPlanInput<T>): HarvestPlan<T> {
+  const refusedTotal = [...input.refused.values()].reduce((a, b) => a + b, 0);
+  if (refusedTotal > 0) {
+    const statuses = [...input.refused.entries()].map(([status, n]) => `HTTP ${status} x${n}`).join(", ");
+    return {
+      write: false,
+      why: `Ekilex refused ${refusedTotal} request${refusedTotal === 1 ? "" : "s"} (${statuses}). `
+        + "A refusal is not a miss: check EKILEX_API_KEY. Nothing was written.",
+    };
+  }
+  if (input.harvested.length === 0 && input.unanswered.size > 0) {
+    return {
+      write: false,
+      why: `Ekilex answered for none of the ${input.unanswered.size} words asked. The source did not answer, `
+        + "so nothing was written.",
+    };
+  }
+
+  const rows: T[] = [];
+  let kept = 0;
+  for (const row of input.previous) {
+    const key = rowKey(row);
+    if (!input.asked.has(key) || input.unanswered.has(key)) {
+      rows.push(row);
+      kept += 1;
+      continue;
+    }
+    // Asked and answered: the new row stands in below, or the word leaves.
+  }
+  for (const row of input.harvested) rows.push(row);
+
+  const dropped = input.previous.length - rows.length;
+  if (!input.force && input.previous.length > 0 && dropped > input.previous.length * MAX_DROP_SHARE) {
+    return {
+      write: false,
+      why: `This harvest would drop ${dropped} of the ${input.previous.length} words the file holds, `
+        + "which is more than half. That is the source going away rather than the course changing. "
+        + "Pass --force to write it anyway.",
+    };
+  }
+  return { write: true, rows, kept };
 }

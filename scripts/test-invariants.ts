@@ -280,33 +280,6 @@ check("the harvest asks the rules which forms they cannot reach", () => {
 });
 
 /*
-  And the harvest may not delete what it exists to fetch.
-
-  A refused key read as "no such word" dropped every word of a run, and
-  `--only` wrote one unit's survivors as the whole file. Both rules live in
-  lib/ekilex/harvestGuard.ts; what is asserted here is that the script still
-  asks them on the two lines where each fault was, since a guard nobody calls
-  is the file as it was.
-*/
-check("the harvest stops on a refused key and merges a partial run", () => {
-  const src = code("scripts/harvest-ekilex.ts");
-  assert.match(
-    src, /refusesKey\(res\.status\)/,
-    "the harvest stopped reading a 401 or 403 as a fact about the key, so a "
-      + "withdrawn key drops every word and writes the file without them",
-  );
-  assert.match(
-    src, /mergeHarvest\(/,
-    "the harvest stopped merging a partial run into the file, so --only writes "
-      + "one unit as the whole course",
-  );
-  assert.match(
-    src, /if \(REFUSED\)[\s\S]*process\.exit\(1\)[\s\S]*mergeHarvest\(/,
-    "the harvest writes before it checks whether the key was refused",
-  );
-});
-
-/*
   And the pair a learner is shown is two forms somebody wrote down.
 
   `alsoRight` is what puts `tuppa / toasse` and `minule / mulle` on a screen and
@@ -15856,6 +15829,38 @@ check("the interview settles the wage before it asks for a start day, off the ca
     code("lib/progress/scene.ts"), /if \(other\.move === "offer" && at > state\.beat\) continue;/,
     "the look-ahead credits an offer beat before the offer has been made",
   );
+});
+
+/*
+  A SOURCE THAT WILL NOT ANSWER IS NEVER WRITTEN DOWN AS A MISS, AND THE HARVEST
+  WAS THE ONE PATH STILL DOING IT. Run with a key ekilex.ee answers 403 to, it
+  reported every word "not in Ekilex" and rewrote the course dictionary down to
+  two lines; and `--only` wrote only the unit it asked about, so re-harvesting
+  one unit deleted the rest with a working key too. Both are decided in
+  `lib/ekilex/harvestGuard.ts` now, which is pure and tested against a stubbed
+  transport, and the script has to read it on both sides of the request.
+*/
+check("the harvest tells a refusal from a miss and plans its write rather than taking it", () => {
+  const harvest = code("scripts/harvest-ekilex.ts");
+  assert.match(
+    harvest, /const answer = await readAnswer<T>\(/,
+    "the harvest's transport stopped reading its answers through readAnswer, so a 403 is a miss again",
+  );
+  assert.match(
+    harvest, /if \(answer\.kind === "refused"\) \{[\s\S]*?throw new NoAnswer/,
+    "a refused request no longer throws NoAnswer, so a rejected key reports every word as dropped",
+  );
+  assert.match(
+    harvest, /const plan = planHarvestWrite<Harvested>\(\{[\s\S]*?previous: HARVESTED/,
+    "the harvest no longer plans its write over the previous file, so --only replaces the file and a refusal empties it",
+  );
+  const writeAt = harvest.indexOf("await writeFile(OUT,");
+  const planAt = harvest.indexOf("if (!plan.write)");
+  assert.ok(writeAt > 0 && planAt > 0 && planAt < writeAt, "the harvest writes harvested.ts before asking the plan whether it may");
+  assert.match(harvest, /await writeFile\(OUT, render\(rows\)\)/, "the harvest writes something other than the planned rows");
+  const guard = code("lib/ekilex/harvestGuard.ts");
+  assert.match(guard, /if \(refusedTotal > 0\) \{[\s\S]*?write: false/, "a refused request no longer refuses the write");
+  assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
 });
 
 console.log(
