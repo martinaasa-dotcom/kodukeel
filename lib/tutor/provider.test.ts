@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
+  billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_FALLBACK_MODEL, SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
   visionProviders,
@@ -465,7 +465,7 @@ describe("the free providers", () => {
     expect(calls[0]?.auth).toBe("Bearer groq-key");
   });
 
-  it("does not ask Gemini for a usage frame it never agreed to accept", async () => {
+  it("asks Gemini for the usage frame it now sends, and reads the thinking off its total", async () => {
     vi.stubEnv("GROQ_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "gem-key");
     vi.stubEnv("ANTHROPIC_API_KEY", "");
@@ -473,20 +473,76 @@ describe("the free providers", () => {
     let body = "";
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
       body = String(init.body);
-      return sse("tere");
+      /*
+        The shape Google's OpenAI layer streamed on 2026-09-14: a usage object
+        on every chunk, a `completion_tokens` that is the line alone, and a
+        `total_tokens` that is the prompt, the line and the thinking the model
+        did before it. The thinking is billed as output and appears nowhere
+        else, so a reader taking `completion_tokens` books a nineteen-token
+        line and pays for 1,166.
+      */
+      return sseFrames(
+        { choices: [{ delta: { content: "tere" } }], usage: { prompt_tokens: 2017, completion_tokens: 4, total_tokens: 2500 } },
+        { choices: [{ delta: {}, finish_reason: "stop" }], usage: { prompt_tokens: 2017, completion_tokens: 19, total_tokens: 3183 } },
+      );
     });
     const chain = resolveProviders();
-    await openWithFallback([chain[0]!], "system", [{ role: "user", content: "hi" }]);
+    const seen: { input: number; output: number }[] = [];
+    const open = await openWithFallback(
+      [chain[0]!], "system", [{ role: "user", content: "hi" }],
+      (usage) => seen.push({ input: usage.inputTokens, output: usage.outputTokens }),
+    );
+    for await (const _ of open.chunks) { /* drain */ }
     /*
-      An unrecognised field is rejected outright rather than ignored, and this
-      codebase has already lost a provider to exactly that: stream_options was
-      added to the Anthropic call and every request 400'd. Gemini's OpenAI
-      layer does not document the field, so it is not sent, and the ledger
-      estimates from characters instead, which over-counts and so keeps the cap
-      failing closed.
+      `stream_options` used to be withheld from Gemini because its OpenAI layer
+      did not document the field and an unknown field there is a 400; it
+      accepts it now, and without the frame the ledger estimated every
+      streamed Gemini call from characters, which can never see the thinking.
     */
-    expect(body).not.toContain("stream_options");
+    expect(body).toContain("stream_options");
     expect(body).toContain(FREE_GEMINI_MODELS[0]);
+    expect(seen).toEqual([{ input: 2017, output: 1166 }]);
+  });
+
+  it("tells a scene link on Gemini not to think, and no other link", async () => {
+    /*
+      `gemini-3.8-flash` thinks by default and the thinking is most of a scene
+      line's bill (`ProviderConfig.reasoning`); `npm run eval:thinking` put
+      thinking on and off at 24 of 24 beats each. The tutor and grader chains
+      carry no such field, because a Groq reasoning model refuses "none" and
+      Anu's answers were measured with the model thinking.
+    */
+    vi.stubEnv("GROQ_API_KEY", "groq-key");
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("OPENAI_API_KEY", "");
+    const scene = resolveProviders({ purpose: "scene", allowFallback: false });
+    expect(scene.filter((c) => c.name === "gemini").map((c) => c.reasoning)).toEqual(["none", "none"]);
+    expect(scene.filter((c) => c.name !== "gemini").every((c) => c.reasoning === undefined)).toBe(true);
+    for (const purpose of ["tutor", "grader"] as const) {
+      expect(resolveProviders({ purpose }).every((c) => c.reasoning === undefined)).toBe(true);
+    }
+
+    let body = "";
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      body = String(init.body);
+      return sse("tere");
+    });
+    await openWithFallback([scene[0]!], "system", [{ role: "user", content: "hi" }]);
+    expect(JSON.parse(body).reasoning_effort).toBe("none");
+
+    body = "";
+    await openWithFallback([resolveProviders({ purpose: "tutor" })[0]!], "system", [{ role: "user", content: "hi" }]);
+    expect(body).not.toContain("reasoning_effort");
+  });
+
+  it("reads billed output as the larger of the completion count and the hidden total", () => {
+    expect(billedOutput({ prompt_tokens: 2017, completion_tokens: 19, total_tokens: 3183 })).toBe(1166);
+    // Groq and OpenAI: reasoning is inside `completion_tokens` and the total adds up.
+    expect(billedOutput({ prompt_tokens: 100, completion_tokens: 380, total_tokens: 480 })).toBe(380);
+    expect(billedOutput({ prompt_tokens: 100, completion_tokens: 40 })).toBe(40);
+    expect(billedOutput({ prompt_tokens: 100, total_tokens: 140 })).toBe(40);
+    expect(billedOutput({})).toBeUndefined();
   });
 });
 

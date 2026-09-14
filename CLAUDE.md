@@ -249,6 +249,28 @@ feature, since the budget then binds ten times too early on exactly the traffic 
 exists to make cheap. `CacheSplit` carries the two buckets beside the total, so a caller that
 knows nothing about caching still prices the whole call at base and still fails closed.
 
+**And a flash model thinks unless it is told not to, and the endpoint hid the bill.** Gemini's
+OpenAI-compatible layer reports the line in `completion_tokens` and the line plus the thinking in
+`total_tokens`, and says nothing else about the thinking; Google bills it as output, at five times
+the input rate. Measured on 2026-09-14 on the scene route's own prompt: a nineteen-token line from
+`gemini-3.8-flash` arrived under 1,147 hidden tokens, so a scene line the ledger priced at $0.0017
+cost about $0.005, and the cap bound three times too late on the one path that spends the most.
+Two things were wrong and both were in the transport rather than the prompt. Gemini was never sent
+`stream_options`, on a day its layer did not document the field, so every streamed Gemini call was
+estimated from characters, which can never see thinking; it is asked now and answers on every
+chunk. And `completion_tokens` was read where `total_tokens` less the prompt is what is billed:
+`billedOutput` reads the larger of the two, which is the same number on Groq and OpenAI, whose
+totals add up. `ProviderConfig.reasoning` is the other half: the two Gemini scene links carry
+`"none"`, sent as `reasoning_effort`, because `npm run eval:thinking` put thinking on and off at
+24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only that value is
+allowed, so a link cannot be put on "low" and called a saving nobody measured. The tutor and
+grader chains carry nothing, since a Groq reasoning model refuses "none" and Anu was measured
+thinking. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
+no cached share on an identical 2,000-token prefix, so the next saving there is the prompt's
+length rather than its order. `npm run report:spend` is how the bill is read by kind, model and
+day off the deployment's own ledger, priced in and out apart, because a model whose output share
+is most of its cost on a job returning twenty tokens is a model paying for reasoning nobody reads.
+
 **Two of the three cache breakpoints are under Anthropic's minimum and do nothing, which is worth
 knowing rather than fixing.** A cached prefix has to reach 1,024 tokens. The tutor's is about
 2,275 and caches; the grader's is 456 and the scanner's 221, so both are inert on Sonnet today.
@@ -7243,6 +7265,7 @@ npm run scenes:import    # read it back, gated word by word through the dictiona
 npm run wordlist         # rebuild the 155k headword list in 32 requests (cached, needs EKILEX_API_KEY)
 npm run forms            # rebuild the forms list: every spelling of every word, from Ekilex and Vabamorf (cached, needs python3 with estnltk)
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
+npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)

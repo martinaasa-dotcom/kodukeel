@@ -82,6 +82,23 @@ export interface ProviderConfig {
   name: ProviderName;
   model: string;
   label: string;
+  /**
+   * Ask the model not to think before it writes, where the link is on a model
+   * that does so by default and the job is one thinking does nothing for.
+   *
+   * `gemini-3.8-flash` reasons unless told not to, and the OpenAI-compatible
+   * endpoint hides that: `completion_tokens` is the line, `total_tokens` is
+   * the line plus the thinking, and Google bills the thinking as output at
+   * five times the input rate. Measured 2026-09-14 on the scene route's own
+   * prompt: a twenty-token line arrived under 678 and 1,147 hidden tokens on
+   * two calls, so a scene line the ledger priced at $0.0017 cost about $0.005,
+   * and `npm run eval:thinking` put thinking on and off at 24 of 24 beats
+   * each, one refusal apart, on the same lines. Sent as `reasoning_effort`,
+   * which is the one spelling both Google and Groq read; only the value the
+   * eval measured is allowed, so a link cannot be quietly put on "low" and
+   * called a saving nobody measured.
+   */
+  reasoning?: "none";
 }
 
 export interface ChatMessage {
@@ -283,7 +300,8 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
     */
     if (process.env.GEMINI_API_KEY) {
       for (const model of SCENE_MODELS) {
-        chain.push({ name: "gemini", model, label: "Google Gemini" });
+        // Thinking off: see `ProviderConfig.reasoning` for the measurement.
+        chain.push({ name: "gemini", model, label: "Google Gemini", reasoning: "none" });
       }
       warnIfSceneModelSet();
     }
@@ -805,6 +823,8 @@ interface UsageFrame {
   };
   usage?: {
     output_tokens?: number; prompt_tokens?: number; completion_tokens?: number;
+    /** Prompt plus everything billed on the way out, which on Gemini is more than `completion_tokens`. */
+    total_tokens?: number;
     /** Where an OpenAI-compatible provider says how much of the prompt it served from its cache. */
     prompt_tokens_details?: { cached_tokens?: number };
   };
@@ -812,6 +832,31 @@ interface UsageFrame {
   delta?: { stop_reason?: string | null };
   /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
   choices?: { finish_reason?: string | null }[];
+}
+
+/**
+ * What a provider will bill on the way out, which is not always what it calls
+ * `completion_tokens`.
+ *
+ * Gemini's OpenAI layer reports the line in `completion_tokens` and the line
+ * plus the model's thinking in `total_tokens`, and says nothing else about the
+ * thinking; Google bills it as output. Measured 2026-09-14 on
+ * `gemini-3.8-flash`: `prompt 2017, completion 19, total 3183`, so a
+ * nineteen-token line was 1,166 billed tokens, and a ledger reading the
+ * completion count alone booked it at a sixtieth of its output cost. Groq
+ * and OpenAI count reasoning inside `completion_tokens` and their totals add
+ * up, so the larger of the two readings is right on every provider, and a
+ * frame with no total reads exactly as it did.
+ */
+export function billedOutput(usage: {
+  completion_tokens?: number; prompt_tokens?: number; total_tokens?: number;
+}): number | undefined {
+  const completion = usage.completion_tokens;
+  const hidden = usage.total_tokens != null && usage.prompt_tokens != null
+    ? usage.total_tokens - usage.prompt_tokens
+    : undefined;
+  if (completion == null) return hidden != null && hidden > 0 ? hidden : undefined;
+  return hidden != null ? Math.max(completion, hidden) : completion;
 }
 
 function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport): void {
@@ -849,7 +894,7 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
 
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
-    into.outputTokens = f.usage.completion_tokens ?? into.outputTokens;
+    into.outputTokens = billedOutput(f.usage) ?? into.outputTokens;
     /*
       The cached share, in the field OpenAI, Gemini and Groq all use for it.
       Read for the reason the Anthropic branch reads its two buckets: a cached
@@ -1085,7 +1130,17 @@ const OPENAI_COMPATIBLE: Record<
   gemini: {
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     keyEnv: "GEMINI_API_KEY",
-    usageFrames: false,
+    /*
+      Google's OpenAI layer did not document `stream_options` when this was
+      written and an unknown field there is a 400, so Gemini was not asked and
+      the ledger estimated every streamed Gemini call from character counts.
+      Asked on 2026-09-14 it answers with a `usage` object on every chunk,
+      `total_tokens` included, and that field is the only place the endpoint
+      admits to the thinking a flash model does by default (`absorbUsage`).
+      An estimate from characters can never see those, so the one Gemini path
+      that streams, scene composition, was the one path under-billed.
+    */
+    usageFrames: true,
   },
   openai: {
     url: "https://api.openai.com/v1/chat/completions",
@@ -1140,6 +1195,8 @@ async function callOpenAiCompatible(
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
       max_tokens: maxTokens ?? REPLY_TOKENS,
+      // Only where the chain said so; a provider refuses a field it does not know.
+      ...(config.reasoning ? { reasoning_effort: config.reasoning } : {}),
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),

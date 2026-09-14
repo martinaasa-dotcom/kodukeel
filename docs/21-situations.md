@@ -4654,3 +4654,35 @@ same day (CLAUDE.md, "a refusal is not a miss, which the harvest was the last
 path to learn"), which is what it exists for: one row added, nothing else in
 the file touched.
 
+## 62. The bill, read properly
+
+**The scene primary was costing three times what the ledger said, and the difference was
+thinking nobody had asked for.** `gemini-3.8-flash` reasons by default, and Google's
+OpenAI-compatible layer reports that nowhere but in `total_tokens`: on the route's own prompt,
+`prompt 2017, completion 19, total 3183`, so a nineteen-token line was 1,166 billed output tokens
+at $3.75 a million. The transport read `completion_tokens`, and on the streaming path it read
+nothing at all, because Gemini was never asked for a usage frame and the ledger estimated from
+characters. Both are corrected in `lib/tutor/provider.ts` (`billedOutput`, `usageFrames`).
+
+**And `npm run eval:thinking` had already measured the fix, reading its own output wrongly.** The
+eval reported `out/line 18` for thinking on and `22` for thinking off, because it read the same
+field; re-read off the total, thinking on is about 900 output tokens a line and thinking off is
+twenty. On quality the two were level: 24 of 24 beats answered under both, one `agreement` refusal
+under none against none under default on `gemini-3.8-flash`, the reverse on `gemini-3.1-flash-lite`,
+and the lines read as the same person. So the scene links carry `reasoning: "none"`, sent as
+`reasoning_effort`, and the ledger's per-line figure and Google's invoice are the same number for
+the first time.
+
+| model | thinking | in/line | billed out/line (measured 2026-09-14) | $/line at the rates on file |
+|---|---|---|---|---|
+| `gemini-3.8-flash` | default | 2,017 | 700 to 1,170 | about $0.005 |
+| `gemini-3.8-flash` | none | 2,017 | 19 to 24 | $0.0016 |
+| `gemini-3.1-flash-lite` | default (does not think) | 2,011 | 15 to 17 | $0.0005 |
+
+**What is left is the input, and it is not the order.** Two calls with an identical 2,011-token
+system prefix came back with no `cached_tokens` field at all, so the reordering in §61 has nothing
+to show for it on this endpoint; the prefix is 354 lemmas and the rules, and the next saving on a
+scene line is fewer tokens in it, or the primary moving to the lite tier the same table already
+ranks level on withheld share (§61). `npm run report:spend` reads the ledger by kind, model and
+day so that decision can be made on this deployment's own numbers rather than on a probe.
+
