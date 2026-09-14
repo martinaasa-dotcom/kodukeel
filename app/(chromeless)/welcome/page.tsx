@@ -8,7 +8,9 @@ import { prisma } from "@/lib/db";
 import { LEVELS, PATH } from "@/lib/collections/syllabus";
 import { DEMO_LEMMAS, DEMO_STEMS, type DemoStems } from "@/lib/collections/demoWords";
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
-import { buildCaseTable, shownForms, stemsFrom, type DerivedForm } from "@/lib/estonian/derive";
+import {
+  buildCaseTable, followsEndingRule, shownForms, stemsFrom, type DerivedForm,
+} from "@/lib/estonian/derive";
 import type { CaseSubject } from "@/lib/estonian/caseQuestion";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
@@ -1345,15 +1347,12 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
   const shown = shownForms(row);
   /*
     Regular means the printed form is the genitive with this case's ending on
-    it. Read off the form rather than built up from the stem, because joining
-    a suffix to a stem is derive.ts's job alone and an invariant says so: the
-    question here is only whether what derive.ts printed is the rule's own
-    answer or a form the dictionary had to supply.
+    it, which `derive.ts` answers because `derive.ts` owns the join. This used
+    to work it out here with an `endsWith` and a `slice`, to keep the join out
+    of this file, and `/grammar/build-a-word` then needed the same answer and wrote
+    the same lines again. One reader rather than two.
   */
-  const first = shown[0] ?? "";
-  const { suffix } = row.spec;
-  const regular = genitive !== null && suffix.length > 0
-    && first.endsWith(suffix) && first.slice(0, -suffix.length) === genitive;
+  const regular = followsEndingRule(shown[0] ?? "", genitive, row.spec);
   return {
     en: row.spec.en,
     et: row.spec.et,

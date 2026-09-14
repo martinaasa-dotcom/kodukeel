@@ -3,6 +3,7 @@ import { caseFits } from "@/lib/estonian/caseQuestion";
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseFromMorphCode, numberFromMorphCode } from "@/lib/estonian/morph";
+import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import type { CaseKey } from "@/lib/estonian/types";
 
 /**
@@ -45,6 +46,21 @@ export interface CaseExample {
    * reader can actually see in it rather than the one the table led with.
    */
   sentenceForm: string | null;
+  /**
+   * The form in that sentence is spelled like no other case of this word.
+   *
+   * Estonian spells plenty of cases alike, and the short illative is the worst
+   * of them: `Soome` is its own genitive and its own illative, so a sentence
+   * carrying it illustrates the case only to somebody who already knows which
+   * case it is in. That is fine on `/grammar/[caseKey]`, where six words are
+   * listed and the reader is looking at the table; it is not fine on a screen
+   * whose one job is showing what an ending *means*, which is what
+   * `/grammar/build-a-word` asks for and what this field lets it prefer.
+   *
+   * `readCase` is the strict rule and is the same one that refuses to label a
+   * gap-fill card: exactly one case is spelled that way, or nothing is claimed.
+   */
+  unmistakable: boolean;
 }
 
 const PRINCIPAL_FORM_TYPE: Partial<Record<CaseKey, string>> = {
@@ -66,11 +82,33 @@ interface Candidate {
   forms: { formType: string; value: string; morphCode: string | null }[];
 }
 
+/**
+ * The examples for one case. See `caseExamplesFor`, which this is one key of.
+ */
 export async function caseExamples(
   ownerId: string,
   key: CaseKey,
   limit = 6,
 ): Promise<CaseExample[]> {
+  return (await caseExamplesFor(ownerId, [key], limit)).get(key) ?? [];
+}
+
+/**
+ * The same, for several cases at once, off one read of the candidate words.
+ *
+ * `/grammar/build-a-word` walks a learner through all fourteen in one sitting, and
+ * asking the question above once per case is three queries fourteen times over
+ * on a page somebody is waiting for. Which words are worth looking at does not
+ * depend on the case: only the filtering and the ranking under it do, and both
+ * are in memory. One reader rather than two, because a second copy of "which
+ * words illustrate a case" is the fault this file's own header describes,
+ * where the illative page led with a form nobody says.
+ */
+export async function caseExamplesFor(
+  ownerId: string,
+  keys: readonly CaseKey[],
+  limit = 6,
+): Promise<Map<CaseKey, CaseExample[]>> {
   const select = {
     id: true,
     lemma: true,
@@ -142,21 +180,27 @@ export async function caseExamples(
     carrying the Institute's own classification: the seesütlev page was
     illustrating itself with `hobuses`. See lib/estonian/caseQuestion.ts.
   */
-  const fits = (lex: Candidate) => caseFits(key, {
+  const fits = (key: CaseKey) => (lex: Candidate) => caseFits(key, {
     lemma: lex.lemma,
     semanticTypes: lex.semanticTypes,
     nomSg: lex.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
   });
-  const built = [
-    ...mine.filter(fits).map((lex) => toExample(lex, key, true)),
-    ...rest.filter(fits).map((lex) => toExample(lex, key, false)),
-  ].filter(isExample);
 
-  // Deck words first — a case is easier to believe in a word you are already
-  // studying — and within each half, the ones that can also be shown inside a
-  // real sentence, because that is the row that teaches the most.
-  const rank = (e: CaseExample) => (e.inDeck ? 0 : 2) + (e.sentence ? 0 : 1);
-  return built.sort((a, b) => rank(a) - rank(b)).slice(0, limit);
+  const out = new Map<CaseKey, CaseExample[]>();
+  for (const key of keys) {
+    const takes = fits(key);
+    const built = [
+      ...mine.filter(takes).map((lex) => toExample(lex, key, true)),
+      ...rest.filter(takes).map((lex) => toExample(lex, key, false)),
+    ].filter(isExample);
+
+    // Deck words first, since a case is easier to believe in a word you are
+    // already studying, and within each half the ones that can also be shown
+    // inside a real sentence, because that is the row that teaches the most.
+    const rank = (e: CaseExample) => (e.inDeck ? 0 : 2) + (e.sentence ? 0 : 1);
+    out.set(key, built.sort((a, b) => rank(a) - rank(b)).slice(0, limit));
+  }
+  return out;
 }
 
 function isExample(value: CaseExample | null): value is CaseExample {
@@ -189,7 +233,8 @@ function toExample(lex: Candidate, key: CaseKey, inDeck: boolean): CaseExample |
     ? lex.forms.find((f) => f.formType === principalType)?.value
     : undefined;
 
-  const answer = principalType ? null : caseAnswer(stemsFrom(lex.forms), key);
+  const stems = stemsFrom(lex.forms);
+  const answer = principalType ? null : caseAnswer(stems, key);
   const form = retrieved?.value ?? principal ?? answer?.value;
   if (!form) return null;
 
@@ -210,6 +255,9 @@ function toExample(lex: Candidate, key: CaseKey, inDeck: boolean): CaseExample |
   const lead = sentenceContaining(examples, form);
   const found = lead ?? (second ? sentenceContaining(examples, second) : null);
 
+  const shown = found ? (lead ? form : second) : null;
+  const verdict = shown ? readCase(caseIndex(stems), shown) : null;
+
   return {
     lexemeId: lex.id,
     lemma: lex.lemma,
@@ -220,7 +268,8 @@ function toExample(lex: Candidate, key: CaseKey, inDeck: boolean): CaseExample |
     origin,
     inDeck,
     sentence: toSentence(found),
-    sentenceForm: found ? (lead ? form : second) : null,
+    sentenceForm: shown,
+    unmistakable: verdict?.kind === "one" && verdict.key === key,
   };
 }
 

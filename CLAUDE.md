@@ -409,6 +409,55 @@ nothing about the paragraph growing back into it. Nothing about the invariants m
 name and the question are still on every card and every page, and the Latin name is still there,
 labelled, on the page for the ending.
 
+**And the reference is the wrong shape for the first hour, so there is a screen in front of it.**
+Fourteen cards each explaining one ending is what somebody wants who already knows which ending
+they are after. It is a wall for somebody who has just been told Estonian has fourteen cases and
+has decided that sounds impossible, and the number is the thing that makes people put the language
+down. What the language actually offers is far better news and fits in one sentence: three forms
+are stored per word, and the other eleven are the second of those three with a fixed ending glued
+on, the same ending for every word there is. `/grammar/build-a-word` is that sentence shown rather than
+asserted, on a word the reader picks, and it is the first thing on `/grammar` rather than a mode
+beside it.
+
+Three acts, because the sentence has three claims in it. Which three forms are stored and what each
+is *for*, which is the question a table of three forms never answers. Which of them the endings go
+on, which is the half everybody gets wrong, since it is not the word you looked up: `tuba` takes
+them on `toa`. And then the eleven, one press at a time, each with what it means, the question this
+word answers with it, and a sentence a lexicographer wrote using it. The five words are the awkward
+ones `lib/collections/demoWords.ts` already argues for, since a walkthrough that only ever showed a
+regular word would be teaching the arithmetic and hiding the one thing that makes a beginner doubt
+it.
+
+**Nothing on it is written and it writes nothing.** Every form comes off `buildCaseTable` through
+`lib/progress/caseWalk.ts`, every sentence is attested, every line of English about a case is
+`lib/estonian/grammar.ts`, which holds no Estonian at all, and the endings are suffixes off `CASES`.
+The last act asks the reader to pick an ending and marks it, through `OPTION_CLASS` and a live
+region like every other marking screen, and it **grades nothing**: the answer to every one of those
+questions is printed two acts above it on the same page, so a row in the log would tell the
+scheduler somebody recalled a form they had just been shown, which is the fault `audit:questions`
+exists to catch one room over. A first meeting on the learn ladder writes nothing for the same
+reason, and the way out at the end is a round that does grade. `caseFits` still decides what may be
+asked, so nobody is invited to produce `meheses`, and `caseQuestionFor` still words it, so a person
+is asked `kellel?`.
+
+**And "is this form the ending on the stem" is one answer now, in the module that owns the join.**
+Two screens ask it, the landing page's case explorer to decide whether to light the ending and this
+one to decide whether to say a form is learned rather than worked out, and both worked it out for
+themselves with an `endsWith` and a `slice` precisely to keep the join inside `derive.ts`. That is
+the rule holding and two copies drifting anyway. `followsEndingRule` is the one reader, and `origin`
+is deliberately not the test: an entry enriched from Ekilex carries a lexicographer's spelling for
+every case and nearly all of them are the stem plus the ending, so reading the provenance marks
+eleven ordinary rows as exceptions.
+
+**And a sentence that shows the case is not the same as a sentence that contains it.** Estonian
+spells the short illative like the genitive for most of the words that have one, so
+`Endisaegsed Soome mündid` carries the illative of `Soome` and shows nothing whatever about the
+ending, which is fine on a page listing six words beside a table and useless on a screen whose one
+job is what an ending means. `CaseExample.unmistakable` is `readCase`'s strict rule asked of the
+form the sentence actually holds, exactly one case is spelled that way or nothing is claimed, and
+the walk prefers a sentence that passes it. `/grammar/[caseKey]` reads the same examples and ignores
+the field, so nothing about that page moved.
+
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
 found", which is the same blank a learner gets for a misspelling and for an English word. That was
@@ -7210,7 +7259,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
+`caseWalk`, `followsEndingRule`, `endingOptions`, `unmistakable`, `caseExamplesFor`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

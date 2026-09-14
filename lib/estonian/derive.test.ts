@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { buildCaseTable, caseAnswer, shownForms, stemsFrom, stemsFromParts } from "./derive";
+import {
+  buildCaseTable, caseAnswer, followsEndingRule, shownForms, stemsFrom, stemsFromParts,
+} from "./derive";
+import { caseByKey } from "./cases";
 
 /** No short illative recorded, so the suffix rule is the whole answer. */
 const raamat = {
@@ -310,5 +313,34 @@ describe("the illative, which is the one case with two answers", () => {
     expect(ill.origin).toBe("STORED");
     // And the long one is still right, so knowing both is never marked wrong.
     expect(ill.accepted).toContain("ajasse");
+  });
+});
+
+describe("followsEndingRule", () => {
+  const spec = (key: string) => caseByKey(key)!;
+
+  it("says yes where the form really is the stem plus the ending", () => {
+    expect(followsEndingRule("toas", "toa", spec("INESSIVE"))).toBe(true);
+  });
+
+  it("says no for the form no ending reaches", () => {
+    // `tuppa` is the whole reason two screens ask this: lighting an ending on
+    // it would light a rule the word does not follow.
+    expect(followsEndingRule("tuppa", "toa", spec("ILLATIVE"))).toBe(false);
+  });
+
+  it("says no for a principal part, which has no ending to have followed", () => {
+    expect(followsEndingRule("toa", "toa", spec("GENITIVE"))).toBe(false);
+  });
+
+  it("says no where the dictionary holds no stem", () => {
+    expect(followsEndingRule("toas", null, spec("INESSIVE"))).toBe(false);
+    expect(followsEndingRule("toas", undefined, spec("INESSIVE"))).toBe(false);
+  });
+
+  it("is not fooled by a form that merely ends in the ending", () => {
+    // `käes` ends in `s` and is not `käe` plus the inessive of another word.
+    expect(followsEndingRule("käes", "käe", spec("INESSIVE"))).toBe(true);
+    expect(followsEndingRule("kätte", "käe", spec("ILLATIVE"))).toBe(false);
   });
 });

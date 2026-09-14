@@ -302,6 +302,18 @@ export const SECTIONS: NavSection[] = [
       },
       {
         /*
+          Where the endings start, which is the screen before the reference.
+          A part of the grammar pages rather than a place beside them: it
+          walks one word through the system the fourteen cards explain, and it
+          is the first thing on the top of that page.
+        */
+        href: "/grammar/build-a-word", label: "Build a word",
+        blurb: "Three forms, then the eleven endings that follow", icon: "Puzzle",
+        tone: "butter", within: "/grammar",
+        keywords: "cases introduction beginner stem genitive omastav endings how it works walkthrough learn system",
+      },
+      {
+        /*
           Where the endings stop being predictable. A part of the grammar
           reference rather than a place beside it: the whole point of the area
           is what it says about the pattern that page teaches, and it is linked

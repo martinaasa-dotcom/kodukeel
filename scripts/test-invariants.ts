@@ -1205,6 +1205,7 @@ check("every generator that picks a case asks which ones the word takes", () => 
     "lib/estonian/writing.ts",
     "lib/collections/lesson.ts",
     "lib/progress/caseExamples.ts",
+    "lib/progress/caseWalk.ts",
     "lib/progress/target.ts",
     "lib/games/describe.ts",
     "lib/games/flash.ts",
@@ -1255,6 +1256,7 @@ check("a question about one word is worded for that word", () => {
     "lib/srs/cards.ts",
     "lib/estonian/writing.ts",
     "lib/collections/lesson.ts",
+    "lib/progress/caseWalk.ts",
     "lib/progress/target.ts",
     "lib/games/flash.ts",
     "app/(app)/review/emoji/page.tsx",
@@ -15643,8 +15645,18 @@ check("an option is one control, and the number that picks it is one cap", () =>
     const lines = code(file).split("\n");
     lines.forEach((line, i) => {
       /* The numeral is the key, so it is the cap. A line rendering it any
-         other way is a shortcut drawn as decoration. */
-      if (/\{(?:i|at|index) \+ 1\}/.test(line) && !/aria-label|`/.test(line)) {
+         other way is a shortcut drawn as decoration.
+
+         WHAT COUNTS IS A NUMERAL THAT IS THE WHOLE OF ITS OWN ELEMENT, which
+         is what a key drawn on a control looks like. Written without that,
+         this fired on `Question {at + 1} of {asks.length}` on
+         `/grammar/build-a-word`, which is a counter in a sentence and not a key
+         anybody can press, and the fix would have been renaming a variable to
+         dodge the check. A check that fires on honest copy gets waived, and a
+         check everybody waives is a check nobody reads. The fault it exists
+         for, a round badge or a tinted pill around the numeral, is still the
+         whole content of its element and is still caught. */
+      if (/>\s*\{(?:i|at|index) \+ 1\}\s*</.test(line) && !/aria-label|`/.test(line)) {
         assert.match(line, cap, `${file}:${i + 1} draws the key that picks an option by hand. Use <KeyCap> from components/ui.tsx.`);
       }
       if (!cap.test(line)) return;
