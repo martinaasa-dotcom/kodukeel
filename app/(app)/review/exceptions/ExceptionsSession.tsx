@@ -19,7 +19,7 @@ import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -234,7 +234,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {meeting ? (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Got it <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Got it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !mark ? (
             <Button
@@ -243,11 +243,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

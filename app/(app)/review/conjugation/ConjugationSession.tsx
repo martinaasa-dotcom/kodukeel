@@ -16,7 +16,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export type Tense = "present" | "conditional";
 
@@ -304,7 +304,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
           {!revealed ? (
             <Button variant="primary" onClick={check}>
-              Check the table <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check the table <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <>
@@ -316,7 +316,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
               <KeepWordChoice keeper={keeper} className="mt-4" />
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button variant="primary" onClick={next} autoFocus>
-                  Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                  Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
                 {!question.inDeck && (
                   <>

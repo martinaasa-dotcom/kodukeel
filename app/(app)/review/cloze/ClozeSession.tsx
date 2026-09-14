@@ -12,7 +12,7 @@ import {
   BLANK, MAX_PASSAGE_CHARS, type ClozeItem, isClozeCorrect, isDiacriticSlip,
 } from "@/lib/estonian/passage";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -279,11 +279,11 @@ export function ClozeSession() {
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!checked ? (
             <Button variant="primary" className="w-full py-3" disabled={!attempt.trim()} onClick={check}>
-              Check <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {index + 1 >= items.length ? "Finish" : "Next"} <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              {index + 1 >= items.length ? "Finish" : "Next"} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

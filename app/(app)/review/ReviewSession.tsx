@@ -28,7 +28,7 @@ import type { ReviewMode } from "@/lib/settings/store";
 import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 
 export interface ReviewCard {
@@ -1256,12 +1256,12 @@ export function ReviewSession({
           {ask === "intro" ? (
             <Button variant="primary" size="lg" className="w-full" onClick={meetDone} disabled={busy}>
               Got it, ask me later
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && !verdict ? (
             <Button variant="primary" size="lg" className="w-full" onClick={checkTyped}>
               Check
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && verdict ? (
             /* Marked already. A clean hit takes itself away (see `checkTyped`),
@@ -1277,7 +1277,7 @@ export function ReviewSession({
               disabled={busy || retypeOk}
             >
               {needsRetype ? "Check it again" : "Got it, next"}
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
@@ -1290,12 +1290,12 @@ export function ReviewSession({
                the screen and the card comes back later in this session. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(1)} disabled={busy}>
               Got it, next
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
               Show answer
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <div className="grid grid-cols-2 gap-2.5">
