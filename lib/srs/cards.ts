@@ -487,9 +487,31 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         */
         const askedMeaning = [lex.translation];
         const meaning = askedMeaning.find((line) => !mentions(line, genSg)) ?? null;
+        const front = `${lex.lemma} → ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`;
+        /*
+          AND THE QUESTION ITSELF CAN BE THE ANSWER, WHICH IS THE TWO WORDS
+          EVERY BEGINNER MEETS FIRST.
+
+          The hint was already held off the answer two lines up, and the front
+          never was, on the argument that it is the lemma and a word is not its
+          own genitive. It is the lemma *and the question*, and the genitive's
+          question words are `kelle?` and `mille?`, which are the genitives of
+          `kes` and `mis`. So `kes → kelle? mille?` wanted `kelle` and
+          `mis → kelle? mille?` wanted `mille`: a card nobody can fail, on the
+          two commonest question words in the language, in the A1 unit that
+          teaches them. The scheduler reads every pass as a recall and the deck
+          slot is spent for ever, which is the fault `CASE_FORM` was corrected
+          for one branch over.
+
+          Drawn on the whole front rather than on the two words, because what
+          is wrong is that the answer is printed in the question and the
+          question is built from a table this file does not own. Measured over
+          the shipped dictionary: 1,045 gradation cards, and these are the two.
+        */
+        if (mentions(front, genSg)) break;
         out.push({
           cardType: type,
-          front: `${lex.lemma} → ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`,
+          front,
           back: genSg,
           hint: meaning ? `${meaning} · astmevaheldus` : "astmevaheldus · consonant gradation",
           targetCase: "GENITIVE",

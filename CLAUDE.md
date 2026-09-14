@@ -3363,6 +3363,28 @@ wherever a screen prints a case, and no card asks for it.
 the module already splits on rather than `\b`, which is ASCII and so does not know what õ is. After
 all three: **zero cards print their own answer**, measured the same way.
 
+**And the fifth was the question itself, on the two words every beginner meets first.** The
+gradation card asks the genitive as `kelle? mille?`, and those two words *are* the genitives of
+`kes` and `mis`, so the card read `kes → kelle? mille?` and took `kelle`. Unfailable, in
+`kusisonad`, which is the A1 unit that teaches them. The builder had already held the *hint* off
+the answer two lines above, on the ladder every typeable card uses, and nothing held the front,
+because the front is the lemma and a word is not its own genitive: it is the lemma **and the
+question**, and the question is built from a table `lib/srs/cards.ts` does not own. The guard is
+`mentions(front, genSg)` rather than a rule about those two words, for that reason. Measured over
+the shipped dictionary: 1,045 gradation cards, and exactly those two.
+
+**And `npm run audit:questions` could not have found it, because it reads half the course.** Both
+it and `npm run audit:sense` open `prisma/data/expanded.json` under a comment calling it "what the
+seed loads", and the seed loads that file *and* `prisma/data/harvested.ts`: `scripts/lib/dictionary.ts`
+exists to merge the two and `seedSize.test.ts` counts 6,153 entries off it against the expansion's
+5,363. 758 of the 1,514 course words are in no expansion row, so the two audits have never seen
+them, and `kes` and `mis` are among them. Stood the merged set in place as a scratch run,
+`audit:sense` asks 59,051 questions rather than 51,940 and stays clean. **The merge is the part to
+get right before that becomes the default**, and the first attempt proves why: it carried
+`gradation: null` where the seed carries `classifyGradation`'s answer, and `null !== "NONE"` builds
+a gradation card for every non-gradating word, so the run reported sixty-odd faults that the app
+does not have. A harness that is not the app measures the harness.
+
 **A generator fix settles the cards built from now on and not one card already in a deck.** That is
 the half the audit cannot see, because it reads `prisma/data/expanded.json` and a learner's deck is
 rows. `lib/srs/cards.ts` stopped building a case card whose answer spells the word in the question,
