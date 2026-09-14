@@ -349,3 +349,58 @@ describe("splitOnForm", () => {
     ]);
   });
 });
+
+/*
+  THE WHOLE SHIPPED DICTIONARY, EVERY LEVEL, AND EVERY PATH A LEARNER
+  ACTUALLY REACHES.
+
+  The two faults above (poeg's compound, sellepärast's ellipsis) were each
+  found and fixed by reading the course harvest alone, which is 1,453 of the
+  dictionary's 6,816 entries. `flash.ts`, the government drill and the
+  grammar reference's case examples each call `sentenceContaining` directly,
+  with nothing downstream to catch either fault, so fixing `teachingSentence`
+  alone would have left four screens still exposed. Both faults are refused
+  inside `usableExamples` itself now, which is the one function every one of
+  those paths already calls, so this sweep drives all of them rather than
+  trusting that fixing the screen that was reported fixed the others too.
+
+  Hermetic. It reads the two files `npm run db:seed` loads and nothing else.
+*/
+describe("the whole shipped dictionary's example sentences", () => {
+  it("never hands sentenceContaining, or teachingSentence in either configuration, a broken usage", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { HARVESTED } = await import("../../prisma/data/harvested");
+    const { naturalSentence, nominalOpener } = await import("../estonian/cloze");
+
+    interface ExpandedEntry {
+      lemma: string;
+      pos: string;
+      examples: { et: string; en?: string | null }[];
+    }
+    const EXPANDED: ExpandedEntry[] = JSON.parse(readFileSync("prisma/data/expanded.json", "utf8"));
+    expect(EXPANDED.length).toBeGreaterThan(4000); // a floor against a broken read
+
+    const words: { lemma: string; pos: string; usages: string[] }[] = [
+      ...HARVESTED.map((w) => ({ lemma: w.lemma, pos: w.pos, usages: [...w.usages] })),
+      ...EXPANDED.map((e) => ({ lemma: e.lemma, pos: e.pos, usages: e.examples.map((ex) => ex.et) })),
+    ];
+
+    for (const word of words) {
+      const examples = word.usages.map((et) => ek(et));
+
+      const noPos = teachingSentence(examples, [word.lemma]);
+      if (noPos) expect(naturalSentence(noPos.example.et), `${word.lemma}: "${noPos.example.et}"`).toBe(true);
+
+      const opener = nominalOpener(word.pos, [word.lemma]);
+      const withPos = teachingSentence(examples, [word.lemma], opener);
+      if (withPos) {
+        expect(naturalSentence(withPos.example.et, opener), `${word.lemma}: "${withPos.example.et}"`).toBe(true);
+      }
+
+      // The path flash.ts, the government drill and caseExamples.ts actually
+      // take: sentenceContaining with no downstream filter of their own.
+      const direct = sentenceContaining(examples, word.lemma);
+      if (direct) expect(naturalSentence(direct.et), `${word.lemma}: "${direct.et}"`).toBe(true);
+    }
+  });
+});
