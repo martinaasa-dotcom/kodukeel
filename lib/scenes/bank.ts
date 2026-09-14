@@ -290,8 +290,6 @@ export const BANK: readonly ScriptedLine[] = [
   { scene: "tee-kusimine", beat: "where", text: "Jah, kuidas saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "tee-kusimine", beat: "where", text: "Jah, palun?", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "tee-kusimine", beat: "where", text: "Kas saan aidata?", model: "authored", draftedAt: "2026-09-05", reviewed: false },
-  { scene: "toovestlus", beat: "answer:pay", text: "Palk on hea ja kõik on lepingus.", model: "authored", draftedAt: "2026-09-11", reviewed: false },
-  { scene: "toovestlus", beat: "answer:pay", text: "Palk on hea ja me räägime lepingust veel.", model: "authored", draftedAt: "2026-09-11", reviewed: false },
   { scene: "toovestlus", beat: "before", text: "Mis kogemus teil on?", model: "authored", draftedAt: "2026-09-05", reviewed: false },
   { scene: "toovestlus", beat: "before", text: "Mis töö teil enne oli ja kus?", model: "authored", draftedAt: "2026-09-12", reviewed: false },
   { scene: "toovestlus", beat: "before", text: "Mis töö teil enne oli?", model: "authored", draftedAt: "2026-09-05", reviewed: false },

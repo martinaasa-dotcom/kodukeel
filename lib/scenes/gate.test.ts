@@ -641,3 +641,27 @@ describe("a line with no verb in it", () => {
     expect(runGate("Kas teil peavalu olema?", beat(), wide).failed).not.toContain("clause");
   });
 });
+
+describe("a farewell on a beat that is not the goodbye", () => {
+  // `Head aega!` as the catalogue resolves it: a run of words, never a bag.
+  const ctx = context({ farewells: [["head", "aega"], ["nägemist"]] });
+
+  it("withholds the line that reached a learner", () => {
+    expect(runGate("Palk on hea. Kas teil on veel küsimusi? Aitäh, head aega!", beat(), ctx).failed).toContain("farewell");
+    expect(runGate("Nägemist!", beat({ move: "instruct" }), ctx).failed).toContain("farewell");
+  });
+
+  it("lets the close beat say it, which is the one place it belongs", () => {
+    expect(runGate("Aitäh, head aega!", beat({ move: "close" }), ctx).failed).not.toContain("farewell");
+  });
+
+  it("matches the phrase whole, so a time is not a goodbye", () => {
+    // `aega` alone is the partitive of `aeg`, and a line offering a time says it.
+    expect(runGate("Kas teil on aega?", beat(), ctx).failed).not.toContain("farewell");
+  });
+
+  it("says nothing where the caller handed in no phrases", () => {
+    expect(runGate("Head aega!", beat(), context()).failed).not.toContain("farewell");
+  });
+});
+

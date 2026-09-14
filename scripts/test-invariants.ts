@@ -15772,6 +15772,65 @@ check("lint runs as part of the build, not only as part of CI", () => {
   );
 });
 
+/*
+  THE OTHER SIDE DOES NOT SAY GOODBYE UNTIL THE SCENE DOES, AND THE MONEY IS
+  SETTLED BEFORE THE DAY.
+
+  A job interview run on the Groq fallback read `Palk on hea. Kas teil on veel
+  küsimusi? Aitäh, Head aega!` on the beat about the pay, and `Alates
+  teisipäev, sobib? Aitäh. Kas?` on the one after it. The composer is shown
+  the person's whole agenda, whose last entry was "they thank you for coming
+  and say goodbye", and a weaker model folds the list into one turn. And the
+  pay beat's own answer was "the pay is good and it is in the contract", with
+  no figure on the card for a line to name, so the interviewer could not tell
+  a candidate the wage even when asked outright: the one thing settled before
+  anybody names a start day. Four arms, each on the line that changed.
+*/
+check("a farewell is withheld off the close beat, and the goodbye stays off the agenda until it is the move", () => {
+  const gate = code("lib/scenes/gate.ts");
+  assert.match(
+    gate, /if \(saysGoodbye\(tokens, beat, context\)\) failed\.push\("farewell"\)/,
+    "the gate stopped withholding a farewell said on a beat that is not the goodbye",
+  );
+  assert.match(
+    gate, /if \(beat\.move === "close" \|\| !context\.farewells\) return false;/,
+    "the farewell check no longer stands down on the close beat, so every scene's goodbye is refused",
+  );
+  assert.match(gate, /"negation", "farewell",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
+  /*
+    Both context builders hand the phrases in, resolved from the catalogue's
+    own farewells, or the app and its harnesses would disagree about the gate
+    the way they did over the question words (§53).
+  */
+  for (const file of ["lib/progress/scene.ts", "scripts/lib/sceneDraft.ts"]) {
+    assert.match(code(file), /farewells: FAREWELLS\.map\(words\)/, `${file} no longer hands the gate the closing phrases`);
+  }
+  assert.match(
+    code("app/api/scene/route.ts"), /\.filter\(\(b\) => b\.move !== "close" \|\| b\.id === beat\?\.id\)/,
+    "the composer's agenda names the goodbye before it is the move, which is how the interviewer came to leave mid-interview",
+  );
+});
+
+check("the interview settles the wage before it asks for a start day, off the card", () => {
+  const catalogue = code("lib/scenes/catalogue.ts");
+  const interview = catalogue.slice(catalogue.indexOf('id: "toovestlus"'), catalogue.indexOf('id: "kaebus"'));
+  const order = ["id: \"pay\"", "id: \"wage\"", "id: \"start\"", "id: \"close\""].map((id) => interview.indexOf(id));
+  assert.ok(order.every((at) => at >= 0), "the interview lost one of its pay, wage, start or close beats");
+  assert.deepEqual([...order].sort((a, b) => a - b), order, "the interview asks for a start day before the wage is settled");
+  assert.match(interview, /slot: "wage"[^\n]*theirs: true/, "the wage is no longer a figure the other side holds");
+  assert.match(interview, /slot: "wage2"[^\n]*theirs: true/, "the counter-offer is no longer a figure the other side holds");
+  assert.match(interview, /replaces: \[\["wage", "wage2"\]\]/, "a refused offer no longer gets a second figure");
+  assert.doesNotMatch(interview, /written in the contract/, "the pay beat is back to answering the question with a shrug about the contract");
+  /*
+    And an offer nobody has made is not taken from a distance: `hea` two
+    beats earlier credited the wage beat and the figure was never said.
+  */
+  assert.match(
+    code("lib/progress/scene.ts"), /if \(other\.move === "offer" && at > state\.beat\) continue;/,
+    "the look-ahead credits an offer beat before the offer has been made",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

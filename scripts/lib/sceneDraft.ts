@@ -41,6 +41,7 @@ import type { CaseKey } from "../../lib/estonian/types";
 */
 import { SCENE_REPLY_TOKENS, sceneProviders } from "../../lib/tutor/provider";
 import { composeLive, composeSystem } from "../../lib/scenes/prompt";
+import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
 import { MAX_WORDS, answerForms } from "../../lib/scenes/retrieval";
@@ -266,6 +267,7 @@ export function gateContext(
   return {
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
     subjects: subjectsIn(entries),
+    farewells: FAREWELLS.map(words),
   };
 }
 

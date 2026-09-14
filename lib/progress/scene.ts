@@ -23,7 +23,7 @@ import { parseGovernment } from "@/lib/estonian/government";
 import { derivedVerbForms } from "@/lib/estonian/conjugate";
 import type { CaseKey } from "@/lib/estonian/types";
 import { CASES } from "@/lib/estonian/cases";
-import { FALLBACK_PHRASE, sceneById } from "@/lib/scenes/catalogue";
+import { FALLBACK_PHRASE, FAREWELLS, sceneById } from "@/lib/scenes/catalogue";
 import { bankTopic, sceneBeats, scriptedFor } from "@/lib/scenes/scripted";
 import type { Level } from "@/lib/collections/syllabus/types";
 import type { LineMode } from "@/lib/scenes/line";
@@ -498,6 +498,12 @@ export function contextFromRows(scene: SceneSpec, rows: readonly Row[], level?: 
         the gate does, and the app had the stricter half.
       */
       questionWords: marker.questionWords,
+      /*
+        And the closing phrases, so the other side cannot say goodbye on a
+        beat that is not the goodbye (`saysGoodbye`). Resolved here for the
+        reason the question words are: the gate holds no Estonian.
+      */
+      farewells: FAREWELLS.map(words),
     },
     marker,
     pool: poolsFor(scene, rows),
@@ -1482,6 +1488,16 @@ export function replay(
         if (at === state.beat) continue;
         const other = context.scene.beats[at]!;
         if (other.move === "close" || state.done.includes(other.id)) continue;
+        /*
+          AND AN OFFER NOBODY HAS MADE YET CANNOT BE TAKEN. An offer beat is met
+          by a yes, "suits me", or the figure said back, and every one of those
+          is a word a learner says for other reasons before the offer comes:
+          `ma olen hea projektiga` two beats before the wage was named carried
+          `hea`, the look-ahead credited the offer from a distance, and the
+          interviewer never named the figure at all. Behind the pointer the
+          offer has been made, and taking it late is taking it.
+        */
+        if (other.move === "offer" && at > state.beat) continue;
         const also = readTurn(said, other, marker);
         if (also.reading !== "complete" || !addsEvidence(also, spent)) continue;
         for (const word of also.satisfiedBy) spent.add(word);

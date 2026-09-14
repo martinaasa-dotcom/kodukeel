@@ -752,9 +752,20 @@ export async function POST(request: Request) {
     of the conversation can take an answer given early and bring a wandering
     one back, which a model handed one move could not.
   */
+  /*
+    AND THE GOODBYE STAYS OFF IT UNTIL IT IS THE MOVE. The agenda ended in
+    "they thank you for coming and say goodbye" from the first beat on, and a
+    weaker model folded the whole list into one turn: `Palk on hea. Kas teil
+    on veel küsimusi? Aitäh, Head aega!` on the beat about the pay, with three
+    beats still to go. A person does not plan their farewell; they say it when
+    the conversation is over. So a `close` beat is on the agenda only when it
+    is the beat being asked, and `saysGoodbye` in the gate withholds a farewell
+    said anywhere else.
+  */
   const agenda = scene.beats
     .slice(state.beat)
     .filter((b) => !state.done.includes(b.id))
+    .filter((b) => b.move !== "close" || b.id === beat?.id)
     .map((b) => stageFor(b, card));
   const settled = scene.beats.filter((b) => state.done.includes(b.id)).map((b) => stageFor(b, card));
   /*
