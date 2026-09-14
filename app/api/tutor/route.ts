@@ -186,7 +186,16 @@ export async function POST(request: Request) {
         // limit" while none of them has been recorded yet.
         reservation: decision.reservation,
       }));
-    }, live, TUTOR_REPLY_TOKENS);
+    }, live, TUTOR_REPLY_TOKENS,
+    /*
+      And the static half held on Google's side: Anu's prompt is the same
+      2,300 tokens for everybody, which is why the level moved out of it, and
+      on a Gemini link `lib/tutor/geminiCache.ts` serves it at a tenth of the
+      input rate. The reply then arrives as one chunk rather than a stream,
+      which the chat already waits for (`useAnuChat` shows the finished
+      reply), and a link that will not hold the prompt answers streamed.
+    */
+    true);
   } catch (error) {
     // Nothing was spent and nothing was answered, so the authorization is
     // handed back: a deployment with a bad key must not ration its learners

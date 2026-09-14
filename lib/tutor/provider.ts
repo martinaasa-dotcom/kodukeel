@@ -99,8 +99,8 @@ export interface ProviderConfig {
    * has measured is allowed, so a link cannot be quietly put on a setting and
    * called a saving nobody measured.
    *
-   * "low" IS MEASURED AND UNUSED, AND THE FIGURE IS WHY. Anu runs on a Groq
-   * reasoning model that refuses "none", and `npm run eval:anu -- --effort low`
+   * "low" IS MEASURED AND UNUSED, AND THE FIGURE IS WHY. Anu's Groq link is
+   * a reasoning model that refuses "none", and `npm run eval:anu -- --effort low`
    * on 2026-09-14 cut her output from about 410 billed tokens an answer to
    * about 150, four fifths of the default being reasoning nobody reads, which
    * is $0.16 a thousand questions off a bill of $0.70. It also missed 4 of 30
@@ -252,14 +252,17 @@ export interface ChainOptions {
  * fraction of Anthropic's rate and carries none of the risk that fallback
  * is gated against.
  *
- * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
- * was that being right about Estonian matters more than being cheap, which is
- * still true and is not an argument for a particular vendor. Asked the six
- * grammar questions through the route's own transport, `openai/gpt-oss-120b`
- * answered all six correctly at $0.72 per thousand and `claude-sonnet-5`
- * missed one at $12.44. Seventeen times the price for a worse score is not a
- * quality decision, it was an untested assumption. `openai/gpt-oss-20b` is
- * half the price again and drops to four of six, so this is the floor rather
+ * ANU GOES TO GEMINI, WITH GROQ BEHIND HER (`npm run eval:anu`). This said
+ * Anthropic and the reasoning was that being right about Estonian matters
+ * more than being cheap, which is still true and is not an argument for a
+ * particular vendor. Asked six grammar questions through the route's own
+ * transport, `openai/gpt-oss-120b` answered all six at $0.72 per thousand
+ * and `claude-sonnet-5` missed one at $12.44, which moved her to Groq. Asked
+ * thirty-seven questions of seven kinds, gpt-oss-120b taught a wrong form
+ * three times in ninety-three answers and `gemini-3.8-flash`, thinking off,
+ * taught none, so the Gemini model leads and the Groq one is the fixed
+ * backup (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`). `openai/gpt-oss-20b` is
+ * cheaper than both and answers 21 of 29, so the floor is measured rather
  * than the cheapest thing on the list.
  *
  * THE SCANNER GOES TO GEMINI (`npm run eval:scan`). Six runs of twenty-four
@@ -275,19 +278,24 @@ export interface ChainOptions {
  */
 const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[]) => void>> = {
   tutor: (chain) => {
-    if (!process.env.GROQ_API_KEY) return;
     /*
-      `TUTOR_MODEL` rather than `GROQ_MODEL`, for the reason `SCENE_MODEL` is
-      not `GEMINI_MODEL`: the general chain is a different decision made for a
-      different reason, and a deployment that pinned it to whatever is cheapest
-      this week would silently move Anu off the model the eval ranked, with
-      nothing failing.
+      PINNED, LIKE THE SCENE CHAIN, AND FOR ITS REASON. `TUTOR_MODEL` used to
+      be read through an environment variable, which is the door the
+      `SCENE_MODEL` fault came through one purpose over: a deployment that
+      pinned it to whatever is cheapest this week would silently move Anu off
+      the model the eval ranked, with nothing failing. Gemini leads on the
+      model the wide eval ranked, thinking off because the eval was run that
+      way (`TUTOR_MODEL`), and Groq backs it up on the model Anu ran on before,
+      which answers 83 of 87 facts on the same eval (`TUTOR_FALLBACK_MODEL`):
+      Groq backs up Gemini everywhere Gemini answers, and Anu is no longer the
+      exception.
     */
-    chain.push({
-      name: "groq",
-      model: process.env.TUTOR_MODEL || TUTOR_MODEL,
-      label: "Groq",
-    });
+    if (process.env.GEMINI_API_KEY) {
+      chain.push({ name: "gemini", model: TUTOR_MODEL, label: "Google Gemini", reasoning: "none" });
+    }
+    if (process.env.GROQ_API_KEY) {
+      chain.push({ name: "groq", model: TUTOR_FALLBACK_MODEL, label: "Groq" });
+    }
   },
   scene: (chain) => {
     // Gemini leads; `resolveProviders` appends the bounded Anthropic fallback
@@ -393,15 +401,32 @@ function warnIfSceneModelSet(): void {
  * The model Anu asks, and the reason it is not the dearest one available.
  *
  * Measured rather than assumed, which is the whole of the change: the six
- * grammar questions in `npm run eval:anu`, through the route's own transport
- * and Anu's own prompt. A wrong grammar explanation is worse than none,
- * because the learner acts on it and the scheduler then drills what they took
- * away, so the bar here is all six and not most of them.
+ * grammar questions in `npm run eval:anu` put Anu on `openai/gpt-oss-120b`
+ * at 6 of 6, and the thirty-seven questions the eval asks now put her on
+ * `gemini-3.8-flash`, thinking off, at 29 of 29 with no FIX: line under a
+ * question that had no sentence, six VOCAB lines in thirty-seven answers and
+ * nothing the renderer cannot draw, where gpt-oss-120b over three runs taught
+ * a wrong form three times in ninety-three answers and put a FIX: line under
+ * seven questions that had none (`docs/21-situations.md` §55). A wrong
+ * grammar explanation is worse than none, because the learner acts on it and
+ * the scheduler then drills what they took away, so the bar is the faults a
+ * learner cannot see and not the price: $3.27 a thousand answers against
+ * $0.32, before the static prompt is held on Google's side.
  *
- * `openai/gpt-oss-20b` is half the price and answers four of six, which is
+ * `openai/gpt-oss-20b` is cheaper than either and answers 21 of 29, which is
  * what makes this a floor rather than the bottom of a price list.
  */
-export const TUTOR_MODEL = "openai/gpt-oss-120b";
+export const TUTOR_MODEL = "gemini-3.8-flash";
+
+/**
+ * The Groq link behind `TUTOR_MODEL`, which is the model Anu ran on until the
+ * wide eval. It answers 83 of 87 facts on that eval and is a tenth of the
+ * price, and it is the second link rather than the first because of what the
+ * other 4 were: a place put in the allative, a form built on a guessed
+ * genitive, a correct sentence corrected, all faults a learner cannot see.
+ * Pinned for the reason `SCENE_FALLBACK_MODEL` is.
+ */
+export const TUTOR_FALLBACK_MODEL = "openai/gpt-oss-120b";
 
 /**
  * The model the scanner reads a photograph with.
@@ -549,9 +574,10 @@ export const SCENE_REPLY_TOKENS = 4_000;
  * cut off mid-word, in the middle of a sentence, which is worse, because
  * nothing about it looks like a failure.
  *
- * `TUTOR_MODEL` is a Groq reasoning model for the same reason `SCENE_MODELS`
- * is one: it is one of the measured, cheap ones. So this takes the same fix
- * `SCENE_REPLY_TOKENS` already took for the identical shape of the same bug.
+ * `TUTOR_FALLBACK_MODEL` is a Groq reasoning model for the same reason
+ * `SCENE_FALLBACK_MODEL` is one: it is one of the measured, cheap ones. So
+ * this takes the same fix `SCENE_REPLY_TOKENS` already took for the identical
+ * shape of the same bug.
  */
 export const TUTOR_REPLY_TOKENS = 3_000;
 
@@ -972,7 +998,9 @@ export async function openWithFallback(
     scene route's whole saving: its prompt is nine tenths constant for a run
     and the compatible endpoint caches none of it. Off by default, because a
     prompt read once a day is not worth an entry held for ten minutes, and
-    Anu and the grader run on Groq, where there is no such entry to make.
+    the grader runs on Groq, where there is no such entry to make; Anu asks
+    for it since her primary moved to Gemini, and her prompt is the same
+    2,300 tokens for everybody, which is why the level moved out of it.
     A link that will not hold the prompt answers through the plain transport
     instead, so asking for it never costs a line.
   */

@@ -305,8 +305,9 @@ served off it at a tenth of the input rate. A turn on the primary is $0.0003 aft
 against $0.0015; the turn that makes the entry books the write and ten minutes of storage as
 base-rate tokens (`cacheStorageAsInputTokens`), so the cap sees the whole bill on the turn that ran
 it up. **It never costs a line**: a link that will not hold the prompt answers through the plain
-transport, an entry the provider forgot is made again once, and the route is the one caller that
-asks for it, because Anu and the grader run on Groq, where there is nothing to hold. **Making the
+transport, an entry the provider forgot is made again once, and the scene route and the tutor route
+are the two callers that ask for it, because the grader runs on Groq, where there is nothing to hold.
+**Making the
 entry is most of a run's bill now**, fourteen creations against ninety-four turns in the play run,
 so its life slides: an entry with under half its term left is extended with one `PATCH`, the
 storage that buys is booked on the turn that asked, and a run that keeps talking never remakes it.

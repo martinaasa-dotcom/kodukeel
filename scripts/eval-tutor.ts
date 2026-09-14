@@ -172,7 +172,9 @@ async function ask(config: ProviderConfig, system: string, q: Q) {
   const t0 = Date.now();
   const open = await openWithFallback([config], system, [...(q.history ?? []), { role: "user", content: q.q }],
     (u) => { inTokens = u.inputTokens; outTokens = u.outputTokens; cached = u.cachedInputTokens ?? 0; },
-    [learnerNote(q.note ?? B1), GROUND ? wordsNote(shippedWordsInQuestion([...(q.history ?? []), { role: "user", content: q.q }])) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS);
+    [learnerNote(q.note ?? B1), GROUND ? wordsNote(shippedWordsInQuestion([...(q.history ?? []), { role: "user", content: q.q }])) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS,
+    // The static prompt held on Google's side, as the route asks for it.
+    true);
   const prose = new ProseStream();
   let raw = "", text = "";
   for await (const chunk of open.chunks) { raw += chunk; text += prose.push(chunk); }

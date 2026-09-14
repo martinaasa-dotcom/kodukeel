@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  TUTOR_FALLBACK_MODEL,
   billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_FALLBACK_MODEL, SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
@@ -112,11 +113,16 @@ describe("a chain built for a purpose", () => {
     expect(chain[0]?.model).toBe(SCENE_MODELS[0]);
   });
 
-  it("sends Anu to the model that answered her questions, not the dearest one", () => {
+  it("sends Anu to the model the wide eval ranked, with Groq behind it on the model she ran on before", () => {
     all();
     const chain = resolveProviders({ purpose: "tutor" });
-    expect(chain.map((c) => c.name)).toEqual(["groq"]);
+    expect(chain.map((c) => c.name)).toEqual(["gemini", "groq"]);
     expect(chain[0]?.model).toBe(TUTOR_MODEL);
+    expect(chain[1]?.model).toBe(TUTOR_FALLBACK_MODEL);
+    // Pinned: no variable moves either link.
+    vi.stubEnv("TUTOR_MODEL", "some/other-model");
+    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.model)).toEqual([TUTOR_MODEL, TUTOR_FALLBACK_MODEL]);
   });
 
   it("sends the graders to the two models that never failed to return a verdict, cheapest first", () => {
@@ -151,8 +157,9 @@ describe("a chain built for a purpose", () => {
     */
     all();
     expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("gemini");
-    expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("groq");
-    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "gemini")).toBe(false);
+    expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("gemini");
+    // Anu has no bounded Anthropic tail at any budget: Groq is her one fixed backup.
+    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "anthropic")).toBe(false);
   });
 
   it("gives a purpose only the provider it names, and never the general chain", () => {
@@ -175,17 +182,18 @@ describe("a chain built for a purpose", () => {
       exactly the providers it names, and nothing arrives because it happened
       to be configured. `resolveProviders()` with no purpose is a long chain;
       a purpose is its own fixed links plus its bounded fallback. Tutor names
-      one link (Groq alone, no fallback at all); scene names two, Gemini then
-      Groq, both fixed rather than bounded, plus the one bounded last resort.
+      two links, Gemini then Groq, both fixed and with no bounded last resort
+      at any budget; scene names the same two, both fixed rather than
+      bounded, plus the one bounded last resort.
     */
     all();
     const general = resolveProviders().map((c) => c.name);
     expect(general.length).toBeGreaterThan(3);
 
     const tutorNamed = resolveProviders({ purpose: "tutor", allowFallback: false }).map((c) => c.name);
-    expect(tutorNamed).toEqual(["groq"]);
+    expect(tutorNamed).toEqual(["gemini", "groq"]);
     const tutorWithFallback = resolveProviders({ purpose: "tutor", allowFallback: true });
-    expect(tutorWithFallback).toHaveLength(1);
+    expect(tutorWithFallback).toHaveLength(2);
 
     const sceneNamed = resolveProviders({ purpose: "scene", allowFallback: false }).map((c) => c.name);
     // Two Gemini links, one per entry of `SCENE_MODELS`, then the Groq link.
@@ -203,8 +211,8 @@ describe("a chain built for a purpose", () => {
     */
     only("gemini");
     expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
-    // Anu has no fallback at any budget, so a Gemini-only deployment has no tutor.
-    expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
+    // A Gemini-only deployment has a tutor on the primary and nothing behind it.
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.name)).toEqual(["gemini"]);
 
     only("groq");
     expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
@@ -268,7 +276,7 @@ describe("a chain built for a purpose", () => {
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
-      .toEqual(["groq"]);
+      .toEqual(["gemini", "groq"]);
   });
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
@@ -521,9 +529,9 @@ describe("the free providers", () => {
     const scene = resolveProviders({ purpose: "scene", allowFallback: false });
     expect(scene.filter((c) => c.name === "gemini").map((c) => c.reasoning)).toEqual(["none", "none"]);
     expect(scene.filter((c) => c.name !== "gemini").every((c) => c.reasoning === undefined)).toBe(true);
-    for (const purpose of ["tutor", "grader"] as const) {
-      expect(resolveProviders({ purpose }).every((c) => c.reasoning === undefined)).toBe(true);
-    }
+    // Anu's Gemini link is measured thinking off; her Groq link and the graders carry nothing.
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.reasoning)).toEqual(["none", undefined]);
+    expect(resolveProviders({ purpose: "grader" }).every((c) => c.reasoning === undefined)).toBe(true);
 
     let body = "";
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
@@ -534,7 +542,7 @@ describe("the free providers", () => {
     expect(JSON.parse(body).reasoning_effort).toBe("none");
 
     body = "";
-    await openWithFallback([resolveProviders({ purpose: "tutor" })[0]!], "system", [{ role: "user", content: "hi" }]);
+    await openWithFallback([resolveProviders({ purpose: "tutor" })[1]!], "system", [{ role: "user", content: "hi" }]);
     expect(body).not.toContain("reasoning_effort");
   });
 
