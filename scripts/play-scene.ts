@@ -370,7 +370,18 @@ async function play(sceneId: string) {
           is composed rather than answered `Ei tea. Head aega!`
         */
         pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
-        topic: context.topic.get(spokenFor.id) ?? new Set(),
+        /*
+          THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
+          route adds every word of the last turn the dictionary vouched to the
+          beat's topic, so a line that takes up what the learner said is not
+          withheld for it; this harness gated on the beat's words alone, and
+          reported `topic` refusals the app never makes (§53's rule about a
+          harness measuring a conversation the app does not have).
+        */
+        topic: new Set<string>([
+          ...(context.topic.get(spokenFor.id) ?? []),
+          ...words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word)),
+        ]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
         // Where this run starts reading a beat's own lines, as the route does.
@@ -385,7 +396,16 @@ async function play(sceneId: string) {
         // The harness composes when it has a link, exactly as a run does.
         mode: LINKS.length > 0 ? ("composed" as const) : ("scripted" as const),
         ...(LINKS.length > 0 ? {
-          compose: (avoid: readonly string[], because?: string) => askModel({
+          compose: (avoid: readonly string[], because?: string) => {
+            /*
+              Why the last draft was withheld, which is what the retry is told
+              (`whyWithheld`) and what a reader of the transcript needs beside
+              the draft: 126 drafts for 69 lines on the first live run of the
+              fallback said nothing about which check took the other 57.
+            */
+            // The beat beside the reason, or a refusal cannot be read against what was asked for.
+            if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld (${spokenFor.id}): ${because}`);
+            return askModel({
             move: spokenFor.move,
             they: stageFor(spokenFor, card),
             reading: "",
@@ -407,7 +427,8 @@ async function play(sceneId: string) {
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
             register: scene.register, words: [...context.lexicon.byLemma.keys()],
-          }, talk),
+          }, talk);
+          },
         } : {}),
       });
       line = cheap.provenance !== "fallback" ? cheap : datumLine(spokenFor, card, context.lexicon) ?? cheap;

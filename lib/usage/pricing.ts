@@ -67,7 +67,7 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
 
     `qwen3.8-27b` sat in the block above at zero, with the rest of Groq's free
     tier, and that was true while the only Groq account anybody here had was a
-    free one. It is the scene composer's model now (`SCENE_GROQ_MODELS`) on a
+    free one. It is the scene composer's fallback now (`SCENE_FALLBACK_MODEL`) on a
     paid Groq plan, and a paid model priced at zero is not a rounding error in
     a cost estimate: it is the global spend cap switched off for the single
     highest-volume path in the app. A conversation is a dozen turns and a scene

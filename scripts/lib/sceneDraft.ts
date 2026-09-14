@@ -268,6 +268,15 @@ export function gateContext(
     lexicon, wrongRegister, governed: GOVERNED, caseOf: CASE_OF, questionWords: QUESTION_WORDS,
     subjects: subjectsIn(entries),
     farewells: FAREWELLS.map(words),
+    /*
+      The route hands the gate every finite verb the scene holds
+      (`finiteVerbs` in lib/progress/scene.ts) and this builder never did, so
+      `clause` and `question` were both inert in every measurement: the eval
+      that ranked the composers passed `Kus teie valu?` through a gate with
+      two checks switched off. The harness's own table, which is the same
+      derivation over the shipped dictionary.
+    */
+    hasFiniteVerb: (word: string) => FINITE_VERB_FORMS.has(word.toLowerCase()),
   };
 }
 
@@ -488,9 +497,17 @@ export async function askLine(
           temperature: 0.8,
           // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
           max_tokens: SCENE_REPLY_TOKENS,
+          /*
+            THE ROUTE'S OWN SHAPE, WHICH THIS DID NOT HAVE. The transport
+            appends the live block to the system prompt and sends the turns
+            after it (`callOpenAiCompatible`); this put the live block in a
+            user message *before* the turns, while the block's own text says
+            the messages before it are the conversation. A harness whose
+            prompt is in a different order from the app's measures a
+            conversation the app does not have.
+          */
           messages: [
-            { role: "system", content: composeSystem(scene) },
-            { role: "user", content: composeLive(ask) },
+            { role: "system", content: `${composeSystem(scene)}\n\n${composeLive(ask)}` },
             ...said,
             { role: "user", content: "Your line:" },
           ],

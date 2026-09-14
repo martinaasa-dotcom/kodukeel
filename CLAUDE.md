@@ -125,16 +125,100 @@ the scanner already reaches it too, since `visionProviders` appends the general 
 Gemini lead. Scene composition did not, on the argument that the bounded Anthropic fallback existed
 precisely so a Groq outage could not drain the balance Anu runs on, and Groq had no business in the
 purpose chain for the same reason Anthropic's *place* in it is gated. That argument was about the
-dear tail, not about Groq: at a fortieth of Anthropic's rate, Groq is not the thing the budget gate
-exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link behind `SCENE_MODELS`, the same model
-`TUTOR_MODEL` already trusts with Estonian output, kept as its own constant rather than a reuse of
-`TUTOR_MODEL` so a later retune of Anu's model does not silently retune the scene composer's. It is
+dear tail, not about Groq: at a fraction of Anthropic's rate and spending nothing Anu runs on, Groq
+is not the thing the budget gate exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link
+behind `SCENE_MODELS`, kept as its own constant rather than a reuse of `TUTOR_MODEL` so a later
+retune of Anu's model does not silently retune the scene composer's. It is
 **pinned exactly like `SCENE_MODELS`**, for the reason the paragraph above gives at length: an
 environment variable that could move it is the door the `SCENE_MODEL` fault came through once, one
 provider over. It answers on every budget, `allowFallback` included, because it is not the bounded
 last resort: a Gemini-only deployment is unchanged, a Groq-only one now composes scenes on Groq
 directly rather than falling straight to the bank, and the bounded Anthropic tail still sits behind
 both as the last resort of last resorts.
+
+**And the fallback was pinned on the tutor's measurement, which is a different job, until it was
+measured on its own.** It was `openai/gpt-oss-120b` because that model answers Anu's six grammar
+questions 6 of 6, and a job interview composed on it read `Kas see oskus töö? Palun valima üks või
+kaks`. `npm run eval:composers` over the three Groq models, forty lines each through the route's
+own prompt and gate, put it last: gpt-oss-120b and compound-mini both write lines with no verb in
+them, `Kus teie valu?`, `Teie mis katki?`, `Millal see katki?`, and the gate passes those, because
+`clause` fires only on four or more words entirely inside the scene's list. `qwen/qwen3.8-27b`
+writes sentences and gets a word wrong, `pakkun`, `kotistamas`, which is the fault the forms list is
+built to withhold, so it is the fallback now, at five times the price per line and a fifth of the
+latency. **The keyless gate rate is a harness number**: the eval vouches against the scene's list
+alone, where the route also asks the forms list, so qwen's 16 of 40 there is 30 re-gated the way
+production gates, and compound-mini's 32 is the pidgin above passing. Read the lines. And the
+harness carried `max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`, which is
+`play-scene.ts`'s fault one harness over: gpt-oss came back empty on a fifth of its calls and read as
+a model that cannot write a line until the constant was read rather than typed.
+
+**And a question naming a pronoun holds a verb, which is the line the clause check cannot see.**
+`clause` stands down under four words and on any line carrying a word outside the scene's list, so
+`Kus teie valu?` and `Kas teie valu peas?`, the commonest pidgin the two Groq models write, passed
+every check. `question` is the fourteenth: a clause opening on a question word, naming a personal
+pronoun and holding no verb, from three words. The pronoun is the second signal because a floor of
+three alone refused `Millisest päevast alates?`, which is in the bank and is what anybody asks.
+And the harness gate had never been handed `hasFiniteVerb`, so `clause` was inert in every
+measurement the composers were ranked on; `gateContext` hands in its own table now. **The
+fallback's live cost is not its Estonian.** Played through every scene with a conversation in
+front of it, qwen wrote lines a person would say and 57 percent of its drafts were withheld, against
+25 cold: `topic` and `shape` took 44 of the 57 with a reason, which is the model answering instead
+of asking or greeting mid-scene, §70's fault, and no check about the language sees it. That is the
+number to bring down before the model is changed again, and it is a prompt question. The prompt
+itself is ordered for a cached prefix now, rules and word list first and the persona last, and the
+OpenAI-compatible transport reads `prompt_tokens_details.cached_tokens`; neither could be measured
+on 2026-09-14, because Groq reports no cached share and the Gemini key answers "prepayment credits
+depleted", which also means the deployment has been composing on the fallback since they ran out.
+
+**And the side-switching was the stage direction, handed over from the wrong side.** Every beat's
+`they` is written to the learner, "They ask which floor you are on", because it is the line on the
+learner's own screen, and `composeLive` handed it to the model bare as "what you are doing", so the
+model took "you" as itself: ten of the lines withheld in that run were the learner's line (`Ma elan
+teisel korrusel`, `Probleem on, et arvuti ei tööta`) and four were `Tere!` mid-scene. It is the
+fault the role card had in `composeSystem` one block up and it took the same repair: the direction
+is quoted with its pronouns explained, an `ask` is told to ask and stop, and every move but `greet`
+is told the conversation has begun. Played again on the same model: 138 drafts, 72 lines on screen
+against 62, 48 percent withheld against 57, one learner's line where there were ten and one
+greeting where there were four. `topic` did not move, at 27, and what is under it now is the gate
+rather than the model, `Kas sa oled juba poe ees?` on the beat that asks where the learner is, and
+the harness's curious learner tacking "ja kuhu siis?" onto a goodbye; that is the next number and
+it is a gate question. And the harness sent the live block as a user message in front of the
+turns, where the transport appends it to the system prompt with the turns after it, while the
+block's own text says the messages before it are the conversation; it sends what the route sends
+now, asserted, because a harness in a different order measures a conversation the app does not
+have.
+
+**And the `topic` figure was two thirds the harness, and the `government` figure was the object.**
+Twenty-seven `topic` refusals in that run and eight once `play:scenes` gated the way the route does:
+the route counts every vouched word of the learner's own last turn as on topic, so a line that
+takes up what they said is never withheld for it, and the harness held a line to the beat's words
+alone. What was left under `government` was `Remont maksab 22 eurot` and `Minu sõber elab siin`,
+withheld because `maksma` is recorded as governing the allative and the only oblique nominal in
+the line is a partitive, and `minu` is a possessive genitive read as a complement of `elama`. The
+partitive and the genitive are the object's cases, which case an object takes is the object rule
+that no check here parses, and rektsioon is the oblique case a verb demands, so those two readings
+are left out of the count the way the nominative already was. Measured on `eval:scene --part-b`,
+which runs the labeled set alone and needs no key: good lines withheld 3 to 2 of 495, real errors
+caught 165 to 146, the nineteen being corrupted forms also spelled like a genitive; refusing correct
+Estonian is the fault this module is built against and a missed corruption costs a line the bank
+answers. Live on the same model, `government` went 11 to 1 and the withheld share 48 to 36 percent.
+The `close` move is told it is the goodbye, since told "they say goodbye" the fallback carried on
+asking, and what `topic` still withholds is the model asking the previous beat's question again,
+which is the model and is where the next number lives.
+
+**And the cheapest model that still writes a line a person would say is a Gemini Lite, measured
+against every model the two keys reach.** Forty cold lines each and the survivors played live
+(`docs/21-situations.md` §61, the table): `gemini-3.1-flash-lite` and `gemini-3.5-flash-lite` both
+play at 19 percent withheld against qwen's 36 to 41, and both read as a person, so price decides
+and the 3.1 Lite is the second entry of `SCENE_MODELS`, at $0.00044 a draft against the primary's
+$0.0013 and qwen's $0.0014. `gpt-oss-20b` is the one cheaper Groq model and it put
+`Mis on probleemi?` on screen at 57 percent withheld; Gemma 4 on the Gemini key writes
+`Kust sa nüüd tulemast?` at 26B and clean lines at eighteen seconds each at 31B, which is not a
+conversation. **A second link on the same key is not a fallback for that key failing**, so qwen
+stays as the Groq link behind both. The cold eval takes `--groq` and `--gemini` lists so a candidate
+can be measured before it is wired anywhere, and reads the cold `passed` column as how far a model
+reaches past the scene's list rather than as whether its words are Estonian; the live run is the
+number to read.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
@@ -597,7 +681,6 @@ in the whole pipeline, and English is the one language this project may write.
 bring back, which is what makes this mechanical rather than aspirational. Re-run the harvest with
 `npm run harvest`; responses are cached, so it costs Ekilex nothing.
 
-
 **And a refusal is not a miss, which the harvest was the last path to learn.** Run with a key
 ekilex.ee answers 403 to, `npm run harvest -- --only=plaanid` printed every word of the unit as "not
 in Ekilex" and rewrote `prisma/data/harvested.ts` from about 17,400 lines to two, because its
@@ -609,7 +692,10 @@ refused or failed request keeps the row the word had rather than dropping it, on
 means nothing is written, a run that answered for nobody writes nothing, `--only` stands its answers
 into the previous file rather than replacing it, and a harvest that would drop more than half the
 file is refused without `--force`. Made to fail on the real key first: the same command now ends in
-"Not written: Ekilex refused 16 requests (HTTP 403 x16)" with the file untouched.
+"Not written: Ekilex refused 16 requests (HTTP 403 x16)" with the file untouched. Two sessions built
+this guard on the same day and the one on main is the one kept; the other's `nõus` is the first word
+through it, a learner offered a wage having written `ma olen nõus`, which is how anybody agrees to
+one, where the course taught `nõustuma` and not the word people say.
 
 **A meaning is given in the language the learner thinks in, and Ekilex is the one that gives it.**
 Most people learning Estonian in Estonia already speak Russian or Ukrainian, and an app that can
@@ -725,7 +811,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,452 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,453 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -952,7 +1038,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,688 forms across 357 of the
-1,452 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,453 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -4975,7 +5061,7 @@ out as `Aitäh.` or `Jah.`, the other side thanking somebody for an answer they 
 
 **Telling somebody they were incomprehensible is the worst thing this module can do, and it was the
 default.** `unrecognised` fires where the app can vouch for no word of a turn, and what it vouched
-against was the scene's units widened once to the course, which is 1,452 words: everything else in
+against was the scene's units widened once to the course, which is 1,453 words: everything else in
 the language read as noise. A learner answered `Tere!` with `Tervitused!`, which is Estonian, which
 is a greeting, and which this course does not happen to teach, and was told they had not been
 understood. `knowing` in `lib/progress/scene.ts` asks `prisma/data/forms/` about the spellings in
@@ -5722,8 +5808,7 @@ figures of the interviewer's, the pay question is answered by the next move, whi
 off the card, a no gets the second figure through `counter`, and only then is a start day asked for.
 An offer nobody has made cannot be taken, so `creditAhead` passes over an `offer` beat ahead of the
 pointer: `hea` two beats earlier had met it and the figure was never said. `docs/21-situations.md`
-§61, including the measurement that could not be taken, since the fallback composer has never been
-through `eval:composers` and both keys here answer 401.
+§61, and the paragraph on `SCENE_FALLBACK_MODEL` above for the measurement that pass could not take.
 
 **And how the other side talks is the run's band, which is the learner's own unless they moved
 it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are
@@ -7125,7 +7210,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

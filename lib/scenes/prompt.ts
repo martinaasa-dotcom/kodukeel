@@ -296,17 +296,31 @@ const COMPOSE_RULES = [
 /**
  * The half that is constant for a whole run, and the one the caller puts
  * behind the cache breakpoint.
+ *
+ * ORDERED FROM WHAT NEVER CHANGES TO WHAT CHANGES PER RUN, because a provider
+ * caches a *prefix*. The rules are the same for everybody, the word list and
+ * the setting are the same for every run of a scene, the pitch is one of five
+ * bands, and the persona is drawn per run. It used to open with the persona
+ * and end with the word list, which is nine tenths of the prompt, so nothing a
+ * provider could reuse ever sat in front of anything it could not: the
+ * tutor's own fault (CLAUDE.md, "the learner's level sat at character 158 of a
+ * 9,093-character system prompt") one purpose over. Nothing about the words
+ * moved, only the order they arrive in.
  */
 export function composeSystem(scene: ComposeScene): string {
   return [
     COMPOSE_RULES,
+    /*
+      The list before the scene, since it is the largest constant block and a
+      cached prefix ends at the first byte that differs.
+    */
+    `Words you may use: ${scene.words.join(" ")}`,
     /*
       The scene before the turn, so the character is somebody rather than a
       function of the beat. English, and every line of it is a line the learner
       is looking at on their own screen.
     */
     `The scene: ${scene.scene}. ${scene.place}.`,
-    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
     /*
       THE ROLE CARD IS WRITTEN TO THE LEARNER, AND THE MODEL READ "YOU" AS
       ITSELF. "You need a bus ticket. Your card says where to" handed over as
@@ -326,7 +340,11 @@ export function composeSystem(scene: ComposeScene): string {
       on every turn of a run, so it sits behind the breakpoint with the list.
     */
     pitchFor(scene.level),
-    `Words you may use: ${scene.words.join(" ")}`,
+    /*
+      Last, because it is the one line drawn per run: everything above it is
+      shared by every run of this scene at this band.
+    */
+    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
   ].filter(Boolean).join("\n");
 }
 
@@ -340,7 +358,50 @@ export function composeSystem(scene: ComposeScene): string {
 export function composeLive(ask: ComposeAsk): string {
   return [
     `Your move: ${ask.move}.`,
-    `What you are doing, in English: ${ask.they}`,
+    /*
+      THE STAGE DIRECTION IS WRITTEN FROM THE LEARNER'S SIDE, AND THE MODEL
+      TOOK "YOU" AS ITSELF. Every beat's `they` reads "They ask which floor
+      you are on" because it is the line printed on the learner's own screen,
+      and handed over bare as "what you are doing" it read as the learner's
+      part: told the neighbor asks which floor, the fallback wrote `Ma elan
+      teisel korrusel`, and told the waiter asks whether that is everything it
+      wrote `Kartulid ja vesi maksavad kaheksa eurot`. That was 25 of the 57
+      lines the gate withheld with a reason in one run, under `topic`, and
+      none of the gate's checks is about who is speaking. The same repair the
+      role card got in `composeSystem`: quoted, with the pronouns explained.
+    */
+    `What you do now, written from the learner's side, where "they" means you and "you" means`
+      + ` the learner: "${ask.they}"`,
+    /*
+      AND AN ASK IS A QUESTION PUT TO THEM, WHICH THE MODEL KEPT ANSWERING.
+      Said once more in the plainest words for the one move where the fault
+      lands, since a question answered by the person who asked it is the beat
+      done for the learner.
+    */
+    ask.move === "ask"
+      ? "So you ask them and then stop: you do not answer your own question, and you never say"
+        + " the line the learner would say."
+      : "",
+    /*
+      AND A CLOSE IS THE GOODBYE, SAID NOW. Told "they say goodbye", the
+      fallback went on with the conversation instead, `Kas te õpite juba
+      kaua?`, `Kontor on siin, samas hoones`, ten of the seventeen lines
+      `topic` withheld in one run, because the rules above forbid a farewell
+      on every other beat and a stage direction alone did not lift that here.
+    */
+    ask.move === "close"
+      ? "This is the end of the conversation: say goodbye now, in a sentence or two, and ask"
+        + " nothing more."
+      : "",
+    /*
+      AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
+      rules say not to greet once it has started, and a model shown a beat on
+      its own opened it with `Tere!` anyway, 19 lines under `shape` in the same
+      run; which beat this is is the move's to say, so it is said here.
+    */
+    ask.move !== "greet"
+      ? "You have already greeted each other, so do not greet them again or start over."
+      : "",
     ask.settled && ask.settled.length > 0
       ? `Already settled, so never asked for again: ${ask.settled.join("; ")}.`
       : "",

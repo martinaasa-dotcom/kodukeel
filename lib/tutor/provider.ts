@@ -216,11 +216,11 @@ export interface ChainOptions {
  *
  * AND GROQ BACKS UP GEMINI EVERYWHERE GEMINI ANSWERS, SCENES INCLUDED. The
  * grader already put `openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`;
- * `SCENE_FALLBACK_MODEL` puts the same model behind `SCENE_MODELS`, and the
- * vision chain already reaches it too, through the general chain appended
+ * `SCENE_FALLBACK_MODEL` puts a Groq model behind `SCENE_MODELS`, and the
+ * vision chain already reaches Groq too, through the general chain appended
  * behind Gemini in `visionProviders`. It is a fixed second link on every
  * budget, not the bounded Anthropic last resort, because it costs a
- * fortieth of Anthropic's rate and carries none of the risk that fallback
+ * fraction of Anthropic's rate and carries none of the risk that fallback
  * is gated against.
  *
  * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
@@ -293,11 +293,11 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       The bounded Anthropic fallback below exists because Groq having a bad
       hour must not drain the Anthropic balance Anu depends on (see the note
       on `allowFallback`). Groq itself carries no such risk to anything: it
-      is a fortieth of Anthropic's rate, and `SCENE_FALLBACK_MODEL` is the
-      same measured model `TUTOR_MODEL` already trusts with Estonian output.
-      So it answers whenever Gemini is unconfigured, throttled, or having a
-      bad minute, on every budget, the same way `GRADER_MODELS` already puts
-      Groq behind Gemini for the grader.
+      spends nothing Anu runs on, and `SCENE_FALLBACK_MODEL` is the Groq
+      model `eval:composers` ranked first on writing Estonian (see the
+      constant). So it answers whenever Gemini is unconfigured, throttled,
+      or having a bad minute, on every budget, the same way `GRADER_MODELS`
+      already puts Groq behind Gemini for the grader.
 
       Hardcoded like `SCENE_MODELS`, for the reason the block above gives at
       length: an environment variable that can silently repoint a scene's
@@ -415,26 +415,71 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
  * 2.7 times the price and repeats itself. Read `npm run eval:thinking` before
  * changing it, and the price row before believing a version number.
  */
-export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
+/*
+  AND A SECOND GEMINI LINK BEHIND THE FIRST, CHOSEN ON PRICE AND READ.
+
+  The operator asked for the cheapest model that still writes a line a person
+  would say, for the fallback, and every model the two keys reach was measured
+  the same way, forty cold lines through `eval:composers` and then the
+  survivors played live through `play:scenes --compose` on all fourteen
+  scenes (docs/21 §61). `gemini-3.1-flash-lite` and `gemini-3.5-flash-lite`
+  both played at 19 percent withheld against the Groq fallback's 36 to 41,
+  and both read as a person: `Mis teil viga on või kus teil valutab?`,
+  `Palun võtke järjekorranumber ja oodake, kuni ma teid kutsun.` The 3.1
+  Lite is the cheaper of the two, $0.00044 a draft against $0.00057 at the
+  scene's token profile and a third of the primary's, and it is already
+  `VISION_MODEL`, so it is the second link. The others are out on the read:
+  `gpt-oss-20b` played at 57 percent withheld and put `Mis on probleemi?` on
+  screen, `gemma-4-26b` wrote `Kust sa nüüd tulemast?`, and `gemma-4-31b`
+  wrote clean lines at eighteen seconds each, which is not a conversation.
+
+  Two Gemini links is not the three-model reasoning above coming back: both
+  are priced rows in `lib/usage/pricing.ts`, so a walk from the first to the
+  second is charged at a known rate, and the Groq link still stands behind
+  both for the day the Gemini key itself stops answering.
+*/
+export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
 /**
  * The fixed second link behind `SCENE_MODELS`, on Groq, once Gemini is
  * unconfigured, throttled, or having a bad minute.
  *
- * The same string as `TUTOR_MODEL`, because it is the same finding: measured
- * against the tutor's six grammar questions (`npm run eval:anu`),
- * `openai/gpt-oss-120b` answered every one correctly at a fortieth of
- * Anthropic's rate. A scene line is a smaller ask than a grammar
- * explanation, so a model already trusted with the harder job is trusted
- * with this one. Kept as its own named constant rather than a reference to
- * `TUTOR_MODEL`, so a later change to Anu's model does not silently retune
- * the scene composer's as well.
+ * MEASURED, NOT INHERITED. This was `openai/gpt-oss-120b` on the argument
+ * that a model trusted with the tutor's harder job could be trusted with a
+ * scene line, and a job interview run on it (docs/21 §61) read `Kas see
+ * oskus töö? Palun valima üks või kaks`. Nothing generalises across the
+ * four model jobs in this app (§55), and this was the one job the fallback
+ * had never been measured on. `npm run eval:composers` over the three Groq
+ * models, forty lines each through the route's own prompt and the shipped
+ * gate, 2026-09-14:
+ *
+ *   model                 gate, keyless   gate, forms list   no finite verb   median
+ *   groq/compound-mini    28/40           32/40              4                2088ms
+ *   qwen/qwen3.8-27b      16/40           30/40              1                 368ms
+ *   openai/gpt-oss-120b   22/40           25/40              4                1829ms
+ *
+ * The gate rate is not the ranking, and the lines say why. What the gate
+ * cannot see is a line with no verb in it, since `clause` fires only on four
+ * or more words entirely inside the scene's list, and the two models it
+ * passes most write exactly that: `Kus teie valu?`, `Pikk aeg? Arst?`,
+ * `Millal see katki?`, `Piim ostma.` from compound-mini, and `Kas teie valu
+ * peas?`, `Teie mis katki?`, `Tuba katki, korrus?`, `Teie nägema arst
+ * esmaspäev kell 10` from gpt-oss-120b. qwen writes sentences: `Kust sa nüüd
+ * tuled? Kas oled poe lähedal?`, `Millises toas see on? Kas see on esimesel
+ * korrusel?`, `Kahjuks ühel meist pole aega sel nädalal tulla.` What it gets
+ * wrong is a word rather than a sentence, `pakkun` for `pakun`, `kotistamas`,
+ * `abikõneleja`, and every one of those the forms list withholds, which is
+ * the fault the gate is built to catch. Its keyless rate of 16 is the harness
+ * vouching against the scene's list alone, where production also asks the
+ * forms list; re-gated that way it is 30. Five times the price of gpt-oss
+ * per line, about $0.0013, and it is still the cheapest link on the chain
+ * after the one it backs up, and a fifth of the latency.
  *
  * PINNED, EXACTLY LIKE `SCENE_MODELS`. See `PURPOSE_CHAINS.scene` for why: an
  * environment variable that can move it is the door `SCENE_MODEL` came
  * through once, one provider over.
  */
-export const SCENE_FALLBACK_MODEL = "openai/gpt-oss-120b";
+export const SCENE_FALLBACK_MODEL = "qwen/qwen3.8-27b";
 
 /**
  * How much room a scene line needs, which is not what Anu needs.
@@ -758,7 +803,11 @@ interface UsageFrame {
       cache_read_input_tokens?: number;
     };
   };
-  usage?: { output_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+  usage?: {
+    output_tokens?: number; prompt_tokens?: number; completion_tokens?: number;
+    /** Where an OpenAI-compatible provider says how much of the prompt it served from its cache. */
+    prompt_tokens_details?: { cached_tokens?: number };
+  };
   /** Anthropic's own reason the turn stopped, carried on the same `message_delta` frame as the output count. */
   delta?: { stop_reason?: string | null };
   /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
@@ -801,6 +850,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
     into.outputTokens = f.usage.completion_tokens ?? into.outputTokens;
+    /*
+      The cached share, in the field OpenAI, Gemini and Groq all use for it.
+      Read for the reason the Anthropic branch reads its two buckets: a cached
+      token is billed at a fraction of base, and a ledger that cannot see the
+      share prices every scene turn at full input rate. Measured 2026-09-14:
+      Groq reports none on either model the scene chain can reach, and the
+      Gemini key here answered "prepayment credits depleted", so the day this
+      field carries a number is the day the split starts telling the truth
+      rather than a day anything was charged less.
+    */
+    const cached = f.usage.prompt_tokens_details?.cached_tokens;
+    if (cached != null) into.cachedInputTokens = cached;
     into.measured = true;
   }
 }

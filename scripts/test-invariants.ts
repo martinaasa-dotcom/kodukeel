@@ -5520,6 +5520,36 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
     "the word list is back in the block that changes per turn",
   );
   /*
+    And the stage direction is quoted with its pronouns explained, an ask is
+    told to stop at the question, and every beat but the first is told the
+    conversation has begun: handed the beat's `they` bare, the fallback wrote
+    the learner's line on ten beats of one run and greeted mid-scene on four
+    (docs/21 §61).
+  */
+  const live = block("composeLive");
+  assert.match(
+    live, /"they" means you and "you" means[\s\S]{0,40}the learner/,
+    "composeLive hands over the stage direction without explaining whose side it is written from",
+  );
+  assert.match(
+    live, /ask\.move === "ask"[\s\S]{0,200}do not answer your own question/,
+    "an ask move is no longer told to ask and stop",
+  );
+  assert.match(
+    live, /ask\.move !== "greet"[\s\S]{0,200}do not greet them again/,
+    "a beat after the first is no longer told the conversation has begun",
+  );
+  /*
+    And the harness sends the live block where the transport does, appended
+    to the system prompt with the turns after it, or the play transcripts
+    measure a conversation the app does not have.
+  */
+  assert.match(
+    code("scripts/lib/sceneDraft.ts"),
+    /role: "system", content: `\$\{composeSystem\(scene\)\}\\n\\n\$\{composeLive\(ask\)\}` \},\s*\.\.\.said,/,
+    "scripts/lib/sceneDraft.ts sends the live block somewhere other than where the route's transport does",
+  );
+  /*
     The list, and everything else that is constant for a whole run: the scene,
     the place, the drawn persona and the learner's role card all sit behind the
     breakpoint with it, because a briefing that changed per turn would break
@@ -15796,7 +15826,7 @@ check("a farewell is withheld off the close beat, and the goodbye stays off the 
     gate, /if \(beat\.move === "close" \|\| !context\.farewells\) return false;/,
     "the farewell check no longer stands down on the close beat, so every scene's goodbye is refused",
   );
-  assert.match(gate, /"negation", "farewell",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
+  assert.match(gate, /"negation", "farewell", "question",\s*\]/, "`farewell` left the CHECKS list, so eval:scene prints nothing about it");
   /*
     Both context builders hand the phrases in, resolved from the catalogue's
     own farewells, or the app and its harnesses would disagree about the gate

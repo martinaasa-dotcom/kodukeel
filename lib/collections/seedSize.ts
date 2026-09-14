@@ -104,5 +104,9 @@
  * the words that do things with them are not. `kolmas` was already in the
  * built expansion and only needed teaching, which is why three words were
  * asked for and the count moved by two.
+ *
+ * The one after those is `nõus`. A learner offered a wage at the interview
+ * wrote `ma olen nõus`, which is how anybody says yes to an offer, and the
+ * course taught `nõustuma` and not the word people actually use.
  */
-export const SEED_SET_SIZE = { words: 6_118, forms: 39_466 };
+export const SEED_SET_SIZE = { words: 6_119, forms: 39_466 };

@@ -504,6 +504,20 @@ for (const [width, height, display] of [
 ]) {
   await p.setViewportSize({ width, height });
   await p.goto(`${B}/welcome`, { waitUntil: "load", timeout: 60000 });
+  /*
+    WAIT FOR THE LAYOUT THIS IS ABOUT TO MEASURE, NOT FOR A CLOCK. A fixed
+    200ms after `load` read every rectangle on the page as zero on one of the
+    eight sizes in CI, nav 0px and every gap 0px against a rhythm of 136, on a
+    two-core runner that had not laid the page out yet; the same check passed
+    on the seven sizes before it and on the head before that. A page that
+    genuinely draws nothing still reaches the measure, since the wait gives
+    up rather than throws, and then says so in the figures.
+  */
+  await p.waitForFunction(() => {
+    const nav = document.querySelector("header nav");
+    const h1 = document.querySelector(".hero-open h1");
+    return Boolean(nav && h1 && nav.getBoundingClientRect().bottom > 0 && h1.getBoundingClientRect().top > 0);
+  }, undefined, { timeout: 10_000 }).catch(() => undefined);
   await p.waitForTimeout(200);
   const seen = await p.evaluate(() => {
     const bottom = (el) => el.getBoundingClientRect().bottom;

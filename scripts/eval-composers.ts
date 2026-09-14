@@ -17,7 +17,7 @@
  * sceneDraft.ts` carries the prompt the drafter and the rejection-rate eval
  * share, and it is not the one production sends: the route merges system and
  * live into one system message, hands the banked lines of the scene's other
- * beats over for tone, sets no temperature and allows 1200 tokens. A model
+ * beats over for tone, sets no temperature and allows `SCENE_REPLY_TOKENS`. A model
  * ranked on a prompt it will never be sent is a ranking for nothing, so the
  * prompt below is `compose` in `app/api/scene/route.ts`, kept in step with it.
  *
@@ -47,7 +47,7 @@ import { stageFor } from "../lib/scenes/reply";
 import { words } from "../lib/scenes/lexicon";
 import type { BeatSpec, SceneSpec } from "../lib/scenes/types";
 import {
-  FREE_GEMINI_MODELS, FREE_GROQ_MODELS,
+  FREE_GEMINI_MODELS, FREE_GROQ_MODELS, SCENE_REPLY_TOKENS,
 } from "../lib/tutor/provider";
 import { HARNESS_LEVEL, keylessContext, lacksFiniteVerb } from "./lib/sceneDraft";
 
@@ -57,6 +57,15 @@ const arg = (name: string, fallback: string) => {
 };
 const SAMPLES = Number(arg("samples", "2"));
 const ONLY_MODEL = process.argv.includes("--model") ? arg("model", "") : "";
+/*
+  Models beyond the free lists, one comma-separated list per provider, so a
+  candidate can be measured before it is wired anywhere: `--groq
+  openai/gpt-oss-20b --gemini gemini-3.1-flash-lite,gemma-4-31b-it`. The free
+  lists stay what the chain reads; this only widens the measurement.
+*/
+const extra = (name: string) => arg(name, "").split(",").map((m) => m.trim()).filter(Boolean);
+const EXTRA_GROQ = extra("groq");
+const EXTRA_GEMINI = extra("gemini");
 const OUT = arg("out", "/tmp/composers.jsonl");
 
 /*
@@ -81,8 +90,8 @@ function links(): Link[] {
     if (!key) return;
     for (const model of models) out.push({ provider, model, url, key });
   };
-  add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", FREE_GROQ_MODELS);
-  add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", FREE_GEMINI_MODELS);
+  add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", [...FREE_GROQ_MODELS, ...EXTRA_GROQ]);
+  add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", [...FREE_GEMINI_MODELS, ...EXTRA_GEMINI]);
   return out.filter((l) => !ONLY_MODEL || l.model === ONLY_MODEL);
 }
 
@@ -208,7 +217,7 @@ const BACKOFF_MS = [2_000, 6_000, 15_000, 30_000];
  * headers read `x-ratelimit-limit-tokens: 8000` against
  * `x-ratelimit-limit-requests: 1000`, so what runs out is the token budget and
  * it runs out first. A scene prompt is large because the word list *is* the
- * prompt, a few hundred lemmas, and the route reserves `max_tokens: 1200` on
+ * prompt, a few hundred lemmas, and the route reserves `SCENE_REPLY_TOKENS` on
  * top; at roughly 2,200 tokens a call that is about three calls a minute.
  * Pacing at one a second therefore measured the harness again, one layer below
  * where the first version did.
@@ -242,11 +251,18 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
           "content-type": "application/json",
           authorization: `Bearer ${link.key}`,
         },
-        // The route's own body, minus the stream: what is judged here is the
-        // finished line, and a stream would only add a reassembly step.
+        /*
+          The route's own body, minus the stream: what is judged here is the
+          finished line, and a stream would only add a reassembly step. The
+          token budget is the route's constant and not a number typed here,
+          which is `scripts/play-scene.ts`'s fault (docs/21 §55) one harness
+          over: this carried `max_tokens: 1200` after the route moved to 4,000,
+          so a model that thinks before it writes came back empty on a fifth of
+          its calls and read as a model that cannot write a line.
+        */
         body: JSON.stringify({
           model: link.model,
-          max_tokens: 1200,
+          max_tokens: SCENE_REPLY_TOKENS,
           messages: [{ role: "system", content: system }, { role: "user", content: user }],
         }),
         signal: AbortSignal.timeout(90_000),
@@ -277,7 +293,17 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
       if (!res.ok) return { status, text: "", ms, waited, rateLimits };
 
       const data = await res.json() as { choices?: { message?: { content?: string } }[] };
-      return { status: 200, text: (data.choices?.[0]?.message?.content ?? "").trim(), ms, waited, rateLimits };
+      /*
+        A model that writes its reasoning into `content` behind a tag (Gemma 4
+        opens with `<thought>`, qwen3.6 with `<think>`) is measured on what it
+        said after it, since that is what the transport would have to keep;
+        `provider.ts` notes the same shape as the reason qwen3.6 is off the
+        chain, so a model that wins this way needs the strip there before it
+        is wired.
+      */
+      const raw = data.choices?.[0]?.message?.content ?? "";
+      const text = raw.replace(/<(thought|think)>[\s\S]*?<\/\1>\s*/g, "").trim();
+      return { status: 200, text, ms, waited, rateLimits };
     } catch {
       // A timeout and a dropped socket are the same fact about the free tier.
       if (attempt >= RETRIES) return { status: 0, text: "", ms: Date.now() - started, waited, rateLimits };
@@ -335,6 +361,12 @@ async function main() {
 
     const answered = rows.filter((r) => r.status === 200 && r.text);
     const clean = answered.filter((r) => r.failed.length === 0);
+    /*
+      Printed beside the gate count because it decided the last ranking
+      (docs/21 §61) and was in every row and on no summary line: the two
+      models the gate passed most were the two writing lines with no verb.
+    */
+    const verbless = answered.filter((r) => r.noFiniteVerb).length;
     const secs = Math.round((Date.now() - t0) / 1000);
     const median = answered.length
       ? answered.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(answered.length / 2)]
@@ -344,6 +376,7 @@ async function main() {
     console.log(
       `${link.model.padEnd(36)} answered ${String(answered.length).padStart(2)}/${rows.length}` +
       `  passed gate ${String(clean.length).padStart(2)}` +
+      `  no verb ${String(verbless).padStart(2)}` +
       `  median ${String(median).padStart(5)}ms  ${secs}s` +
       `  429s ${rows.reduce((n, r) => n + r.rateLimits, 0)}` +
       (statuses.size ? `  [${[...statuses].map(([s, n]) => `${s}x${n}`).join(" ")}]` : ""),

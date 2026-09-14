@@ -4387,7 +4387,7 @@ which on this bank is every row.
 ## 61. The eighteenth pass: an interview on the fallback model
 
 The operator's Gemini key was withdrawn after a leak, so the scenes composed on
-`SCENE_FALLBACK_MODEL`, which is `openai/gpt-oss-120b` on Groq, and a job
+`SCENE_FALLBACK_MODEL`, which was `openai/gpt-oss-120b` on Groq, and a job
 interview run on it came back with four faults. Three are the module's and one
 is the model's, and telling those apart is most of what this pass did.
 
@@ -4451,17 +4451,206 @@ on writing Estonian through the route's own prompt and gate, and the only Groq
 model that eval ever ranked was `qwen/qwen3.8-27b` at 9 of 12 against Gemini's
 24 of 24. The fallback is trusted with Estonian output on the strength of a
 different task. The measurement was set up in this pass and could not be
-taken: the session's Groq and Gemini keys both answer 401. It is one command
-per model against a working key, and the fallback should be pinned on what it
-says:
+taken in it, because the session's keys answered 401; it was taken the next
+day, and the fallback is pinned on what it said.
 
-    npm run eval:composers -- --model openai/gpt-oss-120b
-    npm run eval:composers -- --model qwen/qwen3.8-27b
-    npm run eval:composers -- --model groq/compound-mini
+**The measurement, and what the number could not see.** `npm run eval:composers`
+over the three Groq models, forty lines each through the route's own prompt and
+the shipped gate, on 2026-09-14:
 
-What it does not fix is `ma olen nõus`, which is how anybody says "I agree" and
-which `npm run probe:turns` now reads as off the point on the offer beat:
-`nõus` is the inessive of `nõu` and no declared unit teaches it. That is §29's
-finding again, the course teaching the noun of a situation and not the phrase
-that does things with it, and it is a unit change rather than a scene one.
+| model | passed the gate, keyless | re-gated with the forms list | no finite verb | median |
+|---|---|---|---|---|
+| `groq/compound-mini` | 28/40 | 32/40 | 4 | 2088ms |
+| `qwen/qwen3.8-27b` | 16/40 | 30/40 | 1 | 368ms |
+| `openai/gpt-oss-120b` | 22/40 | 25/40 | 4 | 1829ms |
+
+Two columns because the harness vouches against the scene's list alone, where
+the route also asks the forms list (§53): `täpselt`, `tulid`, `kahjuks` and
+`pärastlõunal` are Estonian, and the keyless column withholds every line
+carrying one. Re-gated the way production gates, the order of the first two
+swaps and the gap closes to two lines, which is inside the noise of forty (§29
+on sampling floors). So the number does not rank them, and the lines do. What
+the gate cannot see is a line with no verb in it, since `clause` fires only on
+four or more words entirely inside the scene's list, and the two models the
+gate passes most write exactly that:
+
+    compound-mini   Kus teie valu?  ·  Pikk aeg? Arst?  ·  Millal see katki?  ·  Piim ostma.
+    gpt-oss-120b    Kas teie valu peas?  ·  Teie mis katki?  ·  Tuba katki, korrus?
+                    Teie nägema arst esmaspäev kell 10. Kas hea?
+
+Those all passed. `qwen/qwen3.8-27b` writes sentences: `Kust sa nüüd tuled? Kas
+oled poe lähedal?`, `Millises toas see on? Kas see on esimesel korrusel?`,
+`Kahjuks ühel meist pole aega sel nädalal tulla. Kas homme hommik või
+pärastlõuna sobib?` What it gets wrong is a word rather than a sentence,
+`pakkun` for `pakun`, `kotistamas`, `abikõneleja`, `parandusettevõtte`, and
+every one of those is withheld, because a spelling no source has ever written
+down is the one fault the gate was built to catch. That is the difference the
+fallback should be chosen on: a wrong word is withheld and the bank answers,
+and a wrong sentence made of right words reaches the learner. So
+`SCENE_FALLBACK_MODEL` is `qwen/qwen3.8-27b`, at about $0.0013 a line against
+$0.00024, still the cheapest link after the one it backs up, and a fifth of
+the latency.
+
+**And the harness measured itself first, again.** `eval-composers.ts` carried
+`max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`, which is
+exactly `play-scene.ts`'s fault in §55 one harness over: `gpt-oss-120b` thinks
+before it writes, came back empty on a fifth of its calls, and read as a model
+that cannot write a line. It reads the route's constant now, and the figures
+above are from the corrected run.
+
+**Three things the measurement left open, each measured the same day.**
+
+*The gate could not see a question with no verb in it.* `clause` stands down under four words and
+on any line with a word outside the scene's list, so `Kus teie valu?` and `Kas teie valu peas?`,
+the shape the two Groq models write most, were outside its reach. `question` is the fourteenth
+check: a clause opening on a question word, naming a personal pronoun and holding no verb, at
+three words or more. A floor of three alone was tried first and refused `Millisest päevast
+alates?`, which is in the bank and is what a landlord asks, so the pronoun is the second signal.
+And the harness gate had never been handed `hasFiniteVerb`, which the route hands in, so `clause`
+was inert in every measurement above. Re-gated with both live and the forms list vouching:
+
+| model | before | with `clause` and `question` | what they took |
+|---|---|---|---|
+| `groq/compound-mini` | 32/40 | 28/40 | `Kus teie valu?`, `Kas teie tuba katki, mis korrus?`, `Teie koht kell kaks.` |
+| `qwen/qwen3.8-27b` | 30/40 | 29/40 | `Miks te siin? Milline haigus?` |
+| `openai/gpt-oss-120b` | 25/40 | 22/40 | `Kas teie valu peas?`, `Teie mis katki?`, `Millal see teie korteris katki?` |
+
+Every line taken is a verbless one, and the bank's rows all pass. `Millal see katki?` is still
+passed on the health centre's list, because `see` is in no unit that scene declares and the
+check reads pronouns off the scene's own entries, which is the honest edge of it.
+
+*The prompt was ordered against a cache.* It opened on the persona, drawn per run, and ended on
+the word list, the same for every run of a scene, so a cached prefix had nothing to reuse. The
+rules lead now, then the list, the setting, the register, the band, and the persona last. It
+could not be measured: Groq reports no cached share on either model the scene chain reaches, and
+the Gemini key answers `prepayment credits depleted` on every call, which also says the deployment
+has been composing on the fallback since the credits ran out. The transport reads
+`prompt_tokens_details.cached_tokens` into the split the ledger already prices at a tenth, so the
+figure arrives the day a provider sends one.
+
+*And the fallback was played live, with a conversation in front of it*, through
+`npm run play:scenes -- --compose --model qwen/qwen3.8-27b --drafts`, which now prints why each
+draft was withheld. All fourteen scenes played to the debrief. The lines read as a person:
+`Minge mööda tänavat otse edasi. Teises nurgas pöörake vasakule.`, `Kui kaua see peavalu on
+kestnud?`, `Palun, arve on siin. Aitäh külastuse eest!`; the wrong word every eighth line or so,
+`Pakkun`, `isikutunnustus`, `maitseekad`, `kolisinud`, is the forms list's to take, and it takes
+it. What the cold eval could not see is the cost:
+
+    drafts 144, lines reaching the screen 62, withheld 82 (57%), against 25% cold
+
+    withheld with a reason (57): topic 25 · shape 19 · government 7 · facts 3
+                                 agreement 2 · farewell 2 · clause 2 · vouching 0
+
+The two biggest are one fault, and it is §70's: the model answers instead of asking (`Ma elan
+teisel korrusel, vastas pool.` on the beat where the neighbor asks which floor *you* live on,
+`Kartulid ja vesi maksavad kaheksa eurot.` on an ask), or greets mid-scene (`Tere!` on a ticket
+window's third beat, twice). Not one of those is bad Estonian, so no check about the language
+would see it, and each is a paid call. More than half of the fallback's live calls are spent on
+a line the gate then refuses for being the wrong person's, which is the number to bring down
+before the model is changed again, and it is a prompt question rather than a gate one. Two of
+the seven `government` refusals read as the check rather than the model, `Ma toon nüüd ravimi`
+among them, where the genitive is the total object and is right; that is the object rule, which
+no check here parses, and it is left where it is.
+
+*The side-switching was the stage direction, and it was fixed and measured the same day.* Every
+beat's `they` is written to the learner, "They ask which floor you are on", because it is the
+line on the learner's own screen, and `composeLive` handed it over bare as "what you are doing";
+the model read "you" as itself, which is the fault the role card had in `composeSystem` (§32)
+one block up. Ten of the 57 lines withheld with a reason were the learner's own line and four
+were a greeting mid-scene. The direction is quoted now with its pronouns explained, an `ask` is
+told to ask and then stop, and every move but `greet` is told the conversation has already
+begun. The harness was corrected with it: `askLine` sent the live block as a user message before
+the turns, where the transport appends it to the system prompt and sends the turns after it, and
+the block's own text says the messages before it are the conversation. Played again, same model,
+same fourteen scenes, same curious learner:
+
+    drafts 138, lines reaching the screen 72, withheld 66 (48%), against 62 and 57% before
+
+    withheld with a reason (52): topic 27 · shape 11 · government 9 · agreement 4
+                                 facts 2 · farewell 2
+
+    the learner's line: 1 (was 10) · a greeting mid-scene: 1 (was 4)
+
+`shape` fell by the greetings. `topic` did not move, and what is under it changed: the lines are
+the character's now, `Kas sa oled juba poe ees?` on the beat that asks where the learner is,
+`Jah, väga lähedal. Vaid mõni minut jalgsi.` on the beat that waits for a second question, and
+a run of them answering the harness's curious learner, who tacks "ja kuhu siis?" onto every turn
+including a goodbye. That is the check reading a beat's topic words too narrowly, and a harness
+learner asking a question no beat anticipates, which is the next number to bring down and is a
+gate question rather than a prompt one. One draft came back as the model's own reasoning in
+English, "The previous turn by the assistant was empty. I need to respond", and the gate took it
+under `shape`, which is the gate doing its job on a thinking model whose reasoning leaked into
+the answer. Two of the nine `government` refusals are still the total-object reading above.
+
+*Then the `topic` figure turned out to be the harness, and the `government` figure the object.*
+The route adds every vouched word of the learner's last turn to the beat's topic, so a line that
+takes up what they said is on topic whatever the beat's own words are; `play:scenes` gated on the
+beat's words alone and reported refusals the app never makes (§53's rule, one instrument over).
+It gates the way the route does now and prints the beat beside each withheld draft. And
+`government` was refusing `Remont maksab 22 eurot`, `Suur vesi maksab neli eurot` and `Minu
+sõber elab siin`: `maksma` is recorded as governing the allative, `eurot` is a partitive, and
+`minu` is a possessive genitive read as a complement. The object's two cases are left out of the
+oblique count as the nominative already was, since which case an object takes is the object rule
+and rektsioon is the oblique case a verb demands. `eval:scene --part-b` runs the labeled set
+alone: good lines withheld 3 to 2 of 495, real errors caught 165 to 146, the nineteen being
+corrupted forms also spelled like a genitive, read the safe way. The `close` move is told it is
+the goodbye, because told "they say goodbye" the fallback carried on asking on nine of the ten
+`close` beats. Four live runs on the same model, same scenes, same learner:
+
+    side-switching fixed      drafts 138  on screen 72  withheld 48%  topic 27  shape 11  government 9
+    harness gates as the app  drafts 119  on screen 75  withheld 37%  topic  8  shape  9  government 11
+    object out of government  drafts 117  on screen 75  withheld 36%  topic 10  shape 12  government 1
+    close told to close       drafts 120  on screen 71  withheld 41%  topic 12  shape 11  government 0
+
+The last two rows are inside the noise of one another, which §29 says a run of this size cannot
+resolve; what moved between them is where `topic` fires, nine `close` beats down to three. What
+is left under `topic` is the model asking the previous beat's question again, `Kas 1556 eurot
+kuus sobib teile?` on the beat that asks for a start day, which is the model and not the gate.
+
+*And then every model the two keys reach was measured for the cheapest one that still writes a
+line a person would say.* The operator asked for it for the fallback, on the Gemini and Groq keys
+alone, and OpenRouter was left out: Gemma is the one family with a lineage claim on Estonian and
+the Gemini key already serves it. Forty cold lines each through `eval:composers`, which takes
+`--groq` and `--gemini` lists now and strips a `<thought>` block the way a transport would have
+to, then the survivors played live through `play:scenes --compose` on all fourteen scenes. The
+price is per draft at the scene's token profile, off `lib/usage/pricing.ts`:
+
+    model                    $/draft   cold passed   live withheld   read
+    gemini-3.1-flash-lite    0.00044   16/40         19%             a person; reaches past the list, all of it real
+    gemini-3.5-flash-lite    0.00057   37/40         19%             a person; plain, stays inside the list
+    gemini-3.7-flash         0.00105   26/40         not played      near the primary at near its price
+    gemini-3.8-flash         0.0013    27/40         8%              the primary; reacts to the learner, richest lines
+    qwen/qwen3.8-27b         0.0014    29/40         36 to 41%       the fallback until now
+    openai/gpt-oss-20b       0.00012   25/40         57%             `Mis on probleemi?`, `Millises tuba see on`
+    gemma-4-26b-a4b-it       unpriced  25/40         not played      `Kust sa nüüd tulemast?`, `sa kõneled veel teel`
+    gemma-4-31b-it           unpriced  27/29         not played      clean, at eighteen seconds a line
+    gemini-2.5-flash-lite    0.00016   404 on the OpenAI-compatible endpoint this key uses
+
+The primary was played through the same harness afterwards, 88 drafts for 81 lines on screen,
+and its lines are the best on the page: `Tore, sa oled poes! Mida sa täna ostad?`, `Inglismaalt,
+väga tore! Aga miks te tahate eesti keelt õppida?`, where the Lite models ask the question and
+stop. Per line that reaches the screen, once the withheld share is counted, the primary is about
+$0.0014, the 3.5 Lite $0.0007 and the 3.1 Lite $0.00054, so a ten-line conversation costs a cent
+and a half on the primary and half that on a Lite. The primary stays the primary: the difference
+is under a cent a conversation, and 8 percent withheld against 19 is fewer turns falling to the
+bank, which is the mechanical half of a scene. The cold `passed` column is the harness vouching against the scene's own list, so it says how far a
+model reaches rather than whether the words are Estonian; the live column is the app's own gate
+with the forms list behind it, and it is the one to read. The two Lite models are the same there
+and the lines of both read as a person (`Mis teil viga on või kus teil valutab?`, `Kas valu on
+peas või mujal kehas?`), so price decides: `gemini-3.1-flash-lite` is the second entry of
+`SCENE_MODELS`, at a third of the primary's price and a fifth of a screen line's cost on qwen once
+the withheld share is counted in. It is a second link on the same key rather than a replacement
+for the Groq link, since a fallback on the provider that failed is not a fallback for that
+failure: qwen stays behind both for the day the Gemini key stops answering, and `gpt-oss-20b`,
+the one cheaper Groq model, was played and put pidgin on the screen. One thing the run showed the
+gate cannot see: `Palk on tuhat viissada viiskümmend kuus eurot` was withheld under `facts`,
+because a price said in words is a number the check reads only as digits.
+
+`ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
+`plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
+on the wage beat's accept list, and `npm run probe:turns` reads the turn as
+complete. Harvesting it went through the guard the other session had landed the
+same day (CLAUDE.md, "a refusal is not a miss, which the harvest was the last
+path to learn"), which is what it exists for: one row added, nothing else in
+the file touched.
 
