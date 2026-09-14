@@ -1361,7 +1361,6 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
   const regular = genitive !== null && suffix.length > 0
     && first.endsWith(suffix) && first.slice(0, -suffix.length) === genitive;
   return {
-    en: row.spec.en,
     et: row.spec.et,
     /*
       The question *this* word answers. Two of the five words on this card are

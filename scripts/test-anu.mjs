@@ -18,7 +18,9 @@ await page.waitForTimeout(18000);
 const reply = await page.locator("div").filter({ hasText: /^Anu/ }).last().innerText().catch(() => "");
 check("she answers, and the finished reply lands on the page", reply.length > 60, `${reply.length} chars`);
 check("and no markdown asterisk is left on screen", !/\*\*/.test(reply));
-check("the answer names the partitive rule", /partitiv/i.test(reply),
+// Either name: she is briefed to give the question a case answers rather than
+// the Latin name, so a good answer may say `osastav` and never "partitive".
+check("the answer names the partitive rule", /partitiv|osastav|mida\?/i.test(reply),
   reply.replace(/\n/g, " ").slice(0, 120));
 
 await browser.close();

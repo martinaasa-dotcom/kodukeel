@@ -88,7 +88,7 @@ export function buildSystemPrompt(): string {
   /*
     THE ILLATIVE IS NOT DESCRIBED AS REGULAR, BECAUSE IT IS NOT.
 
-    This handed Anu "sisseütlev: kuhu? (genitive stem + -sse)" alongside the
+    This handed Anu "sisseütlev: kuhu? (omastav stem + -sse)" alongside the
     ten that really are regular, which is the same false rule the case table
     itself used to apply: `tuba` goes to `tuppa`, not `toasse`. A tutor told
     the ending is predictable will predict it, and `lib/tutor/verify.ts` only

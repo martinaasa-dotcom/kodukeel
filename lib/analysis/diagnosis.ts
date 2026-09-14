@@ -179,7 +179,7 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
     headline: "The plural stem is where you lose it",
     detail:
       `${strong}% recall on words whose plural follows the regular pattern, ${weak}% on words that ` +
-      `carry their own genitive plural. Those have to be memorized, because the app cannot derive them ` +
+      `carry their own omastav plural. Those have to be memorized, because the app cannot derive them ` +
       `and neither can you.`,
     weakPct: weak,
     strongPct: strong,

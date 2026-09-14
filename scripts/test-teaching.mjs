@@ -114,7 +114,7 @@ check("it shows the case on real words", rowCount > 0, `${rowCount} words`);
 let labelled = 0;
 for (let i = 0; i < rowCount; i++) {
   const text = await rows.nth(i).innerText();
-  if (/Ekilex|principal part|from the genitive/i.test(text)) labelled++;
+  if (/Ekilex|principal part|memorized|from the omastav/i.test(text)) labelled++;
 }
 check("every form on it says where it came from", labelled === rowCount, `${labelled}/${rowCount}`);
 

@@ -211,10 +211,22 @@ export function markItem(
       ));
 
     case "government": {
+      /*
+        THE ANSWER IS NAMED THE WAY THE OPTION WAS LABELLED.
+
+        These two read `o.en`, so a candidate who chose the button marked
+        `osastav` was told on the result screen that the answer was "Partitive"
+        and that they had given "Elative": the one English on the line, about
+        the one thing in this language nobody can reason out, in a name the
+        paper never used. It reached the screen through the item rather than
+        through `CaseSpec`, which is why no check about a case's Latin name
+        could see it. The option's own Estonian name is what was pressed, so it
+        is what the mark says, and the whole string is Estonian now.
+      */
       const chosen = response.kind === "chosen" ? response.value : "";
-      const shown = item.options.find((o) => o.key === item.answer)?.en ?? item.answer;
-      const given = item.options.find((o) => o.key === chosen)?.en ?? "";
-      return scale({ ...markChosen(item, item.answer, chosen, shown), given, language: "en" });
+      const shown = item.options.find((o) => o.key === item.answer)?.et ?? item.answer;
+      const given = item.options.find((o) => o.key === chosen)?.et ?? "";
+      return scale({ ...markChosen(item, item.answer, chosen, shown), given, language: "et" });
     }
 
     case "gloss-choice":
@@ -352,7 +364,9 @@ function markSpeak(
 /** Which language an item's answer is written in. */
 function languageOf(item: ExamItem): "et" | "en" {
   switch (item.kind) {
-    case "government":
+    // A government answer is a case named in Estonian, since that is the label
+    // on the option the candidate pressed; it was "en" while the mark printed
+    // the Latin name, and the flag is what puts `lang` on the line.
     case "gloss-choice":
     case "message":
     case "compose":
@@ -371,7 +385,7 @@ function expectedOf(item: ExamItem): string {
     case "order":
     case "gloss-choice":
     case "form-choice": return item.answer;
-    case "government": return item.options.find((o) => o.key === item.answer)?.en ?? item.answer;
+    case "government": return item.options.find((o) => o.key === item.answer)?.et ?? item.answer;
     case "message":
     case "compose": return `${item.minWords} words`;
     case "speak": return "a recording";
