@@ -95,11 +95,22 @@ export interface ProviderConfig {
    * two calls, so a scene line the ledger priced at $0.0017 cost about $0.005,
    * and `npm run eval:thinking` put thinking on and off at 24 of 24 beats
    * each, one refusal apart, on the same lines. Sent as `reasoning_effort`,
-   * which is the one spelling both Google and Groq read; only the value the
-   * eval measured is allowed, so a link cannot be quietly put on "low" and
+   * which is the one spelling both Google and Groq read; only a value an eval
+   * has measured is allowed, so a link cannot be quietly put on a setting and
    * called a saving nobody measured.
+   *
+   * "low" IS MEASURED AND UNUSED, AND THE FIGURE IS WHY. Anu runs on a Groq
+   * reasoning model that refuses "none", and `npm run eval:anu -- --effort low`
+   * on 2026-09-14 cut her output from about 410 billed tokens an answer to
+   * about 150, four fifths of the default being reasoning nobody reads, which
+   * is $0.16 a thousand questions off a bill of $0.70. It also missed 4 of 30
+   * facts against the default's 2 of 30 over five runs, and the two it dropped
+   * were the gradation and the partitive plural, which are the two facts a
+   * grammar tutor exists for. Sixteen cents a thousand questions does not buy
+   * that. The value stays in the type so the next measurement is a flag
+   * rather than a cast, and no chain carries it.
    */
-  reasoning?: "none";
+  reasoning?: "none" | "low";
 }
 
 export interface ChatMessage {

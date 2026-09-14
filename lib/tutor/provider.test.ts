@@ -510,7 +510,9 @@ describe("the free providers", () => {
       line's bill (`ProviderConfig.reasoning`); `npm run eval:thinking` put
       thinking on and off at 24 of 24 beats each. The tutor and grader chains
       carry no such field, because a Groq reasoning model refuses "none" and
-      Anu's answers were measured with the model thinking.
+      Anu's answers were measured with the model thinking: "low" was measured
+      too and left unused, at 4 of 30 facts missed against 2 (the field's own
+      comment has the figures).
     */
     vi.stubEnv("GROQ_API_KEY", "groq-key");
     vi.stubEnv("GEMINI_API_KEY", "gem-key");

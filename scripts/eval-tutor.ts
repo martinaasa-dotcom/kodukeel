@@ -34,9 +34,9 @@
  * checked against a vendor's page is the rate this prints.
  */
 import { findTells } from "../lib/copy/voice";
-import { buildSystemPrompt } from "../lib/tutor/prompt";
+import { buildSystemPrompt, learnerNote } from "../lib/tutor/prompt";
 import { chatEstonianTokens } from "../lib/tutor/verify";
-import { openWithFallback, type ProviderConfig } from "../lib/tutor/provider";
+import { openWithFallback, TUTOR_REPLY_TOKENS, type ProviderConfig } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, priceFor } from "../lib/usage/pricing";
 
 const QUESTIONS = [
@@ -66,10 +66,31 @@ const QUESTIONS = [
   },
 ] as const;
 
-const only = (() => {
-  const at = process.argv.indexOf("--only");
+function flag(name: string): string {
+  const at = process.argv.indexOf(name);
   return at >= 0 ? process.argv[at + 1] ?? "" : "";
-})();
+}
+const only = flag("--only");
+/*
+ * `--effort low` puts every Groq link on that setting, sent as `reasoning_effort`
+ * exactly as the route sends it (`ProviderConfig.reasoning`), so a cheaper
+ * setting is measured through the app's own transport before anybody pins it.
+ * Six questions is a thin instrument, so `--runs 3` is how a difference of one
+ * fact is told from noise. The 2026-09-14 figures are on the field itself.
+ */
+const effort = flag("--effort") as ProviderConfig["reasoning"] | "";
+const runs = Math.max(1, Number(flag("--runs") || 1));
+if (effort && effort !== "none" && effort !== "low") {
+  console.error(`--effort takes a value the chain may carry, not ${JSON.stringify(effort)}.`);
+  process.exit(1);
+}
+/*
+ * The route sends the learner's block after the static prompt and caps the
+ * reply at `TUTOR_REPLY_TOKENS`; a harness that sent neither measured a
+ * different call. The level is the middle of the scale, which is what the
+ * route tells her when it could not read the learner's own log.
+ */
+const LIVE = learnerNote({ level: "B1", weakestCase: null, unit: null, scene: null });
 
 function candidates(): ProviderConfig[] {
   const out: ProviderConfig[] = [];
@@ -85,8 +106,9 @@ function candidates(): ProviderConfig[] {
     out.push({ name: "gemini", model: "gemini-2.5-flash-lite", label: "Google Gemini" });
   }
   if (process.env.GROQ_API_KEY) {
-    out.push({ name: "groq", model: "openai/gpt-oss-120b", label: "Groq" });
-    out.push({ name: "groq", model: "openai/gpt-oss-20b", label: "Groq" });
+    const reasoning = effort ? { reasoning: effort } : {};
+    out.push({ name: "groq", model: "openai/gpt-oss-120b", label: "Groq", ...reasoning });
+    out.push({ name: "groq", model: "openai/gpt-oss-20b", label: "Groq", ...reasoning });
   }
   return out.filter((one) => !only || one.model.includes(only) || one.name.includes(only));
 }
@@ -111,6 +133,8 @@ async function askOne(config: ProviderConfig, system: string, question: string) 
     system,
     [{ role: "user", content: question }],
     (usage) => { inTokens = usage.inputTokens; outTokens = usage.outputTokens; },
+    LIVE,
+    TUTOR_REPLY_TOKENS,
   );
   for await (const chunk of open.chunks) text += chunk;
   return { text, inTokens, outTokens };
@@ -123,21 +147,23 @@ async function main() {
     return;
   }
   const system = buildSystemPrompt();
-  console.log(`\n${chosen.length} models x ${QUESTIONS.length} questions, through the route's own`);
-  console.log("transport and Anu's own prompt.\n");
+  console.log(`\n${chosen.length} models x ${QUESTIONS.length} questions x ${runs} run(s), through the route's own`);
+  console.log(`transport and Anu's own prompt${effort ? `, at reasoning effort ${JSON.stringify(effort)}` : ""}.\n`);
 
   const summary: string[] = [];
   for (const config of chosen) {
     const tally: Tally = {
       asked: 0, right: 0, missed: [], unverified: [], tells: [], inTokens: 0, outTokens: 0, errors: [],
     };
+    let visibleChars = 0;
     console.log(`\n### ${config.model}   (${config.name})`);
-    for (const item of QUESTIONS) {
+    for (const item of Array.from({ length: runs }, () => QUESTIONS).flat()) {
       try {
         const answer = await askOne(config, system, item.q);
         tally.asked += 1;
         tally.inTokens += answer.inTokens;
         tally.outTokens += answer.outTokens;
+        visibleChars += answer.text.length;
         const ok = item.must.every((pattern) => pattern.test(answer.text));
         if (ok) tally.right += 1;
         else tally.missed.push(item.why);
@@ -157,10 +183,11 @@ async function main() {
       + tally.outTokens / per * price.outputPerMTok) / 1_000_000;
     const line = [
       `${config.model} (${config.name})`.padEnd(38),
-      `facts ${tally.right}/${QUESTIONS.length}`,
+      `facts ${tally.right}/${QUESTIONS.length * runs}`,
       `unverified ${String(tally.unverified.length).padStart(2)}`,
       `tells ${String(tally.tells.length).padStart(2)}`,
-      `out/answer ${String(Math.round(tally.outTokens / per)).padStart(4)}`,
+      // Billed output against what reached the screen: the gap is reasoning nobody reads.
+      `out/answer ${String(Math.round(tally.outTokens / per)).padStart(4)} (~${Math.round(visibleChars / per / 4)} visible)`,
       `$${(usd * 1_000).toFixed(2)}/1k answers${guessed ? " (no rate on file)" : ""}`,
     ].join("  ");
     console.log(`  ${line}`);

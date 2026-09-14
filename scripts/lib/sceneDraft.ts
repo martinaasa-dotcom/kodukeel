@@ -39,7 +39,7 @@ import type { CaseKey } from "../../lib/estonian/types";
   at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
   disqualifies a model the app can use is worse than no measurement.
 */
-import { SCENE_REPLY_TOKENS, sceneProviders, type ProviderName } from "../../lib/tutor/provider";
+import { SCENE_REPLY_TOKENS, sceneProviders, type ProviderConfig, type ProviderName } from "../../lib/tutor/provider";
 import { composeLive, composeSystem } from "../../lib/scenes/prompt";
 import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
@@ -299,7 +299,7 @@ export interface Link {
   name: ProviderName;
   label: string; model: string; url: string; key: string;
   /** The route's own thinking setting for this link (`ProviderConfig.reasoning`), sent as `reasoning_effort`. */
-  reasoning?: "none";
+  reasoning?: ProviderConfig["reasoning"];
 }
 
 /**

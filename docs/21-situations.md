@@ -3174,6 +3174,24 @@ Estonian called horrible on sight. A harness is not the app. Every figure below 
 | tutor | `claude-sonnet-5` | **`openai/gpt-oss-120b`** | 6/6 three runs, $12.44 to $0.72 per thousand |
 | grader | `openai/gpt-oss-120b` | unchanged | 24/24 twice; nothing beat it at the price |
 
+**And the tutor's reasoning effort was measured and left where it is.** `openai/gpt-oss-120b`
+thinks before it writes and Groq bills the thinking as output, so `npm run eval:anu -- --effort low
+--runs 3` was run on 2026-09-14 through the route's own call, live block and reply cap included.
+About four fifths of Anu's billed output is reasoning: 410 tokens an answer at the default against
+150 at low, with the visible answer about 470 tokens either way. That is $0.16 a thousand questions
+off a bill of $0.70. It also missed 4 of 30 facts against the default's 2 of 30 over five runs of the
+six questions, and the two it dropped were the consonant gradation and the partitive plural of
+`raamat`, which are the two facts on the list a grammar tutor exists to get right. Sixteen cents a
+thousand questions does not buy those, so the chain carries no effort setting; the value stays on
+`ProviderConfig.reasoning` so the next measurement is a flag rather than a cast. The grader's Gemini
+Lite link was checked the same afternoon and does not think on a JSON call: a judge verdict bills 26
+to 31 output tokens for a line of about 120 characters, so there was nothing to switch off there.
+
+| effort | facts | billed output an answer | visible | per thousand |
+|---|---|---|---|---|
+| default | 28/30 | ~410 | ~470 | $0.70 |
+| low | 26/30 | ~150 | ~470 | $0.54 |
+
 **Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
 Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the
 grader's own model takes 24. `gemini-3.1-flash-lite` reads a photographed page perfectly at a third

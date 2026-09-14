@@ -6741,6 +6741,15 @@ is certainly live. A learner who never speaks to her again keeps the day's rows 
 tidier. An invariant holds the read, the delete and the two documents together, because a notice
 describing a deletion nobody makes is the shape of compliance that fails an audit.
 
+**And her reasoning effort was measured and left where it is.** Four fifths of what Groq bills for
+an answer of hers is reasoning nobody reads, 410 tokens an answer against a visible 470-token reply
+that costs 150 at `low`, and `npm run eval:anu -- --effort low --runs 3` put it at 26 of 30 facts
+against the default's 28 over five runs, dropping the gradation and the partitive plural. Sixteen
+cents a thousand questions does not buy those two, so no chain carries the setting; `low` is in the
+type because it was measured, and the figures sit on `ProviderConfig.reasoning`. The grader's Gemini
+Lite link does not think on a JSON call, 26 to 31 output tokens a verdict, so nothing was switched
+off there.
+
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather
 than keeping a list of its own. It streams, holding text back only where a

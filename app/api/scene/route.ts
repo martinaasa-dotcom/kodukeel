@@ -834,7 +834,17 @@ export async function POST(request: Request) {
   */
   // A declaration rather than a const, so the judge above can read it before
   // this line: it closes over nothing but the module's own imports.
+  /*
+    Asked up to three times a turn about the same sentence, by the judge, the
+    judge one beat ahead and the composer, and it is a dictionary read each
+    time, so the answer is kept for the request rather than fetched again.
+  */
+  let readOnce: { text: string; reading: Promise<string> } | null = null;
   async function readingOf(text: string): Promise<string> {
+    if (readOnce?.text !== text) readOnce = { text, reading: readingOnce(text) };
+    return readOnce.reading;
+  }
+  async function readingOnce(text: string): Promise<string> {
     const [tokens] = await glossSentences([{ et: text, form: null }]);
     const seen = (tokens ?? [])
       .filter((token) => token.word && token.entry)
