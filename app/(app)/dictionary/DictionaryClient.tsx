@@ -15,6 +15,9 @@ import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { exceptionsFor } from "@/lib/estonian/exceptions";
 import { WordExceptions } from "@/components/WordExceptions";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
+import { caseByKey } from "@/lib/estonian/cases";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
@@ -513,6 +516,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
   glossLanguage: GlossLanguage;
 }) {
   const equivalent = equivalentIn(entry, glossLanguage);
+  // The case the entry says this word pairs with, so the block below can say
+  // what that case asks. Null where nothing is stored or nothing parses,
+  // which prints the string on its own exactly as before.
+  const governs = (() => {
+    const parsed = parseGovernment(entry.government);
+    return parsed ? caseByKey(parsed.caseKey) : undefined;
+  })();
   /*
     A PRONOUN DECLINES LIKE A NOUN AND WAS GETTING NO TABLE AT ALL.
 
@@ -674,9 +684,26 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>
             Government · rektsioon
           </h3>
+          {/*
+            EKILEX'S OWN QUESTION WORDS, WITH THE BRACKET SAYING WHAT THEY ASK.
+
+            The stored string annotates each question word with the case that
+            question signals, `kellelt (ablative)`, and the bracket was the only
+            English on the one fact in this language nobody can reason their way
+            to. `readableGovernment` rewrites it to what the word in front of it
+            is asking; the column itself is untouched, because `parseGovernment`
+            reads it and it is Ekilex's.
+          */}
           <p className="rounded-[var(--r)] px-4 py-3.5 text-base" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
-            {entry.government}
+            {readableGovernment(entry.government)}
           </p>
+          {/* Which of several is the primary, named the way a class names it.
+              The list above says what each asks and not which one leads. */}
+          {governs && (
+            <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+              It pairs above all with the <span lang="et">{governs.et}</span>.
+            </p>
+          )}
         </div>
       )}
 
@@ -787,7 +814,6 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                       <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
                         {spec.et}
                       </Link>
-                      <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>{spec.en.toLowerCase()}</span>
                     </td>
                     {/* Both illatives, where the word has both. `tuppa` and
                         `toasse` are one answer to one question and a course
@@ -803,7 +829,12 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: "var(--ink-2)" }}>
                       {plural ?? <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>}
                     </td>
-                    <td lang="et" className="px-3 py-2 text-xs" style={{ color: "var(--ink-3)" }}>{caseQuestionFor(spec, subjectOf(entry))}</td>
+                    {/* The Latin name came off the Case column and what the
+                        case asks went into this one, in both languages: see
+                        `components/CaseQuestion.tsx`. */}
+                    <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
+                      <CaseQuestion question={caseQuestionFor(spec, subjectOf(entry))} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { questionInEnglish } from "@/lib/estonian/cases";
 import { Crosshair, Timer, Trophy } from "lucide-react";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { gradeCard } from "@/app/actions";
@@ -232,7 +233,12 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
           <span lang="et" className="font-semibold">{question.options[question.answer]}</span>
           {" is the "}
           <span lang="et" className="font-semibold">{question.caseEt}</span>
-          {question.question && <>, which answers <span lang="et">{question.question}</span></>}
+          {question.question && (
+            <>
+              , which answers <span lang="et">{question.question}</span>
+              {questionInEnglish(question.question) && <> ({questionInEnglish(question.question)})</>}
+            </>
+          )}
         </p>
       )}
     </div>

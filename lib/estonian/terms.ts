@@ -152,7 +152,17 @@ export function grammarTerm(id: string): GrammarTerm | undefined {
   if (topic) return topic;
 
   const spec = CASES.find((c) => c.key.toLowerCase() === id.toLowerCase());
-  if (spec) return { et: spec.et, question: spec.question, alsoCalled: `the ${spec.en.toLowerCase()}` };
+  /*
+    A CASE CARRIES NO `alsoCalled`, AND A VERB TOPIC STILL DOES.
+
+    "The inessive" is a translation of a translation: an English speaker who
+    has not met `seesütlev` has not met that either, and what they can act on
+    is the question, which every case already carries. A verb topic is not the
+    same case: "the conditional" and "the past participle" are categories an
+    English speaker has a concept for, so those stay as the cross-reference
+    this table was written to be.
+  */
+  if (spec) return { et: spec.et, question: spec.question };
 
   return undefined;
 }

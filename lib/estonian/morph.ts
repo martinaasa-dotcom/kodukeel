@@ -130,18 +130,32 @@ export function verbSlot(code: string | null | undefined): VerbSlot | null {
  */
 export interface FormName {
   readonly et: string;
+  /**
+   * The English half, which for a case is what its question asks.
+   *
+   * It was the Latin name, so a learner who searched `toas` was told it is
+   * "seesütlev (inessive)": the Estonian name their teacher uses, and then one
+   * English word that is a translation of a translation. `asksEn` is what
+   * the case is actually asking, off the one table in `lib/estonian/cases.ts`,
+   * so the note on a search result and the Answers column on the entry under
+   * it say the same thing. A verb slot keeps its own English name, which is
+   * already plain: "present ma", "simple past ma".
+   */
   readonly en: string;
 }
 
+/** What a case asks, for the two tables below, so neither retypes it. */
+const asks = (key: string): string => caseByKey(key)?.asksEn ?? key.toLowerCase();
+
 /** The slots the seed stores by `formType`, which carry no morph code. */
 const STORED_NAMES: Record<string, FormName> = {
-  NOM_SG: { et: "nimetav", en: "nominative" },
-  GEN_SG: { et: "omastav", en: "genitive" },
-  PART_SG: { et: "osastav", en: "partitive" },
-  ILL_SG_SHORT: { et: "lühike sisseütlev", en: "short illative" },
-  NOM_PL: { et: "mitmuse nimetav", en: "nominative plural" },
-  PART_PL: { et: "mitmuse osastav", en: "partitive plural" },
-  GEN_PL: { et: "mitmuse omastav", en: "genitive plural" },
+  NOM_SG: { et: "nimetav", en: asks("NOMINATIVE") },
+  GEN_SG: { et: "omastav", en: asks("GENITIVE") },
+  PART_SG: { et: "osastav", en: asks("PARTITIVE") },
+  ILL_SG_SHORT: { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one` },
+  NOM_PL: { et: "mitmuse nimetav", en: `${asks("NOMINATIVE")}, plural` },
+  PART_PL: { et: "mitmuse osastav", en: `${asks("PARTITIVE")}, plural` },
+  GEN_PL: { et: "mitmuse omastav", en: `${asks("GENITIVE")}, plural` },
   INF_MA: { et: "ma-tegevusnimi", en: "ma-infinitive" },
   INF_DA: { et: "da-tegevusnimi", en: "da-infinitive" },
   // Worded exactly as the derived verb-slot names below, so that one word
@@ -163,7 +177,7 @@ const NON_FINITE_NAMES: Record<string, FormName> = {
 
 /** Name for a noun or adjective form code, or null when it is not one. */
 function caseName(code: string): FormName | null {
-  if (code === "SgAdt") return { et: "lühike sisseütlev", en: "short illative" };
+  if (code === "SgAdt") return { et: "lühike sisseütlev", en: `${asks("ILLATIVE")}, the short one` };
   const key = caseFromMorphCode(code);
   if (!key) return null;
   const spec = caseByKey(key);
@@ -171,7 +185,7 @@ function caseName(code: string): FormName | null {
   const plural = numberFromMorphCode(code) === "PLURAL";
   return {
     et: plural ? `mitmuse ${spec.et}` : spec.et,
-    en: plural ? `${spec.en.toLowerCase()} plural` : spec.en.toLowerCase(),
+    en: plural ? `${spec.asksEn}, plural` : spec.asksEn,
   };
 }
 

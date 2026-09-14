@@ -12,7 +12,7 @@ import {
   buildCaseTable, followsEndingRule, shownForms, stemsFrom, type DerivedForm,
 } from "@/lib/estonian/derive";
 import type { CaseSubject } from "@/lib/estonian/caseQuestion";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
@@ -1260,14 +1260,20 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
       // Labeled the way a course labels them. The three noun parts are the
       // three questions every Estonian schoolbook drills them by, and a visitor
       // who has been to one lesson recognizes them.
+      // And what each of those questions is asking, because two Estonian words
+      // over a form is not an explanation to somebody who has not started yet.
+      const askedIn = (key: string) => {
+        const question = caseQuestionFor(caseByKey(key)!, subject);
+        return questionInEnglish(question);
+      };
       const principal = (isVerb
         ? [["ma-tegevusnimi", form("INF_MA")], ["da-tegevusnimi", form("INF_DA")], ["olevik · ma", form("PRES_1SG")], ["lihtminevik · ma", form("PAST_1SG")]]
         : [
-            [`nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG")],
-            [`omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG")],
-            [`osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG")],
+            [`nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
+            [`omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],
+            [`osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG"), askedIn("PARTITIVE")],
           ]
-      ).flatMap(([label, value]) => (label && value ? [{ label, value }] : []));
+      ).flatMap(([label, value, english]) => (label && value ? [{ label, value, english: english ?? null }] : []));
 
       const table = isVerb
         ? []
@@ -1317,9 +1323,9 @@ const FALLBACK_WORDS: DemoWord[] = DEMO_STEMS.map((w) => {
     lemma: w.lemma,
     genitive: w.genSg,
     principal: [
-      { label: `nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg },
-      { label: `omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg },
-      { label: `osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg },
+      { label: `nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg, english: questionInEnglish(caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))) },
+      { label: `omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg, english: questionInEnglish(caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))) },
+      { label: `osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg, english: questionInEnglish(caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))) },
     ],
     cases: table.map((row) => demoCase(row, demoSubject(w), w.genSg)),
   };

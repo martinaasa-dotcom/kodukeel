@@ -6582,31 +6582,109 @@ check("no screen writes a hue's ink on that hue's own fill", () => {
 });
 
 /**
- * The same rule where it is actually broken: a screen.
+ * WHO MAY READ A CASE'S LATIN NAME AT ALL IS A CLOSED LIST.
  *
- * Every place that puts a case in front of a learner holds both names already,
- * so showing one is a choice rather than a shortage. This is the shape of the
- * ledger check above, and for the same reason: prose in CLAUDE.md kept four
- * screens honest and did not catch the fifth, which was the level check
- * offering "Inessive, Elative, Allative" to somebody who had been learning for
- * a week.
+ * The two checks below say a screen printing the Latin name prints the
+ * Estonian one too, and that a screen printing the question says what it
+ * asks. Both were satisfied by three files that were still handing a learner
+ * "the inessive" as the only English in a sentence: the dictionary's search
+ * ranker naming the form somebody had just typed, the flash round's line under
+ * the plain ask, and the diagnosis panel. Each named the case in Estonian
+ * first, so neither check had anything to say, and each was a second copy of
+ * the naming that `lib/estonian/cases.ts` exists to be the one of.
+ *
+ * So `CaseSpec.en` has a reader list with a reason apiece, in the shape
+ * `lib/legal/exportCoverage.ts` takes for its exemptions: a fourth reader
+ * fails until somebody decides which side of the line it is on, rather than
+ * quietly printing a Latin name on a screen nobody swept. What a label should
+ * read instead is `asksEn`, and what a card should read is
+ * `caseQuestionEnglishFor`, which knows the word.
+ *
+ * AND IT REPLACED THE CHECK THAT USED TO SIT HERE, WHICH ASKED THAT A SCREEN
+ * NAMING A CASE IN LATIN NAME IT IN ESTONIAN TOO. That was the right rule
+ * while the Latin name was allowed on a screen at all. It is not allowed on
+ * one now, so that check could only ever have fired on a file this one
+ * refuses outright, and a check that cannot fail on anything this one passes
+ * is a check nobody is reading. The list below is the stronger claim and the
+ * one to add to: a reader is named with its reason, or it does not ship.
  */
-check("a screen that names a case in Latin names it in Estonian too", () => {
-  // Anchored on a member access rather than on the word, because a file
-  // declaring `caseEt: string` in an interface and then never rendering it
-  // satisfied the first version of this check. That is the same fault the
-  // comment on `code()` above describes: naming a thing is not using it.
-  const LATIN = /\.caseEn\b|\bspec\.en\b/;
-  const ESTONIAN = /\.caseEt\b|\.caseQuestion\b|\bspec\.et\b|\bspec\.question\b|caseOptionLabel/;
-  for (const file of [...APP, ...COMPONENTS]) {
-    const source = code(file);
-    if (!LATIN.test(source)) continue;
-    assert.match(
-      source,
-      ESTONIAN,
-      `${file} shows a learner the Latin case name with no Estonian name or question beside it`,
+check("a case's Latin name has a closed list of readers", () => {
+  const ALLOWED: Record<string, string> = {
+    "lib/estonian/government.ts":
+      "parses the stored government string, which annotates each question word with a case name",
+    "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
+    "lib/estonian/writing.ts": "carries caseEn on the task; the screen prints the reading",
+    "lib/progress/exam.ts": "carries caseEn to the exam paper, which prints the reading",
+    "lib/exam/paper.ts": "passes that caseEn through onto the item",
+    "lib/exam/readiness.ts": "carries caseEn on the signal; the title prints the reading",
+    "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
+    "app/(chromeless)/welcome/page.tsx": "carries it on the demo row; the card prints neither name",
+    "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
+  };
+  // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
+  // which is the anchor the check below this one already argues for.
+  const READS = /\b(?:spec|c|named|row\.spec|caseByKey\([^)]*\))\??\.en\b|\bcaseEn\b/;
+  const found: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.test\.ts|\.itest\.ts/.test(file)) continue;
+    if (!READS.test(code(file))) continue;
+    found.push(file);
+    assert.ok(
+      file in ALLOWED,
+      `${file} reads a case's Latin name and is not on the list in this check. `
+        + "A label wants `asksEn` and a card wants `caseQuestionEnglishFor`; if it really "
+        + "needs the Latin name, add it here with the reason.",
     );
   }
+  // And an entry nobody reaches is an exemption that has outlived its reason.
+  for (const file of Object.keys(ALLOWED)) {
+    assert.ok(found.includes(file), `${file} is listed here and no longer reads a case's Latin name`);
+  }
+});
+
+/**
+ * AND A CASE QUESTION SAYS WHAT IT IS ASKING.
+ *
+ * The rule above keeps the Estonian name beside the Latin one. This is the
+ * half neither of them covered: `milles?` is the name this language actually
+ * uses for a case, it is on every screen that names one, and for the whole
+ * life of the app the only English anywhere near it was the Latin name. A
+ * learner reading the dictionary's own case table reported exactly that, and
+ * they were right: fourteen rows, and every English word on them was a term
+ * out of a grammar somebody else's language wrote.
+ *
+ * So `lib/estonian/cases.ts` carries what each question word asks and a screen
+ * printing one prints that too, through `CaseQuestion`, `questionInEnglish`,
+ * `questionEn`, or `plainAsk`, which answers the same need one layer up by
+ * saying what the form is for rather than what the question says.
+ *
+ * Anchored on the *render* rather than on the reach, because a route that
+ * resolves a question and hands it to a client component has shown nobody
+ * anything: what is checked is a question interpolated into a `lang="et"`
+ * element, which is the shape every one of these takes.
+ */
+check("a screen that prints a case question says what it is asking", () => {
+  // `{spec.question}`, `{item.caseQuestion}`, `{question}`. Deliberately the
+  // whole word before the brace, so `{question.letter}` in the minimal-pairs
+  // round, which is a letter rather than a case, is not swept in.
+  const PRINTS = /lang="et"[^>]*>\s*\{[^{}]*\b(caseQuestion|question)\}/;
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  let found = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    // The one drawing of a case question is not a screen printing one.
+    if (file.endsWith("components/CaseQuestion.tsx")) continue;
+    const source = code(file);
+    if (!PRINTS.test(source)) continue;
+    found++;
+    assert.match(
+      source,
+      READS,
+      `${file} prints a case question in Estonian and never says what it asks`,
+    );
+  }
+  // A floor, because a regex that stops matching is a check that passes
+  // having asked nothing: five screens print one today.
+  assert.ok(found >= 4, `expected the screens that print a case question, found ${found}`);
 });
 
 /**

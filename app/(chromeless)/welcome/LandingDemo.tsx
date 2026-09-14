@@ -52,7 +52,14 @@ export interface DemoWord {
   lemma: string;
   genitive: string | null;
   /** Principal parts: the forms that genuinely have to be memorized. */
-  principal: { label: string; value: string }[];
+  /**
+   * `english` is what the label's question is asking, where it has one. A
+   * visitor reading `nimetav · kes?` on a landing page has been shown two
+   * words of Estonian and told nothing, and this card is the app's whole
+   * argument about the case system. Null on the verb's parts, which are named
+   * rather than asked. See `lib/estonian/cases.ts`.
+   */
+  principal: { label: string; value: string; english?: string | null }[];
   cases: DemoCase[];
 }
 
@@ -231,7 +238,10 @@ export function CaseExplorer({ words }: { words: DemoWord[] }) {
                 className={`flex min-w-0 flex-1 items-center justify-between gap-3 rounded-[var(--r)] px-4 py-2.5 ${p.value === word.genitive ? "stem-row" : ""}`}
                 style={{ background: "var(--raised)" }}
               >
-                <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>{p.label}</span>
+                <span className="min-w-0 text-xs" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et" className="block">{p.label}</span>
+                  {p.english && <span className="block">{p.english}</span>}
+                </span>
                 <span
                   key={`${word.lemma}-${p.label}`}
                   lang="et"

@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { questionInEnglish } from "@/lib/estonian/cases";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, PenLine, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
@@ -21,7 +23,6 @@ export interface WritingPrompt {
   lemma: string;
   translation: string;
   caseKey: string;
-  caseEn: string;
   caseEt: string;
   caseQuestion: string;
   provenance: "ekilex" | "derived";
@@ -220,7 +221,13 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                   marked back as English inside it. */}
               <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
                 {prompt.caseEt} · {prompt.caseQuestion}
-                <span lang="en"> · the {prompt.caseEn.toLowerCase()}</span>
+                {/* What the question is asking rather than the Latin name,
+                    which was the only English on this line and the one word
+                    here nobody can cash in. The Latin name is on the grammar
+                    page for the ending, labelled. */}
+                {questionInEnglish(prompt.caseQuestion) && (
+                  <span lang="en"> · {questionInEnglish(prompt.caseQuestion)}</span>
+                )}
               </p>
             </>
           ) : (
@@ -229,7 +236,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                 {prompt.caseEt}
               </p>
               <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
-                <span lang="et">{prompt.caseQuestion}</span> · the {prompt.caseEn.toLowerCase()}
+                <CaseQuestion question={prompt.caseQuestion} inline />
               </p>
             </>
           )}
