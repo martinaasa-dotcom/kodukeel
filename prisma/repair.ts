@@ -37,6 +37,7 @@
  * readily as a seeded one.
  */
 import { Prisma, type PrismaClient } from "@prisma/client";
+import { plainPhrase } from "../lib/copy/values";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
@@ -284,4 +285,53 @@ export async function repairThinExamples(prisma: PrismaClient): Promise<number> 
     `;
   }
   return widened;
+}
+
+/**
+ * DROPPING A PHRASE'S OWN CAPITAL LETTER AND EXCLAMATION MARK FROM A CARD
+ * BUILT BEFORE `plainPhrase` EXISTED.
+ *
+ * `lib/srs/cards.ts` builds a RECOGNITION or PRODUCTION card out of
+ * `plainPhrase(lex.lemma)` and `plainPhrase(lex.translation)` now, so `Tere
+ * hommikust!` reads `tere hommikust` on the front of a fresh card and
+ * `Goodbye!` reads `goodbye` on the back. That reaches every card built since
+ * and not one built before: a `Card` row carries its own front and back, and
+ * nothing in the app rewrites one on its own.
+ *
+ * WHAT IT MAY TOUCH. `front` and `back`, on a RECOGNITION or PRODUCTION card
+ * whose entry is a `PHRASE`, and only by running `plainPhrase` over each `/`
+ * separated answer in turn, which is what keeps this safe to run after
+ * `repairProductionBacks`: a back already widened to "answer / other answer"
+ * keeps every answer it was widened to, cleaned rather than collapsed. Never
+ * a scheduling column. The guard compares both the front and the back it read
+ * against what it is about to write, so a card touched between the read and
+ * the write is left exactly as it is.
+ */
+export async function repairPhrasePunctuation(prisma: PrismaClient): Promise<number> {
+  const cards = await prisma.card.findMany({
+    where: { cardType: { in: ["RECOGNITION", "PRODUCTION"] }, lexeme: { pos: "PHRASE" } },
+    select: { id: true, front: true, back: true },
+  });
+
+  const clean = (s: string) => s.split(" / ").map(plainPhrase).join(" / ");
+  const rows = cards
+    .map((c) => ({ id: c.id, oldFront: c.front, oldBack: c.back, front: clean(c.front), back: clean(c.back) }))
+    .filter((r) => r.front !== r.oldFront || r.back !== r.oldBack);
+  if (rows.length === 0) return 0;
+
+  let cleaned = 0;
+  for (const batch of chunk(rows, CHUNK)) {
+    const values = batch.map(
+      (r) => Prisma.sql`(${r.id}, ${r.oldFront}, ${r.oldBack}, ${r.front}, ${r.back})`,
+    );
+    cleaned += await prisma.$executeRaw`
+      UPDATE "Card" AS c
+      SET front = v.new_front, back = v.new_back
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, old_front, old_back, new_front, new_back)
+      WHERE c.id = v.id
+        AND c.front = v.old_front
+        AND c.back = v.old_back
+    `;
+  }
+  return cleaned;
 }

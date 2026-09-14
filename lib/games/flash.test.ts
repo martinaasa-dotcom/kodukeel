@@ -124,16 +124,16 @@ describe("askableSlots", () => {
     expect(slotKeys(TERE)).toEqual(["PRODUCTION"]);
   });
 
-  it("drops a phrase's own exclamation mark, on the slot and on the task", () => {
+  it("drops a phrase's own exclamation mark and capital, on the slot and on the task", () => {
     const slot = askableSlots(TERE)[0]!;
-    expect(slot.value).toBe("Tere hommikust");
-    expect(slot.accepted).toEqual(["Tere hommikust"]);
+    expect(slot.value).toBe("tere hommikust");
+    expect(slot.accepted).toEqual(["tere hommikust"]);
 
     const task = flashTask({ word: TERE, slot, cardId: "c", step: 0 })!;
-    expect(task.lemma).toBe("Tere hommikust");
+    expect(task.lemma).toBe("tere hommikust");
     // Typing it was never required — `checkAnswer` already ignores
-    // punctuation — so dropping the mark changes nothing about grading.
-    expect(task.accepted).toEqual(["Tere hommikust"]);
+    // punctuation and case — so dropping the mark changes nothing about grading.
+    expect(task.accepted).toEqual(["tere hommikust"]);
   });
 
   it("never asks a form the English gloss beside it already prints", () => {

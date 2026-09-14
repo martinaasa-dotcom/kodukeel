@@ -8,7 +8,9 @@ import { HARVESTED } from "./data/harvested";
 import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
 import { applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
-import { repairCaseFronts, repairProductionBacks, repairThinExamples } from "./repair";
+import {
+  repairCaseFronts, repairPhrasePunctuation, repairProductionBacks, repairThinExamples,
+} from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
 import { courseWords } from "../lib/collections/syllabus/index";
@@ -97,6 +99,18 @@ async function main() {
   const sentenced = await repairThinExamples(prisma);
   if (sentenced > 0) {
     console.log(`Gave ${sentenced} words a first sentence the shipped dictionary has since gained.`);
+  }
+
+  /*
+    And the phrase cards built before `plainPhrase` existed, still carrying
+    `Tere hommikust!` and `Goodbye!` on a card whose whole point is the word
+    rather than its punctuation. Here for the same reason as the three
+    repairs above it: the fault only exists on a database that was already
+    seeded, which is exactly what `--only-if-empty` skips.
+  */
+  const depunctuated = await repairPhrasePunctuation(prisma);
+  if (depunctuated > 0) {
+    console.log(`Cleaned the punctuation on ${depunctuated} phrase cards.`);
   }
 
   if (process.argv.includes("--only-if-empty")) {

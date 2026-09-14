@@ -1,3 +1,4 @@
+import { plainPhrase } from "@/lib/copy/values";
 import { equivalentIn, glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { notFound } from "next/navigation";
@@ -99,8 +100,8 @@ export default async function LessonPage({
 
   const toWord = (row: (typeof rows)[number]): LessonWord => ({
     lexemeId: row.id,
-    lemma: row.lemma,
-    gloss: row.translation,
+    lemma: plainPhrase(row.lemma),
+    gloss: plainPhrase(row.translation),
     equivalent: equivalentIn(row, glossLanguage)
       ? { text: equivalentIn(row, glossLanguage)!, lang: glossLanguage }
       : null,

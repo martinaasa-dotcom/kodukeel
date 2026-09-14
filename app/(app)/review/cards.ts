@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, teachingSentence } from "@/lib/dict/examples";
 import { BLANK } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
@@ -92,8 +93,8 @@ function introFor(c: CardRow, glossLanguage: GlossLanguage): ReviewCard["intro"]
   const equivalent = equivalentIn(c.lexeme, glossLanguage);
 
   return {
-    lemma: c.lexeme.lemma,
-    gloss: c.lexeme.translation,
+    lemma: plainPhrase(c.lexeme.lemma),
+    gloss: plainPhrase(c.lexeme.translation),
     lexemeId: c.lexemeId,
     equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
     sentence: found

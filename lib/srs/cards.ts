@@ -1,3 +1,4 @@
+import { plainPhrase } from "@/lib/copy/values";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, localCasesFor } from "@/lib/estonian/caseQuestion";
 import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
@@ -322,7 +323,10 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
   for (const type of types) {
     switch (type) {
       case "RECOGNITION":
-        out.push({ cardType: type, front: lex.lemma, back: lex.translation, hint: null, targetCase: null, slot: null });
+        out.push({
+          cardType: type, front: plainPhrase(lex.lemma), back: plainPhrase(lex.translation),
+          hint: null, targetCase: null, slot: null,
+        });
         break;
 
       case "PRODUCTION": {
@@ -344,8 +348,8 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         const answers = [lex.lemma, ...(lex.alsoAccepted ?? []).filter((w) => w !== lex.lemma)];
         out.push({
           cardType: type,
-          front: lex.translation,
-          back: answers.join(" / "),
+          front: plainPhrase(lex.translation),
+          back: answers.map(plainPhrase).join(" / "),
           hint: lex.pos.toLowerCase(),
           targetCase: null,
           slot: null,

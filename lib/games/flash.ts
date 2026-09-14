@@ -1,4 +1,4 @@
-import { sameSpelling } from "@/lib/copy/values";
+import { plainPhrase, sameSpelling } from "@/lib/copy/values";
 import { sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
@@ -83,30 +83,6 @@ import type { CaseKey } from "@/lib/estonian/types";
  */
 
 export type FlashShape = "recall" | "inflect" | "gap" | "heard" | "build";
-
-/**
- * A phrase's own punctuation, dropped for this round and nowhere else.
- *
- * `Tere hommikust!` is filed with its exclamation mark because that is how a
- * greeting is written down, and the dictionary, the review card and every
- * other screen keep printing it exactly as stored: this app edits neither
- * the lemma nor the Estonian it holds. The mark carries no answer of its own
- * here either, since `checkAnswer` already strips punctuation before
- * comparing, so typing it was never required. What it did was print on the
- * card, on the reveal, on the star label and in the round's mastery meter,
- * which reads as the app shouting the word rather than teaching it.
- *
- * Applied inside `askableSlots` and `flashTask`, the two places a word's
- * lemma becomes something a screen shows, rather than at each caller: this
- * module has two of those (the flash round and `audit:questions`, which
- * builds the same tasks to check what a screen shows), and a strip left to
- * the caller is a strip the second one would forget. Trailing only, and only
- * `!`, so a sentence a learner writes and a question mark a phrase genuinely
- * ends on (`Kuidas läheb?`) are untouched.
- */
-export function dropTrailingBang(text: string): string {
-  return text.replace(/!+\s*$/, "").trimEnd();
-}
 
 /** A dictionary entry, in the shape a round needs it. */
 export interface FlashWord {
@@ -227,7 +203,7 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     asked, in its cases, where there is something to produce.
   */
   if (!sameSpelling(word.lemma, word.translation) && !shownInGloss([word.lemma])) {
-    const value = dropTrailingBang(word.lemma);
+    const value = plainPhrase(word.lemma);
     out.push({
       slot: "PRODUCTION",
       value,
@@ -463,8 +439,8 @@ export function flashTask(input: {
     id: `${word.lexemeId}:${slot.slot}`,
     cardId,
     lexemeId: word.lexemeId,
-    lemma: dropTrailingBang(word.lemma),
-    translation: word.translation,
+    lemma: plainPhrase(word.lemma),
+    translation: plainPhrase(word.translation),
     pos: word.pos,
     shape,
     /*
