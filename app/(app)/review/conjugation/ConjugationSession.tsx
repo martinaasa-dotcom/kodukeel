@@ -308,11 +308,11 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             </Button>
           ) : (
             <>
-              <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                {derivedOnly
-                  ? "Regular endings on the first person, checked against every verb in this dictionary."
-                  : "Real recorded forms."}
-              </p>
+              {derivedOnly && (
+                <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+                  Regular endings on the first person.
+                </p>
+              )}
               <KeepWordChoice keeper={keeper} className="mt-4" />
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button variant="primary" onClick={next} autoFocus>

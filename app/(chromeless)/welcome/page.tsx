@@ -892,7 +892,7 @@ const FAQS = [
   ],
   [
     "Where do the Estonian forms come from?",
-    "Every form and example sentence comes from a real dictionary and language database, not from AI. An AI is never allowed to write an Estonian form: it invents plausible ones that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
+    "From a dictionary, never from AI: it invents plausible forms that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
   ],
   [
     "Is this only for beginners?",

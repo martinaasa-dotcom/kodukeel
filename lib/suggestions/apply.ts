@@ -89,7 +89,7 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
           ok: false,
           error:
             `${patch.formType} is not one of the principal parts. Only those are ours to change; ` +
-            `the rest are real recorded forms and are left as they are.`,
+            `the rest are left as they are.`,
         };
       }
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });

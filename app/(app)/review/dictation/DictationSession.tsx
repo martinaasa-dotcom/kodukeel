@@ -164,7 +164,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       <Page title="Dictation" lead="Hear a sentence, write it down.">
         <Empty
           title="No sentences short enough yet"
-          body="Dictation only uses short, real sentences for words already in your deck."
+          body="Dictation only uses short sentences for words already in your deck."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>
@@ -375,7 +375,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       </div>
 
       <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} word-perfect of {done} · graded word by word, real sentences
+        {correct} word-perfect of {done} · graded word by word
       </p>
     </div>
   );
