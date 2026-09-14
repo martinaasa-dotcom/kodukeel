@@ -12,6 +12,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions } from "@/lib/estonian/cloze";
+import { gapForms } from "@/lib/estonian/gapForms";
 import {
   LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
 } from "@/lib/learn/ladder";
@@ -193,8 +194,16 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
   const examples = usableExamples(parseExamples(lexeme.examples));
   const taught = teachingSentence(examples, [lexeme.lemma]);
 
-  if (taught?.form) {
-    const cloze = buildCloze(taught.example.et, [taught.form]);
+  /*
+    Which forms may ever be hidden is `gapForms`'s decision and nobody else's;
+    this only narrows *which one of them* the gap is allowed to be built out
+    of, to the one the meet rung already showed.
+  */
+  const hideable = gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms });
+
+  if (taught?.form && hideable.has(taught.form.trim().toLowerCase())) {
+    const example = taught.example;
+    const cloze = buildCloze(example.et, [taught.form]);
     if (cloze) {
       /*
         The translation is the prompt at the gap rung, and it may not be the
@@ -204,12 +213,11 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
         dropped: the sentence is still worth answering, it is simply harder
         without it.
       */
-      const en = taught.example.en && !mentions(taught.example.en, cloze.answer)
-        ? taught.example.en : null;
+      const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
       const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
         .find((line) => !mentions(line, cloze.answer)) ?? null;
       return {
-        sentence: { et: taught.example.et, en: taught.example.en ?? null, form: taught.form },
+        sentence: { et: example.et, en: example.en ?? null, form: taught.form },
         gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue },
       };
     }
