@@ -126,6 +126,42 @@ describe("the A1/A2 course vocabulary's first-meeting sentences", () => {
       }
     }
   });
+
+  /*
+    A SECOND SHAPE OF THE SAME FAULT: A "SENTENCE" THAT TRAILS OFF, SPLITS TWO
+    ALTERNATIVES WITH A SLASH, OR NAMES ITSELF BEFORE ILLUSTRATING.
+
+    sellepärast, an A1 word, was reaching a beginner as "Küsin seda
+    sellepärast, et .." with nothing after the comma. The exam and the mock
+    exam already refuse exactly this shape through `naturalSentence`
+    (`lib/estonian/cloze.ts`); the first-meeting sentence picker never asked
+    it. Walked over the whole course, not only A1/A2, because the ellipsis
+    shape turned up as far out as C1 (`välispoliitika`).
+
+    Both configurations production actually runs: `cards.ts` calls
+    `teachingSentence` with no part of speech, so only the length, word-count,
+    ellipsis, slash and parenthetical checks apply; `learn.ts` also has the
+    lexeme's part of speech and forms handy, so it additionally catches a
+    usage that opens with the word's own headword (the label pattern).
+  */
+  it("never picks a sentence that fails the exam's own naturalSentence rule, at any level", async () => {
+    const { HARVESTED } = await import("../../prisma/data/harvested");
+    const { naturalSentence, nominalOpener } = await import("../estonian/cloze");
+    expect(HARVESTED.length).toBeGreaterThan(1000); // a floor against a broken import
+
+    for (const word of HARVESTED) {
+      const examples = word.usages.map((et) => ek(et));
+
+      const noPos = teachingSentence(examples, [word.lemma]);
+      if (noPos) expect(naturalSentence(noPos.example.et), `${word.lemma}: "${noPos.example.et}"`).toBe(true);
+
+      const opener = nominalOpener(word.pos, [word.lemma, ...Object.values(word.parts)]);
+      const withPos = teachingSentence(examples, [word.lemma], opener);
+      if (withPos) {
+        expect(naturalSentence(withPos.example.et, opener), `${word.lemma}: "${withPos.example.et}"`).toBe(true);
+      }
+    }
+  });
 });
 
 describe("mergeExamples", () => {
@@ -234,6 +270,40 @@ describe("teachingSentence", () => {
   it("skips blank and repeated candidates rather than matching on them", () => {
     const found = teachingSentence(examples, [null, "", "kohvi", "kohvi"]);
     expect(found?.form).toBe("kohvi");
+  });
+
+  it("never picks a sentence that trails off mid-thought (the reported case)", () => {
+    // sellepärast's own recorded usages, verbatim: an A1 word whose first
+    // meeting was reaching a learner as "Küsin seda sellepärast, et .." with
+    // nothing after the comma, while a plain sentence sat right beside it.
+    const found = teachingSentence(
+      [ek("Sellepärast ta mulle meeldibki, et ta on nii lärmakas."), ek("Küsin seda sellepärast, et ..")],
+      ["sellepärast"],
+    );
+    expect(found?.example.et).toBe("Sellepärast ta mulle meeldibki, et ta on nii lärmakas.");
+  });
+
+  it("never picks a sentence with a slash, a parenthetical or an unfinished list", () => {
+    expect(teachingSentence([ek("Elekter läks ära / kadus."), ek("Tuli süttis toas.")], ["tuli"])?.example.et)
+      .toBe("Tuli süttis toas.");
+    expect(teachingSentence([ek("Viis miinus null on viis (5 – 0 = 5)."), ek("Miljon kirjutatakse kuue nulliga.")], ["null"])?.example.et)
+      .toBe("Miljon kirjutatakse kuue nulliga.");
+  });
+
+  it("skips the label pattern only where it is told the word's part of speech", () => {
+    // aitäh's own usages: "Aitäh, Mari!" is the entry naming itself and then
+    // illustrating, which the exam already refuses through the same rule
+    // (see naturalSentence). Left out, the check cannot tell a label from an
+    // ordinary sentence, so only a caller that passes it gets the label caught.
+    const examples = [ek("Aitäh, Mari!"), ek("Aitäh abi eest!")];
+    expect(teachingSentence(examples, ["aitäh"])?.example.et).toBe("Aitäh, Mari!");
+
+    const opener = (word: string) => word.toLowerCase() === "aitäh";
+    expect(teachingSentence(examples, ["aitäh"], opener)?.example.et).toBe("Aitäh abi eest!");
+  });
+
+  it("would rather show nothing than a sentence that fails every check", () => {
+    expect(teachingSentence([ek("Tsitaat kõlab minu vabatõlkes järgmiselt ..")], ["vabatõlge"])).toBeNull();
   });
 });
 

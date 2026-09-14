@@ -13,6 +13,8 @@
  * because it never has to invent one.
  */
 
+import { naturalSentence } from "@/lib/estonian/cloze";
+
 export type ExampleSource = "EKILEX" | "SEED" | "USER" | "AI";
 
 export interface Example {
@@ -164,12 +166,27 @@ export function sentenceWords(sentence: string): string[] {
  *
  * `forms` is in priority order and may hold duplicates or blanks; the caller
  * assembles it from whatever the card knows.
+ *
+ * AND THE SAME RULE THE EXAM ALREADY ASKS OF ITS OWN SENTENCES. A first
+ * meeting is the one screen this app is riskiest on: it is where a beginner
+ * decides whether they trust what follows. `usableExamples` catches a
+ * fragment by length and a compound by word count, and neither catches a
+ * usage that trails off mid-thought or reads as a label rather than a
+ * sentence: `sellepärast`, taught in the very first A1 unit, was reaching a
+ * learner as "Küsin seda sellepärast, et .." with nothing after the comma,
+ * while a plain sentence sat one row below it in the very same array.
+ * `naturalSentence` is `borrow.ts`'s own answer to the same question, so this
+ * reads it rather than inventing a second copy of the rule; `opensWithNominal`
+ * is optional and, left out, only the ellipsis, slash, parenthetical and
+ * fragment checks apply, since the label check needs a part of speech this
+ * function is not handed.
  */
 export function teachingSentence(
   examples: Example[],
   forms: readonly (string | null | undefined)[],
+  opensWithNominal?: (word: string) => boolean,
 ): { example: Example; form: string | null } | null {
-  const usable = usableExamples(examples);
+  const usable = usableExamples(examples).filter((e) => naturalSentence(e.et, opensWithNominal));
   if (usable.length === 0) return null;
 
   const tried = new Set<string>();
