@@ -6655,6 +6655,15 @@ check("a case's Latin name has a closed list of readers", () => {
     "lib/exam/paper.ts": "passes that caseEn through onto the item",
     "lib/exam/readiness.ts": "carries caseEn on the signal; the title prints the reading",
     "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
+    /*
+      The same category one file over, landed from another branch while this
+      list was being written. It is model-facing and reaches no screen: the
+      facts block tells Anu `toas is its seesütlev (inessive)`, in the shape
+      `prompt.ts` names one above it, and `CASE_NAMES` reads both names so a
+      learner who types "inessive" in their question is understood. The second
+      of those is the one that cannot give the name up.
+    */
+    "lib/tutor/words.ts": "names a case to Anu in the facts block, and reads the name back out of her question",
     "app/(chromeless)/welcome/page.tsx": "carries it on the demo row; the card prints neither name",
     "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
   };
