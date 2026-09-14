@@ -2433,3 +2433,39 @@ back and on a second importer of the stretch.
 TartuNLP's at 22 kHz and the app can only stop degrading them. Nobody here has listened to the
 result, so the measurements above are what stands behind it, and the first learner's report is
 the next measurement.
+
+## 38. The thirty-second pass: the screen in front of the reference
+
+**Asked for.** An interactive way in to the case system: the first three forms, the fact that
+everything else is built on the second of them, and what each ending truly means, with a real
+example behind it.
+
+**What was there.** `/grammar` is fourteen cards, one per ending, which is the right shape for
+somebody who already knows which ending they are after and a wall for somebody meeting the idea.
+The landing page's own case explorer makes the argument in one object and is a display: it changes
+what it shows and asks nothing of the reader.
+
+**What landed.** `/grammar/build-a-word`, three acts over a word the reader picks from the five the
+landing page already asks the dictionary about. The three stored forms, each pressable, each with
+what it is for, the question it answers and a sentence somebody wrote using it. Then the stem with
+the eleven endings stacked onto it one at a time, the ending lit, the meaning in plain English, and
+an attested sentence with the form marked in it; where no ending reaches the form the row says so
+and names the pair instead. Then four questions asking for the ending, marked by the app.
+
+**Two answers that were two copies.** `followsEndingRule` moved "is this form the ending on the
+stem" into `lib/estonian/derive.ts`, which owns the join and where the landing page had worked it
+out for itself. `CaseExample.unmistakable` asks `readCase`'s strict rule of the form a sentence
+actually holds, so the walk prefers a sentence that shows the case over one that merely contains
+it, and `caseExamplesFor` reads several cases off one candidate pool, which is what keeps the page
+at four queries rather than forty-two.
+
+**Measured.** Thirteen browser checks in `scripts/test-teaching.mjs`, including that every one of
+the eleven endings on screen really is the stem with those letters on the end, read off the line's
+own attributes. Containment 1,370 checks and axe 635 over every route at 360 and 1280 in both
+themes. Two of the new checks were made to fail on the real fault first, and one of them could not
+have failed as written, which is why it asks a locator rather than the page's whole text.
+
+**What it does not do.** It writes nothing to the review log, deliberately: the answer to every
+question in the last act is printed two acts above it, and the way out at the end is a round that
+grades. It teaches the singular only, because that is what the claim is about; the plural is on the
+dictionary entry and on the reference.

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/Button";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { DrillLink } from "@/components/DrillLink";
 import { Speak } from "@/components/Speak";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
 import { splitOnForm } from "@/lib/dict/examples";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -165,7 +166,14 @@ function Memorise({ word, sentences, onNext }: {
         </p>
       </Card>
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      {/*
+        One radio group rather than three toggle buttons. These are three
+        readings of one question and a screen reader hearing "3 of 3" is
+        hearing the truth, where `aria-pressed` on each would announce three
+        unrelated switches and cost three tab stops. It is the argument
+        `components/Choice.tsx` makes at the top of its own file.
+      */}
+      <ChoiceGroup ariaLabel="Which of the three to explain" select="one" className="grid gap-2 sm:grid-cols-3">
         {word.principal.map((form, n) => {
           const ref = caseReference(form.key);
           const isStem = form.value === word.genitive;
@@ -173,14 +181,17 @@ function Memorise({ word, sentences, onNext }: {
             <button
               key={form.key}
               type="button"
+              role="radio"
+              aria-checked={n === at}
               onClick={() => setAt(n)}
-              aria-pressed={n === at}
               data-on={n === at ? "" : undefined}
               className={`choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left ${isStem ? "stem-row" : ""}`}
             >
               <span className="flex w-full items-baseline justify-between gap-2">
-                <span lang="et" className="text-xs" style={{ color: "var(--ink-3)" }}>
-                  {ref?.spec.et} · {form.question}
+                <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et">{ref?.spec.et}</span>
+                  {" · "}
+                  <CaseQuestion question={form.question} inline />
                 </span>
                 {n === at && <Check size={14} aria-hidden style={{ color: "var(--accent-deep)" }} />}
               </span>
@@ -195,7 +206,7 @@ function Memorise({ word, sentences, onNext }: {
             </button>
           );
         })}
-      </div>
+      </ChoiceGroup>
 
       {shown && (
         <FormPanel
@@ -261,12 +272,16 @@ function FormPanel({ word, form, sentence }: {
           In English: {ref.englishHook}
         </p>
       )}
+      {/*
+        The name a class uses and the question it answers, with what that
+        question asks. No Latin: "the genitive" is a translation of a
+        translation to somebody who has met neither name, and `CaseQuestion`
+        is the one drawing of the half they can act on.
+      */}
       <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{ref.spec.et}</span>
         {" · "}
-        <span lang="et">{form.question}</span>
-        {" · "}
-        {ref.spec.en}
+        <CaseQuestion question={form.question} inline />
       </p>
       {sentence && <Attested sentence={sentence} lemma={word.lemma} />}
     </Card>
@@ -285,6 +300,22 @@ function Attested({ sentence, lemma }: { sentence: WalkSentence; lemma: string }
   const borrowed = sentence.lemma && sentence.lemma !== lemma ? sentence.lemma : null;
   return (
     <div className="mt-4 rounded-[var(--r)] p-3.5" style={{ background: "var(--raised)" }}>
+      {/*
+        A BORROWED SENTENCE SAYS SO BEFORE IT IS READ, NOT AFTER.
+
+        Ekilex records a handful of usages per word and this screen asks about
+        fourteen cases, so most rows are a sentence filed under some other
+        word: the panel is headed `raamatu` and the line under it was
+        `Puhkus algab kuu aja pärast`, with `aja` marked. Everything about that
+        is true, the case is the one being explained, and for a moment it reads
+        as though `aja` were the form above it. The source line underneath said
+        so and said it too late.
+      */}
+      {borrowed && (
+        <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+          The same case, on another word:
+        </p>
+      )}
       <p lang="et" className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
         {splitOnForm(sentence.et, sentence.form).map((part, n) => (
           <span
@@ -301,7 +332,7 @@ function Attested({ sentence, lemma }: { sentence: WalkSentence; lemma: string }
       )}
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
         {borrowed
-          ? <>Recorded under <span lang="et">{borrowed}</span>{sentence.translation ? `, ${sentence.translation}` : ""}. From Ekilex.</>
+          ? <><span lang="et">{borrowed}</span>{sentence.translation ? `, ${sentence.translation}` : ""}, recorded in Ekilex.</>
           : <>Recorded against this word in Ekilex.</>}
       </p>
     </div>
@@ -334,18 +365,31 @@ function StackEndings({ word, sentences, onNext }: {
   const forms = word.derived;
   const form = forms[at] ?? forms[0];
 
+  const endings = useRef<HTMLDivElement>(null);
   const step = useCallback(() => setAt((n) => (n + 1) % Math.max(forms.length, 1)), [forms.length]);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       /*
-        Space on a focused chip presses the chip, which is the browser's job
-        and is what the reader meant: the row below is a set of radios and a
-        press is how one is chosen. Enter is the key the button advertises and
-        it is free on every control here, so the two do not fight. A text box
-        is `isAdvanceKey`'s own exception and there is none on this screen.
+        THE KEY BELONGS TO THE FOCUSED CONTROL FIRST.
+
+        Written without this, the handler took Enter off the primary button:
+        the reader tabs to "Try one yourself", presses Enter, and the ending
+        steps while the press is swallowed by the `preventDefault` under it,
+        because a window listener runs before the browser activates a button.
+        A shortcut that eats the one button on the screen is worse than no
+        shortcut.
+
+        So a focused button, link or disclosure keeps its own key, and the
+        endings are the exception: they are radios, Enter does nothing on a
+        radio natively, and they are the control the hint is written under.
+        Space is left alone everywhere, since that is how a focused radio is
+        chosen.
       */
-      if (e.key === " " && target?.closest("button, [role=radio]")) return;
+      if (e.key === " ") return;
+      const inEndings = target ? endings.current?.contains(target) : false;
+      if (!inEndings && target?.closest("button, a, summary, [role=radio]")) return;
+      if (inEditable(e.target)) return;
       if (!isAdvanceKey(e)) return;
       e.preventDefault();
       step();
@@ -363,7 +407,24 @@ function StackEndings({ word, sentences, onNext }: {
       <div className="case-explorer flex flex-col gap-4">
         <Card tone="accent">
           <p className="label-xs" style={{ color: "var(--accent-deep)" }}>The form everything is built on</p>
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+          {/*
+            THE THREE PIECES CARRY WHAT THEY ARE, RATHER THAN WHERE THEY SIT.
+
+            `scripts/test-teaching.mjs` asks this line the one question that
+            matters, whether the form on the right really is the stem on the
+            left with those letters on the end, and a suite that answered it by
+            counting hops through the markup would go blind the day a box moves
+            and waive itself while it did. That is the fault `data-rung` was
+            added for one module over: a fact about the line, on the line.
+          */}
+          <div
+            className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2"
+            data-build
+            data-stem={word.genitive ?? ""}
+            data-ending={form.stored ? "" : form.suffix}
+            data-built={form.value}
+            data-stored={form.stored ? "" : undefined}
+          >
             <span
               className="stem-row rounded-[var(--r)] px-4 py-2"
               style={{ background: "var(--surface)" }}
@@ -372,7 +433,11 @@ function StackEndings({ word, sentences, onNext }: {
                 {word.genitive}
               </span>
             </span>
+            {/* The glyph for the eye and the word for a reader, since "toa
+                sisseütlev tuppa" read out with the operators hidden is three
+                words with no arithmetic in them. */}
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>+</span>
+            <span className="sr-only">plus</span>
             <span
               key={`${word.lemma}-${form.key}`}
               className="pop-in rounded-[var(--r)] px-4 py-2"
@@ -383,6 +448,7 @@ function StackEndings({ word, sentences, onNext }: {
               </span>
             </span>
             <span className="text-2xl" style={{ color: "var(--ink-3)" }} aria-hidden>=</span>
+            <span className="sr-only">makes</span>
             <span key={`${word.lemma}-${form.key}-out`} className="settle flex items-center gap-2">
               <span lang="et" className="text-3xl font-bold" style={{ color: "var(--ink)" }}>
                 <WithEnding value={form.value} suffix={form.stored ? "" : form.suffix} />
@@ -411,26 +477,37 @@ function StackEndings({ word, sentences, onNext }: {
           >
             Try an ending
           </SectionTitle>
-          <div className="flex flex-col gap-3">
-            {CASE_GROUPS.filter((g) => g.keys.some((k) => !caseByKey(k)?.principal)).map((group) => (
-              <div key={group.title}>
-                <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{group.title}</p>
-                <ChoiceGroup ariaLabel={group.title} select="one">
-                  {group.keys.map((key) => {
-                    const n = forms.findIndex((f) => f.key === key);
-                    const row = forms[n];
-                    if (!row) return null;
-                    return (
-                      <span key={key} className="ending-row">
-                        <ChoiceChip selected={n === at} onSelect={() => setAt(n)}>
-                          <span lang="et">{row.stored ? row.value : `-${row.suffix}`}</span>
-                        </ChoiceChip>
-                      </span>
-                    );
-                  })}
-                </ChoiceGroup>
-              </div>
-            ))}
+          {/*
+            ONE GROUP ACROSS THE THREE HEADINGS, NOT ONE PER HEADING.
+
+            The eleven are one set of options with the reference's own grouping
+            drawn over them, so a group apiece would say there are three
+            questions here and leave the arrow keys stopping at the end of each
+            row. `ChoiceGroup` finds its options at any depth, so the headings
+            sit inside it and the reading stays "4 of 11".
+          */}
+          <div ref={endings}>
+            <ChoiceGroup ariaLabel="Which ending" select="one" className="flex flex-col gap-3">
+              {CASE_GROUPS.filter((g) => g.keys.some((k) => !caseByKey(k)?.principal)).map((group) => (
+                <div key={group.title}>
+                  <p className="mb-1.5 text-xs" style={{ color: "var(--ink-3)" }}>{group.title}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {group.keys.map((key) => {
+                      const n = forms.findIndex((f) => f.key === key);
+                      const row = forms[n];
+                      if (!row) return null;
+                      return (
+                        <span key={key} className="ending-row">
+                          <ChoiceChip selected={n === at} onSelect={() => setAt(n)}>
+                            <span lang="et">{row.stored ? row.value : `-${row.suffix}`}</span>
+                          </ChoiceChip>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </ChoiceGroup>
           </div>
         </div>
       </div>
@@ -442,9 +519,7 @@ function StackEndings({ word, sentences, onNext }: {
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
               <span lang="et">{ref.spec.et}</span>
               {" · "}
-              <span lang="et">{form.question}</span>
-              {" · "}
-              {ref.spec.en}
+              <CaseQuestion question={form.question} inline />
             </span>
           </div>
           <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
@@ -579,8 +654,8 @@ function YourTurn({ word }: { word: WalkWord }) {
         <p className="mt-2 text-lg font-bold" style={{ color: "var(--ink)" }}>
           {ask ?? `Which ending makes the ${ref?.spec.et}?`}
         </p>
-        <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
-          <span lang="et">{form.question}</span>
+        <p className="mt-1 text-sm" data-ask={form.question} style={{ color: "var(--ink-3)" }}>
+          <CaseQuestion question={form.question} inline />
           {word.translation && <> · <span lang="et">{word.lemma}</span>, {word.translation}</>}
         </p>
 

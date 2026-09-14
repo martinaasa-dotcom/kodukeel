@@ -456,8 +456,18 @@ if (first.length === 0) {
 
 // 11 — B1+ coverage, with verb government
 await page.goto(`${B}/dictionary?q=sõltuma`, { waitUntil: "networkidle" });
-check("B1 verb carries its government",
-  (await page.getByText(/elative/i).count()) > 0);
+/*
+  THE READING RATHER THAN THE CASE NAME, WHICH IS WHAT THE ENTRY PRINTS NOW.
+
+  This asked for "elative" and was the last assertion anywhere still expecting
+  a Latin case name on a screen. The block reads through `readableGovernment`,
+  which turns `kellest/millest (elative)` into `kellest/millest (about whom?
+  out of what?)` on the way out: the stored string is untouched and what a
+  learner sees is the question the verb demands an answer to.
+*/
+check("B1 verb carries its government, said as what it asks",
+  (await page.getByText(/out of what\?/).count()) > 0
+    && (await page.getByText(/elative/i).count()) === 0);
 
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");

@@ -14,8 +14,10 @@ import { retypeMiss, revealAnswer } from "./lib/review.mjs";
  * confident number computed from six reviews.
  */
 const B = baseUrl();
-// Floor: 55, measured in the state CI seeds. A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 58 });
+// Floor: 73, measured in the state CI seeds, which is the 58 this suite had
+// before `/grammar/build-a-word` and the fifteen checks that screen added.
+// A thinner database reads as short.
+const { check, absent, done } = suite("Teaching layer", { floor: 73 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -125,6 +127,164 @@ check("the drill for this case is one click away",
 await page.goto(`${B}/dictionary?q=tuba`, { waitUntil: "networkidle" });
 check("a case in the dictionary links to its explanation",
   (await page.locator('a[href^="/grammar/"]').count()) > 0);
+
+// ─── Build a word ─────────────────────────────────────────────────────────────
+
+/*
+  THE SCREEN IN FRONT OF THE REFERENCE, DRIVEN.
+
+  `/grammar` is fourteen cards for somebody who knows which ending they want.
+  `/grammar/build-a-word` is the introduction: one word the reader picks, the
+  three forms that are stored, and the eleven endings stacked onto the second of
+  them one at a time. Every claim it makes is checkable and none of them is
+  checkable from the source, which is why they are here: whether the form on
+  screen really is that stem with those letters on the end, whether the one word
+  in five that breaks the rule says so instead of being taught as the rule, and
+  whether a person is ever asked for a form nobody says.
+
+  The three pieces of the build line carry `data-stem`, `data-ending` and
+  `data-built`, so this reads a fact about the line rather than counting hops
+  through the markup. See the note beside them.
+*/
+await page.goto(`${B}/grammar`, { waitUntil: "networkidle" });
+check("the reference points at the screen that comes before it",
+  (await page.locator('a[href="/grammar/build-a-word"]').count()) > 0);
+
+await page.goto(`${B}/grammar/build-a-word`, { waitUntil: "networkidle" });
+const walkBody = (await page.textContent("body")) ?? "";
+check("it names the three forms that are stored, the way a class names them",
+  /nimetav/.test(walkBody) && /omastav/.test(walkBody) && /osastav/.test(walkBody),
+  "the three are not named in Estonian");
+check("and says which of them the endings are built on",
+  /the one the endings go on/.test(walkBody), "nothing marks the stem");
+/*
+  The rule this whole branch merged: a case question says what it asks, and
+  names nothing in Latin. "Genitive" on this screen would be the only English
+  near a case and would be a translation of a translation.
+*/
+/*
+  ASKED OF THE ELEMENTS RATHER THAN OF `textContent`, WHICH HAS NO SPACES IN IT.
+
+  Written as a regex over the whole body first, and it could not fail: the
+  page renders `· Genitive` at the end of one element and `Puhkus algab...`
+  at the start of the next, `textContent` concatenates them into
+  `GenitivePuhkus`, and `\b` after the name finds no boundary there. Made to
+  fail by printing the Latin name on the panel, which it happily passed. A
+  locator matches an element's own text and has the boundaries the markup
+  already gives it, which is how the case page's own version of this check is
+  written one block up.
+*/
+const latin = page.getByText(/\b(Genitive|Nominative|Partitive|Inessive|Illative)\b/);
+check("a case question says what it asks rather than naming the case in Latin",
+  /of what\?/.test(walkBody) && (await latin.count()) === 0,
+  `the Latin name is on the screen that introduces the system (${await latin.count()} times)`);
+check("a form it explains is shown inside a sentence somebody wrote",
+  /(Recorded against this word|recorded in Ekilex)/.test(walkBody),
+  "no attested sentence on the first act");
+
+await page.getByRole("button", { name: /Now the other eleven/ }).click();
+const build = page.locator("[data-build]");
+await build.waitFor({ timeout: 5000 }).catch(() => {});
+check("the second act builds a form out of the stem and an ending",
+  (await build.count()) > 0, "no build line");
+
+// Every one of the eleven, pressed, and the arithmetic read off the line.
+const endings = page.locator(".ending-row [role=radio]");
+const endingCount = await endings.count();
+check("it offers the eleven endings", endingCount === 11, `${endingCount} endings`);
+let arithmetic = 0;
+let stored = 0;
+for (let i = 0; i < endingCount; i++) {
+  await endings.nth(i).click();
+  const stem = (await build.getAttribute("data-stem")) ?? "";
+  const ending = (await build.getAttribute("data-ending")) ?? "";
+  const built = (await build.getAttribute("data-built")) ?? "";
+  const isStored = (await build.getAttribute("data-stored")) !== null;
+  if (isStored) stored++;
+  else if (stem && built === stem + ending) arithmetic++;
+}
+check("and every ending it calls regular really is the stem plus those letters",
+  arithmetic + stored === endingCount && arithmetic > 0,
+  `${arithmetic} regular, ${stored} stored, of ${endingCount}`);
+
+/*
+  `raamat` is the word that does nothing, which is the point of it: the card
+  above is the argument and this is the word it holds for. `tuba` is where the
+  rule stops, and the screen has to say so rather than teach `toasse` as the
+  answer.
+*/
+await page.getByRole("radio", { name: "tuba", exact: true }).click();
+/*
+  The first of the eleven, which is the sisseütlev, by position rather than by
+  name: on a word whose short illative the dictionary holds, the chip is that
+  form rather than an ending, which is the whole thing being checked. Asking
+  for "-sse" here found nothing, silently, and read the ending that happened to
+  be selected from the loop above.
+*/
+await page.locator(".ending-row [role=radio]").first().click();
+const tuppa = page.locator("[data-build]");
+const tuppaBuilt = (await tuppa.getAttribute("data-built")) ?? "";
+check("the one word in five that breaks the rule says so rather than being taught as the rule",
+  tuppaBuilt === "tuppa" && (await tuppa.getAttribute("data-stored")) !== null,
+  tuppaBuilt || "no form");
+check("and the other spelling is named beside it rather than hidden",
+  /toasse is right too/.test((await page.textContent("body")) ?? ""), "the pair is not shown");
+
+// The last act asks for an ending and marks the answer itself.
+await page.getByRole("button", { name: /Try one yourself/ }).click();
+const asked = page.locator("main").getByText(/^How do you say this/);
+check("the last act asks in words a beginner can act on", (await asked.count()) > 0);
+await page.keyboard.press("1");
+const verdict = (await page.locator("[role=status]").first().innerText()).trim();
+check("and says in a live region what the answer was",
+  /which means/.test(verdict) && verdict.length > 20, verdict.slice(0, 70) || "nothing said");
+
+/*
+  THE KEY THE HINT ADVERTISES STEPS THE ENDINGS AND LEAVES THE BUTTON ALONE.
+
+  A window listener runs before the browser activates a focused button, so the
+  first version of this took Enter off the one button on the screen: the reader
+  tabbed to "Try one yourself", pressed Enter, and watched the ending change
+  instead. Both halves are driven here because neither is visible in the source.
+*/
+await page.getByRole("radio", { name: "raamat", exact: true }).click();
+await page.getByRole("radio", { name: /^Stack an ending/ }).click();
+const beforeStep = (await page.locator("[data-build]").getAttribute("data-built")) ?? "";
+await page.locator(".ending-row [role=radio]").first().click();
+await page.keyboard.press("Enter");
+const afterStep = (await page.locator("[data-build]").getAttribute("data-built")) ?? "";
+check("the key the hint names steps to the next ending", afterStep !== "" && afterStep !== beforeStep,
+  `${beforeStep} then ${afterStep}`);
+const onward = page.getByRole("button", { name: /Try one yourself/ });
+await onward.focus();
+await page.keyboard.press("Enter");
+check("and a focused button keeps its own Enter",
+  (await page.locator("[data-ask]").count()) > 0, "Enter on the button did not open the last act");
+
+/*
+  A PERSON IS NEVER ASKED FOR A FORM NOBODY SAYS.
+
+  `sõber` and `mees` are people, and Estonian puts a person in the outside
+  trio: `sõbral`, not `sõbras`. `caseFits` is the app's one answer to that and
+  the screen asks it upstream, so what is driven here is the four questions a
+  person word actually produces. `kelles?`, `kellesse?` and `kellest?` are the
+  inside trio asked about a person, which is the shape of the fault.
+*/
+await page.getByRole("radio", { name: "mees", exact: true }).click();
+let inside = 0;
+let questions = 0;
+for (let i = 0; i < 4; i++) {
+  // The question the card is asking, off the line rather than by its place in
+  // the card: see the note beside `data-build`.
+  const asked = (await page.locator("[data-ask]").first().getAttribute("data-ask").catch(() => "")) ?? "";
+  if (asked) questions++;
+  if (/kelles\?|kellesse\?|kellest\?/.test(asked)) inside++;
+  const next = page.getByRole("button", { name: /^Next/ });
+  await page.keyboard.press("2");
+  if ((await next.count()) > 0) await next.first().click().catch(() => {});
+}
+check("a person is never asked for the inside trio", inside === 0 && questions > 0,
+  `${inside} of ${questions} questions asked a person where something is inside them`);
 
 // ─── Where the pattern stops ──────────────────────────────────────────────────
 

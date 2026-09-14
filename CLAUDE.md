@@ -491,8 +491,15 @@ ones `lib/collections/demoWords.ts` already argues for, since a walkthrough that
 regular word would be teaching the arithmetic and hiding the one thing that makes a beginner doubt
 it.
 
+**The half that reads the dictionary and the half that decides what a row says are two modules.**
+`lib/estonian/caseBuild.ts` is pure and is where the three judgments live: which form to print,
+whether the ending really reaches it, and whether the reader may be asked to produce it. That is
+what makes them unit tested rather than driven, which they were not while both halves sat in one
+file behind Prisma. `lib/progress/caseWalk.ts` is the queries, and it re-exports the shapes rather
+than declaring them twice.
+
 **Nothing on it is written and it writes nothing.** Every form comes off `buildCaseTable` through
-`lib/progress/caseWalk.ts`, every sentence is attested, every line of English about a case is
+`lib/estonian/caseBuild.ts`, every sentence is attested, every line of English about a case is
 `lib/estonian/grammar.ts`, which holds no Estonian at all, and the endings are suffixes off `CASES`.
 The last act asks the reader to pick an ending and marks it, through `OPTION_CLASS` and a live
 region like every other marking screen, and it **grades nothing**: the answer to every one of those
@@ -501,7 +508,20 @@ scheduler somebody recalled a form they had just been shown, which is the fault 
 exists to catch one room over. A first meeting on the learn ladder writes nothing for the same
 reason, and the way out at the end is a round that does grade. `caseFits` still decides what may be
 asked, so nobody is invited to produce `meheses`, and `caseQuestionFor` still words it, so a person
-is asked `kellel?`.
+is asked `kellel?`, with `CaseQuestion` saying what that asks.
+
+**And the whole of it is driven in a browser, because none of what it claims is checkable from the
+source.** Thirteen checks in `scripts/test-teaching.mjs`, which is the suite for the half of the app
+that explains rather than tests: that the reference points at it, that the three stored forms are
+named the way a class names them and the stem is marked, that no case is named in Latin, that a
+form is shown inside a sentence somebody wrote, that **every one of the eleven endings really is
+the stem with those letters on the end**, read off `data-stem`, `data-ending` and `data-built` on
+the line itself rather than by counting hops through the markup, that the one word in five the rule
+does not reach says so instead of being taught as the rule, and that a person is never asked for
+the inside trio. Two of them were made to fail on the real fault first, and the Latin one could not
+fail as written: `textContent` joins two elements into `GenitivePuhkus`, where `\b` finds no
+boundary, so it passed with the name printed on the panel. It asks a locator now, which has the
+boundaries the markup gives it.
 
 **And "is this form the ending on the stem" is one answer now, in the module that owns the join.**
 Two screens ask it, the landing page's case explorer to decide whether to light the ending and this
@@ -7324,7 +7344,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
-`caseWalk`, `followsEndingRule`, `endingOptions`, `unmistakable`, `caseExamplesFor`.
+`caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
+`caseExamplesFor`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

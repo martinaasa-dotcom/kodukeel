@@ -1,14 +1,20 @@
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { DEMO_LEMMAS, DEMO_STEMS, type DemoStems } from "@/lib/collections/demoWords";
-import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
-import { CASES, caseByKey } from "@/lib/estonian/cases";
-import {
-  buildCaseTable, followsEndingRule, stemsFrom, type DerivedForm, type NounStems,
-} from "@/lib/estonian/derive";
-import { caseFits, caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
+import { parseExamples } from "@/lib/dict/examples";
+import { CASES } from "@/lib/estonian/cases";
+import { stemsFrom } from "@/lib/estonian/derive";
+import { toWalkWord, type WalkForm, type WalkSentence, type WalkWord } from "@/lib/estonian/caseBuild";
+import type { CaseSubject } from "@/lib/estonian/caseQuestion";
 import { caseExamplesFor, type CaseExample } from "@/lib/progress/caseExamples";
 import type { CaseKey } from "@/lib/estonian/types";
+
+/*
+  The shapes the screen reads, re-exported from the pure half rather than
+  declared twice: `lib/estonian/caseBuild.ts` decides what a row says and this
+  file decides which rows there are.
+*/
+export type { WalkForm, WalkSentence, WalkWord };
 
 /**
  * ONE WORD, WALKED THROUGH THE WHOLE SYSTEM, WITH REAL ESTONIAN AT EVERY STEP.
@@ -45,59 +51,6 @@ import type { CaseKey } from "@/lib/estonian/types";
  * that does not take the case: `caseFits` is what decides that, one reader for
  * the whole app (`lib/estonian/caseQuestion.ts`).
  */
-
-/** One of the eleven, for one word. */
-export interface WalkForm {
-  readonly key: CaseKey;
-  /** The ending, without its hyphen. Empty for the three that have none. */
-  readonly suffix: string;
-  /** The question *this word* answers with this case, pronoun only. */
-  readonly question: string;
-  /** The form to print. */
-  readonly value: string;
-  /** The other spelling that is also right, where Estonian has one. */
-  readonly alsoRight: string | null;
-  /**
-   * The printed form is not the stem plus this ending, so no rule reaches it
-   * and the dictionary holds it: `tuppa`, `kätte`. The screen says so in
-   * words, because lighting an ending here would light a rule the word does
-   * not follow.
-   */
-  readonly stored: boolean;
-  /**
-   * May the screen ask a learner to produce this form?
-   *
-   * `caseFits`, so a person is never asked for the inside trio: `sõber` and
-   * `mees` are people and `sõbras` is not how anybody says it. The row is
-   * still *shown*, because a table of forms is a reference and the dictionary
-   * entry prints the whole of it.
-   */
-  readonly askable: boolean;
-  /** This word's own attested sentence carrying this very form, if one exists. */
-  readonly sentence: WalkSentence | null;
-}
-
-export interface WalkSentence {
-  readonly et: string;
-  readonly en: string | null;
-  /** The form the sentence actually contains, for the screen to mark in it. */
-  readonly form: string;
-  /** The word the sentence is filed under, where that is not the word on the walk. */
-  readonly lemma: string | null;
-  readonly translation: string | null;
-}
-
-/** A word to walk: its three memorized forms, and the eleven that follow. */
-export interface WalkWord {
-  readonly lemma: string;
-  readonly translation: string;
-  /** The stem every ending below is glued onto. */
-  readonly genitive: string | null;
-  /** The three principal parts, in the order a schoolbook drills them. */
-  readonly principal: readonly WalkForm[];
-  /** The other eleven, in the traditional order. */
-  readonly derived: readonly WalkForm[];
-}
 
 /**
  * The fallback sentence for one case: a real word in it, from the dictionary.
@@ -185,6 +138,19 @@ async function walkWords(): Promise<WalkWord[]> {
     });
     const built = oneEntryPerLemma(lexemes, [...DEMO_LEMMAS]).flatMap((lex) => {
       const stems = stemsFrom(lex.forms);
+      /*
+        A WORD WITH NO GENITIVE STEM CANNOT MAKE THIS ARGUMENT, SO IT IS NOT
+        ASKED TO.
+
+        The whole screen is "the other eleven are this form plus an ending",
+        and an entry holding no genitive has no this. The dictionary can hold
+        one: `@@unique` is on `(lemma, pos)`, so a word confirmed off a
+        photograph sits beside the seeded entry as a row with no forms at all,
+        which is the case `oneEntryPerLemma` and `bySubstance` exist for. They
+        pick the substantial row and this is the backstop for the day they
+        cannot, since the alternative is a build line with an empty box in it.
+      */
+      if (!stems.genSg) return [];
       const subject: CaseSubject = {
         lemma: lex.lemma,
         semanticTypes: lex.semanticTypes,
@@ -209,44 +175,3 @@ function fromSeed(w: DemoStems): WalkWord {
   return toWalkWord(w.lemma, "", w, subject, []);
 }
 
-function toWalkWord(
-  lemma: string,
-  translation: string,
-  stems: NounStems,
-  subject: CaseSubject,
-  examples: ReturnType<typeof parseExamples>,
-): WalkWord {
-  const table = buildCaseTable(stems);
-  const row = (form: DerivedForm): WalkForm => {
-    const spec = form.spec;
-    const value = form.singular ?? "";
-    /*
-      Whether the ending really reaches this form. `followsEndingRule` is the
-      one answer to that and it lives in `derive.ts`, which owns the join; its
-      header says why `origin` is not the test.
-    */
-    const stored = !spec.principal && !followsEndingRule(value, stems.genSg, spec);
-    const found = value ? sentenceContaining(examples, value) : null;
-    return {
-      key: spec.key,
-      suffix: spec.suffix,
-      question: caseQuestionFor(spec, subject),
-      value,
-      alsoRight: form.alsoRight,
-      stored,
-      askable: !spec.principal && !stored && caseFits(spec.key, subject),
-      sentence: found
-        ? { et: found.et, en: found.en ?? null, form: value, lemma: null, translation: null }
-        : null,
-    };
-  };
-
-  const rows = table.filter((f) => f.singular).map(row);
-  return {
-    lemma,
-    translation,
-    genitive: stems.genSg ?? null,
-    principal: rows.filter((r) => caseByKey(r.key)?.principal),
-    derived: rows.filter((r) => !caseByKey(r.key)?.principal),
-  };
-}
