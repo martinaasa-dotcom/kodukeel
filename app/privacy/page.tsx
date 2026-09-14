@@ -143,7 +143,9 @@ export default function PrivacyPage() {
         </P>
         <P>
           <strong>Your conversations with Anu.</strong> Messages you send the tutor and its
-          replies are stored so the conversation survives a page reload.
+          replies are kept for a day, so the conversation survives a page reload, and no
+          longer: the next time you speak to her, anything older than 24 hours is deleted and
+          she starts fresh.
         </P>
         <P>
           <strong>Pages you photograph.</strong> When you scan a page, what is kept is the word
