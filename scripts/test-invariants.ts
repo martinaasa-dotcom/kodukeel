@@ -15939,6 +15939,67 @@ check("putting a word aside moves a date and grades nothing", () => {
       + "so a card FSRS had honestly put further out comes back early.",
     );
   }
+
+  /*
+    AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
+    from the other end: both ways back match the date the deferral wrote, so a
+    press that wrote an earlier one over a wait already standing would leave
+    the cards on the old date, matched by nothing. The row would then read
+    three weeks while the word stayed gone for a term and the way back would do
+    nothing at all. Reachable through a wait for a band, a level rise, and the
+    same word on a screen that was already open.
+  */
+  const put = defer.slice(defer.indexOf("export async function deferWord"));
+  assert.match(
+    put, /standing\.untilAt >= fresh\.untilAt/,
+    "deferWord no longer compares a wait already standing against the one it "
+    + "would write, so saying \"too complicated\" twice can hand the word back "
+    + "sooner and strand the cards on a date nothing matches.",
+  );
+});
+
+/**
+ * AND THE SESSION'S OWN UNDO DOES NOT HAND THE WORD STRAIGHT BACK.
+ *
+ * `undoGrade` restores the scheduling a card had before the grade, and that
+ * includes the date it was due, which is earlier than the one `putWordAside`
+ * has just written. So a review session that kept a graded card of a word in
+ * its undo history after the learner put that word aside would let one press
+ * of Undo quietly resurrect it, under a note still saying it was gone for
+ * three weeks. The undo those grades were for is the one the note offers, and
+ * it takes the whole word.
+ */
+check("putting a word aside takes that word's grades out of the session's undo", () => {
+  const file = join("app", "(app)", "review", "ReviewSession.tsx");
+  const session = code(file);
+
+  const aside = session.slice(session.indexOf("const putAside = useCallback"));
+  const body = aside.slice(0, aside.indexOf("const submit = useCallback"));
+  assert.ok(body.length > 0 && body.length < 4000, `${file}: putAside was not found where it was`);
+
+  assert.match(
+    body, /setHistory\(/,
+    `${file}: putting a word aside leaves the session's undo history alone, so `
+    + "Undo can rewind a grade on that word and restore the date it was due, "
+    + "handing back a word the learner has just been told is gone.",
+  );
+  assert.match(
+    body, /\.filter\(\(d\) => d\.lexemeId !== word\)/,
+    `${file}: the undo history is rewritten without dropping the word's own `
+    + "grades, which is the half that matters: those are the entries whose "
+    + "scheduling predates the deferral.",
+  );
+  /*
+    And what is left moves up. A `Done` holds a position in the queue and this
+    is the one thing in the session that shortens the queue behind where the
+    learner is standing, so an entry left pointing at where a card used to be
+    reopens on its neighbour.
+  */
+  assert.match(
+    body, /index: Math\.max\(0, d\.index - goneBefore\(d\.index\)\)/,
+    `${file}: the undo entries that survive keep the positions they had in a `
+    + "queue that has since got shorter, so Undo reopens on the wrong card.",
+  );
 });
 
 /**

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { hardWords } from "@/lib/dict/facts";
-import { bandReached, deferralFor, deferralNote, offeredBand, type Deferral } from "@/lib/srs/defer";
+import { bandReached, deferralFor, deferralNote, inForce, offeredBand, weeksBetween, type Deferral } from "@/lib/srs/defer";
 
 /**
  * PUTTING A WORD ASIDE, AND GIVING IT BACK.
@@ -71,39 +71,70 @@ export async function deferWord(
   if (!word) return { ok: false as const, error: "That word is not in the dictionary." };
 
   const band = offeredBand(word.cefr, hard.has(lexemeId));
-  const deferral = deferralFor({ band, level, now });
+  const fresh = deferralFor({ band, level, now });
 
-  await prisma.$transaction([
-    prisma.deferral.upsert({
+  const deferral = await prisma.$transaction(async (tx) => {
+    /*
+      A SECOND PRESS NEVER SHORTENS A WAIT, WHICH IS A RULE ABOUT THE CARDS
+      RATHER THAN ABOUT POLITENESS.
+
+      Everything that hands a word back, the undo and `wakeForLevel`, matches
+      the cards sitting on *the date this wrote*, which is what stops either of
+      them pulling forward a card the scheduler had honestly put further out.
+      A press that wrote an earlier date would leave the cards standing on the
+      old one, matched by nothing, so the row would read three weeks while the
+      word stayed gone for a term and the way back would do nothing at all.
+      That is reachable: a wait for a band, then a level rise, then the same
+      word in a tab opened before it went. So where a wait is already standing
+      and reaches further than tonight's would, it is the one kept, whole,
+      date and grounds together, and the press counts. Saying it twice is not a
+      reason to see the word sooner.
+    */
+    const standing = await tx.deferral.findUnique({
+      where: { ownerId_lexemeId: { ownerId, lexemeId } },
+      select: { untilAt: true, untilLevel: true, reason: true, wokenAt: true },
+    });
+    const holds = standing !== null && inForce(standing, now) && standing.untilAt >= fresh.untilAt;
+    const kept: Deferral = holds
+      ? {
+          untilAt: standing.untilAt,
+          untilLevel: standing.untilLevel,
+          reason: standing.reason === "BAND" ? "BAND" : "WEEKS",
+          weeks: weeksBetween(now, standing.untilAt),
+        }
+      : fresh;
+
+    await tx.deferral.upsert({
       where: { ownerId_lexemeId: { ownerId, lexemeId } },
       create: {
         ownerId, lexemeId, lemma: word.lemma, band, level,
-        reason: deferral.reason, untilAt: deferral.untilAt, untilLevel: deferral.untilLevel,
+        reason: kept.reason, untilAt: kept.untilAt, untilLevel: kept.untilLevel,
         context,
       },
       /*
         A second press is the same person saying it again, so the row keeps its
-        age and the wait is rewritten from tonight. `times` is how loudly one
-        learner said it and is deliberately not what the deployment-wide count
-        reads: that one counts rows, so it counts people.
+        age. `times` is how loudly one learner said it and is deliberately not
+        what the deployment-wide count reads: that one counts rows, so it
+        counts people.
       */
       update: {
         lemma: word.lemma, band, level,
-        reason: deferral.reason, untilAt: deferral.untilAt, untilLevel: deferral.untilLevel,
+        reason: kept.reason, untilAt: kept.untilAt, untilLevel: kept.untilLevel,
         context, times: { increment: 1 },
         // A word put aside again is put aside again, whatever happened to the
         // last wait: a stale `wokenAt` would leave the row reading as spent
         // and the deck would go on serving a word somebody just refused.
         wokenAt: null,
       },
-    }),
+    });
     // Never earlier than it was: a card the scheduler had already put past
     // this date is left where the scheduler put it.
-    prisma.card.updateMany({
-      where: { ownerId, lexemeId, due: { lt: deferral.untilAt } },
-      data: { due: deferral.untilAt },
-    }),
-  ]);
+    await tx.card.updateMany({
+      where: { ownerId, lexemeId, due: { lt: kept.untilAt } },
+      data: { due: kept.untilAt },
+    });
+    return kept;
+  });
 
   return { ok: true as const, note: deferralNote(deferral, word.lemma), deferral };
 }

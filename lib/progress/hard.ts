@@ -20,6 +20,16 @@ import { HARD_LEARNERS, tooHardForEveryone } from "@/lib/srs/defer";
  * of *those* words, which is the denominator `tooHardForEveryone` needs and
  * which is only cheap because the candidate list is short and `Card` is
  * indexed on `lexemeId`.
+ *
+ * AND "SHORT" IS A CAP RATHER THAN A HOPE. The candidate list is whatever
+ * `HARD_LEARNERS` lets through, which is a number about people and says
+ * nothing about how many words reach it: the second query interpolates that
+ * list into an `IN`, and the answer is read on every render of the review
+ * queue. So it is cut, and a cut says where (`MOST_REFUSED`), which is the
+ * words most people refused, the primary key settling a tie. What that costs
+ * is the tail of a list this deployment is failing at the top of, and a
+ * deployment with more than that many words past the threshold has a course
+ * problem rather than a query problem.
  */
 
 /** People holding a card for each of these words. The denominator. */
@@ -41,12 +51,23 @@ async function holdersOf(ids: readonly string[]): Promise<Map<string, number>> {
   return new Map(rows.map((row) => [row.lexemeId, row.learners]));
 }
 
+/**
+ * How many words this may offer a band later, at once.
+ *
+ * Generous rather than tight, because every one of them is a real finding and
+ * dropping one is a word left where the learners it is failing already said it
+ * does not belong.
+ */
+const MOST_REFUSED = 200;
+
 /** The words this deployment now teaches a band later than the dictionary says. */
 export async function movedWords(): Promise<ReadonlySet<string>> {
   const candidates = await prisma.deferral.groupBy({
     by: ["lexemeId"],
     _count: { _all: true },
     having: { lexemeId: { _count: { gte: HARD_LEARNERS } } },
+    orderBy: [{ _count: { lexemeId: "desc" } }, { lexemeId: "asc" }],
+    take: MOST_REFUSED,
   });
   if (candidates.length === 0) return new Set<string>();
 
@@ -93,7 +114,7 @@ export async function hardWordReadings(limit = 40): Promise<HardWordReading[]> {
     by: ["lexemeId"],
     _count: { _all: true },
     having: { lexemeId: { _count: { gte: WORTH_READING } } },
-    orderBy: { _count: { lexemeId: "desc" } },
+    orderBy: [{ _count: { lexemeId: "desc" } }, { lexemeId: "asc" }],
     take: limit,
   });
   if (candidates.length === 0) return [];

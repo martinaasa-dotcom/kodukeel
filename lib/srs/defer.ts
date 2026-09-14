@@ -104,6 +104,18 @@ export function deferralFor(input: { band: string | null; level: Level; now: Dat
 }
 
 /**
+ * How far off a date is, in whole weeks, for the sentence the learner reads.
+ *
+ * Rounded rather than floored, and never below one: a wait already standing
+ * with four days left on it is "about a week" rather than "about 0 weeks",
+ * which is the same rule `lib/time/duration.ts` states one directory over
+ * about a figure whose smaller end rounds to a zero it is not.
+ */
+export function weeksBetween(from: Date, to: Date): number {
+  return Math.max(1, Math.round((to.getTime() - from.getTime()) / WEEK_MS));
+}
+
+/**
  * What the learner is told, which is what happened rather than thank you.
  *
  * Both sentences name the word and say when it comes back, because a button

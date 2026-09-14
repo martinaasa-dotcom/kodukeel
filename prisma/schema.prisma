@@ -609,8 +609,12 @@ model Deferral {
   id       String @id @default(uuid())
   ownerId  String
   lexemeId String
-  /// The word as it stood, so the admin count reads without a join and a
-  /// report survives the entry being merged away.
+  /// The word as it stood. There is no relation to `Lexeme` and this is why:
+  /// what somebody said about a word is still true after the entry it named is
+  /// corrected, merged into another or taken out, and a cascade would delete
+  /// the evidence along with the row it happens to point at. The learner's own
+  /// list reads this where the entry has gone; the admin count joins, because
+  /// there it is the band beside the lemma that makes the number worth reading.
   lemma    String
 
   /// The band the word was offered at when they said so, and the learner's own

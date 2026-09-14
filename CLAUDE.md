@@ -3477,6 +3477,26 @@ schedule being overwritten by the one button that promised not to touch it.
 `lib/progress/deferrals.itest.ts` has a card six months out in every fixture, because no unit test
 can see this.
 
+**So a second press never shortens a wait, and that is a rule about the cards rather than about
+politeness.** Both ways back match the date the deferral wrote, which is the whole of what stops
+either of them pulling a card forward, so a press that wrote an *earlier* date over a wait already
+standing would leave the cards on the old one, matched by nothing: the row would read three weeks
+while the word stayed gone for a term and the way back would do nothing at all. It is reachable
+through a wait for a band, a level rise and the same word on a screen that was already open. Where
+a standing wait reaches further than tonight's would it is the one kept, whole, the date and the
+grounds together, and the press still counts. Saying it twice is not a reason to see the word
+sooner.
+
+**And the session's own undo does not hand the word straight back.** `undoGrade` restores the
+scheduling a card had before the grade, and that includes the date it was due, which is earlier than
+the one the button has just written, so a review session keeping a graded card of that word in its
+undo history would let one press of Undo resurrect it under a note still saying it was gone for
+three weeks. The word's grades leave the history with it, and the undo those grades were for is the
+one the note offers, which takes the whole word. What is left moves up, because a history entry
+holds a position in the queue and this is the one thing in a session that shortens the queue behind
+where the learner is standing: an entry pointing at where a card used to be reopens on its
+neighbour.
+
 **How long is decided by the word's own band and there are two answers.** A word at or below the
 learner's level goes back three weeks: a bad evening is a bad evening. A word above it did not
 arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
@@ -7302,7 +7322,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
 `putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`,
-`deferredDues`.
+`deferredDues`, `weeksBetween`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

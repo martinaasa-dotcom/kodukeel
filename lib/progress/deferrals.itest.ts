@@ -192,3 +192,78 @@ describe("a card built after the word was put aside", () => {
     await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
   });
 });
+
+/**
+ * SAYING IT TWICE, WHICH IS WHERE THE WHOLE THING COMES APART IF THE DATE CAN
+ * SHRINK.
+ *
+ * The undo and `wakeForLevel` both hand a word back by matching the cards
+ * sitting on the date the deferral wrote, which is what stops either of them
+ * pulling forward a card the scheduler had honestly put further out. A second
+ * press that wrote an *earlier* date would leave the cards standing on the old
+ * one, matched by nothing, so the row would read three weeks while the word
+ * stayed gone for a term and the way back would do nothing at all. It is
+ * reachable: a wait for a band, then a level rise, then the same word on a
+ * screen that was already open.
+ */
+describe("a second press", () => {
+  it("keeps the longer wait, and its grounds with it", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "B2");
+    await cards(entry.id, [now]);
+
+    // Said at A1, so it waits for B2: a term.
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+    const first = await prisma.deferral.findFirstOrThrow({ where: { ownerId: MINE } });
+    expect(first.reason).toBe("BAND");
+
+    // Said again a day later, now standing at B2 themselves, which on its own
+    // would be the plain few weeks and therefore sooner.
+    const later = new Date(now.getTime() + 24 * 3600 * 1000);
+    const again = await deferWord(MINE, entry.id, "B2", "/review", later);
+    expect(again.ok).toBe(true);
+
+    const row = await prisma.deferral.findFirstOrThrow({ where: { ownerId: MINE } });
+    expect(row.untilAt.toISOString()).toBe(first.untilAt.toISOString());
+    expect(row.untilLevel).toBe("B2");
+    expect(row.reason).toBe("BAND");
+    // It is still one person saying it, counted once, and how loudly is `times`.
+    expect(row.times).toBe(2);
+    expect(await prisma.deferral.count({ where: { ownerId: MINE } })).toBe(1);
+  });
+
+  it("leaves the cards on one date, so the way back still works", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "B2");
+    await cards(entry.id, [now, LATER]);
+
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+    await deferWord(MINE, entry.id, "B2", "/review", new Date(now.getTime() + 24 * 3600 * 1000));
+
+    const back = new Date(now.getTime() + 2 * 24 * 3600 * 1000);
+    expect(await undoDeferral(MINE, entry.id, back)).toBe(true);
+
+    const rows = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { due: "asc" } });
+    expect(rows[0]!.due.toISOString()).toBe(back.toISOString());
+    // And the one the scheduler put six months out is still six months out.
+    expect(rows[1]!.due.toISOString()).toBe(LATER.toISOString());
+    expect(await deferredWordIds(MINE, back)).not.toContain(entry.id);
+  });
+
+  it("does start a fresh wait once the last one is spent", async () => {
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const entry = await word("zzdefer", "A1");
+    await cards(entry.id, [now]);
+
+    await deferWord(MINE, entry.id, "A1", "/review", now);
+    // A month on, the three weeks are up and the word has come back.
+    const month = new Date(now.getTime() + 30 * 24 * 3600 * 1000);
+    await deferWord(MINE, entry.id, "A1", "/review", month);
+
+    const row = await prisma.deferral.findFirstOrThrow({ where: { ownerId: MINE } });
+    const weeks = (row.untilAt.getTime() - month.getTime()) / (7 * 24 * 3600 * 1000);
+    expect(Math.round(weeks)).toBe(DEFER_WEEKS);
+    const card = await prisma.card.findFirstOrThrow({ where: { ownerId: MINE } });
+    expect(card.due.toISOString()).toBe(row.untilAt.toISOString());
+  });
+});

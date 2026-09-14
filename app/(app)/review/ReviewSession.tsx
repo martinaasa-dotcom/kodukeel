@@ -376,6 +376,8 @@ function askFor(card: ReviewCard, mode: ReviewMode, met: ReadonlySet<string>): A
 
 interface Done {
   cardId: string;
+  /** The word it was about, so putting that word aside can take its grades with it. */
+  lexemeId: string | null;
   index: number;
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
@@ -641,13 +643,33 @@ export function ReviewSession({
    * Nothing is graded and nothing goes in the history, because nothing was
    * answered: undo rewinds a grade, and there is no grade here (ADR-016). The
    * way back is the one the note names.
+   *
+   * WHAT THE WORD'S OWN GRADES DO IS LEAVE WITH IT, WHICH IS NOT TIDINESS.
+   * `undoGrade` restores the scheduling the card had before the grade, and
+   * that includes the date it was due, which is earlier than the date
+   * `putWordAside` has just written. So undoing a grade on a word the learner
+   * has just put aside would quietly hand the word back and the note under
+   * the card would go on saying it was gone for three weeks. The undo those
+   * grades were for is the one the note offers, which takes the whole word
+   * back rather than one card of it.
+   *
+   * And what is left moves up, because a `Done` holds a position in the queue
+   * and this is the one thing in the session that shortens the queue behind
+   * where the learner is standing. An entry pointing at where a card used to
+   * be reopens on its neighbour.
    */
   const putAside = useCallback((note: string) => {
-    if (!card) return;
+    // The button is drawn only on a card that names a word, and the guard is
+    // here as well because a null one would read as "every card with no
+    // lexeme" and take them all out of the queue together.
+    if (!card?.lexemeId) return;
     const word = card.lexemeId;
-    const behind = queue.slice(0, index).filter((c) => c.lexemeId === word).length;
+    const goneBefore = (at: number) => queue.slice(0, at).filter((c) => c.lexemeId === word).length;
     setQueue((q) => q.filter((c) => c.lexemeId !== word));
-    setIndex((i) => Math.max(0, i - behind));
+    setIndex((i) => Math.max(0, i - goneBefore(i)));
+    setHistory((h) => h
+      .filter((d) => d.lexemeId !== word)
+      .map((d) => ({ ...d, index: Math.max(0, d.index - goneBefore(d.index)) })));
     setAside(note);
     setRevealed(false);
     setTyped("");
@@ -701,7 +723,7 @@ export function ReviewSession({
 
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, index, rating, before }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
 
     // "Again" means it is not learned — put it back near the end of this session.
     if (rating === 1) {
