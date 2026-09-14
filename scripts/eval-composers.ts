@@ -57,6 +57,15 @@ const arg = (name: string, fallback: string) => {
 };
 const SAMPLES = Number(arg("samples", "2"));
 const ONLY_MODEL = process.argv.includes("--model") ? arg("model", "") : "";
+/*
+  Models beyond the free lists, one comma-separated list per provider, so a
+  candidate can be measured before it is wired anywhere: `--groq
+  openai/gpt-oss-20b --gemini gemini-3.1-flash-lite,gemma-4-31b-it`. The free
+  lists stay what the chain reads; this only widens the measurement.
+*/
+const extra = (name: string) => arg(name, "").split(",").map((m) => m.trim()).filter(Boolean);
+const EXTRA_GROQ = extra("groq");
+const EXTRA_GEMINI = extra("gemini");
 const OUT = arg("out", "/tmp/composers.jsonl");
 
 /*
@@ -81,8 +90,8 @@ function links(): Link[] {
     if (!key) return;
     for (const model of models) out.push({ provider, model, url, key });
   };
-  add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", FREE_GROQ_MODELS);
-  add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", FREE_GEMINI_MODELS);
+  add("Groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", [...FREE_GROQ_MODELS, ...EXTRA_GROQ]);
+  add("Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", "GEMINI_API_KEY", [...FREE_GEMINI_MODELS, ...EXTRA_GEMINI]);
   return out.filter((l) => !ONLY_MODEL || l.model === ONLY_MODEL);
 }
 
@@ -284,7 +293,17 @@ async function ask(link: Link, system: string, user: string): Promise<Answer> {
       if (!res.ok) return { status, text: "", ms, waited, rateLimits };
 
       const data = await res.json() as { choices?: { message?: { content?: string } }[] };
-      return { status: 200, text: (data.choices?.[0]?.message?.content ?? "").trim(), ms, waited, rateLimits };
+      /*
+        A model that writes its reasoning into `content` behind a tag (Gemma 4
+        opens with `<thought>`, qwen3.6 with `<think>`) is measured on what it
+        said after it, since that is what the transport would have to keep;
+        `provider.ts` notes the same shape as the reason qwen3.6 is off the
+        chain, so a model that wins this way needs the strip there before it
+        is wired.
+      */
+      const raw = data.choices?.[0]?.message?.content ?? "";
+      const text = raw.replace(/<(thought|think)>[\s\S]*?<\/\1>\s*/g, "").trim();
+      return { status: 200, text, ms, waited, rateLimits };
     } catch {
       // A timeout and a dropped socket are the same fact about the free tier.
       if (attempt >= RETRIES) return { status: 0, text: "", ms: Date.now() - started, waited, rateLimits };

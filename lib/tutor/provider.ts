@@ -415,7 +415,30 @@ export const VISION_MODEL = "gemini-3.1-flash-lite";
  * 2.7 times the price and repeats itself. Read `npm run eval:thinking` before
  * changing it, and the price row before believing a version number.
  */
-export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
+/*
+  AND A SECOND GEMINI LINK BEHIND THE FIRST, CHOSEN ON PRICE AND READ.
+
+  The operator asked for the cheapest model that still writes a line a person
+  would say, for the fallback, and every model the two keys reach was measured
+  the same way, forty cold lines through `eval:composers` and then the
+  survivors played live through `play:scenes --compose` on all fourteen
+  scenes (docs/21 §61). `gemini-3.1-flash-lite` and `gemini-3.5-flash-lite`
+  both played at 19 percent withheld against the Groq fallback's 36 to 41,
+  and both read as a person: `Mis teil viga on või kus teil valutab?`,
+  `Palun võtke järjekorranumber ja oodake, kuni ma teid kutsun.` The 3.1
+  Lite is the cheaper of the two, $0.00044 a draft against $0.00057 at the
+  scene's token profile and a third of the primary's, and it is already
+  `VISION_MODEL`, so it is the second link. The others are out on the read:
+  `gpt-oss-20b` played at 57 percent withheld and put `Mis on probleemi?` on
+  screen, `gemma-4-26b` wrote `Kust sa nüüd tulemast?`, and `gemma-4-31b`
+  wrote clean lines at eighteen seconds each, which is not a conversation.
+
+  Two Gemini links is not the three-model reasoning above coming back: both
+  are priced rows in `lib/usage/pricing.ts`, so a walk from the first to the
+  second is charged at a known rate, and the Groq link still stands behind
+  both for the day the Gemini key itself stops answering.
+*/
+export const SCENE_MODELS = ["gemini-3.8-flash", "gemini-3.1-flash-lite"] as const;
 
 /**
  * The fixed second link behind `SCENE_MODELS`, on Groq, once Gemini is

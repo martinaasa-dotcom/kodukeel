@@ -188,9 +188,10 @@ describe("a chain built for a purpose", () => {
     expect(tutorWithFallback).toHaveLength(1);
 
     const sceneNamed = resolveProviders({ purpose: "scene", allowFallback: false }).map((c) => c.name);
-    expect(sceneNamed).toEqual(["gemini", "groq"]);
+    // Two Gemini links, one per entry of `SCENE_MODELS`, then the Groq link.
+    expect(sceneNamed).toEqual(["gemini", "gemini", "groq"]);
     const sceneWithFallback = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(sceneWithFallback.map((c) => c.name)).toEqual(["gemini", "groq", "anthropic"]);
+    expect(sceneWithFallback.map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
   });
 
   it("falls to scripted on its own provider's absence, independently", () => {
@@ -221,11 +222,12 @@ describe("a chain built for a purpose", () => {
   it("puts Anthropic behind a purpose's own providers, once, as a last resort", () => {
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: true });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "groq", "anthropic"]);
-    // Gemini still leads, Groq is the fixed second link, and the bounded
-    // fallback sits behind both rather than instead of either.
-    expect(scene[0]?.model).toBe(SCENE_MODELS[0]);
-    expect(scene[1]?.model).toBe(SCENE_FALLBACK_MODEL);
+    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
+    // Gemini still leads, on both of its models in order, Groq is the fixed
+    // link behind them, and the bounded fallback sits behind all three rather
+    // than instead of any of them.
+    expect(scene.slice(0, SCENE_MODELS.length).map((c) => c.model)).toEqual([...SCENE_MODELS]);
+    expect(scene[SCENE_MODELS.length]?.model).toBe(SCENE_FALLBACK_MODEL);
   });
 
   it("drops the fallback the moment the day's fallback budget is spent", () => {
@@ -240,7 +242,7 @@ describe("a chain built for a purpose", () => {
     */
     all();
     const scene = resolveProviders({ purpose: "scene", allowFallback: false });
-    expect(scene.map((c) => c.name)).toEqual(["gemini", "groq"]);
+    expect(scene.map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
     // The general chain's dear tail is a fallback too, and goes the same way.
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "anthropic")).toBe(false);
     expect(resolveProviders({ allowFallback: false }).some((c) => c.name === "openai")).toBe(false);
@@ -271,7 +273,7 @@ describe("a chain built for a purpose", () => {
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
     all();
-    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "groq", "anthropic"]);
+    expect(resolveProviders({ purpose: "scene" }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
   });
 
   it("keeps the scene chain isolated, and lets no override put another provider in front", () => {
@@ -287,12 +289,12 @@ describe("a chain built for a purpose", () => {
       model for any of the three changes nothing.
     */
     all();
-    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "groq", "anthropic"]);
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "groq"]);
+    expect(sceneProviders().map((c) => c.name)).toEqual(["gemini", "gemini", "groq", "anthropic"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
 
     vi.stubEnv("GROQ_SCENE_MODEL", "some/scene-model");
     vi.stubEnv("ANTHROPIC_SCENE_MODEL", "claude-sonnet-5");
-    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "groq"]);
+    expect(sceneProviders({ allowFallback: false }).map((c) => c.name)).toEqual(["gemini", "gemini", "groq"]);
     expect(sceneProviders()[0]).toMatchObject({ name: "gemini", model: SCENE_MODELS[0] });
     // And the pinned Groq model does not move either, whatever `GROQ_SCENE_MODEL` says.
     expect(sceneProviders().find((c) => c.name === "groq")).toMatchObject({ model: SCENE_FALLBACK_MODEL });
@@ -330,7 +332,7 @@ describe("a chain built for a purpose", () => {
     vi.stubEnv("GEMINI_SCENE_MODEL", "gemini-3.5-flash-lite");
     expect(resolveProviders({ purpose: "scene" }).map((c) => c.model)).toEqual([...SCENE_MODELS]);
     expect(sceneProviders().map((c) => c.model)).toEqual([...SCENE_MODELS]);
-    expect(SCENE_MODELS).toEqual(["gemini-3.8-flash"]);
+    expect(SCENE_MODELS).toEqual(["gemini-3.8-flash", "gemini-3.1-flash-lite"]);
   });
 
   it("prices the scene model as a paid model, because the account is paid", () => {
@@ -341,12 +343,14 @@ describe("a chain built for a purpose", () => {
       for the highest-volume path in the app: scene composition would have been
       unbounded and `AI_DAILY_USD_GLOBAL` would never have known.
     */
-    const price = priceFor(SCENE_MODELS[0]);
-    expect(price.inputPerMTok).toBeGreaterThan(0);
-    expect(price.outputPerMTok).toBeGreaterThan(0);
-    // And not the punitive unknown rate, which would bind forty times too early
-    // and break the feature to protect a bill that was never at risk.
-    expect(price.inputPerMTok).toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+    for (const model of SCENE_MODELS) {
+      const price = priceFor(model);
+      expect(price.inputPerMTok).toBeGreaterThan(0);
+      expect(price.outputPerMTok).toBeGreaterThan(0);
+      // And not the punitive unknown rate, which would bind forty times too early
+      // and break the feature to protect a bill that was never at risk.
+      expect(price.inputPerMTok).toBeLessThan(UNKNOWN_MODEL.inputPerMTok);
+    }
   });
 });
 

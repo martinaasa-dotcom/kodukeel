@@ -206,6 +206,20 @@ The `close` move is told it is the goodbye, since told "they say goodbye" the fa
 asking, and what `topic` still withholds is the model asking the previous beat's question again,
 which is the model and is where the next number lives.
 
+**And the cheapest model that still writes a line a person would say is a Gemini Lite, measured
+against every model the two keys reach.** Forty cold lines each and the survivors played live
+(`docs/21-situations.md` §61, the table): `gemini-3.1-flash-lite` and `gemini-3.5-flash-lite` both
+play at 19 percent withheld against qwen's 36 to 41, and both read as a person, so price decides
+and the 3.1 Lite is the second entry of `SCENE_MODELS`, at $0.00044 a draft against the primary's
+$0.0013 and qwen's $0.0014. `gpt-oss-20b` is the one cheaper Groq model and it put
+`Mis on probleemi?` on screen at 57 percent withheld; Gemma 4 on the Gemini key writes
+`Kust sa nüüd tulemast?` at 26B and clean lines at eighteen seconds each at 31B, which is not a
+conversation. **A second link on the same key is not a fallback for that key failing**, so qwen
+stays as the Groq link behind both. The cold eval takes `--groq` and `--gemini` lists so a candidate
+can be measured before it is wired anywhere, and reads the cold `passed` column as how far a model
+reaches past the scene's list rather than as whether its words are Estonian; the live run is the
+number to read.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
