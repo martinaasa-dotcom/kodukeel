@@ -4619,14 +4619,21 @@ price is per draft at the scene's token profile, off `lib/usage/pricing.ts`:
     gemini-3.1-flash-lite    0.00044   16/40         19%             a person; reaches past the list, all of it real
     gemini-3.5-flash-lite    0.00057   37/40         19%             a person; plain, stays inside the list
     gemini-3.7-flash         0.00105   26/40         not played      near the primary at near its price
-    gemini-3.8-flash         0.0013    27/40         5.6% (§)        the primary
+    gemini-3.8-flash         0.0013    27/40         8%              the primary; reacts to the learner, richest lines
     qwen/qwen3.8-27b         0.0014    29/40         36 to 41%       the fallback until now
     openai/gpt-oss-20b       0.00012   25/40         57%             `Mis on probleemi?`, `Millises tuba see on`
     gemma-4-26b-a4b-it       unpriced  25/40         not played      `Kust sa nüüd tulemast?`, `sa kõneled veel teel`
     gemma-4-31b-it           unpriced  27/29         not played      clean, at eighteen seconds a line
     gemini-2.5-flash-lite    0.00016   404 on the OpenAI-compatible endpoint this key uses
 
-The cold `passed` column is the harness vouching against the scene's own list, so it says how far a
+The primary was played through the same harness afterwards, 88 drafts for 81 lines on screen,
+and its lines are the best on the page: `Tore, sa oled poes! Mida sa täna ostad?`, `Inglismaalt,
+väga tore! Aga miks te tahate eesti keelt õppida?`, where the Lite models ask the question and
+stop. Per line that reaches the screen, once the withheld share is counted, the primary is about
+$0.0014, the 3.5 Lite $0.0007 and the 3.1 Lite $0.00054, so a ten-line conversation costs a cent
+and a half on the primary and half that on a Lite. The primary stays the primary: the difference
+is under a cent a conversation, and 8 percent withheld against 19 is fewer turns falling to the
+bank, which is the mechanical half of a scene. The cold `passed` column is the harness vouching against the scene's own list, so it says how far a
 model reaches rather than whether the words are Estonian; the live column is the app's own gate
 with the forms list behind it, and it is the one to read. The two Lite models are the same there
 and the lines of both read as a person (`Mis teil viga on või kus teil valutab?`, `Kas valu on
