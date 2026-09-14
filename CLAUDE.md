@@ -6764,16 +6764,35 @@ a spelling in the question is, off `whichCase` and never off the model; `lib/pro
 reads them, vouching each token the way a photographed page is vouched (ADR-021); the route sends the
 block after the learner's note and the harness builds the same block off the shipped file, asserted.
 Measured on that shape, `openai/gpt-oss-120b` still taught a wrong form three times in ninety-three
-answers and `gemini-3.8-flash`, thinking off, taught none, so Anu answers on Gemini with Groq as
-her fixed backup, both pinned like the scene links, and her static prompt is held on Google's side:
-$1.28 a thousand answers against $0.32, for the faults a learner cannot see. **The cheaper Gemini
-rows were each asked the same questions first**: two are no longer sold to this key,
-`gemini-3.5-flash-lite` invented a form, and `gemini-3.1-flash-lite` at $0.30 invented none and
-explained `tuba : toa` wrongly both times it was asked, with the grade note in front of it, which
-is the one fault worse than no answer on the one question about gradation. And a `FIX:` line under
-a question that had no sentence to correct is dropped on every model, decided from the learner's
-own message and the words the dictionary vouched in it (`lib/tutor/fixLine.ts`), because the
-screen boxes that line as a correction of something they wrote (`docs/21-situations.md` §55).
+answers and the Gemini rows, thinking off, taught none, so Anu answers on Gemini with Groq as her
+fixed backup, both pinned like the scene links, and her static prompt is held on Google's side.
+**Which Gemini row is a cost decision, and the operator made it: the Lite.** `gemini-3.8-flash`
+answered 29 of 29 at $1.28 a thousand held and `gemini-3.1-flash-lite` came close at a quarter of
+that, so every cheaper row was asked the same questions first: two are no longer sold to this key,
+`gemini-3.5-flash-lite` invented `töötulan`, and the 3.1 Lite invented no form and got a short, named
+list wrong instead. Each of those has a guard now rather than a dearer model: it explained
+`tuba : toa` as a vowel softening, so the words block spells the grade change out letter by letter
+(`gradePlain`); it wrote `olette` in a table of `olema`, so a verb's line carries its six persons off
+the stored forms where the harvest holds them and off the rule where it does not (`personsLine`); it
+called `teisipäeval` the seesütlev, so a nominal carries its eleven cases with the name after each
+form where the question asked about a form or named no Estonian at all (`casesLine`,
+`asksForForms`), and a case name a letter or two off the table is put right on the way past
+(`nearestCaseName`); it buried the sentence under a preamble and reworded right sentences as
+corrections, so the prompt asks for the Estonian first and for a correction that changes only what
+was wrong. **The table is gated because it was measured both ways**: under every nominal it fixed
+the naming and sent "ma töötan kool" from `koolis` three times in three to `koolil` and `koolina`,
+the model shopping among forms handed over for a sentence that needed one, so a sentence to correct
+gets the principal parts alone and a pronoun is always tabled, since its everyday cases are the
+short stored forms. And "how do you say Tuesday" names no Estonian, so the English of such a
+question is resolved through the dictionary's own glosses, whole or on the first sense, on the route
+and in the harness alike. Three runs of the finished shape on the Lite: 86 of 87 facts, every correction right, no stray
+`FIX:` line, no invented form, at $0.33 a thousand held against $1.28 and under a second an answer.
+What the guards do not reach is the harness's number, not the app's: half of what it reports as
+unverified is English the model put in bold, which the screen's own check never reads. And a
+`FIX:` line under a question that had no sentence to correct is dropped on every model, decided
+from the learner's own message and the longest run of Estonian in it (`lib/tutor/fixLine.ts`),
+because the screen boxes that line as a correction of something they wrote
+(`docs/21-situations.md` §55).
 
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather

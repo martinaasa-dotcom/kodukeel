@@ -3233,30 +3233,73 @@ partitive without naming it, which is what the prompt asks for.
 | `gemini-3.1-flash-lite` | 25/29 | 8 in 37 | 36 (0) | 1.8 | $0.97 |
 | `openai/gpt-oss-20b`, old prompt | 21/29 | 4 | 29 (9) | 2.3 | $0.44 |
 
-**And the cheaper Gemini rows were each asked the same questions before the primary was kept, because
-four times the price is a decision and not a default.** Two of them are gone: Google answers
+**And the cheaper Gemini rows were each asked the same questions, because four times the price is a
+decision and not a default, and the decision went to the Lite.** Two of them are gone: Google answers
 "no longer available to new users" for `gemini-2.5-flash` and `gemini-2.5-flash-lite`, so the price
 rows are for a deployment that already had them. `gemini-3.5-flash-lite` refuses the thinking-off
 flag on both endpoints and does not think by default, so it was measured as it comes: 51 of 58 over
 two runs, eight stray `FIX:` lines and `töötulan`, a form of nothing, at $0.33. `gemma-4-26b` on the
 same key timed out or was throttled on 25 of 37 asks, wrote `jale` on one it answered, and has no
 price on file, so it prices at the dearest row. `gemini-3.1-flash-lite` is the one that came close:
-54 of 58 with no form invented, at $0.30 a thousand held, which is what a stray `FIX:` line under
-sixteen of its seventy-four answers cost the screen rather than the bill. That line is dropped
-mechanically now, on every model, decided from the learner's own message and how many of its words
-the dictionary vouched for (`lib/tutor/fixLine.ts`), and measured again with the guard the Lite
-comes to 53 of 58 and two `FIX:` lines, both real corrections. What is left is the answers rather
-than the rate: asked to explain `tuba : toa` it wrote, twice, that a "double vowel u" softens,
-where the b drops and the dictionary's own grade note beside the word said so; it wrote
-`alalaleütlev` for the case it was naming; and its answers run 68 words at the median against the
-primary's 48. A wrong explanation of gradation on the one question that is about gradation is the
-fault this app calls worse than no answer, so the primary stays `gemini-3.8-flash` at $1.28 held,
-and the Lite is one constant away for a deployment that would rather have the explanations at a
-quarter of the price.
+54 of 58 with no form invented, at $0.30 a thousand held, and what it got wrong was a short list a
+reader could name. Asked to explain `tuba : toa` it wrote, twice, that a "double vowel u" softens,
+with the grade note beside the word; it wrote `alalaleütlev` for the case it was naming; it put the
+sentence asked for under a paragraph of preamble; it reworded a right sentence as a correction; its
+answers ran 68 words at the median against the primary's 48; and, once the first guards were on,
+it wrote `olette` in a table of `olema` and called `teisipäeval` the seesütlev. The operator asked
+for the Lite the same day, cost being the point of a model that answers every question a learner
+has, so those are guards now rather than a reason to pay four times over.
+
+**Each guard is a fact handed over or a check on the way past, never a wider prompt.** The words
+block spells the grade change out from the note and the two forms it is about, "the b in tuba
+dropping out in toa" (`gradePlain`), and says a change inside a word is a consonant and never a
+vowel. A verb's line carries its six persons, the stored ones where the harvest holds them, which
+is what lets `olema` be printed at all, and the rule's where it does not, with the negative and the
+past third person (`personsLine`). A nominal carries its eleven cases with the name in brackets
+after each form, and the block says that name is the only one it may give (`casesLine`).
+`nearestCaseName` in `lib/tutor/humanize.ts` repairs a case name that is within two letters of one
+name on the table and nearer it than any other, so `seesutlev` is put right and `alalaleütlev`
+too, and a tagged line is never touched. The prompt asks for the Estonian first where the question
+asked how to say something, for a correction that changes only what was wrong, for a case named
+by its ending and spelled as the table spells it, and for under sixty words. And a question with no
+Estonian in it, "how do you say Tuesday", is grounded through the dictionary's own glosses, whole
+or on the first sense, `glossWords` and `glossAnswers`, on the route and in the harness alike.
+
+**The case table was measured both ways and is gated on what was asked.** Under every nominal it
+fixed the naming and broke the corrections: "is this right: ma töötan kool" went from `koolis`
+three times in three to `koolil` and `koolina`, and "ta helistas mind" was corrected to `talle`,
+the model shopping among eleven forms handed over for a sentence that needed one. So
+`asksForForms` reads the question for a case name or a word like ending, case or form; a word
+reached through its gloss is tabled anyway, since a question with no Estonian in it is a question
+about a form; a pronoun is always tabled, because its everyday cases are the short stored forms
+and `mulle` has to be in front of a model asked to correct `mind`; and a sentence to correct gets
+the principal parts alone. The stray `FIX:` guard changed with it: it counted vouched words, and
+"why is it lugesin raamatut and not lugesin raamatu" vouches four and is two quoted forms, so it
+counts the longest run of consecutive Estonian in the message now (`sentenceRun`), a capitalised
+name beside a vouched word riding inside the run.
+
+| `gemini-3.1-flash-lite`, three runs, finished shape, held | facts | stray FIX | wrong form | answer first | words med | per thousand |
+|---|---|---|---|---|---|---|
+| first guards (grade note, prompt rules, case-name repair) | 85/87 | 1 | `olette`; `teisipäeval` named seesütlev | 21/24 | 64 | $0.30 |
+| persons, case table under every nominal, glosses | 83/87 | 0 | none; `koolil`, `koolina`, `talle` as corrections | 18/24 | 60 | $0.34 |
+| table gated on the question | 86/87 | 0 | none; `talle` once in three | 18/24 | 63 | $0.34 |
+| and a pronoun always tabled | 86/87 | 0 | none; corrections 21 of 21 | 20/24 | 60 | $0.33 |
+
+The one fact still missed is an answer that explained the object without naming the partitive,
+which is what the prompt asks for. What the harness reports as unverified after that is English
+the model put in bold, "went", "children", "book", which the screen's own check never reads, since
+it reaches a quoted word or one carrying a diacritic; the eval reads bold because that is where an
+invented form lands, and the price of that is counting the English beside it. And "how does ei
+work, give me I do not read" still explains before it says `Ma ei loe` three times in three, which
+is a question that asked for both and a rule the prompt states and the model weighs against the
+explanation it was also asked for. A question asked in Estonian is answered in Estonian, and one
+of those answers called the seesütlev `kohaütlev`, a term nobody uses, inside prose no check here
+reads: the case-name repair reaches a name within two letters of the table and this is not one,
+so it stands as the residual the guards do not reach.
 
 | cheaper candidate, finished shape, held | facts | stray FIX | wrong form | per thousand |
 |---|---|---|---|---|
-| `gemini-3.1-flash-lite`, two runs, guard on | 53/58 | 2, both corrections | none; `alalaleütlev` for the case name | $0.30 |
+| `gemini-3.1-flash-lite`, two runs, first guard on | 53/58 | 2, both corrections | none; `alalaleütlev` for the case name | $0.30 |
 | `gemini-3.5-flash-lite`, two runs | 51/58 | 8 | `töötulan` | $0.33 |
 | `gemma-4-26b-a4b-it` | 11/11 of 12 answered | 0 | `jale` | no rate on file |
 | `gemini-2.5-flash`, `gemini-2.5-flash-lite` | not available to this key | | | |

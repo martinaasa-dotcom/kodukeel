@@ -292,7 +292,10 @@ export function asksForForms(messages: readonly { role: string; content: string 
 function tabledLines(words: readonly WordFacts[], forms: boolean): string[] {
   let tabled = 0;
   return words.map((word) => {
-    const table = word.pos !== "VERB" && tabled < MAX_TABLED && (forms || (word.asked ?? []).length === 0);
+    // A pronoun is always tabled: its everyday cases are the short stored forms (mulle, mul), and asked
+    // to correct "ta helistas mind" the model reached for talle, the other person's, with the pronoun's
+    // principal parts in front of it and its cases not.
+    const table = word.pos !== "VERB" && tabled < MAX_TABLED && (forms || word.pos === "PRONOUN" || (word.asked ?? []).length === 0);
     if (table) tabled += 1;
     return wordLine(word, table);
   });

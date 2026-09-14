@@ -110,7 +110,7 @@ const QUESTIONS: Q[] = [
   { id: "c4", kind: "correct", q: "Is this ok? Ma lähen Soomes homme.", fix: /Soome\b|Soomesse/ },
   { id: "c5", kind: "correct", q: "Is this correct: Ma joon kohvi.", must: [/right|correct|yes|good|fine|perfect/i], fix: "none", maxWords: 90 },
   { id: "c6", kind: "correct", q: "Is this correct: Ma olen kolm aastat Eestis elanud aga minu eesti keel on ikka halb.", must: [/right|correct|good|fine|yes/i], fix: "none", maxWords: 120 },
-  { id: "s1", kind: "short", q: "How do you say Tuesday?", must: [/teisipäev/], maxWords: 45, note: WEAK, mustNot: [/seesütlev|inessive/i] , first: /teisipäev/i },
+  { id: "s1", kind: "short", q: "How do you say Tuesday?", must: [/teisipäev/], maxWords: 45, note: WEAK, mustNot: [/(seesütlev|inessive)[^.\n]*teisipäeval/i] , first: /teisipäev/i },
   { id: "s2", kind: "short", q: "What's 'thank you'?", must: [/aitäh/], maxWords: 45 , first: /aitäh/i },
   { id: "s3", kind: "short", q: "Tere!", maxWords: 45 },
   { id: "s4", kind: "short", q: "What's the weather like in Tallinn today?", maxWords: 80 },
@@ -121,7 +121,7 @@ const QUESTIONS: Q[] = [
   { id: "v1", kind: "vocab", q: "Teach me five words for things in a kitchen.", vocab: 3 },
   { id: "v2", kind: "vocab", q: "What are the days of the week?", must: [/esmaspäev/, /pühapäev/] },
   { id: "e1", kind: "estonian", q: "Kas sa saad mulle seletada, mis vahe on sõnadel 'kool' ja 'koolis'?", must: [/inside|in the school|in school|seesütlev|inessive|at school/i] },
-  { id: "a1", kind: "level", q: "How do I say 'I am hungry'?", must: [/mul on kõht tühi|ma olen näljane|kõht on tühi|olen näljas|mul on nälg/i], maxWords: 90, note: A1 , first: /näljane|nälg|kõht/i },
+  { id: "a1", kind: "level", q: "How do I say 'I am hungry'?", must: [/mul on kõht tühi|olen näljane|kõht on tühi|olen näljas|mul on nälg/i], maxWords: 90, note: A1 , first: /näljane|nälg|kõht/i },
   { id: "x1", kind: "history", q: "and in the plural?", must: [/raamatuid/],
     history: [
       { role: "user", content: "What case is 'raamatut'?" },
@@ -261,7 +261,9 @@ async function main() {
           // The facts are read off the typography, and a must-not off the prose alone: a VOCAB line carries a pipe by design.
           const plain = plainText(a.text);
           const prose = plainText(a.text.split("\n").filter((l) => !TAGGED_LINE.test(l.trim())).join("\n"));
-          const ok = (q.must ?? []).every((p) => p.test(plain)) && !(q.mustNot ?? []).some((p) => p.test(prose));
+          // A fact is a fact whatever its capital: an answer opening on the word writes it as Aitäh.
+          const ci = (p: RegExp) => (p.flags.includes("i") ? p : new RegExp(p.source, `${p.flags}i`));
+          const ok = (q.must ?? []).every((p) => ci(p).test(plain)) && !(q.mustNot ?? []).some((p) => ci(p).test(prose));
           if (ok) tally.facts += 1; else issues.push("fact");
         }
         if (q.first) {

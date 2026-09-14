@@ -133,5 +133,6 @@ describe("asksForForms", () => {
     expect(wordsNote([tuba])).not.toContain("; cases ");
     expect(wordsNote([tuba], true)).toContain("; cases ");
     expect(wordsNote([{ ...tuba, asked: [] }])).toContain("; cases ");
+    expect(wordsNote([{ ...tuba, pos: "PRONOUN", asked: ["toas"] }])).toContain("; cases ");
   });
 });
