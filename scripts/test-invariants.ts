@@ -6714,6 +6714,7 @@ check("no screen writes a case's Latin name into a sentence", () => {
     // can follow a learner who arrives with one. See `lib/tutor/prompt.ts`.
     "lib/tutor/prompt.ts": "the model's own table, which names a case three ways on purpose",
     "lib/tutor/grader.ts": "the same briefing, for the writing and picture graders",
+    "lib/tutor/words.ts": "the same briefing again: the forms block Anu is handed for a word",
     // The banned-phrase table has to be able to quote the copy it is about.
     "lib/copy/voice.ts": "an example of a tell, which has to contain the thing it bans",
   };
@@ -6792,6 +6793,15 @@ check("a case's Latin name has a closed list of readers", () => {
       "parses the stored government string, which annotates each question word with a case name",
     "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
     "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
+    /*
+      The third prompt builder, and it reads both names for two reasons: it
+      names a case to the model the way `prompt.ts` does, and `CASE_NAMES`
+      recognises a case a *learner* typed, who may well arrive with the Latin
+      one. Left as main measured it rather than rewritten from here: what a
+      model is told is a measurement in that module's own commits, and this
+      rule is about what a learner reads.
+    */
+    "lib/tutor/words.ts": "the facts block Anu is handed, and the names a learner might type",
     "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
