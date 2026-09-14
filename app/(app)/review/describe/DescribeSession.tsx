@@ -15,6 +15,7 @@ import type { WithholdReason } from "@/lib/tutor/verify";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 
 export interface ScenePrompt {
   sceneId: string;
@@ -298,7 +299,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             >
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">⌘ Enter</KeyCap></>}
+                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
