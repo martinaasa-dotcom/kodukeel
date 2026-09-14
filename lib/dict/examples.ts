@@ -60,6 +60,19 @@ export function serialiseExamples(examples: Example[]): string {
  * Shortest first is deliberate — a first example that fits on one line is worth
  * more to a beginner than a subtler one that runs to three, and the cloze
  * generator takes the first sentence that works.
+ *
+ * A ONE-WORD "SENTENCE" IS A DIFFERENT WORD WEARING A FULL STOP. Ekilex files
+ * a compound's own usage under the base word it was built from, so `poeg`'s
+ * three recorded usages are `Rongapoeg.`, `Särjepoeg.` and `Kuningapoeg.`,
+ * none of which contain `poeg` as a word, all of them shorter than any real
+ * sentence for it would be, and shortest-first was putting the compound in
+ * front of a beginner who has not met `kuningas` yet. That is worse than the
+ * case this file already reasons about, where a real sentence simply does
+ * not carry the exact form asked for: this one is not a sentence at all, so
+ * there is nothing in it to mark and nothing for `teachingSentence` to point
+ * a beginner at. `sentenceWords` already splits on the same boundary a case
+ * ending is matched on, so a spelling with nothing on either side of a space
+ * is a spelling with one word in it.
  */
 export function usableExamples(examples: Example[]): Example[] {
   const seen = new Set<string>();
@@ -69,6 +82,7 @@ export function usableExamples(examples: Example[]): Example[] {
     const et = example.et.trim().replace(/\s+/g, " ");
     const key = et.toLowerCase();
     if (et.length < MIN_CHARS || et.length > MAX_CHARS) continue;
+    if (sentenceWords(et).length < 2) continue;
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({ ...example, et });

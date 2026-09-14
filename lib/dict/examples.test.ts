@@ -42,6 +42,14 @@ describe("usableExamples", () => {
     expect(kept.map((e) => e.et)).toEqual(["Jõin tassi kohvi."]);
   });
 
+  it("drops a one-word usage, which is a compound wearing a full stop rather than a sentence", () => {
+    // poeg's own recorded usages: none of the three contains "poeg" as a
+    // word, and shortest-first would otherwise put "Kuningapoeg." in front
+    // of a beginner who has not met "kuningas" yet.
+    const kept = usableExamples([ek("Rongapoeg."), ek("Särjepoeg."), ek("Kuningapoeg."), ek("Ta on kodus.")]);
+    expect(kept.map((e) => e.et)).toEqual(["Ta on kodus."]);
+  });
+
   it("puts the shortest first — a beginner reads the one-liner", () => {
     const kept = usableExamples([
       ek("Sünnipäevapeol sai hästi süüa ja juua."),
