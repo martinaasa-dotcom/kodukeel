@@ -4387,7 +4387,7 @@ which on this bank is every row.
 ## 61. The eighteenth pass: an interview on the fallback model
 
 The operator's Gemini key was withdrawn after a leak, so the scenes composed on
-`SCENE_FALLBACK_MODEL`, which is `openai/gpt-oss-120b` on Groq, and a job
+`SCENE_FALLBACK_MODEL`, which was `openai/gpt-oss-120b` on Groq, and a job
 interview run on it came back with four faults. Three are the module's and one
 is the model's, and telling those apart is most of what this pass did.
 
@@ -4451,17 +4451,57 @@ on writing Estonian through the route's own prompt and gate, and the only Groq
 model that eval ever ranked was `qwen/qwen3.8-27b` at 9 of 12 against Gemini's
 24 of 24. The fallback is trusted with Estonian output on the strength of a
 different task. The measurement was set up in this pass and could not be
-taken: the session's Groq and Gemini keys both answer 401. It is one command
-per model against a working key, and the fallback should be pinned on what it
-says:
+taken in it, because the session's keys answered 401; it was taken the next
+day, and the fallback is pinned on what it said.
 
-    npm run eval:composers -- --model openai/gpt-oss-120b
-    npm run eval:composers -- --model qwen/qwen3.8-27b
-    npm run eval:composers -- --model groq/compound-mini
+**The measurement, and what the number could not see.** `npm run eval:composers`
+over the three Groq models, forty lines each through the route's own prompt and
+the shipped gate, on 2026-09-14:
 
-What it does not fix is `ma olen nõus`, which is how anybody says "I agree" and
-which `npm run probe:turns` now reads as off the point on the offer beat:
-`nõus` is the inessive of `nõu` and no declared unit teaches it. That is §29's
-finding again, the course teaching the noun of a situation and not the phrase
-that does things with it, and it is a unit change rather than a scene one.
+| model | passed the gate, keyless | re-gated with the forms list | no finite verb | median |
+|---|---|---|---|---|
+| `groq/compound-mini` | 28/40 | 32/40 | 4 | 2088ms |
+| `qwen/qwen3.8-27b` | 16/40 | 30/40 | 1 | 368ms |
+| `openai/gpt-oss-120b` | 22/40 | 25/40 | 4 | 1829ms |
+
+Two columns because the harness vouches against the scene's list alone, where
+the route also asks the forms list (§53): `täpselt`, `tulid`, `kahjuks` and
+`pärastlõunal` are Estonian, and the keyless column withholds every line
+carrying one. Re-gated the way production gates, the order of the first two
+swaps and the gap closes to two lines, which is inside the noise of forty (§29
+on sampling floors). So the number does not rank them, and the lines do. What
+the gate cannot see is a line with no verb in it, since `clause` fires only on
+four or more words entirely inside the scene's list, and the two models the
+gate passes most write exactly that:
+
+    compound-mini   Kus teie valu?  ·  Pikk aeg? Arst?  ·  Millal see katki?  ·  Piim ostma.
+    gpt-oss-120b    Kas teie valu peas?  ·  Teie mis katki?  ·  Tuba katki, korrus?
+                    Teie nägema arst esmaspäev kell 10. Kas hea?
+
+Those all passed. `qwen/qwen3.8-27b` writes sentences: `Kust sa nüüd tuled? Kas
+oled poe lähedal?`, `Millises toas see on? Kas see on esimesel korrusel?`,
+`Kahjuks ühel meist pole aega sel nädalal tulla. Kas homme hommik või
+pärastlõuna sobib?` What it gets wrong is a word rather than a sentence,
+`pakkun` for `pakun`, `kotistamas`, `abikõneleja`, `parandusettevõtte`, and
+every one of those is withheld, because a spelling no source has ever written
+down is the one fault the gate was built to catch. That is the difference the
+fallback should be chosen on: a wrong word is withheld and the bank answers,
+and a wrong sentence made of right words reaches the learner. So
+`SCENE_FALLBACK_MODEL` is `qwen/qwen3.8-27b`, at about $0.0013 a line against
+$0.00024, still the cheapest link after the one it backs up, and a fifth of
+the latency.
+
+**And the harness measured itself first, again.** `eval-composers.ts` carried
+`max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`, which is
+exactly `play-scene.ts`'s fault in §55 one harness over: `gpt-oss-120b` thinks
+before it writes, came back empty on a fifth of its calls, and read as a model
+that cannot write a line. It reads the route's constant now, and the figures
+above are from the corrected run.
+
+`ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
+`plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
+on the wage beat's accept list, and `npm run probe:turns` reads the turn as
+complete. Harvesting it found that the harvest itself could delete the course
+on a refused key (CLAUDE.md, "the harvest may not delete what it exists to
+fetch").
 

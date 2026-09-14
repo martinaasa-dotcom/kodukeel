@@ -216,11 +216,11 @@ export interface ChainOptions {
  *
  * AND GROQ BACKS UP GEMINI EVERYWHERE GEMINI ANSWERS, SCENES INCLUDED. The
  * grader already put `openai/gpt-oss-120b` behind `gemini-3.1-flash-lite`;
- * `SCENE_FALLBACK_MODEL` puts the same model behind `SCENE_MODELS`, and the
- * vision chain already reaches it too, through the general chain appended
+ * `SCENE_FALLBACK_MODEL` puts a Groq model behind `SCENE_MODELS`, and the
+ * vision chain already reaches Groq too, through the general chain appended
  * behind Gemini in `visionProviders`. It is a fixed second link on every
  * budget, not the bounded Anthropic last resort, because it costs a
- * fortieth of Anthropic's rate and carries none of the risk that fallback
+ * fraction of Anthropic's rate and carries none of the risk that fallback
  * is gated against.
  *
  * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
@@ -293,11 +293,11 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       The bounded Anthropic fallback below exists because Groq having a bad
       hour must not drain the Anthropic balance Anu depends on (see the note
       on `allowFallback`). Groq itself carries no such risk to anything: it
-      is a fortieth of Anthropic's rate, and `SCENE_FALLBACK_MODEL` is the
-      same measured model `TUTOR_MODEL` already trusts with Estonian output.
-      So it answers whenever Gemini is unconfigured, throttled, or having a
-      bad minute, on every budget, the same way `GRADER_MODELS` already puts
-      Groq behind Gemini for the grader.
+      spends nothing Anu runs on, and `SCENE_FALLBACK_MODEL` is the Groq
+      model `eval:composers` ranked first on writing Estonian (see the
+      constant). So it answers whenever Gemini is unconfigured, throttled,
+      or having a bad minute, on every budget, the same way `GRADER_MODELS`
+      already puts Groq behind Gemini for the grader.
 
       Hardcoded like `SCENE_MODELS`, for the reason the block above gives at
       length: an environment variable that can silently repoint a scene's
@@ -421,20 +421,42 @@ export const SCENE_MODELS = ["gemini-3.8-flash"] as const;
  * The fixed second link behind `SCENE_MODELS`, on Groq, once Gemini is
  * unconfigured, throttled, or having a bad minute.
  *
- * The same string as `TUTOR_MODEL`, because it is the same finding: measured
- * against the tutor's six grammar questions (`npm run eval:anu`),
- * `openai/gpt-oss-120b` answered every one correctly at a fortieth of
- * Anthropic's rate. A scene line is a smaller ask than a grammar
- * explanation, so a model already trusted with the harder job is trusted
- * with this one. Kept as its own named constant rather than a reference to
- * `TUTOR_MODEL`, so a later change to Anu's model does not silently retune
- * the scene composer's as well.
+ * MEASURED, NOT INHERITED. This was `openai/gpt-oss-120b` on the argument
+ * that a model trusted with the tutor's harder job could be trusted with a
+ * scene line, and a job interview run on it (docs/21 §61) read `Kas see
+ * oskus töö? Palun valima üks või kaks`. Nothing generalises across the
+ * four model jobs in this app (§55), and this was the one job the fallback
+ * had never been measured on. `npm run eval:composers` over the three Groq
+ * models, forty lines each through the route's own prompt and the shipped
+ * gate, 2026-09-14:
+ *
+ *   model                 gate, keyless   gate, forms list   no finite verb   median
+ *   groq/compound-mini    28/40           32/40              4                2088ms
+ *   qwen/qwen3.8-27b      16/40           30/40              1                 368ms
+ *   openai/gpt-oss-120b   22/40           25/40              4                1829ms
+ *
+ * The gate rate is not the ranking, and the lines say why. What the gate
+ * cannot see is a line with no verb in it, since `clause` fires only on four
+ * or more words entirely inside the scene's list, and the two models it
+ * passes most write exactly that: `Kus teie valu?`, `Pikk aeg? Arst?`,
+ * `Millal see katki?`, `Piim ostma.` from compound-mini, and `Kas teie valu
+ * peas?`, `Teie mis katki?`, `Tuba katki, korrus?`, `Teie nägema arst
+ * esmaspäev kell 10` from gpt-oss-120b. qwen writes sentences: `Kust sa nüüd
+ * tuled? Kas oled poe lähedal?`, `Millises toas see on? Kas see on esimesel
+ * korrusel?`, `Kahjuks ühel meist pole aega sel nädalal tulla.` What it gets
+ * wrong is a word rather than a sentence, `pakkun` for `pakun`, `kotistamas`,
+ * `abikõneleja`, and every one of those the forms list withholds, which is
+ * the fault the gate is built to catch. Its keyless rate of 16 is the harness
+ * vouching against the scene's list alone, where production also asks the
+ * forms list; re-gated that way it is 30. Five times the price of gpt-oss
+ * per line, about $0.0013, and it is still the cheapest link on the chain
+ * after the one it backs up, and a fifth of the latency.
  *
  * PINNED, EXACTLY LIKE `SCENE_MODELS`. See `PURPOSE_CHAINS.scene` for why: an
  * environment variable that can move it is the door `SCENE_MODEL` came
  * through once, one provider over.
  */
-export const SCENE_FALLBACK_MODEL = "openai/gpt-oss-120b";
+export const SCENE_FALLBACK_MODEL = "qwen/qwen3.8-27b";
 
 /**
  * How much room a scene line needs, which is not what Anu needs.

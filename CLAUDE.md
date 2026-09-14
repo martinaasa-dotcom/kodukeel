@@ -125,16 +125,32 @@ the scanner already reaches it too, since `visionProviders` appends the general 
 Gemini lead. Scene composition did not, on the argument that the bounded Anthropic fallback existed
 precisely so a Groq outage could not drain the balance Anu runs on, and Groq had no business in the
 purpose chain for the same reason Anthropic's *place* in it is gated. That argument was about the
-dear tail, not about Groq: at a fortieth of Anthropic's rate, Groq is not the thing the budget gate
-exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link behind `SCENE_MODELS`, the same model
-`TUTOR_MODEL` already trusts with Estonian output, kept as its own constant rather than a reuse of
-`TUTOR_MODEL` so a later retune of Anu's model does not silently retune the scene composer's. It is
+dear tail, not about Groq: at a fraction of Anthropic's rate and spending nothing Anu runs on, Groq
+is not the thing the budget gate exists to bound. `SCENE_FALLBACK_MODEL` is a fixed second link
+behind `SCENE_MODELS`, kept as its own constant rather than a reuse of `TUTOR_MODEL` so a later
+retune of Anu's model does not silently retune the scene composer's. It is
 **pinned exactly like `SCENE_MODELS`**, for the reason the paragraph above gives at length: an
 environment variable that could move it is the door the `SCENE_MODEL` fault came through once, one
 provider over. It answers on every budget, `allowFallback` included, because it is not the bounded
 last resort: a Gemini-only deployment is unchanged, a Groq-only one now composes scenes on Groq
 directly rather than falling straight to the bank, and the bounded Anthropic tail still sits behind
 both as the last resort of last resorts.
+
+**And the fallback was pinned on the tutor's measurement, which is a different job, until it was
+measured on its own.** It was `openai/gpt-oss-120b` because that model answers Anu's six grammar
+questions 6 of 6, and a job interview composed on it read `Kas see oskus töö? Palun valima üks või
+kaks`. `npm run eval:composers` over the three Groq models, forty lines each through the route's
+own prompt and gate, put it last: gpt-oss-120b and compound-mini both write lines with no verb in
+them, `Kus teie valu?`, `Teie mis katki?`, `Millal see katki?`, and the gate passes those, because
+`clause` fires only on four or more words entirely inside the scene's list. `qwen/qwen3.8-27b`
+writes sentences and gets a word wrong, `pakkun`, `kotistamas`, which is the fault the forms list is
+built to withhold, so it is the fallback now, at five times the price per line and a fifth of the
+latency. **The keyless gate rate is a harness number**: the eval vouches against the scene's list
+alone, where the route also asks the forms list, so qwen's 16 of 40 there is 30 re-gated the way
+production gates, and compound-mini's 32 is the pidgin above passing. Read the lines. And the
+harness carried `max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`, which is
+`play-scene.ts`'s fault one harness over: gpt-oss came back empty on a fifth of its calls and read as
+a model that cannot write a line until the constant was read rather than typed.
 
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
