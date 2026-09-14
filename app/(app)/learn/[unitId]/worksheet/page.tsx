@@ -153,8 +153,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 B · Täida lüngad. Fill the gaps
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Put the word in brackets into the right form. Every sentence here is a real one,
-                recorded by the Institute of the Estonian Language.
+                Put the word in brackets into the right form. Every sentence here is a real one.
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (
