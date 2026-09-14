@@ -562,7 +562,7 @@ export function ReviewSession({
     // on the answer, the back whenever the back is the Estonian side, which is
     // every case, conjugation and gradation card. Both, so neither round-trips.
     const heard = new Set<string>();
-    if (estonianSide(upcoming.cardType, "front") && upcoming.cardType !== "CLOZE") heard.add(upcoming.lemma ?? upcoming.front);
+    if (estonianSide(upcoming.cardType, "front") && !isGap(upcoming)) heard.add(upcoming.lemma ?? upcoming.front);
     else if (upcoming.intro?.lemma ?? upcoming.lemma) heard.add(upcoming.intro?.lemma ?? upcoming.lemma!);
     if (estonianSide(upcoming.cardType, "back")) heard.add(upcoming.back);
     // The pace is part of what is warmed: `prefetchClip` stretches the clip to
@@ -1014,8 +1014,9 @@ export function ReviewSession({
             </p>
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
                 it aloud is not a thing, and the reveal below plays the whole
-                sentence once the answer is in. */}
-            {estonianSide(card.cardType, "front") && card.cardType !== "CLOZE" && (
+                sentence once the answer is in. Not just `CLOZE`: a `CASE_FORM`
+                or `CONJUGATION` front is a gap-fill sentence too now. */}
+            {estonianSide(card.cardType, "front") && !isGap(card) && (
               <Speak text={card.lemma ?? card.front} />
             )}
           </div>
@@ -1178,10 +1179,14 @@ export function ReviewSession({
           {revealed && ask !== "choice" && (
             <>
               <div className="my-1 h-1 w-14 rounded-full" style={{ background: "var(--accent-soft)" }} />
-              {card.cardType === "CLOZE" ? (
+              {isGap(card) ? (
                 /* A gap-fill is answered by a word but *learned* as a sentence,
                    so the reveal puts the word back where it came from and reads
-                   the whole thing aloud. */
+                   the whole thing aloud. Not just `CLOZE`: a `CASE_FORM` or
+                   `CONJUGATION` card is drilled in a sentence too now (see
+                   CLAUDE.md, "A case is drilled in a sentence that uses it"),
+                   and a learner who cannot read that sentence has no context
+                   for the answer, only its isolated gloss. */
                 <div className="flex flex-col items-center gap-2">
                   <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
                     {card.front.split(BLANK)[0]}
