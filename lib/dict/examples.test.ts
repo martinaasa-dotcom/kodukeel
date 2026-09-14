@@ -86,6 +86,48 @@ describe("usableExamples", () => {
   });
 });
 
+/*
+  A BEGINNER'S FIRST MEETING WITH A COURSE WORD NEVER TURNS OUT TO BE A
+  COMPOUND OF IT.
+
+  poeg was one instance of a general shape: any A1 or A2 word whose recorded
+  usages happen to include a compound shorter than its real sentences reaches
+  a beginner as that compound, because shortest-first sorting cannot tell a
+  compound from a sentence on length alone. Walked over all 703 A1/A2 words in
+  the actual course harvest rather than a handful picked by hand, because a
+  fault found once by reading a screenshot is a fault found a second time by
+  a learner.
+
+  Hermetic. It reads the one file `npm run db:seed` loads for the course
+  vocabulary and nothing else.
+*/
+describe("the A1/A2 course vocabulary's first-meeting sentences", () => {
+  it("never picks a one-word usage over a real sentence, and never goes empty because of it", async () => {
+    const { HARVESTED } = await import("../../prisma/data/harvested");
+    const { courseWords } = await import("../collections/syllabus/index");
+    const courseLevel = new Map(courseWords().map((w) => [`${w.lemma}|${w.pos}`, w.level]));
+
+    const beginnerWords = HARVESTED.filter((w) => {
+      const level = w.cefr ?? courseLevel.get(`${w.lemma}|${w.pos}`) ?? "B1";
+      return level === "A1" || level === "A2";
+    });
+    expect(beginnerWords.length).toBeGreaterThan(500); // a floor, so a broken import reads as a failure rather than an empty pass
+
+    for (const word of beginnerWords) {
+      const examples = word.usages.map((et) => ek(et));
+      const usable = usableExamples(examples);
+
+      // A word with recorded usages must still have something to show: the
+      // filter drops compounds, never every usage a word happens to have.
+      if (word.usages.length > 0) expect(usable.length).toBeGreaterThan(0);
+
+      for (const example of usable) {
+        expect(sentenceWords(example.et).length, `${word.lemma}: "${example.et}"`).toBeGreaterThan(1);
+      }
+    }
+  });
+});
+
 describe("mergeExamples", () => {
   it("keeps a translation already resolved when the sentence is refetched", () => {
     const merged = mergeExamples(
