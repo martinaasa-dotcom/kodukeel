@@ -665,7 +665,7 @@ check("a few of them rather than the unit", offered <= 8, `${offered} offered`);
 const drill = page.locator('main a[href^="/review/"]').first();
 check("points at a drill rather than writing its own advice",
   (await drill.count()) > 0, await drill.getAttribute("href").catch(() => "none"));
-check("and offers the same conversation again", (await page.getByRole("button", { name: /Do this scene again/i }).count()) > 0);
+check("and offers the same conversation again", (await page.getByRole("button", { name: /Rehearse this conversation again/i }).count()) > 0);
 
 /*
   AND THE DEBRIEF IS READ IN THE ROOM IT HAPPENED IN.

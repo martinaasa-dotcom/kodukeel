@@ -1,9 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
-  ERRANDS, errandForDay, errandForScene, isConversation, outcomeFrom, OUTCOMES, OUTCOME_LABEL, sceneForErrand,
+  ERRANDS, errandForDay, errandForScene, errandPlaces, isConversation, outcomeFrom, OUTCOMES, OUTCOME_LABEL,
+  sceneForErrand,
 } from "./errands";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { unitById } from "./syllabus";
+
+function errand(id: string) {
+  const found = ERRANDS.find((e) => e.id === id);
+  if (!found) throw new Error(`no errand ${id}`);
+  return found;
+}
 
 describe("errands", () => {
   it("name units of the course and never words", () => {
@@ -82,5 +89,16 @@ describe("errands", () => {
     expect(outcomeFrom("SWITCHED")).toBe("SWITCHED");
     expect(outcomeFrom("won")).toBeNull();
     expect(outcomeFrom(3)).toBeNull();
+  });
+
+  it("reads `where` as alternatives rather than a stored list", () => {
+    // A single place is unchanged.
+    expect(errandPlaces(errand("hello"))).toBe("Anywhere");
+    // Two are "or", never "and": either place would do, not both.
+    expect(errandPlaces(errand("job"))).toBe("Work or a party");
+    // Three keeps the comma between the first two.
+    expect(errandPlaces(errand("complain"))).toBe("A shop, a landlord, or a helpdesk");
+    // A `where` with no comma at all, and its own inline "or", is untouched.
+    expect(errandPlaces(errand("bread"))).toBe("A shop or a market");
   });
 });

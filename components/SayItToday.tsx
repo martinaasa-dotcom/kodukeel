@@ -8,7 +8,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button } from "@/components/Button";
 import { Card, SectionTitle } from "@/components/ui";
 import {
-  errandPlaces, isConversation, OUTCOMES, OUTCOME_LABEL, sceneForErrand,
+  errandPlaces, isConversation, OUTCOMES, OUTCOME_LABEL, SAY_IT_TODAY, sceneForErrand,
   type Conversation, type Errand, type Outcome,
 } from "@/lib/collections/errands";
 
@@ -120,7 +120,7 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     const scene = sceneForErrand(errand);
     return (
       <Card>
-        <SectionTitle>Say it today</SectionTitle>
+        <SectionTitle>{SAY_IT_TODAY}</SectionTitle>
         {/*
           A LINE THAT ONLY ANNOUNCES THE NEXT LINE SAYS NOTHING OF ITS OWN.
           "Then here is a small one for today." sat between the title and the

@@ -11,7 +11,7 @@ import type { SceneSpec } from "@/lib/scenes/types";
 import { drillFor } from "@/lib/scenes/drills";
 import { splitOnForm } from "@/lib/dict/examples";
 import { curveballById } from "@/lib/scenes/curveballs";
-import { errandForScene, errandPlaces } from "@/lib/collections/errands";
+import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
 
@@ -451,18 +451,27 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           {/*
             "Now the real one" implied the conversation just had was not real,
             which is not the argument this section is making and read as a
-            put-down of ten minutes somebody just spent. "Say it today" is the
-            same card Today itself offers when the answer to "did you speak
-            any Estonian yesterday" is no (`components/SayItToday.tsx`), so
-            the two screens that hand a learner this same errand now name it
-            the same thing.
+            put-down of ten minutes somebody just spent. `SAY_IT_TODAY` is
+            the same heading Today itself uses for the same errand when the
+            answer to "did you speak any Estonian yesterday" is no
+            (`components/SayItToday.tsx`), read off one constant rather than
+            typed twice, so the two screens cannot drift into naming it
+            differently.
           */}
-          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Say it today</h3>
+          <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>{SAY_IT_TODAY}</h3>
           <Card tone="mint">
             <p className="text-base font-semibold" style={{ color: "var(--mint-ink)" }}>{errand.says}</p>
+            {/*
+              `errandPlaces` leads the sentence rather than following a colon.
+              Every `where` in `lib/collections/errands.ts` is authored
+              capitalized as a sentence's first word ("Work, a party" is
+              "Work" then lowercase "a party"), so a lead-in like "Try it:"
+              would put that capital mid-sentence instead, on every errand
+              but the single-place ones.
+            */}
             <p className="mt-1.5 text-sm" style={{ color: "var(--mint-ink)" }}>
-              Try it: {errandPlaces(errand)}. Nobody there has read the card, and that is
-              the practice. Tomorrow, <Link href="/">Today</Link> asks how it went.
+              {errandPlaces(errand)}. Nobody there has read the card, and that is the
+              practice. Tomorrow, <Link href="/">Today</Link> asks how it went.
             </p>
             {cafe && (
               <p className="mt-2 text-xs" style={{ color: "var(--mint-ink)" }}>
@@ -490,13 +499,19 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
         schedule line is conditional, because a run that graded nothing has
         nothing to say about it, and the button is the point either way.
 
-        THE BUTTONS SAY WHAT THEY DO. "Have it again" and "Another
-        conversation" both name the same noun this scene is, "a
-        conversation", which is also the noun the errand card just above uses
-        for a real one: a learner reading "Say it today" and then "Another
-        conversation" two inches under it could not tell whether the second
-        button was still about the errand. Each names its own verb instead:
-        replay this scene, or go pick a different one.
+        THE BUTTONS NAME THE PRACTICE RATHER THAN BORROW THE ERRAND'S WORD.
+        "Have it again" and "Another conversation" both named the bare noun
+        "a conversation", which the errand card two inches above also uses
+        for the real one ("Say it today"): a learner could not tell at a
+        glance whether the second button was still about the errand. The
+        landing page, the manifest and this app's own tagline already draw
+        the line between the two with a verb rather than a second noun, "a
+        conversation to rehearse" (`app/layout.tsx`, `app/manifest.ts`,
+        `/situations`'s own "The rehearsal is here. The conversation is out
+        there."): nobody rehearses a real conversation, they have one, so
+        putting "rehearse" on both buttons here says which kind each is
+        without inventing a new word for what this app has always called a
+        scene, "a conversation", everywhere a learner reads it.
       */}
       <div className="flex flex-col gap-3">
         {/*
@@ -504,9 +519,9 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           every other finish screen in the app has.
         */}
         <div className="flex flex-wrap gap-2">
-          <ButtonLink href="/situations" variant="ghost">Choose a different scene</ButtonLink>
+          <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>
           {/* Redoing it keeps this scene and redraws everything else. */}
-          <Button variant="primary" onClick={onAgain}>Do this scene again</Button>
+          <Button variant="primary" onClick={onAgain}>Rehearse this conversation again</Button>
         </div>
 
         {(objectives.missed.length > 0 || graded > 0) && (
