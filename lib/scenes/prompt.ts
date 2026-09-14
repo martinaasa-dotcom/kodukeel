@@ -296,17 +296,31 @@ const COMPOSE_RULES = [
 /**
  * The half that is constant for a whole run, and the one the caller puts
  * behind the cache breakpoint.
+ *
+ * ORDERED FROM WHAT NEVER CHANGES TO WHAT CHANGES PER RUN, because a provider
+ * caches a *prefix*. The rules are the same for everybody, the word list and
+ * the setting are the same for every run of a scene, the pitch is one of five
+ * bands, and the persona is drawn per run. It used to open with the persona
+ * and end with the word list, which is nine tenths of the prompt, so nothing a
+ * provider could reuse ever sat in front of anything it could not: the
+ * tutor's own fault (CLAUDE.md, "the learner's level sat at character 158 of a
+ * 9,093-character system prompt") one purpose over. Nothing about the words
+ * moved, only the order they arrive in.
  */
 export function composeSystem(scene: ComposeScene): string {
   return [
     COMPOSE_RULES,
+    /*
+      The list before the scene, since it is the largest constant block and a
+      cached prefix ends at the first byte that differs.
+    */
+    `Words you may use: ${scene.words.join(" ")}`,
     /*
       The scene before the turn, so the character is somebody rather than a
       function of the beat. English, and every line of it is a line the learner
       is looking at on their own screen.
     */
     `The scene: ${scene.scene}. ${scene.place}.`,
-    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
     /*
       THE ROLE CARD IS WRITTEN TO THE LEARNER, AND THE MODEL READ "YOU" AS
       ITSELF. "You need a bus ticket. Your card says where to" handed over as
@@ -326,7 +340,11 @@ export function composeSystem(scene: ComposeScene): string {
       on every turn of a run, so it sits behind the breakpoint with the list.
     */
     pitchFor(scene.level),
-    `Words you may use: ${scene.words.join(" ")}`,
+    /*
+      Last, because it is the one line drawn per run: everything above it is
+      shared by every run of this scene at this band.
+    */
+    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
   ].filter(Boolean).join("\n");
 }
 

@@ -780,7 +780,11 @@ interface UsageFrame {
       cache_read_input_tokens?: number;
     };
   };
-  usage?: { output_tokens?: number; prompt_tokens?: number; completion_tokens?: number };
+  usage?: {
+    output_tokens?: number; prompt_tokens?: number; completion_tokens?: number;
+    /** Where an OpenAI-compatible provider says how much of the prompt it served from its cache. */
+    prompt_tokens_details?: { cached_tokens?: number };
+  };
   /** Anthropic's own reason the turn stopped, carried on the same `message_delta` frame as the output count. */
   delta?: { stop_reason?: string | null };
   /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
@@ -823,6 +827,18 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
     into.outputTokens = f.usage.completion_tokens ?? into.outputTokens;
+    /*
+      The cached share, in the field OpenAI, Gemini and Groq all use for it.
+      Read for the reason the Anthropic branch reads its two buckets: a cached
+      token is billed at a fraction of base, and a ledger that cannot see the
+      share prices every scene turn at full input rate. Measured 2026-09-14:
+      Groq reports none on either model the scene chain can reach, and the
+      Gemini key here answered "prepayment credits depleted", so the day this
+      field carries a number is the day the split starts telling the truth
+      rather than a day anything was charged less.
+    */
+    const cached = f.usage.prompt_tokens_details?.cached_tokens;
+    if (cached != null) into.cachedInputTokens = cached;
     into.measured = true;
   }
 }
