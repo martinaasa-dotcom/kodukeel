@@ -16,7 +16,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export type Tense = "present" | "conditional";
 
@@ -346,7 +346,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       </div>
 
       <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
-        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · Enter moves down the table
+        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · {ADVANCE_KEY_LABEL} moves down the table
       </p>
     </div>
   );
