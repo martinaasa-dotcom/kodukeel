@@ -271,6 +271,28 @@ length rather than its order. `npm run report:spend` is how the bill is read by 
 day off the deployment's own ledger, priced in and out apart, because a model whose output share
 is most of its cost on a job returning twenty tokens is a model paying for reasoning nobody reads.
 
+**And the levers left on a scene line were each weighed, and most were left where they are.**
+Once the thinking is off, a line on the primary is $0.0016 and on the Lite $0.0005, so the four
+things that could still move it were taken one at a time. The primary stays `gemini-3.8-flash`:
+§61 played both live and the primary was withheld on 8 percent of drafts against the Lite's 19,
+and its lines react to the learner where the Lite's ask the question and stop, so swapping them
+buys a tenth of a cent a line and pays for it in turns falling to the bank, which is the seam a
+learner notices. The composer keeps its three attempts, because at 8 percent withheld the third
+fires on fewer than one turn in a hundred and rescues most of those, so cutting it saves nothing
+measurable and costs a conversation its voice on exactly the turn that was hard. The prompt is
+not padded and not trimmed blind: a prefix of 3,300 tokens sent three times inside a minute came
+back with no cached share on either Gemini model, so the endpoint the app uses reports no
+implicit cache and a prompt grown to reach one would be a prompt written for a billing rule that
+this endpoint does not apply; the word list is a third of the prompt and the rules are the other
+two thirds, both measured into shape through `play:scenes`, so a shorter prompt is a measured
+change and not a tidy-up. What did move is the harness: `scripts/lib/sceneDraft.ts` reads the
+scene chain and dropped its `reasoning` on the way, so every drafted bank line paid for the
+thinking the route had switched off, asserted now on every body it sends. The caps are the
+operator's: `AI_DAILY_USD_GLOBAL` and the per-kind `AI_DAILY_USD_*` variables are the one hard
+ceiling on the bill and default to three dollars a day, and a deployment whose Gemini balance
+runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
+empty Gemini balance raises the bill rather than lowering it.
+
 **Two of the three cache breakpoints are under Anthropic's minimum and do nothing, which is worth
 knowing rather than fixing.** A cached prefix has to reach 1,024 tokens. The tutor's is about
 2,275 and caches; the grader's is 456 and the scanner's 221, so both are inert on Sonnet today.

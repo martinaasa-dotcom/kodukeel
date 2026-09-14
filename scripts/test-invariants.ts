@@ -12016,6 +12016,27 @@ check("every free provider the app would ask, a measuring script can ask too", (
       "chain, and a list living in a script measures the script.",
     );
   }
+  /*
+    AND THE THINKING SETTING TRAVELS WITH THE LINK. A Gemini flash model
+    reasons before every line unless told not to, and the OpenAI-compatible
+    endpoint hides that from `completion_tokens`, so a harness that reads the
+    scene chain and drops `ProviderConfig.reasoning` on the way drafts a bank
+    at three times the price the route pays for the same line. Every body the
+    drafter sends carries `reasoning_effort` where the link carries one.
+  */
+  {
+    const bodies = draft.match(/body: JSON\.stringify\(\{[\s\S]*?\}\),/g) ?? [];
+    assert.ok(bodies.length >= 2, "scripts/lib/sceneDraft.ts no longer builds its request bodies where this looks");
+    for (const body of bodies) {
+      assert.match(
+        body,
+        /reasoning_effort: link\.reasoning/,
+        "scripts/lib/sceneDraft.ts sends a request without the link's reasoning setting, so a " +
+        "drafted line pays for thinking the route switched off (`ProviderConfig.reasoning`).",
+      );
+    }
+    assert.match(draft, /reasoning: provider\.reasoning/, "scripts/lib/sceneDraft.ts builds a link without the chain's reasoning setting");
+  }
   for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
     const text = code(file);
     if (!/max_tokens/.test(text)) continue;

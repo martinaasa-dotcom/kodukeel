@@ -4686,3 +4686,14 @@ scene line is fewer tokens in it, or the primary moving to the lite tier the sam
 ranks level on withheld share (§61). `npm run report:spend` reads the ledger by kind, model and
 day so that decision can be made on this deployment's own numbers rather than on a probe.
 
+**And the other levers, weighed one at a time.** The Lite as primary was declined on §61's own
+numbers: 8 percent withheld against 19, and lines that react to the learner against lines that ask
+and stop, for a tenth of a cent a line. Three compose attempts stay, since at 8 percent withheld
+the third attempt fires on under one turn in a hundred. Implicit caching was probed at 3,300
+tokens of identical prefix, three calls inside a minute, on both Gemini models, and the endpoint
+reported no cached share on any of them, so the prompt is neither padded to reach a minimum nor
+reordered further. The drafter (`scripts/lib/sceneDraft.ts`) was sending its bodies without the
+chain's `reasoning`, so `npm run draft:lines` paid the thinking tax on every line the route had
+stopped paying it on; it carries the setting now, asserted. The caps in `lib/usage/quota.ts` are
+the operator's ceiling and were left as they are.
+

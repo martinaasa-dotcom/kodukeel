@@ -293,7 +293,11 @@ export function keylessContext(scene: SceneSpec, allowlist: Allowlist = "units")
  * every provider whose key is set, in order.
  * ------------------------------------------------------------------ */
 
-export interface Link { label: string; model: string; url: string; key: string }
+export interface Link {
+  label: string; model: string; url: string; key: string;
+  /** The route's own thinking setting for this link (`ProviderConfig.reasoning`), sent as `reasoning_effort`. */
+  reasoning?: "none";
+}
 
 /**
  * Read when asked, never at import.
@@ -343,7 +347,14 @@ export function chain(): Link[] {
     for (const model of pinned.length ? pinned : [provider.model]) {
       if (seen.has(`${provider.name}|${model}`)) continue;
       seen.add(`${provider.name}|${model}`);
-      links.push({ label: provider.label, model, url: how.url, key });
+      /*
+        The route's own thinking setting travels with the link. Left off, a
+        Gemini flash model reasons before every drafted line and the endpoint
+        hides it from `completion_tokens`, so a bank of a hundred lines was
+        billed at about three times what the ledger would have said for the
+        same lines composed live (`ProviderConfig.reasoning`).
+      */
+      links.push({ label: provider.label, model, url: how.url, key, reasoning: provider.reasoning });
     }
   }
   return links;
@@ -451,6 +462,7 @@ export async function compose(
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },
         body: JSON.stringify({
           model: link.model, temperature: 0.8, max_tokens: SCENE_REPLY_TOKENS,
+          ...(link.reasoning ? { reasoning_effort: link.reasoning } : {}),
           messages: [{ role: "system", content: systemFor(level) }, { role: "user", content: user }],
         }),
       });
@@ -497,6 +509,8 @@ export async function askLine(
           temperature: 0.8,
           // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
           max_tokens: SCENE_REPLY_TOKENS,
+          // And the app's own answer to that, where the chain has one: no thinking on a scene line.
+          ...(link.reasoning ? { reasoning_effort: link.reasoning } : {}),
           /*
             THE ROUTE'S OWN SHAPE, WHICH THIS DID NOT HAVE. The transport
             appends the live block to the system prompt and sends the turns
