@@ -17,6 +17,7 @@ import { WordExceptions } from "@/components/WordExceptions";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { parseGovernment, readableGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
@@ -91,20 +92,54 @@ export interface EntryView {
   forms: EntryForm[];
 }
 
+/**
+ * THE PARTS A LEARNER MEMORIZES, AND WHAT EACH ONE ANSWERS.
+ *
+ * This block sat directly above the case table and disagreed with it. The
+ * table under it names a case by the question it answers and glosses the
+ * question; these five tiles printed the Estonian name over "Genitive sg" in
+ * small italics, which is the labelled cross-reference this app used to keep
+ * and no longer does anywhere: somebody who has met neither name is handed a
+ * translation of a translation, one row above a table that would have told
+ * them what the form is for.
+ *
+ * So a nominal part carries its question, read off `lib/estonian/cases.ts`,
+ * and `CaseQuestion` draws it exactly as the table does. The number is written
+ * here rather than in that table, because `ainsus` and `mitmus` are a fact
+ * about this row and not about the case.
+ */
+const nominalPart = (key: CaseKey, number: string | null) => {
+  const spec = caseByKey(key)!;
+  return {
+    et: number ? `${spec.et} ${number}` : spec.et,
+    question: `${spec.asksPerson} ${spec.asksThing}`,
+    en: null,
+  };
+};
+
 const NOUN_PARTS = [
-  ["NOM_SG", "Nominative sg", "nimetav"],
-  ["GEN_SG", "Genitive sg", "omastav"],
-  ["PART_SG", "Partitive sg", "osastav"],
-  ["ILL_SG_SHORT", "Short illative", "lühike sisseütlev"],
-  ["PART_PL", "Partitive pl", "mitmuse osastav"],
+  ["NOM_SG", nominalPart("NOMINATIVE", "ainsus")],
+  ["GEN_SG", nominalPart("GENITIVE", "ainsus")],
+  ["PART_SG", nominalPart("PARTITIVE", "ainsus")],
+  // The short one, which is a form to memorize rather than a case of its own:
+  // `tuba` gives `tuppa`, and no ending on the stem reaches it.
+  ["ILL_SG_SHORT", { et: "lühike sisseütlev", question: "kuhu?", en: null }],
+  ["PART_PL", nominalPart("PARTITIVE", "mitmus")],
 ] as const;
 
+/*
+  THE VERB KEEPS ITS ENGLISH, AND THAT IS THE ASYMMETRY RATHER THAN AN
+  OVERSIGHT. `ma-infinitive` is what both languages call it, and "present" and
+  "past" are categories an English speaker has a concept for and can look one
+  up under. "The inessive" is a word that means nothing until somebody has
+  already learned what it names, which is what makes it worth nothing here.
+*/
 const VERB_PARTS = [
-  ["INF_MA", "ma-infinitive", "ma-tegevusnimi"],
-  ["INF_DA", "da-infinitive", "da-tegevusnimi"],
-  ["PRES_1SG", "Present 1sg", "olevik, ma"],
-  ["PAST_1SG", "Past 1sg", "lihtminevik, ma"],
-  ["PART_TUD", "tud-participle", "umbisikuline"],
+  ["INF_MA", { et: "ma-tegevusnimi", question: null, en: "ma-infinitive" }],
+  ["INF_DA", { et: "da-tegevusnimi", question: null, en: "da-infinitive" }],
+  ["PRES_1SG", { et: "olevik, ma", question: null, en: "present, I" }],
+  ["PAST_1SG", { et: "lihtminevik, ma", question: null, en: "simple past, I" }],
+  ["PART_TUD", { et: "umbisikuline", question: null, en: "tud-participle" }],
 ] as const;
 
 export function DictionaryClient({
@@ -349,8 +384,8 @@ export function DictionaryClient({
                 : `${initialQuery} is an Estonian word`)
               : `Nothing found for "${initialQuery}"`}
             body={known
-              ? "It is not in the built-in dictionary yet. Add it with its genitive and it is yours straight away."
-              : "The built-in dictionary covers common words to B2. Add this one with its genitive."}
+              ? "It is not in the built-in dictionary yet. Add it with its omastav and it is yours straight away."
+              : "The built-in dictionary covers common words to B2. Add this one with its omastav."}
           />
 
           {/*
@@ -715,7 +750,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
             Principal parts, the forms you have to memorize
           </h3>
           <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(124px, 1fr))" }}>
-            {parts.map(([type, label, et]) => {
+            {parts.map(([type, label]) => {
               const value = form(type);
               return (
                 <div
@@ -732,17 +767,22 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     <span className="block text-lg" style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>
                   )}
                   {/*
-                    The Estonian name leads and the English is the
-                    cross-reference under it, which is the rule everywhere else
-                    in this app and was the wrong way round on the one screen a
-                    learner opens to look a word up. The case table two rows
-                    below already did it correctly, so the entry disagreed with
-                    itself: "SHORT ILLATIVE" in caps over `lühike sisseütlev`
+                    The Estonian name leads and what it answers sits under it,
+                    which is the rule everywhere else in this app and was the
+                    wrong way round on the one screen a learner opens to look a
+                    word up. "SHORT ILLATIVE" in caps over `lühike sisseütlev`
                     in small italics is the exact layout CLAUDE.md names as the
-                    fault it was written to stop.
+                    fault it was written to stop, and the Latin name that
+                    replaced the caps was no more use to the reader who had met
+                    neither. A verb part has no question and keeps its English.
                   */}
-                  <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{et}</span>
-                  <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{label}</span>
+                  <span lang="et" className="label-xs mt-1.5 block" style={{ color: "var(--ink-3)", textTransform: "none" }}>{label.et}</span>
+                  {label.question && (
+                    <CaseQuestion question={label.question} className="mt-0.5 block text-2xs" inline />
+                  )}
+                  {label.en && (
+                    <span className="mt-0.5 block text-2xs italic" style={{ color: "var(--ink-3)" }}>{label.en}</span>
+                  )}
                 </div>
               );
             })}
@@ -777,7 +817,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
       ) : isNominal && form("GEN_SG") && (
         <div>
           <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-            The rest, worked out from the genitive
+            The rest, worked out from the omastav
           </h3>
           {/*
             Counted rather than typed, because the short illative is stored and
@@ -847,8 +887,8 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {(!form("GEN_PL") || !form("NOM_PL")) && (
             <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
               {!form("GEN_PL")
-                ? "Most plural forms are built on the genitive plural, which isn’t stored for this word."
-                : "The nominative plural isn’t stored for this word, and it isn’t an ending we could work out."}
+                ? "Most plural forms are built on the omastav plural, which isn’t stored for this word."
+                : "The nimetav plural isn’t stored for this word, and it isn’t an ending we could work out."}
               {" "}We leave a gap rather than guess. An invented form is worse than a gap.
             </p>
           )}
@@ -881,7 +921,9 @@ function EntryProblem({ entry }: { entry: EntryView }) {
   const formTypes = parts
     .map(([type, label]) => ({
       formType: type as string,
-      label,
+      // The name the tile above it carries, so the dropdown on the report form
+      // and the part it is about are called the same thing.
+      label: label.et,
       value: entry.forms.find((f) => f.formType === type)?.value ?? "",
     }))
     .filter((f) => f.value);

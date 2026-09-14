@@ -22,7 +22,6 @@ import type { CaseKey } from "./types";
 export interface Government {
   /** The case the verb governs. */
   caseKey: CaseKey;
-  caseEn: string;
   caseEt: string;
   /**
    * Every *other* case the entry names, in the order it names them.
@@ -147,7 +146,6 @@ export function parseGovernment(raw: string | null | undefined): Government | nu
 
   return {
     caseKey: match.key,
-    caseEn: match.label,
     caseEt: match.et,
     alsoGoverned: named.slice(1).map((c) => c.key),
     example: example || null,

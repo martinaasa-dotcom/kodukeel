@@ -370,8 +370,8 @@ export default async function GrammarIndexPage() {
         </section>
 
         <Note tone="neutral">
-          Endings go on the genitive singular for the singular column and the genitive plural for
-          the plural one. Where the dictionary has no genitive plural, a case table shows a gap
+          Endings go on the omastav singular for the singular column and the omastav plural for
+          the plural one. Where the dictionary has no omastav plural, a case table shows a gap
           rather than a guess.
         </Note>
 

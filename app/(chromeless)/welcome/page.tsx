@@ -1360,7 +1360,6 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
   */
   const regular = followsEndingRule(shown[0] ?? "", genitive, row.spec);
   return {
-    en: row.spec.en,
     et: row.spec.et,
     /*
       The question *this* word answers. Two of the five words on this card are

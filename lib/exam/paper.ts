@@ -150,7 +150,6 @@ export interface OrderItem extends BaseItem {
 export interface CaseFormItem extends BaseItem {
   kind: "case-form";
   caseKey: string;
-  caseEn: string;
   caseEt: string;
   caseQuestion: string;
   answer: string;
@@ -161,7 +160,7 @@ export interface GovernmentItem extends BaseItem {
   kind: "government";
   /** The example with its governed word hidden, when there is one. */
   cue: string | null;
-  options: { key: string; en: string; et: string; question: string }[];
+  options: { key: string; et: string; question: string }[];
   answer: string;
 }
 
@@ -193,7 +192,6 @@ export interface GlossChoiceItem extends BaseItem {
 export interface FormChoiceItem extends BaseItem {
   kind: "form-choice";
   caseKey: string;
-  caseEn: string;
   caseEt: string;
   caseQuestion: string;
   options: string[];
@@ -641,14 +639,13 @@ function buildCaseForm(spec: TaskSpec, ctx: BuildContext): ExamTask {
       ...base(word, `${spec.id}-${items.length}`),
       kind: "case-form",
       caseKey: task.caseKey,
-      caseEn: task.caseEn,
       caseEt: task.caseEt,
       caseQuestion: task.caseQuestion,
       answer: task.targetForm,
       provenance: task.provenance,
     });
   }
-  return finish(spec, items, undefined, "nouns with a genitive stem to build on");
+  return finish(spec, items, undefined, "nouns with an omastav stem to build on");
 }
 
 function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
@@ -680,7 +677,6 @@ function buildGovernment(spec: TaskSpec, ctx: BuildContext): ExamTask {
       const named = caseByKey(key);
       return {
         key,
-        en: named?.en ?? key,
         et: named?.et ?? key,
         question: named?.question ?? "",
       };
@@ -921,7 +917,6 @@ function buildFormChoice(spec: TaskSpec, ctx: BuildContext): ExamTask {
       ...base(word, `${spec.id}-${items.length}`),
       kind: "form-choice",
       caseKey: task.caseKey,
-      caseEn: task.caseEn,
       caseEt: task.caseEt,
       caseQuestion: task.caseQuestion,
       answer: task.targetForm,

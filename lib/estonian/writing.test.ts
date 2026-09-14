@@ -88,7 +88,7 @@ describe("writingTasksFor", () => {
 
 const task: WritingTask = {
   lemma: "tuba", translation: "room", caseKey: "INESSIVE",
-  caseEn: "Inessive", caseEt: "seesütlev", caseQuestion: "milles? kus?",
+  caseEt: "seesütlev", caseQuestion: "milles? kus?",
   targetForm: "toas",
   alsoRight: null, provenance: "derived",
 };
@@ -103,7 +103,7 @@ const OTHER_FORMS = ["tuba", "toa", "tuppa", "tubade"];
 */
 const illative: WritingTask = {
   lemma: "tuba", translation: "room", caseKey: "ILLATIVE",
-  caseEn: "Illative", caseEt: "sisseütlev", caseQuestion: "millesse? kuhu?",
+  caseEt: "sisseütlev", caseQuestion: "millesse? kuhu?",
   targetForm: "tuppa",
   alsoRight: "toasse", provenance: "ekilex",
 };

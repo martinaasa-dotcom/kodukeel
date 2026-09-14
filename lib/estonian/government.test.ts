@@ -8,7 +8,6 @@ describe("parseGovernment", () => {
     const g = parseGovernment("partitive — aitan sind (I help you), not 'to you'");
     expect(g).toMatchObject({
       caseKey: "PARTITIVE",
-      caseEn: "Partitive",
       caseEt: "osastav",
       example: "aitan sind",
       gloss: "I help you",

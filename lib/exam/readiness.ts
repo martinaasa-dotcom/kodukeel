@@ -59,7 +59,6 @@ export interface PastAttempt {
 
 export interface CaseSignal {
   caseKey: string;
-  caseEn: string;
   /** The name a course uses, which is the one the advice is written in. */
   caseEt: string;
   pct: number;

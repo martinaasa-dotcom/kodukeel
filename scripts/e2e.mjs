@@ -365,7 +365,10 @@ await page.getByPlaceholder("word").fill("trial word");
   box, it is what the form promises, and it cannot be made ambiguous by adding
   a field beside it.
 */
-const genitiveField = page.getByRole("textbox", { name: "Genitive sg" });
+// The box is named the way a lesson names it, and the number tells it from
+// the plural one. A regex rather than the whole accessible name, since the
+// label also carries the question and its reading.
+const genitiveField = page.getByRole("textbox", { name: /^Omastav ainsus/ });
 await genitiveField.fill(`${word}u`);
 await page.getByRole("button", { name: "Save word" }).click();
 // What the screen actually said, when it did not say this. A check that
@@ -389,7 +392,7 @@ check("and it can go straight into the deck",
 // The shared diacritic bar must type into whichever field has focus, and React
 // must see the change — a direct .value write would be silently discarded.
 await page.goto(`${B}/dictionary?q=zzznotaword`, { waitUntil: "networkidle" });
-const genField = page.getByRole("textbox", { name: "Genitive sg" });
+const genField = page.getByRole("textbox", { name: /^Omastav ainsus/ });
 await genField.click();
 await genField.fill("s");
 await page.getByLabel("Insert an Estonian letter into the field you're typing in").getByLabel("Insert ä").click();
@@ -457,17 +460,16 @@ if (first.length === 0) {
 // 11 — B1+ coverage, with verb government
 await page.goto(`${B}/dictionary?q=sõltuma`, { waitUntil: "networkidle" });
 /*
-  THE READING RATHER THAN THE CASE NAME, WHICH IS WHAT THE ENTRY PRINTS NOW.
-
-  This asked for "elative" and was the last assertion anywhere still expecting
-  a Latin case name on a screen. The block reads through `readableGovernment`,
-  which turns `kellest/millest (elative)` into `kellest/millest (about whom?
-  out of what?)` on the way out: the stored string is untouched and what a
-  learner sees is the question the verb demands an answer to.
+  The government is printed as the question words the entry stores with what
+  each one asks, rather than as the case's Latin name: `kellest/millest
+  (about whom? out of what?)`. The stored column is untouched and still says
+  `(elative)`, which is what `parseGovernment` reads, so this asserts the
+  reading and that the name it replaced is not on the screen.
 */
-check("B1 verb carries its government, said as what it asks",
-  (await page.getByText(/out of what\?/).count()) > 0
-    && (await page.getByText(/elative/i).count()) === 0);
+check("B1 verb carries its government, read rather than named",
+  (await page.getByText(/kellest\/millest/).count()) > 0
+    && (await page.getByText(/out of what\?/).count()) > 0
+    && (await page.getByText(/\belative\b/i).count()) === 0);
 
 
 console.log(errors.length ? `\nconsole/page errors:\n  ${errors.join("\n  ")}` : "\nno console errors");

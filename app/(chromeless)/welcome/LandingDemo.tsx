@@ -31,7 +31,6 @@ const COUNTED = ["no", "one", "two", "three", "four", "five", "six", "seven", "e
 const counted = (n: number): string => COUNTED[n] ?? String(n);
 
 export interface DemoCase {
-  en: string;
   et: string;
   question: string;
   /** Every spelling worth printing, joined the way `acceptedAnswers` splits. */
@@ -345,7 +344,7 @@ export function TutorPeek() {
         >
           <span className="label-xs mb-1.5 block" style={{ color: "var(--blush-ink)" }}>Anu</span>
           Because the action is not finished yet. <span lang="et" className="font-semibold">Ma loen raamatut</span>{" "}
-          means “I am reading a book”: partitive, so it is still going. Swap in the genitive and you get{" "}
+          means “I am reading a book”: osastav, so it is still going. Swap in the omastav and you get{" "}
           <span lang="et" className="font-semibold">Ma loen raamatu läbi</span>, a whole book,
           finished. In Estonian, the case of the object is what tells you whether the action is done.
         </div>

@@ -405,10 +405,27 @@ check("the nominative plural is a required stem, and is never an ending", () => 
   when a field is added and is invisible until it does.
 */
 check("no browser suite finds a field by a placeholder another field shares", () => {
+  /*
+    The example is the last string in the row, whatever the label became. It
+    used to be a three-string tuple and the label is an object now, since a
+    noun field carries the question its case answers rather than a Latin name;
+    reading to the end of the row rather than counting elements is what keeps
+    this check about placeholders instead of about the table's shape.
+  */
   const examples = [...code("app/(app)/dictionary/AddWord.tsx")
-    .matchAll(/\["[A-Z_]+", "[^"]+", "([^"]+)"\]/g)]
+    .matchAll(/\["[A-Z0-9_]+",[^\]]*"([^"]+)"\]/g)]
     .map((m) => m[1] as string);
-  assert.ok(examples.length >= 10, "the add-word field table stopped being readable from here");
+  /*
+    A DIGIT IS PART OF A FORM TYPE, AND THIS READ TEN OF THE TWELVE ROWS.
+
+    The key pattern was `[A-Z_]+`, which cannot match `PRES_1SG` or `PAST_1SG`,
+    so the two verb boxes whose examples are `loen` and `lugesin` were outside
+    the sweep for as long as it has existed. The floor of ten was met by the
+    other ten and said nothing. It is the table's own length now, so a row
+    dropping out of reach fails here rather than quietly narrowing what is
+    checked.
+  */
+  assert.ok(examples.length >= 12, "the add-word field table stopped being readable from here");
 
   const bad: string[] = [];
   for (const file of readdirSync("scripts").filter((f) => f.endsWith(".mjs"))) {
@@ -6645,26 +6662,148 @@ check("no screen writes a hue's ink on that hue's own fill", () => {
  * is a check nobody is reading. The list below is the stronger claim and the
  * one to add to: a reader is named with its reason, or it does not ship.
  */
+/**
+ * AND THE LATIN NAME TYPED INTO A SENTENCE, WHICH NO MEMBER ACCESS CAN SEE.
+ *
+ * The check below reads `spec.en`, which is how a case's Latin name reaches a
+ * screen *through the table*. It cannot see the other door, which is somebody
+ * writing the word out: "Nimetav \u00b7 nominative" across the three columns of
+ * a worksheet a teacher prints for a class, "Genitive sg" on the box a learner
+ * types a form into, "Add it with its genitive" in an empty state, "Worked out
+ * from the genitive stem" under a placement question. Every one of those was
+ * still on a screen with the closed list green, because a string is not a
+ * member access.
+ *
+ * So the same rule is asked of the text. A case named in a *sentence* takes
+ * the Estonian name a class uses (`omastav`), and a case *labelling a form*
+ * takes the question it answers, through `CaseQuestion`. Neither takes the
+ * Latin one.
+ *
+ * WHAT IS NOT A BREACH, and is why this reads code rather than a whole file:
+ * an identifier (`row.genitive`, `const illative`), which is the name of a
+ * field rather than a word anybody reads, and a comment, which is this
+ * repository's own argument about the rule and has to be able to name it.
+ * `code()` strips the comments; the identifier test is that the word is
+ * touching a dot, a colon or a quote of its own.
+ */
+check("no screen writes a case's Latin name into a sentence", () => {
+  const ALLOWED: Record<string, string> = {
+    // The table itself, which is where `CaseSpec.en` is declared.
+    "lib/estonian/cases.ts": "the one table, and the English name is a field on it",
+    /*
+      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE.
+
+      `grammar.ts` and `exceptions.ts` explain a case at length in English and
+      are asserted to carry no Estonian letter, which is what stops this app
+      inventing a form inside a sentence about forms. That leaves the Latin
+      name as the only name they *can* use: naming the five cases whose
+      Estonian spelling happens to carry no diacritic would slip past the
+      letter rule while breaking what it is for, and would name five cases one
+      way and nine the other on one page.
+
+      The way out is to describe the case rather than name it ("the partial
+      object form" for `osastav`), which is a pass over nineteen lines of the
+      most-read grammar copy in the app and is worth doing carefully rather
+      than in passing. Until then the exemption is here, where it is counted,
+      rather than being invisible because the sweep stopped at `app/`.
+    */
+    "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
+    "lib/estonian/exceptions.ts": "the same, for the notes on each kind of exception",
+    // A search index rather than copy: a learner typing "partitive" into the
+    // palette is looking for the cases page and should find it.
+    "lib/ux/nav.ts": "search keywords, which take every spelling somebody might type",
+    // Anu is told the Latin name beside the question and the reading, so she
+    // can follow a learner who arrives with one. See `lib/tutor/prompt.ts`.
+    "lib/tutor/prompt.ts": "the model's own table, which names a case three ways on purpose",
+    "lib/tutor/grader.ts": "the same briefing, for the writing and picture graders",
+    "lib/tutor/words.ts": "the same briefing again: the forms block Anu is handed for a word",
+    // The banned-phrase table has to be able to quote the copy it is about.
+    "lib/copy/voice.ts": "an example of a tell, which has to contain the thing it bans",
+  };
+  const LATIN = /\b(?:nominative|genitive|partitive|inessive|elative|illative|allative|adessive|ablative|translative|terminative|essive|abessive|comitative)\b/i;
+  /*
+    WHAT REACHES A READER IS A STRING OR A RUN OF JSX TEXT, AND NOTHING ELSE.
+
+    The first version of this read whole lines and fired on `const illative`
+    and `genitive !== null`, which are the names of a local and a field: honest
+    code, and the rule this file keeps about its own checks is that one firing
+    on honest code gets widened rather than worked around. So the haystack is
+    built rather than the line: every quoted string, and every run of text
+    between a `>` and a `<`, which is what a JSX child is.
+  */
+  const readable = (src: string) => {
+    const out: string[] = [];
+    for (const m of src.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)) {
+      // What a template interpolates is an expression rather than words: the
+      // key `${word.lemma}-${illative.et}` is not a sentence about a case.
+      out.push((m[1] ?? m[2] ?? m[3] ?? "").replace(/\$\{[^}]*\}/g, " "));
+    }
+    // JSX text sits after a tag's own `>`, and `=>` is not one: without the
+    // lookbehind this ran from an arrow function to the next comparison and
+    // read `c !== illative);` as something a learner was being shown. A run
+    // holding a `;` or a `=` is code for the same reason.
+    /*
+      JSX text sits after a tag's own `>`, and `=>` is not one: without the
+      lookbehind this ran from an arrow function to the next comparison and
+      read `c !== illative);` as something a learner was shown.
+
+      A run holding a brace is left alone, and that is the stated residual
+      rather than an oversight. Blanking the interpolation was tried and it is
+      a regex pretending to parse JSX: `{row.blanks.includes("genitive") ?
+      <Rule width={110} /> : row.genitive}` nests a tag inside an expression
+      inside a child, and every widening that reached it also read three field
+      names as copy. A check that fires on honest code is one people learn to
+      waive. So a sentence naming a case in Latin *and* interpolating a value
+      into the same run is what this cannot see; every fault it was written for
+      was a string literal or a brace-free run, and the string half is the one
+      doing the work.
+    */
+    for (const m of src.matchAll(/(?<![=!<>])>([^<>{}=;]+)</g)) out.push(m[1] ?? "");
+    // A string that is *only* the word is a key or a stored value, never copy:
+    // `caseByKey("GENITIVE")` and `blanks.includes("genitive")` are both code,
+    // and `"Genitive"` in title case is a column heading somebody reads.
+    return out.filter((t) => !/^[A-Z_]+$/.test(t.trim()) && !/^[a-z]+$/.test(t.trim()));
+  };
+  let looked = 0;
+  const found: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.i?test\.tsx?$/.test(file)) continue;
+    looked += 1;
+    if (file in ALLOWED) continue;
+    for (const text of readable(code(file))) {
+      if (LATIN.test(text)) found.push(`${file}: ${text.trim().slice(0, 80)}`);
+    }
+  }
+  assert.ok(looked > 500, `only swept ${looked} files, which is not the tree`);
+  assert.equal(
+    found.join(" | "),
+    "",
+    "a screen names a case in Latin. Say it the way a class does, or print the question "
+      + "through CaseQuestion",
+  );
+  for (const file of Object.keys(ALLOWED)) {
+    assert.ok(
+      readable(code(file)).some((t) => LATIN.test(t)),
+      `${file} is listed here and no longer names a case in Latin`,
+    );
+  }
+});
+
 check("a case's Latin name has a closed list of readers", () => {
   const ALLOWED: Record<string, string> = {
     "lib/estonian/government.ts":
       "parses the stored government string, which annotates each question word with a case name",
     "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
-    "lib/estonian/writing.ts": "carries caseEn on the task; the screen prints the reading",
-    "lib/progress/exam.ts": "carries caseEn to the exam paper, which prints the reading",
-    "lib/exam/paper.ts": "passes that caseEn through onto the item",
-    "lib/exam/readiness.ts": "carries caseEn on the signal; the title prints the reading",
     "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
     /*
-      The same category one file over, landed from another branch while this
-      list was being written. It is model-facing and reaches no screen: the
-      facts block tells Anu `toas is its seesütlev (inessive)`, in the shape
-      `prompt.ts` names one above it, and `CASE_NAMES` reads both names so a
-      learner who types "inessive" in their question is understood. The second
-      of those is the one that cannot give the name up.
+      The third prompt builder, and it reads both names for two reasons: it
+      names a case to the model the way `prompt.ts` does, and `CASE_NAMES`
+      recognises a case a *learner* typed, who may well arrive with the Latin
+      one. Left as main measured it rather than rewritten from here: what a
+      model is told is a measurement in that module's own commits, and this
+      rule is about what a learner reads.
     */
-    "lib/tutor/words.ts": "names a case to Anu in the facts block, and reads the name back out of her question",
-    "app/(chromeless)/welcome/page.tsx": "carries it on the demo row; the card prints neither name",
+    "lib/tutor/words.ts": "the facts block Anu is handed, and the names a learner might type",
     "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
   };
   // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,

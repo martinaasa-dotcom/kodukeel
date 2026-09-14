@@ -17,7 +17,7 @@ export const B1 = [
     icon: "Target",
     level: "B1",
     module: "Grammatika süveneb",
-    canDo: "Choose between the partitive and the genitive object and say why.",
+    canDo: "Choose between the osastav and the omastav object and say why.",
     blurb: "The single hardest thing in Estonian grammar, and the one that marks out a B1 speaker.",
     grammar: ["object", "partitive", "genitive", "aspect"],
     // Verbs, so the form worth drilling is a person and not a case. It asked

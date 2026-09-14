@@ -53,8 +53,8 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
     title: "A memorized form held in the dictionary, not worked out from a stem",
   },
   DERIVED: {
-    label: "from the genitive",
-    title: "The regular ending on the stored genitive stem, the same arithmetic you are learning to do",
+    label: "from the omastav",
+    title: "The regular ending on the stored omastav stem, the same arithmetic you are learning to do",
   },
 };
 
@@ -127,7 +127,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
                   <>
                     <span lang="et" className="text-2xl">-{ref.spec.suffix}</span>{" "}
                     <span className="text-xs font-normal" style={{ color: "var(--ink-3)" }}>
-                      on the genitive
+                      on the omastav
                     </span>
                   </>
                 )}
@@ -210,7 +210,13 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               <table className="w-full min-w-[460px] text-sm">
                 <thead>
                   <tr>
-                    {["Word", "Genitive", endingOf(ref), "From"].map((h, i) => (
+                    {/*
+                      The stem column is headed the way the page heads
+                      everything else now. It said "Genitive", which is the one
+                      English word on a table of Estonian and is a term out of
+                      a grammar this language does not use.
+                    */}
+                    {["Word", "Omastav", endingOf(ref), "From"].map((h, i) => (
                       <th
                         key={h}
                         className="label-xs px-3 py-2.5 text-left"

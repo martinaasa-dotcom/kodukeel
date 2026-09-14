@@ -510,6 +510,54 @@ the stored government string and the mapper that writes it, four types carrying 
 a screen that prints the reading, Anu's own table, a slug, and a demo row that prints neither
 name.
 
+**And the closed list was blind to the other door, which is somebody typing the word out.** The
+list above is anchored on `spec.en`, a member access, so it can only see the Latin name arriving
+*through the table*. Seven screens were still printing it as a string with that list green: the
+worksheet a teacher prints for a class headed its three columns "Nimetav · nominative", the
+add-a-word form labelled seven boxes "Genitive sg" and "Short illative", the dictionary entry
+printed the Estonian name of each principal part over the Latin one in small italics, the case
+reference headed a column "Genitive", the mock examination's result screen told a candidate the
+answer was "Partitive" and that they had given "Elative", an empty state said "Add it with its
+genitive", and a placement question said it was "worked out from the genitive stem". The entry and
+the reference are the two screens the report was about, one block above and one column beside the
+tables that had just been fixed.
+
+So the rule is asked of the *text* as well: **a case labelling a form takes the question it
+answers, through `CaseQuestion`; a case named in a sentence takes the Estonian name a class uses.**
+Neither takes the Latin one. The sweep reads string literals and brace-free JSX text out of `app/`,
+`components/` and `lib/`, which is where the copy actually lives: five of the faults were in `lib/`,
+including the search note for a nominative plural, whose branch matches a stored form rather than a
+suffix and so sat outside the loop that had dropped every other Latin name. A path, an all-caps
+`CaseKey` and a bare lowercase word are code and are filtered; blanking a JSX interpolation was
+tried and is a regex pretending to parse JSX, so **a sentence that names a case in Latin and
+interpolates a value into the same run is the stated residual**. Made to fail three ways, on a
+string label, on a run of JSX text and on a heading array.
+
+**Two modules are exempt and the reason is a standing invariant rather than an oversight.**
+`lib/estonian/grammar.ts` and `lib/estonian/exceptions.ts` explain a case at length and are asserted
+to hold no Estonian letter, which is what stops this app inventing a form inside a sentence about
+forms. The tripwire is `[õäöüšž]`, so `omastav` and `osastav` would slip past it while breaking what
+it is for, and would name five cases one way and the nine `-ütlev` ones the other on one page. The
+way out is to describe the case rather than name it, "the partial object form" for `osastav`, which
+is a pass over nineteen lines of the most-read grammar copy in the app and is worth doing carefully
+rather than in passing. Until then the exemption is counted in the sweep rather than invisible
+because it stopped at `app/`.
+
+**And seven fields carried the Latin name to nobody.** `WritingTask`, `CaseSignal`, the readiness
+signal, both exam item types, `Government` and the landing page's demo row each declared a `caseEn`
+beside a live `caseEt`, and not one screen, script or test read any of them: `CaseSignal.caseEt`'s
+own comment says it is "the name the advice is written in". Four of the nine exemptions on the
+closed list were justified by a sentence that was half true, "carries caseEn on the task; the screen
+prints the reading", where the screen prints the reading and the field reaches no reader at all. They
+are gone, and with the demo row and the exam option's dead `en` the list is four readers rather than
+nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
+of them is a screen.**
+
+**And the check that guards the add-a-word boxes could not see two of the twelve.** Its key pattern
+was `[A-Z_]+`, which does not match `PRES_1SG` or `PAST_1SG`, so the two verb boxes whose examples
+are `loen` and `lugesin` had been outside the sweep for as long as it existed and the floor of ten
+was met by the other ten. It reads `[A-Z0-9_]+` and the floor is the table's own length.
+
 **A label with no word in front of it reads the `mis` series, which is `asksEn`.** `questionEn` is
 the case's whole *name* and runs to three questions, which is right on the reference page beside
 the Estonian it translates and is a mouthful inside a sentence: "toas is the seesütlev (in whom?
@@ -7477,6 +7525,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
+`readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
 `caseExamplesFor`.
 Most of them now

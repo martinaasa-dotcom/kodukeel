@@ -17,6 +17,9 @@ export interface SearchHit {
   matchedAs?: string;
 }
 
+/** The nominative, for the one plural matched on a stored form rather than a suffix. */
+const NOM = CASES.find((c) => c.key === "NOMINATIVE")!;
+
 /**
  * Case suffixes, longest first so `-sse` is tried before `-s`.
  *
@@ -453,7 +456,14 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
   */
   const nomPl = c.forms.find((f) => f.formType === "NOM_PL")?.value;
   if (nomPl && folded === fold(nomPl)) {
-    return { score: 85, matchedAs: `mitmuse nimetav (nominative plural) of ${c.lemma}` };
+    return {
+      score: 85,
+      // Read off the table for the reason `CASE_SUFFIXES` is: this branch is
+      // outside that loop, so it kept "nominative plural" after the loop had
+      // dropped every Latin name, and `toad` came back named in a grammar
+      // this language does not use.
+      matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
+    };
   }
 
   if (l.startsWith(folded)) return { score: 70 };

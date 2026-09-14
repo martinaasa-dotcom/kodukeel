@@ -54,7 +54,6 @@ export interface WritingTask {
   lemma: string;
   translation: string;
   caseKey: CaseKey;
-  caseEn: string;
   caseEt: string;
   caseQuestion: string;
   /** The form the learner must produce. Authoritative — never model-generated. */
@@ -140,7 +139,6 @@ export function writingTasksFor(source: WritingSource): WritingTask[] {
       lemma: source.lemma,
       translation: source.translation,
       caseKey,
-      caseEn: spec.en,
       caseEt: spec.et,
       // The question this word answers, not the case's whole name.
       caseQuestion: caseQuestionFor(spec, subject),

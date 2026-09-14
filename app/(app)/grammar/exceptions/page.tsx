@@ -60,7 +60,7 @@ export default async function ExceptionsPage() {
                 Most words follow the pattern. These do not.
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Learn the genitive and eleven cases follow. That holds until the stem itself moves,
+                Learn the omastav and eleven cases follow. That holds until the stem itself moves,
                 and then it stops holding for every case at once. {scale} graded words in this
                 dictionary break a pattern somewhere, and this is which ones and where.
               </p>
