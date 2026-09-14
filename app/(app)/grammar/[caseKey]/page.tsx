@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: { params: Promise<{ caseKey: 
 
 const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string }> = {
   EKILEX: {
-    label: "Ekilex",
-    title: "The form as the Institute of the Estonian Language records it",
+    label: "recorded",
+    title: "The real recorded form",
   },
   STORED: {
     // "memorized" rather than "principal part", because on the sisseütlev page
@@ -279,7 +279,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
 
         {withSentence.length > 0 && (
           <section>
-            <SectionTitle hint="attested, from Ekilex">In a sentence</SectionTitle>
+            <SectionTitle hint="a real sentence">In a sentence</SectionTitle>
             <ul className="flex flex-col gap-2">
               {withSentence.map((example) => (
                 <li key={`${example.lexemeId}-sentence`}>

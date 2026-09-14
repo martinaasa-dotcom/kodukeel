@@ -310,8 +310,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             <>
               <p className="text-sm" style={{ color: "var(--ink-3)" }}>
                 {derivedOnly
-                  ? "Regular endings on the first person, checked against Ekilex for every verb in this dictionary."
-                  : "Forms as Ekilex records them."}
+                  ? "Regular endings on the first person, checked against every verb in this dictionary."
+                  : "Real recorded forms."}
               </p>
               <KeepWordChoice keeper={keeper} className="mt-4" />
               <div className="mt-4 flex flex-wrap gap-2">

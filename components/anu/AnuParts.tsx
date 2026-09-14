@@ -102,7 +102,7 @@ export function Provenance({ label, answered, compact = false }: {
   return (
     <p className="text-2xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
       {answered ? "Answered by" : "Will ask"} {label}.
-      {!compact && " Anu explains grammar. Every form in the dictionary comes from Ekilex, never from a model."}
+      {!compact && " Anu explains grammar. Every form in the dictionary is real, never from a model."}
     </p>
   );
 }

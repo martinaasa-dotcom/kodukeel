@@ -892,7 +892,7 @@ const FAQS = [
   ],
   [
     "Where do the Estonian forms come from?",
-    "Every form and example sentence comes from Ekilex, run by the Institute of the Estonian Language, and every English translation from Wiktionary or the course itself. An AI is never allowed to write an Estonian form: it invents plausible ones that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
+    "Every form and example sentence comes from a real dictionary and language database, not from AI. An AI is never allowed to write an Estonian form: it invents plausible ones that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
   ],
   [
     "Is this only for beginners?",
@@ -1139,7 +1139,7 @@ const SOURCES = [
     name: "Vabamorf",
     href: "https://github.com/Filosoft/vabamorf",
     by: "Filosoft",
-    gives: "every spelling of every word, with Ekilex",
+    gives: "every spelling of every word",
     licence: "LGPL",
   },
   {

@@ -43,20 +43,13 @@ export function WordForms({ forms, pos, subject }: {
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Every form, from Ekilex
+        Every form
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         These are the real forms, not worked out from a stem. Irregular plurals and the
         parallel forms Estonian really has are included.
       </p>
       {isVerb ? <VerbTable forms={forms} /> : <CaseTable forms={forms} subject={subject} />}
-      <p className="mt-3 text-2xs" style={{ color: "var(--ink-3)" }}>
-        Forms from{" "}
-        <a href="https://ekilex.ee" target="_blank" rel="noreferrer" style={{ color: "var(--ink-3)" }}>
-          Ekilex
-        </a>
-        , Institute of the Estonian Language · CC BY 4.0
-      </p>
     </div>
   );
 }
@@ -297,7 +290,7 @@ function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
           aria-hidden
           style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}
         />
-        {open ? "Hide" : "Show"} the other {rest.length} form{rest.length === 1 ? "" : "s"} Ekilex holds
+        {open ? "Hide" : "Show"} the other {rest.length} form{rest.length === 1 ? "" : "s"}
       </button>
       {open && (
         <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -359,7 +352,7 @@ export function DerivedVerbForms({ lemma, forms }: {
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {present.length > 0
           ? "Take the n off the first person and the other five persons, the negative and the conditional are regular endings on what is left. The simple past has to be learned per verb."
-          : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is on Ekilex."}
+          : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is stored."}
       </p>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
         <table className="w-full min-w-[360px] text-sm">
@@ -437,7 +430,7 @@ export function DerivedVerbForms({ lemma, forms }: {
         </table>
       </div>
       <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        The bold form is stored. The rest are regular endings on it, checked against Ekilex for every verb in this dictionary.
+        The bold form is stored. The rest are regular endings on it, checked against every verb in this dictionary.
       </p>
     </div>
   );

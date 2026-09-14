@@ -158,7 +158,7 @@ export function WordOfDayCard({ word, collection, className }: {
  * which is the claim ADR-005 exists to make: nobody here wrote it.
  */
 const SENTENCE_SOURCE: Record<string, string> = {
-  EKILEX: "Sentence recorded by Ekilex",
+  EKILEX: "Real recorded sentence",
   SEED: "Sentence from the built-in dictionary",
   USER: "Sentence added by a learner here",
 };
