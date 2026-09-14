@@ -188,8 +188,8 @@ export interface ComposeAsk {
 /*
   AND A TIGHT `max_tokens` ON THIS CALL IS THE OBVIOUS SAVING THAT DOES NOT
   WORK, which is worth writing down because the arithmetic invites it every
-  time. The gate refuses a line over `MAX_WORDS` words, so about fifty tokens
-  is all one can be, and asking for `REPLY_TOKENS` looks like a thousand
+  time. The gate refuses a line over `MAX_COMPOSED_WORDS` words, so about sixty
+  tokens is all one can be, and asking for `REPLY_TOKENS` looks like a thousand
   tokens of waste. It is not: output is billed on what comes back, and
   `lib/tutor/provider.ts` has the measurement that settles it. Several of the
   free models this app is built to run on spend their whole budget in a

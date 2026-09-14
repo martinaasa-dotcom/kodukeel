@@ -356,14 +356,16 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
     fraction bit early and a busy evening could refuse a turn on an imaginary
     bill.
 
-    Measured rather than re-estimated. The static system block is 128 tokens and
-    identical on every turn of every scene; the live block is dominated by the
-    word list the route hands over, which is 714 to 955 tokens across the
-    fourteen shipped scenes (mean 821), plus the stage direction, the register,
-    six banked lines for tone and the turns so far. The reply is capped at
-    `MAX_WORDS`, fourteen words, and comes back as one short sentence.
+    Measured rather than re-estimated, and measured again once the prompt was
+    cut and held (`docs/21-situations.md` §63). A turn is 1,704 to 1,821 tokens
+    on Google's own tokenizer, 1,592 of them served off the cached entry at a
+    tenth of the input rate; the reservation has no cache to price against, so
+    the whole prompt is booked at base, which is the safe direction and the
+    only one a figure settled seconds later needs. The reply is bounded by
+    `MAX_COMPOSED_WORDS`, forty words, and with thinking switched off comes
+    back as two to four sentences of about twenty to forty tokens.
   */
-  SCENE: { input: 1_400, output: 60 },
+  SCENE: { input: 1_800, output: 60 },
 };
 
 /**
