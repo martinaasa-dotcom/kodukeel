@@ -598,6 +598,19 @@ bring back, which is what makes this mechanical rather than aspirational. Re-run
 `npm run harvest`; responses are cached, so it costs Ekilex nothing.
 
 
+**And a refusal is not a miss, which the harvest was the last path to learn.** Run with a key
+ekilex.ee answers 403 to, `npm run harvest -- --only=plaanid` printed every word of the unit as "not
+in Ekilex" and rewrote `prisma/data/harvested.ts` from about 17,400 lines to two, because its
+transport returned one `null` for "Ekilex holds no such word" and for "Ekilex would not say". And
+`--only` wrote the words it had asked about and nothing else, so re-harvesting one unit deleted the
+other seventy with a working key too. `lib/ekilex/harvestGuard.ts` decides both, pure and tested
+against a stubbed transport: `readAnswer` says whether a request was answered, refused or failed, a
+refused or failed request keeps the row the word had rather than dropping it, one refusal anywhere
+means nothing is written, a run that answered for nobody writes nothing, `--only` stands its answers
+into the previous file rather than replacing it, and a harvest that would drop more than half the
+file is refused without `--force`. Made to fail on the real key first: the same command now ends in
+"Not written: Ekilex refused 16 requests (HTTP 403 x16)" with the file untouched.
+
 **A meaning is given in the language the learner thinks in, and Ekilex is the one that gives it.**
 Most people learning Estonian in Estonia already speak Russian or Ukrainian, and an app that can
 only say `kohv` is "coffee" asks them to reach a word through the language they are least sure of.

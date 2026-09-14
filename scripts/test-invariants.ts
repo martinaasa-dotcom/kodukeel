@@ -15831,6 +15831,38 @@ check("the interview settles the wage before it asks for a start day, off the ca
   );
 });
 
+/*
+  A SOURCE THAT WILL NOT ANSWER IS NEVER WRITTEN DOWN AS A MISS, AND THE HARVEST
+  WAS THE ONE PATH STILL DOING IT. Run with a key ekilex.ee answers 403 to, it
+  reported every word "not in Ekilex" and rewrote the course dictionary down to
+  two lines; and `--only` wrote only the unit it asked about, so re-harvesting
+  one unit deleted the rest with a working key too. Both are decided in
+  `lib/ekilex/harvestGuard.ts` now, which is pure and tested against a stubbed
+  transport, and the script has to read it on both sides of the request.
+*/
+check("the harvest tells a refusal from a miss and plans its write rather than taking it", () => {
+  const harvest = code("scripts/harvest-ekilex.ts");
+  assert.match(
+    harvest, /const answer = await readAnswer<T>\(/,
+    "the harvest's transport stopped reading its answers through readAnswer, so a 403 is a miss again",
+  );
+  assert.match(
+    harvest, /if \(answer\.kind === "refused"\) \{[\s\S]*?throw new NoAnswer/,
+    "a refused request no longer throws NoAnswer, so a rejected key reports every word as dropped",
+  );
+  assert.match(
+    harvest, /const plan = planHarvestWrite<Harvested>\(\{[\s\S]*?previous: HARVESTED/,
+    "the harvest no longer plans its write over the previous file, so --only replaces the file and a refusal empties it",
+  );
+  const writeAt = harvest.indexOf("await writeFile(OUT,");
+  const planAt = harvest.indexOf("if (!plan.write)");
+  assert.ok(writeAt > 0 && planAt > 0 && planAt < writeAt, "the harvest writes harvested.ts before asking the plan whether it may");
+  assert.match(harvest, /await writeFile\(OUT, render\(rows\)\)/, "the harvest writes something other than the planned rows");
+  const guard = code("lib/ekilex/harvestGuard.ts");
+  assert.match(guard, /if \(refusedTotal > 0\) \{[\s\S]*?write: false/, "a refused request no longer refuses the write");
+  assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
