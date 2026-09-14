@@ -27,6 +27,7 @@ import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { useUiText } from "@/components/UiLanguage";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -112,6 +113,7 @@ export function LearnSession({
     rather than the batch's own first word. See components/useResumeCard.ts.
   */
   const { initialIndex, remember: rememberWord } = useResumeCard(initial.map((w) => ({ id: w.cardId })));
+  const uiText = useUiText();
   /*
     Rotated rather than left in the batch's own order, so the resumed word
     sits at the front: `advance` below always treats `queue[0]` as the word
@@ -441,8 +443,8 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>Tubli töö. {counts.kept} {counts.kept === 1 ? "word has" : "words have"} moved over to practice, where they come back on a schedule.</>
-              : <>Tubli töö. These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
+              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? "word has" : "words have"} moved over to practice, where they come back on a schedule.</>
+              : <>{uiText("Tubli töö.", "Good work.")} These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
           </p>
         </div>
 
@@ -731,7 +733,7 @@ export function LearnSession({
             >
               <p className="text-sm font-semibold">
                 {result.outcome === "right"
-                  ? "Õige!"
+                  ? uiText("Õige!", "Correct!")
                   : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
               </p>
               {result.note && <p className="mt-1 text-sm">{result.note}</p>}
@@ -751,7 +753,7 @@ export function LearnSession({
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
                 <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
-                  Õige! That is the one.
+                  {uiText("Õige!", "Correct!")} That is the one.
                 </p>
               ) : (
                 <>
@@ -782,7 +784,7 @@ export function LearnSession({
                 onClick={needsRetype ? checkRetype : carryOn}
                 disabled={busy || retypeOk || result?.outcome === "right"}
               >
-                {needsRetype ? "Check it again" : result?.outcome === "right" ? "Õige!" : "Got it"}
+                {needsRetype ? "Check it again" : result?.outcome === "right" ? uiText("Õige!", "Correct!") : "Got it"}
               </Button>
               {rung === "gap" && (
                 <SuggestFix

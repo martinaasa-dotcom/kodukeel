@@ -132,7 +132,7 @@ export function ClozeSession() {
             </Button>
           </div>
 
-          <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
           </p>
         </div>

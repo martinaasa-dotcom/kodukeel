@@ -345,7 +345,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         </div>
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
         {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · Enter moves down the table
       </p>
     </div>

@@ -213,7 +213,7 @@ for (const url of ["/welcome"]) {
 // Floor: 13, measured in the state CI seeds. A thinner database reads as short.
 const { check, done } = suite("Design system", { floor: 15 });
 
-const SCALE = new Set(["11.5px", "12.5px", "13.5px", "15px", "17px", "19px", "22px", "27px", "32px", "40px", "52px", "68px", "88px"]);
+const SCALE = new Set(["12px", "13px", "13.5px", "15px", "17px", "19px", "22px", "27px", "32px", "40px", "52px", "68px", "88px"]);
 const offScale = [...sizes.keys()].filter((s) => !SCALE.has(s));
 
 /*
@@ -226,9 +226,9 @@ check("every text size is on the scale", offScale.length === 0,
   offScale.length
     ? offScale.map((size) => `${size} ${where.get(size) ?? ""}`).join(" | ")
     : `${sizes.size} steps in use`);
-check("nothing is set below the 11.5px floor",
-  [...sizes.keys()].every((s) => parseFloat(s) >= 11.5),
-  [...sizes.keys()].filter((s) => parseFloat(s) < 11.5).join(" "));
+check("nothing is set below the 12px floor",
+  [...sizes.keys()].every((s) => parseFloat(s) >= 12),
+  [...sizes.keys()].filter((s) => parseFloat(s) < 12).join(" "));
 check("every run of text clears WCAG AA on its background", contrast.length === 0,
   /*
     Name where, not just what, for the same reason the type-scale check above

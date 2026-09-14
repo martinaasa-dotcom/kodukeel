@@ -289,7 +289,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                   <KeyCap>{i + 1}</KeyCap>
                   <span className="min-w-0">
                     <span lang="et" className="block text-[19px] font-semibold">{option.value}</span>
-                    <span className="block text-[12.5px]">
+                    <span className="block text-[13px]">
                       {option.formLabel} of {option.lemma} · {option.translation}
                     </span>
                   </span>
@@ -326,7 +326,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         )}
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
         {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer
       </p>
     </div>

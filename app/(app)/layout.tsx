@@ -19,6 +19,7 @@ import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { paceFrom } from "@/lib/audio/pace";
 import { courseLevelFor } from "@/lib/progress/level";
+import { UiLanguageProvider } from "@/components/UiLanguage";
 
 // Not cached at build time: `configured` below is read from the environment,
 // and a notice baked in from the build machine's environment describes
@@ -92,6 +93,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     pace: paceFrom(settings[SETTING_KEYS.speechPace], level),
   };
   return (
+    <UiLanguageProvider level={level}>
     <AudioPrefsProvider value={audio}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
@@ -149,6 +151,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AnuFab configured={chain.length > 0} readerCanConfigure={!supabaseConfigured()} />
     </LetterBarScope>
     </AudioPrefsProvider>
+    </UiLanguageProvider>
   );
 }
 

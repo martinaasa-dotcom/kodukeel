@@ -235,7 +235,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                         that is how the answer is said out loud: "aitama" takes
                         "keda?", not "the partitive". */}
                     <span lang="et" className="block text-base font-medium">{spec?.question}</span>
-                    <span lang="et" className="block text-[12.5px]">{spec?.et}</span>
+                    <span lang="et" className="block text-[13px]">{spec?.et}</span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
                 </button>
@@ -315,7 +315,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         )}
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
         {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer
       </p>
     </div>
