@@ -1,0 +1,394 @@
+import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { ArrowRight, BookOpen, CalendarCheck, Check, GraduationCap } from "lucide-react";
+import { requireUserId } from "@/lib/auth/session";
+import { learnerDayClock } from "@/lib/progress/dayClock";
+import {
+  closingProgress, courseReading, hasChosenProgramme, missingWords, openingPart, programmeFor,
+} from "@/lib/progress/course";
+import { courseLevelFor } from "@/lib/progress/level";
+import { PROGRAMMES, dayById, programmeAfter, unitOf } from "@/lib/course";
+import { ButtonLink } from "@/components/Button";
+import { Card, Chip, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { StepList } from "@/components/course/StepList";
+import { StartProgramme } from "@/components/course/StartProgramme";
+import { NextPart } from "@/components/course/NextPart";
+
+export const metadata = { title: "Today's module" };
+
+export const dynamic = "force-dynamic";
+
+/**
+ * THE EVENING, PLANNED IN ADVANCE, ON ONE SCREEN.
+ *
+ * Everything this app can do is on a menu somewhere, and that is what it was
+ * reported with: a beginner opening it has to decide which of twenty rounds
+ * tonight is before they can start, and deciding is both the expensive part of
+ * an evening and the part a beginner is least able to do. This screen is the
+ * decision already made. One day, eight words, four or five steps, one open at
+ * a time, and a sentence at the end saying the evening is over.
+ *
+ * NOTHING UNDERNEATH IT IS NEW. Every step opens a screen that already
+ * existed, and Learn, Practice, Review and every game stay exactly where they
+ * were and work exactly as they did. What is new is that somebody who does not
+ * want to choose no longer has to, and the work they do the other way still
+ * counts: the two steps a review log can prove are read off it, whichever
+ * screen the answers came from.
+ *
+ * FOUR STATES, AND THE THIRD IS THE ONE THAT WAS ASKED FOR. Not following a
+ * programme; part way through today's module; finished it today, which says so
+ * and offers tomorrow's rather than rolling straight on; and the whole thing
+ * finished. The third is the one that makes this feel like a course rather
+ * than a queue: an evening that ends is an evening somebody comes back from.
+ */
+export default async function CoursePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const ownerId = await requireUserId();
+  const [programme, chosen, level, { next: startNow }] = await Promise.all([
+    programmeFor(ownerId),
+    hasChosenProgramme(ownerId),
+    courseLevelFor(ownerId),
+    searchParams,
+  ]);
+
+  const evenings = PROGRAMMES.reduce((n, p) => n + p.days.length, 0);
+
+  if (!programme) {
+    /*
+      WHERE SOMEBODY STARTS IS THEIR OWN LEVEL, NOT THE BOTTOM. A learner a
+      paper has measured at B1 does not want five parts of A1 to reach the
+      material they came for, and a beginner does not want the impersonal. The
+      whole ladder is on the screen underneath either way, because what makes
+      this worth starting is seeing that it ends.
+    */
+    const opening = openingPart(level);
+    return (
+      <Page
+        title="A course, decided in advance"
+        lead={`${evenings} evenings from nothing to C1, with the choosing already done.`}
+      >
+        <Stack>
+          {opening ? (
+            <Card tone="accent">
+              <SectionTitle hint={`${opening.id.toUpperCase()}, ${opening.days.length} evenings`}>
+                <span lang="et">{opening.title}</span>
+              </SectionTitle>
+              <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                {opening.blurb}
+              </p>
+              <div className="mt-4">
+                <StartProgramme programmeId={opening.id} />
+              </div>
+              <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
+                {chosen
+                  ? "You said you would rather choose your own evening. Nothing in the rest of the app changed, and nothing will if you start this."
+                  : `Starting at ${opening.level} because that is where you stand. It is a suggestion, not a track: everything you already use stays where it is.`}
+              </p>
+            </Card>
+          ) : (
+            <Card>
+              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                The ladder stops at C1 and you are past it. There is nothing here to lead you
+                through that you have not met.
+              </p>
+            </Card>
+          )}
+
+          <Ladder />
+        </Stack>
+      </Page>
+    );
+  }
+
+  const clock = await learnerDayClock(ownerId);
+  const reading = await courseReading(ownerId, programme, clock);
+  const total = programme.days.length;
+
+  if (reading.finished) {
+    const after = programmeAfter(programme);
+    return (
+      <Page
+        eyebrow={<span>{programme.id.toUpperCase()}</span>}
+        title={`${programme.title} is finished`}
+        lead={`All ${total} modules, and every word in them is in the schedule now.`}
+      >
+        <Stack>
+          <Card tone="mint">
+            <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              {after
+                ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks up
+                    where this left off and nothing in it needs anything you have not met.</>
+                : <>That is the end of the ladder. What keeps these words is the review queue,
+                    which has every one of them and goes on asking at the moment you are about to
+                    forget.</>}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <ButtonLink href="/progress/readiness">See what you could do out there</ButtonLink>
+              {after
+                ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
+                : (
+                  <ButtonLink href="/learn" variant="primary">
+                    Open the course <ArrowRight size={15} aria-hidden />
+                  </ButtonLink>
+                )}
+            </div>
+          </Card>
+        </Stack>
+      </Page>
+    );
+  }
+
+  const standing = reading.current!;
+  const day = standing.day;
+
+  /*
+    THE EVENING IS OVER, AND SAYING SO IS THE POINT.
+
+    A course that rolled straight on to the next module would be a queue with
+    chapter headings. What makes somebody come back tomorrow is being told
+    today is done, so a day finished today shows that and offers the next one
+    as a choice rather than as the page they land on. `?next=1` is how the
+    choice is taken, and it stores nothing: pressing it just draws the day
+    that was already current.
+  */
+  if (reading.finishedToday && !startNow) {
+    const justDone = dayById(programme, programme.days[day.index - 2]?.id ?? "");
+    return (
+      <Page
+        eyebrow={<span lang="et">{programme.id.toUpperCase()} · {programme.title}</span>}
+        title="Today's module is learned"
+        lead={`${reading.daysDone} of ${total} done. That is the evening.`}
+      >
+        <Stack>
+          <Card tone="mint">
+            <div className="flex items-start gap-3">
+              <CalendarCheck size={22} aria-hidden style={{ color: "var(--good-ink)" }} />
+              <div className="min-w-0">
+                {justDone && (
+                  <>
+                    <p className="text-lg font-semibold" lang="et" style={{ color: "var(--ink)" }}>
+                      {justDone.title}
+                    </p>
+                    <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                      {justDone.canDo}
+                    </p>
+                  </>
+                )}
+                {/*
+                  WHAT TOMORROW IS, AND SAYING SO WITHOUT LOOKING LIKE A REPEAT.
+
+                  A unit of twenty words is three evenings, so tomorrow is very
+                  often the same unit again, and naming it flatly read as
+                  "come back tomorrow for the thing you just did". Where the
+                  unit carries on it says so and says which slice; where it
+                  changes it names the new one.
+                */}
+                <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  {justDone && justDone.unitId === day.unitId
+                    ? <>Tomorrow carries on with {day.title}, part {day.part.n} of {day.part.of}.</>
+                    : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
+                  {" "}Sleep is half of what makes today stick, so stopping here is the course
+                  working rather than you giving up.
+                </p>
+              </div>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <ButtonLink href="/course?next=1">Start the next one now</ButtonLink>
+              <ButtonLink href="/" variant="primary">
+                Back to Today <ArrowRight size={15} aria-hidden />
+              </ButtonLink>
+            </div>
+          </Card>
+
+          <Card>
+            <SectionTitle hint={`${reading.daysDone} of ${total}`}>Where you are</SectionTitle>
+            <div className="mt-3">
+              <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
+            </div>
+          </Card>
+        </Stack>
+      </Page>
+    );
+  }
+
+  const [closing, missing] = await Promise.all([
+    closingProgress(ownerId, programme, day.id, clock),
+    missingWords(ownerId, day),
+  ]);
+  const unit = unitOf(day);
+  const done = day.steps.filter((s) => standing.done.has(s.id)).map((s) => s.id);
+
+  return (
+    <Page
+      eyebrow={<span lang="et">{programme.id.toUpperCase()} · {programme.title}</span>}
+      title={day.title}
+      titleLang="et"
+      lead={day.subtitle}
+    >
+      <Stack>
+        <Card tone="accent">
+          <SectionTitle hint={`Day ${day.index} of ${total}`}>
+            {day.part.of > 1 ? `Part ${day.part.n} of ${day.part.of} toward` : "When you finish this"}
+          </SectionTitle>
+          {/*
+            THE UNIT'S OWN CLAIM, AND WHICH PART OF IT TONIGHT IS.
+
+            A unit of twenty words is three evenings and all three are the same
+            lesson, so the promise is the unit's and the heading says which
+            third this is. Writing a smaller promise per evening was the other
+            way and it is worse: nobody can say what a third of "describe your
+            home" is, and inventing one would be the app claiming something a
+            person did not write.
+          */}
+          <p className="mt-2 text-lg leading-relaxed" style={{ color: "var(--ink)" }}>
+            {day.canDo}
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <StatTile value={day.words.length} label="New words" tone="mint" />
+            <StatTile
+              value={standing.complete ? "0" : `${standing.minutesLeft}m`}
+              label="Left tonight"
+              tone="sky"
+            />
+            <StatTile value={`${standing.pct}%`} label="Through it" tone="butter" />
+          </div>
+        </Card>
+
+        <div>
+          <SectionTitle hint={unit ? unit.title : undefined}>Tonight&rsquo;s words</SectionTitle>
+          {/*
+            Printed rather than hidden, because seeing the eight at the start is
+            what makes an evening feel finite. The Estonian alone: the meanings
+            are what the first step is for, and a gloss here would answer the
+            question the ladder is about to ask.
+          */}
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {day.words.map((word) => (
+              <li key={word}>
+                <Chip tone={missing.includes(word) ? "neutral" : "good"} caseSensitive>
+                  <span lang="et">{word}</span>
+                </Chip>
+              </li>
+            ))}
+          </ul>
+          {missing.length > 0 && missing.length < day.words.length && (
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
+              The plain ones are not in your deck yet. The first step puts them there.
+            </p>
+          )}
+        </div>
+
+        <div>
+          <SectionTitle hint={`${day.minutes} min`}>What tonight is</SectionTitle>
+          <div className="mt-2">
+            <StepList
+              programmeId={programme.id}
+              dayId={day.id}
+              steps={day.steps}
+              done={done}
+              closing={closing}
+            />
+          </div>
+        </div>
+
+        <Note tone="neutral">
+          Two of these are read off your own answers rather than ticked: meeting the words, and the
+          closing review. The rest are yours to tick, because a review row does not record which
+          round wrote it and the app would rather say so than pretend it watched.
+        </Note>
+
+        <Card>
+          <SectionTitle hint={`${reading.daysDone} of ${total}`}>The whole course</SectionTitle>
+          <div className="mt-3">
+            <Meter pct={Math.round((reading.daysDone / total) * 100)} label={programme.subtitle} />
+          </div>
+          <ol className="mt-4 flex flex-col gap-1.5">
+            {programme.days.map((d) => {
+              const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
+              return (
+                <li key={d.id} className="flex items-center gap-2 text-sm">
+                  <span
+                    aria-hidden
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                    style={{
+                      background: state === "done" ? "var(--good-soft)"
+                        : state === "now" ? "var(--accent-soft)" : "var(--raised)",
+                      color: state === "done" ? "var(--good-ink)"
+                        : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
+                    }}
+                  >
+                    {state === "done" ? <Check size={11} /> : d.index}
+                  </span>
+                  <span lang="et" style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}>
+                    {d.title}
+                  </span>
+                  <span className="truncate" style={{ color: "var(--ink-3)" }}>
+                    {d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                  </span>
+                  {state === "now" && <Chip tone="accent">Tonight</Chip>}
+                </li>
+              );
+            })}
+          </ol>
+        </Card>
+
+        <Ladder here={programme.id} />
+
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+          <BookOpen size={13} aria-hidden className="mr-1 inline align-[-2px]" />
+          Everything else is still where it was:{" "}
+          <Link href="/learn" className="underline">the whole course</Link>,{" "}
+          <Link href="/practice" className="underline">every round</Link> and{" "}
+          <Link href="/review" className="underline">the review queue</Link>. This is the short way,
+          not the only one. <Link href="/settings" className="underline">Turn it off</Link> whenever
+          you would rather choose.
+          <GraduationCap size={13} aria-hidden className="ml-1 inline align-[-2px]" />
+        </p>
+      </Stack>
+    </Page>
+  );
+}
+
+/**
+ * The whole ladder, seventeen parts from A1.1 to C1.3.
+ *
+ * On the screen for the same reason a day prints its eight words at the top:
+ * what makes a course worth starting is being able to see that it ends, and a
+ * part on its own is a fortnight with nothing behind it. Grouped by level
+ * rather than listed flat, because five rows of "A1.1, A1.2" is the shape
+ * somebody already has in their head from a language school.
+ */
+function Ladder({ here }: { here?: string }) {
+  const levels = [...new Set(PROGRAMMES.map((p) => p.level))];
+  return (
+    <Card>
+      <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
+      <div className="mt-3 flex flex-col gap-4">
+        {levels.map((level) => (
+          <div key={level}>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{level}</p>
+            <ul className="mt-1.5 flex flex-col gap-1">
+              {PROGRAMMES.filter((p) => p.level === level).map((p) => (
+                <li key={p.id} className="flex flex-wrap items-baseline gap-x-2 text-sm">
+                  <span
+                    className="tnum font-semibold"
+                    style={{ color: p.id === here ? "var(--accent-deep)" : "var(--ink-2)" }}
+                  >
+                    {p.id.toUpperCase()}
+                  </span>
+                  <span lang="et" style={{ color: "var(--ink)" }}>{p.title}</span>
+                  <span style={{ color: "var(--ink-3)" }}>
+                    {p.days.length} evenings
+                  </span>
+                  {p.id === here && <Chip tone="accent">You are here</Chip>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}

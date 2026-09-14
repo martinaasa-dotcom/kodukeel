@@ -228,9 +228,23 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
  */
 export async function learnBatch(
   ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
+  /*
+    WHICH WORDS, WHERE THE CALLER HAS ALREADY DECIDED.
+
+    A planned course day names its own eight words, and the whole of what makes
+    an evening feel chosen rather than dealt is that every round after the
+    first asks *those* back. Without this the ladder would hand today's learner
+    whatever was oldest in the deck, which on an account with a backlog is last
+    month's unit.
+
+    Undefined is the ordinary case and is untouched: Learn is the whole deck,
+    oldest first, nearest the level, exactly as it always was.
+  */
+  only?: readonly string[],
 ): Promise<LearnWord[]> {
+  const scope = only ? { lexeme: { lemma: { in: [...only] } } } : {};
   const started = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
+    where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1, ...scope },
     // Longest waiting first, and the id settles a tie: a word's cards are
     // written in one insert and share a `due` to the millisecond.
     orderBy: [{ due: "asc" }, { id: "asc" }],
@@ -241,7 +255,7 @@ export async function learnBatch(
   const room = Math.max(0, size - started.length);
   const fresh = room === 0 ? [] : challengeFirst(
     await prisma.card.findMany({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0, ...scope },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: NEW_CANDIDATES,
       include: INCLUDE,

@@ -3129,6 +3129,87 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**Deciding what to do tonight is the expensive part of an evening, and it was left to the one
+person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
+choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
+choice made in advance. A day names its words and the order it does things in, the learner presses
+one button until the day says it is finished, and then it says so and stops: **"Today's module is
+learned. Come back tomorrow, or start the next one now."** An evening that ends is an evening
+somebody comes back from, which is the whole argument for the third state.
+
+**Nothing underneath it is new.** Every step opens a screen that already existed, and Learn,
+Practice, Review and every game stay exactly where they were. What is new is that somebody who does
+not want to choose no longer has to, and the work they do the other way still counts.
+
+**Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
+of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
+words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
+one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
+are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
+the stem, the case and the register already.
+
+**The judgement is in `plan.ts` and the machinery has no opinions.** `lib/collections/syllabus/` is
+the course, its units are in teaching order and so are the words inside them, and `build.ts` slices
+that order into evenings. It chooses no word, no grammar page and no round: a unit already names the
+points it teaches in its own order, so an evening reads the next one along and `kus-ja-kuhu` over
+three nights opens three different case pages. What is decided by hand is the shape, where the parts
+break, how many words a night at each level, which rounds a level rotates through, and which of the
+fourteen conversations belongs to which unit. That division is what makes 182 evenings reviewable:
+the only things anybody has to read are seventeen part boundaries and five rotation lists.
+
+**The rotations alternate a game and a drill, and that is load-bearing rather than tidy.** Each
+level's list runs game, drill, game, drill, and an evening takes two neighbours off it, so every
+evening has one of each and no two running are the same pair. A fortnight of drills is homework and
+a fortnight of games teaches nothing. A unit that is mostly verbs takes the conjugation table
+instead of the drill, worked out from the unit's own parts of speech rather than pinned by hand.
+
+**No conversation in the whole of A1, and that is a finding rather than an omission.** Every one of
+the fourteen scenes declares `korraldused` among the units it may draw on, which is asking, telling
+and offering, and it sits in A2: you cannot ask anybody for anything without it. It was found by
+asking the question mechanically, and `course.test.ts` is where the question lives, a scene is
+opened only once every unit it declares has been taught, checked over the whole ladder in order. It
+moved `korraldused` to the front of A2, since it is the unit that makes a conversation possible, and
+ten of the fourteen scenes fall in A2 as a result. A1 is where you get the words and A2 is where you
+start using them on people; pretending otherwise would be the false confidence the readiness screen
+is built against.
+
+**Which day somebody is on is derived, and only the steps a log cannot prove are stored.** There is
+no day pointer and there is not going to be one: the day is the first whose steps are not all
+finished, worked out on each render (ADR-014). Two of every day's steps are proved by the review
+log, meeting the words leaves a mark on every one of their cards and the closing round is answers
+graded after the evening's own ticks, and those are never written anywhere. The rest cannot be,
+because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
+same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
+key so a second press is a no-op, and **the screen says which kind each one is** rather than
+implying the app watched.
+
+**Two faults in it were invisible to every unit test and turned up in the first two evenings
+anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
+tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn
+with its own two unknown, so somebody who had met tomorrow's words through Learn saw tomorrow at
+nought percent with "meet the words" waiting for them. And the closing round's window opened at the
+most recent tick anywhere in the programme, so ticking the first round of Tuesday's module moved it
+past Monday's answers, Monday stopped being finished, and the learner was sent back to a day they
+had done. The window is per day now, which is also monotonic in the right direction: a finished day
+stays finished. Both were made to fail on the real code before the fix landed.
+
+**The words go in the deck on a press and never on a render.** `PrefetchLink` fetches a whole page
+once a pointer has settled on a link for 90ms, so a module screen that topped the deck up while
+rendering would build somebody eight words for hovering over the button, and no browser suite would
+catch it because a suite clicks. Asserted, like the frequency rounds.
+
+**A day may not introduce a word, which is ADR-005 arriving by a new door.** A day names lemmas and
+every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
+Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
+`plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
+a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
+turn off. Off changes nothing else, and the work done the other way still counts toward a module the
+day it is turned back on.
+
 **Learning a word and reviewing one are two jobs, and one screen was doing both.** The daily row in
 the rail said Review, and what it opened was everything at once: the cards that were due, and a
 trickle of words the learner had never seen, taught in among them. That is one screen answering two

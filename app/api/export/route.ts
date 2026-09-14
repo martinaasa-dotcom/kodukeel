@@ -116,7 +116,7 @@ export async function GET() {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords,
+    decks, deckWords, courseSteps,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -161,6 +161,11 @@ export async function GET() {
     // one review pool rather than a second one of it, and theirs either way.
     prisma.deck.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
     prisma.deckWord.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
+    // Which steps of a curated course day they finished. Append-only, and a
+    // record of what somebody did on which evening, which no log rebuilds: two
+    // of every day's steps are read off the review log and are deliberately
+    // not in here, and these are the ones that are not.
+    prisma.courseStep.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
   ]);
 
   const payload = {
@@ -176,11 +181,12 @@ export async function GET() {
       suggestions: suggestions.length, studyEvents: studyEvents.length,
       sceneRuns: sceneRuns.length, sceneGaps: sceneGaps.length, encounters: encounters.length,
       decks: decks.length, deckWords: deckWords.length,
+      courseSteps: courseSteps.length,
     },
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords,
+    decks, deckWords, courseSteps,
   };
 
   const date = new Date().toISOString().slice(0, 10);

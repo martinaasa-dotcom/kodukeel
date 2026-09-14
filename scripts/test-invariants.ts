@@ -15893,6 +15893,113 @@ check("the harvest tells a refusal from a miss and plans its write rather than t
   assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
 });
 
+/*
+  THE PLANNED COURSE STORES ONLY WHAT NO LOG CAN REBUILD.
+
+  Four arms, and each one is a way this feature would quietly become a second
+  source of truth about somebody's progress. The day pointer is the one that
+  matters: a column saying which day a learner is on drifts and can be advanced
+  by something that never happened, which is exactly what ADR-014 was written
+  about, and the temptation to add one arrives the first time somebody wants
+  "skip this day".
+*/
+check("the planned course derives its day and stores only the steps a log cannot prove", () => {
+  const schema = read("prisma/schema.prisma");
+  const model = schema.slice(schema.indexOf("model CourseStep {"));
+  const body = model.slice(0, model.indexOf("}"));
+  assert.ok(body.length > 0, "CourseStep is gone from the schema");
+  for (const banned of ["dayIndex", "currentDay", "position", "streak", "completedAt"]) {
+    assert.ok(
+      !new RegExp(`\\b${banned}\\s`).test(body),
+      `CourseStep grew a ${banned} column. Which day somebody is on is derived from these rows; a pointer drifts (ADR-014)`,
+    );
+  }
+  assert.match(body, /@@unique\(\[ownerId, programmeId, dayId, stepId\]\)/,
+    "CourseStep lost its unique key, so a second press writes a second row");
+
+  const rules = code("lib/course/types.ts");
+  assert.match(rules, /derived: boolean/, "a step no longer says whether a log proves it");
+
+  const actions = code("app/actions.ts");
+  const mark = actions.slice(actions.indexOf("export async function markCourseStep"));
+  assert.match(
+    mark.slice(0, 1200), /if \(step\.derived\) \{/,
+    "markCourseStep will tick a derived step, which writes a second source of truth for a fact the review log already holds",
+  );
+
+  const half = code("lib/progress/course.ts");
+  assert.ok(
+    !/courseStep\.(update|delete|deleteMany)\b/.test(half) && !/courseStep\.(update|delete)\b/.test(mark),
+    "something edits or deletes a CourseStep row. The table is append-only, like Review and Encounter",
+  );
+});
+
+/*
+  A PLANNED DAY MAY NOT INTRODUCE A WORD, WHICH IS ADR-005 ARRIVING BY A NEW
+  DOOR. Every lemma a day names is one its own unit teaches, and the unit is a
+  request the Ekilex harvest either honors or reports. The test that actually
+  walks the words is `lib/course/course.test.ts`; this is the assertion that it
+  is still the rule rather than a paragraph, since nothing under `lib/course/`
+  may reach a provider or a database either.
+*/
+check("a planned course day names words rather than writing any", () => {
+  for (const file of ["lib/course/types.ts", "lib/course/plan.ts", "lib/course/build.ts", "lib/course/index.ts"]) {
+    const src = code(file);
+    assert.ok(!/from "@\/lib\/db"/.test(src), `${file} imports Prisma. lib/course is pure, like lib/collections`);
+    assert.ok(
+      !/tutor\/provider|openWithFallback|completeWith/.test(src),
+      `${file} can reach a model. Nothing in the course may compose Estonian (ADR-005)`,
+    );
+  }
+  const build = code("lib/course/build.ts");
+  assert.match(
+    build, /const words = unit\.lemmas\.filter/,
+    "a day's words stopped coming out of its unit's own list. A programme may not name a lemma (ADR-005)",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.match(plan, /units: \[/, "a part stopped naming the units it works");
+  /*
+    The plan names units, scenes and rounds by id and holds no word list of its
+    own, which is the same rule `lib/collections/topical.ts` carries: the moment
+    a plan can name a lemma it can name one the course does not teach, and the
+    harvest is no longer the thing that decides.
+  */
+  assert.ok(
+    !/\bwords\s*:/.test(plan) && !/\blemmas\s*:/.test(plan),
+    "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
+  );
+
+  const tests = read("lib/course/course.test.ts");
+  assert.match(
+    tests, /teaches only words its own unit teaches/,
+    "the check that a day may not introduce vocabulary is gone",
+  );
+});
+
+/*
+  The words go in the deck on a press and never on a render. `PrefetchLink`
+  fetches a whole page once a pointer has settled on a link for 90ms, so a
+  course screen that topped the deck up while rendering would build somebody
+  eight words for hovering over the button, and no browser suite would see it
+  because a suite clicks. The same rule the frequency rounds already carry.
+*/
+check("the planned course builds its cards behind a press", () => {
+  for (const page of ["app/(app)/course/page.tsx", "app/(app)/course/learn/page.tsx"]) {
+    const src = code(page);
+    assert.ok(
+      !/addPlanToDeck|addCardsFor|addUnitsToDeck|planLemmas/.test(src),
+      `${page} writes cards while rendering. The add is a Server Action behind a button`,
+    );
+  }
+  const actions = code("app/actions.ts");
+  assert.match(
+    actions, /export async function startCourseDay[\s\S]*?addPlanToDeck\(/,
+    "startCourseDay no longer adds the day's words through the shared deck builder",
+  );
+  const list = code("components/course/StepList.tsx");
+  assert.match(list, /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

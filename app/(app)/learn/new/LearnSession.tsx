@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { BookOpen, Check, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -92,13 +92,25 @@ function Ladder({ rung }: { rung: Rung }) {
 }
 
 export function LearnSession({
-  words: initial, waiting, started,
+  words: initial, waiting, started, back,
 }: {
   words: LearnWord[];
   /** Words in the deck that have never been asked, this batch included. */
   waiting: number;
   /** Words part way up the ladder, this batch included. */
   started: number;
+  /**
+   * Where a round that was opened from somewhere else sends the learner back
+   * to, and what that place is called.
+   *
+   * The planned course is the one caller: its day is a checklist, and the
+   * round it opens is a step in the middle of one, so ending on three
+   * suggestions about what to do next is the evening losing its thread. Given
+   * a way back, the session offers exactly that and says which words it was.
+   * Undefined is the ordinary Learn round, which is unchanged: it ends where
+   * it always did, since there is nothing behind it to return to.
+   */
+  back?: { href: string; label: string };
 }) {
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next refreshes this
@@ -420,9 +432,17 @@ export function LearnSession({
     return (
       <Page title="Learn">
         <Empty
-          title="No new words waiting"
-          body="Add a unit from the course and its words arrive here."
-          action={<ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>}
+          title={back ? "Nothing left to meet here" : "No new words waiting"}
+          body={
+            back
+              ? "You have already met these. The rest of the module is waiting."
+              : "Add a unit from the course and its words arrive here."
+          }
+          action={
+            back
+              ? <ButtonLink href={back.href} variant="primary">{back.label}</ButtonLink>
+              : <ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>
+          }
         />
       </Page>
     );
@@ -484,13 +504,27 @@ export function LearnSession({
           </p>
         )}
 
+        {/*
+          ONE WAY ON, WHERE SOMETHING SENT THE LEARNER HERE. A round opened
+          from a checklist ends by going back to it: three suggestions at the
+          end of step one of five is the evening losing its thread, and the
+          module screen is the thing that knows what comes next.
+        */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          {more > 0 && (
-            <ButtonLink href="/learn/new" variant="primary" size="lg">
-              <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
+          {back ? (
+            <ButtonLink href={back.href} variant="primary" size="lg">
+              {back.label} <ArrowRight size={15} aria-hidden />
             </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
+              <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
+              {more > 0 && (
+                <ButtonLink href="/learn/new" variant="primary" size="lg">
+                  <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
+                </ButtonLink>
+              )}
+            </>
           )}
         </div>
       </div>

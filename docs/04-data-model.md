@@ -44,6 +44,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 | `SceneRun` | One conversation, with the seed it was drawn from and every turn typed in it. Append-only. Nothing in it is true about the learner: the role card is fiction (`docs/19-situations.md` §3). |
 | `SceneGap` | A word a conversation needed and the learner did not have. A child table so "the words my conversations keep needing" is one indexed query rather than a scan over every transcript. |
 | `Encounter` | One day's answer to whether the learner spoke any Estonian to somebody outside the app, in one of three words. Names the errand where the report was about one, and nothing where the conversation was the learner's own. Append-only. |
+| `CourseStep` | One step of a planned course day the learner finished (`lib/course/`). Only the steps no log can rebuild: meeting the day's words and the closing review are read off the review log instead and are never written here. Which day somebody is on is derived from these rows rather than stored, so there is no day pointer to drift. Append-only, and the unique key makes a second press a no-op. |
 | `RateLimit` | One fixed window of one rate limit, counted where every instance can see it, for the four routes the spend ledger does not price. Holds a digest of the caller-and-endpoint key rather than the key, so there is no owner id in it, and every row is deleted once its window has passed. |
 
 ### The forms list, which is files rather than rows

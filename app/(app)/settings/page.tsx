@@ -14,6 +14,10 @@ import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
+import { StartProgramme } from "@/components/course/StartProgramme";
+
+import { courseReading, openingPart, programmeFor } from "@/lib/progress/course";
+import { learnerDayClock } from "@/lib/progress/dayClock";
 import { DailyGoalPanel } from "./DailyGoalPanel";
 import { LevelPanel } from "./LevelPanel";
 import { EkilexSetupGuide } from "./EkilexSetupGuide";
@@ -128,6 +132,18 @@ export default async function SettingsPage() {
   const mode = reviewModeFrom(settings[SETTING_KEYS.reviewMode]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const participation = participationFrom(settings[SETTING_KEYS.researchOptOut]);
+
+  /*
+    Whether the learner is being led, and how far in. Read here rather than
+    threaded down, because the panel is the one place the answer is changed and
+    a second reader is a second answer.
+  */
+  const programme = await programmeFor(ownerId);
+  const opening = programme ? null : openingPart(courseLevel);
+  const programmeDay = programme
+    ? (await courseReading(ownerId, programme, await learnerDayClock(ownerId))).current?.day.index
+      ?? programme.days.length
+    : 0;
   const researchExported = researchExportConfigured();
   const voice = voiceFrom(settings[SETTING_KEYS.ttsVoice]);
   const voiceName = VOICES.find((v) => v.id === voice)?.name ?? voice;
@@ -281,6 +297,37 @@ export default async function SettingsPage() {
                   with the word being taught still marked.
                 </p>
                 <WordGlossPanel current={wordGloss} />
+              </div>
+            </Card>
+          </section>
+
+          {/*
+            THE PLANNED COURSE, ON OR OFF, AND NOTHING IN BETWEEN.
+
+            Turning it off changes nothing else: Learn, Practice, Review and
+            every round stay where they are and work as they do, and the work
+            done that way still counts toward a module the day it is turned
+            back on, because the two steps a review log can prove are read off
+            the log whichever screen the answers came from.
+          */}
+          <section id="course">
+            <SectionTitle hint={programme ? `day ${programmeDay} of ${programme.days.length}` : "off"}>
+              Being led through it
+            </SectionTitle>
+            <Card>
+              <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                {programme
+                  ? <>You are on {programme.title}. Today lends its first card to the module, and
+                      the module picks the words and the rounds for the evening.</>
+                  : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
+              </p>
+              <div className="mt-4">
+                {(programme ?? opening) && (
+                  <StartProgramme
+                    programmeId={(programme ?? opening)!.id}
+                    on={Boolean(programme)}
+                  />
+                )}
               </div>
             </Card>
           </section>
