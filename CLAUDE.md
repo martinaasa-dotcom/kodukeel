@@ -347,13 +347,18 @@ question about yesterday is asked from the first morning rather than from the fi
 is about the learner's own day and not about the deck, and the count it collects is the baseline a
 pilot compares the end of term against.
 
-**And twenty-four errands is thin for the days the answer is no.** Thirteen are A1, nine A2 and
-two B1, and the pool is filtered to the units a deck has started: four on a starter deck, thirteen
-with A1 finished, twenty-four for ever after. The walk is `dayIndex`, so the repeat interval is the
+**And twenty-eight errands is thin for the days the answer is no.** Seventeen are A1, nine A2 and
+two B1, and the pool is filtered to the units a deck has started: four on a starter deck, seventeen
+with A1 finished, twenty-eight for ever after. The walk is `dayIndex`, so the repeat interval is the
 pool size exactly. That is survivable while the errand appears on a minority of days and it is not
-a table to build a screen out of that shows several days at once. What it needs before it grows is
-somebody who knows how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md`
-already describes, and a B1 tier that does not exist: holding the line when they switch, asking a
+a table to build a screen out of that shows several days at once. The four that arrived with the
+four new A1 units are the reason the A1 tier grew rather than the A2 one, and they are the most
+errand-shaped thing the course teaches: a bus is a question asked of a stranger before you get on
+it, and introducing yourself cannot be rehearsed alone. None of the four names a scene, because
+none of the fourteen declares those units, and a rehearsal that could not vouch for the errand's
+words is a rehearsal of something else. What it needs before it grows again is somebody who knows
+how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md` already
+describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
