@@ -3522,6 +3522,22 @@ sees is a reading rather than a queue, on `/admin/suggestions` under the reports
 under the threshold in it too, since a word at four learners out of nine is the next one to look at
 and a panel showing only what has already been acted on is reporting its own decisions back.
 
+**And a card built for a word already put aside is built put aside.** Pushing `due` reaches every
+card that exists, and the unit lesson is where a word is refused before it has one: the lesson
+teaches the unit's words and `completeLesson` builds their cards at the end, so without this the
+word somebody said was too complicated would arrive the next morning with a card dated today, and so
+would the unit's own "Add to deck" pressed afterwards. Both builders ask `deferredDues` inside the
+transaction that already holds the deck lock, which is one indexed lookup beside a read of the deck
+they were doing anyway. The promise is about the word rather than about the rows that happened to
+exist when it was made.
+
+**The lesson drops the rest of the word with it.** A lesson is a list of steps rather than a queue
+of cards and one word has several of them, met then chosen then produced then gapped, so the button
+on the meet step takes that word's remaining steps out of the plan: carrying on asking about a word
+the app has just promised to leave alone is the fault in a smaller room. Nothing is recorded for it,
+`completeLesson` builds cards only for the lemmas it was given answers about, and the recap carries
+no lemma, so there is always a step left to land on.
+
 **What this does not reach is the drills.** Practice rounds ignore scheduling on purpose and say so,
 so a word put aside can still turn up in dictation or in a game, exactly as a word due next month
 can. The deferral holds where the app chooses what to teach, which is review and the ladder, and
@@ -7285,7 +7301,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
-`putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`.
+`putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`,
+`deferredDues`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

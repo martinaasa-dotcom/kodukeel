@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
-import { deferWord, undoDeferral } from "@/lib/progress/deferrals";
+import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
@@ -262,10 +262,21 @@ async function addCardsFor(
   const added = await prisma.$transaction(async (tx) => {
     await lockDeck(tx, owner);
 
-    const existing = await tx.card.findMany({
-      where: { lexemeId, ownerId: owner },
-      select: { front: true, cardType: true },
-    });
+    const [existing, held] = await Promise.all([
+      tx.card.findMany({
+        where: { lexemeId, ownerId: owner },
+        select: { front: true, cardType: true },
+      }),
+      /*
+        AND A CARD FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+
+        The unit lesson is where a word is refused before it has a card: the
+        lesson teaches the unit's words and this builds them at the end, so
+        without this the word somebody said was too complicated would arrive
+        tomorrow with a card dated today. See lib/progress/deferrals.ts.
+      */
+      deferredDues(tx, owner, [lexemeId], now),
+    ]);
     const seen = new Set(existing.map((c) => `${c.cardType}|${c.front}`));
 
     const generated = generateCards(
@@ -284,7 +295,7 @@ async function addCardsFor(
         targetCase: c.targetCase,
         slot: c.slot,
         source,
-        due: scheduling.due,
+        due: held.get(lexemeId) ?? scheduling.due,
         stability: scheduling.stability,
         difficulty: scheduling.difficulty,
         state: scheduling.state,

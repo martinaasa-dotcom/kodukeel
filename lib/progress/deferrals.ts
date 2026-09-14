@@ -181,6 +181,36 @@ export async function deferredWordIds(ownerId: string, now = new Date()): Promis
 }
 
 /**
+ * AND A CARD BUILT FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+ *
+ * Pushing `due` reaches every card that exists, and the unit lesson is where a
+ * word is put aside *before* there is one: the lesson teaches the unit's words
+ * and `completeLesson` builds the cards at the end, so a word refused halfway
+ * through would come back the next morning with a card dated today. So would
+ * pressing "Add to deck" on the unit afterwards. The promise the note makes is
+ * about the word rather than about the rows that happened to exist when it was
+ * made, and a button that quietly stops working the moment the word is added
+ * again is worse than no button.
+ *
+ * Takes the client it is handed, because both callers ask this inside the
+ * transaction that holds the deck lock: one indexed lookup on the key the row
+ * is unique by, next to a read of the deck they were doing anyway.
+ */
+export async function deferredDues(
+  client: Pick<typeof prisma, "deferral">,
+  ownerId: string,
+  lexemeIds: readonly string[],
+  now = new Date(),
+): Promise<Map<string, Date>> {
+  if (lexemeIds.length === 0) return new Map();
+  const rows = await client.deferral.findMany({
+    where: { ownerId, lexemeId: { in: [...lexemeIds] }, wokenAt: null, untilAt: { gt: now } },
+    select: { lexemeId: true, untilAt: true },
+  });
+  return new Map(rows.map((row) => [row.lexemeId, row.untilAt]));
+}
+
+/**
  * Hands back every word that was waiting for a band the learner has reached.
  *
  * Called from `recordCourseLevel`, which is the one writer of a level that did

@@ -1,6 +1,8 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { deferWord, deferredFor, deferredWordIds, undoDeferral, wakeForLevel } from "./deferrals";
+import { addUnitsToDeck, planUnits } from "@/lib/srs/deck";
+import { SYLLABUS } from "@/lib/collections/syllabus";
 import { BAND_WEEKS, DEFER_WEEKS } from "@/lib/srs/defer";
 
 /**
@@ -130,5 +132,63 @@ describe("giving a word back", () => {
 
     const listed = await deferredFor(MINE, moved);
     expect(listed.map((row) => row.lemma)).toEqual(["zzdeferb"]);
+  });
+});
+
+/**
+ * And the half the unit lesson needs, which is about a card that does not
+ * exist yet.
+ *
+ * Pushing `due` reaches every card a word has; a word refused during a lesson
+ * has none until `completeLesson` builds them at the end, and "Add to deck" on
+ * the unit afterwards is the same shape. Without the builder asking, the word
+ * somebody said was too complicated arrives the next morning with a card dated
+ * today, which is the button quietly not working.
+ */
+describe("a card built after the word was put aside", () => {
+  const OWNER = "itest-owner-defer-build";
+  const unit = SYLLABUS.find((u) => u.lemmas.length >= 3)!;
+
+  afterAll(async () => { await prisma.card.deleteMany({ where: { ownerId: OWNER } }); });
+
+  it("is dated where the deferral put it, and its neighbours are not", async () => {
+    await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+    await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
+
+    // A word of the unit the dictionary actually holds, since a lemma in a
+    // unit is a request rather than a fact (the Ekilex harvest decides).
+    const plan = planUnits([unit.id]);
+    const word = await prisma.lexeme.findFirst({
+      where: { lemma: { in: [...plan.lemmas] } },
+      select: { id: true, lemma: true },
+      orderBy: { id: "asc" },
+    });
+    expect(word).not.toBeNull();
+
+    const now = new Date("2026-09-14T10:00:00.000Z");
+    const put = await deferWord(OWNER, word!.id, "A1", "/learn/lesson", now);
+    expect(put.ok).toBe(true);
+
+    await addUnitsToDeck(OWNER, [unit.id]);
+
+    const mine = await prisma.card.findMany({
+      where: { ownerId: OWNER, lexemeId: word!.id },
+      select: { due: true },
+    });
+    expect(mine.length).toBeGreaterThan(0);
+    for (const card of mine) {
+      expect(card.due.toISOString()).toBe(put.ok && put.deferral.untilAt.toISOString());
+    }
+
+    const others = await prisma.card.findMany({
+      where: { ownerId: OWNER, lexemeId: { not: word!.id } },
+      select: { due: true },
+      take: 5,
+      orderBy: { id: "asc" },
+    });
+    // Everything else arrives ready to be taught, which is what a new card is.
+    for (const card of others) expect(card.due.getTime()).toBeLessThan(Date.now() + 1000);
+
+    await prisma.deferral.deleteMany({ where: { ownerId: OWNER } });
   });
 });

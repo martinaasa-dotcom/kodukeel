@@ -16007,6 +16007,36 @@ check("a word enough people put aside is offered later, not rewritten", () => {
 });
 
 /**
+ * AND A CARD BUILT FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+ *
+ * Pushing `due` reaches every card that exists, and the unit lesson is where a
+ * word is refused before it has one: the lesson teaches the unit's words and
+ * `completeLesson` builds the cards at the end. Without this the word somebody
+ * said was too complicated arrives the next morning with a card dated today,
+ * and so does the unit's own "Add to deck" pressed afterwards, which is the
+ * button quietly not working on the screen it was asked for.
+ */
+check("a card built for a word put aside is built put aside", () => {
+  const builders: [string, string][] = [
+    [join("app", "actions.ts"), "the single add"],
+    [join("lib", "srs", "deck.ts"), "the batched builder"],
+  ];
+  for (const [file, what] of builders) {
+    const body = code(file);
+    assert.match(
+      body, /deferredDues\(/,
+      `${what} (${file}) builds cards without asking which words were put aside, `
+      + "so a word refused during a lesson comes back with a card dated today.",
+    );
+    assert.match(
+      body, /due: held\.get\(/,
+      `${what} (${file}) asks which words were put aside and then dates every new `
+      + "card now anyway.",
+    );
+  }
+});
+
+/**
  * AND THE WAY BACK IS A SCREEN SOMEBODY CAN OPEN.
  *
  * A panel nobody renders is a feature nobody has, which this repository has
@@ -16042,6 +16072,7 @@ check("the words put aside are listed, and one button puts them there", () => {
   for (const file of [
     join("app", "(app)", "review", "ReviewSession.tsx"),
     join("app", "(app)", "learn", "new", "LearnSession.tsx"),
+    join("app", "(app)", "learn", "[unitId]", "lesson", "LessonSession.tsx"),
   ]) {
     assert.match(
       code(file), /<TooComplicated\b/,
