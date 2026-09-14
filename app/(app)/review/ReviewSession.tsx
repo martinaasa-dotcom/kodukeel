@@ -19,7 +19,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
-import { BLANK } from "@/lib/estonian/cloze";
+import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
@@ -151,19 +151,6 @@ function slotAsked(card: ReviewCard): string {
  * the answer instead, where it explains.
  */
 const isGap = (card: ReviewCard) => card.front.includes(BLANK);
-
-/**
- * The blank was a fixed four underscores whatever the answer's own length,
- * so a seven-letter word and a two-letter one left the same gap. This sizes
- * it to the primary accepted spelling instead, display only: `card.front`
- * itself, and everywhere else `BLANK` is split back out of it, is untouched.
- */
-function sizedGap(front: string, back: string): string {
-  if (!front.includes(BLANK)) return front;
-  const primary = back.split(" / ")[0]?.trim() || back;
-  const len = Math.max(primary.length, 1);
-  return front.replace(BLANK, "_".repeat(len));
-}
 
 /**
  * "Why?", at the only moment anyone asks it.
@@ -1025,7 +1012,7 @@ export function ReviewSession({
               }
               style={{ color: "var(--ink)" }}
             >
-              {sizedGap(card.front, card.back)}
+              {sizedBlank(card.front, card.back)}
             </p>
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
                 it aloud is not a thing, and the reveal below plays the whole

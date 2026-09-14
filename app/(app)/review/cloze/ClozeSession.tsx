@@ -221,7 +221,7 @@ export function ClozeSession() {
               className={`${checked ? VERDICT_CLASS[verdict] : ""} mx-1 inline-block min-w-[5ch] rounded px-2 text-center`}
               style={checked ? undefined : { background: "var(--raised)", color: "var(--ink-3)" }}
             >
-              {checked ? item.answer : "____"}
+              {checked ? item.answer : "_".repeat(Math.max(item.answer.length, 1))}
             </span>
             {after}
           </p>

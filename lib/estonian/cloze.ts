@@ -35,6 +35,25 @@ export interface Cloze {
 export const BLANK = "____";
 
 /**
+ * A blank sized to the answer it stands for, rather than a fixed run of four
+ * underscores whatever the word's own length: a two-letter answer and a
+ * seven-letter one used to leave the same gap. Display only, and only for a
+ * teaching card where the length is a fair thing to show — a measurement
+ * screen (the level check, the checkpoint) keeps the fixed blank on purpose,
+ * so it is not read as a hint about how many letters to expect.
+ *
+ * Splits on the *first* `BLANK` only, which is what every caller here needs:
+ * `buildCloze` refuses a sentence with the target word twice over, so a
+ * teaching sentence never carries more than one gap.
+ */
+export function sizedBlank(textWithBlank: string, answer: string): string {
+  if (!textWithBlank.includes(BLANK)) return textWithBlank;
+  const primary = answer.split(" / ")[0]?.trim() || answer;
+  const len = Math.max(primary.length, 1);
+  return textWithBlank.replace(BLANK, "_".repeat(len));
+}
+
+/**
  * Blanks out whichever of `forms` appears in the sentence.
  *
  * The *longest* match wins: a word list for `tuba` contains both `toa` and
