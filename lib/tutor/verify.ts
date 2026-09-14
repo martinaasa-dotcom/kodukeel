@@ -24,7 +24,7 @@ import { TAGGED_LINE } from "@/lib/tutor/markers";
 const ESTONIAN_LETTERS = /[õäöüšž]/i;
 
 /** Words the model may write in Estonian without them being *forms* of anything. */
-const GRAMMATICAL_TERMS = new Set([
+export const GRAMMATICAL_TERMS = new Set([
   "osastav", "omastav", "nimetav", "sisseütlev", "seesütlev", "seestütlev",
   "alaleütlev", "alalütlev", "alaltütlev", "saav", "rajav", "olev", "ilmaütlev",
   "kaasaütlev", "astmevaheldus", "rektsioon", "välde", "tegusõna", "nimisõna",

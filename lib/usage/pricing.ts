@@ -16,6 +16,14 @@ export interface ModelPrice {
   readonly inputPerMTok: number;
   /** USD per million output tokens. */
   readonly outputPerMTok: number;
+  /**
+   * What an explicit cache entry costs to keep, per million tokens per hour,
+   * where a provider charges for one. Only Gemini's `cachedContents` does;
+   * Anthropic's ephemeral cache is priced into its write rate. Absent means
+   * the table's own default, `CACHE_STORAGE_PER_MTOK_HOUR`, which is the
+   * dearer of the two figures Google publishes.
+   */
+  readonly cacheStoragePerMTokHour?: number;
 }
 
 /**
@@ -123,13 +131,13 @@ const PRICES: Readonly<Record<string, ModelPrice>> = {
     dearest row and the honest answer for a rate nobody has looked up. That is
     what makes the omissions safe and the zeros dangerous.
   */
-  "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
+  "gemini-3.8-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75, cacheStoragePerMTokHour: 0.5 },
   "gemini-3.7-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
   "gemini-3.6-flash": { inputPerMTok: 0.75, outputPerMTok: 3.75 },
   "gemini-3.5-flash": { inputPerMTok: 1.5, outputPerMTok: 9 },
   "gemini-2.5-flash": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
   "gemini-3.5-flash-lite": { inputPerMTok: 0.3, outputPerMTok: 2.5 },
-  "gemini-3.1-flash-lite": { inputPerMTok: 0.25, outputPerMTok: 1.5 },
+  "gemini-3.1-flash-lite": { inputPerMTok: 0.25, outputPerMTok: 1.5, cacheStoragePerMTokHour: 1 },
   "gemini-2.5-flash-lite": { inputPerMTok: 0.1, outputPerMTok: 0.4 },
   "gemini-3.1-pro-preview": { inputPerMTok: 2, outputPerMTok: 12 },
   /*
@@ -204,6 +212,38 @@ export function priceFor(model: string): ModelPrice {
  */
 export const CACHE_READ_RATE = 0.1;
 export const CACHE_WRITE_RATE = 1.25;
+
+/**
+ * What Gemini charges to hold an explicit cache entry, per million tokens per
+ * hour, where the model's own row does not say. Read off
+ * https://ai.google.dev/gemini-api/docs/pricing on 2026-09-14: $1.00 on the
+ * Lite tier and every older Flash, $0.50 on `gemini-3.8-flash` until the end
+ * of 2026 and $1.00 from 1 January 2027. The default is the dearer figure, so
+ * a row that never wrote its own storage rate errs high rather than free.
+ */
+export const CACHE_STORAGE_PER_MTOK_HOUR = 1;
+
+/**
+ * THE STORAGE OF A CACHE ENTRY, AS INPUT TOKENS AT THE MODEL'S OWN BASE RATE.
+ *
+ * Google bills an explicit cache twice: the tokens written, at the ordinary
+ * input rate, and then storage by the hour for as long as the entry lives.
+ * The ledger prices calls in tokens and nothing else, so the storage is
+ * turned into the number of base-rate input tokens that cost the same and
+ * booked on the call that created the entry. Exact rather than approximate:
+ * 1,592 tokens held ten minutes on `gemini-3.8-flash` is $0.000133, which is
+ * 177 tokens at $0.75 a million, and that is what is booked. A model with no
+ * input price at all (a free row) is charged nothing for storage either,
+ * since there is no rate to express it in; a free row is a decision this
+ * table already makes about the whole call.
+ */
+export function cacheStorageAsInputTokens(model: string, tokens: number, seconds: number): number {
+  const price = priceFor(model);
+  if (price.inputPerMTok <= 0 || tokens <= 0 || seconds <= 0) return 0;
+  const perHour = price.cacheStoragePerMTokHour ?? CACHE_STORAGE_PER_MTOK_HOUR;
+  const dollars = (tokens / 1e6) * perHour * (seconds / 3600);
+  return Math.ceil((dollars / price.inputPerMTok) * 1e6);
+}
 
 /**
  * The parts of one call's input, where the provider told them apart.
@@ -316,14 +356,16 @@ export const EXPECTED_TOKENS: Readonly<Record<UsageKind, { input: number; output
     fraction bit early and a busy evening could refuse a turn on an imaginary
     bill.
 
-    Measured rather than re-estimated. The static system block is 128 tokens and
-    identical on every turn of every scene; the live block is dominated by the
-    word list the route hands over, which is 714 to 955 tokens across the
-    fourteen shipped scenes (mean 821), plus the stage direction, the register,
-    six banked lines for tone and the turns so far. The reply is capped at
-    `MAX_WORDS`, fourteen words, and comes back as one short sentence.
+    Measured rather than re-estimated, and measured again once the prompt was
+    cut and held (`docs/21-situations.md` §63). A turn is 1,704 to 1,821 tokens
+    on Google's own tokenizer, 1,592 of them served off the cached entry at a
+    tenth of the input rate; the reservation has no cache to price against, so
+    the whole prompt is booked at base, which is the safe direction and the
+    only one a figure settled seconds later needs. The reply is bounded by
+    `MAX_COMPOSED_WORDS`, forty words, and with thinking switched off comes
+    back as two to four sentences of about twenty to forty tokens.
   */
-  SCENE: { input: 1_400, output: 60 },
+  SCENE: { input: 1_800, output: 60 },
 };
 
 /**

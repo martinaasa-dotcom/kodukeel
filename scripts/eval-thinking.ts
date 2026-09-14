@@ -43,7 +43,7 @@ import { composeLive, composeSystem } from "../lib/scenes/prompt";
 import { runGate } from "../lib/scenes/gate";
 import { sceneById } from "../lib/scenes/catalogue";
 import { scriptedFor } from "../lib/scenes/scripted";
-import { SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
+import { billedOutput, SCENE_REPLY_TOKENS } from "../lib/tutor/provider";
 import { UNKNOWN_MODEL, normaliseModel, priceFor } from "../lib/usage/pricing";
 import { HARNESS_LEVEL, keylessContext } from "./lib/sceneDraft";
 
@@ -218,7 +218,8 @@ async function ask(combo: Combo, system: string, live: string): Promise<Answer> 
   return {
     text: text.trim().split("\n").filter(Boolean)[0] ?? "",
     inTokens: usage.prompt_tokens ?? usage.input_tokens ?? 0,
-    outTokens: usage.completion_tokens ?? usage.output_tokens ?? 0,
+    // Gemini hides its thinking from `completion_tokens` and bills it: read the total (`billedOutput`).
+    outTokens: billedOutput(usage) ?? usage.output_tokens ?? 0,
     why: "",
   };
 }

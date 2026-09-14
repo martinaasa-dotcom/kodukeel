@@ -1,12 +1,17 @@
 import { after } from "next/server";
+import { forTheModel } from "@/lib/tutor/transcript";
+import { forgetOldMessages } from "@/lib/tutor/history";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
 import { ProseStream } from "@/lib/tutor/humanize";
+import { isStrayFix, sentenceRun } from "@/lib/tutor/fixLine";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
 import { learnerContextFor } from "@/lib/progress/tutorContext";
+import { wordsInQuestion } from "@/lib/progress/tutorWords";
+import { asksForForms, wordsNote } from "@/lib/tutor/words";
 import { chatEstonianTokens } from "@/lib/tutor/verify";
 import {
   openWithFallback,
@@ -20,8 +25,6 @@ import { reportError } from "@/lib/observability/report";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
-
-const MAX_HISTORY = 20;
 
 /*
   How many questions one learner may ask in a minute.
@@ -93,16 +96,16 @@ export async function POST(request: Request) {
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
       return Response.json({ error: "Nothing to ask." }, { status: 400 });
     }
-    messages = body.messages
-      .slice(-MAX_HISTORY)
+    messages = forTheModel(body.messages
       .filter((m): m is ChatMessage =>
         typeof m === "object" && m !== null &&
         (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
-        "content" in m && typeof (m as ChatMessage).content === "string")
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 8000) }));
+        "content" in m && typeof (m as ChatMessage).content === "string"));
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }
+  // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
+  if (messages.length === 0) return Response.json({ error: "Nothing to ask." }, { status: 400 });
 
   const decision = await authoriseCall(ownerId, "TUTOR");
   if (!decision.allowed) {
@@ -126,9 +129,20 @@ export async function POST(request: Request) {
     transaction above rather than after it: three round trips that do not
     depend on the answer cost nothing extra when they are in flight together.
   */
-  const learner = (await learnerPromise) ?? UNKNOWN_LEARNER;
+  /*
+    And what the dictionary holds for the words the question names, read
+    beside the learner's log rather than after it. Asked for every case of
+    a word she was never handed, Anu built fourteen forms on a wrong
+    genitive; handed the dictionary's own principal parts, she builds on
+    those and is told to say she is not sure past them (`lib/tutor/words.ts`).
+    A read that fails leaves the block empty, which is what every question
+    got before this existed.
+  */
+  const wordsPromise = wordsInQuestion(messages).catch(() => []);
+  const [known, words] = await Promise.all([learnerPromise, wordsPromise]);
+  const learner = known ?? UNKNOWN_LEARNER;
   const system = buildSystemPrompt();
-  const live = learnerNote(learner);
+  const live = [learnerNote(learner), wordsNote(words, asksForForms(messages))].filter(Boolean).join("\n\n");
   const encoder = new TextEncoder();
   let full = "";
 
@@ -173,7 +187,16 @@ export async function POST(request: Request) {
         // limit" while none of them has been recorded yet.
         reservation: decision.reservation,
       }));
-    }, live, TUTOR_REPLY_TOKENS);
+    }, live, TUTOR_REPLY_TOKENS,
+    /*
+      And the static half held on Google's side: Anu's prompt is the same
+      2,300 tokens for everybody, which is why the level moved out of it, and
+      on a Gemini link `lib/tutor/geminiCache.ts` serves it at a tenth of the
+      input rate. The reply then arrives as one chunk rather than a stream,
+      which the chat already waits for (`useAnuChat` shows the finished
+      reply), and a link that will not hold the prompt answers streamed.
+    */
+    true);
   } catch (error) {
     // Nothing was spent and nothing was answered, so the authorization is
     // handed back: a deployment with a bad key must not ration its learners
@@ -194,7 +217,16 @@ export async function POST(request: Request) {
         would notice, and it never touches a word of Estonian. See
         lib/tutor/humanize.ts.
       */
-      const prose = new ProseStream();
+      /*
+        And a FIX: line under a question that had no sentence to correct is
+        dropped whole, decided from the learner's own message and how many
+        of its words the dictionary vouched for (`lib/tutor/fixLine.ts`):
+        every model measured puts one there, and the screen boxes it as a
+        correction of something the learner wrote.
+      */
+      const lastAsked = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+      const vouched = sentenceRun(lastAsked, words.flatMap((w) => w.asked ?? []));
+      const prose = new ProseStream((fix) => !isStrayFix(fix, lastAsked, vouched));
       const say = (text: string) => {
         if (!text) return;
         full += text;
@@ -277,6 +309,9 @@ async function persist(ownerId: string, messages: ChatMessage[], reply: string) 
     if (reply.trim()) {
       await prisma.message.create({ data: { ownerId, role: "assistant", content: reply } });
     }
+    // And yesterday's conversation goes: Anu remembers a day and starts
+    // fresh after it (`lib/tutor/lifetime.ts`).
+    await forgetOldMessages(ownerId);
   } catch {
     // Chat history is a convenience, not the irreplaceable data. Losing a row
     // must never break the conversation the learner is having.

@@ -128,7 +128,7 @@ are deleted on erasure.
 | `Review` | Append-only. Every answer: grade, moment, how long, which facet was asked, which form they reached for instead | Until the account is deleted. The one table whose loss is unrecoverable | Yes | Yes |
 | `Task` | A to-do they wrote, with a due date | Until deleted by them, or with the account | Yes | Yes |
 | `StudyEvent` | Their own calendar: class times, study slots, exam dates | Until deleted by them, or with the account | Yes | Yes |
-| `Message` | What they typed to the tutor and what came back | Until the account is deleted | Yes | Yes |
+| `Message` | What they typed to the tutor and what came back | 24 hours, deleted on the next message to the tutor; erased with the account either way | Yes | Yes |
 | `Setting` | Preferences, including the goal, the time zone and the research opt out | Until the account is deleted | Yes | Yes |
 | `StarredWord` | Which dictionary words they kept | Until unstarred, or with the account | Yes | Yes |
 | `Achievement` | Badges earned. No screen draws them now; rows somebody earned are theirs either way | Until the account is deleted | Yes | Yes |

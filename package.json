@@ -45,6 +45,7 @@
     "test:load": "tsx scripts/load-test.mjs",
     "fixture:load": "tsx scripts/load-fixture.ts",
     "report:impact": "tsx scripts/report-impact.ts",
+    "report:spend": "tsx scripts/report-spend.ts",
     "measure:asr": "node scripts/measure-asr.mjs",
     "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",

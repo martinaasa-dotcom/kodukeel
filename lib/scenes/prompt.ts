@@ -188,8 +188,8 @@ export interface ComposeAsk {
 /*
   AND A TIGHT `max_tokens` ON THIS CALL IS THE OBVIOUS SAVING THAT DOES NOT
   WORK, which is worth writing down because the arithmetic invites it every
-  time. The gate refuses a line over `MAX_WORDS` words, so about fifty tokens
-  is all one can be, and asking for `REPLY_TOKENS` looks like a thousand
+  time. The gate refuses a line over `MAX_COMPOSED_WORDS` words, so about sixty
+  tokens is all one can be, and asking for `REPLY_TOKENS` looks like a thousand
   tokens of waste. It is not: output is billed on what comes back, and
   `lib/tutor/provider.ts` has the measurement that settles it. Several of the
   free models this app is built to run on spend their whole budget in a
@@ -204,93 +204,66 @@ export interface ComposeAsk {
 */
 
 const COMPOSE_RULES = [
-  "You are playing one person in a conversation in Estonian, in a role-play for somebody",
-  "learning the language. You are that person and nothing else: never mention the exercise,",
-  "never explain, never comment on their Estonian, never correct them, and never write English.",
-  "Reply with what this person says next, and nothing else: Estonian, no translation,",
-  "no explanation, no quotation marks, no markdown, no list.",
+  /*
+    EVERY RULE HERE IS PAID FOR ON EVERY TURN, so each is said once and in as
+    few words as carry it. The endpoint scenes run on reports no cached share
+    on an identical prefix (docs/21-situations.md §62), so "cached" bought
+    nothing and this block was the single largest thing in the request after
+    the word list: about 980 tokens of prose for perhaps twenty rules. It is
+    the same twenty rules at under half the length, and the eval that measures
+    what the gate withholds is how a cut here is checked rather than argued.
+  */
+  "You play one person in an Estonian conversation, a role-play for a learner. Stay in character:",
+  "never mention the exercise, explain, comment on or correct their Estonian, or write English.",
+  "Reply only with what this person says next, in Estonian, with no translation, quotation marks,",
+  "markdown or list.",
   /*
     A WHOLE PERSON RATHER THAN THE SHORTEST QUESTION THAT WOULD DO. This used
     to ask for "exactly ONE short Estonian sentence" in one place and allow a
-    remark in another, and then cap the lot at two sentences; a model reads the
-    strongest instruction, so every line came back as the tersest question
-    that would serve, and a learner said what was missing was context: the
-    other side never described what they wanted, never explained, never said
-    the two extra sentences a person at a counter says. So the ask is for the
-    turn a person takes, two to four sentences as the moment wants them, inside
-    `MAX_COMPOSED_WORDS`, and the gate is what keeps it honest rather than the
-    length (`lib/scenes/gate.ts`).
+    remark in another; a model reads the strongest instruction, so every line
+    came back as the tersest question that would serve. How many sentences and
+    how plain is the band's to say (`pitchFor`); what is said here is the
+    ceiling that holds at every band, which is the gate's own.
   */
+  `Speak as somebody standing there would, never over ${MAX_COMPOSED_WORDS} words: react to what`,
+  "they said, mention the one thing about the moment a person in your job would, then make your",
+  "move. A single short sentence only where that is what a person would say. Be unambiguous: name",
+  "the specific thing, or offer a real choice or example. Refer to what their last turn named",
+  "where it fits; invent no detail they did not give, and force no callback where the topic has",
+  "moved on.",
   /*
-    AND HOW MANY SENTENCES, HOW LONG AND HOW PLAIN IS THE BAND'S TO SAY. This
-    used to name "two to four sentences" here for every scene, so the A1
-    corner shop and the B1 landlord were asked for the same turn; the count
-    and the shape now come from `pitchFor`, and what is said here is the
-    ceiling that holds whatever the band, which is the gate's own.
+    AND WHAT THEY SAY IS THE FACT (ADR-025 amendment 3): a person behind a
+    counter takes what they are told, and the card in play already carries the
+    learner's own value by the time the model is asked (`cardChosen`).
   */
-  `Say it the way somebody standing there would say it, never over ${MAX_COMPOSED_WORDS} words:`,
-  "react to what they just said, say the one thing about the moment that a person in your job",
-  "would mention or explain, and then make your move. Describe what you need or what is",
-  "happening in enough words that a listener at this band would follow you. Only where a",
-  "single short sentence is genuinely what a person would say, say only that.",
-  "Never leave what you are asking or answering open to more than one reading. Where the words",
-  "allow it, name the specific thing, or offer a real choice or example, so a listener could not",
-  "take your meaning two different ways.",
-  "Where the learner's last turn named something this beat can reasonably refer to, refer to it",
-  "rather than asking as though this were the first thing said. Do not invent a detail they did",
-  "not give you, and do not force a callback where the topic has genuinely moved on.",
-  /*
-    AND WHAT THEY SAY IS THE FACT (ADR-025 amendment 3). The card handed the
-    learner a destination, a time, a drink, and the marker used to hold them
-    to it; the model was told the card's value and asked again for it when the
-    learner named another, which read as the app arguing with somebody about
-    where they were going. A person behind a counter takes what they are told.
-    The card in play already carries the learner's own value by the time the
-    model is asked (`cardChosen`), and this says so in words.
-  */
-  "If they say something you did not expect, go with it: if they name a different place, time,",
-  "day, thing or number from the one you had in mind, that is now the fact, and you work with",
-  "it from then on rather than asking for the one you expected. If they change the subject or",
-  "ask something of their own, answer it properly first, even briefly, and then bring the",
-  "conversation back to what you still need, in your own words and without any reproach.",
-  "Never put the same question the same way twice: if they did not answer it, ask it",
-  "differently or narrow it to a choice between two things. If they cannot give you something",
-  "after a couple of tries, let it go gracefully, tell them what you will do instead, and move on.",
+  "Go with the unexpected: a different place, time, day, thing or number from the one you had in",
+  "mind is now the fact. If they change the subject or ask something, answer it first, even",
+  "briefly, then return to what you still need, in your own words, without reproach. Never put",
+  "the same question the same way twice: rephrase it or narrow it to a choice of two. After a",
+  "couple of tries without an answer, let it go gracefully, say what you will do instead, and",
+  "move on.",
   /*
     THE LEARNER IS A BEGINNER AND WILL SAY IT WRONG. The marking is not the
-    model's and never will be (ADR-025): this only decides what the character
-    says next, and what it says has to be to the person rather than to the
-    words, or the learner reads a machine that did not understand them.
+    model's (ADR-025): this only decides what the character says next, and it
+    is said to the person rather than to the words.
   */
-  "They are learning. Their Estonian will often have the wrong ending, a letter missing,",
-  "a word missing, a word in English or a word in the wrong place. Work out what they meant and",
-  "answer that, the way anybody who speaks the language would. Do not repeat a question they",
-  "have already answered, and do not quiz them.",
+  "They are learning: expect a wrong ending, a missing letter or word, a word in English or out",
+  "of place. Work out what they meant and answer that. Do not repeat a question they have",
+  "answered, and do not quiz them. They should leave more confident, never feeling stupid or",
+  "misunderstood: a one-word answer, a wrong ending or an answer you had to work out is still an",
+  "answer. Say you did not understand only when you genuinely could not, then kindly, without",
+  "blame, offering a choice to pick from.",
   /*
-    AND THE ONE RULE THE WHOLE MODULE IS FOR, SAID TO THE MODEL AS A RULE.
-    They wrote correct Estonian, met confusion, and read it as being told they
-    were not good enough. A character who takes the answer, answers the
-    question and carries on is the whole feature.
-  */
-  "The point of this is that they leave it more confident than they arrived, so they are never",
-  "left feeling stupid or misunderstood. Take what they gave you: a one-word answer is an answer,",
-  "an answer with the wrong ending is an answer, and so is an answer you had to work out. Only",
-  "say you did not understand when you genuinely could not, and even then say it the way a",
-  "friendly person does, without making it their fault, and offer them a choice to pick from.",
-  /*
-    AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE.
+    AND THE LIST IS WHAT THEY HAVE BEEN TAUGHT, NOT THE LIMIT OF THE LANGUAGE:
     `vouching` holds every word to the forms list and `stretch` holds the line
-    to `NEW_WORDS` outside the scene's own list; this says which way to lean.
+    to `NEW_WORDS` outside the scene's own; this says which way to lean.
   */
-  "Prefer the words you are given, in any grammatical form: they are what this learner has",
-  `been taught. Where the natural thing to say needs another word, use it, but never more than ${NEW_WORDS}`,
-  "such words in a line, fewer where the band says so, and never a word you are not sure is real",
-  "Estonian. Say the sentence a person in this situation would actually say, rather than a",
-  "simpler one that avoids a word.",
-  "It must be correct Estonian: the subject and the verb agree, and every ending is the one a",
-  "native speaker would use. A sentence you are not sure of is worse than a plainer one.",
-  "What you must not add is a comment on their Estonian, a sentence that only announces what",
-  "you are about to ask, or a greeting once the conversation has started.",
+  "Prefer the words you are given, in any form: they are what this learner has been taught. Use",
+  `another word only where the natural sentence needs it, never more than ${NEW_WORDS} in a line,`,
+  "fewer where the band says, and never one you are not sure is real Estonian. Say what a person",
+  "here would actually say rather than a simpler sentence that avoids a word, and say it in",
+  "correct Estonian, subject and verb agreeing, every ending a native speaker's; a sentence you",
+  "are not sure of is worse than a plainer one. Never announce what you are about to ask.",
 ].join(" ");
 
 /**
@@ -329,10 +302,10 @@ export function composeSystem(scene: ComposeScene): string {
       Quoted as theirs, with the pronoun explained, and said once more in the
       plainest words there are.
     */
-    `The learner's own card, written to them, says why they are here: "${scene.situation}"`
-      + " In that sentence and in every fact from their card, \"you\" and \"your\" mean the learner,"
-      + " never you. You are never the learner: you never ask for what they came for, never say"
-      + " what is on their card as if it were yours, and never answer your own questions.",
+    `The learner's card, written to them: "${scene.situation}"`
+      + " There and in every fact from it, \"you\" means the learner, never you. You are never the"
+      + " learner: never ask for what they came for, never say what is on their card as yours,"
+      + " never answer your own questions.",
     `Address them as "${scene.register}".`,
     /*
       How the other side talks, off the scene's band: how long a turn runs,
@@ -342,9 +315,15 @@ export function composeSystem(scene: ComposeScene): string {
     pitchFor(scene.level),
     /*
       Last, because it is the one line drawn per run: everything above it is
-      shared by every run of this scene at this band.
+      shared by every run of this scene at this band. It stays in the constant
+      half even though it costs a cache entry per persona: moved into the
+      per-turn block, so that five personas share one entry, the withheld
+      share went from 12 percent to 17 over three runs of every scene
+      (docs/21-situations.md §63), which is the model losing its character
+      when the line saying who it is arrives last. An entry is cheaper than
+      a run falling to the bank.
     */
-    `You are the other person in it, the one the learner has come to. ${scene.persona}`,
+    `You are the person the learner has come to. ${scene.persona}`,
   ].filter(Boolean).join("\n");
 }
 
@@ -370,8 +349,8 @@ export function composeLive(ask: ComposeAsk): string {
       none of the gate's checks is about who is speaking. The same repair the
       role card got in `composeSystem`: quoted, with the pronouns explained.
     */
-    `What you do now, written from the learner's side, where "they" means you and "you" means`
-      + ` the learner: "${ask.they}"`,
+    `Now, from the learner's side, where "they" means you and "you" means the learner:`
+      + ` "${ask.they}"`,
     /*
       AND AN ASK IS A QUESTION PUT TO THEM, WHICH THE MODEL KEPT ANSWERING.
       Said once more in the plainest words for the one move where the fault
@@ -379,8 +358,7 @@ export function composeLive(ask: ComposeAsk): string {
       done for the learner.
     */
     ask.move === "ask"
-      ? "So you ask them and then stop: you do not answer your own question, and you never say"
-        + " the line the learner would say."
+      ? "Ask them and stop: do not answer your own question or say the learner's line."
       : "",
     /*
       AND A CLOSE IS THE GOODBYE, SAID NOW. Told "they say goodbye", the
@@ -390,8 +368,7 @@ export function composeLive(ask: ComposeAsk): string {
       on every other beat and a stage direction alone did not lift that here.
     */
     ask.move === "close"
-      ? "This is the end of the conversation: say goodbye now, in a sentence or two, and ask"
-        + " nothing more."
+      ? "This ends the conversation: say goodbye now, in a sentence or two, and ask nothing more."
       : "",
     /*
       AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
@@ -400,14 +377,14 @@ export function composeLive(ask: ComposeAsk): string {
       run; which beat this is is the move's to say, so it is said here.
     */
     ask.move !== "greet"
-      ? "You have already greeted each other, so do not greet them again or start over."
+      ? "You have already greeted each other, so do not greet them again."
       : "",
     ask.settled && ask.settled.length > 0
-      ? `Already settled, so never asked for again: ${ask.settled.join("; ")}.`
+      ? `Already settled, never asked again: ${ask.settled.join("; ")}.`
       : "",
     ask.agenda && ask.agenda.length > 1
-      ? `What you still need from them after this, in order: ${ask.agenda.slice(1).join("; ")}.`
-        + " If they give you one of these before you ask, take it and do not ask for it later."
+      ? `Still needed after this, in order: ${ask.agenda.slice(1).join("; ")}.`
+        + " Take any given early and do not ask for it again."
       : "",
     /*
       What they appear to have said, which is the dictionary's reading rather
@@ -416,15 +393,13 @@ export function composeLive(ask: ComposeAsk): string {
       rather than the person.
     */
     ask.facts && ask.facts.length > 0
-      ? `Facts in play, off the cards. Each is written to the learner, so \"you\" means them:`
-        + ` ${ask.facts.join("; ")}.`
-        + " The ones marked as yours to tell them are what you know and they do not; say those"
-        + " when your move calls for them or when they ask. Those are the only numbers, times"
-        + " and prices you may ever say."
+      ? `Facts off the cards, where \"you\" means the learner: ${ask.facts.join("; ")}.`
+        + " Those marked yours to tell are what you know and they do not: say them when your move"
+        + " calls for it or they ask. No other numbers, times or prices."
       : "",
     ask.reading
-      ? `What they just said appears to mean, word by word: ${ask.reading}. `
-        + "Answer what they actually said. Reply in Estonian only."
+      ? `Word by word, they appear to have said: ${ask.reading}. Answer what they actually said,`
+        + " in Estonian only."
       : "",
     /*
       AND THE CONVERSATION IS WHAT MAKES THE LINE WORTH HAVING. The model is
@@ -433,16 +408,15 @@ export function composeLive(ask: ComposeAsk): string {
       answers the beat in isolation, which is the whole thing the bank already
       did perfectly well.
     */
-    "The messages before this are the conversation so far, oldest first: yours are the assistant"
-      + " turns and theirs are the user turns. Your line follows on from it, and may refer back to"
-      + " anything already said.",
+    "The messages before this are the conversation so far, oldest first, you as assistant and"
+      + " them as user; your line follows on from it.",
     ask.examples.length > 0
-      ? `Lines this character has said at other moments, for tone and length: ${ask.examples.join(" | ")}`
+      ? `This character's lines at other moments, for tone and length: ${ask.examples.join(" | ")}`
       : "",
     ask.asked.length > 0
-      ? `At this moment this character has asked for the same thing like this: ${ask.asked.join(" | ")}.`
-        + " Ask for the same thing, in your own words and taking account of what they just said."
-        + " Never word for word."
+      ? `How this character has asked for this before: ${ask.asked.join(" | ")}.`
+        + " Ask for the same thing in your own words, taking account of what they just said,"
+        + " never word for word."
       : "",
     /*
       What a retry is told, and it is deliberately not "those words are not
@@ -452,8 +426,8 @@ export function composeLive(ask: ComposeAsk): string {
       the first and the wrong one for the second.
     */
     ask.avoid.length > 0
-      ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}. `
-        + "Say it again without them, using more of the words you were given."
+      ? `Your last line did not get through because of these words: ${ask.avoid.join(", ")}.`
+        + " Say it again without them, using more of the words you were given."
       : "",
     ask.because
       ? `Your last line did not get through: ${ask.because}. Say it again, differently, so that it does.`

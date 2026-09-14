@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { conversationCutoff } from "./lifetime";
 
 /** How many past turns to hand back. Anu has no per-topic scoping, so this is the whole recent log. */
 const HISTORY_LIMIT = 30;
@@ -15,9 +16,14 @@ export interface HistoryMessage {
  * conversation started from one looks the same continued from the other:
  * both write through the same `Message` table via `app/api/tutor/route.ts`.
  */
-export async function loadRecentMessages(ownerId: string): Promise<HistoryMessage[]> {
+export async function loadRecentMessages(ownerId: string, now = new Date()): Promise<HistoryMessage[]> {
   const rows = await prisma.message.findMany({
-    where: { ownerId },
+    /*
+      A day of conversation and no more (`CONVERSATION_LIFETIME_MS`): what is
+      older is not shown and not sent to the model, whether or not the route
+      has got round to deleting it yet.
+    */
+    where: { ownerId, createdAt: { gte: conversationCutoff(now) } },
     /*
       And the id, because `createdAt` is not unique. The route writes the
       learner's turn and Anu's reply as two inserts once the stream has
@@ -32,4 +38,18 @@ export async function loadRecentMessages(ownerId: string): Promise<HistoryMessag
     select: { role: true, content: true },
   });
   return rows.reverse().map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+}
+
+/**
+ * Forgets the turns older than a day, so the table holds what Anu may still
+ * read and nothing else. Called by the route after it has written the turn
+ * just taken, which is the one moment a conversation is certainly live; a
+ * learner who never speaks to her again keeps yesterday's rows until erasure,
+ * which the retention schedule says in as many words.
+ */
+export async function forgetOldMessages(ownerId: string, now = new Date()): Promise<number> {
+  const gone = await prisma.message.deleteMany({
+    where: { ownerId, createdAt: { lt: conversationCutoff(now) } },
+  });
+  return gone.count;
 }
