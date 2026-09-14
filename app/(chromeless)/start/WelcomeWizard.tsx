@@ -19,6 +19,7 @@ import { weeksToLearn, type Standing } from "@/lib/assessment/plan";
 import { PRE_A1, type Band, type Item, type Level, type Placement } from "@/lib/assessment/types";
 import { DEFAULT_LETTER_BAR, LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
 import { counted } from "@/lib/copy/values";
+import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
@@ -31,6 +32,23 @@ import {
  * print `words * 2`, which is right only for a unit that drills nothing and is
  * out by a factor of five at A1, where every unit drills cases.
  */
+/**
+ * One part of the planned ladder, as first run shows it.
+ *
+ * The wizard needs the shape of the whole climb and the detail of one part, and
+ * it is a client component, so the server flattens `lib/course/` into this
+ * rather than shipping the builder to the browser.
+ */
+export interface CoursePart {
+  id: string;
+  level: string;
+  title: string;
+  subtitle: string;
+  blurb: string;
+  days: number;
+  firstDay: { title: string; subtitle: string; words: number } | null;
+}
+
 export interface StarterDeck {
   /** The CEFR band this deck is the starting point for. */
   level: string;
@@ -108,7 +126,7 @@ const GOALS = [
   { value: 40, label: "Intense" },
 ] as const;
 
-const STEPS = ["You", "Level", "Goal", "Start"] as const;
+const STEPS = ["You", "Level", "Goal", "Tonight"] as const;
 
 /**
  * First run.
@@ -139,9 +157,11 @@ const STEPS = ["You", "Level", "Goal", "Start"] as const;
  * because that is where they earn their place: before the investment, not
  * after seven screens of it.
  */
-export function WelcomeWizard({ starters, suggestedName, paper }: {
+export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
   /** The starter deck for each level, sized by the server. */
   starters: StarterDeck[];
+  /** The whole planned ladder, A1.1 to C1.3. */
+  parts: CoursePart[];
   suggestedName: string;
   /** The level check, built server side. Empty when the dictionary cannot fill one. */
   paper: { items: Item[]; missing: string[] };
@@ -251,6 +271,14 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
   */
   const deck = starters.find((d) => d.level === startBand) ?? starters[0] ?? null;
 
+  /*
+    Which part of the ladder they open on: the first one of their own level,
+    which is the same rule `openingPart` applies on the server. A B1 speaker is
+    not made to work up through five parts of greetings.
+  */
+  const openingPart = parts.find((p) => p.level === startBand) ?? parts[0] ?? null;
+  const totalEvenings = parts.reduce((n, p) => n + p.days, 0);
+
   const finish = () => {
     start(async () => {
       await completeOnboarding({
@@ -268,7 +296,12 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
           note: goals.note,
         },
       });
-      router.push("/");
+      /*
+        Straight to tonight's module rather than to Today. Somebody who has
+        just been told what the evening is wants the evening, and a dashboard
+        in between is one more screen to read before anything happens.
+      */
+      router.push("/course");
       router.refresh();
     });
   };
@@ -708,11 +741,72 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
         {step === 3 && deck && deck.cards > 0 && (
           <section>
             <h1 className="text-2xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
-              Your first words
+              Tonight, and every night after it
             </h1>
-            <p className="mt-2 max-w-[54ch] text-base" style={{ color: "var(--ink-2)" }}>
-              Your first {counted(deck.units.length, "unit")} at {startBand}, in the order below.
-              Each word becomes a flashcard, with audio and every form.
+            <p className="mt-2 max-w-[56ch] text-base" style={{ color: "var(--ink-2)" }}>
+              You do not have to decide what to study. Kodukeel plans the evening: which words,
+              which order, which round after which. About fifteen minutes, and then it tells you
+              to stop.
+            </p>
+
+            {/*
+              THE LADDER, AS THE LAST THING FIRST RUN SAYS.
+
+              A stranger who has answered four questions wants to be told what
+              to do tonight, and the honest answer is a named part with a named
+              first evening. The whole climb is under it because seventeen
+              parts is a course and one part with nothing behind it is a trial:
+              somebody deciding whether this is worth starting is deciding
+              about the shape, not about tonight.
+            */}
+            {openingPart && (
+              <div
+                className="mt-6 rounded-[var(--r-lg)] border px-5 py-4"
+                style={{ borderColor: "var(--accent-soft)", background: "var(--accent-soft)" }}
+              >
+                <p className="label-xs" style={{ color: "var(--accent-deep)" }}>
+                  You start at {openingPart.id.toUpperCase()}
+                </p>
+                <p lang="et" className="mt-1 text-xl font-bold" style={{ color: "var(--ink)" }}>
+                  {openingPart.title}
+                </p>
+                <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  {openingPart.blurb}
+                </p>
+                <p className="mt-3 text-sm" style={{ color: "var(--accent-deep)" }}>
+                  {openingPart.days} evenings, about {COURSE_DAY_MINUTES} minutes each.
+                  {openingPart.firstDay && (
+                    <> Tonight is <span lang="et">{openingPart.firstDay.title}</span>,{" "}
+                      {openingPart.firstDay.words} new words and one short round.</>
+                  )}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-5">
+              <SectionTitle hint={`${parts.length} parts`}>The whole way to C1</SectionTitle>
+            </div>
+            <ul className="mt-2 flex flex-wrap gap-1.5">
+              {parts.map((part) => (
+                <li key={part.id}>
+                  <Chip tone={part.id === openingPart?.id ? "accent" : "neutral"}>
+                    {part.id.toUpperCase()}
+                  </Chip>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 max-w-[62ch] text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+              {totalEvenings} evenings in all, and every word the course teaches is in one of them.
+              You can leave the plan at any point and use the app the way you like: everything is
+              still there, and the work counts either way.
+            </p>
+
+            <div className="mt-7">
+              <SectionTitle hint="the words tonight comes from">Your first words</SectionTitle>
+            </div>
+            <p className="mt-1 max-w-[54ch] text-sm" style={{ color: "var(--ink-2)" }}>
+              Your first {counted(deck.units.length, "unit")} at {startBand}. Each word becomes a
+              flashcard, with audio and every form.
             </p>
 
             {/*

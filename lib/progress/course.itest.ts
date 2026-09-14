@@ -30,6 +30,19 @@ const OWNER = "itest-owner-course";
 const CLOCK = dayClock("Europe/Tallinn");
 const PROGRAMME = PROGRAMMES[0]!;
 
+/*
+  A CLOCK THE TEST OWNS, which is this repository's own rule about a unit test
+  and is the fault this file was written with. The fixtures anchored on
+  "an hour ago", and the closing round's window opens at the later of the
+  evening's last tick and the learner's own midnight: run at 00:40 in Tallinn,
+  "an hour ago" is yesterday, the window opened at midnight, and three checks
+  failed on the time of day rather than on anything in the code. So `NOW` is a
+  fixed mid-evening instant and every fixture time is built from it.
+*/
+const NOW = new Date("2026-05-13T18:00:00Z");
+/** Mid-evening in Tallinn, comfortably inside the learner's own day. */
+const EVENING = new Date(NOW.getTime() - 60 * 60_000);
+
 async function wipe() {
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
@@ -86,7 +99,7 @@ afterAll(async () => { await wipe(); await prisma.$disconnect(); });
 
 describe("which day is current", () => {
   it("starts on day one with an empty deck", async () => {
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
     expect(reading.current?.next?.id).toBe(MEET_STEP);
     expect(reading.finishedToday).toBe(false);
@@ -95,7 +108,7 @@ describe("which day is current", () => {
   it("proves the meet step off the deck rather than off a tick", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.done.has(MEET_STEP)).toBe(true);
     /* Nothing was ticked, so nothing was written: the log is the proof. */
     expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
@@ -103,18 +116,18 @@ describe("which day is current", () => {
 
   it("does not count a word the learner has never been asked about", async () => {
     await deck(PROGRAMME.days[0]!.words, 0);
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.done.has(MEET_STEP)).toBe(false);
   });
 
   it("proves the closing round off answers given after the evening's own ticks", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
-    const at = new Date(Date.now() - 60 * 60_000);
+    const at = EVENING;
     await tick(one.id, ticked(one), at);
     await review(CLOSING_REVIEW, new Date(at.getTime() + 60_000));
 
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.daysDone).toBe(1);
     expect(reading.current?.day.index).toBe(2);
     expect(reading.finishedToday).toBe(true);
@@ -123,11 +136,11 @@ describe("which day is current", () => {
   it("does not count answers given before the evening's rounds", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
-    const at = new Date(Date.now() - 60 * 60_000);
+    const at = EVENING;
     await review(CLOSING_REVIEW, new Date(at.getTime() - 60_000));
     await tick(one.id, ticked(one), at);
 
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
     expect(reading.current?.next?.id).toBe(REVIEW_STEP);
   });
@@ -142,11 +155,11 @@ describe("the two faults a browser found", () => {
   it("resolves the day it advances to, not only the day it started on", async () => {
     const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
     await deck([...one.words, ...two.words], 1);
-    const at = new Date(Date.now() - 60 * 60_000);
+    const at = EVENING;
     await tick(one.id, ticked(one), at);
     await review(CLOSING_REVIEW, new Date(at.getTime() + 60_000));
 
-    const reading = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(2);
     /* The words are met, so day two opens part way through rather than at nothing. */
     expect(reading.current?.done.has(MEET_STEP)).toBe(true);
@@ -162,16 +175,16 @@ describe("the two faults a browser found", () => {
   it("keeps a finished day finished when the next one is started", async () => {
     const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
     await deck([...one.words, ...two.words], 1);
-    const monday = new Date(Date.now() - 3 * 60 * 60_000);
+    const monday = new Date(NOW.getTime() - 3 * 60 * 60_000);
     await tick(one.id, ticked(one), monday);
     await review(CLOSING_REVIEW, new Date(monday.getTime() + 60_000));
 
-    expect((await courseReading(OWNER, PROGRAMME, CLOCK)).daysDone).toBe(1);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
 
     /* An hour later, the first round of the next module. */
-    await tick(two.id, [ticked(two)[0]!], new Date(Date.now() - 60 * 60_000));
+    await tick(two.id, [ticked(two)[0]!], EVENING);
 
-    const after = await courseReading(OWNER, PROGRAMME, CLOCK);
+    const after = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(after.daysDone, "day one stopped being finished").toBe(1);
     expect(after.current?.day.index).toBe(2);
   });
@@ -181,14 +194,14 @@ describe("the closing round's own counter", () => {
   it("counts up to what the day needs and no further", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
-    const at = new Date(Date.now() - 60 * 60_000);
+    const at = EVENING;
     await tick(one.id, ticked(one), at);
 
-    expect(await closingProgress(OWNER, PROGRAMME, one.id, CLOCK))
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, CLOCK, NOW))
       .toEqual({ graded: 0, needed: CLOSING_REVIEW });
 
     await review(CLOSING_REVIEW + 7, new Date(at.getTime() + 60_000));
-    expect(await closingProgress(OWNER, PROGRAMME, one.id, CLOCK))
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, CLOCK, NOW))
       .toEqual({ graded: CLOSING_REVIEW, needed: CLOSING_REVIEW });
   });
 });

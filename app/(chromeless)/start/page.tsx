@@ -6,7 +6,8 @@ import { starterUnitsFor } from "@/lib/collections/starter";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { paperFor } from "@/lib/progress/assessment";
 import { previewUnits } from "@/lib/srs/deck";
-import { WelcomeWizard, type StarterDeck } from "./WelcomeWizard";
+import { PROGRAMMES } from "@/lib/course";
+import { WelcomeWizard, type CoursePart, type StarterDeck } from "./WelcomeWizard";
 
 export const metadata = { title: "Getting set up" };
 
@@ -29,6 +30,31 @@ export default async function WelcomePage() {
   ]);
 
   if (settings[SETTING_KEYS.onboardedAt] || cards > 0) redirect("/");
+
+  /*
+    THE PLANNED COURSE, AS THE LAST THING FIRST RUN SAYS.
+
+    A stranger who has just answered four questions does not want a dashboard,
+    they want to be told what to do tonight. The ladder is the answer, so the
+    wizard's final screen names the part they will be on, how long an evening
+    takes and what the first one holds, and the button at the end goes there
+    rather than to Today.
+
+    The whole ladder rather than one part, so the shape of it is visible at the
+    moment somebody is deciding whether this is worth starting: seventeen parts
+    is a course, and one part with nothing behind it is a trial.
+  */
+  const parts: CoursePart[] = PROGRAMMES.map((p) => ({
+    id: p.id,
+    level: p.level,
+    title: p.title,
+    subtitle: p.subtitle,
+    blurb: p.blurb,
+    days: p.days.length,
+    firstDay: p.days[0]
+      ? { title: p.days[0].title, subtitle: p.days[0].subtitle, words: p.days[0].words.length }
+      : null,
+  }));
 
   /*
     The starter deck for every level, measured rather than estimated.
@@ -73,5 +99,12 @@ export default async function WelcomePage() {
   */
   const paper = await paperFor(ownerId, Date.now() % 1_000_000);
 
-  return <WelcomeWizard starters={starters} suggestedName={suggestedName} paper={paper} />;
+  return (
+    <WelcomeWizard
+      starters={starters}
+      parts={parts}
+      suggestedName={suggestedName}
+      paper={paper}
+    />
+  );
 }

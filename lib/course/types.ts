@@ -84,8 +84,6 @@ export interface ActivitySpec {
   title?: string;
   /** Why the day spends these minutes here. One line, to the learner. */
   why: string;
-  /** Roughly how long. The day's own estimate is the sum of its steps. */
-  minutes: number;
   kind: StepKind;
 }
 
@@ -100,67 +98,63 @@ export interface ActivitySpec {
  */
 export const ACTIVITIES = {
   match: {
-    href: "/review/match", kind: "game", minutes: 3,
+    href: "/review/match", kind: "game",
     why: "Eight pairs against the clock, so the meanings settle before anything asks you to produce one.",
   },
   listening: {
-    href: "/review/listening", kind: "drill", minutes: 3,
+    href: "/review/listening", kind: "drill",
     why: "The same words with nothing written down. Reading them is not hearing them.",
   },
   sprint: {
-    href: "/review/sprint", kind: "game", minutes: 2,
+    href: "/review/sprint", kind: "game",
     why: "Sixty seconds of endings. Speed is what turns a form you can work out into one you have.",
   },
   sentences: {
-    href: "/review/sentences", kind: "drill", minutes: 3,
+    href: "/review/sentences", kind: "drill",
     why: "Rebuild a sentence a native writer wrote, so the words arrive in the order Estonian puts them.",
   },
   dictation: {
-    href: "/review/dictation", kind: "drill", minutes: 4,
+    href: "/review/dictation", kind: "drill",
     why: "Hear a whole sentence and write it down. This is where the long and short vowels stop being a rule.",
   },
   picture: {
-    href: "/review/emoji", kind: "game", minutes: 3,
+    href: "/review/emoji", kind: "game",
     why: "No English on the board, so the ending is the only thing to go on.",
   },
   describe: {
-    href: "/review/describe", kind: "drill", minutes: 4,
+    href: "/review/describe", kind: "drill",
     why: "One sentence of your own about a picture. Producing a sentence is the whole point of the words.",
   },
   sonad: {
-    href: "/sonad", kind: "game", minutes: 3,
+    href: "/sonad", kind: "game",
     why: "Today's word in six circles. Three minutes, and the letters of Estonian stop being strange.",
   },
   target: {
-    href: "/review/target", kind: "game", minutes: 3,
+    href: "/review/target", kind: "game",
     why: "Four forms of one word and a question word saying which. Nothing to cross out but the ending.",
   },
   conjugation: {
-    href: "/review/conjugation", kind: "drill", minutes: 4,
+    href: "/review/conjugation", kind: "drill",
     why: "One verb, six persons, typed. A verb you cannot conjugate is a verb you cannot use.",
   },
   speaking: {
-    href: "/review/speaking", kind: "drill", minutes: 3,
+    href: "/review/speaking", kind: "drill",
     why: "Say it out loud and hear it back. Nothing scores you: this is for your own ear.",
   },
-  crossword: {
-    href: "/crossword", kind: "game", minutes: 8,
-    why: "Seven words crossing each other, clued in English. You know what you mean and you are hunting the word, which is where you are in every conversation.",
-  },
   write: {
-    href: "/review/write", kind: "drill", minutes: 5,
+    href: "/review/write", kind: "drill",
     why: "A sentence of your own with a named form in it. The form is checked against the dictionary before anything else looks at it.",
   },
   government: {
-    href: "/review/government", kind: "drill", minutes: 4,
+    href: "/review/government", kind: "drill",
     why: "Aitan sind, but helistan sulle. English gives you nothing to go on here, so it is learned verb by verb.",
   },
   exceptions: {
-    href: "/review/exceptions", kind: "drill", minutes: 4,
+    href: "/review/exceptions", kind: "drill",
     why: "The words where the ending rule stops holding, met and then produced rather than looked up each time.",
   },
   flash: {
-    href: "/review/flashcards", kind: "drill", minutes: 5,
+    href: "/review/flashcards", kind: "drill",
     why: "Words you have already met, asked in a shape review does not use: heard, gapped, or built into a sentence.",
   },
 } as const satisfies Record<string, ActivitySpec>;
@@ -185,6 +179,8 @@ export interface DaySpec {
   canDo: string;
   /** The syllabus unit the words come from. Asserted to exist. */
   unitId: string;
+  /** The level, which is what prices the meet step. */
+  level: string;
   /**
    * The words today teaches, in teaching order, hand-picked out of that unit.
    *
@@ -300,24 +296,99 @@ export const REVIEW_STEP = "review";
  * closing review is then mostly today's words rather than the week's, which is
  * how a course turns into a treadmill.
  */
-export const MAX_DAY_WORDS = 12;
+/**
+ * FIFTEEN MINUTES, EVERY EVENING, AND THE WORD COUNT IS WHAT MOVES.
+ *
+ * A day used to be "the unit sliced into eights" and came out at anything from
+ * eighteen to thirty minutes. That is the wrong thing to hold fixed. What a
+ * learner can promise themselves is a quarter of an hour after dinner, every
+ * day, and what makes a course keep going is that the promise is the same
+ * every time: a day that is fifteen minutes on Monday and twenty-eight on
+ * Tuesday is a day somebody starts skipping on Wednesday.
+ *
+ * So the evening is the constant and everything else is fitted to it. The
+ * steps have honest costs, the day's fixed part is whatever those come to, and
+ * the number of new words is what is left over. That is also the right thing
+ * to vary, because meeting a word is the one part of an evening whose cost
+ * scales with how far in you are.
+ *
+ * It is not a promise about the whole part. A1.1 is seventeen of these, not
+ * fifteen minutes.
+ */
+export const DAY_MINUTES = 15;
+
+/** The closing round: `CLOSING_REVIEW` cards at the app's own pace. */
+export const REVIEW_MINUTES = 2;
+
+/** One page of the grammar reference, read rather than studied. */
+export const READ_MINUTES = 2;
 
 /**
- * How many words an evening teaches, by level.
+ * One round inside a planned evening.
  *
- * Eight at A1 and twelve at C1, and the climb is the point rather than a
- * rounding. A beginner's eight words are eight new sounds, eight new shapes
- * and eight forms they cannot yet guess; a C1 learner meeting `hoolimata` has
- * the stem, the case and the register already and is learning one thing about
- * it. Holding everybody to eight would make the top of the ladder ninety
- * evenings long for no reason anybody could state.
- *
- * The Learn ladder's batch is five whatever the level, so a day is one lap and
- * a bit at A1 and two and a bit at C1, which is the shape of the difference.
+ * The same figure for all of them, which is a decision rather than laziness:
+ * every round in the rotations is a short one by design, and a day whose
+ * length depended on which round the rotation happened to deal would be the
+ * variable evening this whole model exists to remove. The same round opened
+ * from Practice runs as long as somebody wants.
  */
-export const WORDS_PER_DAY: Record<string, number> = {
-  A1: 8, A2: 9, B1: 10, B2: 11, C1: 12,
+export const ROUND_MINUTES = 3;
+
+/**
+ * A conversation, which replaces the reading and both rounds rather than
+ * joining them.
+ *
+ * Ten minutes is seven to ten turns with the reading and the thinking in
+ * between, and it is deliberately the same as `READ_MINUTES` plus two rounds,
+ * so an evening with a conversation in it is the same evening.
+ */
+export const TALK_MINUTES = READ_MINUTES + ROUND_MINUTES * 2;
+
+/**
+ * How long one new word takes to meet, by level.
+ *
+ * The Learn ladder walks a word up three rungs, met, then picked out of four,
+ * then typed back into a sentence, which is about a minute for a beginner: the
+ * word is a new shape, the sentence is six words they have to read one at a
+ * time, and the gap is typed on a keyboard with no õ on it. It falls with the
+ * level because none of that is true further up: a C1 learner meeting
+ * `hoolimata` already has the stem, the case and the register and is learning
+ * one thing about it.
+ *
+ * So a fifteen-minute evening carries five new words at A1 and seven at C1,
+ * which is the honest shape of the difference. Five is also exactly the Learn
+ * ladder's own batch, so a beginner's evening is one lap of it.
+ */
+export const MINUTES_PER_WORD: Record<string, number> = {
+  A1: 1.1, A2: 1.0, B1: 0.9, B2: 0.8, C1: 0.7,
 };
+
+/** The ceiling a day may not pass whatever the arithmetic says. */
+export const MAX_DAY_WORDS = 8;
+
+/**
+ * How many new words fit in what is left of the evening.
+ *
+ * Rounded rather than floored, and floored at three: a day that taught two
+ * words would be a day whose closing review is most of it, and the slice is
+ * even inside a unit so the short night is only ever one word short.
+ */
+export function wordsInBudget(level: string, fixedMinutes: number): number {
+  const perWord = MINUTES_PER_WORD[level] ?? MINUTES_PER_WORD.A1!;
+  const room = Math.max(0, DAY_MINUTES - fixedMinutes);
+  return Math.min(MAX_DAY_WORDS, Math.max(3, Math.round(room / perWord)));
+}
+
+/**
+ * What an evening carries: a reading, two rounds and the closing review, or a
+ * conversation and the closing review, which cost the same.
+ *
+ * One function rather than two, because `TALK_MINUTES` is defined as exactly
+ * what a conversation displaces. An evening is an evening whichever shape it
+ * takes, and that is the whole point of the model.
+ */
+export const ordinaryWords = (level: string): number =>
+  wordsInBudget(level, READ_MINUTES + ROUND_MINUTES * 2 + REVIEW_MINUTES);
 
 /**
  * Build a day. The steps are the order, and the order is the argument.
@@ -333,6 +404,7 @@ export const WORDS_PER_DAY: Record<string, number> = {
  */
 export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): CourseDay {
   const steps: CourseStep[] = [];
+  const perWord = MINUTES_PER_WORD[spec.level] ?? MINUTES_PER_WORD.A1!;
 
   steps.push({
     id: MEET_STEP,
@@ -340,11 +412,21 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     title: `Meet today's ${spec.words.length} words`,
     why: "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
     href: "/course/learn",
-    minutes: Math.max(4, Math.round(spec.words.length * 1.5)),
+    minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
   });
 
-  const reads = spec.grammar
+  /*
+    A CONVERSATION REPLACES THE READING AND BOTH ROUNDS RATHER THAN JOINING
+    THEM, which is what keeps the evening fifteen minutes on the night it
+    happens. `TALK_MINUTES` is defined as exactly what it displaces, so the two
+    shapes of evening cost the same and carry the same number of new words. It
+    was written the other way first and the conversation evening came out at
+    twenty-three minutes, half as long again as every other.
+  */
+  const talking = Boolean(spec.scene);
+
+  const reads = talking ? null : spec.grammar
     ? `/grammar/topic/${spec.grammar}`
     : spec.grammarCase ? `/grammar/${spec.grammarCase.toLowerCase()}` : null;
   if (reads) {
@@ -354,12 +436,12 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       title: "Read the point behind it",
       why: "One page on the thing today's words all do. Read it now, while the forms still look odd.",
       href: reads,
-      minutes: 3,
+      minutes: READ_MINUTES,
       derived: false,
     });
   }
 
-  for (const key of spec.practice) {
+  for (const key of talking ? [] : spec.practice) {
     const activity: ActivitySpec = ACTIVITIES[key];
     steps.push({
       id: `do:${key}`,
@@ -367,7 +449,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       title: activityTitle(activity),
       why: activity.why,
       href: activity.href,
-      minutes: activity.minutes,
+      minutes: ROUND_MINUTES,
       derived: false,
     });
   }
@@ -379,7 +461,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       title: "Have the conversation",
       why: "Somebody wants something from you and only Estonian will do. This is what the words were for.",
       href: `/situations/${spec.scene}`,
-      minutes: 6,
+      minutes: TALK_MINUTES,
       derived: false,
     });
   }
@@ -390,7 +472,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     title: "Quick review, and you are done",
     why: "Everything the scheduler says you are about to forget, today's words included. This is the part that keeps them.",
     href: "/review",
-    minutes: 5,
+    minutes: REVIEW_MINUTES,
     derived: true,
   });
 

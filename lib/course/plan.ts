@@ -55,10 +55,20 @@ export const VERB_HEAVY = 0.5;
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   A1: ["match", "listening", "sonad", "sentences", "picture", "dictation", "sprint", "describe", "target", "speaking"],
   A2: ["match", "dictation", "sonad", "sentences", "target", "describe", "sprint", "listening", "picture", "write"],
-  B1: ["crossword", "write", "sonad", "government", "target", "sentences", "sprint", "describe", "match", "flash"],
-  B2: ["crossword", "write", "sprint", "flash", "target", "describe", "sonad", "government", "match", "dictation"],
-  C1: ["crossword", "write", "sprint", "flash", "target", "describe", "sonad", "exceptions", "match", "government"],
+  B1: ["sonad", "write", "target", "government", "sprint", "sentences", "match", "flash"],
+  B2: ["sonad", "write", "target", "flash", "sprint", "describe", "match", "government"],
+  C1: ["sonad", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
 };
+
+/**
+ * AND THE CROSSWORD IS NOT ON ANY OF THEM, WHICH IS ABOUT THE CLOCK.
+ *
+ * A seven-word grid is a quarter of an hour on its own, and an evening here is
+ * a quarter of an hour in total. It stays exactly where it was, on Practice,
+ * in the command palette and as Saturday's game of the day in
+ * `lib/ux/weekGames.ts`, which is the right home for the one round that is a
+ * sitting rather than a step.
+ */
 
 /**
  * Which conversation belongs to which unit, on the last evening of it.
@@ -135,12 +145,18 @@ export interface PartSpec {
 /**
  * The seventeen parts.
  *
- * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. Ten to
- * thirteen evenings is about a fortnight, which is short enough to see the end
- * of from the first night and long enough to be worth finishing, and every
- * break here lands between two units rather than inside one. They land on a
- * change of subject as well: A1.2 ends on the everyday verbs and A1.3 opens on
- * describing things, B2.1 ends on word-building and B2.2 opens on society.
+ * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
+ * is two to three weeks of fifteen-minute evenings, which is short enough to
+ * see the end of from the first night and long enough to be worth finishing,
+ * and every break lands between two units rather than inside one. They land on
+ * a change of subject as well: A1.2 ends on the everyday verbs and A1.3 opens
+ * on describing things, B2.1 ends on word-building and B2.2 opens on society.
+ *
+ * HOW MANY EVENINGS A PART TAKES IS NOT WRITTEN DOWN HERE, and that is
+ * deliberate: it falls out of how many words its units hold and how long a
+ * word takes to meet at that level, so a number typed into a blurb would be a
+ * second answer waiting to go stale. Every screen that says how long a part is
+ * counts its days.
  *
  * A1 is five parts because A1 is the biggest level in this course by a long
  * way, 424 words against 235 at A2, and that is the language rather than an
@@ -152,8 +168,8 @@ export const PARTS: readonly PartSpec[] = [
     id: "a1.1", level: "A1",
     title: "Esimesed sõnad", subtitle: "Hello, who you are, how many, and home",
     blurb:
-      "Twelve evenings from nothing. At the end you can greet somebody, say who is in your "
-      + "family, count, give a price and describe the room you are standing in.",
+      "From nothing. At the end you can greet somebody, say who is in your family, count, "
+      + "give a price and describe the room you are standing in.",
     units: ["tervitused", "inimesed", "arvud", "kodu"],
   },
   {

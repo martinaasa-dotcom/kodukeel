@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseLevelFor } from "@/lib/progress/level";
-import { levelIndex } from "@/lib/collections/syllabus";
+import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/syllabus";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import {
-  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, programmeById, programmeStanding,
-  type CourseDay, type Programme, type ProgrammeStanding,
+  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, ladderProgress, ladderVerdict,
+  levelsTo, programmeById, programmeStanding, type CourseDay, type LadderProgress,
+  type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
 
 /**
@@ -294,4 +295,108 @@ export async function missingWords(ownerId: string, day: CourseDay): Promise<str
   });
   const have = new Set(held.map((c) => c.lexeme?.lemma));
   return day.words.filter((w) => !have.has(w));
+}
+
+/**
+ * How far back the accuracy half of the ladder reading looks.
+ *
+ * A fortnight, which is the stretch a learner can still remember having and
+ * the one they can change by next week. All of time would hold somebody's bad
+ * first month against them for ever, which is the opposite of what a warning
+ * before the next part is for.
+ */
+const LADDER_WINDOW_DAYS = 14;
+
+/**
+ * WHETHER THE LOG SUPPORTS THE NEXT PART, READ OFF THE ONE JUST FINISHED.
+ *
+ * `lib/course/gate.ts` is the rule and holds no database; this is the half
+ * that asks one. Three reads, none of which needs another's answer.
+ *
+ * Retention is counted over the words that part actually taught, matched by
+ * lemma, and "known" is the scheduler's own verdict rather than ours: a card
+ * in FSRS Review state is one it has stopped treating as new, which is the
+ * same line `unitProgress` draws for a finished unit. A word the dictionary
+ * could not supply is in no count either way, because a learner failing at a
+ * gap in Ekilex is not a learner failing.
+ */
+export async function ladderReading(
+  ownerId: string, finished: Programme, now = new Date(),
+): Promise<LadderVerdict> {
+  const words = [...new Set(finished.days.flatMap((d) => d.words))];
+  const since = new Date(now.getTime() - LADDER_WINDOW_DAYS * 86_400_000);
+
+  const [taught, known, answers, right] = await Promise.all([
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
+        lexeme: { lemma: { in: words } },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE,
+        // FSRS Review: the scheduler has stopped treating the word as new.
+        state: 2,
+        lexeme: { lemma: { in: words } },
+      },
+    }),
+    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } }),
+    prisma.review.count({ where: { ownerId, reviewedAt: { gte: since }, rating: { gte: 2 } } }),
+  ]);
+
+  return ladderVerdict({ taught, known, answers, right });
+}
+
+/**
+ * HOW FAR ALONG THE LADDER SOMEBODY IS, FOR THE BAR ON TODAY.
+ *
+ * `lib/course/milestones.ts` is the rule; this counts the words. One grouped
+ * query rather than one per level, because it runs on the screen everybody
+ * opens each morning.
+ *
+ * WHAT IS COUNTED IS A CARD THE SCHEDULER HAS GRADUATED, which is FSRS Review
+ * state: it has stopped treating the word as new, which is the same line
+ * `unitProgress` draws for a finished unit and the only reading that means
+ * "they still had it days later". A bar that filled on evenings ticked would
+ * be attendance drawn as attainment.
+ *
+ * The band is the dictionary's own `cefr`, so a word somebody learned outside
+ * the course counts toward the level it belongs to. That is the honest reading
+ * of "how close to B1 am I": a B1 word is a B1 word however it arrived. It can
+ * over-count where a learner has graduated words the ladder does not teach,
+ * which is why each level is clamped to what the ladder asks for rather than
+ * summed raw.
+ */
+export async function ladderPosition(
+  ownerId: string, target: Level,
+): Promise<LadderProgress> {
+  const bands = levelsTo(target);
+
+  /*
+    One count per band, asked at once. Five at the very most, each an indexed
+    read, and none of them needs another's answer. A `groupBy` over the words
+    would be one statement and then a second read to find out which band each
+    word is in, which is more work for a smaller number of round trips on a
+    query that is already cheap.
+  */
+  const counts = await Promise.all(bands.map((band) => prisma.card.count({
+    where: {
+      ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 2,
+      lexeme: { cefr: band },
+    },
+  })));
+  const knownAt = Object.fromEntries(bands.map((band, at) => [band, counts[at]!]));
+
+  return ladderProgress(
+    target,
+    knownAt,
+    (level) => ({ title: LEVEL_INFO[level].title, arrival: LEVEL_INFO[level].arrival }),
+  );
+}
+
+/** The band a learner said they were aiming at, or the top of the ladder. */
+export function targetFrom(stored: string | null | undefined): Level {
+  const wanted = (stored ?? "").trim().toUpperCase();
+  return (LEVELS as readonly string[]).includes(wanted) ? (wanted as Level) : "B1";
 }

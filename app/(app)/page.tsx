@@ -32,7 +32,8 @@ import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { SayItToday } from "@/components/SayItToday";
 import { errandForDay, startedUnits } from "@/lib/collections/errands";
-import { courseReading, programmeFor } from "@/lib/progress/course";
+import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
+import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 
 export const metadata = { title: "Today" };
@@ -103,7 +104,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -799,6 +800,30 @@ export default async function TodayPage() {
   */
   const roundCard = gameCard ?? questCard;
 
+  /*
+    THE CLIMB TO THE BAND THEY SAID THEY WERE AIMING AT.
+
+    A learner picks a target in their first ninety seconds and then never hears
+    about it again except as a date on a plan. This is the answer to "how close
+    am I", in the unit they think in, on the screen they open every morning.
+
+    Held to `starting` rather than drawn from the first minute, for the reason
+    the disclosure rule gives about every other figure computed from an empty
+    log: a bar at nought percent under a heading about a target is not
+    information, it is the app reporting that nothing has happened yet, which
+    the learner knows. The query is only run where it is drawn.
+  */
+  const ladder = shows(stage, "streak")
+    ? await ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
+    : null;
+
+  const ladderCard = ladder ? (
+    <LadderBar
+      progress={ladder}
+      partLabel={programme && courseDay ? `${programme.id.toUpperCase()}, day ${courseDay.day.index}` : undefined}
+    />
+  ) : null;
+
   return (
     <Page
       /*
@@ -880,6 +905,7 @@ export default async function TodayPage() {
         {doNowCard}
         <Columns>
           {orderTodayCards({
+            ladder: ladderCard,
             errand: errandCard,
             schedule: scheduleCard,
             plan: planCard,

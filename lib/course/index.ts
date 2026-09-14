@@ -27,6 +27,8 @@ import type { CourseDay, CourseStep, Programme } from "./types";
 export * from "./types";
 export * from "./plan";
 export * from "./build";
+export * from "./gate";
+export * from "./milestones";
 
 export const PROGRAMMES: readonly Programme[] = buildProgrammes();
 

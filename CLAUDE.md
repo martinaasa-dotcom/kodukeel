@@ -3129,6 +3129,69 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**Fifteen minutes, every evening, and the word count is what moves.** A day used to be the unit
+sliced into eights and came out at anything from eighteen to thirty minutes. That is the wrong thing
+to hold fixed: what a learner can promise themselves is a quarter of an hour after dinner, every
+day, and what keeps a course going is that the promise is the same every time. A day that is fifteen
+minutes on Monday and twenty-eight on Tuesday is a day somebody starts skipping on Wednesday. So the
+evening is the constant, the steps have honest costs, and the number of new words is what is left
+over, which is also the right thing to vary: meeting a word is the one part of an evening whose cost
+scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
+learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
+minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
+beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
+median fourteen, 67 hours from nothing to C1.
+
+**A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
+the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
+displaces. Written the other way first and the conversation evening came out at twenty-three
+minutes, half as long again as every other, which `course.test.ts` now asserts against. **And the
+crossword is on no rotation**, for the same clock: a seven-word grid is a quarter of an hour on its
+own. It stays on Practice and as Saturday's game of the day, which is the right home for the one
+round that is a sitting rather than a step.
+
+**A learner can finish a part without having learned it, and the ladder says so at the hand-off.**
+Every step of every evening can be ticked, every word answered once, and the scheduler still watching
+four fifths of them come back wrong. Handing that person B2.1 is the false confidence this app is
+built against: they meet a fortnight of words they cannot hold up and conclude the language is the
+problem. So `lib/course/gate.ts` reads two things off their own log at the moment it is worth
+anything, which is the hand-off: what share of the part's words the scheduler has graduated, and
+what share of their recent answers were right. Retention leads, because it is the reading that
+predicts whether the next part is answerable and the one a learner can act on.
+
+**It never blocks, and the way on is on the same card as the warning.** The learner is the authority
+on their own week: they may be revising elsewhere, sitting a class, or willing to be uncomfortable,
+and an app that locked the door on a retention figure would be wrong about some of those people and
+insufferable to all of them. It says Kodukeel does not think they are ready, says what it is reading
+and what would change it, and puts "start it anyway" beside "review what is due". **Thin evidence is
+not a verdict**: under `MIN_EVIDENCE` answers it says nothing at all rather than guessing, which is
+the discipline the readiness screen and the classroom band already apply. And the advice may never
+be "start the part again", asserted: nothing here repeats a fortnight, the words are already in the
+queue, and telling somebody to redo two weeks is how they stop opening it.
+
+**The target somebody picked in their first ninety seconds is the one number worth watching, and it
+reached no screen.** It was a date on a plan and nothing else. `lib/course/milestones.ts` is the
+climb to it, on Today: the levels as stops, each a real thing that arrives, with the fill between
+them moving a little every evening. Eleven percent of an unnamed thing says almost nothing and
+nothing ever arrives; five named stops mean the next one is always in sight. The stops sit at their
+own share of the climb rather than at five equal fifths, so the picture says that A1 really is half
+the way to B1.
+
+**What fills it is a word the scheduler has graduated, never an evening ticked.** That is the whole
+reason it can sit beside a checklist: an evening ticked says somebody sat down, and a graduated card
+says they still had the word days later. A bar that filled on attendance would be the same false
+confidence the hand-off warning exists to catch, drawn as a picture. The band is the dictionary's
+own, so a word learned outside the course counts toward the level it belongs to, and each level is
+clamped to what the ladder asks for rather than summed raw.
+
+**And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
+four questions does not want a home page, they want to be told what to do tonight. The last screen
+names the part they open on, how long an evening takes and what tonight holds, shows the whole
+seventeen-part ladder underneath so the shape is visible at the moment somebody is deciding whether
+this is worth starting, and its button goes to the module. `completeOnboarding` writes the part they
+start on rather than leaving it to be inferred, because the fallback would silently hand a learner
+measured up to B1 in March the part they had not worked up to.
+
 **Deciding what to do tonight is the expensive part of an evening, and it was left to the one
 person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
 rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to

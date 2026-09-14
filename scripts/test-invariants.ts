@@ -16000,6 +16000,98 @@ check("the planned course builds its cards behind a press", () => {
   assert.match(list, /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
 });
 
+/*
+  THE EVENING IS THE CONSTANT AND THE WORD COUNT IS WHAT MOVES.
+
+  A day that is fifteen minutes on Monday and twenty-eight on Tuesday is a day
+  somebody starts skipping on Wednesday, so the model prices the steps and
+  fits the words to what is left. The arithmetic is checked over all 273
+  evenings in `course.test.ts`; this is the shape of it, which is the half a
+  later change breaks without any figure going out of range: a per-activity
+  minute count coming back would make an evening depend on which round the
+  rotation dealt.
+*/
+check("a planned evening is fifteen minutes whatever shape it takes", () => {
+  const types = code("lib/course/types.ts");
+  assert.match(types, /export const DAY_MINUTES = 15;/, "the evening stopped being fifteen minutes");
+  assert.match(
+    types, /export const TALK_MINUTES = READ_MINUTES \+ ROUND_MINUTES \* 2;/,
+    "a conversation stopped costing exactly what it displaces, so the evening it lands on is longer than every other",
+  );
+  assert.ok(
+    !/kind: "(game|drill)", minutes:/.test(types),
+    "an activity grew its own minute count again. A round inside a planned evening is ROUND_MINUTES, or the evening depends on which round the rotation dealt",
+  );
+  assert.match(
+    types, /export function wordsInBudget\(/,
+    "the word count stopped being fitted to what is left of the evening",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.ok(
+    !/"crossword"/.test(plan),
+    "the crossword is back on a rotation. A seven-word grid is a quarter of an hour on its own, which is the whole evening",
+  );
+});
+
+/*
+  THE HAND-OFF WARNING IS A READING, NEVER A WALL. The learner is the authority
+  on their own week, and the button that goes on anyway has to be on the same
+  card as the sentence saying Kodukeel would not. Three arms: the rule refuses
+  to judge on thin evidence, the screen draws the way past, and the advice
+  never sends anybody back to redo a fortnight.
+*/
+check("the ladder warns about the next part and never blocks it", () => {
+  const gate = code("lib/course/gate.ts");
+  assert.match(
+    gate, /if \(evidence\.answers < MIN_EVIDENCE\) return \{ kind: "unmeasured" \}/,
+    "the gate will now judge somebody on thin evidence, which is an opinion wearing a measurement's clothes",
+  );
+  assert.ok(
+    !/block|lock|refuse|deny/i.test(gate.replace(/kind: "hold"/g, "")),
+    "lib/course/gate.ts reads as though it stops somebody. It is a reading and the way on is always drawn",
+  );
+
+  const page = code("app/(app)/course/page.tsx");
+  const hold = page.slice(page.indexOf('verdict.kind === "hold" ? ('));
+  assert.ok(hold.length > 0, "the course screen no longer draws the hold verdict at all");
+  assert.match(
+    hold.slice(0, 2500), /<NextPart[\s\S]*?anyway/,
+    "the warning no longer carries a way past it. Saying so and hiding the button is the app not meaning it",
+  );
+});
+
+/*
+  THE BAR FILLS ON WORDS THAT STUCK, NEVER ON EVENINGS TICKED. An evening
+  ticked says somebody sat down; a graduated card says they still had the word
+  days later. A bar that filled on attendance would be the same false
+  confidence the hand-off warning exists to catch, drawn as a picture, and it
+  would sit on the one screen everybody opens.
+*/
+check("the milestone bar is filled by the scheduler rather than by attendance", () => {
+  const half = code("lib/progress/course.ts");
+  const position = half.slice(half.indexOf("export async function ladderPosition"));
+  assert.ok(position.length > 0, "ladderPosition is gone");
+  assert.match(
+    position.slice(0, 1400), /state: 2/,
+    "the bar stopped counting graduated cards. Anything else is attendance drawn as attainment",
+  );
+  assert.ok(
+    !/courseStep/i.test(position.slice(0, 1400)),
+    "the bar reads finished steps. A word sticking is the claim, and a tick is not one",
+  );
+
+  const rule = code("lib/course/milestones.ts");
+  assert.ok(
+    !/from "@\/lib\/db"/.test(rule),
+    "lib/course/milestones.ts imports Prisma. It is the rule; lib/progress/course.ts asks the database",
+  );
+  const bar = code("components/course/LadderBar.tsx");
+  assert.match(
+    bar, /aria-hidden/,
+    "the milestone strip stopped being hidden from a screen reader. A row of dots is a picture of the list beneath it",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

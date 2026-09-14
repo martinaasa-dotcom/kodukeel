@@ -17,7 +17,8 @@ import { grammarTopic } from "@/lib/estonian/grammar";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
 import {
-  ACTIVITIES, WORDS_PER_DAY, day, type ActivityKey, type CourseDay, type DaySpec, type Programme,
+  ACTIVITIES, day, ordinaryWords,
+  type ActivityKey, type CourseDay, type DaySpec, type Programme,
 } from "./types";
 
 const CASE_KEYS = new Set<string>(CASES.map((c) => c.key));
@@ -98,7 +99,14 @@ const isVerbHeavy = (unit: SyllabusUnit): boolean =>
  * purpose, and the review queue is what decides whether it is still known.
  */
 export function buildPart(spec: PartSpec): Programme {
-  const perDay = WORDS_PER_DAY[spec.level] ?? 8;
+  /*
+    ONE SIZE, BECAUSE AN EVENING IS FIFTEEN MINUTES WHATEVER SHAPE IT TAKES.
+    The fixed part is a reading, two rounds and the closing review, or a
+    conversation and the closing review, and `TALK_MINUTES` is defined as
+    exactly what the conversation displaces. What is left over is new words,
+    and that is the same number either way.
+  */
+  const perDay = ordinaryWords(spec.level);
   const taught = new Set<string>();
   const days: CourseDay[] = [];
   /* The rotation walks the whole part rather than restarting per unit, or the
@@ -113,10 +121,10 @@ export function buildPart(spec: PartSpec): Programme {
     for (const lemma of words) taught.add(lemma);
     if (words.length === 0) continue;
 
-    const nights = Math.max(1, Math.ceil(words.length / perDay));
-    const chunks = slice(words, nights);
     const verbs = isVerbHeavy(unit);
     const scene = SCENE_FOR_UNIT[unitId];
+
+    const chunks = slice(words, Math.max(1, Math.ceil(words.length / perDay)));
 
     chunks.forEach((chunk, n) => {
       const last = n === chunks.length - 1;
@@ -127,6 +135,7 @@ export function buildPart(spec: PartSpec): Programme {
           subtitle: unit.subtitle,
           canDo: unit.canDo,
           unitId,
+          level: spec.level,
           words: chunk,
           ...reads(unit, n),
           practice: rounds(spec.level, turn, verbs),

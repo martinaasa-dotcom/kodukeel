@@ -59,16 +59,17 @@ describe("isDefaultTodayOrder", () => {
 
 describe("orderTodayCards", () => {
   const cards = {
-    errand: "E", schedule: null, plan: "P", round: "R", streak: "S", word: "W", next: "N",
+    ladder: "L", errand: "E", schedule: null, plan: "P", round: "R", streak: "S",
+    word: "W", next: "N",
   } as const;
 
   it("deals in the learner's order and drops what has nothing to say", () => {
     expect(orderTodayCards(cards, todayOrderFrom("word next")))
-      .toEqual(["W", "N", "E", "P", "R", "S"]);
+      .toEqual(["W", "N", "L", "E", "P", "R", "S"]);
   });
 
   it("is the shipped order when nothing was chosen", () => {
-    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["E", "P", "R", "S", "W", "N"]);
+    expect(orderTodayCards(cards, DEFAULT_TODAY_ORDER)).toEqual(["L", "E", "P", "R", "S", "W", "N"]);
   });
 
   it("never grows the deal past the cap by itself", () => {
@@ -81,10 +82,16 @@ describe("orderTodayCards", () => {
 });
 
 describe("moveSlot", () => {
+  /*
+    Asserted as a move of one place rather than against two typed indices: the
+    positions shift every time a card is added to Today, and a test that has to
+    be renumbered for that is a test that gets renumbered without being read.
+  */
   it("moves a slot one step either way", () => {
     const order = todayOrderFrom(null);
-    expect(moveSlot(order, "round", "up")[2]).toBe("round");
-    expect(moveSlot(order, "round", "down")[4]).toBe("round");
+    const at = order.indexOf("round");
+    expect(moveSlot(order, "round", "up").indexOf("round")).toBe(at - 1);
+    expect(moveSlot(order, "round", "down").indexOf("round")).toBe(at + 1);
   });
 
   it("does nothing at either end rather than wrapping", () => {

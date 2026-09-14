@@ -5,9 +5,10 @@ import { SCENES } from "@/lib/scenes/catalogue";
 import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
 import { modeAt } from "@/lib/ux/modes";
 import {
-  ACTIVITIES, type ActivitySpec, DEFAULT_PROGRAMME, MAX_DAY_WORDS, PARTS, PROGRAMMES, ROTATION,
-  SCENE_FOR_UNIT, WORDS_PER_DAY, dayStanding, programmeAfter, programmeStanding, programmeUnits,
-  slice, wordsThrough, activityTitle, MEET_STEP, REVIEW_STEP,
+  ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
+  PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
+  programmeStanding, programmeUnits, slice, wordsThrough, activityTitle,
+  MEET_STEP, REVIEW_STEP,
 } from "./index";
 
 const DAYS = PROGRAMMES.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
@@ -49,7 +50,7 @@ describe("the programme is a request against the course, never a copy of it", ()
     for (const { programme, day } of DAYS) {
       expect(day.words.length, day.id).toBeGreaterThan(0);
       expect(day.words.length, day.id).toBeLessThanOrEqual(MAX_DAY_WORDS);
-      expect(day.words.length, day.id).toBeLessThanOrEqual(WORDS_PER_DAY[programme.level]!);
+      expect(day.words.length, day.id).toBeLessThanOrEqual(ordinaryWords(programme.level));
     }
   });
 
@@ -100,6 +101,7 @@ describe("the programme is a request against the course, never a copy of it", ()
         .filter((d) => d.id.startsWith(day.id.slice(0, 5)) && d.unitId === day.unitId);
       const sizes = sameUnit.map((d) => d.words.length);
       expect(Math.max(...sizes) - Math.min(...sizes), day.id).toBeLessThanOrEqual(1);
+      expect(Math.max(...sizes), day.id).toBeLessThanOrEqual(MAX_DAY_WORDS);
     }
   });
 });
@@ -222,11 +224,36 @@ describe("what a day reads and where it goes", () => {
     expect(nounDay.day.practice).not.toContain("conjugation");
   });
 
-  it("claims a length somebody would recognise as an evening", () => {
+  /*
+    THE ONE NUMBER THIS WHOLE MODEL EXISTS TO HOLD. A day that is fifteen
+    minutes on Monday and twenty-eight on Tuesday is a day somebody starts
+    skipping on Wednesday, so the evening is the constant and the word count is
+    what moves. Two minutes either side is the rounding in the word count, not
+    slack: a unit is sliced evenly, so the short night of a unit is one word
+    short and no more.
+  */
+  it("is fifteen minutes, every evening", () => {
     for (const { day } of DAYS) {
-      expect(day.minutes, day.id).toBeGreaterThanOrEqual(10);
-      expect(day.minutes, day.id).toBeLessThanOrEqual(45);
+      expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
+        .toBeGreaterThanOrEqual(DAY_MINUTES - 2);
+      expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
+        .toBeLessThanOrEqual(DAY_MINUTES + 2);
     }
+  });
+
+  /*
+    A conversation replaces the reading and both rounds rather than joining
+    them. Written the other way first, the conversation evening came out at
+    twenty-three minutes against fifteen for every other.
+  */
+  it("spends the same fixed minutes on a conversation as on a reading and two rounds", () => {
+    const talk = DAYS.find(({ day }) => day.scene)!.day;
+    const ordinary = DAYS.find(({ day }) => !day.scene)!.day;
+    const fixed = (d: typeof talk) =>
+      d.steps.filter((s) => s.id !== MEET_STEP).reduce((n, s) => n + s.minutes, 0);
+    expect(fixed(talk)).toBe(fixed(ordinary));
+    expect(talk.steps.some((s) => s.kind === "read"), "a talking evening also reads").toBe(false);
+    expect(talk.steps.some((s) => s.kind === "game" || s.kind === "drill")).toBe(false);
   });
 
   it("gives every step in a day its own id", () => {
@@ -275,7 +302,7 @@ describe("the ladder", () => {
     expect(new Set(ids).size).toBe(ids.length);
     for (const programme of PROGRAMMES) {
       expect(programme.days.length, programme.id).toBeGreaterThanOrEqual(8);
-      expect(programme.days.length, programme.id).toBeLessThanOrEqual(15);
+      expect(programme.days.length, programme.id).toBeLessThanOrEqual(26);
       const dayIds = programme.days.map((d) => d.id);
       expect(new Set(dayIds).size, programme.id).toBe(dayIds.length);
       programme.days.forEach((d, at) => expect(d.index, d.id).toBe(at + 1));
@@ -289,11 +316,19 @@ describe("the ladder", () => {
     expect(programmeAfter(PROGRAMMES.at(-1)!)).toBeUndefined();
   });
 
-  it("carries more words a night as the level rises", () => {
-    const sizes = ["A1", "A2", "B1", "B2", "C1"].map((l) => WORDS_PER_DAY[l]!);
-    for (let at = 1; at < sizes.length; at += 1) {
-      expect(sizes[at]!).toBeGreaterThan(sizes[at - 1]!);
+  /*
+    The evening does not get longer further up the ladder, it gets denser: a
+    word costs less to meet once you have the stem, the case and the register
+    already, so the same fifteen minutes carries more of them.
+  */
+  it("carries more words a night as the level rises, in the same fifteen minutes", () => {
+    const levels = ["A1", "A2", "B1", "B2", "C1"];
+    const costs = levels.map((l) => MINUTES_PER_WORD[l]!);
+    for (let at = 1; at < costs.length; at += 1) {
+      expect(costs[at]!, levels[at]).toBeLessThan(costs[at - 1]!);
     }
+    const sizes = levels.map((l) => ordinaryWords(l));
+    expect(sizes.at(-1)!).toBeGreaterThan(sizes[0]!);
     expect(Math.max(...sizes)).toBeLessThanOrEqual(MAX_DAY_WORDS);
   });
 });

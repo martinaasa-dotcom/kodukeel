@@ -1,0 +1,127 @@
+import { Check, Flag, MapPin } from "lucide-react";
+import { Card, Chip, SectionTitle } from "@/components/ui";
+import type { LadderProgress } from "@/lib/course";
+
+/**
+ * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
+ *
+ * A learner picks a target in their first ninety seconds and then never hears
+ * about it again except as a date on a plan. This is the answer to "how close
+ * am I", every morning, in the unit they think in: the levels, as stops, with
+ * the fill between them moving a little every evening.
+ *
+ * THE STOPS ARE WHY IT IS NOT JUST A BAR. Eleven percent of an unnamed thing
+ * says almost nothing, and nothing ever arrives. Five named stops mean the
+ * next one is always in sight, the one behind is a thing that happened, and a
+ * fortnight of evenings visibly moves the marker between them.
+ *
+ * A HUE IS NEVER THE ONLY THING SAYING WHICH STATE A STOP IS IN. A passed stop
+ * carries a tick, the one being worked on carries a pin and its own share in
+ * words, and the ones ahead are outlines. The whole strip is `aria-hidden` and
+ * the list under it is what a screen reader gets, because a row of dots is a
+ * picture of a list and the list is the thing.
+ *
+ * Server-rendered and still: this sits on the screen somebody glances at from
+ * a bus stop, and a bar that animated on every load would be the third thing
+ * moving on it.
+ */
+export function LadderBar({ progress, partLabel }: {
+  progress: LadderProgress;
+  /** Which part of the ladder they are on, for the line under the bar. */
+  partLabel?: string;
+}) {
+  const { milestones, pct, target, known, total, here, arrived } = progress;
+
+  return (
+    <Card>
+      <SectionTitle hint={`${known} of ${total} words`}>
+        {arrived ? `You have arrived at ${target}` : `On the way to ${target}`}
+      </SectionTitle>
+
+      {/*
+        The track. One rounded rail, a fill, and a stop sitting on it per
+        level, positioned by its own share of the climb so the gaps between
+        stops are honestly the sizes of the levels rather than five equal
+        fifths: A1 really is half the way to B1 and the picture should say so.
+      */}
+      <div className="relative mt-5 mb-2" aria-hidden>
+        <div
+          className="h-2.5 w-full rounded-full"
+          style={{ background: "var(--raised)" }}
+        />
+        <div
+          className="absolute inset-y-0 left-0 rounded-full"
+          style={{
+            width: `${Math.max(pct, 1.5)}%`,
+            background: "linear-gradient(90deg, var(--mint) 0%, var(--accent) 100%)",
+          }}
+        />
+        {milestones.map((stop) => (
+          <span
+            key={stop.level}
+            className="absolute -translate-x-1/2"
+            style={{ left: `${stop.at}%`, top: "-5px" }}
+          >
+            <span
+              className="flex h-5 w-5 items-center justify-center rounded-full"
+              style={{
+                background: stop.state === "passed" ? "var(--good-soft)"
+                  : stop.state === "here" ? "var(--accent-soft)" : "var(--surface)",
+                border: `2px solid ${stop.state === "ahead" ? "var(--rule)" : "transparent"}`,
+                color: stop.state === "passed" ? "var(--good-ink)" : "var(--accent-deep)",
+              }}
+            >
+              {stop.state === "passed" ? <Check size={11} />
+                : stop.state === "here" ? <MapPin size={11} />
+                : <Flag size={10} style={{ color: "var(--ink-3)" }} />}
+            </span>
+          </span>
+        ))}
+      </div>
+
+      {/*
+        The stops in words, which is what a screen reader gets and what
+        anybody reads once the picture has told them roughly where they are.
+      */}
+      <ol className="mt-5 flex flex-col gap-2">
+        {milestones.map((stop) => (
+          <li key={stop.level} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span
+              className="tnum w-7 shrink-0 text-sm font-bold"
+              style={{
+                color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
+              }}
+            >
+              {stop.level}
+            </span>
+            <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {stop.title}
+            </span>
+            <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--ink-3)" }}>
+              {stop.arrival}
+            </span>
+            {stop.state === "passed" && <Chip tone="good">Done</Chip>}
+            {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
+            {stop.state === "ahead" && (
+              <span className="text-sm" style={{ color: "var(--ink-3)" }}>
+                {stop.parts} parts
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
+        {arrived
+          ? "Every word the ladder asks for at this band is one the scheduler has stopped treating as new."
+          : here
+            ? <>
+                {pct}% of the way. What moves this is a word sticking rather than an evening
+                finished, so it follows the review queue rather than the checklist
+                {partLabel ? <>, and you are on {partLabel}</> : null}.
+              </>
+            : "Pick a target in Settings and this becomes the one number worth watching."}
+      </p>
+    </Card>
+  );
+}

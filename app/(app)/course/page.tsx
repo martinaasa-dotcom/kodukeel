@@ -3,10 +3,11 @@ import { ArrowRight, BookOpen, CalendarCheck, Check, GraduationCap } from "lucid
 import { requireUserId } from "@/lib/auth/session";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import {
-  closingProgress, courseReading, hasChosenProgramme, missingWords, openingPart, programmeFor,
+  closingProgress, courseReading, hasChosenProgramme, ladderReading, missingWords, openingPart,
+  programmeFor,
 } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
-import { PROGRAMMES, dayById, programmeAfter, unitOf } from "@/lib/course";
+import { PROGRAMMES, dayById, holdAdvice, holdReason, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { StepList } from "@/components/course/StepList";
@@ -108,6 +109,21 @@ export default async function CoursePage({
 
   if (reading.finished) {
     const after = programmeAfter(programme);
+    /*
+      WHETHER THE LOG SUPPORTS THE NEXT PART, AND SAYING SO WITHOUT LOCKING THE
+      DOOR.
+
+      Somebody can finish a part without having learned it: every step ticked,
+      every word answered once, and the scheduler still watching four fifths of
+      them come back wrong. Handing that person the next level is the false
+      confidence this app is built against. So the reading is taken at the
+      hand-off, which is the one moment it is worth anything, and it is a
+      sentence rather than a wall. The way on sits right beside it: the learner
+      is the authority on their own week, and an app that refused on the
+      strength of a retention figure would be wrong about the person revising
+      elsewhere and insufferable to everybody.
+    */
+    const verdict = after ? await ladderReading(ownerId, programme) : { kind: "ready" as const };
     return (
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
@@ -115,25 +131,59 @@ export default async function CoursePage({
         lead={`All ${total} modules, and every word in them is in the schedule now.`}
       >
         <Stack>
-          <Card tone="mint">
-            <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              {after
-                ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks up
-                    where this left off and nothing in it needs anything you have not met.</>
-                : <>That is the end of the ladder. What keeps these words is the review queue,
-                    which has every one of them and goes on asking at the moment you are about to
-                    forget.</>}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <ButtonLink href="/progress/readiness">See what you could do out there</ButtonLink>
-              {after
-                ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
-                : (
-                  <ButtonLink href="/learn" variant="primary">
-                    Open the course <ArrowRight size={15} aria-hidden />
+          <Card tone={verdict.kind === "hold" ? "butter" : "mint"}>
+            {verdict.kind === "hold" ? (
+              <>
+                <SectionTitle hint="a reading, not a rule">
+                  Not ready for {after!.id.toUpperCase()} yet
+                </SectionTitle>
+                <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  {holdReason(verdict)} Kodukeel would keep you on what you have for a few more
+                  days before the next part rather than stack a harder one on top of it.
+                </p>
+                <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  {holdAdvice(verdict)}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {/*
+                    THE WAY PAST IS ON THE SAME CARD AS THE WARNING. It is a
+                    reading of a review log and the learner knows things it
+                    does not: a class on Tuesdays, a month in Tartu, or simply
+                    a willingness to be uncomfortable. Saying so and then
+                    hiding the button would be the app not meaning it.
+                  */}
+                  <NextPart
+                    programmeId={after!.id}
+                    label={`Start ${after!.id.toUpperCase()} anyway`}
+                    quiet
+                  />
+                  <ButtonLink href="/review" variant="primary">
+                    Review what is due <ArrowRight size={15} aria-hidden />
                   </ButtonLink>
-                )}
-            </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                  {after
+                    ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks
+                        up where this left off and nothing in it needs anything you have not met.</>
+                    : <>That is the end of the ladder. What keeps these words is the review queue,
+                        which has every one of them and goes on asking at the moment you are about
+                        to forget.</>}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <ButtonLink href="/progress/readiness">See what you could do out there</ButtonLink>
+                  {after
+                    ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
+                    : (
+                      <ButtonLink href="/learn" variant="primary">
+                        Open the course <ArrowRight size={15} aria-hidden />
+                      </ButtonLink>
+                    )}
+                </div>
+              </>
+            )}
           </Card>
         </Stack>
       </Page>

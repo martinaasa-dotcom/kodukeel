@@ -62,8 +62,18 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, dayById, programmeById,
+  DEFAULT_PROGRAMME, PROGRAMMES, dayById, programmeById,
 } from "@/lib/course";
+
+/**
+ * The part of the ladder a level starts on, for first run.
+ *
+ * The same rule `openingPart` applies on the server, kept here rather than
+ * imported from `lib/progress/course.ts` because that module reads a database
+ * and this needs only the list.
+ */
+const openingPartId = (level: string): string =>
+  (PROGRAMMES.find((p) => p.level === level) ?? DEFAULT_PROGRAMME).id;
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
 import { solvedEntries } from "@/lib/games/crossword";
@@ -1675,6 +1685,17 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
+    /*
+      AND THE PART OF THE LADDER THEY OPEN ON, WRITTEN RATHER THAN INFERRED.
+
+      `programmeFor` falls back to the first part at or below the learner's
+      level where nothing is stored, so leaving this out would work today and
+      be wrong the first time somebody's level moves: a learner measured up to
+      B1 in March would silently be handed B1.1 having done four parts of A1.
+      Writing it at the end of first run pins where they actually started, and
+      finishing a part is the only thing that moves it.
+    */
+    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
           reason: input.goals.reason ?? null,

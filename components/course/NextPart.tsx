@@ -15,7 +15,16 @@ import { Note } from "@/components/ui";
  * and coming back in March should offer A1.3 rather than have quietly started
  * it. One press, and the screen it lands on is the next part's first evening.
  */
-export function NextPart({ programmeId, label }: { programmeId: string; label: string }) {
+export function NextPart({ programmeId, label, quiet = false }: {
+  programmeId: string;
+  label: string;
+  /**
+   * Drawn as the quiet choice, which is what it is beside a warning: the loud
+   * button there is the one saying review first. The press does exactly the
+   * same thing either way, because the warning is a reading rather than a rule.
+   */
+  quiet?: boolean;
+}) {
   const [failed, setFailed] = useState(false);
   const [pending, start] = useTransition();
   const router = useRouter();
@@ -23,7 +32,7 @@ export function NextPart({ programmeId, label }: { programmeId: string; label: s
   return (
     <div>
       <Button
-        variant="primary"
+        variant={quiet ? "secondary" : "primary"}
         disabled={pending}
         onClick={() => {
           setFailed(false);
