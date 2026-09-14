@@ -138,7 +138,10 @@ export function wordLine(word: WordFacts): string {
     .filter((p): p is string => p !== null);
   const head = `${word.lemma} (${word.pos.toLowerCase()}, ${word.translation})`;
   const bits = [parts.join(", ")];
-  if (word.gradationNote) bits.push(`grade change ${word.gradationNote}`);
+  if (word.gradationNote) {
+    const plain = gradePlain(word.gradationNote, word.lemma, first(word.forms, isVerb ? "PRES_1SG" : "GEN_SG"));
+    bits.push(`grade change ${word.gradationNote}${plain ? `, which is ${plain}` : ""}`);
+  }
   if (word.government) bits.push(`takes ${word.government}`);
   if (!isVerb && first(word.forms, "GEN_SG")) {
     const index = caseIndex(stemsFrom(word.forms));
@@ -158,6 +161,27 @@ export function wordLine(word: WordFacts): string {
 }
 
 /**
+ * The grade note said in words, because the note alone was not enough.
+ *
+ * Asked to explain `tuba : toa` with `b : ∅` in front of it, the cheapest
+ * model that otherwise teaches well wrote twice that a "double vowel u
+ * softens", which is not what happens and is the one fault worse than no
+ * answer on the one question about gradation. The note is two spellings and a
+ * colon, and a model reads that as a hint rather than as the fact. This says
+ * the fact: which letters, in which form, and what they become, built out of
+ * the note and the two forms it is about, so nothing here is typed. A note
+ * this cannot read is left as the note.
+ */
+export function gradePlain(note: string, strongForm: string, weakForm: string | null): string | null {
+  const m = /^(\S+) : (\S+)$/.exec(note.trim());
+  if (!m || !weakForm) return null;
+  const [, strong, weak] = m;
+  if (weak === "∅") return `the ${strong} in ${strongForm} dropping out in ${weakForm}`;
+  if (strong === "∅") return `${weakForm} gaining ${weak} that ${strongForm} does not have`;
+  return `the ${strong} in ${strongForm} becoming ${weak} in ${weakForm}`;
+}
+
+/**
  * The block the route sends after the learner's note. Empty where the
  * question named no word the dictionary holds, so a question about English
  * grammar costs nothing here.
@@ -166,7 +190,7 @@ export function wordsNote(words: readonly WordFacts[]): string {
   if (words.length === 0) return "";
   return [
     "WORDS IN THE QUESTION, AS THE DICTIONARY HOLDS THEM",
-    "These forms are checked. Use them as they are, build the regular cases on the genitive given here, and never contradict them. A word the question is about that is not listed here is one whose forms you are not sure of: say so rather than guess.",
+    "These forms are checked. Use them as they are, build the regular cases on the genitive given here, and never contradict them. A word the question is about that is not listed here is one whose forms you are not sure of: say so rather than guess. A change inside a word is exactly what the grade change says, a consonant becoming another or dropping out between two forms; it is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop.",
     ...words.slice(0, MAX_QUESTION_WORDS).map(wordLine),
   ].join("\n");
 }

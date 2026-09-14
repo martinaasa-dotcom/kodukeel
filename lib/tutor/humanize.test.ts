@@ -161,3 +161,22 @@ describe("ProseStream and a FIX line the caller refuses", () => {
     expect(stream.push("FIX: Lugesin raamatut\n") + stream.end()).toBe("FIX: Lugesin raamatut\n");
   });
 });
+
+describe("a case name one or two letters off the table's", () => {
+  it("is put right in prose, keeps its capital, and is never touched on a tagged line", async () => {
+    const { humanizeLine, nearestCaseName } = await import("./humanize");
+    expect(nearestCaseName("alalaleütlev")).toBe("alaleütlev");
+    expect(nearestCaseName("seesutlev")).toBe("seesütlev");
+    expect(humanizeLine("we use the alalaleütlev (-le) case here")).toBe("we use the alaleütlev (-le) case here");
+    expect(humanizeLine("Alalaleütlev is the one.")).toBe("Alaleütlev is the one.");
+    expect(humanizeLine("FIX: alalaleütlev jääb")).toBe("FIX: alalaleütlev jääb");
+  });
+
+  it("never moves a token that is a name, or one near none or near two", async () => {
+    const { nearestCaseName, humanizeLine } = await import("./humanize");
+    expect(nearestCaseName("alalütlev")).toBeNull();
+    expect(nearestCaseName("alaleütlev")).toBeNull();
+    expect(nearestCaseName("kohtav")).toBeNull();
+    expect(humanizeLine("the alalütlev and the alaleütlev answer kus and kuhu")).toBe("the alalütlev and the alaleütlev answer kus and kuhu");
+  });
+});

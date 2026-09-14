@@ -259,11 +259,12 @@ export interface ChainOptions {
  * transport, `openai/gpt-oss-120b` answered all six at $0.72 per thousand
  * and `claude-sonnet-5` missed one at $12.44, which moved her to Groq. Asked
  * thirty-seven questions of seven kinds, gpt-oss-120b taught a wrong form
- * three times in ninety-three answers and `gemini-3.8-flash`, thinking off,
- * taught none, so the Gemini model leads and the Groq one is the fixed
- * backup (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`). `openai/gpt-oss-20b` is
- * cheaper than both and answers 21 of 29, so the floor is measured rather
- * than the cheapest thing on the list.
+ * three times in ninety-three answers and the Gemini rows, thinking off,
+ * taught none, so a Gemini model leads and the Groq one is the fixed
+ * backup (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`). Which Gemini row is a
+ * cost decision taken with the guards the Lite needed built first, and
+ * `openai/gpt-oss-20b` is cheaper than all of them and answers 21 of 29, so
+ * the floor is measured rather than the cheapest thing on the list.
  *
  * THE SCANNER GOES TO GEMINI (`npm run eval:scan`). Six runs of twenty-four
  * words that every one carry a diacritic: `gemini-3.1-flash-lite` read 144 of
@@ -284,9 +285,10 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
       `SCENE_MODEL` fault came through one purpose over: a deployment that
       pinned it to whatever is cheapest this week would silently move Anu off
       the model the eval ranked, with nothing failing. Gemini leads on the
-      model the wide eval ranked, thinking off because the eval was run that
-      way (`TUTOR_MODEL`), and Groq backs it up on the model Anu ran on before,
-      which answers 83 of 87 facts on the same eval (`TUTOR_FALLBACK_MODEL`):
+      cheapest model the wide eval passed with the guards on, thinking off
+      because the eval was run that way (`TUTOR_MODEL`), and Groq backs it up
+      on the model Anu ran on before, which answers 83 of 87 facts on the same
+      eval (`TUTOR_FALLBACK_MODEL`):
       Groq backs up Gemini everywhere Gemini answers, and Anu is no longer the
       exception.
     */
@@ -398,25 +400,34 @@ function warnIfSceneModelSet(): void {
 }
 
 /**
- * The model Anu asks, and the reason it is not the dearest one available.
+ * The model Anu asks, and the reason it is the cheapest one that holds up.
  *
  * Measured rather than assumed, which is the whole of the change: the six
  * grammar questions in `npm run eval:anu` put Anu on `openai/gpt-oss-120b`
- * at 6 of 6, and the thirty-seven questions the eval asks now put her on
- * `gemini-3.8-flash`, thinking off, at 29 of 29 with no FIX: line under a
- * question that had no sentence, six VOCAB lines in thirty-seven answers and
- * nothing the renderer cannot draw, where gpt-oss-120b over three runs taught
- * a wrong form three times in ninety-three answers and put a FIX: line under
- * seven questions that had none (`docs/21-situations.md` §55). A wrong
- * grammar explanation is worse than none, because the learner acts on it and
- * the scheduler then drills what they took away, so the bar is the faults a
- * learner cannot see and not the price: $3.27 a thousand answers against
- * $0.32, before the static prompt is held on Google's side.
+ * at 6 of 6, the thirty-seven questions the eval asks now put
+ * `gemini-3.8-flash` at 29 of 29, and every cheaper row the two keys reach
+ * was asked the same questions. `gemini-3.1-flash-lite` invented no form on
+ * the grounded shape, at a quarter of the price and a third of the latency,
+ * and what it got wrong was a short, named list: gradation explained as a
+ * vowel, a case name misspelt, the answer buried under a preamble, a
+ * correction that reworded a right sentence, and answers twice the length.
+ * Those are faults a guard can catch and a briefing can prevent, so each has
+ * one: the words block spells the grade change out letter by letter
+ * (`gradePlain`), the prompt asks for the Estonian first and for a
+ * correction that changes only what was wrong, `nearestCaseName` repairs a
+ * case name one or two letters off, and `isStrayFix` refuses a FIX: line
+ * under a question with no sentence in it. A fault a learner cannot see is
+ * the bar, not the price, and the Lite clears it with the guards on
+ * (`docs/21-situations.md` §55). The operator asked for the cheaper model
+ * on the same day, and cost is the reason it is this row and not the one
+ * above it.
  *
- * `openai/gpt-oss-20b` is cheaper than either and answers 21 of 29, which is
- * what makes this a floor rather than the bottom of a price list.
+ * `openai/gpt-oss-20b` is cheaper still and answers 21 of 29, and
+ * `gemini-3.5-flash-lite` costs the same as this row and invented a verb
+ * form, which is what makes this a floor rather than the bottom of a price
+ * list.
  */
-export const TUTOR_MODEL = "gemini-3.8-flash";
+export const TUTOR_MODEL = "gemini-3.1-flash-lite";
 
 /**
  * The Groq link behind `TUTOR_MODEL`, which is the model Anu ran on until the

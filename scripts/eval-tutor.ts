@@ -79,6 +79,8 @@ const SKIP = new Set(["ei", "ja", "on", "ma", "sa", "ta", "me", "te", "nad", "se
 interface Q {
   id: string; kind: string; q: string; history?: ChatMessage[];
   must?: RegExp[]; mustNot?: RegExp[]; maxWords?: number; fix?: RegExp | "none"; vocab?: number; note?: LearnerNote;
+  /** A how-do-you-say question: the Estonian has to be on the first line of the answer. */
+  first?: RegExp;
 }
 const B1: LearnerNote = { level: "B1", weakestCase: null, unit: null, scene: null, standing: { source: "estimated" } };
 const WEAK: LearnerNote = { ...B1, weakestCase: { grammCase: "INESSIVE", accuracy: 55, total: 40 } };
@@ -89,27 +91,27 @@ const QUESTIONS: Q[] = [
   { id: "f2", kind: "fact", q: "What case does 'aitama' take? Give an example.", must: [/partitiv|osastav/i, /aitan/i] },
   { id: "f3", kind: "fact", q: "Which case is 'toas' and what is its dictionary form?", must: [/inessive|seesütlev/i, /tuba/i] },
   { id: "f4", kind: "fact", q: "Explain the consonant gradation in 'tuba : toa'.", must: [/gradation|astmevaheldus|drops|weak|grade|disappears|falls away|lost/i] },
-  { id: "f5", kind: "fact", q: "How do you say 'I like this book' in Estonian?", must: [/mulle/i, /meeldib/i] },
+  { id: "f5", kind: "fact", q: "How do you say 'I like this book' in Estonian?", must: [/mulle/i, /meeldib/i] , first: /mulle meeldib/i },
   { id: "f6", kind: "fact", q: "What is the partitive plural of 'raamat'?", must: [/raamatuid/i] },
   { id: "f7", kind: "fact", q: "Why is it Saksamaal and not Saksamaas?", must: [/alalütlev|adessive|outside|on top|surface|-maa/i], mustNot: [/Saksamaas is (right|correct|fine)/i] },
   { id: "f8", kind: "fact", q: "What is the short illative of 'tuba'?", must: [/tuppa/] },
-  { id: "f9", kind: "fact", q: "How do I say 'I don't have time'?", must: [/mul (ei ole|pole) aega/i] },
+  { id: "f9", kind: "fact", q: "How do I say 'I don't have time'?", must: [/mul (ei ole|pole) aega/i] , first: /mul (ei ole|pole) aega/i },
   { id: "f10", kind: "fact", q: "What does 'Ma lähen kooli' mean, and which case is 'kooli' in?", must: [/school/i, /sisseütlev|illative/i] },
-  { id: "f11", kind: "fact", q: "How do you say 'I went' from the verb 'minema'?", must: [/läksin/] },
+  { id: "f11", kind: "fact", q: "How do you say 'I went' from the verb 'minema'?", must: [/läksin/] , first: /läksin/i },
   { id: "f12", kind: "fact", q: "Is 'kohvi' the genitive or the partitive?", must: [/both|either|same|two/i] },
   { id: "f13", kind: "fact", q: "What is the plural of 'see'?", must: [/\bneed\b/] },
-  { id: "f14", kind: "fact", q: "How do you say 'with a friend'?", must: [/sõbraga/i] },
+  { id: "f14", kind: "fact", q: "How do you say 'with a friend'?", must: [/sõbraga/i] , first: /sõbraga/i },
   { id: "f15", kind: "fact", q: "Why is it 'Mul on kaks last' and not 'Mul on kaks lapsed'?", must: [/partitiv|osastav/i, /singular/i] },
   { id: "f16", kind: "fact", q: "What is the genitive of 'õlu'?", must: [/õlle/] },
-  { id: "f17", kind: "fact", q: "How does 'ei' work in the present tense? Give me 'I do not read'.", must: [/ma ei loe/i] },
+  { id: "f17", kind: "fact", q: "How does 'ei' work in the present tense? Give me 'I do not read'.", must: [/ma ei loe/i] , first: /ma ei loe/i },
   { id: "c1", kind: "correct", q: "Is this right: Ma elan Tallinnas ja töötan kool.", fix: /koolis/ },
   { id: "c2", kind: "correct", q: "Check my sentence: Ma tahan osta uus auto.", fix: /uue auto|uut autot/ },
   { id: "c3", kind: "correct", q: "Please correct: Ta helistas mind eile.", fix: /mulle/ },
   { id: "c4", kind: "correct", q: "Is this ok? Ma lähen Soomes homme.", fix: /Soome\b|Soomesse/ },
   { id: "c5", kind: "correct", q: "Is this correct: Ma joon kohvi.", must: [/right|correct|yes|good|fine|perfect/i], fix: "none", maxWords: 90 },
   { id: "c6", kind: "correct", q: "Is this correct: Ma olen kolm aastat Eestis elanud aga minu eesti keel on ikka halb.", must: [/right|correct|good|fine|yes/i], fix: "none", maxWords: 120 },
-  { id: "s1", kind: "short", q: "How do you say Tuesday?", must: [/teisipäev/], maxWords: 45, note: WEAK, mustNot: [/seesütlev|inessive/i] },
-  { id: "s2", kind: "short", q: "What's 'thank you'?", must: [/aitäh/], maxWords: 45 },
+  { id: "s1", kind: "short", q: "How do you say Tuesday?", must: [/teisipäev/], maxWords: 45, note: WEAK, mustNot: [/seesütlev|inessive/i] , first: /teisipäev/i },
+  { id: "s2", kind: "short", q: "What's 'thank you'?", must: [/aitäh/], maxWords: 45 , first: /aitäh/i },
   { id: "s3", kind: "short", q: "Tere!", maxWords: 45 },
   { id: "s4", kind: "short", q: "What's the weather like in Tallinn today?", maxWords: 80 },
   { id: "h1", kind: "honest", q: "What is the partitive plural of 'käsi'?", must: [/\bkäsi\b/] },
@@ -119,7 +121,7 @@ const QUESTIONS: Q[] = [
   { id: "v1", kind: "vocab", q: "Teach me five words for things in a kitchen.", vocab: 3 },
   { id: "v2", kind: "vocab", q: "What are the days of the week?", must: [/esmaspäev/, /pühapäev/] },
   { id: "e1", kind: "estonian", q: "Kas sa saad mulle seletada, mis vahe on sõnadel 'kool' ja 'koolis'?", must: [/inside|in the school|in school|seesütlev|inessive|at school/i] },
-  { id: "a1", kind: "level", q: "How do I say 'I am hungry'?", must: [/mul on kõht tühi|ma olen näljane|kõht on tühi|olen näljas|mul on nälg/i], maxWords: 90, note: A1 },
+  { id: "a1", kind: "level", q: "How do I say 'I am hungry'?", must: [/mul on kõht tühi|ma olen näljane|kõht on tühi|olen näljas|mul on nälg/i], maxWords: 90, note: A1 , first: /näljane|nälg|kõht/i },
   { id: "x1", kind: "history", q: "and in the plural?", must: [/raamatuid/],
     history: [
       { role: "user", content: "What case is 'raamatut'?" },
@@ -245,7 +247,7 @@ async function main() {
   console.log(`prompt ~${Math.round(system.length / 4)} tokens; ${qs.length} questions x ${runs} run(s)`);
   for (const config of candidates()) {
     console.log(`\n### ${config.model}`);
-    const tally = { asked: 0, facts: 0, factsOf: 0, fixOk: 0, fixOf: 0, lenOk: 0, lenOf: 0, tells: 0, fmt: 0, unverified: [] as string[], terms: 0, in: 0, out: 0, cached: 0, ms: 0, wordsList: [] as number[], errors: 0, strayFix: 0, vocabLines: 0, vocabNotHead: 0 };
+    const tally = { asked: 0, facts: 0, factsOf: 0, fixOk: 0, fixOf: 0, lenOk: 0, lenOf: 0, tells: 0, fmt: 0, unverified: [] as string[], terms: 0, in: 0, out: 0, cached: 0, ms: 0, wordsList: [] as number[], errors: 0, strayFix: 0, vocabLines: 0, vocabNotHead: 0, firstOk: 0, firstOf: 0 };
     const fails: string[] = [];
     for (const q of Array.from({ length: runs }, () => qs).flat()) {
       try {
@@ -260,6 +262,11 @@ async function main() {
           const prose = plainText(a.text.split("\n").filter((l) => !TAGGED_LINE.test(l.trim())).join("\n"));
           const ok = (q.must ?? []).every((p) => p.test(plain)) && !(q.mustNot ?? []).some((p) => p.test(prose));
           if (ok) tally.facts += 1; else issues.push("fact");
+        }
+        if (q.first) {
+          tally.firstOf += 1;
+          const firstLine = plainText(a.text).split("\n").find((l) => l.trim()) ?? "";
+          if (q.first.test(firstLine)) tally.firstOk += 1; else issues.push("answer-late");
         }
         if (q.fix) {
           tally.fixOf += 1;
@@ -307,7 +314,7 @@ async function main() {
     const usd = estimateCostMicros(config.model, tally.in / per, tally.out / per, { cachedInputTokens: tally.cached / per }) / 1e6;
     const sorted = [...tally.wordsList].sort((a, b) => a - b);
     const med = sorted[Math.floor(sorted.length / 2)] ?? 0; const p90 = sorted[Math.floor(sorted.length * 0.9)] ?? 0;
-    console.log(`  == ${config.model}: facts ${tally.facts}/${tally.factsOf}  fix+vocab ${tally.fixOk}/${tally.fixOf}  length ${tally.lenOk}/${tally.lenOf}  tells ${tally.tells}  fmt ${tally.fmt}  strayFIX ${tally.strayFix}  vocab ${tally.vocabLines} (forms ${tally.vocabNotHead})  unverified ${tally.unverified.length}  terms/answer ${(tally.terms / per).toFixed(1)}  words med ${med} p90 ${p90}  in ${Math.round(tally.in / per)} (cached ${Math.round(tally.cached / per)}) out ${Math.round(tally.out / per)}  ${Math.round(tally.ms / per)}ms  $${(usd * 1000).toFixed(2)}/1k  errors ${tally.errors}`);
+    console.log(`  == ${config.model}: facts ${tally.facts}/${tally.factsOf}  fix+vocab ${tally.fixOk}/${tally.fixOf}  length ${tally.lenOk}/${tally.lenOf}  answer-first ${tally.firstOk}/${tally.firstOf}  tells ${tally.tells}  fmt ${tally.fmt}  strayFIX ${tally.strayFix}  vocab ${tally.vocabLines} (forms ${tally.vocabNotHead})  unverified ${tally.unverified.length}  terms/answer ${(tally.terms / per).toFixed(1)}  words med ${med} p90 ${p90}  in ${Math.round(tally.in / per)} (cached ${Math.round(tally.cached / per)}) out ${Math.round(tally.out / per)}  ${Math.round(tally.ms / per)}ms  $${(usd * 1000).toFixed(2)}/1k  errors ${tally.errors}`);
     if (tally.unverified.length) console.log(`     unverified: ${[...new Set(tally.unverified)].join(" ")}`);
   }
 }

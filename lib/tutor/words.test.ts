@@ -40,7 +40,7 @@ describe("questionWords", () => {
 describe("wordLine and wordsNote", () => {
   it("prints a nominal's principal parts and never a short illative that spells a part already given", () => {
     const line = wordLine(jalg);
-    expect(line).toBe("- jalg (noun, foot, leg): jalg, genitive jala, partitive jalga, plural jalad, genitive plural jalgade, partitive plural jalgu; grade change g : ∅");
+    expect(line).toBe("- jalg (noun, foot, leg): jalg, genitive jala, partitive jalga, plural jalad, genitive plural jalgade, partitive plural jalgu; grade change g : ∅, which is the g in jalg dropping out in jala");
     expect(line).not.toContain("short illative");
   });
 

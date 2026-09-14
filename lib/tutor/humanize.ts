@@ -39,6 +39,7 @@
 
 import { EM_DASH as EM, EN_DASH as EN, OPENER_REWRITES } from "@/lib/copy/voice";
 import { fixFrom, TAGGED_LINE } from "@/lib/tutor/markers";
+import { CASES } from "@/lib/estonian/cases";
 
 /**
  * Lines that are Estonian by construction, and are never rewritten.
@@ -122,10 +123,74 @@ function openers(text: string): string {
   return ateLead && s ? s.replace(/^[a-zõäöü]/, (c) => c.toUpperCase()) : s;
 }
 
+/*
+  A CASE NAME ONE OR TWO LETTERS OFF THE TABLE'S IS THE TABLE'S.
+
+  `alalaleütlev` reached a learner, from the cheapest model that otherwise
+  teaches well, and it is not a word: the case is the alaleütlev and the
+  model doubled a syllable on its way to it. A case name is metalanguage
+  rather than a form somebody memorises, the fourteen of them are the
+  table in `lib/estonian/cases.ts`, and a misspelling of one is a typo of a
+  term this app owns, so it is put right on the way past, which is a
+  different thing from editing a form the learner is going to learn: no
+  FIX: or VOCAB: line is touched, and a word that is not within two letters
+  of exactly one name is left exactly as it came. Two letters, because the
+  names are long and unlike one another, and one, because `alalütlev` and
+  `alaleütlev` are one letter apart and are two different cases: a token
+  that is itself a name is never moved.
+*/
+const CASE_NAMES = CASES.map((c) => c.et.toLowerCase());
+
+function editDistance(a: string, b: string): number {
+  const prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i += 1) {
+    let diag = prev[0]!;
+    prev[0] = i;
+    for (let j = 1; j <= b.length; j += 1) {
+      const tmp = prev[j]!;
+      prev[j] = Math.min(prev[j]! + 1, prev[j - 1]! + 1, diag + (a[i - 1] === b[j - 1] ? 0 : 1));
+      diag = tmp;
+    }
+  }
+  return prev[b.length]!;
+}
+
+/** The case name a misspelt token is nearest, within two letters and nearer than any other, or null where it is a name already or nothing is near. */
+export function nearestCaseName(token: string): string | null {
+  const lower = token.toLowerCase();
+  if (!/[uü]tlev$|tav$|saav$|rajav$|olev$/.test(lower) || CASE_NAMES.includes(lower)) return null;
+  // The nearest name wins where it is nearer than every other: `seesutlev` is
+  // one letter from seesütlev and two from seestütlev, and a rule asking for
+  // one name within two would refuse the folded diacritic, which is the
+  // commonest slip of all.
+  let best: string[] = [];
+  let bestDistance = 3;
+  for (const name of CASE_NAMES) {
+    if (Math.abs(name.length - lower.length) > 2) continue;
+    const distance = editDistance(lower, name);
+    if (distance > 2) continue;
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = [name];
+    } else if (distance === bestDistance) {
+      best.push(name);
+    }
+  }
+  return best.length === 1 ? best[0]! : null;
+}
+
+function caseNames(text: string): string {
+  return text.replace(/\p{L}+/gu, (token) => {
+    const fixed = nearestCaseName(token);
+    if (!fixed) return token;
+    return /^\p{Lu}/u.test(token) ? fixed.charAt(0).toUpperCase() + fixed.slice(1) : fixed;
+  });
+}
+
 /** One line of Anu's English, cleaned. Estonian lines pass straight through. */
 export function humanizeLine(line: string): string {
   if (ESTONIAN_LINE.test(line.trim())) return line;
-  return openers(dashes(line));
+  return caseNames(openers(dashes(line)));
 }
 
 /** A whole reply, cleaned line by line. */
@@ -237,10 +302,10 @@ export class ProseStream {
     if (this.emitted === 0) {
       this.estonian = ESTONIAN_LINE.test(text.trimStart());
       this.emitted += text.length;
-      return this.estonian ? text : openers(dashes(text));
+      return this.estonian ? text : caseNames(openers(dashes(text)));
     }
     this.emitted += text.length;
-    return this.estonian ? text : dashes(text);
+    return this.estonian ? text : caseNames(dashes(text));
   }
 
   /** A whole FIX line the caller does not want, judged only where the line is whole and unshown. */
