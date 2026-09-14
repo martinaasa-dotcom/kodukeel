@@ -1306,7 +1306,7 @@ export function ReviewSession({
                   disabled={busy}
                   onClick={() => void submit(g.rating)}
                   aria-label={intervals ? `${g.label}, next in ${intervals[g.rating]}` : g.label}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex flex-col items-center gap-0.5 rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex flex-col items-center gap-0.5 rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   <span className="text-base font-bold">{g.label}</span>
                   <span className="tnum text-2xs">{intervals?.[g.rating]}</span>

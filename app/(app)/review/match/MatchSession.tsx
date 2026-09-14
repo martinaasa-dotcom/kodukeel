@@ -259,7 +259,7 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
               disabled={isMatched}
               lang={tile.side === "et" ? "et" : "en"}
               aria-pressed={isSelected}
-              className={`${tile.side === "et" ? "text-md font-semibold " : "text-base "}${isMatched ? `pop-in ${OPTION_CLASS.right} ` : isWrong ? `shake ${OPTION_CLASS.wrong} ` : ""}press flex min-h-[84px] items-center justify-center rounded-[var(--r-lg)] px-3 py-3 text-center transition-ui hover:-translate-y-0.5 disabled:hover:translate-y-0`}
+              className={`${tile.side === "et" ? "text-md font-semibold " : "text-base "}${isMatched ? `pop-in ${OPTION_CLASS.right} ` : isWrong ? `shake ${OPTION_CLASS.wrong} ` : ""}press flex min-h-[84px] items-center justify-center rounded-[var(--r-lg)] px-3 py-3 text-center transition-ui hover:scale-[1.02] disabled:hover:scale-100`}
               style={isMatched || isWrong ? {
                 opacity: isMatched ? 0.5 : 1,
               } : {

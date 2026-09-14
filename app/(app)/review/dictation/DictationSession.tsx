@@ -296,7 +296,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                   autoplay
                   onPlay={() => setPlayed(true)}
                   onUnavailable={() => setNoAudio(true)}
-                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5"
+                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
                 <div className="flex items-center gap-3">

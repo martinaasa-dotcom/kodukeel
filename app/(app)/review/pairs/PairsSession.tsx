@@ -240,7 +240,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             // the card, so "Play again" before anything has played is the only
             // thing that reader is told.
             aria-label={needsPress ? "Play the word" : "Play again"}
-            className="press flex h-20 w-20 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5 disabled:hover:translate-y-0"
+            className="press flex h-20 w-20 items-center justify-center rounded-full transition-ui hover:scale-[1.02] disabled:hover:scale-100"
             style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
           >
             {playing

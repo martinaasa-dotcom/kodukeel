@@ -1127,7 +1127,7 @@ function OrderQuestion({ item, number, built, onBuild }: {
               key={`${word}-${index}`}
               type="button"
               onClick={() => onBuild(built.filter((_, i) => i !== index))}
-              className="press min-h-[44px] rounded-[var(--r-sm)] px-3 py-2 text-md transition-ui hover:-translate-y-0.5"
+              className="press min-h-[44px] rounded-[var(--r-sm)] px-3 py-2 text-md transition-ui hover:scale-[1.02]"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
               {word}

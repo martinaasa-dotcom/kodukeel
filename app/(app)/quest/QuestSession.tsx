@@ -387,7 +387,7 @@ export function QuestSession({
                   type="button"
                   disabled={busy}
                   onClick={() => void answer(false)}
-                  className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   Missed it <KeyCap className="ml-1">1</KeyCap>
                 </button>
@@ -395,7 +395,7 @@ export function QuestSession({
                   type="button"
                   disabled={busy}
                   onClick={() => void answer(true)}
-                  className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   Had it <KeyCap className="ml-1">2</KeyCap>
                 </button>

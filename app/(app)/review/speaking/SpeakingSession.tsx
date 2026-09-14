@@ -242,7 +242,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                   type="button"
                   disabled={busy}
                   onClick={() => void submit(g.rating)}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   <span className="text-base font-bold">{g.label}</span>
                 </button>
