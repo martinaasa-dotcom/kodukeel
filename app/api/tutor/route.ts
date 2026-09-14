@@ -9,6 +9,8 @@ import { matchEstonianForm } from "@/lib/dict/search";
 import { ProseStream } from "@/lib/tutor/humanize";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
 import { learnerContextFor } from "@/lib/progress/tutorContext";
+import { wordsInQuestion } from "@/lib/progress/tutorWords";
+import { wordsNote } from "@/lib/tutor/words";
 import { chatEstonianTokens } from "@/lib/tutor/verify";
 import {
   openWithFallback,
@@ -126,9 +128,20 @@ export async function POST(request: Request) {
     transaction above rather than after it: three round trips that do not
     depend on the answer cost nothing extra when they are in flight together.
   */
-  const learner = (await learnerPromise) ?? UNKNOWN_LEARNER;
+  /*
+    And what the dictionary holds for the words the question names, read
+    beside the learner's log rather than after it. Asked for every case of
+    a word she was never handed, Anu built fourteen forms on a wrong
+    genitive; handed the dictionary's own principal parts, she builds on
+    those and is told to say she is not sure past them (`lib/tutor/words.ts`).
+    A read that fails leaves the block empty, which is what every question
+    got before this existed.
+  */
+  const wordsPromise = wordsInQuestion(messages).catch(() => []);
+  const [known, words] = await Promise.all([learnerPromise, wordsPromise]);
+  const learner = known ?? UNKNOWN_LEARNER;
   const system = buildSystemPrompt();
-  const live = learnerNote(learner);
+  const live = [learnerNote(learner), wordsNote(words)].filter(Boolean).join("\n\n");
   const encoder = new TextEncoder();
   let full = "";
 

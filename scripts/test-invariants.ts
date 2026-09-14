@@ -3806,6 +3806,29 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   assert.doesNotMatch(tutorRoute, /body\.level/, "the tutor route reads a level from the client again");
   assert.match(tutorRoute, /learnerContextFor\(ownerId\)/, "the tutor route no longer asks who is asking");
   assert.match(tutorRoute, /learnerNote\(learner\)/, "the tutor route no longer hands Anu the learner note");
+  /*
+    And the words the question is about, as the dictionary holds them. Asked
+    for every case of `jalg`, Anu built fourteen forms on a genitive she
+    guessed and eleven were wrong; the briefing held the rules and none of
+    the facts. `lib/tutor/words.ts` prints the dictionary's principal parts
+    for the words in the question and `lib/progress/tutorWords.ts` reads
+    them, vouching each token the way a photographed page is vouched
+    (ADR-021) rather than by prefix, and the harness builds the same block
+    through the same printer off the shipped file, so what it measures is the
+    block the route sends. Nothing under `lib/tutor/words.ts` may type a form:
+    the English list it holds is English, checked on the letters Estonian has
+    and English does not.
+  */
+  assert.match(tutorRoute, /wordsInQuestion\(messages\)/, "the tutor route no longer asks the dictionary about the words in the question");
+  assert.match(tutorRoute, /wordsNote\(words\)/, "the tutor route no longer hands Anu the dictionary's forms");
+  const tutorWords = code("lib/progress/tutorWords.ts");
+  assert.match(tutorWords, /matchEstonianForm\(candidates, token\)/, "the question's words are no longer vouched the way a scanned word is");
+  assert.match(tutorWords, /questionWords\(messages\)/, "the route and the harness no longer pick the question's words through one function");
+  const harness = code("scripts/lib/shippedWords.ts");
+  assert.match(harness, /questionWords\(messages\)/, "the harness picks the question's words its own way");
+  assert.match(code("scripts/eval-tutor.ts"), /wordsNote\(shippedWordsInQuestion\(/, "the eval no longer measures the block the route sends");
+  const wordsModule = code("lib/tutor/words.ts");
+  assert.doesNotMatch(wordsModule, /[õäöüšž]/i, "lib/tutor/words.ts types an Estonian word of its own");
   assert.doesNotMatch(
     code("components/anu/useAnuChat.ts"),
     /level:/,
