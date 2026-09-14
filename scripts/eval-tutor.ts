@@ -162,7 +162,9 @@ function candidates(): ProviderConfig[] {
   const extraGemini = listed("--gemini");
   const extraGroq = listed("--groq");
   if (extraGemini.length > 0 || extraGroq.length > 0) {
-    for (const model of extraGemini) out.push({ name: "gemini", model, label: "Google Gemini", reasoning: "none" });
+    // `--thinking` leaves the Gemini candidates thinking, for a model that refuses "none".
+    const reasoning = process.argv.includes("--thinking") ? {} : { reasoning: "none" as const };
+    for (const model of extraGemini) out.push({ name: "gemini", model, label: "Google Gemini", ...reasoning });
     for (const model of extraGroq) out.push({ name: "groq", model, label: "Groq" });
     return out;
   }
