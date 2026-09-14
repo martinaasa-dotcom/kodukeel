@@ -463,6 +463,7 @@ export const A2 = [
       ["uskuma", "to believe"],
       ["arvama", "to think, to reckon"],
       ["nõustuma", "to agree"],
+      ["nõus", "in agreement (ma olen nõus: I agree)", "ADVERB"],
       ["sobima", "to suit, to be convenient"],
       ["kestma", "to last, to go on"],
     ],

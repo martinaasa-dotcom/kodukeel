@@ -280,6 +280,33 @@ check("the harvest asks the rules which forms they cannot reach", () => {
 });
 
 /*
+  And the harvest may not delete what it exists to fetch.
+
+  A refused key read as "no such word" dropped every word of a run, and
+  `--only` wrote one unit's survivors as the whole file. Both rules live in
+  lib/ekilex/harvestGuard.ts; what is asserted here is that the script still
+  asks them on the two lines where each fault was, since a guard nobody calls
+  is the file as it was.
+*/
+check("the harvest stops on a refused key and merges a partial run", () => {
+  const src = code("scripts/harvest-ekilex.ts");
+  assert.match(
+    src, /refusesKey\(res\.status\)/,
+    "the harvest stopped reading a 401 or 403 as a fact about the key, so a "
+      + "withdrawn key drops every word and writes the file without them",
+  );
+  assert.match(
+    src, /mergeHarvest\(/,
+    "the harvest stopped merging a partial run into the file, so --only writes "
+      + "one unit as the whole course",
+  );
+  assert.match(
+    src, /if \(REFUSED\)[\s\S]*process\.exit\(1\)[\s\S]*mergeHarvest\(/,
+    "the harvest writes before it checks whether the key was refused",
+  );
+});
+
+/*
   And the pair a learner is shown is two forms somebody wrote down.
 
   `alsoRight` is what puts `tuppa / toasse` and `minule / mulle` on a screen and

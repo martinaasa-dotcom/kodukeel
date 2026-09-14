@@ -597,6 +597,20 @@ in the whole pipeline, and English is the one language this project may write.
 bring back, which is what makes this mechanical rather than aspirational. Re-run the harvest with
 `npm run harvest`; responses are cached, so it costs Ekilex nothing.
 
+**And the harvest may not delete what it exists to fetch.** `npm run harvest -- --only=plaanid` on a
+withdrawn key wrote `prisma/data/harvested.ts` with nothing in it, twice over. The fetch read every
+non-OK status as "Ekilex has no such word", so a 401 dropped every word of the run, and `--only`
+never merged: it filtered the requests to one unit and wrote that unit's survivors as the whole file,
+so even on a working key a partial run cut 1,452 course words to seventeen. `syllabus.test.ts` would
+have failed on the next `npm test`, which is the right backstop and the wrong first line.
+`lib/ekilex/harvestGuard.ts` is the two rules, pure and unit tested: a 401 or 403 is a fact about the
+key and never about a word, so the first one ends the run with nothing written and nothing cached,
+and `mergeHarvest` replaces exactly the rows a partial run asked for and keeps every other row as it
+was, in the full run's own order, so a word Ekilex dropped this time is dropped exactly as on a full
+run rather than kept from an older answer. `nõus` is the first word to arrive through it: a learner
+offered a wage wrote `ma olen nõus`, which is how anybody agrees to one, and the course taught
+`nõustuma` and not the word people say.
+
 
 **A meaning is given in the language the learner thinks in, and Ekilex is the one that gives it.**
 Most people learning Estonian in Estonia already speak Russian or Ukrainian, and an app that can
@@ -712,7 +726,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,452 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,453 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -939,7 +953,7 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
 word that inflects less. Asserted on the call in both builders. That is 1,688 forms across 357 of the
-1,452 course words. Four codes are nearly all of it, and the fact that they are the four is the
+1,453 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -4962,7 +4976,7 @@ out as `Aitäh.` or `Jah.`, the other side thanking somebody for an answer they 
 
 **Telling somebody they were incomprehensible is the worst thing this module can do, and it was the
 default.** `unrecognised` fires where the app can vouch for no word of a turn, and what it vouched
-against was the scene's units widened once to the course, which is 1,452 words: everything else in
+against was the scene's units widened once to the course, which is 1,453 words: everything else in
 the language read as noise. A learner answered `Tere!` with `Tervitused!`, which is Estonian, which
 is a greeting, and which this course does not happen to teach, and was told they had not been
 understood. `knowing` in `lib/progress/scene.ts` asks `prisma/data/forms/` about the spellings in

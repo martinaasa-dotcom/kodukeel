@@ -1941,7 +1941,7 @@ const INTERVIEW: SceneSpec = {
       needs: [{ kind: "anyOf", of: [
         { kind: "datum", slot: "wage" },
         { kind: "datum", slot: "wage2" },
-        { kind: "lemma", oneOf: ["sobima", "jah", "hea", "nõustuma"] },
+        { kind: "lemma", oneOf: ["sobima", "jah", "hea", "nõustuma", "nõus"] },
       ] }],
       required: true,
       patience: 2,

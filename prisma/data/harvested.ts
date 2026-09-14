@@ -12,7 +12,7 @@
  * first time a word is viewed — storing it here would be a second source of
  * truth that goes stale.
  *
- * 1449 words, harvested 2026-09-05.
+ * 1453 words, harvested 2026-09-14.
  */
 
 export interface HarvestedWord {
@@ -9102,6 +9102,18 @@ export const HARVESTED: readonly HarvestedWord[] = [
     note: "mingit soovi, tahtmist väga kindlalt esitama",
     semanticTypes: ["VERB_suhtlus"],
     rus: ["требовать", "потребовать"], ukr: ["вимагати", "зажадати"],
+  },
+  {
+    lemma: "nõus", gloss: "in agreement (ma olen nõus: I agree)", pos: "ADVERB", cefr: null,
+    ekilexWordId: 309270,
+    ekilexPos: ["adv"],
+    parts: {  },
+    extraForms: [],
+    government: null,
+    usages: ["Nõus, teeme nii.", "Nõus, sada protsenti nõus!"],
+    note: "väljendab millegagi või kellegagi nõustumist",
+    semanticTypes: [],
+    rus: ["согласен", "согласна"], ukr: [],
   },
   {
     lemma: "nõustuma", gloss: "to agree", pos: "VERB", cefr: "B1",

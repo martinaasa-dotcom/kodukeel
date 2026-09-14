@@ -38,6 +38,8 @@ import { RETIRED_WORDS } from "../lib/collections/syllabus/retired";
 import { inferPos } from "../lib/collections/syllabus/types";
 import { primarySemanticTypes } from "../lib/ekilex/client";
 import { formatGovernment } from "../lib/ekilex/mapper";
+import { mergeHarvest, refusesKey, rowKey } from "../lib/ekilex/harvestGuard";
+import { HARVESTED } from "../prisma/data/harvested";
 import { unreachableSlots } from "../lib/estonian/conjugate";
 import { unreachableCaseForms } from "../lib/estonian/derive";
 
@@ -85,6 +87,8 @@ if (!KEY) {
   process.exit(1);
 }
 const API_KEY: string = KEY;
+/** Set by the first 401 or 403; the run then writes nothing. */
+let REFUSED: string | null = null;
 
 interface RawForm { value?: string; morphCode?: string }
 /** One set of forms, as Ekilex groups them. Their JSON's own key is `paradigms`. */
@@ -149,6 +153,18 @@ async function call<T>(pathname: string, attempt = 0): Promise<T | null> {
       signal: AbortSignal.timeout(30_000),
     });
     if (res.status === 429 || res.status >= 500) throw new Error(`HTTP ${res.status}`);
+    /*
+      A refusal is about the key and never about the word. Read as "not found"
+      it drops every word of the run and the file is then written without
+      them, which on a withdrawn key is the whole course deleted by a script
+      whose job is to fetch it (lib/ekilex/harvestGuard.ts). Nothing is
+      cached for it either, since the miss cache would then answer "no such
+      word" on the next run with a working key.
+    */
+    if (refusesKey(res.status)) {
+      REFUSED = `Ekilex answered ${res.status} on ${pathname}: the key was refused.`;
+      return null;
+    }
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch (err) {
@@ -767,12 +783,25 @@ async function main() {
     }
   }
 
-  ok.sort((a, b) => a.lemma.localeCompare(b.lemma, "et"));
-  await writeFile(OUT, render(ok));
+  if (REFUSED) {
+    console.error(`\n${REFUSED}`);
+    console.error(`Nothing was written to ${path.relative(ROOT, OUT)}. Set a working EKILEX_API_KEY and run again.`);
+    process.exit(1);
+  }
+
+  /*
+    A partial run replaces the rows it asked for and nothing else. Without
+    this, --only wrote the one unit's words as the whole file, which is the
+    fault lib/ekilex/harvestGuard.ts describes.
+  */
+  const rows = ONLY
+    ? mergeHarvest(HARVESTED as unknown as Harvested[], ok, new Set(requests.map(rowKey)))
+    : [...ok].sort((a, b) => a.lemma.localeCompare(b.lemma, "et"));
+  await writeFile(OUT, render(rows));
 
   const withUsages = ok.filter((r) => r.usages.length > 0).length;
   const withCefr = ok.filter((r) => r.cefr).length;
-  console.log(`\nWrote ${ok.length} words to ${path.relative(ROOT, OUT)}`);
+  console.log(`\nWrote ${rows.length} words to ${path.relative(ROOT, OUT)}${ONLY ? ` (${ok.length} of them re-harvested for ${ONLY})` : ""}`);
   console.log(`  ${withUsages} carry at least one attested sentence`);
   console.log(`  ${withCefr} carry an Ekilex CEFR level`);
   if (failed.length > 0) {
