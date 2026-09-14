@@ -291,10 +291,36 @@ describe("the government check", () => {
       caseOf: new Map<string, ReadonlySet<CaseKey>>([
         ["jaama", new Set(["GENITIVE", "ILLATIVE"])],
         ["eurot", new Set(["PARTITIVE"])],
+        ["tuppa", new Set(["ILLATIVE"])],
       ]),
     });
     expect(governmentSuspect(["buss", "sõidab", "jaama", "pilet", "maksab", "eurot"], two)).toBe(false);
-    expect(governmentSuspect(["pilet", "maksab", "eurot"], two)).toBe(true);
+    expect(governmentSuspect(["pilet", "maksab", "tuppa"], two)).toBe(true);
+  });
+
+  /*
+    AN OBJECT IS NOT A COMPLEMENT. `Pilet maksab kaks eurot` is what anybody
+    says, and this file used to assert it was suspect, because `maksma` is
+    recorded as governing the allative and `eurot` is a partitive. The
+    partitive and the genitive are the object's cases and the object rule is
+    not this check's; only a direction or other oblique case counts.
+  */
+  it("says nothing about a partitive or a genitive, since those are the object's cases and not government", () => {
+    const priced = context({
+      governed: [
+        { lemma: "maksma", forms: new Set(["maksab"]), cases: new Set(["ALLATIVE"]) },
+        { lemma: "elama", forms: new Set(["elab"]), cases: new Set(["ELATIVE"]) },
+      ],
+      caseOf: new Map<string, ReadonlySet<CaseKey>>([
+        ["eurot", new Set(["PARTITIVE"])],
+        ["minu", new Set(["GENITIVE"])],
+        ["siin", new Set(["INESSIVE"])],
+        ["tuppa", new Set(["ILLATIVE"])],
+      ]),
+    });
+    expect(governmentSuspect(["pilet", "maksab", "eurot"], priced)).toBe(false);
+    expect(governmentSuspect(["minu", "sõber", "elab", "siin"], priced)).toBe(false);
+    expect(governmentSuspect(["pilet", "maksab", "tuppa"], priced)).toBe(true);
   });
 });
 

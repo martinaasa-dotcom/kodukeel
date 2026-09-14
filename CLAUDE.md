@@ -188,6 +188,24 @@ block's own text says the messages before it are the conversation; it sends what
 now, asserted, because a harness in a different order measures a conversation the app does not
 have.
 
+**And the `topic` figure was two thirds the harness, and the `government` figure was the object.**
+Twenty-seven `topic` refusals in that run and eight once `play:scenes` gated the way the route does:
+the route counts every vouched word of the learner's own last turn as on topic, so a line that
+takes up what they said is never withheld for it, and the harness held a line to the beat's words
+alone. What was left under `government` was `Remont maksab 22 eurot` and `Minu sõber elab siin`,
+withheld because `maksma` is recorded as governing the allative and the only oblique nominal in
+the line is a partitive, and `minu` is a possessive genitive read as a complement of `elama`. The
+partitive and the genitive are the object's cases, which case an object takes is the object rule
+that no check here parses, and rektsioon is the oblique case a verb demands, so those two readings
+are left out of the count the way the nominative already was. Measured on `eval:scene --part-b`,
+which runs the labeled set alone and needs no key: good lines withheld 3 to 2 of 495, real errors
+caught 165 to 146, the nineteen being corrupted forms also spelled like a genitive; refusing correct
+Estonian is the fault this module is built against and a missed corruption costs a line the bank
+answers. Live on the same model, `government` went 11 to 1 and the withheld share 48 to 36 percent.
+The `close` move is told it is the goodbye, since told "they say goodbye" the fallback carried on
+asking, and what `topic` still withholds is the model asking the previous beat's question again,
+which is the model and is where the next number lives.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to

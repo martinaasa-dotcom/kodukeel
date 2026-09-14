@@ -342,7 +342,12 @@ function partB() {
 }
 
 async function main() {
-  await partA();
+  /*
+    Part B needs no key: its labeled set is built from the shipped dictionary.
+    `--part-b` runs it alone, so the government check can be re-measured
+    after an edit without spending a model's allowance on Part A.
+  */
+  if (!process.argv.includes("--part-b")) await partA();
   partB();
   console.log("");
 }

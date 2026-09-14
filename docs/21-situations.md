@@ -4582,6 +4582,31 @@ English, "The previous turn by the assistant was empty. I need to respond", and 
 under `shape`, which is the gate doing its job on a thinking model whose reasoning leaked into
 the answer. Two of the nine `government` refusals are still the total-object reading above.
 
+*Then the `topic` figure turned out to be the harness, and the `government` figure the object.*
+The route adds every vouched word of the learner's last turn to the beat's topic, so a line that
+takes up what they said is on topic whatever the beat's own words are; `play:scenes` gated on the
+beat's words alone and reported refusals the app never makes (§53's rule, one instrument over).
+It gates the way the route does now and prints the beat beside each withheld draft. And
+`government` was refusing `Remont maksab 22 eurot`, `Suur vesi maksab neli eurot` and `Minu
+sõber elab siin`: `maksma` is recorded as governing the allative, `eurot` is a partitive, and
+`minu` is a possessive genitive read as a complement. The object's two cases are left out of the
+oblique count as the nominative already was, since which case an object takes is the object rule
+and rektsioon is the oblique case a verb demands. `eval:scene --part-b` runs the labeled set
+alone: good lines withheld 3 to 2 of 495, real errors caught 165 to 146, the nineteen being
+corrupted forms also spelled like a genitive, read the safe way. The `close` move is told it is
+the goodbye, because told "they say goodbye" the fallback carried on asking on nine of the ten
+`close` beats. Four live runs on the same model, same scenes, same learner:
+
+    side-switching fixed      drafts 138  on screen 72  withheld 48%  topic 27  shape 11  government 9
+    harness gates as the app  drafts 119  on screen 75  withheld 37%  topic  8  shape  9  government 11
+    object out of government  drafts 117  on screen 75  withheld 36%  topic 10  shape 12  government 1
+    close told to close       drafts 120  on screen 71  withheld 41%  topic 12  shape 11  government 0
+
+The last two rows are inside the noise of one another, which §29 says a run of this size cannot
+resolve; what moved between them is where `topic` fires, nine `close` beats down to three. What
+is left under `topic` is the model asking the previous beat's question again, `Kas 1556 eurot
+kuus sobib teile?` on the beat that asks for a start day, which is the model and not the gate.
+
 `ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
 `plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
 on the wage beat's accept list, and `npm run probe:turns` reads the turn as

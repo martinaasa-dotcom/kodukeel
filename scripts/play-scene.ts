@@ -370,7 +370,18 @@ async function play(sceneId: string) {
           is composed rather than answered `Ei tea. Head aega!`
         */
         pool: (askedNow || handing) && LINKS.length > 0 ? [] : context.pool.get(spokenFor.id) ?? [],
-        topic: context.topic.get(spokenFor.id) ?? new Set(),
+        /*
+          THE LEARNER'S OWN WORDS ARE ON TOPIC, AS THE ROUTE READS THEM. The
+          route adds every word of the last turn the dictionary vouched to the
+          beat's topic, so a line that takes up what the learner said is not
+          withheld for it; this harness gated on the beat's words alone, and
+          reported `topic` refusals the app never makes (§53's rule about a
+          harness measuring a conversation the app does not have).
+        */
+        topic: new Set<string>([
+          ...(context.topic.get(spokenFor.id) ?? []),
+          ...words(last?.said ?? "").filter((word) => context.lexicon.forms.has(word) || marking.marker.known?.(word)),
+        ]),
         hasFiniteVerb: context.hasFiniteVerb, fallback: context.fallback,
         scripted: context.scripted.get(spokenFor.id) ?? [], used,
         // Where this run starts reading a beat's own lines, as the route does.
@@ -392,7 +403,8 @@ async function play(sceneId: string) {
               the draft: 126 drafts for 69 lines on the first live run of the
               fallback said nothing about which check took the other 57.
             */
-            if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld: ${because}`);
+            // The beat beside the reason, or a refusal cannot be read against what was asked for.
+            if (because && process.argv.includes("--drafts")) console.log(`      ~ withheld (${spokenFor.id}): ${because}`);
             return askModel({
             move: spokenFor.move,
             they: stageFor(spokenFor, card),

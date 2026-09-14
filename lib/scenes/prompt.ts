@@ -383,6 +383,17 @@ export function composeLive(ask: ComposeAsk): string {
         + " the line the learner would say."
       : "",
     /*
+      AND A CLOSE IS THE GOODBYE, SAID NOW. Told "they say goodbye", the
+      fallback went on with the conversation instead, `Kas te õpite juba
+      kaua?`, `Kontor on siin, samas hoones`, ten of the seventeen lines
+      `topic` withheld in one run, because the rules above forbid a farewell
+      on every other beat and a stage direction alone did not lift that here.
+    */
+    ask.move === "close"
+      ? "This is the end of the conversation: say goodbye now, in a sentence or two, and ask"
+        + " nothing more."
+      : "",
+    /*
       AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
       rules say not to greet once it has started, and a model shown a beat on
       its own opened it with `Tere!` anyway, 19 lines under `shape` in the same

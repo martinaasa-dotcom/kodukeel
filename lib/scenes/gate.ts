@@ -910,9 +910,27 @@ function suspectFor(word: GovernedWord, lower: readonly string[], context: GateC
     elative and the ablative) stays in, because direction is what government is
     mostly about (`sõitma jaama`).
   */
+  /*
+    AND AN OBJECT IS NOT A COMPLEMENT EITHER, WHICH TOOK THE FALLBACK'S
+    TRANSCRIPTS TO SEE. `Remont maksab 22 eurot` and `Suur vesi maksab neli
+    eurot` are what anybody says, and both were withheld: `maksma` is
+    recorded as governing the allative (kellele), the only oblique nominal
+    in the line is `eurot`, and the partitive is not the allative. `Minu
+    sõber elab siin` went the same way on `minu`, a possessive genitive read
+    as a complement of `elama`. The partitive and the genitive are the two
+    cases of the object, and which of the three object cases a noun takes is
+    the object rule (`objekt`, the hardest thing in the grammar), which no
+    check here parses and which `government` was never about: rektsioon is
+    the oblique case a verb demands, and that is what stays in the count.
+    Measured on `eval:scene --part-b`: good lines withheld 3 to 2 of 495,
+    real errors caught 165 to 146, the 19 being corrupted lines whose moved
+    form is also spelled like a genitive (`jaama`), which the rule now reads
+    the safe way. Refusing correct Estonian is the fault this module is built
+    against; missing a corrupted line costs a learner a line the bank answers.
+  */
   const oblique = nominals.filter((t) => {
     const cases = context.caseOf.get(t);
-    if (!cases || cases.has("NOMINATIVE")) return false;
+    if (!cases || cases.has("NOMINATIVE") || cases.has("GENITIVE") || cases.has("PARTITIVE")) return false;
     return ![...cases].some((c) => ADJUNCT_CASES.has(c));
   });
   return oblique.length > 0;
