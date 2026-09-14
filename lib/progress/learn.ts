@@ -285,7 +285,7 @@ export async function learnBatch(
     const picked = pool.length >= CHOICES
       ? pickOptions({
           answer: glossOption({
-            text: lexeme.translation,
+            text: plainPhrase(lexeme.translation),
             pos: lexeme.pos,
             band: bandOf(lexeme.cefr),
             theme: unitIntroducing(lexeme.lemma, lexeme.pos),

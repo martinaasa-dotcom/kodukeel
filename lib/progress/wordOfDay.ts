@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { computeStreak } from "@/lib/stats/streak";
 import { occasionsFor, type Occasion } from "@/lib/copy/almanac";
 import { bandsAround, isAround } from "@/lib/collections/levels";
@@ -403,9 +404,9 @@ const wordCount = (text: string) => text.trim().split(/\s+/).length;
 function build(row: Candidate, occasion: Occasion | null): WordOfDay {
   return {
     lexemeId: row.id,
-    lemma: row.lemma,
+    lemma: plainPhrase(row.lemma),
     pos: row.pos,
-    translation: row.translation,
+    translation: plainPhrase(row.translation),
     cefr: row.cefr,
     gradationNote: row.gradationNote,
     example: firstExample(row),

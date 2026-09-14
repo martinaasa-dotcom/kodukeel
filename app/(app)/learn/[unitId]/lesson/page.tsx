@@ -144,7 +144,7 @@ export default async function LessonPage({
     words: chosen,
     distractors: pool.map((p) => ({
       lexemeId: p.id,
-      lemma: p.lemma, gloss: p.translation, pos: p.pos, semanticTypes: p.semanticTypes,
+      lemma: plainPhrase(p.lemma), gloss: plainPhrase(p.translation), pos: p.pos, semanticTypes: p.semanticTypes,
       examples: [], parts: {}, government: null,
     })),
     // Stable for this unit and part, so re-entering a lesson gives the same one
