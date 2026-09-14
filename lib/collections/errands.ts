@@ -54,6 +54,7 @@
  * Pure.
  */
 import { dayIndex } from "@/lib/random/dayHash";
+import { joinWithOr } from "@/lib/copy/values";
 import { SCENES, sceneById } from "@/lib/scenes/catalogue";
 import { SYLLABUS } from "./syllabus";
 
@@ -156,6 +157,28 @@ export function errandForDay(dayKey: string, startedUnits: ReadonlySet<string>):
 
 export function errandById(id: string): Errand | undefined {
   return ERRANDS.find((e) => e.id === id);
+}
+
+/**
+ * What both screens that hand a learner an errand call it: Today, when
+ * yesterday held nothing, and the scene debrief, when a rehearsal just
+ * proved the words are there. One constant rather than two typed headings,
+ * because "the same errand under two names" is exactly the drift this file
+ * is for.
+ */
+export const SAY_IT_TODAY = "Say it today";
+
+/**
+ * `where`, read the way a person would say it rather than the way it is
+ * stored. It is authored as a comma-separated list of alternatives ("Work, a
+ * party"), and both screens that print it were doing so verbatim, straight
+ * into a sentence: "Work, a party. Nobody there has read the card" reads as
+ * two disconnected fragments rather than as "Work or a party. Nobody there
+ * has read the card". `joinWithOr` is the right reading, because these are
+ * places any one of which would do, not a list of places to visit.
+ */
+export function errandPlaces(errand: Errand): string {
+  return joinWithOr(errand.where.split(",").map((place) => place.trim()).filter(Boolean));
 }
 
 /**
