@@ -20,6 +20,7 @@
  * the head of the chain, because a screen naming the wrong model is worse
  * than one naming none.
  */
+import { geminiCachedReply } from "./geminiCache";
 import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
 
@@ -953,6 +954,18 @@ export async function openWithFallback(
     they write the sentence, and Anu's own reply is longer than one sentence.
   */
   maxTokens?: number,
+  /*
+    WHETHER THE SYSTEM PROMPT IS WORTH HOLDING ON THE PROVIDER'S SIDE. On a
+    Gemini link this asks `lib/tutor/geminiCache.ts` to serve the static half
+    off an explicit cache entry, at a tenth of the input rate, which is the
+    scene route's whole saving: its prompt is nine tenths constant for a run
+    and the compatible endpoint caches none of it. Off by default, because a
+    prompt read once a day is not worth an entry held for ten minutes, and
+    Anu and the grader run on Groq, where there is no such entry to make.
+    A link that will not hold the prompt answers through the plain transport
+    instead, so asking for it never costs a line.
+  */
+  cacheSystem = false,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
 
@@ -960,6 +973,10 @@ export async function openWithFallback(
     const config = chain[i]!;
     try {
       const last = i === chain.length - 1;
+      if (cacheSystem && config.name === "gemini") {
+        const cached = await cachedGeminiStream(config, system, messages, live, maxTokens, onUsage);
+        if (cached) return cached;
+      }
       const upstream =
         config.name === "anthropic"
           ? await callAnthropic(config, system, messages, live)
@@ -975,6 +992,38 @@ export async function openWithFallback(
 
   // Unreachable: the loop either returns or throws on its last pass.
   throw new TutorError("No AI provider is configured.", 503);
+}
+
+/**
+ * The cached path as an `OpenStream`, so a caller reads it exactly as it reads
+ * a streamed one: the line arrives as one chunk and the usage, with its cached
+ * share, reaches `onUsage` when the chunk has been read. Null where the entry
+ * could not be made or used, which is the caller's cue to send the same call
+ * through the plain transport on the same link; a rejected key is thrown,
+ * because every transport would answer it the same way.
+ */
+async function cachedGeminiStream(
+  config: ProviderConfig,
+  system: string,
+  messages: ChatMessage[],
+  live: string,
+  maxTokens: number | undefined,
+  onUsage?: (usage: UsageReport, config: ProviderConfig) => void,
+): Promise<OpenStream | null> {
+  try {
+    const reply = await geminiCachedReply(config, system, messages, live, maxTokens);
+    async function* one(): AsyncGenerator<string> {
+      try {
+        if (reply.text) yield reply.text;
+      } finally {
+        onUsage?.(reply.usage, config);
+      }
+    }
+    return { config, chunks: one() };
+  } catch (error) {
+    if (error instanceof TutorError && error.status === 401) throw error;
+    return null;
+  }
 }
 
 /** Streams a reply as plain text chunks. Throws TutorError with a message worth showing. */

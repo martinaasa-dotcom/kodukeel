@@ -17,7 +17,10 @@
  * `AI_DAILY_USD_GLOBAL`. "Priced" is the tokens the provider actually reported,
  * re-priced off `lib/usage/pricing.ts` today, which is what the vendor's
  * invoice should come to at the rates on file. Where the two disagree the table
- * is stale or a call was never settled, and both are worth knowing.
+ * is stale or a call was never settled, and both are worth knowing. "Priced"
+ * re-prices every input token at base, because the row keeps no cached share,
+ * so on the scene path, where most of a turn is served off a cache entry
+ * (`lib/tutor/geminiCache.ts`), "priced" reads high and "booked" is the bill.
  *
  * OUTPUT IS PRICED APART FROM INPUT on purpose: every model here bills output at
  * four to six times its input rate, and a model that thinks before it writes

@@ -22,6 +22,29 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
 const MAX_HISTORY = 20;
+/**
+ * And how much of it, in characters, whatever the count. Twenty turns of up
+ * to eight thousand characters each is a 160,000-character request, forty
+ * thousand tokens read on every question after the twentieth, for a
+ * conversation whose useful part is the last exchange or two: a learner
+ * pasting a text into Anu three times over an evening was paying for all
+ * three on every "why". The newest turns are kept whole and the oldest go
+ * first, so what a question refers to is always what survives.
+ */
+const MAX_HISTORY_CHARS = 24_000;
+
+/** The newest turns that fit the character budget, oldest first, never a turn cut in the middle. */
+function withinBudget(messages: readonly ChatMessage[]): ChatMessage[] {
+  const kept: ChatMessage[] = [];
+  let spent = 0;
+  for (let i = messages.length - 1; i >= 0; i -= 1) {
+    const message = messages[i]!;
+    if (kept.length > 0 && spent + message.content.length > MAX_HISTORY_CHARS) break;
+    kept.unshift(message);
+    spent += message.content.length;
+  }
+  return kept;
+}
 
 /*
   How many questions one learner may ask in a minute.
@@ -100,6 +123,7 @@ export async function POST(request: Request) {
         (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
         "content" in m && typeof (m as ChatMessage).content === "string")
       .map((m) => ({ role: m.role, content: m.content.slice(0, 8000) }));
+    messages = withinBudget(messages);
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }

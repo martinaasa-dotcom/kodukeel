@@ -4697,3 +4697,57 @@ chain's `reasoning`, so `npm run draft:lines` paid the thinking tax on every lin
 stopped paying it on; it carries the setting now, asserted. The caps in `lib/usage/quota.ts` are
 the operator's ceiling and were left as they are.
 
+## 63. The prompt cut by a fifth, and then held on Google's side
+
+**Every rule in the scene prompt was paid for on every turn, and the endpoint caches none of it.**
+§62 established that the OpenAI-compatible endpoint reports no cached share on an identical prefix,
+so "the rules and the list are ordered for a cache" bought nothing and the whole prompt was billed
+at base on every composed line. Measured on Google's own tokenizer, one sentence past the greeting:
+
+| block | before | after |
+|---|---|---|
+| rules (`COMPOSE_RULES`) | 594 | 498 |
+| setting, card, register, pitch, persona | 286 | 275 |
+| live block, bare | 224 | 195 |
+| word list (unchanged) | 682 to 902 | 682 to 902 |
+| whole prompt, six scenes averaged | 2,192 | 1,821 |
+
+The same twenty rules at half the words; the five pitch voices shorter; the per-turn boilerplate
+said once. Nothing was dropped: a rule that is stated twice in the old prose ("never comment on
+their Estonian", "never greet once started") is stated once now and the second copy lived in the
+live block anyway. Measured live rather than argued, `npm run play:scenes --compose --drafts` over
+all fourteen scenes on both models:
+
+| model | before | after |
+|---|---|---|
+| `gemini-3.8-flash` | 13 of 89 withheld (14.6%) | 12 of 94 (12.8%) |
+| `qwen/qwen3.8-27b` | 29 of 116 (25%) | 27 of 112 (24%) |
+
+**And then the constant half stopped being sent at all.** The word list is 40 percent of the prompt
+and cannot be cut: the gate's `stretch` counts every word outside it and a model shown fewer words
+reaches for more. What can change is where it is held. Google's native API has the explicit cache
+entry the compatible layer lacks, `cachedContents`: created once for a prompt, named on every call
+after, read at a tenth of the input rate ($0.075 a million on `gemini-3.8-flash`, $0.025 on the
+Lite) and held at $0.50 or $1.00 a million tokens an hour, off the pricing page on 2026-09-14.
+Probed on the route's own prompt, both models report 1,592 of a 1,704-token turn served off the
+entry. `lib/tutor/geminiCache.ts` is the module: one entry per model and prompt per process, ten
+minutes of life, made on the first composed turn of a run and forgotten if the provider forgets it,
+and a link that will not hold the prompt answers through the plain transport rather than composing
+nothing. Played through all fourteen scenes on `gemini-3.8-flash`: 94 drafts, 11 withheld (11.7
+percent), every one of them through the entry.
+
+**What a turn costs now, at the rates on file.** Before this pass a line on the primary was 2,192
+tokens in and about 22 out, $0.0017. Cut, it is 1,821 in, $0.0015. Held, the turn that makes the
+entry pays 1,704 in plus 1,592 written plus 177 tokens' worth of storage, $0.0028 once, and every
+turn after it pays 112 at base, 1,592 at a tenth and the line: $0.0003. A run of eight composed
+turns is $0.014 before and $0.005 after, and the ledger sees all of it, because the entry's creation
+and its storage are booked on the turn that made it (`cacheStorageAsInputTokens`) and the cached
+share travels as `cachedInputTokens` into the same settlement every other call writes.
+
+**The live block moved, and the harness moved with it.** A cache entry is fixed, so the per-turn
+block cannot be appended to the system prompt any more; it goes in front of "Your line:" in the
+last user message, after the conversation, which is where its own text says it sits. The harness
+(`scripts/lib/sceneDraft.ts`) sends a Gemini link through the same function, asserted, so a
+transcript measures the shape the app has; a Groq link is unchanged. Anu and the grader run on
+Groq, which has no such entry, and were left as they are. What could still move is the word list
+itself, which is now two thirds of what the entry holds and costs a tenth of what it did.

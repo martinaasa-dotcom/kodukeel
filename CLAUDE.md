@@ -293,6 +293,24 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
+endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
+same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
+went from 2,192 to 1,821 on Google's own tokenizer with the withheld share level on both models,
+played through every scene before and after (`docs/21-situations.md` §63). The word list is the
+40 percent that cannot be cut, since `stretch` counts every word a line reaches past it. So it is
+held rather than sent: `lib/tutor/geminiCache.ts` makes one explicit `cachedContents` entry per
+prompt and names it on every turn after, and both scene models report 1,592 of a 1,704-token turn
+served off it at a tenth of the input rate. A turn on the primary is $0.0003 after the first,
+against $0.0015; the turn that makes the entry books the write and ten minutes of storage as
+base-rate tokens (`cacheStorageAsInputTokens`), so the cap sees the whole bill on the turn that ran
+it up. **It never costs a line**: a link that will not hold the prompt answers through the plain
+transport, an entry the provider forgot is made again once, and the route is the one caller that
+asks for it, because Anu and the grader run on Groq, where there is nothing to hold. The live
+block rides in front of "Your line:" now, after the conversation, since an entry is fixed and the
+block is not, and the harness sends the same shape through the same function, asserted; a harness
+in a different order measures a conversation the app does not have.
+
 **Two of the three cache breakpoints are under Anthropic's minimum and do nothing, which is worth
 knowing rather than fixing.** A cached prefix has to reach 1,024 tokens. The tutor's is about
 2,275 and caches; the grader's is 456 and the scanner's 221, so both are inert on Sonnet today.

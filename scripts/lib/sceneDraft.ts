@@ -39,8 +39,9 @@ import type { CaseKey } from "../../lib/estonian/types";
   at 80 tokens and wrote a clean line at the app's own 1200. A measurement that
   disqualifies a model the app can use is worse than no measurement.
 */
-import { SCENE_REPLY_TOKENS, sceneProviders } from "../../lib/tutor/provider";
+import { SCENE_REPLY_TOKENS, sceneProviders, type ProviderName } from "../../lib/tutor/provider";
 import { composeLive, composeSystem } from "../../lib/scenes/prompt";
+import { geminiCachedReply } from "../../lib/tutor/geminiCache";
 import { FAREWELLS } from "../../lib/scenes/catalogue";
 import { buildLexicon, formsOf, subjectsIn, words, type DictEntry, type Lexicon } from "../../lib/scenes/lexicon";
 import { FINITE_VERB_FLOOR, type GateContext, type GovernedWord } from "../../lib/scenes/gate";
@@ -294,6 +295,8 @@ export function keylessContext(scene: SceneSpec, allowlist: Allowlist = "units")
  * ------------------------------------------------------------------ */
 
 export interface Link {
+  /** Which provider, so a Gemini link takes the route's cached transport. */
+  name: ProviderName;
   label: string; model: string; url: string; key: string;
   /** The route's own thinking setting for this link (`ProviderConfig.reasoning`), sent as `reasoning_effort`. */
   reasoning?: "none";
@@ -354,7 +357,7 @@ export function chain(): Link[] {
         billed at about three times what the ledger would have said for the
         same lines composed live (`ProviderConfig.reasoning`).
       */
-      links.push({ label: provider.label, model, url: how.url, key, reasoning: provider.reasoning });
+      links.push({ name: provider.name, label: provider.label, model, url: how.url, key, reasoning: provider.reasoning });
     }
   }
   return links;
@@ -501,6 +504,29 @@ export async function askLine(
   for (const link of links) {
     let status = 0;
     try {
+      /*
+        THE ROUTE'S OWN TRANSPORT ON A GEMINI LINK. The route serves the
+        constant half of the prompt off a cache entry and puts the live block
+        in front of "Your line:" (`lib/tutor/geminiCache.ts`); a harness that
+        sent the same words through the compatible endpoint would measure a
+        conversation in a different order from the app's, which is the fault
+        the block below was written to stop. Same function, same shape.
+      */
+      if (link.name === "gemini") {
+        const reply = await geminiCachedReply(
+          { name: "gemini", model: link.model, label: link.label, reasoning: link.reasoning },
+          composeSystem(scene), said, composeLive(ask), SCENE_REPLY_TOKENS,
+        );
+        const text = reply.text.trim();
+        if (text) {
+          onStatus(`${link.model} ok`);
+          const line = text.replace(/^["'«]|["'»]$/g, "");
+          onDraft(line);
+          return line;
+        }
+        onStatus(`${link.model} empty`);
+        continue;
+      }
       const res = await fetch(link.url, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${link.key}` },

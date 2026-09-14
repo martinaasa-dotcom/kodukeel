@@ -1228,6 +1228,13 @@ async function compose(
         string, which reads as a bad minute one rung down rather than as a cap.
       */
       SCENE_REPLY_TOKENS,
+      /*
+        And the constant half held on the provider's side, read at a tenth of
+        the rate: the list, the rules and the setting are the same on every
+        turn of this run and were being re-read at full price on each
+        (`lib/tutor/geminiCache.ts`).
+      */
+      true,
     );
 
     let text = "";
