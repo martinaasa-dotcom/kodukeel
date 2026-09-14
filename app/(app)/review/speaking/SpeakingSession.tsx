@@ -253,7 +253,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
       </div>
 
       <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {done} spoken · audio from the University of Tartu
+        {done} spoken
       </p>
     </div>
   );
