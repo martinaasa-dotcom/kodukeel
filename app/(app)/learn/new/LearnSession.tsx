@@ -92,14 +92,18 @@ function Ladder({ rung }: { rung: Rung }) {
 }
 
 export function LearnSession({
-  words: initial, waiting, started,
+  words: initial, waiting, started, kind = "word",
 }: {
   words: LearnWord[];
   /** Words in the deck that have never been asked, this batch included. */
   waiting: number;
   /** Words part way up the ladder, this batch included. */
   started: number;
+  /** Whether this round is words or the fixed phrases, for the copy alone. */
+  kind?: "word" | "phrase";
 }) {
+  const noun = kind === "phrase" ? "phrase" : "word";
+  const nouns = kind === "phrase" ? "phrases" : "words";
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next refreshes this
     route's server component after every one, which would hand down a batch
@@ -420,8 +424,10 @@ export function LearnSession({
     return (
       <Page title="Learn">
         <Empty
-          title="No new words waiting"
-          body="Add a unit from the course and its words arrive here."
+          title={`No new ${nouns} waiting`}
+          body={kind === "phrase"
+            ? "Phrases arrive here as you open the units that teach them."
+            : "Add a unit from the course and its words arrive here."}
           action={<ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>}
         />
       </Page>
@@ -441,7 +447,7 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>Tubli töö. {counts.kept} {counts.kept === 1 ? "word has" : "words have"} moved over to practice, where they come back on a schedule.</>
+              ? <>Tubli töö. {counts.kept} {counts.kept === 1 ? `${noun} has` : `${nouns} have`} moved over to practice, where they come back on a schedule.</>
               : <>Tubli töö. These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
           </p>
         </div>
@@ -466,7 +472,9 @@ export function LearnSession({
                 <span className="ml-auto flex items-center gap-2">
                   <Ladder rung={where} />
                   <Chip tone={where === "kept" ? "good" : "neutral"}>
-                    {where === "kept" ? "Practice" : RUNG_LABEL[where]}
+                    {where === "kept"
+                      ? "Practice"
+                      : where === "meet" && w.isPhrase ? "New phrase" : RUNG_LABEL[where]}
                   </Chip>
                 </span>
               </li>
@@ -513,7 +521,7 @@ export function LearnSession({
           <X size={18} aria-hidden />
         </Link>
         <div className="flex-1">
-          <Meter pct={progress} label={`${left} of ${total} words still on the ladder`} height={10} />
+          <Meter pct={progress} label={`${left} of ${total} ${nouns} still on the ladder`} height={10} />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
@@ -830,7 +838,7 @@ export function LearnSession({
       <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         {answered > 0
           ? `${right} of ${answered} right this round.`
-          : "Meet each word, then answer it back. Nothing is written down until you answer."}
+          : `Meet each ${noun}, then answer it back. Nothing is written down until you answer.`}
       </p>
     </div>
   );

@@ -218,7 +218,24 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
 }
 
 /**
- * The five words a session works through.
+ * Whether a round works through single words or whole phrases.
+ *
+ * `Kas sa räägid inglise keelt?` is taught the same way `tere` is, on one
+ * ladder, and for a while that meant a round of "5 new words" could be five
+ * fixed phrases in a row: the whole `tervitused` unit, the first one anybody
+ * opens, is eighteen of them and nothing else. A learner presses "words"
+ * expecting words. So the pool a round draws from is split on `Lexeme.pos`,
+ * and the two never mix mid-round: a phrase started under one kind does not
+ * resurface as a "new word" under the other.
+ */
+export type LearnKind = "word" | "phrase";
+
+function posFilter(kind: LearnKind) {
+  return kind === "phrase" ? "PHRASE" : { not: "PHRASE" };
+}
+
+/**
+ * The five words (or five phrases) a session works through.
  *
  * Words already on the ladder come first, whatever their band: somebody who
  * met `kohvik` yesterday and could not produce it should be asked it again
@@ -228,9 +245,13 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
  */
 export async function learnBatch(
   ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
+  kind: LearnKind = "word",
 ): Promise<LearnWord[]> {
   const started = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
+    where: {
+      ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+      lexeme: { pos: posFilter(kind) },
+    },
     // Longest waiting first, and the id settles a tie: a word's cards are
     // written in one insert and share a `due` to the millisecond.
     orderBy: [{ due: "asc" }, { id: "asc" }],
@@ -241,7 +262,10 @@ export async function learnBatch(
   const room = Math.max(0, size - started.length);
   const fresh = room === 0 ? [] : challengeFirst(
     await prisma.card.findMany({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        lexeme: { pos: posFilter(kind) },
+      },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: NEW_CANDIDATES,
       include: INCLUDE,
@@ -353,16 +377,36 @@ export interface LearnCounts {
   waiting: number;
   /** Words part way up the ladder, which come back before any new one does. */
   started: number;
+  /** The same two counts, read over the fixed phrases rather than the words. */
+  phrases: { waiting: number; started: number };
 }
 
 export async function learnCounts(ownerId: string): Promise<LearnCounts> {
-  const [waiting, started] = await Promise.all([
+  const [waiting, started, phraseWaiting, phraseStarted] = await Promise.all([
     prisma.card.count({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        lexeme: { pos: posFilter("word") },
+      },
     }),
     prisma.card.count({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexeme: { pos: posFilter("word") },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        lexeme: { pos: posFilter("phrase") },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexeme: { pos: posFilter("phrase") },
+      },
     }),
   ]);
-  return { waiting, started };
+  return { waiting, started, phrases: { waiting: phraseWaiting, started: phraseStarted } };
 }

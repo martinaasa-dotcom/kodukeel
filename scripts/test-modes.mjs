@@ -150,7 +150,7 @@ check("the board is a class you joined, or the way into one",
 await page.goto(`${B}/review`, { waitUntil: "networkidle" });
 const everyCardIsNew = await page.evaluate(() => {
   const label = document.body.querySelector('[aria-label="Session progress"]');
-  return document.body.innerText.includes("New word") && label !== null;
+  return /New (word|phrase)/.test(document.body.innerText) && label !== null;
 });
 let typedReached = false;
 for (let i = 0; i < 30 && !typedReached; i++) {
