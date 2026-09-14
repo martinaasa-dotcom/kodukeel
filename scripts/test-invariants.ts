@@ -3820,7 +3820,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
     and English does not.
   */
   assert.match(tutorRoute, /wordsInQuestion\(messages\)/, "the tutor route no longer asks the dictionary about the words in the question");
-  assert.match(tutorRoute, /wordsNote\(words\)/, "the tutor route no longer hands Anu the dictionary's forms");
+  assert.match(tutorRoute, /wordsNote\(words, asksForForms\(messages\)\)/, "the tutor route no longer hands Anu the dictionary's forms, tabled where forms were asked for");
   const tutorWords = code("lib/progress/tutorWords.ts");
   const wordsModule = code("lib/tutor/words.ts");
   assert.match(tutorWords, /matchEstonianForm\(candidates, token\)/, "the question's words are no longer vouched the way a scanned word is");
@@ -3829,7 +3829,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   assert.match(harness, /questionWords\(messages\)/, "the harness picks the question's words its own way");
   const evalScript = code("scripts/eval-tutor.ts");
   assert.match(evalScript, /shippedWordsInQuestion\(/, "the eval no longer resolves the question's words off the shipped file");
-  assert.match(evalScript, /wordsNote\(words\)/, "the eval no longer measures the block the route sends");
+  assert.match(evalScript, /wordsNote\(words, asksForForms\(messages\)\)/, "the eval no longer measures the block the route sends");
   // And the stray FIX line is dropped on both, off the same resolution, or the harness measures a screen the app does not draw.
   assert.match(tutorRoute, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the tutor route shows every FIX line again, stray ones included");
   assert.match(evalScript, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the eval measures FIX lines the route would have dropped");

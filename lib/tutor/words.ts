@@ -268,10 +268,31 @@ export function gradePlain(note: string, strongForm: string, weakForm: string | 
   return `the ${strong} in ${strongForm} becoming ${weak} in ${weakForm}`;
 }
 
-function tabledLines(words: readonly WordFacts[]): string[] {
+/**
+ * Whether the question is about forms, which is when a case table helps.
+ *
+ * Measured both ways on the cheapest model. With the table under every
+ * nominal, "how do you say on Tuesday" stopped calling the alalütlev the
+ * seesütlev; and "is this right: ma töötan kool" went from `koolis` three
+ * times in three to `koolil` and `koolina`, the model shopping among eleven
+ * forms it had been handed for a sentence that needed one. So the table goes
+ * where somebody asked for a form, by a case name, a word like ending or
+ * case, or a question with no Estonian in it (`asked` empty, which is a word
+ * reached through its gloss: "how do you say Tuesday"), and a sentence to
+ * correct gets the principal parts alone.
+ */
+const FORM_WORDS = /\b(cases?|endings?|forms?|declin\w*|inflect\w*|conjugat\w*|tables?|genitive|partitive|nominative|illative|inessive|elative|allative|adessive|ablative|translative|terminative|essive|abessive|comitative)\b/i;
+export function asksForForms(messages: readonly { role: string; content: string }[]): boolean {
+  const last = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+  if (FORM_WORDS.test(last)) return true;
+  const lower = last.toLowerCase();
+  return CASES.some((c) => lower.includes(c.et));
+}
+
+function tabledLines(words: readonly WordFacts[], forms: boolean): string[] {
   let tabled = 0;
   return words.map((word) => {
-    const table = word.pos !== "VERB" && tabled < MAX_TABLED;
+    const table = word.pos !== "VERB" && tabled < MAX_TABLED && (forms || (word.asked ?? []).length === 0);
     if (table) tabled += 1;
     return wordLine(word, table);
   });
@@ -282,11 +303,11 @@ function tabledLines(words: readonly WordFacts[]): string[] {
  * question named no word the dictionary holds, so a question about English
  * grammar costs nothing here.
  */
-export function wordsNote(words: readonly WordFacts[]): string {
+export function wordsNote(words: readonly WordFacts[], forms = false): string {
   if (words.length === 0) return "";
   return [
     "WORDS IN THE QUESTION, AS THE DICTIONARY HOLDS THEM",
     "These forms are checked. Use them as they are, build the regular cases on the genitive given here, and never contradict them. A word the question is about that is not listed here is one whose forms you are not sure of: say so rather than guess. A change inside a word is exactly what the grade change says, a consonant becoming another or dropping out between two forms; it is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop. Where a word's cases are listed, the name in brackets after a form is the name of that case, and it is the only name you may give it.",
-    ...tabledLines(words.slice(0, MAX_QUESTION_WORDS)),
+    ...tabledLines(words.slice(0, MAX_QUESTION_WORDS), forms),
   ].join("\n");
 }

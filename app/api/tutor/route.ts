@@ -11,7 +11,7 @@ import { isStrayFix, sentenceRun } from "@/lib/tutor/fixLine";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
 import { learnerContextFor } from "@/lib/progress/tutorContext";
 import { wordsInQuestion } from "@/lib/progress/tutorWords";
-import { wordsNote } from "@/lib/tutor/words";
+import { asksForForms, wordsNote } from "@/lib/tutor/words";
 import { chatEstonianTokens } from "@/lib/tutor/verify";
 import {
   openWithFallback,
@@ -142,7 +142,7 @@ export async function POST(request: Request) {
   const [known, words] = await Promise.all([learnerPromise, wordsPromise]);
   const learner = known ?? UNKNOWN_LEARNER;
   const system = buildSystemPrompt();
-  const live = [learnerNote(learner), wordsNote(words)].filter(Boolean).join("\n\n");
+  const live = [learnerNote(learner), wordsNote(words, asksForForms(messages))].filter(Boolean).join("\n\n");
   const encoder = new TextEncoder();
   let full = "";
 

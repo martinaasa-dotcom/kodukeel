@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { casesLine, glossAnswers, glossWords, MAX_QUESTION_WORDS, personsLine, questionWords, wordLine, wordsNote, type WordFacts } from "./words";
+import { asksForForms, casesLine, glossAnswers, glossWords, MAX_QUESTION_WORDS, personsLine, questionWords, wordLine, wordsNote, type WordFacts } from "./words";
 
 const jalg: WordFacts = {
   lemma: "jalg", pos: "NOUN", translation: "foot, leg", government: null, gradationNote: "g : ∅",
@@ -115,5 +115,23 @@ describe("glossWords and glossAnswers", () => {
     expect(glossAnswers("to read, to count", "read")).toBe(true);
     expect(glossAnswers("library", "book")).toBe(false);
     expect(glossAnswers("volume, book", "book")).toBe(false);
+  });
+});
+
+describe("asksForForms", () => {
+  const user = (content: string) => [{ role: "user", content }];
+  it("is true for a question about a case, an ending or a form, and false for a sentence to check", () => {
+    expect(asksForForms(user("What is the genitive of 'õlu'?"))).toBe(true);
+    expect(asksForForms(user("Which ending does koolis have?"))).toBe(true);
+    expect(asksForForms(user("Is toas the seesütlev?"))).toBe(true);
+    expect(asksForForms(user("Is this right: Ma elan Tallinnas ja töötan kool."))).toBe(false);
+  });
+
+  it("tables a nominal only where forms were asked for or the word came through its gloss", () => {
+    const tuba: WordFacts = { lemma: "tuba", pos: "NOUN", translation: "room", government: null, gradationNote: null,
+      forms: [{ formType: "GEN_SG", value: "toa" }, { formType: "PART_SG", value: "tuba" }, { formType: "ILL_SG_SHORT", value: "tuppa" }], asked: ["toas"] };
+    expect(wordsNote([tuba])).not.toContain("; cases ");
+    expect(wordsNote([tuba], true)).toContain("; cases ");
+    expect(wordsNote([{ ...tuba, asked: [] }])).toContain("; cases ");
   });
 });

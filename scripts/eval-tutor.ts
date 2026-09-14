@@ -54,7 +54,7 @@ import { SHARD_DIR, shardKey } from "../lib/dict/formsLayout";
 import { fold } from "../lib/estonian/fold";
 import { openWithFallback, TUTOR_REPLY_TOKENS, type ProviderConfig, type ChatMessage } from "../lib/tutor/provider";
 import { estimateCostMicros } from "../lib/usage/pricing";
-import { ENGLISH_FUNCTION_WORDS, wordsNote } from "../lib/tutor/words";
+import { asksForForms, ENGLISH_FUNCTION_WORDS, wordsNote } from "../lib/tutor/words";
 import { shippedWordsInQuestion } from "./lib/shippedWords";
 const GROUND = !process.argv.includes("--no-ground");
 
@@ -191,10 +191,11 @@ function candidates(): ProviderConfig[] {
 async function ask(config: ProviderConfig, system: string, q: Q) {
   let inTokens = 0, outTokens = 0, cached = 0;
   const t0 = Date.now();
-  const words = shippedWordsInQuestion([...(q.history ?? []), { role: "user", content: q.q }]);
-  const open = await openWithFallback([config], system, [...(q.history ?? []), { role: "user", content: q.q }],
+  const messages: ChatMessage[] = [...(q.history ?? []), { role: "user" as const, content: q.q }];
+  const words = shippedWordsInQuestion(messages);
+  const open = await openWithFallback([config], system, messages,
     (u) => { inTokens = u.inputTokens; outTokens = u.outputTokens; cached = u.cachedInputTokens ?? 0; },
-    [learnerNote(q.note ?? B1), GROUND ? wordsNote(words) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS,
+    [learnerNote(q.note ?? B1), GROUND ? wordsNote(words, asksForForms(messages)) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS,
     // The static prompt held on Google's side, as the route asks for it.
     true);
   // And the stray FIX line dropped as the route drops it, off the same resolution.
