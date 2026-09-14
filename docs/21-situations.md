@@ -4498,6 +4498,60 @@ before it writes, came back empty on a fifth of its calls, and read as a model
 that cannot write a line. It reads the route's constant now, and the figures
 above are from the corrected run.
 
+**Three things the measurement left open, each measured the same day.**
+
+*The gate could not see a question with no verb in it.* `clause` stands down under four words and
+on any line with a word outside the scene's list, so `Kus teie valu?` and `Kas teie valu peas?`,
+the shape the two Groq models write most, were outside its reach. `question` is the fourteenth
+check: a clause opening on a question word, naming a personal pronoun and holding no verb, at
+three words or more. A floor of three alone was tried first and refused `Millisest päevast
+alates?`, which is in the bank and is what a landlord asks, so the pronoun is the second signal.
+And the harness gate had never been handed `hasFiniteVerb`, which the route hands in, so `clause`
+was inert in every measurement above. Re-gated with both live and the forms list vouching:
+
+| model | before | with `clause` and `question` | what they took |
+|---|---|---|---|
+| `groq/compound-mini` | 32/40 | 28/40 | `Kus teie valu?`, `Kas teie tuba katki, mis korrus?`, `Teie koht kell kaks.` |
+| `qwen/qwen3.8-27b` | 30/40 | 29/40 | `Miks te siin? Milline haigus?` |
+| `openai/gpt-oss-120b` | 25/40 | 22/40 | `Kas teie valu peas?`, `Teie mis katki?`, `Millal see teie korteris katki?` |
+
+Every line taken is a verbless one, and the bank's rows all pass. `Millal see katki?` is still
+passed on the health centre's list, because `see` is in no unit that scene declares and the
+check reads pronouns off the scene's own entries, which is the honest edge of it.
+
+*The prompt was ordered against a cache.* It opened on the persona, drawn per run, and ended on
+the word list, the same for every run of a scene, so a cached prefix had nothing to reuse. The
+rules lead now, then the list, the setting, the register, the band, and the persona last. It
+could not be measured: Groq reports no cached share on either model the scene chain reaches, and
+the Gemini key answers `prepayment credits depleted` on every call, which also says the deployment
+has been composing on the fallback since the credits ran out. The transport reads
+`prompt_tokens_details.cached_tokens` into the split the ledger already prices at a tenth, so the
+figure arrives the day a provider sends one.
+
+*And the fallback was played live, with a conversation in front of it*, through
+`npm run play:scenes -- --compose --model qwen/qwen3.8-27b --drafts`, which now prints why each
+draft was withheld. All fourteen scenes played to the debrief. The lines read as a person:
+`Minge mööda tänavat otse edasi. Teises nurgas pöörake vasakule.`, `Kui kaua see peavalu on
+kestnud?`, `Palun, arve on siin. Aitäh külastuse eest!`; the wrong word every eighth line or so,
+`Pakkun`, `isikutunnustus`, `maitseekad`, `kolisinud`, is the forms list's to take, and it takes
+it. What the cold eval could not see is the cost:
+
+    drafts 144, lines reaching the screen 62, withheld 82 (57%), against 25% cold
+
+    withheld with a reason (57): topic 25 · shape 19 · government 7 · facts 3
+                                 agreement 2 · farewell 2 · clause 2 · vouching 0
+
+The two biggest are one fault, and it is §70's: the model answers instead of asking (`Ma elan
+teisel korrusel, vastas pool.` on the beat where the neighbor asks which floor *you* live on,
+`Kartulid ja vesi maksavad kaheksa eurot.` on an ask), or greets mid-scene (`Tere!` on a ticket
+window's third beat, twice). Not one of those is bad Estonian, so no check about the language
+would see it, and each is a paid call. More than half of the fallback's live calls are spent on
+a line the gate then refuses for being the wrong person's, which is the number to bring down
+before the model is changed again, and it is a prompt question rather than a gate one. Two of
+the seven `government` refusals read as the check rather than the model, `Ma toon nüüd ravimi`
+among them, where the genitive is the total object and is right; that is the object rule, which
+no check here parses, and it is left where it is.
+
 `ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
 `plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
 on the wage beat's accept list, and `npm run probe:turns` reads the turn as

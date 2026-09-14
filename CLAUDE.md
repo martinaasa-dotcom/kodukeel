@@ -152,6 +152,24 @@ harness carried `max_tokens: 1200` after the route moved to `SCENE_REPLY_TOKENS`
 `play-scene.ts`'s fault one harness over: gpt-oss came back empty on a fifth of its calls and read as
 a model that cannot write a line until the constant was read rather than typed.
 
+**And a question naming a pronoun holds a verb, which is the line the clause check cannot see.**
+`clause` stands down under four words and on any line carrying a word outside the scene's list, so
+`Kus teie valu?` and `Kas teie valu peas?`, the commonest pidgin the two Groq models write, passed
+every check. `question` is the fourteenth: a clause opening on a question word, naming a personal
+pronoun and holding no verb, from three words. The pronoun is the second signal because a floor of
+three alone refused `Millisest päevast alates?`, which is in the bank and is what anybody asks.
+And the harness gate had never been handed `hasFiniteVerb`, so `clause` was inert in every
+measurement the composers were ranked on; `gateContext` hands in its own table now. **The
+fallback's live cost is not its Estonian.** Played through every scene with a conversation in
+front of it, qwen wrote lines a person would say and 57 percent of its drafts were withheld, against
+25 cold: `topic` and `shape` took 44 of the 57 with a reason, which is the model answering instead
+of asking or greeting mid-scene, §70's fault, and no check about the language sees it. That is the
+number to bring down before the model is changed again, and it is a prompt question. The prompt
+itself is ordered for a cached prefix now, rules and word list first and the persona last, and the
+OpenAI-compatible transport reads `prompt_tokens_details.cached_tokens`; neither could be measured
+on 2026-09-14, because Groq reports no cached share and the Gemini key answers "prepayment credits
+depleted", which also means the deployment has been composing on the fallback since they ran out.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to
@@ -7142,7 +7160,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
