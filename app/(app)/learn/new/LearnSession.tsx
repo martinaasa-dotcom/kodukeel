@@ -528,7 +528,9 @@ export function LearnSession({
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-5 py-3.5" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">{RUNG_LABEL[rung]}</Chip>
+          <Chip tone="accent">
+            {rung === "meet" && word.isPhrase ? "New phrase" : RUNG_LABEL[rung]}
+          </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
             <Link
