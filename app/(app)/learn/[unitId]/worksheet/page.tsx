@@ -230,7 +230,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           )}
 
           <p className="mt-10 text-2xs" style={{ color: "var(--ink-3)" }}>
-            Real Estonian forms and sentences, licensed CC BY 4.0.
+            Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0.
             This worksheet was put together by Kodukeel. Nothing on it was written by software.
           </p>
 
