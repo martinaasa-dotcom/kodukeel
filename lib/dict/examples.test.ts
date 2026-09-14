@@ -50,6 +50,23 @@ describe("usableExamples", () => {
     expect(kept.map((e) => e.et)).toEqual(["Ta on kodus."]);
   });
 
+  it("picks poeg's own real sentence over the compound (the reported case)", () => {
+    // prisma/data/harvested.ts's actual usages for poeg, verbatim: a real
+    // A1-simple sentence sits right beside the compound, and shortest-first
+    // was reaching past it for "Kuningapoeg." because that compound is
+    // shorter than any real sentence could be.
+    const kept = usableExamples([
+      ek("Mardi peres on kaks teismelist poega."),
+      ek("Kuningapoeg."),
+      ek("Neil on kaks poega ja tütar."),
+      ek("Paljud Eestimaa pojad ja tütred põgenesid kommunistide eest Läände."),
+    ]);
+    expect(kept[0]!.et).toBe("Neil on kaks poega ja tütar.");
+
+    const found = teachingSentence(kept, ["poeg"]);
+    expect(found?.example.et).toBe("Neil on kaks poega ja tütar.");
+  });
+
   it("puts the shortest first — a beginner reads the one-liner", () => {
     const kept = usableExamples([
       ek("Sünnipäevapeol sai hästi süüa ja juua."),
