@@ -14205,10 +14205,34 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     review, /pastTheLadder\(ownerId\)/,
     "the review queue introduces unseen cards of a word Learn has not finished with",
   );
+
+  /*
+    `pastTheLadder` and `notOnLadder` live in cards.ts now, shared with the
+    other routes that can hand out an unseen card, so their own definition is
+    checked there rather than in page.tsx.
+  */
+  const cardsModule = code("app/(app)/review/cards.ts");
   assert.match(
-    review, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
-    "the review queue names the ladder's states itself rather than reading the table",
+    cardsModule, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
+    "pastTheLadder names the ladder's states itself rather than reading the table",
   );
+
+  /*
+    AND EVERY ROUTE THAT CAN HAND OUT AN UNSEEN CARD ASKS IT.
+    A drill or a frequency round reads by lapses and by due date, which says
+    nothing about whether a word's own recognition card has graduated, so
+    each one has to ask `notOnLadder` by name or it can hand out a case or a
+    conjugated form as a word's very first question.
+  */
+  for (const f of [
+    "app/(app)/review/common/[group]/page.tsx",
+    "app/(app)/review/lookups/page.tsx",
+  ]) {
+    assert.match(
+      code(f), /notOnLadder\(ownerId\)/,
+      `${f} hands out an unseen card without asking whether it is past the ladder`,
+    );
+  }
 
   /*
     And Today counts what Practice will actually serve. A number on the home

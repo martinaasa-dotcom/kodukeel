@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { parseExamples, teachingSentence } from "@/lib/dict/examples";
 import { BLANK } from "@/lib/estonian/cloze";
@@ -17,7 +18,63 @@ import { stemsFrom } from "@/lib/estonian/derive";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
 import type { ReviewCard } from "./ReviewSession";
+
+/**
+ * WHICH UNSEEN CARDS OF A WORD MAY BE SERVED, WHICH IS THE ONES LEARN HAS
+ * FINISHED WITH.
+ *
+ * A word's recognition card, production card and every case card the
+ * dictionary can build arrive at once, all unseen, all in one `createMany`.
+ * Learn teaches the word on its recognition card and everywhere else drills
+ * everything else, so the line between the two is drawn here: a word whose
+ * recognition card has not graduated out of New or Learning is Learn's, and
+ * none of its other cards is offered yet. The moment it graduates the rest
+ * arrive in the ordinary trickle.
+ *
+ * `notOnLadder` is what every route that can hand out an unseen card asks:
+ * the review queue's own new-card read, a case or unit drill, the frequency
+ * lists and a learner's own lookups. A drill or a frequency round ignores
+ * scheduling, which means it also ignores `pastTheLadder`'s own guard unless
+ * it is asked for by name: a word added moments ago carries a CASE_FORM card
+ * at `state: 0` from the same batch as its recognition card, and a round that
+ * reads by lapses and due date alone would hand that out as a first meeting,
+ * in a case, before the word's own recognition card had ever been shown — a
+ * `neljaks` the learner had never been shown `neli` for.
+ *
+ * Only an unseen card is at risk of this, so a card already past state 0 is
+ * let through unconditionally: the ladder has already had its say about it.
+ * `pastTheLadder` is asked only of the ones still at `state: 0`.
+ *
+ * A `none` on the word's own cards rather than a second query, so this costs
+ * a subquery on an indexed column instead of a round trip. `lexemeId` is
+ * nullable, and a card with no dictionary entry behind it has no ladder to be
+ * on, so it is let through rather than filtered out by a clause that cannot
+ * see it.
+ */
+export function pastTheLadder(ownerId: string): Prisma.CardWhereInput {
+  return {
+    OR: [
+      { lexemeId: null },
+      {
+        lexeme: {
+          cards: {
+            none: {
+              ownerId,
+              cardType: LADDER_CARD_TYPE,
+              state: { in: [...LADDER_STATES] },
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
+export function notOnLadder(ownerId: string): Prisma.CardWhereInput {
+  return { OR: [{ state: { not: 0 } }, pastTheLadder(ownerId)] };
+}
 
 /**
  * READING A CARD OUT OF THE DATABASE AND HANDING IT TO A SESSION.

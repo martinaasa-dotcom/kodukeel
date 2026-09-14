@@ -1,4 +1,3 @@
-import type { Prisma } from "@prisma/client";
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { nextCardLine } from "@/lib/time/day";
@@ -11,11 +10,13 @@ import { unitById, type Level } from "@/lib/collections/syllabus";
 import { MAX_ITEMS as MAX_SCAN_ITEMS } from "@/lib/scan/extract";
 import { parseItems } from "@/lib/scan/items";
 import { inTeachingOrder } from "@/lib/srs/cards";
-import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
+import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
-import { include, withChoices, type CardRow } from "./cards";
+import {
+  include, notOnLadder, pastTheLadder, withChoices, type CardRow,
+} from "./cards";
 
 export const metadata = { title: "Review" };
 
@@ -278,62 +279,6 @@ export default async function ReviewPage({
   );
 }
 
-
-/**
- * WHICH UNSEEN CARDS PRACTICE MAY INTRODUCE, WHICH IS THE ONES LEARN HAS
- * FINISHED WITH.
- *
- * A deck arrives whole: a unit, a level or a photographed handout writes a
- * recognition card, a production card and one per case the dictionary can
- * build, all unseen, all at one `createdAt`. Learn teaches the word on its
- * recognition card and Practice drills everything else, so the line between
- * the two screens is drawn here: a word whose recognition card has not
- * graduated is Learn's, and none of its cards is offered here yet. The moment
- * it graduates the rest of them arrive in the ordinary trickle.
- *
- * A `none` on the word's own cards rather than a second query, so this costs a
- * subquery on an indexed column instead of a round trip. `lexemeId` is
- * nullable, and a card with no dictionary entry behind it has no ladder to be
- * on, so it is let through rather than filtered out by a clause that cannot
- * see it.
- */
-function pastTheLadder(ownerId: string): Prisma.CardWhereInput {
-  return {
-    OR: [
-      { lexemeId: null },
-      {
-        lexeme: {
-          cards: {
-            none: {
-              ownerId,
-              cardType: LADDER_CARD_TYPE,
-              state: { in: [...LADDER_STATES] },
-            },
-          },
-        },
-      },
-    ],
-  };
-}
-
-/**
- * WHAT A CASE OR UNIT DRILL MAY SERVE OF A WORD STILL BEING LEARNED.
- *
- * The two drills above ignore scheduling on purpose, which means they also
- * ignore `pastTheLadder`'s own guard: unlike the due and fresh reads, they
- * ask for every card matching a case or a unit, whatever its state. A word
- * added moments ago carries a CASE_FORM card at `state: 0` from the same
- * `createCards` batch as its recognition card, and a drill would hand that
- * out as a first meeting, in a case, before Learn ever taught the word: a
- * neljast the learner had never been shown "neli" for.
- *
- * Only an unseen card is at risk of this, so a card already past state 0 is
- * let through unconditionally: the ladder has already had its say about it.
- * `pastTheLadder` is asked only of the ones still at `state: 0`.
- */
-function notOnLadder(ownerId: string): Prisma.CardWhereInput {
-  return { OR: [{ state: { not: 0 } }, pastTheLadder(ownerId)] };
-}
 
 /**
  * The window of unseen cards, widened when none of it is anywhere near the
