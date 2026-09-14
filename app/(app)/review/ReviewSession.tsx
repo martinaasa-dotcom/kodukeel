@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
@@ -25,7 +25,7 @@ import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
-import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
+import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -570,26 +570,6 @@ export function ReviewSession({
     // over the samples and a cold press.
     for (const text of heard) prefetchClip({ text: spoken(text), voice, pace });
   }, [index, queue, voice, pace]);
-
-  // Interval previews are computed after mount, never during the server render.
-  // FSRS scheduling is fuzzed (deliberately — see lib/srs/scheduler.ts), so the
-  // server and the browser draw different numbers for the same card and React
-  // reports a hydration mismatch. The buttons simply carry no interval for the
-  // first paint.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const intervals = useMemo(() => {
-    if (!card || !mounted) return null;
-    return previewIntervals(
-      {
-        ...card.scheduling,
-        due: new Date(card.scheduling.due),
-        lastReview: card.scheduling.lastReview ? new Date(card.scheduling.lastReview) : null,
-      },
-      new Date(),
-    );
-  }, [card, mounted]);
 
   /**
    * The learner has met the word. Nothing is written, and the card comes back.
@@ -1305,12 +1285,9 @@ export function ReviewSession({
                   type="button"
                   disabled={busy}
                   onClick={() => void submit(g.rating)}
-                  aria-label={intervals ? `${g.label}, next in ${intervals[g.rating]}` : g.label}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex flex-col items-center gap-0.5 rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
                 >
                   <span className="text-base font-bold">{g.label}</span>
-                  <span className="tnum text-2xs">{intervals?.[g.rating]}</span>
-                  <KeyCap>{g.key}</KeyCap>
                 </button>
               ))}
             </div>
