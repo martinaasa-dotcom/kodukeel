@@ -1,3 +1,4 @@
+import { fixupConfigRules } from "@eslint/compat";
 import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
 import nextTypescript from "eslint-config-next/typescript";
 
@@ -20,6 +21,18 @@ import nextTypescript from "eslint-config-next/typescript";
  * `eslint >= 9` and says nothing at all about the framework's version. And
  * `@eslint/eslintrc` is uninstalled with the wrapper, the wrapper having been
  * its only reason to be here.
+ *
+ * Both presets go through `fixupConfigRules` because ESLint 10 removed the
+ * `context.getFilename()` family that ESLint 9 had only deprecated, and three
+ * of the plugins `eslint-config-next` 16.3 pins still call it: `eslint-plugin-react`
+ * 7.37, `eslint-plugin-jsx-a11y` 6.10 and `eslint-plugin-import` 2.32, none of
+ * which has a release declaring ESLint 10. Without the wrap `eslint .` dies
+ * loading `react/display-name` on the first file, before one line is linted,
+ * and `prebuild` takes the build down with it. `@eslint/compat` is ESLint's own
+ * shim for exactly this: it hands each rule a context carrying the old methods
+ * and changes nothing about what the rules report. Measured on this tree: the
+ * same 123 warnings and 0 errors, rule for rule, as before the bump. The wrap
+ * can come off when `eslint-config-next` ships plugins that support 10.
  */
 const config = [
   {
@@ -37,8 +50,8 @@ const config = [
     ],
   },
 
-  ...nextCoreWebVitals,
-  ...nextTypescript,
+  ...fixupConfigRules(nextCoreWebVitals),
+  ...fixupConfigRules(nextTypescript),
 
   {
     rules: {
