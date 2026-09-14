@@ -12204,6 +12204,26 @@ check("a cached input token is priced as one, and the cached prompt is the same 
   module is the only thing that posts to `cachedContents`, because a second
   entry-maker is a second map of what is held and a second bill nobody settles.
 */
+/*
+  ANU REMEMBERS A DAY AND STARTS FRESH AFTER IT.
+
+  The operator asked for it, and it is three places that have to agree: the
+  read that hands the conversation back stops at the cutoff, the route deletes
+  what is older when it writes, and the retention schedule and the privacy
+  notice say so. A read that windowed while the route kept everything would be
+  a notice describing a deletion nobody makes; a route that deleted while the
+  read did not window would show yesterday's turns until the learner spoke.
+*/
+check("a conversation with Anu lasts a day, on the read, on the write and on the page", () => {
+  const history = code("lib/tutor/history.ts");
+  assert.match(history, /createdAt: \{ gte: conversationCutoff\(now\) \}/, "loadRecentMessages no longer stops at the day's cutoff");
+  assert.match(history, /deleteMany\(\{\s*where: \{ ownerId, createdAt: \{ lt: conversationCutoff\(now\) \} \}/, "forgetOldMessages no longer deletes the turns older than a day");
+  assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
+  assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
+  assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
+  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
+});
+
 check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
   assert.match(
     code("app/api/scene/route.ts"),

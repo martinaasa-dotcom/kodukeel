@@ -36,7 +36,7 @@ check.
 | Review log (`Review`) | Until the account is deleted. Append-only, never updated, never trimmed | Erasure only | `deleteMyAccount`. Nothing else in the app deletes a review, and a restore may not either |
 | Tasks (`Task`) | Until deleted by the learner, or the account is | Either | `deleteMyAccount`, plus the task's own delete |
 | Calendar (`StudyEvent`) | Until deleted by the learner, or the account is | Either | `deleteMyAccount`, plus the event's own delete |
-| Tutor conversation (`Message`) | Until the account is deleted | Erasure | `deleteMyAccount` |
+| Tutor conversation (`Message`) | 24 hours. A turn older than that is never read back or sent to the model, and is deleted the next time the learner speaks to Anu; a learner who never does keeps the day's rows until erasure | The next message to Anu, or erasure | `forgetOldMessages` in `lib/tutor/history.ts`, called by `app/api/tutor/route.ts`; `deleteMyAccount` |
 | Settings (`Setting`) | Until the account is deleted | Erasure | `deleteMyAccount` |
 | Starred words (`StarredWord`) | Until unstarred, or the account is deleted | Either | `toggleStar`, `deleteMyAccount` |
 | Named shelves and what is filed on them (`Deck`, `DeckWord`) | Until removed by the learner, or the account is deleted. A label over the one row above (`Card`) rather than a copy of it: deleting a shelf never touches the cards, reviews or mastery of the words that were on it | Either | The deck's own delete cascades its `DeckWord` rows; `deleteMyAccount` for both |

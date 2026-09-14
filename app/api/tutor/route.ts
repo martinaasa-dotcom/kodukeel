@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { forgetOldMessages } from "@/lib/tutor/history";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rateLimit";
@@ -301,6 +302,9 @@ async function persist(ownerId: string, messages: ChatMessage[], reply: string) 
     if (reply.trim()) {
       await prisma.message.create({ data: { ownerId, role: "assistant", content: reply } });
     }
+    // And yesterday's conversation goes: Anu remembers a day and starts
+    // fresh after it (`lib/tutor/lifetime.ts`).
+    await forgetOldMessages(ownerId);
   } catch {
     // Chat history is a convenience, not the irreplaceable data. Losing a row
     // must never break the conversation the learner is having.

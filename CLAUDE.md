@@ -6723,6 +6723,18 @@ answers before it names a case, four times the chart's floor, since a teacher ra
 conversation is a stronger claim than a bar. The route no longer reads a level from the request at
 all, asserted.
 
+**Anu remembers a day and starts fresh after it.** The thirty most recent turns came back on every
+visit whatever their age and up to twenty of them went to the model on every question, which is a
+tutor opening Tuesday's lesson by re-reading last month's, at full price each time. The operator
+asked for a conversation to be a sitting. `lib/tutor/lifetime.ts` is the one figure, twenty-four
+hours rolling rather than a calendar day so a question at 23:50 and its answer at 00:05 are one
+conversation; `loadRecentMessages` reads nothing older, `forgetOldMessages` deletes what is older
+and the route calls it after writing the turn just taken, which is the one moment a conversation
+is certainly live. A learner who never speaks to her again keeps the day's rows until erasure, and
+`docs/25-data-retention.md`, the DPIA and `/privacy` say exactly that rather than something
+tidier. An invariant holds the read, the delete and the two documents together, because a notice
+describing a deletion nobody makes is the shape of compliance that fails an audit.
+
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather
 than keeping a list of its own. It streams, holding text back only where a
