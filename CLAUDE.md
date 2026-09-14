@@ -598,6 +598,19 @@ bring back, which is what makes this mechanical rather than aspirational. Re-run
 `npm run harvest`; responses are cached, so it costs Ekilex nothing.
 
 
+**And a refusal is not a miss, which the harvest was the last path to learn.** Run with a key
+ekilex.ee answers 403 to, `npm run harvest -- --only=plaanid` printed every word of the unit as "not
+in Ekilex" and rewrote `prisma/data/harvested.ts` from about 17,400 lines to two, because its
+transport returned one `null` for "Ekilex holds no such word" and for "Ekilex would not say". And
+`--only` wrote the words it had asked about and nothing else, so re-harvesting one unit deleted the
+other seventy with a working key too. `lib/ekilex/harvestGuard.ts` decides both, pure and tested
+against a stubbed transport: `readAnswer` says whether a request was answered, refused or failed, a
+refused or failed request keeps the row the word had rather than dropping it, one refusal anywhere
+means nothing is written, a run that answered for nobody writes nothing, `--only` stands its answers
+into the previous file rather than replacing it, and a harvest that would drop more than half the
+file is refused without `--force`. Made to fail on the real key first: the same command now ends in
+"Not written: Ekilex refused 16 requests (HTTP 403 x16)" with the file untouched.
+
 **A meaning is given in the language the learner thinks in, and Ekilex is the one that gives it.**
 Most people learning Estonian in Estonia already speak Russian or Ukrainian, and an app that can
 only say `kohv` is "coffee" asks them to reach a word through the language they are least sure of.
@@ -5697,6 +5710,21 @@ app's own hint instead, in English and out of character, which is the honest thi
 moment (`lib/scenes/coach.ts`). The word-shaped and card-shaped choices are untouched, since
 `Valu või palavik?` is two things somebody could have meant.
 
+**The other side does not say goodbye until the scene does, and the money is settled before the
+day.** A job interview run on the Groq fallback read `Palk on hea. Kas teil on veel küsimusi? Aitäh,
+Head aega!` on the beat about the pay: the composer is shown the person's whole agenda so it can take
+an answer given early, the last entry on it was the farewell, and a weaker model folds the list into
+one turn. The `close` beat is on the agenda only when it is the move, and the gate's thirteenth check,
+`farewell`, withholds a closing phrase on any other beat, matched whole because `aega` alone is a form
+of `aeg`. And the pay beat's own answer was "the pay is good and it is in the contract", with no figure
+on the card, so the interviewer could not name a wage even when asked outright. The card deals two
+figures of the interviewer's, the pay question is answered by the next move, which is the offer said
+off the card, a no gets the second figure through `counter`, and only then is a start day asked for.
+An offer nobody has made cannot be taken, so `creditAhead` passes over an `offer` beat ahead of the
+pointer: `hea` two beats earlier had met it and the figure was never said. `docs/21-situations.md`
+§61, including the measurement that could not be taken, since the fallback composer has never been
+through `eval:composers` and both keys here answer 401.
+
 **And how the other side talks is the run's band, which is the learner's own unless they moved
 it.** Nothing about a composed line used to read a band at all: the prompt told the model "they are
 a beginner" on the landlord as readily as on the corner shop and asked for the same two to four
@@ -7097,7 +7125,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`.
+`shrugOwed`, `anticipated`, `saysGoodbye`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

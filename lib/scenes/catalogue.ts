@@ -197,7 +197,7 @@ export const ASIDES = {
  * since a learner thanking somebody and walking off is an ordinary way to
  * close a conversation.
  */
-const FAREWELLS = ["Head aega!", "Nägemist!"] as const;
+export const FAREWELLS = ["Head aega!", "Nägemist!"] as const;
 
 /** What the learner may say to end a scene: a farewell, or a plain thanks. */
 const CLOSING_WORDS = [...FAREWELLS, "Aitäh!"] as const;
@@ -1802,10 +1802,11 @@ const INTERVIEW: SceneSpec = {
   place: "A small meeting room, across the table from the person hiring",
   tests: "too-ja-raha",
   /*
-    `kus-ja-kuhu` and `ostmine` for the places you worked before, `kodu` for
-    the computer, `kool-ja-keel` for the language, `minevik` for saying what
-    you did, `plaanid` for when you could start and `haridus` for the
-    course you did.
+    `kus-ja-kuhu` and `ostmine` for the places you worked before and for
+    `euro`, `kodu` for the computer, `kool-ja-keel` for the language,
+    `minevik` for saying what you did, `plaanid` for when you could start and
+    for `sobima` and `nõustuma`, `haridus` for the course you did, and
+    `too-ja-raha` for `palk` and `leping`.
   */
   units: [...COMMON, "too-ja-raha", "haridus", "kool-ja-keel", "kus-ja-kuhu", "ostmine", "kodu", "minevik", "plaanid", "omadussonad", "inimesed"],
   register: "teie",
@@ -1825,6 +1826,19 @@ const INTERVIEW: SceneSpec = {
       oneOf: ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede"],
       says: "When you could start.",
     },
+    /*
+      THE WAGE IS A NUMBER, AND IT IS THEIRS. The first version of this scene
+      answered "what is the pay?" with "the pay is good and it is in the
+      contract", which is the one answer nobody leaves an interview with, and
+      the scene dealt no figure at all, so a model that tried to name one had
+      the line withheld as invented (`facts`). Both figures are the
+      interviewer's, drawn and never printed on the learner's card, because
+      hearing the number is the exercise: the offer, and what they go up to
+      when asked for more, drawn from a higher span so a counter-offer is
+      never a cut.
+    */
+    { kind: "price", slot: "wage", min: 1400, max: 1700, says: "The monthly wage they offer, in euros.", theirs: true },
+    { kind: "price", slot: "wage2", min: 1750, max: 2000, says: "What they go up to if you ask for more, in euros a month.", theirs: true },
   ],
   curveballs: ["faster", "english", "small-talk", "interrupted", "other-register", "not-possible", "contradiction", "their-order"],
   beats: [
@@ -1867,22 +1881,71 @@ const INTERVIEW: SceneSpec = {
       they: "They ask why you want this job.",
       move: "ask",
       topic: ["miks", "tahtma", "töö", "ettevõte"],
-      needs: [{ kind: "lemma", oneOf: ["sest", "tahtma", "hea", "töö", "ettevõte", "kogemus", "uus"] }],
+      /*
+        Not `hea`: it is the commonest adjective in the language, a learner
+        says it on the beat before this one (`ma olen hea projektiga`), and
+        the look-ahead credited this beat from there.
+      */
+      needs: [{ kind: "lemma", oneOf: ["sest", "tahtma", "töö", "ettevõte", "kogemus", "uus"] }],
       required: true,
       patience: 2,
       shape: "sentence",
     },
+    /*
+      THE MONEY IS SETTLED BEFORE THE DAY, because that is the order anybody
+      settles it in. The pay beat used to be answered with a shrug about the
+      contract and the next question was when you could start, so a learner
+      who did exactly what the objective said was told nothing and moved on:
+      it was reported, rightly, as a script that gets an interview backwards.
+      Now the question is answered by the next move, which is the offer.
+    */
     {
       id: "pay",
       goal: "They asked whether you have questions. Ask what the pay is.",
       they: "They ask whether you have any questions.",
-      answer: "They say the pay is good and that it is written in the contract.",
+      answeredNext: true,
       move: "ask",
       topic: ["küsimus", "küsima", "palk", "leping"],
       needs: [{ kind: "question" }, { kind: "lemma", oneOf: ["palk", "raha", "maksma", "leping"] }],
       required: true,
       patience: 2,
       shape: "sentence",
+    },
+    /*
+      THE OFFER, AND THE NEGOTIATION. They name the figure off the card, and
+      the learner takes it or turns it down; a no gets the second figure, the
+      way the health centre's receptionist finds another slot, and a second
+      no is the learner saying it will not do, which the goal allows. The
+      figure is said off the card through `says`, since a number is not a
+      word and no rung may invent one; either figure said back, or a yes, or
+      "suits me", meets the beat.
+    */
+    {
+      id: "wage",
+      goal: "They named a monthly wage. Take it, or say no and ask for more, and then agree a figure.",
+      they: "They offer {wage} euros a month and ask whether that suits you.",
+      move: "offer",
+      topic: ["palk", "euro", "kuu", "leping"],
+      says: [
+        { lemma: "palk" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "wage" },
+        { lemma: "euro", grammCase: "PARTITIVE" }, { lemma: "kuu", grammCase: "INESSIVE" },
+      ],
+      counter: {
+        they: "They go up to {wage2} euros a month and ask whether that works for you.",
+        says: [
+          { lemma: "palk" }, { lemma: "olema", verb: "IndPrSg3" }, { slot: "wage2" },
+          { lemma: "euro", grammCase: "PARTITIVE" }, { lemma: "kuu", grammCase: "INESSIVE" },
+        ],
+        replaces: [["wage", "wage2"]],
+      },
+      needs: [{ kind: "anyOf", of: [
+        { kind: "datum", slot: "wage" },
+        { kind: "datum", slot: "wage2" },
+        { kind: "lemma", oneOf: ["sobima", "jah", "hea", "nõustuma"] },
+      ] }],
+      required: true,
+      patience: 2,
+      shape: "word",
     },
     {
       id: "start",
@@ -1908,8 +1971,9 @@ const INTERVIEW: SceneSpec = {
     },
   ],
   outcomes: [
-    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "start", "close"], says: "They will be in touch, and this time they meant it. You said what you did, what you can do and what you want, in Estonian." },
-    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you did and when you could start. You never asked about the money, and you should have." },
+    { id: "offered", when: ["greet", "before", "skill", "why", "pay", "wage", "start", "close"], says: "They will be in touch, and this time they meant it. You said what you did, what you can do and what you want, and you settled the money, in Estonian." },
+    { id: "agreed-pay", when: ["before", "skill", "wage"], says: "You agreed a wage in Estonian, which is the hard half. They still do not know when you could start." },
+    { id: "offered-thin", when: ["before", "skill", "start"], says: "They know what you did and when you could start. The money was never settled, and that is the one thing to settle before you name a day." },
     { id: "no-decision", when: ["greet", "before", "skill"], says: "They will let you know. They always say that, and you got through the hard half in Estonian." },
     { id: "left", when: [], says: "You ended it early. There are other jobs, and this one was a rehearsal." },
   ],

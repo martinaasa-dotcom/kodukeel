@@ -4383,3 +4383,85 @@ of the bank, at any band, and the pitched rows arrive `reviewed: false` like
 the rest. `npm run draft:lines -- --level B1` drafts one band, `--unpitched`
 drafts the old shape, and `--refresh` still drops every unreviewed row first,
 which on this bank is every row.
+
+## 61. The eighteenth pass: an interview on the fallback model
+
+The operator's Gemini key was withdrawn after a leak, so the scenes composed on
+`SCENE_FALLBACK_MODEL`, which is `openai/gpt-oss-120b` on Groq, and a job
+interview run on it came back with four faults. Three are the module's and one
+is the model's, and telling those apart is most of what this pass did.
+
+**The script had the interview backwards.** The pay beat's own `answer` was
+"the pay is good and it is written in the contract", and both banked lines said
+so. The scene dealt no figure at all, so a model that tried to name one had the
+line withheld by `facts` as invented, which is why the interviewer wrote
+`Kahjuks täpset palganumbrit hetkel ei saa anda` when pressed. The wage is the
+one thing anybody settles before naming a start day, and the outcome that
+scolded the learner for not asking about it was satisfied by the deflection.
+
+So the card deals two figures, both the interviewer's and never printed
+(`wage`, and `wage2` from a higher span, so a counter is never a cut), the pay
+beat is `answeredNext`, and the next move is an `offer` said off the card:
+`Palk on 1453 eurot kuus?` A yes, `sobib`, `nõustuma` or either figure said
+back meets it; `ei` reads as `declined` and gets `Palk on 1774 eurot kuus?`
+through the same `counter` the health centre's receptionist uses for a second
+slot, and a second no is the learner saying it will not do. Then the day, then
+goodbye. The interview loses its rows for `answer:pay`, which said the wrong
+thing, and needs no rows for the offer, since a beat that names a figure is
+never banked. Keyless, the whole run plays:
+
+    THEM: Kas teil on küsimusi?
+    YOU:  mis palk on?
+    THEM: Palk on 1453 eurot kuus?
+    YOU:  ei, see on vähe
+    THEM: Palk on 1774 eurot kuus?
+    YOU:  jah, sobib
+    THEM: Sobib. Millal te saate alustada?
+
+**The first version of that was skipped over, which found a rule the look-ahead
+was missing.** `creditAhead` reads every turn against every beat, so `ma olen
+hea projektiga` on the skill beat carried `hea`, met the offer beat two along,
+and the figure was never said. An offer nobody has made yet cannot be taken,
+so the look-ahead passes over an `offer` beat ahead of the pointer and reads
+one behind it, where the offer has been made and taking it late is taking it.
+`hea` also left the `why` beat's accept list, since it is the commonest
+adjective in the language and was crediting that beat from the turn before.
+
+**The goodbye came three beats early, and the agenda is why.** The composer is
+handed the person's whole agenda so it can take an answer given out of order,
+and the last entry on it, from the first beat, was "they thank you for coming
+and say goodbye". A weaker model folds the list into one turn: `Palk on hea.
+Kas teil on veel küsimusi? Aitäh, Head aega!` The `close` beat is on the agenda
+only when it is the beat being asked now, and the gate has a thirteenth check,
+`farewell`, which withholds a closing phrase on any other beat. The phrases are
+the catalogue's own `FAREWELLS`, resolved to word sequences by both context
+builders and matched whole, because `aega` on its own is the partitive of `aeg`
+and a line offering a time says it. It would have withheld three of the lines
+in the report before anybody read them.
+
+**What is the model's is the grammar, and no check reaches it.** `Kas see oskus
+töö? Palun valima üks või kaks` has no finite verb in the first sentence and a
+ma-infinitive doing the work of an imperative in the second. `clause` only fires
+on a line of four or more words entirely inside the scene's list, and
+`infinitive` knows the seven da-only verbs and nothing about an imperative. The
+gate is the net rather than the writer. `openai/gpt-oss-120b` was measured for
+two jobs, explaining grammar in English and returning JSON, and passed both
+(§55); it has never been through `npm run eval:composers`, which ranks a model
+on writing Estonian through the route's own prompt and gate, and the only Groq
+model that eval ever ranked was `qwen/qwen3.8-27b` at 9 of 12 against Gemini's
+24 of 24. The fallback is trusted with Estonian output on the strength of a
+different task. The measurement was set up in this pass and could not be
+taken: the session's Groq and Gemini keys both answer 401. It is one command
+per model against a working key, and the fallback should be pinned on what it
+says:
+
+    npm run eval:composers -- --model openai/gpt-oss-120b
+    npm run eval:composers -- --model qwen/qwen3.8-27b
+    npm run eval:composers -- --model groq/compound-mini
+
+What it does not fix is `ma olen nõus`, which is how anybody says "I agree" and
+which `npm run probe:turns` now reads as off the point on the offer beat:
+`nõus` is the inessive of `nõu` and no declared unit teaches it. That is §29's
+finding again, the course teaching the noun of a situation and not the phrase
+that does things with it, and it is a unit change rather than a scene one.
+

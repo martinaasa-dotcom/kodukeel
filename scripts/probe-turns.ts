@@ -95,6 +95,7 @@ const CASES: Record<string, [string, string][]> = {
     ["skill", "ma olen tugev inimestega"],
     ["why", "ma tahan seda tööd, sest palk on hea"],
     ["pay", "kui suur on kuupalk?"], ["pay", "ma tahan palga kohta küsida"],
+    ["wage", "jah, sobib"], ["wage", "ei, see on vähe"], ["wage", "1500 sobib"], ["wage", "ma olen nõus"],
     ["start", "esmaspäeval"], ["close", "aitäh, head aega"],
   ],
 };
@@ -105,7 +106,7 @@ const CASES: Record<string, [string, string][]> = {
 */
 const DEALT: Record<string, Record<string, string>> = {
   trepikoda: { floor: "3", from: "Soome", with: "mees" },
-  toovestlus: { before: "ülikool", skill: "inimene", start: "esmaspäev" },
+  toovestlus: { before: "ülikool", skill: "inimene", start: "esmaspäev", wage: "1500", wage2: "1800" },
 };
 
 async function main() {

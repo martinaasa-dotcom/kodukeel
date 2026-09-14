@@ -500,6 +500,7 @@ export function whyWithheld(verdict: Verdict | null): string | undefined {
     register: "it addressed them with the pronoun this conversation does not use",
     clause: "it had no finite verb, so it was not a sentence",
     government: "a noun was in a case the verb beside it does not take",
+    farewell: "it said goodbye, and the conversation is not over: you still have things to settle, so do not thank them for coming or take your leave until you do",
   };
   const said = verdict.failed.flatMap((check) => (reasons[check] ? [reasons[check]!] : []));
   return said.length > 0 ? said.join("; ") : undefined;

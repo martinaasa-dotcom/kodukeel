@@ -45,7 +45,7 @@ import { switchesRegisterAt } from "./curveballs";
  */
 export const CHECKS = [
   "shape", "vouching", "register", "government", "facts", "agreement", "topic", "giveaway",
-  "stretch", "clause", "infinitive", "negation",
+  "stretch", "clause", "infinitive", "negation", "farewell",
 ] as const;
 
 /**
@@ -210,6 +210,27 @@ export interface GateContext {
    * broken thing a model produces here.
    */
   readonly hasFiniteVerb?: (word: string) => boolean;
+  /**
+   * THE CLOSING PHRASES, AS WORD SEQUENCES, SO A LINE CANNOT SAY GOODBYE
+   * BEFORE THE SCENE DOES.
+   *
+   * A job interview read `Palk on hea. Kas teil on veel küsimusi? Aitäh,
+   * Head aega!` on the beat about the pay, and `Alates teisipäev, sobib?
+   * Aitäh. Kas?` on the one after it: the interviewer thanking the candidate
+   * and leaving, twice, with three beats still to go. The composer is shown
+   * the person's whole agenda so it can take an answer given early, and a
+   * weaker model folds the agenda into one turn, farewell included. None of
+   * the checks above could see it, since every word is vouched, on topic and
+   * in register, and `giveaway` stands down on a close beat by design.
+   *
+   * A farewell belongs to the beat whose move is `close` and to no other, so
+   * the check is drawn there: a line on any other beat holding one of these
+   * phrases whole is withheld. Whole, because `aega` on its own is a form of
+   * `aeg` and a line offering a time would be refused for it. Handed in
+   * resolved from the catalogue's own farewell lemmas, because this module
+   * holds no Estonian (ADR-005); absent, the check says nothing.
+   */
+  readonly farewells?: readonly (readonly string[])[];
   readonly times?: {
     readonly clock: ReadonlySet<string>;
     readonly hours: ReadonlySet<string>;
@@ -393,6 +414,7 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   if (noClause(tokens, stretched, beat, context)) failed.push("clause");
   if (wrongInfinitive(text, context)) failed.push("infinitive");
   if (inflectedAfterEi(text, context)) failed.push("negation");
+  if (saysGoodbye(tokens, beat, context)) failed.push("farewell");
 
   /*
     A NUMBER IN THE LINE IS A CLAIM ABOUT THE RUN, so it has to be one the run
@@ -405,6 +427,25 @@ export function runGate(text: string, beat: BeatSpec, context: GateContext): Ver
   }
 
   return { failed, unknown, stretched };
+}
+
+/**
+ * WHETHER THE LINE SAYS GOODBYE ON A BEAT THAT IS NOT THE GOODBYE.
+ *
+ * Each farewell is matched as a consecutive run of its own words, never as a
+ * bag: `Head aega!` is two words and the second is the partitive of `aeg`.
+ * Only the `close` move may say one, and a curveball or an answer pseudo-beat
+ * carries the move of the beat it stands in for, so neither is excused.
+ */
+function saysGoodbye(tokens: readonly string[], beat: BeatSpec, context: GateContext): boolean {
+  if (beat.move === "close" || !context.farewells) return false;
+  return context.farewells.some((phrase) => {
+    if (phrase.length === 0 || phrase.length > tokens.length) return false;
+    for (let at = 0; at + phrase.length <= tokens.length; at += 1) {
+      if (phrase.every((word, i) => tokens[at + i] === word)) return true;
+    }
+    return false;
+  });
 }
 
 /**
