@@ -312,9 +312,28 @@ function choiceOfNear(
  * and neither knew a verb person: `Kontsert algab kell 18.` could not be
  * gapped for `algama`. `lib/estonian/gapForms.ts` is the one answer and three
  * other screens read it.
+ *
+ * The plural is taken out of it here. `NOM_PL`, `GEN_PL` and `PART_PL` are
+ * stored principal parts rather than a suffix on a stem, and nothing in this
+ * app teaches how Estonian forms one (`docs/13-mvp-status.md` names the B1
+ * tier that would as not built yet). This module's own first rule is that
+ * nothing is asked before it is taught, and `meetLane` shows a word's lemma
+ * and gloss, never its plural: a gap built from the full catalog could hide
+ * `sõbrad` out of a sentence for a learner who had met `sõber`, thirty
+ * seconds into ever seeing the word, in a form nothing on the meet step or
+ * anywhere earlier in the lesson had shown. `gapForms` stays the one answer
+ * to what may ever be hidden; this only narrows which of its answers a fresh
+ * lesson may reach for.
  */
+const UNTAUGHT_PRINCIPAL_PARTS = ["NOM_PL", "GEN_PL", "PART_PL"];
+
 function knownForms(word: LessonWord): string[] {
-  return [...gapFormsFromParts(word).keys()];
+  const untaught = new Set(
+    UNTAUGHT_PRINCIPAL_PARTS
+      .map((key) => word.parts[key]?.trim().toLowerCase())
+      .filter((v): v is string => !!v),
+  );
+  return [...gapFormsFromParts(word).keys()].filter((form) => !untaught.has(form));
 }
 
 /**
