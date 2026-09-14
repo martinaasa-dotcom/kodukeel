@@ -11,16 +11,77 @@ import { unit } from "./types";
 
 export const A1 = [
   unit({
+    /*
+      THIRTEEN WORDS, ALONE, BEFORE ANY OF THEM ARE PUT IN A SENTENCE.
+
+      `vastused` used to be unit twenty-two of A1, gated behind `tervitused`.
+      `tervitused` is eighteen entries and every one of them is `PHRASE`:
+      `Tere hommikust!`, `Kas sa räägid inglise keelt?`, whole sentences with
+      several words inside each card. That is the right shape for "the
+      phrases that get you through a first conversation", and it was the
+      wrong first thing to put in front of somebody who does not yet know a
+      single Estonian word, cannot read the spelling, and has no way to
+      guess which of the several unfamiliar words in a six-word phrase is
+      doing the work.
+
+      So `tere` and `aitäh` come first now, alone, the way they always sat
+      in this unit's own word list, just never first in the course. `jah`
+      and `ei` follow them, then the rest of what this unit already taught:
+      agreeing, disagreeing and saying how sure you are. None of it is a
+      sentence. `tere hommikust` is `tere` plus a form of `hommik`, and both
+      of those are worth knowing on their own before they are worth
+      combining, which is what `tervitused`, now requiring this unit, and
+      `aeg` are for once this one is behind you.
+
+      Nothing about the word list or the id changed, only the order (`tere`
+      and `aitäh` moved to the front) and where the unit sits in the course.
+      Every place that reads the id `vastused`, the scenes, the readiness
+      rungs, `syllabus.test.ts`'s introducing-unit check, still finds
+      exactly what it expects.
+    */
+    id: "vastused",
+    title: "Vastused",
+    subtitle: "Hello, thank you, yes and no",
+    icon: "MessageCircle",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Say hello, say thank you, and answer a question, agree, disagree, or say how sure you are.",
+    blurb: "Thirteen words, said alone. Nothing here is a sentence yet.",
+    grammar: ["politeness"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    words: [
+      ["tere", "hello", "ADVERB"],
+      ["aitäh", "thank you", "ADVERB"],
+      ["jah", "yes", "ADVERB"],
+      ["ei", "no, not", "ADVERB"],
+      ["muidugi", "of course", "ADVERB"],
+      ["kindlasti", "definitely", "ADVERB"],
+      ["vist", "probably, I think", "ADVERB"],
+      ["äkki", "maybe, suddenly", "ADVERB"],
+      ["küll", "indeed, do (an emphasizing word)", "ADVERB", 191080],
+      ["eks", "right? (asking for agreement)", "ADVERB"],
+      ["tõesti", "really", "ADVERB"],
+      ["tegelikult", "actually", "ADVERB"],
+      // An adjective, not a particle, and the one word in this unit that
+      // declines: `õige, õige, õiget`. Labeled ADVERB it would be harvested
+      // formless, get no case table and no case cards, and `npm run
+      // audit:senses` says so, because Ekilex calls it `adj`.
+      ["õige", "right, correct", "ADJECTIVE"],
+    ],
+  }),
+
+  unit({
     id: "tervitused",
     title: "Tervitused",
-    subtitle: "Greetings and getting by",
+    subtitle: "Putting words together",
     icon: "Hand",
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Greet someone, thank them, apologize, and say you do not understand.",
-    blurb: "The phrases that get you through a first conversation without grammar.",
+    blurb: "The words from Vastused, put together into the phrases that get you through a first conversation.",
     grammar: ["politeness"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["vastused"],
     words: [
       ["Tere!", "Hello!", "PHRASE"],
       ["Tere hommikust!", "Good morning!", "PHRASE"],
@@ -860,39 +921,6 @@ export const A1 = [
       ["siis", "then", "ADVERB"],
       ["nii", "so, like this", "ADVERB"],
       ["mitte", "not", "ADVERB", 203249],
-    ],
-  }),
-
-  unit({
-    id: "vastused",
-    title: "Vastused",
-    subtitle: "Yes, no and everything between",
-    icon: "MessageCircle",
-    level: "A1",
-    module: "Esimesed sammud",
-    canDo: "Answer a question, agree, disagree, and say how sure you are.",
-    blurb: "Estonian answers a negative question with jah for yes, where English hesitates over which one it means.",
-    grammar: ["politeness"],
-    cardTypes: ["RECOGNITION", "PRODUCTION"],
-    requires: ["tervitused"],
-    words: [
-      ["jah", "yes", "ADVERB"],
-      ["ei", "no, not", "ADVERB"],
-      ["muidugi", "of course", "ADVERB"],
-      ["kindlasti", "definitely", "ADVERB"],
-      ["vist", "probably, I think", "ADVERB"],
-      ["äkki", "maybe, suddenly", "ADVERB"],
-      ["küll", "indeed, do (an emphasizing word)", "ADVERB", 191080],
-      ["eks", "right? (asking for agreement)", "ADVERB"],
-      ["tõesti", "really", "ADVERB"],
-      ["tegelikult", "actually", "ADVERB"],
-      // An adjective, not a particle, and the one word in this unit that
-      // declines: `õige, õige, õiget`. Labeled ADVERB it would be harvested
-      // formless, get no case table and no case cards, and `npm run
-      // audit:senses` says so, because Ekilex calls it `adj`.
-      ["õige", "right, correct", "ADJECTIVE"],
-      ["tere", "hello", "ADVERB"],
-      ["aitäh", "thank you", "ADVERB"],
     ],
   }),
 

@@ -222,7 +222,7 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
  *
  * `Kas sa räägid inglise keelt?` is taught the same way `tere` is, on one
  * ladder, and for a while that meant a round of "5 new words" could be five
- * fixed phrases in a row: the whole `tervitused` unit, the first one anybody
+ * fixed phrases in a row: `tervitused`, one of the first units anybody
  * opens, is eighteen of them and nothing else. A learner presses "words"
  * expecting words. So the pool a round draws from is split on `Lexeme.pos`,
  * and the two never mix mid-round: a phrase started under one kind does not
