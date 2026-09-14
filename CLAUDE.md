@@ -170,6 +170,24 @@ OpenAI-compatible transport reads `prompt_tokens_details.cached_tokens`; neither
 on 2026-09-14, because Groq reports no cached share and the Gemini key answers "prepayment credits
 depleted", which also means the deployment has been composing on the fallback since they ran out.
 
+**And the side-switching was the stage direction, handed over from the wrong side.** Every beat's
+`they` is written to the learner, "They ask which floor you are on", because it is the line on the
+learner's own screen, and `composeLive` handed it to the model bare as "what you are doing", so the
+model took "you" as itself: ten of the lines withheld in that run were the learner's line (`Ma elan
+teisel korrusel`, `Probleem on, et arvuti ei tööta`) and four were `Tere!` mid-scene. It is the
+fault the role card had in `composeSystem` one block up and it took the same repair: the direction
+is quoted with its pronouns explained, an `ask` is told to ask and stop, and every move but `greet`
+is told the conversation has begun. Played again on the same model: 138 drafts, 72 lines on screen
+against 62, 48 percent withheld against 57, one learner's line where there were ten and one
+greeting where there were four. `topic` did not move, at 27, and what is under it now is the gate
+rather than the model, `Kas sa oled juba poe ees?` on the beat that asks where the learner is, and
+the harness's curious learner tacking "ja kuhu siis?" onto a goodbye; that is the next number and
+it is a gate question. And the harness sent the live block as a user message in front of the
+turns, where the transport appends it to the system prompt with the turns after it, while the
+block's own text says the messages before it are the conversation; it sends what the route sends
+now, asserted, because a harness in a different order measures a conversation the app does not
+have.
+
 **The leash came off the composer, and the gate is what pays for it.** `MAX_SENTENCES` is five,
 `MAX_COMPOSED_WORDS` is forty and `NEW_WORDS` is ten, where they were three, twenty-two and two. The
 old argument was that the only thing keeping a composed line honest is how little room it has to

@@ -4552,6 +4552,36 @@ the seven `government` refusals read as the check rather than the model, `Ma too
 among them, where the genitive is the total object and is right; that is the object rule, which
 no check here parses, and it is left where it is.
 
+*The side-switching was the stage direction, and it was fixed and measured the same day.* Every
+beat's `they` is written to the learner, "They ask which floor you are on", because it is the
+line on the learner's own screen, and `composeLive` handed it over bare as "what you are doing";
+the model read "you" as itself, which is the fault the role card had in `composeSystem` (§32)
+one block up. Ten of the 57 lines withheld with a reason were the learner's own line and four
+were a greeting mid-scene. The direction is quoted now with its pronouns explained, an `ask` is
+told to ask and then stop, and every move but `greet` is told the conversation has already
+begun. The harness was corrected with it: `askLine` sent the live block as a user message before
+the turns, where the transport appends it to the system prompt and sends the turns after it, and
+the block's own text says the messages before it are the conversation. Played again, same model,
+same fourteen scenes, same curious learner:
+
+    drafts 138, lines reaching the screen 72, withheld 66 (48%), against 62 and 57% before
+
+    withheld with a reason (52): topic 27 · shape 11 · government 9 · agreement 4
+                                 facts 2 · farewell 2
+
+    the learner's line: 1 (was 10) · a greeting mid-scene: 1 (was 4)
+
+`shape` fell by the greetings. `topic` did not move, and what is under it changed: the lines are
+the character's now, `Kas sa oled juba poe ees?` on the beat that asks where the learner is,
+`Jah, väga lähedal. Vaid mõni minut jalgsi.` on the beat that waits for a second question, and
+a run of them answering the harness's curious learner, who tacks "ja kuhu siis?" onto every turn
+including a goodbye. That is the check reading a beat's topic words too narrowly, and a harness
+learner asking a question no beat anticipates, which is the next number to bring down and is a
+gate question rather than a prompt one. One draft came back as the model's own reasoning in
+English, "The previous turn by the assistant was empty. I need to respond", and the gate took it
+under `shape`, which is the gate doing its job on a thinking model whose reasoning leaked into
+the answer. Two of the nine `government` refusals are still the total-object reading above.
+
 `ma olen nõus` is fixed the way this section said it had to be: `nõus` is in
 `plaanid` as an adverb, harvested from Ekilex with its two attested sentences,
 on the wage beat's accept list, and `npm run probe:turns` reads the turn as

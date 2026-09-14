@@ -497,9 +497,17 @@ export async function askLine(
           temperature: 0.8,
           // The app's own budget: a thinking model spends its first hundreds of tokens reasoning.
           max_tokens: SCENE_REPLY_TOKENS,
+          /*
+            THE ROUTE'S OWN SHAPE, WHICH THIS DID NOT HAVE. The transport
+            appends the live block to the system prompt and sends the turns
+            after it (`callOpenAiCompatible`); this put the live block in a
+            user message *before* the turns, while the block's own text says
+            the messages before it are the conversation. A harness whose
+            prompt is in a different order from the app's measures a
+            conversation the app does not have.
+          */
           messages: [
-            { role: "system", content: composeSystem(scene) },
-            { role: "user", content: composeLive(ask) },
+            { role: "system", content: `${composeSystem(scene)}\n\n${composeLive(ask)}` },
             ...said,
             { role: "user", content: "Your line:" },
           ],

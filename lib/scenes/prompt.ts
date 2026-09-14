@@ -358,7 +358,39 @@ export function composeSystem(scene: ComposeScene): string {
 export function composeLive(ask: ComposeAsk): string {
   return [
     `Your move: ${ask.move}.`,
-    `What you are doing, in English: ${ask.they}`,
+    /*
+      THE STAGE DIRECTION IS WRITTEN FROM THE LEARNER'S SIDE, AND THE MODEL
+      TOOK "YOU" AS ITSELF. Every beat's `they` reads "They ask which floor
+      you are on" because it is the line printed on the learner's own screen,
+      and handed over bare as "what you are doing" it read as the learner's
+      part: told the neighbor asks which floor, the fallback wrote `Ma elan
+      teisel korrusel`, and told the waiter asks whether that is everything it
+      wrote `Kartulid ja vesi maksavad kaheksa eurot`. That was 25 of the 57
+      lines the gate withheld with a reason in one run, under `topic`, and
+      none of the gate's checks is about who is speaking. The same repair the
+      role card got in `composeSystem`: quoted, with the pronouns explained.
+    */
+    `What you do now, written from the learner's side, where "they" means you and "you" means`
+      + ` the learner: "${ask.they}"`,
+    /*
+      AND AN ASK IS A QUESTION PUT TO THEM, WHICH THE MODEL KEPT ANSWERING.
+      Said once more in the plainest words for the one move where the fault
+      lands, since a question answered by the person who asked it is the beat
+      done for the learner.
+    */
+    ask.move === "ask"
+      ? "So you ask them and then stop: you do not answer your own question, and you never say"
+        + " the line the learner would say."
+      : "",
+    /*
+      AND THE CONVERSATION HAS ALREADY BEGUN ON EVERY BEAT BUT THE FIRST. The
+      rules say not to greet once it has started, and a model shown a beat on
+      its own opened it with `Tere!` anyway, 19 lines under `shape` in the same
+      run; which beat this is is the move's to say, so it is said here.
+    */
+    ask.move !== "greet"
+      ? "You have already greeted each other, so do not greet them again or start over."
+      : "",
     ask.settled && ask.settled.length > 0
       ? `Already settled, so never asked for again: ${ask.settled.join("; ")}.`
       : "",
