@@ -2,9 +2,11 @@ import { requireUserId } from "@/lib/auth/session";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page, Stack } from "@/components/ui";
 import { Favorites } from "@/components/Favorites";
+import { PutAside } from "@/components/PutAside";
 import { MasteryBoard } from "@/components/MasteryBoard";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { favoriteCount, favorites } from "@/lib/progress/stars";
+import { deferredFor } from "@/lib/progress/deferrals";
 
 export const metadata = { title: "Where your words stand" };
 
@@ -43,10 +45,17 @@ export default async function MasteryPage() {
     from the list because the list is capped and a cap cannot say how many
     there are.
   */
-  const [words, kept, keptTotal] = await Promise.all([
+  const [words, kept, keptTotal, aside] = await Promise.all([
     masteryFor(ownerId),
     favorites(ownerId),
     favoriteCount(ownerId),
+    /*
+      And the words put aside, which is the other list on this page somebody
+      wrote themselves. It is here rather than on a page of its own because
+      "too complicated" has to have a visible way back, and a second page for
+      a handful of words is a page nobody finds.
+    */
+    deferredFor(ownerId),
   ]);
 
   return (
@@ -55,7 +64,7 @@ export default async function MasteryPage() {
       lead="Your favorites, and how well every other word is sticking."
       actions={<ButtonLink href="/review/flashcards" variant="primary">Flash cards</ButtonLink>}
     >
-      {words.length === 0 && kept.length === 0 ? (
+      {words.length === 0 && kept.length === 0 && aside.length === 0 ? (
         <Empty
           title="Nothing answered yet"
           body="A word turns up here once you have answered it, or the moment you star one."
@@ -64,6 +73,7 @@ export default async function MasteryPage() {
       ) : (
         <Stack>
           <Favorites words={kept} total={keptTotal} />
+          <PutAside words={aside} />
           {words.length > 0 && <MasteryBoard words={words} counts={masteryCounts(words)} />}
         </Stack>
       )}

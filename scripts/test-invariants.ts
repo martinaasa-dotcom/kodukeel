@@ -15893,6 +15893,168 @@ check("the harvest tells a refusal from a miss and plans its write rather than t
   assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
 });
 
+/**
+ * "TOO COMPLICATED" MOVES A DATE AND TOUCHES NOTHING ELSE.
+ *
+ * The button's whole claim is that putting a word aside is not an answer to
+ * it: the word stops arriving, the scheduler is told nothing, and the review
+ * log, which is the one table whose loss is unrecoverable, does not grow a row
+ * about a question nobody was asked (ADR-014, ADR-016). Every way that could
+ * come apart is a line in the module that writes it, so the module is what is
+ * read.
+ */
+check("putting a word aside moves a date and grades nothing", () => {
+  const defer = code("lib/progress/deferrals.ts");
+
+  assert.doesNotMatch(
+    defer, /\breview\.create|\bgradeCard\b|writeGrade/,
+    "lib/progress/deferrals.ts writes a review. A word somebody put aside was "
+    + "not answered, and a row saying otherwise is a lapse the scheduler will "
+    + "act on for ever.",
+  );
+  assert.doesNotMatch(
+    defer, /stability:|difficulty:|reps:|lapses:|learningSteps:|state:\s*\d/,
+    "lib/progress/deferrals.ts writes an FSRS column. What it may move is `due`: "
+    + "the word comes back in three weeks in exactly the state it was in tonight.",
+  );
+  assert.doesNotMatch(
+    defer, /suspended:/,
+    "lib/progress/deferrals.ts suspends a card. `suspended` is the leech clinic's "
+    + "column and means \"not coming back until somebody says so\", which is the "
+    + "opposite of a deferral.",
+  );
+
+  /*
+    AND IT GIVES BACK ONLY WHAT IT TOOK. The cards this moved are the ones now
+    sitting on the date it wrote, so both ways back match on that date. A
+    blanket `due = now` over the word would hand a learner a card the scheduler
+    had honestly put six months out, which is the schedule being overwritten by
+    a button that promised not to touch it.
+  */
+  for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
+    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    assert.match(
+      body, /due: row\.untilAt/,
+      `${what} pulls cards forward without matching the date the deferral wrote, `
+      + "so a card FSRS had honestly put further out comes back early.",
+    );
+  }
+});
+
+/**
+ * AND THE TWO READS THAT IGNORE THE SCHEDULE ASK OUTRIGHT.
+ *
+ * Pushing `due` is what takes a deferred word out of review, out of Today's
+ * count and out of the new-card queue, and it is enough everywhere a read asks
+ * what is due. The ladder does not: between rungs a word sits ten minutes out,
+ * so its date says nothing about whether somebody refused it. Telling a ten
+ * minute step from a three week deferral by the size of the gap would be a
+ * guess with a constant in it, so those two ask.
+ */
+check("a read that ignores the schedule asks which words were put aside", () => {
+  for (const file of ["lib/progress/learn.ts", "lib/progress/summary.ts"]) {
+    assert.match(
+      code(file), /deferredWordIds\(/,
+      `${file} serves or counts a word part way up the ladder without asking `
+      + "which words were put aside, so a word the learner refused is taught again.",
+    );
+  }
+  // And the reads that do go by the date say so, or a word put aside is
+  // introduced as new on the next session.
+  assert.match(
+    code("app/(app)/review/page.tsx"), /state: 0, due: \{ lte: now \}/,
+    "the new-card queue stopped reading `due`, so a word put aside is introduced again",
+  );
+});
+
+/**
+ * WHAT ENOUGH PEOPLE SAY MOVES THE WORD, AND MOVES NOTHING IN THE DICTIONARY.
+ *
+ * The band the Institute recorded is the band the entry shows. What a
+ * deployment's own learners can move is the order words are taught in, which
+ * is derived on every read like every other ordering here (ADR-014).
+ */
+check("a word enough people put aside is offered later, not rewritten", () => {
+  const hard = code("lib/progress/hard.ts");
+  assert.doesNotMatch(
+    hard, /lexeme\.update|cefr:\s*(raise|offered)/,
+    "lib/progress/hard.ts writes a band into the dictionary. The count moves what "
+    + "is taught next, and the entry keeps the band it was recorded with.",
+  );
+  assert.match(
+    hard, /tooHardForEveryone\(/,
+    "lib/progress/hard.ts decides on its own what counts as too hard, rather than "
+    + "through the rule in lib/srs/defer.ts that the admin panel quotes back.",
+  );
+
+  // Both halves of the threshold, because a head count on its own would move a
+  // word five people out of four hundred put aside.
+  const rule = code("lib/srs/defer.ts");
+  assert.match(
+    rule, /learners < HARD_LEARNERS[\s\S]*?learners >= HARD_SHARE \* holders/,
+    "the raise stopped reading both the floor and the share",
+  );
+
+  // And the reach: the two places that decide which word somebody is taught
+  // next. A raise nobody reads is a count nobody acts on.
+  for (const file of ["app/(app)/review/page.tsx", "lib/progress/learn.ts"]) {
+    assert.match(
+      code(file), /offeredBand\(/,
+      `${file} bands a word by what the dictionary recorded rather than by what `
+      + "this deployment now offers it at, so the count moves nothing for anybody.",
+    );
+  }
+});
+
+/**
+ * AND THE WAY BACK IS A SCREEN SOMEBODY CAN OPEN.
+ *
+ * A panel nobody renders is a feature nobody has, which this repository has
+ * found twice. A button that takes words away without a list of what it took
+ * is worse than either: the learner cannot tell a word put aside from a word
+ * the app has quietly lost.
+ */
+check("the words put aside are listed, and one button puts them there", () => {
+  const callers = ALL.filter((file) => /\bputWordAside\b/.test(code(file)));
+  assert.deepEqual(
+    callers.sort(),
+    [join("app", "actions.ts"), join("components", "TooComplicated.tsx")].sort(),
+    `${callers.join(", ")} reach putWordAside. It has one caller, `
+    + "components/TooComplicated.tsx, so every screen draws the same button and "
+    + "says the same thing about what it did.",
+  );
+
+  const mastery = code(join("app", "(app)", "words", "mastery", "page.tsx"));
+  assert.match(
+    mastery, /<PutAside\b/,
+    "the mastery page imports the put-aside list and never draws it, so the only "
+    + "way back from \"too complicated\" is not on any screen.",
+  );
+  assert.match(
+    code(join("components", "PutAside.tsx")), /bringWordBack\(/,
+    "the put-aside list stopped offering a way back, which is the half that makes "
+    + "the button safe to press.",
+  );
+
+  // Both sessions that draw the button say what it did. The whole effect is a
+  // word that stops arriving, so a press that only made a card disappear reads
+  // as a fault.
+  for (const file of [
+    join("app", "(app)", "review", "ReviewSession.tsx"),
+    join("app", "(app)", "learn", "new", "LearnSession.tsx"),
+  ]) {
+    assert.match(
+      code(file), /<TooComplicated\b/,
+      `${file} stopped offering the button on the screen a word is met on`,
+    );
+    assert.match(
+      code(file), /\{aside\}/,
+      `${file} draws the button and never prints what it did, so the press reads `
+      + "as a card vanishing.",
+    );
+  }
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

@@ -10,6 +10,7 @@ import { Chip, Empty, KeyCap, Meter, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
+import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
@@ -141,6 +142,9 @@ export function LearnSession({
     const first = initial[initialIndex] ?? initial[0];
     return first ? { cardId: first.cardId, rung: first.rung } : null;
   });
+  /* What the "too complicated" button did, printed under the round: its whole
+     effect is a word that stops arriving, which is invisible tonight. */
+  const [aside, setAside] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("ask");
   const [result, setResult] = useState<Result | null>(null);
   const [typed, setTyped] = useState("");
@@ -255,6 +259,35 @@ export function LearnSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
   }, [queue]);
+
+  /**
+   * A word the learner has put aside, which is the mirror of the claim below.
+   *
+   * "I already know this one" and "too complicated" are the two things a
+   * learner can say at a first meeting that are not answers, and the meet rung
+   * is where both are said: one graduates the word and the other sends it away
+   * for a few weeks. Neither is graded, and this one writes nothing at all
+   * here, because `putWordAside` has already moved every card of the word.
+   *
+   * The seat always holds `queue[0]`, so dropping the head is the whole of it.
+   */
+  const putAside = useCallback((note: string) => {
+    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
+    const rest = queue.slice(1);
+    const nowId = rest[0];
+    setQueue(rest);
+    setSeat(nowId ? { cardId: nowId, rung: rungs[nowId] ?? "meet" } : null);
+    setAside(note);
+    setPhase("ask");
+    setResult(null);
+    setTyped("");
+    setVerdict(null);
+    setChosen(null);
+    setRetyped("");
+    setRetypeOk(false);
+    setRetypeNote(null);
+    shownAt.current = Date.now();
+  }, [queue, rungs]);
 
   /**
    * Grades the word's recognition card and works out where that leaves it.
@@ -428,6 +461,20 @@ export function LearnSession({
     );
   }
 
+  /*
+    What the "too complicated" button did, drawn once. Putting the last word of
+    a batch aside ends the round, so the note has to reach the summary too, and
+    two copies of a sentence is how the wording of one of them rots.
+  */
+  const asideNote = aside ? (
+    <p className="mt-5 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+      {aside}{" "}
+      <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+        Bring it back
+      </Link>
+    </p>
+  ) : null;
+
   if (finished) {
     const counts = tally(words.map((w) => rungs[w.cardId] ?? "meet"));
     const more = Math.max(0, waiting + started - total);
@@ -473,6 +520,8 @@ export function LearnSession({
             );
           })}
         </ul>
+
+        {asideNote}
 
         {pendingOffline > 0 && (
           <p
@@ -541,6 +590,16 @@ export function LearnSession({
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />
+            {/* And its opposite number. A word met for the first time is the
+                likeliest one in the app to be beyond somebody, and the only
+                answers the ladder offers are about how well they recalled it. */}
+            <TooComplicated
+              key={word.lexemeId}
+              lexemeId={word.lexemeId}
+              label={word.lemma}
+              context="/learn/new"
+              onDone={putAside}
+            />
           </div>
         </div>
 
@@ -824,6 +883,8 @@ export function LearnSession({
           ) : null}
         </div>
       </div>
+
+      {asideNote}
 
       <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         {answered > 0

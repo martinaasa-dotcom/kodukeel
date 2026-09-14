@@ -85,7 +85,7 @@ export default function PrivacyPage() {
         <P>
           <strong>Your learning.</strong> The cards in your deck, every review you have ever
           done (the grade, the moment, and how long you took), your tasks, your starred words,
-          your badges and your settings. The review log is what makes the scheduling work.
+          the words you have put aside as too complicated, your badges and your settings. The review log is what makes the scheduling work.
           It is the app&rsquo;s memory of how well you know each word, and an app that
           forgets it is not the app you signed up for.
         </P>
@@ -324,8 +324,8 @@ export default function PrivacyPage() {
           <strong>A copy of everything (access, and portability).</strong> Settings has an{" "}
           <strong>Export</strong> button that gives you the whole thing as a JSON file: every
           card, review, task, setting, scanned page, level check, mock exam paper with your
-          composition in it, tutor message, suggested fix, starred word, badge and class
-          membership. It is a
+          composition in it, tutor message, suggested fix, starred word, word put aside,
+          badge and class membership. It is a
           real backup, and the same file restores into a fresh installation. One thing is held
           back: the spending record described above, since that is this installation&rsquo;s
           accounting rather than your work. It is deleted with your account like everything

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { challengeFirst } from "@/lib/collections/levels";
+import { hardWords } from "@/lib/dict/facts";
+import { deferredWordIds } from "@/lib/progress/deferrals";
+import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions } from "@/lib/dict/facts";
@@ -228,26 +231,61 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
  */
 export async function learnBatch(
   ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
+  now = new Date(),
 ): Promise<LearnWord[]> {
-  const started = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
-    // Longest waiting first, and the id settles a tie: a word's cards are
-    // written in one insert and share a `due` to the millisecond.
-    orderBy: [{ due: "asc" }, { id: "asc" }],
-    take: size,
-    include: INCLUDE,
-  });
+  /*
+    A WORD PART WAY UP THE LADDER IS SERVED WHATEVER ITS DATE, WHICH IS WHY
+    THIS ONE HAS TO ASK.
+
+    Between rungs the scheduler puts a word ten minutes out, so this read
+    cannot filter on `due` without dropping the words the ladder is in the
+    middle of. Everything else on the daily path reads `due` and so needs
+    nothing: putting a word aside pushes it. Here the question is asked
+    outright, beside the read rather than after it.
+  */
+  const [startedRows, aside] = await Promise.all([
+    prisma.card.findMany({
+      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
+      // Longest waiting first, and the id settles a tie: a word's cards are
+      // written in one insert and share a `due` to the millisecond.
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: size,
+      include: INCLUDE,
+    }),
+    deferredWordIds(ownerId, now),
+  ]);
+  const started = startedRows.filter((card) => !card.lexemeId || !aside.has(card.lexemeId));
 
   const room = Math.max(0, size - started.length);
+  /*
+    A WORD THE LEARNER PUT ASIDE IS NOT TAUGHT AGAIN TONIGHT.
+
+    `due` is meaningless on a card that has never been asked, which is why this
+    read never filtered on it: every unseen card carries the moment it was
+    written. It stops being meaningless the moment somebody presses "too
+    complicated", because that is what a deferral moves (`lib/srs/defer.ts`),
+    and without this the ladder would teach a word the app had just promised
+    to leave alone for three weeks.
+  */
+  const raised = await hardWords();
   const fresh = room === 0 ? [] : challengeFirst(
     await prisma.card.findMany({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        due: { lte: now },
+      },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: NEW_CANDIDATES,
       include: INCLUDE,
     }),
     level,
-    (card) => card.lexeme?.cefr,
+    /*
+      The band this deployment offers the word at, which is one step up from
+      the dictionary's own where enough learners have put it aside. The whole
+      point of counting those presses is that the next learner is taught the
+      word later than the one who reported it was (`lib/srs/defer.ts`).
+    */
+    (card) => offeredBand(card.lexeme?.cefr ?? null, card.lexemeId !== null && raised.has(card.lexemeId)),
   ).slice(0, room);
 
   const rows = [...started, ...fresh].filter((row) => row.lexeme !== null);
@@ -355,14 +393,38 @@ export interface LearnCounts {
   started: number;
 }
 
-export async function learnCounts(ownerId: string): Promise<LearnCounts> {
-  const [waiting, started] = await Promise.all([
+export async function learnCounts(ownerId: string, now = new Date()): Promise<LearnCounts> {
+  /*
+    The same two guards `learnBatch` applies, because a number on Today that
+    the session then refuses to fill reads as a counting fault rather than as
+    a rule. Three reads that do not need each other's answers, so they are one
+    round trip rather than three.
+  */
+  const [waiting, started, aside] = await Promise.all([
     prisma.card.count({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        due: { lte: now },
+      },
     }),
     prisma.card.count({
       where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
     }),
+    deferredWordIds(ownerId, now),
   ]);
-  return { waiting, started };
+  /*
+    And the ones part way up that were put aside, counted in Postgres and
+    subtracted, which is one extra round trip for a learner who has put
+    something aside and none at all for everybody else. Counting the started
+    rows in this process instead would read a deck's worth of ids to answer
+    with one integer, which is the shape `lib/progress/impact.ts` calls out.
+  */
+  if (aside.size === 0) return { waiting, started };
+  const held = await prisma.card.count({
+    where: {
+      ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+      lexemeId: { in: [...aside] },
+    },
+  });
+  return { waiting, started: Math.max(0, started - held) };
 }

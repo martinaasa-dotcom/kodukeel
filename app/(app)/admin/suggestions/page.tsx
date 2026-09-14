@@ -8,6 +8,8 @@ import {
 } from "@/lib/suggestions/model";
 import { Card, Chip, Empty, Page } from "@/components/ui";
 import { QueueRows } from "./QueueRows";
+import { TooHard } from "./TooHard";
+import { hardWordReadings } from "@/lib/progress/hard";
 
 export const metadata = { title: "Suggested fixes · review queue" };
 
@@ -53,7 +55,15 @@ export default async function SuggestionsQueuePage({
     params.category && isCategory(params.category) ? params.category : null;
   const page = Math.max(0, Number.parseInt(params.page ?? "0", 10) || 0);
 
-  const queue = await readQueue({ status, category, page });
+  /*
+    Two questions that do not need each other's answers, so they are one round
+    trip: what learners wrote, and what they said with the button that asks for
+    no writing at all.
+  */
+  const [queue, tooHard] = await Promise.all([
+    readQueue({ status, category, page }),
+    hardWordReadings(),
+  ]);
   const openTotal = queue.totals.OPEN;
 
   const href = (next: { status?: SuggestionStatus; category?: SuggestionCategory | null; page?: number }) => {
@@ -134,6 +144,8 @@ export default async function SuggestionsQueuePage({
         have just dealt with it".
       */}
       <QueueRows rows={queue.rows} status={status} />
+
+      <TooHard words={tooHard} />
 
       {queue.groups > QUEUE_PAGE_SIZE && (
         <Card className="mt-6 flex items-center justify-between gap-3">

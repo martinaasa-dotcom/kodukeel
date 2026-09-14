@@ -13,6 +13,7 @@ import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { prefetchClip } from "@/lib/audio/clip";
 import { SuggestFix } from "@/components/SuggestFix";
 import { StarWord } from "@/components/StarWord";
+import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import type { GlossedToken } from "@/lib/dict/glossed";
@@ -423,6 +424,16 @@ export function ReviewSession({
   const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
   const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
+  /*
+    WHAT THE "TOO COMPLICATED" BUTTON DID, SAID OUT LOUD.
+
+    Its whole effect is that a word stops arriving for three weeks, which is
+    nothing anybody can see tonight, so the sentence it hands back is printed
+    under the card with the way to undo it beside it. Held until the next
+    press rather than cleared on a timer: it is the only record on this screen
+    that the press landed at all.
+  */
+  const [aside, setAside] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
@@ -617,6 +628,36 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
   }, [card, busy, index]);
+
+  /**
+   * A word the learner has just put aside.
+   *
+   * Every card of that word goes out of this session, not only the one on
+   * screen: `putWordAside` has pushed all of them, so leaving a sibling in the
+   * queue would ask about a word the app has just promised not to ask about.
+   * The index moves back by however many of them were already behind us, so
+   * the position that was next stays next.
+   *
+   * Nothing is graded and nothing goes in the history, because nothing was
+   * answered: undo rewinds a grade, and there is no grade here (ADR-016). The
+   * way back is the one the note names.
+   */
+  const putAside = useCallback((note: string) => {
+    if (!card) return;
+    const word = card.lexemeId;
+    const behind = queue.slice(0, index).filter((c) => c.lexemeId === word).length;
+    setQueue((q) => q.filter((c) => c.lexemeId !== word));
+    setIndex((i) => Math.max(0, i - behind));
+    setAside(note);
+    setRevealed(false);
+    setTyped("");
+    setVerdict(null);
+    setChosen(null);
+    setRetyped("");
+    setRetypeOk(false);
+    setRetypeNote(null);
+    shownAt.current = Date.now();
+  }, [card, queue, index]);
 
   const submit = useCallback(async (rating: RatingValue) => {
     if (!card || busy) return;
@@ -878,6 +919,23 @@ export function ReviewSession({
     );
   }
 
+  /*
+    WHAT THE "TOO COMPLICATED" BUTTON DID, DRAWN ONCE.
+
+    Both screens below can be the one a press lands on: putting the last word
+    of a session aside ends the session, so the note has to survive onto the
+    summary or the press reads as a card that vanished. One expression rather
+    than two copies, because the second copy is the one whose wording rots.
+  */
+  const asideNote = aside ? (
+    <p className="mt-4 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+      {aside}{" "}
+      <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+        Bring it back
+      </Link>
+    </p>
+  ) : null;
+
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
@@ -904,7 +962,11 @@ export function ReviewSession({
           <StatTile value={`${accuracy}%`} label="Recalled" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        {pendingOffline > 0 && (
+        {/* A word put aside as the last card of a session ends it, so the note
+            belongs here too: the one drawing is `asideNote`, because two
+            wordings of what a press did is how the copy in one of them rots. */}
+        {asideNote}
+      {pendingOffline > 0 && (
           <p
             className="mt-4 rounded-[var(--r)] px-4 py-3 text-sm"
             style={{ background: "var(--hard-soft)", color: "var(--hard-ink)" }}
@@ -985,6 +1047,19 @@ export function ReviewSession({
                 lexemeId={card.lexemeId}
                 starred={card.starred}
                 label={card.lemma ?? card.front}
+              />
+            )}
+            {/* And beside it, the other thing somebody wants to do with a word
+                mid-card: keep it, or put it away. Both are about the word
+                rather than about the answer, which is why they sit together
+                and not among the rating keys. */}
+            {card.lexemeId && (
+              <TooComplicated
+                key={card.lexemeId}
+                lexemeId={card.lexemeId}
+                label={card.lemma ?? card.front}
+                context="/review"
+                onDone={putAside}
               />
             )}
           </div>
@@ -1349,6 +1424,7 @@ export function ReviewSession({
         </span>
       </div>
 
+      {asideNote}
       {pendingOffline > 0 && (
         <p className="mt-3 text-center text-xs" style={{ color: "var(--hard-ink)" }}>
           You&rsquo;re offline. {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here, sent once you reconnect.

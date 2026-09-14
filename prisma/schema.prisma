@@ -581,6 +581,74 @@ model Encounter {
   @@index([ownerId, createdAt])
 }
 
+/// A word one learner said was too complicated, and when it comes back.
+///
+/// The one row in this app that records a judgment about a *card* rather than
+/// about a recall. Every rating a learner gives says how well a memory held
+/// up; this says the question was not worth their evening yet, which none of
+/// Again, Hard, Good or Easy can say and which the scheduler would otherwise
+/// read as somebody learning slowly. `lib/srs/defer.ts` decides how long and
+/// on what grounds, and nothing here touches an FSRS column: putting a word
+/// aside moves `Card.due` and writes no `Review`, because a word nobody
+/// answered is not an answer (ADR-014, ADR-016).
+///
+/// ONE ROW PER LEARNER PER WORD, which is what makes the deployment-wide count
+/// mean people rather than presses. It is the rule `groupKeyFor` states for
+/// the suggestion queue one table over, and it is the reason this is the rare
+/// owner-scoped table here that is updated rather than appended to: a second
+/// press extends the wait on the row that is already there. Nothing is lost by
+/// that, because a deferral is a live state like a star rather than evidence
+/// like a review.
+///
+/// `lexemeId` is a plain column with no relation, for the reason `Suggestion`'s
+/// is: what a learner said about a word has to outlive the entry, and merging
+/// or correcting one must not cascade the report away.
+///
+/// Owner-scoped, so it is in the export, in the erasure and in a restore.
+model Deferral {
+  id       String @id @default(uuid())
+  ownerId  String
+  lexemeId String
+  /// The word as it stood, so the admin count reads without a join and a
+  /// report survives the entry being merged away.
+  lemma    String
+
+  /// The band the word was offered at when they said so, and the learner's own
+  /// level then. Both are kept because the pair is the whole diagnosis: a
+  /// deployment where twelve A1 learners put the same A1 word aside has a
+  /// course problem, and twelve C1 learners putting a C1 word aside is nothing.
+  band  String?
+  level String?
+
+  /// WEEKS (a few weeks, then back) or BAND (it waits for a band).
+  reason     String
+  /// When it comes back whatever else happens.
+  untilAt    DateTime
+  /// The band it waits for, where it waits for one. Reaching that band brings
+  /// it back sooner, which is what makes `untilAt` a backstop.
+  untilLevel String?
+  /// How many times this learner has said it about this word. The count the
+  /// admin panel ranks by is people; this is how loudly one of them said it.
+  times      Int      @default(1)
+
+  /// Set when the wait ended early, which is the learner reaching the band the
+  /// word was waiting for. The row stays, because what they said is still true
+  /// of the evening they said it and the deployment-wide count is built from
+  /// it; what a read path needs to know is whether it is still holding, and a
+  /// column says that without every one of them fetching a level first.
+  wokenAt DateTime?
+
+  /// Where they were standing when they pressed it: "/review", "/learn/new".
+  context String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([ownerId, lexemeId])
+  @@index([ownerId, untilAt])
+  @@index([lexemeId])
+}
+
 /// A placement check the learner sat: reading, listening, writing, speaking.
 ///
 /// Stored, unlike everything else on the progress side of this app, and it is

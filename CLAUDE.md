@@ -3454,6 +3454,79 @@ would lose a due card in silence. New cards do not go through it: `inTeachingOrd
 cards together in the order a lesson teaches them, and a first meeting is a teaching screen rather
 than a retrieval.
 
+**"Too complicated" is the fifth thing a learner can say about a card, and it is the only one
+that is not about their memory.** Again, Hard, Good and Easy all answer "how well did that go", and
+a word three bands past somebody has no honest answer among them: pressing Again brings it straight
+back and records a lapse, so the word that arrived early is the one the scheduler drills hardest,
+and the leech clinic, which is for a word somebody keeps failing, catches it a fortnight later and
+calls it the same thing. A learner meeting `kestma` in their first month is not learning slowly.
+
+**What it does is move `Card.due` and nothing else.** No FSRS column, no `Review` row, no grade,
+because a word nobody answered is not an answer (ADR-014, ADR-016). Every read on the daily path
+already filters on `due`, so a pushed card is out of review, out of Today's count and out of the
+new-card queue with no query learning a new predicate; the two reads that deliberately ignore the
+schedule, the ladder's own started words and the count beside them, ask `deferredWordIds` outright,
+because between rungs a word sits ten minutes out and telling that from a three week deferral by the
+size of the gap would be a guess with a constant in it. Nothing is `suspended`: that is the leech
+clinic's column and it means "not coming back until somebody says so", which is the opposite.
+
+**And it gives back only what it took.** The cards a deferral moved are exactly the ones now sitting
+on the date it wrote, so the undo and the level wake both match on that date. A blanket `due = now`
+over the word would hand somebody a card the scheduler had honestly put six months out, which is the
+schedule being overwritten by the one button that promised not to touch it.
+`lib/progress/deferrals.itest.ts` has a card six months out in every fixture, because no unit test
+can see this.
+
+**How long is decided by the word's own band and there are two answers.** A word at or below the
+learner's level goes back three weeks: a bad evening is a bad evening. A word above it did not
+arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
+where it comes back, since that is the one writer of a level and a level moves about twice a year.
+The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
+`lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
+of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes
+back still beyond them the button is one press away. An untagged word takes the plain three weeks,
+because a word somebody typed in or photographed carries no claim about its difficulty and reading a
+missing band as "beyond them" would put their own word away for a term.
+
+**And when enough people say it, the course is what is wrong.** One learner putting a word aside is
+a fact about their evening. Enough of them is a fact about where the word sits, and leaving each of
+them to discover it one at a time is this app knowing something and not acting on it. So a word
+enough people have put aside is *offered* one band later, for everybody, which reaches the two
+places that decide which word somebody is taught next: the new-card ordering on `/review` and the
+ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
+hold the word is the course being wrong and five out of four hundred is five people having a bad
+week, and the denominator is how many learners hold a card for it. **One band and never more**,
+never past C2, and never for a word that carries no band: a word moved once has to earn the next
+step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
+word off the top of the course.
+
+**Nothing is written to `Lexeme`.** The band the Institute recorded is the band the entry shows, and
+what moved is the order words are taught in, derived on every read like every other ordering here.
+The counting is `lib/progress/hard.ts` rather than `lib/dict/facts.ts`, which caches it: that file
+is asserted to hold nothing scoped to a person and the denominator is a `COUNT(DISTINCT "ownerId")`,
+so the query lives one module over rather than the rule being widened to let it in.
+
+**One row per learner per word, which is what makes the count mean people.** It is the rule
+`groupKeyFor` states for the suggestion queue and it is why `Deferral` is the rare owner-scoped
+table here that is updated rather than appended to: a second press extends the wait on the row that
+is already there and `times` records how loudly one person said it. A wait ended early is stamped
+(`wokenAt`) rather than deleted, so what somebody said stays true of the evening they said it and no
+read path has to fetch a level to find out whether a deferral is still holding.
+
+**And the words it takes are listed where somebody can get them back.** `/words/mastery`, beside the
+favorites, because those are the two lists on that page a learner wrote themselves and a second page
+for a handful of words is a page nobody finds. A button whose whole effect is invisible for three
+weeks has to say what it did, so the sentence `deferralNote` writes is printed under the card with
+the way back beside it: a press that only made a card disappear reads as a fault. What the admin
+sees is a reading rather than a queue, on `/admin/suggestions` under the reports, with the words
+under the threshold in it too, since a word at four learners out of nine is the next one to look at
+and a panel showing only what has already been acted on is reporting its own decisions back.
+
+**What this does not reach is the drills.** Practice rounds ignore scheduling on purpose and say so,
+so a word put aside can still turn up in dictation or in a game, exactly as a word due next month
+can. The deferral holds where the app chooses what to teach, which is review and the ladder, and
+that is the line rather than an omission.
+
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
@@ -7210,7 +7283,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
+`deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
+`putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
