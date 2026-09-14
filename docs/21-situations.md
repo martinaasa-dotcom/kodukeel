@@ -4744,6 +4744,25 @@ turns is $0.014 before and $0.005 after, and the ledger sees all of it, because 
 and its storage are booked on the turn that made it (`cacheStorageAsInputTokens`) and the cached
 share travels as `cachedInputTokens` into the same settlement every other call writes.
 
+**Making the entry is most of a run's bill now, and two things were tried against that.** In the
+cached play run, fourteen creations came to about $0.039 against $0.028 for all ninety-four turns.
+The first lever is that the entry's life slides: an entry a turn lands on with under half its term
+left is asked for another ten minutes with one `PATCH` and no tokens (probed: the new expiry is
+measured from the call), the storage that buys is booked on the turn that asked, and an entry
+nobody is talking against lapses on its own. So a long run pays for one entry rather than two. The
+second was moving the drawn persona out of the entry into the per-turn block, so that the five
+personas of a scene share one entry instead of making five. It was measured and reverted:
+
+| persona | runs | drafted | withheld |
+|---|---|---|---|
+| in the cached entry | 2 | 94, 94 | 12, 11 (12 percent) |
+| in the per-turn block | 3 | 102, 96, 98 | 21, 14, 16 (17 percent) |
+
+Five points over three runs is past the noise, and what is under it is the model losing its
+character when the line saying who it is arrives after the conversation rather than before it.
+One entry per persona costs about $0.0028 once; a run falling to the bank costs the conversation
+its voice, so the persona stays where it was and the invariant says so.
+
 **The live block moved, and the harness moved with it.** A cache entry is fixed, so the per-turn
 block cannot be appended to the system prompt any more; it goes in front of "Your line:" in the
 last user message, after the conversation, which is where its own text says it sits. The harness

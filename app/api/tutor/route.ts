@@ -1,4 +1,5 @@
 import { after } from "next/server";
+import { forTheModel } from "@/lib/tutor/transcript";
 import { forgetOldMessages } from "@/lib/tutor/history";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -21,31 +22,6 @@ import { reportError } from "@/lib/observability/report";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
-
-const MAX_HISTORY = 20;
-/**
- * And how much of it, in characters, whatever the count. Twenty turns of up
- * to eight thousand characters each is a 160,000-character request, forty
- * thousand tokens read on every question after the twentieth, for a
- * conversation whose useful part is the last exchange or two: a learner
- * pasting a text into Anu three times over an evening was paying for all
- * three on every "why". The newest turns are kept whole and the oldest go
- * first, so what a question refers to is always what survives.
- */
-const MAX_HISTORY_CHARS = 24_000;
-
-/** The newest turns that fit the character budget, oldest first, never a turn cut in the middle. */
-function withinBudget(messages: readonly ChatMessage[]): ChatMessage[] {
-  const kept: ChatMessage[] = [];
-  let spent = 0;
-  for (let i = messages.length - 1; i >= 0; i -= 1) {
-    const message = messages[i]!;
-    if (kept.length > 0 && spent + message.content.length > MAX_HISTORY_CHARS) break;
-    kept.unshift(message);
-    spent += message.content.length;
-  }
-  return kept;
-}
 
 /*
   How many questions one learner may ask in a minute.
@@ -117,17 +93,16 @@ export async function POST(request: Request) {
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
       return Response.json({ error: "Nothing to ask." }, { status: 400 });
     }
-    messages = body.messages
-      .slice(-MAX_HISTORY)
+    messages = forTheModel(body.messages
       .filter((m): m is ChatMessage =>
         typeof m === "object" && m !== null &&
         (("role" in m && (m.role === "user" || m.role === "assistant"))) &&
-        "content" in m && typeof (m as ChatMessage).content === "string")
-      .map((m) => ({ role: m.role, content: m.content.slice(0, 8000) }));
-    messages = withinBudget(messages);
+        "content" in m && typeof (m as ChatMessage).content === "string"));
   } catch {
     return Response.json({ error: "Something about that request didn't make sense." }, { status: 400 });
   }
+  // A transcript of nothing but the app's own failure bubbles is nothing to ask, and books nothing.
+  if (messages.length === 0) return Response.json({ error: "Nothing to ask." }, { status: 400 });
 
   const decision = await authoriseCall(ownerId, "TUTOR");
   if (!decision.allowed) {

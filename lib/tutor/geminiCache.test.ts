@@ -9,6 +9,7 @@ const LINK: ProviderConfig = { name: "gemini", model: "gemini-3.8-flash", label:
 function google(calls: { url: string; body: string }[], opts: { createStatus?: number; generateStatus?: number } = {}) {
   return async (url: string, init: RequestInit) => {
     calls.push({ url: String(url), body: String(init.body) });
+    if (init.method === "PATCH") return Response.json({ name: "cachedContents/abc" });
     if (String(url).includes("/cachedContents")) {
       if (opts.createStatus) return new Response("no", { status: opts.createStatus });
       return Response.json({ name: "cachedContents/abc", usageMetadata: { totalTokenCount: 1592 } });
@@ -79,6 +80,37 @@ describe("the scene prompt held on Google's side", () => {
     const usage = usageFromMetadata({ promptTokenCount: 100, cachedContentTokenCount: 80, candidatesTokenCount: 20, thoughtsTokenCount: 300 }, null);
     expect(usage).toMatchObject({ inputTokens: 100, cachedInputTokens: 80, outputTokens: 320 });
     expect(usageFromMetadata(undefined, null).measured).toBe(false);
+  });
+
+  it("extends an entry with under half its life left, once, and books the storage it bought", async () => {
+    const calls: { url: string; body: string }[] = [];
+    vi.stubGlobal("fetch", google(calls));
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-09-14T12:00:00Z"));
+      const first = await geminiCachedReply(LINK, "S", [{ role: "user", content: "hi" }]);
+      expect(first.usage.inputTokens).toBe(1704 + 1592 + cacheStorageAsInputTokens("gemini-3.8-flash", 1592, CACHE_TTL_SECONDS));
+      /* Four minutes in, more than half the term is left: nothing to extend, nothing extra to pay. */
+      vi.setSystemTime(new Date("2026-09-14T12:04:00Z"));
+      const second = await geminiCachedReply(LINK, "S", [{ role: "user", content: "hi" }]);
+      expect(second.usage.inputTokens).toBe(1704);
+      expect(calls.filter((c) => c.url.includes("updateMask=ttl"))).toHaveLength(0);
+      /* Six minutes in, four are left: one PATCH, and six more minutes of storage booked on this turn. */
+      vi.setSystemTime(new Date("2026-09-14T12:06:00Z"));
+      const third = await geminiCachedReply(LINK, "S", [{ role: "user", content: "hi" }]);
+      const patches = calls.filter((c) => c.url.includes("updateMask=ttl"));
+      expect(patches).toHaveLength(1);
+      expect(JSON.parse(patches[0]!.body).ttl).toBe(`${CACHE_TTL_SECONDS}s`);
+      expect(third.usage.inputTokens).toBe(1704 + cacheStorageAsInputTokens("gemini-3.8-flash", 1592, 360));
+      /* And it is not remade: one creation over the whole run. */
+      expect(calls.filter((c) => c.url.endsWith("/cachedContents?key=gem-key"))).toHaveLength(1);
+      /* Twenty-one minutes in, the extended term has lapsed with nothing said in it, so it is made again. */
+      vi.setSystemTime(new Date("2026-09-14T12:21:00Z"));
+      await geminiCachedReply(LINK, "S", [{ role: "user", content: "hi" }]);
+      expect(calls.filter((c) => c.url.endsWith("/cachedContents?key=gem-key"))).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("falls back to the plain transport on a link that will not hold the prompt, and never loses the line", async () => {

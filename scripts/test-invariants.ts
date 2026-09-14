@@ -12247,9 +12247,18 @@ check("the scene prompt is served off a cache entry, by one module, on the route
   /* The creation is booked on the turn that made it, storage included, so the cap sees the whole bill. */
   assert.match(
     code("lib/tutor/geminiCache.ts"),
-    /created\.tokens \+ cacheStorageAsInputTokens\(created\.model, created\.tokens, CACHE_TTL_SECONDS\)/,
-    "the turn that makes a cache entry no longer books the tokens written and the storage",
+    /\(booked\.written \? booked\.tokens : 0\)\s*\+ cacheStorageAsInputTokens\(booked\.model, booked\.tokens, booked\.storageSeconds\)/,
+    "the turn that makes or extends a cache entry no longer books the tokens written and the storage it bought",
   );
+  /*
+    The persona stays in the cached half, measured: in the per-turn block it
+    saved an entry per persona and cost five points of withheld share over
+    three runs of every scene (§63). And an entry near its end is extended
+    rather than remade, so a long run pays for one.
+  */
+  const systemBlock = /export function composeSystem\([\s\S]*?\n\}/.exec(code("lib/scenes/prompt.ts"))?.[0] ?? "";
+  assert.match(systemBlock, /scene\.persona/, "the persona left the cached half, which was measured at five points more withheld (§63)");
+  assert.match(code("lib/tutor/geminiCache.ts"), /method: "PATCH"/, "a near-expiry entry is no longer extended, so a long run remakes it at full price");
   assert.match(
     code("lib/usage/pricing.ts"),
     /"gemini-3\.8-flash": \{[^}]*cacheStoragePerMTokHour: 0\.5/,

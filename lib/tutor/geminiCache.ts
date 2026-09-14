@@ -35,7 +35,12 @@
  * forgets on the way out. A miss costs exactly what every turn cost before,
  * one base-rate read, plus the storage; it never costs a line. Keyed on the
  * model and the whole system text, so two scenes, two bands or two personas
- * are two entries and a prompt edit is a new one.
+ * are two entries and a prompt edit is a new one. Moving the persona out to
+ * share an entry across personas was tried and measured worse (§63).
+ *
+ * AND IT SLIDES: an entry a turn lands on with under half its life left is
+ * asked for another term, so a run that keeps talking never pays to remake
+ * it, and one nobody is talking against lapses (`EXTEND_BELOW_MS`).
  *
  * FAILING IS NEVER LOSING THE LINE. An entry that cannot be created (the
  * prompt under the provider's minimum, a field the API stopped taking, a bad
@@ -68,10 +73,29 @@ export const CACHE_TTL_SECONDS = 600;
 /** How close to expiry an entry is treated as gone, so a call never lands on one mid-eviction. */
 const SLACK_MS = 20_000;
 
+/**
+ * THE LIFE SLIDES WITH USE. An entry with less than this left when a turn
+ * lands on it is asked for another `CACHE_TTL_SECONDS` from now, which is one
+ * `PATCH` and no tokens (probed 2026-09-14: the new expiry is measured from
+ * the moment of the call). So a run that keeps talking never remakes its
+ * entry, and an entry nobody is talking against lapses on its own; the
+ * storage the extension costs is booked on the turn that asked for it, the
+ * way the creation is booked on the turn that made it.
+ */
+const EXTEND_BELOW_MS = CACHE_TTL_SECONDS * 1000 / 2;
+
 interface Entry {
   readonly name: string;
   readonly tokens: number;
-  readonly expiresAt: number;
+  expiresAt: number;
+}
+
+/** What this turn owes for the entry it used: the tokens written, if it made it, and the seconds of storage it bought. */
+export interface Booked {
+  readonly tokens: number;
+  readonly model: string;
+  readonly written: boolean;
+  readonly storageSeconds: number;
 }
 
 /** Live entries, keyed on model and system text. Bounded by `MAX_ENTRIES`, oldest first. */
@@ -103,14 +127,19 @@ function keyOf(): string {
 }
 
 /**
- * The entry for this prompt, made where none is live. The second field says
- * whether this call made it, so the caller books the creation on this turn.
+ * The entry for this prompt, made where none is live and extended where it is
+ * near its end, with what this call owes for either.
  */
-async function entryFor(config: ProviderConfig, system: string): Promise<{ entry: Entry; created: boolean }> {
+async function entryFor(config: ProviderConfig, system: string): Promise<{ entry: Entry; booked: Booked | null }> {
   trim();
   const key = keyFor(config.model, system);
   const held = entries.get(key);
-  if (held) return { entry: held, created: false };
+  if (held) {
+    const now = Date.now();
+    if (held.expiresAt - now > EXTEND_BELOW_MS) return { entry: held, booked: null };
+    const bought = await extend(config, held, now);
+    return { entry: held, booked: bought > 0 ? { tokens: held.tokens, model: config.model, written: false, storageSeconds: bought } : null };
+  }
 
   const res = await fetch(`${BASE}/cachedContents?key=${keyOf()}`, {
     method: "POST",
@@ -136,7 +165,30 @@ async function entryFor(config: ProviderConfig, system: string): Promise<{ entry
     expiresAt: Date.now() + CACHE_TTL_SECONDS * 1000,
   };
   entries.set(key, entry);
-  return { entry, created: true };
+  return { entry, booked: { tokens: entry.tokens, model: config.model, written: true, storageSeconds: CACHE_TTL_SECONDS } };
+}
+
+/**
+ * Asks the provider to keep an entry another term, and returns the seconds of
+ * storage that bought. A refusal costs nothing: the entry keeps the life it
+ * had, and if that runs out the next call finds it gone and makes it again.
+ */
+async function extend(config: ProviderConfig, entry: Entry, now: number): Promise<number> {
+  try {
+    const res = await fetch(`${BASE}/${entry.name}?key=${keyOf()}&updateMask=ttl`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ttl: `${CACHE_TTL_SECONDS}s` }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) return 0;
+    const until = now + CACHE_TTL_SECONDS * 1000;
+    const bought = Math.max(0, Math.round((until - entry.expiresAt) / 1000));
+    entry.expiresAt = until;
+    return bought;
+  } catch {
+    return 0;
+  }
 }
 
 /** What Google's own API says a call cost, in its own field names. */
@@ -160,22 +212,23 @@ interface GenerateReply {
  * a caller that only knows about `inputTokens` still sees the whole call and
  * still errs high, exactly as `absorbUsage` keeps the Anthropic total.
  */
-export function usageFromMetadata(meta: UsageMetadata | undefined, created: { tokens: number; model: string } | null): UsageReport {
+export function usageFromMetadata(meta: UsageMetadata | undefined, booked: Booked | null): UsageReport {
   const prompt = meta?.promptTokenCount ?? 0;
   const cached = meta?.cachedContentTokenCount ?? 0;
   const output = (meta?.candidatesTokenCount ?? 0) + (meta?.thoughtsTokenCount ?? 0);
   /*
-    The creation, on the turn that made the entry: the tokens written, at
-    base, and the storage for the entry's term, as the base-rate tokens that
-    cost the same. Both are plain input rather than a cache bucket, because
-    Google bills a write at the ordinary rate and this is the call that made
-    it, and the ten minutes are paid for whether the run lasts them or not.
+    What this turn owes for the entry: the tokens written, at base, on the
+    turn that made it, and the storage it bought, on the turn that made it or
+    extended it, as the base-rate tokens that cost the same. Both are plain
+    input rather than a cache bucket, because Google bills a write at the
+    ordinary rate, and a term is paid for whether the run lasts it or not.
   */
-  const creation = created
-    ? created.tokens + cacheStorageAsInputTokens(created.model, created.tokens, CACHE_TTL_SECONDS)
+  const owed = booked
+    ? (booked.written ? booked.tokens : 0)
+      + cacheStorageAsInputTokens(booked.model, booked.tokens, booked.storageSeconds)
     : 0;
   return {
-    inputTokens: prompt + creation,
+    inputTokens: prompt + owed,
     outputTokens: output,
     cachedInputTokens: cached,
     measured: meta != null,
@@ -215,7 +268,7 @@ export async function geminiCachedReply(
   live = "",
   maxTokens = SCENE_REPLY_TOKENS,
 ): Promise<{ text: string; usage: UsageReport }> {
-  const { entry, created } = await entryFor(config, system);
+  const { entry, booked } = await entryFor(config, system);
   const body = {
     cachedContent: entry.name,
     contents: contentsFor(messages, live),
@@ -247,7 +300,7 @@ export async function geminiCachedReply(
   }
   const reply = await res.json() as GenerateReply;
   const text = reply.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
-  const usage = usageFromMetadata(reply.usageMetadata, created ? { tokens: entry.tokens, model: config.model } : null);
+  const usage = usageFromMetadata(reply.usageMetadata, booked);
   if (reply.candidates?.[0]?.finishReason === "MAX_TOKENS") usage.truncated = true;
   return { text, usage };
 }

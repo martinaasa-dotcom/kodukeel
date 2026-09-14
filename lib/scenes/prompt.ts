@@ -315,7 +315,13 @@ export function composeSystem(scene: ComposeScene): string {
     pitchFor(scene.level),
     /*
       Last, because it is the one line drawn per run: everything above it is
-      shared by every run of this scene at this band.
+      shared by every run of this scene at this band. It stays in the constant
+      half even though it costs a cache entry per persona: moved into the
+      per-turn block, so that five personas share one entry, the withheld
+      share went from 12 percent to 17 over three runs of every scene
+      (docs/21-situations.md §63), which is the model losing its character
+      when the line saying who it is arrives last. An entry is cheaper than
+      a run falling to the bank.
     */
     `You are the person the learner has come to. ${scene.persona}`,
   ].filter(Boolean).join("\n");
