@@ -3233,6 +3233,34 @@ partitive without naming it, which is what the prompt asks for.
 | `gemini-3.1-flash-lite` | 25/29 | 8 in 37 | 36 (0) | 1.8 | $0.97 |
 | `openai/gpt-oss-20b`, old prompt | 21/29 | 4 | 29 (9) | 2.3 | $0.44 |
 
+**And the cheaper Gemini rows were each asked the same questions before the primary was kept, because
+four times the price is a decision and not a default.** Two of them are gone: Google answers
+"no longer available to new users" for `gemini-2.5-flash` and `gemini-2.5-flash-lite`, so the price
+rows are for a deployment that already had them. `gemini-3.5-flash-lite` refuses the thinking-off
+flag on both endpoints and does not think by default, so it was measured as it comes: 51 of 58 over
+two runs, eight stray `FIX:` lines and `töötulan`, a form of nothing, at $0.33. `gemma-4-26b` on the
+same key timed out or was throttled on 25 of 37 asks, wrote `jale` on one it answered, and has no
+price on file, so it prices at the dearest row. `gemini-3.1-flash-lite` is the one that came close:
+54 of 58 with no form invented, at $0.30 a thousand held, which is what a stray `FIX:` line under
+sixteen of its seventy-four answers cost the screen rather than the bill. That line is dropped
+mechanically now, on every model, decided from the learner's own message and how many of its words
+the dictionary vouched for (`lib/tutor/fixLine.ts`), and measured again with the guard the Lite
+comes to 53 of 58 and two `FIX:` lines, both real corrections. What is left is the answers rather
+than the rate: asked to explain `tuba : toa` it wrote, twice, that a "double vowel u" softens,
+where the b drops and the dictionary's own grade note beside the word said so; it wrote
+`alalaleütlev` for the case it was naming; and its answers run 68 words at the median against the
+primary's 48. A wrong explanation of gradation on the one question that is about gradation is the
+fault this app calls worse than no answer, so the primary stays `gemini-3.8-flash` at $1.28 held,
+and the Lite is one constant away for a deployment that would rather have the explanations at a
+quarter of the price.
+
+| cheaper candidate, finished shape, held | facts | stray FIX | wrong form | per thousand |
+|---|---|---|---|---|
+| `gemini-3.1-flash-lite`, two runs, guard on | 53/58 | 2, both corrections | none; `alalaleütlev` for the case name | $0.30 |
+| `gemini-3.5-flash-lite`, two runs | 51/58 | 8 | `töötulan` | $0.33 |
+| `gemma-4-26b-a4b-it` | 11/11 of 12 answered | 0 | `jale` | no rate on file |
+| `gemini-2.5-flash`, `gemini-2.5-flash-lite` | not available to this key | | | |
+
 **Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
 Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the
 grader's own model takes 24. `gemini-3.1-flash-lite` reads a photographed page perfectly at a third

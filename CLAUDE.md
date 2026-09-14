@@ -6766,8 +6766,14 @@ block after the learner's note and the harness builds the same block off the shi
 Measured on that shape, `openai/gpt-oss-120b` still taught a wrong form three times in ninety-three
 answers and `gemini-3.8-flash`, thinking off, taught none, so Anu answers on Gemini with Groq as
 her fixed backup, both pinned like the scene links, and her static prompt is held on Google's side:
-$1.28 a thousand answers against $0.32, for the faults a learner cannot see (`docs/21-situations.md`
-§55).
+$1.28 a thousand answers against $0.32, for the faults a learner cannot see. **The cheaper Gemini
+rows were each asked the same questions first**: two are no longer sold to this key,
+`gemini-3.5-flash-lite` invented a form, and `gemini-3.1-flash-lite` at $0.30 invented none and
+explained `tuba : toa` wrongly both times it was asked, with the grade note in front of it, which
+is the one fault worse than no answer on the one question about gradation. And a `FIX:` line under
+a question that had no sentence to correct is dropped on every model, decided from the learner's
+own message and the words the dictionary vouched in it (`lib/tutor/fixLine.ts`), because the
+screen boxes that line as a correction of something they wrote (`docs/21-situations.md` §55).
 
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather
