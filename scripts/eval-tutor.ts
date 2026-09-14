@@ -148,8 +148,24 @@ if (effort && effort !== "none" && effort !== "low") {
   process.exit(1);
 }
 
+/*
+ * `--gemini a,b` and `--groq a,b` name models to measure that are not wired
+ * anywhere, the way `eval:composers` takes them, so a candidate is measured
+ * before it is pinned. A model the price table does not name prices at the
+ * dearest row, which the summary line says.
+ */
+function listed(name: string): string[] {
+  return flag(name).split(",").map((m) => m.trim()).filter(Boolean);
+}
 function candidates(): ProviderConfig[] {
   const out: ProviderConfig[] = [];
+  const extraGemini = listed("--gemini");
+  const extraGroq = listed("--groq");
+  if (extraGemini.length > 0 || extraGroq.length > 0) {
+    for (const model of extraGemini) out.push({ name: "gemini", model, label: "Google Gemini", reasoning: "none" });
+    for (const model of extraGroq) out.push({ name: "groq", model, label: "Groq" });
+    return out;
+  }
   if (process.env.ANTHROPIC_API_KEY) {
     out.push({ name: "anthropic", model: "claude-sonnet-5", label: "Anthropic" });
     out.push({ name: "anthropic", model: "claude-haiku-4-5", label: "Anthropic" });
