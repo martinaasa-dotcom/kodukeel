@@ -91,7 +91,13 @@ describe("a grammar point carries both names", () => {
     const inessive = grammarPoint("inessive");
     expect(inessive?.title).toBe("seesütlev");
     expect(inessive?.estonian).toBe(true);
-    expect(inessive?.english).toBe("kelles? milles? kus?");
+    // The line under the name is English, which is what the field is for and
+    // what it is drawn as: the chip marks `title` up as Estonian and this as
+    // nothing, so the Estonian question that used to sit here was read out by
+    // a screen reader with English sounds and said nothing to a learner who
+    // had not met it. The questions themselves are on the reference page for
+    // the ending, in both languages.
+    expect(inessive?.english).toBe("in whom? what is it in? where?");
 
     const pluperfect = grammarPoint("pluperfect");
     expect(pluperfect?.title).toBe("enneminevik");

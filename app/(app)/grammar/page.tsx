@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
@@ -231,7 +232,7 @@ export default async function GrammarIndexPage() {
                       <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                         <span lang="et">{ref.spec.et}</span>
                         {" · "}
-                        <span lang="et">{ref.spec.question}</span>
+                        <CaseQuestion question={ref.spec.question} inline />
                       </span>
                     </Link>
                   </li>
@@ -320,7 +321,7 @@ export default async function GrammarIndexPage() {
                             {term && (
                               <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                                 <span lang="et">{term.et}</span>
-                                {term.question && <> · <span lang="et">{term.question}</span></>}
+                                {term.question && <> · <CaseQuestion question={term.question} inline /></>}
                               </span>
                             )}
                           </Link>

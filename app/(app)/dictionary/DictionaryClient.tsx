@@ -15,6 +15,9 @@ import { buildCaseTable, shownForms, stemsFrom } from "@/lib/estonian/derive";
 import { exceptionsFor } from "@/lib/estonian/exceptions";
 import { WordExceptions } from "@/components/WordExceptions";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
+import { parseGovernment } from "@/lib/estonian/government";
+import { caseByKey } from "@/lib/estonian/cases";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { availableCardTypes, CARD_TYPES, type CardType } from "@/lib/srs/cards";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
@@ -513,6 +516,13 @@ function Entry({ entry, tutorReady, glossLanguage }: {
   glossLanguage: GlossLanguage;
 }) {
   const equivalent = equivalentIn(entry, glossLanguage);
+  // The case the entry says this word pairs with, so the block below can say
+  // what that case asks. Null where nothing is stored or nothing parses,
+  // which prints the string on its own exactly as before.
+  const governs = (() => {
+    const parsed = parseGovernment(entry.government);
+    return parsed ? caseByKey(parsed.caseKey) : undefined;
+  })();
   /*
     A PRONOUN DECLINES LIKE A NOUN AND WAS GETTING NO TABLE AT ALL.
 
@@ -677,6 +687,23 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           <p className="rounded-[var(--r)] px-4 py-3.5 text-base" style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}>
             {entry.government}
           </p>
+          {/*
+            WHAT THE CASE IT GOVERNS IS ASKING.
+
+            The string itself is stored and is Ekilex's own: the question word
+            it records, annotated with the case that question signals. Both
+            halves are opaque to an English speaker, and government is the one
+            thing in this language they cannot reason their way to, so the
+            entry printed the one fact a learner most has to take on trust in
+            two names they have met neither of. The reading is added under it
+            rather than substituted into it, because `parseGovernment` reads
+            that string back and the string is data.
+          */}
+          {governs && (
+            <p className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
+              It pairs with the <span lang="et">{governs.et}</span>: {governs.questionEn}
+            </p>
+          )}
         </div>
       )}
 
@@ -787,7 +814,6 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                       <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
                         {spec.et}
                       </Link>
-                      <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>{spec.en.toLowerCase()}</span>
                     </td>
                     {/* Both illatives, where the word has both. `tuppa` and
                         `toasse` are one answer to one question and a course
@@ -803,7 +829,12 @@ function Entry({ entry, tutorReady, glossLanguage }: {
                     <td lang="et" className="px-3 py-2 text-base" style={{ color: "var(--ink-2)" }}>
                       {plural ?? <span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span>}
                     </td>
-                    <td lang="et" className="px-3 py-2 text-xs" style={{ color: "var(--ink-3)" }}>{caseQuestionFor(spec, subjectOf(entry))}</td>
+                    {/* The Latin name came off the Case column and what the
+                        case asks went into this one, in both languages: see
+                        `components/CaseQuestion.tsx`. */}
+                    <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
+                      <CaseQuestion question={caseQuestionFor(spec, subjectOf(entry))} />
+                    </td>
                   </tr>
                 ))}
               </tbody>

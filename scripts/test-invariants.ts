@@ -6608,6 +6608,51 @@ check("a screen that names a case in Latin names it in Estonian too", () => {
 });
 
 /**
+ * AND A CASE QUESTION SAYS WHAT IT IS ASKING.
+ *
+ * The rule above keeps the Estonian name beside the Latin one. This is the
+ * half neither of them covered: `milles?` is the name this language actually
+ * uses for a case, it is on every screen that names one, and for the whole
+ * life of the app the only English anywhere near it was the Latin name. A
+ * learner reading the dictionary's own case table reported exactly that, and
+ * they were right: fourteen rows, and every English word on them was a term
+ * out of a grammar somebody else's language wrote.
+ *
+ * So `lib/estonian/cases.ts` carries what each question word asks and a screen
+ * printing one prints that too, through `CaseQuestion`, `questionInEnglish`,
+ * `questionEn`, or `plainAsk`, which answers the same need one layer up by
+ * saying what the form is for rather than what the question says.
+ *
+ * Anchored on the *render* rather than on the reach, because a route that
+ * resolves a question and hands it to a client component has shown nobody
+ * anything: what is checked is a question interpolated into a `lang="et"`
+ * element, which is the shape every one of these takes.
+ */
+check("a screen that prints a case question says what it is asking", () => {
+  // `{spec.question}`, `{item.caseQuestion}`, `{question}`. Deliberately the
+  // whole word before the brace, so `{question.letter}` in the minimal-pairs
+  // round, which is a letter rather than a case, is not swept in.
+  const PRINTS = /lang="et"[^>]*>\s*\{[^{}]*\b(caseQuestion|question)\}/;
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  let found = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    // The one drawing of a case question is not a screen printing one.
+    if (file.endsWith("components/CaseQuestion.tsx")) continue;
+    const source = code(file);
+    if (!PRINTS.test(source)) continue;
+    found++;
+    assert.match(
+      source,
+      READS,
+      `${file} prints a case question in Estonian and never says what it asks`,
+    );
+  }
+  // A floor, because a regex that stops matching is a check that passes
+  // having asked nothing: five screens print one today.
+  assert.ok(found >= 4, `expected the screens that print a case question, found ${found}`);
+});
+
+/**
  * A day boundary rendered on a server belongs to the learner, not to the box.
  *
  * Every day-shaped figure in this app is derived on the server: the streak,

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { caseByKey } from "@/lib/estonian/cases";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -161,6 +162,7 @@ export default async function GovernmentPage() {
       cefr: v.cefr,
       answer: g.caseKey,
       answerEn: g.caseEn,
+      answerQuestion: caseByKey(g.caseKey)?.question ?? "",
       answerEt: g.caseEt,
       alsoGoverned: [...g.alsoGoverned],
       example: exampleFor(v, g),

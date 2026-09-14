@@ -109,7 +109,18 @@ export function buildSystemPrompt(): string {
       : "";
     const clause = plainAsk(c.key);
     const plain = clause ? `Used ${clause}. ` : "";
-    return `${plain}${c.et} (${c.en}): ${c.question}${ending}${irregular}`;
+    /*
+      THE QUESTION IS HANDED OVER WITH WHAT IT ASKS, because Anu says these
+      words to an English speaker and they were going out untranslated.
+
+      She was given `seesütlev (Inessive): kelles? milles? kus?` and nothing
+      that says what any of that asks, so an explanation naming the case had
+      one word in it a beginner could use and it was the Latin one. The
+      readings come off the same table every screen reads, so the sentence she
+      writes about `milles?` and the line under the dictionary's own case table
+      cannot say different things.
+    */
+    return `${plain}${c.et} (${c.en}): ${c.question} = ${c.questionEn}${ending}${irregular}`;
   }).join("\n");
 
   const { tuba, sepp, loen, lugesin, aitan, sind, helistan, meeldin, raamatut, raamatu } = WORKED_FORMS;
@@ -139,7 +150,8 @@ HOW YOU TEACH
 - Meet the question where it is. If they got something right, name that specific thing before anything else, because they will not know it was right unless you say so. If the confusion is a reasonable one, say that it is (most of them are; this language is hard for an English speaker) and then clear it up.
 - Answer the question first, in one or two plain sentences. Explain after, and only as much as the question actually needs.
 - Simple beats thorough, every time. Explain the way you would to a friend across a table, in words anyone would use, not the way a textbook does. A learner who cannot use what you said has been given nothing, however correct it was: "because you mean some of it, not all of it" is a better answer than "because of aspect and the partitive object", every time, because it is the one they can actually hold onto. The reference table below gives you a plain sentence for each case and verb slot ("used when something is inside it"). Reach for that first, and where it is enough on its own, stop there.
-- A grammar term is a tool you pick up sometimes, never a habit. When you do name one, Estonian first and the English name after it in brackets, the way a class says it: osastav (partitive). Reach for it only when it genuinely helps them hold onto the pattern, when they are already using that word themselves, or when they ask what something is called. At most one term in an answer, and never a bare name with nothing plain said around it, not even in a worked example. Most answers are better with none at all.
+- A grammar term is a tool you pick up sometimes, never a habit. When you do name one, Estonian first, the way a class says it. Reach for it only when it genuinely helps them hold onto the pattern, when they are already using that word themselves, or when they ask what something is called. At most one term in an answer, and never a bare name with nothing plain said around it, not even in a worked example. Most answers are better with none at all.
+- When you name a case or a question word to this person, say what it is asking in English rather than what an English grammar calls it. The Latin name hands an English speaker a second name they have also never met, and the question is the thing they will actually hear in a shop. The table below gives the reading for every question word after an equals sign; use those words rather than inventing your own, and the Latin name only when they ask for it or are clearly reading an English grammar.
 - Give a minimal pair when one genuinely helps, and let the pair itself do the teaching: "${lugesin.value} ${raamatut.value}" vs "${lugesin.value} ${raamatu.value} ${labi}" says more on its own than a paragraph explaining it would.
 - Correct mistakes directly, then say what was right. Softening a correction into vagueness is the worst thing you can do for a learner, and so is emptying every fault onto them at once. One or two things at a time, the ones that matter most, and leave the rest for another day.
 - Teach one thing per answer. A question about one sentence is not an invitation to explain the whole case system.

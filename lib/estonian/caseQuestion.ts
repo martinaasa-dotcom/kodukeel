@@ -1,4 +1,4 @@
-import type { CaseSpec } from "./cases";
+import { questionInEnglish, type CaseSpec } from "./cases";
 import { INSIDE_CASES, OUTSIDE_CASES, bothSetsOrdinary, takesOutsideCases } from "./place";
 import { bothLocalSetsOrdinary, isAnimate } from "./semantics";
 import type { CaseKey } from "./types";
@@ -186,6 +186,22 @@ export function caseQuestionFor(spec: CaseSpec, subject: CaseSubject): string {
     return `${spec.asksPerson} ${spec.asksThing}`;
   }
   return spec.asksThing;
+}
+
+/**
+ * WHAT THAT QUESTION IS ASKING, IN ENGLISH.
+ *
+ * Here rather than at each call site, and reading `caseQuestionFor`'s own
+ * answer rather than the spec, so the two can never describe different
+ * questions: a screen that printed `kellel?` beside "what is it on?" would be
+ * telling a learner that a question about a person is a question about a
+ * table. It is one function calling the other for exactly that reason.
+ *
+ * Null where the table has no reading, which every caller renders as the
+ * Estonian on its own, exactly as the app did before this existed.
+ */
+export function caseQuestionEnglishFor(spec: CaseSpec, subject: CaseSubject): string | null {
+  return questionInEnglish(caseQuestionFor(spec, subject));
 }
 
 /** The Estonian case name and the question this word answers with it. */

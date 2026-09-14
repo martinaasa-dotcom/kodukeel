@@ -319,9 +319,20 @@ function nameForm(word: WordRow, value: string): FormName | null {
   // stored name is the precise one where there is one: "mitmuse osastav". It
   // can only stand in for a single claim, since one stored form names one slot.
   const precise = specs.length === 1 && stored ? formName(stored) : null;
+  /*
+    THE NAME IN BRACKETS IS WHAT THE CASE ASKS, NOT WHAT AN ENGLISH GRAMMAR
+    CALLS IT.
+
+    This read "the nimetav (nominative)" to somebody who has just been marked
+    wrong, which names the form twice in two languages they have met neither
+    of: the Latin name is a translation of a translation and the question is
+    the thing their own teacher says. A stored plural slot keeps its English
+    name, since "mitmuse osastav" is not a case with a question word of its
+    own and "partitive plural" is the true thing to say about it.
+  */
   const names = specs.map((spec) => ({
     et: precise?.et ?? spec.et,
-    en: precise?.en ?? spec.en.toLowerCase(),
+    en: precise?.en ?? spec.questionEn,
   }));
   return {
     names,

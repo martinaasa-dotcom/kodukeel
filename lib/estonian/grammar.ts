@@ -952,7 +952,18 @@ export function grammarPoint(id: string): GrammarPoint | undefined {
       id,
       title: spec.et,
       estonian: true,
-      english: spec.question,
+      /*
+        THE FIELD SAYS ENGLISH AND HELD THE ESTONIAN QUESTION.
+
+        A unit's grammar chip draws `title` marked up as Estonian and this
+        under it with no `lang` at all, so a case put `kelles? milles? kus?`
+        into a slot documented as "the plain English line that goes under the
+        name": a screen reader said Estonian with English sounds, and a
+        learner who had not met the question words was handed three more
+        instead of a reading. `questionEn` is what those ask, off the same
+        table the dictionary and the reference read.
+      */
+      english: spec.questionEn,
       summary: note.summary,
       href: `/grammar/${spec.key.toLowerCase()}`,
     };

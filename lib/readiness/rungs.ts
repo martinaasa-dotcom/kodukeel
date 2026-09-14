@@ -342,7 +342,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: `case-${key}`,
           title: `The ${spec.et} has hardly been asked of you`,
-          detail: `This turns on the ${spec.et}, the ${spec.en.toLowerCase()}, ${spec.gloss}. ${standing?.reviews ?? 0} answers is not enough to know whether it is there.`,
+          detail: `This turns on the ${spec.et}, the one that asks ${spec.questionEn}, ${spec.gloss}. ${standing?.reviews ?? 0} answers is not enough to know whether it is there.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",
@@ -352,7 +352,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: `case-${key}`,
           title: `The ${spec.et} is at ${standing.pct} percent`,
-          detail: `This turns on the ${spec.et}, the ${spec.en.toLowerCase()}, ${spec.gloss}, and it is still going wrong across ${standing.reviews} answers.`,
+          detail: `This turns on the ${spec.et}, the one that asks ${spec.questionEn}, ${spec.gloss}, and it is still going wrong across ${standing.reviews} answers.`,
           blocks: "lead",
           href: `/grammar/${key.toLowerCase()}`,
           cta: "Read the rule",

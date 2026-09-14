@@ -392,6 +392,39 @@ table of Estonian ("Case", "Singular"), the English prose that explains a point,
 in URLs. The ids are keys that 83 syllabus entries and any bookmarked link point at, and renaming
 them buys a slug and risks the course.
 
+**And the question is glossed, because the Latin name was the only English anywhere near a case.**
+The rule above settles which of two *names* leads and left the reader of the second one with
+nothing: `milles?` is how this language names a case, it is on every screen that names one, and the
+only English beside it was "inessive", which is a translation of a translation to somebody who has
+met neither. A learner reported it off the dictionary's own case table, fourteen rows deep, every
+English word on it a term out of a grammar another language wrote. So `cases.ts` carries what each
+question word asks (`asksPersonEn`, `asksThingEn`, `asksWhereEn`, joined as `questionEn`), and
+`questionInEnglish` reads a whole question back for a caller holding a string rather than a spec,
+which most of them are. `components/CaseQuestion.tsx` is the one drawing.
+
+Three rules shape the wording and they are why the readings are not all the same shape. It is a
+question somebody would say, so the preposition strands where English strands it: "what is it in?"
+rather than "in what?", which is a grammar book clearing its throat. The middle of each local trio
+is the long one, because that is the static case and the other two are arrows, so "into what?",
+"what is it in?", "out of what?" mirror "where to?", "where?", "where from?" exactly. And nothing in
+it is Estonian, which is `grammar.ts`'s standing one table over and is asserted the same way.
+
+**The Latin name stays in exactly one place**, the reference page for the ending, labelled as what
+an English grammar calls it. It came off the two dictionary case tables, the writing and picture
+rounds, the lesson step, the readiness sentences, the placement feedback and the note saying which
+form a searched spelling is, and every one of those says what the case asks instead. What is
+**not** touched is `Lexeme.government`, whose stored string annotates each question word with a case
+name and is read back by `parseGovernment`: that is data rather than copy, so the entry prints the
+reading under it rather than inside it. Two invariants, both made to fail on a real screen: a
+screen that prints a case question says what it is asking, and the older one, that a screen naming
+a case in Latin names it in Estonian too.
+
+**Anu is told the readings and told to use them.** The case table in her system prompt carries each
+question with what it asks after an equals sign, and the rule about naming a term says to give the
+reading rather than the Latin name, so the sentence she writes about `milles?` and the line under
+the dictionary's own table cannot say different things. The writing grader and the scene describer
+are briefed the same way.
+
 **And on the reference itself, the ending leads both names.** The rule above is about which of two
 *names* comes first, and the grammar pages had answered it and then put the name at the top of every
 card anyway, over four paragraphs a case. A learner mid-sentence is not looking for the inessive and
@@ -7210,7 +7243,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
+`questionInEnglish`, `questionEn`, `asksThingEn`, `CaseQuestion`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

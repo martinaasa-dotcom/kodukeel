@@ -69,7 +69,6 @@ export default async function DescribePage() {
       // The Estonian name leads and the English is the cross-reference, which
       // is the rule every screen in this app that names a case follows.
       caseEt: grammarTerm(spec.key)?.et ?? spec.et,
-      caseEn: spec.en,
       // The question *this* word answers. Half the pictured nouns are people
       // and animals, so the `mille-` series was asking `millega?` about a
       // horse; and `kus?` names two cases at once, which is not a question a

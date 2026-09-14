@@ -147,6 +147,13 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
                 {ref.spec.question}
               </dd>
+              {/* And what that is asking. The question is the name a class uses
+                  and it is opaque to somebody who has not met it, which is the
+                  whole reason the Latin name used to be the only English
+                  anywhere near a case. See `lib/estonian/cases.ts`. */}
+              <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
+                {ref.spec.questionEn}
+              </dd>
             </div>
           </dl>
           {ref.englishHook && (

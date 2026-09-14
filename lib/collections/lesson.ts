@@ -160,6 +160,14 @@ export interface CaseStep extends StepBase {
   lemma: string;
   gloss: string;
   caseKey: CaseKey;
+  /**
+   * The case's Estonian name, which is the one a class uses.
+   *
+   * It was `spec.en`, so the step above the input read "Put it in the
+   * inessive", which is the one name nobody teaching this language says and
+   * the one an English speaker cannot act on either. The instruction on the
+   * screen is `plainAskLine` now and this is the cross-reference under it.
+   */
   caseName: string;
   question: string;
   answer: string;
@@ -402,7 +410,7 @@ function caseStep(word: LessonWord, id: string, rand: () => number): CaseStep | 
       id, kind: "case", lemma: word.lemma, gloss: word.gloss,
       // The question this word answers, not the case's whole name: a horse is
       // a `kes`, and `kus?` names two cases at once. See `caseQuestionFor`.
-      caseKey: key, caseName: spec.en, question: caseQuestionFor(spec, subject),
+      caseKey: key, caseName: spec.et, question: caseQuestionFor(spec, subject),
       answer: found.accepted.join(" / "),
     };
   }
