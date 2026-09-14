@@ -9324,7 +9324,7 @@ check("the word of the day is one the learner has not met", () => {
   */
   const card = read("components/WordOfDay.tsx");
   assert.match(card, /SENTENCE_SOURCE/, "the word of the day prints a sentence with no provenance");
-  assert.match(card, /Ekilex/, "the sentence's provenance no longer names its source");
+  assert.match(card, /EKILEX:\s*"[^"]+"/, "the sentence's provenance no longer names its source");
 });
 
 check("Today's date is Estonian, tagged as Estonian, and has a way out", () => {
