@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_QUESTION_WORDS, questionWords, wordLine, wordsNote, type WordFacts } from "./words";
+import { casesLine, glossAnswers, glossWords, MAX_QUESTION_WORDS, personsLine, questionWords, wordLine, wordsNote, type WordFacts } from "./words";
 
 const jalg: WordFacts = {
   lemma: "jalg", pos: "NOUN", translation: "foot, leg", government: null, gradationNote: "g : ∅",
@@ -45,7 +45,7 @@ describe("wordLine and wordsNote", () => {
   });
 
   it("prints a verb's five parts and its government", () => {
-    expect(wordLine(lugema)).toBe("- lugema (verb, to read): lugema, da-infinitive lugeda, I loen, I (past) lugesin, tud-participle loetud; takes keda/mida* (partitive)");
+    expect(wordLine(lugema)).toBe("- lugema (verb, to read): lugema, da-infinitive lugeda, I loen, I (past) lugesin, tud-participle loetud; takes keda/mida* (partitive); present loen, loed, loeb, loeme, loete, loevad; after ei: loe");
   });
 
   it("names the case of a spelling the question used, one case or the honest list, and never the lemma's own", () => {
@@ -76,5 +76,44 @@ describe("wordLine and wordsNote", () => {
     const note = wordsNote(many);
     expect(note.split("\n").filter((l) => l.startsWith("- ")).length).toBe(MAX_QUESTION_WORDS);
     expect(note).toMatch(/say so rather than guess/);
+  });
+});
+
+describe("personsLine and casesLine", () => {
+  it("prints a regular verb's present off the stored first person and olema off the stored persons", () => {
+    const lugema = { lemma: "lugema", pos: "VERB", translation: "to read", government: null, gradationNote: null,
+      forms: [{ formType: "PRES_1SG", value: "loen" }, { formType: "EKILEX:IndIpfSg3", value: "luges" }] };
+    expect(personsLine(lugema)).toBe("present loen, loed, loeb, loeme, loete, loevad; after ei: loe; past he/she luges");
+    const olema = { lemma: "olema", pos: "VERB", translation: "to be", government: null, gradationNote: null,
+      forms: [{ formType: "PRES_1SG", value: "olen" }, { formType: "EKILEX:IndPrSg2", value: "oled" }, { formType: "EKILEX:IndPrSg3", value: "on" },
+        { formType: "EKILEX:IndPrPl1", value: "oleme" }, { formType: "EKILEX:IndPrPl2", value: "olete" }, { formType: "EKILEX:IndPrPl3", value: "on" },
+        { formType: "EKILEX:IndPrPs_", value: "ole" }, { formType: "EKILEX:IndPrPsN", value: "pole" }] };
+    expect(personsLine(olema)).toBe("present olen, oled, on, oleme, olete, on; after ei: ole");
+    expect(personsLine({ ...olema, forms: [{ formType: "PRES_1SG", value: "olen" }] })).toBeNull();
+  });
+
+  it("names every case after a form, with the attested short illative beside the rule's", () => {
+    const tuba = { lemma: "tuba", pos: "NOUN", translation: "room", government: null, gradationNote: "b : ∅",
+      forms: [{ formType: "GEN_SG", value: "toa" }, { formType: "PART_SG", value: "tuba" }, { formType: "ILL_SG_SHORT", value: "tuppa" }] };
+    const line = casesLine(tuba);
+    expect(line).toContain("tuppa / toasse (sisseütlev)");
+    expect(line).toContain("toal (alalütlev)");
+    expect(line).toContain("toas (seesütlev)");
+    expect(casesLine({ ...tuba, forms: [] })).toBeNull();
+  });
+});
+
+describe("glossWords and glossAnswers", () => {
+  it("asks about the English of a question only where no Estonian resolved", () => {
+    expect(glossWords(["say", "Tuesday"], [])).toEqual(["say", "Tuesday"]);
+    expect(glossWords(["table", "olema"], [{ lemma: "olema", pos: "VERB", translation: "to be", government: null, gradationNote: null, forms: [], asked: ["olema"] }])).toEqual([]);
+  });
+
+  it("matches a gloss whole or on its first sense, a verb through its to", () => {
+    expect(glossAnswers("Tuesday", "tuesday")).toBe(true);
+    expect(glossAnswers("book, volume", "book")).toBe(true);
+    expect(glossAnswers("to read, to count", "read")).toBe(true);
+    expect(glossAnswers("library", "book")).toBe(false);
+    expect(glossAnswers("volume, book", "book")).toBe(false);
   });
 });

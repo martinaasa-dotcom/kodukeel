@@ -46,7 +46,7 @@ import path from "node:path";
 import { findTells } from "../lib/copy/voice";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "../lib/tutor/prompt";
 import { ProseStream } from "../lib/tutor/humanize";
-import { isStrayFix } from "../lib/tutor/fixLine";
+import { isStrayFix, sentenceRun } from "../lib/tutor/fixLine";
 import { fixFrom, vocabFrom, TAGGED_LINE } from "../lib/tutor/markers";
 import { parseReply, plainText } from "../lib/tutor/markdown";
 import { parseShard, lemmasOfForm, type Shard } from "../lib/dict/forms";
@@ -198,7 +198,7 @@ async function ask(config: ProviderConfig, system: string, q: Q) {
     // The static prompt held on Google's side, as the route asks for it.
     true);
   // And the stray FIX line dropped as the route drops it, off the same resolution.
-  const vouched = words.flatMap((w) => w.asked ?? []).filter((t) => q.q.toLowerCase().includes(t.toLowerCase())).length;
+  const vouched = sentenceRun(q.q, words.flatMap((w) => w.asked ?? []));
   const prose = new ProseStream((fix) => !isStrayFix(fix, q.q, vouched));
   let raw = "", text = "";
   for await (const chunk of open.chunks) { raw += chunk; text += prose.push(chunk); }

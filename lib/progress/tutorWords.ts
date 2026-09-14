@@ -1,7 +1,8 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
-import { MAX_QUESTION_WORDS, questionWords, type WordFacts } from "@/lib/tutor/words";
+import { glossAnswers, glossWords, MAX_QUESTION_WORDS, questionWords, type WordFacts } from "@/lib/tutor/words";
 
 /**
  * What the dictionary holds for the words a question is about.
@@ -31,17 +32,54 @@ export async function wordsInQuestion(
     }
     asked.set(hit.id, [...(asked.get(hit.id) ?? []), token]);
   }
-  if (ids.length === 0) return [];
-  const rows = await prisma.lexeme.findMany({
-    where: { id: { in: ids } },
-    select: {
-      id: true, lemma: true, pos: true, translation: true, government: true, gradationNote: true,
-      forms: { select: { formType: true, value: true }, orderBy: [{ formType: "asc" }, { id: "asc" }] },
-    },
-  });
+  const facts = ids.length === 0 ? [] : await factsFor(ids, asked);
+  return [...facts, ...(await glossedWords(glossWords(tokens, facts)))];
+}
+
+const FACTS_SELECT = {
+  id: true, lemma: true, pos: true, translation: true, government: true, gradationNote: true,
+  forms: { select: { formType: true, value: true }, orderBy: [{ formType: "asc" }, { id: "asc" }] },
+} satisfies Prisma.LexemeSelect;
+
+async function factsFor(ids: readonly string[], asked: ReadonlyMap<string, string[]>): Promise<WordFacts[]> {
+  const rows = await prisma.lexeme.findMany({ where: { id: { in: [...ids] } }, select: FACTS_SELECT });
   // In the order the question named them, which `in` does not promise.
   return ids
     .map((id) => rows.find((r) => r.id === id))
     .filter((r): r is NonNullable<typeof r> => r !== undefined)
     .map(({ id, ...facts }) => ({ ...facts, asked: asked.get(id) ?? [] }));
+}
+
+/**
+ * The words a question reached for in English, resolved through the
+ * dictionary's own glosses: "how do you say Tuesday" grounds `teisipäev`. A
+ * gloss is the one authored English column and is matched whole or on its
+ * first sense (`glossAnswers`), so "book" reaches `raamat` and not
+ * `raamatukogu`; graded entries first, since a word the course vouched for
+ * beats the tail of the expansion, and the id last so the order is total.
+ */
+async function glossedWords(words: readonly string[]): Promise<WordFacts[]> {
+  if (words.length === 0) return [];
+  const rows = await prisma.lexeme.findMany({
+    where: {
+      OR: words.flatMap((w) => [
+        { translation: { equals: w, mode: "insensitive" as const } },
+        { translation: { startsWith: `${w},`, mode: "insensitive" as const } },
+        { translation: { equals: `to ${w}`, mode: "insensitive" as const } },
+        { translation: { startsWith: `to ${w},`, mode: "insensitive" as const } },
+      ]),
+    },
+    select: FACTS_SELECT,
+    orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
+    take: 24,
+  });
+  const out: WordFacts[] = [];
+  for (const word of words) {
+    const row = rows.find((r) => r.translation && glossAnswers(r.translation, word));
+    if (!row || out.some((w) => w.lemma === row.lemma && w.pos === row.pos)) continue;
+    const { id, ...facts } = row;
+    void id;
+    out.push({ ...facts, asked: [] });
+  }
+  return out;
 }

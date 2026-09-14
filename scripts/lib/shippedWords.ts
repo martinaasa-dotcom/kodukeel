@@ -3,7 +3,7 @@ import path from "node:path";
 import { fold } from "../../lib/estonian/fold";
 import { possibleStems } from "../../lib/dict/search";
 import { possibleFirstPersons } from "../../lib/estonian/conjugate";
-import { MAX_QUESTION_WORDS, questionWords, type WordFacts } from "../../lib/tutor/words";
+import { glossAnswers, glossWords, MAX_QUESTION_WORDS, questionWords, type WordFacts } from "../../lib/tutor/words";
 import { HARVESTED } from "../../prisma/data/harvested";
 
 /**
@@ -24,7 +24,7 @@ interface Entry {
   forms: { formType: string; value: string }[];
 }
 
-let index: { byForm: Map<string, Entry[]>; byStem: Map<string, Entry[]>; byFirst: Map<string, Entry[]> } | null = null;
+let index: { byForm: Map<string, Entry[]>; byStem: Map<string, Entry[]>; byFirst: Map<string, Entry[]>; entries: Entry[] } | null = null;
 
 function load() {
   if (index) return index;
@@ -53,7 +53,7 @@ function load() {
       if (f.formType === "PRES_1SG") put(byFirst, f.value, e);
     }
   }
-  index = { byForm, byStem, byFirst };
+  index = { byForm, byStem, byFirst, entries };
   return index;
 }
 
@@ -76,13 +76,21 @@ function resolve(token: string): Entry | null {
 /** The same shape `wordsInQuestion` returns, off the shipped file. */
 export function shippedWordsInQuestion(messages: readonly { role: string; content: string }[]): WordFacts[] {
   const out: WordFacts[] = [];
-  for (const token of questionWords(messages)) {
+  const tokens = questionWords(messages);
+  for (const token of tokens) {
     const e = resolve(token);
     if (!e) continue;
     const have = out.find((w) => w.lemma === e.lemma && w.pos === e.pos);
     if (have) { have.asked!.push(token); continue; }
     if (out.length >= MAX_QUESTION_WORDS) break;
     out.push({ lemma: e.lemma, pos: e.pos, translation: e.translation, government: e.government, gradationNote: e.gradationNote, forms: e.forms, asked: [token] });
+  }
+  // The same gloss resolution `wordsInQuestion` makes, graded entries first.
+  const { entries } = load();
+  for (const word of glossWords(tokens, out)) {
+    const e = entries.find((one) => one.translation && glossAnswers(one.translation, word));
+    if (!e || out.some((w) => w.lemma === e.lemma && w.pos === e.pos)) continue;
+    out.push({ lemma: e.lemma, pos: e.pos, translation: e.translation, government: e.government, gradationNote: e.gradationNote, forms: e.forms, asked: [] });
   }
   return out;
 }

@@ -7,7 +7,7 @@ import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rate
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
 import { ProseStream } from "@/lib/tutor/humanize";
-import { isStrayFix } from "@/lib/tutor/fixLine";
+import { isStrayFix, sentenceRun } from "@/lib/tutor/fixLine";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
 import { learnerContextFor } from "@/lib/progress/tutorContext";
 import { wordsInQuestion } from "@/lib/progress/tutorWords";
@@ -225,7 +225,7 @@ export async function POST(request: Request) {
         correction of something the learner wrote.
       */
       const lastAsked = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
-      const vouched = words.flatMap((w) => w.asked ?? []).filter((t) => lastAsked.toLowerCase().includes(t.toLowerCase())).length;
+      const vouched = sentenceRun(lastAsked, words.flatMap((w) => w.asked ?? []));
       const prose = new ProseStream((fix) => !isStrayFix(fix, lastAsked, vouched));
       const say = (text: string) => {
         if (!text) return;

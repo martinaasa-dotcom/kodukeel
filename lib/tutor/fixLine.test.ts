@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dropStrayFixes, isStrayFix } from "./fixLine";
+import { dropStrayFixes, isStrayFix, sentenceRun } from "./fixLine";
 
 describe("isStrayFix", () => {
   it("keeps a correction of a sentence the learner wrote", () => {
@@ -29,5 +29,21 @@ describe("dropStrayFixes", () => {
     expect(dropStrayFixes(reply, "Why is it 'Lugesin raamatut'?", 2)).toBe("**Lugesin raamatut** is right.\nVOCAB: raamat | book");
     const kept = "No, it wants the seesütlev.\nFIX: Ma töötan koolis.";
     expect(dropStrayFixes(kept, "Is this ok: Ma töötan kool.", 3)).toBe(kept);
+  });
+});
+
+describe("sentenceRun", () => {
+  it("counts consecutive Estonian words and lets a capitalised name ride inside the run", () => {
+    const vouched = ["ma", "elan", "ja", "töötan", "kool"];
+    expect(sentenceRun("Is this right: Ma elan Tallinnas ja töötan kool.", vouched)).toBe(6);
+  });
+
+  it("reads two quoted forms as two runs of two, which is not a sentence", () => {
+    expect(sentenceRun("Why is it 'lugesin raamatut' and not 'lugesin raamatu'?", ["lugesin", "raamatut", "raamatu"])).toBe(2);
+    expect(isStrayFix("Lugesin raamatu läbi.", "Why is it 'lugesin raamatut' and not 'lugesin raamatu'?", 2)).toBe(true);
+  });
+
+  it("does not count a capitalised English word standing on its own", () => {
+    expect(sentenceRun("How do you say Tuesday?", [])).toBe(0);
   });
 });

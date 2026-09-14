@@ -3822,6 +3822,7 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   assert.match(tutorRoute, /wordsInQuestion\(messages\)/, "the tutor route no longer asks the dictionary about the words in the question");
   assert.match(tutorRoute, /wordsNote\(words\)/, "the tutor route no longer hands Anu the dictionary's forms");
   const tutorWords = code("lib/progress/tutorWords.ts");
+  const wordsModule = code("lib/tutor/words.ts");
   assert.match(tutorWords, /matchEstonianForm\(candidates, token\)/, "the question's words are no longer vouched the way a scanned word is");
   assert.match(tutorWords, /questionWords\(messages\)/, "the route and the harness no longer pick the question's words through one function");
   const harness = code("scripts/lib/shippedWords.ts");
@@ -3832,7 +3833,15 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   // And the stray FIX line is dropped on both, off the same resolution, or the harness measures a screen the app does not draw.
   assert.match(tutorRoute, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the tutor route shows every FIX line again, stray ones included");
   assert.match(evalScript, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the eval measures FIX lines the route would have dropped");
-  const wordsModule = code("lib/tutor/words.ts");
+  // The count handed to the guard is the longest run of Estonian in the message, not the number of vouched words: two quoted forms vouch four and are not a sentence.
+  assert.match(tutorRoute, /sentenceRun\(lastAsked, /, "the tutor route counts vouched words instead of the sentence run");
+  assert.match(evalScript, /sentenceRun\(q\.q, /, "the eval counts vouched words instead of the sentence run");
+  // The block carries a verb's persons and a nominal's case table, which is what stopped `olette` and a case named wrongly.
+  assert.match(wordsModule, /personsLine\(word\)/, "the words block no longer prints a verb's persons");
+  assert.match(wordsModule, /casesLine\(word\)/, "the words block no longer prints a nominal's cases");
+  // And a question that named no Estonian is grounded through the glosses, on both sides.
+  assert.match(tutorWords, /glossWords\(tokens, /, "the route no longer resolves the English of a question through the glosses");
+  assert.match(harness, /glossWords\(tokens, /, "the harness no longer resolves the English of a question through the glosses");
   assert.doesNotMatch(wordsModule, /[õäöüšž]/i, "lib/tutor/words.ts types an Estonian word of its own");
   assert.doesNotMatch(
     code("components/anu/useAnuChat.ts"),

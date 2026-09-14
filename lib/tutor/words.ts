@@ -1,5 +1,6 @@
 import { CASES } from "@/lib/estonian/cases";
-import { stemsFrom } from "@/lib/estonian/derive";
+import { derivedVerbForms, type VerbStems } from "@/lib/estonian/conjugate";
+import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase, tidyForm } from "@/lib/estonian/whichCase";
 import { GRAMMATICAL_TERMS } from "@/lib/tutor/verify";
 
@@ -52,6 +53,14 @@ export interface WordFacts {
 export const MAX_QUESTION_WORDS = 8;
 
 /**
+ * How many nominals get their whole case table printed. A table is about
+ * sixty tokens of live block per word, which the model reads uncached, and a
+ * question is about one or two words: the first three get the table and the
+ * rest their principal parts.
+ */
+export const MAX_TABLED = 3;
+
+/**
  * English function words a question is made of, which are never worth a
  * dictionary read. Deliberately a list of the commonest hundred or so rather
  * than an English dictionary: the cost of a miss is one spare lookup that
@@ -99,6 +108,31 @@ export function questionWords(messages: readonly { role: string; content: string
   return out;
 }
 
+/**
+ * The English words of a question worth asking the dictionary's glosses about,
+ * for a question that named no Estonian at all: "how do you say Tuesday" is
+ * grounded on `teisipäev` only if something resolves Tuesday. Asked only where
+ * the question resolved no Estonian word at all, so a question already about
+ * a word is not padded with its English neighbours ("table" is `laud`, and a
+ * question asking for a table of `olema` is not about one), and capped,
+ * because a gloss lookup is one query and a paragraph is not a question.
+ */
+export const MAX_GLOSS_WORDS = 4;
+export function glossWords(tokens: readonly string[], resolved: readonly WordFacts[]): string[] {
+  if (resolved.length > 0) return [];
+  const asked = new Set(resolved.flatMap((w) => (w.asked ?? []).map((t) => t.toLowerCase())));
+  return tokens
+    .filter((t) => /^[a-z]{3,}$/i.test(t) && !asked.has(t.toLowerCase()))
+    .slice(0, MAX_GLOSS_WORDS);
+}
+
+/** Whether a dictionary gloss answers an English word: the whole gloss, its first sense, or a verb's "to X". */
+export function glossAnswers(gloss: string, word: string): boolean {
+  const first = gloss.split(/[,;]/)[0]!.trim().toLowerCase();
+  const w = word.toLowerCase();
+  return first === w || first === `to ${w}` || first === `a ${w}` || first === `an ${w}` || first === `the ${w}`;
+}
+
 /** A case the way the prompt names one: Estonian first, English after. */
 function caseName(key: string): string {
   const c = CASES.find((one) => one.key === key);
@@ -119,13 +153,59 @@ function first(forms: WordFacts["forms"], type: string): string | null {
   return forms.find((f) => f.formType === type)?.value ?? null;
 }
 
+
+const PRESENT_CODES = ["IndPrSg1", "IndPrSg2", "IndPrSg3", "IndPrPl1", "IndPrPl2", "IndPrPl3"] as const;
+
+/**
+ * A verb's present tense as one line, the negative and the simple past third
+ * person after it where the dictionary holds them. A stored person wins over a
+ * derived one, which is what lets `olema` be printed at all: no rule reaches
+ * `on`, the harvest stores it, and without this line the cheapest model wrote
+ * `olette` for the second person plural in a table it was asked for.
+ */
+export function personsLine(word: WordFacts): string | null {
+  const stored = (code: string) => word.forms.find((f) => f.formType === `EKILEX:${code}`)?.value ?? null;
+  const verb: VerbStems = { lemma: word.lemma, pres1sg: first(word.forms, "PRES_1SG") };
+  const derived = new Map(derivedVerbForms(verb).map((f) => [f.morphCode, f.value]));
+  const persons = PRESENT_CODES.map((code) => stored(code) ?? derived.get(code) ?? (code === "IndPrSg1" ? verb.pres1sg ?? null : null));
+  if (persons.some((p) => p === null)) return null;
+  const bits = [`present ${persons.join(", ")}`];
+  const negative = stored("IndPrPs_") ?? derived.get("IndPrPs_") ?? stored("IndPrPsN");
+  if (negative) bits.push(`after ei: ${negative}`);
+  const past3 = stored("IndIpfSg3");
+  if (past3) bits.push(`past he/she ${past3}`);
+  return bits.join("; ");
+}
+
+/**
+ * The eleven cases a nominal takes after the three it memorises, each with its
+ * name, so a case is named off the table rather than guessed at: asked for
+ * "on Tuesday" the cheapest model wrote the right form and called it the
+ * seesütlev, which is the slip the prompt warns against, and the table is
+ * what makes the warning checkable. `caseAnswer` puts an attested form ahead
+ * of the rule, so `tuppa / toasse` prints as the pair it is.
+ */
+export function casesLine(word: WordFacts): string | null {
+  const stems = stemsFrom(word.forms);
+  if (!stems.genSg) return null;
+  const cells: string[] = [];
+  for (const c of CASES) {
+    if (c.principal) continue;
+    const answer = caseAnswer(stems, c.key);
+    if (!answer) continue;
+    const shown = answer.alsoRight ? `${answer.value} / ${answer.alsoRight}` : answer.value;
+    cells.push(`${shown} (${c.et})`);
+  }
+  return cells.length ? `cases ${cells.join(", ")}` : null;
+}
+
 /**
  * One line per word, the dictionary's own principal parts and nothing else.
  * A nominal gets its seven, a verb its five, and a word with none of them
  * is named with its meaning alone, which is still worth saying: it tells
  * the model the word exists and what it means.
  */
-export function wordLine(word: WordFacts): string {
+export function wordLine(word: WordFacts, tabled = false): string {
   const isVerb = word.pos === "VERB";
   const parts = (isVerb ? VERB_PARTS : NOUN_PARTS)
     .map(([type, label]) => {
@@ -143,6 +223,13 @@ export function wordLine(word: WordFacts): string {
     bits.push(`grade change ${word.gradationNote}${plain ? `, which is ${plain}` : ""}`);
   }
   if (word.government) bits.push(`takes ${word.government}`);
+  if (isVerb) {
+    const persons = personsLine(word);
+    if (persons) bits.push(persons);
+  } else if (tabled) {
+    const cases = casesLine(word);
+    if (cases) bits.push(cases);
+  }
   if (!isVerb && first(word.forms, "GEN_SG")) {
     const index = caseIndex(stemsFrom(word.forms));
     for (const spelling of word.asked ?? []) {
@@ -181,6 +268,15 @@ export function gradePlain(note: string, strongForm: string, weakForm: string | 
   return `the ${strong} in ${strongForm} becoming ${weak} in ${weakForm}`;
 }
 
+function tabledLines(words: readonly WordFacts[]): string[] {
+  let tabled = 0;
+  return words.map((word) => {
+    const table = word.pos !== "VERB" && tabled < MAX_TABLED;
+    if (table) tabled += 1;
+    return wordLine(word, table);
+  });
+}
+
 /**
  * The block the route sends after the learner's note. Empty where the
  * question named no word the dictionary holds, so a question about English
@@ -190,7 +286,7 @@ export function wordsNote(words: readonly WordFacts[]): string {
   if (words.length === 0) return "";
   return [
     "WORDS IN THE QUESTION, AS THE DICTIONARY HOLDS THEM",
-    "These forms are checked. Use them as they are, build the regular cases on the genitive given here, and never contradict them. A word the question is about that is not listed here is one whose forms you are not sure of: say so rather than guess. A change inside a word is exactly what the grade change says, a consonant becoming another or dropping out between two forms; it is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop.",
-    ...words.slice(0, MAX_QUESTION_WORDS).map(wordLine),
+    "These forms are checked. Use them as they are, build the regular cases on the genitive given here, and never contradict them. A word the question is about that is not listed here is one whose forms you are not sure of: say so rather than guess. A change inside a word is exactly what the grade change says, a consonant becoming another or dropping out between two forms; it is never a vowel, a rhythm or a softening, so say which letters change and into what, and stop. Where a word's cases are listed, the name in brackets after a form is the name of that case, and it is the only name you may give it.",
+    ...tabledLines(words.slice(0, MAX_QUESTION_WORDS)),
   ].join("\n");
 }
