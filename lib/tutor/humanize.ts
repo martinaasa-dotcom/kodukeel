@@ -38,7 +38,7 @@
 */
 
 import { EM_DASH as EM, EN_DASH as EN, OPENER_REWRITES } from "@/lib/copy/voice";
-import { TAGGED_LINE } from "@/lib/tutor/markers";
+import { fixFrom, TAGGED_LINE } from "@/lib/tutor/markers";
 
 /**
  * Lines that are Estonian by construction, and are never rewritten.
@@ -174,6 +174,14 @@ export function humanizeReply(text: string): string {
 const LEAD = 64;
 
 export class ProseStream {
+  /**
+   * Whether a finished `FIX:` line is worth showing. A line the caller
+   * refuses is dropped whole, which is only possible because a FIX line is
+   * held until it ends rather than released a word at a time: half a
+   * correction shown and then withdrawn is worse than either. Absent, every
+   * FIX line is shown, which is what every caller got before this existed.
+   */
+  constructor(private readonly keepFix?: (fix: string) => boolean) {}
   private held = "";
   /** How much of the line now being written has already been shown. */
   private emitted = 0;
@@ -198,16 +206,18 @@ export class ProseStream {
     for (;;) {
       const newline = this.held.indexOf("\n");
       if (newline === -1) break;
-      out += this.piece(this.held.slice(0, newline)) + "\n";
+      const line = this.held.slice(0, newline);
       this.held = this.held.slice(newline + 1);
+      if (!this.refused(line)) out += this.piece(line) + "\n";
       this.emitted = 0;
       this.estonian = false;
     }
 
     const cut = final ? this.held.length : this.partialCut();
     if (cut > 0) {
-      out += this.piece(this.held.slice(0, cut));
+      const text = this.held.slice(0, cut);
       this.held = this.held.slice(cut);
+      if (!(final && this.refused(text))) out += this.piece(text);
     }
     if (final) {
       this.emitted = 0;
@@ -233,10 +243,20 @@ export class ProseStream {
     return this.estonian ? text : dashes(text);
   }
 
+  /** A whole FIX line the caller does not want, judged only where the line is whole and unshown. */
+  private refused(line: string): boolean {
+    if (!this.keepFix || this.emitted !== 0) return false;
+    const fix = fixFrom(line);
+    return fix !== null && !this.keepFix(fix);
+  }
+
   /** How much of the current partial line no remaining rule could still change. */
   private partialCut(): number {
     const line = this.held;
     const opening = this.emitted === 0;
+
+    // A FIX line is held whole until it ends, so a caller can refuse it (`refused`).
+    if (this.keepFix && opening && fixFrom(line) !== null) return 0;
 
     // The start of a line is where an opener lives, and where the line's
     // character is read. Hold it until the line is either long enough that

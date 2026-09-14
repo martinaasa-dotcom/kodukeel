@@ -133,3 +133,31 @@ describe("streaming reaches the same answer as cleaning it all at once", () => {
     expect(shown.length).toBeGreaterThan(100);
   });
 });
+
+describe("ProseStream and a FIX line the caller refuses", () => {
+  it("holds a FIX line whole and drops it when refused, chunk boundaries notwithstanding", async () => {
+    const { ProseStream } = await import("./humanize");
+    const stream = new ProseStream((fix) => /koolis/.test(fix));
+    let out = "";
+    for (const chunk of ["Right idea.\nFI", "X: Lugesin ", "raamatut\nVOCAB: raamat | book"]) out += stream.push(chunk);
+    out += stream.end();
+    expect(out).toBe("Right idea.\nVOCAB: raamat | book");
+  });
+
+  it("shows a FIX line it keeps, byte for byte, and one that ends the reply without a newline", async () => {
+    const { ProseStream } = await import("./humanize");
+    const stream = new ProseStream((fix) => /koolis/.test(fix));
+    let out = stream.push("No.\nFIX: Ma töötan ");
+    out += stream.push("koolis.");
+    out += stream.end();
+    expect(out).toBe("No.\nFIX: Ma töötan koolis.");
+    const refused = new ProseStream(() => false);
+    expect(refused.push("Yes.\nFIX: Ma joon kohvi.") + refused.end()).toBe("Yes.\n");
+  });
+
+  it("shows every FIX line when no caller has an opinion", async () => {
+    const { ProseStream } = await import("./humanize");
+    const stream = new ProseStream();
+    expect(stream.push("FIX: Lugesin raamatut\n") + stream.end()).toBe("FIX: Lugesin raamatut\n");
+  });
+});

@@ -3826,7 +3826,12 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   assert.match(tutorWords, /questionWords\(messages\)/, "the route and the harness no longer pick the question's words through one function");
   const harness = code("scripts/lib/shippedWords.ts");
   assert.match(harness, /questionWords\(messages\)/, "the harness picks the question's words its own way");
-  assert.match(code("scripts/eval-tutor.ts"), /wordsNote\(shippedWordsInQuestion\(/, "the eval no longer measures the block the route sends");
+  const evalScript = code("scripts/eval-tutor.ts");
+  assert.match(evalScript, /shippedWordsInQuestion\(/, "the eval no longer resolves the question's words off the shipped file");
+  assert.match(evalScript, /wordsNote\(words\)/, "the eval no longer measures the block the route sends");
+  // And the stray FIX line is dropped on both, off the same resolution, or the harness measures a screen the app does not draw.
+  assert.match(tutorRoute, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the tutor route shows every FIX line again, stray ones included");
+  assert.match(evalScript, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the eval measures FIX lines the route would have dropped");
   const wordsModule = code("lib/tutor/words.ts");
   assert.doesNotMatch(wordsModule, /[õäöüšž]/i, "lib/tutor/words.ts types an Estonian word of its own");
   assert.doesNotMatch(

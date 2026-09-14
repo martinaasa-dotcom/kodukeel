@@ -46,6 +46,7 @@ import path from "node:path";
 import { findTells } from "../lib/copy/voice";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "../lib/tutor/prompt";
 import { ProseStream } from "../lib/tutor/humanize";
+import { isStrayFix } from "../lib/tutor/fixLine";
 import { fixFrom, vocabFrom, TAGGED_LINE } from "../lib/tutor/markers";
 import { parseReply, plainText } from "../lib/tutor/markdown";
 import { parseShard, lemmasOfForm, type Shard } from "../lib/dict/forms";
@@ -188,12 +189,15 @@ function candidates(): ProviderConfig[] {
 async function ask(config: ProviderConfig, system: string, q: Q) {
   let inTokens = 0, outTokens = 0, cached = 0;
   const t0 = Date.now();
+  const words = shippedWordsInQuestion([...(q.history ?? []), { role: "user", content: q.q }]);
   const open = await openWithFallback([config], system, [...(q.history ?? []), { role: "user", content: q.q }],
     (u) => { inTokens = u.inputTokens; outTokens = u.outputTokens; cached = u.cachedInputTokens ?? 0; },
-    [learnerNote(q.note ?? B1), GROUND ? wordsNote(shippedWordsInQuestion([...(q.history ?? []), { role: "user", content: q.q }])) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS,
+    [learnerNote(q.note ?? B1), GROUND ? wordsNote(words) : ""].filter(Boolean).join("\n\n"), TUTOR_REPLY_TOKENS,
     // The static prompt held on Google's side, as the route asks for it.
     true);
-  const prose = new ProseStream();
+  // And the stray FIX line dropped as the route drops it, off the same resolution.
+  const vouched = words.flatMap((w) => w.asked ?? []).filter((t) => q.q.toLowerCase().includes(t.toLowerCase())).length;
+  const prose = new ProseStream((fix) => !isStrayFix(fix, q.q, vouched));
   let raw = "", text = "";
   for await (const chunk of open.chunks) { raw += chunk; text += prose.push(chunk); }
   text += prose.end();

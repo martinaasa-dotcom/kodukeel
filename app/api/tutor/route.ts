@@ -7,6 +7,7 @@ import { bucketForOwner, checkRateLimit, rateLimited } from "@/lib/security/rate
 import { candidatesFor } from "@/lib/dict/resolveScan";
 import { matchEstonianForm } from "@/lib/dict/search";
 import { ProseStream } from "@/lib/tutor/humanize";
+import { isStrayFix } from "@/lib/tutor/fixLine";
 import { buildSystemPrompt, learnerNote, type LearnerNote } from "@/lib/tutor/prompt";
 import { learnerContextFor } from "@/lib/progress/tutorContext";
 import { wordsInQuestion } from "@/lib/progress/tutorWords";
@@ -216,7 +217,16 @@ export async function POST(request: Request) {
         would notice, and it never touches a word of Estonian. See
         lib/tutor/humanize.ts.
       */
-      const prose = new ProseStream();
+      /*
+        And a FIX: line under a question that had no sentence to correct is
+        dropped whole, decided from the learner's own message and how many
+        of its words the dictionary vouched for (`lib/tutor/fixLine.ts`):
+        every model measured puts one there, and the screen boxes it as a
+        correction of something the learner wrote.
+      */
+      const lastAsked = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+      const vouched = words.flatMap((w) => w.asked ?? []).filter((t) => lastAsked.toLowerCase().includes(t.toLowerCase())).length;
+      const prose = new ProseStream((fix) => !isStrayFix(fix, lastAsked, vouched));
       const say = (text: string) => {
         if (!text) return;
         full += text;
