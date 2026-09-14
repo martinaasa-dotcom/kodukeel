@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
+  TUTOR_FALLBACK_MODEL,
+  billedOutput, completeWithImage, FREE_GEMINI_MODELS, FREE_GROQ_MODELS, GRADER_MODELS,
   openWithFallback, PROVIDER_KEY_ENV, providerResilience, resolveProviders,
   SCENE_FALLBACK_MODEL, SCENE_MODELS, sceneProviders, TUTOR_MODEL, TutorError,
   visionProviders,
@@ -112,11 +113,16 @@ describe("a chain built for a purpose", () => {
     expect(chain[0]?.model).toBe(SCENE_MODELS[0]);
   });
 
-  it("sends Anu to the model that answered her questions, not the dearest one", () => {
+  it("sends Anu to the model the wide eval ranked, with Groq behind it on the model she ran on before", () => {
     all();
     const chain = resolveProviders({ purpose: "tutor" });
-    expect(chain.map((c) => c.name)).toEqual(["groq"]);
+    expect(chain.map((c) => c.name)).toEqual(["gemini", "groq"]);
     expect(chain[0]?.model).toBe(TUTOR_MODEL);
+    expect(chain[1]?.model).toBe(TUTOR_FALLBACK_MODEL);
+    // Pinned: no variable moves either link.
+    vi.stubEnv("TUTOR_MODEL", "some/other-model");
+    vi.stubEnv("GEMINI_MODEL", "gemini-3.5-flash");
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.model)).toEqual([TUTOR_MODEL, TUTOR_FALLBACK_MODEL]);
   });
 
   it("sends the graders to the two models that never failed to return a verdict, cheapest first", () => {
@@ -151,8 +157,9 @@ describe("a chain built for a purpose", () => {
     */
     all();
     expect(resolveProviders({ purpose: "scene" })[0]?.name).toBe("gemini");
-    expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("groq");
-    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "gemini")).toBe(false);
+    expect(resolveProviders({ purpose: "tutor" })[0]?.name).toBe("gemini");
+    // Anu has no bounded Anthropic tail at any budget: Groq is her one fixed backup.
+    expect(resolveProviders({ purpose: "tutor" }).some((c) => c.name === "anthropic")).toBe(false);
   });
 
   it("gives a purpose only the provider it names, and never the general chain", () => {
@@ -175,17 +182,18 @@ describe("a chain built for a purpose", () => {
       exactly the providers it names, and nothing arrives because it happened
       to be configured. `resolveProviders()` with no purpose is a long chain;
       a purpose is its own fixed links plus its bounded fallback. Tutor names
-      one link (Groq alone, no fallback at all); scene names two, Gemini then
-      Groq, both fixed rather than bounded, plus the one bounded last resort.
+      two links, Gemini then Groq, both fixed and with no bounded last resort
+      at any budget; scene names the same two, both fixed rather than
+      bounded, plus the one bounded last resort.
     */
     all();
     const general = resolveProviders().map((c) => c.name);
     expect(general.length).toBeGreaterThan(3);
 
     const tutorNamed = resolveProviders({ purpose: "tutor", allowFallback: false }).map((c) => c.name);
-    expect(tutorNamed).toEqual(["groq"]);
+    expect(tutorNamed).toEqual(["gemini", "groq"]);
     const tutorWithFallback = resolveProviders({ purpose: "tutor", allowFallback: true });
-    expect(tutorWithFallback).toHaveLength(1);
+    expect(tutorWithFallback).toHaveLength(2);
 
     const sceneNamed = resolveProviders({ purpose: "scene", allowFallback: false }).map((c) => c.name);
     // Two Gemini links, one per entry of `SCENE_MODELS`, then the Groq link.
@@ -203,8 +211,8 @@ describe("a chain built for a purpose", () => {
     */
     only("gemini");
     expect(resolveProviders({ purpose: "scene" })).not.toHaveLength(0);
-    // Anu has no fallback at any budget, so a Gemini-only deployment has no tutor.
-    expect(resolveProviders({ purpose: "tutor" })).toHaveLength(0);
+    // A Gemini-only deployment has a tutor on the primary and nothing behind it.
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.name)).toEqual(["gemini"]);
 
     only("groq");
     expect(resolveProviders({ purpose: "tutor" })).not.toHaveLength(0);
@@ -268,7 +276,7 @@ describe("a chain built for a purpose", () => {
     */
     all();
     expect(resolveProviders({ purpose: "tutor", allowFallback: true }).map((c) => c.name))
-      .toEqual(["groq"]);
+      .toEqual(["gemini", "groq"]);
   });
 
   it("defaults to allowing the fallback, so a caller that has not asked is unchanged", () => {
@@ -465,7 +473,7 @@ describe("the free providers", () => {
     expect(calls[0]?.auth).toBe("Bearer groq-key");
   });
 
-  it("does not ask Gemini for a usage frame it never agreed to accept", async () => {
+  it("asks Gemini for the usage frame it now sends, and reads the thinking off its total", async () => {
     vi.stubEnv("GROQ_API_KEY", "");
     vi.stubEnv("GEMINI_API_KEY", "gem-key");
     vi.stubEnv("ANTHROPIC_API_KEY", "");
@@ -473,20 +481,78 @@ describe("the free providers", () => {
     let body = "";
     vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
       body = String(init.body);
-      return sse("tere");
+      /*
+        The shape Google's OpenAI layer streamed on 2026-09-14: a usage object
+        on every chunk, a `completion_tokens` that is the line alone, and a
+        `total_tokens` that is the prompt, the line and the thinking the model
+        did before it. The thinking is billed as output and appears nowhere
+        else, so a reader taking `completion_tokens` books a nineteen-token
+        line and pays for 1,166.
+      */
+      return sseFrames(
+        { choices: [{ delta: { content: "tere" } }], usage: { prompt_tokens: 2017, completion_tokens: 4, total_tokens: 2500 } },
+        { choices: [{ delta: {}, finish_reason: "stop" }], usage: { prompt_tokens: 2017, completion_tokens: 19, total_tokens: 3183 } },
+      );
     });
     const chain = resolveProviders();
-    await openWithFallback([chain[0]!], "system", [{ role: "user", content: "hi" }]);
+    const seen: { input: number; output: number }[] = [];
+    const open = await openWithFallback(
+      [chain[0]!], "system", [{ role: "user", content: "hi" }],
+      (usage) => seen.push({ input: usage.inputTokens, output: usage.outputTokens }),
+    );
+    for await (const _ of open.chunks) { /* drain */ }
     /*
-      An unrecognised field is rejected outright rather than ignored, and this
-      codebase has already lost a provider to exactly that: stream_options was
-      added to the Anthropic call and every request 400'd. Gemini's OpenAI
-      layer does not document the field, so it is not sent, and the ledger
-      estimates from characters instead, which over-counts and so keeps the cap
-      failing closed.
+      `stream_options` used to be withheld from Gemini because its OpenAI layer
+      did not document the field and an unknown field there is a 400; it
+      accepts it now, and without the frame the ledger estimated every
+      streamed Gemini call from characters, which can never see the thinking.
     */
-    expect(body).not.toContain("stream_options");
+    expect(body).toContain("stream_options");
     expect(body).toContain(FREE_GEMINI_MODELS[0]);
+    expect(seen).toEqual([{ input: 2017, output: 1166 }]);
+  });
+
+  it("tells a scene link on Gemini not to think, and no other link", async () => {
+    /*
+      `gemini-3.8-flash` thinks by default and the thinking is most of a scene
+      line's bill (`ProviderConfig.reasoning`); `npm run eval:thinking` put
+      thinking on and off at 24 of 24 beats each. The tutor and grader chains
+      carry no such field, because a Groq reasoning model refuses "none" and
+      Anu's answers were measured with the model thinking: "low" was measured
+      too and left unused, at 4 of 30 facts missed against 2 (the field's own
+      comment has the figures).
+    */
+    vi.stubEnv("GROQ_API_KEY", "groq-key");
+    vi.stubEnv("GEMINI_API_KEY", "gem-key");
+    vi.stubEnv("ANTHROPIC_API_KEY", "");
+    vi.stubEnv("OPENAI_API_KEY", "");
+    const scene = resolveProviders({ purpose: "scene", allowFallback: false });
+    expect(scene.filter((c) => c.name === "gemini").map((c) => c.reasoning)).toEqual(["none", "none"]);
+    expect(scene.filter((c) => c.name !== "gemini").every((c) => c.reasoning === undefined)).toBe(true);
+    // Anu's Gemini link is measured thinking off; her Groq link and the graders carry nothing.
+    expect(resolveProviders({ purpose: "tutor" }).map((c) => c.reasoning)).toEqual(["none", undefined]);
+    expect(resolveProviders({ purpose: "grader" }).every((c) => c.reasoning === undefined)).toBe(true);
+
+    let body = "";
+    vi.stubGlobal("fetch", async (_url: string, init: RequestInit) => {
+      body = String(init.body);
+      return sse("tere");
+    });
+    await openWithFallback([scene[0]!], "system", [{ role: "user", content: "hi" }]);
+    expect(JSON.parse(body).reasoning_effort).toBe("none");
+
+    body = "";
+    await openWithFallback([resolveProviders({ purpose: "tutor" })[1]!], "system", [{ role: "user", content: "hi" }]);
+    expect(body).not.toContain("reasoning_effort");
+  });
+
+  it("reads billed output as the larger of the completion count and the hidden total", () => {
+    expect(billedOutput({ prompt_tokens: 2017, completion_tokens: 19, total_tokens: 3183 })).toBe(1166);
+    // Groq and OpenAI: reasoning is inside `completion_tokens` and the total adds up.
+    expect(billedOutput({ prompt_tokens: 100, completion_tokens: 380, total_tokens: 480 })).toBe(380);
+    expect(billedOutput({ prompt_tokens: 100, completion_tokens: 40 })).toBe(40);
+    expect(billedOutput({ prompt_tokens: 100, total_tokens: 140 })).toBe(40);
+    expect(billedOutput({})).toBeUndefined();
   });
 });
 

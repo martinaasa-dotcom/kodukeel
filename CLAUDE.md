@@ -249,6 +249,75 @@ feature, since the budget then binds ten times too early on exactly the traffic 
 exists to make cheap. `CacheSplit` carries the two buckets beside the total, so a caller that
 knows nothing about caching still prices the whole call at base and still fails closed.
 
+**And a flash model thinks unless it is told not to, and the endpoint hid the bill.** Gemini's
+OpenAI-compatible layer reports the line in `completion_tokens` and the line plus the thinking in
+`total_tokens`, and says nothing else about the thinking; Google bills it as output, at five times
+the input rate. Measured on 2026-09-14 on the scene route's own prompt: a nineteen-token line from
+`gemini-3.8-flash` arrived under 1,147 hidden tokens, so a scene line the ledger priced at $0.0017
+cost about $0.005, and the cap bound three times too late on the one path that spends the most.
+Two things were wrong and both were in the transport rather than the prompt. Gemini was never sent
+`stream_options`, on a day its layer did not document the field, so every streamed Gemini call was
+estimated from characters, which can never see thinking; it is asked now and answers on every
+chunk. And `completion_tokens` was read where `total_tokens` less the prompt is what is billed:
+`billedOutput` reads the larger of the two, which is the same number on Groq and OpenAI, whose
+totals add up. `ProviderConfig.reasoning` is the other half: the two Gemini scene links carry
+`"none"`, sent as `reasoning_effort`, because `npm run eval:thinking` put thinking on and off at
+24 of 24 beats each, one gate refusal apart, on lines nobody could tell apart. Only that value is
+allowed, so a link cannot be put on "low" and called a saving nobody measured. The tutor and
+grader chains carry nothing, since a Groq reasoning model refuses "none" and Anu was measured
+thinking. Input is now nine tenths of a scene line, 2,000 tokens a call, and the endpoint reports
+no cached share on an identical 2,000-token prefix, so the next saving there is the prompt's
+length rather than its order. `npm run report:spend` is how the bill is read by kind, model and
+day off the deployment's own ledger, priced in and out apart, because a model whose output share
+is most of its cost on a job returning twenty tokens is a model paying for reasoning nobody reads.
+
+**And the levers left on a scene line were each weighed, and most were left where they are.**
+Once the thinking is off, a line on the primary is $0.0016 and on the Lite $0.0005, so the four
+things that could still move it were taken one at a time. The primary stays `gemini-3.8-flash`:
+§61 played both live and the primary was withheld on 8 percent of drafts against the Lite's 19,
+and its lines react to the learner where the Lite's ask the question and stop, so swapping them
+buys a tenth of a cent a line and pays for it in turns falling to the bank, which is the seam a
+learner notices. The composer keeps its three attempts, because at 8 percent withheld the third
+fires on fewer than one turn in a hundred and rescues most of those, so cutting it saves nothing
+measurable and costs a conversation its voice on exactly the turn that was hard. The prompt is
+not padded and not trimmed blind: a prefix of 3,300 tokens sent three times inside a minute came
+back with no cached share on either Gemini model, so the endpoint the app uses reports no
+implicit cache and a prompt grown to reach one would be a prompt written for a billing rule that
+this endpoint does not apply; the word list is a third of the prompt and the rules are the other
+two thirds, both measured into shape through `play:scenes`, so a shorter prompt is a measured
+change and not a tidy-up. What did move is the harness: `scripts/lib/sceneDraft.ts` reads the
+scene chain and dropped its `reasoning` on the way, so every drafted bank line paid for the
+thinking the route had switched off, asserted now on every body it sends. The caps are the
+operator's: `AI_DAILY_USD_GLOBAL` and the per-kind `AI_DAILY_USD_*` variables are the one hard
+ceiling on the bill and default to three dollars a day, and a deployment whose Gemini balance
+runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
+empty Gemini balance raises the bill rather than lowering it.
+
+**The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
+endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
+same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
+went from 2,192 to 1,821 on Google's own tokenizer with the withheld share level on both models,
+played through every scene before and after (`docs/21-situations.md` §63). The word list is the
+40 percent that cannot be cut, since `stretch` counts every word a line reaches past it. So it is
+held rather than sent: `lib/tutor/geminiCache.ts` makes one explicit `cachedContents` entry per
+prompt and names it on every turn after, and both scene models report 1,592 of a 1,704-token turn
+served off it at a tenth of the input rate. A turn on the primary is $0.0003 after the first,
+against $0.0015; the turn that makes the entry books the write and ten minutes of storage as
+base-rate tokens (`cacheStorageAsInputTokens`), so the cap sees the whole bill on the turn that ran
+it up. **It never costs a line**: a link that will not hold the prompt answers through the plain
+transport, an entry the provider forgot is made again once, and the scene route and the tutor route
+are the two callers that ask for it, because the grader runs on Groq, where there is nothing to hold.
+**Making the
+entry is most of a run's bill now**, fourteen creations against ninety-four turns in the play run,
+so its life slides: an entry with under half its term left is extended with one `PATCH`, the
+storage that buys is booked on the turn that asked, and a run that keeps talking never remakes it.
+Moving the persona out of the entry so five personas share one was measured and reverted: 17
+percent withheld over three runs against 12, the model losing its character when the line saying
+who it is comes last (`docs/21-situations.md` §63). The live
+block rides in front of "Your line:" now, after the conversation, since an entry is fixed and the
+block is not, and the harness sends the same shape through the same function, asserted; a harness
+in a different order measures a conversation the app does not have.
+
 **Two of the three cache breakpoints are under Anthropic's minimum and do nothing, which is worth
 knowing rather than fixing.** A cached prefix has to reach 1,024 tokens. The tutor's is about
 2,275 and caches; the grader's is 456 and the scanner's 221, so both are inert on Sonnet today.
@@ -6661,6 +6730,70 @@ answers before it names a case, four times the chart's floor, since a teacher ra
 conversation is a stronger claim than a bar. The route no longer reads a level from the request at
 all, asserted.
 
+**Anu remembers a day and starts fresh after it.** The thirty most recent turns came back on every
+visit whatever their age and up to twenty of them went to the model on every question, which is a
+tutor opening Tuesday's lesson by re-reading last month's, at full price each time. The operator
+asked for a conversation to be a sitting. `lib/tutor/lifetime.ts` is the one figure, twenty-four
+hours rolling rather than a calendar day so a question at 23:50 and its answer at 00:05 are one
+conversation; `loadRecentMessages` reads nothing older, `forgetOldMessages` deletes what is older
+and the route calls it after writing the turn just taken, which is the one moment a conversation
+is certainly live. A learner who never speaks to her again keeps the day's rows until erasure, and
+`docs/25-data-retention.md`, the DPIA and `/privacy` say exactly that rather than something
+tidier. An invariant holds the read, the delete and the two documents together, because a notice
+describing a deletion nobody makes is the shape of compliance that fails an audit.
+
+**And her reasoning effort was measured and left where it is.** Four fifths of what Groq bills for
+an answer of hers is reasoning nobody reads, 410 tokens an answer against a visible 470-token reply
+that costs 150 at `low`, and `npm run eval:anu -- --effort low --runs 3` put it at 26 of 30 facts
+against the default's 28 over five runs, dropping the gradation and the partitive plural. Sixteen
+cents a thousand questions does not buy those two, so no chain carries the setting; `low` is in the
+type because it was measured, and the figures sit on `ProviderConfig.reasoning`. The grader's Gemini
+Lite link does not think on a JSON call, 26 to 31 output tokens a verdict, so nothing was switched
+off there.
+
+**And she is handed the dictionary's forms for the words in the question, because the briefing
+held the rules and none of the facts.** Asked for every case of `jalg`, Anu built fourteen forms on
+a genitive she guessed and eleven were wrong; asked about `Soome` she put it in the allative; a
+correct sentence was corrected twice over, and a `FIX:` line sat under nine answers in thirty-one
+that had no sentence to correct. Six grammar facts could see none of that, so `npm run eval:anu`
+asks thirty-seven questions of seven kinds and counts the stray `FIX:` line, the inflected `VOCAB:`
+entry, the shape the renderer will not draw, the length of a one-line answer and every Estonian
+spelling against `prisma/data/forms/`. `lib/tutor/words.ts` picks the words a question is about
+and prints what the dictionary holds for each, the principal parts, the government and which case
+a spelling in the question is, off `whichCase` and never off the model; `lib/progress/tutorWords.ts`
+reads them, vouching each token the way a photographed page is vouched (ADR-021); the route sends the
+block after the learner's note and the harness builds the same block off the shipped file, asserted.
+Measured on that shape, `openai/gpt-oss-120b` still taught a wrong form three times in ninety-three
+answers and the Gemini rows, thinking off, taught none, so Anu answers on Gemini with Groq as her
+fixed backup, both pinned like the scene links, and her static prompt is held on Google's side.
+**Which Gemini row is a cost decision, and the operator made it: the Lite.** `gemini-3.8-flash`
+answered 29 of 29 at $1.28 a thousand held and `gemini-3.1-flash-lite` came close at a quarter of
+that, so every cheaper row was asked the same questions first: two are no longer sold to this key,
+`gemini-3.5-flash-lite` invented `töötulan`, and the 3.1 Lite invented no form and got a short, named
+list wrong instead. Each of those has a guard now rather than a dearer model: it explained
+`tuba : toa` as a vowel softening, so the words block spells the grade change out letter by letter
+(`gradePlain`); it wrote `olette` in a table of `olema`, so a verb's line carries its six persons off
+the stored forms where the harvest holds them and off the rule where it does not (`personsLine`); it
+called `teisipäeval` the seesütlev, so a nominal carries its eleven cases with the name after each
+form where the question asked about a form or named no Estonian at all (`casesLine`,
+`asksForForms`), and a case name a letter or two off the table is put right on the way past
+(`nearestCaseName`); it buried the sentence under a preamble and reworded right sentences as
+corrections, so the prompt asks for the Estonian first and for a correction that changes only what
+was wrong. **The table is gated because it was measured both ways**: under every nominal it fixed
+the naming and sent "ma töötan kool" from `koolis` three times in three to `koolil` and `koolina`,
+the model shopping among forms handed over for a sentence that needed one, so a sentence to correct
+gets the principal parts alone and a pronoun is always tabled, since its everyday cases are the
+short stored forms. And "how do you say Tuesday" names no Estonian, so the English of such a
+question is resolved through the dictionary's own glosses, whole or on the first sense, on the route
+and in the harness alike. Three runs of the finished shape on the Lite: 86 of 87 facts, every correction right, no stray
+`FIX:` line, no invented form, at $0.33 a thousand held against $1.28 and under a second an answer.
+What the guards do not reach is the harness's number, not the app's: half of what it reports as
+unverified is English the model put in bold, which the screen's own check never reads. And a
+`FIX:` line under a question that had no sentence to correct is dropped on every model, decided
+from the learner's own message and the longest run of Estonian in it (`lib/tutor/fixLine.ts`),
+because the screen boxes that line as a correction of something they wrote
+(`docs/21-situations.md` §55).
+
 **Anu's English is cleaned on its way past, and her Estonian never is.** `lib/tutor/humanize.ts`
 strips dashes used as clause breaks and stock openers, reading both from `lib/copy/voice.ts` rather
 than keeping a list of its own. It streams, holding text back only where a
@@ -7243,6 +7376,7 @@ npm run scenes:import    # read it back, gated word by word through the dictiona
 npm run wordlist         # rebuild the 155k headword list in 32 requests (cached, needs EKILEX_API_KEY)
 npm run forms            # rebuild the forms list: every spelling of every word, from Ekilex and Vabamorf (cached, needs python3 with estnltk)
 npm run report:impact    # people, study, retention and conversations outside the app, as text for a funder
+npm run report:spend     # what the models cost, by kind, model and day, off the ledger (--days)
 npm run measure:scenes   # how much of a conversation the dictionary can already carry
 npm run play:scenes      # every scene played keyless as a sloppy or curious learner; read the transcripts (--scene, --style)
 npm run replay:scene     # one reported transcript, keyless, through the app's own ladder (--scene, --curveball id@beat, --say ...)

@@ -64,46 +64,42 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
     words: 20,
     newWords: 2,
     listener: "They have been learning Estonian for a few weeks and can follow only the plainest speech.",
-    voice: "Speak the way a kind person speaks to somebody with very little of the language:"
-      + " one short sentence per thought, about five to eight words each, and one question at a"
-      + " time. Ask a yes-or-no question wherever the words allow it, or a question with a single"
-      + " question word. Mostly the present tense, the commonest verbs, concrete nouns, numbers and"
-      + " times said plainly. No clause inside a clause, no 'if' or 'although', no idiom, no"
-      + " politeness formula longer than one word. One short sentence is usually a whole turn,"
-      + " and two is the most it should ever be.",
+    voice: "Speak as a kind person does to somebody with very little of the language: one short"
+      + " sentence per thought, five to eight words each, one question at a time, yes-or-no or"
+      + " with a single question word wherever the words allow. Mostly present tense, the"
+      + " commonest verbs, concrete nouns, numbers and times said plainly. No clause inside a"
+      + " clause, no 'if' or 'although', no idiom, no politeness formula longer than one word."
+      + " One short sentence is usually a whole turn, two at most.",
   },
   A2: {
     sentences: [1, 3],
     words: 30,
     newWords: 4,
     listener: "They have a few months of Estonian and can follow short everyday sentences.",
-    voice: "Short sentences still, and two thoughts may join with 'and', 'but' or 'because'."
-      + " A question may offer a choice of two. The simple past and 'can you' are fine, and one"
-      + " short reason or a short instruction is fine. Everyday words for the situation, nothing"
-      + " rare, and still one thing asked at a time. One or two sentences is a whole turn, three"
-      + " where there is a reason to give.",
+    voice: "Short sentences still; two thoughts may join with 'and', 'but' or 'because', and a"
+      + " question may offer a choice of two. The simple past, 'can you', one short reason or"
+      + " instruction are fine. Everyday words, nothing rare, one thing asked at a time. One or"
+      + " two sentences is a turn, three where there is a reason to give.",
   },
   B1: {
     sentences: [2, 4],
     words: 44,
     newWords: 6,
     listener: "They can hold an everyday conversation and can follow a sentence with one clause inside it.",
-    voice: "Speak the way a person at a counter speaks to an adult who is managing: whole sentences,"
-      + " one subordinate clause where it is natural, a question that offers two alternatives, and"
-      + " a second sentence that gives a reason or says what follows. Where you are wrapping up,"
-      + " one longer sentence that sums up what you will do is fine. Ordinary adult vocabulary for"
-      + " the situation, and still no rare words and no idiom they could not work out.",
+    voice: "Speak as a person at a counter does to an adult who is managing: whole sentences, one"
+      + " subordinate clause where natural, a question offering two alternatives, a second"
+      + " sentence giving a reason or what follows, and one longer summing-up sentence when"
+      + " wrapping up. Ordinary adult vocabulary, no rare words, no idiom they could not work out.",
   },
   B2: {
     sentences: [3, 5],
     words: 55,
     newWords: 8,
     listener: "They speak Estonian well and can follow an adult conversation at ordinary pace.",
-    voice: "Speak as you would to any adult: sentences with two clauses, a condition and its"
-      + " consequence together, a question that asks for a description or an opinion rather than"
-      + " a fact, a short recap of what they told you before you move on, and a softened request"
-      + " where a person would soften it. The precise word for the thing is better than a"
-      + " roundabout one.",
+    voice: "Speak as to any adult: two-clause sentences, a condition with its consequence, a"
+      + " question asking for a description or opinion rather than a fact, a short recap of what"
+      + " they told you before moving on, a softened request where a person would soften it. The"
+      + " precise word beats a roundabout one.",
   },
   C1: {
     sentences: [3, 5],
@@ -111,9 +107,8 @@ export const PITCH: Readonly<Record<Level, Pitch>> = {
     newWords: 10,
     listener: "They speak Estonian nearly as well as you do.",
     voice: "Speak entirely naturally, at a native's pace and register for this role: several"
-      + " points in one turn, a follow-up folded into the same sentence, hedging and nuance where"
-      + " a person would use them, and the vocabulary somebody doing this job actually uses. Do not"
-      + " simplify anything for them.",
+      + " points in one turn, a follow-up folded into the sentence, hedging and nuance where a"
+      + " person would use them, the vocabulary of somebody doing this job. Simplify nothing.",
   },
 };
 
@@ -153,7 +148,7 @@ export function pitchFor(level: Level): string {
   return [
     `This conversation is pitched at ${level}. ${pitch.listener}`,
     pitch.voice,
-    `A whole turn is ${min === max ? min : `${min} to ${max}`} sentences and at most ${pitch.words} words,`
-      + ` and reaches for at most ${pitch.newWords} words outside the list you are given.`,
+    `A turn is ${min === max ? min : `${min} to ${max}`} sentences and at most ${pitch.words} words,`
+      + ` reaching for at most ${pitch.newWords} words outside the list you are given.`,
   ].join(" ");
 }

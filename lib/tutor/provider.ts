@@ -20,6 +20,7 @@
  * the head of the chain, because a screen naming the wrong model is worse
  * than one naming none.
  */
+import { geminiCachedReply } from "./geminiCache";
 import { reportError } from "@/lib/observability/report";
 import { estimateTokens } from "@/lib/usage/pricing";
 
@@ -82,6 +83,34 @@ export interface ProviderConfig {
   name: ProviderName;
   model: string;
   label: string;
+  /**
+   * Ask the model not to think before it writes, where the link is on a model
+   * that does so by default and the job is one thinking does nothing for.
+   *
+   * `gemini-3.8-flash` reasons unless told not to, and the OpenAI-compatible
+   * endpoint hides that: `completion_tokens` is the line, `total_tokens` is
+   * the line plus the thinking, and Google bills the thinking as output at
+   * five times the input rate. Measured 2026-09-14 on the scene route's own
+   * prompt: a twenty-token line arrived under 678 and 1,147 hidden tokens on
+   * two calls, so a scene line the ledger priced at $0.0017 cost about $0.005,
+   * and `npm run eval:thinking` put thinking on and off at 24 of 24 beats
+   * each, one refusal apart, on the same lines. Sent as `reasoning_effort`,
+   * which is the one spelling both Google and Groq read; only a value an eval
+   * has measured is allowed, so a link cannot be quietly put on a setting and
+   * called a saving nobody measured.
+   *
+   * "low" IS MEASURED AND UNUSED, AND THE FIGURE IS WHY. Anu's Groq link is
+   * a reasoning model that refuses "none", and `npm run eval:anu -- --effort low`
+   * on 2026-09-14 cut her output from about 410 billed tokens an answer to
+   * about 150, four fifths of the default being reasoning nobody reads, which
+   * is $0.16 a thousand questions off a bill of $0.70. It also missed 4 of 30
+   * facts against the default's 2 of 30 over five runs, and the two it dropped
+   * were the gradation and the partitive plural, which are the two facts a
+   * grammar tutor exists for. Sixteen cents a thousand questions does not buy
+   * that. The value stays in the type so the next measurement is a flag
+   * rather than a cast, and no chain carries it.
+   */
+  reasoning?: "none" | "low";
 }
 
 export interface ChatMessage {
@@ -223,15 +252,19 @@ export interface ChainOptions {
  * fraction of Anthropic's rate and carries none of the risk that fallback
  * is gated against.
  *
- * ANU GOES TO GROQ (`npm run eval:anu`). This said Anthropic and the reasoning
- * was that being right about Estonian matters more than being cheap, which is
- * still true and is not an argument for a particular vendor. Asked the six
- * grammar questions through the route's own transport, `openai/gpt-oss-120b`
- * answered all six correctly at $0.72 per thousand and `claude-sonnet-5`
- * missed one at $12.44. Seventeen times the price for a worse score is not a
- * quality decision, it was an untested assumption. `openai/gpt-oss-20b` is
- * half the price again and drops to four of six, so this is the floor rather
- * than the cheapest thing on the list.
+ * ANU GOES TO GEMINI, WITH GROQ BEHIND HER (`npm run eval:anu`). This said
+ * Anthropic and the reasoning was that being right about Estonian matters
+ * more than being cheap, which is still true and is not an argument for a
+ * particular vendor. Asked six grammar questions through the route's own
+ * transport, `openai/gpt-oss-120b` answered all six at $0.72 per thousand
+ * and `claude-sonnet-5` missed one at $12.44, which moved her to Groq. Asked
+ * thirty-seven questions of seven kinds, gpt-oss-120b taught a wrong form
+ * three times in ninety-three answers and the Gemini rows, thinking off,
+ * taught none, so a Gemini model leads and the Groq one is the fixed
+ * backup (`TUTOR_MODEL`, `TUTOR_FALLBACK_MODEL`). Which Gemini row is a
+ * cost decision taken with the guards the Lite needed built first, and
+ * `openai/gpt-oss-20b` is cheaper than all of them and answers 21 of 29, so
+ * the floor is measured rather than the cheapest thing on the list.
  *
  * THE SCANNER GOES TO GEMINI (`npm run eval:scan`). Six runs of twenty-four
  * words that every one carry a diacritic: `gemini-3.1-flash-lite` read 144 of
@@ -246,19 +279,25 @@ export interface ChainOptions {
  */
 const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[]) => void>> = {
   tutor: (chain) => {
-    if (!process.env.GROQ_API_KEY) return;
     /*
-      `TUTOR_MODEL` rather than `GROQ_MODEL`, for the reason `SCENE_MODEL` is
-      not `GEMINI_MODEL`: the general chain is a different decision made for a
-      different reason, and a deployment that pinned it to whatever is cheapest
-      this week would silently move Anu off the model the eval ranked, with
-      nothing failing.
+      PINNED, LIKE THE SCENE CHAIN, AND FOR ITS REASON. `TUTOR_MODEL` used to
+      be read through an environment variable, which is the door the
+      `SCENE_MODEL` fault came through one purpose over: a deployment that
+      pinned it to whatever is cheapest this week would silently move Anu off
+      the model the eval ranked, with nothing failing. Gemini leads on the
+      cheapest model the wide eval passed with the guards on, thinking off
+      because the eval was run that way (`TUTOR_MODEL`), and Groq backs it up
+      on the model Anu ran on before, which answers 83 of 87 facts on the same
+      eval (`TUTOR_FALLBACK_MODEL`):
+      Groq backs up Gemini everywhere Gemini answers, and Anu is no longer the
+      exception.
     */
-    chain.push({
-      name: "groq",
-      model: process.env.TUTOR_MODEL || TUTOR_MODEL,
-      label: "Groq",
-    });
+    if (process.env.GEMINI_API_KEY) {
+      chain.push({ name: "gemini", model: TUTOR_MODEL, label: "Google Gemini", reasoning: "none" });
+    }
+    if (process.env.GROQ_API_KEY) {
+      chain.push({ name: "groq", model: TUTOR_FALLBACK_MODEL, label: "Groq" });
+    }
   },
   scene: (chain) => {
     // Gemini leads; `resolveProviders` appends the bounded Anthropic fallback
@@ -283,7 +322,8 @@ const PURPOSE_CHAINS: Readonly<Record<ProviderPurpose, (chain: ProviderConfig[])
     */
     if (process.env.GEMINI_API_KEY) {
       for (const model of SCENE_MODELS) {
-        chain.push({ name: "gemini", model, label: "Google Gemini" });
+        // Thinking off: see `ProviderConfig.reasoning` for the measurement.
+        chain.push({ name: "gemini", model, label: "Google Gemini", reasoning: "none" });
       }
       warnIfSceneModelSet();
     }
@@ -360,18 +400,44 @@ function warnIfSceneModelSet(): void {
 }
 
 /**
- * The model Anu asks, and the reason it is not the dearest one available.
+ * The model Anu asks, and the reason it is the cheapest one that holds up.
  *
  * Measured rather than assumed, which is the whole of the change: the six
- * grammar questions in `npm run eval:anu`, through the route's own transport
- * and Anu's own prompt. A wrong grammar explanation is worse than none,
- * because the learner acts on it and the scheduler then drills what they took
- * away, so the bar here is all six and not most of them.
+ * grammar questions in `npm run eval:anu` put Anu on `openai/gpt-oss-120b`
+ * at 6 of 6, the thirty-seven questions the eval asks now put
+ * `gemini-3.8-flash` at 29 of 29, and every cheaper row the two keys reach
+ * was asked the same questions. `gemini-3.1-flash-lite` invented no form on
+ * the grounded shape, at a quarter of the price and a third of the latency,
+ * and what it got wrong was a short, named list: gradation explained as a
+ * vowel, a case name misspelt, the answer buried under a preamble, a
+ * correction that reworded a right sentence, and answers twice the length.
+ * Those are faults a guard can catch and a briefing can prevent, so each has
+ * one: the words block spells the grade change out letter by letter
+ * (`gradePlain`), the prompt asks for the Estonian first and for a
+ * correction that changes only what was wrong, `nearestCaseName` repairs a
+ * case name one or two letters off, and `isStrayFix` refuses a FIX: line
+ * under a question with no sentence in it. A fault a learner cannot see is
+ * the bar, not the price, and the Lite clears it with the guards on
+ * (`docs/21-situations.md` §55). The operator asked for the cheaper model
+ * on the same day, and cost is the reason it is this row and not the one
+ * above it.
  *
- * `openai/gpt-oss-20b` is half the price and answers four of six, which is
- * what makes this a floor rather than the bottom of a price list.
+ * `openai/gpt-oss-20b` is cheaper still and answers 21 of 29, and
+ * `gemini-3.5-flash-lite` costs the same as this row and invented a verb
+ * form, which is what makes this a floor rather than the bottom of a price
+ * list.
  */
-export const TUTOR_MODEL = "openai/gpt-oss-120b";
+export const TUTOR_MODEL = "gemini-3.1-flash-lite";
+
+/**
+ * The Groq link behind `TUTOR_MODEL`, which is the model Anu ran on until the
+ * wide eval. It answers 83 of 87 facts on that eval and is a tenth of the
+ * price, and it is the second link rather than the first because of what the
+ * other 4 were: a place put in the allative, a form built on a guessed
+ * genitive, a correct sentence corrected, all faults a learner cannot see.
+ * Pinned for the reason `SCENE_FALLBACK_MODEL` is.
+ */
+export const TUTOR_FALLBACK_MODEL = "openai/gpt-oss-120b";
 
 /**
  * The model the scanner reads a photograph with.
@@ -519,9 +585,10 @@ export const SCENE_REPLY_TOKENS = 4_000;
  * cut off mid-word, in the middle of a sentence, which is worse, because
  * nothing about it looks like a failure.
  *
- * `TUTOR_MODEL` is a Groq reasoning model for the same reason `SCENE_MODELS`
- * is one: it is one of the measured, cheap ones. So this takes the same fix
- * `SCENE_REPLY_TOKENS` already took for the identical shape of the same bug.
+ * `TUTOR_FALLBACK_MODEL` is a Groq reasoning model for the same reason
+ * `SCENE_FALLBACK_MODEL` is one: it is one of the measured, cheap ones. So
+ * this takes the same fix `SCENE_REPLY_TOKENS` already took for the identical
+ * shape of the same bug.
  */
 export const TUTOR_REPLY_TOKENS = 3_000;
 
@@ -805,6 +872,8 @@ interface UsageFrame {
   };
   usage?: {
     output_tokens?: number; prompt_tokens?: number; completion_tokens?: number;
+    /** Prompt plus everything billed on the way out, which on Gemini is more than `completion_tokens`. */
+    total_tokens?: number;
     /** Where an OpenAI-compatible provider says how much of the prompt it served from its cache. */
     prompt_tokens_details?: { cached_tokens?: number };
   };
@@ -812,6 +881,31 @@ interface UsageFrame {
   delta?: { stop_reason?: string | null };
   /** Where an OpenAI-compatible provider says the same thing: the last streamed chunk for a choice, `content` empty. */
   choices?: { finish_reason?: string | null }[];
+}
+
+/**
+ * What a provider will bill on the way out, which is not always what it calls
+ * `completion_tokens`.
+ *
+ * Gemini's OpenAI layer reports the line in `completion_tokens` and the line
+ * plus the model's thinking in `total_tokens`, and says nothing else about the
+ * thinking; Google bills it as output. Measured 2026-09-14 on
+ * `gemini-3.8-flash`: `prompt 2017, completion 19, total 3183`, so a
+ * nineteen-token line was 1,166 billed tokens, and a ledger reading the
+ * completion count alone booked it at a sixtieth of its output cost. Groq
+ * and OpenAI count reasoning inside `completion_tokens` and their totals add
+ * up, so the larger of the two readings is right on every provider, and a
+ * frame with no total reads exactly as it did.
+ */
+export function billedOutput(usage: {
+  completion_tokens?: number; prompt_tokens?: number; total_tokens?: number;
+}): number | undefined {
+  const completion = usage.completion_tokens;
+  const hidden = usage.total_tokens != null && usage.prompt_tokens != null
+    ? usage.total_tokens - usage.prompt_tokens
+    : undefined;
+  if (completion == null) return hidden != null && hidden > 0 ? hidden : undefined;
+  return hidden != null ? Math.max(completion, hidden) : completion;
 }
 
 function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport): void {
@@ -849,7 +943,7 @@ function absorbUsage(provider: ProviderName, frame: unknown, into: UsageReport):
 
   if (f.usage) {
     into.inputTokens = f.usage.prompt_tokens ?? into.inputTokens;
-    into.outputTokens = f.usage.completion_tokens ?? into.outputTokens;
+    into.outputTokens = billedOutput(f.usage) ?? into.outputTokens;
     /*
       The cached share, in the field OpenAI, Gemini and Groq all use for it.
       Read for the reason the Anthropic branch reads its two buckets: a cached
@@ -908,6 +1002,20 @@ export async function openWithFallback(
     they write the sentence, and Anu's own reply is longer than one sentence.
   */
   maxTokens?: number,
+  /*
+    WHETHER THE SYSTEM PROMPT IS WORTH HOLDING ON THE PROVIDER'S SIDE. On a
+    Gemini link this asks `lib/tutor/geminiCache.ts` to serve the static half
+    off an explicit cache entry, at a tenth of the input rate, which is the
+    scene route's whole saving: its prompt is nine tenths constant for a run
+    and the compatible endpoint caches none of it. Off by default, because a
+    prompt read once a day is not worth an entry held for ten minutes, and
+    the grader runs on Groq, where there is no such entry to make; Anu asks
+    for it since her primary moved to Gemini, and her prompt is the same
+    2,300 tokens for everybody, which is why the level moved out of it.
+    A link that will not hold the prompt answers through the plain transport
+    instead, so asking for it never costs a line.
+  */
+  cacheSystem = false,
 ): Promise<OpenStream> {
   if (chain.length === 0) throw new TutorError("No AI provider is configured.", 503);
 
@@ -915,6 +1023,10 @@ export async function openWithFallback(
     const config = chain[i]!;
     try {
       const last = i === chain.length - 1;
+      if (cacheSystem && config.name === "gemini") {
+        const cached = await cachedGeminiStream(config, system, messages, live, maxTokens, onUsage);
+        if (cached) return cached;
+      }
       const upstream =
         config.name === "anthropic"
           ? await callAnthropic(config, system, messages, live)
@@ -930,6 +1042,38 @@ export async function openWithFallback(
 
   // Unreachable: the loop either returns or throws on its last pass.
   throw new TutorError("No AI provider is configured.", 503);
+}
+
+/**
+ * The cached path as an `OpenStream`, so a caller reads it exactly as it reads
+ * a streamed one: the line arrives as one chunk and the usage, with its cached
+ * share, reaches `onUsage` when the chunk has been read. Null where the entry
+ * could not be made or used, which is the caller's cue to send the same call
+ * through the plain transport on the same link; a rejected key is thrown,
+ * because every transport would answer it the same way.
+ */
+async function cachedGeminiStream(
+  config: ProviderConfig,
+  system: string,
+  messages: ChatMessage[],
+  live: string,
+  maxTokens: number | undefined,
+  onUsage?: (usage: UsageReport, config: ProviderConfig) => void,
+): Promise<OpenStream | null> {
+  try {
+    const reply = await geminiCachedReply(config, system, messages, live, maxTokens);
+    async function* one(): AsyncGenerator<string> {
+      try {
+        if (reply.text) yield reply.text;
+      } finally {
+        onUsage?.(reply.usage, config);
+      }
+    }
+    return { config, chunks: one() };
+  } catch (error) {
+    if (error instanceof TutorError && error.status === 401) throw error;
+    return null;
+  }
 }
 
 /** Streams a reply as plain text chunks. Throws TutorError with a message worth showing. */
@@ -1085,7 +1229,17 @@ const OPENAI_COMPATIBLE: Record<
   gemini: {
     url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
     keyEnv: "GEMINI_API_KEY",
-    usageFrames: false,
+    /*
+      Google's OpenAI layer did not document `stream_options` when this was
+      written and an unknown field there is a 400, so Gemini was not asked and
+      the ledger estimated every streamed Gemini call from character counts.
+      Asked on 2026-09-14 it answers with a `usage` object on every chunk,
+      `total_tokens` included, and that field is the only place the endpoint
+      admits to the thinking a flash model does by default (`absorbUsage`).
+      An estimate from characters can never see those, so the one Gemini path
+      that streams, scene composition, was the one path under-billed.
+    */
+    usageFrames: true,
   },
   openai: {
     url: "https://api.openai.com/v1/chat/completions",
@@ -1140,6 +1294,8 @@ async function callOpenAiCompatible(
       // fall back to estimating from character counts.
       ...(usageFrames ? { stream_options: { include_usage: true } } : {}),
       max_tokens: maxTokens ?? REPLY_TOKENS,
+      // Only where the chain said so; a provider refuses a field it does not know.
+      ...(config.reasoning ? { reasoning_effort: config.reasoning } : {}),
       messages: [{ role: "system", content: live ? `${system}\n\n${live}` : system }, ...messages],
     }),
     signal: AbortSignal.timeout(90_000),

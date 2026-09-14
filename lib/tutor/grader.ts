@@ -1,6 +1,8 @@
 import type { WritingTask } from "@/lib/estonian/writing";
 import { estimateTokens } from "@/lib/usage/pricing";
-import { anthropicHeaders, openAiCompatible, TutorError, type ProviderConfig, type UsageReport } from "./provider";
+import {
+  anthropicHeaders, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
+} from "./provider";
 
 /**
  * Grading a learner's own Estonian sentence.
@@ -345,12 +347,13 @@ async function callForJson(
     if (!res.ok) throw new TutorError(`${config.label} returned ${res.status}.`, res.status);
     const body = await res.json() as {
       choices?: { message?: { content?: string } }[];
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
     };
     text = body.choices?.[0]?.message?.content ?? "";
     if (body.usage) {
       usage.inputTokens = body.usage.prompt_tokens ?? 0;
-      usage.outputTokens = body.usage.completion_tokens ?? 0;
+      // Thinking a provider hides from `completion_tokens` is still billed (`billedOutput`).
+      usage.outputTokens = billedOutput(body.usage) ?? 0;
       usage.measured = true;
     }
   }

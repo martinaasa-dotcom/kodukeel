@@ -3806,6 +3806,43 @@ check("the voice is one table, and everything that speaks reads from it", () => 
   assert.doesNotMatch(tutorRoute, /body\.level/, "the tutor route reads a level from the client again");
   assert.match(tutorRoute, /learnerContextFor\(ownerId\)/, "the tutor route no longer asks who is asking");
   assert.match(tutorRoute, /learnerNote\(learner\)/, "the tutor route no longer hands Anu the learner note");
+  /*
+    And the words the question is about, as the dictionary holds them. Asked
+    for every case of `jalg`, Anu built fourteen forms on a genitive she
+    guessed and eleven were wrong; the briefing held the rules and none of
+    the facts. `lib/tutor/words.ts` prints the dictionary's principal parts
+    for the words in the question and `lib/progress/tutorWords.ts` reads
+    them, vouching each token the way a photographed page is vouched
+    (ADR-021) rather than by prefix, and the harness builds the same block
+    through the same printer off the shipped file, so what it measures is the
+    block the route sends. Nothing under `lib/tutor/words.ts` may type a form:
+    the English list it holds is English, checked on the letters Estonian has
+    and English does not.
+  */
+  assert.match(tutorRoute, /wordsInQuestion\(messages\)/, "the tutor route no longer asks the dictionary about the words in the question");
+  assert.match(tutorRoute, /wordsNote\(words, asksForForms\(messages\)\)/, "the tutor route no longer hands Anu the dictionary's forms, tabled where forms were asked for");
+  const tutorWords = code("lib/progress/tutorWords.ts");
+  const wordsModule = code("lib/tutor/words.ts");
+  assert.match(tutorWords, /matchEstonianForm\(candidates, token\)/, "the question's words are no longer vouched the way a scanned word is");
+  assert.match(tutorWords, /questionWords\(messages\)/, "the route and the harness no longer pick the question's words through one function");
+  const harness = code("scripts/lib/shippedWords.ts");
+  assert.match(harness, /questionWords\(messages\)/, "the harness picks the question's words its own way");
+  const evalScript = code("scripts/eval-tutor.ts");
+  assert.match(evalScript, /shippedWordsInQuestion\(/, "the eval no longer resolves the question's words off the shipped file");
+  assert.match(evalScript, /wordsNote\(words, asksForForms\(messages\)\)/, "the eval no longer measures the block the route sends");
+  // And the stray FIX line is dropped on both, off the same resolution, or the harness measures a screen the app does not draw.
+  assert.match(tutorRoute, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the tutor route shows every FIX line again, stray ones included");
+  assert.match(evalScript, /new ProseStream\(\(fix\) => !isStrayFix\(/, "the eval measures FIX lines the route would have dropped");
+  // The count handed to the guard is the longest run of Estonian in the message, not the number of vouched words: two quoted forms vouch four and are not a sentence.
+  assert.match(tutorRoute, /sentenceRun\(lastAsked, /, "the tutor route counts vouched words instead of the sentence run");
+  assert.match(evalScript, /sentenceRun\(q\.q, /, "the eval counts vouched words instead of the sentence run");
+  // The block carries a verb's persons and a nominal's case table, which is what stopped `olette` and a case named wrongly.
+  assert.match(wordsModule, /personsLine\(word\)/, "the words block no longer prints a verb's persons");
+  assert.match(wordsModule, /casesLine\(word\)/, "the words block no longer prints a nominal's cases");
+  // And a question that named no Estonian is grounded through the glosses, on both sides.
+  assert.match(tutorWords, /glossWords\(tokens, /, "the route no longer resolves the English of a question through the glosses");
+  assert.match(harness, /glossWords\(tokens, /, "the harness no longer resolves the English of a question through the glosses");
+  assert.doesNotMatch(wordsModule, /[õäöüšž]/i, "lib/tutor/words.ts types an Estonian word of its own");
   assert.doesNotMatch(
     code("components/anu/useAnuChat.ts"),
     /level:/,
@@ -12016,6 +12053,27 @@ check("every free provider the app would ask, a measuring script can ask too", (
       "chain, and a list living in a script measures the script.",
     );
   }
+  /*
+    AND THE THINKING SETTING TRAVELS WITH THE LINK. A Gemini flash model
+    reasons before every line unless told not to, and the OpenAI-compatible
+    endpoint hides that from `completion_tokens`, so a harness that reads the
+    scene chain and drops `ProviderConfig.reasoning` on the way drafts a bank
+    at three times the price the route pays for the same line. Every body the
+    drafter sends carries `reasoning_effort` where the link carries one.
+  */
+  {
+    const bodies = draft.match(/body: JSON\.stringify\(\{[\s\S]*?\}\),/g) ?? [];
+    assert.ok(bodies.length >= 2, "scripts/lib/sceneDraft.ts no longer builds its request bodies where this looks");
+    for (const body of bodies) {
+      assert.match(
+        body,
+        /reasoning_effort: link\.reasoning/,
+        "scripts/lib/sceneDraft.ts sends a request without the link's reasoning setting, so a " +
+        "drafted line pays for thinking the route switched off (`ProviderConfig.reasoning`).",
+      );
+    }
+    assert.match(draft, /reasoning: provider\.reasoning/, "scripts/lib/sceneDraft.ts builds a link without the chain's reasoning setting");
+  }
   for (const file of ["scripts/lib/sceneDraft.ts", "scripts/play-scene.ts"]) {
     const text = code(file);
     if (!/max_tokens/.test(text)) continue;
@@ -12166,6 +12224,82 @@ check("a cached input token is priced as one, and the cached prompt is the same 
     code("lib/tutor/provider.ts"),
     /cache_control: \{ type: "ephemeral" \} \},\s*\.\.\.\(live/s,
     "the per-learner block is no longer sent after the cached breakpoint",
+  );
+});
+
+/*
+  THE SCENE PROMPT IS HELD ON GOOGLE'S SIDE AND READ AT A TENTH OF THE RATE.
+
+  Nine tenths of it is the same on every turn of a run and the OpenAI-compatible
+  endpoint reports no cached share on it, measured twice (docs/21-situations.md
+  §62). `lib/tutor/geminiCache.ts` makes one explicit entry per prompt and names
+  it on every call after, which is the difference between a scene turn's input
+  at $0.0013 and at $0.0002 (§63). Three things hold it: the route asks for it,
+  since a caller that does not is a caller re-reading 1,600 tokens at full
+  price; the harness sends the same shape through the same function, or a
+  transcript measures a conversation the app does not have; and the cache
+  module is the only thing that posts to `cachedContents`, because a second
+  entry-maker is a second map of what is held and a second bill nobody settles.
+*/
+/*
+  ANU REMEMBERS A DAY AND STARTS FRESH AFTER IT.
+
+  The operator asked for it, and it is three places that have to agree: the
+  read that hands the conversation back stops at the cutoff, the route deletes
+  what is older when it writes, and the retention schedule and the privacy
+  notice say so. A read that windowed while the route kept everything would be
+  a notice describing a deletion nobody makes; a route that deleted while the
+  read did not window would show yesterday's turns until the learner spoke.
+*/
+check("a conversation with Anu lasts a day, on the read, on the write and on the page", () => {
+  const history = code("lib/tutor/history.ts");
+  assert.match(history, /createdAt: \{ gte: conversationCutoff\(now\) \}/, "loadRecentMessages no longer stops at the day's cutoff");
+  assert.match(history, /deleteMany\(\{\s*where: \{ ownerId, createdAt: \{ lt: conversationCutoff\(now\) \} \}/, "forgetOldMessages no longer deletes the turns older than a day");
+  assert.match(code("app/api/tutor/route.ts"), /await forgetOldMessages\(ownerId\);/, "the tutor route no longer forgets yesterday's conversation when it writes today's");
+  assert.match(code("lib/tutor/lifetime.ts"), /CONVERSATION_LIFETIME_MS = 24 \* 60 \* 60 \* 1000/, "the lifetime is no longer a day");
+  assert.match(read("docs/25-data-retention.md"), /Tutor conversation \(`Message`\) \| 24 hours/, "the retention schedule no longer says a tutor conversation lasts a day");
+  assert.match(read("app/privacy/page.tsx"), /kept for a day/, "/privacy no longer says a conversation with Anu is kept for a day");
+});
+
+check("the scene prompt is served off a cache entry, by one module, on the route and in the harness", () => {
+  assert.match(
+    code("app/api/scene/route.ts"),
+    /SCENE_REPLY_TOKENS,\s*true,\s*\);/,
+    "the scene route stopped asking for the system prompt to be held on the provider's side, so every turn re-reads the word list at full price",
+  );
+  assert.match(
+    code("lib/tutor/provider.ts"),
+    /if \(cacheSystem && config\.name === "gemini"\) \{\s*const cached = await cachedGeminiStream\(/,
+    "openWithFallback no longer serves a Gemini link off the cache entry when asked",
+  );
+  assert.match(
+    code("scripts/lib/sceneDraft.ts"),
+    /if \(link\.name === "gemini"\) \{\s*const reply = await geminiCachedReply\(/,
+    "the harness sends a Gemini link through the compatible endpoint where the route sends it through the cache entry, so a transcript measures a different order of prompt",
+  );
+  const makers = [...sourceFiles("lib"), ...sourceFiles("app"), ...sourceFiles("scripts")]
+    .filter((f) => !f.endsWith(".test.ts") && f !== "scripts/test-invariants.ts")
+    .filter((f) => /cachedContents/.test(code(f)));
+  assert.deepEqual(makers, ["lib/tutor/geminiCache.ts"], `a second module makes cache entries: ${makers.join(", ")}`);
+  /* The creation is booked on the turn that made it, storage included, so the cap sees the whole bill. */
+  assert.match(
+    code("lib/tutor/geminiCache.ts"),
+    /\(booked\.written \? booked\.tokens : 0\)\s*\+ cacheStorageAsInputTokens\(booked\.model, booked\.tokens, booked\.storageSeconds\)/,
+    "the turn that makes or extends a cache entry no longer books the tokens written and the storage it bought",
+  );
+  /*
+    The persona stays in the cached half, measured: in the per-turn block it
+    saved an entry per persona and cost five points of withheld share over
+    three runs of every scene (§63). And an entry near its end is extended
+    rather than remade, so a long run pays for one.
+  */
+  const systemBlock = /export function composeSystem\([\s\S]*?\n\}/.exec(code("lib/scenes/prompt.ts"))?.[0] ?? "";
+  assert.match(systemBlock, /scene\.persona/, "the persona left the cached half, which was measured at five points more withheld (§63)");
+  assert.match(code("lib/tutor/geminiCache.ts"), /method: "PATCH"/, "a near-expiry entry is no longer extended, so a long run remakes it at full price");
+  assert.match(
+    code("lib/usage/pricing.ts"),
+    /"gemini-3\.8-flash": \{[^}]*cacheStoragePerMTokHour: 0\.5/,
+    "the primary scene model's storage rate is no longer written beside its price",
   );
 });
 
@@ -13746,7 +13880,7 @@ check("the other side may volunteer something, and never says it twice", () => {
   );
   const prompt = code("lib/scenes/prompt.ts");
   assert.match(
-    prompt, /react to what they just said, say the one thing about the moment/,
+    prompt, /react to what[\s\S]{0,40}they said, mention the one thing about the moment/,
     "the prompt stopped asking for the remark, so the sentence the gate now allows is never written",
   );
   /*
@@ -13948,7 +14082,7 @@ check("a composed line is shown how its own beat is asked", () => {
     + "for in one sentence of English and guesses the rest",
   );
   assert.match(
-    prompt, /Ask for the same thing, in your own words/,
+    prompt, /Ask for the same thing in your own words/,
     "the prompt stopped asking for a rephrasing, so a composed line is either the banked line said "
     + "again or is not steered by it at all",
   );

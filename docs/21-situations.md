@@ -3171,8 +3171,138 @@ Estonian called horrible on sight. A harness is not the app. Every figure below 
 |---|---|---|---|
 | scene | `qwen/qwen3.8-27b` | **`gemini-3.8-flash`** | 9/12 to 24/24 clean lines, $0.00132 to $0.00118 a line |
 | vision | fell through the general chain | **`gemini-3.1-flash-lite`** | 144/144 words read exactly, both pages, three runs |
-| tutor | `claude-sonnet-5` | **`openai/gpt-oss-120b`** | 6/6 three runs, $12.44 to $0.72 per thousand |
+| tutor | `claude-sonnet-5`, then `openai/gpt-oss-120b` | **`gemini-3.8-flash`**, Groq behind it | 29/29 on the wide eval, no wrong form; $1.28 per thousand held |
 | grader | `openai/gpt-oss-120b` | unchanged | 24/24 twice; nothing beat it at the price |
+
+**And the tutor's reasoning effort was measured and left where it is.** `openai/gpt-oss-120b`
+thinks before it writes and Groq bills the thinking as output, so `npm run eval:anu -- --effort low
+--runs 3` was run on 2026-09-14 through the route's own call, live block and reply cap included.
+About four fifths of Anu's billed output is reasoning: 410 tokens an answer at the default against
+150 at low, with the visible answer about 470 tokens either way. That is $0.16 a thousand questions
+off a bill of $0.70. It also missed 4 of 30 facts against the default's 2 of 30 over five runs of the
+six questions, and the two it dropped were the consonant gradation and the partitive plural of
+`raamat`, which are the two facts on the list a grammar tutor exists to get right. Sixteen cents a
+thousand questions does not buy those, so the chain carries no effort setting; the value stays on
+`ProviderConfig.reasoning` so the next measurement is a flag rather than a cast. The grader's Gemini
+Lite link was checked the same afternoon and does not think on a JSON call: a judge verdict bills 26
+to 31 output tokens for a line of about 120 characters, so there was nothing to switch off there.
+
+| effort | facts | billed output an answer | visible | per thousand |
+|---|---|---|---|---|
+| default | 28/30 | ~410 | ~470 | $0.70 |
+| low | 26/30 | ~150 | ~470 | $0.54 |
+
+**And six questions measured whether a model knows Estonian, not whether Anu teaches it.** The
+wide eval, `npm run eval:anu` on 2026-09-14, asks thirty-seven questions of seven kinds through the
+route's own call: seventeen facts, six learner sentences to correct, four questions whose answer is
+one line, four that ask for forms in bulk, two that ask for words, one asked in Estonian, two
+follow-ups that name their word one turn back, and one briefed as A1. Beside the fact each answer
+has to contain it counts what the six could not see: a `FIX:` line under a question that had no
+sentence to correct, a `VOCAB:` line carrying an inflected form rather than a headword, a heading,
+a table or a rule the renderer will not draw, the length of a one-line answer, the tells in
+`lib/copy/voice.ts`, and every bold, quoted, diacritic, `FIX:` and `VOCAB:` spelling vouched against
+`prisma/data/forms/`, exact. The first run on `openai/gpt-oss-120b`, on the prompt as it stood, put
+a `FIX:` line under nine of thirty-one answers that had nothing to fix, two `VOCAB:` lines an answer
+with a third of them inflected forms, a correct sentence corrected twice over, `Soome` in the
+allative, and fourteen cases of `jalg` with eleven of them wrong, every one built on a genitive the
+model guessed.
+
+**The last of those is the finding, and it is the grader's finding from years ago.** The briefing
+held the rules and none of the facts, and Estonian is a language where the rule is the easy half.
+`lib/tutor/words.ts` picks the words a question is about, `lib/progress/tutorWords.ts` asks the
+dictionary for each one exactly as a scanned page is asked (ADR-021), and the route sends the
+principal parts, the government and, for a spelling the question used, which case it is, one case or
+the honest list off `whichCase`, in the live block after the learner's note. With that and the
+`FIX:` and `VOCAB:` rules tightened, gpt-oss-120b over three runs went to 83 of 87 facts, seven
+stray `FIX:` lines in ninety-three answers and six inflected `VOCAB:` entries in forty-five, and
+still put `Soome` in the allative with the dictionary's own forms in front of it, wrote `koolil` for
+"at school", built `jale` and corrected the correct sentence again. `gemini-3.8-flash`, thinking
+off, on the same shape: 29 of 29, no stray `FIX:` line, six `VOCAB:` lines in thirty-seven answers,
+nothing the renderer cannot draw, 1.2 grammar terms an answer against 3.1. So it leads and
+gpt-oss-120b is the fixed Groq link behind it, which is the shape every other Gemini purpose already
+had. What it costs is $3.27 a thousand answers against $0.32, and then $1.28 with the static prompt
+held on Google's side the way the scene prompt is: 3,070 of a 3,335-token question served off the
+entry, which Anu's prompt was already shaped for when the level moved out of it. Read the lines
+rather than the rate: the misses the eval still reports on Gemini are answers that explained the
+partitive without naming it, which is what the prompt asks for.
+
+| model, on the finished shape | facts | stray FIX | VOCAB lines (inflected) | terms/answer | per thousand |
+|---|---|---|---|---|---|
+| `openai/gpt-oss-120b`, three runs | 83/87 | 7 in 93 | 45 (6) | 3.1 | $0.32 |
+| `gemini-3.8-flash`, thinking off | 29/29 | 0 | 6 (0) | 1.2 | $3.27, $1.28 held |
+| `gemini-3.1-flash-lite` | 25/29 | 8 in 37 | 36 (0) | 1.8 | $0.97 |
+| `openai/gpt-oss-20b`, old prompt | 21/29 | 4 | 29 (9) | 2.3 | $0.44 |
+
+**And the cheaper Gemini rows were each asked the same questions, because four times the price is a
+decision and not a default, and the decision went to the Lite.** Two of them are gone: Google answers
+"no longer available to new users" for `gemini-2.5-flash` and `gemini-2.5-flash-lite`, so the price
+rows are for a deployment that already had them. `gemini-3.5-flash-lite` refuses the thinking-off
+flag on both endpoints and does not think by default, so it was measured as it comes: 51 of 58 over
+two runs, eight stray `FIX:` lines and `töötulan`, a form of nothing, at $0.33. `gemma-4-26b` on the
+same key timed out or was throttled on 25 of 37 asks, wrote `jale` on one it answered, and has no
+price on file, so it prices at the dearest row. `gemini-3.1-flash-lite` is the one that came close:
+54 of 58 with no form invented, at $0.30 a thousand held, and what it got wrong was a short list a
+reader could name. Asked to explain `tuba : toa` it wrote, twice, that a "double vowel u" softens,
+with the grade note beside the word; it wrote `alalaleütlev` for the case it was naming; it put the
+sentence asked for under a paragraph of preamble; it reworded a right sentence as a correction; its
+answers ran 68 words at the median against the primary's 48; and, once the first guards were on,
+it wrote `olette` in a table of `olema` and called `teisipäeval` the seesütlev. The operator asked
+for the Lite the same day, cost being the point of a model that answers every question a learner
+has, so those are guards now rather than a reason to pay four times over.
+
+**Each guard is a fact handed over or a check on the way past, never a wider prompt.** The words
+block spells the grade change out from the note and the two forms it is about, "the b in tuba
+dropping out in toa" (`gradePlain`), and says a change inside a word is a consonant and never a
+vowel. A verb's line carries its six persons, the stored ones where the harvest holds them, which
+is what lets `olema` be printed at all, and the rule's where it does not, with the negative and the
+past third person (`personsLine`). A nominal carries its eleven cases with the name in brackets
+after each form, and the block says that name is the only one it may give (`casesLine`).
+`nearestCaseName` in `lib/tutor/humanize.ts` repairs a case name that is within two letters of one
+name on the table and nearer it than any other, so `seesutlev` is put right and `alalaleütlev`
+too, and a tagged line is never touched. The prompt asks for the Estonian first where the question
+asked how to say something, for a correction that changes only what was wrong, for a case named
+by its ending and spelled as the table spells it, and for under sixty words. And a question with no
+Estonian in it, "how do you say Tuesday", is grounded through the dictionary's own glosses, whole
+or on the first sense, `glossWords` and `glossAnswers`, on the route and in the harness alike.
+
+**The case table was measured both ways and is gated on what was asked.** Under every nominal it
+fixed the naming and broke the corrections: "is this right: ma töötan kool" went from `koolis`
+three times in three to `koolil` and `koolina`, and "ta helistas mind" was corrected to `talle`,
+the model shopping among eleven forms handed over for a sentence that needed one. So
+`asksForForms` reads the question for a case name or a word like ending, case or form; a word
+reached through its gloss is tabled anyway, since a question with no Estonian in it is a question
+about a form; a pronoun is always tabled, because its everyday cases are the short stored forms
+and `mulle` has to be in front of a model asked to correct `mind`; and a sentence to correct gets
+the principal parts alone. The stray `FIX:` guard changed with it: it counted vouched words, and
+"why is it lugesin raamatut and not lugesin raamatu" vouches four and is two quoted forms, so it
+counts the longest run of consecutive Estonian in the message now (`sentenceRun`), a capitalised
+name beside a vouched word riding inside the run.
+
+| `gemini-3.1-flash-lite`, three runs, finished shape, held | facts | stray FIX | wrong form | answer first | words med | per thousand |
+|---|---|---|---|---|---|---|
+| first guards (grade note, prompt rules, case-name repair) | 85/87 | 1 | `olette`; `teisipäeval` named seesütlev | 21/24 | 64 | $0.30 |
+| persons, case table under every nominal, glosses | 83/87 | 0 | none; `koolil`, `koolina`, `talle` as corrections | 18/24 | 60 | $0.34 |
+| table gated on the question | 86/87 | 0 | none; `talle` once in three | 18/24 | 63 | $0.34 |
+| and a pronoun always tabled | 86/87 | 0 | none; corrections 21 of 21 | 20/24 | 60 | $0.33 |
+
+The one fact still missed is an answer that explained the object without naming the partitive,
+which is what the prompt asks for. What the harness reports as unverified after that is English
+the model put in bold, "went", "children", "book", which the screen's own check never reads, since
+it reaches a quoted word or one carrying a diacritic; the eval reads bold because that is where an
+invented form lands, and the price of that is counting the English beside it. And "how does ei
+work, give me I do not read" still explains before it says `Ma ei loe` three times in three, which
+is a question that asked for both and a rule the prompt states and the model weighs against the
+explanation it was also asked for. A question asked in Estonian is answered in Estonian, and one
+of those answers called the seesütlev `kohaütlev`, a term nobody uses, inside prose no check here
+reads: the case-name repair reaches a name within two letters of the table and this is not one,
+so it stands as the residual the guards do not reach.
+
+| cheaper candidate, finished shape, held | facts | stray FIX | wrong form | per thousand |
+|---|---|---|---|---|
+| `gemini-3.1-flash-lite`, two runs, first guard on | 53/58 | 2, both corrections | none; `alalaleütlev` for the case name | $0.30 |
+| `gemini-3.5-flash-lite`, two runs | 51/58 | 8 | `töötulan` | $0.33 |
+| `gemma-4-26b-a4b-it` | 11/11 of 12 answered | 0 | `jale` | no rate on file |
+| `gemini-2.5-flash`, `gemini-2.5-flash-lite` | not available to this key | | | |
 
 **Nothing generalises, which is the finding worth keeping.** `gemini-3.8-flash` writes the best
 Estonian of anything measured and is second worst at returning JSON, at 19 and 20 of 24 where the
@@ -4654,3 +4784,119 @@ same day (CLAUDE.md, "a refusal is not a miss, which the harvest was the last
 path to learn"), which is what it exists for: one row added, nothing else in
 the file touched.
 
+## 62. The bill, read properly
+
+**The scene primary was costing three times what the ledger said, and the difference was
+thinking nobody had asked for.** `gemini-3.8-flash` reasons by default, and Google's
+OpenAI-compatible layer reports that nowhere but in `total_tokens`: on the route's own prompt,
+`prompt 2017, completion 19, total 3183`, so a nineteen-token line was 1,166 billed output tokens
+at $3.75 a million. The transport read `completion_tokens`, and on the streaming path it read
+nothing at all, because Gemini was never asked for a usage frame and the ledger estimated from
+characters. Both are corrected in `lib/tutor/provider.ts` (`billedOutput`, `usageFrames`).
+
+**And `npm run eval:thinking` had already measured the fix, reading its own output wrongly.** The
+eval reported `out/line 18` for thinking on and `22` for thinking off, because it read the same
+field; re-read off the total, thinking on is about 900 output tokens a line and thinking off is
+twenty. On quality the two were level: 24 of 24 beats answered under both, one `agreement` refusal
+under none against none under default on `gemini-3.8-flash`, the reverse on `gemini-3.1-flash-lite`,
+and the lines read as the same person. So the scene links carry `reasoning: "none"`, sent as
+`reasoning_effort`, and the ledger's per-line figure and Google's invoice are the same number for
+the first time.
+
+| model | thinking | in/line | billed out/line (measured 2026-09-14) | $/line at the rates on file |
+|---|---|---|---|---|
+| `gemini-3.8-flash` | default | 2,017 | 700 to 1,170 | about $0.005 |
+| `gemini-3.8-flash` | none | 2,017 | 19 to 24 | $0.0016 |
+| `gemini-3.1-flash-lite` | default (does not think) | 2,011 | 15 to 17 | $0.0005 |
+
+**What is left is the input, and it is not the order.** Two calls with an identical 2,011-token
+system prefix came back with no `cached_tokens` field at all, so the reordering in §61 has nothing
+to show for it on this endpoint; the prefix is 354 lemmas and the rules, and the next saving on a
+scene line is fewer tokens in it, or the primary moving to the lite tier the same table already
+ranks level on withheld share (§61). `npm run report:spend` reads the ledger by kind, model and
+day so that decision can be made on this deployment's own numbers rather than on a probe.
+
+**And the other levers, weighed one at a time.** The Lite as primary was declined on §61's own
+numbers: 8 percent withheld against 19, and lines that react to the learner against lines that ask
+and stop, for a tenth of a cent a line. Three compose attempts stay, since at 8 percent withheld
+the third attempt fires on under one turn in a hundred. Implicit caching was probed at 3,300
+tokens of identical prefix, three calls inside a minute, on both Gemini models, and the endpoint
+reported no cached share on any of them, so the prompt is neither padded to reach a minimum nor
+reordered further. The drafter (`scripts/lib/sceneDraft.ts`) was sending its bodies without the
+chain's `reasoning`, so `npm run draft:lines` paid the thinking tax on every line the route had
+stopped paying it on; it carries the setting now, asserted. The caps in `lib/usage/quota.ts` are
+the operator's ceiling and were left as they are.
+
+## 63. The prompt cut by a fifth, and then held on Google's side
+
+**Every rule in the scene prompt was paid for on every turn, and the endpoint caches none of it.**
+§62 established that the OpenAI-compatible endpoint reports no cached share on an identical prefix,
+so "the rules and the list are ordered for a cache" bought nothing and the whole prompt was billed
+at base on every composed line. Measured on Google's own tokenizer, one sentence past the greeting:
+
+| block | before | after |
+|---|---|---|
+| rules (`COMPOSE_RULES`) | 594 | 498 |
+| setting, card, register, pitch, persona | 286 | 275 |
+| live block, bare | 224 | 195 |
+| word list (unchanged) | 682 to 902 | 682 to 902 |
+| whole prompt, six scenes averaged | 2,192 | 1,821 |
+
+The same twenty rules at half the words; the five pitch voices shorter; the per-turn boilerplate
+said once. Nothing was dropped: a rule that is stated twice in the old prose ("never comment on
+their Estonian", "never greet once started") is stated once now and the second copy lived in the
+live block anyway. Measured live rather than argued, `npm run play:scenes --compose --drafts` over
+all fourteen scenes on both models:
+
+| model | before | after |
+|---|---|---|
+| `gemini-3.8-flash` | 13 of 89 withheld (14.6%) | 12 of 94 (12.8%) |
+| `qwen/qwen3.8-27b` | 29 of 116 (25%) | 27 of 112 (24%) |
+
+**And then the constant half stopped being sent at all.** The word list is 40 percent of the prompt
+and cannot be cut: the gate's `stretch` counts every word outside it and a model shown fewer words
+reaches for more. What can change is where it is held. Google's native API has the explicit cache
+entry the compatible layer lacks, `cachedContents`: created once for a prompt, named on every call
+after, read at a tenth of the input rate ($0.075 a million on `gemini-3.8-flash`, $0.025 on the
+Lite) and held at $0.50 or $1.00 a million tokens an hour, off the pricing page on 2026-09-14.
+Probed on the route's own prompt, both models report 1,592 of a 1,704-token turn served off the
+entry. `lib/tutor/geminiCache.ts` is the module: one entry per model and prompt per process, ten
+minutes of life, made on the first composed turn of a run and forgotten if the provider forgets it,
+and a link that will not hold the prompt answers through the plain transport rather than composing
+nothing. Played through all fourteen scenes on `gemini-3.8-flash`: 94 drafts, 11 withheld (11.7
+percent), every one of them through the entry.
+
+**What a turn costs now, at the rates on file.** Before this pass a line on the primary was 2,192
+tokens in and about 22 out, $0.0017. Cut, it is 1,821 in, $0.0015. Held, the turn that makes the
+entry pays 1,704 in plus 1,592 written plus 177 tokens' worth of storage, $0.0028 once, and every
+turn after it pays 112 at base, 1,592 at a tenth and the line: $0.0003. A run of eight composed
+turns is $0.014 before and $0.005 after, and the ledger sees all of it, because the entry's creation
+and its storage are booked on the turn that made it (`cacheStorageAsInputTokens`) and the cached
+share travels as `cachedInputTokens` into the same settlement every other call writes.
+
+**Making the entry is most of a run's bill now, and two things were tried against that.** In the
+cached play run, fourteen creations came to about $0.039 against $0.028 for all ninety-four turns.
+The first lever is that the entry's life slides: an entry a turn lands on with under half its term
+left is asked for another ten minutes with one `PATCH` and no tokens (probed: the new expiry is
+measured from the call), the storage that buys is booked on the turn that asked, and an entry
+nobody is talking against lapses on its own. So a long run pays for one entry rather than two. The
+second was moving the drawn persona out of the entry into the per-turn block, so that the five
+personas of a scene share one entry instead of making five. It was measured and reverted:
+
+| persona | runs | drafted | withheld |
+|---|---|---|---|
+| in the cached entry | 2 | 94, 94 | 12, 11 (12 percent) |
+| in the per-turn block | 3 | 102, 96, 98 | 21, 14, 16 (17 percent) |
+
+Five points over three runs is past the noise, and what is under it is the model losing its
+character when the line saying who it is arrives after the conversation rather than before it.
+One entry per persona costs about $0.0028 once; a run falling to the bank costs the conversation
+its voice, so the persona stays where it was and the invariant says so.
+
+**The live block moved, and the harness moved with it.** A cache entry is fixed, so the per-turn
+block cannot be appended to the system prompt any more; it goes in front of "Your line:" in the
+last user message, after the conversation, which is where its own text says it sits. The harness
+(`scripts/lib/sceneDraft.ts`) sends a Gemini link through the same function, asserted, so a
+transcript measures the shape the app has; a Groq link is unchanged. Anu and the grader run on
+Groq, which has no such entry, and were left as they are. What could still move is the word list
+itself, which is now two thirds of what the entry holds and costs a tenth of what it did.
