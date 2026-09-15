@@ -116,3 +116,43 @@ export function challengeFirst<T>(
     .sort((a, b) => a.rank - b.rank || a.index - b.index)
     .map((entry) => entry.item);
 }
+
+/**
+ * The bands the dictionary grades to, low to high.
+ *
+ * One further than the course, which stops at C1: the Wiktionary expansion
+ * carries C2 entries and the dictionary is right to keep the distinction, so
+ * anything ranking a band has to know the whole ladder rather than the part
+ * the syllabus uses.
+ */
+export const BAND_ORDER: readonly string[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+/**
+ * How far up the ladder a band sits. An untagged word sits at the bottom.
+ *
+ * Zero for a word with no band rather than null, because every caller of this
+ * is comparing two of them and a comparison against nothing is a branch each
+ * of them would have to write. What a missing band means is decided where it
+ * matters, by `isAround`, which reads it as "near enough" and says why.
+ */
+export function rankBand(cefr: string | null | undefined): number {
+  if (!cefr) return 0;
+  const at = BAND_ORDER.indexOf(cefr);
+  return at === -1 ? 0 : at;
+}
+
+/**
+ * One band up, for a word a deployment has found harder than its tag says.
+ *
+ * C2 is the top and stays there, and an untagged word stays untagged: raising
+ * a word that never carried a claim about its difficulty would be inventing
+ * one. Never more than a step at a time, because the word then has to earn
+ * the next one from the learners who meet it where it now sits
+ * (`lib/srs/defer.ts`).
+ */
+export function raiseBand(cefr: string | null): string | null {
+  if (!cefr) return null;
+  const at = BAND_ORDER.indexOf(cefr);
+  if (at === -1 || at === BAND_ORDER.length - 1) return cefr;
+  return BAND_ORDER[at + 1]!;
+}

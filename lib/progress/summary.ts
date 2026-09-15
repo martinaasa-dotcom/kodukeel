@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { deferredWordIds } from "@/lib/progress/deferrals";
 import { dictionaryLemmas, gradedLemmas, lemmasByCardLexeme } from "@/lib/dict/facts";
 import { PATH, unitProgress, type PathUnit, type UnitProgress } from "@/lib/collections/syllabus";
 import { computeStreakWithShields } from "@/lib/stats/streak";
@@ -104,7 +105,7 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
     of the dictionary every request already shares, and asks only about what
     it does not know. See lib/dict/facts.ts.
   */
-  const [cards] = await Promise.all([
+  const [cards, aside] = await Promise.all([
     prisma.card.findMany({
       where: { ownerId },
       // `cardType` rides along for the ladder count: which card a word is
@@ -112,6 +113,13 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
       // and asking for it separately would be a second read of the same rows.
       select: { state: true, due: true, suspended: true, lexemeId: true, cardType: true },
     }),
+    /*
+      Which words this learner has put aside, which the counts below have to
+      know because two of them ignore `due`: a ladder word sits ten minutes
+      out between rungs, so its date says nothing about whether somebody
+      refused it. Beside the deck rather than after it (`lib/progress/deferrals.ts`).
+    */
+    deferredWordIds(ownerId, now),
     // Beside the deck rather than after it. On a warm instance this is free;
     // on a cold one it is the query that fills the cache, and paying for it
     // here rather than on the line below keeps the round trips at one.
@@ -141,11 +149,19 @@ export async function deckSnapshot(ownerId: string, now = new Date()): Promise<D
   for (const card of cards) {
     if (card.state === KNOWN_STATE) knownCards++;
     if (!card.suspended) {
+      // A word put aside is not waiting and is not part way up: the review
+      // queue will not serve it and the ladder will not teach it, so a count
+      // that included it would promise a session neither screen can fill.
+      const putAside = card.lexemeId !== null && aside.has(card.lexemeId);
       const ladderCard = card.cardType === LADDER_CARD_TYPE && isLearningWord(card.state);
-      if (ladderCard) learnCount++;
+      if (ladderCard && !putAside) learnCount++;
       if (card.state === 0) {
-        newCount++;
-        if (!onLadder.has(card.lexemeId ?? "")) newForPractice++;
+        // `due` on an unseen card is the moment it was written, so this reads
+        // as it always did until somebody presses "too complicated".
+        if (card.due <= now) {
+          newCount++;
+          if (!onLadder.has(card.lexemeId ?? "")) newForPractice++;
+        }
       // The same line the review queue draws, for the reason `dueCount` gives.
       } else if (card.due <= now && !ladderCard) dueCount++;
     }

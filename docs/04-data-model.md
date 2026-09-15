@@ -44,6 +44,7 @@ comment on every model that needs one; what belongs here is the map and the reas
 | `SceneRun` | One conversation, with the seed it was drawn from and every turn typed in it. Append-only. Nothing in it is true about the learner: the role card is fiction (`docs/19-situations.md` §3). |
 | `SceneGap` | A word a conversation needed and the learner did not have. A child table so "the words my conversations keep needing" is one indexed query rather than a scan over every transcript. |
 | `Encounter` | One day's answer to whether the learner spoke any Estonian to somebody outside the app, in one of three words. Names the errand where the report was about one, and nothing where the conversation was the learner's own. Append-only. |
+| `Deferral` | One word one learner said was too complicated, and when it comes back. The one row here that is a judgment about a card rather than about a recall: it moves `Card.due` and writes no `Review`, because a word nobody answered is not an answer. One row per learner per word, which is what makes the deployment-wide count mean people rather than presses. |
 | `RateLimit` | One fixed window of one rate limit, counted where every instance can see it, for the four routes the spend ledger does not price. Holds a digest of the caller-and-endpoint key rather than the key, so there is no owner id in it, and every row is deleted once its window has passed. |
 
 ### The forms list, which is files rather than rows
@@ -73,6 +74,7 @@ invariant checks they agree.
 CardType    RECOGNITION PRODUCTION CASE_FORM GRADATION GOVERNMENT CLOZE CONJUGATION
 CardSource  MANUAL DICTIONARY TUTOR IMPORT SCAN ALMANAC SCENE
 SceneGap    ASKED STALLED  (the help button, and a beat that could not be met)
+DeferReason WEEKS BAND  (a few weeks, or it waits for a band: lib/srs/defer.ts)
 TaskTag     HOMEWORK VOCABULARY  (declared in TASK_TAGS, lib/ux/agenda.ts)
 FormType    NOM_SG GEN_SG PART_SG ILL_SG_SHORT NOM_PL PART_PL GEN_PL
             INF_MA INF_DA PRES_1SG PAST_1SG PART_TUD

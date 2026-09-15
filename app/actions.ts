@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { throttleAction } from "@/lib/security/actionLimits";
+import { deferredDues, deferWord, undoDeferral } from "@/lib/progress/deferrals";
 import { sceneById } from "@/lib/scenes/catalogue";
 import { BUDGETS, type Difficulty } from "@/lib/scenes/curveballs";
 import { alsoDoneOf, beatNow, beginRun, concededOf, finishRun, MAX_TURNS, MAX_TURN_CHARS } from "@/lib/progress/scene";
@@ -261,10 +262,21 @@ async function addCardsFor(
   const added = await prisma.$transaction(async (tx) => {
     await lockDeck(tx, owner);
 
-    const existing = await tx.card.findMany({
-      where: { lexemeId, ownerId: owner },
-      select: { front: true, cardType: true },
-    });
+    const [existing, held] = await Promise.all([
+      tx.card.findMany({
+        where: { lexemeId, ownerId: owner },
+        select: { front: true, cardType: true },
+      }),
+      /*
+        AND A CARD FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+
+        The unit lesson is where a word is refused before it has a card: the
+        lesson teaches the unit's words and this builds them at the end, so
+        without this the word somebody said was too complicated would arrive
+        tomorrow with a card dated today. See lib/progress/deferrals.ts.
+      */
+      deferredDues(tx, owner, [lexemeId], now),
+    ]);
     const seen = new Set(existing.map((c) => `${c.cardType}|${c.front}`));
 
     const generated = generateCards(
@@ -283,7 +295,7 @@ async function addCardsFor(
         targetCase: c.targetCase,
         slot: c.slot,
         source,
-        due: scheduling.due,
+        due: held.get(lexemeId) ?? scheduling.due,
         stability: scheduling.stability,
         difficulty: scheduling.difficulty,
         state: scheduling.state,
@@ -762,6 +774,85 @@ export async function toggleStar(lexemeId: string) {
   revalidatePath("/dictionary");
   revalidatePath("/words/mastery");
   return { ok: true as const, starred: !existing };
+}
+
+/**
+ * "THIS IS TOO COMPLICATED", FROM WHEREVER THE WORD IS.
+ *
+ * The one verdict in this app that is about the card rather than about the
+ * learner's memory, and the one the four rating keys could not express: a word
+ * three bands past somebody has no honest answer among Again, Hard, Good and
+ * Easy, so they pressed Again and the app read a word that arrived early as
+ * somebody learning slowly. `lib/srs/defer.ts` decides how long and on what
+ * grounds and `lib/progress/deferrals.ts` writes it; this resolves the owner,
+ * which is the one thing a `"use server"` export may never take from its
+ * caller.
+ *
+ * NO THROTTLE, for the reason `lib/security/actionLimits.ts` gives about
+ * starring and grading: three indexed reads and a short transaction is not
+ * per-call expensive work, and a learner pressing it on four cards in a row is
+ * a learner having a hard evening rather than a script.
+ *
+ * NOTHING IS GRADED. The card moves and the review log is untouched, because
+ * putting a word aside is not an answer to it (ADR-016).
+ */
+export async function putWordAside(lexemeId: string, context: string) {
+  const ownerId = await requireUserId();
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "No word was named." };
+
+  // The level is read here rather than inside, so `lib/progress/deferrals.ts`
+  // and `lib/progress/level.ts` stay one-way: the second calls the first when
+  // a learner moves up.
+  const level = await courseLevelFor(ownerId);
+  const result = await deferWord(ownerId, id, level, text(context).slice(0, 200) || null);
+  if (!result.ok) return result;
+
+  /*
+    AND IT DOES NOT REVALIDATE THE SCREEN IT WAS PRESSED ON.
+
+    This is the suggestion queue's fault one action over: revalidating the page
+    a control sits on re-renders the tree around it, and the session holding
+    the queue and the sentence saying what just happened is replaced by a fresh
+    one built from the server. Driven in a browser, the card did go, because
+    the new queue reads `due` and the word is now weeks out, and the note
+    saying so never appeared: the component that had just been told had been
+    unmounted by the page around it. The session drops the word itself, which
+    it has to anyway, since the word's other cards are in its hand.
+
+    Today's counts and the list of what has been put aside are stale the moment
+    this lands, so those two are revalidated. The dictionary entry is not: a
+    deferral is about a deck and the entry is about the word.
+  */
+  revalidatePath("/");
+  revalidatePath("/words/mastery");
+  return { ok: true as const, note: result.note };
+}
+
+/**
+ * And giving it back, which is the same button read the other way.
+ *
+ * A word put aside by mistake, or one somebody feels ready for sooner, is one
+ * press away on `/words/mastery`. What comes back is what was pushed and
+ * nothing else: a card the scheduler had honestly put further out stays where
+ * the scheduler put it (`lib/progress/deferrals.ts`).
+ */
+export async function bringWordBack(lexemeId: string) {
+  const ownerId = await requireUserId();
+  const id = text(lexemeId).slice(0, 64);
+  if (!id) return { ok: false as const, error: "No word was named." };
+
+  const done = await undoDeferral(ownerId, id);
+  if (!done) return { ok: false as const, error: "That word was not put aside." };
+
+  /*
+    The list this is pressed from drops the row itself, for the reason above:
+    a page that redraws under the cursor takes the row being acted on with it.
+    Today and review both read what is due and are stale.
+  */
+  revalidatePath("/");
+  revalidatePath("/review");
+  return { ok: true as const };
 }
 
 /** Bulk import from pasted text. Returns per-row outcomes so nothing fails silently. */
@@ -2684,6 +2775,10 @@ export async function deleteMyAccount(confirmation: string) {
       await tx.sceneRun.deleteMany({ where: { ownerId } });
       // And every real conversation they reported having outside the app.
       await tx.encounter.deleteMany({ where: { ownerId } });
+      // And every word they put aside. What the deployment counted from it
+      // goes with the row, which is the right way round: the count is a
+      // reading of how many people said a thing, and this person is leaving.
+      await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the
@@ -2766,6 +2861,8 @@ const BackupSchema = z.object({
   sceneRuns: z.array(z.record(z.string(), z.unknown())).optional(),
   sceneGaps: z.array(z.record(z.string(), z.unknown())).optional(),
   encounters: z.array(z.record(z.string(), z.unknown())).optional(),
+  /** Words put aside. Optional, like every key added after the format was set. */
+  deferrals: z.array(z.record(z.string(), z.unknown())).optional(),
   /**
    * A learner's own named shelves. Optional for the reason `scans` is: a file
    * written before this existed has no such key and must still restore.
@@ -3082,6 +3179,25 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         const exists = await tx.encounter.findUnique({ where: { id: String(data.id) }, select: { id: true } });
         if (exists) continue;
         await tx.encounter.create({ data: data as never });
+      }
+
+      for (const raw of backup.deferrals ?? []) {
+        const data = revive(raw, ["untilAt", "wokenAt", "createdAt", "updatedAt"]);
+        data.ownerId = ownerId;
+        const exists = await tx.deferral.findUnique({ where: { id: String(data.id) }, select: { id: true } });
+        if (exists) continue;
+        /*
+          One row per owner per word is what makes the deployment-wide count
+          mean people, so a restore onto a database that already holds a
+          deferral for this word keeps the one that is there rather than
+          failing the whole transaction over a word somebody put aside twice.
+        */
+        const held = await tx.deferral.findUnique({
+          where: { ownerId_lexemeId: { ownerId, lexemeId: String(data.lexemeId ?? "") } },
+          select: { id: true },
+        });
+        if (held) continue;
+        await tx.deferral.create({ data: data as never });
       }
 
       for (const raw of backup.stars ?? []) {

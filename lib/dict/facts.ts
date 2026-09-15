@@ -3,6 +3,7 @@ import { plainPhrase } from "@/lib/copy/values";
 import { substitutesFrom } from "./synonyms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
 import { prisma } from "@/lib/db";
+import { movedWords } from "@/lib/progress/hard";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { bandOf, glossOption, type GlossOption } from "@/lib/questions/distractors";
 import { clueClashes as clashingClues } from "@/lib/games/clue";
@@ -562,4 +563,28 @@ export function clueClashes(): Promise<Set<string>> {
     });
     return clashingClues(rows);
   });
+}
+
+/**
+ * THE WORDS THIS DEPLOYMENT HAS FOUND HARDER THAN THE DICTIONARY SAYS.
+ *
+ * One learner putting a word aside is a fact about their evening and belongs
+ * to them. Enough of them putting the same word aside is a fact about the
+ * course, and it is the one signal here that nobody has to be asked for: the
+ * button was pressed because somebody wanted their own deck fixed, and the
+ * count falls out of it. What it buys is that a word arriving too early stops
+ * arriving too early for the people who have not met it yet, rather than each
+ * of them discovering it and pressing the same button.
+ *
+ * A fact about the shared dictionary and about nobody in particular, which is
+ * what makes it cacheable here: no `ownerId` goes in and none comes out. The
+ * counting itself lives in `lib/progress/hard.ts`, because it is the one
+ * reading in this file whose query has to name that column at all, and a
+ * module asserted to hold nothing of one learner's should not have to argue
+ * about a `COUNT(DISTINCT)` in the middle of it.
+ *
+ * A minute late is a word moved a minute late, which decides nothing.
+ */
+export function hardWords(): Promise<ReadonlySet<string>> {
+  return remember("hard-words", FACTS_TTL_MS, () => movedWords());
 }

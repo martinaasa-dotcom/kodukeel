@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { aroundFirst, bandsAround, isAround } from "@/lib/collections/levels";
+import { offeredBand } from "@/lib/srs/defer";
+import { hardWords } from "@/lib/dict/facts";
 import { commonFirst } from "@/lib/collections/commonFirst";
 import { unitById, type Level } from "@/lib/collections/syllabus";
 import { MAX_ITEMS as MAX_SCAN_ITEMS } from "@/lib/scan/extract";
@@ -208,7 +210,13 @@ export default async function ReviewPage({
     // *within* a word, which is what stops a conjugation card being somebody's
     // first sight of a verb.
     prisma.card.findMany({
-      where: { ownerId, suspended: false, state: 0, ...pastTheLadder(ownerId) },
+      /*
+        `due` on an unseen card is the moment it was written, so this filter
+        changes nothing for anybody until they press "too complicated": that
+        is what a deferral moves, and without it a word put aside would be
+        introduced again on the next session (`lib/srs/defer.ts`).
+      */
+      where: { ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId) },
       // And the id here too: a word's cards tie on both of these, which is the
       // very thing the comment above says they do.
       orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
@@ -239,7 +247,8 @@ export default async function ReviewPage({
   const spaced = spaceSiblings(due, (card) => card.lexemeId);
 
   const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
-  const fresh = atLevelFirst(await inBandPool(ownerId, freshPool, level, room), level).slice(0, room);
+  const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room), hardWords()]);
+  const fresh = atLevelFirst(unseen, level, raised).slice(0, room);
   const gloss = await glossChosen();
   const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId);
 
@@ -313,7 +322,7 @@ async function inBandPool(
 
   const inBand = await prisma.card.findMany({
     where: {
-      ownerId, suspended: false, state: 0,
+      ownerId, suspended: false, state: 0, due: { lte: new Date() },
       ...pastTheLadder(ownerId),
       lexeme: { cefr: { in: [...bandsAround(level)] } },
     },
@@ -354,8 +363,22 @@ async function inBandPool(
  * length, which is that a noun and a verb are counted differently and cannot
  * be ranked against each other.
  */
-function atLevelFirst(cards: readonly CardRow[], level: Level): CardRow[] {
-  return aroundFirst(commonFirst(cards, (c) => c.lexeme?.lemma), level, (c) => c.lexeme?.cefr);
+function atLevelFirst(
+  cards: readonly CardRow[], level: Level, raised: ReadonlySet<string>,
+): CardRow[] {
+  /*
+    THE BAND THIS DEPLOYMENT OFFERS THE WORD AT, NOT THE ONE IT RECORDS.
+
+    A word enough learners have put aside is offered one band later, for
+    everybody, which is the one lever that changes who meets it and when
+    (`lib/srs/defer.ts`). Nothing is written to `Lexeme`: the entry still shows
+    the band the Institute recorded, and what moved is the order words are
+    taught in, which is derived on every read like every other ordering here.
+  */
+  const offered = (c: CardRow) =>
+    offeredBand(c.lexeme?.cefr ?? null, c.lexemeId !== null && raised.has(c.lexemeId));
+  return aroundFirst(commonFirst(cards, (c) => c.lexeme?.lemma), level, offered);
 }
+
 
 
