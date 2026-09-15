@@ -18,7 +18,9 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  return { title: unit ? `${unit.title} · lesson` : "Lesson" };
+  if (!unit) return { title: "Lesson" };
+  const placement = await courseLevelFor(await requireUserId());
+  return { title: `${uiText(placement, unit.title, unit.subtitle)} · lesson` };
 }
 
 export const dynamic = "force-dynamic";

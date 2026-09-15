@@ -125,7 +125,7 @@ export default async function ReadinessPage() {
               </SectionTitle>
               <ul className="flex flex-col gap-3">
                 {rows.map((r) => (
-                  <li key={r.situation.id}><SituationRow reading={r} /></li>
+                  <li key={r.situation.id}><SituationRow reading={r} learnerLevel={picture.level} /></li>
                 ))}
               </ul>
             </section>

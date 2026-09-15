@@ -24,7 +24,9 @@ import { RungChip } from "@/components/readiness/Rung";
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  return { title: unit ? unit.title : "Unit" };
+  if (!unit) return { title: "Unit" };
+  const placement = await courseLevelFor(await requireUserId());
+  return { title: uiText(placement, unit.title, unit.subtitle) };
 }
 
 export const dynamic = "force-dynamic";

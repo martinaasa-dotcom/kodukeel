@@ -13,6 +13,7 @@ import { participationFrom, researchExportConfigured } from "@/lib/research/part
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
 import { StartProgramme } from "@/components/course/StartProgramme";
 
@@ -316,8 +317,9 @@ export default async function SettingsPage() {
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? <>You are on {programme.title}. Today lends its first card to the module, and
-                      the module picks the words and the rounds for the evening.</>
+                  ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
+                      first card to the module, and the module picks the words and the rounds for the
+                      evening.</>
                   : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
               </p>
               <div className="mt-4">

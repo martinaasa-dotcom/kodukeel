@@ -6,6 +6,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { TOPIC_NOTES, grammarTopic } from "@/lib/estonian/grammar";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { SYLLABUS } from "@/lib/collections/syllabus";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { DrillLink } from "@/components/DrillLink";
 import { VerbTable } from "./VerbTable";
@@ -82,6 +84,7 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
   if (!topic) notFound();
 
   const ownerId = await requireUserId();
+  const placement = await courseLevelFor(ownerId);
 
   const term = grammarTerm(id);
 
@@ -212,11 +215,11 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                   <span className="flex flex-wrap items-baseline gap-2">
                     <Link
                       href={`/learn/${unit.id}`}
-                      lang="et"
+                      lang={uiWantsEnglish(placement) ? undefined : "et"}
                       className="text-md font-bold hover:underline"
                       style={{ color: "var(--ink)" }}
                     >
-                      {unit.title}
+                      {uiText(placement, unit.title, unit.subtitle)}
                     </Link>
                     <Chip tone="sky">{unit.level}</Chip>
                   </span>
