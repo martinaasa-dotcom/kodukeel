@@ -14,7 +14,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
 import type { Level } from "@/lib/collections/syllabus";
-import { uiText } from "@/lib/copy/uiLanguage";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { caseAccuracy } from "@/lib/stats/history";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -359,7 +359,7 @@ export default async function TodayPage() {
       {figures && caughtUpNote}
       {nextUnit ? (
         <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
-          Meet {nextUnit.unit.title} <ArrowRight size={16} aria-hidden />
+          Meet {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       ) : (
         <ButtonLink href="/practice" variant="secondary" className="w-full justify-center">
@@ -438,8 +438,12 @@ export default async function TodayPage() {
         <SectionTitle hint={`Day ${courseDay.day.index} of ${programme!.days.length}`}>
           Today&rsquo;s module
         </SectionTitle>
-        <p className="mt-1 text-xl font-semibold" lang="et" style={{ color: "var(--ink)" }}>
-          {courseDay.day.title}
+        <p
+          className="mt-1 text-xl font-semibold"
+          lang={uiWantsEnglish(placement) ? undefined : "et"}
+          style={{ color: "var(--ink)" }}
+        >
+          {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay.day.canDo}
@@ -471,8 +475,10 @@ export default async function TodayPage() {
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow carries on with {courseDay.day.title}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
-              : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
+              ? <>Tomorrow carries on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              : uiWantsEnglish(placement)
+                ? <>Come back tomorrow for {courseDay.day.subtitle}.</>
+                : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
             : <>That was the last one. The review queue keeps every word of it.</>}
         </p>
       </div>
@@ -731,7 +737,11 @@ export default async function TodayPage() {
       answered={outside.answered}
       conversations={outside.conversations}
       days={outside.days}
-      unitTitle={unitById(errand.unit)?.title ?? errand.unit}
+      unitTitle={(() => {
+        const errandUnit = unitById(errand.unit);
+        if (!errandUnit) return errand.unit;
+        return uiText(placement, errandUnit.title, errandUnit.subtitle);
+      })()}
     />
   ) : null;
 
@@ -747,10 +757,16 @@ export default async function TodayPage() {
       <div className="flex items-center gap-3">
         <NextUnitIcon name={nextUnit.unit.icon} />
         <div className="min-w-0">
-          <p lang="et" className="text-lg font-bold leading-tight" style={{ color: "var(--ink)" }}>
-            {nextUnit.unit.title}
+          <p
+            lang={uiWantsEnglish(placement) ? undefined : "et"}
+            className="text-lg font-bold leading-tight"
+            style={{ color: "var(--ink)" }}
+          >
+            {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}
           </p>
-          <p className="text-xs" style={{ color: "var(--ink-3)" }}>{nextUnit.unit.subtitle}</p>
+          {!uiWantsEnglish(placement) && (
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{nextUnit.unit.subtitle}</p>
+          )}
         </div>
       </div>
       {/* The can-do statement, not the blurb: what you will be able to
@@ -758,7 +774,10 @@ export default async function TodayPage() {
           is about. */}
       <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>{nextUnit.unit.canDo}</p>
       <div className="mt-3.5">
-        <Meter pct={nextUnit.pct} label={`${nextUnit.unit.title}: ${nextUnit.pct}% complete`} />
+        <Meter
+          pct={nextUnit.pct}
+          label={`${uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)}: ${nextUnit.pct}% complete`}
+        />
       </div>
       <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} className="mt-4 w-full">
         {nextUnit.state === "learning" ? "Continue the lesson" : "Start the lesson"}
