@@ -54,11 +54,19 @@ jobs:
       #
       # `restore-keys` rather than an exact match, because the useful cache is
       # the most recent one whatever week wrote it.
+      #
+      # `save-always`, because this job is red by design until the cache has
+      # carried it past half the dictionary: actions/cache's post step skips
+      # saving once an earlier step in the job has failed, so without this the
+      # audit below never wrote anything back and every week restarted at
+      # zero. Measured: two runs, two cache misses, the same "1000 of 5363"
+      # both times.
       - uses: actions/cache@v6
         with:
           path: prisma/data/.cache
           key: wiktionary-pages-${{ github.run_id }}
           restore-keys: wiktionary-pages-
+          save-always: true
       # No database and no key: this reads prisma/data/expanded.json and asks
       # Wiktionary, which is why it is the one drift check that can run here.
       #
