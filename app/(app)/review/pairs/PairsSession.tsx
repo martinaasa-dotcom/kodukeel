@@ -11,7 +11,7 @@ import { playClip } from "@/lib/audio/clip";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -319,7 +319,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             </div>
             <div className="mt-4">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>
           </div>

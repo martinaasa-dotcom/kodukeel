@@ -11,7 +11,7 @@ import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 
 
@@ -403,7 +403,7 @@ export function QuestSession({
             </>
           ) : (
             <Button variant="primary" size="lg" onClick={() => setRevealed(true)}>
-              Show answer <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Show answer <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

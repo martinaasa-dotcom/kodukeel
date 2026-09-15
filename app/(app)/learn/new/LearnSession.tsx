@@ -26,7 +26,7 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -715,7 +715,7 @@ export function LearnSession({
               {phase === "ask" && (
                 <Button variant="primary" onClick={answerGap} disabled={busy}>
                   Check
-                  <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                  <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
               )}
             </>

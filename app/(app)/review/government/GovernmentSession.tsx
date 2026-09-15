@@ -13,7 +13,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { CASES } from "@/lib/estonian/cases";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import type { CaseKey } from "@/lib/estonian/types";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -296,7 +296,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <KeepWordChoice keeper={keeper} className="mt-4" />
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {!question.inDeck && (
                 <>

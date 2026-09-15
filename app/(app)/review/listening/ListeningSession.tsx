@@ -13,7 +13,7 @@ import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -298,7 +298,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
             <Button variant="primary" size="lg" className="w-full" onClick={next}>
               Continue
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           </div>
         )}

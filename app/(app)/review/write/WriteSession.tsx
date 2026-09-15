@@ -13,6 +13,7 @@ import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
+import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 
 export interface WritingPrompt {
   /** The card this exercise practices, so the round feeds the scheduler. */
@@ -274,7 +275,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             >
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">⌘ Enter</KeyCap></>}
+                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
