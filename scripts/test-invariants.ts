@@ -14339,10 +14339,41 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     review, /pastTheLadder\(ownerId\)/,
     "the review queue introduces unseen cards of a word Learn has not finished with",
   );
+
+  /*
+    `pastTheLadder` and `notOnLadder` live in cards.ts now, shared with the
+    other routes that can hand out an unseen card, so their own definition is
+    checked there rather than in page.tsx.
+  */
+  const cardsModule = code("app/(app)/review/cards.ts");
   assert.match(
-    review, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
-    "the review queue names the ladder's states itself rather than reading the table",
+    cardsModule, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
+    "pastTheLadder names the ladder's states itself rather than reading the table",
   );
+
+  /*
+    AND EVERY CALLER OF `leastPractisedSlot` ASKS IT, READ OFF THE CALLERS
+    RATHER THAN A LIST HERE.
+
+    `leastPractisedSlot` reads by lapses and by due date to pick which slot of
+    a word to ask, which says nothing about whether the word's own recognition
+    card has graduated off the Learn ladder: a word added moments ago carries
+    a CASE_FORM card at `state: 0` from the same batch as its recognition
+    card, so a caller that hands it an unfiltered pool can pick that card as
+    the word's representative and serve it as the word's first question, in a
+    case, before the word was ever met (`neli` and the "New word" chip on a
+    translative it had never been shown, reported live). Every route that
+    reads a pool for it has to ask `notOnLadder` on that same query, or a
+    third such route arrives with the fault this file was written to fix.
+  */
+  const spreads = ALL.filter((file) => /\bleastPractisedSlot\(/.test(code(file)));
+  const unguarded = spreads.filter((file) => !/\bnotOnLadder\(ownerId\)/.test(code(file)));
+  assert.deepEqual(
+    unguarded, [],
+    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder first, `
+    + "so it can hand out a case or a conjugated form as a word's very first question",
+  );
+  assert.notDeepEqual(spreads, [], "leastPractisedSlot has no caller left to check");
 
   /*
     And Today counts what Practice will actually serve. A number on the home

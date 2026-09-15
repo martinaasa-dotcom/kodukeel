@@ -8,7 +8,7 @@ import { YOUR_OWN_SOURCES } from "@/lib/srs/sources";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ReviewSession } from "../ReviewSession";
-import { include, withChoices } from "../cards";
+import { include, notOnLadder, withChoices } from "../cards";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
 const ROUND = 20;
@@ -60,7 +60,10 @@ export const dynamic = "force-dynamic";
  * `leastPractisedSlot` picks which card of a word to ask, so a word that has
  * been asked for its meaning four times comes back as `millesse? kuhu?`, and
  * `withChoices` opens a word nobody has met yet with its first meeting, both of
- * which are the ordinary behavior of every round in this directory.
+ * which are the ordinary behavior of every round in this directory. `notOnLadder`
+ * is the third: a word a learner has just looked up may still be a case or a
+ * conjugated form ahead of its own recognition card graduating, and this round
+ * may not hand that out as the first thing they are asked about it.
  */
 export default async function LookupsRoundPage() {
   const ownerId = await requireUserId();
@@ -72,7 +75,9 @@ export default async function LookupsRoundPage() {
   */
   const [cards, glossSetting] = await Promise.all([
     prisma.card.findMany({
-      where: { ownerId, suspended: false, source: { in: [...YOUR_OWN_SOURCES] } },
+      where: {
+        ownerId, suspended: false, source: { in: [...YOUR_OWN_SOURCES] }, ...notOnLadder(ownerId),
+      },
       /*
         The most lapsed lead, which is the tie break Flash cards and the
         commonest-words round both take and is the right one for a round about
