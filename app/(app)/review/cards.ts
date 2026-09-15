@@ -169,15 +169,25 @@ async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<Review
 }
 
 /**
- * The stored English translation of a CLOZE card's own sentence, or null.
+ * The stored English translation of a gap card's own sentence, or null.
  *
- * A `CLOZE` card's front and back are the sentence with the answer taken out
- * (`BLANK`), reconstructed by putting it back, and matched against the
- * lexeme's own examples by exact spelling: the same sentence, if Ekilex or a
- * learner's own request already put an English line on it.
+ * `CLOZE` was the only gap-fronted card type this asked about, and `CASE_FORM`
+ * and `CONJUGATION` are gap-fronted too now that a case and a person are
+ * drilled in a sentence that needs them rather than in a bare `word → case`
+ * line (see CLAUDE.md, "A case is drilled in a sentence that uses it"). A
+ * learner reading `Autol on ____ ratast` with no way to read the sentence
+ * around the blank has no context for the answer, only the isolated gloss of
+ * the word being asked for, which is a different and weaker thing: the sentence
+ * is what makes an answer worth reasoning your way to rather than guessing.
+ *
+ * So this reads any front that carries `BLANK`, whatever the card type. The
+ * front and back are the sentence with the answer taken out, reconstructed by
+ * putting it back, and matched against the lexeme's own examples by exact
+ * spelling: the same sentence, if Ekilex or a learner's own request already
+ * put an English line on it.
  */
 function clozeSentenceEn(c: CardRow): string | null {
-  if (c.cardType !== "CLOZE" || !c.lexeme) return null;
+  if (!c.front.includes(BLANK) || !c.lexeme) return null;
   const whole = c.front.replace(BLANK, c.back);
   const example = parseExamples(c.lexeme.examples).find((e) => e.et === whole);
   return example?.en ?? null;

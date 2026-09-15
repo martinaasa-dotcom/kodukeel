@@ -9,6 +9,7 @@ import { Speak } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
+import { BLANK } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -21,6 +22,18 @@ export interface AimedCase {
   et: string;
   question: string | null;
 }
+
+/**
+ * A front that is a sentence with the form taken out.
+ *
+ * A `CASE_FORM` or `CONJUGATION` card carries one of these here exactly as it
+ * does in review: not every one of them gets four forms to pick between
+ * (`optionsFor` in `lib/progress/quest.ts` can come back with nothing to
+ * offer), and where it does not, the reveal below used to leave the raw front
+ * on screen with its blank never filled in, the answer sitting underneath it
+ * with nothing to connect the two. See `ReviewSession`'s own `isGap`.
+ */
+const isGap = (front: string) => front.includes(BLANK);
 
 /**
  * THE DAILY QUEST.
@@ -371,15 +384,31 @@ export function QuestSession({
                   word on the screen and said nothing to a screen reader, on
                   the one round the app features a day. Every other round
                   announces its own feedback panel. */}
-              <div className="flex items-center gap-2" role="status">
-                <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
-                  {card.back}
-                </p>
-                {/* The answer, read aloud as it appears, the same rule
-                    ReviewSession's own flip reveal states for itself: the
-                    word you were trying to recall, said properly. */}
-                <Speak text={card.back.split(" / ")[0]!.trim()} autoplay />
-              </div>
+              {isGap(card.front) ? (
+                /* Same treatment as ReviewSession's own gap reveal: the raw
+                   front above still carries the blank, so a card with no
+                   options left the underscore on screen forever with a bare
+                   word underneath it and nothing to say the two belong
+                   together. The sentence is what the answer is an answer to. */
+                <div className="flex flex-col items-center gap-2" role="status">
+                  <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
+                    {card.front.split(BLANK)[0]}
+                    <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
+                    {card.front.split(BLANK)[1]}
+                  </p>
+                  <Speak text={card.front.replace(BLANK, card.back)} autoplay />
+                </div>
+              ) : (
+                <div className="flex items-center gap-2" role="status">
+                  <p lang="et" className="text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
+                    {card.back}
+                  </p>
+                  {/* The answer, read aloud as it appears, the same rule
+                      ReviewSession's own flip reveal states for itself: the
+                      word you were trying to recall, said properly. */}
+                  <Speak text={card.back.split(" / ")[0]!.trim()} autoplay />
+                </div>
+              )}
               <div className="mt-2 grid w-full max-w-sm grid-cols-2 gap-2">
                 {/* The two self-grades in the palette's own words, as Sprint
                     and the review card draw them. */}
