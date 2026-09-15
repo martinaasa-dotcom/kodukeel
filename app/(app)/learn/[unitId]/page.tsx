@@ -4,6 +4,8 @@ import { ArrowLeft, Check, GraduationCap, PlayCircle, MessagesSquare, Printer } 
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { unitById } from "@/lib/collections/syllabus";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { deckSnapshot } from "@/lib/progress/summary";
 import { unitProgress } from "@/lib/collections/syllabus";
 import { splitIntoLessons } from "@/lib/collections/lesson";
@@ -41,7 +43,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
   if (!unit) notFound();
 
   const ownerId = await requireUserId();
-  const [snapshot, rows, reading] = await Promise.all([
+  const [placement, snapshot, rows, reading] = await Promise.all([
+    courseLevelFor(ownerId),
     deckSnapshot(ownerId),
     prisma.lexeme.findMany({
       where: { lemma: { in: [...unit.lemmas] } },
@@ -85,7 +88,8 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
 
   return (
     <Page
-      title={unit.title}
+      title={uiText(placement, unit.title, unit.subtitle)}
+      titleLang={uiWantsEnglish(placement) ? undefined : "et"}
       lead={unit.blurb}
       actions={
         <Link href="/learn" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
@@ -100,7 +104,9 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
           </Ring>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-base" style={{ color: "var(--ink)" }}>{unit.subtitle}</span>
+              {!uiWantsEnglish(placement) && (
+                <span className="text-base" style={{ color: "var(--ink)" }}>{unit.subtitle}</span>
+              )}
               <Chip tone="accent">{unit.cefr}</Chip>
               {progress.state === "done" && <Chip tone="good">Finished</Chip>}
             </div>
@@ -121,7 +127,7 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
             <div className="mt-2 max-w-sm">
               <Meter
                 pct={progress.pct}
-                label={`${unit.title}: ${progress.pct}% learned`}
+                label={`${uiText(placement, unit.title, unit.subtitle)}: ${progress.pct}% learned`}
                 tone={progress.state === "done" ? "var(--good)" : "var(--accent)"}
               />
             </div>
