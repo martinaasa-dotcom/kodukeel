@@ -945,7 +945,7 @@ export function ReviewSession({
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
-          {card.isNew && <Chip tone="good">New word</Chip>}
+          {card.isNew && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
           {drillCase && <Chip tone="hard">{drillCase.toLowerCase()} drill</Chip>}
           {drillScan && <Chip tone="sky">{drillScan.title}</Chip>}
           <div className="ml-auto flex items-center gap-1">

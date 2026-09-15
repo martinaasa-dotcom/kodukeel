@@ -1,13 +1,20 @@
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
-import { learnBatch, learnCounts } from "@/lib/progress/learn";
+import { learnBatch, learnCounts, type LearnKind } from "@/lib/progress/learn";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { LearnSession } from "./LearnSession";
 
-export const metadata = { title: "Learn new words" };
-
 export const dynamic = "force-dynamic";
+
+function kindFrom(raw: string | undefined): LearnKind {
+  return raw === "phrase" ? "phrase" : "word";
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ kind?: string }> }) {
+  const { kind } = await searchParams;
+  return { title: kindFrom(kind) === "phrase" ? "Learn phrases" : "Learn new words" };
+}
 
 /**
  * A round of the Learn ladder.
@@ -20,9 +27,21 @@ export const dynamic = "force-dynamic";
  * A static segment under `/learn`, so the course path stays where every unit
  * link and every bookmark already points. Next resolves a static segment ahead
  * of the `[unitId]` beside it, and no unit in the syllabus is called `new`.
+ *
+ * `?kind=phrase` is the same round over the fixed phrases (`Tere!`, `Kuidas
+ * läheb?`) instead of single words. It is a search param rather than a second
+ * route because it changes which pool a round draws from and nothing about
+ * the shape of the round: `lib/progress/learn.ts` is what actually keeps the
+ * two apart, so a round of "words" never hands somebody a whole sentence
+ * badged as one.
  */
-export default async function LearnNewPage() {
+export default async function LearnNewPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>;
+}) {
   const ownerId = await requireUserId();
+  const kind = kindFrom((await searchParams).kind);
 
   /*
     Which language a first meeting gives the meaning in, beside the level and
@@ -35,7 +54,10 @@ export default async function LearnNewPage() {
     learnCounts(ownerId),
   ]);
 
-  const words = await learnBatch(ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]));
+  const words = await learnBatch(
+    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined, kind,
+  );
 
-  return <LearnSession words={words} waiting={counts.waiting} started={counts.started} />;
+  const { waiting, started } = kind === "phrase" ? counts.phrases : counts;
+  return <LearnSession words={words} waiting={waiting} started={started} kind={kind} />;
 }
