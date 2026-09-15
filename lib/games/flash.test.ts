@@ -124,16 +124,16 @@ describe("askableSlots", () => {
     expect(slotKeys(TERE)).toEqual(["PRODUCTION"]);
   });
 
-  it("drops a phrase's own exclamation mark, on the slot and on the task", () => {
+  it("drops a phrase's own exclamation mark and capital, on the slot and on the task", () => {
     const slot = askableSlots(TERE)[0]!;
-    expect(slot.value).toBe("Tere hommikust");
-    expect(slot.accepted).toEqual(["Tere hommikust"]);
+    expect(slot.value).toBe("tere hommikust");
+    expect(slot.accepted).toEqual(["tere hommikust"]);
 
     const task = flashTask({ word: TERE, slot, cardId: "c", step: 0 })!;
-    expect(task.lemma).toBe("Tere hommikust");
+    expect(task.lemma).toBe("tere hommikust");
     // Typing it was never required — `checkAnswer` already ignores
-    // punctuation — so dropping the mark changes nothing about grading.
-    expect(task.accepted).toEqual(["Tere hommikust"]);
+    // punctuation and case — so dropping the mark changes nothing about grading.
+    expect(task.accepted).toEqual(["tere hommikust"]);
   });
 
   it("never asks a form the English gloss beside it already prints", () => {
@@ -475,5 +475,40 @@ describe("the local cases", () => {
     const keys = slotKeys(TUBA);
     expect(keys).toContain("INESSIVE");
     expect(keys).not.toContain("ADESSIVE");
+  });
+});
+
+describe("a case whose own question spells the answer", () => {
+  /*
+    Every shape this round draws prints the case's question beside the word,
+    and the question words `kelle?`, `mille?`, `kellesse?` and so on are the
+    case forms of `kes` and `mis` themselves. So the round asked
+    `kes · who · sisseütlev · kellesse? millesse?` and wanted `kellesse` typed
+    back, on all eleven cases of both words.
+
+    The two tests beside this one are about the word: is the form the lemma, is
+    it a word in the gloss. This one is about the case, which is why no amount
+    of looking at one entry finds it. `npm run audit:questions` did, the day it
+    was pointed at the course half of the dictionary as well as the expansion.
+  */
+  const kes: FlashWord = {
+    lexemeId: "lex-kes", lemma: "kes", translation: "who", pos: "PRONOUN",
+    semanticTypes: null, examples: [],
+    forms: [
+      { formType: "NOM_SG", value: "kes" },
+      { formType: "GEN_SG", value: "kelle" },
+      { formType: "PART_SG", value: "keda" },
+    ],
+  };
+
+  it("asks kes for no case at all, because every question is the answer", () => {
+    const cases = askableSlots(kes).filter((s) => s.slot !== "PRODUCTION");
+    expect(cases).toEqual([]);
+  });
+
+  it("still asks an ordinary word, so the guard is a narrowing and not a switch", () => {
+    const cases = askableSlots(TUBA).filter((s) => s.slot !== "PRODUCTION");
+    expect(cases.length).toBeGreaterThan(4);
+    expect(cases.map((s) => s.slot)).toContain("INESSIVE");
   });
 });

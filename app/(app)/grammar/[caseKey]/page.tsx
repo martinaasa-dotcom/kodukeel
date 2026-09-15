@@ -42,8 +42,8 @@ export async function generateMetadata({ params }: { params: Promise<{ caseKey: 
 
 const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string }> = {
   EKILEX: {
-    label: "Ekilex",
-    title: "The form as the Institute of the Estonian Language records it",
+    label: "recorded",
+    title: "The stored form",
   },
   STORED: {
     // "memorized" rather than "principal part", because on the sisseütlev page
@@ -53,8 +53,8 @@ const ORIGIN_LABEL: Record<CaseExample["origin"], { label: string; title: string
     title: "A memorized form held in the dictionary, not worked out from a stem",
   },
   DERIVED: {
-    label: "from the genitive",
-    title: "The regular ending on the stored genitive stem, the same arithmetic you are learning to do",
+    label: "from the omastav",
+    title: "The regular ending on the stored omastav stem, the same arithmetic you are learning to do",
   },
 };
 
@@ -127,7 +127,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
                   <>
                     <span lang="et" className="text-2xl">-{ref.spec.suffix}</span>{" "}
                     <span className="text-xs font-normal" style={{ color: "var(--ink-3)" }}>
-                      on the genitive
+                      on the omastav
                     </span>
                   </>
                 )}
@@ -138,14 +138,19 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
                 {ref.spec.et}
               </dd>
-              <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
-                the {ref.spec.en.toLowerCase()}, in an English grammar
-              </dd>
+
             </div>
             <div className="min-w-0">
               <dt className="label-xs" style={{ color: "var(--accent-deep)" }}>Answers</dt>
               <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
                 {ref.spec.question}
+              </dd>
+              {/* And what that is asking. The question is the name a class uses
+                  and it is opaque to somebody who has not met it, which is the
+                  whole reason the Latin name used to be the only English
+                  anywhere near a case. See `lib/estonian/cases.ts`. */}
+              <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
+                {ref.spec.questionEn}
               </dd>
             </div>
           </dl>
@@ -205,7 +210,13 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               <table className="w-full min-w-[460px] text-sm">
                 <thead>
                   <tr>
-                    {["Word", "Genitive", endingOf(ref), "From"].map((h, i) => (
+                    {/*
+                      The stem column is headed the way the page heads
+                      everything else now. It said "Genitive", which is the one
+                      English word on a table of Estonian and is a term out of
+                      a grammar this language does not use.
+                    */}
+                    {["Word", "Omastav", endingOf(ref), "From"].map((h, i) => (
                       <th
                         key={h}
                         className="label-xs px-3 py-2.5 text-left"
@@ -279,7 +290,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
 
         {withSentence.length > 0 && (
           <section>
-            <SectionTitle hint="attested, from Ekilex">In a sentence</SectionTitle>
+            <SectionTitle>In a sentence</SectionTitle>
             <ul className="flex flex-col gap-2">
               {withSentence.map((example) => (
                 <li key={`${example.lexemeId}-sentence`}>
@@ -343,7 +354,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
           </p>
           <SuggestFix
             category="WRONG_CONTENT"
-            trigger={`The grammar reference for ${ref.spec.et} (${ref.spec.en})`}
+            trigger={`The grammar reference for ${ref.spec.et}`}
             label="Tell us what is wrong"
           />
         </div>

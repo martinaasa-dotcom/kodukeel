@@ -1,4 +1,5 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { questionInEnglish } from "@/lib/estonian/cases";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
@@ -146,6 +147,15 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
                   <dd lang="et" className="mt-1 text-lg font-bold" style={{ color: "var(--ink)" }}>
                     {term.question}
                   </dd>
+                  {/* And what it asks, where the table has a reading for it.
+                      A point taught by a question nobody has glossed is a
+                      point taught in a language the reader came here to
+                      learn. See `lib/estonian/cases.ts`. */}
+                  {questionInEnglish(term.question) && (
+                    <dd className="text-xs" style={{ color: "var(--ink-3)" }}>
+                      {questionInEnglish(term.question)}
+                    </dd>
+                  )}
                 </div>
               )}
             </dl>

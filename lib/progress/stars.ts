@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 
 /**
  * THE WORDS A LEARNER HAS STARRED.
@@ -69,8 +70,8 @@ export async function favorites(ownerId: string): Promise<Favorite[]> {
 
   return rows.map((row) => ({
     lexemeId: row.lexemeId,
-    lemma: row.lexeme.lemma,
-    translation: row.lexeme.translation,
+    lemma: plainPhrase(row.lexeme.lemma),
+    translation: plainPhrase(row.lexeme.translation),
     pos: row.lexeme.pos,
     cefr: row.lexeme.cefr,
     starredAt: row.createdAt,

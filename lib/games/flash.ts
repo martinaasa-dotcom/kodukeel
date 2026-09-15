@@ -1,4 +1,4 @@
-import { sameSpelling } from "@/lib/copy/values";
+import { plainPhrase, sameSpelling } from "@/lib/copy/values";
 import { sentenceContaining, type Example } from "@/lib/dict/examples";
 import { checkAnswer } from "@/lib/estonian/answer";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
@@ -83,30 +83,6 @@ import type { CaseKey } from "@/lib/estonian/types";
  */
 
 export type FlashShape = "recall" | "inflect" | "gap" | "heard" | "build";
-
-/**
- * A phrase's own punctuation, dropped for this round and nowhere else.
- *
- * `Tere hommikust!` is filed with its exclamation mark because that is how a
- * greeting is written down, and the dictionary, the review card and every
- * other screen keep printing it exactly as stored: this app edits neither
- * the lemma nor the Estonian it holds. The mark carries no answer of its own
- * here either, since `checkAnswer` already strips punctuation before
- * comparing, so typing it was never required. What it did was print on the
- * card, on the reveal, on the star label and in the round's mastery meter,
- * which reads as the app shouting the word rather than teaching it.
- *
- * Applied inside `askableSlots` and `flashTask`, the two places a word's
- * lemma becomes something a screen shows, rather than at each caller: this
- * module has two of those (the flash round and `audit:questions`, which
- * builds the same tasks to check what a screen shows), and a strip left to
- * the caller is a strip the second one would forget. Trailing only, and only
- * `!`, so a sentence a learner writes and a question mark a phrase genuinely
- * ends on (`Kuidas läheb?`) are untouched.
- */
-export function dropTrailingBang(text: string): string {
-  return text.replace(/!+\s*$/, "").trimEnd();
-}
 
 /** A dictionary entry, in the shape a round needs it. */
 export interface FlashWord {
@@ -227,7 +203,7 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     asked, in its cases, where there is something to produce.
   */
   if (!sameSpelling(word.lemma, word.translation) && !shownInGloss([word.lemma])) {
-    const value = dropTrailingBang(word.lemma);
+    const value = plainPhrase(word.lemma);
     out.push({
       slot: "PRODUCTION",
       value,
@@ -281,6 +257,24 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     `caseFits` is the one answer, and it refuses a singular of a word that has
     no singular besides.
   */
+  /*
+    AND NOT A CASE WHOSE OWN QUESTION SPELLS THE ANSWER.
+
+    The two tests above are about the word: is the form the lemma, is it a
+    word in the gloss. Every shape here prints a third thing, which is the
+    question the case answers, and that is a property of the *case*, so no
+    amount of looking at one word finds it. `kes` and `mis` are the two words
+    it lands on, because the question words are their own case forms: the
+    round asked `kes · who · sisseutlev · kellesse? millesse?` and wanted
+    `kellesse` back, and every one of the eleven cases of both words was free
+    that way. `npm run audit:questions` found all 21 the day it was pointed at
+    the half of the dictionary the course harvest writes.
+
+    It costs those two words their case slots and nothing else, which is the
+    right price: there is no way to ask somebody to produce `kelle` while
+    printing `kelle?` as the question. Both keep their production card and
+    their sentence shapes.
+  */
   const stems = stemsFrom(word.forms);
   for (const key of ASKABLE_CASES) {
     if (!caseFits(key, subjectOf(word))) continue;
@@ -288,6 +282,9 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     if (!answer) continue;
     if (answer.accepted.some((f) => f.trim().toLocaleLowerCase("et") === lemma)) continue;
     if (shownInGloss(answer.accepted)) continue;
+    const spec = caseByKey(key);
+    const question = spec ? caseQuestionFor(spec, subjectOf(word)) : "";
+    if (answer.accepted.some((f) => mentions(question, f))) continue;
     out.push({
       slot: key,
       value: answer.value,
@@ -463,8 +460,8 @@ export function flashTask(input: {
     id: `${word.lexemeId}:${slot.slot}`,
     cardId,
     lexemeId: word.lexemeId,
-    lemma: dropTrailingBang(word.lemma),
-    translation: word.translation,
+    lemma: plainPhrase(word.lemma),
+    translation: plainPhrase(word.translation),
     pos: word.pos,
     shape,
     /*
@@ -728,9 +725,16 @@ export function plainAskFor(task: Pick<FlashTask, "shape" | "slot">): string | n
 /** True where the slot is a grammatical form rather than a question about meaning. */
 export const isForm = isFormSlot;
 
-/** The English cross-reference for a case slot, where there is one. */
-export function englishName(slot: string): string | null {
-  return caseByKey(slot)?.en.toLowerCase() ?? null;
+/**
+ * What a case slot asks, in English, where it is a case at all.
+ *
+ * It was the Latin name, so a card headed with the plain ask carried
+ * "seesütlev · the inessive" under it: the name a class uses, and then one
+ * word of English that is a translation of a translation. See `asksEn` in
+ * `lib/estonian/cases.ts`.
+ */
+export function asksInEnglish(slot: string): string | null {
+  return caseByKey(slot)?.asksEn ?? null;
 }
 
 /** What the case rule needs to know about a word, in the shape it takes it. */

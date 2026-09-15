@@ -134,6 +134,26 @@ export const SECTIONS: NavSection[] = [
         the words come out of. What is due is Practice's, which is where every
         other way of asking a word you already know already lived.
       */
+      /*
+        THE PLANNED EVENING, ABOVE THE THINGS IT IS MADE OF.
+
+        A row of its own and the second in the section, because for somebody
+        following a programme it is the answer to "what do I do now" and the
+        three rows under it are the parts it assembles. It stays a row rather
+        than a `within` for the same reason Today does: it is where you go
+        first, and a destination reached only from the screen that already
+        tells you about it is a destination somebody has to remember.
+
+        No cell in the phone bar. The bar holds four and its four are Today,
+        Learn, Practice and Review, which are the loop somebody not on a
+        programme uses; the module screen's own way in is the button on Today,
+        which is the first thing on the first screen.
+      */
+      {
+        href: "/course", label: "Today's module", blurb: "Tonight's words and rounds, already chosen",
+        icon: "CalendarCheck", tone: "accent",
+        keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
+      },
       {
         href: "/learn", label: "Learn", blurb: "New words, five at a time, and the course they come from",
         icon: "Sparkles", tone: "mint",
@@ -299,6 +319,18 @@ export const SECTIONS: NavSection[] = [
       {
         href: "/grammar", label: "Grammar", blurb: "What each of the fourteen cases is for", icon: "Languages",
         tone: "butter", keywords: "cases reference partitive genitive inessive endings rules seesutlev",
+      },
+      {
+        /*
+          Where the endings start, which is the screen before the reference.
+          A part of the grammar pages rather than a place beside them: it
+          walks one word through the system the fourteen cards explain, and it
+          is the first thing on the top of that page.
+        */
+        href: "/grammar/build-a-word", label: "Build a word",
+        blurb: "Three forms, then the eleven endings that follow", icon: "Puzzle",
+        tone: "butter", within: "/grammar",
+        keywords: "cases introduction beginner stem genitive omastav endings how it works walkthrough learn system",
       },
       {
         /*

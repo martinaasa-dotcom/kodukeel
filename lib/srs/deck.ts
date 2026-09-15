@@ -1,3 +1,4 @@
+import { deferredDues } from "@/lib/progress/deferrals";
 import type { Prisma } from "@prisma/client";
 import { unitById } from "@/lib/collections/syllabus";
 import { prisma } from "@/lib/db";
@@ -316,10 +317,19 @@ export async function addPlanToDeck(
   const added = await prisma.$transaction(async (tx) => {
     await lockDeck(tx, ownerId);
 
-    const existing = await tx.card.findMany({
-      where: { ownerId, lexemeId: { in: lexemes.map((l) => l.id) } },
-      select: { lexemeId: true, cardType: true, front: true },
-    });
+    const [existing, held] = await Promise.all([
+      tx.card.findMany({
+        where: { ownerId, lexemeId: { in: lexemes.map((l) => l.id) } },
+        select: { lexemeId: true, cardType: true, front: true },
+      }),
+      /*
+        And which of these words the learner has already put aside, so a unit
+        added after somebody refused one of its words does not hand it straight
+        back. One read for the whole batch, beside the deck read rather than
+        after it. See lib/progress/deferrals.ts.
+      */
+      deferredDues(tx, ownerId, lexemes.map((l) => l.id)),
+    ]);
 
     const seen = new Set(existing.map((c) => cardKey(c.lexemeId ?? "", c.cardType, c.front)));
     const fresh: (GeneratedCard & { lexemeId: string })[] = [];
@@ -349,7 +359,7 @@ export async function addPlanToDeck(
       targetCase: c.targetCase,
       slot: c.slot,
       source,
-      due: scheduling.due,
+      due: held.get(c.lexemeId) ?? scheduling.due,
       stability: scheduling.stability,
       difficulty: scheduling.difficulty,
       state: scheduling.state,

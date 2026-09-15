@@ -7,27 +7,60 @@ import { Button } from "@/components/Button";
 import { Card } from "@/components/ui";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { NO_VALUE } from "@/lib/copy/values";
+import { caseByKey } from "@/lib/estonian/cases";
+import type { CaseKey } from "@/lib/estonian/types";
+import { CaseQuestion } from "@/components/CaseQuestion";
+
+/**
+ * THE BOXES ARE NAMED THE WAY A LESSON NAMES THEM.
+ *
+ * Every one of these read "Genitive sg", "Partitive pl", "Short illative": a
+ * form somebody fills in, labelled in the one vocabulary they may never have
+ * met. The learner this form is for has a word in front of them and a class
+ * behind them, and the class said `omastav`. So the label is the Estonian name
+ * and the question the case answers, read off `lib/estonian/cases.ts` rather
+ * than typed, because a second copy of what a case is called is where the two
+ * stop agreeing.
+ *
+ * The number is part of the label and not part of the case, so it is written
+ * here: `ainsus` and `mitmus` are what a table of forms is headed.
+ */
+const nounField = (key: CaseKey, number: string) => {
+  const spec = caseByKey(key)!;
+  return {
+    et: `${spec.et.charAt(0).toUpperCase()}${spec.et.slice(1)} ${number}`,
+    question: `${spec.asksPerson} ${spec.asksThing}`,
+  };
+};
 
 const NOUN_FIELDS = [
-  ["NOM_SG", "Nominative sg", "tuba"],
-  ["GEN_SG", "Genitive sg", "toa"],
-  ["PART_SG", "Partitive sg", "tuba"],
-  ["ILL_SG_SHORT", "Short illative", "tuppa"],
+  ["NOM_SG", nounField("NOMINATIVE", "ainsus"), "tuba"],
+  ["GEN_SG", nounField("GENITIVE", "ainsus"), "toa"],
+  ["PART_SG", nounField("PARTITIVE", "ainsus"), "tuba"],
+  // The short one, which is the form anybody says and which no ending on the
+  // stem reaches: `tuba` gives `tuppa` rather than `toasse`.
+  ["ILL_SG_SHORT", { et: "Lühike sisseütlev", question: "kuhu?" }, "tuppa"],
   // The nominative plural is here because nothing derives it any more. It was
   // `genitive + d`, which `npm run audit:cases` found wrong for every pronoun
   // and for the words that have no plural, so a word typed in by hand has to
   // be able to carry its own.
-  ["NOM_PL", "Nominative pl", "toad"],
-  ["PART_PL", "Partitive pl", "tube"],
-  ["GEN_PL", "Genitive pl", "tubade"],
+  ["NOM_PL", nounField("NOMINATIVE", "mitmus"), "toad"],
+  ["PART_PL", nounField("PARTITIVE", "mitmus"), "tube"],
+  ["GEN_PL", nounField("GENITIVE", "mitmus"), "tubade"],
 ] as const;
 
+/*
+  The verb keeps its own names, and that is the asymmetry rather than an
+  oversight: `ma-infinitive` and `da-infinitive` are what a class says in both
+  languages, and "present" and "past" are categories an English speaker has a
+  concept for and can look one up under. "The inessive" is not.
+*/
 const VERB_FIELDS = [
-  ["INF_MA", "ma-infinitive", "lugema"],
-  ["INF_DA", "da-infinitive", "lugeda"],
-  ["PRES_1SG", "Present 1sg", "loen"],
-  ["PAST_1SG", "Past 1sg", "lugesin"],
-  ["PART_TUD", "tud-participle", "loetud"],
+  ["INF_MA", { et: "ma-infinitive", question: null }, "lugema"],
+  ["INF_DA", { et: "da-infinitive", question: null }, "lugeda"],
+  ["PRES_1SG", { et: "Olevik · ma", question: null }, "loen"],
+  ["PAST_1SG", { et: "Lihtminevik · ma", question: null }, "lugesin"],
+  ["PART_TUD", { et: "tud-kesksõna", question: null }, "loetud"],
 ] as const;
 
 const LEVELS = ["", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
@@ -180,7 +213,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
             <input
               value={government}
               onChange={(e) => setGovernment(e.target.value)}
-              placeholder="partitive, aitan sind"
+              placeholder="osastav, aitan sind"
               className="field text-sm"
               style={field}
             />
@@ -192,13 +225,21 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
         <div>
           <p className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>Principal parts</p>
           <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
-            Fill in what you know. The genitive alone unlocks all eleven regular cases. Blanks stay
+            Fill in what you know. The omastav alone unlocks all eleven regular cases. Blanks stay
             blank. Nothing is guessed.
           </p>
           <div className="grid gap-2 md:grid-cols-3">
             {fields.map(([key, label, example]) => (
               <label key={key} className="flex flex-col gap-1">
-                <span className="text-2xs" style={{ color: "var(--ink-3)" }}>{label}</span>
+                <span className="text-2xs" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et">{label.et}</span>
+                  {label.question && (
+                    <>
+                      {" "}
+                      <CaseQuestion question={label.question} inline />
+                    </>
+                  )}
+                </span>
                 <input
                   value={forms[key] ?? ""}
                   onChange={(e) => setForm(key, e.target.value)}

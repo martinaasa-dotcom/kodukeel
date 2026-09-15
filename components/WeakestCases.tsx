@@ -1,7 +1,7 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { CircleHelp } from "lucide-react";
 import type { CaseAccuracy } from "@/lib/stats/history";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { Meter } from "@/components/ui";
 
@@ -52,12 +52,17 @@ export function WeakestCases({ cases, empty }: {
         */
         const spec = caseByKey(c.grammCase as CaseKey);
         const name = spec?.et ?? c.grammCase.toLowerCase();
+        // Only the slug for the reference page, which is keyed on the case's
+        // own name. It used to be what a screen reader was told the case was
+        // called as well, and "the inessive" is the one name in this app that
+        // helps nobody: what it asks is the useful thing to say.
         const english = spec?.en.toLowerCase() ?? c.grammCase.toLowerCase();
+        const asks = questionInEnglish([spec?.asksThing, spec?.asksWhere].filter(Boolean).join(" "));
         return (
           <li key={c.grammCase} className="flex min-w-0 items-center gap-1">
             <Link
               href={`/review?case=${c.grammCase}`}
-              aria-label={`Drill the ${name}${spec ? `, ${spec.question}, the ${english}` : ""}, currently ${c.accuracy} percent over ${c.total} reviews`}
+              aria-label={`Drill the ${name}${asks ? `, which asks ${asks}` : ""}, currently ${c.accuracy} percent over ${c.total} reviews`}
               className="pill tap-tint flex min-w-0 flex-1 items-center gap-3 rounded-[var(--r)] px-2 py-1.5 text-sm"
             >
               {/*
@@ -93,7 +98,7 @@ export function WeakestCases({ cases, empty }: {
               <span className="flex w-24 shrink flex-col leading-tight">
                 <span lang="et" style={{ color: "var(--ink-2)" }}>{name}</span>
                 {spec && (
-                  <span lang="et" className="text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et" className="text-[12px]" style={{ color: "var(--ink-3)" }}>
                     {[spec.asksThing, spec.asksWhere].filter(Boolean).join(" ")}
                   </span>
                 )}
@@ -101,7 +106,7 @@ export function WeakestCases({ cases, empty }: {
               <span className="min-w-0 flex-1">
                 <Meter
                   pct={c.accuracy}
-                  label={`${name}, the ${english}: ${c.accuracy}%`}
+                  label={`${name}${asks ? `, ${asks}` : ""}: ${c.accuracy}%`}
                   tone={c.accuracy >= 85 ? "var(--good)" : c.accuracy >= 65 ? "var(--hard)" : "var(--again)"}
                   height={5}
                 />
@@ -112,8 +117,8 @@ export function WeakestCases({ cases, empty }: {
             </Link>
             <Link
               href={`/grammar/${english}`}
-              aria-label={`What the ${name} is for, ${spec?.question ?? ""} (the ${english})`}
-              title={`${name}: ${spec?.question ?? ""} · the ${english}`}
+              aria-label={`What the ${name} is for${asks ? `, the one that asks ${asks}` : ""}`}
+              title={`${name}${asks ? `: ${asks}` : ""}`}
               className="press flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
               style={{ color: "var(--ink-3)" }}
             >

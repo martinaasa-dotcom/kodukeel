@@ -14,9 +14,10 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { sharedPrompts } from "@/lib/collections/senses";
-import { repairCaseFronts, repairProductionBacks } from "./repair";
+import { repairCaseFronts, repairPhrasePunctuation, repairProductionBacks } from "./repair";
 import { generateCards, isBareCaseFront } from "@/lib/srs/cards";
 import { acceptedAnswers } from "@/lib/estonian/answer";
+import { plainPhrase } from "@/lib/copy/values";
 
 const MINE = "itest-owner-repair";
 
@@ -232,5 +233,109 @@ describe("repairCaseFronts", () => {
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
     expect(after.front).toBe(card.front);
     expect(after.back).toBe("x");
+  });
+});
+
+/**
+ * The repair that drops a phrase's own capital and exclamation mark off a
+ * RECOGNITION or PRODUCTION card built before `plainPhrase` existed.
+ *
+ * Against a real database for the reason the two suites above are: what it
+ * claims is that the punctuation changed and the schedule did not.
+ */
+describe("repairPhrasePunctuation", () => {
+  beforeEach(wipe);
+  afterAll(wipe);
+
+  /** A seeded phrase whose lemma still carries a mark, for the fault this fixes. */
+  async function aPunctuatedPhrase() {
+    return prisma.lexeme.findFirst({
+      where: { pos: "PHRASE", lemma: { endsWith: "!" } },
+      select: { id: true, lemma: true, translation: true },
+    });
+  }
+
+  it("cleans the front and back of a recognition card, and leaves its schedule alone", async () => {
+    const phrase = await aPunctuatedPhrase();
+    if (!phrase) return; // A dictionary with no punctuated phrase has nothing to clean.
+
+    const due = new Date("2027-01-01T00:00:00.000Z");
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: phrase.id, cardType: "RECOGNITION",
+        front: phrase.lemma, back: phrase.translation,
+        due, stability: 12.5, difficulty: 6.25, reps: 9, lapses: 3, state: 2,
+      },
+    });
+
+    expect(await repairPhrasePunctuation(prisma)).toBeGreaterThan(0);
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.front).toBe(plainPhrase(phrase.lemma));
+    expect(after.back).toBe(plainPhrase(phrase.translation));
+    expect(after.due).toEqual(due);
+    expect(after.stability).toBe(12.5);
+    expect(after.difficulty).toBe(6.25);
+    expect(after.reps).toBe(9);
+    expect(after.lapses).toBe(3);
+    expect(after.state).toBe(2);
+  });
+
+  it("cleans every answer of a production back widened by repairProductionBacks", async () => {
+    const phrase = await aPunctuatedPhrase();
+    if (!phrase) return;
+
+    const dirty = [phrase.lemma, `${phrase.lemma} synonym`].join(" / ");
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: phrase.id, cardType: "PRODUCTION",
+        front: phrase.translation, back: dirty, hint: "phrase",
+      },
+    });
+
+    await repairPhrasePunctuation(prisma);
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.back).toBe(
+      [plainPhrase(phrase.lemma), plainPhrase(`${phrase.lemma} synonym`)].join(" / "),
+    );
+    expect(after.front).toBe(plainPhrase(phrase.translation));
+  });
+
+  it("runs twice without changing anything the second time", async () => {
+    const phrase = await aPunctuatedPhrase();
+    if (!phrase) return;
+
+    await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: phrase.id, cardType: "RECOGNITION",
+        front: phrase.lemma, back: phrase.translation,
+      },
+    });
+
+    expect(await repairPhrasePunctuation(prisma)).toBeGreaterThan(0);
+    const once = await prisma.card.findMany({ where: { ownerId: MINE }, select: { front: true, back: true } });
+    expect(await repairPhrasePunctuation(prisma)).toBe(0);
+    const twice = await prisma.card.findMany({ where: { ownerId: MINE }, select: { front: true, back: true } });
+    expect(twice).toEqual(once);
+  });
+
+  it("touches no entry but a phrase", async () => {
+    const found = await aSharedPrompt();
+    if (!found) return; // Reuses the shared-prompt helper only for a non-phrase lexeme.
+    const [first] = found.rows;
+    if (first!.pos === "PHRASE") return;
+
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: first!.id, cardType: "RECOGNITION",
+        front: first!.lemma, back: first!.translation,
+      },
+    });
+
+    await repairPhrasePunctuation(prisma);
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.front).toBe(first!.lemma);
+    expect(after.back).toBe(first!.translation);
   });
 });

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import {
   MASTERY_SLOTS, masteryOf, type Mastery, type Verdict, type WordReview,
 } from "@/lib/srs/mastery";
@@ -185,8 +186,8 @@ export async function masteryFor(ownerId: string): Promise<MasteredWord[]> {
     }
     merged.set(key, {
       lexemeId: l.id,
-      lemma: l.lemma,
-      translation: l.translation,
+      lemma: plainPhrase(l.lemma),
+      translation: plainPhrase(l.translation),
       pos: l.pos,
       cefr: l.cefr,
       // Filled below, once every entry sharing this key has contributed.

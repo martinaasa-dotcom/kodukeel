@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { MatchSession, type MatchPair } from "./MatchSession";
@@ -69,7 +70,7 @@ export default async function MatchPage() {
   const pairs: MatchPair[] = [];
   for (const card of pool) {
     const english = card.back.trim();
-    const estonian = card.lexeme?.lemma ?? card.front;
+    const estonian = plainPhrase(card.lexeme?.lemma ?? card.front);
     const key = english.toLowerCase();
     if (seenAnswers.has(key)) continue;
     seenAnswers.add(key);

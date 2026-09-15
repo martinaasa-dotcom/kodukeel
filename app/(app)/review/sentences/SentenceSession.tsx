@@ -149,7 +149,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
       <Page title="Sentences" lead="Put real Estonian sentences back in order.">
         <Empty
           title="No sentences to build yet"
-          body="Sentences come from Ekilex, already linked to words in your deck."
+          body="Sentences are linked to words already in your deck."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>
@@ -356,7 +356,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
       </div>
 
       <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} of {attempts} first time · sentences from Ekilex
+        {correct} of {attempts} first time
       </p>
     </div>
   );

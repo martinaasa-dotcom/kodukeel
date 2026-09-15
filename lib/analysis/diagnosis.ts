@@ -63,14 +63,19 @@ function add(tally: Tally, rating: number): void {
 }
 
 /**
- * A finding is named the way a class names a case, with the Latin name after
- * it. A learner told their `seesütlev` is weak can carry that sentence into a
+ * A finding is named the way a class names a case, with what it asks after it.
+ * A learner told their `seesütlev` is weak can carry that sentence into a
  * lesson; one told about their "inessive" cannot.
  */
 const caseName = (key: string) => CASES.find((c) => c.key === key)?.et ?? key.toLowerCase();
 
+/*
+  And what follows it in brackets is what the case asks rather than its Latin
+  name, which is a second name the reader has also not met: see `asksEn` in
+  `lib/estonian/cases.ts`.
+*/
 const caseNameEn = (key: string) =>
-  CASES.find((c) => c.key === key)?.en.toLowerCase() ?? key.toLowerCase();
+  CASES.find((c) => c.key === key)?.asksEn ?? key.toLowerCase();
 
 /**
  * The headline finding: a case the learner handles well in general but fails on
@@ -174,7 +179,7 @@ function pluralFindings(facts: ReviewFact[]): Finding[] {
     headline: "The plural stem is where you lose it",
     detail:
       `${strong}% recall on words whose plural follows the regular pattern, ${weak}% on words that ` +
-      `carry their own genitive plural. Those have to be memorized, because the app cannot derive them ` +
+      `carry their own omastav plural. Those have to be memorized, because the app cannot derive them ` +
       `and neither can you.`,
     weakPct: weak,
     strongPct: strong,

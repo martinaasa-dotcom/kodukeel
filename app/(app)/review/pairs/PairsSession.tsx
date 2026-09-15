@@ -11,7 +11,7 @@ import { playClip } from "@/lib/audio/clip";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -157,7 +157,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
           This exercise is all about what a word sounds like, so without audio there&rsquo;s nothing
-          to show you. It runs on TartuNLP and needs a connection.
+          to show you. It needs a connection to work.
         </p>
         <div className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
@@ -240,7 +240,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             // the card, so "Play again" before anything has played is the only
             // thing that reader is told.
             aria-label={needsPress ? "Play the word" : "Play again"}
-            className="press flex h-20 w-20 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5 disabled:hover:translate-y-0"
+            className="press flex h-20 w-20 items-center justify-center rounded-full transition-ui hover:scale-[1.02] disabled:hover:scale-100"
             style={{ background: "var(--accent-soft)", color: "var(--accent)" }}
           >
             {playing
@@ -289,7 +289,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                   <KeyCap>{i + 1}</KeyCap>
                   <span className="min-w-0">
                     <span lang="et" className="block text-[19px] font-semibold">{option.value}</span>
-                    <span className="block text-[12.5px]">
+                    <span className="block text-[13px]">
                       {option.formLabel} of {option.lemma} · {option.translation}
                     </span>
                   </span>
@@ -319,14 +319,14 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             </div>
             <div className="mt-4">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
             </div>
           </div>
         )}
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
         {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer
       </p>
     </div>

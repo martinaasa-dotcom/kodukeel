@@ -237,7 +237,7 @@ export default async function PracticePage() {
               <span className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
                 Where your words stand
               </span>
-              <span className="flex flex-wrap gap-x-3 gap-y-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+              <span className="flex flex-wrap gap-x-3 gap-y-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
                 <span><span className="tnum" style={{ color: "var(--mint-ink)" }}>{counts.mastered}</span> mastered</span>
                 <span><span className="tnum" style={{ color: "var(--butter-ink)" }}>{counts.almost}</span> almost there</span>
                 <span><span className="tnum" style={{ color: "var(--peach-ink)" }}>{counts.struggling}</span> need work</span>

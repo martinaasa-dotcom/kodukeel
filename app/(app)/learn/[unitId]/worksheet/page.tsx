@@ -10,6 +10,8 @@ import { Empty, Note } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PrintButton } from "@/components/PrintButton";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { caseByKey } from "@/lib/estonian/cases";
+import { CaseQuestion } from "@/components/CaseQuestion";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +48,22 @@ function Rule({ width = 120 }: { width?: number }) {
  * anything marked `no-print` come off the page, and `page-break` puts the key
  * on its own sheet so it can be kept back until the end of the lesson.
  */
+/**
+ * The three parts a learner memorizes, named the way a lesson names them.
+ *
+ * Read off `CASES` rather than typed, because the Estonian name and the
+ * question are one table's answer and a sheet printing its own copy is where
+ * the two stop agreeing. `principal` is the flag that already marks them.
+ */
+const PRINCIPAL_CASES = (["NOMINATIVE", "GENITIVE", "PARTITIVE"] as const).map((key) => {
+  const spec = caseByKey(key)!;
+  return {
+    key,
+    et: spec.et.charAt(0).toUpperCase() + spec.et.slice(1),
+    question: `${spec.asksPerson} ${spec.asksThing}`,
+  };
+});
+
 export default async function WorksheetPage({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
@@ -64,7 +82,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
       pos: true,
       provenance: true,
       examples: true,
-      forms: { select: { formType: true, value: true } },
+      forms: { select: { formType: true, value: true, morphCode: true } },
     },
   });
 
@@ -153,8 +171,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 B · Täida lüngad. Fill the gaps
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Put the word in brackets into the right form. Every sentence here is a real one,
-                recorded by the Institute of the Estonian Language.
+                Put the word in brackets into the right form. Every sentence here is a real one.
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (
@@ -199,13 +216,29 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 <table className="w-full min-w-[420px] text-base">
                   <thead>
                     <tr>
-                      {["Nimetav · nominative", "Omastav · genitive", "Osastav · partitive"].map((h) => (
+                      {/*
+                        THE NAME A CLASS USES, AND THE QUESTION IT ANSWERS.
+
+                        This read "Nimetav \u00b7 nominative" across three
+                        columns, on a sheet a teacher prints and hands out.
+                        "Nominative" is the one English word on the row and it
+                        is a term out of a grammar another language wrote: the
+                        pupil who has only ever heard `omastav` in the lesson
+                        this sheet belongs to cannot cash it, and the pupil who
+                        has met neither is no better off. What a board says is
+                        the Estonian name and the question under it, so that is
+                        what a column is headed, with the reading of the
+                        question as the English. `lib/estonian/cases.ts` is the
+                        one table both halves come off.
+                      */}
+                      {PRINCIPAL_CASES.map(({ key, et, question }) => (
                         <th
-                          key={h}
+                          key={key}
                           className="border-b px-2 py-2 text-left text-xs font-semibold"
                           style={{ borderColor: "var(--ink-3)", color: "var(--ink-2)" }}
                         >
-                          {h}
+                          <span lang="et" className="block">{et}</span>
+                          <CaseQuestion question={question} className="font-normal" inline />
                         </th>
                       ))}
                     </tr>
@@ -231,7 +264,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           )}
 
           <p className="mt-10 text-2xs" style={{ color: "var(--ink-3)" }}>
-            Forms and sentences from Ekilex, Institute of the Estonian Language · CC BY 4.0.
+            Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0.
             This worksheet was put together by Kodukeel. Nothing on it was written by software.
           </p>
 

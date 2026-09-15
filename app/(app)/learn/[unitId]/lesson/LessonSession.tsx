@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CaseQuestion } from "@/components/CaseQuestion";
+import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Ear, Sparkles, X } from "lucide-react";
 import { completeLesson } from "@/app/actions";
@@ -10,8 +12,9 @@ import { Et } from "@/components/Et";
 import { EstonianInput } from "@/components/EstonianInput";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
+import { TooComplicated } from "@/components/TooComplicated";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
-import { BLANK, sentenceMatches } from "@/lib/estonian/cloze";
+import { BLANK, sentenceMatches, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -53,12 +56,19 @@ export function LessonSession({
   /** The lexeme ids this learner has already favourited, read once by the page. */
   starred: readonly string[];
 }) {
-  const [steps] = useState(initialSteps);
+  /*
+    The plan, snapshotted on mount for the reason the header gives, and
+    writable for one thing only: a word somebody says is too complicated leaves
+    the rest of the lesson with it. Nothing else may set it.
+  */
+  const [steps, setSteps] = useState(initialSteps);
   const [at, setAt] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<{ ok: boolean; error?: string } | null>(null);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  /* What the "too complicated" button did. See `putAside` below. */
+  const [aside, setAside] = useState<string | null>(null);
 
   const step = steps[at];
   const total = useMemo(() => steps.filter(isAnswerable).length, [steps]);
@@ -79,6 +89,30 @@ export function LessonSession({
     setStartedAt(Date.now());
   }, [steps.length]);
 
+  /**
+   * A word the learner has put aside, mid-lesson.
+   *
+   * The lesson is a list of steps rather than a queue of cards, and one word
+   * has several of them: it is met, then chosen, then produced, then gapped.
+   * So the rest of that word's steps go with it, or the lesson would carry on
+   * asking about a word the app has just promised to leave alone. Everything
+   * before the current step is kept exactly as it was, which is what lets the
+   * index stay where it is: it now points at the first step that survived.
+   *
+   * Nothing is recorded for it. `completeLesson` builds cards for the lemmas
+   * it was given answers about, so a word dropped here takes no cards at the
+   * end, and one the learner already holds a card for was pushed by the action
+   * before this ran (`lib/progress/deferrals.ts`). The recap carries no lemma,
+   * so there is always a step left to land on.
+   */
+  const putAside = useCallback((note: string) => {
+    const lemma = steps[at]?.lemma;
+    if (!lemma) return;
+    setSteps((list) => list.filter((s, i) => i < at || s.lemma !== lemma));
+    setAside(note);
+    setStartedAt(Date.now());
+  }, [at, steps]);
+
   const submit = useCallback(async () => {
     if (saving || saved) return;
     setSaving(true);
@@ -96,7 +130,7 @@ export function LessonSession({
       <Page title={unitTitle} lead="Nothing to teach here yet.">
         <Empty
           title="This unit has no words in the dictionary yet"
-          body="Its words show up once Ekilex is connected, or you can add them yourself."
+          body="Its words show up once dictionary lookups are turned on, or you can add them yourself."
           action={<ButtonLink href={`/learn/${unitId}`}>Back to the unit</ButtonLink>}
         />
       </Page>
@@ -122,9 +156,18 @@ export function LessonSession({
           step={step}
           onAnswer={record}
           onNext={advance}
+          onAside={putAside}
           starred={starred}
           summary={{ correct, total: answered, saving, saved }}
         />
+        {aside && (
+          <p className="text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+            {aside}{" "}
+            <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+              Bring it back
+            </Link>
+          </p>
+        )}
       </div>
     </Page>
   );
@@ -221,11 +264,13 @@ function Options({
 }
 
 function StepCard({
-  step, onAnswer, onNext, starred, summary,
+  step, onAnswer, onNext, onAside, starred, summary,
 }: {
   step: LessonStep;
   onAnswer: (lemma: string, kind: string, ok: boolean) => void;
   onNext: () => void;
+  /** Told what the deferral said, so the lesson can drop the word and say so. */
+  onAside: (note: string) => void;
   starred: readonly string[];
   summary: { correct: number; total: number; saving: boolean; saved: { ok: boolean; error?: string } | null };
 }) {
@@ -293,11 +338,21 @@ function StepCard({
             <span className="text-sm" style={{ color: "var(--ink-3)" }}>A new word</span>
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
-            <div className="ml-auto">
+            <div className="ml-auto flex flex-wrap items-center gap-1">
               <StarWord
                 lexemeId={step.lexemeId}
                 starred={starred.includes(step.lexemeId)}
                 label={step.lemma}
+              />
+              {/* And its opposite number, on the step where a word is met: the
+                  lesson's own two claims about a word that are not answers are
+                  "this one is mine" and "this one is beyond me". */}
+              <TooComplicated
+                key={step.lexemeId}
+                lexemeId={step.lexemeId}
+                label={step.lemma}
+                context="/learn/lesson"
+                onDone={onAside}
               />
             </div>
           </div>
@@ -406,12 +461,12 @@ function StepCard({
             Fill the gap. The word is <Et>{step.lemma}</Et> ({step.gloss}), in the form the sentence needs.
           </span>
           <p className="text-xl">
-            <Et>{step.text}</Et>
+            <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
-            placeholder={BLANK}
+            placeholder={sizedBlank(BLANK, step.answer)}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (
@@ -434,16 +489,28 @@ function StepCard({
     case "case":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Put it in the {step.caseName.toLowerCase()} ({step.question})
+          {/* WHAT IS BEING ASKED, THEN WHAT IT IS CALLED.
+
+              This read "Put it in the inessive (milles? kus?)", which names the
+              form twice in two languages a beginner has met neither of. The
+              instruction is the plain clause five other screens already lead
+              with, and the Estonian name and the question sit under the answer
+              box as the cross-reference for somebody also taking a course. */}
+          <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
           </span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
+          <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+            <span lang="et">{step.caseName}</span>
+            {" · "}
+            <CaseQuestion question={step.question} inline />
+          </span>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel={`${step.lemma} in the ${step.caseName}`}
+            ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (

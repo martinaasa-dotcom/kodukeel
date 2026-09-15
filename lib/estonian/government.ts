@@ -1,4 +1,4 @@
-import { CASES, caseByKey } from "./cases";
+import { CASES, caseByKey, questionInEnglish } from "./cases";
 import { caseNearness } from "@/lib/questions/distractors";
 import { shuffle } from "@/lib/random/shuffle";
 import type { CaseKey } from "./types";
@@ -22,7 +22,6 @@ import type { CaseKey } from "./types";
 export interface Government {
   /** The case the verb governs. */
   caseKey: CaseKey;
-  caseEn: string;
   caseEt: string;
   /**
    * Every *other* case the entry names, in the order it names them.
@@ -147,7 +146,6 @@ export function parseGovernment(raw: string | null | undefined): Government | nu
 
   return {
     caseKey: match.key,
-    caseEn: match.label,
     caseEt: match.et,
     alsoGoverned: named.slice(1).map((c) => c.key),
     example: example || null,
@@ -155,6 +153,50 @@ export function parseGovernment(raw: string | null | undefined): Government | nu
     experiencer: headLower.includes("experiencer"),
     raw: text,
   };
+}
+
+/**
+ * THE STORED STRING AS A LEARNER SHOULD READ IT.
+ *
+ * Ekilex records a government as the question word a verb answers with the
+ * case that question signals in brackets after it: `kellelt (ablative) ·
+ * kelle käest`. Both halves went on a dictionary entry untouched, and the
+ * bracket was the only English on the one fact in this language nobody can
+ * reason their way to. "Ablative" is a translation of a translation to
+ * somebody who has met neither name.
+ *
+ * So the bracket is **rewritten to what the question word in front of it is
+ * asking**, off the one table in `lib/estonian/cases.ts`. The question word
+ * itself is Ekilex's and is untouched, because it is what a class says and
+ * what a learner will hear.
+ *
+ * DISPLAY ONLY, AND THE STORED STRING IS NEVER REWRITTEN. `parseGovernment`
+ * reads the column, `Lexeme.government` keeps exactly what Ekilex wrote, and
+ * this is a function over it on the way to a screen. A bracket this cannot
+ * read is left alone rather than guessed at, which is what happens to
+ * `kelle/mille vastu` and to the seed's own shape, and what a screen shows
+ * then is what it showed before.
+ */
+export function readableGovernment(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return raw.replace(/([^()·]*?)\(([^)]*)\)/g, (whole, before: string, inside: string) => {
+    /*
+      The reading comes off the question word rather than off the name in the
+      bracket, because the question word is the more specific of the two:
+      `keda*` and `mida` are both the osastav and are asking about different
+      kinds of thing, and `kust` names no case at all. Where the words in
+      front say nothing the table knows, the bracket stands.
+    */
+    const asks = questionInEnglish(before.replace(/[*]/g, "").split("/").join(" "));
+    if (!asks) return whole;
+    // Only a bracket that names a case or a place is ours to rewrite: an
+    // Ekilex entry can carry a real note in brackets and a gloss after an
+    // example, and neither is a label to replace.
+    const label = inside.trim().toLowerCase();
+    const isLabel = BY_NAME.some((c) => c.en === label)
+      || ["location", "direction", "source"].includes(label);
+    return isLabel ? `${before}(${asks})` : whole;
+  });
 }
 
 /** Hardest to tell from the answer first. Ties keep the order they came in. */

@@ -14,10 +14,10 @@ import { LEVELS, unitsAtLevel, type Level, type SyllabusUnit } from "./syllabus"
  * by accident on day one.
  *
  * So the course picks. The units at the front of each level are the everyday
- * ones on purpose (greetings, people, numbers, home, food, time), which is what
+ * ones on purpose (plain words, greetings, people, numbers), which is what
  * somebody needs to speak, get by and follow what is said to them, and it is
- * also why no choice is being taken away by choosing: the first three units at
- * a level are what anybody sensible would have ticked.
+ * also why no choice is being taken away by choosing: the first units at a
+ * level are what anybody sensible would have ticked.
  *
  * Nothing is lost. `/learn` is the whole course, every unit has an add button,
  * and a learner who wants `Riided` on day one is two clicks from it. This is
@@ -29,15 +29,23 @@ import { LEVELS, unitsAtLevel, type Level, type SyllabusUnit } from "./syllabus"
 /**
  * How many units a starter deck is.
  *
- * Three, and the number comes from the arithmetic rather than from taste. A
- * card costs about ten reviews over its first year, so a daily goal of fifteen
- * sustains about two genuinely new cards a day (`sustainableNewCardsPerDay`),
- * which over five days a week is ten. Three A1 units build a little over four
- * hundred cards, so the starter deck is roughly the next nine months at the
- * default pace. Two units would be under six and read as a demo; the whole
- * level is over two years and is the wall this replaced.
+ * The three that set the pace come from the arithmetic rather than from
+ * taste. A card costs about ten reviews over its first year, so a daily goal
+ * of fifteen sustains about two genuinely new cards a day
+ * (`sustainableNewCardsPerDay`), which over five days a week is ten. Three
+ * ordinary A1 units build a little over four hundred cards, so the starter
+ * deck is roughly the next nine months at the default pace. Two units would
+ * be under six and read as a demo; the whole level is over two years and is
+ * the wall this replaced.
+ *
+ * A1 opens with a fourth unit now, `vastused`, thirteen single words (`tere`,
+ * `aitäh`, `jah`, `ei` and nine more) ahead of `tervitused`, whose words are
+ * all whole phrases. Four is what keeps `tervitused`, `inimesed` and `arvud`
+ * all still arriving on day one rather than `arvud` being quietly dropped to
+ * make room for it, and it barely moves the arithmetic above: `vastused`
+ * builds about two dozen cards against roughly four hundred.
  */
-export const STARTER_UNITS = 3;
+export const STARTER_UNITS = 4;
 
 /**
  * The most units first run will ever build, whoever is asking.

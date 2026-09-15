@@ -319,9 +319,20 @@ function nameForm(word: WordRow, value: string): FormName | null {
   // stored name is the precise one where there is one: "mitmuse osastav". It
   // can only stand in for a single claim, since one stored form names one slot.
   const precise = specs.length === 1 && stored ? formName(stored) : null;
+  /*
+    THE NAME IN BRACKETS IS WHAT THE CASE ASKS, NOT WHAT AN ENGLISH GRAMMAR
+    CALLS IT.
+
+    This read "the nimetav (nominative)" to somebody who has just been marked
+    wrong, which names the form twice in two languages they have met neither
+    of: the Latin name is a translation of a translation and the question is
+    the thing their own teacher says. A stored plural slot keeps its English
+    name, since "mitmuse osastav" is not a case with a question word of its
+    own and "partitive plural" is the true thing to say about it.
+  */
   const names = specs.map((spec) => ({
     et: precise?.et ?? spec.et,
-    en: precise?.en ?? spec.en.toLowerCase(),
+    en: precise?.en ?? spec.asksEn,
   }));
   return {
     names,
@@ -386,9 +397,19 @@ const CASE_BY_FORM_TYPE: Record<string, CaseKey | undefined> = {
  * Where the form cannot be named the sentence stands alone, which is still an
  * answer.
  */
-export function explainGap(word: WordRow, gap: Gap): string {
-  const named = nameForm(word, gap.answer);
-  const plain = gap.answer.toLowerCase() === word.lemma.toLowerCase();
+/**
+ * The same explanation, without the sentence in front of it.
+ *
+ * Split out for a caller that has already shown the sentence some other way,
+ * with the form marked inside it, and would otherwise print it twice: the
+ * learn ladder's gap rung reveals the sentence bolded on the form before this
+ * is read, and prepending it a second time is the exact fault the comment on
+ * `explainGap` describes about a syncretic form printed twice and explaining
+ * nothing.
+ */
+export function explainForm(word: WordRow, answer: string): string {
+  const named = nameForm(word, answer);
+  const plain = answer.toLowerCase() === word.lemma.toLowerCase();
 
   /*
     The gap is named before the case is, and it is named even when the case
@@ -407,10 +428,14 @@ export function explainGap(word: WordRow, gap: Gap): string {
       ? `The gap takes ${word.lemma} unchanged, in ${where}.`
       : `The gap takes ${word.lemma} unchanged.`
     : where
-      ? `The gap takes ${gap.answer}, which is ${word.lemma} in ${where}.`
-      : `The gap takes ${gap.answer}, a form of ${word.lemma}.`;
+      ? `The gap takes ${answer}, which is ${word.lemma} in ${where}.`
+      : `The gap takes ${answer}, a form of ${word.lemma}.`;
 
-  return [gap.full, takes + decides, named?.summary].filter(Boolean).join(" ");
+  return [takes + decides, named?.summary].filter(Boolean).join(" ");
+}
+
+export function explainGap(word: WordRow, gap: Gap): string {
+  return [gap.full, explainForm(word, gap.answer)].filter(Boolean).join(" ");
 }
 
 // ── Reading ──────────────────────────────────────────────────────────────────

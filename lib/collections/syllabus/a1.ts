@@ -11,16 +11,77 @@ import { unit } from "./types";
 
 export const A1 = [
   unit({
+    /*
+      THIRTEEN WORDS, ALONE, BEFORE ANY OF THEM ARE PUT IN A SENTENCE.
+
+      `vastused` used to be unit twenty-two of A1, gated behind `tervitused`.
+      `tervitused` is eighteen entries and every one of them is `PHRASE`:
+      `Tere hommikust!`, `Kas sa räägid inglise keelt?`, whole sentences with
+      several words inside each card. That is the right shape for "the
+      phrases that get you through a first conversation", and it was the
+      wrong first thing to put in front of somebody who does not yet know a
+      single Estonian word, cannot read the spelling, and has no way to
+      guess which of the several unfamiliar words in a six-word phrase is
+      doing the work.
+
+      So `tere` and `aitäh` come first now, alone, the way they always sat
+      in this unit's own word list, just never first in the course. `jah`
+      and `ei` follow them, then the rest of what this unit already taught:
+      agreeing, disagreeing and saying how sure you are. None of it is a
+      sentence. `tere hommikust` is `tere` plus a form of `hommik`, and both
+      of those are worth knowing on their own before they are worth
+      combining, which is what `tervitused`, now requiring this unit, and
+      `aeg` are for once this one is behind you.
+
+      Nothing about the word list or the id changed, only the order (`tere`
+      and `aitäh` moved to the front) and where the unit sits in the course.
+      Every place that reads the id `vastused`, the scenes, the readiness
+      rungs, `syllabus.test.ts`'s introducing-unit check, still finds
+      exactly what it expects.
+    */
+    id: "vastused",
+    title: "Vastused",
+    subtitle: "Hello, thank you, yes and no",
+    icon: "MessageCircle",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Say hello, say thank you, and answer a question, agree, disagree, or say how sure you are.",
+    blurb: "Thirteen words, said alone. Nothing here is a sentence yet.",
+    grammar: ["politeness"],
+    cardTypes: ["RECOGNITION", "PRODUCTION"],
+    words: [
+      ["tere", "hello", "ADVERB"],
+      ["aitäh", "thank you", "ADVERB"],
+      ["jah", "yes", "ADVERB"],
+      ["ei", "no, not", "ADVERB"],
+      ["muidugi", "of course", "ADVERB"],
+      ["kindlasti", "definitely", "ADVERB"],
+      ["vist", "probably, I think", "ADVERB"],
+      ["äkki", "maybe, suddenly", "ADVERB"],
+      ["küll", "indeed, do (an emphasizing word)", "ADVERB", 191080],
+      ["eks", "right? (asking for agreement)", "ADVERB"],
+      ["tõesti", "really", "ADVERB"],
+      ["tegelikult", "actually", "ADVERB"],
+      // An adjective, not a particle, and the one word in this unit that
+      // declines: `õige, õige, õiget`. Labeled ADVERB it would be harvested
+      // formless, get no case table and no case cards, and `npm run
+      // audit:senses` says so, because Ekilex calls it `adj`.
+      ["õige", "right, correct", "ADJECTIVE"],
+    ],
+  }),
+
+  unit({
     id: "tervitused",
     title: "Tervitused",
-    subtitle: "Greetings and getting by",
+    subtitle: "Putting words together",
     icon: "Hand",
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Greet someone, thank them, apologize, and say you do not understand.",
-    blurb: "The phrases that get you through a first conversation without grammar.",
+    blurb: "The words from Vastused, put together into the phrases that get you through a first conversation.",
     grammar: ["politeness"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
+    requires: ["vastused"],
     words: [
       ["Tere!", "Hello!", "PHRASE"],
       ["Tere hommikust!", "Good morning!", "PHRASE"],
@@ -85,7 +146,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Count, give your phone number, say a price and tell someone your age.",
-    blurb: "Counting is where the partitive first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and the ordinals put -s on the genitive, which is how you say which floor you live on.",
+    blurb: "Counting is where the osastav first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and the ordinals put -s on the omastav, which is how you say which floor you live on.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["inimesed"],
@@ -150,7 +211,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Describe your home and say where things are in it.",
-    blurb: "Things you can point at, the easiest place to meet the inessive (toas, köögis).",
+    blurb: "Things you can point at, the easiest place to meet the seesütlev (toas, köögis).",
     grammar: ["inessive", "nominative"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["inimesed"],
@@ -186,7 +247,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Order food, shop for groceries and say what you like to eat.",
-    blurb: "Enough to order, shop and read a menu. The partitive lives here (ma joon kohvi).",
+    blurb: "Enough to order, shop and read a menu. The osastav lives here (ma joon kohvi).",
     grammar: ["partitive", "object"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["kodu"],
@@ -221,7 +282,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Tell the time, name the days, and say when something happens.",
-    blurb: "Time words carry the adessive and elative constantly, hommikul, esmaspäevast.",
+    blurb: "Time words carry the alalütlev and seestütlev constantly, hommikul, esmaspäevast.",
     grammar: ["adessive", "elative", "time-expressions"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["arvud"],
@@ -688,7 +749,7 @@ export const A1 = [
     level: "A1",
     module: "Maailm ümber",
     canDo: "Say what is on, under, in front of, behind and next to what.",
-    blurb: "Most of these come after the noun and put it in the genitive: laua peal, not peal laud. A few go in front and ask for another case, and this unit has both.",
+    blurb: "Most of these come after the noun and put it in the omastav: laua peal, not peal laud. A few go in front and ask for another case, and this unit has both.",
     /*
       All four cases this unit's twenty words actually take, not the two it
       used to name. Fifteen of them take the genitive; koos takes the
@@ -738,7 +799,7 @@ export const A1 = [
     level: "A1",
     module: "Igapäevaelu",
     canDo: "Name the months, give a date, and say when your birthday is.",
-    blurb: "Twelve months, all in the inessive when something happens in them: jaanuaris, mais.",
+    blurb: "Twelve months, all in the seesütlev when something happens in them: jaanuaris, mais.",
     grammar: ["inessive", "time-expressions"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["aeg"],
@@ -864,39 +925,6 @@ export const A1 = [
   }),
 
   unit({
-    id: "vastused",
-    title: "Vastused",
-    subtitle: "Yes, no and everything between",
-    icon: "MessageCircle",
-    level: "A1",
-    module: "Esimesed sammud",
-    canDo: "Answer a question, agree, disagree, and say how sure you are.",
-    blurb: "Estonian answers a negative question with jah for yes, where English hesitates over which one it means.",
-    grammar: ["politeness"],
-    cardTypes: ["RECOGNITION", "PRODUCTION"],
-    requires: ["tervitused"],
-    words: [
-      ["jah", "yes", "ADVERB"],
-      ["ei", "no, not", "ADVERB"],
-      ["muidugi", "of course", "ADVERB"],
-      ["kindlasti", "definitely", "ADVERB"],
-      ["vist", "probably, I think", "ADVERB"],
-      ["äkki", "maybe, suddenly", "ADVERB"],
-      ["küll", "indeed, do (an emphasizing word)", "ADVERB", 191080],
-      ["eks", "right? (asking for agreement)", "ADVERB"],
-      ["tõesti", "really", "ADVERB"],
-      ["tegelikult", "actually", "ADVERB"],
-      // An adjective, not a particle, and the one word in this unit that
-      // declines: `õige, õige, õiget`. Labeled ADVERB it would be harvested
-      // formless, get no case table and no case cards, and `npm run
-      // audit:senses` says so, because Ekilex calls it `adj`.
-      ["õige", "right, correct", "ADJECTIVE"],
-      ["tere", "hello", "ADVERB"],
-      ["aitäh", "thank you", "ADVERB"],
-    ],
-  }),
-
-  unit({
     id: "maaramine",
     title: "Kui palju",
     subtitle: "How much, how often, how far",
@@ -948,6 +976,195 @@ export const A1 = [
       */
       ["üksi", "alone", "ADVERB"],
       ["aeglaselt", "slowly", "ADVERB"],
+    ],
+  }),
+  /*
+    WHAT A PERSON ARRIVING IN ESTONIA NEEDS IN THEIR FIRST MONTH, WHICH THE
+    COURSE HAD SCATTERED ACROSS THREE LEVELS.
+
+    A1 taught counting to twelve and then jumped to a hundred, so a learner
+    who had finished the numbers unit could not say a price, a phone number or
+    which floor they live on. It taught `buss`, `rong` and `pilet` inside a
+    shopping unit and left the stop, the timetable and the word for being late
+    at A2 and B1. It put `abi` at B1 and `aitama` at A2, which is to say that
+    asking for help was three units past the point where somebody needs it.
+    And the words for introducing yourself sat in four different units at
+    three levels.
+
+    The Institute's own judgment is the evidence rather than ours. Every word
+    these four units move down carries an A1 proficiency code in Ekilex:
+    `abi`, `aitama`, `appi`, `politsei`, `helistama`, `sõitma`, `jalgratas`,
+    `ootama` and `aadress` are all A1 there and were A2 or B1 here. Reading
+    that back off the same response the forms come from is what makes this a
+    correction rather than an opinion.
+
+    Nothing is taken out of the later units. A word may appear in more than one
+    and the first in course order is the one that introduces it, so `reisimine`
+    still drills `sõitma` while booking a trip and `probleemid` still drills
+    `abi` while describing what went wrong. What changes is where a learner
+    first meets them.
+
+    Appended after the existing twenty-three so that the first three units at
+    A1, which is what first run builds a deck from, stay what they were.
+  */
+  unit({
+    id: "suured-arvud",
+    title: "Suuremad arvud",
+    subtitle: "Thirteen to a million",
+    icon: "Calculator",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Say a price, a phone number, a floor and a year without running out of numbers.",
+    blurb: "Two patterns and you have the lot. The teens put -teist on the unit and the tens put -kümmend on it, so somebody who can say kolm can say kolmteist and kolmkümmend. The ordinals are -s on the omastav, which is the form a floor and a date are given in.",
+    grammar: ["numerals", "partitive"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
+    requires: ["arvud"],
+    words: [
+      ["kolmteist", "thirteen"],
+      ["neliteist", "fourteen"],
+      ["viisteist", "fifteen"],
+      ["kuusteist", "sixteen"],
+      ["seitseteist", "seventeen"],
+      ["kaheksateist", "eighteen"],
+      ["üheksateist", "nineteen"],
+      ["nelikümmend", "forty"],
+      ["viiskümmend", "fifty"],
+      ["kuuskümmend", "sixty"],
+      ["seitsekümmend", "seventy"],
+      ["kaheksakümmend", "eighty"],
+      ["üheksakümmend", "ninety"],
+      /*
+        The ordinals `arvud` stopped at five, carried on. A floor, a date, a
+        bus line and a place in a queue are all ordinals, and the five it had
+        were enough to show the pattern and not enough to use it.
+      */
+      ["kuues", "sixth", "ADJECTIVE"],
+      ["seitsmes", "seventh", "ADJECTIVE"],
+      ["kaheksas", "eighth", "ADJECTIVE"],
+      ["üheksas", "ninth", "ADJECTIVE"],
+      ["kümnes", "tenth", "ADJECTIVE"],
+      ["miljon", "million"],
+    ],
+  }),
+
+  unit({
+    id: "transport",
+    title: "Bussiga linna",
+    subtitle: "Getting about town",
+    icon: "Bus",
+    level: "A1",
+    module: "Maailm ümber",
+    canDo: "Catch a bus, ask which stop you want, and say how you got somewhere.",
+    blurb: "How you travel is the kaasaütlev and nothing else: bussiga, rongiga, jalgrattaga. Getting on and off are the inside cases, bussi and bussist, which is the same split Kus ja kuhu already taught about rooms.",
+    /*
+      The comitative leads because it is the one ending this whole subject
+      turns on and it is regular: the genitive stem plus -ga, on every word in
+      the unit. A learner who has met it here can say how they got anywhere.
+    */
+    grammar: ["comitative", "illative", "elative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CONJUGATION", "CLOZE"],
+    requires: ["kus-ja-kuhu"],
+    words: [
+      // Ekilex A1, and the course had it at A2. You cannot answer "kuidas sa
+      // tulid?" without it.
+      ["sõitma", "to travel, to ride"],
+      ["tramm", "tram"],
+      // Also a creature out of Scandinavian folklore, which Ekilex holds as
+      // the second homonym.
+      ["troll", "trolleybus", "NOUN", 246753],
+      ["takso", "taxi"],
+      // The other entry is the state of being at a loss for what to do.
+      ["peatus", "stop (bus or tram)", "NOUN", 214917],
+      ["bussijaam", "bus station"],
+      ["lennujaam", "airport"],
+      ["sadam", "port, harbour"],
+      ["jalgratas", "bicycle"],
+      ["sõit", "a ride, a journey"],
+      ["väljuma", "to depart, to leave"],
+      ["sisenema", "to go in, to enter"],
+      ["väljapääs", "way out, exit"],
+      ["sõiduplaan", "timetable"],
+      ["hilinema", "to be late"],
+      ["ootama", "to wait"],
+      ["foor", "traffic light"],
+      ["kõnnitee", "pavement, sidewalk"],
+      ["jalgsi", "on foot", "ADVERB"],
+      ["ühistransport", "public transport"],
+    ],
+  }),
+
+  unit({
+    id: "abi",
+    title: "Abi küsimine",
+    subtitle: "Asking for help, and calling for it",
+    icon: "LifeBuoy",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Ask someone for help, say what has happened, and call the right number for it.",
+    blurb: "The unit nobody wants to need and everybody does. Appi is what you shout; abi is what you ask for. The emergency number in Estonia is 112, and it is answered in Estonian, Russian and English.",
+    /*
+      The imperative, because every sentence in this unit is one: aidake,
+      kutsuge, helistage. Politeness beside it, since the difference between
+      `aita` and `aidake` is the difference between a friend and a stranger,
+      and a learner who gets that wrong at a counter has not been rude by
+      accident, they have been taught wrong.
+    */
+    grammar: ["imperative", "politeness"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CONJUGATION", "CLOZE"],
+    requires: ["tervitused"],
+    words: [
+      // The second entry is the adjective for somebody who is a help to you.
+      ["abi", "help", "NOUN", 154673],
+      ["aitama", "to help"],
+      // Ekilex calls it adv/interj. It does not inflect, so it is harvested
+      // the way every other uninflecting word in this course is.
+      ["appi", "help! (calling for help)", "ADVERB"],
+      ["politsei", "police"],
+      ["kiirabi", "ambulance"],
+      ["tuletõrje", "fire brigade"],
+      ["hädaabi", "emergency aid"],
+      ["apteek", "pharmacy"],
+      // Not the intensifier, which Ekilex holds as a second entry.
+      ["tuli", "fire", "NOUN", 247938],
+      ["ohtlik", "dangerous", "ADJECTIVE"],
+      ["varas", "thief"],
+      ["eksima", "to get lost, to go wrong"],
+      ["helistama", "to call, to phone"],
+      ["vaja", "necessary, needed", "ADVERB"],
+    ],
+  }),
+
+  unit({
+    id: "tutvumine",
+    title: "Tutvumine",
+    subtitle: "Saying who you are",
+    icon: "Handshake",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Introduce yourself, say where you live and what you do, and ask the same back.",
+    blurb: "The first conversation anybody has here, and the one that comes back every time you meet somebody new. Your name, your address, your work and one thing you like doing.",
+    grammar: ["nominative", "genitive"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
+    requires: ["inimesed"],
+    words: [
+      ["eesnimi", "first name"],
+      ["perekonnanimi", "surname"],
+      // Ekilex A1, and the course met it first at A2. It is asked for at every
+      // counter, every doctor and every parcel machine.
+      ["aadress", "address"],
+      ["elukoht", "place of residence"],
+      ["sünnikoht", "place of birth"],
+      ["sünniaeg", "date of birth"],
+      ["tutvuma", "to get to know someone"],
+      ["tutvustama", "to introduce"],
+      ["tuttav", "acquaintance"],
+      ["kolleeg", "colleague"],
+      ["sõbranna", "a female friend"],
+      ["hobi", "hobby"],
+      ["huvi", "interest"],
+      ["meeldiv", "pleasant", "ADJECTIVE"],
+      ["abielus", "married", "ADVERB"],
+      ["vallaline", "unmarried, single", "ADJECTIVE"],
     ],
   }),
 ] as const;

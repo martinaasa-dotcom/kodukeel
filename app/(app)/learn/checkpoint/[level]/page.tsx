@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { LEVELS, checkpointFor, wordsAtLevel, type Level } from "@/lib/collections/syllabus";
 import { buildCheckpoint, type CheckpointWord } from "@/lib/collections/checkpoint";
@@ -47,8 +48,8 @@ export default async function CheckpointPage({
   const rows = oneEntryPerLemma(found, lemmas);
 
   const words: CheckpointWord[] = rows.map((row) => ({
-    lemma: row.lemma,
-    gloss: row.translation,
+    lemma: plainPhrase(row.lemma),
+    gloss: plainPhrase(row.translation),
     pos: row.pos,
     examples: parseExamples(row.examples).map((e) => e.et),
     parts: Object.fromEntries(

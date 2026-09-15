@@ -16,7 +16,7 @@ import { useFeedbackSound } from "@/components/AudioPrefs";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export type Tense = "present" | "conditional";
 
@@ -304,19 +304,19 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
           {!revealed ? (
             <Button variant="primary" onClick={check}>
-              Check the table <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check the table <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <>
-              <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-                {derivedOnly
-                  ? "Regular endings on the first person, checked against Ekilex for every verb in this dictionary."
-                  : "Forms as Ekilex records them."}
-              </p>
+              {derivedOnly && (
+                <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+                  Regular endings on the first person.
+                </p>
+              )}
               <KeepWordChoice keeper={keeper} className="mt-4" />
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button variant="primary" onClick={next} autoFocus>
-                  Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                  Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
                 {!question.inDeck && (
                   <>
@@ -345,8 +345,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         </div>
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
-        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · Enter moves down the table
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
+        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · {ADVANCE_KEY_LABEL} moves down the table
       </p>
     </div>
   );

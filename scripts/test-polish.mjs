@@ -22,9 +22,10 @@ check("every form in the table is marked as Estonian", marked >= 14, `${marked} 
 
 // Searching an inflected form — what a learner actually meets in class.
 for (const [query, lemma, why] of [
-  // Estonian first, English in brackets after it (ADR-023). Both names, because
-  // a learner reads this next to an English grammar and next to their homework.
-  ["toas", "tuba", /seesütlev \(inessive\)/i],
+  // Estonian first, and then what the case asks rather than the Latin name:
+  // a learner told `toas` is "the inessive" has been handed a translation of a
+  // translation. See `lib/estonian/cases.ts`.
+  ["toas", "tuba", /seesütlev \(what is it in\?/i],
   ["lugesin", "lugema", /lihtminevik ma/i],
   ["tubadega", "tuba", /mitmuse kaasaütlev/i],
 ]) {

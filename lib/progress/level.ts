@@ -1,5 +1,6 @@
 import { latestFor } from "@/lib/progress/assessment";
 import { readSettings, SETTING_KEYS, writeSetting } from "@/lib/settings/store";
+import { wakeForLevel } from "@/lib/progress/deferrals";
 import { LEVELS, type Level } from "@/lib/collections/syllabus";
 import { BANDS, PRE_A1, type Level as AssessedLevel } from "@/lib/assessment/types";
 
@@ -119,5 +120,17 @@ export async function recordCourseLevel(ownerId: string, level: Level, now = new
   await Promise.all([
     writeSetting(ownerId, SETTING_KEYS.cefrPlacement, level),
     writeSetting(ownerId, SETTING_KEYS.cefrPlacementAt, now.toISOString()),
+    /*
+      AND THE WORDS THAT WERE WAITING FOR THIS LEVEL COME BACK.
+
+      "Too complicated" on a word above the learner's band says it waits until
+      they get there, and this is the moment they get there. Done where the
+      fact changes rather than on a read path: a level moves about twice a
+      year and the alternative is every screen that serves a card asking
+      whether one has. A word waiting for a band it has not reached is
+      untouched, and so is a card the scheduler had honestly put further out
+      (`lib/progress/deferrals.ts`).
+    */
+    wakeForLevel(ownerId, level, now),
   ]);
 }

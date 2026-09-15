@@ -164,7 +164,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       <Page title="Dictation" lead="Hear a sentence, write it down.">
         <Empty
           title="No sentences short enough yet"
-          body="Dictation only uses short Ekilex sentences for words already in your deck."
+          body="Dictation only uses short sentences for words already in your deck."
           action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
         />
       </Page>
@@ -296,7 +296,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
                   autoplay
                   onPlay={() => setPlayed(true)}
                   onUnavailable={() => setNoAudio(true)}
-                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5"
+                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
                 <div className="flex items-center gap-3">
@@ -375,7 +375,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
       </div>
 
       <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} word-perfect of {done} · graded word by word, sentences from Ekilex
+        {correct} word-perfect of {done} · graded word by word
       </p>
     </div>
   );

@@ -417,7 +417,7 @@ function Keys({ marks, onLetter, onDelete, onSubmit }: {
         Drawn from the same `HUE` and `RING` tables the circles are, so a
         legend cannot go on describing a colour the board has stopped using.
       */}
-      <ul className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <ul className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12px]" style={{ color: "var(--ink-3)" }}>
         {(["here", "elsewhere", "absent"] as const).map((mark) => (
           <li key={mark} className="flex items-center gap-1.5">
             <span

@@ -16,7 +16,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
-import { englishName } from "@/lib/games/flash";
+import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -390,7 +390,7 @@ function Question({
  * worse than the name it replaced.
  */
 function SlotLine({ task }: { task: FlashPrompt }) {
-  const english = englishName(task.slot);
+  const english = asksInEnglish(task.slot);
   const plain = plainAskFor(task);
   return (
     <div className="mt-5">
@@ -442,7 +442,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
  */
 function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
   const spec = caseByKey(task.slot);
-  const english = englishName(task.slot);
+  const english = asksInEnglish(task.slot);
   /*
     Recalled, nearly, or missed. `mark.right` with the middle rating is a
     diacritic somebody dropped or a slip of one letter, which `checkAnswer`
@@ -481,7 +481,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         >
           {task.shown.join(" / ")}
         </p>
-        <p className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
           <span lang="et" data-flash-slot="">{task.label}</span>
           {english && <> · the {english}</>}
         </p>
@@ -519,7 +519,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         </>
       )}
 
-      <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
           ? "This form is the one the dictionary records."
           : "This form is worked out from the stem the dictionary records."}{" "}
@@ -553,7 +553,7 @@ function Standing({ task }: { task: FlashPrompt }) {
           short of the variety is the ordinary state of a word this round is
           about, and it is what the sentence has to say plainly.
         */}
-      <p className="mt-2 text-center text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-2 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{task.lemma}</span>:{" "}
         {correct >= needCorrect
           ? `right ${correct} times`

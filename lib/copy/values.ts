@@ -49,6 +49,30 @@ export function sameSpelling(estonian: string, english: string): boolean {
 export const SAME_SPELLING = "Spelled the same in English.";
 
 /**
+ * A phrase's own capital letter and exclamation mark, dropped for word
+ * learning.
+ *
+ * `Tere hommikust!` is filed with its capital `T` and its mark because that
+ * is how a greeting is written down, and the dictionary entry keeps printing
+ * it exactly as stored: this app edits neither the lemma nor the Estonian it
+ * holds. A flashcard is a different screen. Every other word on one opens
+ * lower case (`õpetaja`, not `Õpetaja`), the mark carries no answer of its
+ * own since `checkAnswer` already strips punctuation before comparing, and
+ * printed on the front, the back and the reveal it reads as the app
+ * shouting the greeting rather than teaching it.
+ *
+ * Trailing `!` only, and only where the text actually ends on one, so a
+ * question a phrase genuinely asks (`Kuidas läheb?`) keeps its mark. The
+ * first letter is lowered the way a lemma already is everywhere else in the
+ * dictionary, which is safe here because no phrase in it opens on a proper
+ * noun.
+ */
+export function plainPhrase(text: string): string {
+  const trimmed = text.replace(/!+\s*$/, "").trimEnd();
+  return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1) : trimmed;
+}
+
+/**
  * What a word's English says when nothing has supplied one yet.
  *
  * An instruction rather than a marker, because the person reading it is the

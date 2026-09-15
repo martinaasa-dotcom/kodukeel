@@ -1,5 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Sparkles, Target, TriangleAlert } from "lucide-react";
+import { CaseQuestion } from "@/components/CaseQuestion";
+import { Puzzle, Sparkles, Target, TriangleAlert } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -91,6 +92,40 @@ export default async function GrammarIndexPage() {
             </div>
           </div>
         </Card>
+
+        {/*
+          THE INTERACTIVE VERSION OF THE CARD ABOVE, FIRST, BECAUSE THE CARD
+          ABOVE IS AN ASSERTION.
+
+          The strip says eleven endings are arithmetic and shows one word
+          wearing them. Somebody meeting the case system for the first time
+          needs to do it once rather than read it once: pick a word, see which
+          three forms are stored, watch an ending go onto the second of them,
+          and read the result inside a sentence somebody wrote. That is
+          `/grammar/build-a-word`, and it is the screen this page is the reference
+          for rather than a mode beside it.
+        */}
+        <Link
+          href="/grammar/build-a-word"
+          className="lift flex items-start gap-4 rounded-[var(--r-lg)] border p-5"
+          style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+        >
+          <span
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+            style={{ background: "var(--accent-deep)", color: "var(--accent-ink)" }}
+          >
+            <Puzzle size={19} aria-hidden />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-lg font-bold" style={{ color: "var(--ink)" }}>
+              Build a word
+            </span>
+            <span className="mt-1.5 block text-sm" style={{ color: "var(--ink-2)" }}>
+              Pick a word, see the three forms it stores, and stack the eleven endings on one at a
+              time. Each with what it means and a sentence using it.
+            </span>
+          </span>
+        </Link>
 
         {/*
           WHERE THE PATTERN STOPS, LINKED FROM THE PAGE THAT TEACHES IT.
@@ -231,7 +266,7 @@ export default async function GrammarIndexPage() {
                       <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                         <span lang="et">{ref.spec.et}</span>
                         {" · "}
-                        <span lang="et">{ref.spec.question}</span>
+                        <CaseQuestion question={ref.spec.question} inline />
                       </span>
                     </Link>
                   </li>
@@ -320,7 +355,7 @@ export default async function GrammarIndexPage() {
                             {term && (
                               <span className="mt-auto pt-1 text-xs" style={{ color: "var(--ink-3)" }}>
                                 <span lang="et">{term.et}</span>
-                                {term.question && <> · <span lang="et">{term.question}</span></>}
+                                {term.question && <> · <CaseQuestion question={term.question} inline /></>}
                               </span>
                             )}
                           </Link>
@@ -335,8 +370,8 @@ export default async function GrammarIndexPage() {
         </section>
 
         <Note tone="neutral">
-          Endings go on the genitive singular for the singular column and the genitive plural for
-          the plural one. Where the dictionary has no genitive plural, a case table shows a gap
+          Endings go on the omastav singular for the singular column and the omastav plural for
+          the plural one. Where the dictionary has no omastav plural, a case table shows a gap
           rather than a guess.
         </Note>
 

@@ -1,0 +1,317 @@
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { prisma } from "@/lib/db";
+import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
+import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay } from "@/lib/progress/course";
+import { dayClock } from "@/lib/time/day";
+
+/**
+ * WHERE SOMEBODY IS IN THE PLANNED COURSE, AGAINST A REAL DATABASE.
+ *
+ * `lib/course/` is unit tested without one and answers the question "given
+ * these finished steps, which day is current". This file answers the one it
+ * cannot: which steps are finished, given a deck and a review log. Both of the
+ * faults below were found by driving two evenings in a browser rather than by
+ * reading, and neither is visible to a unit test, because a unit test hands
+ * the reading a day that was already current and a set of steps that was
+ * already decided.
+ *
+ * THE FIRST IS THE DAY THE READING ADVANCES TO. Resolving the current day's
+ * two derived steps can finish it, and the day after was then drawn with its
+ * own two unknown: a learner who had met tomorrow's words through Learn saw
+ * tomorrow at nought percent with "meet the words" waiting for them.
+ *
+ * THE SECOND IS THE CLOSING ROUND'S WINDOW. It opened at the most recent tick
+ * anywhere in the programme, so ticking the first round of Tuesday's module
+ * moved the window past Monday's answers, Monday stopped being finished, and
+ * the learner was sent back to a day they had done.
+ */
+
+const OWNER = "itest-owner-course";
+const CLOCK = dayClock("Europe/Tallinn");
+const PROGRAMME = PROGRAMMES[0]!;
+
+/*
+  A CLOCK THE TEST OWNS, which is this repository's own rule about a unit test
+  and is the fault this file was written with. The fixtures anchored on
+  "an hour ago", and the closing round's window opens at the later of the
+  evening's last tick and the learner's own midnight: run at 00:40 in Tallinn,
+  "an hour ago" is yesterday, the window opened at midnight, and three checks
+  failed on the time of day rather than on anything in the code. So `NOW` is a
+  fixed mid-evening instant and every fixture time is built from it.
+*/
+const NOW = new Date("2026-05-13T18:00:00Z");
+/** Mid-evening in Tallinn, comfortably inside the learner's own day. */
+const EVENING = new Date(NOW.getTime() - 60 * 60_000);
+
+async function wipe() {
+  await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.review.deleteMany({ where: { ownerId: OWNER } });
+  await prisma.card.deleteMany({ where: { ownerId: OWNER } });
+}
+
+/**
+ * The recognition cards a day's words need, answered or not.
+ *
+ * IT STATES ITS PRECONDITION RATHER THAN INHERITING IT, which is this
+ * repository's own rule and is what this file was missing. Every reading below
+ * is about a deck, and a deck is built out of the shipped dictionary: run
+ * after a suite that empties or edits it, the cards simply fail to appear, the
+ * day never finishes, and the failure reads as the pointer stalling on a day
+ * it has already passed. That cost an hour once. Here it fails in seven
+ * milliseconds and names the command.
+ */
+async function deck(words: readonly string[], state: number) {
+  const wanted = [...new Set(words)];
+  const lexemes = await prisma.lexeme.findMany({
+    where: { lemma: { in: wanted } }, select: { id: true, lemma: true },
+  });
+  const held = new Set(lexemes.map((l) => l.lemma));
+  const missing = wanted.filter((w) => !held.has(w));
+  expect(
+    missing, `the dictionary cannot supply ${missing.length} of the ${wanted.length} words these `
+    + "evenings teach, so no deck can be built and every reading below is about nothing. Run "
+    + "`npm run db:seed`: a suite that empties or edits the dictionary ran first",
+  ).toEqual([]);
+  for (const lexeme of lexemes) {
+    await prisma.card.create({
+      data: {
+        ownerId: OWNER, lexemeId: lexeme.id, cardType: "RECOGNITION",
+        front: "x", back: "y", state,
+        due: new Date(), stability: 0, difficulty: 0, elapsedDays: 0,
+        scheduledDays: 0, reps: 0, lapses: 0, learningSteps: 0,
+      },
+    });
+  }
+  return lexemes.length;
+}
+
+/** The steps of a day that a learner ticks, in order, with real timestamps. */
+async function tick(dayId: string, stepIds: readonly string[], at: Date) {
+  for (const [n, stepId] of stepIds.entries()) {
+    await prisma.courseStep.create({
+      data: {
+        ownerId: OWNER, programmeId: PROGRAMME.id, dayId, stepId,
+        createdAt: new Date(at.getTime() + n * 1000),
+      },
+    });
+  }
+}
+
+async function review(n: number, at: Date) {
+  const card = await prisma.card.findFirst({ where: { ownerId: OWNER }, select: { id: true, lexemeId: true } });
+  for (let i = 0; i < n; i += 1) {
+    await prisma.review.create({
+      data: {
+        ownerId: OWNER, cardId: card!.id, lexemeId: card!.lexemeId,
+        rating: 3, durationMs: 4000, reviewedAt: new Date(at.getTime() + i * 1000),
+      },
+    });
+  }
+}
+
+const ticked = (day: (typeof PROGRAMME.days)[number]) =>
+  day.steps.filter((s) => !s.derived).map((s) => s.id);
+
+beforeEach(wipe);
+afterAll(async () => { await wipe(); await prisma.$disconnect(); });
+
+describe("which day is current", () => {
+  it("starts on day one with an empty deck", async () => {
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(MEET_STEP);
+    expect(reading.finishedToday).toBe(false);
+  });
+
+  it("proves the meet step off the deck rather than off a tick", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.done.has(MEET_STEP)).toBe(true);
+    /* Nothing was ticked, so nothing was written: the log is the proof. */
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER } })).toBe(0);
+  });
+
+  it("does not count a word the learner has never been asked about", async () => {
+    await deck(PROGRAMME.days[0]!.words, 0);
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.done.has(MEET_STEP)).toBe(false);
+  });
+
+  it("proves the closing round off answers given after the evening's own ticks", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+    await review(CLOSING_REVIEW, new Date(at.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+    expect(reading.finishedToday).toBe(true);
+  });
+
+  it("does not count answers given before the evening's rounds", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const at = EVENING;
+    await review(CLOSING_REVIEW, new Date(at.getTime() - 60_000));
+    await tick(one.id, ticked(one), at);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+});
+
+describe("the two faults a browser found", () => {
+  /*
+    Made to fail on the real code first: with the resolution loop removed, day
+    two comes back at nought percent with its meet step waiting, on a deck
+    where every one of its words has been answered.
+  */
+  it("resolves the day it advances to, not only the day it started on", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck([...one.words, ...two.words], 1);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+    await review(CLOSING_REVIEW, new Date(at.getTime() + 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(2);
+    /* The words are met, so day two opens part way through rather than at nothing. */
+    expect(reading.current?.done.has(MEET_STEP)).toBe(true);
+    expect(reading.current?.next?.id).not.toBe(MEET_STEP);
+    expect(reading.current?.pct).toBeGreaterThan(0);
+  });
+
+  /*
+    Made to fail on the real code first: with one window for the whole
+    programme, ticking day two's first round moves it past day one's answers
+    and day one stops being finished.
+  */
+  it("keeps a finished day finished when the next one is started", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck([...one.words, ...two.words], 1);
+    const monday = new Date(NOW.getTime() - 3 * 60 * 60_000);
+    await tick(one.id, ticked(one), monday);
+    await review(CLOSING_REVIEW, new Date(monday.getTime() + 60_000));
+
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).daysDone).toBe(1);
+
+    /* An hour later, the first round of the next module. */
+    await tick(two.id, [ticked(two)[0]!], EVENING);
+
+    const after = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(after.daysDone, "day one stopped being finished").toBe(1);
+    expect(after.current?.day.index).toBe(2);
+  });
+});
+
+describe("a course that has to survive a midnight", () => {
+  /** Every non-derived step of a day, and the five answers that close it. */
+  async function evening(day: (typeof PROGRAMME.days)[number], at: Date) {
+    await tick(day.id, ticked(day), at);
+    await review(CLOSING_REVIEW, new Date(at.getTime() + 60_000));
+  }
+
+  /*
+    THE FAULT THIS WAS WRITTEN FOR, AND IT SHIPPED.
+
+    The closing round's window opened at the later of the day's last tick and
+    the learner's own midnight, which is the same window on the evening itself
+    and a different one every morning after. A module finished at nine last
+    night had its window moved to midnight, the answers that closed it stopped
+    counting, and the learner opened the app to the module they had already
+    done. Every test in this file ran inside one day, so nothing could see it:
+    made to fail by putting the floor back, and it comes back as day one.
+  */
+  it("keeps last night's module finished this morning", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck([...one.words, ...two.words], 1);
+    await evening(one, new Date(NOW.getTime() - 24 * 60 * 60_000));
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone, "last night's module came back").toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+    /* And it does not claim this morning as the evening that finished it. */
+    expect(reading.finishedToday).toBe(false);
+  });
+
+  /*
+    AND THE POINTER MAY NOT STALL ON A LONG PROGRAMME.
+
+    It used to be recomputed from the top: by ticks alone every day is
+    unfinished, since two steps of each are proved off the log and written
+    nowhere, so the reading walked from day one asking the log about every day
+    it passed, under a cap. Past the cap the learner was held for ever on
+    whichever evening the cap fell on. Made to fail by recomputing from day
+    one with the old cap, which answers day four here.
+  */
+  it("stands on the day reached however many evenings are behind it", async () => {
+    const days = PROGRAMME.days.slice(0, 6);
+    await deck(days.flatMap((d) => d.words), 1);
+    for (const [i, d] of days.slice(0, 5).entries()) {
+      await evening(d, new Date(NOW.getTime() - (4 - i) * 24 * 60 * 60_000));
+    }
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(5);
+    expect(reading.current?.day.index).toBe(6);
+    /* The fifth evening was this one, and that is what "come back tomorrow" is
+       a claim about. It used to be read off day one and so was reachable on
+       the first evening alone. */
+    expect(reading.finishedToday, "the evening it just finished").toBe(true);
+  });
+
+  /*
+    An evening's own answers close that evening and no other. Under the old
+    floor, finishing one module and pressing "start the next one now" drew the
+    next day with its closing round already satisfied by the round that had
+    just closed the last one.
+  */
+  it("does not let one round of answers close two evenings", async () => {
+    const [one, two] = [PROGRAMME.days[0]!, PROGRAMME.days[1]!];
+    await deck([...one.words, ...two.words], 1);
+    await evening(one, EVENING);
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(2);
+    expect(reading.current?.done.has(REVIEW_STEP), "tomorrow's round is not done").toBe(false);
+  });
+});
+
+describe("the day an action may write about", () => {
+  it("takes the day reached, and the one it opens on to", async () => {
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[0]!)).toBe(true);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[1]!)).toBe(true);
+  });
+
+  /*
+    A forged day id is the whole reason this exists: a tick is the pointer, so
+    one written on a day nobody has reached would move the course onto it, and
+    `startCourseDay` would build a deck out of that day's words.
+  */
+  it("refuses a day nobody has reached", async () => {
+    await deck(PROGRAMME.days[0]!.words, 1);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days[4]!)).toBe(false);
+    expect(await dayIsInPlay(OWNER, PROGRAMME, PROGRAMME.days.at(-1)!)).toBe(false);
+  });
+});
+
+describe("the closing round's own counter", () => {
+  it("counts up to what the day needs and no further", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id))
+      .toEqual({ graded: 0, needed: CLOSING_REVIEW });
+
+    await review(CLOSING_REVIEW + 7, new Date(at.getTime() + 60_000));
+    expect(await closingProgress(OWNER, PROGRAMME, one.id))
+      .toEqual({ graded: CLOSING_REVIEW, needed: CLOSING_REVIEW });
+  });
+});

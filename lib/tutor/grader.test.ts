@@ -5,7 +5,7 @@ import type { WritingTask } from "@/lib/estonian/writing";
 
 const task: WritingTask = {
   lemma: "tuba", translation: "room", caseKey: "INESSIVE",
-  caseEn: "Inessive", caseEt: "seesütlev", caseQuestion: "milles? kus?",
+  caseEt: "seesütlev", caseQuestion: "milles? kus?",
   targetForm: "toas",
   alsoRight: null, provenance: "ekilex",
 };

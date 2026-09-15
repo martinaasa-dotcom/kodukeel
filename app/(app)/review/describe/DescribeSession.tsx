@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
@@ -15,6 +16,7 @@ import type { WithholdReason } from "@/lib/tutor/verify";
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 
 export interface ScenePrompt {
   sceneId: string;
@@ -38,7 +40,6 @@ export interface ScenePrompt {
   askTranslation: string;
   caseKey: string;
   caseEt: string;
-  caseEn: string;
   caseQuestion: string;
 }
 
@@ -254,8 +255,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
             {prompt.caseEt}
           </p>
+          {/* What the question asks, rather than the Latin name, which was the
+              only English on the line and is the one word here a learner
+              cannot cash in. See `lib/estonian/cases.ts`. */}
           <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
-            <span lang="et">{prompt.caseQuestion}</span> · the {prompt.caseEn.toLowerCase()}
+            <CaseQuestion question={prompt.caseQuestion} inline />
           </p>
 
           <div className="mt-6">
@@ -298,7 +302,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             >
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">⌘ Enter</KeyCap></>}
+                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
@@ -309,7 +313,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the case is checked. That check is the reliable half.
         </p>
       )}

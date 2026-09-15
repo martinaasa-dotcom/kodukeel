@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { ButtonLink } from "@/components/Button";
@@ -115,7 +116,7 @@ export default async function ListeningPage() {
       // back to: it is four options or it is nothing.
       if (!picked) continue;
       listeningCards.push({
-        id: c.id, lemma: c.lexeme?.lemma ?? c.front, correct, choices: picked.options, reps: c.reps,
+        id: c.id, lemma: plainPhrase(c.lexeme?.lemma ?? c.front), correct, choices: picked.options, reps: c.reps,
         lexemeId: c.lexemeId,
         starred: !!c.lexemeId && starred.has(c.lexemeId),
       });

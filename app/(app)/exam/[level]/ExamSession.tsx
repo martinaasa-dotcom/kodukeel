@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
 import {
   CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw,
@@ -633,8 +634,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             The dictionary could only fill {fillRate} percent of this paper, so some tasks are
             shorter than a full paper. Each part is marked on what was actually set, not on what
             should have been there, and your result will explain the shortfall. Add more words to
-            your deck and this fills in over time. Running this yourself? Adding an Ekilex key
-            fills it in right away.
+            your deck and this fills in over time. Running this yourself? Turning on live
+            dictionary lookups fills it in right away.
           </Note>
         )}
       </div>
@@ -837,7 +838,12 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="ml-2">
               in the <span lang="et">{item.caseEt}</span>
               <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              <span style={{ color: "var(--ink-3)" }}> the {item.caseEn.toLowerCase()}</span>
+              {/* What that asks, rather than the Latin name. The paper is
+                  marked on the form the candidate writes, so saying which form
+                  is wanted in words they have met gives nothing away; being
+                  unable to read the instruction is not the thing being
+                  measured. See `lib/estonian/cases.ts`. */}
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <Options
@@ -863,7 +869,15 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
           )}
           <Options
             name={item.id}
-            options={item.options.map((o) => ({ value: o.key, label: o.et, hint: o.question }))}
+            /* The hint under each option is the question that case answers,
+               and what it is asking: a list of Estonian question words is a
+               list of Estonian to a candidate, and which case a verb pairs
+               with is the one thing in this language nobody can reason out. */
+            options={item.options.map((o) => ({
+              value: o.key,
+              label: o.et,
+              hint: [o.question, questionInEnglish(o.question)].filter(Boolean).join(" · "),
+            }))}
             selected={response?.kind === "chosen" ? response.value : null}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
             columns
@@ -881,13 +895,18 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="ml-2">
               in the <span lang="et">{item.caseEt}</span>
               <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              <span style={{ color: "var(--ink-3)" }}> the {item.caseEn.toLowerCase()}</span>
+              {/* What that asks, rather than the Latin name. The paper is
+                  marked on the form the candidate writes, so saying which form
+                  is wanted in words they have met gives nothing away; being
+                  unable to read the instruction is not the thing being
+                  measured. See `lib/estonian/cases.ts`. */}
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`${item.caseEt} of ${item.lemma}, the ${item.caseEn.toLowerCase()}`}
+            ariaLabel={`${item.caseEt} of ${item.lemma}, ${questionInEnglish(item.caseQuestion)}`}
             placeholder="Write the form"
           />
         </div>
@@ -1127,7 +1146,7 @@ function OrderQuestion({ item, number, built, onBuild }: {
               key={`${word}-${index}`}
               type="button"
               onClick={() => onBuild(built.filter((_, i) => i !== index))}
-              className="press min-h-[44px] rounded-[var(--r-sm)] px-3 py-2 text-md transition-ui hover:-translate-y-0.5"
+              className="press min-h-[44px] rounded-[var(--r-sm)] px-3 py-2 text-md transition-ui hover:scale-[1.02]"
               style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
             >
               {word}

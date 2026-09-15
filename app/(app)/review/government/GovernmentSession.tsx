@@ -10,10 +10,10 @@ import { Chip, KeyCap, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { CASES } from "@/lib/estonian/cases";
+import { CASES, questionInEnglish } from "@/lib/estonian/cases";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import type { CaseKey } from "@/lib/estonian/types";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -23,7 +23,14 @@ export interface GovernmentQuestion {
   translation: string;
   cefr: string | null;
   answer: CaseKey;
-  answerEn: string;
+  /**
+   * The Estonian question the governed case answers, so the line after the
+   * answer can say what it asks rather than naming it in Latin. A learner
+   * being told a verb "governs the alaleütlev, the allative" has been handed
+   * the one fact in this language nobody can reason out, in two names they
+   * have met neither of.
+   */
+  answerQuestion: string;
   answerEt: string;
   /** The other cases this word governs, kept out of the options and named after. */
   alsoGoverned: CaseKey[];
@@ -235,7 +242,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                         that is how the answer is said out loud: "aitama" takes
                         "keda?", not "the partitive". */}
                     <span lang="et" className="block text-base font-medium">{spec?.question}</span>
-                    <span lang="et" className="block text-[12.5px]">{spec?.et}</span>
+                    {/* And what that is asking, because a list of question
+                        words is a list of Estonian to somebody who has not met
+                        them: see `lib/estonian/cases.ts`. */}
+                    <span className="block text-[13px]">{questionInEnglish(spec?.question)}</span>
+                    <span lang="et" className="block text-[13px]" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
                 </button>
@@ -269,7 +280,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
                 ? `Here the person goes in the ${question.answerEt}, and the thing itself is the subject.`
-                : `${question.lemma} governs the ${question.answerEt}, the ${question.answerEn.toLowerCase()}. English gives you no clue here, so it has to be learned with the verb.`}
+                : `${question.lemma} governs the ${question.answerEt}${questionInEnglish(question.answerQuestion) ? `, the one that asks ${questionInEnglish(question.answerQuestion)}` : ""}. English gives you no clue here, so it has to be learned with the verb.`}
             </p>
             {/*
               A verb often governs more than one case, in different senses.
@@ -296,7 +307,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             <KeepWordChoice keeper={keeper} className="mt-4" />
             <div className="mt-4 flex flex-wrap gap-2">
               <Button variant="primary" onClick={next} autoFocus>
-                Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </Button>
               {!question.inDeck && (
                 <>
@@ -315,7 +326,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         )}
       </div>
 
-      <p className="mt-4 text-center text-[11.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
         {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer
       </p>
     </div>

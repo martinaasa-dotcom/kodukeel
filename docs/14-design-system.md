@@ -170,8 +170,8 @@ others. A reader does not see half a pixel; they see a page that will not settle
 
 | Step | px | Job |
 |---|---|---|
-| `text-2xs` | 11.5 | micro-label: uppercase, tracked, sparingly. **The floor** |
-| `text-xs` | 12.5 | captions, meta, provenance |
+| `text-2xs` | 12 | micro-label: uppercase, tracked, sparingly. **The floor** |
+| `text-xs` | 13 | captions, meta, provenance |
 | `text-sm` | 13.5 | secondary body, dense UI |
 | `text-base` | 15 | body |
 | `text-md` | 17 | lead paragraphs, card titles |
@@ -204,7 +204,7 @@ apart. `--section-gap` on `.landing` is the one distance now, 88px on a phone an
 `md`: `main` is a column with that gap, no section carries vertical padding, and the footer
 stands the same distance off the close. `test-design.mjs` measures every seam against it.
 
-11.5px is a floor, not a suggestion: below it an uppercase label stops being readable on a phone
+12px is a floor, not a suggestion: below it an uppercase label stops being readable on a phone
 held at arm's length in the evening, which is when this app is actually used. `.label-xs` sits on
 that floor. The one thing off the scale is the step numeral behind the landing page's how-it-works
 cards. That is ornament, not type.

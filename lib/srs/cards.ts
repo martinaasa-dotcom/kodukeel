@@ -1,8 +1,10 @@
+import { plainPhrase } from "@/lib/copy/values";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, localCasesFor } from "@/lib/estonian/caseQuestion";
 import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
@@ -322,7 +324,10 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
   for (const type of types) {
     switch (type) {
       case "RECOGNITION":
-        out.push({ cardType: type, front: lex.lemma, back: lex.translation, hint: null, targetCase: null, slot: null });
+        out.push({
+          cardType: type, front: plainPhrase(lex.lemma), back: plainPhrase(lex.translation),
+          hint: null, targetCase: null, slot: null,
+        });
         break;
 
       case "PRODUCTION": {
@@ -344,8 +349,8 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         const answers = [lex.lemma, ...(lex.alsoAccepted ?? []).filter((w) => w !== lex.lemma)];
         out.push({
           cardType: type,
-          front: lex.translation,
-          back: answers.join(" / "),
+          front: plainPhrase(lex.translation),
+          back: answers.map(plainPhrase).join(" / "),
           hint: lex.pos.toLowerCase(),
           targetCase: null,
           slot: null,
@@ -487,9 +492,31 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         */
         const askedMeaning = [lex.translation];
         const meaning = askedMeaning.find((line) => !mentions(line, genSg)) ?? null;
+        const front = `${lex.lemma} → ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`;
+        /*
+          AND THE QUESTION ITSELF CAN BE THE ANSWER, WHICH IS THE TWO WORDS
+          EVERY BEGINNER MEETS FIRST.
+
+          The hint was already held off the answer two lines up, and the front
+          never was, on the argument that it is the lemma and a word is not its
+          own genitive. It is the lemma *and the question*, and the genitive's
+          question words are `kelle?` and `mille?`, which are the genitives of
+          `kes` and `mis`. So `kes → kelle? mille?` wanted `kelle` and
+          `mis → kelle? mille?` wanted `mille`: a card nobody can fail, on the
+          two commonest question words in the language, in the A1 unit that
+          teaches them. The scheduler reads every pass as a recall and the deck
+          slot is spent for ever, which is the fault `CASE_FORM` was corrected
+          for one branch over.
+
+          Drawn on the whole front rather than on the two words, because what
+          is wrong is that the answer is printed in the question and the
+          question is built from a table this file does not own. Measured over
+          the shipped dictionary: 1,045 gradation cards, and these are the two.
+        */
+        if (mentions(front, genSg)) break;
         out.push({
           cardType: type,
-          front: `${lex.lemma} → ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`,
+          front,
           back: genSg,
           hint: meaning ? `${meaning} · astmevaheldus` : "astmevaheldus · consonant gradation",
           targetCase: "GENITIVE",
@@ -633,10 +660,35 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         // vouches for it.
         const byValue = gapForms(lex);
 
+        /*
+          AND NOT A PLURAL, WHICH `gapForms` CANNOT TELL FROM ITS SINGULAR.
+
+          `caseFromMorphCode` reads `SgIn` and `PlIn` alike as `INESSIVE`,
+          "ignoring number" by its own comment, so an enriched entry's stored
+          plural paradigm (`tubadega`, morphCode `PlKom`, a real row: see
+          `lib/dict/edit.itest.ts`) sits in `byValue` under the very case key
+          its singular does. `lib/progress/caseExamples.ts` already guards
+          this exact hazard with `numberFromMorphCode(...) === "SINGULAR"`;
+          this module never had the matching guard, so a CLOZE card could gap
+          a plural nobody has been taught the formation of and write it into
+          `Review.slot` as though it were the singular case beside it, which
+          is the fault `readCase` exists to keep out of `CASE_FORM` two card
+          types up. `gapForms` itself stays as wide as it is, since
+          `lib/games/exceptions.ts` legitimately drills a plural it has
+          already shown at its own meet rung; this narrows only what a fresh
+          CLOZE card, which shows no such rung, may reach for.
+        */
+        const plural = new Set(
+          lex.forms
+            .filter((f) => numberFromMorphCode(f.morphCode) === "PLURAL")
+            .map((f) => f.value.trim().toLowerCase()),
+        );
+        const clozeForms = [...byValue.keys()].filter((f) => !plural.has(f));
+
         let built = 0;
         for (const example of examples) {
           if (built >= MAX_CLOZE_PER_WORD) break;
-          const cloze = buildCloze(example.et, [...byValue.keys()]);
+          const cloze = buildCloze(example.et, clozeForms);
           if (!cloze) continue;
           /*
             The lemma is given deliberately: this asks for the right *form*,

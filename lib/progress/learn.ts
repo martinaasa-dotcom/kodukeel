@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { challengeFirst } from "@/lib/collections/levels";
+import { hardWords } from "@/lib/dict/facts";
+import { deferredWordIds } from "@/lib/progress/deferrals";
+import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { decoyOptions } from "@/lib/dict/facts";
@@ -11,8 +15,9 @@ import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/exam
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { buildCloze, mentions } from "@/lib/estonian/cloze";
+import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
   LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
 } from "@/lib/learn/ladder";
@@ -142,6 +147,21 @@ export interface LearnWord {
      * spelled the same in both languages puts it in the English too.
      */
     hint: string | null;
+    /**
+     * Why the answer is not simply the lemma, in the same one line the
+     * writing exercise already gives (`explainGap`): the form, named where a
+     * name applies, cross-referenced rather than led with. Null where the
+     * gap's answer is the lemma unchanged, since there is nothing to explain.
+     *
+     * A learner meeting `poeg` for the first time and asked to retype `poega`
+     * a lap later has seen the form exactly once, in passing, with no reason
+     * given for why it changed. The retrieval is still the point (Karpicke
+     * and Roediger, cited above `sentenceAndGap`), so this is not asked
+     * before the answer; it is what the miss deserves instead of only "the
+     * word is poega" and a retype box, which teaches copying rather than the
+     * pattern.
+     */
+    explanation: string | null;
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
@@ -168,45 +188,73 @@ function schedulingOf(card: LearnRow): LearnScheduling {
 
 /**
  * The sentence a word is taught with, and the gap made out of that same
- * sentence.
+ * sentence, in the very form the meet rung showed.
  *
- * One sentence for both rungs on purpose. A learner read `Ma joon kohvi` five
- * cards ago and is now asked to put `kohvi` back into it, which is the
- * strongest link this app can make between meeting a word and producing one,
- * and it costs nothing because the dictionary already chose the sentence.
- * Where that sentence cannot carry a gap, any other attested sentence for the
- * word is tried before giving up.
+ * One sentence for both rungs, and one form. A learner read `Ma joon kohvi`
+ * five cards ago and is now asked to put `kohvi` back into it, which is the
+ * strongest link this app can make between meeting a word and producing one.
+ *
+ * This used to fall back, when the taught sentence could not carry a gap, to
+ * *any other attested sentence for the word*, cut wherever any form the word
+ * takes turned up (`gapForms`'s whole catalog: every case, every person). A
+ * word met in its bare lemma could then be gapped from an unrelated sentence
+ * in a form nobody had shown: `sõber` taught as the lemma and asked back as
+ * `sõbrad`, the plural, which nothing on the meet screen or anywhere earlier
+ * in the ladder had taught. A gap that asks for a form the learner has not
+ * met is not the second rung of this word's ladder, it is a different word
+ * wearing this one's meaning.
+ *
+ * So the gap is cut from the taught sentence alone, in the taught form alone.
+ * Where that sentence cannot carry a gap (the word appears twice, say), the
+ * gap rung is skipped rather than reached for a form nobody has met: `gap:
+ * null` already falls back to asking the word from its meaning, which is the
+ * safe shape and not a new one.
  */
 function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
   const examples = usableExamples(parseExamples(lexeme.examples));
-  const taught = teachingSentence(examples, [lexeme.lemma]);
-  const forms = [...gapForms({
-    lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms,
-  }).keys()];
+  const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
+  const taught = teachingSentence(examples, [lexeme.lemma], opener);
+  const word: WordRow = {
+    id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
+    pos: lexeme.pos, cefr: lexeme.cefr, government: null,
+    forms: lexeme.forms, examples: [],
+  };
 
-  const ordered = taught
-    ? [taught.example, ...examples.filter((e) => e !== taught.example)]
-    : examples;
+  /*
+    Which forms may ever be hidden is `gapForms`'s decision and nobody else's;
+    this only narrows *which one of them* the gap is allowed to be built out
+    of, to the one the meet rung already showed.
+  */
+  const hideable = gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms });
 
-  for (const example of ordered) {
-    const cloze = buildCloze(example.et, forms);
-    if (!cloze) continue;
-    /*
-      The translation is the prompt at the gap rung, and it may not be the
-      answer. Thirty entries in the dictionary are spelled the same in both
-      languages, so `Vaatasin filmi` under "I watched the film" is a question
-      about English spelling. Withheld rather than the gap dropped: the
-      sentence is still worth answering, it is simply harder without it.
-    */
-    const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
-    const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
-      .find((line) => !mentions(line, cloze.answer)) ?? null;
-    return {
-      sentence: taught
-        ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form }
-        : { et: example.et, en: example.en ?? null, form: null },
-      gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue },
-    };
+  if (taught?.form && hideable.has(taught.form.trim().toLowerCase())) {
+    const example = taught.example;
+    const cloze = buildCloze(example.et, [taught.form]);
+    if (cloze) {
+      /*
+        The translation is the prompt at the gap rung, and it may not be the
+        answer. Thirty entries in the dictionary are spelled the same in both
+        languages, so `Vaatasin filmi` under "I watched the film" is a
+        question about English spelling. Withheld rather than the gap
+        dropped: the sentence is still worth answering, it is simply harder
+        without it.
+      */
+      const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
+      const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
+        .find((line) => !mentions(line, cloze.answer)) ?? null;
+      /*
+        Why the answer is not simply the lemma, said after the miss rather
+        than before the answer. Null where the gap wanted the lemma itself,
+        since there is nothing to explain.
+      */
+      const explanation = cloze.answer.toLowerCase() === lexeme.lemma.toLowerCase()
+        ? null
+        : explainForm(word, cloze.answer);
+      return {
+        sentence: { et: example.et, en: example.en ?? null, form: taught.form },
+        gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue, explanation },
+      };
+    }
   }
 
   return {
@@ -218,7 +266,24 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
 }
 
 /**
- * The five words a session works through.
+ * Whether a round works through single words or whole phrases.
+ *
+ * `Kas sa räägid inglise keelt?` is taught the same way `tere` is, on one
+ * ladder, and for a while that meant a round of "5 new words" could be five
+ * fixed phrases in a row: `tervitused`, one of the first units anybody
+ * opens, is eighteen of them and nothing else. A learner presses "words"
+ * expecting words. So the pool a round draws from is split on `Lexeme.pos`,
+ * and the two never mix mid-round: a phrase started under one kind does not
+ * resurface as a "new word" under the other.
+ */
+export type LearnKind = "word" | "phrase";
+
+function posFilter(kind: LearnKind) {
+  return kind === "phrase" ? "PHRASE" : { not: "PHRASE" };
+}
+
+/**
+ * The five words (or five phrases) a session works through.
  *
  * Words already on the ladder come first, whatever their band: somebody who
  * met `kohvik` yesterday and could not produce it should be asked it again
@@ -228,26 +293,92 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
  */
 export async function learnBatch(
   ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
+  /**
+   * The three things a caller can decide about a round, as one object rather
+   * than a tail of optional positions: three of them arrived from three
+   * directions at once and the next one would have been passed in the wrong
+   * slot.
+   */
+  opts: {
+    /** Whether this round is words or the fixed phrases. */
+    kind?: LearnKind;
+    now?: Date;
+    /*
+      WHICH WORDS, WHERE THE CALLER HAS ALREADY DECIDED.
+
+      A planned course day names its own eight words, and the whole of what
+      makes an evening feel chosen rather than dealt is that every round after
+      the first asks *those* back. Without this the ladder would hand today's
+      learner whatever was oldest in the deck, which on an account with a
+      backlog is last month's unit.
+
+      Undefined is the ordinary case and is untouched: Learn is the whole deck,
+      oldest first, nearest the level, exactly as it always was. A named list
+      is not narrowed by `kind` as well, because naming the words *is* the
+      choosing, and a course day that teaches a greeting beside seven nouns
+      would otherwise lose the greeting.
+    */
+    only?: readonly string[];
+  } = {},
 ): Promise<LearnWord[]> {
-  const started = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
-    // Longest waiting first, and the id settles a tie: a word's cards are
-    // written in one insert and share a `due` to the millisecond.
-    orderBy: [{ due: "asc" }, { id: "asc" }],
-    take: size,
-    include: INCLUDE,
-  });
+  const { kind = "word", now = new Date(), only } = opts;
+  const scope = only
+    ? { lexeme: { lemma: { in: [...only] } } }
+    : { lexeme: { pos: posFilter(kind) } };
+  /*
+    A WORD PART WAY UP THE LADDER IS SERVED WHATEVER ITS DATE, WHICH IS WHY
+    THIS ONE HAS TO ASK.
+
+    Between rungs the scheduler puts a word ten minutes out, so this read
+    cannot filter on `due` without dropping the words the ladder is in the
+    middle of. Everything else on the daily path reads `due` and so needs
+    nothing: putting a word aside pushes it. Here the question is asked
+    outright, beside the read rather than after it.
+  */
+  const [startedRows, aside] = await Promise.all([
+    prisma.card.findMany({
+      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1, ...scope },
+      // Longest waiting first, and the id settles a tie: a word's cards are
+      // written in one insert and share a `due` to the millisecond.
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: size,
+      include: INCLUDE,
+    }),
+    deferredWordIds(ownerId, now),
+  ]);
+  const started = startedRows.filter((card) => !card.lexemeId || !aside.has(card.lexemeId));
 
   const room = Math.max(0, size - started.length);
+  /*
+    A WORD THE LEARNER PUT ASIDE IS NOT TAUGHT AGAIN TONIGHT.
+
+    `due` is meaningless on a card that has never been asked, which is why this
+    read never filtered on it: every unseen card carries the moment it was
+    written. It stops being meaningless the moment somebody presses "too
+    complicated", because that is what a deferral moves (`lib/srs/defer.ts`),
+    and without this the ladder would teach a word the app had just promised
+    to leave alone for three weeks.
+  */
+  const raised = await hardWords();
   const fresh = room === 0 ? [] : challengeFirst(
     await prisma.card.findMany({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        ...scope,
+        due: { lte: now },
+      },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       take: NEW_CANDIDATES,
       include: INCLUDE,
     }),
     level,
-    (card) => card.lexeme?.cefr,
+    /*
+      The band this deployment offers the word at, which is one step up from
+      the dictionary's own where enough learners have put it aside. The whole
+      point of counting those presses is that the next learner is taught the
+      word later than the one who reported it was (`lib/srs/defer.ts`).
+    */
+    (card) => offeredBand(card.lexeme?.cefr ?? null, card.lexemeId !== null && raised.has(card.lexemeId)),
   ).slice(0, room);
 
   const rows = [...started, ...fresh].filter((row) => row.lexeme !== null);
@@ -284,7 +415,7 @@ export async function learnBatch(
     const picked = pool.length >= CHOICES
       ? pickOptions({
           answer: glossOption({
-            text: lexeme.translation,
+            text: plainPhrase(lexeme.translation),
             pos: lexeme.pos,
             band: bandOf(lexeme.cefr),
             theme: unitIntroducing(lexeme.lemma, lexeme.pos),
@@ -299,8 +430,8 @@ export async function learnBatch(
     return {
       cardId: row.id,
       lexemeId: lexeme.id,
-      lemma: lexeme.lemma,
-      gloss: lexeme.translation,
+      lemma: plainPhrase(lexeme.lemma),
+      gloss: plainPhrase(lexeme.translation),
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,
@@ -353,16 +484,77 @@ export interface LearnCounts {
   waiting: number;
   /** Words part way up the ladder, which come back before any new one does. */
   started: number;
+  /** The same two counts, read over the fixed phrases rather than the words. */
+  phrases: { waiting: number; started: number };
 }
 
-export async function learnCounts(ownerId: string): Promise<LearnCounts> {
-  const [waiting, started] = await Promise.all([
+export async function learnCounts(ownerId: string, now = new Date()): Promise<LearnCounts> {
+  /*
+    The same two guards `learnBatch` applies, because a number on Today that
+    the session then refuses to fill reads as a counting fault rather than as
+    a rule. Reads that do not need each other's answers, so they are one round
+    trip rather than five.
+  */
+  const [waiting, started, phraseWaiting, phraseStarted, aside] = await Promise.all([
     prisma.card.count({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        lexeme: { pos: posFilter("word") },
+        due: { lte: now },
+      },
     }),
     prisma.card.count({
-      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1 },
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexeme: { pos: posFilter("word") },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
+        lexeme: { pos: posFilter("phrase") },
+        due: { lte: now },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexeme: { pos: posFilter("phrase") },
+      },
+    }),
+    deferredWordIds(ownerId, now),
+  ]);
+  /*
+    And the ones part way up that were put aside, counted in Postgres and
+    subtracted, which is one extra round trip for a learner who has put
+    something aside and none at all for everybody else. Counting the started
+    rows in this process instead would read a deck's worth of ids to answer
+    with one integer, which is the shape `lib/progress/impact.ts` calls out.
+
+    Counted per kind, because the two numbers are printed on two buttons: one
+    count over both would subtract a phrase somebody put aside from the words
+    button, which is a number the session then refuses to fill.
+  */
+  if (aside.size === 0) {
+    return { waiting, started, phrases: { waiting: phraseWaiting, started: phraseStarted } };
+  }
+  const [heldWords, heldPhrases] = await Promise.all([
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexemeId: { in: [...aside] }, lexeme: { pos: posFilter("word") },
+      },
+    }),
+    prisma.card.count({
+      where: {
+        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
+        lexemeId: { in: [...aside] }, lexeme: { pos: posFilter("phrase") },
+      },
     }),
   ]);
-  return { waiting, started };
+  return {
+    waiting,
+    started: Math.max(0, started - heldWords),
+    phrases: { waiting: phraseWaiting, started: Math.max(0, phraseStarted - heldPhrases) },
+  };
 }

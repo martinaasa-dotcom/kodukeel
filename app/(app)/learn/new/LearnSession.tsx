@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { BookOpen, Check, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -10,6 +10,7 @@ import { Chip, Empty, KeyCap, Meter, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
+import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
@@ -26,7 +27,8 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { useUiText } from "@/components/UiLanguage";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -92,14 +94,30 @@ function Ladder({ rung }: { rung: Rung }) {
 }
 
 export function LearnSession({
-  words: initial, waiting, started,
+  words: initial, waiting, started, kind = "word", back,
 }: {
   words: LearnWord[];
   /** Words in the deck that have never been asked, this batch included. */
   waiting: number;
   /** Words part way up the ladder, this batch included. */
   started: number;
+  /** Whether this round is words or the fixed phrases, for the copy alone. */
+  kind?: "word" | "phrase";
+  /**
+   * Where a round that was opened from somewhere else sends the learner back
+   * to, and what that place is called.
+   *
+   * The planned course is the one caller: its day is a checklist, and the
+   * round it opens is a step in the middle of one, so ending on three
+   * suggestions about what to do next is the evening losing its thread. Given
+   * a way back, the session offers exactly that and says which words it was.
+   * Undefined is the ordinary Learn round, which is unchanged: it ends where
+   * it always did, since there is nothing behind it to return to.
+   */
+  back?: { href: string; label: string };
 }) {
+  const noun = kind === "phrase" ? "phrase" : "word";
+  const nouns = kind === "phrase" ? "phrases" : "words";
   /*
     Snapshotted once. `gradeCard` is a Server Action and Next refreshes this
     route's server component after every one, which would hand down a batch
@@ -112,6 +130,7 @@ export function LearnSession({
     rather than the batch's own first word. See components/useResumeCard.ts.
   */
   const { initialIndex, remember: rememberWord } = useResumeCard(initial.map((w) => ({ id: w.cardId })));
+  const uiText = useUiText();
   /*
     Rotated rather than left in the batch's own order, so the resumed word
     sits at the front: `advance` below always treats `queue[0]` as the word
@@ -141,6 +160,9 @@ export function LearnSession({
     const first = initial[initialIndex] ?? initial[0];
     return first ? { cardId: first.cardId, rung: first.rung } : null;
   });
+  /* What the "too complicated" button did, printed under the round: its whole
+     effect is a word that stops arriving, which is invisible tonight. */
+  const [aside, setAside] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("ask");
   const [result, setResult] = useState<Result | null>(null);
   const [typed, setTyped] = useState("");
@@ -255,6 +277,35 @@ export function LearnSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
   }, [queue]);
+
+  /**
+   * A word the learner has put aside, which is the mirror of the claim below.
+   *
+   * "I already know this one" and "too complicated" are the two things a
+   * learner can say at a first meeting that are not answers, and the meet rung
+   * is where both are said: one graduates the word and the other sends it away
+   * for a few weeks. Neither is graded, and this one writes nothing at all
+   * here, because `putWordAside` has already moved every card of the word.
+   *
+   * The seat always holds `queue[0]`, so dropping the head is the whole of it.
+   */
+  const putAside = useCallback((note: string) => {
+    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
+    const rest = queue.slice(1);
+    const nowId = rest[0];
+    setQueue(rest);
+    setSeat(nowId ? { cardId: nowId, rung: rungs[nowId] ?? "meet" } : null);
+    setAside(note);
+    setPhase("ask");
+    setResult(null);
+    setTyped("");
+    setVerdict(null);
+    setChosen(null);
+    setRetyped("");
+    setRetypeOk(false);
+    setRetypeNote(null);
+    shownAt.current = Date.now();
+  }, [queue, rungs]);
 
   /**
    * Grades the word's recognition card and works out where that leaves it.
@@ -420,13 +471,37 @@ export function LearnSession({
     return (
       <Page title="Learn">
         <Empty
-          title="No new words waiting"
-          body="Add a unit from the course and its words arrive here."
-          action={<ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>}
+          title={back ? "Nothing left to meet here" : `No new ${nouns} waiting`}
+          body={
+            back
+              ? "You have already met these. The rest of the module is waiting."
+              : kind === "phrase"
+                ? "Phrases arrive here as you open the units that teach them."
+                : "Add a unit from the course and its words arrive here."
+          }
+          action={
+            back
+              ? <ButtonLink href={back.href} variant="primary">{back.label}</ButtonLink>
+              : <ButtonLink href="/learn" variant="primary">Open the course</ButtonLink>
+          }
         />
       </Page>
     );
   }
+
+  /*
+    What the "too complicated" button did, drawn once. Putting the last word of
+    a batch aside ends the round, so the note has to reach the summary too, and
+    two copies of a sentence is how the wording of one of them rots.
+  */
+  const asideNote = aside ? (
+    <p className="mt-5 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+      {aside}{" "}
+      <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+        Bring it back
+      </Link>
+    </p>
+  ) : null;
 
   if (finished) {
     const counts = tally(words.map((w) => rungs[w.cardId] ?? "meet"));
@@ -441,8 +516,8 @@ export function LearnSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {counts.kept > 0
-              ? <>Tubli töö. {counts.kept} {counts.kept === 1 ? "word has" : "words have"} moved over to practice, where they come back on a schedule.</>
-              : <>Tubli töö. These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
+              ? <>{uiText("Tubli töö.", "Good work.")} {counts.kept} {counts.kept === 1 ? `${noun} has` : `${nouns} have`} moved over to practice, where they come back on a schedule.</>
+              : <>{uiText("Tubli töö.", "Good work.")} These stay here until you can produce them in a sentence, which is the point at which they stick.</>}
           </p>
         </div>
 
@@ -466,13 +541,17 @@ export function LearnSession({
                 <span className="ml-auto flex items-center gap-2">
                   <Ladder rung={where} />
                   <Chip tone={where === "kept" ? "good" : "neutral"}>
-                    {where === "kept" ? "Practice" : RUNG_LABEL[where]}
+                    {where === "kept"
+                      ? "Practice"
+                      : where === "meet" && w.isPhrase ? "New phrase" : RUNG_LABEL[where]}
                   </Chip>
                 </span>
               </li>
             );
           })}
         </ul>
+
+        {asideNote}
 
         {pendingOffline > 0 && (
           <p
@@ -484,13 +563,27 @@ export function LearnSession({
           </p>
         )}
 
+        {/*
+          ONE WAY ON, WHERE SOMETHING SENT THE LEARNER HERE. A round opened
+          from a checklist ends by going back to it: three suggestions at the
+          end of step one of five is the evening losing its thread, and the
+          module screen is the thing that knows what comes next.
+        */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
-          <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
-          {more > 0 && (
-            <ButtonLink href="/learn/new" variant="primary" size="lg">
-              <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
+          {back ? (
+            <ButtonLink href={back.href} variant="primary" size="lg">
+              {back.label} <ArrowRight size={15} aria-hidden />
             </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink href="/review" size="lg">Practice what is due</ButtonLink>
+              <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
+              {more > 0 && (
+                <ButtonLink href="/learn/new" variant="primary" size="lg">
+                  <Sparkles size={15} aria-hidden /> Learn {Math.min(more, LEARN_BATCH)} more
+                </ButtonLink>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -513,7 +606,7 @@ export function LearnSession({
           <X size={18} aria-hidden />
         </Link>
         <div className="flex-1">
-          <Meter pct={progress} label={`${left} of ${total} words still on the ladder`} height={10} />
+          <Meter pct={progress} label={`${left} of ${total} ${nouns} still on the ladder`} height={10} />
         </div>
         <span
           className="tnum label-xs rounded-full px-2.5 py-1"
@@ -528,7 +621,9 @@ export function LearnSession({
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-5 py-3.5" style={{ borderColor: "var(--rule-soft)" }}>
-          <Chip tone="accent">{RUNG_LABEL[rung]}</Chip>
+          <Chip tone="accent">
+            {rung === "meet" && word.isPhrase ? "New phrase" : RUNG_LABEL[rung]}
+          </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
             <Link
@@ -541,6 +636,16 @@ export function LearnSession({
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />
+            {/* And its opposite number. A word met for the first time is the
+                likeliest one in the app to be beyond somebody, and the only
+                answers the ladder offers are about how well they recalled it. */}
+            <TooComplicated
+              key={word.lexemeId}
+              lexemeId={word.lexemeId}
+              label={word.lemma}
+              context="/learn/new"
+              onDone={putAside}
+            />
           </div>
         </div>
 
@@ -715,7 +820,7 @@ export function LearnSession({
               {phase === "ask" && (
                 <Button variant="primary" onClick={answerGap} disabled={busy}>
                   Check
-                  <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                  <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
                 </Button>
               )}
             </>
@@ -731,7 +836,7 @@ export function LearnSession({
             >
               <p className="text-sm font-semibold">
                 {result.outcome === "right"
-                  ? "Õige!"
+                  ? uiText("Õige!", "Correct!")
                   : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
               </p>
               {result.note && <p className="mt-1 text-sm">{result.note}</p>}
@@ -744,6 +849,20 @@ export function LearnSession({
                   ))}
                 </p>
               )}
+              {/*
+                Why the form changed, not only what it is. A learner who has
+                just met the word is being asked to retype a form they saw
+                once, seconds ago, with no reason given for why it isn't the
+                lemma; without this it reads as arbitrary and marks the app's
+                whole first unit as a guessing game rather than a pattern.
+                Absent on a form that matches the lemma unchanged, where
+                there is nothing to explain.
+              */}
+              {rung === "gap" && word.gap?.explanation && (
+                <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
+                  {word.gap.explanation}
+                </p>
+              )}
             </div>
           )}
 
@@ -751,7 +870,7 @@ export function LearnSession({
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
                 <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
-                  Õige! That is the one.
+                  {uiText("Õige!", "Correct!")} That is the one.
                 </p>
               ) : (
                 <>
@@ -782,7 +901,7 @@ export function LearnSession({
                 onClick={needsRetype ? checkRetype : carryOn}
                 disabled={busy || retypeOk || result?.outcome === "right"}
               >
-                {needsRetype ? "Check it again" : result?.outcome === "right" ? "Õige!" : "Got it"}
+                {needsRetype ? "Check it again" : result?.outcome === "right" ? uiText("Õige!", "Correct!") : "Got it"}
               </Button>
               {rung === "gap" && (
                 <SuggestFix
@@ -825,10 +944,12 @@ export function LearnSession({
         </div>
       </div>
 
+      {asideNote}
+
       <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         {answered > 0
           ? `${right} of ${answered} right this round.`
-          : "Meet each word, then answer it back. Nothing is written down until you answer."}
+          : `Meet each ${noun}, then answer it back. Nothing is written down until you answer.`}
       </p>
     </div>
   );

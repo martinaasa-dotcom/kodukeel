@@ -1,6 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { questionInEnglish } from "@/lib/estonian/cases";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, PenLine, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
@@ -13,6 +15,7 @@ import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import type { GradedSentence } from "@/lib/tutor/grader";
 import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
+import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 
 export interface WritingPrompt {
   /** The card this exercise practices, so the round feeds the scheduler. */
@@ -21,7 +24,6 @@ export interface WritingPrompt {
   lemma: string;
   translation: string;
   caseKey: string;
-  caseEn: string;
   caseEt: string;
   caseQuestion: string;
   provenance: "ekilex" | "derived";
@@ -220,7 +222,13 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                   marked back as English inside it. */}
               <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
                 {prompt.caseEt} · {prompt.caseQuestion}
-                <span lang="en"> · the {prompt.caseEn.toLowerCase()}</span>
+                {/* What the question is asking rather than the Latin name,
+                    which was the only English on this line and the one word
+                    here nobody can cash in. The Latin name is on the grammar
+                    page for the ending, labelled. */}
+                {questionInEnglish(prompt.caseQuestion) && (
+                  <span lang="en"> · {questionInEnglish(prompt.caseQuestion)}</span>
+                )}
               </p>
             </>
           ) : (
@@ -229,7 +237,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                 {prompt.caseEt}
               </p>
               <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
-                <span lang="et">{prompt.caseQuestion}</span> · the {prompt.caseEn.toLowerCase()}
+                <CaseQuestion question={prompt.caseQuestion} inline />
               </p>
             </>
           )}
@@ -274,7 +282,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
             >
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Marking…</>
-                : <>Check it <KeyCap className="ml-1">⌘ Enter</KeyCap></>}
+                : <>Check it <KeyCap className="ml-1">{`⌘ ${ADVANCE_KEY_GLYPH}`}</KeyCap></>}
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
@@ -285,7 +293,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the form is checked. That check is the reliable half.
         </p>
       )}

@@ -405,10 +405,27 @@ check("the nominative plural is a required stem, and is never an ending", () => 
   when a field is added and is invisible until it does.
 */
 check("no browser suite finds a field by a placeholder another field shares", () => {
+  /*
+    The example is the last string in the row, whatever the label became. It
+    used to be a three-string tuple and the label is an object now, since a
+    noun field carries the question its case answers rather than a Latin name;
+    reading to the end of the row rather than counting elements is what keeps
+    this check about placeholders instead of about the table's shape.
+  */
   const examples = [...code("app/(app)/dictionary/AddWord.tsx")
-    .matchAll(/\["[A-Z_]+", "[^"]+", "([^"]+)"\]/g)]
+    .matchAll(/\["[A-Z0-9_]+",[^\]]*"([^"]+)"\]/g)]
     .map((m) => m[1] as string);
-  assert.ok(examples.length >= 10, "the add-word field table stopped being readable from here");
+  /*
+    A DIGIT IS PART OF A FORM TYPE, AND THIS READ TEN OF THE TWELVE ROWS.
+
+    The key pattern was `[A-Z_]+`, which cannot match `PRES_1SG` or `PAST_1SG`,
+    so the two verb boxes whose examples are `loen` and `lugesin` were outside
+    the sweep for as long as it has existed. The floor of ten was met by the
+    other ten and said nothing. It is the table's own length now, so a row
+    dropping out of reach fails here rather than quietly narrowing what is
+    checked.
+  */
+  assert.ok(examples.length >= 12, "the add-word field table stopped being readable from here");
 
   const bad: string[] = [];
   for (const file of readdirSync("scripts").filter((f) => f.endsWith(".mjs"))) {
@@ -1205,6 +1222,7 @@ check("every generator that picks a case asks which ones the word takes", () => 
     "lib/estonian/writing.ts",
     "lib/collections/lesson.ts",
     "lib/progress/caseExamples.ts",
+    "lib/estonian/caseBuild.ts",
     "lib/progress/target.ts",
     "lib/games/describe.ts",
     "lib/games/flash.ts",
@@ -1255,6 +1273,7 @@ check("a question about one word is worded for that word", () => {
     "lib/srs/cards.ts",
     "lib/estonian/writing.ts",
     "lib/collections/lesson.ts",
+    "lib/estonian/caseBuild.ts",
     "lib/progress/target.ts",
     "lib/games/flash.ts",
     "app/(app)/review/emoji/page.tsx",
@@ -4170,7 +4189,7 @@ check("every type size in the tree is a step on the scale", () => {
   // contrast pass in test-design.mjs the same thing, and the next ornament that
   // earns its place gets its exception back here, named and argued for.
   const STEPS = new Set([
-    "11.5px", "12.5px", "13.5px", "15px", "17px", "19px",
+    "12px", "13px", "13.5px", "15px", "17px", "19px",
     "22px", "27px", "32px", "40px", "52px", "68px",
   ]);
 
@@ -6617,31 +6636,240 @@ check("no screen writes a hue's ink on that hue's own fill", () => {
 });
 
 /**
- * The same rule where it is actually broken: a screen.
+ * WHO MAY READ A CASE'S LATIN NAME AT ALL IS A CLOSED LIST.
  *
- * Every place that puts a case in front of a learner holds both names already,
- * so showing one is a choice rather than a shortage. This is the shape of the
- * ledger check above, and for the same reason: prose in CLAUDE.md kept four
- * screens honest and did not catch the fifth, which was the level check
- * offering "Inessive, Elative, Allative" to somebody who had been learning for
- * a week.
+ * The two checks below say a screen printing the Latin name prints the
+ * Estonian one too, and that a screen printing the question says what it
+ * asks. Both were satisfied by three files that were still handing a learner
+ * "the inessive" as the only English in a sentence: the dictionary's search
+ * ranker naming the form somebody had just typed, the flash round's line under
+ * the plain ask, and the diagnosis panel. Each named the case in Estonian
+ * first, so neither check had anything to say, and each was a second copy of
+ * the naming that `lib/estonian/cases.ts` exists to be the one of.
+ *
+ * So `CaseSpec.en` has a reader list with a reason apiece, in the shape
+ * `lib/legal/exportCoverage.ts` takes for its exemptions: a fourth reader
+ * fails until somebody decides which side of the line it is on, rather than
+ * quietly printing a Latin name on a screen nobody swept. What a label should
+ * read instead is `asksEn`, and what a card should read is
+ * `caseQuestionEnglishFor`, which knows the word.
+ *
+ * AND IT REPLACED THE CHECK THAT USED TO SIT HERE, WHICH ASKED THAT A SCREEN
+ * NAMING A CASE IN LATIN NAME IT IN ESTONIAN TOO. That was the right rule
+ * while the Latin name was allowed on a screen at all. It is not allowed on
+ * one now, so that check could only ever have fired on a file this one
+ * refuses outright, and a check that cannot fail on anything this one passes
+ * is a check nobody is reading. The list below is the stronger claim and the
+ * one to add to: a reader is named with its reason, or it does not ship.
  */
-check("a screen that names a case in Latin names it in Estonian too", () => {
-  // Anchored on a member access rather than on the word, because a file
-  // declaring `caseEt: string` in an interface and then never rendering it
-  // satisfied the first version of this check. That is the same fault the
-  // comment on `code()` above describes: naming a thing is not using it.
-  const LATIN = /\.caseEn\b|\bspec\.en\b/;
-  const ESTONIAN = /\.caseEt\b|\.caseQuestion\b|\bspec\.et\b|\bspec\.question\b|caseOptionLabel/;
-  for (const file of [...APP, ...COMPONENTS]) {
-    const source = code(file);
-    if (!LATIN.test(source)) continue;
-    assert.match(
-      source,
-      ESTONIAN,
-      `${file} shows a learner the Latin case name with no Estonian name or question beside it`,
+/**
+ * AND THE LATIN NAME TYPED INTO A SENTENCE, WHICH NO MEMBER ACCESS CAN SEE.
+ *
+ * The check below reads `spec.en`, which is how a case's Latin name reaches a
+ * screen *through the table*. It cannot see the other door, which is somebody
+ * writing the word out: "Nimetav \u00b7 nominative" across the three columns of
+ * a worksheet a teacher prints for a class, "Genitive sg" on the box a learner
+ * types a form into, "Add it with its genitive" in an empty state, "Worked out
+ * from the genitive stem" under a placement question. Every one of those was
+ * still on a screen with the closed list green, because a string is not a
+ * member access.
+ *
+ * So the same rule is asked of the text. A case named in a *sentence* takes
+ * the Estonian name a class uses (`omastav`), and a case *labelling a form*
+ * takes the question it answers, through `CaseQuestion`. Neither takes the
+ * Latin one.
+ *
+ * WHAT IS NOT A BREACH, and is why this reads code rather than a whole file:
+ * an identifier (`row.genitive`, `const illative`), which is the name of a
+ * field rather than a word anybody reads, and a comment, which is this
+ * repository's own argument about the rule and has to be able to name it.
+ * `code()` strips the comments; the identifier test is that the word is
+ * touching a dot, a colon or a quote of its own.
+ */
+check("no screen writes a case's Latin name into a sentence", () => {
+  const ALLOWED: Record<string, string> = {
+    // The table itself, which is where `CaseSpec.en` is declared.
+    "lib/estonian/cases.ts": "the one table, and the English name is a field on it",
+    /*
+      THE TWO MODULES THAT WRITE ABOUT ESTONIAN AND MAY HOLD NONE.
+
+      `grammar.ts` and `exceptions.ts` explain a case at length in English and
+      are asserted to carry no Estonian letter, which is what stops this app
+      inventing a form inside a sentence about forms. That leaves the Latin
+      name as the only name they *can* use: naming the five cases whose
+      Estonian spelling happens to carry no diacritic would slip past the
+      letter rule while breaking what it is for, and would name five cases one
+      way and nine the other on one page.
+
+      The way out is to describe the case rather than name it ("the partial
+      object form" for `osastav`), which is a pass over nineteen lines of the
+      most-read grammar copy in the app and is worth doing carefully rather
+      than in passing. Until then the exemption is here, where it is counted,
+      rather than being invisible because the sweep stopped at `app/`.
+    */
+    "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
+    "lib/estonian/exceptions.ts": "the same, for the notes on each kind of exception",
+    // A search index rather than copy: a learner typing "partitive" into the
+    // palette is looking for the cases page and should find it.
+    "lib/ux/nav.ts": "search keywords, which take every spelling somebody might type",
+    // Anu is told the Latin name beside the question and the reading, so she
+    // can follow a learner who arrives with one. See `lib/tutor/prompt.ts`.
+    "lib/tutor/prompt.ts": "the model's own table, which names a case three ways on purpose",
+    "lib/tutor/grader.ts": "the same briefing, for the writing and picture graders",
+    "lib/tutor/words.ts": "the same briefing again: the forms block Anu is handed for a word",
+    // The banned-phrase table has to be able to quote the copy it is about.
+    "lib/copy/voice.ts": "an example of a tell, which has to contain the thing it bans",
+  };
+  const LATIN = /\b(?:nominative|genitive|partitive|inessive|elative|illative|allative|adessive|ablative|translative|terminative|essive|abessive|comitative)\b/i;
+  /*
+    WHAT REACHES A READER IS A STRING OR A RUN OF JSX TEXT, AND NOTHING ELSE.
+
+    The first version of this read whole lines and fired on `const illative`
+    and `genitive !== null`, which are the names of a local and a field: honest
+    code, and the rule this file keeps about its own checks is that one firing
+    on honest code gets widened rather than worked around. So the haystack is
+    built rather than the line: every quoted string, and every run of text
+    between a `>` and a `<`, which is what a JSX child is.
+  */
+  const readable = (src: string) => {
+    const out: string[] = [];
+    for (const m of src.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)) {
+      // What a template interpolates is an expression rather than words: the
+      // key `${word.lemma}-${illative.et}` is not a sentence about a case.
+      out.push((m[1] ?? m[2] ?? m[3] ?? "").replace(/\$\{[^}]*\}/g, " "));
+    }
+    // JSX text sits after a tag's own `>`, and `=>` is not one: without the
+    // lookbehind this ran from an arrow function to the next comparison and
+    // read `c !== illative);` as something a learner was being shown. A run
+    // holding a `;` or a `=` is code for the same reason.
+    /*
+      JSX text sits after a tag's own `>`, and `=>` is not one: without the
+      lookbehind this ran from an arrow function to the next comparison and
+      read `c !== illative);` as something a learner was shown.
+
+      A run holding a brace is left alone, and that is the stated residual
+      rather than an oversight. Blanking the interpolation was tried and it is
+      a regex pretending to parse JSX: `{row.blanks.includes("genitive") ?
+      <Rule width={110} /> : row.genitive}` nests a tag inside an expression
+      inside a child, and every widening that reached it also read three field
+      names as copy. A check that fires on honest code is one people learn to
+      waive. So a sentence naming a case in Latin *and* interpolating a value
+      into the same run is what this cannot see; every fault it was written for
+      was a string literal or a brace-free run, and the string half is the one
+      doing the work.
+    */
+    for (const m of src.matchAll(/(?<![=!<>])>([^<>{}=;]+)</g)) out.push(m[1] ?? "");
+    // A string that is *only* the word is a key or a stored value, never copy:
+    // `caseByKey("GENITIVE")` and `blanks.includes("genitive")` are both code,
+    // and `"Genitive"` in title case is a column heading somebody reads.
+    return out.filter((t) => !/^[A-Z_]+$/.test(t.trim()) && !/^[a-z]+$/.test(t.trim()));
+  };
+  let looked = 0;
+  const found: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.i?test\.tsx?$/.test(file)) continue;
+    looked += 1;
+    if (file in ALLOWED) continue;
+    for (const text of readable(code(file))) {
+      if (LATIN.test(text)) found.push(`${file}: ${text.trim().slice(0, 80)}`);
+    }
+  }
+  assert.ok(looked > 500, `only swept ${looked} files, which is not the tree`);
+  assert.equal(
+    found.join(" | "),
+    "",
+    "a screen names a case in Latin. Say it the way a class does, or print the question "
+      + "through CaseQuestion",
+  );
+  for (const file of Object.keys(ALLOWED)) {
+    assert.ok(
+      readable(code(file)).some((t) => LATIN.test(t)),
+      `${file} is listed here and no longer names a case in Latin`,
     );
   }
+});
+
+check("a case's Latin name has a closed list of readers", () => {
+  const ALLOWED: Record<string, string> = {
+    "lib/estonian/government.ts":
+      "parses the stored government string, which annotates each question word with a case name",
+    "lib/ekilex/mapper.ts": "writes that same stored string, so the two have to agree",
+    "lib/tutor/prompt.ts": "names the case to Anu beside its question and its reading",
+    /*
+      The third prompt builder, and it reads both names for two reasons: it
+      names a case to the model the way `prompt.ts` does, and `CASE_NAMES`
+      recognises a case a *learner* typed, who may well arrive with the Latin
+      one. Left as main measured it rather than rewritten from here: what a
+      model is told is a measurement in that module's own commits, and this
+      rule is about what a learner reads.
+    */
+    "lib/tutor/words.ts": "the facts block Anu is handed, and the names a learner might type",
+    "components/WeakestCases.tsx": "the slug the grammar page is keyed on, never printed",
+  };
+  // `spec.en`, `c.en`, `caseByKey(x)?.en`: the member access, not the word,
+  // which is the anchor the check below this one already argues for.
+  const READS = /\b(?:spec|c|named|row\.spec|caseByKey\([^)]*\))\??\.en\b|\bcaseEn\b/;
+  const found: string[] = [];
+  for (const file of [...APP, ...COMPONENTS, ...LIB]) {
+    if (/\.test\.ts|\.itest\.ts/.test(file)) continue;
+    if (!READS.test(code(file))) continue;
+    found.push(file);
+    assert.ok(
+      file in ALLOWED,
+      `${file} reads a case's Latin name and is not on the list in this check. `
+        + "A label wants `asksEn` and a card wants `caseQuestionEnglishFor`; if it really "
+        + "needs the Latin name, add it here with the reason.",
+    );
+  }
+  // And an entry nobody reaches is an exemption that has outlived its reason.
+  for (const file of Object.keys(ALLOWED)) {
+    assert.ok(found.includes(file), `${file} is listed here and no longer reads a case's Latin name`);
+  }
+});
+
+/**
+ * AND A CASE QUESTION SAYS WHAT IT IS ASKING.
+ *
+ * The rule above keeps the Estonian name beside the Latin one. This is the
+ * half neither of them covered: `milles?` is the name this language actually
+ * uses for a case, it is on every screen that names one, and for the whole
+ * life of the app the only English anywhere near it was the Latin name. A
+ * learner reading the dictionary's own case table reported exactly that, and
+ * they were right: fourteen rows, and every English word on them was a term
+ * out of a grammar somebody else's language wrote.
+ *
+ * So `lib/estonian/cases.ts` carries what each question word asks and a screen
+ * printing one prints that too, through `CaseQuestion`, `questionInEnglish`,
+ * `questionEn`, or `plainAsk`, which answers the same need one layer up by
+ * saying what the form is for rather than what the question says.
+ *
+ * Anchored on the *render* rather than on the reach, because a route that
+ * resolves a question and hands it to a client component has shown nobody
+ * anything: what is checked is a question interpolated into a `lang="et"`
+ * element, which is the shape every one of these takes.
+ */
+check("a screen that prints a case question says what it is asking", () => {
+  // `{spec.question}`, `{item.caseQuestion}`, `{question}`. Deliberately the
+  // whole word before the brace, so `{question.letter}` in the minimal-pairs
+  // round, which is a letter rather than a case, is not swept in.
+  const PRINTS = /lang="et"[^>]*>\s*\{[^{}]*\b(caseQuestion|question)\}/;
+  const READS = /questionInEnglish|<CaseQuestion|\bquestionEn\b|plainAsk/;
+  let found = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    // The one drawing of a case question is not a screen printing one.
+    if (file.endsWith("components/CaseQuestion.tsx")) continue;
+    const source = code(file);
+    if (!PRINTS.test(source)) continue;
+    found++;
+    assert.match(
+      source,
+      READS,
+      `${file} prints a case question in Estonian and never says what it asks`,
+    );
+  }
+  // A floor, because a regex that stops matching is a check that passes
+  // having asked nothing: five screens print one today.
+  assert.ok(found >= 4, `expected the screens that print a case question, found ${found}`);
 });
 
 /**
@@ -9361,7 +9589,7 @@ check("the word of the day is one the learner has not met", () => {
   */
   const card = read("components/WordOfDay.tsx");
   assert.match(card, /SENTENCE_SOURCE/, "the word of the day prints a sentence with no provenance");
-  assert.match(card, /Ekilex/, "the sentence's provenance no longer names its source");
+  assert.match(card, /EKILEX:\s*"[^"]+"/, "the sentence's provenance no longer names its source");
 });
 
 check("Today's date is Estonian, tagged as Estonian, and has a way out", () => {
@@ -14339,10 +14567,41 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     review, /pastTheLadder\(ownerId\)/,
     "the review queue introduces unseen cards of a word Learn has not finished with",
   );
+
+  /*
+    `pastTheLadder` and `notOnLadder` live in cards.ts now, shared with the
+    other routes that can hand out an unseen card, so their own definition is
+    checked there rather than in page.tsx.
+  */
+  const cardsModule = code("app/(app)/review/cards.ts");
   assert.match(
-    review, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
-    "the review queue names the ladder's states itself rather than reading the table",
+    cardsModule, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
+    "pastTheLadder names the ladder's states itself rather than reading the table",
   );
+
+  /*
+    AND EVERY CALLER OF `leastPractisedSlot` ASKS IT, READ OFF THE CALLERS
+    RATHER THAN A LIST HERE.
+
+    `leastPractisedSlot` reads by lapses and by due date to pick which slot of
+    a word to ask, which says nothing about whether the word's own recognition
+    card has graduated off the Learn ladder: a word added moments ago carries
+    a CASE_FORM card at `state: 0` from the same batch as its recognition
+    card, so a caller that hands it an unfiltered pool can pick that card as
+    the word's representative and serve it as the word's first question, in a
+    case, before the word was ever met (`neli` and the "New word" chip on a
+    translative it had never been shown, reported live). Every route that
+    reads a pool for it has to ask `notOnLadder` on that same query, or a
+    third such route arrives with the fault this file was written to fix.
+  */
+  const spreads = ALL.filter((file) => /\bleastPractisedSlot\(/.test(code(file)));
+  const unguarded = spreads.filter((file) => !/\bnotOnLadder\(ownerId\)/.test(code(file)));
+  assert.deepEqual(
+    unguarded, [],
+    `${unguarded.join(", ")} calls leastPractisedSlot without asking notOnLadder first, `
+    + "so it can hand out a case or a conjugated form as a word's very first question",
+  );
+  assert.notDeepEqual(spreads, [], "leastPractisedSlot has no caller left to check");
 
   /*
     And Today counts what Practice will actually serve. A number on the home
@@ -14374,10 +14633,10 @@ check("a word is introduced by one drawing", () => {
   for (const file of ["app/(app)/review/ReviewSession.tsx", "app/(app)/learn/new/LearnSession.tsx"]) {
     assert.match(code(file), /<WordIntro\b/, `${file} draws a first meeting of its own again`);
   }
-  const provenance = ALL.filter((f) => /A real sentence, from Ekilex/.test(read(f)));
+  const provenance = ALL.filter((f) => /Any underlined word opens its meaning\./.test(read(f)));
   assert.deepEqual(
     provenance, ["components/WordIntro.tsx"],
-    "more than one screen says where a teaching sentence came from",
+    "more than one screen says how to read a teaching sentence",
   );
 });
 
@@ -15777,8 +16036,18 @@ check("an option is one control, and the number that picks it is one cap", () =>
     const lines = code(file).split("\n");
     lines.forEach((line, i) => {
       /* The numeral is the key, so it is the cap. A line rendering it any
-         other way is a shortcut drawn as decoration. */
-      if (/\{(?:i|at|index) \+ 1\}/.test(line) && !/aria-label|`/.test(line)) {
+         other way is a shortcut drawn as decoration.
+
+         WHAT COUNTS IS A NUMERAL THAT IS THE WHOLE OF ITS OWN ELEMENT, which
+         is what a key drawn on a control looks like. Written without that,
+         this fired on `Question {at + 1} of {asks.length}` on
+         `/grammar/build-a-word`, which is a counter in a sentence and not a key
+         anybody can press, and the fix would have been renaming a variable to
+         dodge the check. A check that fires on honest copy gets waived, and a
+         check everybody waives is a check nobody reads. The fault it exists
+         for, a round badge or a tinted pill around the numeral, is still the
+         whole content of its element and is still caught. */
+      if (/>\s*\{(?:i|at|index) \+ 1\}\s*</.test(line) && !/aria-label|`/.test(line)) {
         assert.match(line, cap, `${file}:${i + 1} draws the key that picks an option by hand. Use <KeyCap> from components/ui.tsx.`);
       }
       if (!cap.test(line)) return;
@@ -16025,6 +16294,575 @@ check("the harvest tells a refusal from a miss and plans its write rather than t
   const guard = code("lib/ekilex/harvestGuard.ts");
   assert.match(guard, /if \(refusedTotal > 0\) \{[\s\S]*?write: false/, "a refused request no longer refuses the write");
   assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
+});
+
+check("the audits ask their questions of every entry the seed writes", () => {
+  /*
+    `audit:questions` and `audit:sense` each opened `prisma/data/expanded.json`
+    under a comment calling it "what the seed loads". The seed loads that file
+    and `prisma/data/harvested.ts`, and 761 of the 1,514 course words are in no
+    expansion row, so half the course had never been asked whether its
+    questions are answerable. The day they were pointed at the whole
+    dictionary they reported 21 faults, every one of them a case round whose
+    own question word was the answer.
+
+    Reading the expansion is the shape that comes back, because it is one
+    import and it looks complete: the run prints a cheerful line over 5,363
+    entries and nothing says which 790 it did not see. So the check is on the
+    reader rather than on today's numbers.
+  */
+  for (const file of ["scripts/audit-questions.ts", "scripts/audit-sense.ts"]) {
+    const src = code(file);
+    assert.match(
+      src, /const entries = dictionaryRows\(\)/,
+      `${file} no longer builds its entries from the merged dictionary`,
+    );
+    assert.doesNotMatch(
+      src, /readExpanded/,
+      `${file} reads prisma/data/expanded.json again, which is half of what the seed writes`,
+    );
+  }
+
+  /*
+    And the merge is one, so the two audits and `measure:scenes` cannot
+    disagree about what shipped. `dictionaryRows` adds the one column the files
+    do not carry, which is the gradation the seed computes on the way past, and
+    it has to compute it the way the seed does: written with `null` instead, a
+    scratch run reported sixty-odd gradation faults the app does not have,
+    because the card builder breaks on `"NONE"` and `null` is not `"NONE"`.
+  */
+  const merge = code("scripts/lib/dictionary.ts");
+  assert.match(
+    merge, /export function dictionaryRows\(\)[\s\S]{0,1200}!gradates\(e\.pos\)/,
+    "dictionaryRows no longer computes gradation off the part of speech, as the seed does",
+  );
+  assert.match(
+    merge, /export function dictionaryRows\(\)[\s\S]{0,1600}semanticTypes: e\.semanticTypes/,
+    "dictionaryRows drops semanticTypes, so a case card asks a person which room they are inside",
+  );
+});
+
+/**
+ * "TOO COMPLICATED" MOVES A DATE AND TOUCHES NOTHING ELSE.
+ *
+ * The button's whole claim is that putting a word aside is not an answer to
+ * it: the word stops arriving, the scheduler is told nothing, and the review
+ * log, which is the one table whose loss is unrecoverable, does not grow a row
+ * about a question nobody was asked (ADR-014, ADR-016). Every way that could
+ * come apart is a line in the module that writes it, so the module is what is
+ * read.
+ */
+check("putting a word aside moves a date and grades nothing", () => {
+  const defer = code("lib/progress/deferrals.ts");
+
+  assert.doesNotMatch(
+    defer, /\breview\.create|\bgradeCard\b|writeGrade/,
+    "lib/progress/deferrals.ts writes a review. A word somebody put aside was "
+    + "not answered, and a row saying otherwise is a lapse the scheduler will "
+    + "act on for ever.",
+  );
+  assert.doesNotMatch(
+    defer, /stability:|difficulty:|reps:|lapses:|learningSteps:|state:\s*\d/,
+    "lib/progress/deferrals.ts writes an FSRS column. What it may move is `due`: "
+    + "the word comes back in three weeks in exactly the state it was in tonight.",
+  );
+  assert.doesNotMatch(
+    defer, /suspended:/,
+    "lib/progress/deferrals.ts suspends a card. `suspended` is the leech clinic's "
+    + "column and means \"not coming back until somebody says so\", which is the "
+    + "opposite of a deferral.",
+  );
+
+  /*
+    AND IT GIVES BACK ONLY WHAT IT TOOK. The cards this moved are the ones now
+    sitting on the date it wrote, so both ways back match on that date. A
+    blanket `due = now` over the word would hand a learner a card the scheduler
+    had honestly put six months out, which is the schedule being overwritten by
+    a button that promised not to touch it.
+  */
+  for (const [what, where] of [["an undo", "undoDeferral"], ["the level wake", "wakeForLevel"]]) {
+    const body = defer.slice(defer.indexOf(`export async function ${where}`));
+    assert.match(
+      body, /due: row\.untilAt/,
+      `${what} pulls cards forward without matching the date the deferral wrote, `
+      + "so a card FSRS had honestly put further out comes back early.",
+    );
+  }
+
+  /*
+    AND A SECOND PRESS MAY NOT SHORTEN A WAIT, which is the same rule read
+    from the other end: both ways back match the date the deferral wrote, so a
+    press that wrote an earlier one over a wait already standing would leave
+    the cards on the old date, matched by nothing. The row would then read
+    three weeks while the word stayed gone for a term and the way back would do
+    nothing at all. Reachable through a wait for a band, a level rise, and the
+    same word on a screen that was already open.
+  */
+  const put = defer.slice(defer.indexOf("export async function deferWord"));
+  assert.match(
+    put, /standing\.untilAt >= fresh\.untilAt/,
+    "deferWord no longer compares a wait already standing against the one it "
+    + "would write, so saying \"too complicated\" twice can hand the word back "
+    + "sooner and strand the cards on a date nothing matches.",
+  );
+});
+
+/**
+ * AND THE SESSION'S OWN UNDO DOES NOT HAND THE WORD STRAIGHT BACK.
+ *
+ * `undoGrade` restores the scheduling a card had before the grade, and that
+ * includes the date it was due, which is earlier than the one `putWordAside`
+ * has just written. So a review session that kept a graded card of a word in
+ * its undo history after the learner put that word aside would let one press
+ * of Undo quietly resurrect it, under a note still saying it was gone for
+ * three weeks. The undo those grades were for is the one the note offers, and
+ * it takes the whole word.
+ */
+check("putting a word aside takes that word's grades out of the session's undo", () => {
+  const file = join("app", "(app)", "review", "ReviewSession.tsx");
+  const session = code(file);
+
+  const aside = session.slice(session.indexOf("const putAside = useCallback"));
+  const body = aside.slice(0, aside.indexOf("const submit = useCallback"));
+  assert.ok(body.length > 0 && body.length < 4000, `${file}: putAside was not found where it was`);
+
+  assert.match(
+    body, /setHistory\(/,
+    `${file}: putting a word aside leaves the session's undo history alone, so `
+    + "Undo can rewind a grade on that word and restore the date it was due, "
+    + "handing back a word the learner has just been told is gone.",
+  );
+  assert.match(
+    body, /\.filter\(\(d\) => d\.lexemeId !== word\)/,
+    `${file}: the undo history is rewritten without dropping the word's own `
+    + "grades, which is the half that matters: those are the entries whose "
+    + "scheduling predates the deferral.",
+  );
+  /*
+    And what is left moves up. A `Done` holds a position in the queue and this
+    is the one thing in the session that shortens the queue behind where the
+    learner is standing, so an entry left pointing at where a card used to be
+    reopens on its neighbour.
+  */
+  assert.match(
+    body, /index: Math\.max\(0, d\.index - goneBefore\(d\.index\)\)/,
+    `${file}: the undo entries that survive keep the positions they had in a `
+    + "queue that has since got shorter, so Undo reopens on the wrong card.",
+  );
+});
+
+/**
+ * AND THE TWO READS THAT IGNORE THE SCHEDULE ASK OUTRIGHT.
+ *
+ * Pushing `due` is what takes a deferred word out of review, out of Today's
+ * count and out of the new-card queue, and it is enough everywhere a read asks
+ * what is due. The ladder does not: between rungs a word sits ten minutes out,
+ * so its date says nothing about whether somebody refused it. Telling a ten
+ * minute step from a three week deferral by the size of the gap would be a
+ * guess with a constant in it, so those two ask.
+ */
+check("a read that ignores the schedule asks which words were put aside", () => {
+  for (const file of ["lib/progress/learn.ts", "lib/progress/summary.ts"]) {
+    assert.match(
+      code(file), /deferredWordIds\(/,
+      `${file} serves or counts a word part way up the ladder without asking `
+      + "which words were put aside, so a word the learner refused is taught again.",
+    );
+  }
+  // And the reads that do go by the date say so, or a word put aside is
+  // introduced as new on the next session.
+  assert.match(
+    code("app/(app)/review/page.tsx"), /state: 0, due: \{ lte: now \}/,
+    "the new-card queue stopped reading `due`, so a word put aside is introduced again",
+  );
+});
+
+/**
+ * WHAT ENOUGH PEOPLE SAY MOVES THE WORD, AND MOVES NOTHING IN THE DICTIONARY.
+ *
+ * The band the Institute recorded is the band the entry shows. What a
+ * deployment's own learners can move is the order words are taught in, which
+ * is derived on every read like every other ordering here (ADR-014).
+ */
+check("a word enough people put aside is offered later, not rewritten", () => {
+  const hard = code("lib/progress/hard.ts");
+  assert.doesNotMatch(
+    hard, /lexeme\.update|cefr:\s*(raise|offered)/,
+    "lib/progress/hard.ts writes a band into the dictionary. The count moves what "
+    + "is taught next, and the entry keeps the band it was recorded with.",
+  );
+  assert.match(
+    hard, /tooHardForEveryone\(/,
+    "lib/progress/hard.ts decides on its own what counts as too hard, rather than "
+    + "through the rule in lib/srs/defer.ts that the admin panel quotes back.",
+  );
+
+  // Both halves of the threshold, because a head count on its own would move a
+  // word five people out of four hundred put aside.
+  const rule = code("lib/srs/defer.ts");
+  assert.match(
+    rule, /learners < HARD_LEARNERS[\s\S]*?learners >= HARD_SHARE \* holders/,
+    "the raise stopped reading both the floor and the share",
+  );
+
+  // And the reach: the two places that decide which word somebody is taught
+  // next. A raise nobody reads is a count nobody acts on.
+  for (const file of ["app/(app)/review/page.tsx", "lib/progress/learn.ts"]) {
+    assert.match(
+      code(file), /offeredBand\(/,
+      `${file} bands a word by what the dictionary recorded rather than by what `
+      + "this deployment now offers it at, so the count moves nothing for anybody.",
+    );
+  }
+});
+
+/**
+ * AND A CARD BUILT FOR A WORD ALREADY PUT ASIDE IS BUILT PUT ASIDE.
+ *
+ * Pushing `due` reaches every card that exists, and the unit lesson is where a
+ * word is refused before it has one: the lesson teaches the unit's words and
+ * `completeLesson` builds the cards at the end. Without this the word somebody
+ * said was too complicated arrives the next morning with a card dated today,
+ * and so does the unit's own "Add to deck" pressed afterwards, which is the
+ * button quietly not working on the screen it was asked for.
+ */
+check("a card built for a word put aside is built put aside", () => {
+  const builders: [string, string][] = [
+    [join("app", "actions.ts"), "the single add"],
+    [join("lib", "srs", "deck.ts"), "the batched builder"],
+  ];
+  for (const [file, what] of builders) {
+    const body = code(file);
+    assert.match(
+      body, /deferredDues\(/,
+      `${what} (${file}) builds cards without asking which words were put aside, `
+      + "so a word refused during a lesson comes back with a card dated today.",
+    );
+    assert.match(
+      body, /due: held\.get\(/,
+      `${what} (${file}) asks which words were put aside and then dates every new `
+      + "card now anyway.",
+    );
+  }
+});
+
+/**
+ * AND THE WAY BACK IS A SCREEN SOMEBODY CAN OPEN.
+ *
+ * A panel nobody renders is a feature nobody has, which this repository has
+ * found twice. A button that takes words away without a list of what it took
+ * is worse than either: the learner cannot tell a word put aside from a word
+ * the app has quietly lost.
+ */
+check("the words put aside are listed, and one button puts them there", () => {
+  const callers = ALL.filter((file) => /\bputWordAside\b/.test(code(file)));
+  assert.deepEqual(
+    callers.sort(),
+    [join("app", "actions.ts"), join("components", "TooComplicated.tsx")].sort(),
+    `${callers.join(", ")} reach putWordAside. It has one caller, `
+    + "components/TooComplicated.tsx, so every screen draws the same button and "
+    + "says the same thing about what it did.",
+  );
+
+  const mastery = code(join("app", "(app)", "words", "mastery", "page.tsx"));
+  assert.match(
+    mastery, /<PutAside\b/,
+    "the mastery page imports the put-aside list and never draws it, so the only "
+    + "way back from \"too complicated\" is not on any screen.",
+  );
+  assert.match(
+    code(join("components", "PutAside.tsx")), /bringWordBack\(/,
+    "the put-aside list stopped offering a way back, which is the half that makes "
+    + "the button safe to press.",
+  );
+
+  // Both sessions that draw the button say what it did. The whole effect is a
+  // word that stops arriving, so a press that only made a card disappear reads
+  // as a fault.
+  for (const file of [
+    join("app", "(app)", "review", "ReviewSession.tsx"),
+    join("app", "(app)", "learn", "new", "LearnSession.tsx"),
+    join("app", "(app)", "learn", "[unitId]", "lesson", "LessonSession.tsx"),
+  ]) {
+    assert.match(
+      code(file), /<TooComplicated\b/,
+      `${file} stopped offering the button on the screen a word is met on`,
+    );
+    assert.match(
+      code(file), /\{aside\}/,
+      `${file} draws the button and never prints what it did, so the press reads `
+      + "as a card vanishing.",
+    );
+  }
+});
+
+/*
+  THE PLANNED COURSE STORES ONLY WHAT NO LOG CAN REBUILD.
+
+  Four arms, and each one is a way this feature would quietly become a second
+  source of truth about somebody's progress. The day pointer is the one that
+  matters: a column saying which day a learner is on drifts and can be advanced
+  by something that never happened, which is exactly what ADR-014 was written
+  about, and the temptation to add one arrives the first time somebody wants
+  "skip this day".
+*/
+check("the planned course derives its day and stores only the steps a log cannot prove", () => {
+  const schema = read("prisma/schema.prisma");
+  const model = schema.slice(schema.indexOf("model CourseStep {"));
+  const body = model.slice(0, model.indexOf("}"));
+  assert.ok(body.length > 0, "CourseStep is gone from the schema");
+  for (const banned of ["dayIndex", "currentDay", "position", "streak", "completedAt"]) {
+    assert.ok(
+      !new RegExp(`\\b${banned}\\s`).test(body),
+      `CourseStep grew a ${banned} column. Which day somebody is on is derived from these rows; a pointer drifts (ADR-014)`,
+    );
+  }
+  assert.match(body, /@@unique\(\[ownerId, programmeId, dayId, stepId\]\)/,
+    "CourseStep lost its unique key, so a second press writes a second row");
+
+  const rules = code("lib/course/types.ts");
+  assert.match(rules, /derived: boolean/, "a step no longer says whether a log proves it");
+
+  const actions = code("app/actions.ts");
+  const mark = actions.slice(actions.indexOf("export async function markCourseStep"));
+  assert.match(
+    mark.slice(0, 1200), /if \(step\.derived\) \{/,
+    "markCourseStep will tick a derived step, which writes a second source of truth for a fact the review log already holds",
+  );
+
+  const half = code("lib/progress/course.ts");
+  assert.ok(
+    !/courseStep\.(update|delete|deleteMany)\b/.test(half) && !/courseStep\.(update|delete)\b/.test(mark),
+    "something edits or deletes a CourseStep row. The table is append-only, like Review and Encounter",
+  );
+});
+
+/*
+  THE DAY IN PLAY IS THE FURTHEST ONE CARRYING A TICK, AND THAT IS LOAD-BEARING
+  RATHER THAN A TIDY WAY TO WRITE IT.
+
+  Two of every day's steps are proved off the review log and written nowhere,
+  so by ticks alone *every* day of a programme is unfinished. The first version
+  of the reading walked from day one looking for the first unfinished day and
+  had to ask the log about each evening it passed, two queries apiece, under a
+  cap; past the cap the learner was held for ever on whichever evening the cap
+  fell on, and the reading got more expensive the further anybody got. Reading
+  the pointer off the ticks is constant and cannot stall.
+
+  It is monotonic only because `markCourseStep` refuses a tick for a day nobody
+  has reached: a tick is the pointer, so a forged day id would move the whole
+  course onto it and skip every evening in between, and `startCourseDay` would
+  build a deck out of that day's words. Both halves are asserted, because
+  either alone is the fault.
+*/
+check("the planned course reads its pointer off the ticks, and guards what may write one", () => {
+  const half = code("lib/progress/course.ts");
+  const reading = half.slice(half.indexOf("export async function courseReading"));
+  assert.match(
+    reading.slice(0, 2000), /dayReached\(programme,/,
+    "courseReading stopped reading the day off the ticks. Walking from day one asks the log about every evening behind the learner and stalls at the cap",
+  );
+
+  const rule = code("lib/course/index.ts");
+  assert.match(rule, /export function dayReached\(/, "dayReached is gone from the pure half");
+
+  const actions = code("app/actions.ts");
+  for (const name of ["startCourseDay", "markCourseStep"]) {
+    const body = actions.slice(actions.indexOf(`export async function ${name}(`));
+    assert.match(
+      body.slice(0, 2500), /dayIsInPlay\(ownerId, programme, day\)/,
+      `${name} takes a day id off the wire without asking whether the learner has reached it`,
+    );
+  }
+});
+
+/*
+  AND A DAY'S CLOSING ROUND COUNTS THE ANSWERS THAT CLOSED IT, WHENEVER THEY
+  WERE.
+
+  The window used to open at the later of the day's last tick and the learner's
+  own midnight, which is the same window on the evening itself and a different
+  one every morning after: a module finished at nine last night had its window
+  moved to midnight, the answers that closed it stopped counting, the day
+  stopped being finished, and the learner opened the app to the evening they
+  had already done. Every test in the suite ran inside one day, so nothing
+  caught it. The floor is the shape to watch for, and `courseReading` takes a
+  clock for one thing only, which is whether the day it just finished was
+  finished today.
+*/
+check("a finished module stays finished after midnight", () => {
+  const half = code("lib/progress/course.ts");
+  const window = half.slice(half.indexOf("const closingOpensAt"));
+  assert.match(
+    window.slice(0, 400), /ticks\.lastAt\.get\(dayId\);/,
+    "the closing round's window is no longer the day's own last tick",
+  );
+  assert.ok(
+    !/startOfDay/.test(window.slice(0, 400)),
+    "the closing round's window is floored at midnight again, which un-finishes last night's module every morning",
+  );
+  assert.equal(
+    (half.match(/clock\.startOfDay\(/g) ?? []).length, 1,
+    "something other than the finished-today reading is asking the clock where the learner's day starts",
+  );
+});
+
+/*
+  A PLANNED DAY MAY NOT INTRODUCE A WORD, WHICH IS ADR-005 ARRIVING BY A NEW
+  DOOR. Every lemma a day names is one its own unit teaches, and the unit is a
+  request the Ekilex harvest either honors or reports. The test that actually
+  walks the words is `lib/course/course.test.ts`; this is the assertion that it
+  is still the rule rather than a paragraph, since nothing under `lib/course/`
+  may reach a provider or a database either.
+*/
+check("a planned course day names words rather than writing any", () => {
+  for (const file of ["lib/course/types.ts", "lib/course/plan.ts", "lib/course/build.ts", "lib/course/index.ts"]) {
+    const src = code(file);
+    assert.ok(!/from "@\/lib\/db"/.test(src), `${file} imports Prisma. lib/course is pure, like lib/collections`);
+    assert.ok(
+      !/tutor\/provider|openWithFallback|completeWith/.test(src),
+      `${file} can reach a model. Nothing in the course may compose Estonian (ADR-005)`,
+    );
+  }
+  const build = code("lib/course/build.ts");
+  assert.match(
+    build, /const words = unit\.lemmas\.filter/,
+    "a day's words stopped coming out of its unit's own list. A programme may not name a lemma (ADR-005)",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.match(plan, /units: \[/, "a part stopped naming the units it works");
+  /*
+    The plan names units, scenes and rounds by id and holds no word list of its
+    own, which is the same rule `lib/collections/topical.ts` carries: the moment
+    a plan can name a lemma it can name one the course does not teach, and the
+    harvest is no longer the thing that decides.
+  */
+  assert.ok(
+    !/\bwords\s*:/.test(plan) && !/\blemmas\s*:/.test(plan),
+    "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
+  );
+
+  const tests = read("lib/course/course.test.ts");
+  assert.match(
+    tests, /teaches only words its own unit teaches/,
+    "the check that a day may not introduce vocabulary is gone",
+  );
+});
+
+/*
+  The words go in the deck on a press and never on a render. `PrefetchLink`
+  fetches a whole page once a pointer has settled on a link for 90ms, so a
+  course screen that topped the deck up while rendering would build somebody
+  eight words for hovering over the button, and no browser suite would see it
+  because a suite clicks. The same rule the frequency rounds already carry.
+*/
+check("the planned course builds its cards behind a press", () => {
+  for (const page of ["app/(app)/course/page.tsx", "app/(app)/course/learn/page.tsx"]) {
+    const src = code(page);
+    assert.ok(
+      !/addPlanToDeck|addCardsFor|addUnitsToDeck|planLemmas/.test(src),
+      `${page} writes cards while rendering. The add is a Server Action behind a button`,
+    );
+  }
+  const actions = code("app/actions.ts");
+  assert.match(
+    actions, /export async function startCourseDay[\s\S]*?addPlanToDeck\(/,
+    "startCourseDay no longer adds the day's words through the shared deck builder",
+  );
+  const list = code("components/course/StepList.tsx");
+  assert.match(list, /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
+});
+
+/*
+  THE EVENING IS THE CONSTANT AND THE WORD COUNT IS WHAT MOVES.
+
+  A day that is fifteen minutes on Monday and twenty-eight on Tuesday is a day
+  somebody starts skipping on Wednesday, so the model prices the steps and
+  fits the words to what is left. The arithmetic is checked over all 273
+  evenings in `course.test.ts`; this is the shape of it, which is the half a
+  later change breaks without any figure going out of range: a per-activity
+  minute count coming back would make an evening depend on which round the
+  rotation dealt.
+*/
+check("a planned evening is fifteen minutes whatever shape it takes", () => {
+  const types = code("lib/course/types.ts");
+  assert.match(types, /export const DAY_MINUTES = 15;/, "the evening stopped being fifteen minutes");
+  assert.match(
+    types, /export const TALK_MINUTES = READ_MINUTES \+ ROUND_MINUTES \* 2;/,
+    "a conversation stopped costing exactly what it displaces, so the evening it lands on is longer than every other",
+  );
+  assert.ok(
+    !/kind: "(game|drill)", minutes:/.test(types),
+    "an activity grew its own minute count again. A round inside a planned evening is ROUND_MINUTES, or the evening depends on which round the rotation dealt",
+  );
+  assert.match(
+    types, /export function wordsInBudget\(/,
+    "the word count stopped being fitted to what is left of the evening",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.ok(
+    !/"crossword"/.test(plan),
+    "the crossword is back on a rotation. A seven-word grid is a quarter of an hour on its own, which is the whole evening",
+  );
+});
+
+/*
+  THE HAND-OFF WARNING IS A READING, NEVER A WALL. The learner is the authority
+  on their own week, and the button that goes on anyway has to be on the same
+  card as the sentence saying Kodukeel would not. Three arms: the rule refuses
+  to judge on thin evidence, the screen draws the way past, and the advice
+  never sends anybody back to redo a fortnight.
+*/
+check("the ladder warns about the next part and never blocks it", () => {
+  const gate = code("lib/course/gate.ts");
+  assert.match(
+    gate, /if \(evidence\.answers < MIN_EVIDENCE\) return \{ kind: "unmeasured" \}/,
+    "the gate will now judge somebody on thin evidence, which is an opinion wearing a measurement's clothes",
+  );
+  assert.ok(
+    !/block|lock|refuse|deny/i.test(gate.replace(/kind: "hold"/g, "")),
+    "lib/course/gate.ts reads as though it stops somebody. It is a reading and the way on is always drawn",
+  );
+
+  const page = code("app/(app)/course/page.tsx");
+  const hold = page.slice(page.indexOf('verdict.kind === "hold" ? ('));
+  assert.ok(hold.length > 0, "the course screen no longer draws the hold verdict at all");
+  assert.match(
+    hold.slice(0, 2500), /<NextPart[\s\S]*?anyway/,
+    "the warning no longer carries a way past it. Saying so and hiding the button is the app not meaning it",
+  );
+});
+
+/*
+  THE BAR FILLS ON WORDS THAT STUCK, NEVER ON EVENINGS TICKED. An evening
+  ticked says somebody sat down; a graduated card says they still had the word
+  days later. A bar that filled on attendance would be the same false
+  confidence the hand-off warning exists to catch, drawn as a picture, and it
+  would sit on the one screen everybody opens.
+*/
+check("the milestone bar is filled by the scheduler rather than by attendance", () => {
+  const half = code("lib/progress/course.ts");
+  const position = half.slice(half.indexOf("export async function ladderPosition"));
+  assert.ok(position.length > 0, "ladderPosition is gone");
+  assert.match(
+    position.slice(0, 1400), /state: 2/,
+    "the bar stopped counting graduated cards. Anything else is attendance drawn as attainment",
+  );
+  assert.ok(
+    !/courseStep/i.test(position.slice(0, 1400)),
+    "the bar reads finished steps. A word sticking is the claim, and a tick is not one",
+  );
+
+  const rule = code("lib/course/milestones.ts");
+  assert.ok(
+    !/from "@\/lib\/db"/.test(rule),
+    "lib/course/milestones.ts imports Prisma. It is the rule; lib/progress/course.ts asks the database",
+  );
+  const bar = code("components/course/LadderBar.tsx");
+  assert.match(
+    bar, /aria-hidden/,
+    "the milestone strip stopped being hidden from a screen reader. A row of dots is a picture of the list beneath it",
+  );
 });
 
 console.log(

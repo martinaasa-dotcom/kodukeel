@@ -146,8 +146,8 @@ export function WordIntro({
               worth more than telling a beginner to read it aloud. */}
           <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
             {!plain && tokens?.some((token) => token.entry)
-              ? "A real sentence, from Ekilex. Any underlined word opens its meaning."
-              : "A real sentence, from Ekilex. Try reading it out loud."}
+              ? "Any underlined word opens its meaning."
+              : "Try reading it out loud."}
           </p>
         </div>
       ) : (

@@ -188,6 +188,23 @@ export const SETTING_KEYS = {
    * not this setting's business and does not read it.
    */
   roundPace: "roundPace",
+  /**
+   * Which planned programme the learner is following, if any.
+   *
+   * A programme is the evening decided in advance: which words, which order,
+   * which round after which (`lib/course/`). The stored value is a programme
+   * id, or `off` where somebody has said they would rather pick their own
+   * evening.
+   *
+   * A MISSING ROW IS NOT A REFUSAL, and it is not a yes either. It is
+   * everybody who used this app before the programme existed, so it is read as
+   * "offer it where it fits": a beginner is led, and somebody the app has
+   * already measured at B1 is not handed a course of greetings on the screen
+   * they open every morning. `lib/progress/course.ts` is where that is
+   * decided, once, so the course screen and Today cannot disagree about
+   * whether anybody is on one.
+   */
+  programme: "programme",
 } as const;
 
 export type SettingKey = (typeof SETTING_KEYS)[keyof typeof SETTING_KEYS];

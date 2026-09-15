@@ -19,6 +19,8 @@ import { ADJECTIVES, PHRASES } from "../../prisma/data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "../../prisma/data/advanced";
 import { HARVESTED } from "../../prisma/data/harvested";
 import expandedRaw from "../../prisma/data/expanded.json";
+import { classifyGradation, classifyVerbGradation, gradates } from "../../lib/estonian/gradation";
+import { courseWords } from "../../lib/collections/syllabus/index";
 
 export interface ShippedEntry {
   readonly lemma: string;
@@ -45,6 +47,24 @@ export interface ShippedEntry {
   readonly note: string | null;
   /** What Ekilex calls the word. Course words only. */
   readonly ekilexPos: readonly string[];
+  /**
+   * The Institute's own classification of what kind of thing the word is.
+   *
+   * Carried rather than derived, because nothing here could derive it: it is
+   * what decides whether a word is drilled on `opetajale` or on `opetajasse`,
+   * and a caller that does not have it asks a person which room they are
+   * inside. Null for the hand-typed lists, which predate the column.
+   */
+  readonly semanticTypes: string | null;
+  /**
+   * The gradation the file already holds, where it holds one.
+   *
+   * Only the expansion does: `scripts/expand-seed.ts` stores what
+   * `mapEkilexDetails` worked out, and `prisma/seed.ts` computes the value for
+   * every other row on the way past. `dictionaryRows` is where that second
+   * half lives, so this stays a statement about the files.
+   */
+  readonly gradation: { readonly type: string; readonly note: string | null } | null;
   /** Which file it came from, because that decides who wins a collision. */
   readonly source: "SEED" | "HARVEST" | "EXPANSION";
 }
@@ -56,6 +76,9 @@ interface ExpandedEntry {
   translation: string;
   notes?: string | null;
   government?: string | null;
+  gradation?: string | null;
+  gradationNote?: string | null;
+  semanticTypes?: string | null;
   examples?: { et: string; en: string | null }[];
   forms?: { formType: string; value: string }[];
 }
@@ -69,6 +92,8 @@ function clean(parts: Record<string, string | undefined>): Record<string, string
 const bare = {
   note: null, ekilexPos: [] as string[], government: null as string | null,
   extraForms: [] as { code: string; value: string }[], source: "SEED" as const,
+  semanticTypes: null as string | null,
+  gradation: null as { type: string; note: string | null } | null,
 };
 
 /**
@@ -138,6 +163,8 @@ export function shippedDictionary(): ShippedEntry[] {
       lemma: h.lemma, pos: h.pos, cefr: h.cefr, gloss: h.gloss,
       parts: h.parts, extraForms: h.extraForms, government: h.government,
       usages: h.usages, note: h.note, ekilexPos: h.ekilexPos, source: "HARVEST",
+      semanticTypes: h.semanticTypes.length > 0 ? h.semanticTypes.join(" ") : null,
+      gradation: null,
     });
   }
 
@@ -170,6 +197,8 @@ export function shippedDictionary(): ShippedEntry[] {
       // Ekilex's, like the course's: the expansion reads the same field.
       government: e.government ?? null,
       extraForms: surplus,
+      semanticTypes: e.semanticTypes ?? null,
+      gradation: { type: e.gradation ?? "NONE", note: e.gradationNote ?? null },
       source: "EXPANSION",
     });
   }
@@ -188,4 +217,99 @@ export function formValues(entry: ShippedEntry): string[] {
   const out = new Set<string>([entry.lemma, ...Object.values(entry.parts)]);
   for (const f of entry.extraForms) out.add(f.value);
   return [...out];
+}
+
+/**
+ * One dictionary entry in the shape `Lexeme` is written in, for the audits.
+ *
+ * `ShippedEntry` says what is in the files. This says what the row looks like
+ * once the seed has finished with it, which is what a generator reads, and the
+ * difference is one computed column.
+ */
+export interface DictionaryRow {
+  lemma: string;
+  pos: string;
+  cefr: string | null;
+  translation: string;
+  forms: { formType: string; value: string }[];
+  examples: { et: string; en: string | null }[];
+  government: string | null;
+  gradation: string;
+  gradationNote: string | null;
+  semanticTypes: string | null;
+}
+
+/*
+  EVERY ENTRY THE SEED WRITES, IN THE SHAPE THE CARD BUILDERS READ.
+
+  `scripts/audit-questions.ts` and `scripts/audit-sense.ts` each opened
+  `prisma/data/expanded.json` under a comment calling it "what the seed loads",
+  and the seed loads that file and `prisma/data/harvested.ts`: 758 of the 1,514
+  course words are in no expansion row, so half the course had never been
+  through either. It is not academic. `kes` and `mis` are among them, and their
+  gradation card asks the genitive as `kelle? mille?`, which are the two words
+  it wants back.
+
+  THE MERGE HAS TO BE FAITHFUL OR IT INVENTS FAULTS, and the first attempt at
+  one proves it: written with `gradation: null` on the course rows it reported
+  about sixty gradation faults the app does not have, because
+  `lib/srs/cards.ts` breaks on `lex.gradation === "NONE"` and `null` is not
+  `"NONE"`. So gradation is computed here exactly as `prisma/seed.ts` computes
+  it, off the part of speech first: `gradates` decides, a verb is classified on
+  its ma-infinitive and its first person and a nominal on its nominative and
+  its genitive. A pronoun grades to NONE, which is why the card that started
+  this cannot be reached from a seeded dictionary at all and is reached from
+  the live lookup instead, where Ekilex calls every nominal `noomen` and the
+  entry is created as a NOUN.
+
+  `semanticTypes` is the other column a wrong merge would quietly drop, and it
+  decides which question words a case card prints: read as absent, an animate
+  noun is drilled on `opetajasse`. It is carried rather than computed, because
+  nothing here could compute it.
+*/
+const COURSE_LEVEL = new Map(courseWords().map((w) => [`${w.lemma}|${w.pos}`, w.level]));
+
+export function dictionaryRows(): DictionaryRow[] {
+  return shippedDictionary().map((e) => {
+    const g =
+      e.gradation !== null ? e.gradation
+      : !gradates(e.pos) ? { type: "NONE", note: null }
+      : e.pos === "VERB"
+        ? classifyVerbGradation(e.parts.INF_MA ?? e.lemma, e.parts.PRES_1SG ?? "")
+        : classifyGradation(e.parts.NOM_SG ?? e.lemma, e.parts.GEN_SG ?? "");
+    return {
+      lemma: e.lemma,
+      pos: e.pos,
+      /*
+        Ekilex's own proficiency code where it records one, and the level of
+        the unit that introduces the word where it does not. Both are honest
+        and the first is the authority's.
+
+        The `B1` floor is the harvest's alone, which is where `prisma/seed.ts`
+        applies it: an expansion row with no code is written with none, and
+        2,090 of them have none. Applying it to everything would tell the exam
+        pool that a third of the dictionary is B1.
+      */
+      cefr:
+        e.cefr
+        ?? COURSE_LEVEL.get(`${e.lemma}|${e.pos}`)
+        ?? (e.source === "HARVEST" ? "B1" : null),
+      translation: e.gloss,
+      forms: [
+        ...Object.entries(e.parts).map(([formType, value]) => ({ formType, value })),
+        ...e.extraForms.map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
+      ],
+      /*
+        Every stored example's English is null: measured over the whole
+        expansion, 0 of 12,172 carry one, because Ekilex records a usage and
+        not a translation of it. So `ShippedEntry` dropping the column costs
+        nothing here, and a row that grows one would have to be carried.
+      */
+      examples: e.usages.map((et) => ({ et, en: null })),
+      government: e.government,
+      gradation: g.type,
+      gradationNote: g.note ?? null,
+      semanticTypes: e.semanticTypes,
+    };
+  });
 }

@@ -136,7 +136,7 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
             is spoken.
           </li>
           <li>
-            Built from this dictionary. Every word and sentence came from Ekilex and the same set
+            Built from this dictionary. Every word and sentence came from the same set
             the rest of the app teaches from, which is broad but not the whole language.
           </li>
         </ul>

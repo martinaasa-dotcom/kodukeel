@@ -87,7 +87,7 @@ export default async function LearnPage() {
         map is under it: a learner who wants to pick reads on, and one who
         wants to learn presses the button.
       */}
-      <LearnCard waiting={counts.waiting} started={counts.started} />
+      <LearnCard waiting={counts.waiting} started={counts.started} phrases={counts.phrases} />
 
       <SectionTitle hint={`A1 to C1 · working at ${placement}`}>The course</SectionTitle>
       {/*
@@ -309,8 +309,16 @@ export default async function LearnPage() {
  * is a deck that needs filling, and the course underneath is the way to fill it,
  * which is why this says so rather than offering a dead button.
  */
-function LearnCard({ waiting, started }: { waiting: number; started: number }) {
+function LearnCard({
+  waiting, started, phrases,
+}: {
+  waiting: number;
+  started: number;
+  /** The same two counts, over the fixed phrases (`Tere!`, `Kuidas läheb?`) rather than words. */
+  phrases: { waiting: number; started: number };
+}) {
   const ready = waiting + started;
+  const phrasesReady = phrases.waiting + phrases.started;
   return (
     <div
       className="mb-7 flex flex-col gap-4 rounded-[var(--r-lg)] border p-5 sm:flex-row sm:items-center"
@@ -338,11 +346,26 @@ function LearnCard({ waiting, started }: { waiting: number; started: number }) {
           </p>
         )}
       </div>
-      {ready > 0 && (
-        <ButtonLink href="/learn/new" variant="primary" className="w-full justify-center sm:w-auto">
-          Learn {Math.min(ready, LEARN_BATCH)} words
-        </ButtonLink>
-      )}
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+        {/*
+          A whole phrase (`Kas sa räägid inglise keelt?`) is taught on the same
+          ladder as a word, and for a while that meant "learn 5 new words" could
+          hand over five phrases in a row, the entire `tervitused` unit and
+          nothing else: a learner pressing "words" expecting words. So a phrase
+          is its own quieter button here rather than folded into the count
+          above, only where one is actually waiting.
+        */}
+        {phrasesReady > 0 && (
+          <ButtonLink href="/learn/new?kind=phrase" variant="secondary" className="w-full justify-center sm:w-auto">
+            Learn {Math.min(phrasesReady, LEARN_BATCH)} phrases
+          </ButtonLink>
+        )}
+        {ready > 0 && (
+          <ButtonLink href="/learn/new" variant="primary" className="w-full justify-center sm:w-auto">
+            Learn {Math.min(ready, LEARN_BATCH)} words
+          </ButtonLink>
+        )}
+      </div>
     </div>
   );
 }

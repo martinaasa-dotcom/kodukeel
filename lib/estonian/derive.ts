@@ -285,6 +285,37 @@ export function buildCaseTable(stems: NounStems): DerivedForm[] {
   });
 }
 
+/**
+ * IS THE PRINTED FORM THIS CASE'S ENDING ON THE GENITIVE STEM?
+ *
+ * The question two screens ask about every row they draw: the landing page's
+ * case explorer, to decide whether to light the ending, and `/grammar/build-a-word`,
+ * to decide whether to say "this one is learned" and whether to ask a reader
+ * to produce it. `tuppa` is not `toa` plus `sse`, so lighting letters on it
+ * would be lighting a rule the word does not follow.
+ *
+ * It lives here because the join lives here. Both callers used to work it out
+ * for themselves with an `endsWith` and a `slice`, precisely to keep the join
+ * inside this module, which is the rule holding and two copies of it drifting
+ * anyway. `origin` is deliberately not the test: an entry enriched from Ekilex
+ * carries a lexicographer's spelling for every case and nearly all of them are
+ * the stem plus the ending, so reading the provenance marks eleven ordinary
+ * rows as exceptions. What a screen is about to claim is that these letters
+ * were added to that stem, and the only honest test of that is whether they
+ * were.
+ *
+ * A principal part and a word with no genitive stem both answer `false`: there
+ * is no ending to have followed.
+ */
+export function followsEndingRule(
+  value: string,
+  genSg: string | null | undefined,
+  spec: CaseSpec,
+): boolean {
+  if (spec.principal || spec.suffix === "" || !genSg) return false;
+  return value === genSg + spec.suffix;
+}
+
 /** What the app should show and accept for one case of one word. */
 export interface CaseAnswer {
   /** The form to print: attested wherever one is attested. */

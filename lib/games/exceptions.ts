@@ -190,8 +190,22 @@ function wanted(word: ExceptionWord): string[] {
  */
 export function drillable(word: ExceptionWord): boolean {
   const lemma = word.lemma.trim().toLowerCase();
-  return word.exception.forms.length > 0
-    && word.exception.forms.every((form) => form.trim().toLowerCase() !== lemma);
+  if (word.exception.forms.length === 0) return false;
+  if (word.exception.forms.some((form) => form.trim().toLowerCase() === lemma)) return false;
+  /*
+    AND NOT WHERE THE LABEL SPELLS IT EITHER.
+
+    The test above is about the word and this is about the slot. A label is the
+    case's Estonian name and the question it answers, `omastav · kelle?
+    mille?`, and for `kes` and `mis` those question words are the very forms
+    being asked for: the round put `kes who omastav · kelle? mille?` on screen
+    and wanted `kelle` back. Six of the 21 faults `npm run audit:questions`
+    reported the day it was pointed at the whole dictionary were this, and none
+    of them is visible on any single word, because the question comes from a
+    table this module does not own.
+  */
+  const label = askLabel(word.exception);
+  return !word.exception.forms.some((form) => mentions(label, form));
 }
 
 /** One word's tasks, in rung order. `use` is absent where no sentence carries the form. */

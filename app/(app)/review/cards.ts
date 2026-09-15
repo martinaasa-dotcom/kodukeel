@@ -1,4 +1,6 @@
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { parseExamples, teachingSentence } from "@/lib/dict/examples";
 import { BLANK } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
@@ -17,7 +19,63 @@ import { stemsFrom } from "@/lib/estonian/derive";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
 import type { ReviewCard } from "./ReviewSession";
+
+/**
+ * WHICH UNSEEN CARDS OF A WORD MAY BE SERVED, WHICH IS THE ONES LEARN HAS
+ * FINISHED WITH.
+ *
+ * A word's recognition card, production card and every case card the
+ * dictionary can build arrive at once, all unseen, all in one `createMany`.
+ * Learn teaches the word on its recognition card and everywhere else drills
+ * everything else, so the line between the two is drawn here: a word whose
+ * recognition card has not graduated out of New or Learning is Learn's, and
+ * none of its other cards is offered yet. The moment it graduates the rest
+ * arrive in the ordinary trickle.
+ *
+ * `notOnLadder` is what every route that can hand out an unseen card asks:
+ * the review queue's own new-card read, a case or unit drill, the frequency
+ * lists and a learner's own lookups. A drill or a frequency round ignores
+ * scheduling, which means it also ignores `pastTheLadder`'s own guard unless
+ * it is asked for by name: a word added moments ago carries a CASE_FORM card
+ * at `state: 0` from the same batch as its recognition card, and a round that
+ * reads by lapses and due date alone would hand that out as a first meeting,
+ * in a case, before the word's own recognition card had ever been shown — a
+ * `neljaks` the learner had never been shown `neli` for.
+ *
+ * Only an unseen card is at risk of this, so a card already past state 0 is
+ * let through unconditionally: the ladder has already had its say about it.
+ * `pastTheLadder` is asked only of the ones still at `state: 0`.
+ *
+ * A `none` on the word's own cards rather than a second query, so this costs
+ * a subquery on an indexed column instead of a round trip. `lexemeId` is
+ * nullable, and a card with no dictionary entry behind it has no ladder to be
+ * on, so it is let through rather than filtered out by a clause that cannot
+ * see it.
+ */
+export function pastTheLadder(ownerId: string): Prisma.CardWhereInput {
+  return {
+    OR: [
+      { lexemeId: null },
+      {
+        lexeme: {
+          cards: {
+            none: {
+              ownerId,
+              cardType: LADDER_CARD_TYPE,
+              state: { in: [...LADDER_STATES] },
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
+export function notOnLadder(ownerId: string): Prisma.CardWhereInput {
+  return { OR: [{ state: { not: 0 } }, pastTheLadder(ownerId)] };
+}
 
 /**
  * READING A CARD OUT OF THE DATABASE AND HANDING IT TO A SESSION.
@@ -92,8 +150,8 @@ function introFor(c: CardRow, glossLanguage: GlossLanguage): ReviewCard["intro"]
   const equivalent = equivalentIn(c.lexeme, glossLanguage);
 
   return {
-    lemma: c.lexeme.lemma,
-    gloss: c.lexeme.translation,
+    lemma: plainPhrase(c.lexeme.lemma),
+    gloss: plainPhrase(c.lexeme.translation),
     lexemeId: c.lexemeId,
     equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
     sentence: found
@@ -169,15 +227,25 @@ async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<Review
 }
 
 /**
- * The stored English translation of a CLOZE card's own sentence, or null.
+ * The stored English translation of a gap card's own sentence, or null.
  *
- * A `CLOZE` card's front and back are the sentence with the answer taken out
- * (`BLANK`), reconstructed by putting it back, and matched against the
- * lexeme's own examples by exact spelling: the same sentence, if Ekilex or a
- * learner's own request already put an English line on it.
+ * `CLOZE` was the only gap-fronted card type this asked about, and `CASE_FORM`
+ * and `CONJUGATION` are gap-fronted too now that a case and a person are
+ * drilled in a sentence that needs them rather than in a bare `word → case`
+ * line (see CLAUDE.md, "A case is drilled in a sentence that uses it"). A
+ * learner reading `Autol on ____ ratast` with no way to read the sentence
+ * around the blank has no context for the answer, only the isolated gloss of
+ * the word being asked for, which is a different and weaker thing: the sentence
+ * is what makes an answer worth reasoning your way to rather than guessing.
+ *
+ * So this reads any front that carries `BLANK`, whatever the card type. The
+ * front and back are the sentence with the answer taken out, reconstructed by
+ * putting it back, and matched against the lexeme's own examples by exact
+ * spelling: the same sentence, if Ekilex or a learner's own request already
+ * put an English line on it.
  */
 function clozeSentenceEn(c: CardRow): string | null {
-  if (c.cardType !== "CLOZE" || !c.lexeme) return null;
+  if (!c.front.includes(BLANK) || !c.lexeme) return null;
   const whole = c.front.replace(BLANK, c.back);
   const example = parseExamples(c.lexeme.examples).find((e) => e.et === whole);
   return example?.en ?? null;

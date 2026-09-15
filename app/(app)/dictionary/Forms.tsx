@@ -5,6 +5,7 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ChevronDown } from "lucide-react";
 import { CASES } from "@/lib/estonian/cases";
 import { caseQuestionFor, type CaseSubject } from "@/lib/estonian/caseQuestion";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { caseFromMorphCode, VERB_GROUP_LABELS, verbSlot, type VerbSlot } from "@/lib/estonian/morph";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { Speak } from "@/components/Speak";
@@ -43,20 +44,13 @@ export function WordForms({ forms, pos, subject }: {
   return (
     <div>
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
-        Every form, from Ekilex
+        Every form
       </h3>
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         These are the real forms, not worked out from a stem. Irregular plurals and the
         parallel forms Estonian really has are included.
       </p>
       {isVerb ? <VerbTable forms={forms} /> : <CaseTable forms={forms} subject={subject} />}
-      <p className="mt-3 text-2xs" style={{ color: "var(--ink-3)" }}>
-        Forms from{" "}
-        <a href="https://ekilex.ee" target="_blank" rel="noreferrer" style={{ color: "var(--ink-3)" }}>
-          Ekilex
-        </a>
-        , Institute of the Estonian Language · CC BY 4.0
-      </p>
     </div>
   );
 }
@@ -134,19 +128,23 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                 <td className="px-3 py-2" style={{ color: "var(--ink-2)" }}>
                   {/* The case name is the way into the reference page: this table
                       says what the form is, that page says when to use it. The
-                      Estonian name leads because that is the one a course, a
-                      textbook and the state examination all use; the Latin one
-                      is kept small for anyone reading an English grammar. */}
+                      Estonian name is the whole of it. The Latin name used to
+                      sit beside it and was the only English on a table of
+                      fourteen rows, which is why a learner reported the table
+                      as unreadable: "nominative" tells somebody who has not met
+                      `nimetav` nothing they can use. What the case is asking is
+                      in the Answers column now, in both languages, and the
+                      Latin name is on the reference page for anybody reading an
+                      English grammar. */}
                   <Link href={`/grammar/${spec.key.toLowerCase()}`} lang="et" className="hover:underline">
                     {spec.et}
                   </Link>
-                  <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>
-                    {spec.en.toLowerCase()}
-                  </span>
                 </td>
                 <td className="px-3 py-2"><Cell values={singular[spec.key] ? valuesFor(forms, singular[spec.key]!) : []} /></td>
                 <td className="px-3 py-2"><Cell values={plural[spec.key] ? valuesFor(forms, plural[spec.key]!) : []} /></td>
-                <td lang="et" className="px-3 py-2 text-xs" style={{ color: "var(--ink-3)" }}>{caseQuestionFor(spec, subject)}</td>
+                <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
+                  <CaseQuestion question={caseQuestionFor(spec, subject)} />
+                </td>
               </tr>
               {/*
                 THE SHORT ILLATIVE SITS UNDER THE LONG ONE, NOT AT THE BOTTOM
@@ -169,13 +167,12 @@ function CaseTable({ forms, subject }: { forms: WordForm[]; subject: CaseSubject
                 <tr style={{ borderTop: "1px solid var(--rule-soft)" }}>
                   <td className="px-3 py-2" style={{ color: "var(--ink-2)" }}>
                     <span lang="et">lühike sisseütlev</span>
-                    <span className="ml-1.5 text-2xs italic" style={{ color: "var(--ink-3)" }}>
-                      short illative
-                    </span>
                   </td>
                   <td className="px-3 py-2"><Cell values={shortIllative} /></td>
                   <td className="px-3 py-2"><span style={{ color: "var(--ink-3)" }}>{NO_VALUE}</span></td>
-                  <td lang="et" className="px-3 py-2 text-xs" style={{ color: "var(--ink-3)" }}>kuhu?</td>
+                  <td className="px-3 py-2 text-xs" style={{ color: "var(--ink-2)" }}>
+                    <CaseQuestion question="kuhu?" />
+                  </td>
                 </tr>
               )}
               </Fragment>
@@ -297,7 +294,7 @@ function OtherForms({ forms, used }: { forms: WordForm[]; used: Set<string> }) {
           aria-hidden
           style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .15s" }}
         />
-        {open ? "Hide" : "Show"} the other {rest.length} form{rest.length === 1 ? "" : "s"} Ekilex holds
+        {open ? "Hide" : "Show"} the other {rest.length} form{rest.length === 1 ? "" : "s"}
       </button>
       {open && (
         <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
@@ -359,7 +356,7 @@ export function DerivedVerbForms({ lemma, forms }: {
       <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
         {present.length > 0
           ? "Take the n off the first person and the other five persons, the negative and the conditional are regular endings on what is left. The simple past has to be learned per verb."
-          : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is on Ekilex."}
+          : "This is the one verb whose present tense does not follow the rule. The conditional still does; the rest is stored."}
       </p>
       <div className="overflow-x-auto rounded-[var(--r-lg)] border" style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}>
         <table className="w-full min-w-[360px] text-sm">
@@ -437,7 +434,7 @@ export function DerivedVerbForms({ lemma, forms }: {
         </table>
       </div>
       <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        The bold form is stored. The rest are regular endings on it, checked against Ekilex for every verb in this dictionary.
+        The bold form is stored. The rest are regular endings on it, checked against every verb in this dictionary.
       </p>
     </div>
   );

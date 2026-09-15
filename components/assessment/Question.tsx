@@ -54,10 +54,10 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
  * the difference between a claim and a citation.
  */
 const SOURCE_LABEL: Record<Item["source"], string> = {
-  dictionary: "From Kodukeel's dictionary, built from Ekilex and Wiktionary",
-  ekilex: "A form from Ekilex, the Institute of the Estonian Language's database",
-  derived: "Worked out from the genitive stem, by rule rather than by guess",
-  usage: "A sentence recorded by a lexicographer, from Ekilex",
+  dictionary: "From Kodukeel's dictionary",
+  ekilex: "A recorded form",
+  derived: "Worked out from the omastav stem, by rule rather than by guess",
+  usage: "A recorded sentence",
 };
 
 /**

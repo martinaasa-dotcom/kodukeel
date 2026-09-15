@@ -57,9 +57,23 @@ const GAP_SHARE = 0.4;
  * and neither knew a verb person: `Kontsert algab kell 18.` could not be
  * gapped for `algama`. `lib/estonian/gapForms.ts` is the one answer and three
  * other screens read it.
+ *
+ * The plural is taken out of it here, for the reason `lib/collections/lesson.ts`
+ * gives at length beside its own copy of this function: `NOM_PL`, `GEN_PL`
+ * and `PART_PL` are stored principal parts rather than a derivable ending,
+ * and no lesson in this course teaches how Estonian forms one. A checkpoint
+ * is a review of what a level already taught, so asking it about a form
+ * nothing ever taught is testing the dictionary rather than the learner.
  */
+const UNTAUGHT_PRINCIPAL_PARTS = ["NOM_PL", "GEN_PL", "PART_PL"];
+
 function knownForms(word: CheckpointWord): string[] {
-  return [...gapFormsFromParts(word).keys()];
+  const untaught = new Set(
+    UNTAUGHT_PRINCIPAL_PARTS
+      .map((key) => word.parts[key]?.trim().toLowerCase())
+      .filter((v): v is string => !!v),
+  );
+  return [...gapFormsFromParts(word).keys()].filter((form) => !untaught.has(form));
 }
 
 /**

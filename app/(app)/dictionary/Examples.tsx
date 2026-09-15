@@ -48,7 +48,7 @@ export function Examples({ lexemeId, examples, tutorReady, pos }: {
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           {isPhrase(pos)
             ? "A phrase is already a sentence, so the dictionary keeps no example under it. "
-            : "No example sentences for this word yet. Ekilex has them for most common words, and one "
+            : "No example sentences for this word yet. Most common words have one, and it "
               + "shows up the first time you look this word up. "}
           You can{" "}
           <button

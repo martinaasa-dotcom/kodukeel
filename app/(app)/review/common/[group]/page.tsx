@@ -11,7 +11,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { SuggestFix } from "@/components/SuggestFix";
 import { ReviewSession } from "../../ReviewSession";
-import { include, withChoices } from "../../cards";
+import { include, notOnLadder, withChoices } from "../../cards";
 import { DeepenButton } from "../DeepenButton";
 
 /** Cards in one round. The same twenty Flash cards asks, for the same reason. */
@@ -49,6 +49,10 @@ export const dynamic = "force-dynamic";
  * business; this round is somebody deciding to work a named list, and the words
  * on it are new by construction the first time. A new card still opens with its
  * first meeting, which is `withChoices` and `askFor` doing what they already do.
+ * `notOnLadder` still applies, though: a first meeting is the plain word and its
+ * gloss, and a word whose recognition card has not graduated may not be asked
+ * for a case or a conjugated form instead, which is a different word's worth of
+ * memory (see `pastTheLadder`, one file over).
  *
  * And it does not filter to words that are unmastered. A hundred words is a
  * list you come back to, and a mastered word simply sorts to the back of a
@@ -81,7 +85,9 @@ export default async function CommonRoundPage({ params }: {
     round about what is not sticking.
   */
   const cards = lexemeIds.length === 0 ? [] : await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { in: lexemeIds } },
+    where: {
+      ownerId, suspended: false, lexemeId: { in: lexemeIds }, ...notOnLadder(ownerId),
+    },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
     take: ROUND * 8,
     include,

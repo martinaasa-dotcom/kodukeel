@@ -1,5 +1,7 @@
+import { plainPhrase } from "@/lib/copy/values";
 import { buildCloze, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { numberFromMorphCode } from "@/lib/estonian/morph";
 import { usableExamples, type Example } from "@/lib/dict/examples";
 
 /**
@@ -23,7 +25,13 @@ export interface WorksheetWord {
   lemma: string;
   translation: string;
   pos: string;
-  forms: readonly { formType: string; value: string }[];
+  /**
+   * `morphCode` is optional so a caller that has not fetched it still
+   * compiles; `firstGap` reads it to keep a plural out of the gap-fill (see
+   * its own comment), and a row with none is read as not plural rather than
+   * refused.
+   */
+  forms: readonly { formType: string; value: string; morphCode?: string | null }[];
   examples: readonly Example[];
 }
 
@@ -73,7 +81,7 @@ export function buildWorksheet(words: readonly WorksheetWord[], limits: Workshee
   const vocabulary: VocabularyItem[] = words
     .filter((w) => w.translation.trim().length > 0)
     .slice(0, max.vocabulary)
-    .map((w) => ({ lemma: w.lemma, translation: w.translation }));
+    .map((w) => ({ lemma: plainPhrase(w.lemma), translation: plainPhrase(w.translation) }));
 
   const gaps: GapItem[] = [];
   for (const word of words) {
@@ -98,6 +106,42 @@ export function buildWorksheet(words: readonly WorksheetWord[], limits: Workshee
 }
 
 /**
+ * `NOM_PL`, `GEN_PL` and `PART_PL` by name, for a row Ekilex never gave a
+ * `morphCode`. Everything else plural is read off the code itself, below.
+ */
+const UNTAUGHT_PRINCIPAL_PARTS = ["NOM_PL", "GEN_PL", "PART_PL"];
+
+/**
+ * The plurals nobody has been taught, so `firstGap` never hides one.
+ *
+ * No unit in this course teaches how Estonian forms a plural
+ * (`docs/13-mvp-status.md` names the B1 tier that would as not built yet), so
+ * a worksheet handed to a class as the paper version of a unit may not ask
+ * for one: a blank wanting `sõbrad` on a sheet about `sõber` is a question
+ * the class was never given the tools to answer.
+ *
+ * The three named principal parts are the case a caller has no `morphCode`
+ * for, and most of the time it has one: `caseFromMorphCode` reads `SgIn` and
+ * `PlIn` alike as the *singular* `INESSIVE`, "ignoring number" by its own
+ * comment, so an enriched entry's stored plural paradigm — `tubadega`,
+ * `morphCode` `PlKom`, a real row (`lib/dict/edit.itest.ts`) — would
+ * otherwise sit in `gapForms`'s output labelled exactly like its singular
+ * and be offered as a gap the same way. `lib/progress/caseExamples.ts`
+ * already guards this with `numberFromMorphCode(...) === "SINGULAR"`; this
+ * is the same guard read the other way round, catching a plural of *any*
+ * case rather than only the three principal ones.
+ */
+function untaughtPlurals(word: WorksheetWord): Set<string> {
+  return new Set(
+    word.forms
+      .filter((f) =>
+        UNTAUGHT_PRINCIPAL_PARTS.includes(f.formType)
+        || numberFromMorphCode(f.morphCode) === "PLURAL")
+      .map((f) => f.value.trim().toLowerCase()),
+  );
+}
+
+/**
  * The first attested sentence for this word that can carry a gap.
  *
  * Any of the word's own forms may be the one hidden — a sentence about `tuba`
@@ -108,7 +152,8 @@ function firstGap(word: WorksheetWord): GapItem | null {
   // Which is what the comment above has always said and what the list could
   // not do: `toas` is a derived case, so a stored-forms-only list could hide
   // it on an enriched entry and not on a seeded one.
-  const forms = [...gapForms(word).keys()];
+  const untaught = untaughtPlurals(word);
+  const forms = [...gapForms(word).keys()].filter((form) => !untaught.has(form));
   /*
     And only out of something that is a sentence. `usableExamples` keeps what is
     worth printing on a dictionary entry; a gap on a sheet a class works through

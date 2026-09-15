@@ -12,7 +12,7 @@ import {
   BLANK, MAX_PASSAGE_CHARS, type ClozeItem, isClozeCorrect, isDiacriticSlip,
 } from "@/lib/estonian/passage";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -132,7 +132,7 @@ export function ClozeSession() {
             </Button>
           </div>
 
-          <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
           </p>
         </div>
@@ -221,7 +221,7 @@ export function ClozeSession() {
               className={`${checked ? VERDICT_CLASS[verdict] : ""} mx-1 inline-block min-w-[5ch] rounded px-2 text-center`}
               style={checked ? undefined : { background: "var(--raised)", color: "var(--ink-3)" }}
             >
-              {checked ? item.answer : "____"}
+              {checked ? item.answer : "_".repeat(Math.max(item.answer.length, 1))}
             </span>
             {after}
           </p>
@@ -279,11 +279,11 @@ export function ClozeSession() {
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {!checked ? (
             <Button variant="primary" className="w-full py-3" disabled={!attempt.trim()} onClick={check}>
-              Check <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              {index + 1 >= items.length ? "Finish" : "Next"} <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              {index + 1 >= items.length ? "Finish" : "Next"} <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>

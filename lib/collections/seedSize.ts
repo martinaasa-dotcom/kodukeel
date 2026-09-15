@@ -108,5 +108,19 @@
  * The one after those is `nõus`. A learner offered a wage at the interview
  * wrote `ma olen nõus`, which is how anybody says yes to an offer, and the
  * course taught `nõustuma` and not the word people actually use.
+ *
+ * The thirty-four after that are what somebody arriving in the country needs
+ * in their first month, which A1 had been scattering across three levels.
+ * Four units name sixty-nine lemmas between them and thirty-five were already
+ * in the dictionary and only needed teaching, which is the same ratio every
+ * pass here finds: the words were reachable and nobody was being taught them.
+ * The teens and the tens, so that a learner who can count to twelve can say a
+ * price; the stop, the timetable and the word for being late, which sat at A2
+ * and B1 while `buss` and `pilet` sat in a shopping unit; the words for asking
+ * for help, which were at B1; and the words for saying who you are, which were
+ * in four units at three levels. Ekilex's own proficiency code is the argument
+ * rather than ours: `abi`, `aitama`, `appi`, `politsei`, `helistama`,
+ * `sõitma`, `jalgratas`, `ootama` and `aadress` are all A1 to the Institute
+ * and were A2 or B1 here.
  */
-export const SEED_SET_SIZE = { words: 6_119, forms: 39_466 };
+export const SEED_SET_SIZE = { words: 6_153, forms: 39_725 };

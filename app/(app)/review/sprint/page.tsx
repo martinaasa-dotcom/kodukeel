@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { SprintSession, type SprintCard } from "./SprintSession";
@@ -62,7 +63,7 @@ export default async function SprintPage() {
     id: c.id,
     front: c.front,
     back: c.back,
-    lemma: c.lexeme?.lemma ?? null,
+    lemma: c.lexeme ? plainPhrase(c.lexeme.lemma) : null,
     lexemeId: c.lexemeId,
     starred: !!c.lexemeId && starred.has(c.lexemeId),
     cardType: c.cardType,

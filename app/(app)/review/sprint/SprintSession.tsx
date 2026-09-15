@@ -10,7 +10,7 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { VERDICT_CLASS } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
 
@@ -270,7 +270,7 @@ export function SprintSession({
           {!revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
               Show answer
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <div className="grid grid-cols-2 gap-2">
@@ -278,7 +278,7 @@ export function SprintSession({
                 type="button"
                 disabled={busy}
                 onClick={() => void answer(1)}
-                className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                className={`${VERDICT_CLASS.wrong} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
               >
                 Missed it <KeyCap className="ml-1">⌫</KeyCap>
               </button>
@@ -286,9 +286,9 @@ export function SprintSession({
                 type="button"
                 disabled={busy}
                 onClick={() => void answer(3)}
-                className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                className={`${VERDICT_CLASS.right} press rounded-[var(--r)] px-3 py-3 text-base font-bold transition-ui hover:scale-[1.02] disabled:opacity-40`}
               >
-                Got it <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+                Got it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
               </button>
             </div>
           )}

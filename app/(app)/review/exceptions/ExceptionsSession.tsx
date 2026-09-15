@@ -19,7 +19,7 @@ import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -234,7 +234,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
           {meeting ? (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Got it <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Got it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !mark ? (
             <Button
@@ -243,11 +243,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
               disabled={typed.trim().length === 0}
               onClick={() => void check()}
             >
-              Check it <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Check it <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <Button variant="primary" className="w-full py-3" onClick={next} autoFocus>
-              Next <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              Next <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           )}
         </div>
@@ -290,7 +290,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
                 one time hearing it is worth more than reading it. */}
             <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
-          <p lang="et" className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+          <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
             {task.label}
           </p>
         </div>
@@ -442,7 +442,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         >
           {task.accepted.join(" / ")}
         </p>
-        <p lang="et" className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
           {task.label}
         </p>
       </div>
@@ -466,7 +466,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         {departureLine(task)}
       </p>
 
-      <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-3 text-[13px]" style={{ color: "var(--ink-3)" }}>
         <Link
           href={`/grammar/exceptions/${task.kind.toLowerCase()}`}
           className="font-semibold underline underline-offset-2"
@@ -476,7 +476,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         </Link>
       </p>
 
-      <MoreOnThis task={task} className="mt-1.5 text-[12.5px]" />
+      <MoreOnThis task={task} className="mt-1.5 text-[13px]" />
     </div>
   );
 }

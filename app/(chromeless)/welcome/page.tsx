@@ -8,9 +8,11 @@ import { prisma } from "@/lib/db";
 import { LEVELS, PATH } from "@/lib/collections/syllabus";
 import { DEMO_LEMMAS, DEMO_STEMS, type DemoStems } from "@/lib/collections/demoWords";
 import { SEED_SET_SIZE } from "@/lib/collections/seedSize";
-import { buildCaseTable, shownForms, stemsFrom, type DerivedForm } from "@/lib/estonian/derive";
+import {
+  buildCaseTable, followsEndingRule, shownForms, stemsFrom, type DerivedForm,
+} from "@/lib/estonian/derive";
 import type { CaseSubject } from "@/lib/estonian/caseQuestion";
-import { caseByKey } from "@/lib/estonian/cases";
+import { caseByKey, questionInEnglish } from "@/lib/estonian/cases";
 import { caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { ButtonLink } from "@/components/Button";
 import { Wordmark } from "@/components/brand";
@@ -892,7 +894,7 @@ const FAQS = [
   ],
   [
     "Where do the Estonian forms come from?",
-    "Every form and example sentence comes from Ekilex, run by the Institute of the Estonian Language, and every English translation from Wiktionary or the course itself. An AI is never allowed to write an Estonian form: it invents plausible ones that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
+    "From a dictionary, never from AI: it invents plausible forms that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
   ],
   [
     "Is this only for beginners?",
@@ -1139,7 +1141,7 @@ const SOURCES = [
     name: "Vabamorf",
     href: "https://github.com/Filosoft/vabamorf",
     by: "Filosoft",
-    gives: "every spelling of every word, with Ekilex",
+    gives: "every spelling of every word",
     licence: "LGPL",
   },
   {
@@ -1258,14 +1260,20 @@ async function loadDemo(): Promise<{ words: DemoWord[]; stats: { words: number; 
       // Labeled the way a course labels them. The three noun parts are the
       // three questions every Estonian schoolbook drills them by, and a visitor
       // who has been to one lesson recognizes them.
+      // And what each of those questions is asking, because two Estonian words
+      // over a form is not an explanation to somebody who has not started yet.
+      const askedIn = (key: string) => {
+        const question = caseQuestionFor(caseByKey(key)!, subject);
+        return questionInEnglish(question);
+      };
       const principal = (isVerb
         ? [["ma-tegevusnimi", form("INF_MA")], ["da-tegevusnimi", form("INF_DA")], ["olevik · ma", form("PRES_1SG")], ["lihtminevik · ma", form("PAST_1SG")]]
         : [
-            [`nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG")],
-            [`omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG")],
-            [`osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG")],
+            [`nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, subject)}`, form("NOM_SG"), askedIn("NOMINATIVE")],
+            [`omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, subject)}`, form("GEN_SG"), askedIn("GENITIVE")],
+            [`osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, subject)}`, form("PART_SG"), askedIn("PARTITIVE")],
           ]
-      ).flatMap(([label, value]) => (label && value ? [{ label, value }] : []));
+      ).flatMap(([label, value, english]) => (label && value ? [{ label, value, english: english ?? null }] : []));
 
       const table = isVerb
         ? []
@@ -1315,9 +1323,9 @@ const FALLBACK_WORDS: DemoWord[] = DEMO_STEMS.map((w) => {
     lemma: w.lemma,
     genitive: w.genSg,
     principal: [
-      { label: `nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg },
-      { label: `omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg },
-      { label: `osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg },
+      { label: `nimetav · ${caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))}`, value: w.nomSg, english: questionInEnglish(caseQuestionFor(caseByKey("NOMINATIVE")!, demoSubject(w))) },
+      { label: `omastav · ${caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))}`, value: w.genSg, english: questionInEnglish(caseQuestionFor(caseByKey("GENITIVE")!, demoSubject(w))) },
+      { label: `osastav · ${caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))}`, value: w.partSg, english: questionInEnglish(caseQuestionFor(caseByKey("PARTITIVE")!, demoSubject(w))) },
     ],
     cases: table.map((row) => demoCase(row, demoSubject(w), w.genSg)),
   };
@@ -1345,17 +1353,13 @@ function demoCase(row: DerivedForm, subject: CaseSubject, genitive: string | nul
   const shown = shownForms(row);
   /*
     Regular means the printed form is the genitive with this case's ending on
-    it. Read off the form rather than built up from the stem, because joining
-    a suffix to a stem is derive.ts's job alone and an invariant says so: the
-    question here is only whether what derive.ts printed is the rule's own
-    answer or a form the dictionary had to supply.
+    it, which `derive.ts` answers because `derive.ts` owns the join. This used
+    to work it out here with an `endsWith` and a `slice`, to keep the join out
+    of this file, and `/grammar/build-a-word` then needed the same answer and wrote
+    the same lines again. One reader rather than two.
   */
-  const first = shown[0] ?? "";
-  const { suffix } = row.spec;
-  const regular = genitive !== null && suffix.length > 0
-    && first.endsWith(suffix) && first.slice(0, -suffix.length) === genitive;
+  const regular = followsEndingRule(shown[0] ?? "", genitive, row.spec);
   return {
-    en: row.spec.en,
     et: row.spec.et,
     /*
       The question *this* word answers. Two of the five words on this card are

@@ -41,10 +41,13 @@
  * `lib/questions/distractors.ts` and was measured separately. It asks four
  * mechanical things, which is why it can be trusted over forty thousand cards.
  *
- * No database and no network: it reads `prisma/data/expanded.json`, which is
- * what `npm run db:seed` loads.
+ * No database and no network: it reads every entry the seed writes, through
+ * `scripts/lib/dictionary.ts`. It used to read `prisma/data/expanded.json`
+ * alone, under a comment calling that file "what the seed loads": the seed
+ * loads it and `prisma/data/harvested.ts`, and 761 of the 1,514 course words
+ * are in no expansion row.
  */
-import { readExpanded } from "./lib/expandedFile";
+import { dictionaryRows, type DictionaryRow } from "./lib/dictionary";
 import { generateCards, availableCardTypes, type LexemeForCards } from "../lib/srs/cards";
 import { writingTasksFor } from "../lib/estonian/writing";
 import { CASES } from "../lib/estonian/cases";
@@ -54,15 +57,7 @@ import { parseExamples, usableExamples } from "../lib/dict/examples";
 import { semanticGroup } from "../lib/estonian/semantics";
 import type { CaseKey } from "../lib/estonian/types";
 
-interface Row {
-  lemma: string; pos: string; cefr: string | null; translation: string;
-  semanticTypes?: string | null;
-  forms: { formType: string; value: string }[];
-  examples: { et: string; en?: string | null }[];
-  government: string | null; gradation?: string | null; gradationNote?: string | null;
-}
-
-const entries = readExpanded<Row>();
+const entries = dictionaryRows();
 
 interface Fault { rule: string; where: string; detail: string }
 const faults: Fault[] = [];
@@ -145,7 +140,7 @@ function check(
 }
 
 /** Every sentence an exercise is built from has to be one. */
-function checkSentence(where: string, word: Row, sentence: string): void {
+function checkSentence(where: string, word: DictionaryRow, sentence: string): void {
   asked++;
   const opener = nominalOpener(word.pos, [word.lemma, ...word.forms.map((f) => f.value)]);
   if (!naturalSentence(sentence, opener)) {
@@ -211,8 +206,15 @@ for (const entry of entries) {
   A FLOOR, for the reason `audit-questions.ts` has one: every loop above is a
   `continue` away from asking nothing at all, and an audit that checked nothing
   prints the same cheerful line as one that passed.
+
+  30,000 while this read the expansion alone and asked 51,940. It reads the
+  6,153 entries the seed writes now and asks 60,118, so the floor moved with
+  it: a floor left where it was is a floor that would wave a whole generator
+  through. Four fifths of the measured count, which is the margin
+  `audit-questions.ts` gives its sections, so a reseed that adds words does not
+  ask anybody to edit a number they have not read.
 */
-const FLOOR = 30_000;
+const FLOOR = 48_000;
 
 console.log(
   `Checked ${asked.toLocaleString("en-GB")} questions and sentences over `

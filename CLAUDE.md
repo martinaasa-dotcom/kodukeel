@@ -416,13 +416,18 @@ question about yesterday is asked from the first morning rather than from the fi
 is about the learner's own day and not about the deck, and the count it collects is the baseline a
 pilot compares the end of term against.
 
-**And twenty-four errands is thin for the days the answer is no.** Thirteen are A1, nine A2 and
-two B1, and the pool is filtered to the units a deck has started: four on a starter deck, thirteen
-with A1 finished, twenty-four for ever after. The walk is `dayIndex`, so the repeat interval is the
+**And twenty-eight errands is thin for the days the answer is no.** Seventeen are A1, nine A2 and
+two B1, and the pool is filtered to the units a deck has started: four on a starter deck, seventeen
+with A1 finished, twenty-eight for ever after. The walk is `dayIndex`, so the repeat interval is the
 pool size exactly. That is survivable while the errand appears on a minority of days and it is not
-a table to build a screen out of that shows several days at once. What it needs before it grows is
-somebody who knows how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md`
-already describes, and a B1 tier that does not exist: holding the line when they switch, asking a
+a table to build a screen out of that shows several days at once. The four that arrived with the
+four new A1 units are the reason the A1 tier grew rather than the A2 one, and they are the most
+errand-shaped thing the course teaches: a bus is a question asked of a stranger before you get on
+it, and introducing yourself cannot be rehearsed alone. None of the four names a scene, because
+none of the fourteen declares those units, and a rehearsal that could not vouch for the errand's
+words is a rehearsal of something else. What it needs before it grows again is somebody who knows
+how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md` already
+describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
@@ -433,7 +438,7 @@ form. (ADR-005, ADR-017.) The one module that writes *about* Estonian at length,
 `lib/estonian/grammar.ts`, holds no Estonian at all. Every form on the grammar pages is read from
 the dictionary by `lib/progress/caseExamples.ts` and rendered with its provenance.
 
-**Estonian is taught in Estonian, and the Latin names are the cross-reference.** Nobody teaching
+**Estonian is taught in Estonian, and the question it answers is the English.** Nobody teaching
 this language says "the inessive". A course in Tallinn, a school textbook and the state examination
 all name a case by its Estonian name and, more often, by the question it answers: `kus?`. The verb
 is named by four axes a course keeps apart, `aeg`, `kõneviis`, `tegumood` and `pööre`, of which only
@@ -445,21 +450,132 @@ beginner "Inessive, Elative, Allative" as multiple choice. A learner who has onl
 English names cannot follow their own teacher, which is the one thing a course-shaped app must not
 do to somebody who is also taking a course.
 
-So the Estonian name and the question lead, everywhere, and the English name stays as a labelled
-cross-reference for anyone reading an English reference grammar. `lib/estonian/terms.ts` is the one
-table of what a point is called, and it is **deliberately partial**: a point is in it only where
-there is a term a class actually uses, and `grammarTerm()` returning nothing is the honest answer
-for `irony` rather than a cue to invent one. `grammar.ts` still holds no Estonian and its tripwire
-is unchanged, which is why the terms live next door rather than in the prose. Two invariants hold
-the rest: every case and every part of the verb carries the name a class uses, and a screen that
-names a case in Latin names it in Estonian too. The second is anchored on a member access rather
-than on the word, because a file declaring `caseEt: string` in an interface and never rendering it
-satisfied the first version of it.
+So the Estonian name leads, everywhere, and the English beside it is the question the case
+answers rather than a second name. `lib/estonian/terms.ts` is the one table of what a point is
+called, and it is **deliberately partial**: a point is in it only where there is a term a class
+actually uses, and `grammarTerm()` returning nothing is the honest answer for `irony` rather than a
+cue to invent one. `grammar.ts` still holds no Estonian and its tripwire is unchanged, which is why
+the terms live next door rather than in the prose. The invariant is that every case and every part
+of the verb carries the name a class uses, anchored on a member access rather than on the word,
+because a file declaring `caseEt: string` in an interface and never rendering it satisfied the
+first version of it. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
+and "the past participle" are categories an English speaker has a concept for and can look up,
+where "the inessive" is a translation of a translation to somebody who has met neither.
 
 Three things are **not** covered by this and should not be "fixed": an English column heading over a
 table of Estonian ("Case", "Singular"), the English prose that explains a point, and the topic ids
 in URLs. The ids are keys that 83 syllabus entries and any bookmarked link point at, and renaming
 them buys a slug and risks the course.
+
+**And the question is glossed, because the Latin name was the only English anywhere near a case.**
+The rule above settles which of two *names* leads and left the reader of the second one with
+nothing: `milles?` is how this language names a case, it is on every screen that names one, and the
+only English beside it was "inessive", which is a translation of a translation to somebody who has
+met neither. A learner reported it off the dictionary's own case table, fourteen rows deep, every
+English word on it a term out of a grammar another language wrote. So `cases.ts` carries what each
+question word asks (`asksPersonEn`, `asksThingEn`, `asksWhereEn`, joined as `questionEn`), and
+`questionInEnglish` reads a whole question back for a caller holding a string rather than a spec,
+which most of them are. `components/CaseQuestion.tsx` is the one drawing.
+
+Three rules shape the wording and they are why the readings are not all the same shape. It is a
+question somebody would say, so the preposition strands where English strands it: "what is it in?"
+rather than "in what?", which is a grammar book clearing its throat. The middle of each local trio
+is the long one, because that is the static case and the other two are arrows, so "into what?",
+"what is it in?", "out of what?" mirror "where to?", "where?", "where from?" exactly. And nothing in
+it is Estonian, which is `grammar.ts`'s standing one table over and is asserted the same way.
+
+**And then it went from the last three screens too, because "always" was the ask.** The first
+pass took the Latin name off the two dictionary case tables, the writing and picture rounds, the
+lesson step, the readiness sentences, the placement feedback and the note saying which form a
+searched spelling is, and left it on the reference page for the ending, labelled as what an English
+grammar calls it. That was the reading of "the English names are useless" that kept a
+cross-reference, and it was not what was asked for: a learner who has met neither name is not
+served by being told the second one, and the page for `-s` is exactly where somebody who has only
+ever heard `seesütlev` in class is standing. So the reference page prints the ending, the meaning
+and the question; `terms.ts` gives a case no `alsoCalled`; and the entry's government block reads
+through `readableGovernment`, which turns `kellelt (ablative)` into `kellelt (from whom?)` on the
+way to the screen. What is **not** touched is `Lexeme.government` itself, whose stored string
+annotates each question word with a case name and is read back by `parseGovernment`: that is data
+rather than copy, so the transform is display-only and the column the parser reads is untouched.
+
+**And three files were still handing over the Latin name with every check passing.** The rule was
+that a screen naming a case in Latin names it in Estonian too, and that a screen printing the
+question says what it asks. The dictionary's search ranker, which names the form somebody has just
+typed, the flash round's line under the plain ask and the diagnosis panel all named the case in
+Estonian first, so neither check had anything to say, and each was a second copy of the naming
+`cases.ts` exists to be the one of: the browser suite caught the first as
+`toas is the seesütlev (inessive) of tuba`. So `CaseSpec.en` has a **closed list of readers** with
+a reason apiece, in the shape `lib/legal/exportCoverage.ts` takes for its exemptions, and a fourth
+reader fails until somebody decides which side of the line it is on. Made to fail both ways, on a
+real file and on an entry nobody reaches. **It replaced the older check** rather than standing
+beside it: "names it in Estonian too" was the right rule while the Latin name was allowed on a
+screen at all, and once no screen may read it, that check can only fire on a file this one already
+refuses, which is a check nobody is reading. Nine readers are left and not one of them is a screen:
+the stored government string and the mapper that writes it, four types carrying `caseEn` through to
+a screen that prints the reading, Anu's own table, a slug, and a demo row that prints neither
+name.
+
+**And the closed list was blind to the other door, which is somebody typing the word out.** The
+list above is anchored on `spec.en`, a member access, so it can only see the Latin name arriving
+*through the table*. Seven screens were still printing it as a string with that list green: the
+worksheet a teacher prints for a class headed its three columns "Nimetav · nominative", the
+add-a-word form labelled seven boxes "Genitive sg" and "Short illative", the dictionary entry
+printed the Estonian name of each principal part over the Latin one in small italics, the case
+reference headed a column "Genitive", the mock examination's result screen told a candidate the
+answer was "Partitive" and that they had given "Elative", an empty state said "Add it with its
+genitive", and a placement question said it was "worked out from the genitive stem". The entry and
+the reference are the two screens the report was about, one block above and one column beside the
+tables that had just been fixed.
+
+So the rule is asked of the *text* as well: **a case labelling a form takes the question it
+answers, through `CaseQuestion`; a case named in a sentence takes the Estonian name a class uses.**
+Neither takes the Latin one. The sweep reads string literals and brace-free JSX text out of `app/`,
+`components/` and `lib/`, which is where the copy actually lives: five of the faults were in `lib/`,
+including the search note for a nominative plural, whose branch matches a stored form rather than a
+suffix and so sat outside the loop that had dropped every other Latin name. A path, an all-caps
+`CaseKey` and a bare lowercase word are code and are filtered; blanking a JSX interpolation was
+tried and is a regex pretending to parse JSX, so **a sentence that names a case in Latin and
+interpolates a value into the same run is the stated residual**. Made to fail three ways, on a
+string label, on a run of JSX text and on a heading array.
+
+**Two modules are exempt and the reason is a standing invariant rather than an oversight.**
+`lib/estonian/grammar.ts` and `lib/estonian/exceptions.ts` explain a case at length and are asserted
+to hold no Estonian letter, which is what stops this app inventing a form inside a sentence about
+forms. The tripwire is `[õäöüšž]`, so `omastav` and `osastav` would slip past it while breaking what
+it is for, and would name five cases one way and the nine `-ütlev` ones the other on one page. The
+way out is to describe the case rather than name it, "the partial object form" for `osastav`, which
+is a pass over nineteen lines of the most-read grammar copy in the app and is worth doing carefully
+rather than in passing. Until then the exemption is counted in the sweep rather than invisible
+because it stopped at `app/`.
+
+**And seven fields carried the Latin name to nobody.** `WritingTask`, `CaseSignal`, the readiness
+signal, both exam item types, `Government` and the landing page's demo row each declared a `caseEn`
+beside a live `caseEt`, and not one screen, script or test read any of them: `CaseSignal.caseEt`'s
+own comment says it is "the name the advice is written in". Four of the nine exemptions on the
+closed list were justified by a sentence that was half true, "carries caseEn on the task; the screen
+prints the reading", where the screen prints the reading and the field reaches no reader at all. They
+are gone, and with the demo row and the exam option's dead `en` the list is four readers rather than
+nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
+of them is a screen.**
+
+**And the check that guards the add-a-word boxes could not see two of the twelve.** Its key pattern
+was `[A-Z_]+`, which does not match `PRES_1SG` or `PAST_1SG`, so the two verb boxes whose examples
+are `loen` and `lugesin` had been outside the sweep for as long as it existed and the floor of ten
+was met by the other ten. It reads `[A-Z0-9_]+` and the floor is the table's own length.
+
+**A label with no word in front of it reads the `mis` series, which is `asksEn`.** `questionEn` is
+the case's whole *name* and runs to three questions, which is right on the reference page beside
+the Estonian it translates and is a mouthful inside a sentence: "toas is the seesütlev (in whom?
+what is it in? where?) of tuba" is a note nobody finishes. The short one is the thing question and
+the place adverb, which is what `cases.ts` printed for eleven of the fourteen before `asksPerson`
+existed. It is deliberately not `caseQuestionEnglishFor`, which knows the word and picks the
+pronoun to match: this is for the places holding a spelling rather than a subject.
+
+**Anu is told the readings and told to use them.** The case table in her system prompt carries each
+question with what it asks after an equals sign, and the rule about naming a term says to give the
+reading rather than the Latin name, so the sentence she writes about `milles?` and the line under
+the dictionary's own table cannot say different things. The writing grader and the scene describer
+are briefed the same way.
 
 **And on the reference itself, the ending leads both names.** The rule above is about which of two
 *names* comes first, and the grammar pages had answered it and then put the name at the top of every
@@ -474,9 +590,78 @@ uppercases: "-sse" reached the screen as "-SSE", which no Estonian word ends in.
 holds the case page's eyebrow and the table header, and it is `Chip`'s `caseSensitive` rule one
 level up. Every field in `grammar.ts` has a ceiling now beside its floor, since the floors were all
 met by the version somebody reported as unreadable: a floor stops a field being empty and says
-nothing about the paragraph growing back into it. Nothing about the invariants moved: the Estonian
-name and the question are still on every card and every page, and the Latin name is still there,
-labelled, on the page for the ending.
+nothing about the paragraph growing back into it. The Estonian name and the question are still on
+every card and every page; what has since gone from this page along with everywhere else is the
+Latin one.
+
+**And the reference is the wrong shape for the first hour, so there is a screen in front of it.**
+Fourteen cards each explaining one ending is what somebody wants who already knows which ending
+they are after. It is a wall for somebody who has just been told Estonian has fourteen cases and
+has decided that sounds impossible, and the number is the thing that makes people put the language
+down. What the language actually offers is far better news and fits in one sentence: three forms
+are stored per word, and the other eleven are the second of those three with a fixed ending glued
+on, the same ending for every word there is. `/grammar/build-a-word` is that sentence shown rather than
+asserted, on a word the reader picks, and it is the first thing on `/grammar` rather than a mode
+beside it.
+
+Three acts, because the sentence has three claims in it. Which three forms are stored and what each
+is *for*, which is the question a table of three forms never answers. Which of them the endings go
+on, which is the half everybody gets wrong, since it is not the word you looked up: `tuba` takes
+them on `toa`. And then the eleven, one press at a time, each with what it means, the question this
+word answers with it, and a sentence a lexicographer wrote using it. The five words are the awkward
+ones `lib/collections/demoWords.ts` already argues for, since a walkthrough that only ever showed a
+regular word would be teaching the arithmetic and hiding the one thing that makes a beginner doubt
+it.
+
+**The half that reads the dictionary and the half that decides what a row says are two modules.**
+`lib/estonian/caseBuild.ts` is pure and is where the three judgments live: which form to print,
+whether the ending really reaches it, and whether the reader may be asked to produce it. That is
+what makes them unit tested rather than driven, which they were not while both halves sat in one
+file behind Prisma. `lib/progress/caseWalk.ts` is the queries, and it re-exports the shapes rather
+than declaring them twice.
+
+**Nothing on it is written and it writes nothing.** Every form comes off `buildCaseTable` through
+`lib/estonian/caseBuild.ts`, every sentence is attested, every line of English about a case is
+`lib/estonian/grammar.ts`, which holds no Estonian at all, and the endings are suffixes off `CASES`.
+The last act asks the reader to pick an ending and marks it, through `OPTION_CLASS` and a live
+region like every other marking screen, and it **grades nothing**: the answer to every one of those
+questions is printed two acts above it on the same page, so a row in the log would tell the
+scheduler somebody recalled a form they had just been shown, which is the fault `audit:questions`
+exists to catch one room over. A first meeting on the learn ladder writes nothing for the same
+reason, and the way out at the end is a round that does grade. `caseFits` still decides what may be
+asked, so nobody is invited to produce `meheses`, and `caseQuestionFor` still words it, so a person
+is asked `kellel?`, with `CaseQuestion` saying what that asks.
+
+**And the whole of it is driven in a browser, because none of what it claims is checkable from the
+source.** Thirteen checks in `scripts/test-teaching.mjs`, which is the suite for the half of the app
+that explains rather than tests: that the reference points at it, that the three stored forms are
+named the way a class names them and the stem is marked, that no case is named in Latin, that a
+form is shown inside a sentence somebody wrote, that **every one of the eleven endings really is
+the stem with those letters on the end**, read off `data-stem`, `data-ending` and `data-built` on
+the line itself rather than by counting hops through the markup, that the one word in five the rule
+does not reach says so instead of being taught as the rule, and that a person is never asked for
+the inside trio. Two of them were made to fail on the real fault first, and the Latin one could not
+fail as written: `textContent` joins two elements into `GenitivePuhkus`, where `\b` finds no
+boundary, so it passed with the name printed on the panel. It asks a locator now, which has the
+boundaries the markup gives it.
+
+**And "is this form the ending on the stem" is one answer now, in the module that owns the join.**
+Two screens ask it, the landing page's case explorer to decide whether to light the ending and this
+one to decide whether to say a form is learned rather than worked out, and both worked it out for
+themselves with an `endsWith` and a `slice` precisely to keep the join inside `derive.ts`. That is
+the rule holding and two copies drifting anyway. `followsEndingRule` is the one reader, and `origin`
+is deliberately not the test: an entry enriched from Ekilex carries a lexicographer's spelling for
+every case and nearly all of them are the stem plus the ending, so reading the provenance marks
+eleven ordinary rows as exceptions.
+
+**And a sentence that shows the case is not the same as a sentence that contains it.** Estonian
+spells the short illative like the genitive for most of the words that have one, so
+`Endisaegsed Soome mündid` carries the illative of `Soome` and shows nothing whatever about the
+ending, which is fine on a page listing six words beside a table and useless on a screen whose one
+job is what an ending means. `CaseExample.unmistakable` is `readCase`'s strict rule asked of the
+form the sentence actually holds, exactly one case is spelled that way or nothing is claimed, and
+the walk prefers a sentence that passes it. `/grammar/[caseKey]` reads the same examples and ignores
+the field, so nothing about that page moved.
 
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
@@ -880,7 +1065,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,453 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,514 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1106,8 +1291,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,688 forms across 357 of the
-1,453 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,765 forms across 376 of the
+1,514 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -3198,6 +3383,179 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**Fifteen minutes, every evening, and the word count is what moves.** A day used to be the unit
+sliced into eights and came out at anything from eighteen to thirty minutes. That is the wrong thing
+to hold fixed: what a learner can promise themselves is a quarter of an hour after dinner, every
+day, and what keeps a course going is that the promise is the same every time. A day that is fifteen
+minutes on Monday and twenty-eight on Tuesday is a day somebody starts skipping on Wednesday. So the
+evening is the constant, the steps have honest costs, and the number of new words is what is left
+over, which is also the right thing to vary: meeting a word is the one part of an evening whose cost
+scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
+learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
+minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
+beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
+median fourteen, 67 hours from nothing to C1.
+
+**A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
+the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
+displaces. Written the other way first and the conversation evening came out at twenty-three
+minutes, half as long again as every other, which `course.test.ts` now asserts against. **And the
+crossword is on no rotation**, for the same clock: a seven-word grid is a quarter of an hour on its
+own. It stays on Practice and as Saturday's game of the day, which is the right home for the one
+round that is a sitting rather than a step.
+
+**A learner can finish a part without having learned it, and the ladder says so at the hand-off.**
+Every step of every evening can be ticked, every word answered once, and the scheduler still watching
+four fifths of them come back wrong. Handing that person B2.1 is the false confidence this app is
+built against: they meet a fortnight of words they cannot hold up and conclude the language is the
+problem. So `lib/course/gate.ts` reads two things off their own log at the moment it is worth
+anything, which is the hand-off: what share of the part's words the scheduler has graduated, and
+what share of their recent answers were right. Retention leads, because it is the reading that
+predicts whether the next part is answerable and the one a learner can act on.
+
+**It never blocks, and the way on is on the same card as the warning.** The learner is the authority
+on their own week: they may be revising elsewhere, sitting a class, or willing to be uncomfortable,
+and an app that locked the door on a retention figure would be wrong about some of those people and
+insufferable to all of them. It says Kodukeel does not think they are ready, says what it is reading
+and what would change it, and puts "start it anyway" beside "review what is due". **Thin evidence is
+not a verdict**: under `MIN_EVIDENCE` answers it says nothing at all rather than guessing, which is
+the discipline the readiness screen and the classroom band already apply. And the advice may never
+be "start the part again", asserted: nothing here repeats a fortnight, the words are already in the
+queue, and telling somebody to redo two weeks is how they stop opening it.
+
+**The target somebody picked in their first ninety seconds is the one number worth watching, and it
+reached no screen.** It was a date on a plan and nothing else. `lib/course/milestones.ts` is the
+climb to it, on Today: the levels as stops, each a real thing that arrives, with the fill between
+them moving a little every evening. Eleven percent of an unnamed thing says almost nothing and
+nothing ever arrives; five named stops mean the next one is always in sight. The stops sit at their
+own share of the climb rather than at five equal fifths, so the picture says that A1 really is half
+the way to B1.
+
+**What fills it is a word the scheduler has graduated, never an evening ticked.** That is the whole
+reason it can sit beside a checklist: an evening ticked says somebody sat down, and a graduated card
+says they still had the word days later. A bar that filled on attendance would be the same false
+confidence the hand-off warning exists to catch, drawn as a picture. The band is the dictionary's
+own, so a word learned outside the course counts toward the level it belongs to, and each level is
+clamped to what the ladder asks for rather than summed raw.
+
+**And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
+four questions does not want a home page, they want to be told what to do tonight. The last screen
+names the part they open on, how long an evening takes and what tonight holds, shows the whole
+seventeen-part ladder underneath so the shape is visible at the moment somebody is deciding whether
+this is worth starting, and its button goes to the module. `completeOnboarding` writes the part they
+start on rather than leaving it to be inferred, because the fallback would silently hand a learner
+measured up to B1 in March the part they had not worked up to.
+
+**Deciding what to do tonight is the expensive part of an evening, and it was left to the one
+person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
+choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
+choice made in advance. A day names its words and the order it does things in, the learner presses
+one button until the day says it is finished, and then it says so and stops: **"Today's module is
+learned. Come back tomorrow, or start the next one now."** An evening that ends is an evening
+somebody comes back from, which is the whole argument for the third state.
+
+**Nothing underneath it is new.** Every step opens a screen that already existed, and Learn,
+Practice, Review and every game stay exactly where they were. What is new is that somebody who does
+not want to choose no longer has to, and the work they do the other way still counts.
+
+**Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
+of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
+words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
+one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
+are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
+the stem, the case and the register already.
+
+**The judgement is in `plan.ts` and the machinery has no opinions.** `lib/collections/syllabus/` is
+the course, its units are in teaching order and so are the words inside them, and `build.ts` slices
+that order into evenings. It chooses no word, no grammar page and no round: a unit already names the
+points it teaches in its own order, so an evening reads the next one along and `kus-ja-kuhu` over
+three nights opens three different case pages. What is decided by hand is the shape, where the parts
+break, how many words a night at each level, which rounds a level rotates through, and which of the
+fourteen conversations belongs to which unit. That division is what makes 182 evenings reviewable:
+the only things anybody has to read are seventeen part boundaries and five rotation lists.
+
+**The rotations alternate a game and a drill, and that is load-bearing rather than tidy.** Each
+level's list runs game, drill, game, drill, and an evening takes two neighbours off it, so every
+evening has one of each and no two running are the same pair. A fortnight of drills is homework and
+a fortnight of games teaches nothing. A unit that is mostly verbs takes the conjugation table
+instead of the drill, worked out from the unit's own parts of speech rather than pinned by hand.
+
+**No conversation in the whole of A1, and that is a finding rather than an omission.** Every one of
+the fourteen scenes declares `korraldused` among the units it may draw on, which is asking, telling
+and offering, and it sits in A2: you cannot ask anybody for anything without it. It was found by
+asking the question mechanically, and `course.test.ts` is where the question lives, a scene is
+opened only once every unit it declares has been taught, checked over the whole ladder in order. It
+moved `korraldused` to the front of A2, since it is the unit that makes a conversation possible, and
+ten of the fourteen scenes fall in A2 as a result. A1 is where you get the words and A2 is where you
+start using them on people; pretending otherwise would be the false confidence the readiness screen
+is built against.
+
+**Which day somebody is on is derived, and only the steps a log cannot prove are stored.** There is
+no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
+one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
+log, meeting the words leaves a mark on every one of their cards and the closing round is answers
+graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
+because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
+same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
+key so a second press is a no-op, and **the screen says which kind each one is** rather than
+implying the app watched.
+
+**Two faults in it were invisible to every unit test and turned up in the first two evenings
+anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
+tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn
+with its own two unknown, so somebody who had met tomorrow's words through Learn saw tomorrow at
+nought percent with "meet the words" waiting for them. And the closing round's window opened at the
+most recent tick anywhere in the programme, so ticking the first round of Tuesday's module moved it
+past Monday's answers, Monday stopped being finished, and the learner was sent back to a day they
+had done. Both were made to fail on the real code before the fix landed.
+
+**And the third fault was the pointer itself, which needed a night to pass before it could be
+seen.** The day was read as the first one whose steps are not all finished, walking from the top of
+the programme. By ticks alone *every* day is unfinished, since the two steps the log proves are
+written nowhere, so the reading had to ask the log about each evening it walked past, two queries
+apiece, under a cap: past the cap the learner was held for ever on whichever evening the cap fell
+on, and the reading got dearer the further anybody got. Underneath it the closing round's window
+was floored at the learner's own midnight, which is the same window on the evening itself and a
+different one every morning after, so a module finished at nine last night had the five answers
+that closed it stop counting at midnight, and the learner opened the app to the module they had
+already done. Every test in the suite ran inside a single day and none of them could see either.
+
+`dayReached` is the pointer now, the furthest day carrying a tick, which is "walking past a day is
+what finishing it means" written down: the days behind it are done, the day itself is the one to
+ask the log about, and the cost is the same on the first evening and the two hundredth. The window
+is that day's own last tick whenever it was, and **a day nobody has ticked anything on has not had
+an evening**, so its closing round counts nothing rather than counting from midnight; under the old
+floor, finishing one module and pressing "start the next one now" drew the next day with its closing
+round already satisfied by the round that had just closed the last one. And "come back tomorrow" is
+read off the day this render actually finished rather than off the first day of the programme,
+which is what made that sentence reachable on the first evening alone.
+
+**The pointer is monotonic because nothing may tick a day nobody has reached.** Both course actions
+take a day id from their caller, which is JSON off the wire whatever the type says, and neither
+checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
+and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
+both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
+a day of nothing but a meet and a review would finish itself the moment its words were met
+somewhere else and walk the learner through the programme.
+
+**The words go in the deck on a press and never on a render.** `PrefetchLink` fetches a whole page
+once a pointer has settled on a link for 90ms, so a module screen that topped the deck up while
+rendering would build somebody eight words for hovering over the button, and no browser suite would
+catch it because a suite clicks. Asserted, like the frequency rounds.
+
+**A day may not introduce a word, which is ADR-005 arriving by a new door.** A day names lemmas and
+every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
+Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
+`plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
+a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
+turn off. Off changes nothing else, and the work done the other way still counts toward a module the
+day it is turned back on.
+
 **Learning a word and reviewing one are two jobs, and one screen was doing both.** The daily row in
 the rail said Review, and what it opened was everything at once: the cards that were due, and a
 trickle of words the learner had never seen, taught in among them. That is one screen answering two
@@ -3432,6 +3790,68 @@ wherever a screen prints a case, and no card asks for it.
 the module already splits on rather than `\b`, which is ASCII and so does not know what õ is. After
 all three: **zero cards print their own answer**, measured the same way.
 
+**And the fifth was the question itself, on the two words every beginner meets first.** The
+gradation card asks the genitive as `kelle? mille?`, and those two words *are* the genitives of
+`kes` and `mis`, so the card read `kes → kelle? mille?` and took `kelle`. The builder had already
+held the *hint* off the answer two lines above, on the ladder every typeable card uses, and nothing
+held the front, because the front is the lemma and a word is not its own genitive: it is the lemma
+**and the question**, and the question is built from a table `lib/srs/cards.ts` does not own. The
+guard is `mentions(front, genSg)` rather than a rule about those two words, for that reason.
+
+**The door is the live lookup rather than the seed, which took a second look to get right.** A
+seeded `kes` cannot reach that card: `prisma/seed.ts` computes gradation only where `gradates(pos)`
+says the word class has one, so a pronoun is `NONE` and the builder breaks before it. What has no
+stored part of speech to consult is `runLookup`, which creates the entry for a word a learner
+searched for out of Ekilex alone, and **Ekilex calls every nominal `noomen`**: read off
+`.ekilex-cache`, the only word classes it sends are `noomen`, `verb` and `muutumatu`. So
+`mapEkilexDetails` labels `kes` a NOUN, a NOUN gradates, `classifyGradation("kes", "kelle")` returns
+`s : ll`, and the entry is created with it. Driven through the real mapper and the real builder: one
+gradation card, front `kes → kelle? mille?`, back `kelle`, and none with the guard in. Reachable on
+any deployment seeded before the pronouns unit existed, which is where `kes` is not yet a row.
+Gating the mapper on the part of speech was tried first and reverted: it can only fire on
+`muutumatu`, which carries no `SgN` or `SgG` for the classifier to read, so it is a no-op, and the
+test that appeared to prove it fired had invented a `wordClass` Ekilex does not send. A harness that
+is not the app measures the harness.
+
+**And the two audits that ask whether a question is answerable read half the dictionary.** Both
+`npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
+comment calling it "what the seed loads", and the seed loads that file *and*
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,153 entries against the expansion's 5,363,
+and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
+`scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
+still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
+what the seed does. `audit:sense` asks 60,118 questions rather than 51,940 and is clean;
+`audit:questions` asks 85,224 rather than about 46,000 and **reported 21 faults nobody had seen**.
+
+**The merge has to be faithful or it invents faults**, and the first attempt proves it: written with
+`gradation: null` on the course rows it reported sixty-odd gradation faults the app does not have,
+because `lib/srs/cards.ts` breaks on `lex.gradation === "NONE"` and `null` is not `"NONE"`. So the
+adapter computes gradation exactly as the seed computes it, off the part of speech first, and
+carries `semanticTypes`, which nothing could compute and which decides whether a case card asks a
+person or a thing. Checked both ways before a single fault was believed: recomputing gradation from
+the expansion's own principal parts agrees with what `expand-seed` stored on all 5,363 entries, no
+expansion row goes missing from the merge, and the 738 that differ are exactly the harvest
+superseding one on a shared key, with the course's authored gloss, its extra forms and its
+government. The `B1` floor on a missing level is the harvest's alone, because that is where the seed
+applies it: handing it to the expansion would tell the exam pool that 2,090 words are B1.
+
+**And all 21 were one fault in two more generators, which is the fault above wearing the case's
+question instead of the genitive's.** The flash round and the exceptions round each already refuse a
+form spelled like the lemma and a form spelled like a word in the English gloss, and every shape
+both draw prints a third thing: the question the case answers. That is a property of the *case*, so
+no amount of looking at one entry finds it. The round asked `kes · who · sisseütlev · kellesse?
+millesse?` and wanted `kellesse` typed back, on all eleven cases of both words, and
+`kes · omastav · kelle? mille?` wanting `kelle`. It costs those two words their case slots and
+nothing else, which is the right price: there is no way to ask somebody to produce `kelle` while
+printing `kelle?` as the question, and both keep their production card and their sentence shapes.
+
+**Every floor in both scripts moved with the dictionary and was re-measured rather than scaled.**
+`audit:sense` was 30,000 against 51,940 asked and is 48,000 against 60,118; the per-section figures
+in `audit-questions.ts` are four fifths of what the run over 6,153 entries actually prints, the deck
+13,540 against 10,887 and the flash round 52,028 against 45,856. Both were made to fail once: a
+section forced to produce nothing names itself and the count it missed, and a truncated entry list
+trips the whole-run floor. A floor left where it was is a floor that waves a generator through.
+
 **A generator fix settles the cards built from now on and not one card already in a deck.** That is
 the half the audit cannot see, because it reads `prisma/data/expanded.json` and a learner's deck is
 rows. `lib/srs/cards.ts` stopped building a case card whose answer spells the word in the question,
@@ -3522,6 +3942,115 @@ shape that was measured. It **moves and never drops**, asserted, because a space
 would lose a due card in silence. New cards do not go through it: `inTeachingOrder` puts a word's
 cards together in the order a lesson teaches them, and a first meeting is a teaching screen rather
 than a retrieval.
+
+**"Too complicated" is the fifth thing a learner can say about a card, and it is the only one
+that is not about their memory.** Again, Hard, Good and Easy all answer "how well did that go", and
+a word three bands past somebody has no honest answer among them: pressing Again brings it straight
+back and records a lapse, so the word that arrived early is the one the scheduler drills hardest,
+and the leech clinic, which is for a word somebody keeps failing, catches it a fortnight later and
+calls it the same thing. A learner meeting `kestma` in their first month is not learning slowly.
+
+**What it does is move `Card.due` and nothing else.** No FSRS column, no `Review` row, no grade,
+because a word nobody answered is not an answer (ADR-014, ADR-016). Every read on the daily path
+already filters on `due`, so a pushed card is out of review, out of Today's count and out of the
+new-card queue with no query learning a new predicate; the two reads that deliberately ignore the
+schedule, the ladder's own started words and the count beside them, ask `deferredWordIds` outright,
+because between rungs a word sits ten minutes out and telling that from a three week deferral by the
+size of the gap would be a guess with a constant in it. Nothing is `suspended`: that is the leech
+clinic's column and it means "not coming back until somebody says so", which is the opposite.
+
+**And it gives back only what it took.** The cards a deferral moved are exactly the ones now sitting
+on the date it wrote, so the undo and the level wake both match on that date. A blanket `due = now`
+over the word would hand somebody a card the scheduler had honestly put six months out, which is the
+schedule being overwritten by the one button that promised not to touch it.
+`lib/progress/deferrals.itest.ts` has a card six months out in every fixture, because no unit test
+can see this.
+
+**So a second press never shortens a wait, and that is a rule about the cards rather than about
+politeness.** Both ways back match the date the deferral wrote, which is the whole of what stops
+either of them pulling a card forward, so a press that wrote an *earlier* date over a wait already
+standing would leave the cards on the old one, matched by nothing: the row would read three weeks
+while the word stayed gone for a term and the way back would do nothing at all. It is reachable
+through a wait for a band, a level rise and the same word on a screen that was already open. Where
+a standing wait reaches further than tonight's would it is the one kept, whole, the date and the
+grounds together, and the press still counts. Saying it twice is not a reason to see the word
+sooner.
+
+**And the session's own undo does not hand the word straight back.** `undoGrade` restores the
+scheduling a card had before the grade, and that includes the date it was due, which is earlier than
+the one the button has just written, so a review session keeping a graded card of that word in its
+undo history would let one press of Undo resurrect it under a note still saying it was gone for
+three weeks. The word's grades leave the history with it, and the undo those grades were for is the
+one the note offers, which takes the whole word. What is left moves up, because a history entry
+holds a position in the queue and this is the one thing in a session that shortens the queue behind
+where the learner is standing: an entry pointing at where a card used to be reopens on its
+neighbour.
+
+**How long is decided by the word's own band and there are two answers.** A word at or below the
+learner's level goes back three weeks: a bad evening is a bad evening. A word above it did not
+arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
+where it comes back, since that is the one writer of a level and a level moves about twice a year.
+The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
+`lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
+of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes
+back still beyond them the button is one press away. An untagged word takes the plain three weeks,
+because a word somebody typed in or photographed carries no claim about its difficulty and reading a
+missing band as "beyond them" would put their own word away for a term.
+
+**And when enough people say it, the course is what is wrong.** One learner putting a word aside is
+a fact about their evening. Enough of them is a fact about where the word sits, and leaving each of
+them to discover it one at a time is this app knowing something and not acting on it. So a word
+enough people have put aside is *offered* one band later, for everybody, which reaches the two
+places that decide which word somebody is taught next: the new-card ordering on `/review` and the
+ladder's own pick. **Two numbers rather than a head count**, because five people out of the five who
+hold the word is the course being wrong and five out of four hundred is five people having a bad
+week, and the denominator is how many learners hold a card for it. **One band and never more**,
+never past C2, and never for a word that carries no band: a word moved once has to earn the next
+step from the learners who meet it where it now sits, which is what stops a feedback loop walking a
+word off the top of the course.
+
+**Nothing is written to `Lexeme`.** The band the Institute recorded is the band the entry shows, and
+what moved is the order words are taught in, derived on every read like every other ordering here.
+The counting is `lib/progress/hard.ts` rather than `lib/dict/facts.ts`, which caches it: that file
+is asserted to hold nothing scoped to a person and the denominator is a `COUNT(DISTINCT "ownerId")`,
+so the query lives one module over rather than the rule being widened to let it in.
+
+**One row per learner per word, which is what makes the count mean people.** It is the rule
+`groupKeyFor` states for the suggestion queue and it is why `Deferral` is the rare owner-scoped
+table here that is updated rather than appended to: a second press extends the wait on the row that
+is already there and `times` records how loudly one person said it. A wait ended early is stamped
+(`wokenAt`) rather than deleted, so what somebody said stays true of the evening they said it and no
+read path has to fetch a level to find out whether a deferral is still holding.
+
+**And the words it takes are listed where somebody can get them back.** `/words/mastery`, beside the
+favorites, because those are the two lists on that page a learner wrote themselves and a second page
+for a handful of words is a page nobody finds. A button whose whole effect is invisible for three
+weeks has to say what it did, so the sentence `deferralNote` writes is printed under the card with
+the way back beside it: a press that only made a card disappear reads as a fault. What the admin
+sees is a reading rather than a queue, on `/admin/suggestions` under the reports, with the words
+under the threshold in it too, since a word at four learners out of nine is the next one to look at
+and a panel showing only what has already been acted on is reporting its own decisions back.
+
+**And a card built for a word already put aside is built put aside.** Pushing `due` reaches every
+card that exists, and the unit lesson is where a word is refused before it has one: the lesson
+teaches the unit's words and `completeLesson` builds their cards at the end, so without this the
+word somebody said was too complicated would arrive the next morning with a card dated today, and so
+would the unit's own "Add to deck" pressed afterwards. Both builders ask `deferredDues` inside the
+transaction that already holds the deck lock, which is one indexed lookup beside a read of the deck
+they were doing anyway. The promise is about the word rather than about the rows that happened to
+exist when it was made.
+
+**The lesson drops the rest of the word with it.** A lesson is a list of steps rather than a queue
+of cards and one word has several of them, met then chosen then produced then gapped, so the button
+on the meet step takes that word's remaining steps out of the plan: carrying on asking about a word
+the app has just promised to leave alone is the fault in a smaller room. Nothing is recorded for it,
+`completeLesson` builds cards only for the lemmas it was given answers about, and the recap carries
+no lemma, so there is always a step left to land on.
+
+**What this does not reach is the drills.** Practice rounds ignore scheduling on purpose and say so,
+so a word put aside can still turn up in dictation or in a game, exactly as a word due next month
+can. The deferral holds where the app chooses what to teach, which is review and the ladder, and
+that is the line rather than an omission.
 
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
@@ -5216,8 +5745,8 @@ because somebody who says goodbye in the middle has left, so a `close` beat that
 would end every conversation on its first turn.
 
 **A phrase this app teaches is answered rather than punished.** `Kas sa räägid inglise keelt?` is
-in `tervitused`, the first unit anybody opens, and it is the move everybody makes in their first
-month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
+in `tervitused`, one of the first units anybody opens, and it is the move everybody makes in their
+first month in a shop. Read as an ordinary turn it meets nothing, so the other side said "sorry?" and
 asked the same thing again: the app teaching a phrase on one screen and ignoring it on another. It
 costs no patience, for the reason saying you are lost costs none, and it is answered whatever the
 persona would have done on its own, because being asked is not the same as being written to in a
@@ -7343,7 +7872,14 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `numberWords`, `NUMBER_LEMMAS`, `shown`, `answeredNext`, `acceptFromRows`, `dealtFor`, `SceneFace`,
 `elsewhere`, `landed`, `creditAhead`, `oneWordFor`, `gradesFor`, `wantsAsideFor`, `cardAfterHurdles`,
 `priceOffCard`, `asksPrice`, `whyWithheld`, `priceOnCard`, `asksToHearAgain`, `placeCases`, `askLine`,
-`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`.
+`shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
+`deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
+`putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`,
+`deferredDues`, `weeksBetween`,
+`questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
+`readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
+`caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
+`caseExamplesFor`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

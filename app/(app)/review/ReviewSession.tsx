@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { BookOpen, Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
@@ -13,23 +13,25 @@ import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { prefetchClip } from "@/lib/audio/clip";
 import { SuggestFix } from "@/components/SuggestFix";
 import { StarWord } from "@/components/StarWord";
+import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
-import { BLANK } from "@/lib/estonian/cloze";
+import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
 import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
-import { previewIntervals, SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
+import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
+import { useUiText } from "@/components/UiLanguage";
 
 export interface ReviewCard {
   id: string;
@@ -375,6 +377,8 @@ function askFor(card: ReviewCard, mode: ReviewMode, met: ReadonlySet<string>): A
 
 interface Done {
   cardId: string;
+  /** The word it was about, so putting that word aside can take its grades with it. */
+  lexemeId: string | null;
   index: number;
   rating: RatingValue;
   /** The card's scheduling before the grade — everything undo needs. */
@@ -421,8 +425,19 @@ export function ReviewSession({
   // Which card to reopen on if this mount is a resume after a dictionary
   // detour, rather than a fresh start. See `components/useResumeCard.ts`.
   const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
+  const uiText = useUiText();
   const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
+  /*
+    WHAT THE "TOO COMPLICATED" BUTTON DID, SAID OUT LOUD.
+
+    Its whole effect is that a word stops arriving for three weeks, which is
+    nothing anybody can see tonight, so the sentence it hands back is printed
+    under the card with the way to undo it beside it. Held until the next
+    press rather than cleared on a timer: it is the only record on this screen
+    that the press landed at all.
+  */
+  const [aside, setAside] = useState<string | null>(null);
   const [typed, setTyped] = useState("");
   const [verdict, setVerdict] = useState<AnswerCheck | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
@@ -562,7 +577,7 @@ export function ReviewSession({
     // on the answer, the back whenever the back is the Estonian side, which is
     // every case, conjugation and gradation card. Both, so neither round-trips.
     const heard = new Set<string>();
-    if (estonianSide(upcoming.cardType, "front") && upcoming.cardType !== "CLOZE") heard.add(upcoming.lemma ?? upcoming.front);
+    if (estonianSide(upcoming.cardType, "front") && !isGap(upcoming)) heard.add(upcoming.lemma ?? upcoming.front);
     else if (upcoming.intro?.lemma ?? upcoming.lemma) heard.add(upcoming.intro?.lemma ?? upcoming.lemma!);
     if (estonianSide(upcoming.cardType, "back")) heard.add(upcoming.back);
     // The pace is part of what is warmed: `prefetchClip` stretches the clip to
@@ -570,26 +585,6 @@ export function ReviewSession({
     // over the samples and a cold press.
     for (const text of heard) prefetchClip({ text: spoken(text), voice, pace });
   }, [index, queue, voice, pace]);
-
-  // Interval previews are computed after mount, never during the server render.
-  // FSRS scheduling is fuzzed (deliberately — see lib/srs/scheduler.ts), so the
-  // server and the browser draw different numbers for the same card and React
-  // reports a hydration mismatch. The buttons simply carry no interval for the
-  // first paint.
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  const intervals = useMemo(() => {
-    if (!card || !mounted) return null;
-    return previewIntervals(
-      {
-        ...card.scheduling,
-        due: new Date(card.scheduling.due),
-        lastReview: card.scheduling.lastReview ? new Date(card.scheduling.lastReview) : null,
-      },
-      new Date(),
-    );
-  }, [card, mounted]);
 
   /**
    * The learner has met the word. Nothing is written, and the card comes back.
@@ -617,6 +612,56 @@ export function ReviewSession({
     setRetypeNote(null);
     shownAt.current = Date.now();
   }, [card, busy, index]);
+
+  /**
+   * A word the learner has just put aside.
+   *
+   * Every card of that word goes out of this session, not only the one on
+   * screen: `putWordAside` has pushed all of them, so leaving a sibling in the
+   * queue would ask about a word the app has just promised not to ask about.
+   * The index moves back by however many of them were already behind us, so
+   * the position that was next stays next.
+   *
+   * Nothing is graded and nothing goes in the history, because nothing was
+   * answered: undo rewinds a grade, and there is no grade here (ADR-016). The
+   * way back is the one the note names.
+   *
+   * WHAT THE WORD'S OWN GRADES DO IS LEAVE WITH IT, WHICH IS NOT TIDINESS.
+   * `undoGrade` restores the scheduling the card had before the grade, and
+   * that includes the date it was due, which is earlier than the date
+   * `putWordAside` has just written. So undoing a grade on a word the learner
+   * has just put aside would quietly hand the word back and the note under
+   * the card would go on saying it was gone for three weeks. The undo those
+   * grades were for is the one the note offers, which takes the whole word
+   * back rather than one card of it.
+   *
+   * And what is left moves up, because a `Done` holds a position in the queue
+   * and this is the one thing in the session that shortens the queue behind
+   * where the learner is standing. An entry pointing at where a card used to
+   * be reopens on its neighbour.
+   */
+  const putAside = useCallback((note: string) => {
+    // The button is drawn only on a card that names a word, and the guard is
+    // here as well because a null one would read as "every card with no
+    // lexeme" and take them all out of the queue together.
+    if (!card?.lexemeId) return;
+    const word = card.lexemeId;
+    const goneBefore = (at: number) => queue.slice(0, at).filter((c) => c.lexemeId === word).length;
+    setQueue((q) => q.filter((c) => c.lexemeId !== word));
+    setIndex((i) => Math.max(0, i - goneBefore(i)));
+    setHistory((h) => h
+      .filter((d) => d.lexemeId !== word)
+      .map((d) => ({ ...d, index: Math.max(0, d.index - goneBefore(d.index)) })));
+    setAside(note);
+    setRevealed(false);
+    setTyped("");
+    setVerdict(null);
+    setChosen(null);
+    setRetyped("");
+    setRetypeOk(false);
+    setRetypeNote(null);
+    shownAt.current = Date.now();
+  }, [card, queue, index]);
 
   const submit = useCallback(async (rating: RatingValue) => {
     if (!card || busy) return;
@@ -660,7 +705,7 @@ export function ReviewSession({
 
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
-    setHistory((h) => [...h, { cardId: card.id, index, rating, before }]);
+    setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
 
     // "Again" means it is not learned — put it back near the end of this session.
     if (rating === 1) {
@@ -878,6 +923,23 @@ export function ReviewSession({
     );
   }
 
+  /*
+    WHAT THE "TOO COMPLICATED" BUTTON DID, DRAWN ONCE.
+
+    Both screens below can be the one a press lands on: putting the last word
+    of a session aside ends the session, so the note has to survive onto the
+    summary or the press reads as a card that vanished. One expression rather
+    than two copies, because the second copy is the one whose wording rots.
+  */
+  const asideNote = aside ? (
+    <p className="mt-4 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+      {aside}{" "}
+      <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
+        Bring it back
+      </Link>
+    </p>
+  ) : null;
+
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = done > 0 ? Math.round((correct / done) * 100) : 0;
@@ -890,12 +952,12 @@ export function ReviewSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {drillCase
-              ? <>Tubli töö. That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
+              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
               : drillUnit
-                ? <>Tubli töö. That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
+                ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
                 : drillScan
-                  ? <>Tubli töö. That&rsquo;s the whole page drilled. Its cards still follow their normal schedule.</>
-                  : <>Tubli töö. That&rsquo;s everything due right now.</>}
+                  ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the whole page drilled. Its cards still follow their normal schedule.</>
+                  : <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s everything due right now.</>}
           </p>
         </div>
 
@@ -904,7 +966,11 @@ export function ReviewSession({
           <StatTile value={`${accuracy}%`} label="Recalled" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        {pendingOffline > 0 && (
+        {/* A word put aside as the last card of a session ends it, so the note
+            belongs here too: the one drawing is `asideNote`, because two
+            wordings of what a press did is how the copy in one of them rots. */}
+        {asideNote}
+      {pendingOffline > 0 && (
           <p
             className="mt-4 rounded-[var(--r)] px-4 py-3 text-sm"
             style={{ background: "var(--hard-soft)", color: "var(--hard-ink)" }}
@@ -965,7 +1031,7 @@ export function ReviewSession({
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
-          {card.isNew && <Chip tone="good">New word</Chip>}
+          {card.isNew && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
           {drillCase && <Chip tone="hard">{drillCase.toLowerCase()} drill</Chip>}
           {drillScan && <Chip tone="sky">{drillScan.title}</Chip>}
           <div className="ml-auto flex items-center gap-1">
@@ -985,6 +1051,19 @@ export function ReviewSession({
                 lexemeId={card.lexemeId}
                 starred={card.starred}
                 label={card.lemma ?? card.front}
+              />
+            )}
+            {/* And beside it, the other thing somebody wants to do with a word
+                mid-card: keep it, or put it away. Both are about the word
+                rather than about the answer, which is why they sit together
+                and not among the rating keys. */}
+            {card.lexemeId && (
+              <TooComplicated
+                key={card.lexemeId}
+                lexemeId={card.lexemeId}
+                label={card.lemma ?? card.front}
+                context="/review"
+                onDone={putAside}
               />
             )}
           </div>
@@ -1010,12 +1089,13 @@ export function ReviewSession({
               }
               style={{ color: "var(--ink)" }}
             >
-              {card.front}
+              {sizedBlank(card.front, card.back)}
             </p>
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
                 it aloud is not a thing, and the reveal below plays the whole
-                sentence once the answer is in. */}
-            {estonianSide(card.cardType, "front") && card.cardType !== "CLOZE" && (
+                sentence once the answer is in. Not just `CLOZE`: a `CASE_FORM`
+                or `CONJUGATION` front is a gap-fill sentence too now. */}
+            {estonianSide(card.cardType, "front") && !isGap(card) && (
               <Speak text={card.lemma ?? card.front} />
             )}
           </div>
@@ -1065,7 +1145,7 @@ export function ReviewSession({
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} rounded-md px-4 py-2.5 text-sm`}
               >
-                {verdict.verdict === "correct" ? "Õige!" : verdict.note}
+                {verdict.verdict === "correct" ? uiText("Õige!", "Correct!") : verdict.note}
               </p>
               {typed.trim() && verdict.verdict !== "correct" && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -1101,7 +1181,7 @@ export function ReviewSession({
                 <div className="mt-4 text-left">
                   {retypeOk ? (
                     <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
-                      Õige! That is the one.
+                      {uiText("Õige!", "Correct!")} That is the one.
                     </p>
                   ) : (
                     <>
@@ -1178,10 +1258,14 @@ export function ReviewSession({
           {revealed && ask !== "choice" && (
             <>
               <div className="my-1 h-1 w-14 rounded-full" style={{ background: "var(--accent-soft)" }} />
-              {card.cardType === "CLOZE" ? (
+              {isGap(card) ? (
                 /* A gap-fill is answered by a word but *learned* as a sentence,
                    so the reveal puts the word back where it came from and reads
-                   the whole thing aloud. */
+                   the whole thing aloud. Not just `CLOZE`: a `CASE_FORM` or
+                   `CONJUGATION` card is drilled in a sentence too now (see
+                   CLAUDE.md, "A case is drilled in a sentence that uses it"),
+                   and a learner who cannot read that sentence has no context
+                   for the answer, only its isolated gloss. */
                 <div className="flex flex-col items-center gap-2">
                   <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
                     {card.front.split(BLANK)[0]}
@@ -1256,12 +1340,12 @@ export function ReviewSession({
           {ask === "intro" ? (
             <Button variant="primary" size="lg" className="w-full" onClick={meetDone} disabled={busy}>
               Got it, ask me later
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && !verdict ? (
             <Button variant="primary" size="lg" className="w-full" onClick={checkTyped}>
               Check
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && verdict ? (
             /* Marked already. A clean hit takes itself away (see `checkTyped`),
@@ -1277,25 +1361,25 @@ export function ReviewSession({
               disabled={busy || retypeOk}
             >
               {needsRetype ? "Check it again" : "Got it, next"}
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "choice" && !chosen ? (
             <p className="text-center text-xs" style={{ color: "var(--ink-3)" }}>
               Pick the meaning · keys 1 to {card.choices?.length ?? 4}
             </p>
           ) : ask === "choice" && chosen === card.back ? (
-            <p className="text-center text-sm font-semibold" style={{ color: "var(--good-ink)" }}>Õige!</p>
+            <p className="text-center text-sm font-semibold" style={{ color: "var(--good-ink)" }}>{uiText("Õige!", "Correct!")}</p>
           ) : ask === "choice" ? (
             /* Picked the wrong one. Nothing to grade: the right answer is on
                the screen and the card comes back later in this session. */
             <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(1)} disabled={busy}>
               Got it, next
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : !revealed ? (
             <Button variant="primary" size="lg" className="w-full" onClick={() => setRevealed(true)}>
               Show answer
-              <KeyCap className="ml-1">{ADVANCE_KEY_LABEL}</KeyCap>
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
             <div className="grid grid-cols-2 gap-2.5">
@@ -1305,12 +1389,18 @@ export function ReviewSession({
                   type="button"
                   disabled={busy}
                   onClick={() => void submit(g.rating)}
-                  aria-label={intervals ? `${g.label}, next in ${intervals[g.rating]}` : g.label}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex flex-col items-center gap-0.5 rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  /* No `-translate-y` on hover: the buttons sit in a `gap-2.5`
+                     grid and a hover that moves the box up loses contact with a
+                     pointer resting near its lower edge, which un-hovers it,
+                     which undoes the shift. `scale` grows the box from its own
+                     centre and can only gain area under the pointer. The
+                     interval preview under the label went the same way: how
+                     many minutes the scheduler adds is a question about a
+                     scheduler nobody can see, put to somebody trying to learn
+                     Estonian. */
+                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   <span className="text-base font-bold">{g.label}</span>
-                  <span className="tnum text-2xs">{intervals?.[g.rating]}</span>
-                  <KeyCap>{g.key}</KeyCap>
                 </button>
               ))}
             </div>
@@ -1349,6 +1439,7 @@ export function ReviewSession({
         </span>
       </div>
 
+      {asideNote}
       {pendingOffline > 0 && (
         <p className="mt-3 text-center text-xs" style={{ color: "var(--hard-ink)" }}>
           You&rsquo;re offline. {pendingOffline} grade{pendingOffline === 1 ? "" : "s"} saved here, sent once you reconnect.

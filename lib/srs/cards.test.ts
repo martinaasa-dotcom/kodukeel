@@ -102,6 +102,30 @@ describe("generateCards", () => {
     expect(generateCards(aitama, ["GRADATION"])).toHaveLength(0);
   });
 
+  /*
+    AND NOT WHERE THE QUESTION IS THE ANSWER.
+
+    The genitive is asked as `kelle? mille?`, and those two words are the
+    genitives of `kes` and `mis`. So the card read `kes → kelle? mille?` and
+    took `kelle`: unfailable, on the two commonest question words in Estonian,
+    in the A1 unit that teaches them. Both are course words, which is why the
+    audit that asks this question of every card never saw them: it reads the
+    built expansion and they are in the harvest.
+  */
+  it("refuses a gradation card whose own question spells the answer", () => {
+    const kes: LexemeForCards = {
+      ...tuba, lemma: "kes", translation: "who", pos: "PRONOUN",
+      gradation: "QUALITATIVE", gradationNote: "s : ll", semanticTypes: null,
+      forms: [{ formType: "NOM_SG", value: "kes" }, { formType: "GEN_SG", value: "kelle" }],
+    };
+    const mis: LexemeForCards = {
+      ...kes, lemma: "mis", translation: "what",
+      forms: [{ formType: "NOM_SG", value: "mis" }, { formType: "GEN_SG", value: "mille" }],
+    };
+    expect(generateCards(kes, ["GRADATION"])).toEqual([]);
+    expect(generateCards(mis, ["GRADATION"])).toEqual([]);
+  });
+
   it("makes a government card only when government is recorded", () => {
     expect(generateCards(aitama, ["GOVERNMENT"])[0]?.back).toContain("partitive");
     expect(generateCards(tuba, ["GOVERNMENT"])).toHaveLength(0);
@@ -232,6 +256,29 @@ describe("generateCards — CLOZE", () => {
   it("is only offered when it can produce something", () => {
     expect(availableCardTypes(drinking)).toContain("CLOZE");
     expect(availableCardTypes({ ...drinking, examples: null })).not.toContain("CLOZE");
+  });
+
+  /*
+    caseFromMorphCode READS SgKom AND PlKom ALIKE AS "COMITATIVE", "IGNORING
+    NUMBER" BY ITS OWN COMMENT, SO gapForms COULD NOT TELL A RETRIEVED PLURAL
+    FROM ITS SINGULAR. A CLOZE card built from `tubadega` (a real stored form:
+    see lib/dict/edit.itest.ts) would have gapped a plural nobody teaches the
+    formation of and filed it into Review.slot as though it were the singular
+    comitative beside it — the exact fault `readCase` exists to keep out of
+    CASE_FORM, two describe blocks down.
+  */
+  it("never gaps a retrieved plural, even where an attested sentence carries only one", () => {
+    const rooms = {
+      ...drinking, lemma: "tuba", translation: "room",
+      examples: JSON.stringify([{ et: "Nad said tubadega hakkama.", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "tuba", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "toa", morphCode: "SgG" },
+        { formType: "PART_SG", value: "tuba", morphCode: "SgP" },
+        { formType: "EKILEX:PlKom", value: "tubadega", morphCode: "PlKom" },
+      ],
+    };
+    expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
   });
 });
 
