@@ -378,31 +378,48 @@ export default async function CoursePage({
             {programme.days.map((d) => {
               const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
               return (
-                <li key={d.id} className="flex items-center gap-2 text-sm">
-                  <span
-                    aria-hidden
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
-                    style={{
-                      background: state === "done" ? "var(--good-soft)"
-                        : state === "now" ? "var(--accent-soft)" : "var(--raised)",
-                      color: state === "done" ? "var(--good-ink)"
-                        : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
-                    }}
-                  >
-                    {state === "done" ? <Check size={11} /> : d.index}
-                  </span>
-                  <span
-                    lang={uiWantsEnglish(level) ? undefined : "et"}
-                    style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
-                  >
-                    {uiText(level, d.title, d.subtitle)}
-                  </span>
-                  <span className="truncate" style={{ color: "var(--ink-3)" }}>
-                    {uiWantsEnglish(level)
-                      ? d.part.of > 1 ? `${d.part.n}/${d.part.of}` : ""
-                      : d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
-                  </span>
-                  {state === "now" && <Chip tone="accent">Tonight</Chip>}
+                /*
+                  TWO LINES RATHER THAN ONE TRUNCATED CAPTION.
+
+                  The day's own name and its caption used to share a
+                  `flex items-center` row with no wrap, so a long subtitle
+                  (English ones run longer than the Estonian titles they
+                  stand in for at A1, e.g. "Asking for help, and calling
+                  for it") was cut short with an ellipsis, or, worse, sat
+                  hard against a name with none to spare. Neither is read
+                  in full, which is the one thing a 273-evening list has to
+                  get right. The caption gets its own line, indented under
+                  the badge, and wraps instead of clipping.
+                */
+                <li key={d.id} className="flex flex-col gap-0.5 text-sm">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                      style={{
+                        background: state === "done" ? "var(--good-soft)"
+                          : state === "now" ? "var(--accent-soft)" : "var(--raised)",
+                        color: state === "done" ? "var(--good-ink)"
+                          : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
+                      }}
+                    >
+                      {state === "done" ? <Check size={11} /> : d.index}
+                    </span>
+                    <span
+                      lang={uiWantsEnglish(level) ? undefined : "et"}
+                      style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
+                    >
+                      {uiText(level, d.title, d.subtitle)}
+                    </span>
+                    {state === "now" && <Chip tone="accent">Tonight</Chip>}
+                  </div>
+                  {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
+                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
+                      {uiWantsEnglish(level)
+                        ? `${d.part.n}/${d.part.of}`
+                        : d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                    </span>
+                  )}
                 </li>
               );
             })}
