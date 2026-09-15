@@ -32,6 +32,11 @@
 
 export const TODAY_SLOTS = [
   {
+    id: "ladder",
+    title: "On the way to your target",
+    detail: "How far between where you started and the band you are aiming at, with the levels as stops.",
+  },
+  {
     id: "errand",
     title: "Say it today",
     detail: "Whether you spoke Estonian yesterday, and one thing to say today.",

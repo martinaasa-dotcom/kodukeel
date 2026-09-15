@@ -293,9 +293,38 @@ function posFilter(kind: LearnKind) {
  */
 export async function learnBatch(
   ownerId: string, level: Level, glossLanguage: GlossLanguage, size = LEARN_BATCH,
-  kind: LearnKind = "word",
-  now = new Date(),
+  /**
+   * The three things a caller can decide about a round, as one object rather
+   * than a tail of optional positions: three of them arrived from three
+   * directions at once and the next one would have been passed in the wrong
+   * slot.
+   */
+  opts: {
+    /** Whether this round is words or the fixed phrases. */
+    kind?: LearnKind;
+    now?: Date;
+    /*
+      WHICH WORDS, WHERE THE CALLER HAS ALREADY DECIDED.
+
+      A planned course day names its own eight words, and the whole of what
+      makes an evening feel chosen rather than dealt is that every round after
+      the first asks *those* back. Without this the ladder would hand today's
+      learner whatever was oldest in the deck, which on an account with a
+      backlog is last month's unit.
+
+      Undefined is the ordinary case and is untouched: Learn is the whole deck,
+      oldest first, nearest the level, exactly as it always was. A named list
+      is not narrowed by `kind` as well, because naming the words *is* the
+      choosing, and a course day that teaches a greeting beside seven nouns
+      would otherwise lose the greeting.
+    */
+    only?: readonly string[];
+  } = {},
 ): Promise<LearnWord[]> {
+  const { kind = "word", now = new Date(), only } = opts;
+  const scope = only
+    ? { lexeme: { lemma: { in: [...only] } } }
+    : { lexeme: { pos: posFilter(kind) } };
   /*
     A WORD PART WAY UP THE LADDER IS SERVED WHATEVER ITS DATE, WHICH IS WHY
     THIS ONE HAS TO ASK.
@@ -308,10 +337,7 @@ export async function learnBatch(
   */
   const [startedRows, aside] = await Promise.all([
     prisma.card.findMany({
-      where: {
-        ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1,
-        lexeme: { pos: posFilter(kind) },
-      },
+      where: { ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 1, ...scope },
       // Longest waiting first, and the id settles a tie: a word's cards are
       // written in one insert and share a `due` to the millisecond.
       orderBy: [{ due: "asc" }, { id: "asc" }],
@@ -338,7 +364,7 @@ export async function learnBatch(
     await prisma.card.findMany({
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
-        lexeme: { pos: posFilter(kind) },
+        ...scope,
         due: { lte: now },
       },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],

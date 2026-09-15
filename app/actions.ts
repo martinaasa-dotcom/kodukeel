@@ -62,6 +62,20 @@ import { boundedRestoredReview, writeGrade } from "@/lib/srs/grade";
 import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
+import {
+  DEFAULT_PROGRAMME, PROGRAMMES, dayById, programmeById,
+} from "@/lib/course";
+import { dayIsInPlay } from "@/lib/progress/course";
+
+/**
+ * The part of the ladder a level starts on, for first run.
+ *
+ * The same rule `openingPart` applies on the server, kept here rather than
+ * imported from `lib/progress/course.ts` because that module reads a database
+ * and this needs only the list.
+ */
+const openingPartId = (level: string): string =>
+  (PROGRAMMES.find((p) => p.level === level) ?? DEFAULT_PROGRAMME).id;
 import { CARD_SOURCES as KNOWN_SOURCES, DEFAULT_SOURCE } from "@/lib/srs/sources";
 import { ratingFor, SONAD_GUESSES } from "@/lib/games/sonad";
 import { solvedEntries } from "@/lib/games/crossword";
@@ -1763,6 +1777,17 @@ export async function completeOnboarding(input: {
     writeSetting(ownerId, SETTING_KEYS.letterBar, letterBarFrom(input.letterBar)),
     writeSetting(ownerId, SETTING_KEYS.glossLanguage, glossLanguageFrom(text(input.glossLanguage))),
     writeSetting(ownerId, SETTING_KEYS.onboardedAt, new Date().toISOString()),
+    /*
+      AND THE PART OF THE LADDER THEY OPEN ON, WRITTEN RATHER THAN INFERRED.
+
+      `programmeFor` falls back to the first part at or below the learner's
+      level where nothing is stored, so leaving this out would work today and
+      be wrong the first time somebody's level moves: a learner measured up to
+      B1 in March would silently be handed B1.1 having done four parts of A1.
+      Writing it at the end of first run pins where they actually started, and
+      finishing a part is the only thing that moves it.
+    */
+    writeSetting(ownerId, SETTING_KEYS.programme, openingPartId(input.cefr)),
     input.goals
       ? saveGoals(ownerId, normaliseGoals({
           reason: input.goals.reason ?? null,
@@ -2779,6 +2804,7 @@ export async function deleteMyAccount(confirmation: string) {
       // goes with the row, which is the right way round: the count is a
       // reading of how many people said a thing, and this person is leaving.
       await tx.deferral.deleteMany({ where: { ownerId } });
+      await tx.courseStep.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the
@@ -2863,6 +2889,7 @@ const BackupSchema = z.object({
   encounters: z.array(z.record(z.string(), z.unknown())).optional(),
   /** Words put aside. Optional, like every key added after the format was set. */
   deferrals: z.array(z.record(z.string(), z.unknown())).optional(),
+  courseSteps: z.array(z.record(z.string(), z.unknown())).optional(),
   /**
    * A learner's own named shelves. Optional for the reason `scans` is: a file
    * written before this existed has no such key and must still restore.
@@ -3200,6 +3227,38 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         await tx.deferral.create({ data: data as never });
       }
 
+      /*
+        Steps of a planned course day. Created and never updated, like every
+        other append-only row here: a restore puts back what a backup held and
+        may not rewrite what this deployment already has.
+
+        ON THE KEY THAT CAN ACTUALLY COLLIDE, which is the one the model
+        declares rather than the row's id. `CourseStep` is unique on the owner,
+        the part, the day and the step, so a backup carrying somebody else's
+        tick of a day this account has already done is a row with a new id and
+        a key that is taken: checking the id alone lets it through to an insert
+        that aborts the whole two-minute transaction, and a restore is
+        all-or-nothing. `StarredWord` and `Achievement` are the same shape two
+        loops down and already did it this way.
+      */
+      for (const raw of backup.courseSteps ?? []) {
+        const data = revive(raw, ["createdAt"]);
+        const programmeId = String(data.programmeId ?? "");
+        const dayId = String(data.dayId ?? "");
+        const stepId = String(data.stepId ?? "");
+        if (!programmeId || !dayId || !stepId) continue;
+        await tx.courseStep.upsert({
+          where: {
+            ownerId_programmeId_dayId_stepId: { ownerId, programmeId, dayId, stepId },
+          },
+          create: {
+            ownerId, programmeId, dayId, stepId,
+            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
+          },
+          update: {},
+        });
+      }
+
       for (const raw of backup.stars ?? []) {
         const data = revive(raw, ["createdAt"]);
         const lexemeId = String(data.lexemeId ?? "");
@@ -3292,6 +3351,125 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
   revalidatePath("/settings");
   revalidatePath("/progress");
   return { ok: true as const, summary: check.summary };
+}
+
+// ──────────────────────────── The planned course ──────────────────────────
+
+/**
+ * The cards a day's words arrive with.
+ *
+ * Recognition and production and no more, which is the same trade the
+ * frequency page makes for the same reason: a day is eight words, a case card
+ * apiece would be sixty-odd cards for one press, and the day's own rounds are
+ * where the forms get asked. The unit those words came from is still there on
+ * `/learn` for anybody who wants the whole thing.
+ */
+const COURSE_DAY_CARDS = ["RECOGNITION", "PRODUCTION"] as const;
+
+/**
+ * Put today's words in the deck, so the ladder has something to teach.
+ *
+ * A SERVER ACTION BEHIND A PRESS, AND NEVER A RENDER. `PrefetchLink` fetches a
+ * whole page once a pointer has settled on a link for 90ms, so a course screen
+ * that topped the deck up while rendering would build somebody eight words for
+ * hovering over the button, and no browser suite would ever see it because a
+ * suite clicks. The rule is already asserted for the frequency rounds and it
+ * is the same rule here.
+ *
+ * It adds and never removes, and `addPlanToDeck` dedupes against what is
+ * already there under the deck lock, so pressing twice is one word's cards.
+ */
+export async function startCourseDay(programmeId: string, dayId: string) {
+  const ownerId = await requireUserId();
+  const programme = programmeById(text(programmeId));
+  const day = programme ? dayById(programme, text(dayId)) : undefined;
+  if (!programme || !day) {
+    return { ok: false as const, error: "That day is not part of the course." };
+  }
+  /* AND IT HAS TO BE THE DAY THEY ARE STANDING ON. The id is JSON off the wire
+     whatever the type says, and this one builds a deck out of the day's words:
+     without the check a forged call fills somebody's deck from C1.3. */
+  if (!await dayIsInPlay(ownerId, programme, day)) {
+    return { ok: false as const, error: "That module is further along than you are." };
+  }
+
+  const result = await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
+  revalidatePath("/course");
+  revalidatePath("/");
+  revalidatePath("/words");
+  return { ok: true as const, added: result.added, words: result.words };
+}
+
+/**
+ * A step of today's module, ticked.
+ *
+ * WHAT THIS MAY AND MAY NOT BE USED FOR. Two of every day's steps are proved
+ * by the review log and are never written here: meeting the day's words leaves
+ * a mark on every one of their cards, and the closing round is answers graded
+ * since the last tick. This is for the ones no log can reconstruct, because a
+ * `Review` row carries no note of which mode wrote it. A caller that ticked a
+ * derived step would be writing a second source of truth for a fact the app
+ * already knows, so the step is checked against the day's own table and a
+ * derived one is refused.
+ *
+ * Append-only, like `Review` and `Encounter`. The unique key is what makes a
+ * double press a no-op rather than a second row, and there is no way to untick:
+ * a course is a record of what somebody did, and nothing about this app is
+ * improved by letting them edit it. Somebody who wants the round again presses
+ * it again, which is what every other round already does.
+ */
+export async function markCourseStep(programmeId: string, dayId: string, stepId: string) {
+  const ownerId = await requireUserId();
+  const programme = programmeById(text(programmeId));
+  const day = programme ? dayById(programme, text(dayId)) : undefined;
+  const step = day?.steps.find((s) => s.id === text(stepId));
+  if (!programme || !day || !step) {
+    return { ok: false as const, error: "That is not a step of that day." };
+  }
+  if (step.derived) {
+    return { ok: false as const, error: "That one is read off your own answers." };
+  }
+  /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
+     forged tick on a day nobody has reached would move the course onto it and
+     skip every evening in between. */
+  if (!await dayIsInPlay(ownerId, programme, day)) {
+    return { ok: false as const, error: "That module is further along than you are." };
+  }
+
+  await prisma.courseStep.upsert({
+    where: {
+      ownerId_programmeId_dayId_stepId: {
+        ownerId, programmeId: programme.id, dayId: day.id, stepId: step.id,
+      },
+    },
+    update: {},
+    create: { ownerId, programmeId: programme.id, dayId: day.id, stepId: step.id },
+  });
+
+  revalidatePath("/course");
+  revalidatePath("/");
+  return { ok: true as const };
+}
+
+/**
+ * Follow a programme, or say you would rather pick your own evening.
+ *
+ * `off` is a real answer and is honored at every level, which is the whole
+ * reason this is a setting rather than a guess off the placement: somebody who
+ * knows what they want to practise should not have to argue with a home page
+ * about it.
+ */
+export async function setProgramme(value: string) {
+  const ownerId = await requireUserId();
+  const wanted = text(value);
+  if (wanted !== "off" && wanted !== "" && !programmeById(wanted)) {
+    return { ok: false as const, error: "There is no course by that name." };
+  }
+  await writeSetting(ownerId, SETTING_KEYS.programme, wanted || DEFAULT_PROGRAMME.id);
+  revalidatePath("/course");
+  revalidatePath("/");
+  revalidatePath("/settings");
+  return { ok: true as const };
 }
 
 // ───────────────────────────── Scanned pages ──────────────────────────────

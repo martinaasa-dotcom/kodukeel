@@ -136,13 +136,13 @@ model StarredWord {
   lexeme    Lexeme   @relation(fields: [lexemeId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
-  /*
-    No separate index on `ownerId`. There was one, and the planner could never
-    have chosen it: the composite primary key above is itself an index whose
-    leading column is `ownerId`, so every query that would have wanted one
-    uses that. All the extra index did was cost a second write on every star
-    and unstar.
-  */
+  /**
+   * No separate index on `ownerId`. There was one, and the planner could never
+   * have chosen it: the composite primary key above is itself an index whose
+   * leading column is `ownerId`, so every query that would have wanted one
+   * uses that. All the extra index did was cost a second write on every star
+   * and unstar.
+   */
   @@id([ownerId, lexemeId])
 }
 
@@ -343,20 +343,20 @@ model Task {
 /// repeating event stores a wall-clock minute and the weekdays it falls on, and
 /// the learner's zone (`SETTING_KEYS.timeZone`) says what that means.
 model StudyEvent {
-  id        String   @id @default(uuid())
-  ownerId   String
-  title     String
-  notes     String?
+  id              String   @id @default(uuid())
+  ownerId         String
+  title           String
+  notes           String?
   /// CLASS STUDY EXAM OTHER. What it is, for the colour and the icon.
-  kind      String   @default("CLASS")
+  kind            String   @default("CLASS")
   /// Minutes from local midnight, 0 to 1439.
-  startMinute Int
-  durationMinutes Int @default(60)
+  startMinute     Int
+  durationMinutes Int      @default(60)
   /// Weekdays it repeats on, 0 Sunday to 6 Saturday. Empty for a one-off.
-  weekdays  Int[]    @default([])
+  weekdays        Int[]    @default([])
   /// A one-off's day, as `YYYY-MM-DD` in the learner's own zone. Null when it repeats.
-  onDate    String?
-  createdAt DateTime @default(now())
+  onDate          String?
+  createdAt       DateTime @default(now())
 
   @@index([ownerId])
 }
@@ -483,7 +483,7 @@ model UsageEvent {
   /// call counts (the burst window, the daily allowance) count only `CALL`.
   /// Counting settlements as calls would silently halve every allowance in the
   /// app.
-  entry        String   @default("CALL")
+  entry String @default("CALL")
 
   @@index([ownerId, day])
   @@index([day])
@@ -749,7 +749,7 @@ model Suggestion {
   /// or `{}` where the category has nothing mechanical to apply. Every Estonian
   /// character in here was typed by a person, exactly like a hand edit — no
   /// model writes a form (ADR-005).
-  patch   String  @default("{}")
+  patch String @default("{}")
 
   createdAt  DateTime  @default(now())
   reviewedBy String?
@@ -808,9 +808,9 @@ model SceneRun {
 /// conversations keep needing" is one indexed query instead of a JSON scan over
 /// every run a person has ever played.
 model SceneGap {
-  id      String @id @default(uuid())
-  ownerId String
-  runId   String
+  id       String  @id @default(uuid())
+  ownerId  String
+  runId    String
   /// The dictionary entry, where the help button found one.
   lexemeId String?
   /// The word as the learner reached for it, which is the only handle a word
@@ -827,6 +827,50 @@ model SceneGap {
   @@index([ownerId, createdAt])
   @@index([ownerId, lexemeId])
   @@index([runId])
+}
+
+/// A step of a planned course day the learner finished.
+///
+/// APPEND-ONLY, AND ONLY FOR THE STEPS THE LOG CANNOT PROVE. A programme day
+/// is a checklist: meet the words, read the point, play a round or two, have
+/// the conversation, review. Two of those are proved by the learner's own
+/// review log and are never written here at all: meeting the day's words
+/// leaves a mark on every one of their cards, and the closing review is
+/// answers graded since the day opened. A fact with two sources drifts, and
+/// this project has paid for that enough times to leave those two derived.
+///
+/// The rest cannot be derived, and it is worth being exact about why rather
+/// than adding a column and hoping. A `Review` row deliberately carries no
+/// note of which mode wrote it, so a round of Match and a flip of the same
+/// card are one row in the log; there is no honest way to read one back as
+/// "they played Match". So a round is the learner saying they did it, which is
+/// the same class of fact as the conversation Today asks about and is stored
+/// the same way. The course screen says which steps are proved and which are
+/// ticked rather than implying the app watched.
+///
+/// WHICH DAY SOMEBODY IS ON IS NOT HERE. It is the first day whose steps are
+/// not all finished, worked out from these rows on each render. A stored day
+/// pointer is a second source of truth that drifts and that can be advanced by
+/// something which never happened (ADR-014).
+///
+/// A row is written once and never edited, like `Review` and `Encounter`. The
+/// unique key is what makes a second press of the same tick a no-op rather
+/// than a second row.
+model CourseStep {
+  id          String   @id @default(uuid())
+  ownerId     String
+  /// The programme, so a later A1.2 cannot collide with these ids.
+  programmeId String
+  /// The day, as `lib/course/` spells it: `a1.1-07`.
+  dayId       String
+  /// The step inside that day: `meet`, `read`, `do:match`, `talk`, `review`.
+  /// A step id the programme no longer has reads as a row about nothing, which
+  /// is the right answer for a day that was rewritten under somebody.
+  stepId      String
+  createdAt   DateTime @default(now())
+
+  @@unique([ownerId, programmeId, dayId, stepId])
+  @@index([ownerId, createdAt])
 }
 
 /// One fixed window of a rate limit, counted where every instance can see it.

@@ -16358,6 +16358,275 @@ check("the words put aside are listed, and one button puts them there", () => {
   }
 });
 
+/*
+  THE PLANNED COURSE STORES ONLY WHAT NO LOG CAN REBUILD.
+
+  Four arms, and each one is a way this feature would quietly become a second
+  source of truth about somebody's progress. The day pointer is the one that
+  matters: a column saying which day a learner is on drifts and can be advanced
+  by something that never happened, which is exactly what ADR-014 was written
+  about, and the temptation to add one arrives the first time somebody wants
+  "skip this day".
+*/
+check("the planned course derives its day and stores only the steps a log cannot prove", () => {
+  const schema = read("prisma/schema.prisma");
+  const model = schema.slice(schema.indexOf("model CourseStep {"));
+  const body = model.slice(0, model.indexOf("}"));
+  assert.ok(body.length > 0, "CourseStep is gone from the schema");
+  for (const banned of ["dayIndex", "currentDay", "position", "streak", "completedAt"]) {
+    assert.ok(
+      !new RegExp(`\\b${banned}\\s`).test(body),
+      `CourseStep grew a ${banned} column. Which day somebody is on is derived from these rows; a pointer drifts (ADR-014)`,
+    );
+  }
+  assert.match(body, /@@unique\(\[ownerId, programmeId, dayId, stepId\]\)/,
+    "CourseStep lost its unique key, so a second press writes a second row");
+
+  const rules = code("lib/course/types.ts");
+  assert.match(rules, /derived: boolean/, "a step no longer says whether a log proves it");
+
+  const actions = code("app/actions.ts");
+  const mark = actions.slice(actions.indexOf("export async function markCourseStep"));
+  assert.match(
+    mark.slice(0, 1200), /if \(step\.derived\) \{/,
+    "markCourseStep will tick a derived step, which writes a second source of truth for a fact the review log already holds",
+  );
+
+  const half = code("lib/progress/course.ts");
+  assert.ok(
+    !/courseStep\.(update|delete|deleteMany)\b/.test(half) && !/courseStep\.(update|delete)\b/.test(mark),
+    "something edits or deletes a CourseStep row. The table is append-only, like Review and Encounter",
+  );
+});
+
+/*
+  THE DAY IN PLAY IS THE FURTHEST ONE CARRYING A TICK, AND THAT IS LOAD-BEARING
+  RATHER THAN A TIDY WAY TO WRITE IT.
+
+  Two of every day's steps are proved off the review log and written nowhere,
+  so by ticks alone *every* day of a programme is unfinished. The first version
+  of the reading walked from day one looking for the first unfinished day and
+  had to ask the log about each evening it passed, two queries apiece, under a
+  cap; past the cap the learner was held for ever on whichever evening the cap
+  fell on, and the reading got more expensive the further anybody got. Reading
+  the pointer off the ticks is constant and cannot stall.
+
+  It is monotonic only because `markCourseStep` refuses a tick for a day nobody
+  has reached: a tick is the pointer, so a forged day id would move the whole
+  course onto it and skip every evening in between, and `startCourseDay` would
+  build a deck out of that day's words. Both halves are asserted, because
+  either alone is the fault.
+*/
+check("the planned course reads its pointer off the ticks, and guards what may write one", () => {
+  const half = code("lib/progress/course.ts");
+  const reading = half.slice(half.indexOf("export async function courseReading"));
+  assert.match(
+    reading.slice(0, 2000), /dayReached\(programme,/,
+    "courseReading stopped reading the day off the ticks. Walking from day one asks the log about every evening behind the learner and stalls at the cap",
+  );
+
+  const rule = code("lib/course/index.ts");
+  assert.match(rule, /export function dayReached\(/, "dayReached is gone from the pure half");
+
+  const actions = code("app/actions.ts");
+  for (const name of ["startCourseDay", "markCourseStep"]) {
+    const body = actions.slice(actions.indexOf(`export async function ${name}(`));
+    assert.match(
+      body.slice(0, 2500), /dayIsInPlay\(ownerId, programme, day\)/,
+      `${name} takes a day id off the wire without asking whether the learner has reached it`,
+    );
+  }
+});
+
+/*
+  AND A DAY'S CLOSING ROUND COUNTS THE ANSWERS THAT CLOSED IT, WHENEVER THEY
+  WERE.
+
+  The window used to open at the later of the day's last tick and the learner's
+  own midnight, which is the same window on the evening itself and a different
+  one every morning after: a module finished at nine last night had its window
+  moved to midnight, the answers that closed it stopped counting, the day
+  stopped being finished, and the learner opened the app to the evening they
+  had already done. Every test in the suite ran inside one day, so nothing
+  caught it. The floor is the shape to watch for, and `courseReading` takes a
+  clock for one thing only, which is whether the day it just finished was
+  finished today.
+*/
+check("a finished module stays finished after midnight", () => {
+  const half = code("lib/progress/course.ts");
+  const window = half.slice(half.indexOf("const closingOpensAt"));
+  assert.match(
+    window.slice(0, 400), /ticks\.lastAt\.get\(dayId\);/,
+    "the closing round's window is no longer the day's own last tick",
+  );
+  assert.ok(
+    !/startOfDay/.test(window.slice(0, 400)),
+    "the closing round's window is floored at midnight again, which un-finishes last night's module every morning",
+  );
+  assert.equal(
+    (half.match(/clock\.startOfDay\(/g) ?? []).length, 1,
+    "something other than the finished-today reading is asking the clock where the learner's day starts",
+  );
+});
+
+/*
+  A PLANNED DAY MAY NOT INTRODUCE A WORD, WHICH IS ADR-005 ARRIVING BY A NEW
+  DOOR. Every lemma a day names is one its own unit teaches, and the unit is a
+  request the Ekilex harvest either honors or reports. The test that actually
+  walks the words is `lib/course/course.test.ts`; this is the assertion that it
+  is still the rule rather than a paragraph, since nothing under `lib/course/`
+  may reach a provider or a database either.
+*/
+check("a planned course day names words rather than writing any", () => {
+  for (const file of ["lib/course/types.ts", "lib/course/plan.ts", "lib/course/build.ts", "lib/course/index.ts"]) {
+    const src = code(file);
+    assert.ok(!/from "@\/lib\/db"/.test(src), `${file} imports Prisma. lib/course is pure, like lib/collections`);
+    assert.ok(
+      !/tutor\/provider|openWithFallback|completeWith/.test(src),
+      `${file} can reach a model. Nothing in the course may compose Estonian (ADR-005)`,
+    );
+  }
+  const build = code("lib/course/build.ts");
+  assert.match(
+    build, /const words = unit\.lemmas\.filter/,
+    "a day's words stopped coming out of its unit's own list. A programme may not name a lemma (ADR-005)",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.match(plan, /units: \[/, "a part stopped naming the units it works");
+  /*
+    The plan names units, scenes and rounds by id and holds no word list of its
+    own, which is the same rule `lib/collections/topical.ts` carries: the moment
+    a plan can name a lemma it can name one the course does not teach, and the
+    harvest is no longer the thing that decides.
+  */
+  assert.ok(
+    !/\bwords\s*:/.test(plan) && !/\blemmas\s*:/.test(plan),
+    "lib/course/plan.ts grew a word list. A part names units; the units name the words (ADR-005)",
+  );
+
+  const tests = read("lib/course/course.test.ts");
+  assert.match(
+    tests, /teaches only words its own unit teaches/,
+    "the check that a day may not introduce vocabulary is gone",
+  );
+});
+
+/*
+  The words go in the deck on a press and never on a render. `PrefetchLink`
+  fetches a whole page once a pointer has settled on a link for 90ms, so a
+  course screen that topped the deck up while rendering would build somebody
+  eight words for hovering over the button, and no browser suite would see it
+  because a suite clicks. The same rule the frequency rounds already carry.
+*/
+check("the planned course builds its cards behind a press", () => {
+  for (const page of ["app/(app)/course/page.tsx", "app/(app)/course/learn/page.tsx"]) {
+    const src = code(page);
+    assert.ok(
+      !/addPlanToDeck|addCardsFor|addUnitsToDeck|planLemmas/.test(src),
+      `${page} writes cards while rendering. The add is a Server Action behind a button`,
+    );
+  }
+  const actions = code("app/actions.ts");
+  assert.match(
+    actions, /export async function startCourseDay[\s\S]*?addPlanToDeck\(/,
+    "startCourseDay no longer adds the day's words through the shared deck builder",
+  );
+  const list = code("components/course/StepList.tsx");
+  assert.match(list, /startCourseDay\(/, "the first step stopped putting the day's words in the deck");
+});
+
+/*
+  THE EVENING IS THE CONSTANT AND THE WORD COUNT IS WHAT MOVES.
+
+  A day that is fifteen minutes on Monday and twenty-eight on Tuesday is a day
+  somebody starts skipping on Wednesday, so the model prices the steps and
+  fits the words to what is left. The arithmetic is checked over all 273
+  evenings in `course.test.ts`; this is the shape of it, which is the half a
+  later change breaks without any figure going out of range: a per-activity
+  minute count coming back would make an evening depend on which round the
+  rotation dealt.
+*/
+check("a planned evening is fifteen minutes whatever shape it takes", () => {
+  const types = code("lib/course/types.ts");
+  assert.match(types, /export const DAY_MINUTES = 15;/, "the evening stopped being fifteen minutes");
+  assert.match(
+    types, /export const TALK_MINUTES = READ_MINUTES \+ ROUND_MINUTES \* 2;/,
+    "a conversation stopped costing exactly what it displaces, so the evening it lands on is longer than every other",
+  );
+  assert.ok(
+    !/kind: "(game|drill)", minutes:/.test(types),
+    "an activity grew its own minute count again. A round inside a planned evening is ROUND_MINUTES, or the evening depends on which round the rotation dealt",
+  );
+  assert.match(
+    types, /export function wordsInBudget\(/,
+    "the word count stopped being fitted to what is left of the evening",
+  );
+  const plan = code("lib/course/plan.ts");
+  assert.ok(
+    !/"crossword"/.test(plan),
+    "the crossword is back on a rotation. A seven-word grid is a quarter of an hour on its own, which is the whole evening",
+  );
+});
+
+/*
+  THE HAND-OFF WARNING IS A READING, NEVER A WALL. The learner is the authority
+  on their own week, and the button that goes on anyway has to be on the same
+  card as the sentence saying Kodukeel would not. Three arms: the rule refuses
+  to judge on thin evidence, the screen draws the way past, and the advice
+  never sends anybody back to redo a fortnight.
+*/
+check("the ladder warns about the next part and never blocks it", () => {
+  const gate = code("lib/course/gate.ts");
+  assert.match(
+    gate, /if \(evidence\.answers < MIN_EVIDENCE\) return \{ kind: "unmeasured" \}/,
+    "the gate will now judge somebody on thin evidence, which is an opinion wearing a measurement's clothes",
+  );
+  assert.ok(
+    !/block|lock|refuse|deny/i.test(gate.replace(/kind: "hold"/g, "")),
+    "lib/course/gate.ts reads as though it stops somebody. It is a reading and the way on is always drawn",
+  );
+
+  const page = code("app/(app)/course/page.tsx");
+  const hold = page.slice(page.indexOf('verdict.kind === "hold" ? ('));
+  assert.ok(hold.length > 0, "the course screen no longer draws the hold verdict at all");
+  assert.match(
+    hold.slice(0, 2500), /<NextPart[\s\S]*?anyway/,
+    "the warning no longer carries a way past it. Saying so and hiding the button is the app not meaning it",
+  );
+});
+
+/*
+  THE BAR FILLS ON WORDS THAT STUCK, NEVER ON EVENINGS TICKED. An evening
+  ticked says somebody sat down; a graduated card says they still had the word
+  days later. A bar that filled on attendance would be the same false
+  confidence the hand-off warning exists to catch, drawn as a picture, and it
+  would sit on the one screen everybody opens.
+*/
+check("the milestone bar is filled by the scheduler rather than by attendance", () => {
+  const half = code("lib/progress/course.ts");
+  const position = half.slice(half.indexOf("export async function ladderPosition"));
+  assert.ok(position.length > 0, "ladderPosition is gone");
+  assert.match(
+    position.slice(0, 1400), /state: 2/,
+    "the bar stopped counting graduated cards. Anything else is attendance drawn as attainment",
+  );
+  assert.ok(
+    !/courseStep/i.test(position.slice(0, 1400)),
+    "the bar reads finished steps. A word sticking is the claim, and a tick is not one",
+  );
+
+  const rule = code("lib/course/milestones.ts");
+  assert.ok(
+    !/from "@\/lib\/db"/.test(rule),
+    "lib/course/milestones.ts imports Prisma. It is the rule; lib/progress/course.ts asks the database",
+  );
+  const bar = code("components/course/LadderBar.tsx");
+  assert.match(
+    bar, /aria-hidden/,
+    "the milestone strip stopped being hidden from a screen reader. A row of dots is a picture of the list beneath it",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

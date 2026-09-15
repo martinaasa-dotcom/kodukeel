@@ -34,6 +34,8 @@ import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
 import { WordOfDayCard } from "@/components/WordOfDay";
 import { SayItToday } from "@/components/SayItToday";
 import { errandForDay, startedUnits } from "@/lib/collections/errands";
+import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
+import { LadderBar } from "@/components/course/LadderBar";
 import { unitById } from "@/lib/collections/syllabus";
 
 export const metadata = { title: "Today" };
@@ -104,7 +106,7 @@ export default async function TodayPage() {
     deckSnapshot(ownerId, now),
     readSettings(ownerId, [
       SETTING_KEYS.onboardedAt, SETTING_KEYS.displayName, SETTING_KEYS.cefrPlacement,
-      SETTING_KEYS.todayOrder,
+      SETTING_KEYS.todayOrder, SETTING_KEYS.goalTarget,
     ]),
     /*
       Which level the course opens at. It was read last, after everything else
@@ -119,7 +121,7 @@ export default async function TodayPage() {
   // with a deck or a finished setup never sees it again.
   if (!settings[SETTING_KEYS.onboardedAt] && snapshot.totalCards === 0) redirect("/start");
 
-  const [summary, units, tasks, events, weekReviews, learner, pace] = await Promise.all([
+  const [summary, units, tasks, events, weekReviews, learner, pace, programme] = await Promise.all([
     dailySummary(ownerId, now, clock),
     pathWithProgress(ownerId, snapshot),
     /*
@@ -157,6 +159,13 @@ export default async function TodayPage() {
       on whether that pace reaches the date.
     */
     measuredPaceFor(ownerId, now),
+    /*
+      Whether the learner is following a planned programme, which decides what
+      this page leads with. In this batch rather than after it because it needs
+      nothing from anything else here, and a second round trip to answer a
+      question the hero depends on is a round trip paid on every morning.
+    */
+    programmeFor(ownerId),
   ]);
 
   const stage = stageOf({ totalCards: snapshot.totalCards, reviewsAllTime: summary.reviewsAllTime });
@@ -377,7 +386,105 @@ export default async function TodayPage() {
     </p>
   );
 
-  const doNowCard = snapshot.totalCards === 0 ? (
+  /*
+    THE EVENING ALREADY PLANNED, WHICH IS WHAT THIS PAGE LEADS WITH WHERE THERE IS ONE.
+
+    The card below it is the honest answer to "what now" for somebody choosing
+    their own evening: what is due, what is waiting, and two buttons. For
+    somebody following a programme it is the wrong question, because the
+    programme has already answered it, and two answers on one screen is the
+    thing a planned course exists to remove. So the hero is the module: which
+    day, what it makes you able to do, the one step that is next, and a button
+    that opens it.
+
+    IT REPLACES THE HERO AND NOTHING ELSE. Every other card on this page is
+    untouched and the cap is unchanged, so the programme costs nobody a panel.
+    And it stands down the moment the module is finished for the day, which is
+    the point of a course that ends: the ordinary card comes back, saying there
+    is nothing due, which is true and is the right thing to be told.
+  */
+  /*
+    ASKED AT ONCE, BECAUSE NEITHER NEEDS THE OTHER'S ANSWER. The module is the
+    hero at the top of this page and the climb is a card most of the way down
+    it, and they were two `await`s four hundred lines apart: on a database in
+    another region that is two round trips one after the other for two reads
+    that share nothing but the learner. Both depend only on what the batch
+    above already fetched.
+  */
+  const [courseNow, ladder] = await Promise.all([
+    programme ? courseReading(ownerId, programme, clock, now) : null,
+    /*
+      Held to `starting` rather than drawn from the first minute, for the
+      reason the disclosure rule gives about every other figure computed from
+      an empty log: a bar at nought percent under a heading about a target is
+      not information, it is the app reporting that nothing has happened yet,
+      which the learner knows. The query is only run where it is drawn.
+    */
+    shows(stage, "streak")
+      ? ladderPosition(ownerId, targetFrom(settings[SETTING_KEYS.goalTarget]))
+      : null,
+  ]);
+  const courseDay = courseNow?.current ?? null;
+  const courseStep = courseDay?.next ?? null;
+  /* An evening still to do, which is one condition and was written out twice:
+     the hero draws the module off it and the line above the hero has to agree,
+     or the page says "tonight's module is the whole evening" over a card that
+     has just said the evening is over. */
+  const moduleTonight = Boolean(courseNow && courseDay && !courseNow.finishedToday && courseStep);
+
+  const courseCard = moduleTonight && courseDay && courseStep ? (
+    <Card tone="accent" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+      <div className="min-w-0 flex-1">
+        <SectionTitle hint={`Day ${courseDay.day.index} of ${programme!.days.length}`}>
+          Today&rsquo;s module
+        </SectionTitle>
+        <p className="mt-1 text-xl font-semibold" lang="et" style={{ color: "var(--ink)" }}>
+          {courseDay.day.title}
+        </p>
+        <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {courseDay.day.canDo}
+        </p>
+        <p className="mt-3 text-base" style={{ color: "var(--ink-2)" }}>
+          Next: {courseStep.title}. About {courseDay.minutesLeft} minutes left tonight.
+        </p>
+      </div>
+      <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
+        <ButtonLink href="/course" variant="primary" size="lg" className="w-full">
+          {courseDay.pct === 0 ? "Start tonight" : "Carry on"} <ArrowRight size={17} aria-hidden />
+        </ButtonLink>
+        {toReview > 0 && (
+          <ButtonLink href="/review" variant="secondary" className="w-full justify-center">
+            Or review {toReview} due <ArrowRight size={16} aria-hidden />
+          </ButtonLink>
+        )}
+      </div>
+    </Card>
+  ) : courseNow?.finishedToday ? (
+    <Card tone="mint" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
+      <div className="min-w-0 flex-1">
+        <SectionTitle hint={`${courseNow.daysDone} of ${programme!.days.length} done`}>
+          Today&rsquo;s module
+        </SectionTitle>
+        <p className="mt-1 text-xl font-semibold" style={{ color: "var(--ink)" }}>
+          Learned, and that is the evening
+        </p>
+        <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+          {courseDay
+            ? courseDay.day.part.n > 1
+              ? <>Tomorrow carries on with {courseDay.day.title}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
+            : <>That was the last one. The review queue keeps every word of it.</>}
+        </p>
+      </div>
+      <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
+        <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
+          See what tomorrow holds <ArrowRight size={16} aria-hidden />
+        </ButtonLink>
+      </div>
+    </Card>
+  ) : null;
+
+  const doNowCard = courseCard ?? (snapshot.totalCards === 0 ? (
     <Card>
       <Empty
         title="Your deck is empty"
@@ -396,7 +503,7 @@ export default async function TodayPage() {
       */}
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">{actions}</div>
     </Card>
-  );
+  ));
 
   /*
     Everything that reports on the run of days, in one card that says so. The
@@ -720,6 +827,23 @@ export default async function TodayPage() {
   */
   const roundCard = gameCard ?? questCard;
 
+  /*
+    THE CLIMB TO THE BAND THEY SAID THEY WERE AIMING AT.
+
+    A learner picks a target in their first ninety seconds and then never hears
+    about it again except as a date on a plan. This is the answer to "how close
+    am I", in the unit they think in, on the screen they open every morning.
+
+    Held to `starting` rather than drawn from the first minute: see the read
+    itself, which is asked beside the module's up at the hero.
+  */
+  const ladderCard = ladder ? (
+    <LadderBar
+      progress={ladder}
+      partLabel={programme && courseDay ? `${programme.id.toUpperCase()}, day ${courseDay.day.index}` : undefined}
+    />
+  ) : null;
+
   return (
     <Page
       /*
@@ -763,7 +887,9 @@ export default async function TodayPage() {
         )
       }
       title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
-      lead={lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
+      lead={courseNow && (moduleTonight || courseNow.finishedToday)
+        ? courseLead(toReview, courseNow.finishedToday)
+        : lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
     >
       {/*
         ONE CARD ACROSS THE TOP, AND FIVE UNDER IT AT THE MOST.
@@ -801,6 +927,7 @@ export default async function TodayPage() {
         {doNowCard}
         <Columns>
           {orderTodayCards({
+            ladder: ladderCard,
             errand: errandCard,
             schedule: scheduleCard,
             plan: planCard,
@@ -834,6 +961,31 @@ function NextUnitIcon({ name }: { name: string }) {
  * count and the minutes are the useful sentence once there is a routine, and
  * they are an instruction to nobody on the first morning.
  */
+/**
+ * THE LINE UNDER THE GREETING WHERE AN EVENING IS ALREADY PLANNED.
+ *
+ * `lead` answers "what now" out of the review queue, and on a morning with a
+ * module waiting that is the wrong question asked a second time: the card
+ * below it has already answered it. It read "Nothing due, and no new words
+ * waiting. A good moment to open a unit." directly above a card saying day two
+ * of seventeen was waiting, which is the app arguing with itself on the one
+ * screen a planned course exists to make simple.
+ *
+ * So where there is a module to do, the lead says what else there is rather
+ * than what to do, which is the one thing the card underneath cannot say. The
+ * module stands down once it is finished for the day and the ordinary line
+ * comes back with it.
+ */
+function courseLead(toReview: number, finishedToday: boolean): string {
+  const cards = `${toReview} card${toReview === 1 ? "" : "s"}`;
+  if (finishedToday) {
+    return toReview === 0 ? "Nothing else is due today." : `${cards} still due if you want them.`;
+  }
+  return toReview === 0
+    ? "Nothing else is due. Tonight's module is the whole evening."
+    : `${cards} due as well, and the module ends by reviewing them.`;
+}
+
 function lead(
   stage: "arriving" | "starting" | "settled",
   toReview: number,

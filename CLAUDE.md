@@ -3203,6 +3203,179 @@ Prisma maps `DateTime` to `timestamp without time zone`, and on a naive value on
 a `timestamptz` that `TO_CHAR` renders in the *session's* zone: right on a UTC session and a day out
 on any other.
 
+**Fifteen minutes, every evening, and the word count is what moves.** A day used to be the unit
+sliced into eights and came out at anything from eighteen to thirty minutes. That is the wrong thing
+to hold fixed: what a learner can promise themselves is a quarter of an hour after dinner, every
+day, and what keeps a course going is that the promise is the same every time. A day that is fifteen
+minutes on Monday and twenty-eight on Tuesday is a day somebody starts skipping on Wednesday. So the
+evening is the constant, the steps have honest costs, and the number of new words is what is left
+over, which is also the right thing to vary: meeting a word is the one part of an evening whose cost
+scales with how far in you are. `MINUTES_PER_WORD` falls from 1.1 at A1 to 0.7 at C1, because a C1
+learner meeting `hoolimata` has the stem, the case and the register already, so the same fifteen
+minutes carries five new words at A1 and seven at C1. Five is also the Learn ladder's own batch, so a
+beginner's evening is one lap of it. Measured over all 273 evenings: thirteen to sixteen minutes,
+median fourteen, 67 hours from nothing to C1.
+
+**A conversation replaces the reading and both rounds rather than joining them**, which is what keeps
+the evening fifteen minutes on the night it happens: `TALK_MINUTES` is defined as exactly what it
+displaces. Written the other way first and the conversation evening came out at twenty-three
+minutes, half as long again as every other, which `course.test.ts` now asserts against. **And the
+crossword is on no rotation**, for the same clock: a seven-word grid is a quarter of an hour on its
+own. It stays on Practice and as Saturday's game of the day, which is the right home for the one
+round that is a sitting rather than a step.
+
+**A learner can finish a part without having learned it, and the ladder says so at the hand-off.**
+Every step of every evening can be ticked, every word answered once, and the scheduler still watching
+four fifths of them come back wrong. Handing that person B2.1 is the false confidence this app is
+built against: they meet a fortnight of words they cannot hold up and conclude the language is the
+problem. So `lib/course/gate.ts` reads two things off their own log at the moment it is worth
+anything, which is the hand-off: what share of the part's words the scheduler has graduated, and
+what share of their recent answers were right. Retention leads, because it is the reading that
+predicts whether the next part is answerable and the one a learner can act on.
+
+**It never blocks, and the way on is on the same card as the warning.** The learner is the authority
+on their own week: they may be revising elsewhere, sitting a class, or willing to be uncomfortable,
+and an app that locked the door on a retention figure would be wrong about some of those people and
+insufferable to all of them. It says Kodukeel does not think they are ready, says what it is reading
+and what would change it, and puts "start it anyway" beside "review what is due". **Thin evidence is
+not a verdict**: under `MIN_EVIDENCE` answers it says nothing at all rather than guessing, which is
+the discipline the readiness screen and the classroom band already apply. And the advice may never
+be "start the part again", asserted: nothing here repeats a fortnight, the words are already in the
+queue, and telling somebody to redo two weeks is how they stop opening it.
+
+**The target somebody picked in their first ninety seconds is the one number worth watching, and it
+reached no screen.** It was a date on a plan and nothing else. `lib/course/milestones.ts` is the
+climb to it, on Today: the levels as stops, each a real thing that arrives, with the fill between
+them moving a little every evening. Eleven percent of an unnamed thing says almost nothing and
+nothing ever arrives; five named stops mean the next one is always in sight. The stops sit at their
+own share of the climb rather than at five equal fifths, so the picture says that A1 really is half
+the way to B1.
+
+**What fills it is a word the scheduler has graduated, never an evening ticked.** That is the whole
+reason it can sit beside a checklist: an evening ticked says somebody sat down, and a graduated card
+says they still had the word days later. A bar that filled on attendance would be the same false
+confidence the hand-off warning exists to catch, drawn as a picture. The band is the dictionary's
+own, so a word learned outside the course counts toward the level it belongs to, and each level is
+clamped to what the ladder asks for rather than summed raw.
+
+**And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
+four questions does not want a home page, they want to be told what to do tonight. The last screen
+names the part they open on, how long an evening takes and what tonight holds, shows the whole
+seventeen-part ladder underneath so the shape is visible at the moment somebody is deciding whether
+this is worth starting, and its button goes to the module. `completeOnboarding` writes the part they
+start on rather than leaving it to be inferred, because the fallback would silently hand a learner
+measured up to B1 in March the part they had not worked up to.
+
+**Deciding what to do tonight is the expensive part of an evening, and it was left to the one
+person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
+choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
+choice made in advance. A day names its words and the order it does things in, the learner presses
+one button until the day says it is finished, and then it says so and stops: **"Today's module is
+learned. Come back tomorrow, or start the next one now."** An evening that ends is an evening
+somebody comes back from, which is the whole argument for the third state.
+
+**Nothing underneath it is new.** Every step opens a screen that already existed, and Learn,
+Practice, Review and every game stay exactly where they were. What is new is that somebody who does
+not want to choose no longer has to, and the work they do the other way still counts.
+
+**Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
+of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
+words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
+one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
+are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
+the stem, the case and the register already.
+
+**The judgement is in `plan.ts` and the machinery has no opinions.** `lib/collections/syllabus/` is
+the course, its units are in teaching order and so are the words inside them, and `build.ts` slices
+that order into evenings. It chooses no word, no grammar page and no round: a unit already names the
+points it teaches in its own order, so an evening reads the next one along and `kus-ja-kuhu` over
+three nights opens three different case pages. What is decided by hand is the shape, where the parts
+break, how many words a night at each level, which rounds a level rotates through, and which of the
+fourteen conversations belongs to which unit. That division is what makes 182 evenings reviewable:
+the only things anybody has to read are seventeen part boundaries and five rotation lists.
+
+**The rotations alternate a game and a drill, and that is load-bearing rather than tidy.** Each
+level's list runs game, drill, game, drill, and an evening takes two neighbours off it, so every
+evening has one of each and no two running are the same pair. A fortnight of drills is homework and
+a fortnight of games teaches nothing. A unit that is mostly verbs takes the conjugation table
+instead of the drill, worked out from the unit's own parts of speech rather than pinned by hand.
+
+**No conversation in the whole of A1, and that is a finding rather than an omission.** Every one of
+the fourteen scenes declares `korraldused` among the units it may draw on, which is asking, telling
+and offering, and it sits in A2: you cannot ask anybody for anything without it. It was found by
+asking the question mechanically, and `course.test.ts` is where the question lives, a scene is
+opened only once every unit it declares has been taught, checked over the whole ladder in order. It
+moved `korraldused` to the front of A2, since it is the unit that makes a conversation possible, and
+ten of the fourteen scenes fall in A2 as a result. A1 is where you get the words and A2 is where you
+start using them on people; pretending otherwise would be the false confidence the readiness screen
+is built against.
+
+**Which day somebody is on is derived, and only the steps a log cannot prove are stored.** There is
+no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
+one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
+log, meeting the words leaves a mark on every one of their cards and the closing round is answers
+graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
+because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
+same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
+key so a second press is a no-op, and **the screen says which kind each one is** rather than
+implying the app watched.
+
+**Two faults in it were invisible to every unit test and turned up in the first two evenings
+anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
+tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn
+with its own two unknown, so somebody who had met tomorrow's words through Learn saw tomorrow at
+nought percent with "meet the words" waiting for them. And the closing round's window opened at the
+most recent tick anywhere in the programme, so ticking the first round of Tuesday's module moved it
+past Monday's answers, Monday stopped being finished, and the learner was sent back to a day they
+had done. Both were made to fail on the real code before the fix landed.
+
+**And the third fault was the pointer itself, which needed a night to pass before it could be
+seen.** The day was read as the first one whose steps are not all finished, walking from the top of
+the programme. By ticks alone *every* day is unfinished, since the two steps the log proves are
+written nowhere, so the reading had to ask the log about each evening it walked past, two queries
+apiece, under a cap: past the cap the learner was held for ever on whichever evening the cap fell
+on, and the reading got dearer the further anybody got. Underneath it the closing round's window
+was floored at the learner's own midnight, which is the same window on the evening itself and a
+different one every morning after, so a module finished at nine last night had the five answers
+that closed it stop counting at midnight, and the learner opened the app to the module they had
+already done. Every test in the suite ran inside a single day and none of them could see either.
+
+`dayReached` is the pointer now, the furthest day carrying a tick, which is "walking past a day is
+what finishing it means" written down: the days behind it are done, the day itself is the one to
+ask the log about, and the cost is the same on the first evening and the two hundredth. The window
+is that day's own last tick whenever it was, and **a day nobody has ticked anything on has not had
+an evening**, so its closing round counts nothing rather than counting from midnight; under the old
+floor, finishing one module and pressing "start the next one now" drew the next day with its closing
+round already satisfied by the round that had just closed the last one. And "come back tomorrow" is
+read off the day this render actually finished rather than off the first day of the programme,
+which is what made that sentence reachable on the first evening alone.
+
+**The pointer is monotonic because nothing may tick a day nobody has reached.** Both course actions
+take a day id from their caller, which is JSON off the wire whatever the type says, and neither
+checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
+and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
+both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
+a day of nothing but a meet and a review would finish itself the moment its words were met
+somewhere else and walk the learner through the programme.
+
+**The words go in the deck on a press and never on a render.** `PrefetchLink` fetches a whole page
+once a pointer has settled on a link for 90ms, so a module screen that topped the deck up while
+rendering would build somebody eight words for hovering over the button, and no browser suite would
+catch it because a suite clicks. Asserted, like the frequency rounds.
+
+**A day may not introduce a word, which is ADR-005 arriving by a new door.** A day names lemmas and
+every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
+Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
+`plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
+a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
+turn off. Off changes nothing else, and the work done the other way still counts toward a module the
+day it is turned back on.
+
 **Learning a word and reviewing one are two jobs, and one screen was doing both.** The daily row in
 the rail said Review, and what it opened was everything at once: the cards that were due, and a
 trickle of words the learner had never seen, taught in among them. That is one screen answering two

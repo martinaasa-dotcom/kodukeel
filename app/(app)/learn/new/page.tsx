@@ -55,7 +55,7 @@ export default async function LearnNewPage({
   ]);
 
   const words = await learnBatch(
-    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined, kind,
+    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined, { kind },
   );
 
   const { waiting, started } = kind === "phrase" ? counts.phrases : counts;

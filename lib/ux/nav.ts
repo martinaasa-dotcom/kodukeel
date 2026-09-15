@@ -134,6 +134,26 @@ export const SECTIONS: NavSection[] = [
         the words come out of. What is due is Practice's, which is where every
         other way of asking a word you already know already lived.
       */
+      /*
+        THE PLANNED EVENING, ABOVE THE THINGS IT IS MADE OF.
+
+        A row of its own and the second in the section, because for somebody
+        following a programme it is the answer to "what do I do now" and the
+        three rows under it are the parts it assembles. It stays a row rather
+        than a `within` for the same reason Today does: it is where you go
+        first, and a destination reached only from the screen that already
+        tells you about it is a destination somebody has to remember.
+
+        No cell in the phone bar. The bar holds four and its four are Today,
+        Learn, Practice and Review, which are the loop somebody not on a
+        programme uses; the module screen's own way in is the button on Today,
+        which is the first thing on the first screen.
+      */
+      {
+        href: "/course", label: "Today's module", blurb: "Tonight's words and rounds, already chosen",
+        icon: "CalendarCheck", tone: "accent",
+        keywords: "course planned programme a1 module day guided plan lesson schedule step by step",
+      },
       {
         href: "/learn", label: "Learn", blurb: "New words, five at a time, and the course they come from",
         icon: "Sparkles", tone: "mint",
