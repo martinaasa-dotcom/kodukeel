@@ -1290,7 +1290,15 @@ export function ReviewSession({
                   type="button"
                   disabled={busy}
                   onClick={() => void submit(g.rating)}
-                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:-translate-y-0.5 disabled:opacity-40`}
+                  /* No `-translate-y` on hover: the buttons sit in a `gap-2.5`
+                     grid and a hover that moves the box up loses contact with a
+                     pointer resting near its lower edge, which un-hovers it,
+                     which undoes the shift. `scale` grows the box from its own
+                     centre and can only gain area under the pointer (#235). The
+                     interval preview under the label went with #231: how many
+                     minutes the scheduler adds is a question about a scheduler
+                     nobody can see, put to somebody trying to learn Estonian. */
+                  className={`${VERDICT_CLASS[verdictOfRating(g.rating)]} press flex items-center justify-center rounded-[var(--r)] px-2 py-3.5 transition-ui hover:scale-[1.02] disabled:opacity-40`}
                 >
                   <span className="text-base font-bold">{g.label}</span>
                 </button>

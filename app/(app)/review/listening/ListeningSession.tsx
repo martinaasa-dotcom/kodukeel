@@ -244,7 +244,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                   condition={condition}
                   autoplay
                   onUnavailable={() => setNoAudio(true)}
-                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:-translate-y-0.5"
+                  className="press flex h-24 w-24 items-center justify-center rounded-full transition-ui hover:scale-[1.02]"
                   style={{ background: "var(--accent-soft)", color: "var(--accent-deep)", boxShadow: "var(--shadow)" }}
                 />
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>Tap to hear the word, tap again to replay</p>

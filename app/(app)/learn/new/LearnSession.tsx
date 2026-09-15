@@ -754,6 +754,20 @@ export function LearnSession({
                   ))}
                 </p>
               )}
+              {/*
+                Why the form changed, not only what it is. A learner who has
+                just met the word is being asked to retype a form they saw
+                once, seconds ago, with no reason given for why it isn't the
+                lemma; without this it reads as arbitrary and marks the app's
+                whole first unit as a guessing game rather than a pattern.
+                Absent on a form that matches the lemma unchanged, where
+                there is nothing to explain.
+              */}
+              {rung === "gap" && word.gap?.explanation && (
+                <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
+                  {word.gap.explanation}
+                </p>
+              )}
             </div>
           )}
 

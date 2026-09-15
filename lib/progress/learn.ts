@@ -13,6 +13,7 @@ import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
   LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
 } from "@/lib/learn/ladder";
@@ -142,6 +143,21 @@ export interface LearnWord {
      * spelled the same in both languages puts it in the English too.
      */
     hint: string | null;
+    /**
+     * Why the answer is not simply the lemma, in the same one line the
+     * writing exercise already gives (`explainGap`): the form, named where a
+     * name applies, cross-referenced rather than led with. Null where the
+     * gap's answer is the lemma unchanged, since there is nothing to explain.
+     *
+     * A learner meeting `poeg` for the first time and asked to retype `poega`
+     * a lap later has seen the form exactly once, in passing, with no reason
+     * given for why it changed. The retrieval is still the point (Karpicke
+     * and Roediger, cited above `sentenceAndGap`), so this is not asked
+     * before the answer; it is what the miss deserves instead of only "the
+     * word is poega" and a retype box, which teaches copying rather than the
+     * pattern.
+     */
+    explanation: string | null;
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
@@ -183,6 +199,11 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
   const forms = [...gapForms({
     lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms,
   }).keys()];
+  const word: WordRow = {
+    id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
+    pos: lexeme.pos, cefr: lexeme.cefr, government: null,
+    forms: lexeme.forms, examples: [],
+  };
 
   const ordered = taught
     ? [taught.example, ...examples.filter((e) => e !== taught.example)]
@@ -201,11 +222,14 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
     const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
     const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
       .find((line) => !mentions(line, cloze.answer)) ?? null;
+    const explanation = cloze.answer.toLowerCase() === lexeme.lemma.toLowerCase()
+      ? null
+      : explainForm(word, cloze.answer);
     return {
       sentence: taught
         ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form }
         : { et: example.et, en: example.en ?? null, form: null },
-      gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue },
+      gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue, explanation },
     };
   }
 
