@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Check, CircleAlert, Loader2, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
@@ -39,7 +40,6 @@ export interface ScenePrompt {
   askTranslation: string;
   caseKey: string;
   caseEt: string;
-  caseEn: string;
   caseQuestion: string;
 }
 
@@ -255,8 +255,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
             {prompt.caseEt}
           </p>
+          {/* What the question asks, rather than the Latin name, which was the
+              only English on the line and is the one word here a learner
+              cannot cash in. See `lib/estonian/cases.ts`. */}
           <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
-            <span lang="et">{prompt.caseQuestion}</span> · the {prompt.caseEn.toLowerCase()}
+            <CaseQuestion question={prompt.caseQuestion} inline />
           </p>
 
           <div className="mt-6">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { questionInEnglish } from "@/lib/estonian/cases";
 import { useRouter } from "next/navigation";
 import {
   CircleAlert, Clock, Coffee, Ear, FileWarning, Headphones, Loader2, Mic, PenLine, RotateCcw,
@@ -837,7 +838,12 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="ml-2">
               in the <span lang="et">{item.caseEt}</span>
               <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              <span style={{ color: "var(--ink-3)" }}> the {item.caseEn.toLowerCase()}</span>
+              {/* What that asks, rather than the Latin name. The paper is
+                  marked on the form the candidate writes, so saying which form
+                  is wanted in words they have met gives nothing away; being
+                  unable to read the instruction is not the thing being
+                  measured. See `lib/estonian/cases.ts`. */}
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <Options
@@ -863,7 +869,15 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
           )}
           <Options
             name={item.id}
-            options={item.options.map((o) => ({ value: o.key, label: o.et, hint: o.question }))}
+            /* The hint under each option is the question that case answers,
+               and what it is asking: a list of Estonian question words is a
+               list of Estonian to a candidate, and which case a verb pairs
+               with is the one thing in this language nobody can reason out. */
+            options={item.options.map((o) => ({
+              value: o.key,
+              label: o.et,
+              hint: [o.question, questionInEnglish(o.question)].filter(Boolean).join(" · "),
+            }))}
             selected={response?.kind === "chosen" ? response.value : null}
             onSelect={(value) => onAnswer({ kind: "chosen", value })}
             columns
@@ -881,13 +895,18 @@ function ItemView({ item, number, marks, choices, response, canPlay, onAnswer }:
             <span className="ml-2">
               in the <span lang="et">{item.caseEt}</span>
               <span lang="et" style={{ color: "var(--accent-deep)" }}> {item.caseQuestion}</span>
-              <span style={{ color: "var(--ink-3)" }}> the {item.caseEn.toLowerCase()}</span>
+              {/* What that asks, rather than the Latin name. The paper is
+                  marked on the form the candidate writes, so saying which form
+                  is wanted in words they have met gives nothing away; being
+                  unable to read the instruction is not the thing being
+                  measured. See `lib/estonian/cases.ts`. */}
+              <span style={{ color: "var(--ink-3)" }}> {questionInEnglish(item.caseQuestion)}</span>
             </span>
           </p>
           <EstonianInput
             value={response?.kind === "typed" ? response.value : ""}
             onChange={(value) => onAnswer({ kind: "typed", value })}
-            ariaLabel={`${item.caseEt} of ${item.lemma}, the ${item.caseEn.toLowerCase()}`}
+            ariaLabel={`${item.caseEt} of ${item.lemma}, ${questionInEnglish(item.caseQuestion)}`}
             placeholder="Write the form"
           />
         </div>

@@ -56,7 +56,7 @@ const WORD_TONE: Record<WordStatus, { className: string; title: string }> = {
 const SOURCE_LABEL: Record<Item["source"], string> = {
   dictionary: "From Kodukeel's dictionary",
   ekilex: "A recorded form",
-  derived: "Worked out from the genitive stem, by rule rather than by guess",
+  derived: "Worked out from the omastav stem, by rule rather than by guess",
   usage: "A recorded sentence",
 };
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CaseQuestion } from "@/components/CaseQuestion";
 import { Flame, Target, Timer, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -222,7 +223,7 @@ export function QuestSession({
                   <li key={c.key}>
                     <Chip tone={c.accuracy < 60 ? "again" : "hard"}>
                       <span lang="et">{c.et}</span>
-                      {c.question && <span lang="et"> · {c.question}</span>}
+                      {c.question && <> · <CaseQuestion question={c.question} inline /></>}
                       {" "}{c.accuracy}%
                     </Chip>
                   </li>

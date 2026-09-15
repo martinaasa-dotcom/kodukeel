@@ -97,11 +97,14 @@ describe("rankCandidates — inflected forms", () => {
     expect(top("selled")?.matchedAs).toBeUndefined();
   });
 
-  it("names the form the way a class names it, English in brackets after", () => {
+  it("names the form the way a class names it, and says what it asks", () => {
     // A learner who searches `toas` and is told it is "the inessive" has been
-    // handed a word their own teacher does not say. Both names, Estonian first.
+    // handed a word their own teacher does not say, and then one their English
+    // grammar says and they have not opened. The Estonian name leads and what
+    // the case asks follows it: see `lib/estonian/cases.ts`.
     const inessive = top("toas")?.matchedAs ?? "";
-    expect(inessive.indexOf("seesütlev")).toBeLessThan(inessive.indexOf("inessive"));
+    expect(inessive).toContain("seesütlev (what is it in? where?)");
+    expect(inessive, "the Latin name is back").not.toContain("inessive");
     const past = top("lugesin")?.matchedAs ?? "";
     expect(past).toContain("lihtminevik ma");
     const plural = top("tubadega")?.matchedAs ?? "";

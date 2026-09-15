@@ -17,10 +17,20 @@ export interface SearchHit {
   matchedAs?: string;
 }
 
-/** Case suffixes, longest first so `-sse` is tried before `-s`. */
+/** The nominative, for the one plural matched on a stored form rather than a suffix. */
+const NOM = CASES.find((c) => c.key === "NOMINATIVE")!;
+
+/**
+ * Case suffixes, longest first so `-sse` is tried before `-s`.
+ *
+ * `en` is what the case asks rather than its Latin name. The note this feeds
+ * read "toas is the seesütlev (inessive) of tuba", which names the form twice
+ * in two languages a learner searching for `toas` has met neither of, and the
+ * Latin half was the only English in it. See `lib/estonian/cases.ts`.
+ */
 const CASE_SUFFIXES = CASES
   .filter((c) => c.suffix)
-  .map((c) => ({ suffix: c.suffix, en: c.en.toLowerCase(), et: c.et }))
+  .map((c) => ({ suffix: c.suffix, en: c.asksEn, et: c.et }))
   .sort((a, b) => b.suffix.length - a.suffix.length);
 
 /**
@@ -416,7 +426,7 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
         // Named the way a class names it. Estonian puts its word for the
         // plural in front of the case name rather than after it, so the two
         // halves cannot be concatenated the way the English pair can.
-        const name = plural ? `mitmuse ${et} (${en} plural)` : `${et} (${en})`;
+        const name = plural ? `mitmuse ${et} (${en}, plural)` : `${et} (${en})`;
         return { score: 85, matchedAs: `${name} of ${c.lemma}` };
       }
     }
@@ -446,7 +456,14 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
   */
   const nomPl = c.forms.find((f) => f.formType === "NOM_PL")?.value;
   if (nomPl && folded === fold(nomPl)) {
-    return { score: 85, matchedAs: `mitmuse nimetav (nominative plural) of ${c.lemma}` };
+    return {
+      score: 85,
+      // Read off the table for the reason `CASE_SUFFIXES` is: this branch is
+      // outside that loop, so it kept "nominative plural" after the loop had
+      // dropped every Latin name, and `toad` came back named in a grammar
+      // this language does not use.
+      matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
+    };
   }
 
   if (l.startsWith(folded)) return { score: 70 };

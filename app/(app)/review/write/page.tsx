@@ -87,7 +87,6 @@ export default async function WritePage() {
         lemma: task.lemma,
         translation: task.translation,
         caseKey: task.caseKey,
-        caseEn: task.caseEn,
         caseEt: task.caseEt,
         caseQuestion: task.caseQuestion,
         provenance: task.provenance,

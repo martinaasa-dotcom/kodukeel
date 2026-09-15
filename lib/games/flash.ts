@@ -725,9 +725,16 @@ export function plainAskFor(task: Pick<FlashTask, "shape" | "slot">): string | n
 /** True where the slot is a grammatical form rather than a question about meaning. */
 export const isForm = isFormSlot;
 
-/** The English cross-reference for a case slot, where there is one. */
-export function englishName(slot: string): string | null {
-  return caseByKey(slot)?.en.toLowerCase() ?? null;
+/**
+ * What a case slot asks, in English, where it is a case at all.
+ *
+ * It was the Latin name, so a card headed with the plain ask carried
+ * "seesütlev · the inessive" under it: the name a class uses, and then one
+ * word of English that is a translation of a translation. See `asksEn` in
+ * `lib/estonian/cases.ts`.
+ */
+export function asksInEnglish(slot: string): string | null {
+  return caseByKey(slot)?.asksEn ?? null;
 }
 
 /** What the case rule needs to know about a word, in the shape it takes it. */

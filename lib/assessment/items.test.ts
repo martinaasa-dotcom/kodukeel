@@ -443,14 +443,19 @@ describe("the explanation after a gap", () => {
     expect(both!.endsWith("The sentence decides which.")).toBe(true);
   });
 
-  it("names the form in Estonian first and English in brackets", () => {
+  it("names the form in Estonian first and says what it asks after it", () => {
     // CLAUDE.md's rule, which the plainer wording may not quietly reverse: a
-    // learner in a class hears the Estonian name and needs it to lead.
+    // learner in a class hears the Estonian name and needs it to lead. What
+    // follows it in brackets is what the case is asking rather than the Latin
+    // name, which is a translation of a translation to somebody who has met
+    // neither: see `lib/estonian/cases.ts`.
     const withCase = writingItems(WORDS, mulberry32(3))
       .map((i) => i.because)
-      .find((b) => /\(inessive\)|\(nominative\)|\(genitive\)|\(partitive\)/.test(b));
+      .find((b) => /\b(seesütlev|nimetav|omastav|osastav)\b \(/.test(b));
     expect(withCase, "no case was named at all").toBeDefined();
-    expect(withCase).toMatch(/\b(seesütlev|nimetav|omastav|osastav)\b \(/);
+    expect(withCase).toMatch(/\((who\?|what\?|whose\?|of what\?|whom\?|in whom\?)/);
+    expect(withCase, "the Latin name is back in the brackets")
+      .not.toMatch(/\(inessive\)|\(nominative\)|\(genitive\)|\(partitive\)/);
   });
 });
 

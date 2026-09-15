@@ -16,7 +16,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
-import { englishName } from "@/lib/games/flash";
+import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -390,7 +390,7 @@ function Question({
  * worse than the name it replaced.
  */
 function SlotLine({ task }: { task: FlashPrompt }) {
-  const english = englishName(task.slot);
+  const english = asksInEnglish(task.slot);
   const plain = plainAskFor(task);
   return (
     <div className="mt-5">
@@ -442,7 +442,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
  */
 function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
   const spec = caseByKey(task.slot);
-  const english = englishName(task.slot);
+  const english = asksInEnglish(task.slot);
   /*
     Recalled, nearly, or missed. `mark.right` with the middle rating is a
     diacritic somebody dropped or a slip of one letter, which `checkAnswer`

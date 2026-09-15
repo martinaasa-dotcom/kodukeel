@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CaseQuestion } from "@/components/CaseQuestion";
+import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Ear, Sparkles, X } from "lucide-react";
 import { completeLesson } from "@/app/actions";
@@ -487,16 +489,28 @@ function StepCard({
     case "case":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Put it in the {step.caseName.toLowerCase()} ({step.question})
+          {/* WHAT IS BEING ASKED, THEN WHAT IT IS CALLED.
+
+              This read "Put it in the inessive (milles? kus?)", which names the
+              form twice in two languages a beginner has met neither of. The
+              instruction is the plain clause five other screens already lead
+              with, and the Estonian name and the question sit under the answer
+              box as the cross-reference for somebody also taking a course. */}
+          <span className="text-sm" style={{ color: "var(--ink-2)" }}>
+            {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
           </span>
           <div className="flex flex-wrap items-center gap-3">
             <Et className="text-3xl">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
+          <span className="text-xs" style={{ color: "var(--ink-3)" }}>
+            <span lang="et">{step.caseName}</span>
+            {" · "}
+            <CaseQuestion question={step.question} inline />
+          </span>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
-            ariaLabel={`${step.lemma} in the ${step.caseName}`}
+            ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (

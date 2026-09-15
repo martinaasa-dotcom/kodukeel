@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOptions, maskExample, parseGovernment } from "./government";
+import { buildOptions, maskExample, parseGovernment, readableGovernment } from "./government";
 import { CASES } from "./cases";
 import type { CaseKey } from "./types";
 
@@ -8,7 +8,6 @@ describe("parseGovernment", () => {
     const g = parseGovernment("partitive — aitan sind (I help you), not 'to you'");
     expect(g).toMatchObject({
       caseKey: "PARTITIVE",
-      caseEn: "Partitive",
       caseEt: "osastav",
       example: "aitan sind",
       gloss: "I help you",
@@ -247,5 +246,42 @@ describe("maskExample", () => {
 
   it("passes null through", () => {
     expect(maskExample(null)).toBeNull();
+  });
+});
+
+describe("the stored string, as a learner should read it", () => {
+  it("rewrites the bracket to what the question word is asking", () => {
+    expect(readableGovernment("kellelt (ablative) · kelle käest"))
+      .toBe("kellelt (from whom?) · kelle käest");
+    expect(readableGovernment("keda* (partitive)")).toBe("keda* (whom?)");
+    expect(readableGovernment("kellest/millest (elative) · kellega (comitative)"))
+      .toBe("kellest/millest (about whom? out of what?) · kellega (with whom?)");
+  });
+
+  it("reads the place adverbs, which name no case at all", () => {
+    // `kuhu (direction)` is Ekilex saying the verb takes a place rather than
+    // one particular case, and "direction" is the mapper's own English for it.
+    expect(readableGovernment("kuhu (direction) · millega (comitative)"))
+      .toBe("kuhu (where to?) · millega (with what?)");
+  });
+
+  it("leaves alone a bracket that is not a label", () => {
+    // The seed's shape puts an example and its English gloss in brackets, and
+    // an Ekilex entry can carry a real note in one. Neither is ours to rewrite.
+    const seeded = "partitive - aitan sind (I help you)";
+    expect(readableGovernment(seeded)).toBe(seeded);
+    expect(readableGovernment("kelle/mille vastu")).toBe("kelle/mille vastu");
+  });
+
+  it("never touches the stored string, which the parser still reads", () => {
+    const raw = "kellele (allative) · mida (partitive)";
+    expect(readableGovernment(raw)).not.toBe(raw);
+    expect(parseGovernment(raw)?.caseKey).toBe("ALLATIVE");
+    expect(parseGovernment(raw)?.alsoGoverned).toContain("PARTITIVE");
+  });
+
+  it("says nothing about a word with no government", () => {
+    expect(readableGovernment(null)).toBe("");
+    expect(readableGovernment("")).toBe("");
   });
 });

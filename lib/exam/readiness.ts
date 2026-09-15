@@ -1,3 +1,4 @@
+import { caseByKey } from "@/lib/estonian/cases";
 import { EXAM_LEVELS, PASS_PCT, type ExamLevel } from "./spec";
 import { SKILLS, SKILL_LABEL, type SkillKey } from "./types";
 
@@ -58,7 +59,6 @@ export interface PastAttempt {
 
 export interface CaseSignal {
   caseKey: string;
-  caseEn: string;
   /** The name a course uses, which is the one the advice is written in. */
   caseEt: string;
   pct: number;
@@ -652,7 +652,9 @@ function gapsFrom(signals: ReadinessSignals, target: ExamLevel): Feedback[] {
   for (const c of weak) {
     out.push({
       id: `case-${c.caseKey}`,
-      title: `The ${c.caseEt}, the ${c.caseEn.toLowerCase()}, is at ${c.pct} percent`,
+      // Named the way a class names it, and then what it asks rather than
+      // what an English grammar calls it: see `lib/estonian/cases.ts`.
+      title: `The ${c.caseEt} (${caseByKey(c.caseKey)?.asksEn ?? c.caseKey.toLowerCase()}) is at ${c.pct} percent`,
       detail: `${c.reviews} reviews, and it is still going wrong. Case endings carry marks in every written part.`,
       href: `/grammar/${c.caseKey.toLowerCase()}`,
       cta: "Read the rule",

@@ -1,4 +1,5 @@
 import type { WritingTask } from "@/lib/estonian/writing";
+import { questionInEnglish } from "@/lib/estonian/cases";
 import { estimateTokens } from "@/lib/usage/pricing";
 import {
   anthropicHeaders, billedOutput, openAiCompatible, TutorError, type ProviderConfig, type UsageReport,
@@ -74,7 +75,7 @@ export function buildGraderUserPrompt(input: GraderInput, formWasUsed: boolean):
 
   return `LEARNER LEVEL: ${input.level}
 
-TASK SET: use "${input.task.lemma}" (${input.task.translation}) in the ${input.task.caseEn.toLowerCase()} (${input.task.caseEt}, ${input.task.caseQuestion}).
+TASK SET: use "${input.task.lemma}" (${input.task.translation}) in the ${input.task.caseEt} (${input.task.caseQuestion}${questionInEnglish(input.task.caseQuestion) ? `, which asks ${questionInEnglish(input.task.caseQuestion)}` : ""}).
 REQUIRED FORM: ${input.task.targetForm}
 MECHANICAL CHECK: the learner ${formWasUsed ? "DID" : "DID NOT"} use the required form.
 
@@ -553,7 +554,7 @@ export function buildDescribeUserPrompt(input: DescribeGraderInput): string {
 THE PICTURE. Situation: ${input.situation}. Three things in it:
 ${things}
 
-TASK SET: write one sentence about it, with "${input.asked.lemma}" in the ${input.asked.caseEt} (${input.asked.caseQuestion}).
+TASK SET: write one sentence about it, with "${input.asked.lemma}" in the ${input.asked.caseEt} (${input.asked.caseQuestion}${questionInEnglish(input.asked.caseQuestion) ? `, which asks ${questionInEnglish(input.asked.caseQuestion)}` : ""}).
 MECHANICAL CHECK: the learner ${input.rightCase ? "DID" : "DID NOT"} use that case.
 
 KNOWN FORMS, from the dictionary. These are the only Estonian forms you may write:

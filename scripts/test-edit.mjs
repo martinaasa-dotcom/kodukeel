@@ -18,7 +18,9 @@ page.on("pageerror", e => errors.push(String(e)));
   field whose example is `toad`. The label is what a person uses to find the
   box and it cannot be made ambiguous by a field appearing beside it.
 */
-const genitive = (p) => p.getByRole("textbox", { name: "Genitive sg" });
+// Named the way the form names it: `omastav`, with the number telling it from
+// the plural box. See the comment in `scripts/e2e.mjs`.
+const genitive = (p) => p.getByRole("textbox", { name: /^Omastav ainsus/ });
 
 await page.goto(`${B}/dictionary?q=kohv`, { waitUntil: "networkidle" });
 check("an entry offers an Edit button", (await page.getByRole("button", { name: /^Edit$/ }).count()) > 0);

@@ -438,7 +438,7 @@ form. (ADR-005, ADR-017.) The one module that writes *about* Estonian at length,
 `lib/estonian/grammar.ts`, holds no Estonian at all. Every form on the grammar pages is read from
 the dictionary by `lib/progress/caseExamples.ts` and rendered with its provenance.
 
-**Estonian is taught in Estonian, and the Latin names are the cross-reference.** Nobody teaching
+**Estonian is taught in Estonian, and the question it answers is the English.** Nobody teaching
 this language says "the inessive". A course in Tallinn, a school textbook and the state examination
 all name a case by its Estonian name and, more often, by the question it answers: `kus?`. The verb
 is named by four axes a course keeps apart, `aeg`, `kõneviis`, `tegumood` and `pööre`, of which only
@@ -450,21 +450,132 @@ beginner "Inessive, Elative, Allative" as multiple choice. A learner who has onl
 English names cannot follow their own teacher, which is the one thing a course-shaped app must not
 do to somebody who is also taking a course.
 
-So the Estonian name and the question lead, everywhere, and the English name stays as a labelled
-cross-reference for anyone reading an English reference grammar. `lib/estonian/terms.ts` is the one
-table of what a point is called, and it is **deliberately partial**: a point is in it only where
-there is a term a class actually uses, and `grammarTerm()` returning nothing is the honest answer
-for `irony` rather than a cue to invent one. `grammar.ts` still holds no Estonian and its tripwire
-is unchanged, which is why the terms live next door rather than in the prose. Two invariants hold
-the rest: every case and every part of the verb carries the name a class uses, and a screen that
-names a case in Latin names it in Estonian too. The second is anchored on a member access rather
-than on the word, because a file declaring `caseEt: string` in an interface and never rendering it
-satisfied the first version of it.
+So the Estonian name leads, everywhere, and the English beside it is the question the case
+answers rather than a second name. `lib/estonian/terms.ts` is the one table of what a point is
+called, and it is **deliberately partial**: a point is in it only where there is a term a class
+actually uses, and `grammarTerm()` returning nothing is the honest answer for `irony` rather than a
+cue to invent one. `grammar.ts` still holds no Estonian and its tripwire is unchanged, which is why
+the terms live next door rather than in the prose. The invariant is that every case and every part
+of the verb carries the name a class uses, anchored on a member access rather than on the word,
+because a file declaring `caseEt: string` in an interface and never rendering it satisfied the
+first version of it. **A verb point keeps its `alsoCalled`** and a case has none: "the conditional"
+and "the past participle" are categories an English speaker has a concept for and can look up,
+where "the inessive" is a translation of a translation to somebody who has met neither.
 
 Three things are **not** covered by this and should not be "fixed": an English column heading over a
 table of Estonian ("Case", "Singular"), the English prose that explains a point, and the topic ids
 in URLs. The ids are keys that 83 syllabus entries and any bookmarked link point at, and renaming
 them buys a slug and risks the course.
+
+**And the question is glossed, because the Latin name was the only English anywhere near a case.**
+The rule above settles which of two *names* leads and left the reader of the second one with
+nothing: `milles?` is how this language names a case, it is on every screen that names one, and the
+only English beside it was "inessive", which is a translation of a translation to somebody who has
+met neither. A learner reported it off the dictionary's own case table, fourteen rows deep, every
+English word on it a term out of a grammar another language wrote. So `cases.ts` carries what each
+question word asks (`asksPersonEn`, `asksThingEn`, `asksWhereEn`, joined as `questionEn`), and
+`questionInEnglish` reads a whole question back for a caller holding a string rather than a spec,
+which most of them are. `components/CaseQuestion.tsx` is the one drawing.
+
+Three rules shape the wording and they are why the readings are not all the same shape. It is a
+question somebody would say, so the preposition strands where English strands it: "what is it in?"
+rather than "in what?", which is a grammar book clearing its throat. The middle of each local trio
+is the long one, because that is the static case and the other two are arrows, so "into what?",
+"what is it in?", "out of what?" mirror "where to?", "where?", "where from?" exactly. And nothing in
+it is Estonian, which is `grammar.ts`'s standing one table over and is asserted the same way.
+
+**And then it went from the last three screens too, because "always" was the ask.** The first
+pass took the Latin name off the two dictionary case tables, the writing and picture rounds, the
+lesson step, the readiness sentences, the placement feedback and the note saying which form a
+searched spelling is, and left it on the reference page for the ending, labelled as what an English
+grammar calls it. That was the reading of "the English names are useless" that kept a
+cross-reference, and it was not what was asked for: a learner who has met neither name is not
+served by being told the second one, and the page for `-s` is exactly where somebody who has only
+ever heard `seesütlev` in class is standing. So the reference page prints the ending, the meaning
+and the question; `terms.ts` gives a case no `alsoCalled`; and the entry's government block reads
+through `readableGovernment`, which turns `kellelt (ablative)` into `kellelt (from whom?)` on the
+way to the screen. What is **not** touched is `Lexeme.government` itself, whose stored string
+annotates each question word with a case name and is read back by `parseGovernment`: that is data
+rather than copy, so the transform is display-only and the column the parser reads is untouched.
+
+**And three files were still handing over the Latin name with every check passing.** The rule was
+that a screen naming a case in Latin names it in Estonian too, and that a screen printing the
+question says what it asks. The dictionary's search ranker, which names the form somebody has just
+typed, the flash round's line under the plain ask and the diagnosis panel all named the case in
+Estonian first, so neither check had anything to say, and each was a second copy of the naming
+`cases.ts` exists to be the one of: the browser suite caught the first as
+`toas is the seesütlev (inessive) of tuba`. So `CaseSpec.en` has a **closed list of readers** with
+a reason apiece, in the shape `lib/legal/exportCoverage.ts` takes for its exemptions, and a fourth
+reader fails until somebody decides which side of the line it is on. Made to fail both ways, on a
+real file and on an entry nobody reaches. **It replaced the older check** rather than standing
+beside it: "names it in Estonian too" was the right rule while the Latin name was allowed on a
+screen at all, and once no screen may read it, that check can only fire on a file this one already
+refuses, which is a check nobody is reading. Nine readers are left and not one of them is a screen:
+the stored government string and the mapper that writes it, four types carrying `caseEn` through to
+a screen that prints the reading, Anu's own table, a slug, and a demo row that prints neither
+name.
+
+**And the closed list was blind to the other door, which is somebody typing the word out.** The
+list above is anchored on `spec.en`, a member access, so it can only see the Latin name arriving
+*through the table*. Seven screens were still printing it as a string with that list green: the
+worksheet a teacher prints for a class headed its three columns "Nimetav · nominative", the
+add-a-word form labelled seven boxes "Genitive sg" and "Short illative", the dictionary entry
+printed the Estonian name of each principal part over the Latin one in small italics, the case
+reference headed a column "Genitive", the mock examination's result screen told a candidate the
+answer was "Partitive" and that they had given "Elative", an empty state said "Add it with its
+genitive", and a placement question said it was "worked out from the genitive stem". The entry and
+the reference are the two screens the report was about, one block above and one column beside the
+tables that had just been fixed.
+
+So the rule is asked of the *text* as well: **a case labelling a form takes the question it
+answers, through `CaseQuestion`; a case named in a sentence takes the Estonian name a class uses.**
+Neither takes the Latin one. The sweep reads string literals and brace-free JSX text out of `app/`,
+`components/` and `lib/`, which is where the copy actually lives: five of the faults were in `lib/`,
+including the search note for a nominative plural, whose branch matches a stored form rather than a
+suffix and so sat outside the loop that had dropped every other Latin name. A path, an all-caps
+`CaseKey` and a bare lowercase word are code and are filtered; blanking a JSX interpolation was
+tried and is a regex pretending to parse JSX, so **a sentence that names a case in Latin and
+interpolates a value into the same run is the stated residual**. Made to fail three ways, on a
+string label, on a run of JSX text and on a heading array.
+
+**Two modules are exempt and the reason is a standing invariant rather than an oversight.**
+`lib/estonian/grammar.ts` and `lib/estonian/exceptions.ts` explain a case at length and are asserted
+to hold no Estonian letter, which is what stops this app inventing a form inside a sentence about
+forms. The tripwire is `[õäöüšž]`, so `omastav` and `osastav` would slip past it while breaking what
+it is for, and would name five cases one way and the nine `-ütlev` ones the other on one page. The
+way out is to describe the case rather than name it, "the partial object form" for `osastav`, which
+is a pass over nineteen lines of the most-read grammar copy in the app and is worth doing carefully
+rather than in passing. Until then the exemption is counted in the sweep rather than invisible
+because it stopped at `app/`.
+
+**And seven fields carried the Latin name to nobody.** `WritingTask`, `CaseSignal`, the readiness
+signal, both exam item types, `Government` and the landing page's demo row each declared a `caseEn`
+beside a live `caseEt`, and not one screen, script or test read any of them: `CaseSignal.caseEt`'s
+own comment says it is "the name the advice is written in". Four of the nine exemptions on the
+closed list were justified by a sentence that was half true, "carries caseEn on the task; the screen
+prints the reading", where the screen prints the reading and the field reaches no reader at all. They
+are gone, and with the demo row and the exam option's dead `en` the list is four readers rather than
+nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
+of them is a screen.**
+
+**And the check that guards the add-a-word boxes could not see two of the twelve.** Its key pattern
+was `[A-Z_]+`, which does not match `PRES_1SG` or `PAST_1SG`, so the two verb boxes whose examples
+are `loen` and `lugesin` had been outside the sweep for as long as it existed and the floor of ten
+was met by the other ten. It reads `[A-Z0-9_]+` and the floor is the table's own length.
+
+**A label with no word in front of it reads the `mis` series, which is `asksEn`.** `questionEn` is
+the case's whole *name* and runs to three questions, which is right on the reference page beside
+the Estonian it translates and is a mouthful inside a sentence: "toas is the seesütlev (in whom?
+what is it in? where?) of tuba" is a note nobody finishes. The short one is the thing question and
+the place adverb, which is what `cases.ts` printed for eleven of the fourteen before `asksPerson`
+existed. It is deliberately not `caseQuestionEnglishFor`, which knows the word and picks the
+pronoun to match: this is for the places holding a spelling rather than a subject.
+
+**Anu is told the readings and told to use them.** The case table in her system prompt carries each
+question with what it asks after an equals sign, and the rule about naming a term says to give the
+reading rather than the Latin name, so the sentence she writes about `milles?` and the line under
+the dictionary's own table cannot say different things. The writing grader and the scene describer
+are briefed the same way.
 
 **And on the reference itself, the ending leads both names.** The rule above is about which of two
 *names* comes first, and the grammar pages had answered it and then put the name at the top of every
@@ -479,9 +590,78 @@ uppercases: "-sse" reached the screen as "-SSE", which no Estonian word ends in.
 holds the case page's eyebrow and the table header, and it is `Chip`'s `caseSensitive` rule one
 level up. Every field in `grammar.ts` has a ceiling now beside its floor, since the floors were all
 met by the version somebody reported as unreadable: a floor stops a field being empty and says
-nothing about the paragraph growing back into it. Nothing about the invariants moved: the Estonian
-name and the question are still on every card and every page, and the Latin name is still there,
-labelled, on the page for the ending.
+nothing about the paragraph growing back into it. The Estonian name and the question are still on
+every card and every page; what has since gone from this page along with everywhere else is the
+Latin one.
+
+**And the reference is the wrong shape for the first hour, so there is a screen in front of it.**
+Fourteen cards each explaining one ending is what somebody wants who already knows which ending
+they are after. It is a wall for somebody who has just been told Estonian has fourteen cases and
+has decided that sounds impossible, and the number is the thing that makes people put the language
+down. What the language actually offers is far better news and fits in one sentence: three forms
+are stored per word, and the other eleven are the second of those three with a fixed ending glued
+on, the same ending for every word there is. `/grammar/build-a-word` is that sentence shown rather than
+asserted, on a word the reader picks, and it is the first thing on `/grammar` rather than a mode
+beside it.
+
+Three acts, because the sentence has three claims in it. Which three forms are stored and what each
+is *for*, which is the question a table of three forms never answers. Which of them the endings go
+on, which is the half everybody gets wrong, since it is not the word you looked up: `tuba` takes
+them on `toa`. And then the eleven, one press at a time, each with what it means, the question this
+word answers with it, and a sentence a lexicographer wrote using it. The five words are the awkward
+ones `lib/collections/demoWords.ts` already argues for, since a walkthrough that only ever showed a
+regular word would be teaching the arithmetic and hiding the one thing that makes a beginner doubt
+it.
+
+**The half that reads the dictionary and the half that decides what a row says are two modules.**
+`lib/estonian/caseBuild.ts` is pure and is where the three judgments live: which form to print,
+whether the ending really reaches it, and whether the reader may be asked to produce it. That is
+what makes them unit tested rather than driven, which they were not while both halves sat in one
+file behind Prisma. `lib/progress/caseWalk.ts` is the queries, and it re-exports the shapes rather
+than declaring them twice.
+
+**Nothing on it is written and it writes nothing.** Every form comes off `buildCaseTable` through
+`lib/estonian/caseBuild.ts`, every sentence is attested, every line of English about a case is
+`lib/estonian/grammar.ts`, which holds no Estonian at all, and the endings are suffixes off `CASES`.
+The last act asks the reader to pick an ending and marks it, through `OPTION_CLASS` and a live
+region like every other marking screen, and it **grades nothing**: the answer to every one of those
+questions is printed two acts above it on the same page, so a row in the log would tell the
+scheduler somebody recalled a form they had just been shown, which is the fault `audit:questions`
+exists to catch one room over. A first meeting on the learn ladder writes nothing for the same
+reason, and the way out at the end is a round that does grade. `caseFits` still decides what may be
+asked, so nobody is invited to produce `meheses`, and `caseQuestionFor` still words it, so a person
+is asked `kellel?`, with `CaseQuestion` saying what that asks.
+
+**And the whole of it is driven in a browser, because none of what it claims is checkable from the
+source.** Thirteen checks in `scripts/test-teaching.mjs`, which is the suite for the half of the app
+that explains rather than tests: that the reference points at it, that the three stored forms are
+named the way a class names them and the stem is marked, that no case is named in Latin, that a
+form is shown inside a sentence somebody wrote, that **every one of the eleven endings really is
+the stem with those letters on the end**, read off `data-stem`, `data-ending` and `data-built` on
+the line itself rather than by counting hops through the markup, that the one word in five the rule
+does not reach says so instead of being taught as the rule, and that a person is never asked for
+the inside trio. Two of them were made to fail on the real fault first, and the Latin one could not
+fail as written: `textContent` joins two elements into `GenitivePuhkus`, where `\b` finds no
+boundary, so it passed with the name printed on the panel. It asks a locator now, which has the
+boundaries the markup gives it.
+
+**And "is this form the ending on the stem" is one answer now, in the module that owns the join.**
+Two screens ask it, the landing page's case explorer to decide whether to light the ending and this
+one to decide whether to say a form is learned rather than worked out, and both worked it out for
+themselves with an `endsWith` and a `slice` precisely to keep the join inside `derive.ts`. That is
+the rule holding and two copies drifting anyway. `followsEndingRule` is the one reader, and `origin`
+is deliberately not the test: an entry enriched from Ekilex carries a lexicographer's spelling for
+every case and nearly all of them are the stem plus the ending, so reading the provenance marks
+eleven ordinary rows as exceptions.
+
+**And a sentence that shows the case is not the same as a sentence that contains it.** Estonian
+spells the short illative like the genitive for most of the words that have one, so
+`Endisaegsed Soome mündid` carries the illative of `Soome` and shows nothing whatever about the
+ending, which is fine on a page listing six words beside a table and useless on a screen whose one
+job is what an ending means. `CaseExample.unmistakable` is `readCase`'s strict rule asked of the
+form the sentence actually holds, exactly one case is spelled that way or nothing is claimed, and
+the walk prefers a sentence that passes it. `/grammar/[caseKey]` reads the same examples and ignores
+the field, so nothing about that page moved.
 
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
@@ -7695,7 +7875,11 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
 `putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`,
-`deferredDues`, `weeksBetween`.
+`deferredDues`, `weeksBetween`,
+`questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
+`readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
+`caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
+`caseExamplesFor`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
