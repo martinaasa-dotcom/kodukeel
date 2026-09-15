@@ -1015,7 +1015,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say a price, a phone number, a floor and a year without running out of numbers.",
-    blurb: "Two patterns and you have the lot. The teens put -teist on the unit and the tens put -kümmend on it, so somebody who can say kolm can say kolmteist and kolmkümmend. The ordinals are -s on the genitive, which is the form a floor and a date are given in.",
+    blurb: "Two patterns and you have the lot. The teens put -teist on the unit and the tens put -kümmend on it, so somebody who can say kolm can say kolmteist and kolmkümmend. The ordinals are -s on the omastav, which is the form a floor and a date are given in.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["arvud"],

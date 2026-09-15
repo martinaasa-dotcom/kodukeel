@@ -245,8 +245,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                     {/* And what that is asking, because a list of question
                         words is a list of Estonian to somebody who has not met
                         them: see `lib/estonian/cases.ts`. */}
-                    <span className="block text-[12.5px]">{questionInEnglish(spec?.question)}</span>
-                    <span lang="et" className="block text-[12.5px]" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
+                    <span className="block text-[13px]">{questionInEnglish(spec?.question)}</span>
+                    <span lang="et" className="block text-[13px]" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
                 </button>
