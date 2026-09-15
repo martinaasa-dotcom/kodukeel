@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { plainPhrase } from "@/lib/copy/values";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { challengeFirst } from "@/lib/collections/levels";
 import type { Level } from "@/lib/collections/syllabus";
@@ -352,7 +353,7 @@ export async function learnBatch(
     const picked = pool.length >= CHOICES
       ? pickOptions({
           answer: glossOption({
-            text: lexeme.translation,
+            text: plainPhrase(lexeme.translation),
             pos: lexeme.pos,
             band: bandOf(lexeme.cefr),
             theme: unitIntroducing(lexeme.lemma, lexeme.pos),
@@ -367,8 +368,8 @@ export async function learnBatch(
     return {
       cardId: row.id,
       lexemeId: lexeme.id,
-      lemma: lexeme.lemma,
-      gloss: lexeme.translation,
+      lemma: plainPhrase(lexeme.lemma),
+      gloss: plainPhrase(lexeme.translation),
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,

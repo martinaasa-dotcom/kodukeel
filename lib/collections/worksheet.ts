@@ -1,3 +1,4 @@
+import { plainPhrase } from "@/lib/copy/values";
 import { buildCloze, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { numberFromMorphCode } from "@/lib/estonian/morph";
@@ -80,7 +81,7 @@ export function buildWorksheet(words: readonly WorksheetWord[], limits: Workshee
   const vocabulary: VocabularyItem[] = words
     .filter((w) => w.translation.trim().length > 0)
     .slice(0, max.vocabulary)
-    .map((w) => ({ lemma: w.lemma, translation: w.translation }));
+    .map((w) => ({ lemma: plainPhrase(w.lemma), translation: plainPhrase(w.translation) }));
 
   const gaps: GapItem[] = [];
   for (const word of words) {
