@@ -85,28 +85,40 @@ export function LadderBar({ progress, partLabel }: {
       */}
       <ol className="mt-5 flex flex-col gap-2">
         {milestones.map((stop) => (
-          <li key={stop.level} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span
-              className="tnum w-7 shrink-0 text-sm font-bold"
-              style={{
-                color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
-              }}
-            >
-              {stop.level}
-            </span>
-            <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              {stop.title}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--ink-3)" }}>
+          <li key={stop.level} className="flex flex-col gap-1">
+            {/*
+              THE LEVEL NAME AND THE ARRIVAL SENTENCE STOP COMPETING FOR ROOM.
+              Both used to sit on one `flex-wrap` line, so on a phone the
+              unbreakable Estonian level name (font-semibold, no truncate) took
+              whatever width it wanted and the arrival sentence, the one thing
+              actually explaining "you are here", was squeezed into whatever
+              was left and clipped to a word or two. The sentence gets a line
+              of its own now, indented under the badge, and can wrap freely
+              instead of being truncated.
+            */}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span
+                className="tnum w-7 shrink-0 text-sm font-bold"
+                style={{
+                  color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
+                }}
+              >
+                {stop.level}
+              </span>
+              <span lang="et" className="min-w-0 text-sm font-semibold" style={{ color: "var(--ink)" }}>
+                {stop.title}
+              </span>
+              {stop.state === "passed" && <Chip tone="good">Done</Chip>}
+              {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
+              {stop.state === "ahead" && (
+                <span className="text-sm" style={{ color: "var(--ink-3)" }}>
+                  {stop.parts} parts
+                </span>
+              )}
+            </div>
+            <span className="pl-7 text-sm" style={{ color: "var(--ink-3)" }}>
               {stop.arrival}
             </span>
-            {stop.state === "passed" && <Chip tone="good">Done</Chip>}
-            {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
-            {stop.state === "ahead" && (
-              <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                {stop.parts} parts
-              </span>
-            )}
           </li>
         ))}
       </ol>
