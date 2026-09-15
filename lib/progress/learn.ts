@@ -11,7 +11,7 @@ import { parseExamples, teachingSentence, usableExamples } from "@/lib/dict/exam
 import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
-import { buildCloze, mentions } from "@/lib/estonian/cloze";
+import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
@@ -195,7 +195,8 @@ function schedulingOf(card: LearnRow): LearnScheduling {
  */
 function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
   const examples = usableExamples(parseExamples(lexeme.examples));
-  const taught = teachingSentence(examples, [lexeme.lemma]);
+  const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
+  const taught = teachingSentence(examples, [lexeme.lemma], opener);
   const forms = [...gapForms({
     lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms,
   }).keys()];

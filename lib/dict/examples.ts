@@ -13,6 +13,8 @@
  * because it never has to invent one.
  */
 
+import { naturalSentence } from "@/lib/estonian/cloze";
+
 export type ExampleSource = "EKILEX" | "SEED" | "USER" | "AI";
 
 export interface Example {
@@ -60,6 +62,38 @@ export function serialiseExamples(examples: Example[]): string {
  * Shortest first is deliberate — a first example that fits on one line is worth
  * more to a beginner than a subtler one that runs to three, and the cloze
  * generator takes the first sentence that works.
+ *
+ * A ONE-WORD "SENTENCE" IS A DIFFERENT WORD WEARING A FULL STOP. Ekilex files
+ * a compound's own usage under the base word it was built from, so `poeg`'s
+ * three recorded usages are `Rongapoeg.`, `Särjepoeg.` and `Kuningapoeg.`,
+ * none of which contain `poeg` as a word, all of them shorter than any real
+ * sentence for it would be, and shortest-first was putting the compound in
+ * front of a beginner who has not met `kuningas` yet. That is worse than the
+ * case this file already reasons about, where a real sentence simply does
+ * not carry the exact form asked for: this one is not a sentence at all, so
+ * there is nothing in it to mark and nothing for `teachingSentence` to point
+ * a beginner at. `sentenceWords` already splits on the same boundary a case
+ * ending is matched on, so a spelling with nothing on either side of a space
+ * is a spelling with one word in it.
+ *
+ * AND A USAGE THAT TRAILS OFF, SPLITS TWO ALTERNATIVES WITH A SLASH, OR NAMES
+ * ITSELF BEFORE ILLUSTRATING IS THE SAME FAULT IN A DIFFERENT SHAPE.
+ * `naturalSentence` (`lib/estonian/cloze.ts`) is the exam's own answer to
+ * that, and the mock exam, the placement check and `borrow.ts` each read it
+ * downstream of this function. Four more callers, `flash.ts`, the government
+ * drill, the grammar reference's case examples and this app's own word
+ * pages, read `sentenceContaining` with nothing downstream at all: `sellepärast`,
+ * taught in the first A1 unit, was reaching a beginner as `"Küsin seda
+ * sellepärast, et .."` with nothing after the comma. It belongs here rather
+ * than in every caller for the reason the one-word check does: a filter three
+ * callers already apply and four do not is a filter with a gap in it, and a
+ * gap found once by reading a screenshot is a gap found a second time by a
+ * learner. Without a part of speech to hand it, this catches everything
+ * `naturalSentence` can decide alone, ellipsis, a slash, a parenthetical
+ * aside, a fragment with no closing punctuation, a numbered list item, and
+ * leaves the label pattern (a usage opening with its own headword) to a
+ * caller that has the word's part of speech, through `teachingSentence`'s own
+ * optional third argument or `borrow.ts`'s.
  */
 export function usableExamples(examples: Example[]): Example[] {
   const seen = new Set<string>();
@@ -69,6 +103,8 @@ export function usableExamples(examples: Example[]): Example[] {
     const et = example.et.trim().replace(/\s+/g, " ");
     const key = et.toLowerCase();
     if (et.length < MIN_CHARS || et.length > MAX_CHARS) continue;
+    if (sentenceWords(et).length < 2) continue;
+    if (!naturalSentence(et)) continue;
     if (seen.has(key)) continue;
     seen.add(key);
     out.push({ ...example, et });
@@ -150,12 +186,27 @@ export function sentenceWords(sentence: string): string[] {
  *
  * `forms` is in priority order and may hold duplicates or blanks; the caller
  * assembles it from whatever the card knows.
+ *
+ * `opensWithNominal` is the one thing `usableExamples` cannot decide on its
+ * own, because refusing a usage that opens with its own headword and a comma
+ * (the label pattern, where a dictionary names itself and then illustrates a
+ * sense the gloss beside it may not) is only safe on a nominal: a verb
+ * standing before a comma is an ordinary main clause. That needs the word's
+ * part of speech, which this function is not otherwise handed, so it is
+ * optional and a caller with `pos` and `forms` in hand builds one through
+ * `nominalOpener` (`lib/estonian/cloze.ts`), the same way `borrow.ts` already
+ * does. Left out, a first meeting still gets everything `usableExamples`
+ * itself refuses: a fragment, a compound, an ellipsis, a slash, a
+ * parenthetical aside.
  */
 export function teachingSentence(
   examples: Example[],
   forms: readonly (string | null | undefined)[],
+  opensWithNominal?: (word: string) => boolean,
 ): { example: Example; form: string | null } | null {
-  const usable = usableExamples(examples);
+  const usable = opensWithNominal
+    ? usableExamples(examples).filter((e) => naturalSentence(e.et, opensWithNominal))
+    : usableExamples(examples);
   if (usable.length === 0) return null;
 
   const tried = new Set<string>();
