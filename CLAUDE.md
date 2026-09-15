@@ -416,13 +416,18 @@ question about yesterday is asked from the first morning rather than from the fi
 is about the learner's own day and not about the deck, and the count it collects is the baseline a
 pilot compares the end of term against.
 
-**And twenty-four errands is thin for the days the answer is no.** Thirteen are A1, nine A2 and
-two B1, and the pool is filtered to the units a deck has started: four on a starter deck, thirteen
-with A1 finished, twenty-four for ever after. The walk is `dayIndex`, so the repeat interval is the
+**And twenty-eight errands is thin for the days the answer is no.** Seventeen are A1, nine A2 and
+two B1, and the pool is filtered to the units a deck has started: four on a starter deck, seventeen
+with A1 finished, twenty-eight for ever after. The walk is `dayIndex`, so the repeat interval is the
 pool size exactly. That is survivable while the errand appears on a minority of days and it is not
-a table to build a screen out of that shows several days at once. What it needs before it grows is
-somebody who knows how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md`
-already describes, and a B1 tier that does not exist: holding the line when they switch, asking a
+a table to build a screen out of that shows several days at once. The four that arrived with the
+four new A1 units are the reason the A1 tier grew rather than the A2 one, and they are the most
+errand-shaped thing the course teaches: a bus is a question asked of a stranger before you get on
+it, and introducing yourself cannot be rehearsed alone. None of the four names a scene, because
+none of the fourteen declares those units, and a rehearsal that could not vouch for the errand's
+words is a rehearsal of something else. What it needs before it grows again is somebody who knows
+how an Estonian counter actually works, in the shape `docs/20-contributed-sentences.md` already
+describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
@@ -880,7 +885,7 @@ boundary between them, so the obvious spelling misses the words this language is
 **And Ekilex's own part of speech was being discarded**, so a deliberate coarsening could not be
 told from a mistake. `ekilexPos` records it. The table of legitimate coarsenings was set by
 narrowing until something honest complained rather than widening until nothing did, and with it
-written down the course's label and Ekilex's agree on all 1,453 words. `PRONOUN` is a part of speech for it, harvested as a nominal
+written down the course's label and Ekilex's agree on all 1,514 words. `PRONOUN` is a part of speech for it, harvested as a nominal
 because it declines like one (`kes`, `kelle`, `keda`), and a pronoun with no singular (`meie`,
 `nemad`) is kept the way an adverb is, attested and formless, rather than dropped.
 `lib/collections/syllabus/retired.ts` is the other half: the ten C2 units were cut in §19 of the
@@ -1106,8 +1111,8 @@ So the harvest stores what the rules miss, and it **asks the rules rather than c
 `unreachableSlots` in `conjugate.ts` and `unreachableCaseForms` in `derive.ts`, each living beside
 the rule it is the complement of. A list would be two copies of one fact and the copy in the
 builder is the one that rots, because a missing form does not look like an error, it looks like a
-word that inflects less. Asserted on the call in both builders. That is 1,688 forms across 357 of the
-1,453 course words. Four codes are nearly all of it, and the fact that they are the four is the
+word that inflects less. Asserted on the call in both builders. That is 1,765 forms across 376 of the
+1,514 course words. Four codes are nearly all of it, and the fact that they are the four is the
 argument: the simple past third person (310), the polite imperative (312) and both participles
 (313 past, 309 present), which are exactly the slots the two paragraphs below record the evals
 finding one at a time. The rest is `olema`'s present, `minema`'s imperative, `pole`, and the short
@@ -3431,6 +3436,68 @@ wherever a screen prints a case, and no card asks for it.
 `mentions` in `lib/estonian/cloze.ts` is the one whole-word test all three read, with the boundaries
 the module already splits on rather than `\b`, which is ASCII and so does not know what õ is. After
 all three: **zero cards print their own answer**, measured the same way.
+
+**And the fifth was the question itself, on the two words every beginner meets first.** The
+gradation card asks the genitive as `kelle? mille?`, and those two words *are* the genitives of
+`kes` and `mis`, so the card read `kes → kelle? mille?` and took `kelle`. The builder had already
+held the *hint* off the answer two lines above, on the ladder every typeable card uses, and nothing
+held the front, because the front is the lemma and a word is not its own genitive: it is the lemma
+**and the question**, and the question is built from a table `lib/srs/cards.ts` does not own. The
+guard is `mentions(front, genSg)` rather than a rule about those two words, for that reason.
+
+**The door is the live lookup rather than the seed, which took a second look to get right.** A
+seeded `kes` cannot reach that card: `prisma/seed.ts` computes gradation only where `gradates(pos)`
+says the word class has one, so a pronoun is `NONE` and the builder breaks before it. What has no
+stored part of speech to consult is `runLookup`, which creates the entry for a word a learner
+searched for out of Ekilex alone, and **Ekilex calls every nominal `noomen`**: read off
+`.ekilex-cache`, the only word classes it sends are `noomen`, `verb` and `muutumatu`. So
+`mapEkilexDetails` labels `kes` a NOUN, a NOUN gradates, `classifyGradation("kes", "kelle")` returns
+`s : ll`, and the entry is created with it. Driven through the real mapper and the real builder: one
+gradation card, front `kes → kelle? mille?`, back `kelle`, and none with the guard in. Reachable on
+any deployment seeded before the pronouns unit existed, which is where `kes` is not yet a row.
+Gating the mapper on the part of speech was tried first and reverted: it can only fire on
+`muutumatu`, which carries no `SgN` or `SgG` for the classifier to read, so it is a no-op, and the
+test that appeared to prove it fired had invented a `wordClass` Ekilex does not send. A harness that
+is not the app measures the harness.
+
+**And the two audits that ask whether a question is answerable read half the dictionary.** Both
+`npm run audit:questions` and `npm run audit:sense` opened `prisma/data/expanded.json` under a
+comment calling it "what the seed loads", and the seed loads that file *and*
+`prisma/data/harvested.ts`: `seedSize.test.ts` counts 6,153 entries against the expansion's 5,363,
+and 761 of the 1,514 course words are in no expansion row. `dictionaryRows` in
+`scripts/lib/dictionary.ts` is the one adapter both read now, over `shippedDictionary`, so there is
+still one merge: the harvest replaces a hand-typed entry and the expansion defers to one, which is
+what the seed does. `audit:sense` asks 60,118 questions rather than 51,940 and is clean;
+`audit:questions` asks 85,224 rather than about 46,000 and **reported 21 faults nobody had seen**.
+
+**The merge has to be faithful or it invents faults**, and the first attempt proves it: written with
+`gradation: null` on the course rows it reported sixty-odd gradation faults the app does not have,
+because `lib/srs/cards.ts` breaks on `lex.gradation === "NONE"` and `null` is not `"NONE"`. So the
+adapter computes gradation exactly as the seed computes it, off the part of speech first, and
+carries `semanticTypes`, which nothing could compute and which decides whether a case card asks a
+person or a thing. Checked both ways before a single fault was believed: recomputing gradation from
+the expansion's own principal parts agrees with what `expand-seed` stored on all 5,363 entries, no
+expansion row goes missing from the merge, and the 738 that differ are exactly the harvest
+superseding one on a shared key, with the course's authored gloss, its extra forms and its
+government. The `B1` floor on a missing level is the harvest's alone, because that is where the seed
+applies it: handing it to the expansion would tell the exam pool that 2,090 words are B1.
+
+**And all 21 were one fault in two more generators, which is the fault above wearing the case's
+question instead of the genitive's.** The flash round and the exceptions round each already refuse a
+form spelled like the lemma and a form spelled like a word in the English gloss, and every shape
+both draw prints a third thing: the question the case answers. That is a property of the *case*, so
+no amount of looking at one entry finds it. The round asked `kes · who · sisseütlev · kellesse?
+millesse?` and wanted `kellesse` typed back, on all eleven cases of both words, and
+`kes · omastav · kelle? mille?` wanting `kelle`. It costs those two words their case slots and
+nothing else, which is the right price: there is no way to ask somebody to produce `kelle` while
+printing `kelle?` as the question, and both keep their production card and their sentence shapes.
+
+**Every floor in both scripts moved with the dictionary and was re-measured rather than scaled.**
+`audit:sense` was 30,000 against 51,940 asked and is 48,000 against 60,118; the per-section figures
+in `audit-questions.ts` are four fifths of what the run over 6,153 entries actually prints, the deck
+13,540 against 10,887 and the flash round 52,028 against 45,856. Both were made to fail once: a
+section forced to produce nothing names itself and the count it missed, and a truncated entry list
+trips the whole-run floor. A floor left where it was is a floor that waves a generator through.
 
 **A generator fix settles the cards built from now on and not one card already in a deck.** That is
 the half the audit cannot see, because it reads `prisma/data/expanded.json` and a learner's deck is

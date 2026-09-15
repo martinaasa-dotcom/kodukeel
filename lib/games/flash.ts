@@ -257,6 +257,24 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     `caseFits` is the one answer, and it refuses a singular of a word that has
     no singular besides.
   */
+  /*
+    AND NOT A CASE WHOSE OWN QUESTION SPELLS THE ANSWER.
+
+    The two tests above are about the word: is the form the lemma, is it a
+    word in the gloss. Every shape here prints a third thing, which is the
+    question the case answers, and that is a property of the *case*, so no
+    amount of looking at one word finds it. `kes` and `mis` are the two words
+    it lands on, because the question words are their own case forms: the
+    round asked `kes · who · sisseutlev · kellesse? millesse?` and wanted
+    `kellesse` back, and every one of the eleven cases of both words was free
+    that way. `npm run audit:questions` found all 21 the day it was pointed at
+    the half of the dictionary the course harvest writes.
+
+    It costs those two words their case slots and nothing else, which is the
+    right price: there is no way to ask somebody to produce `kelle` while
+    printing `kelle?` as the question. Both keep their production card and
+    their sentence shapes.
+  */
   const stems = stemsFrom(word.forms);
   for (const key of ASKABLE_CASES) {
     if (!caseFits(key, subjectOf(word))) continue;
@@ -264,6 +282,9 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     if (!answer) continue;
     if (answer.accepted.some((f) => f.trim().toLocaleLowerCase("et") === lemma)) continue;
     if (shownInGloss(answer.accepted)) continue;
+    const spec = caseByKey(key);
+    const question = spec ? caseQuestionFor(spec, subjectOf(word)) : "";
+    if (answer.accepted.some((f) => mentions(question, f))) continue;
     out.push({
       slot: key,
       value: answer.value,

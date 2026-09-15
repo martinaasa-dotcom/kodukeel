@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { BAR, DESTINATIONS, isUnder, LISTED, PLACES, SECTIONS } from "./nav";
 import { GAMES, PRACTICE_MODES, QUICK_MODES, TARGETED_MODES } from "./modes";
+import { SYLLABUS } from "../collections/syllabus/index";
 import { ICONS } from "../../components/icons";
 
 /** Every `page.tsx` under app/(app), as the route a learner would type. */
@@ -317,13 +318,27 @@ describe("the practice modes", () => {
   });
 });
 
-describe("the icon names both tables carry", () => {
+describe("the icon names every table carries", () => {
   /*
     `icon()` falls back to a sparkle for a name it does not know, which keeps a
     typo from crashing a page and is exactly why nothing notices one. Two modes
     shipped with the placeholder on this branch before a screenshot caught
     them: `Puzzle` and `Ear` were being asked for and neither was registered.
     A name in a table is a promise that components/icons.tsx can resolve it.
+
+    AND THE COURSE IS THE THIRD TABLE, WHICH THIS DID NOT READ.
+
+    It read the rail and the practice modes, so the promise held on two tables
+    out of three and was broken on the largest: 38 of the names the syllabus
+    carries resolved to nothing, so `Hash` over the numbers, `Shirt` over the
+    clothes and `ChefHat` over the cooking all drew the same sparkle. That was
+    40 of 86 units, which is most of a scroll down the course page wearing one
+    icon. A fallback is the right behavior and it is also what makes this
+    invisible, which is the whole argument for asserting the pairing rather
+    than trusting it.
+
+    Read off the syllabus rather than a list of names, so a unit added later
+    fails here rather than shipping a placeholder nobody reports.
   */
   it("resolves every one of them", () => {
     for (const item of DESTINATIONS) {
@@ -332,6 +347,10 @@ describe("the icon names both tables carry", () => {
     }
     for (const mode of PRACTICE_MODES) {
       expect(Object.hasOwn(ICONS, mode.icon), `${mode.href} asks for the unregistered icon ${mode.icon}`)
+        .toBe(true);
+    }
+    for (const unit of SYLLABUS) {
+      expect(Object.hasOwn(ICONS, unit.icon), `${unit.id} asks for the unregistered icon ${unit.icon}`)
         .toBe(true);
     }
   });

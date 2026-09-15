@@ -108,6 +108,25 @@ export const ERRANDS: readonly Errand[] = [
   { id: "meaning", says: "Ask somebody what an Estonian word means, and use it once before the day is out.", where: "Class, work, a friend", unit: "kool-ja-keel", scene: "keeletund" },
   { id: "job", says: "Tell somebody what you do for a living and one thing you are good at.", where: "Work, a party", unit: "too-ja-raha", scene: "toovestlus" },
   { id: "complain", says: "Take something back to a shop, or report a fault, and say what is wrong with it.", where: "A shop, a landlord, a helpdesk", unit: "probleemid", scene: "kaebus" },
+  /*
+    THE FOUR UNITS A1 GAINED, WHICH ARE THE MOST ERRAND-SHAPED IN THE COURSE.
+
+    Transport, asking for help and saying who you are are the three things
+    somebody does in their first month here and cannot do from inside an app,
+    so a unit for each of them with no errand beside it is the rehearsal
+    without the door out of it. None names a scene, because none of the
+    fourteen declares these units and the test refuses a rehearsal that could
+    not vouch for the errand's words.
+
+    `repeat` is deliberately not `help` one row up, which is asking somebody to
+    do something for you. This is the move that keeps a conversation in
+    Estonian once it has gone wrong, which is the one the switch to English
+    costs, and the switch is the figure Progress says to watch.
+  */
+  { id: "bus", says: "Ask whether this bus or tram goes where you are going, before you get on.", where: "A stop, a platform", unit: "transport" },
+  { id: "repeat", says: "Say you did not understand and ask for it again, instead of switching to English.", where: "Anywhere", unit: "abi" },
+  { id: "introduce", says: "Introduce yourself to somebody new: your name, where you live and what you do.", where: "Work, a class, a stairwell", unit: "tutvumine" },
+  { id: "count", says: "Say a price or a floor out loud in Estonian, and have it repeated back to you.", where: "A shop, a lift", unit: "suured-arvud" },
 ];
 
 /**

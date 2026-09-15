@@ -978,4 +978,193 @@ export const A1 = [
       ["aeglaselt", "slowly", "ADVERB"],
     ],
   }),
+  /*
+    WHAT A PERSON ARRIVING IN ESTONIA NEEDS IN THEIR FIRST MONTH, WHICH THE
+    COURSE HAD SCATTERED ACROSS THREE LEVELS.
+
+    A1 taught counting to twelve and then jumped to a hundred, so a learner
+    who had finished the numbers unit could not say a price, a phone number or
+    which floor they live on. It taught `buss`, `rong` and `pilet` inside a
+    shopping unit and left the stop, the timetable and the word for being late
+    at A2 and B1. It put `abi` at B1 and `aitama` at A2, which is to say that
+    asking for help was three units past the point where somebody needs it.
+    And the words for introducing yourself sat in four different units at
+    three levels.
+
+    The Institute's own judgment is the evidence rather than ours. Every word
+    these four units move down carries an A1 proficiency code in Ekilex:
+    `abi`, `aitama`, `appi`, `politsei`, `helistama`, `sõitma`, `jalgratas`,
+    `ootama` and `aadress` are all A1 there and were A2 or B1 here. Reading
+    that back off the same response the forms come from is what makes this a
+    correction rather than an opinion.
+
+    Nothing is taken out of the later units. A word may appear in more than one
+    and the first in course order is the one that introduces it, so `reisimine`
+    still drills `sõitma` while booking a trip and `probleemid` still drills
+    `abi` while describing what went wrong. What changes is where a learner
+    first meets them.
+
+    Appended after the existing twenty-three so that the first three units at
+    A1, which is what first run builds a deck from, stay what they were.
+  */
+  unit({
+    id: "suured-arvud",
+    title: "Suuremad arvud",
+    subtitle: "Thirteen to a million",
+    icon: "Calculator",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Say a price, a phone number, a floor and a year without running out of numbers.",
+    blurb: "Two patterns and you have the lot. The teens put -teist on the unit and the tens put -kümmend on it, so somebody who can say kolm can say kolmteist and kolmkümmend. The ordinals are -s on the genitive, which is the form a floor and a date are given in.",
+    grammar: ["numerals", "partitive"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
+    requires: ["arvud"],
+    words: [
+      ["kolmteist", "thirteen"],
+      ["neliteist", "fourteen"],
+      ["viisteist", "fifteen"],
+      ["kuusteist", "sixteen"],
+      ["seitseteist", "seventeen"],
+      ["kaheksateist", "eighteen"],
+      ["üheksateist", "nineteen"],
+      ["nelikümmend", "forty"],
+      ["viiskümmend", "fifty"],
+      ["kuuskümmend", "sixty"],
+      ["seitsekümmend", "seventy"],
+      ["kaheksakümmend", "eighty"],
+      ["üheksakümmend", "ninety"],
+      /*
+        The ordinals `arvud` stopped at five, carried on. A floor, a date, a
+        bus line and a place in a queue are all ordinals, and the five it had
+        were enough to show the pattern and not enough to use it.
+      */
+      ["kuues", "sixth", "ADJECTIVE"],
+      ["seitsmes", "seventh", "ADJECTIVE"],
+      ["kaheksas", "eighth", "ADJECTIVE"],
+      ["üheksas", "ninth", "ADJECTIVE"],
+      ["kümnes", "tenth", "ADJECTIVE"],
+      ["miljon", "million"],
+    ],
+  }),
+
+  unit({
+    id: "transport",
+    title: "Bussiga linna",
+    subtitle: "Getting about town",
+    icon: "Bus",
+    level: "A1",
+    module: "Maailm ümber",
+    canDo: "Catch a bus, ask which stop you want, and say how you got somewhere.",
+    blurb: "How you travel is the kaasaütlev and nothing else: bussiga, rongiga, jalgrattaga. Getting on and off are the inside cases, bussi and bussist, which is the same split Kus ja kuhu already taught about rooms.",
+    /*
+      The comitative leads because it is the one ending this whole subject
+      turns on and it is regular: the genitive stem plus -ga, on every word in
+      the unit. A learner who has met it here can say how they got anywhere.
+    */
+    grammar: ["comitative", "illative", "elative"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CONJUGATION", "CLOZE"],
+    requires: ["kus-ja-kuhu"],
+    words: [
+      // Ekilex A1, and the course had it at A2. You cannot answer "kuidas sa
+      // tulid?" without it.
+      ["sõitma", "to travel, to ride"],
+      ["tramm", "tram"],
+      // Also a creature out of Scandinavian folklore, which Ekilex holds as
+      // the second homonym.
+      ["troll", "trolleybus", "NOUN", 246753],
+      ["takso", "taxi"],
+      // The other entry is the state of being at a loss for what to do.
+      ["peatus", "stop (bus or tram)", "NOUN", 214917],
+      ["bussijaam", "bus station"],
+      ["lennujaam", "airport"],
+      ["sadam", "port, harbour"],
+      ["jalgratas", "bicycle"],
+      ["sõit", "a ride, a journey"],
+      ["väljuma", "to depart, to leave"],
+      ["sisenema", "to go in, to enter"],
+      ["väljapääs", "way out, exit"],
+      ["sõiduplaan", "timetable"],
+      ["hilinema", "to be late"],
+      ["ootama", "to wait"],
+      ["foor", "traffic light"],
+      ["kõnnitee", "pavement, sidewalk"],
+      ["jalgsi", "on foot", "ADVERB"],
+      ["ühistransport", "public transport"],
+    ],
+  }),
+
+  unit({
+    id: "abi",
+    title: "Abi küsimine",
+    subtitle: "Asking for help, and calling for it",
+    icon: "LifeBuoy",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Ask someone for help, say what has happened, and call the right number for it.",
+    blurb: "The unit nobody wants to need and everybody does. Appi is what you shout; abi is what you ask for. The emergency number in Estonia is 112, and it is answered in Estonian, Russian and English.",
+    /*
+      The imperative, because every sentence in this unit is one: aidake,
+      kutsuge, helistage. Politeness beside it, since the difference between
+      `aita` and `aidake` is the difference between a friend and a stranger,
+      and a learner who gets that wrong at a counter has not been rude by
+      accident, they have been taught wrong.
+    */
+    grammar: ["imperative", "politeness"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CONJUGATION", "CLOZE"],
+    requires: ["tervitused"],
+    words: [
+      // The second entry is the adjective for somebody who is a help to you.
+      ["abi", "help", "NOUN", 154673],
+      ["aitama", "to help"],
+      // Ekilex calls it adv/interj. It does not inflect, so it is harvested
+      // the way every other uninflecting word in this course is.
+      ["appi", "help! (calling for help)", "ADVERB"],
+      ["politsei", "police"],
+      ["kiirabi", "ambulance"],
+      ["tuletõrje", "fire brigade"],
+      ["hädaabi", "emergency aid"],
+      ["apteek", "pharmacy"],
+      // Not the intensifier, which Ekilex holds as a second entry.
+      ["tuli", "fire", "NOUN", 247938],
+      ["ohtlik", "dangerous", "ADJECTIVE"],
+      ["varas", "thief"],
+      ["eksima", "to get lost, to go wrong"],
+      ["helistama", "to call, to phone"],
+      ["vaja", "necessary, needed", "ADVERB"],
+    ],
+  }),
+
+  unit({
+    id: "tutvumine",
+    title: "Tutvumine",
+    subtitle: "Saying who you are",
+    icon: "Handshake",
+    level: "A1",
+    module: "Esimesed sammud",
+    canDo: "Introduce yourself, say where you live and what you do, and ask the same back.",
+    blurb: "The first conversation anybody has here, and the one that comes back every time you meet somebody new. Your name, your address, your work and one thing you like doing.",
+    grammar: ["nominative", "genitive"],
+    cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
+    requires: ["inimesed"],
+    words: [
+      ["eesnimi", "first name"],
+      ["perekonnanimi", "surname"],
+      // Ekilex A1, and the course met it first at A2. It is asked for at every
+      // counter, every doctor and every parcel machine.
+      ["aadress", "address"],
+      ["elukoht", "place of residence"],
+      ["sünnikoht", "place of birth"],
+      ["sünniaeg", "date of birth"],
+      ["tutvuma", "to get to know someone"],
+      ["tutvustama", "to introduce"],
+      ["tuttav", "acquaintance"],
+      ["kolleeg", "colleague"],
+      ["sõbranna", "a female friend"],
+      ["hobi", "hobby"],
+      ["huvi", "interest"],
+      ["meeldiv", "pleasant", "ADJECTIVE"],
+      ["abielus", "married", "ADVERB"],
+      ["vallaline", "unmarried, single", "ADJECTIVE"],
+    ],
+  }),
 ] as const;

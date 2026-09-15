@@ -16058,6 +16058,52 @@ check("the harvest tells a refusal from a miss and plans its write rather than t
   assert.match(guard, /export const MAX_DROP_SHARE = 0\.5;/, "the drop guard moved off half the file");
 });
 
+check("the audits ask their questions of every entry the seed writes", () => {
+  /*
+    `audit:questions` and `audit:sense` each opened `prisma/data/expanded.json`
+    under a comment calling it "what the seed loads". The seed loads that file
+    and `prisma/data/harvested.ts`, and 761 of the 1,514 course words are in no
+    expansion row, so half the course had never been asked whether its
+    questions are answerable. The day they were pointed at the whole
+    dictionary they reported 21 faults, every one of them a case round whose
+    own question word was the answer.
+
+    Reading the expansion is the shape that comes back, because it is one
+    import and it looks complete: the run prints a cheerful line over 5,363
+    entries and nothing says which 790 it did not see. So the check is on the
+    reader rather than on today's numbers.
+  */
+  for (const file of ["scripts/audit-questions.ts", "scripts/audit-sense.ts"]) {
+    const src = code(file);
+    assert.match(
+      src, /const entries = dictionaryRows\(\)/,
+      `${file} no longer builds its entries from the merged dictionary`,
+    );
+    assert.doesNotMatch(
+      src, /readExpanded/,
+      `${file} reads prisma/data/expanded.json again, which is half of what the seed writes`,
+    );
+  }
+
+  /*
+    And the merge is one, so the two audits and `measure:scenes` cannot
+    disagree about what shipped. `dictionaryRows` adds the one column the files
+    do not carry, which is the gradation the seed computes on the way past, and
+    it has to compute it the way the seed does: written with `null` instead, a
+    scratch run reported sixty-odd gradation faults the app does not have,
+    because the card builder breaks on `"NONE"` and `null` is not `"NONE"`.
+  */
+  const merge = code("scripts/lib/dictionary.ts");
+  assert.match(
+    merge, /export function dictionaryRows\(\)[\s\S]{0,1200}!gradates\(e\.pos\)/,
+    "dictionaryRows no longer computes gradation off the part of speech, as the seed does",
+  );
+  assert.match(
+    merge, /export function dictionaryRows\(\)[\s\S]{0,1600}semanticTypes: e\.semanticTypes/,
+    "dictionaryRows drops semanticTypes, so a case card asks a person which room they are inside",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
