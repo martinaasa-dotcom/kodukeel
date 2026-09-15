@@ -160,6 +160,23 @@ describe("what a step is built from", () => {
     expect(steps.some((s) => s.kind === "gap")).toBe(false);
   });
 
+  /*
+    NOTHING IS ASKED BEFORE IT IS TAUGHT, AND THE PLURAL IS NEVER TAUGHT AT
+    ALL. meetLane shows a word's lemma and gloss; no unit teaches how Estonian
+    forms a plural. A gap that hid `sõbrad` for a word just met as `sõber`
+    asked a form nothing in the lesson, or anywhere else in the course, had
+    shown.
+  */
+  it("never gaps a plural, even where the unit's own sentence carries one", () => {
+    const friend = noun("sõber", "friend", {
+      examples: ["Oleme ikka sõbrad edasi!"],
+      parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
+    });
+    const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, seed: 5 });
+    const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
+    for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
+  });
+
   it("offers real words as wrong answers, never invented ones", () => {
     const real = new Set([...WORDS, ...DISTRACTORS].flatMap((w) => [w.lemma, w.gloss]));
     for (const step of plan()) {

@@ -64,7 +64,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
       pos: true,
       provenance: true,
       examples: true,
-      forms: { select: { formType: true, value: true } },
+      forms: { select: { formType: true, value: true, morphCode: true } },
     },
   });
 

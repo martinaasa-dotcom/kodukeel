@@ -233,6 +233,29 @@ describe("generateCards — CLOZE", () => {
     expect(availableCardTypes(drinking)).toContain("CLOZE");
     expect(availableCardTypes({ ...drinking, examples: null })).not.toContain("CLOZE");
   });
+
+  /*
+    caseFromMorphCode READS SgKom AND PlKom ALIKE AS "COMITATIVE", "IGNORING
+    NUMBER" BY ITS OWN COMMENT, SO gapForms COULD NOT TELL A RETRIEVED PLURAL
+    FROM ITS SINGULAR. A CLOZE card built from `tubadega` (a real stored form:
+    see lib/dict/edit.itest.ts) would have gapped a plural nobody teaches the
+    formation of and filed it into Review.slot as though it were the singular
+    comitative beside it — the exact fault `readCase` exists to keep out of
+    CASE_FORM, two describe blocks down.
+  */
+  it("never gaps a retrieved plural, even where an attested sentence carries only one", () => {
+    const rooms = {
+      ...drinking, lemma: "tuba", translation: "room",
+      examples: JSON.stringify([{ et: "Nad said tubadega hakkama.", source: "EKILEX" }]),
+      forms: [
+        { formType: "NOM_SG", value: "tuba", morphCode: "SgN" },
+        { formType: "GEN_SG", value: "toa", morphCode: "SgG" },
+        { formType: "PART_SG", value: "tuba", morphCode: "SgP" },
+        { formType: "EKILEX:PlKom", value: "tubadega", morphCode: "PlKom" },
+      ],
+    };
+    expect(generateCards(rooms, ["CLOZE"])).toEqual([]);
+  });
 });
 
 describe("generateCards — CASE_FORM", () => {

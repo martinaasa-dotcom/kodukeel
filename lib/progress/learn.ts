@@ -184,54 +184,73 @@ function schedulingOf(card: LearnRow): LearnScheduling {
 
 /**
  * The sentence a word is taught with, and the gap made out of that same
- * sentence.
+ * sentence, in the very form the meet rung showed.
  *
- * One sentence for both rungs on purpose. A learner read `Ma joon kohvi` five
- * cards ago and is now asked to put `kohvi` back into it, which is the
- * strongest link this app can make between meeting a word and producing one,
- * and it costs nothing because the dictionary already chose the sentence.
- * Where that sentence cannot carry a gap, any other attested sentence for the
- * word is tried before giving up.
+ * One sentence for both rungs, and one form. A learner read `Ma joon kohvi`
+ * five cards ago and is now asked to put `kohvi` back into it, which is the
+ * strongest link this app can make between meeting a word and producing one.
+ *
+ * This used to fall back, when the taught sentence could not carry a gap, to
+ * *any other attested sentence for the word*, cut wherever any form the word
+ * takes turned up (`gapForms`'s whole catalog: every case, every person). A
+ * word met in its bare lemma could then be gapped from an unrelated sentence
+ * in a form nobody had shown: `sõber` taught as the lemma and asked back as
+ * `sõbrad`, the plural, which nothing on the meet screen or anywhere earlier
+ * in the ladder had taught. A gap that asks for a form the learner has not
+ * met is not the second rung of this word's ladder, it is a different word
+ * wearing this one's meaning.
+ *
+ * So the gap is cut from the taught sentence alone, in the taught form alone.
+ * Where that sentence cannot carry a gap (the word appears twice, say), the
+ * gap rung is skipped rather than reached for a form nobody has met: `gap:
+ * null` already falls back to asking the word from its meaning, which is the
+ * safe shape and not a new one.
  */
 function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
   const examples = usableExamples(parseExamples(lexeme.examples));
   const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
   const taught = teachingSentence(examples, [lexeme.lemma], opener);
-  const forms = [...gapForms({
-    lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms,
-  }).keys()];
   const word: WordRow = {
     id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
     pos: lexeme.pos, cefr: lexeme.cefr, government: null,
     forms: lexeme.forms, examples: [],
   };
 
-  const ordered = taught
-    ? [taught.example, ...examples.filter((e) => e !== taught.example)]
-    : examples;
+  /*
+    Which forms may ever be hidden is `gapForms`'s decision and nobody else's;
+    this only narrows *which one of them* the gap is allowed to be built out
+    of, to the one the meet rung already showed.
+  */
+  const hideable = gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms });
 
-  for (const example of ordered) {
-    const cloze = buildCloze(example.et, forms);
-    if (!cloze) continue;
-    /*
-      The translation is the prompt at the gap rung, and it may not be the
-      answer. Thirty entries in the dictionary are spelled the same in both
-      languages, so `Vaatasin filmi` under "I watched the film" is a question
-      about English spelling. Withheld rather than the gap dropped: the
-      sentence is still worth answering, it is simply harder without it.
-    */
-    const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
-    const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
-      .find((line) => !mentions(line, cloze.answer)) ?? null;
-    const explanation = cloze.answer.toLowerCase() === lexeme.lemma.toLowerCase()
-      ? null
-      : explainForm(word, cloze.answer);
-    return {
-      sentence: taught
-        ? { et: taught.example.et, en: taught.example.en ?? null, form: taught.form }
-        : { et: example.et, en: example.en ?? null, form: null },
-      gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue, explanation },
-    };
+  if (taught?.form && hideable.has(taught.form.trim().toLowerCase())) {
+    const example = taught.example;
+    const cloze = buildCloze(example.et, [taught.form]);
+    if (cloze) {
+      /*
+        The translation is the prompt at the gap rung, and it may not be the
+        answer. Thirty entries in the dictionary are spelled the same in both
+        languages, so `Vaatasin filmi` under "I watched the film" is a
+        question about English spelling. Withheld rather than the gap
+        dropped: the sentence is still worth answering, it is simply harder
+        without it.
+      */
+      const en = example.en && !mentions(example.en, cloze.answer) ? example.en : null;
+      const cue = [`${lexeme.lemma}, ${lexeme.translation}`, lexeme.translation]
+        .find((line) => !mentions(line, cloze.answer)) ?? null;
+      /*
+        Why the answer is not simply the lemma, said after the miss rather
+        than before the answer. Null where the gap wanted the lemma itself,
+        since there is nothing to explain.
+      */
+      const explanation = cloze.answer.toLowerCase() === lexeme.lemma.toLowerCase()
+        ? null
+        : explainForm(word, cloze.answer);
+      return {
+        sentence: { et: example.et, en: example.en ?? null, form: taught.form },
+        gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue, explanation },
+      };
+    }
   }
 
   return {
