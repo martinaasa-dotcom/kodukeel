@@ -8,6 +8,7 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
+import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceMatches, sentenceTiles } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
@@ -44,6 +45,7 @@ const PREVIEW_MS = 4500;
  *   Weaker, and honest about being a recall drill rather than a translation.
  */
 export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[] }) {
+  const uiText = useUiText();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
   // components/useResumeCard.ts.
@@ -321,7 +323,9 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           {checked && (
             <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
               <p className="label-xs">
-                {checked === "right" ? "Õige, exactly right." : "Not the order Estonian uses. It goes:"}
+                {checked === "right"
+                  ? <>{uiText("Õige,", "Correct,")} exactly right.</>
+                  : "Not the order Estonian uses. It goes:"}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>
