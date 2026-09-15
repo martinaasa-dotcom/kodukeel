@@ -198,8 +198,8 @@ export default async function SettingsPage() {
                 </p>
                 <VoicePanel current={voice} />
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                  Ten voices from the University of Tartu&rsquo;s speech synthesis. The state examination
-                  is read by more than one speaker, so it is worth changing this now and then.
+                  Ten voices to choose from. The state examination is read by more than one
+                  speaker, so it is worth changing this now and then.
                 </p>
               </div>
               <div>
@@ -269,9 +269,8 @@ export default async function SettingsPage() {
               </p>
               <GlossLanguagePanel current={glossLanguage} />
               <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                The Russian and Ukrainian come from Ekilex, written by the same lexicographers as
-                the Estonian. Where they recorded none, the entry says so by showing the English
-                on its own.
+                The Russian and Ukrainian come from the same dictionary source as the Estonian.
+                Where none was recorded, the entry says so by showing the English on its own.
               </p>
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
@@ -359,22 +358,21 @@ export default async function SettingsPage() {
                 The built-in dictionary has {words} words with checked principal parts, covering A1 up
                 into C1. Search a form of a word you met in class, <span lang="et">toas</span>,{" "}
                 <span lang="et">lugesin</span>, and it will find the word and tell you which form you
-                typed. Audio comes from the University of Tartu&rsquo;s Estonian speech service and
-                needs no key.
+                typed. Audio is built in and needs no key.
               </p>
               {ekilexOn ? (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Chip tone="good">Connected</Chip>
                   <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-                    Words beyond the built-in set come straight from Ekilex, at the Institute of the
-                    Estonian Language, and are saved here so the next lookup works offline too.
-                    Example sentences, dictation and the fuller mock exam all draw on this.
+                    Words beyond the built-in set are looked up live and saved here so the next
+                    lookup works offline too. Example sentences, dictation and the fuller mock exam
+                    all draw on this.
                   </p>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
-                    There is no Ekilex key set up here yet, so search stops at the {words}{" "}
+                    There is no live dictionary lookup set up here yet, so search stops at the {words}{" "}
                     built-in words: nothing outside that set can be looked up, and dictation, the
                     sentence builder and the mock exam&rsquo;s reading and listening parts stay thin or
                     empty, because the built-in set has almost no real example sentences.

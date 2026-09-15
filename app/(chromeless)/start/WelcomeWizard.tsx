@@ -457,8 +457,8 @@ export function WelcomeWizard({ starters, suggestedName, paper }: {
                 ))}
               </ChoiceGroup>
               <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                The English stays either way. The Russian and Ukrainian are Ekilex&rsquo;s own,
-                written by the same lexicographers as the Estonian.
+                The English stays either way. The Russian and Ukrainian are the dictionary&rsquo;s own,
+                written alongside the Estonian.
               </p>
             </div>
 

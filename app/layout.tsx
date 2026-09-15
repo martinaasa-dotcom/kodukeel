@@ -65,7 +65,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Kodukeel. Estonian that finally sticks",
     description:
-      "Practice that sticks, a conversation to rehearse, and one thing to say to a real person today. Real forms from Ekilex, never from a model.",
+      "Practice that sticks, a conversation to rehearse, and one thing to say to a real person today.",
     type: "website",
     siteName: "Kodukeel",
     /*

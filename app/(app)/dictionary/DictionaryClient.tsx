@@ -441,7 +441,7 @@ export function DictionaryClient({
               className="rounded-[var(--r)] px-4 py-3 text-sm font-medium"
               style={{ background: "var(--good-soft)", color: "var(--good-ink)" }}
             >
-              We got this from Ekilex and saved it. It works offline now too.
+              We found this word and saved it. It works offline now too.
             </p>
           )}
           {matchedAs && (

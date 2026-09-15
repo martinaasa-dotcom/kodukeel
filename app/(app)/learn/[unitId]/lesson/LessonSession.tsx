@@ -96,7 +96,7 @@ export function LessonSession({
       <Page title={unitTitle} lead="Nothing to teach here yet.">
         <Empty
           title="This unit has no words in the dictionary yet"
-          body="Its words show up once Ekilex is connected, or you can add them yourself."
+          body="Its words show up once dictionary lookups are turned on, or you can add them yourself."
           action={<ButtonLink href={`/learn/${unitId}`}>Back to the unit</ButtonLink>}
         />
       </Page>

@@ -153,8 +153,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
                 B · Täida lüngad. Fill the gaps
               </h2>
               <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
-                Put the word in brackets into the right form. Every sentence here is a real one,
-                recorded by the Institute of the Estonian Language.
+                Put the word in brackets into the right form. Every sentence here is a real one.
               </p>
               <ol className="flex flex-col gap-4">
                 {sheet.gaps.map((gap, i) => (
@@ -231,7 +230,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
           )}
 
           <p className="mt-10 text-2xs" style={{ color: "var(--ink-3)" }}>
-            Forms and sentences from Ekilex, Institute of the Estonian Language · CC BY 4.0.
+            Forms and sentences from the Institute of the Estonian Language, licensed CC BY 4.0.
             This worksheet was put together by Kodukeel. Nothing on it was written by software.
           </p>
 

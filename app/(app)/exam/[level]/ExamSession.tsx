@@ -633,8 +633,8 @@ function Brief({ paper, fillRate, resumable, onResume, onDiscard, onStart }: {
             The dictionary could only fill {fillRate} percent of this paper, so some tasks are
             shorter than a full paper. Each part is marked on what was actually set, not on what
             should have been there, and your result will explain the shortfall. Add more words to
-            your deck and this fills in over time. Running this yourself? Adding an Ekilex key
-            fills it in right away.
+            your deck and this fills in over time. Running this yourself? Turning on live
+            dictionary lookups fills it in right away.
           </Note>
         )}
       </div>

@@ -157,7 +157,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </h1>
         <p className="mx-auto mt-2 max-w-[44ch] text-base" style={{ color: "var(--ink-2)" }}>
           This exercise is all about what a word sounds like, so without audio there&rsquo;s nothing
-          to show you. It runs on TartuNLP and needs a connection.
+          to show you. It needs a connection to work.
         </p>
         <div className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>

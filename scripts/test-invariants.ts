@@ -9361,7 +9361,7 @@ check("the word of the day is one the learner has not met", () => {
   */
   const card = read("components/WordOfDay.tsx");
   assert.match(card, /SENTENCE_SOURCE/, "the word of the day prints a sentence with no provenance");
-  assert.match(card, /Ekilex/, "the sentence's provenance no longer names its source");
+  assert.match(card, /EKILEX:\s*"[^"]+"/, "the sentence's provenance no longer names its source");
 });
 
 check("Today's date is Estonian, tagged as Estonian, and has a way out", () => {
@@ -14374,10 +14374,10 @@ check("a word is introduced by one drawing", () => {
   for (const file of ["app/(app)/review/ReviewSession.tsx", "app/(app)/learn/new/LearnSession.tsx"]) {
     assert.match(code(file), /<WordIntro\b/, `${file} draws a first meeting of its own again`);
   }
-  const provenance = ALL.filter((f) => /A real sentence, from Ekilex/.test(read(f)));
+  const provenance = ALL.filter((f) => /Any underlined word opens its meaning\./.test(read(f)));
   assert.deepEqual(
     provenance, ["components/WordIntro.tsx"],
-    "more than one screen says where a teaching sentence came from",
+    "more than one screen says how to read a teaching sentence",
   );
 });
 
