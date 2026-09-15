@@ -1,6 +1,8 @@
 import { Check, Flag, MapPin } from "lucide-react";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import type { LadderProgress } from "@/lib/course";
+import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 
 /**
  * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
@@ -25,12 +27,22 @@ import type { LadderProgress } from "@/lib/course";
  * a bus stop, and a bar that animated on every load would be the third thing
  * moving on it.
  */
-export function LadderBar({ progress, partLabel }: {
+export function LadderBar({ progress, partLabel, learnerLevel }: {
   progress: LadderProgress;
   /** Which part of the ladder they are on, for the line under the bar. */
   partLabel?: string;
+  /**
+   * The learner's own level, so a stop's name reads in English until they
+   * reach A2, exactly as the rest of the course chrome does
+   * (`lib/copy/uiLanguage.ts`). `stop.title` itself only ever carries the
+   * Estonian name; the English one is looked up here rather than threaded
+   * through `LadderProgress`, which stays a fact about words known and
+   * carries no opinion about how it is read.
+   */
+  learnerLevel: Level;
 }) {
   const { milestones, pct, target, known, total, here, arrived } = progress;
+  const wantsEnglish = uiWantsEnglish(learnerLevel);
 
   return (
     <Card>
@@ -85,28 +97,44 @@ export function LadderBar({ progress, partLabel }: {
       */}
       <ol className="mt-5 flex flex-col gap-2">
         {milestones.map((stop) => (
-          <li key={stop.level} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <span
-              className="tnum w-7 shrink-0 text-sm font-bold"
-              style={{
-                color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
-              }}
-            >
-              {stop.level}
-            </span>
-            <span lang="et" className="text-sm font-semibold" style={{ color: "var(--ink)" }}>
-              {stop.title}
-            </span>
-            <span className="min-w-0 flex-1 truncate text-sm" style={{ color: "var(--ink-3)" }}>
+          <li key={stop.level} className="flex flex-col gap-1">
+            {/*
+              THE LEVEL NAME AND THE ARRIVAL SENTENCE STOP COMPETING FOR ROOM.
+              Both used to sit on one `flex-wrap` line, so on a phone the
+              unbreakable Estonian level name (font-semibold, no truncate) took
+              whatever width it wanted and the arrival sentence, the one thing
+              actually explaining "you are here", was squeezed into whatever
+              was left and clipped to a word or two. The sentence gets a line
+              of its own now, indented under the badge, and can wrap freely
+              instead of being truncated.
+            */}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span
+                className="tnum w-7 shrink-0 text-sm font-bold"
+                style={{
+                  color: stop.state === "ahead" ? "var(--ink-3)" : "var(--ink)",
+                }}
+              >
+                {stop.level}
+              </span>
+              <span
+                lang={wantsEnglish ? undefined : "et"}
+                className="min-w-0 text-sm font-semibold"
+                style={{ color: "var(--ink)" }}
+              >
+                {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
+              </span>
+              {stop.state === "passed" && <Chip tone="good">Done</Chip>}
+              {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
+              {stop.state === "ahead" && (
+                <span className="text-sm" style={{ color: "var(--ink-3)" }}>
+                  {stop.parts} parts
+                </span>
+              )}
+            </div>
+            <span className="pl-7 text-sm" style={{ color: "var(--ink-3)" }}>
               {stop.arrival}
             </span>
-            {stop.state === "passed" && <Chip tone="good">Done</Chip>}
-            {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}
-            {stop.state === "ahead" && (
-              <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                {stop.parts} parts
-              </span>
-            )}
           </li>
         ))}
       </ol>

@@ -9,10 +9,12 @@ import { ekilexConfigured } from "@/lib/ekilex/client";
 import { dailyGoalFrom, readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { letterBarFrom } from "@/lib/ux/letterBar";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
 import { StartProgramme } from "@/components/course/StartProgramme";
 
@@ -24,7 +26,7 @@ import { EkilexSetupGuide } from "./EkilexSetupGuide";
 import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
-import { ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
+import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
@@ -115,6 +117,7 @@ export default async function SettingsPage() {
       SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss,
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
+      SETTING_KEYS.caseQuestionGloss,
     ]),
     currentLearner(),
     goalsFor(ownerId),
@@ -162,6 +165,7 @@ export default async function SettingsPage() {
   const levelPace = paceFor(courseLevel);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const wordGloss = wordGlossFrom(settings[SETTING_KEYS.wordGloss]);
+  const caseGlossPref = caseGlossFrom(settings[SETTING_KEYS.caseQuestionGloss]);
   const todayOrder = todayOrderFrom(settings[SETTING_KEYS.todayOrder]);
   const roundPace = roundPaceFrom(settings[SETTING_KEYS.roundPace]);
   const roundPaceName =
@@ -316,8 +320,9 @@ export default async function SettingsPage() {
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {programme
-                  ? <>You are on {programme.title}. Today lends its first card to the module, and
-                      the module picks the words and the rounds for the evening.</>
+                  ? <>You are on {uiText(courseLevel, programme.title, programme.subtitle)}. Today lends its
+                      first card to the module, and the module picks the words and the rounds for the
+                      evening.</>
                   : <>{opening?.blurb ?? "The ladder stops at C1 and you are past it."}</>}
               </p>
               <div className="mt-4">
@@ -335,6 +340,27 @@ export default async function SettingsPage() {
             <SectionTitle hint={courseLevel}>Your level</SectionTitle>
             <Card>
               <LevelPanel current={courseLevel} measured={measuredIsCurrent} />
+            </Card>
+          </section>
+
+          <section id="case-questions">
+            <SectionTitle
+              hint={
+                caseGlossPref
+                  ? caseGlossPref === "on" ? "always shown" : "always hidden"
+                  : caseGlossDefaultFor(courseLevel) ? "shown at your level" : "hidden at your level"
+              }
+            >
+              English under a case question
+            </SectionTitle>
+            <Card>
+              <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                Every screen that asks <span lang="et">milles? kus?</span> keeps asking it in Estonian,
+                always. This only decides whether the English reading sits under it. It shows by
+                default through B1, while the fourteen forms are still new, and hides itself from B2
+                on, when a class expects you to know what they ask without it.
+              </p>
+              <CaseGlossPanel current={caseGlossPref} level={courseLevel} />
             </Card>
           </section>
 

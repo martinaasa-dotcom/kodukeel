@@ -7,6 +7,8 @@ import {
   programmeFor,
 } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
+import type { Level } from "@/lib/collections/syllabus";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { PROGRAMMES, dayById, holdAdvice, holdReason, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
@@ -74,7 +76,9 @@ export default async function CoursePage({
           {opening ? (
             <Card tone="accent">
               <SectionTitle hint={`${opening.id.toUpperCase()}, ${opening.days.length} evenings`}>
-                <span lang="et">{opening.title}</span>
+                <span lang={uiWantsEnglish(level) ? undefined : "et"}>
+                  {uiText(level, opening.title, opening.subtitle)}
+                </span>
               </SectionTitle>
               <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 {opening.blurb}
@@ -97,7 +101,7 @@ export default async function CoursePage({
             </Card>
           )}
 
-          <Ladder />
+          <Ladder learnerLevel={level} />
         </Stack>
       </Page>
     );
@@ -127,7 +131,7 @@ export default async function CoursePage({
     return (
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
-        title={`${programme.title} is finished`}
+        title={`${uiText(level, programme.title, programme.subtitle)} is finished`}
         lead={`All ${total} modules, and every word in them is in the schedule now.`}
       >
         <Stack>
@@ -207,7 +211,11 @@ export default async function CoursePage({
     const justDone = dayById(programme, programme.days[day.index - 2]?.id ?? "");
     return (
       <Page
-        eyebrow={<span lang="et">{programme.id.toUpperCase()} · {programme.title}</span>}
+        eyebrow={
+          <span lang={uiWantsEnglish(level) ? undefined : "et"}>
+            {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+          </span>
+        }
         title="Today's module is learned"
         lead={`${reading.daysDone} of ${total} done. That is the evening.`}
       >
@@ -218,8 +226,12 @@ export default async function CoursePage({
               <div className="min-w-0">
                 {justDone && (
                   <>
-                    <p className="text-lg font-semibold" lang="et" style={{ color: "var(--ink)" }}>
-                      {justDone.title}
+                    <p
+                      className="text-lg font-semibold"
+                      lang={uiWantsEnglish(level) ? undefined : "et"}
+                      style={{ color: "var(--ink)" }}
+                    >
+                      {uiText(level, justDone.title, justDone.subtitle)}
                     </p>
                     <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                       {justDone.canDo}
@@ -237,8 +249,10 @@ export default async function CoursePage({
                 */}
                 <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {justDone && justDone.unitId === day.unitId
-                    ? <>Tomorrow carries on with {day.title}, part {day.part.n} of {day.part.of}.</>
-                    : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
+                    ? <>Tomorrow carries on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
+                    : uiWantsEnglish(level)
+                      ? <>Come back tomorrow for {day.subtitle}.</>
+                      : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
                   {" "}Sleep is half of what makes today stick, so stopping here is the course
                   working rather than you giving up.
                 </p>
@@ -272,10 +286,14 @@ export default async function CoursePage({
 
   return (
     <Page
-      eyebrow={<span lang="et">{programme.id.toUpperCase()} · {programme.title}</span>}
-      title={day.title}
-      titleLang="et"
-      lead={day.subtitle}
+      eyebrow={
+        <span lang={uiWantsEnglish(level) ? undefined : "et"}>
+          {programme.id.toUpperCase()} · {uiText(level, programme.title, programme.subtitle)}
+        </span>
+      }
+      title={uiText(level, day.title, day.subtitle)}
+      titleLang={uiWantsEnglish(level) ? undefined : "et"}
+      lead={uiWantsEnglish(level) ? undefined : day.subtitle}
     >
       <Stack>
         <Card tone="accent">
@@ -307,7 +325,9 @@ export default async function CoursePage({
         </Card>
 
         <div>
-          <SectionTitle hint={unit ? unit.title : undefined}>Tonight&rsquo;s words</SectionTitle>
+          <SectionTitle hint={unit ? uiText(level, unit.title, unit.subtitle) : undefined}>
+            Tonight&rsquo;s words
+          </SectionTitle>
           {/*
             Printed rather than hidden, because seeing the eight at the start is
             what makes an evening feel finite. The Estonian alone: the meanings
@@ -358,33 +378,55 @@ export default async function CoursePage({
             {programme.days.map((d) => {
               const state = d.index < day.index ? "done" : d.index === day.index ? "now" : "ahead";
               return (
-                <li key={d.id} className="flex items-center gap-2 text-sm">
-                  <span
-                    aria-hidden
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
-                    style={{
-                      background: state === "done" ? "var(--good-soft)"
-                        : state === "now" ? "var(--accent-soft)" : "var(--raised)",
-                      color: state === "done" ? "var(--good-ink)"
-                        : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
-                    }}
-                  >
-                    {state === "done" ? <Check size={11} /> : d.index}
-                  </span>
-                  <span lang="et" style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}>
-                    {d.title}
-                  </span>
-                  <span className="truncate" style={{ color: "var(--ink-3)" }}>
-                    {d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
-                  </span>
-                  {state === "now" && <Chip tone="accent">Tonight</Chip>}
+                /*
+                  TWO LINES RATHER THAN ONE TRUNCATED CAPTION.
+
+                  The day's own name and its caption used to share a
+                  `flex items-center` row with no wrap, so a long subtitle
+                  (English ones run longer than the Estonian titles they
+                  stand in for at A1, e.g. "Asking for help, and calling
+                  for it") was cut short with an ellipsis, or, worse, sat
+                  hard against a name with none to spare. Neither is read
+                  in full, which is the one thing a 273-evening list has to
+                  get right. The caption gets its own line, indented under
+                  the badge, and wraps instead of clipping.
+                */
+                <li key={d.id} className="flex flex-col gap-0.5 text-sm">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      aria-hidden
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs"
+                      style={{
+                        background: state === "done" ? "var(--good-soft)"
+                          : state === "now" ? "var(--accent-soft)" : "var(--raised)",
+                        color: state === "done" ? "var(--good-ink)"
+                          : state === "now" ? "var(--accent-deep)" : "var(--ink-3)",
+                      }}
+                    >
+                      {state === "done" ? <Check size={11} /> : d.index}
+                    </span>
+                    <span
+                      lang={uiWantsEnglish(level) ? undefined : "et"}
+                      style={{ color: state === "ahead" ? "var(--ink-3)" : "var(--ink)" }}
+                    >
+                      {uiText(level, d.title, d.subtitle)}
+                    </span>
+                    {state === "now" && <Chip tone="accent">Tonight</Chip>}
+                  </div>
+                  {(uiWantsEnglish(level) ? d.part.of > 1 : true) && (
+                    <span className="pl-7 text-xs" style={{ color: "var(--ink-3)" }}>
+                      {uiWantsEnglish(level)
+                        ? `${d.part.n}/${d.part.of}`
+                        : d.part.of > 1 ? `${d.subtitle}, ${d.part.n}/${d.part.of}` : d.subtitle}
+                    </span>
+                  )}
                 </li>
               );
             })}
           </ol>
         </Card>
 
-        <Ladder here={programme.id} />
+        <Ladder here={programme.id} learnerLevel={level} />
 
         <p className="text-sm" style={{ color: "var(--ink-3)" }}>
           <BookOpen size={13} aria-hidden className="mr-1 inline align-[-2px]" />
@@ -410,17 +452,18 @@ export default async function CoursePage({
  * rather than listed flat, because five rows of "A1.1, A1.2" is the shape
  * somebody already has in their head from a language school.
  */
-function Ladder({ here }: { here?: string }) {
-  const levels = [...new Set(PROGRAMMES.map((p) => p.level))];
+function Ladder({ here, learnerLevel }: { here?: string; learnerLevel: Level }) {
+  const groupLevels = [...new Set(PROGRAMMES.map((p) => p.level))];
+  const wantsEnglish = uiWantsEnglish(learnerLevel);
   return (
     <Card>
       <SectionTitle hint={`${PROGRAMMES.length} parts`}>The whole ladder</SectionTitle>
       <div className="mt-3 flex flex-col gap-4">
-        {levels.map((level) => (
-          <div key={level}>
-            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{level}</p>
+        {groupLevels.map((groupLevel) => (
+          <div key={groupLevel}>
+            <p className="label-xs" style={{ color: "var(--ink-3)" }}>{groupLevel}</p>
             <ul className="mt-1.5 flex flex-col gap-1">
-              {PROGRAMMES.filter((p) => p.level === level).map((p) => (
+              {PROGRAMMES.filter((p) => p.level === groupLevel).map((p) => (
                 <li key={p.id} className="flex flex-wrap items-baseline gap-x-2 text-sm">
                   <span
                     className="tnum font-semibold"
@@ -428,7 +471,9 @@ function Ladder({ here }: { here?: string }) {
                   >
                     {p.id.toUpperCase()}
                   </span>
-                  <span lang="et" style={{ color: "var(--ink)" }}>{p.title}</span>
+                  <span lang={wantsEnglish ? undefined : "et"} style={{ color: "var(--ink)" }}>
+                    {uiText(learnerLevel, p.title, p.subtitle)}
+                  </span>
                   <span style={{ color: "var(--ink-3)" }}>
                     {p.days.length} evenings
                   </span>

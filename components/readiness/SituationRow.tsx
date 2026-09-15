@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { EVIDENCE_LABEL } from "@/lib/exam/readiness";
 import type { Reading } from "@/lib/readiness/rungs";
 import { nextStep } from "@/lib/readiness/narrative";
+import type { Level } from "@/lib/collections/syllabus";
+import { uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { RungChip } from "./Rung";
 
 /**
@@ -13,7 +15,7 @@ import { RungChip } from "./Rung";
  * its own is the number this screen exists to replace: "take part" on eleven
  * answers and on two hundred are two different sentences.
  */
-export function SituationRow({ reading }: { reading: Reading }) {
+export function SituationRow({ reading, learnerLevel }: { reading: Reading; learnerLevel: Level }) {
   const { situation, rung, evidence } = reading;
   const step = nextStep(reading);
   return (
@@ -33,7 +35,11 @@ export function SituationRow({ reading }: { reading: Reading }) {
           {situation.claim}
         </span>
         <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>
-          <span lang="et">{situation.title}</span> · {situation.subtitle}
+          {uiWantsEnglish(learnerLevel) ? (
+            situation.subtitle
+          ) : (
+            <><span lang="et">{situation.title}</span> · {situation.subtitle}</>
+          )}
           {situation.live && " · a live exchange"}
         </span>
         {step && (

@@ -6,6 +6,8 @@ import { requireUserId } from "@/lib/auth/session";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { readingFor, readinessPicture } from "@/lib/progress/readiness";
 import { situationById } from "@/lib/readiness/situations";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { Page } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { SituationDetail } from "@/components/readiness/SituationDetail";
@@ -13,7 +15,9 @@ import { SituationDetail } from "@/components/readiness/SituationDetail";
 export async function generateMetadata({ params }: { params: Promise<{ situationId: string }> }) {
   const { situationId } = await params;
   const situation = situationById(situationId);
-  return { title: situation ? situation.title : "Situation" };
+  if (!situation) return { title: "Situation" };
+  const placement = await courseLevelFor(await requireUserId());
+  return { title: uiText(placement, situation.title, situation.subtitle) };
 }
 
 export const dynamic = "force-dynamic";
@@ -50,7 +54,14 @@ export default async function SituationPage({ params }: { params: Promise<{ situ
 
   return (
     <Page
-      eyebrow={<><span lang="et">{situation.title}</span> · {situation.level}</>}
+      eyebrow={
+        <>
+          <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
+            {uiText(picture.level, situation.title, situation.subtitle)}
+          </span>{" "}
+          · {situation.level}
+        </>
+      }
       title={situation.claim}
       lead="Read off your own answers, and honest about what it cannot see."
       actions={

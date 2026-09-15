@@ -1,4 +1,7 @@
+"use client";
+
 import { questionInEnglish } from "@/lib/estonian/cases";
+import { useCaseGloss } from "@/components/CaseGloss";
 
 /**
  * A CASE QUESTION, AND WHAT IT IS ASKING.
@@ -20,6 +23,13 @@ import { questionInEnglish } from "@/lib/estonian/cases";
  * because that is the half somebody can act on the first time they meet the
  * word. A question with no reading prints the Estonian on its own, exactly as
  * the app did before this existed.
+ *
+ * THE ESTONIAN NEVER GOES AWAY, AND THE READING IS THE ONE HALF A LEARNER MAY
+ * TURN OFF. `useCaseGloss` is the shell's own answer, on by default through
+ * B1 and off from B2 (lib/estonian/caseGloss.ts), and a learner overrides
+ * either direction in Settings. Turning it off is never a reason to fall
+ * back to a Latin or English case *name*: that question stays closed, and
+ * this component still has no such reading to offer.
  */
 export function CaseQuestion({ question, className = "", inline = false }: {
   /** The Estonian question, one word or the case's whole name. */
@@ -31,8 +41,9 @@ export function CaseQuestion({ question, className = "", inline = false }: {
    */
   inline?: boolean;
 }) {
+  const wantsGloss = useCaseGloss();
   if (!question) return null;
-  const english = questionInEnglish(question);
+  const english = wantsGloss ? questionInEnglish(question) : null;
   if (!english) {
     return <span lang="et" className={className}>{question}</span>;
   }

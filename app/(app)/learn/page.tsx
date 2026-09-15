@@ -4,6 +4,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot, pathWithProgress } from "@/lib/progress/summary";
 import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import {
   CHECKPOINTS, LEVELS, LEVEL_INFO, isUnitOpen, nextUnit,
 } from "@/lib/collections/syllabus";
@@ -126,7 +127,7 @@ export default async function LearnPage() {
             variant="primary"
             className="w-full justify-center sm:w-auto"
           >
-            {startedIds.has(next.id) ? "Continue" : "Start"}: {next.title}
+            {startedIds.has(next.id) ? "Continue" : "Start"}: {uiText(placement, next.title, next.subtitle)}
           </ButtonLink>
         )}
       </div>
@@ -165,8 +166,12 @@ export default async function LearnPage() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-baseline gap-2">
-                    <span lang="et" className="text-lg font-bold" style={{ color: "var(--ink)" }}>
-                      {info.title}
+                    <span
+                      lang={uiWantsEnglish(placement) ? undefined : "et"}
+                      className="text-lg font-bold"
+                      style={{ color: "var(--ink)" }}
+                    >
+                      {uiText(placement, info.title, info.titleEn)}
                     </span>
                     {level === placement && <Chip tone="accent">You are here</Chip>}
                   </span>
@@ -231,18 +236,21 @@ export default async function LearnPage() {
                       <span className="min-w-0 flex-1">
                         <Link
                           href={`/learn/${u.unit.id}`}
-                          lang="et"
+                          lang={uiWantsEnglish(placement) ? undefined : "et"}
                           className="text-md font-bold hover:underline"
                           style={{ color: "var(--ink)" }}
                         >
-                          {u.unit.title}
+                          {uiText(placement, u.unit.title, u.unit.subtitle)}
                         </Link>
                         <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
                           {u.unit.canDo}
                         </span>
                         {locked && (
                           <span className="mt-1 block text-xs" style={{ color: "var(--ink-3)" }}>
-                            Builds on {u.unit.requires.map((id) => unitById(id)?.title ?? id).join(", ")}. You can still open it.
+                            Builds on {u.unit.requires.map((id) => {
+                              const required = unitById(id);
+                              return required ? uiText(placement, required.title, required.subtitle) : id;
+                            }).join(", ")}. You can still open it.
                           </span>
                         )}
                       </span>
@@ -267,8 +275,12 @@ export default async function LearnPage() {
                     style={{ borderColor: "var(--rule)" }}
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="text-md font-bold" style={{ color: "var(--ink)" }}>
-                        {checkpoint.title}
+                      <span
+                        lang={uiWantsEnglish(placement) ? undefined : "et"}
+                        className="text-md font-bold"
+                        style={{ color: "var(--ink)" }}
+                      >
+                        {uiText(placement, checkpoint.title, checkpoint.titleEn)}
                       </span>
                       <span className="block max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
                         {checkpoint.blurb} {checkpoint.questions} questions, {checkpoint.passMark}% to pass.

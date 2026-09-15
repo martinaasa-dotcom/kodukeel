@@ -2,7 +2,9 @@ import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { requireUserId } from "@/lib/auth/session";
 import { SCENES } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
-import { unitById } from "@/lib/collections/syllabus";
+import { unitById, type Level } from "@/lib/collections/syllabus";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Empty, Page, Stack } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
@@ -37,7 +39,10 @@ export const dynamic = "force-dynamic";
  */
 export default async function SituationsPage() {
   const ownerId = await requireUserId();
-  const history = await sceneHistoryFor(ownerId);
+  const [history, learnerLevel] = await Promise.all([
+    sceneHistoryFor(ownerId),
+    courseLevelFor(ownerId),
+  ]);
   const scenes = [...SCENES].sort((a, b) => a.title.localeCompare(b.title));
 
   return (
@@ -59,7 +64,9 @@ export default async function SituationsPage() {
           />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
-            {scenes.map((scene) => <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} />)}
+            {scenes.map((scene) => (
+              <SceneTile key={scene.id} scene={scene} history={history.get(scene.id)} learnerLevel={learnerLevel} />
+            ))}
           </ul>
         )}
 
@@ -101,7 +108,11 @@ export default async function SituationsPage() {
   );
 }
 
-function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history?: SceneHistory }) {
+function SceneTile({ scene, history, learnerLevel }: {
+  scene: (typeof SCENES)[number];
+  history?: SceneHistory;
+  learnerLevel: Level;
+}) {
   const unit = unitById(scene.tests);
   const objectives = scene.beats.filter((beat) => beat.required).length;
   const drills = practises(scene);
@@ -156,7 +167,7 @@ function SceneTile({ scene, history }: { scene: (typeof SCENES)[number]; history
           )}
           <p className="mt-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {objectives} things to get done · about {minutesFor(scene)} min
-            {unit ? ` · ${unit.title}` : ""}
+            {unit ? ` · ${uiText(learnerLevel, unit.title, unit.subtitle)}` : ""}
           </p>
           {/*
             How it went last time, derived from the runs and never counted

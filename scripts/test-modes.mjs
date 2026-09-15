@@ -113,7 +113,14 @@ async function answerCurrentCard() {
 
 // 1 — The learning path lists units and reports real progress
 await page.goto(`${B}/learn`, { waitUntil: "networkidle" });
-check("path shows units", (await page.getByText("Tervitused").count()) > 0);
+// The unit's own name shows in English until the learner reaches A2
+// (lib/copy/uiLanguage.ts), so a suite that does not know this account's
+// level checks for either name rather than assuming Estonian always shows.
+check(
+  "path shows units",
+  (await page.getByText("Tervitused").count()) > 0
+    || (await page.getByText("Putting words together").count()) > 0,
+);
 check("path reports overall progress", (await page.getByText(/words known/).count()) > 0);
 
 await page.goto(`${B}/learn/kodu`, { waitUntil: "networkidle" });

@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { unitById } from "@/lib/collections/syllabus";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { planLesson, splitIntoLessons, type LessonWord } from "@/lib/collections/lesson";
 import { starredAmong } from "@/lib/progress/stars";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
@@ -16,7 +18,9 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
   const unit = unitById(unitId);
-  return { title: unit ? `${unit.title} · lesson` : "Lesson" };
+  if (!unit) return { title: "Lesson" };
+  const placement = await courseLevelFor(await requireUserId());
+  return { title: `${uiText(placement, unit.title, unit.subtitle)} · lesson` };
 }
 
 export const dynamic = "force-dynamic";
@@ -158,12 +162,15 @@ export default async function LessonPage({
     pure planner and which words one learner has kept is not a fact about the
     lesson.
   */
-  const starred = await starredAmong(ownerId, chosen.map((w) => w.lexemeId));
+  const [starred, placement] = await Promise.all([
+    starredAmong(ownerId, chosen.map((w) => w.lexemeId)),
+    courseLevelFor(ownerId),
+  ]);
 
   return (
     <LessonSession
       unitId={unit.id}
-      unitTitle={unit.title}
+      unitTitle={uiText(placement, unit.title, unit.subtitle)}
       initialSteps={steps}
       starred={[...starred]}
       part={index + 1}

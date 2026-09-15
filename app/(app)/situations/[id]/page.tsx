@@ -4,6 +4,7 @@ import { sceneById } from "@/lib/scenes/catalogue";
 import { minutesFor } from "@/lib/scenes/run";
 import { unitById } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { SceneSession } from "@/components/scene/SceneSession";
 
 export const dynamic = "force-dynamic";
@@ -50,7 +51,7 @@ export default async function ScenePage({ params }: { params: Promise<{ id: stri
     <SceneSession
       scene={scene}
       minutes={minutesFor(scene)}
-      unit={unit ? { id: unit.id, title: unit.title } : null}
+      unit={unit ? { id: unit.id, title: uiText(learnerLevel, unit.title, unit.subtitle) } : null}
       learnerLevel={learnerLevel}
     />
   );

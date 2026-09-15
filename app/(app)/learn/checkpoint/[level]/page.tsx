@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
+import { courseLevelFor } from "@/lib/progress/level";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { LEVELS, checkpointFor, wordsAtLevel, type Level } from "@/lib/collections/syllabus";
 import { buildCheckpoint, type CheckpointWord } from "@/lib/collections/checkpoint";
 import { parseExamples } from "@/lib/dict/examples";
@@ -33,8 +35,9 @@ export default async function CheckpointPage({
   const level = raw.toUpperCase() as Level;
   if (!(LEVELS as readonly string[]).includes(level)) notFound();
 
-  await requireUserId();
+  const ownerId = await requireUserId();
   const checkpoint = checkpointFor(level);
+  const placement = await courseLevelFor(ownerId);
 
   const lemmas = wordsAtLevel(level).map((w) => w.lemma);
   const found = await prisma.lexeme.findMany({
@@ -64,7 +67,7 @@ export default async function CheckpointPage({
   return (
     <CheckpointSession
       level={level}
-      title={checkpoint.title}
+      title={uiText(placement, checkpoint.title, checkpoint.titleEn)}
       blurb={checkpoint.blurb}
       passMark={checkpoint.passMark}
       initialQuestions={questions}

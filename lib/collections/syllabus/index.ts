@@ -37,6 +37,12 @@ export const SYLLABUS: readonly SyllabusUnit[] = [...A1, ...A2, ...B1, ...B2, ..
 export interface LevelInfo {
   level: Level;
   title: string;
+  /**
+   * The same name in English, for a learner who has not reached A2 yet and so
+   * has not met the Estonian one (`lib/copy/uiLanguage.ts`). It is the CEFR
+   * descriptor's own English name, not a translation invented here.
+   */
+  titleEn: string;
   summary: string;
   /** The one sentence that describes arriving here. */
   arrival: string;
@@ -46,30 +52,35 @@ export const LEVEL_INFO: Record<Level, LevelInfo> = {
   A1: {
     level: "A1",
     title: "Esimesed sammud",
+    titleEn: "First steps",
     summary: "Survive a first conversation: greet, order, count, and say what you do.",
     arrival: "You can be understood in a shop, a café and a first introduction.",
   },
   A2: {
     level: "A2",
     title: "Igapäevane eesti keel",
+    titleEn: "Everyday Estonian",
     summary: "Handle daily life in the past as well as the present, and ask for things politely.",
     arrival: "You can hold a simple conversation about your day, your family and your plans.",
   },
   B1: {
     level: "B1",
     title: "Iseseisev keelekasutaja",
+    titleEn: "Independent user",
     summary: "Say why, not just what: the object, verb government, the conditional and participles.",
     arrival: "You can explain, disagree and deal with the unexpected without switching to English.",
   },
   B2: {
     level: "B2",
     title: "Kindel keelekasutaja",
+    titleEn: "Confident user",
     summary: "Change register at will, and read a newspaper without a dictionary open.",
     arrival: "You can follow a public debate and argue your side of it in writing.",
   },
   C1: {
     level: "C1",
     title: "Vilunud keelekasutaja",
+    titleEn: "Proficient user",
     summary: "Compress, subordinate, hedge and choose between near-synonyms.",
     arrival: "You can write academic and professional Estonian that reads as though written, not translated.",
   },
@@ -87,6 +98,8 @@ export interface Checkpoint {
   id: string;
   level: Level;
   title: string;
+  /** The same name in English, for the reason `LevelInfo.titleEn` gives. */
+  titleEn: string;
   blurb: string;
   /** Questions asked. Kept short: a checkpoint is a measurement, not a session. */
   questions: number;
@@ -98,6 +111,7 @@ export const CHECKPOINTS: readonly Checkpoint[] = LEVELS.map((level) => ({
   id: `checkpoint-${level.toLowerCase()}`,
   level,
   title: `${level} lõpueksam`,
+  titleEn: `${level} checkpoint`,
   blurb: `Everything ${level} asked of you, cold and in production. No multiple choice.`,
   questions: 20,
   // Deliberately not 100. A level is passed when it is reliable, not perfect,
