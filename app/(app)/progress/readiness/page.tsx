@@ -3,6 +3,7 @@ import { sceneTesting } from "@/lib/scenes/catalogue";
 import { ArrowLeft } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { LEVELS, LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { readinessPicture } from "@/lib/progress/readiness";
 import { ButtonLink } from "@/components/Button";
 import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
@@ -117,7 +118,10 @@ export default async function ReadinessPage() {
           return (
             <section key={level}>
               <SectionTitle hint={LEVEL_INFO[level].arrival}>
-                {level} · <span lang="et">{LEVEL_INFO[level].title}</span>
+                {level} ·{" "}
+                <span lang={uiWantsEnglish(picture.level) ? undefined : "et"}>
+                  {uiText(picture.level, LEVEL_INFO[level].title, LEVEL_INFO[level].titleEn)}
+                </span>
               </SectionTitle>
               <ul className="flex flex-col gap-3">
                 {rows.map((r) => (

@@ -1,6 +1,8 @@
 import { Check, Flag, MapPin } from "lucide-react";
 import { Card, Chip, SectionTitle } from "@/components/ui";
 import type { LadderProgress } from "@/lib/course";
+import { LEVEL_INFO, type Level } from "@/lib/collections/syllabus";
+import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 
 /**
  * THE CLIMB TO THE BAND SOMEBODY SAID THEY WERE AIMING AT.
@@ -25,12 +27,22 @@ import type { LadderProgress } from "@/lib/course";
  * a bus stop, and a bar that animated on every load would be the third thing
  * moving on it.
  */
-export function LadderBar({ progress, partLabel }: {
+export function LadderBar({ progress, partLabel, learnerLevel }: {
   progress: LadderProgress;
   /** Which part of the ladder they are on, for the line under the bar. */
   partLabel?: string;
+  /**
+   * The learner's own level, so a stop's name reads in English until they
+   * reach A2, exactly as the rest of the course chrome does
+   * (`lib/copy/uiLanguage.ts`). `stop.title` itself only ever carries the
+   * Estonian name; the English one is looked up here rather than threaded
+   * through `LadderProgress`, which stays a fact about words known and
+   * carries no opinion about how it is read.
+   */
+  learnerLevel: Level;
 }) {
   const { milestones, pct, target, known, total, here, arrived } = progress;
+  const wantsEnglish = uiWantsEnglish(learnerLevel);
 
   return (
     <Card>
@@ -105,8 +117,12 @@ export function LadderBar({ progress, partLabel }: {
               >
                 {stop.level}
               </span>
-              <span lang="et" className="min-w-0 text-sm font-semibold" style={{ color: "var(--ink)" }}>
-                {stop.title}
+              <span
+                lang={wantsEnglish ? undefined : "et"}
+                className="min-w-0 text-sm font-semibold"
+                style={{ color: "var(--ink)" }}
+              >
+                {uiText(learnerLevel, stop.title, LEVEL_INFO[stop.level].titleEn)}
               </span>
               {stop.state === "passed" && <Chip tone="good">Done</Chip>}
               {stop.state === "here" && <Chip tone="accent">{stop.pct}% through</Chip>}

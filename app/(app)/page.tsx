@@ -860,6 +860,7 @@ export default async function TodayPage() {
     <LadderBar
       progress={ladder}
       partLabel={programme && courseDay ? `${programme.id.toUpperCase()}, day ${courseDay.day.index}` : undefined}
+      learnerLevel={placement}
     />
   ) : null;
 
