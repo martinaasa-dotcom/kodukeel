@@ -150,6 +150,16 @@ export const SETTING_KEYS = {
    */
   wordGloss: "wordGloss",
   /**
+   * Whether the English reading of a case question (`in what? where?`) shows
+   * beside the Estonian one (`milles? kus?`).
+   *
+   * The Estonian question is never touched by this: it is the case's own
+   * name and stays on screen regardless. On by default through B1 and off
+   * from B2, and a stored value always wins over that default in either
+   * direction. See lib/estonian/caseGloss.ts.
+   */
+  caseQuestionGloss: "caseQuestionGloss",
+  /**
    * Whether this learner's reviews are counted in the anonymous statistics.
    *
    * `/api/research` turns the review log into accuracy per grammatical case,

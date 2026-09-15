@@ -2,10 +2,11 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { AlignLeft, BarChart3, EyeOff, Keyboard, PenLine, Underline } from "lucide-react";
+import { AlignLeft, BarChart3, Eye, EyeOff, Keyboard, PenLine, Underline, Wand2 } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import {
-  setClassDisplayName, setLetterBar, setResearchParticipation, setReviewMode, setWordGloss,
+  setCaseQuestionGloss, setClassDisplayName, setLetterBar, setResearchParticipation,
+  setReviewMode, setWordGloss,
 } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceGroup } from "@/components/Choice";
@@ -13,6 +14,8 @@ import { LetterSample } from "@/components/DiacriticBar";
 import type { ReviewMode } from "@/lib/settings/store";
 import { LETTER_BAR_CHOICES, type LetterBar } from "@/lib/ux/letterBar";
 import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
+import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGloss";
+import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
@@ -157,6 +160,64 @@ export function WordGlossPanel({ current }: { current: WordGloss }) {
           detail={o.detail}
         />
       ))}
+    </ChoiceGroup>
+  );
+}
+
+/**
+ * The English reading under a case question (`milles?` · `in what?`), forced
+ * on, forced off, or left to follow the level.
+ *
+ * `current` is `null` for "follow my level", never for "unset": Settings
+ * always has an opinion, it is just sometimes the level's own. The auto
+ * option's own detail names what that means right now, off `level`, so
+ * picking it says out loud what it is about to do rather than leaving
+ * somebody to guess whether they are turning the reading on or off.
+ */
+export function CaseGlossPanel({ current, level }: { current: CaseGlossPref | null; level: Level }) {
+  const [value, setValue] = useState<CaseGlossPref | "auto">(current ?? "auto");
+  const [pending, start] = useTransition();
+  const router = useRouter();
+
+  const pick = (next: CaseGlossPref | "auto") => {
+    setValue(next);
+    start(async () => {
+      await setCaseQuestionGloss(next === "auto" ? "" : next);
+      router.refresh();
+    });
+  };
+
+  const autoShows = caseGlossDefaultFor(level);
+
+  return (
+    <ChoiceGroup ariaLabel="English under a case question" className="grid gap-2 sm:grid-cols-3">
+      <ChoiceCard
+        layout="stacked"
+        disabled={pending}
+        selected={value === "auto"}
+        onSelect={() => pick("auto")}
+        icon={<Wand2 size={16} aria-hidden />}
+        title="Follow my level"
+        detail={autoShows ? `Shown, because ${level} still gets it.` : `Hidden, because ${level} has moved past it.`}
+      />
+      <ChoiceCard
+        layout="stacked"
+        disabled={pending}
+        selected={value === "on"}
+        onSelect={() => pick("on")}
+        icon={<Eye size={16} aria-hidden />}
+        title="Always show it"
+        detail="Every case question keeps its English reading, at every level."
+      />
+      <ChoiceCard
+        layout="stacked"
+        disabled={pending}
+        selected={value === "off"}
+        onSelect={() => pick("off")}
+        icon={<EyeOff size={16} aria-hidden />}
+        title="Never show it"
+        detail={<>Just <span lang="et">milles? kus?</span>, with nothing under it.</>}
+      />
     </ChoiceGroup>
   );
 }

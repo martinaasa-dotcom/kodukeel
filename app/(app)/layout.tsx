@@ -20,6 +20,8 @@ import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { paceFrom } from "@/lib/audio/pace";
 import { courseLevelFor } from "@/lib/progress/level";
 import { UiLanguageProvider } from "@/components/UiLanguage";
+import { CaseGlossProvider } from "@/components/CaseGloss";
+import { wantsCaseGloss } from "@/lib/estonian/caseGloss";
 
 // Not cached at build time: `configured` below is read from the environment,
 // and a notice baked in from the build machine's environment describes
@@ -76,12 +78,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         SETTING_KEYS.letterBar, SETTING_KEYS.timeZone,
         SETTING_KEYS.ttsVoice, SETTING_KEYS.autoplayAudio, SETTING_KEYS.feedbackSounds,
         SETTING_KEYS.hearing, SETTING_KEYS.support, SETTING_KEYS.speechPace,
+        SETTING_KEYS.caseQuestionGloss,
       ],
     ),
     courseLevelFor(ownerId),
   ]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const storedZone = settings[SETTING_KEYS.timeZone] ?? null;
+  const caseGloss = wantsCaseGloss(level, settings[SETTING_KEYS.caseQuestionGloss]);
   // How Estonian is read aloud, published once for every speaker button and
   // every round inside the shell. See components/AudioPrefs.tsx.
   const audio = {
@@ -94,6 +98,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   };
   return (
     <UiLanguageProvider level={level}>
+    <CaseGlossProvider on={caseGloss}>
     <AudioPrefsProvider value={audio}>
     <LetterBarScope value={letters} dismissible>
       <DeviceOwner owner={ownerDigest(ownerId)} />
@@ -151,6 +156,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <AnuFab configured={chain.length > 0} readerCanConfigure={!supabaseConfigured()} />
     </LetterBarScope>
     </AudioPrefsProvider>
+    </CaseGlossProvider>
     </UiLanguageProvider>
   );
 }

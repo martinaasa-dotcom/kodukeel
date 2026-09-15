@@ -47,6 +47,7 @@ import {
 } from "@/lib/settings/store";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
+import { caseGlossFrom } from "@/lib/estonian/caseGloss";
 import { autoplayFrom, feedbackSoundsFrom, voiceFrom } from "@/lib/audio/voice";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { SPEECH_PACES } from "@/lib/audio/pace";
@@ -1598,6 +1599,24 @@ export async function setWordGloss(value: WordGloss) {
   const ownerId = await requireUserId();
   const normalised = wordGlossFrom(value);
   await writeSetting(ownerId, SETTING_KEYS.wordGloss, normalised);
+  revalidatePath("/", "layout");
+  return { ok: true as const, value: normalised };
+}
+
+/**
+ * Whether a case question's English reading is forced on, forced off, or
+ * left to follow the learner's level.
+ *
+ * Revalidated at the layout, since the shell reads it once for every screen
+ * `CaseQuestion` renders on, exactly as `setLetterBar` and `setWordGloss` are.
+ * An empty string is a real, stored answer here rather than a missing one:
+ * it is "follow my level", and `caseGlossFrom` reads it as such the same way
+ * it reads a row that has never been written.
+ */
+export async function setCaseQuestionGloss(value: string) {
+  const ownerId = await requireUserId();
+  const normalised = caseGlossFrom(text(value)) ?? "";
+  await writeSetting(ownerId, SETTING_KEYS.caseQuestionGloss, normalised);
   revalidatePath("/", "layout");
   return { ok: true as const, value: normalised };
 }
