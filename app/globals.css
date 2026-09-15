@@ -24,11 +24,11 @@
     A reader does not see 0.5px; they see a page that will not settle.
 
     The steps are named for their job rather than their size, and the floor is
-    11.5px: below that an uppercase label stops being readable on a phone held
+    12px: below that an uppercase label stops being readable on a phone held
     at arm's length in the evening, which is when this app is actually used.
   */
-  --text-2xs: 11.5px;   /* micro-label: uppercase, tracked, sparingly */
-  --text-xs: 12.5px;    /* captions, meta, provenance */
+  --text-2xs: 12px;     /* micro-label: uppercase, tracked, sparingly */
+  --text-xs: 13px;      /* captions, meta, provenance */
   --text-sm: 13.5px;    /* secondary body, dense UI */
   --text-base: 15px;    /* body */
   --text-md: 17px;      /* lead paragraphs, card titles */

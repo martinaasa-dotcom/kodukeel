@@ -11,7 +11,7 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
-import { BLANK, sentenceMatches } from "@/lib/estonian/cloze";
+import { BLANK, sentenceMatches, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -406,12 +406,12 @@ function StepCard({
             Fill the gap. The word is <Et>{step.lemma}</Et> ({step.gloss}), in the form the sentence needs.
           </span>
           <p className="text-xl">
-            <Et>{step.text}</Et>
+            <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
-            placeholder={BLANK}
+            placeholder={sizedBlank(BLANK, step.answer)}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
           {!checked && (

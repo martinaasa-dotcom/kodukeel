@@ -290,7 +290,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
                 one time hearing it is worth more than reading it. */}
             <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
-          <p lang="et" className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+          <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
             {task.label}
           </p>
         </div>
@@ -442,7 +442,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         >
           {task.accepted.join(" / ")}
         </p>
-        <p lang="et" className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
           {task.label}
         </p>
       </div>
@@ -466,7 +466,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         {departureLine(task)}
       </p>
 
-      <p className="mt-3 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-3 text-[13px]" style={{ color: "var(--ink-3)" }}>
         <Link
           href={`/grammar/exceptions/${task.kind.toLowerCase()}`}
           className="font-semibold underline underline-offset-2"
@@ -476,7 +476,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         </Link>
       </p>
 
-      <MoreOnThis task={task} className="mt-1.5 text-[12.5px]" />
+      <MoreOnThis task={task} className="mt-1.5 text-[13px]" />
     </div>
   );
 }

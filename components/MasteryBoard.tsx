@@ -126,7 +126,7 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
         <span lang="et" className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
           {word.lemma}
         </span>
-        <span className="text-[12.5px]" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+        <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
       </div>
 
       <div className="mt-2.5">

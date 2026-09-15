@@ -1,5 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, buildCloze, isBuildable, naturalSentence, sentenceMatches, sentenceTiles, mentions } from "./cloze";
+import { BLANK, buildCloze, isBuildable, naturalSentence, sentenceMatches, sentenceTiles, sizedBlank, mentions } from "./cloze";
+
+describe("a blank sized to the answer it stands for", () => {
+  it("matches the answer's own length", () => {
+    expect(sizedBlank(`Jagasime õuna ${BLANK}.`, "neljaks")).toBe("Jagasime õuna _______.");
+    expect(sizedBlank(`Ta on ${BLANK}.`, "siin")).toBe("Ta on ____.");
+  });
+
+  it("sizes to the primary spelling where several are accepted", () => {
+    expect(sizedBlank(BLANK, "tuppa / toasse")).toBe("_____");
+  });
+
+  it("leaves text with no blank untouched", () => {
+    expect(sizedBlank("Ta on siin.", "siin")).toBe("Ta on siin.");
+  });
+
+  it("never collapses to nothing, even against an empty answer", () => {
+    expect(sizedBlank(BLANK, "")).toBe("_");
+  });
+});
 
 describe("a gap that leaves its own answer standing", () => {
   /*

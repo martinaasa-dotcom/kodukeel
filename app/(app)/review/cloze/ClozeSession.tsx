@@ -132,7 +132,7 @@ export function ClozeSession() {
             </Button>
           </div>
 
-          <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
           </p>
         </div>
@@ -221,7 +221,7 @@ export function ClozeSession() {
               className={`${checked ? VERDICT_CLASS[verdict] : ""} mx-1 inline-block min-w-[5ch] rounded px-2 text-center`}
               style={checked ? undefined : { background: "var(--raised)", color: "var(--ink-3)" }}
             >
-              {checked ? item.answer : "____"}
+              {checked ? item.answer : "_".repeat(Math.max(item.answer.length, 1))}
             </span>
             {after}
           </p>

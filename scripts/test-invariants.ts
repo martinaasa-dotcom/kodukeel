@@ -4170,7 +4170,7 @@ check("every type size in the tree is a step on the scale", () => {
   // contrast pass in test-design.mjs the same thing, and the next ornament that
   // earns its place gets its exception back here, named and argued for.
   const STEPS = new Set([
-    "11.5px", "12.5px", "13.5px", "15px", "17px", "19px",
+    "12px", "13px", "13.5px", "15px", "17px", "19px",
     "22px", "27px", "32px", "40px", "52px", "68px",
   ]);
 

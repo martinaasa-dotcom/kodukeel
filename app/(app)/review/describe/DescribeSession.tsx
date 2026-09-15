@@ -310,7 +310,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the case is checked. That check is the reliable half.
         </p>
       )}

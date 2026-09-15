@@ -19,7 +19,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
-import { BLANK } from "@/lib/estonian/cloze";
+import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
@@ -30,6 +30,7 @@ import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
+import { useUiText } from "@/components/UiLanguage";
 
 export interface ReviewCard {
   id: string;
@@ -421,6 +422,7 @@ export function ReviewSession({
   // Which card to reopen on if this mount is a resume after a dictionary
   // detour, rather than a fresh start. See `components/useResumeCard.ts`.
   const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
+  const uiText = useUiText();
   const [index, setIndex] = useState(initialIndex);
   const [revealed, setRevealed] = useState(false);
   const [typed, setTyped] = useState("");
@@ -870,12 +872,12 @@ export function ReviewSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {drillCase
-              ? <>Tubli töö. That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
+              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
               : drillUnit
-                ? <>Tubli töö. That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
+                ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
                 : drillScan
-                  ? <>Tubli töö. That&rsquo;s the whole page drilled. Its cards still follow their normal schedule.</>
-                  : <>Tubli töö. That&rsquo;s everything due right now.</>}
+                  ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the whole page drilled. Its cards still follow their normal schedule.</>
+                  : <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s everything due right now.</>}
           </p>
         </div>
 
@@ -990,7 +992,7 @@ export function ReviewSession({
               }
               style={{ color: "var(--ink)" }}
             >
-              {card.front}
+              {sizedBlank(card.front, card.back)}
             </p>
             {/* No audio on a gap-fill prompt: reading a sentence with a hole in
                 it aloud is not a thing, and the reveal below plays the whole
@@ -1046,7 +1048,7 @@ export function ReviewSession({
               <p
                 className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} rounded-md px-4 py-2.5 text-sm`}
               >
-                {verdict.verdict === "correct" ? "Õige!" : verdict.note}
+                {verdict.verdict === "correct" ? uiText("Õige!", "Correct!") : verdict.note}
               </p>
               {typed.trim() && verdict.verdict !== "correct" && (
                 <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -1082,7 +1084,7 @@ export function ReviewSession({
                 <div className="mt-4 text-left">
                   {retypeOk ? (
                     <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
-                      Õige! That is the one.
+                      {uiText("Õige!", "Correct!")} That is the one.
                     </p>
                   ) : (
                     <>
@@ -1269,7 +1271,7 @@ export function ReviewSession({
               Pick the meaning · keys 1 to {card.choices?.length ?? 4}
             </p>
           ) : ask === "choice" && chosen === card.back ? (
-            <p className="text-center text-sm font-semibold" style={{ color: "var(--good-ink)" }}>Õige!</p>
+            <p className="text-center text-sm font-semibold" style={{ color: "var(--good-ink)" }}>{uiText("Õige!", "Correct!")}</p>
           ) : ask === "choice" ? (
             /* Picked the wrong one. Nothing to grade: the right answer is on
                the screen and the card comes back later in this session. */

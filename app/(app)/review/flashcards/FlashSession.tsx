@@ -481,7 +481,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         >
           {task.shown.join(" / ")}
         </p>
-        <p className="mt-1 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
           <span lang="et" data-flash-slot="">{task.label}</span>
           {english && <> · the {english}</>}
         </p>
@@ -519,7 +519,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         </>
       )}
 
-      <p className="mt-4 text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
           ? "This form is the one the dictionary records."
           : "This form is worked out from the stem the dictionary records."}{" "}
@@ -553,7 +553,7 @@ function Standing({ task }: { task: FlashPrompt }) {
           short of the variety is the ordinary state of a word this round is
           about, and it is what the sentence has to say plainly.
         */}
-      <p className="mt-2 text-center text-[12.5px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-2 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{task.lemma}</span>:{" "}
         {correct >= needCorrect
           ? `right ${correct} times`

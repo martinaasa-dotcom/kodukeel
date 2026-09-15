@@ -13,6 +13,8 @@ import { outThereToday } from "@/lib/progress/outThere";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { nextUnit as pickNextUnit } from "@/lib/collections/syllabus";
 import { courseLevelFor } from "@/lib/progress/level";
+import type { Level } from "@/lib/collections/syllabus";
+import { uiText } from "@/lib/copy/uiLanguage";
 import { caseAccuracy } from "@/lib/stats/history";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { caseReviewsFor } from "@/lib/progress/cases";
@@ -760,7 +762,7 @@ export default async function TodayPage() {
           />
         )
       }
-      title={name ? `${greeting(clock, now)}, ${name}` : greeting(clock, now)}
+      title={name ? `${greeting(clock, now, placement)}, ${name}` : greeting(clock, now, placement)}
       lead={lead(stage, toReview, toLearn, pace?.cardsPerMinute ?? null)}
     >
       {/*
@@ -878,13 +880,16 @@ function weekdayLetter(day: string): string {
   the first Estonian somebody meets. `Tere` is what anybody says at an hour
   with no greeting of its own, it is the first phrase in the A1 unit, and it
   is right at every hour, which is what makes it the honest default here.
+
+  A LEARNER AT A1 HAS NOT MET ANY OF THAT YET, so `uiWantsEnglish` reads the
+  Estonian in English there instead, and hands it back the moment the course
+  says they have reached A2 (`lib/copy/uiLanguage.ts`).
 */
-function greeting(clock: DayClock, now: Date): string {
+function greeting(clock: DayClock, now: Date, level: Level): string {
   const h = clock.hourOf(now);
-  if (h < 5) return "Tere";
-  if (h < 11) return "Tere hommikust";
-  if (h < 18) return "Tere päevast";
-  return "Tere õhtust";
+  const et = h < 5 ? "Tere" : h < 11 ? "Tere hommikust" : h < 18 ? "Tere päevast" : "Tere õhtust";
+  const en = h < 5 ? "Hello" : h < 11 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  return uiText(level, et, en);
 }
 
 /** A `Task` row in the shape `TaskRow` can hold, which is a client component. */
