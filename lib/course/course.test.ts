@@ -285,6 +285,21 @@ describe("what a day reads and where it goes", () => {
       expect(derived, day.id).toEqual([MEET_STEP, REVIEW_STEP]);
     }
   });
+
+  /*
+    AND EVERY DAY HAS SOMETHING THE LOG CANNOT PROVE, which the reading leans
+    on twice. It is what makes a tick the pointer, since a day nobody ticked
+    anything on is a day nobody started; and it is why the reading asks the log
+    about two days and never three, because the day after the one it advances
+    to has no ticks and so can never complete unasked. A day of nothing but a
+    meet and a review would finish itself the moment its words were met
+    somewhere else and walk the learner through the programme.
+  */
+  it("gives every evening a step only the learner can say they did", () => {
+    for (const { day } of DAYS) {
+      expect(day.steps.some((s) => !s.derived), day.id).toBe(true);
+    }
+  });
 });
 
 describe("the ladder", () => {

@@ -64,6 +64,7 @@ import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/d
 import {
   DEFAULT_PROGRAMME, PROGRAMMES, dayById, programmeById,
 } from "@/lib/course";
+import { dayIsInPlay } from "@/lib/progress/course";
 
 /**
  * The part of the ladder a level starts on, for first run.
@@ -3114,15 +3115,32 @@ export async function restoreBackup(json: string, mode: "merge" | "replace") {
         Steps of a planned course day. Created and never updated, like every
         other append-only row here: a restore puts back what a backup held and
         may not rewrite what this deployment already has.
+
+        ON THE KEY THAT CAN ACTUALLY COLLIDE, which is the one the model
+        declares rather than the row's id. `CourseStep` is unique on the owner,
+        the part, the day and the step, so a backup carrying somebody else's
+        tick of a day this account has already done is a row with a new id and
+        a key that is taken: checking the id alone lets it through to an insert
+        that aborts the whole two-minute transaction, and a restore is
+        all-or-nothing. `StarredWord` and `Achievement` are the same shape two
+        loops down and already did it this way.
       */
       for (const raw of backup.courseSteps ?? []) {
         const data = revive(raw, ["createdAt"]);
-        data.ownerId = ownerId;
-        const exists = await tx.courseStep.findUnique({
-          where: { id: String(data.id) }, select: { id: true },
+        const programmeId = String(data.programmeId ?? "");
+        const dayId = String(data.dayId ?? "");
+        const stepId = String(data.stepId ?? "");
+        if (!programmeId || !dayId || !stepId) continue;
+        await tx.courseStep.upsert({
+          where: {
+            ownerId_programmeId_dayId_stepId: { ownerId, programmeId, dayId, stepId },
+          },
+          create: {
+            ownerId, programmeId, dayId, stepId,
+            ...(data.createdAt ? { createdAt: data.createdAt as Date } : {}),
+          },
+          update: {},
         });
-        if (exists) continue;
-        await tx.courseStep.create({ data: data as never });
       }
 
       for (const raw of backup.stars ?? []) {
@@ -3252,6 +3270,12 @@ export async function startCourseDay(programmeId: string, dayId: string) {
   if (!programme || !day) {
     return { ok: false as const, error: "That day is not part of the course." };
   }
+  /* AND IT HAS TO BE THE DAY THEY ARE STANDING ON. The id is JSON off the wire
+     whatever the type says, and this one builds a deck out of the day's words:
+     without the check a forged call fills somebody's deck from C1.3. */
+  if (!await dayIsInPlay(ownerId, programme, day)) {
+    return { ok: false as const, error: "That module is further along than you are." };
+  }
 
   const result = await addPlanToDeck(ownerId, planLemmas(day.words, COURSE_DAY_CARDS), "COURSE");
   revalidatePath("/course");
@@ -3288,6 +3312,12 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
   }
   if (step.derived) {
     return { ok: false as const, error: "That one is read off your own answers." };
+  }
+  /* A tick is the pointer: `dayReached` is the furthest day carrying one, so a
+     forged tick on a day nobody has reached would move the course onto it and
+     skip every evening in between. */
+  if (!await dayIsInPlay(ownerId, programme, day)) {
+    return { ok: false as const, error: "That module is further along than you are." };
   }
 
   await prisma.courseStep.upsert({

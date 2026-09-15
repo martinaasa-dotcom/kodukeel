@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Check, Lock } from "lucide-react";
 import { markCourseStep, startCourseDay } from "@/app/actions";
@@ -49,9 +49,40 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
   const finished = (id: string) => ticked.includes(id);
   const next = steps.find((s) => !finished(s.id)) ?? null;
 
+  /*
+    A TICK HANDS ITS FOCUS ON RATHER THAN DROPPING IT.
+
+    "I did this" disables itself the moment it is pressed, and a browser moves
+    focus off a control it has just disabled: measured, `document.activeElement`
+    was the body afterwards, so a keyboard walked back to the top of the page
+    for every step of every evening. The step that opens is where the learner
+    was going, so that is where the caret goes.
+
+    Only after a press, never on arrival: this list is most of a phone screen
+    and focusing it on load would scroll the card that says what tonight is off
+    the top. `handOn` is set by the press and spent by the effect.
+  */
+  const handOn = useRef(false);
+  const openStep = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!handOn.current) return;
+    /* THE PRIMARY, NEVER THE FIRST CONTROL IN THE ROW. "I did this" comes
+       first, because this app puts the quiet button to the left of the loud
+       one, so focusing the first control would leave a keyboard one Enter away
+       from ticking a step nobody had done. */
+    openStep.current?.querySelector<HTMLElement>("[data-step-start] a,[data-step-start] button")?.focus();
+    /* AND AGAIN ONCE THE REFRESH HAS LANDED. The tick moves the list on its
+       own and then `router.refresh()` re-renders it from the server, which
+       drops the caret a second time: measured, focus was on the body three
+       seconds after a press that had just placed it correctly. So the press is
+       spent only when the transition is over. */
+    if (!pending) handOn.current = false;
+  }, [next?.id, pending]);
+
   const tick = (step: CourseStep) => {
     setTicked((was) => [...was, step.id]);
     setFailed(null);
+    handOn.current = true;
     start(async () => {
       const result = await markCourseStep(programmeId, dayId, step.id);
       if (!result.ok) {
@@ -120,7 +151,10 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                     </p>
                   )}
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div
+                    ref={isNext ? openStep : undefined}
+                    className="mt-3 flex flex-wrap items-center gap-2"
+                  >
                     {isDone ? (
                       <Chip tone="good">
                         {step.derived ? "Checked against your answers" : "Done"}
@@ -141,15 +175,24 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                             I did this
                           </Button>
                         )}
-                        {step.id === MEET_STEP ? (
-                          <Button variant="primary" onClick={() => open(step)} disabled={pending}>
-                            Start <ArrowRight size={15} aria-hidden />
-                          </Button>
-                        ) : (
-                          <ButtonLink href={step.href} variant="primary">
-                            Start <ArrowRight size={15} aria-hidden />
-                          </ButtonLink>
-                        )}
+                        {/*
+                          The marker is on a wrapper rather than on the control
+                          itself: `ButtonLink` takes a fixed prop list and drops
+                          anything else, so an attribute on it reaches no
+                          element and the caret quietly goes nowhere. Measured
+                          that way once.
+                        */}
+                        <span data-step-start className="contents">
+                          {step.id === MEET_STEP ? (
+                            <Button variant="primary" onClick={() => open(step)} disabled={pending}>
+                              Start <ArrowRight size={15} aria-hidden />
+                            </Button>
+                          ) : (
+                            <ButtonLink href={step.href} variant="primary">
+                              Start <ArrowRight size={15} aria-hidden />
+                            </ButtonLink>
+                          )}
+                        </span>
                       </>
                     ) : (
                       <span

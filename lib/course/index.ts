@@ -74,6 +74,37 @@ export function programmeUnits(programme: Programme): string[] {
 /** The unit a day names, resolved, or undefined where the id is wrong. */
 export const unitOf = (d: CourseDay) => unitById(d.unitId);
 
+/**
+ * THE DAY A PROGRAMME IS STANDING ON, BEFORE ANYTHING IS ASKED OF THE LOG.
+ *
+ * The furthest day carrying a tick, and day one where there are none. That is
+ * the whole pointer, and it is derived rather than stored (ADR-014): a tick is
+ * a row saying somebody was on that day's screen doing that day's work.
+ *
+ * IT USED TO BE RECOMPUTED FROM DAY ONE AND THAT CANNOT WORK, which is the
+ * fault this function exists for. Two of every day's steps are proved by the
+ * review log and are written nowhere, so by ticks alone *every* day is
+ * unfinished and the first unfinished one is day one, for ever. The reading
+ * then had to resolve the derived steps of every day it walked past, two
+ * queries each, on the screen somebody opens each morning, under a cap; past
+ * the cap the learner was held on whichever day the cap fell on.
+ *
+ * Walking past a day is what finishing it means, and this is that sentence
+ * written down: the days before the one reached are done, the one reached is
+ * the one to ask the log about, and the cost is the same on the first evening
+ * and the two hundredth.
+ *
+ * It is monotonic, which is what makes it safe: a tick is never deleted, so
+ * the day reached never moves backwards. `markCourseStep` is the other half,
+ * and refuses a tick for a day past this one, so the pointer can only ever be
+ * moved by finishing the day in front of it.
+ */
+export function dayReached(programme: Programme, ticked: ReadonlySet<string>): CourseDay {
+  let reached = programme.days[0]!;
+  for (const d of programme.days) if (ticked.has(d.id)) reached = d;
+  return reached;
+}
+
 /** How far through a day somebody is. */
 export interface DayStanding {
   day: CourseDay;

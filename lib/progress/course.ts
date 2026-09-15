@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { prisma } from "@/lib/db";
 import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -5,9 +7,9 @@ import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/sy
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import {
-  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, ladderProgress, ladderVerdict,
-  levelsTo, programmeById, programmeStanding, type CourseDay, type LadderProgress,
-  type LadderVerdict, type Programme, type ProgrammeStanding,
+  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayReached, ladderProgress,
+  ladderVerdict, levelsTo, programmeById, programmeStanding, type CourseDay,
+  type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
 
 /**
@@ -16,17 +18,19 @@ import {
  * `lib/course/` is the rule and holds no database; this is the half that asks
  * one, for the reason every pure layer in this app gives about itself.
  *
- * Which day somebody is on is the first day whose steps are not all finished,
- * and a step is finished in one of two ways. Two of them the review log
- * proves on its own and they are never written anywhere: meeting the day's
- * words leaves a mark on every one of their cards, and the closing review is
- * answers graded after the evening's last tick. The rest are ticked on the
- * course screen and land in `CourseStep`, append-only, one row, the unique key
- * making a second press a no-op rather than a second row.
+ * Which day somebody is on is the furthest one carrying a tick (`dayReached`),
+ * and a step is finished in one of two ways. Two of them the review log proves
+ * on its own and they are never written anywhere: meeting the day's words
+ * leaves a mark on every one of their cards, and the closing review is answers
+ * graded after that day's last tick. The rest are ticked on the course screen
+ * and land in `CourseStep`, append-only, one row, the unique key making a
+ * second press a no-op rather than a second row.
  *
- * The whole reading is three queries whatever the size of the programme, which
- * is the same rule `classRoster` states about itself: the per-day alternative
- * is a count each, and this runs on the screen somebody opens every morning.
+ * The whole reading is five queries whatever the size of the programme and
+ * whatever evening somebody is on, which is the same rule `classRoster` states
+ * about itself and is the thing the first version of this could not manage: it
+ * recomputed the day from the top of the programme and had to ask the log
+ * about every evening it walked past.
  */
 
 /**
@@ -42,13 +46,17 @@ import {
 export const CLOSING_REVIEW = 5;
 
 /**
- * How many days one render will resolve the derived steps of.
+ * How many days one render asks the review log about.
  *
- * Two queries each, and the loop stops as soon as a day does not finish, which
- * is nearly always the first. The cap is a bound on the worst case rather than
- * an expected count.
+ * Two, and it is a fact about the shape rather than a budget. `dayReached`
+ * names the day in play, so the first round is that day; resolving it can
+ * finish it, and then the day it advances to is asked about as well, because
+ * somebody who met tomorrow's words through Learn should not be shown tomorrow
+ * at nought percent. A third round cannot happen: the day after that has no
+ * ticks at all, and every day has at least one step the log cannot prove
+ * (`course.test.ts`), so it can never complete unasked.
  */
-const MAX_RESOLVE = 4;
+const MAX_RESOLVE = 2;
 
 /**
  * The programme a learner is following, or none.
@@ -101,16 +109,14 @@ interface Ticks {
   byDay: Map<string, Set<string>>;
   /**
    * When that day's most recent tick landed, which is when its closing round
-   * starts counting.
+   * starts counting. See `closingOpensAt`.
    *
    * PER DAY, AND THAT IS NOT A DETAIL. It was one timestamp for the whole
    * programme, the most recent tick anywhere, and the fault only shows up
    * across two evenings: finishing Monday's module and then ticking the first
    * round of Tuesday's moved the window forward, so Monday's closing round
    * counted nothing again, Monday stopped being finished, and the learner was
-   * sent back to a day they had done. Found by driving two evenings in a
-   * browser rather than by reading, because every unit test hands the reading
-   * one day.
+   * sent back to a day they had done.
    *
    * Per day it is also monotonic in the right direction: a day's window never
    * moves once its last step is ticked, so answers only ever accumulate and a
@@ -119,7 +125,15 @@ interface Ticks {
   lastAt: Map<string, Date>;
 }
 
-async function ticksFor(ownerId: string, programme: Programme): Promise<Ticks> {
+/**
+ * Every tick this learner has written for this programme.
+ *
+ * Memoised for the render, which is the rule this project already applies to
+ * the settings table and to `latestFor`: the course screen asks for the
+ * reading and then asks how far into the closing round the day is, and those
+ * were two identical reads of the same rows a few lines apart.
+ */
+const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ticks> => {
   const rows = await prisma.courseStep.findMany({
     where: { ownerId, programmeId: programme.id },
     select: { dayId: true, stepId: true, createdAt: true },
@@ -138,6 +152,58 @@ async function ticksFor(ownerId: string, programme: Programme): Promise<Ticks> {
     lastAt.set(row.dayId, row.createdAt);
   }
   return { byDay, lastAt };
+});
+
+/**
+ * WHERE A DAY'S CLOSING ROUND STARTS COUNTING: that day's own last tick, and
+ * nowhere at all until it has one.
+ *
+ * Whenever that tick was, which is the correction rather than a detail. The
+ * window used to open at the later of the tick and the learner's own midnight,
+ * which is the same window on the evening itself and a different one every
+ * morning after: a day finished at nine last night had its window moved to
+ * midnight, the five answers that finished it stopped counting, the day
+ * stopped being finished, and the learner was handed a module they had already
+ * done. Every test in the suite ran inside a single day and none of them could
+ * see it.
+ *
+ * And a day nobody has ticked anything on has not had an evening, so its
+ * closing round counts nothing rather than counting from midnight. Under the
+ * old floor, finishing one module and pressing "start the next one now" drew
+ * the next day with its closing round already satisfied by the round that had
+ * just finished the last one, which is one evening's answers closing two
+ * evenings. Nothing is lost by it: the closing round is the last step of a
+ * day, so by the time anybody reaches it the steps in front have been ticked.
+ */
+const closingOpensAt = (ticks: Ticks, dayId: string): Date | undefined =>
+  ticks.lastAt.get(dayId);
+
+/**
+ * THE DAY A `"use server"` EXPORT MAY WRITE ABOUT.
+ *
+ * Both course actions take a day id from their caller, which is JSON off the
+ * wire whatever the types say, and one of them builds a deck out of that day's
+ * words. Nothing checked it was the day the learner is standing on, so a
+ * forged call could tick a step two hundred evenings ahead or fill somebody's
+ * deck with C1 vocabulary.
+ *
+ * It matters more since `dayReached`: the pointer is the furthest day carrying
+ * a tick, so a tick on a day nobody has reached would move the whole course
+ * onto it and skip everything in between. That is the door this closes, and
+ * with it closed the pointer is monotonic by construction rather than by
+ * hoping the client behaves.
+ *
+ * A day already reached is allowed, which is what makes a second press of a
+ * button on a day that has just finished a no-op rather than an error.
+ */
+export async function dayIsInPlay(
+  ownerId: string, programme: Programme, day: CourseDay,
+): Promise<boolean> {
+  const ticks = await ticksFor(ownerId, programme);
+  const reached = dayReached(programme, new Set(ticks.byDay.keys()));
+  /* The day after the one reached is in play too: finishing an evening is what
+     opens the next, and nothing is ticked on it until somebody starts. */
+  return day.index <= reached.index + 1;
 }
 
 /**
@@ -171,6 +237,12 @@ async function gradedSince(ownerId: string, since: Date): Promise<number> {
   return prisma.review.count({ where: { ownerId, reviewedAt: { gte: since } } });
 }
 
+/** How far into a day's closing round the learner is. Nought before it opens. */
+async function closingGraded(ownerId: string, ticks: Ticks, dayId: string): Promise<number> {
+  const opened = closingOpensAt(ticks, dayId);
+  return opened ? gradedSince(ownerId, opened) : 0;
+}
+
 export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
@@ -191,76 +263,65 @@ export async function courseReading(
   const ticks = await ticksFor(ownerId, programme);
 
   /*
-    WHERE A DAY'S CLOSING ROUND OPENS: after that day's own last tick, falling
-    back to the start of the learner's own day where it has none. The fallback
-    is the generous one and it costs nothing real, because the closing round is
-    the last step of every day and reaching it means the rounds in front of it
-    were ticked.
+    THE DAY IN PLAY IS THE FURTHEST ONE CARRYING A TICK, AND EVERY DAY BEFORE
+    IT IS DONE. Walking past a day is what finishing it means, and `dayReached`
+    is that sentence written down; see its own header for the reading this
+    replaced and why that one could not survive a fortnight.
   */
-  const opensAt = (dayId: string) => {
-    const ticked = ticks.lastAt.get(dayId);
-    const midnight = clock.startOfDay(now);
-    return ticked && ticked > midnight ? ticked : midnight;
-  };
-
-  /*
-    THE TICKS DECIDE WHICH DAY IS CURRENT, AND ONLY THAT DAY'S TWO DERIVED
-    STEPS ARE WORTH A QUERY. Every day before it is finished by definition,
-    since walking past a day is what finishing it means, and resolving all
-    twelve would be two dozen queries on the screen somebody opens each
-    morning.
-  */
-  let done = ticks.byDay as ReadonlyMap<string, ReadonlySet<string>>;
+  const reached = dayReached(programme, new Set(ticks.byDay.keys()));
+  const done = new Map<string, ReadonlySet<string>>();
+  for (const d of programme.days) {
+    if (d.index < reached.index) done.set(d.id, new Set(d.steps.map((s) => s.id)));
+    else if (d.index === reached.index) done.set(d.id, ticks.byDay.get(d.id) ?? new Set<string>());
+  }
   let standing = programmeStanding(programme, done);
-  const first = standing.current?.day.id ?? null;
 
   /*
-    AND THE DAY IT ADVANCES TO IS RESOLVED TOO, WHICH IT WAS NOT.
+    AND THE TWO STEPS THE LOG PROVES ARE ASKED ABOUT, FOR THE DAY IN PLAY AND
+    FOR THE DAY IT ADVANCES TO.
 
-    Resolving a day can finish it, and the day after was then drawn with its
-    own two derived steps unknown: somebody who had met tomorrow's words
-    through Learn saw tomorrow at nought percent with "meet the words" waiting
-    for them. Found by driving it rather than by reading it, which is the only
-    way that one shows up, because every unit test hands the reading a day that
-    was already current.
-
-    Bounded rather than a while loop. Each round is two queries and a day can
-    only complete when its middle steps have been ticked, so in practice this
-    runs once and occasionally twice; the cap is what stops a pathological deck
-    from walking the whole programme on one render.
+    The second half of that was a fault found by driving two evenings rather
+    than by reading: resolving a day can finish it, and the day after was then
+    drawn with its own two derived steps unknown, so somebody who had met
+    tomorrow's words through Learn saw tomorrow at nought percent with "meet
+    the words" waiting for them.
   */
-  const resolved = new Set<string>();
+  let justFinished: string | null = null;
   for (let round = 0; round < MAX_RESOLVE; round += 1) {
     const day = standing.current?.day;
-    if (!day || resolved.has(day.id)) break;
-    resolved.add(day.id);
+    if (!day) break;
 
-    const ticked = ticks.byDay.get(day.id) ?? new Set<string>();
+    const ticked = done.get(day.id) ?? new Set<string>();
     const [met, graded] = await Promise.all([
       ticked.has(MEET_STEP) ? Promise.resolve(true) : metWords(ownerId, day.words),
-      ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : gradedSince(ownerId, opensAt(day.id)),
+      ticked.has(REVIEW_STEP) ? Promise.resolve(CLOSING_REVIEW) : closingGraded(ownerId, ticks, day.id),
     ]);
 
     const withDerived = new Set(ticked);
     if (met) withDerived.add(MEET_STEP);
     if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
-
-    done = new Map(done).set(day.id, withDerived);
+    done.set(day.id, withDerived);
     standing = programmeStanding(programme, done);
+
+    /* Still on it, so there is nothing further to ask about: the day after is
+       only worth a query once this one has actually finished. */
+    if (standing.current?.day.id === day.id) break;
+    /* And this render is what finished it, which is what "come back tomorrow"
+       is a claim about. The day it advances to is resolved as well and must
+       not overwrite that. */
+    justFinished = day.id;
   }
 
   /*
-    "Come back tomorrow" is a claim about when the day ended, and the only
-    thing that knows is the last tick. A day finished by the closing round
-    alone still has one, because the round before it was ticked, and a day
-    with no ticks at all cannot finish: every day has a step in the middle
-    that is not derived.
+    "Come back tomorrow" is a claim about a day that finished *today*, so it is
+    read off the day this render just settled rather than off the first day of
+    the programme, which is where it used to be read and which made the
+    sentence reachable on day one alone. A day finished by its closing round
+    alone still carries a tick, because the round before it was ticked, and a
+    day with no ticks cannot finish: every day has a step the log cannot prove.
   */
-  const lastFinished = first ? ticks.lastAt.get(first) : undefined;
-  const finishedToday = Boolean(
-    first && standing.current?.day.id !== first
-    && lastFinished && lastFinished >= clock.startOfDay(now),
-  );
+  const lastTick = justFinished ? ticks.lastAt.get(justFinished) : undefined;
+  const finishedToday = Boolean(lastTick && lastTick >= clock.startOfDay(now));
 
   return { ...standing, finishedToday };
 }
@@ -272,14 +333,11 @@ export async function courseReading(
  * it and the reading above is on Today.
  */
 export async function closingProgress(
-  ownerId: string, programme: Programme, dayId: string, clock: DayClock, now = new Date(),
+  ownerId: string, programme: Programme, dayId: string,
 ): Promise<{ graded: number; needed: number }> {
   const ticks = await ticksFor(ownerId, programme);
-  const ticked = ticks.lastAt.get(dayId);
-  const midnight = clock.startOfDay(now);
-  const opened = ticked && ticked > midnight ? ticked : midnight;
   return {
-    graded: Math.min(CLOSING_REVIEW, await gradedSince(ownerId, opened)),
+    graded: Math.min(CLOSING_REVIEW, await closingGraded(ownerId, ticks, dayId)),
     needed: CLOSING_REVIEW,
   };
 }

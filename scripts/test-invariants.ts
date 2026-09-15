@@ -15935,6 +15935,76 @@ check("the planned course derives its day and stores only the steps a log cannot
 });
 
 /*
+  THE DAY IN PLAY IS THE FURTHEST ONE CARRYING A TICK, AND THAT IS LOAD-BEARING
+  RATHER THAN A TIDY WAY TO WRITE IT.
+
+  Two of every day's steps are proved off the review log and written nowhere,
+  so by ticks alone *every* day of a programme is unfinished. The first version
+  of the reading walked from day one looking for the first unfinished day and
+  had to ask the log about each evening it passed, two queries apiece, under a
+  cap; past the cap the learner was held for ever on whichever evening the cap
+  fell on, and the reading got more expensive the further anybody got. Reading
+  the pointer off the ticks is constant and cannot stall.
+
+  It is monotonic only because `markCourseStep` refuses a tick for a day nobody
+  has reached: a tick is the pointer, so a forged day id would move the whole
+  course onto it and skip every evening in between, and `startCourseDay` would
+  build a deck out of that day's words. Both halves are asserted, because
+  either alone is the fault.
+*/
+check("the planned course reads its pointer off the ticks, and guards what may write one", () => {
+  const half = code("lib/progress/course.ts");
+  const reading = half.slice(half.indexOf("export async function courseReading"));
+  assert.match(
+    reading.slice(0, 2000), /dayReached\(programme,/,
+    "courseReading stopped reading the day off the ticks. Walking from day one asks the log about every evening behind the learner and stalls at the cap",
+  );
+
+  const rule = code("lib/course/index.ts");
+  assert.match(rule, /export function dayReached\(/, "dayReached is gone from the pure half");
+
+  const actions = code("app/actions.ts");
+  for (const name of ["startCourseDay", "markCourseStep"]) {
+    const body = actions.slice(actions.indexOf(`export async function ${name}(`));
+    assert.match(
+      body.slice(0, 2500), /dayIsInPlay\(ownerId, programme, day\)/,
+      `${name} takes a day id off the wire without asking whether the learner has reached it`,
+    );
+  }
+});
+
+/*
+  AND A DAY'S CLOSING ROUND COUNTS THE ANSWERS THAT CLOSED IT, WHENEVER THEY
+  WERE.
+
+  The window used to open at the later of the day's last tick and the learner's
+  own midnight, which is the same window on the evening itself and a different
+  one every morning after: a module finished at nine last night had its window
+  moved to midnight, the answers that closed it stopped counting, the day
+  stopped being finished, and the learner opened the app to the evening they
+  had already done. Every test in the suite ran inside one day, so nothing
+  caught it. The floor is the shape to watch for, and `courseReading` takes a
+  clock for one thing only, which is whether the day it just finished was
+  finished today.
+*/
+check("a finished module stays finished after midnight", () => {
+  const half = code("lib/progress/course.ts");
+  const window = half.slice(half.indexOf("const closingOpensAt"));
+  assert.match(
+    window.slice(0, 400), /ticks\.lastAt\.get\(dayId\);/,
+    "the closing round's window is no longer the day's own last tick",
+  );
+  assert.ok(
+    !/startOfDay/.test(window.slice(0, 400)),
+    "the closing round's window is floored at midnight again, which un-finishes last night's module every morning",
+  );
+  assert.equal(
+    (half.match(/clock\.startOfDay\(/g) ?? []).length, 1,
+    "something other than the finished-today reading is asking the clock where the learner's day starts",
+  );
+});
+
+/*
   A PLANNED DAY MAY NOT INTRODUCE A WORD, WHICH IS ADR-005 ARRIVING BY A NEW
   DOOR. Every lemma a day names is one its own unit teaches, and the unit is a
   request the Ekilex harvest either honors or reports. The test that actually

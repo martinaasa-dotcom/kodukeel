@@ -264,7 +264,7 @@ export default async function CoursePage({
   }
 
   const [closing, missing] = await Promise.all([
-    closingProgress(ownerId, programme, day.id, clock),
+    closingProgress(ownerId, programme, day.id),
     missingWords(ownerId, day),
   ]);
   const unit = unitOf(day);

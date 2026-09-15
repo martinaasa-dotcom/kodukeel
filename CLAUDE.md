@@ -3239,10 +3239,10 @@ start using them on people; pretending otherwise would be the false confidence t
 is built against.
 
 **Which day somebody is on is derived, and only the steps a log cannot prove are stored.** There is
-no day pointer and there is not going to be one: the day is the first whose steps are not all
-finished, worked out on each render (ADR-014). Two of every day's steps are proved by the review
+no day pointer column and there is not going to be one (ADR-014): the day in play is the furthest
+one carrying a tick, worked out on each render. Two of every day's steps are proved by the review
 log, meeting the words leaves a mark on every one of their cards and the closing round is answers
-graded after the evening's own ticks, and those are never written anywhere. The rest cannot be,
+graded after that day's own ticks, and those are never written anywhere. The rest cannot be,
 because a `Review` row carries no note of which mode wrote it and a round of Match and a flip of the
 same card are one row. Those are ticked by the learner, `CourseStep` is append-only with a unique
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
@@ -3255,8 +3255,37 @@ with its own two unknown, so somebody who had met tomorrow's words through Learn
 nought percent with "meet the words" waiting for them. And the closing round's window opened at the
 most recent tick anywhere in the programme, so ticking the first round of Tuesday's module moved it
 past Monday's answers, Monday stopped being finished, and the learner was sent back to a day they
-had done. The window is per day now, which is also monotonic in the right direction: a finished day
-stays finished. Both were made to fail on the real code before the fix landed.
+had done. Both were made to fail on the real code before the fix landed.
+
+**And the third fault was the pointer itself, which needed a night to pass before it could be
+seen.** The day was read as the first one whose steps are not all finished, walking from the top of
+the programme. By ticks alone *every* day is unfinished, since the two steps the log proves are
+written nowhere, so the reading had to ask the log about each evening it walked past, two queries
+apiece, under a cap: past the cap the learner was held for ever on whichever evening the cap fell
+on, and the reading got dearer the further anybody got. Underneath it the closing round's window
+was floored at the learner's own midnight, which is the same window on the evening itself and a
+different one every morning after, so a module finished at nine last night had the five answers
+that closed it stop counting at midnight, and the learner opened the app to the module they had
+already done. Every test in the suite ran inside a single day and none of them could see either.
+
+`dayReached` is the pointer now, the furthest day carrying a tick, which is "walking past a day is
+what finishing it means" written down: the days behind it are done, the day itself is the one to
+ask the log about, and the cost is the same on the first evening and the two hundredth. The window
+is that day's own last tick whenever it was, and **a day nobody has ticked anything on has not had
+an evening**, so its closing round counts nothing rather than counting from midnight; under the old
+floor, finishing one module and pressing "start the next one now" drew the next day with its closing
+round already satisfied by the round that had just closed the last one. And "come back tomorrow" is
+read off the day this render actually finished rather than off the first day of the programme,
+which is what made that sentence reachable on the first evening alone.
+
+**The pointer is monotonic because nothing may tick a day nobody has reached.** Both course actions
+take a day id from their caller, which is JSON off the wire whatever the type says, and neither
+checked it: a forged tick would have moved the whole course onto a day two hundred evenings ahead,
+and `startCourseDay` would have built a deck out of that day's words. `dayIsInPlay` is the guard on
+both, the day reached or the one it opens on to, and it is asserted. It leans in turn on every day
+having at least one step the log cannot prove, which `course.test.ts` checks over all 273 evenings:
+a day of nothing but a meet and a review would finish itself the moment its words were met
+somewhere else and walk the learner through the programme.
 
 **The words go in the deck on a press and never on a render.** `PrefetchLink` fetches a whole page
 once a pointer has settled on a link for 90ms, so a module screen that topped the deck up while
