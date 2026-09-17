@@ -78,7 +78,8 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { differentMeaning } from "@/lib/questions/distractors";
-import { LEVELS, type Level } from "./syllabus/types";
+import { type Level } from "./syllabus/types";
+import { maySortWords } from "./levels";
 import type { CardType } from "@/lib/srs/cards";
 
 export type StepKind =
@@ -283,17 +284,6 @@ export interface LessonInput {
   maxSteps?: number;
 }
 
-/**
- * The first band at which a learner is asked to put a sentence back in order.
- *
- * Ordering words is a question about syntax, and at A1 there is no syntax yet
- * to ask about: the first units teach words said alone, and the exercise
- * degenerates into shuffling tiles until the button goes green. It is also the
- * one exercise where every word of a sentence has to be handled rather than
- * read past, so it is the one that suffers most from an unfamiliar word in it.
- */
-export const BUILD_FROM: Level = "A2";
-
 /** What this lesson is allowed to ask, decided once from the unit. */
 interface LessonRules {
   /** Word ordering, which is `BUILD_FROM` and above. */
@@ -312,10 +302,12 @@ interface LessonRules {
 }
 
 function rulesFor(unit: LessonUnitInfo, taught: ReadonlySet<string> | null): LessonRules {
-  const beginner = LEVELS.indexOf(unit.level) < LEVELS.indexOf(BUILD_FROM);
+  const beginner = !maySortWords(unit.level);
   const declares = (type: CardType) => unit.cardTypes.includes(type);
   return {
-    mayBuild: !beginner && declares("CLOZE"),
+    // `BUILD_FROM` is `lib/collections/levels.ts`'s, because the Sentences
+    // round asks the same question of the same learner from Practice.
+    mayBuild: maySortWords(unit.level) && declares("CLOZE"),
     maySentence: declares("CLOZE"),
     /*
       The declaration is read at A1 alone for these two, and that asymmetry is

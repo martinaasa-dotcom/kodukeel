@@ -1,4 +1,4 @@
-import type { Level } from "./syllabus/types";
+import { LEVELS, type Level } from "./syllabus/types";
 
 /**
  * Which CEFR bands are worth putting in front of somebody at a given level.
@@ -125,6 +125,30 @@ export function challengeFirst<T>(
  * anything ranking a band has to know the whole ladder rather than the part
  * the syllabus uses.
  */
+/**
+ * The first band at which a learner is asked to put a sentence back in order.
+ *
+ * Ordering words is a question about syntax, and at A1 there is no syntax yet
+ * to ask about: the first units teach words said alone, and the exercise
+ * degenerates into shuffling tiles until the button goes green. It is also the
+ * one exercise where every word of a sentence has to be handled rather than
+ * read past, so it is the one an unfamiliar word costs most, and an attested
+ * usage is written to illustrate a headword rather than to be a beginner's
+ * first reading.
+ *
+ * It lives here rather than beside either of the two exercises that ask it,
+ * because there are two: the unit lesson's `build` step and the Sentences
+ * round. A constant in one of them is a constant the other disagrees with, and
+ * the round is the one a learner reaches from Practice with a deck of thirteen
+ * words in it.
+ */
+export const BUILD_FROM: Level = "A2";
+
+/** Whether a learner at this band is asked to order words at all. */
+export function maySortWords(level: Level): boolean {
+  return LEVELS.indexOf(level) >= LEVELS.indexOf(BUILD_FROM);
+}
+
 export const BAND_ORDER: readonly string[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 /**

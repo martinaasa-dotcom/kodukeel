@@ -3375,7 +3375,7 @@ six words never shown to anybody. It was reported by somebody using it. Measured
 course at one lesson a sitting, 152 of the 162 word-ordering steps at A1 and 188 of the 210
 gap-fills carried a word the course had not reached, and none of either does now.
 
-**Word ordering starts at `BUILD_FROM`, which is A2.** Ordering words is a question about syntax and
+**Word ordering starts at `BUILD_FROM`, which is A2, on both screens that ask it.** Ordering words is a question about syntax and
 the first units teach words said alone, so at A1 the exercise degenerates into shuffling tiles until
 the button goes green; it is also the one exercise where every word has to be handled rather than
 read past, so it is the one an unfamiliar word costs most. **And at A1 a sentence exercise is offered
@@ -3396,6 +3396,16 @@ gated, because meeting an unfamiliar word inside a sentence is how reading grows
 has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 gap-fills; what is
 left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
 can actually read.
+
+**Two screens put a sentence up as tiles and the rule has to reach both.** The lesson's `build` step
+is one; `/review/sentences`, titled "Sentences · Word order" on Practice, is the other, and it draws
+straight from the learner's own deck with no band in it at all, so taking the exercise out of the
+lesson left an A1 learner one press away from the same six tiles. `BUILD_FROM` and `maySortWords`
+live in `lib/collections/levels.ts` for that reason rather than beside either of them, both read it,
+and the pairing is asserted. The round answers before it queries, since there is nothing to draw from
+a deck for somebody it is not for, and **the empty state says which**: "no sentences to build yet"
+would send a beginner to the dictionary to fix something that is not broken, which is the rule about
+a failure never misnaming its cause.
 
 **And a lesson asks only what its unit says it teaches.** `cardTypes` is the unit author's own
 declaration and the flashcard builder has read it for as long as it has existed; the lesson planner

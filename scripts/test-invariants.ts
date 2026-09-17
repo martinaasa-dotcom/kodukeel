@@ -43,7 +43,7 @@ import { TOPIC_GROUPS } from "../lib/estonian/grammar";
 import { NAV_MOTION } from "../lib/ux/navMotion";
 import { DESTINATIONS } from "../lib/ux/nav";
 import { rungOf } from "../lib/learn/ladder";
-import { BUILD_FROM } from "../lib/collections/lesson";
+import { BUILD_FROM, maySortWords } from "../lib/collections/levels";
 import { LEVELS } from "../lib/collections/syllabus/types";
 import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
@@ -1337,6 +1337,25 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     LEVELS.indexOf(BUILD_FROM) > 0,
     "word ordering is offered at the first band of the course, where there is no syntax to order yet",
   );
+  assert.ok(!maySortWords("A1") && maySortWords(BUILD_FROM), "maySortWords stopped agreeing with BUILD_FROM");
+
+  /*
+    BOTH SURFACES ASK, AND THEY ASK THE SAME THING.
+
+    Two screens put a sentence up as tiles: the unit lesson's `build` step and
+    the Sentences round on Practice, which draws from the learner's own deck
+    and had no band in it at all, so removing the exercise from the lesson left
+    an A1 learner one press away from the same six tiles. A constant in one of
+    them is a constant the other disagrees with, so the rule lives in
+    `lib/collections/levels.ts` and both read it.
+  */
+  for (const file of ["lib/collections/lesson.ts", "app/(app)/review/sentences/page.tsx"]) {
+    assert.match(
+      code(file),
+      /maySortWords\(/,
+      `${file} puts a sentence up as tiles without asking which bands are asked to order words`,
+    );
+  }
 
   const lesson = code("lib/collections/lesson.ts");
 
