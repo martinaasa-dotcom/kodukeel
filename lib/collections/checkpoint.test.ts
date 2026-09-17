@@ -37,6 +37,49 @@ describe("buildCheckpoint", () => {
     expect(questions.length).toBe(5);
   });
 
+  /*
+    A CHECKPOINT IS A MEASUREMENT AND PASSING IT MOVES A LEVEL, so a question
+    nobody can get wrong is worse here than on a card. The screen prints "The
+    word is X (meaning), in the form the sentence needs" under the sentence,
+    which is the answer written out wherever the sentence wants the dictionary
+    form: `Maja on suur ja valge.` gapped for `Maja`. 616 of the 1,354 course
+    words that can carry a gap at all are in that state.
+  */
+  it("never gaps a form the cue above the box already spells", () => {
+    const flat = word("kindlasti", {
+      pos: "ADVERB", gloss: "definitely",
+      examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
+    });
+    // `maja` has only its own nominative sentence, `saun` is glossed "sauna"
+    // and the sentence wants `sauna`, so the meaning gives that one away.
+    const sauna = word("saun", {
+      gloss: "sauna", examples: ["Pärast sauna jõime teed."],
+      parts: { NOM_SG: "saun", GEN_SG: "sauna", PART_SG: "sauna" },
+    });
+    for (let seed = 1; seed <= 20; seed++) {
+      for (const q of buildCheckpoint([flat, sauna, ...WORDS], 20, seed)) {
+        if (q.kind !== "gap") continue;
+        const cue = `${q.lemma} ${q.gloss}`.toLowerCase();
+        expect(cue.split(/[^\p{L}]+/u), `${seed} ${q.lemma}`)
+          .not.toContain(q.answer.toLowerCase());
+      }
+    }
+  });
+
+  it("asks a word it cannot gap honestly rather than dropping it", () => {
+    // An adverb has one spelling, so it can never carry a gap whose answer is
+    // not its own lemma. It is still asked: the typed question shows the
+    // English and wants the Estonian, with nothing on screen to copy.
+    const flat = word("kindlasti", {
+      pos: "ADVERB", gloss: "definitely",
+      examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
+    });
+    const questions = buildCheckpoint([flat, ...WORDS], 20, 3);
+    const asked = questions.find((q) => q.lemma === "kindlasti");
+    expect(asked?.kind).toBe("type");
+    expect(asked?.answer).toBe("kindlasti");
+  });
+
   it("builds gap questions only from attested sentences", () => {
     const gaps = buildCheckpoint(WORDS, 12, 6).filter((q) => q.kind === "gap");
     for (const gap of gaps) {

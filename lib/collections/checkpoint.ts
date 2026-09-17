@@ -16,7 +16,7 @@
  *
  * Pure and framework-free, like the rest of lib/collections.
  */
-import { buildCloze } from "@/lib/estonian/cloze";
+import { buildCloze, mentions } from "@/lib/estonian/cloze";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
 import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
@@ -98,8 +98,7 @@ export function buildCheckpoint(
 
   for (const [i, word] of chosen.entries()) {
     if (gaps < wantGaps) {
-      const sentence = word.examples.find((s) => buildCloze(s, knownForms(word)));
-      const cloze = sentence ? buildCloze(sentence, knownForms(word)) : null;
+      const cloze = formGap(word);
       if (cloze) {
         gaps += 1;
         questions.push({
@@ -116,6 +115,39 @@ export function buildCheckpoint(
   }
 
   return questions;
+}
+
+/**
+ * A gap that wants a form this word does not spell like its own lemma.
+ *
+ * A CHECKPOINT IS A MEASUREMENT, AND THE SCREEN PRINTS THE WORD. It says
+ * "The word is X, in the form the sentence needs" under the sentence, which
+ * is right while the sentence wants an inflected form and is the answer
+ * written out the moment it wants the dictionary form. Taking the first
+ * sentence that clozes at all took the nominative on 616 of the 1,354 course
+ * words that can carry a gap, and passing this checkpoint moves the learner
+ * up a level: a question nobody can get wrong measures nothing, and here it
+ * measures nothing while counting toward a level (`lib/assessment/items.ts`
+ * makes the same argument about the placement check's own free marks).
+ *
+ * So a sentence wanting a real form is taken and every other sentence is
+ * passed over. A word left with none is not dropped: the loop below falls
+ * through to the typed question, which asks the same word from its English
+ * gloss and prints nothing the learner could copy. That is the shape this
+ * file already has for a word with no attested sentence at all, so nothing
+ * new is introduced and no word goes unasked.
+ */
+function formGap(word: CheckpointWord) {
+  const forms = knownForms(word);
+  // Exactly what the screen prints under the sentence, and the whole of it:
+  // the meaning hands an answer over as completely as the word does, which is
+  // `saun`, glossed "sauna", over a gap wanting `sauna`.
+  const cue = `${word.lemma} ${word.gloss}`;
+  for (const sentence of word.examples) {
+    const cloze = buildCloze(sentence, forms);
+    if (cloze && !mentions(cue, cloze.answer)) return cloze;
+  }
+  return null;
 }
 
 /** Whether a checkpoint was passed, as a whole-percent comparison. */
