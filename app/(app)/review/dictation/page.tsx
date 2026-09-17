@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { starredAmong } from "@/lib/progress/stars";
@@ -35,29 +37,36 @@ export default async function DictationPage() {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
 
-  const cards = await prisma.card.findMany({
-    /*
-      state: { not: 0 } is what makes "already studying" above true rather than
-      aspirational: a brand-new card is due at the moment it is created, so
-      `orderBy due asc` with no state filter put an unmet word's own sentence
-      at the front of the round, dictated cold. A card graded at least once, in
-      any mode, is what this round means by "already studying", the same rule
-      sprint, speaking, listening and Match already apply to their own pools.
-    */
-    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
-    orderBy: [{ due: "asc" }],
-    take: 300,
-    select: {
-      id: true,
-      cardType: true,
-      reps: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true } },
-    },
-  });
+  const [cards, reach] = await Promise.all([
+    prisma.card.findMany({
+      /*
+        state: { not: 0 } is what makes "already studying" above true rather than
+        aspirational: a brand-new card is due at the moment it is created, so
+        `orderBy due asc` with no state filter put an unmet word's own sentence
+        at the front of the round, dictated cold. A card graded at least once, in
+        any mode, is what this round means by "already studying", the same rule
+        sprint, speaking, listening and Match already apply to their own pools.
+      */
+      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      orderBy: [{ due: "asc" }],
+      take: 300,
+      select: {
+        id: true,
+        cardType: true,
+        reps: true,
+        lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
+      },
+    }),
+    // And how a beginner's word orders its own sentences, so a round draws
+    // the plainest one recorded rather than the shortest, asked beside the
+    // deck read because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   // One task per word, and one card per word to grade against.
   const byLexeme = new Map<string, {
     cardId: string; lexemeId: string; reps: number; lemma: string; pos: string; examples: string;
+    cefr: string | null;
   }>();
   for (const card of cards) {
     const lex = card.lexeme;
@@ -68,7 +77,7 @@ export default async function DictationPage() {
     if (!held || card.cardType === "CLOZE") {
       byLexeme.set(lex.id, {
         cardId: card.id, lexemeId: lex.id, reps: card.reps,
-        lemma: lex.lemma, pos: lex.pos, examples: lex.examples,
+        lemma: lex.lemma, pos: lex.pos, examples: lex.examples, cefr: lex.cefr,
       });
     }
   }
@@ -93,7 +102,7 @@ export default async function DictationPage() {
       dictionary form.
     */
     const opener = nominalOpener(entry.pos, [entry.lemma]);
-    for (const example of usableExamples(parseExamples(entry.examples))) {
+    for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
       const count = dictationWords(example.et).length;
       if (count < MIN_WORDS || count > MAX_WORDS) continue;

@@ -130,6 +130,33 @@ export const VERB_SLOTS: readonly string[] = [
 ];
 
 /**
+ * Whether an Ekilex morph code names a form that can head a clause on its own.
+ *
+ * A reader that wants to know "is this string a sentence" has to know which
+ * verb forms are finite, and the stored table is mostly the ones that are not:
+ * of the forms the harvest keeps on a verb, 322 are the past participle and 318
+ * the present participle, against 319 simple pasts and 321 polite imperatives.
+ * Counting a participle as a finite verb tells such a reader that `Laste
+ * joonistatud pildid.` is a sentence, which is the one shape it is looking for.
+ *
+ * Three moods can head a clause and they are the three this names: the
+ * indicative, the conditional and the imperative. A participle, an infinitive
+ * and a supine cannot, whatever else they are doing in the line.
+ *
+ * It fails closed, on the prefix rather than on a list of every code: a code
+ * nobody here has seen is not counted, so a slot added to `VERB_SLOTS` later
+ * has to be admitted deliberately rather than by arriving. That is the opposite
+ * of `lib/estonian/semantics.ts`, which writes its codes out in full, and the
+ * reason is that these are a closed grammatical scheme where the first three
+ * letters really are the mood, where `in_rahvas_keel` is a semantic type that
+ * is not a person at all.
+ */
+export function isFiniteVerbCode(code: string | null | undefined): boolean {
+  if (!code) return false;
+  return code.startsWith("Ind") || code.startsWith("Knd") || code.startsWith("Imp");
+}
+
+/**
  * The slots the rule cannot fill for this verb, so the dictionary has to.
  *
  * Asked of the rule itself rather than listed beside it, because a list of

@@ -13,6 +13,8 @@ import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
 import { nominalOpener } from "@/lib/estonian/cloze";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -56,6 +58,9 @@ export default async function LessonPage({
   const select = {
     id: true, lemma: true, translation: true, pos: true, provenance: true,
     examples: true, government: true,
+    // The band the word sits at, which decides whether its sentences are
+    // ranked for a beginner rather than by length. See lib/dict/plainness.ts.
+    cefr: true,
     // Which of the two sets of local cases the word takes, and whether it
     // answers `kes?` or `mis?`. See lib/estonian/caseQuestion.ts.
     semanticTypes: true,
@@ -89,12 +94,15 @@ export default async function LessonPage({
     which of them each question uses is the per-part seed's job, below.
   */
   const poolSeed = hash(unit.id);
-  const [rows, atLevel, settings, courseSpellings] = await Promise.all([
+  const [rows, atLevel, settings, reach, courseSpellings] = await Promise.all([
     prisma.lexeme.findMany({ where: { lemma: { in: [...unit.lemmas] } }, select }),
     prisma.lexeme.count({ where: { cefr: unit.level } }),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    // And how a beginner's word orders its own sentences, so the gap-fill is
+    // cut from the plainest rather than the shortest. See lib/dict/plainness.ts.
+    sentenceReach(),
     /*
       Every spelling of every course word, which is what stops an A1 lesson
       asking about a sentence the learner cannot read (rule 4 in
@@ -137,6 +145,7 @@ export default async function LessonPage({
     examples: teachableSentences(
       parseExamples(row.examples),
       nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
+      plainerFirst(row.cefr, reach),
     ).map((e) => e.et),
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { caseFits } from "@/lib/estonian/caseQuestion";
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseFromMorphCode, numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
@@ -78,6 +80,8 @@ interface Candidate {
   translation: string;
   /** Which of the two local sets the word takes. See lib/estonian/caseQuestion.ts. */
   semanticTypes: string | null;
+  /** The band the word sits at, for ranking its own sentences. See lib/dict/plainness.ts. */
+  cefr: string | null;
   examples: string;
   forms: { formType: string; value: string; morphCode: string | null }[];
 }
@@ -116,6 +120,9 @@ export async function caseExamplesFor(
     // Which of the two local sets this word takes, which is not in its
     // spelling: see lib/estonian/caseQuestion.ts.
     semanticTypes: true,
+    // The band, which decides whether this word's sentences are ranked for a
+    // beginner rather than by length. See lib/dict/plainness.ts.
+    cefr: true,
     examples: true,
     forms: { select: { formType: true, value: true, morphCode: true } },
   } as const;
@@ -164,12 +171,17 @@ export async function caseExamplesFor(
 
   // Topped up from the dictionary, easiest words first, so an empty deck still
   // gets a page worth reading on day one.
-  const rest: Candidate[] = await prisma.lexeme.findMany({
-    where: { pos: "NOUN", id: { notIn: owned.length ? owned : ["-"] } },
-    orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
-    take: CANDIDATES,
-    select,
-  });
+  const [rest, reach] = await Promise.all([
+    prisma.lexeme.findMany({
+      where: { pos: "NOUN", id: { notIn: owned.length ? owned : ["-"] } },
+      orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
+      take: CANDIDATES,
+      select,
+    }) as Promise<Candidate[]>,
+    // And how a beginner's word orders its own sentences, asked beside the
+    // top-up because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   /*
     A WORD ONLY ILLUSTRATES A CASE IT ACTUALLY TAKES. The illative page led
@@ -190,8 +202,8 @@ export async function caseExamplesFor(
   for (const key of keys) {
     const takes = fits(key);
     const built = [
-      ...mine.filter(takes).map((lex) => toExample(lex, key, true)),
-      ...rest.filter(takes).map((lex) => toExample(lex, key, false)),
+      ...mine.filter(takes).map((lex) => toExample(lex, key, true, reach)),
+      ...rest.filter(takes).map((lex) => toExample(lex, key, false, reach)),
     ].filter(isExample);
 
     // Deck words first, since a case is easier to believe in a word you are
@@ -207,7 +219,9 @@ function isExample(value: CaseExample | null): value is CaseExample {
   return value !== null;
 }
 
-function toExample(lex: Candidate, key: CaseKey, inDeck: boolean): CaseExample | null {
+function toExample(
+  lex: Candidate, key: CaseKey, inDeck: boolean, reach: PlainReach,
+): CaseExample | null {
   const genitive = lex.forms.find((f) => f.formType === "GEN_SG")?.value ?? null;
 
   /*
@@ -252,8 +266,11 @@ function toExample(lex: Candidate, key: CaseKey, inDeck: boolean): CaseExample |
   const alsoRight = principalType ? null : answer?.alsoRight ?? null;
   const examples = parseExamples(lex.examples);
   const second = alsoRight && alsoRight !== form ? alsoRight : null;
-  const lead = sentenceContaining(examples, form);
-  const found = lead ?? (second ? sentenceContaining(examples, second) : null);
+  // Plainest first where the word is a beginner's, so the reference shows the
+  // case in a sentence they can read. See lib/dict/plainness.ts.
+  const plainest = plainerFirst(lex.cefr, reach);
+  const lead = sentenceContaining(examples, form, plainest);
+  const found = lead ?? (second ? sentenceContaining(examples, second, plainest) : null);
 
   const shown = found ? (lead ? form : second) : null;
   const verdict = shown ? readCase(caseIndex(stems), shown) : null;

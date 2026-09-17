@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { isAround } from "@/lib/collections/levels";
@@ -121,14 +123,21 @@ export default async function ExceptionsRoundPage({
     longest column in the schema, and a fact cached for everybody may not carry
     either at that size.
   */
-  const full = await prisma.lexeme.findMany({
-    where: { id: { in: chosen.map((w) => w.lexemeId) } },
-    select: {
-      id: true, lemma: true, pos: true, examples: true,
-      forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { id: "asc" } },
-    },
-    orderBy: { id: "asc" },
-  });
+  const [full, reach] = await Promise.all([
+    prisma.lexeme.findMany({
+      where: { id: { in: chosen.map((w) => w.lexemeId) } },
+      select: {
+        id: true, lemma: true, pos: true, examples: true,
+        // The band, which decides whether this word's sentences are ranked for
+        // a beginner rather than by length. See lib/dict/plainness.ts.
+        cefr: true,
+        forms: { select: { formType: true, value: true, morphCode: true }, orderBy: { id: "asc" } },
+      },
+      orderBy: { id: "asc" },
+    }),
+    // Asked beside it, because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   const words: ExceptionWord[] = chosen.map((word) => {
     const lex = full.find((l) => l.id === word.lexemeId);
@@ -139,6 +148,7 @@ export default async function ExceptionsRoundPage({
       forms: lex.forms,
       sentences: naturalSentencesFor({
         lemma: lex.lemma, pos: lex.pos, examples: lex.examples, forms: lex.forms,
+        plainest: plainerFirst(lex.cefr, reach),
       }).map((e) => ({ et: e.et, en: e.en ?? null })),
     };
   });

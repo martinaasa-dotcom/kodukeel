@@ -1220,6 +1220,200 @@ check("a word borrows sentences under one rule, and every builder is handed them
   }
 });
 
+/**
+ * A BEGINNER'S WORD IS TAUGHT WITH THE PLAINEST SENTENCE RECORDED FOR IT, NOT
+ * THE SHORTEST.
+ *
+ * Ekilex records a usage to illustrate a word to somebody who already speaks
+ * Estonian, so shortest-first selects for the noun phrase and the idiom: `tere`
+ * was taught with `No tere, Juhan.` over `Tere, mina olen Katrin.` because the
+ * first is ten characters shorter, and `no` is a discourse particle this
+ * dictionary holds no entry for, spelled like the English word for the opposite
+ * of yes. `lib/dict/plainness.ts` is the ranking and this is the assertion that
+ * it is reached, because a rank nothing passes in is a rank that changes
+ * nothing and looks exactly like one that does.
+ *
+ * Every screen that leads a beginner with one of a word's sentences is on the
+ * list, for the reason the borrowed pool's own list exists one check up: a
+ * picker that is not handed the rank shows a different sentence from the one the
+ * audits count, and a card cut from it is a card no screen would have chosen.
+ */
+check("a beginner's word is taught with its plainest sentence, and every picker is handed the rank", () => {
+  const rule = code("lib/dict/plainness.ts");
+  assert.match(
+    rule,
+    /LEVELS\.indexOf\(PLAIN_UP_TO\)/,
+    "lib/dict/plainness.ts no longer stands down above the bands it is for, so every B1 and " +
+    "B2 card is cut from a different sentence than the one it was built with",
+  );
+  assert.match(
+    rule,
+    /derivedVerbForms/,
+    "plainReach builds a verb's persons itself rather than through lib/estonian/conjugate.ts, " +
+    "which is the one module allowed to join a person ending to a stem and the one that holds " +
+    "the exceptions",
+  );
+
+  /*
+    IT ORDERS AND NEVER FILTERS. A word whose only sentence is hard keeps it,
+    because "no example sentence for this one yet" on a word the dictionary has
+    a perfectly good sentence for is a worse screen than a hard example. The
+    seam is `usableExamples`, so the assertion is that the rank reaches its sort
+    and nothing else: a `filter` on it would be a word losing a sentence.
+  */
+  const examples = code("lib/dict/examples.ts");
+  assert.match(
+    examples,
+    /attested\.sort\(plainest \?\? byLength\)/,
+    "lib/dict/examples.ts no longer applies the caller's ranking, so every beginner's word is " +
+    "back on shortest-first",
+  );
+  assert.doesNotMatch(
+    examples,
+    /\.filter\([^)]*plainest/,
+    "lib/dict/examples.ts filters on the plainness rank, which takes a sentence away from a " +
+    "word rather than ordering the ones it has",
+  );
+
+  /*
+    And the two pure builders that take the rank as a field have to read it.
+    A page handing one in and a builder ignoring it passes every check that
+    only looks at the call site, which is how the worksheet came to be wired
+    and still printing its shortest sentence for a run.
+  */
+  assert.match(
+    code("lib/collections/worksheet.ts"),
+    /usableExamples\(\[\.\.\.word\.examples\], word\.plainest\)/,
+    "lib/collections/worksheet.ts no longer reads the rank it is handed, so a sheet printed " +
+    "for a class is cut from the shortest sentence rather than the plainest",
+  );
+
+  /*
+    EVERY FILE THAT PICKS ONE OF A WORD'S SENTENCES IS SWEPT, RATHER THAN LISTED.
+
+    This rule was a list of files and grew twice, because a list is a thing
+    somebody has to remember to extend. The first version wired the card
+    builders; reading every `usableExamples` caller found the worksheet, the
+    dictionary entry and the government drill; reading `teachingSentence` and
+    `sentenceContaining` found four more, one of them the daily path's own
+    first meeting, where `tere` was still introduced as `No tere, Juhan.` Each
+    of those was a sweep over one entry point with the others missing.
+
+    So the haystack is the filesystem: every file that opens the `examples`
+    column, which is the one thing they all do whatever function they pick
+    with. Selecting it is not enough on its own, because a file can be handed
+    the row and pick from it: `lib/progress/exam.ts` does exactly that and the
+    first version of this sweep could not see it. `parseExamples` is the one
+    door into the column, so both are the net. A file is honest if it reaches
+    the rank, or if it is exempt *with a written reason*, which is the shape
+    `lib/legal/exportCoverage.ts` takes and is what stops an exemption being a
+    way to make a check pass.
+  */
+  const EXEMPT: Record<string, string> = {
+    // These three mark. The mock exam rebuilds its paper from (level, seed,
+    // pool) in order to mark it, so reordering what it is built from changes
+    // which questions a candidate is asked.
+    "lib/progress/exam.ts": "builds a marked paper",
+    "lib/progress/assessment.ts": "builds a marked level check",
+    "app/(app)/learn/checkpoint/[level]/page.tsx": "builds a marked checkpoint",
+    // These ask what a word could support rather than choosing a sentence for
+    // it, so no order of theirs reaches a screen.
+    "app/(app)/practice/page.tsx": "counts what a round could ask, picks nothing",
+    "lib/progress/common.ts": "asks which card types a word supports, picks nothing",
+    // Storage and pools. What they write is re-ordered on every read by
+    // whoever reads it, so ranking here would be ranking twice.
+    "lib/dict/examples.ts": "is the seam the rank plugs into",
+    "lib/dict/facts.ts": "caches the pool and the reach themselves",
+    "lib/dict/lookup.ts": "writes back what Ekilex returned",
+    // `lib/dict/borrow.ts` and `lib/ekilex/mapper.ts` are deliberately absent:
+    // both take their sentences as a field rather than opening the column, so
+    // they are outside the net and an exemption for them would be one nobody
+    // reads. The staleness loop below is what said so.
+    "lib/suggestions/queue.ts": "shows a reviewer what a report is about",
+    "lib/suggestions/apply.ts": "removes a sentence a reviewer accepted, and picks none",
+    // A scene line is chosen against a beat rather than to teach a word, and
+    // it has a gate of its own: see lib/scenes/retrieval.ts.
+    "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
+  };
+
+  /* The pure builders, which take the rank as a field rather than reading it. */
+  const BY_FIELD = [
+    "lib/srs/cards.ts", "lib/collections/worksheet.ts", "lib/estonian/caseBuild.ts",
+  ];
+
+  const readsExamples = [...sourceFiles("app"), ...sourceFiles("lib")]
+    .filter((file) => !file.includes(".test.") && !file.includes(".itest."))
+    .filter((file) => /examples:\s*true|parseExamples\(/.test(code(file)));
+
+  const unhandled = readsExamples.filter(
+    (file) => !EXEMPT[file] && !BY_FIELD.includes(file)
+      && !/sentenceReach\(\)|plainReach\(|plainerFirst\(/.test(code(file)),
+  );
+  assert.deepEqual(
+    unhandled, [],
+    "these read a word's sentences and never reach the plainness rank, so they lead with the "
+    + "shortest rather than the one a beginner can read. Wire them, or add an entry to EXEMPT "
+    + "saying why no order of theirs reaches a screen",
+  );
+
+  for (const file of BY_FIELD) {
+    assert.match(
+      code(file),
+      /plainest/,
+      `${file} takes the rank as a field and no longer reads it, which passes every check that `
+      + "only looks at the call site",
+    );
+  }
+
+  /*
+    And an exemption may not rot: one naming a file that no longer reads the
+    column is an exemption nobody is reading, and the next file to need one
+    gets added beside it rather than thought about.
+  */
+  for (const file of Object.keys(EXEMPT)) {
+    assert.ok(
+      readsExamples.includes(file),
+      `${file} is exempt from the plainness rank and no longer reads a word's sentences at all. `
+      + "Drop the exemption.",
+    );
+  }
+
+  /*
+    AND THE INSTRUMENTS THAT MARK MAY NOT REACH IT AT ALL, which is stronger
+    than being exempt: an exemption says nobody wired it, this says wiring it
+    would be wrong.
+  */
+  for (const file of ["lib/exam/paper.ts", "lib/assessment/items.ts", "lib/progress/exam.ts", "lib/progress/assessment.ts"]) {
+    assert.doesNotMatch(
+      code(file),
+      /plainerFirst|sentenceReach|plainReach/,
+      `${file} ranks its sentences for a beginner, which changes what a candidate is asked `
+      + "and marked on; see lib/dict/plainness.ts",
+    );
+  }
+});
+
+/**
+ * AND THE LABEL PATTERN IS A NOUN'S RULE.
+ *
+ * A usage opening with its own headword and a comma is a dictionary naming
+ * itself and then illustrating, which is worth refusing on `Kahvel, lipp
+ * kukub!` and is ordinary speech everywhere else: `Tere, mina olen Katrin.`,
+ * `Aitäh, Mari!`, `Nõus, teeme nii.` The exemption was `VERB` alone, so an
+ * interjection, whose natural position *is* "word, then clause", was read as a
+ * nominal and lost the only sentence worth teaching it with.
+ */
+check("the label pattern refuses a noun naming itself and nothing else", () => {
+  const rule = code("lib/estonian/cloze.ts");
+  const opener = rule.slice(rule.indexOf("export function nominalOpener"));
+  assert.match(
+    opener,
+    /pos !== "NOUN"/,
+    "nominalOpener refuses the label pattern on a word class that is not a noun, so `Tere, " +
+    "mina olen Katrin.` is read as a dictionary labelling itself",
+  );
+});
+
 check("every generator that picks a case asks which ones the word takes", () => {
   const askers = [
     "lib/srs/cards.ts",
@@ -1440,10 +1634,17 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     several. Two arms, because either one alone passes on the broken shape: a
     meeting always falls back to the unfiltered examples, and the gap is built
     only where the sentence it shares is readable.
+
+    The arguments after `opener` are not part of the claim: `teachingSentence`
+    also takes the ranking that puts a beginner's plainest recorded sentence
+    first, and the two readings are ranked alike on purpose, so pinning the
+    call to three arguments would fire on honest code the day a fourth is
+    passed. What is asserted is the fallback itself, over the *unfiltered*
+    examples.
   */
   assert.match(
     learn,
-    /\?\?\s*teachingSentence\(examples, \[lexeme\.lemma\], opener\)/,
+    /\?\?\s*teachingSentence\(examples, \[lexeme\.lemma\], opener[^)]*\)/,
     "the ladder's meet rung stopped falling back to a sentence the rule would not gap",
   );
   assert.match(

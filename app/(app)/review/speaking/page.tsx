@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import { starredAmong } from "@/lib/progress/stars";
 import { SpeakingSession, type SpeakingCard } from "./SpeakingSession";
@@ -27,15 +29,22 @@ export default async function SpeakingPage() {
 
   const base = { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null } } as const;
   const include = {
-    lexeme: { select: { lemma: true, translation: true, examples: true } },
+    lexeme: { select: { lemma: true, translation: true, examples: true, cefr: true } },
   } as const;
 
-  const due = await prisma.card.findMany({
-    where: { ...base, due: { lte: now }, state: { not: 0 } },
-    orderBy: { due: "asc" },
-    take: ROUND,
-    include,
-  });
+  const [due, reach] = await Promise.all([
+    prisma.card.findMany({
+      where: { ...base, due: { lte: now }, state: { not: 0 } },
+      orderBy: { due: "asc" },
+      take: ROUND,
+      include,
+    }),
+    // How a beginner's word orders its own sentences, so this round says the
+    // plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
+    // Asked beside the deck read rather than in front of it: the two do not
+    // need each other, and a hosted database is a round trip away.
+    sentenceReach(),
+  ]);
 
   let pool = due;
   if (pool.length < ROUND) {
@@ -71,8 +80,9 @@ export default async function SpeakingPage() {
       `naturalSentence` is the gate the mock exam and the level check already
       put every sentence through.
     */
-    const translated = usableExamples(parseExamples(card.lexeme?.examples))
-      .find((e) => e.en && naturalSentence(e.et));
+    const translated = usableExamples(
+      parseExamples(card.lexeme?.examples), plainerFirst(card.lexeme?.cefr ?? null, reach),
+    ).find((e) => e.en && naturalSentence(e.et));
     if (translated?.en) {
       return { cardId: card.id, et: translated.et, prompt: translated.en, lemma, isSentence: true, ...kept };
     }

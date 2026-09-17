@@ -4,7 +4,9 @@ import { bandsAround } from "@/lib/collections/levels";
 import { SCENES, SCENE_LEMMAS, sceneLevel } from "@/lib/collections/scenes";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { ASKABLE_CASES, taskFor, type DescribeTask, type SceneWord } from "@/lib/games/describe";
-import { parseExamples, sentenceContaining, sentenceWords, type Example } from "@/lib/dict/examples";
+import { parseExamples, sentenceContaining, sentenceWords, type Example, type Rank } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { sceneAnswerFor } from "@/lib/collections/sceneAnswers";
@@ -251,6 +253,8 @@ export async function taskById(
     where: { lemma: { in: [...scene.lemmas] }, pos: "NOUN" },
     select: {
       id: true, lemma: true, translation: true, examples: true, pos: true, provenance: true,
+      // The band, for ranking this word's own sentences. See lib/dict/plainness.ts.
+      cefr: true,
       semanticTypes: true,
       forms: { select: { formType: true, value: true } },
     },
@@ -282,7 +286,15 @@ export async function taskById(
   }
 
   const asked = chosen.find((r) => r.lemma === askLemma);
-  const answer = modelSentence(parseExamples(asked?.examples), task.shown, askLemma);
+  /*
+    Plainest first where the word is a beginner's, so the model answer is a
+    sentence they can read: the panel's whole claim is that this is what the
+    form looks like in use. See lib/dict/plainness.ts.
+  */
+  const answer = modelSentence(
+    parseExamples(asked?.examples), task.shown, askLemma,
+    asked ? plainerFirst(asked.cefr, await sentenceReach()) : undefined,
+  );
   return {
     task,
     answer: answer && asked ? { ...answer, lexemeId: asked.id } : answer,
@@ -315,14 +327,15 @@ export async function taskById(
  * two claims and the screen prints whichever is true.
  */
 function modelSentence(
-  examples: Example[], wanted: readonly string[], lemma: string,
+  examples: Example[], wanted: readonly string[], lemma: string, plainest?: Rank,
 ): ModelAnswer | null {
   const usable = examples.filter((e) => naturalSentence(e.et) && looksLikeSentence(e.et));
   for (const form of wanted) {
-    const found = sentenceContaining(usable, form);
+    const found = sentenceContaining(usable, form, plainest);
     if (found) return { et: found.et, source: "this-form", lexemeId: null, en: found.en ?? null };
   }
-  const any = usable.find((e) => sentenceWords(e.et).includes(lemma.toLocaleLowerCase("et")))
-    ?? usable[0];
+  const ranked = plainest ? [...usable].sort(plainest) : usable;
+  const any = ranked.find((e) => sentenceWords(e.et).includes(lemma.toLocaleLowerCase("et")))
+    ?? ranked[0];
   return any ? { et: any.et, source: "this-word", lexemeId: null, en: any.en ?? null } : null;
 }

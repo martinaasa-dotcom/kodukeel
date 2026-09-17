@@ -3,7 +3,8 @@ import type { Prisma } from "@prisma/client";
 import { unitById } from "@/lib/collections/syllabus";
 import { prisma } from "@/lib/db";
 import { generateCards, type CardType, type GeneratedCard, type LexemeForCards } from "@/lib/srs/cards";
-import { alsoAcceptedByLemma, borrowedSentences } from "@/lib/dict/facts";
+import { alsoAcceptedByLemma, borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { emptyScheduling } from "@/lib/srs/scheduler";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 
@@ -173,7 +174,7 @@ async function loadLexemes(lemmas: readonly string[]): Promise<DeckLexeme[]> {
     keeps this a fixed number of queries, which is the rule a deck build is
     already held to.
   */
-  const [rows, alsoAccepted, borrowed] = await Promise.all([
+  const [rows, alsoAccepted, borrowed, reach] = await Promise.all([
     prisma.lexeme.findMany({
       where: { lemma: { in: [...lemmas] } },
       select: {
@@ -185,6 +186,9 @@ async function loadLexemes(lemmas: readonly string[]): Promise<DeckLexeme[]> {
         gradation: true,
         gradationNote: true,
         government: true,
+        // The band the word sits at, which decides whether its sentences are
+        // ranked for a beginner. See lib/dict/plainness.ts.
+        cefr: true,
         // What kind of thing the word is, which decides whether its case cards
         // ask for `õpetajale` or `õpetajasse`. See lib/estonian/caseQuestion.ts.
         semanticTypes: true,
@@ -197,6 +201,9 @@ async function loadLexemes(lemmas: readonly string[]): Promise<DeckLexeme[]> {
     // for its case and conjugation cards, which is the same kind of fact and
     // cached the same way. See lib/dict/borrow.ts.
     borrowedSentences(),
+    // And what the dictionary can vouch for at each band, so a beginner's word
+    // is taught with its plainest sentence rather than its shortest.
+    sentenceReach(),
   ]);
 
   /*
@@ -211,6 +218,7 @@ async function loadLexemes(lemmas: readonly string[]): Promise<DeckLexeme[]> {
     ...row,
     alsoAccepted: alsoAccepted.get(`${row.lemma}|${row.pos}`) ?? [],
     borrowed: borrowed.get(row.id) ?? [],
+    plainest: plainerFirst(row.cefr, reach),
   }));
 }
 

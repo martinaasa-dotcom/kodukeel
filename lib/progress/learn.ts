@@ -7,7 +7,8 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions } from "@/lib/dict/facts";
+import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -213,6 +214,7 @@ function schedulingOf(card: LearnRow): LearnScheduling {
  */
 function sentenceAndGap(
   lexeme: NonNullable<LearnRow["lexeme"]>,
+  reach: PlainReach,
   /**
    * Whether the learner may be *asked* about this sentence.
    *
@@ -236,7 +238,14 @@ function sentenceAndGap(
    */
   readable: (sentence: string) => boolean,
 ) {
-  const examples = usableExamples(parseExamples(lexeme.examples));
+  /*
+    Ranked for a beginner where the word is one, so a first meeting shows the
+    plainest sentence the dictionary holds rather than the shortest: `tere` was
+    taught with `No tere, Juhan.` over `Tere, mina olen Katrin.` on exactly
+    this rung. See lib/dict/plainness.ts.
+  */
+  const plainest = plainerFirst(lexeme.cefr, reach);
+  const examples = usableExamples(parseExamples(lexeme.examples), plainest);
   const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
   /*
     A readable sentence is preferred and never required. Preferred, because
@@ -251,9 +260,14 @@ function sentenceAndGap(
     day it lands, rather than losing the gap to whichever sentence
     `teachingSentence` happened to prefer. Never required, for the reason the
     gate above gives: a meeting asks nothing.
+
+    Both readings are ranked the same way, so the preference is only ever
+    about whether the learner can read the sentence: a plainness ranking on
+    one and not the other would quietly make the readable branch the shortest
+    sentence and the fallback the plainest.
   */
-  const taught = teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener)
-    ?? teachingSentence(examples, [lexeme.lemma], opener);
+  const taught = teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener, plainest)
+    ?? teachingSentence(examples, [lexeme.lemma], opener, plainest);
   const word: WordRow = {
     id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
     pos: lexeme.pos, cefr: lexeme.cefr, government: null,
@@ -444,25 +458,30 @@ export async function learnBatch(
   if (rows.length === 0) return [];
 
   /*
-    Which words the dictionary holds is not a fact about the person being
-    asked, so the decoy pool is one read per instance rather than one per
-    session. See lib/dict/facts.ts.
-  */
-  const pool = await decoyOptions();
+    Three reads that do not need each other, so they are asked at once rather
+    than one after the next: on a hosted database each `await` in a row is a
+    round trip, which is what turned Today into fourteen of them.
 
-  /*
-    Which of the batch are already favorites, so the star in the corner of
-    each card is drawn in the state it is actually in. One query for the batch
-    rather than one per word, and it is here rather than in the page because
-    the batch is assembled here and a second read would be a second answer.
+      - The decoy pool, which is what words the dictionary holds and therefore
+        one read per instance rather than one per session.
+      - What the dictionary vouches for at each band, the same kind of fact and
+        cached the same way: it decides which of a beginner's own recorded
+        sentences the meet rung leads with. See lib/dict/plainness.ts.
+      - Which of the batch are already favorites, so the star in the corner of
+        each card is drawn in the state it is actually in. One query for the
+        batch rather than one per word, and it is here rather than in the page
+        because the batch is assembled here and a second read would be a second
+        answer.
   */
-  const starred = await starredAmong(
-    ownerId, rows.map((row) => row.lexeme!.id),
-  );
+  const [pool, reach, starred] = await Promise.all([
+    decoyOptions(),
+    sentenceReach(),
+    starredAmong(ownerId, rows.map((row) => row.lexeme!.id)),
+  ]);
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;
-    const { sentence, gap } = sentenceAndGap(lexeme, readable);
+    const { sentence, gap } = sentenceAndGap(lexeme, reach, readable);
     const equivalent = equivalentIn(lexeme, glossLanguage);
 
     /*

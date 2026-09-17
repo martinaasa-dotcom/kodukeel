@@ -15,6 +15,7 @@ import { heardIndex, type HeardIndex } from "@/lib/assessment/heard";
 import { PRINCIPAL_FORM_TYPES } from "@/lib/estonian/types";
 import { exceptionsFor, type WordException } from "@/lib/estonian/exceptions";
 import { borrowSentences } from "@/lib/dict/borrow";
+import { plainReach, type PlainReach } from "@/lib/dict/plainness";
 import { parseExamples, type Example } from "@/lib/dict/examples";
 import { formsOfLength } from "@/lib/dict/forms";
 
@@ -583,6 +584,29 @@ export function borrowedSentences(): Promise<Map<string, Example[]>> {
     return borrowSentences(rows.map((r) => ({
       key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(r.examples),
     })));
+  });
+}
+
+/**
+ * What the dictionary can vouch for, and at what band, for ranking a beginner's
+ * example sentences. See `lib/dict/plainness.ts` for the rule.
+ *
+ * A fact about the shared dictionary in the strongest sense this file means it:
+ * it is the same answer for every learner, because the band that decides is the
+ * *word's* and never the reader's. It reads the same columns `borrowedSentences`
+ * reads and is a separate entry rather than a second use of that one, since
+ * that map is keyed on lexeme id and this is keyed on spelling, and two
+ * questions sharing a cache entry is how one of them stops being asked.
+ */
+export function sentenceReach(): Promise<PlainReach> {
+  return remember("sentence-reach", FACTS_TTL_MS, async () => {
+    const rows = await prisma.lexeme.findMany({
+      select: {
+        lemma: true, pos: true, cefr: true,
+        forms: { select: { formType: true, value: true, morphCode: true } },
+      },
+    });
+    return plainReach(rows);
   });
 }
 
