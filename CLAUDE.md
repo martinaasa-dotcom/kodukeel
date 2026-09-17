@@ -3432,6 +3432,19 @@ screen the module schedules, so each is a candidate for the same treatment, and 
 replacement round or a thinner grammar page first, which is a change to what the course teaches
 rather than to what a beginner is protected from.
 
+**And the conjugation round tops up from the dictionary, which is the fourth and is the one this
+pass introduced.** `/review/conjugation` prefers the learner's own verbs and fills the rest of the
+eight from the dictionary at their band, which is right on a round somebody opened from Practice and
+is a word the course has not taught on a round the module scheduled. Measured over every A1 evening
+that draws it, 14 of the 28 have no verb in the programme at all by then, because `pohiverbid` is the
+eighth unit and four of the five A1 parts reach their third conjugation evening before any verb:
+every table in those rounds is a verb nobody has met. The slot it took held `sentences`, which drew
+from the deck alone, so this is a real narrowing bought with a larger one, and it is written down
+rather than traded away because every other drill A1 rotates through puts a whole sentence in front
+of a beginner instead. What would fix it is the round preferring to say it has nothing rather than
+reaching past the deck, and that is a change to a screen a learner also walks to themselves, which is
+the line the operator drew.
+
 **The planned module is held to the rule whole, and everything else a learner walks to themselves is
 not.** That is the line the operator drew and it is the one the code draws: what the module chose for
 them has to be answerable, and a round they opened from Practice is their own difficulty to pick. So
@@ -3439,6 +3452,21 @@ the module's ladder hands `learnBatch` the words `wordsThrough` says the program
 through the day they are on, and its gap rung cuts only a sentence made of those; standalone Learn
 passes nothing and is untouched. `readableFor` in `lib/collections/levels.ts` is the one definition of
 whether a sentence may be shown, because five surfaces ask it.
+
+**And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
+Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the
+sentence off the *meet* rung as well: measured over every A1 evening of the programme, 478 of the 493
+words had a sentence to be met with and 5 had one afterwards, so the first screen of a beginner's
+every evening would have read "No example sentence for this one yet" about words that have several,
+which is the exact argument the lesson's own carve-out makes one file over. Nothing is asked at a
+meeting and the word and its meaning are printed directly above the sentence; the gap rung is the one
+that hands somebody a sentence and waits. So the sentence is chosen the way it always was, one
+sentence for both rungs, and the gap is built only where that sentence is readable. A readable one is
+**preferred** when there is a choice, which buys nothing today and is still the right way round:
+not one of those five can carry a gap in the form the meet rung showed, so the A1 gap rung is empty
+either way until `npm run audit:readable`'s list is written down as sentences, and the preference is
+what makes a contributed sentence count the day it lands. Two invariant arms, because either alone
+passes on the broken shape, and both were made to fail on the real lines.
 
 **And the module may not schedule a round its own learner is not given.** `sentences` sat in the A1
 rotation, so taking word ordering out of the lesson left the module sending a beginner to a screen

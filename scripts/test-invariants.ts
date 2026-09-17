@@ -1381,10 +1381,32 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const ladder = code("app/(app)/course/learn/page.tsx");
   assert.match(ladder, /taughtWords:\s*spellingsOf\(/, "the module's ladder stopped saying what it has taught");
   assert.match(ladder, /wordsThrough\(programme, day\.index\)/, "the module's ladder reads a different day's words");
+  const learn = code("lib/progress/learn.ts");
   assert.match(
-    code("lib/progress/learn.ts"),
+    learn,
     /readableFor\(level, taughtWords\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+
+  /*
+    AND IT GATES THE GAP RATHER THAN THE MEETING, which is the line
+    `lib/collections/lesson.ts` draws and which this file had wrong first:
+    filtering the examples before `teachingSentence` took the sentence off the
+    meet rung too, 478 of 493 A1 words down to 5, so a beginner's first screen
+    every evening read "No example sentence for this one yet" about words with
+    several. Two arms, because either one alone passes on the broken shape: a
+    meeting always falls back to the unfiltered examples, and the gap is built
+    only where the sentence it shares is readable.
+  */
+  assert.match(
+    learn,
+    /\?\?\s*teachingSentence\(examples, \[lexeme\.lemma\], opener\)/,
+    "the ladder's meet rung stopped falling back to a sentence the rule would not gap",
+  );
+  assert.match(
+    learn,
+    /taught\?\.form && readable\(taught\.example\.et\)/,
+    "the ladder's gap stopped asking whether the sentence it hands over can be read",
   );
 
   const lesson = code("lib/collections/lesson.ts");
