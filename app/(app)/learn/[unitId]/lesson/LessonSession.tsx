@@ -459,9 +459,40 @@ function StepCard({
     case "gap":
       return (
         <Card className="flex flex-col gap-4">
-          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-            Fill the gap. The word is <Et>{step.lemma}</Et> ({step.gloss}), in the form the sentence needs.
-          </span>
+          {/* THE WORD, THEN WHAT TO DO WITH IT, THEN THE SENTENCE CLOSEST TO
+              THE BOX, which is the order the flash round was rearranged into
+              and for its reason: read the other way you meet a sentence with a
+              hole in it, work out that something is missing, read on to find
+              which word, and go back. The whole cue was one 14px grey line in
+              `--ink-3` above a 20px sentence, so the one thing being asked for
+              was the quietest thing on the card.
+
+              And the cue may not spell the answer. `step.cue` is the ladder in
+              `lib/collections/lesson.ts`: the word and its meaning, then the
+              meaning alone, then nothing. This card read "The word is
+              kindlasti (definitely), in the form the sentence needs" over a
+              gap wanting `kindlasti`, on 616 of the 1,354 course words that
+              can carry a gap at all. */}
+          {step.cue === "word-and-meaning" ? (
+            <div>
+              <Et className="block text-[32px] font-bold leading-tight">{step.lemma}</Et>
+              <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
+              <p className="mt-4 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+                Write it in the form this sentence needs.
+              </p>
+            </div>
+          ) : (
+            <div>
+              <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+                Which word goes in the gap?
+              </p>
+              {step.cue === "meaning" && (
+                <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>
+                  It means <strong style={{ color: "var(--ink)" }}>{step.gloss}</strong>.
+                </p>
+              )}
+            </div>
+          )}
           <p className="text-xl">
             <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
@@ -498,13 +529,17 @@ function StepCard({
               instruction is the plain clause five other screens already lead
               with, and the Estonian name and the question sit under the answer
               box as the cross-reference for somebody also taking a course. */}
-          <span className="text-sm" style={{ color: "var(--ink-2)" }}>
-            {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
-          </span>
+          {/* The word leads and the instruction is set to be read, which is the
+              flash round's own arrangement: this had the ask at 14px in
+              `--ink-2` above the word, so what the learner was being asked to
+              produce was fainter than the word they were producing it from. */}
           <div className="flex flex-wrap items-center gap-3">
-            <Et className="text-3xl">{step.lemma}</Et>
+            <Et className="text-[32px] font-bold leading-tight">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
+          <span className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+            {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
+          </span>
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
             <span lang="et">{step.caseName}</span>
             {" · "}

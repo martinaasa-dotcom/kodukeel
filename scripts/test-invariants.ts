@@ -1364,6 +1364,21 @@ check("the Institute's classification has one reader", () => {
   lesson planner and speaking practice did not, and built 81 cards out of them.
 */
 check("every exercise built from a sentence checks that it is one", () => {
+  /*
+    A LIST, AND THE LIST IS THE WEAKNESS: the end-of-level checkpoint's page
+    was not on it, and so it was the one page handing its planner every
+    recorded usage raw. A checkpoint could set `Olen seisukohal, et ..` as a
+    gap question, and the same sentence twice, on a measurement whose own
+    screen says passing it moves the learner up a level.
+
+    It stays a list because the narrowing does not happen in one layer. Some
+    of these build the exercise and narrow in the same file; the two course
+    pages resolve the dictionary row and hand a planner in `lib/collections/`
+    a list of strings, so the rule has to be applied before it crosses. A
+    mechanical sweep for `buildCloze` would flag those two planners and miss
+    the pages that actually owe the check. Add a page here when it starts
+    feeding one.
+  */
   const builders = [
     "lib/srs/cards.ts",
     "lib/collections/worksheet.ts",
@@ -1371,6 +1386,7 @@ check("every exercise built from a sentence checks that it is one", () => {
     "lib/assessment/items.ts",
     "lib/progress/describe.ts",
     "app/(app)/learn/[unitId]/lesson/page.tsx",
+    "app/(app)/learn/checkpoint/[level]/page.tsx",
     "app/(app)/review/speaking/page.tsx",
     "app/(app)/review/dictation/page.tsx",
     "app/(app)/review/sentences/page.tsx",
@@ -1378,8 +1394,24 @@ check("every exercise built from a sentence checks that it is one", () => {
   for (const file of builders) {
     assert.match(
       code(file),
-      /naturalSentence\(/,
+      // `teachableSentences` is `usableExamples` and `naturalSentence` in one
+      // place, which is what the two course pages read: the lesson's wrote
+      // both lines out and the checkpoint's wrote neither.
+      /naturalSentence\(|teachableSentences\(/,
       `${file} builds an exercise from a usage without checking that it is a sentence`,
+    );
+  }
+  /*
+    AND NEVER BESIDE THE CALL. A page can read the helper and go on mapping
+    the raw list one line down, which satisfies any check that only looks for
+    the call, and is the shape `caseReviewsFor`'s own pairing check was
+    written for after exactly that happened.
+  */
+  for (const page of builders.filter((f) => f.startsWith("app/"))) {
+    assert.ok(
+      !/parseExamples\([^)]*\)\s*\.map\(/.test(code(page)),
+      `${page} maps a raw parseExamples list straight to strings. That is the copy this`
+      + " check exists to stop, one line below the narrowing it just did",
     );
   }
   // One definition of the label pattern, beside the rule it is an argument to.
@@ -1408,6 +1440,99 @@ check("the module that writes about Estonian holds no Estonian", () => {
     .filter((line) => !/\b(et|estonianName|caseNames?):/i.test(line))
     .filter((line) => !line.trim().startsWith("*") && !line.trim().startsWith("//"));
   assert.deepEqual(offenders, [], "an Estonian form is written into the grammar prose");
+});
+
+/**
+ * AND THE WORD THAT WAS JUST BUILT SAYS WHAT IT MEANS, OUT OF ONE TABLE.
+ *
+ * A learner reading `/grammar/build-a-word` watched `raamatu + -lt =
+ * raamatult` arrive and had to read four lines down, under a heading saying
+ * "off, and from a person", to find any English near it. That heading is a
+ * fact about the ending; what somebody watching an ending arrive wants is what
+ * the word now means, which is "off the book".
+ *
+ * `lib/estonian/caseReading.ts` composes it out of a frame per case and the
+ * entry's own gloss, and the three things that keep it honest are asserted
+ * here rather than described. It holds no Estonian, like `grammar.ts` above
+ * and for its reason. It is the one place a frame lives, so a screen cannot
+ * grow a second reading of the same ending. And the screen is handed the
+ * phrase rather than composing one, since the two halves it would need, what
+ * the Institute says the word is and what the gloss says it means, both live
+ * in the module that builds the row.
+ */
+check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
+  const table = "lib/estonian/caseReading.ts";
+  assert.ok(existsSync(table), "the case readings have gone");
+  assert.doesNotMatch(
+    code(table),
+    /[õäöüšž]/i,
+    "the module that says what a built word means has started writing Estonian",
+  );
+  /*
+    And what a semantic code *means* is still `caseQuestion.ts`'s to decide,
+    which is the pair the check above this file's own header names. A frame
+    table reading the column itself would be a second rule about which words
+    are people, which is how the wrong trio reached eight generators.
+  */
+  assert.doesNotMatch(
+    code(table),
+    /semanticTypes|isAnimate\(/,
+    "the frame table decides for itself which words are people",
+  );
+  /*
+    One reader, and it is the module that builds the row. A screen composing
+    its own would be a second answer to what an ending means in English, drawn
+    beside the first.
+  */
+  const readers = ["app", "lib", "components"]
+    .flatMap((dir) => sourceFiles(dir))
+    .filter((file) => file !== table && !/\.i?test\.tsx?$/.test(file))
+    .filter((file) => /caseReading\(/.test(code(file)));
+  assert.deepEqual(
+    readers,
+    ["lib/estonian/caseBuild.ts"],
+    "a second module composes what a word in a case means in English",
+  );
+  /*
+    And the screen draws it, on the act that builds the word and on the act
+    that explains the three that are stored. Anchored on the element rather
+    than on the field, for the reason `DangerZone.tsx` is: a component that is
+    complete, commented and rendered by nothing is a feature nobody has, and a
+    check reading the field would pass on a screen that carries the phrase in
+    `data-reading` for a suite and prints it to nobody.
+
+    Whether what is drawn is the phrase is a question for a browser, and
+    `scripts/test-teaching.mjs` asks it: the text under the build line has to
+    be the reading the line says it is.
+  */
+  const screen = code("app/(app)/grammar/build-a-word/BuildWalk.tsx");
+  assert.equal(
+    (screen.match(/<Reading\b/g) ?? []).length,
+    2,
+    "the screen that builds a word stopped drawing what the word it built means",
+  );
+  /*
+    AND A ROW WITH NO READING BECAUSE NOBODY SAYS THE FORM SAYS SO.
+
+    The card draws all eleven, which is right, and three of them on a person
+    are forms the app's own `caseFits` refuses to drill. Before this they were
+    drawn under "Being inside something, and being in a month or a mood" with
+    nothing saying Estonian puts a person on the other set, so the one screen
+    whose job is explaining the system was teaching `mehes`. A blank where the
+    reading goes is the shape that fault takes now, so the blank is what is
+    checked against: the row carries the reason.
+  */
+  assert.match(
+    code("lib/estonian/caseBuild.ts"),
+    /caseIsUnsaidFor\(/,
+    "a row no longer knows whether the language puts the word in that case at all",
+  );
+  assert.match(
+    screen,
+    /of\.unsaid/,
+    "the screen draws a form nobody says with no word about why, which is what it did before "
+    + "`caseFits` reached it",
+  );
 });
 
 check("Anu's worked examples are sourced from a table the dictionary checks", () => {
@@ -17119,6 +17244,54 @@ check("an order the writer did not choose is not a wrong order", () => {
     resultScreen.slice(acceptedAt), /mark\.note/,
     "the result draws the accepted answers without their note, which is the only thing they are there for",
   );
+});
+
+check("every exam shape the audit can meet is one it knows what to search", () => {
+  /*
+    `npm run audit:questions` asks one question of every generator in this app:
+    is the answer already visible in what the learner is shown. It can only ask
+    it of a shape whose fields it knows, so `EXAM_SHOWS` names what each exam
+    shape puts on screen and `NOTHING_TO_SEARCH` names the ones whose answer
+    genuinely cannot be there, a dictation's recording or a composition with no
+    single answer at all.
+
+    THE SCRIPT REPORTS AN UNCLASSIFIED SHAPE AND THAT IS A SAMPLING CHECK ON A
+    TOTAL QUESTION. It fires only if some level at some seed actually builds
+    one, and `ExamItem` is a closed union: a member added to it and set at one
+    level a year later would reach a learner before anything noticed. This is
+    the total version, read off the union's own declaration.
+
+    It is here rather than in the audit because that script would need a copy
+    of `code()` to read a declaration without reading the comments around it,
+    and a second comment-stripper is the second copy of the oldest recurring
+    mistake in this repository's own checks.
+  */
+  const paper = code("lib/exam/paper.ts");
+  const built = [...paper.matchAll(/kind:\s*"([a-z-]+)"/g)]
+    .map((m) => m[1]!)
+    .filter((kind, i, all) => all.indexOf(kind) === i);
+  assert.ok(
+    built.length >= 10,
+    `read ${built.length} exam item kinds out of lib/exam/paper.ts, which is too few to be the union.`
+    + " The declaration moved or the pattern stopped matching, and a check that finds nothing passes",
+  );
+
+  const audit = code("scripts/audit-questions.ts");
+  const shows = audit.match(/const EXAM_SHOWS[^}]*}/)?.[0] ?? "";
+  const nothing = audit.match(/const NOTHING_TO_SEARCH = new Set\(\[[^\]]*\]/)?.[0] ?? "";
+  assert.ok(
+    shows.length > 0 && nothing.length > 0,
+    "scripts/audit-questions.ts no longer declares EXAM_SHOWS and NOTHING_TO_SEARCH."
+    + " Whatever replaced them is what this check should be reading",
+  );
+
+  const missing = built.filter((kind) => !shows.includes(`"${kind}"`) && !nothing.includes(`"${kind}"`));
+  assert.deepEqual(
+    missing, [],
+    `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
+    + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
+    + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
+    + " never examines, which is how the level check's writing item hid",  );
 });
 
 console.log(

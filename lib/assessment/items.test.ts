@@ -397,6 +397,65 @@ describe("a sentence a learner is asked to read is a sentence", () => {
   });
 });
 
+/*
+  A QUESTION NOBODY CAN GET WRONG IS WORSE IN A MEASUREMENT THAN ON A CARD.
+  `WriteQuestion` prints the word in bold and what it means beside it above the
+  gap, deliberately, because a writing band is measuring the *form*. That holds
+  right up until the sentence wants the dictionary form, and then the answer is
+  the boldest thing on the screen: 1,549 of the 4,294 words the shipped
+  dictionary can gap were in that state. Writing is one of the three skills
+  whose average is the learner's level and the noisiest of them, so a free mark
+  inside a six-item band is most of the distance between two bands.
+*/
+describe("a writing gap never prints the answer above the box", () => {
+  const row = (extra: Partial<WordRow>): WordRow => ({
+    id: "x", lemma: "x", translation: "x", pos: "NOUN", cefr: "A2", government: null,
+    forms: [], examples: [], ...extra,
+  });
+
+  it("refuses a sentence that wants the word's own dictionary form", () => {
+    const father = row({
+      id: "isa", lemma: "isa", translation: "father",
+      forms: [
+        { formType: "NOM_SG", value: "isa" },
+        { formType: "GEN_SG", value: "isa" },
+        { formType: "PART_SG", value: "isa" },
+        { formType: "GEN_PL", value: "isade" },
+        { formType: "PART_PL", value: "isasid" },
+      ],
+      examples: [{ et: "Minu isa ja ema elavad Tallinnas." }],
+    });
+    expect(writingItems([father], mulberry32(1))).toEqual([]);
+  });
+
+  it("refuses a sentence whose answer is spelled by the English gloss", () => {
+    // `saun` is glossed "sauna" and the sentence wants `sauna`. The meaning
+    // hands the answer over as completely as the word would, which is what
+    // `npm run audit:questions` caught after the lemma guard alone was written.
+    const sauna = row({
+      id: "saun", lemma: "saun", translation: "sauna",
+      forms: [
+        { formType: "NOM_SG", value: "saun" },
+        { formType: "GEN_SG", value: "sauna" },
+        { formType: "PART_SG", value: "sauna" },
+        { formType: "GEN_PL", value: "saunade" },
+        { formType: "PART_PL", value: "saunu" },
+      ],
+      examples: [{ et: "Pärast sauna jõime teed." }],
+    });
+    expect(writingItems([sauna], mulberry32(1))).toEqual([]);
+  });
+
+  it("still builds an item where another sentence wants a real form", () => {
+    const items = writingItems(WORDS, mulberry32(1));
+    expect(items.length).toBeGreaterThan(0);
+    for (const item of items) {
+      const cue = `${item.lemma} ${item.translation}`.toLowerCase();
+      expect(cue.split(/[^\p{L}]+/u), item.lemma).not.toContain(item.targetForm.toLowerCase());
+    }
+  });
+});
+
 describe("the explanation after a gap", () => {
   it("leads with the sentence and the word, not with the label", () => {
     const items = writingItems(WORDS, mulberry32(3));
