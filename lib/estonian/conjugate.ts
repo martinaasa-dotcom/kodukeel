@@ -292,3 +292,46 @@ export function pres1sgFrom(
   )?.value;
   return retrieved ?? null;
 }
+
+/**
+ * Ekilex's morph codes for a verb form that carries a person and a tense.
+ *
+ * `Ind` is the indicative, `Imp` the imperative and `Knd` the conditional.
+ * What is deliberately outside it is every form that does not: `Pts` is a
+ * participle, `Sup` a supine and `Inf` an infinitive, and `Ähvardas kõri läbi
+ * lõigata` is the sentence that says why the distinction matters. Its finite
+ * verb is the first word and `läbi` belongs to the infinitive at the end.
+ */
+const FINITE_PREFIXES = ["Ind", "Imp", "Knd"];
+
+function isFiniteCode(code: string): boolean {
+  const bare = code.startsWith("EKILEX:") ? code.slice("EKILEX:".length) : code;
+  if (bare === "PRES_1SG" || bare === "PAST_1SG") return true;
+  return FINITE_PREFIXES.some((p) => bare.startsWith(p));
+}
+
+/**
+ * Every finite form of one verb this app can vouch for, stored and derived.
+ *
+ * The stored ones are whatever the dictionary holds under a finite code, which
+ * is where `olema`'s `on` and the simple past third person live, since neither
+ * is reachable by any rule. The derived ones are `derivedVerbForms`, which
+ * `npm run audit:verbs` checked against Ekilex on 797 verbs.
+ *
+ * Lower-cased, because the only question anybody asks of the answer is whether
+ * a word in a sentence is a verb.
+ */
+export function finiteFormsFrom(
+  lemma: string,
+  forms: readonly { formType?: string | null; morphCode?: string | null; value: string }[],
+): string[] {
+  const out: string[] = [];
+  for (const form of forms) {
+    const code = form.formType ?? form.morphCode ?? "";
+    if (isFiniteCode(code)) out.push(form.value.toLowerCase());
+  }
+  for (const derived of derivedVerbForms({ lemma, pres1sg: pres1sgFrom(forms) })) {
+    out.push(derived.value.toLowerCase());
+  }
+  return out;
+}

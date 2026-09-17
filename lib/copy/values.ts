@@ -143,3 +143,24 @@ export function joinWithOr(items: readonly string[]): string {
   if (items.length === 2) return `${items[0]} or ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, or ${items[items.length - 1]}`;
 }
+
+/**
+ * What the three sentence-building screens say about a word order.
+ *
+ * One table because there are three of them, and they had drifted before this
+ * existed: the lesson said "Not the order Estonian uses here", the round said
+ * "Not the order Estonian uses. It goes:" and the examination said "That is
+ * not the order the writer chose." The last one was the honest wording of a
+ * marking that was wrong: the order the writer chose is one Estonian sentence
+ * rather than the only one, and a learner who rebuilt `Muidugi tuleb ette
+ * näpukaid` as `Muidugi tuleb näpukaid ette` was told their own Estonian was
+ * a mistake.
+ *
+ * `ORDER_VARIANT` is the sentence that fault is worth: it is right, it is
+ * marked right, and the recorded order is shown under it as a fact about the
+ * recording rather than as a correction. `lib/estonian/wordOrder.ts` decides
+ * which is which.
+ */
+export const ORDER_EXACT = "That is the sentence.";
+export const ORDER_VARIANT = "That works. The writer put it this way:";
+export const ORDER_WRONG = "Not an order Estonian uses here. It goes:";

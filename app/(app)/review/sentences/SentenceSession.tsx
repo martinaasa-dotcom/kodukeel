@@ -10,7 +10,9 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
-import { sentenceMatches, sentenceTiles } from "@/lib/estonian/cloze";
+import { sentenceTiles } from "@/lib/estonian/cloze";
+import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
+import { ORDER_EXACT, ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -23,6 +25,14 @@ export interface SentenceTask {
   et: string;
   /** English, when it has been resolved. Null means the preview mode is used. */
   en: string | null;
+  /**
+   * The other orders of this sentence Estonian allows, off the dictionary.
+   *
+   * The round marks in the browser, so the judgment travels with the task
+   * rather than being made here: what counts as Estonian is one answer, in
+   * `lib/estonian/wordOrder.ts`, for this round, the lesson and the paper.
+   */
+  alsoRight: readonly string[];
 }
 
 /** How long the sentence is shown before it is scrambled, when there is no English. */
@@ -52,7 +62,14 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   const { initialIndex, remember: rememberTask } = useResumeCard(initialTasks.map((t) => ({ id: t.cardId })));
   const [index, setIndex] = useState(initialIndex);
   const [built, setBuilt] = useState<number[]>([]);
+  /*
+    The verdict paints the panel and is one of `lib/ux/verdict.ts`'s three
+    words; `variant` says whether a right answer was the writer's own order or
+    another one Estonian allows. Two fields rather than a third verdict,
+    because another order is not a near miss and may not wear butter.
+  */
   const [checked, setChecked] = useState<null | "right" | "wrong">(null);
+  const [variant, setVariant] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [previewing, setPreviewing] = useState(false);
@@ -102,6 +119,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   useEffect(() => {
     setBuilt([]);
     setChecked(null);
+    setVariant(false);
     shownAt.current = Date.now();
     if (task && task.en === null) {
       setPreviewing(true);
@@ -117,8 +135,10 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   const check = useCallback(async () => {
     if (!task || busy || checked) return;
     setBusy(true);
-    const right = sentenceMatches(answer, task.et);
+    const verdict = readOrder(answer, task.et, task.alsoRight);
+    const right = orderIsRight(verdict.reading);
     setChecked(right ? "right" : "wrong");
+    setVariant(verdict.reading === "variant");
     setAttempts((a) => a + 1);
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
@@ -323,9 +343,8 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           {checked && (
             <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
               <p className="label-xs">
-                {checked === "right"
-                  ? <>{uiText("Õige,", "Correct,")} exactly right.</>
-                  : "Not the order Estonian uses. It goes:"}
+                {checked === "wrong" ? ORDER_WRONG
+                  : <>{uiText("Õige!", "Correct!")} {variant ? ORDER_VARIANT : ORDER_EXACT}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>

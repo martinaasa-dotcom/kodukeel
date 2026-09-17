@@ -4,6 +4,12 @@ import {
   BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
+import { orderContextFrom } from "@/lib/estonian/wordOrder";
+
+/* No dictionary behind the paper, so every sentence keeps the one order the
+   writer chose. What a reading of the dictionary adds is asserted in
+   `lib/estonian/wordOrder.test.ts`. */
+const WORD_ORDER = orderContextFrom([]);
 
 function pool(count: number): PoolWord[] {
   const letters = "abcdefghijklmnopqrstuvwxyz";
@@ -83,7 +89,7 @@ function perfect(paper: ReturnType<typeof buildPaper>): Map<string, Response> {
 }
 
 describe("marking a paper", () => {
-  const paper = buildPaper("B1", pool(60), "score-seed");
+  const paper = buildPaper("B1", pool(60), "score-seed", WORD_ORDER);
 
   it("gives full marks for every answer right", () => {
     const result = markPaper(paper, perfect(paper));
@@ -120,7 +126,7 @@ describe("marking a paper", () => {
   });
 
   it("marks a part out of what was actually set, not out of what was intended", () => {
-    const thin = buildPaper("B1", pool(4), "thin-seed");
+    const thin = buildPaper("B1", pool(4), "thin-seed", WORD_ORDER);
     const result = markPaper(thin, perfect(thin));
     expect(result.thin).toBe(true);
     // Everything that could be asked was answered right, so it is still full
@@ -142,7 +148,7 @@ describe("marking a paper", () => {
 });
 
 describe("what one answer is worth", () => {
-  const paper = buildPaper("B1", pool(60), "item-seed");
+  const paper = buildPaper("B1", pool(60), "item-seed", WORD_ORDER);
   const dictation = paper.parts
     .flatMap((p) => p.tasks)
     .flatMap((t) => t.items)
@@ -265,7 +271,7 @@ describe("what one answer is worth", () => {
 });
 
 describe("what the sitting tells the scheduler", () => {
-  const paper = buildPaper("B1", pool(60), "grade-seed");
+  const paper = buildPaper("B1", pool(60), "grade-seed", WORD_ORDER);
 
   it("grades every card the paper asked about", () => {
     const result = markPaper(paper, perfect(paper));
@@ -281,7 +287,7 @@ describe("what the sitting tells the scheduler", () => {
 
   it("writes nothing for a task with no card behind it", () => {
     const cardless = pool(60).map((word) => ({ ...word, cardId: null }));
-    const other = buildPaper("B1", cardless, "grade-seed");
+    const other = buildPaper("B1", cardless, "grade-seed", WORD_ORDER);
     expect(gradesFrom(markPaper(other, perfect(other)))).toEqual([]);
   });
 
@@ -293,7 +299,7 @@ describe("what the sitting tells the scheduler", () => {
 });
 
 describe("which language an answer is in", () => {
-  const paper = buildPaper("B1", pool(60), "lang-seed");
+  const paper = buildPaper("B1", pool(60), "lang-seed", WORD_ORDER);
   const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items);
 
   it("tags the English answers as English, so they are not set in Estonian", () => {
@@ -311,7 +317,7 @@ describe("which language an answer is in", () => {
 });
 
 describe("a recording that would not play", () => {
-  const paper = buildPaper("B1", pool(60), "unheard-seed");
+  const paper = buildPaper("B1", pool(60), "unheard-seed", WORD_ORDER);
   const listening = paper.parts.find((p) => p.spec.skill === "listening")!;
 
   it("is left out of the marks rather than counted wrong", () => {

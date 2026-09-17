@@ -3,6 +3,15 @@ import {
   answerableCount, isAnswerable, planLesson, splitIntoLessons,
   type LessonWord, type LessonStep,
 } from "./lesson";
+import { orderContextFrom } from "@/lib/estonian/wordOrder";
+
+/*
+  A lesson built with no dictionary behind it: every sentence keeps the one
+  order the writer chose, which is what the build step did before
+  `lib/estonian/wordOrder.ts` existed. What the reading changes is asserted in
+  `lib/estonian/wordOrder.test.ts`, against the shipped dictionary.
+*/
+const wordOrder = orderContextFrom([]);
 
 const unit = {
   id: "kodu",
@@ -38,7 +47,7 @@ const DISTRACTORS: LessonWord[] = [
 ];
 
 const plan = (words = WORDS, seed = 7) =>
-  planLesson({ unit, words, distractors: DISTRACTORS, seed });
+  planLesson({ unit, words, distractors: DISTRACTORS, seed, wordOrder });
 
 describe("planLesson", () => {
   it("opens with the teaching step and closes with the recap", () => {
@@ -125,7 +134,7 @@ describe("planLesson", () => {
     const lessons = splitIntoLessons(many);
     expect(lessons.length).toBeGreaterThan(1);
     for (const words of lessons) {
-      const steps = planLesson({ unit, words, distractors: DISTRACTORS, seed: 3 });
+      const steps = planLesson({ unit, words, distractors: DISTRACTORS, seed: 3, wordOrder });
       expect(steps.length).toBeLessThanOrEqual(40);
       expect(steps.at(-1)?.kind).toBe("recap");
     }
@@ -137,7 +146,7 @@ describe("planLesson", () => {
   });
 
   it("has nothing to plan for an empty unit, and says so by returning nothing", () => {
-    expect(planLesson({ unit, words: [], seed: 1 })).toEqual([]);
+    expect(planLesson({ unit, words: [], seed: 1, wordOrder })).toEqual([]);
   });
 });
 
@@ -156,7 +165,7 @@ describe("what a step is built from", () => {
   it("has no gap-fill at all when the unit carries no sentences", () => {
     // An honest absence. The alternative is inventing a sentence to blank.
     const bare = WORDS.map((w) => ({ ...w, examples: [] }));
-    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, seed: 5 });
+    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, seed: 5, wordOrder });
     expect(steps.some((s) => s.kind === "gap")).toBe(false);
   });
 
@@ -172,7 +181,7 @@ describe("what a step is built from", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, seed: 5 });
+    const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, seed: 5, wordOrder });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
@@ -222,7 +231,7 @@ describe("what a step is built from", () => {
       { lexemeId: "lex-vabandust", lemma: "vabandust", gloss: "Sorry!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null },
     ];
     const steps = planLesson({
-      unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS], seed: 9,
+      unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS], seed: 9, wordOrder,
     });
     const asked = steps.filter(
       (s): s is Extract<LessonStep, { kind: "choose" | "listen" }> =>
@@ -243,7 +252,7 @@ describe("what a step is built from", () => {
       { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda" },
       { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
     ];
-    const steps = planLesson({ unit, words: verbs, distractors: DISTRACTORS, seed: 2 });
+    const steps = planLesson({ unit, words: verbs, distractors: DISTRACTORS, seed: 2, wordOrder });
     const govern = steps.filter((s) => s.kind === "govern");
     for (const step of govern) expect(step.lemma).toBe("aitama");
   });

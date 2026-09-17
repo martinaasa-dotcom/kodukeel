@@ -37,6 +37,7 @@
  * dictionary rows and hands them in.
  */
 import { buildCloze, isBuildable, sentenceTiles } from "@/lib/estonian/cloze";
+import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
 import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
 import { CASES } from "@/lib/estonian/cases";
@@ -154,6 +155,15 @@ export interface BuildStep extends StepBase {
   lemma: string;
   tiles: readonly string[];
   sentence: string;
+  /**
+   * The other orders of this sentence Estonian allows, worked out by
+   * `lib/estonian/wordOrder.ts` off the dictionary when the step was built.
+   *
+   * Carried on the step rather than worked out when the answer is checked,
+   * because the checking happens in the browser and the dictionary is on the
+   * server.
+   */
+  alsoRight: readonly string[];
 }
 export interface CaseStep extends StepBase {
   kind: "case";
@@ -214,6 +224,17 @@ export interface LessonInput {
   seed?: number;
   /** Hard ceiling, so a 20-word unit is still one sitting. */
   maxSteps?: number;
+  /**
+   * What the dictionary says about the words of the sentences this lesson
+   * will set, for the one step that asks for a word order.
+   *
+   * Required rather than optional, and the reason is the report this was
+   * written for: a caller that has not thought about it marks a learner wrong
+   * for correct Estonian, quietly, on the one exercise where the marking is
+   * the whole lesson. `NO_ORDER_CONTEXT` is how a caller says it has no
+   * dictionary to hand.
+   */
+  wordOrder: OrderContext;
 }
 
 /** Words introduced together before being mixed. Three fits in working memory. */
@@ -381,10 +402,12 @@ const GOVERNMENT_OPTIONS = ["mida", "kellele", "kellest", "millega", "kelle", "m
 // ever built from material we actually hold, which is why a unit with no
 // attested sentences simply has no gap-fill rather than a broken one.
 
-type Builder = (w: LessonWord, rand: () => number, nextId: (k: string) => string) => LessonStep | null;
+type Builder = (
+  w: LessonWord, rand: () => number, nextId: (k: string) => string, wordOrder: OrderContext,
+) => LessonStep | null;
 
 const gapStep2: Builder = (w, _r, nextId) => gapStep(w, nextId("gap"));
-const buildStep2: Builder = (w, r, nextId) => buildStep(w, nextId("build"), r);
+const buildStep2: Builder = (w, r, nextId, order) => buildStep(w, nextId("build"), r, order);
 const caseStep2: Builder = (w, r, nextId) => caseStep(w, nextId("case"), r);
 const governStep2: Builder = (w, r, nextId) => governStep(w, nextId("govern"), r);
 
@@ -401,12 +424,17 @@ function gapStep(word: LessonWord, id: string): GapStep | null {
   return null;
 }
 
-function buildStep(word: LessonWord, id: string, rand: () => number): BuildStep | null {
+function buildStep(
+  word: LessonWord, id: string, rand: () => number, wordOrder: OrderContext,
+): BuildStep | null {
   for (const sentence of word.examples) {
     if (!isBuildable(sentence)) continue;
     const tiles = sentenceTiles(sentence);
     if (tiles.length < 3 || tiles.length > 9) continue;
-    return { id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence };
+    return {
+      id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence,
+      alsoRight: alsoRightOrders(sentence, wordOrder),
+    };
   }
   return null;
 }
@@ -635,7 +663,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
     const rotated = [...builders.slice(i % builders.length), ...builders.slice(0, i % builders.length)];
     let own: LessonStep | null = null;
     for (const make of rotated) {
-      own = make(word, rand, nextId);
+      own = make(word, rand, nextId, input.wordOrder);
       if (own) break;
     }
     if (own) return [own];

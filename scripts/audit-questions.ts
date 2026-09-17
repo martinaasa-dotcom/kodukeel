@@ -68,6 +68,7 @@ import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
+import { orderContextFrom } from "../lib/estonian/wordOrder";
 
 const entries = dictionaryRows();
 
@@ -235,11 +236,15 @@ const pool: PoolWord[] = entries.map((e) => ({
   examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
   government: e.government, cardId: null,
 }));
+/* The same reading of the dictionary the app builds a paper with, so the audit
+   asks about the paper the app sets rather than one with no alternative
+   orders on it. */
+const WORD_ORDER = orderContextFrom(entries);
 const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 10);
 timed("exam", () => {
 for (const level of EXAM_LEVELS) {
   for (let s = 0; s < SEEDS; s++) {
-    for (const part of buildExam(level, pool, `audit-${s}`).parts) {
+    for (const part of buildExam(level, pool, `audit-${s}`, WORD_ORDER).parts) {
       for (const task of part.tasks) {
         for (const item of task.items as unknown as Record<string, unknown>[]) {
           // `lemma` on a matching task is the word list, which is the exercise.

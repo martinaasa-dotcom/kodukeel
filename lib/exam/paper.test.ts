@@ -3,6 +3,12 @@ import {
   BLANK, buildPaper, cardsInPaper, eligibleWords, fillRate, formsOf, maskForms, partOf, rng,
   seedFrom, type PoolWord,
 } from "./paper";
+import { orderContextFrom } from "@/lib/estonian/wordOrder";
+
+/* No dictionary behind the paper, so every sentence keeps the one order the
+   writer chose. What a reading of the dictionary adds is asserted in
+   `lib/estonian/wordOrder.test.ts`. */
+const WORD_ORDER = orderContextFrom([]);
 
 /*
   The rule this module exists to keep is that nothing in a paper is written by
@@ -128,15 +134,15 @@ describe("hiding a word in its own sentence", () => {
 });
 
 describe("building a paper", () => {
-  const paper = buildPaper("B1", pool(40), "seed-one");
+  const paper = buildPaper("B1", pool(40), "seed-one", WORD_ORDER);
 
   it("is reproducible from its seed, which is what makes a reload safe", () => {
-    const again = buildPaper("B1", pool(40), "seed-one");
+    const again = buildPaper("B1", pool(40), "seed-one", WORD_ORDER);
     expect(JSON.stringify(again)).toEqual(JSON.stringify(paper));
   });
 
   it("is a different paper under a different seed", () => {
-    const other = buildPaper("B1", pool(40), "seed-two");
+    const other = buildPaper("B1", pool(40), "seed-two", WORD_ORDER);
     expect(JSON.stringify(other)).not.toEqual(JSON.stringify(paper));
   });
 
@@ -219,7 +225,7 @@ describe("building a paper", () => {
 });
 
 describe("the two written tasks", () => {
-  const paper = buildPaper("B1", pool(40), "written-seed");
+  const paper = buildPaper("B1", pool(40), "written-seed", WORD_ORDER);
   const writing = partOf(paper, "writing");
   const message = writing?.tasks.find((t) => t.spec.kind === "message")?.items[0];
   const compose = writing?.tasks.find((t) => t.spec.kind === "compose")?.items[0];
@@ -264,7 +270,7 @@ describe("the two written tasks", () => {
 });
 
 describe("a dictionary too thin to fill the paper", () => {
-  const paper = buildPaper("B1", pool(3), "thin");
+  const paper = buildPaper("B1", pool(3), "thin", WORD_ORDER);
 
   it("says so rather than quietly setting a shorter paper", () => {
     expect(paper.thin).toBe(true);
@@ -288,7 +294,7 @@ describe("a dictionary too thin to fill the paper", () => {
 
 describe("an empty dictionary", () => {
   it("produces a paper with no questions rather than a crash", () => {
-    const paper = buildPaper("A2", [], "empty");
+    const paper = buildPaper("A2", [], "empty", WORD_ORDER);
     expect(paper.thin).toBe(true);
     // Not zero: the two written tasks and the two spoken ones need a topic and a
     // microphone rather than a dictionary, so they survive an empty one. Every
@@ -310,7 +316,7 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
     install a stranger gets by default.
   */
   const wordsOnly = pool(40).map((word) => ({ ...word, examples: [] }));
-  const paper = buildPaper("B1", wordsOnly, "no-sentences");
+  const paper = buildPaper("B1", wordsOnly, "no-sentences", WORD_ORDER);
 
   it("still sets a listening part, out of single words", () => {
     const listening = paper.parts.find((p) => p.spec.skill === "listening")!;
@@ -386,7 +392,7 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
         lemma: nth(i, "tege"), lexemeId: `v-${i}`, translation: `to ${nth(i, "do")}`, pos: "VERB", cefr: "B1",
       })),
     ];
-    const paper = buildPaper("B1", mixed, "mixed-pos");
+    const paper = buildPaper("B1", mixed, "mixed-pos", WORD_ORDER);
     const glossItems = paper.parts
       .flatMap((p) => p.tasks)
       .flatMap((t) => t.items)
@@ -432,7 +438,7 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
     // shuffle's business, so a single paper can miss a pair by luck and pass a
     // builder with no rule at all.
     const items = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
-      .flatMap((seed) => buildPaper("B1", paired, `paired-${seed}`).parts)
+      .flatMap((seed) => buildPaper("B1", paired, `paired-${seed}`, WORD_ORDER).parts)
       .flatMap((p) => p.tasks)
       .flatMap((t) => t.items)
       .filter((i): i is Extract<typeof i, { kind: "gloss-choice" }> => i.kind === "gloss-choice");
@@ -469,7 +475,7 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
         forms: [{ formType: "GEN_SG", value: `${nth(i, "veeren")}a`, morphCode: null, morphName: null }],
       })),
     ];
-    const spoken = buildPaper("B1", families, "families").parts
+    const spoken = buildPaper("B1", families, "families", WORD_ORDER).parts
       .flatMap((p) => p.tasks)
       .flatMap((t) => t.items)
       .filter((i): i is Extract<typeof i, { kind: "listen-choose" }> => i.kind === "listen-choose")
@@ -502,7 +508,7 @@ describe("a dictionary with no recorded sentences, which is what a keyless insta
     */
     const some = wordsOnly.map((word, i) =>
       i < 20 ? { ...word, examples: [{ et: `See ${word.lemma} seisab seal.`, en: null }] } : word);
-    const mixed = buildPaper("B1", some, "some-sentences");
+    const mixed = buildPaper("B1", some, "some-sentences", WORD_ORDER);
     const partial = mixed.parts
       .flatMap((p) => p.tasks)
       .filter((t) => t.fallbackFrom === null && t.items.length > 0 && t.shortfall > 0);

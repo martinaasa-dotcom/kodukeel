@@ -2600,8 +2600,22 @@ check("a screen built from a list of lemmas shows one entry per lemma", () => {
         honest code, which is how a check becomes one everybody waives.
       */
       const keyedOnBoth = /\.lemma\b[\s\S]{0,40}\.pos\b|\.pos\b[\s\S]{0,40}\.lemma\b/.test(window);
+      /*
+        And a fourth, which is a read that wants every row on purpose because
+        what it builds is a set of spellings. `orderContextFrom` asks which
+        words of a sentence are verbs, and `hall` being a noun and an
+        adjective is two sets of forms rather than a duplicate: picking one of
+        the pair would drop half the spellings and switch a rule off for
+        whichever entry lost. Nothing is rendered and nothing is written, so
+        the fault this check exists for cannot arise; a set collapses a
+        repeated spelling by construction. Named rather than left to the
+        `.lemma`/`.pos` pattern, because writing code to satisfy a regular
+        expression is what makes a check nobody reads.
+      */
+      const intoASetOfSpellings = /orderContextFrom/.test(window);
       assert.ok(
-        /oneEntryPerLemma/.test(window) || /new Set\(/.test(window) || keyedOnBoth,
+        /oneEntryPerLemma/.test(window) || /new Set\(/.test(window) || keyedOnBoth
+        || intoASetOfSpellings,
         `${file}: looks a list of lemmas up and uses every row. A lemma can hold two `
         + `entries, so pass the result through oneEntryPerLemma() (lib/dict/search.ts), `
         + `which applies the same rule the dictionary leads with. Counting distinct `
@@ -16863,6 +16877,100 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
     bar, /aria-hidden/,
     "the milestone strip stopped being hidden from a screen reader. A row of dots is a picture of the list beneath it",
   );
+});
+
+check("an order the writer did not choose is not a wrong order", () => {
+  /*
+    REPORTED OFF THE APP'S OWN FIRST UNIT. `Muidugi tuleb ette näpukaid`
+    rebuilt as `Muidugi tuleb näpukaid ette` is what anybody says, and the
+    sentence builder marked it wrong under "Not the order Estonian uses here."
+    A learner told their own Estonian is a mistake stops trusting the marking,
+    and on this exercise the marking is the whole lesson.
+
+    `lib/estonian/wordOrder.ts` is the one reading of a built order, and the
+    three screens that set this exercise all go through it: the lesson, the
+    sentences round and the mock examination. What is guarded here is that
+    they keep going through it, because the exact comparison is still exported
+    (`readOrder` is built on it) and is the natural thing for a fourth screen
+    to reach for.
+  */
+  const rule = "lib/estonian/wordOrder.ts";
+  assert.ok(existsSync(rule), "the word-order reading has gone");
+
+  const markers = [
+    "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
+    "app/(app)/review/sentences/SentenceSession.tsx",
+    "lib/exam/score.ts",
+  ];
+  for (const file of markers) {
+    const body = code(file);
+    assert.match(body, /readOrder\(/, `${file} does not read the word order, it compares it`);
+    assert.doesNotMatch(
+      body, /sentenceMatches\(/,
+      `${file} marks a built sentence with the exact comparison again, so another order Estonian allows is wrong there`,
+    );
+  }
+
+  /*
+    And a variant is never penalised, which is the whole of what was asked
+    for. `orderIsRight` is the one place that is decided, so a screen reading
+    the three-way verdict and then grading `reading === "exact"` cannot creep
+    back in.
+  */
+  for (const file of markers) {
+    assert.match(
+      code(file), /orderIsRight\(/,
+      `${file} decides for itself whether a variant counts, which is how one screen starts penalising what another accepts`,
+    );
+  }
+
+  /*
+    THE ALTERNATIVES ARE WORKED OUT WHERE THE DICTIONARY IS. Two of the three
+    screens mark where there is none: the lesson marks in the browser, and the
+    examination rebuilds its paper to mark it and may not open a socket on the
+    way. So the rule takes its reading of the words as a parameter and the
+    caller resolves it, which is what keeps `lib/estonian/` and `lib/exam/`
+    free of Prisma.
+  */
+  assert.doesNotMatch(
+    code(rule), /@\/lib\/db|@prisma\/client|\bprisma\./,
+    "the word-order rule reaches a database, so the examination marker cannot use it",
+  );
+  assert.doesNotMatch(
+    code("lib/exam/score.ts"), /@\/lib\/db|@prisma\/client/,
+    "the examination marker reaches a database to mark a word order",
+  );
+
+  /*
+    And a builder that has not thought about it does not compile, which is the
+    shape `illSgShort` and `clueFrom` take: the fault this whole thing is
+    about is silent, since a missing reading marks correct Estonian wrong and
+    looks exactly like a learner getting it wrong.
+  */
+  assert.match(
+    code("lib/collections/lesson.ts"), /wordOrder: OrderContext;/,
+    "LessonInput's dictionary reading went optional, so a caller can build a lesson that marks correct Estonian wrong",
+  );
+  assert.match(
+    code("lib/exam/paper.ts"), /wordOrder: OrderContext,/,
+    "buildPaper stopped asking for a dictionary reading",
+  );
+
+  /*
+    The copy is one table, because it was three and they had drifted: the
+    examination's "That is not the order the writer chose" was the honest
+    wording of a marking that was wrong.
+  */
+  const copy = code("lib/copy/values.ts");
+  for (const name of ["ORDER_EXACT", "ORDER_VARIANT", "ORDER_WRONG"]) {
+    assert.match(copy, new RegExp(`export const ${name} = `), `${name} has gone from the copy table`);
+  }
+  for (const file of markers) {
+    assert.match(
+      code(file), /ORDER_VARIANT/,
+      `${file} writes its own sentence about a word order rather than reading the one table`,
+    );
+  }
 });
 
 console.log(

@@ -14,6 +14,7 @@ import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { orderContextFor } from "@/lib/dict/wordOrder";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -139,6 +140,13 @@ export default async function LessonPage({
   */
   const words = oneEntryPerLemma(rows, unit.lemmas).map(toWord);
 
+  /*
+    What the dictionary says about the words of the sentences this lesson can
+    set, so a learner who rebuilds one in another order Estonian allows is not
+    marked wrong. Read once for the whole sitting rather than per step.
+  */
+  const wordOrder = await orderContextFor(words.flatMap((w) => w.examples));
+
   const lessons = splitIntoLessons(words);
   const index = Math.min(Math.max(Number(part) || 1, 1), Math.max(lessons.length, 1)) - 1;
   const chosen = lessons[index] ?? [];
@@ -154,6 +162,7 @@ export default async function LessonPage({
     // Stable for this unit and part, so re-entering a lesson gives the same one
     // rather than reshuffling the questions under someone who came back to it.
     seed: hash(`${unit.id}:${index}`),
+    wordOrder,
   });
 
   /*

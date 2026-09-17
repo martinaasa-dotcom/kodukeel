@@ -13,6 +13,7 @@ import { SKILLS, type SkillKey } from "@/lib/exam/types";
 import { latestFor } from "./assessment";
 import { deckSnapshot, type DeckSnapshot } from "./summary";
 import { caseReviewsFor } from "@/lib/progress/cases";
+import { orderContextFor } from "@/lib/dict/wordOrder";
 
 /**
  * The database half of the mock examination.
@@ -152,7 +153,15 @@ export async function paperFor(
   level: ExamLevel,
   seed: string,
 ): Promise<Paper> {
-  return buildPaper(level, await examPool(ownerId, level, seed), seed);
+  const pool = await examPool(ownerId, level, seed);
+  /*
+    Read from the pool the paper is built out of, so the alternatives a
+    sentence carries are a function of (level, seed, pool) like the rest of the
+    paper: the marker rebuilds the paper to mark it and works them out again
+    from the same words.
+  */
+  const wordOrder = await orderContextFor(pool.flatMap((w) => w.examples.map((e) => e.et)));
+  return buildPaper(level, pool, seed, wordOrder);
 }
 
 // ── The signals behind the confidence figure ─────────────────────────────────

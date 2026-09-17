@@ -14,7 +14,9 @@ import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
-import { BLANK, sentenceMatches, sizedBlank } from "@/lib/estonian/cloze";
+import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
+import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
+import { ORDER_EXACT, ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -585,8 +587,21 @@ function StepCard({
                 variant="primary"
                 disabled={remaining > 0}
                 onClick={() => {
-                  const ok = sentenceMatches(placed, step.sentence);
-                  setChecked({ ok, note: ok ? "That is the sentence." : "Not the order Estonian uses here." });
+                  /*
+                    Three readings rather than two. Another order Estonian
+                    allows is right and is never penalised, and the sentence
+                    printed under the verdict is the writer's own order rather
+                    than a correction of anything.
+                  */
+                  const verdict = readOrder(placed, step.sentence, step.alsoRight);
+                  const ok = orderIsRight(verdict.reading);
+                  setChecked({
+                    ok,
+                    note:
+                      verdict.reading === "exact" ? ORDER_EXACT
+                      : verdict.reading === "variant" ? ORDER_VARIANT
+                      : ORDER_WRONG,
+                  });
                   onAnswer(step.lemma, step.kind, ok);
                 }}
               >

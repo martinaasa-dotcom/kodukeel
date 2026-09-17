@@ -1565,6 +1565,61 @@ answer with distractors drawn from the same list, so widening what can be gapped
 questions a candidate is asked and what is offered against them. That is a change to a measurement
 rather than to an exercise and it is not made in passing.
 
+**The order the writer chose is one Estonian sentence, not the only one.** The sentence builder
+compared the tiles with the recording and called everything else wrong, and a learner reported it
+off the app's own first unit: `Muidugi tuleb ette näpukaid` rebuilt as `Muidugi tuleb näpukaid
+ette`, which is what anybody says, came back as "Not the order Estonian uses here." The field after
+the verb in this language is genuinely free, so that sentence was the app telling somebody their own
+Estonian was a mistake, on the one exercise where the marking is the whole lesson. A built order is
+read three ways now rather than two, the writer's own and another order Estonian allows are both
+right, and the recorded sentence is printed under the verdict as a fact about the recording rather
+than as a correction.
+
+**Accepting a permutation is this app making a claim about Estonian**, so `lib/estonian/wordOrder.ts`
+accepts the one it can be certain of and still refuses everything else. A verb particle standing
+directly after the finite verb may instead stand at the end of its clause, `panen kinni akna` and
+`panen akna kinni` being the same sentence twice. Four conditions sit on that and **each is there
+because taking it out accepts a sentence nobody says**, which is how they were arrived at: every one
+came off a run of `npm run audit:order`, which prints every alternative the rule offers over the
+9,464 sentences the shipped dictionary can set as this exercise, because a rate cannot check a claim
+about a language and reading the list can. **The verb is the anchor rather than a position**, since
+Estonian drops a pronoun subject and puts the verb first when it does, and read positionally
+`Pühkisin otsa eest higi` has a postposition exactly where `Muidugi tuleb ette näpukaid` has a
+particle. **Half of these words are also adpositions**, so `FREE_PARTICLES` moves whatever follows
+it and `BOUND_PARTICLES` moves only as a swap with the one word after it, which strands no
+complement and leaves a preposition as the postposition Estonian already uses for the same phrase
+(`üle tee` and `tee üle`, `mööda teed` and `teed mööda`). **A spelling that is a verb and a noun at
+once is neither**, which is `readCase`'s discipline one room over: `kaalu` is the genitive of `kaal`
+and the imperative of `kaaluma`, and without that rule `kui maiasmokk kaalu peale astus` came apart.
+And **nothing is carried past a comma, a joiner or another verb**: `ja` joins two clauses in `Nad
+kõndisid edasi ja jõudsid järveni` and two adjectives in `Mees nägi välja rõõsa ja ümarik` and
+nothing here can tell those apart, and `lahti kirjutamata akronüümide` is a participle standing in
+front of its noun. It offers an alternative for 46 of those 9,464.
+
+**One direction only, and that is the stated residual.** A particle the writer put at the end stays
+there, because pulling one leftward out of the end of a clause is where a postposition lives (`Ma
+ootasin bussi ees`) and telling that from a particle needs the sentence parsed. So `Ta pani raamatu
+ära` rebuilt as `Ta pani ära raamatu` is correct Estonian this still refuses, which costs a learner
+the marking they already had; accepting it would teach them a sentence nobody says, and that is the
+fault this is built against. The lists name uninflected adverbs and conjunctions, so the lemma is
+the spelling, each is a request the accept list either vouches for or fails the suite on, and the
+module writes no Estonian of its own.
+
+**The judgment is the dictionary's and the marking happens where there is none.** Two of the three
+screens mark offline: the lesson marks in the browser and the examination rebuilds its paper to mark
+it, and `lib/exam/score.ts` may not open a socket to do it. So the rule takes its reading of the
+words as a parameter, `lib/dict/wordOrder.ts` resolves it, and the alternatives ride on the item.
+The read is **bounded by the sentences rather than by the dictionary**, two queries keyed on the
+spellings in front of them: the verbs whose stored first person a person ending in one of these
+words could have come from, read through `possibleFirstPersons` the way the dictionary search
+already reads it so that `tuleb` finds `tulema`, and the entries that are not verbs and hold one of
+these spellings, which is what says `kaalu` is also a genitive. `LessonInput.wordOrder` and
+`buildPaper`'s fourth argument are **required**, for the reason `illSgShort` is: a caller that has
+not thought about this marks correct Estonian wrong, silently, and it looks exactly like a learner
+getting it wrong. What the three screens say about it is one table in `lib/copy/values.ts`, because
+it was three and they had drifted, and the examination's "That is not the order the writer chose"
+was the honest wording of a marking that was wrong.
+
 **A verb the app can conjugate is a verb the dictionary can find, and for a year it was not.** The
 search strips a case ending to look for a genitive stem, which is how `toas` finds `tuba`, and it
 knew nothing whatever about a person ending. So a verb was findable by its lemma, by its two
@@ -7901,6 +7956,7 @@ npm run audit:senses     # re-check every course gloss against the sense Ekilex 
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
+npm run audit:order      # every alternative word order the sentence builder accepts; read the list
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
 npm run db:seed          # reload the built-in dictionary
