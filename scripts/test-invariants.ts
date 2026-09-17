@@ -17043,10 +17043,32 @@ check("an order the writer did not choose is not a wrong order", () => {
     variant note and the refusal are checked, because the fallback is the one
     a caller with no reading of the order gets and is the one nobody looks at.
   */
-  for (const line of [...copy.matchAll(/(?:ORDER_WRONG = |\? |: )("|`)((?:That|Not)[^"`]*)\1/g)]) {
+  const orderCopy = copy.slice(copy.indexOf("export const ORDER_EXACT"));
+  const notes = [...orderCopy.matchAll(/("|`)((?:That|Not)[^"`]*)\1/g)].map((m) => m[2]!);
+  assert.ok(
+    notes.length >= 3,
+    `the word-order notes stopped being readable from the copy table (found ${notes.length}); the check "
+    + "for a dangling colon is looking at nothing`,
+  );
+  for (const note of notes) {
     assert.doesNotMatch(
-      line[2]!, /:$/,
-      `a word-order note ends in a colon ("${line[2]}"), which dangles on the examination's result`,
+      note, /:$/,
+      `a word-order note ends in a colon ("${note}"), which dangles on the examination's result`,
+    );
+  }
+
+  /*
+    AND THE NOTE IS TOLD WHICH WAY THE WORD WENT. `earlier` was written into
+    the sentence while a particle was the only thing that moved, because a
+    particle is accepted at the end of its clause and so always sits further
+    forward in the recording. A time adverb goes both ways, and telling
+    somebody who moved a word forward that the writer put it earlier is the
+    one claim on that screen a learner can check and find wrong.
+  */
+  for (const file of markers) {
+    assert.match(
+      code(file), /orderVariantNote\([^)]*,[^)]*\)/,
+      `${file} writes the word-order note without saying which way the word went`,
     );
   }
 

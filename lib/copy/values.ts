@@ -190,14 +190,19 @@ export const ORDER_WRONG = "That is not the order the writer used.";
  * writer put it this way" has to diff two sentences to find out what the
  * difference was, on a screen they are about to move on from.
  *
- * `earlier` is safe to say because the move only ever goes one way: the
- * particle is accepted at the end of its clause, so in the recording it is
- * always further forward (`lib/estonian/wordOrder.ts`). Null falls back to the
- * sentence without the word, which is what a caller with no reading of the
- * order has.
+ * **Which way it went is a parameter rather than a word**, and that is a
+ * correction. `earlier` was written into the sentence while the particle was
+ * the only thing that moved, because a particle is accepted at the end of its
+ * clause and so always sits further forward in the recording. A time adverb
+ * goes both ways: somebody who rebuilds `Ma loen raamatut täna` as `Täna ma
+ * loen raamatut` has moved the word forward, and telling them the writer put
+ * it earlier is the one claim on that screen a learner can check and find
+ * wrong.
+ *
+ * Null falls back to the sentence without the word, which is what a caller
+ * with no reading of the order has.
  */
-export function orderVariantNote(moved: string | null): string {
-  return moved
-    ? `That works. The writer put ${moved} earlier.`
-    : "That works. The writer put it another way.";
+export function orderVariantNote(moved: string | null, writerPut: "earlier" | "later" | null): string {
+  if (!moved || !writerPut) return "That works. The writer put it another way.";
+  return `That works. The writer put ${moved} ${writerPut}.`;
 }

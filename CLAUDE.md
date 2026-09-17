@@ -1619,6 +1619,59 @@ a gap in the rule. The lists name uninflected adverbs and conjunctions, so the l
 the spelling, each is a request the accept list either vouches for or fails the suite on, and the
 module writes no Estonian of its own.
 
+**And a time adverb stands anywhere its clause has room for it, which is the second move.** The
+same native speaker reported it and the report is the whole rule: `Ma loen raamatut täna`, `Ma loen
+täna raamatut`, `Täna ma loen raamatut` and `Ma täna loen raamatut` are all said. Those four are not
+a sample of where the word may go, they are **the four the app can name with no parser**: the two
+edges, which need no reading of anything, and the two slots the verb makes, which split no phrase
+because the verb is a boundary on both sides. Anything between would have to be read off a phrase
+this module cannot see, so `Ma loen huvitavat raamatut täna` is never offered as `Ma loen huvitavat
+täna raamatut`. The fourth puts the verb third, which a textbook would mark and a native speaker
+asked for by name; the mark is a question for the exercise and the grammar is not.
+
+**And the note named the word that stayed put, in the wrong direction.** `OrderVerdict.moved` is
+read at the first position the two orders differ, where one of them holds the word that moved and
+the other holds the word that shifted into its place, and which is which is the direction it went.
+That was written for the particle, which only ever travels rightward, so the recording's word at
+that position is always the mover; the adverb goes both ways, and read the particle's way the note
+said `Ma` for `Täna ma loen raamatut` and `raamatut` for `Ma loen täna raamatut`, which are the two
+words that did not move. **A swap of two neighbours is genuinely ambiguous from the positions
+alone**, since those two orders differ by `täna` going one place left or `raamatut` one place right,
+so the reading asks which of the two is a word this module moves rather than inferring it. And
+`earlier` went from the sentence into a parameter: somebody who rebuilds `Ma loen raamatut täna` as
+`Täna ma loen raamatut` has moved the word forward, and telling them the writer put it earlier is
+the one claim on that screen a learner can check and find wrong.
+
+**The list is points in time and nothing else, and `kohe` came off it on the reading.** A time adverb
+is movable because it governs nothing, heads no phrase and is not gradable, which is what makes it
+decidable where the adjacent swap of two nominals is not. `tihti`, `harva` and `hiljem` all take a
+modifier, `väga tihti` and `palju hiljem`, and moving one out of that pair strands the word modifying
+it; you cannot say `väga täna`. `kohe` looked safe and is a time in `Laps jäi kohe magama` and a
+place in `Protsessori pesa on kohe toiteploki juures`, where it means right beside the thing named
+after it, and the second came back as `Protsessori pesa on toiteploki juures kohe`. `täna` is also
+the imperative of `tänama` and needs no rule of its own, since `finiteVerb` refuses a spelling with
+two readings and a clause whose only verb candidate is refused moves nothing.
+
+**Six things refuse the move and every one of them came off the list the audit prints.** A neighbour
+the dictionary cannot place as a plain word, because `täna hommikul`, `tänavu veebruaris`, `veel
+täna` and `alles nüüd` are one expression each: `Ärkasin täna hommikul kell 7` came back as `Ärkasin
+hommikul kell täna`. **That test asks what the neighbour is rather than what it is not**, which is
+the half that matters: written as "the dictionary does not call this an adverb" it could only refuse
+a word somebody had got round to adding, so `veel täna` held and `alles nüüd` came apart, and the
+rule was really about dictionary coverage. A neighbour it cannot place blocks the move, so a thin
+dictionary offers fewer orders rather than wrong ones, and `Meri on täna tormine` is refused where
+`Meri on täna tige` is not. The two time cases are built rather than read, since `hommikul` is
+`hommik` in the alalütlev and `veebruaris` is `veebruar` in the seesütlev and neither is an entry.
+Then: a participle after it with no verb in front, because `Eile lõppenud filmifestivali peaauhind`
+is a prize described rather than a thing that happened yesterday, while `on tänavu võitnud` is an
+ordinary perfect and the auxiliary is what tells them apart. The verb ending up first, because
+Estonian opens a yes-or-no question that way and `Täna on väljas külm ilm` came back as `On väljas
+külm ilm täna`. The slot between `ei` and its verb, which are one form written in two words; `ära`
+is deliberately not on that footing, since `Ära kohe vasta` is a sentence a lexicographer recorded.
+And the front of a clause that asks something, or of one after a comma, or of one opening on a focus
+particle, because a question word, a subordinator and a fronted `küll` are each first for a reason.
+39 alternatives became 130, and all 130 read as Estonian.
+
 **And reading the whole list found two more, one of them the guard's own subject.** A rate cannot
 check a claim about a language and `npm run audit:order` prints every alternative for that reason,
 so the list is read rather than the total. `Ei puudunud palju, et tuumasõda oleks lahti läinud` came

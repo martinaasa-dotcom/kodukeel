@@ -5,8 +5,8 @@ import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { isKnownForm } from "../dict/forms";
 import { sentenceTiles } from "./cloze";
 import {
-  acceptedOrders, alsoRightOrders, BOUND_PARTICLES, CLAUSE_JOINERS, FREE_PARTICLES,
-  orderContextFrom, readOrder, sentenceClauses,
+  acceptedOrders, alsoRightOrders, orderIsRight, BOUND_PARTICLES, CLAUSE_JOINERS, FOCUS_PARTICLES,
+  FREE_PARTICLES, MOBILE_ADVERBS, orderContextFrom, readOrder, sentenceClauses,
 } from "./wordOrder";
 
 const ROWS = dictionaryRows();
@@ -108,6 +108,24 @@ describe("what it refuses", () => {
       comma may take an order away and may never add one.
     */
     ["Kraadiklaas läks katki, elavhõbe voolas laiali.", "Kraadiklaas läks elavhõbe voolas laiali katki"],
+    /*
+      AND THE SIX SHAPES THE TIME ADVERB IS REFUSED IN, each off the list
+      `npm run audit:order` prints and each a sentence that came back wrong
+      before the guard for it existed.
+    */
+    // Part of a longer adverbial: taking the first word out strands the rest.
+    ["Ärkasin täna hommikul kell 7.", "Ärkasin hommikul kell täna"],
+    ["Tänavu veebruaris ilmus bändilt singel ja video.", "veebruaris ilmus Tänavu bändilt singel ja video"],
+    ["Peame otsuse langetama veel täna.", "Peame täna otsuse langetama veel"],
+    // In front of a participle with no verb before it, which is an attribute.
+    ["Eile lõppenud Berliini filmifestivali peaauhind läks jagamisele.", "lõppenud Berliini filmifestivali peaauhind läks jagamisele Eile"],
+    // Leaving the verb first, which is how Estonian opens a question.
+    ["Täna on väljas külm ilm.", "on väljas külm ilm Täna"],
+    // Between the negator and its verb, which are one form in two words.
+    ["Täna kirikut ei ole.", "kirikut ei Täna ole"],
+    // In front of a question word, and in front of a subordinator.
+    ["Kus sa praegu töötad?", "praegu Kus sa töötad"],
+    ["Nõder sulg ei suuda kirjeldada, mis nüüd juhtus.", "Nõder sulg ei suuda kirjeldada nüüd mis juhtus"],
   ];
 
   for (const [original, built] of refused) {
@@ -115,6 +133,68 @@ describe("what it refuses", () => {
       expect(readOrder(tiles(built), original, alsoRightOrders(original, DICT)).reading).toBe("wrong");
     });
   }
+});
+
+/*
+  THE FOUR SENTENCES THE RULE WAS REPORTED IN. A time adverb stands at either
+  edge of its clause or on either side of the verb, and the report was those
+  four orders of one sentence, named as all being said.
+*/
+describe("a time adverb", () => {
+  const written = "Ma loen raamatut täna.";
+  const said = [
+    "Ma loen raamatut täna",  // the writer's own
+    "Ma loen täna raamatut",
+    "Täna ma loen raamatut",
+    "Ma täna loen raamatut",
+  ];
+
+  for (const built of said) {
+    it(`takes ${built}`, () => {
+      const v = readOrder(tiles(built), written, alsoRightOrders(written, DICT));
+      expect(orderIsRight(v.reading), v.reading).toBe(true);
+    });
+  }
+
+  /*
+    And nowhere else. The four are the positions the app can name with no
+    parser; anything between would have to be read off a phrase it cannot
+    see, and this is the one that would split `huvitavat raamatut`.
+  */
+  it("does not put it inside a phrase", () => {
+    const long = "Ma loen huvitavat raamatut täna.";
+    const v = readOrder(tiles("Ma loen huvitavat täna raamatut"), long, alsoRightOrders(long, DICT));
+    expect(v.reading).toBe("wrong");
+  });
+
+  /*
+    AND THE WORD IT NAMES IS THE ONE THAT MOVED. At the first position two
+    orders differ, one of them holds the mover and the other holds the word
+    that shifted into its place, and which is which is the direction it went.
+    Read the way the particle is read, this named `Ma`, which is the word that
+    stayed put, and said the writer had it earlier when the writer had it at
+    the other end of the sentence.
+  */
+  it("names the word that moved and which way the writer had it", () => {
+    const forward = readOrder(tiles("Täna ma loen raamatut"), written, alsoRightOrders(written, DICT));
+    expect(forward.moved).toBe("täna");
+    expect(forward.writerPut).toBe("later");
+
+    const middle = readOrder(tiles("Ma loen täna raamatut"), written, alsoRightOrders(written, DICT));
+    expect(middle.moved).toBe("täna");
+    expect(middle.writerPut).toBe("later");
+  });
+
+  /*
+    And the particle, which only ever goes the other way, is unchanged: the
+    reported sentence has `ette` further forward than the learner put it.
+  */
+  it("still reads the particle the way it always did", () => {
+    const reported = "Muidugi tuleb ette näpukaid.";
+    const v = readOrder(tiles("Muidugi tuleb näpukaid ette"), reported, alsoRightOrders(reported, DICT));
+    expect(v.moved).toBe("ette");
+    expect(v.writerPut).toBe("earlier");
+  });
 });
 
 describe("what it accepts", () => {
@@ -136,6 +216,16 @@ describe("what it accepts", () => {
       the segment after this comma holds `on`, which is a verb of its own.
     */
     ["Hai tunned ära selle järgi, et tal on suu koonu all.", "Hai tunned selle järgi ära et tal on suu koonu all"],
+    /*
+      A time adverb at each of its other three positions, in a sentence a
+      lexicographer recorded. `Meri on täna tormine` is the same sentence and
+      is refused, because `tormine` is in no entry of the shipped dictionary
+      and a neighbour this cannot place blocks the move: that is the
+      over-refusal `plainWord` describes, doing what it says on a real word.
+    */
+    ["Meri on täna tige.", "Täna meri on tige"],
+    ["Meri on täna tige.", "Meri täna on tige"],
+    ["Meri on täna tige.", "Meri on tige täna"],
   ];
   for (const [original, built] of accepted) {
     it(`accepts ${built}`, () => {
@@ -164,7 +254,12 @@ describe("the word lists", () => {
     one is asked of `prisma/data/forms/`, the accept list, which is read here
     for exactly the question it exists to answer: is that a word.
   */
-  for (const word of [...FREE_PARTICLES, ...BOUND_PARTICLES, ...CLAUSE_JOINERS]) {
+  const ALL = [
+    ...FREE_PARTICLES, ...BOUND_PARTICLES, ...CLAUSE_JOINERS,
+    ...MOBILE_ADVERBS, ...FOCUS_PARTICLES,
+  ];
+
+  for (const word of ALL) {
     it(`${word} is a word Estonian has`, async () => {
       expect(await isKnownForm(word)).toBe(true);
     });
@@ -175,10 +270,21 @@ describe("the word lists", () => {
     expect(new Set(all).size).toBe(all.length);
   });
 
+  /*
+    And a word cannot be mobile and a particle at once, or the two moves
+    would disagree about it: a particle goes to the end of its clause on one
+    rule and anywhere on the other.
+  */
+  it("keeps the mobile adverbs apart from the particles", () => {
+    const particles = new Set([...FREE_PARTICLES, ...BOUND_PARTICLES]);
+    expect(MOBILE_ADVERBS.filter((w) => particles.has(w))).toEqual([]);
+    expect(MOBILE_ADVERBS.filter((w) => FOCUS_PARTICLES.includes(w))).toEqual([]);
+  });
+
   it("holds no Estonian beyond those lists", () => {
     const source = readFileSync(join(import.meta.dirname, "wordOrder.ts"), "utf8");
     const code = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
-    const named = new Set([...FREE_PARTICLES, ...BOUND_PARTICLES, ...CLAUSE_JOINERS]);
+    const named = new Set(ALL);
     const estonian = [...code.matchAll(/"([a-zõäöüšž]+)"/g)]
       .map((m) => m[1]!)
       .filter((w) => /[õäöüšž]/.test(w) && !named.has(w));
@@ -219,10 +325,37 @@ describe("over the shipped dictionary", () => {
     }
   });
 
-  it("offers at most one alternative per sentence", () => {
+  /*
+    ONE WORD MOVES, AND A TIME ADVERB HAS FOUR PLACES TO MOVE TO. The claim
+    was one alternative per sentence while a particle was the only thing that
+    moved, and it is the wrong shape for the adverb: `Meri on täna tormine`
+    has three other orders and all three were asked for. What is bounded is
+    the number of words that move, which is one, so a sentence cannot offer
+    more than three alternatives per mobile word in it and no order differs
+    from the recording by more than one word's position.
+  */
+  it("moves one word and no more", () => {
     for (const row of ROWS) {
       for (const example of row.examples) {
-        expect(acceptedOrders(example.et, DICT).length).toBeLessThanOrEqual(2);
+        const target = sentenceTiles(example.et);
+        for (const order of acceptedOrders(example.et, DICT).slice(1)) {
+          const moved = order.filter((w, i) => w.toLowerCase() !== target[i]?.toLowerCase());
+          /*
+            Taking one word out and putting it back shifts everything between
+            the two positions by one, so the run that differs is that whole
+            stretch and what it has to be is a rotation of itself: the same
+            words in the same order with one of them carried to the other end.
+          */
+          const start = moved.length > 0 ? order.findIndex((w, i) => w.toLowerCase() !== target[i]?.toLowerCase()) : 0;
+          const end = start + moved.length;
+          const before = target.slice(start, end).map((w) => w.toLowerCase());
+          const after = order.slice(start, end).map((w) => w.toLowerCase());
+          const rotations = [
+            [...before.slice(1), before[0]!].join(" "),
+            [before[before.length - 1]!, ...before.slice(0, -1)].join(" "),
+          ];
+          expect(rotations, `${example.et} -> ${order.join(" ")}`).toContain(after.join(" "));
+        }
       }
     }
   });

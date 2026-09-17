@@ -599,7 +599,7 @@ function StepCard({
                     ok,
                     note:
                       verdict.reading === "exact" ? ORDER_EXACT
-                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved)
+                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut)
                       : ORDER_WRONG,
                   });
                   onAnswer(step.lemma, step.kind, ok);

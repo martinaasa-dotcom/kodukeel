@@ -11,7 +11,7 @@ import { Speak } from "@/components/Speak";
 import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceTiles } from "@/lib/estonian/cloze";
-import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
+import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
@@ -69,7 +69,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
     because another order is not a near miss and may not wear butter.
   */
   const [checked, setChecked] = useState<null | "right" | "wrong">(null);
-  const [variant, setVariant] = useState<string | null | false>(false);
+  const [variant, setVariant] = useState<OrderVerdict | null>(null);
   const [attempts, setAttempts] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [previewing, setPreviewing] = useState(false);
@@ -119,7 +119,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   useEffect(() => {
     setBuilt([]);
     setChecked(null);
-    setVariant(false);
+    setVariant(null);
     shownAt.current = Date.now();
     if (task && task.en === null) {
       setPreviewing(true);
@@ -138,7 +138,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
     const verdict = readOrder(answer, task.et, task.alsoRight);
     const right = orderIsRight(verdict.reading);
     setChecked(right ? "right" : "wrong");
-    setVariant(verdict.reading === "variant" ? verdict.moved : false);
+    setVariant(verdict.reading === "variant" ? verdict : null);
     setAttempts((a) => a + 1);
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
@@ -352,7 +352,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
               */}
               <p className="label-xs" style={{ textTransform: "none" }}>
                 {checked === "wrong" ? ORDER_WRONG
-                  : <>{uiText("Õige!", "Correct!")} {variant === false ? ORDER_EXACT : orderVariantNote(variant)}</>}
+                  : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut)}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>

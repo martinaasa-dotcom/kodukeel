@@ -261,7 +261,7 @@ export function markItem(
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,
         expected: item.answer, given: built.join(" "),
         note:
-          verdict.reading === "variant" ? orderVariantNote(verdict.moved)
+          verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut)
           : correct ? ""
           : ORDER_WRONG,
         cardId: item.cardId, lexemeId: item.lexemeId, lemma: item.lemma, recalled: correct,

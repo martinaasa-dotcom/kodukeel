@@ -380,7 +380,7 @@ describe("a word order the writer did not choose", () => {
     expect(result.scored).toBe(1);
     expect(result.recalled).toBe(true);
     // And it names the word, which is the disclaimer that was asked for.
-    expect(result.note).toBe(orderVariantNote("ette"));
+    expect(result.note).toBe(orderVariantNote("ette", "earlier"));
     expect(result.note).toContain("ette");
   });
 

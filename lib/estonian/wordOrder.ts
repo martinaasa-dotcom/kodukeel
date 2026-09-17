@@ -58,6 +58,34 @@
  *    voolas laiali`, because `voolas` is a simple past no rule here derives
  *    and the verb in the second clause was invisible.
  *
+ * 5. **A time adverb may stand at either edge of its clause or on either side
+ *    of the verb**, which is the second move and was reported the same way
+ *    the first was: `Ma loen raamatut täna`, `Ma loen täna raamatut`, `Täna
+ *    ma loen raamatut` and `Ma täna loen raamatut` are all said. Those four
+ *    positions are not a sample of where the word may go, they are the four
+ *    the app can name with no parser at all: the two edges, which need no
+ *    reading of anything, and the two slots the verb makes, which split no
+ *    phrase because the verb is a boundary on both sides. Anything between
+ *    would have to be read off a phrase this cannot see, so `Ma loen
+ *    huvitavat raamatut täna` is never offered as `Ma loen huvitavat täna
+ *    raamatut`. The last of the four puts the verb third, which a textbook
+ *    would mark and a native speaker asked for by name; the mark is a
+ *    question for the exercise and the grammar is not.
+ *
+ *    **Six things refuse it and every one came off the list the audit
+ *    prints.** A word beside it that is not a plain word of the dictionary,
+ *    because `täna hommikul`, `tänavu veebruaris`, `veel täna` and `alles
+ *    nüüd` are one expression each and taking the first word out of one
+ *    strands the rest. A participle after it with no verb in front, because
+ *    `Eile lõppenud filmifestivali peaauhind` is a prize described rather
+ *    than a thing that happened yesterday. The verb ending up first, because
+ *    Estonian opens a yes-or-no question that way and `Täna on väljas külm
+ *    ilm` came back as `On väljas külm ilm täna`. The slot between `ei` and
+ *    its verb, which are one form written in two words. The front of a
+ *    clause that asks something, or of one after a comma, or of one opening
+ *    on a focus particle, since a question word, a subordinator and a
+ *    fronted `küll` are each first for a reason.
+ *
  * **One direction only, and it was measured rather than argued.** A particle
  * the writer put at the end stays there, so `Ta pani raamatu ära` rebuilt as
  * `Ta pani ära raamatu` is correct Estonian this refuses. The obvious
@@ -122,6 +150,44 @@ export const BOUND_PARTICLES: readonly string[] = [
 export const PARTICLES: readonly string[] = [...FREE_PARTICLES, ...BOUND_PARTICLES];
 
 /**
+ * Adverbs that name a point in time and may stand anywhere in their clause.
+ *
+ * Reported by the native speaker this module was written for, in four
+ * sentences that are the whole of the rule: `Ma loen raamatut täna`, `Ma loen
+ * täna raamatut`, `Täna ma loen raamatut` and `Ma täna loen raamatut` are all
+ * said, and the word is in a different place in each. A time adverb governs
+ * nothing, heads no phrase and is not gradable, so nothing around it can be
+ * stranded by moving it, which is what makes this decidable with no parser at
+ * all where the adjacent swap of two ordinary nominals is not.
+ *
+ * **A point in time rather than a frequency or a degree**, and that is the
+ * line the list is drawn on rather than a preference. `tihti`, `harva`,
+ * `sageli`, `hilja` and `vara` all take a modifier in front of them, `väga
+ * tihti` and `palju hiljem`, and moving one out of that pair strands the word
+ * modifying it; you cannot say `väga täna`. `juba` and `veel` are focus
+ * particles whose position is the thing they do, `siis` links clauses,
+ * `vahel` is also a postposition and `veel` is also the alalütlev of `vesi`.
+ * Every one of those is left out on a reason rather than on a feeling, which
+ * is the shape `FREE_PARTICLES` takes above.
+ *
+ * `täna` is the imperative of `tänama` as well as the adverb, and that needs
+ * no rule of its own: a clause where it is the verb has no other finite verb
+ * in it, `finiteVerb` refuses a spelling with two readings, so the clause
+ * fails the one-verb test and nothing moves.
+ *
+ * `kohe` was on this list and came off it on the reading, which is the only
+ * way any of this is settled. It is a time in `Laps jäi kohe magama` and a
+ * place in `Protsessori pesa on kohe toiteploki juures`, where it means right
+ * beside the thing named after it, and nothing here can tell those apart: the
+ * second came back as `Protsessori pesa on toiteploki juures kohe`, which is
+ * about when rather than where. It costs four ordinary sentences their
+ * alternatives, and a word with two senses is not a word this can move.
+ */
+export const MOBILE_ADVERBS: readonly string[] = [
+  "täna", "homme", "eile", "üleeile", "ülehomme", "praegu", "nüüd", "varsti", "tänavu",
+];
+
+/**
  * The conjunctions that open a clause without a comma in front of them.
  *
  * Estonian writes a comma before `et`, `sest`, `kui`, `aga`, `kuid` and every
@@ -131,9 +197,29 @@ export const PARTICLES: readonly string[] = [...FREE_PARTICLES, ...BOUND_PARTICL
  */
 export const CLAUSE_JOINERS: readonly string[] = ["ja", "ning", "või", "ehk"];
 
+/**
+ * The particles that lean on the word after them.
+ *
+ * `veel täna`, `juba eile`, `alles nüüd` and `just praegu` are one adverbial
+ * each, and the particle is doing the work: take the time word out and what
+ * is left is a particle attached to nothing. They are named here rather than
+ * read off the dictionary because half of them are in no entry at all, which
+ * is what let `alles nüüd` come apart while `veel täna` held.
+ *
+ * A request like every other list in this file, so the suite asks the accept
+ * list whether each is a word.
+ */
+export const FOCUS_PARTICLES: readonly string[] = [
+  "veel", "juba", "alles", "just", "ikka", "ainult", "isegi", "ometi", "küll",
+];
+
 const FREE = new Set(FREE_PARTICLES);
 const BOUND = new Set(BOUND_PARTICLES);
 const JOINERS = new Set(CLAUSE_JOINERS);
+const MOBILE = new Set(MOBILE_ADVERBS);
+const EITHER = new Set(PARTICLES);
+const FOCUS = new Set(FOCUS_PARTICLES);
+const NEGATORS = new Set(["ei", "ega"]);
 
 /** How the built order stands to the one a lexicographer recorded. */
 export type OrderReading = "exact" | "variant" | "wrong";
@@ -141,16 +227,32 @@ export type OrderReading = "exact" | "variant" | "wrong";
 export interface OrderVerdict {
   reading: OrderReading;
   /**
-   * The particle that sits somewhere else, spelled as the writer spelled it.
+   * The word that sits somewhere else, spelled as the writer spelled it.
    * Null unless the reading is `variant`.
    *
-   * It is read off the **recorded** sentence rather than the built one, which
-   * is the whole of getting it right: the particle moves rightward, so at the
-   * first position the two differ the recording has the particle and the
-   * built order has the word that shifted into its place. Written the other
-   * way round first, and it named `näpukaid` as the word that had moved.
+   * At the first position the two orders differ, one of them holds the word
+   * that moved and the other holds the word that shifted into its place, and
+   * which is which is the direction it went. A word carried **rightward**
+   * leaves the recording's word at that position, so the mover is the
+   * recording's; a word brought **leftward** arrives there itself, so the
+   * mover is the built order's. What tells them apart is the word after it:
+   * on a rightward move everything behind has shifted one place forward, so
+   * the built order holds at `i` what the recording holds at `i + 1`.
+   *
+   * Written without that reading it named `näpukaid` for the particle and
+   * `Ma` for the adverb, which are the two words that did not move.
    */
   moved: string | null;
+  /**
+   * Where the writer had that word, relative to where the learner put it.
+   *
+   * The particle only ever travels one way, so `earlier` was written into the
+   * sentence while it was the only move there was. A time adverb goes both
+   * ways: somebody who rebuilds `Ma loen raamatut täna` as `Täna ma loen
+   * raamatut` has moved the word **forward**, and telling them the writer put
+   * it earlier is the one thing on that screen that is checkable and wrong.
+   */
+  writerPut: "earlier" | "later" | null;
 }
 
 /**
@@ -192,6 +294,35 @@ export interface OrderContext {
    * correct sentence.
    */
   participle: (word: string) => boolean;
+  /**
+   * A spelling the dictionary holds and that is **not** doing adverbial work:
+   * not an adverb, not a time case, not a focus particle, not a verb
+   * particle.
+   *
+   * It is the guard on the adverb move and it is asked of the neighbours
+   * rather than of the word itself. A time adverb is mobile because it is a
+   * whole adverbial on its own, and half the ones in a real corpus are not:
+   * `täna hommikul`, `eile õhtul`, `tänavu veebruaris`, `veel täna` and
+   * `alles nüüd` are one expression each, so moving the first word of one
+   * strands the rest of it. `Ärkasin täna hommikul kell 7` came back as
+   * `Ärkasin hommikul kell täna`, which is the fault this exists to refuse.
+   *
+   * **It asks what the neighbour is rather than what it is not**, and that is
+   * the whole of why it works. Written the other way, as "the dictionary does
+   * not call this an adverb", it could only refuse a word the dictionary
+   * holds: `alles` is in no entry here, so `alles nüüd` came apart while
+   * `veel täna` did not, and the rule was really about which words somebody
+   * had got round to adding. A neighbour this cannot place blocks the move,
+   * so a thin dictionary offers fewer orders rather than wrong ones.
+   *
+   * The time cases are the half that has to be built: `hommikul` is not an
+   * entry, it is `hommik` in the alalütlev, and `veebruaris` is `veebruar` in
+   * the seesütlev. **It over-refuses and that is the right side**, since
+   * nothing tells `täna hommikul`, which is a phrase, from `nüüd
+   * Inglismaal`, which is not, and an order wrongly refused is one nobody was
+   * offered while one wrongly accepted is a sentence a learner is taught.
+   */
+  plainWord: (word: string) => boolean;
 }
 
 /** An entry as this module needs to read it, which is every dictionary's shape. */
@@ -214,13 +345,37 @@ export function orderContextFrom(words: Iterable<OrderWord>): OrderContext {
   const finite = new Set<string>();
   const participles = new Set<string>();
   const nominal = new Set<string>();
+  const known = new Set<string>();
+  const adverbial = new Set<string>([...MOBILE, ...EITHER, ...FOCUS]);
   for (const word of words) {
     const spellings = [word.lemma, ...word.forms.map((f) => f.value)].map((v) => v.toLowerCase());
     if (word.pos === "VERB") {
       for (const v of participlesFrom(word.forms)) participles.add(v);
       for (const v of finiteFormsFrom(word.lemma, word.forms)) finite.add(v);
+      for (const v of spellings) known.add(v);
+      for (const v of finiteFormsFrom(word.lemma, word.forms)) known.add(v);
     } else {
       for (const v of spellings) nominal.add(v);
+      for (const v of spellings) known.add(v);
+      if (word.pos === "ADVERB") for (const v of spellings) adverbial.add(v);
+      /*
+        The alalütlev and the seesütlev, which are the two cases Estonian says
+        a time in: `hommikul` and `esmaspäeval` take one, `veebruaris` and
+        `mais` the other. Both are derived rather than stored, so neither is in
+        any entry's form list and both are built here off the genitive, the way
+        every other reader of a case builds one.
+
+        The endings are a bare `l` and a bare `s`, which is what keeps this
+        from reaching the cases beside them: `polikliinikusse` is an illative
+        and `ajakirjast` an elative, and neither is a genitive stem with one
+        letter on it.
+      */
+      for (const form of word.forms) {
+        if (form.formType !== "GEN_SG" && form.formType !== "GEN_PL") continue;
+        const stem = form.value.toLowerCase();
+        adverbial.add(`${stem}l`);
+        adverbial.add(`${stem}s`);
+      }
     }
   }
   return {
@@ -231,6 +386,10 @@ export function orderContextFrom(words: Iterable<OrderWord>): OrderContext {
     participle: (w) => {
       const lower = w.toLowerCase();
       return participles.has(lower) && !nominal.has(lower);
+    },
+    plainWord: (w) => {
+      const lower = w.toLowerCase();
+      return known.has(lower) && !adverbial.has(lower);
     },
   };
 }
@@ -317,6 +476,21 @@ function looksLikeAParticiple(word: string): boolean {
  * a reading of what is on the other side of one can take an order away and
  * never add one.
  */
+/**
+ * Whether the segment before this one has already ended.
+ *
+ * `endsItsClause`'s twin, and needed only by the adverb move, which is the
+ * one that can travel leftward: a particle only ever moves to the end of its
+ * clause, so it can never cross the boundary on this side. A segment whose
+ * predecessor holds no finite verb is a continuation of it, so its first
+ * position is the middle of a clause rather than the start of one.
+ */
+function opensItsClause(segments: string[][], index: number, dict: OrderContext): boolean {
+  const previous = segments[index - 1];
+  if (!previous) return true;
+  return previous.some((w) => dict.finiteVerb(w));
+}
+
 function endsItsClause(segments: string[][], index: number, dict: OrderContext): boolean {
   const next = segments[index + 1];
   if (!next) return true;
@@ -339,6 +513,17 @@ function endsItsClause(segments: string[][], index: number, dict: OrderContext):
  */
 export function acceptedOrders(original: string, dict: OrderContext): string[][] {
   const clauses = sentenceClauses(original);
+  /*
+    A QUESTION OPENS ON ITS QUESTION WORD, so nothing may be put in front of
+    one. `Kus sa praegu töötad?` came back as `Praegu kus sa töötad` and `Mida
+    me täna teeme?` as `Täna mida me teeme`, and Estonian fronts an
+    interrogative in both. The mark is read off the sentence rather than the
+    word, because the interrogatives are a long list that inflects and the
+    punctuation is one character that cannot be wrong about itself. It costs a
+    declarative clause inside a sentence that also asks something, which is
+    the safe side of a rule about where a word may go.
+  */
+  const asks = original.includes("?");
   const orders: string[][] = [clauses.flat()];
 
   clauses.forEach((clause, clauseIndex) => {
@@ -351,39 +536,165 @@ export function acceptedOrders(original: string, dict: OrderContext): string[][]
     */
     const verbs = clause.map((w, i) => (dict.finiteVerb(w) ? i : -1)).filter((i) => i >= 0);
     if (verbs.length !== 1) return;
-    const at = verbs[0]! + 1;
-    const word = clause[at];
-    if (word === undefined) return;
-    const lower = word.toLowerCase();
-    const free = FREE.has(lower);
-    if (!free && !BOUND.has(lower)) return;
+    const verb = verbs[0]!;
+    const offer = (moved: string[]) =>
+      orders.push(clauses.flatMap((c, i) => (i === clauseIndex ? moved : c)));
 
-    const last = clause.length - 1;
-    if (at === last) return; // already at the end: there is no move
-    if (!free && at !== last - 1) return; // a swap of the last two, or nothing
-
-    /*
-      EVERY WORD THE PARTICLE IS CARRIED PAST, WHICH INCLUDES THE LAST ONE.
-      Written as `slice(at + 1, last)` the guard read the words the particle
-      passes *between* rather than the words it passes, and the one it left
-      out is the word it ends up behind. That is the commonest shape there is:
-      Estonian writes its perfect as the particle then the participle, so `Ei
-      puudunud palju, et tuumasõda oleks lahti läinud` came back as `oleks
-      läinud lahti` with the participle guard never asked about `läinud`. The
-      guard exists for `on ära toodud ka statistilised andmed`, where the
-      participle happens not to be last, and could not fire on the sentence
-      shape it is actually about.
-    */
-    const over = clause.slice(at + 1);
-    if (over.some((w) => JOINERS.has(w.toLowerCase()))) return; // never past a joiner
-    if (over.some((w) => dict.participle(w) || looksLikeAParticiple(w))) return; // never past a participle
-    if (!endsItsClause(clauses, clauseIndex, dict)) return; // the comma is a list, not an end
-
-    const moved = [...clause.slice(0, at), ...clause.slice(at + 1), word];
-    orders.push(clauses.flatMap((c, i) => (i === clauseIndex ? moved : c)));
+    particleMove(clause, verb, clauses, clauseIndex, dict, offer);
+    adverbMoves(clause, verb, clauses, clauseIndex, dict, asks, offer);
   });
 
   return orders;
+}
+
+/**
+ * The particle directly after the verb, standing at the end of its clause.
+ *
+ * Rules 1 to 4 of this module's header, one move, in the one direction the
+ * reading supports.
+ */
+function particleMove(
+  clause: string[],
+  verb: number,
+  clauses: string[][],
+  clauseIndex: number,
+  dict: OrderContext,
+  offer: (moved: string[]) => void,
+): void {
+  const at = verb + 1;
+  const word = clause[at];
+  if (word === undefined) return;
+  const lower = word.toLowerCase();
+  const free = FREE.has(lower);
+  if (!free && !BOUND.has(lower)) return;
+
+  const last = clause.length - 1;
+  if (at === last) return; // already at the end: there is no move
+  if (!free && at !== last - 1) return; // a swap of the last two, or nothing
+
+  /*
+    EVERY WORD THE PARTICLE IS CARRIED PAST, WHICH INCLUDES THE LAST ONE.
+    Written as `slice(at + 1, last)` the guard read the words the particle
+    passes *between* rather than the words it passes, and the one it left out
+    is the word it ends up behind. That is the commonest shape there is:
+    Estonian writes its perfect as the particle then the participle, so `Ei
+    puudunud palju, et tuumasõda oleks lahti läinud` came back as `oleks
+    läinud lahti` with the participle guard never asked about `läinud`. The
+    guard exists for `on ära toodud ka statistilised andmed`, where the
+    participle happens not to be last, and could not fire on the sentence
+    shape it is actually about.
+  */
+  const over = clause.slice(at + 1);
+  if (over.some((w) => JOINERS.has(w.toLowerCase()))) return; // never past a joiner
+  if (over.some((w) => dict.participle(w) || looksLikeAParticiple(w))) return; // never past a participle
+  if (!endsItsClause(clauses, clauseIndex, dict)) return; // the comma is a list, not an end
+
+  offer([...clause.slice(0, at), ...clause.slice(at + 1), word]);
+}
+
+/**
+ * A time adverb at either edge of its clause, or on either side of the verb.
+ *
+ * Those four positions are not a sample of where the word may stand, they are
+ * the four the app can name without a parser, and they are exactly the four
+ * the report gave: two edges, which need no reading of anything, and the two
+ * slots the verb itself makes, which split no phrase because the verb is a
+ * boundary on both sides. Any other position would have to be read off a
+ * phrase this module cannot see, which is why `Ma loen huvitavat raamatut
+ * täna` is never offered as `Ma loen huvitavat täna raamatut`.
+ *
+ * The clause has to be a whole one on both sides, where the particle move
+ * asks only about the end: this is the move that can travel leftward, so the
+ * comma before it matters as much as the comma after it.
+ *
+ * And the adverb is never put between the verb and a particle belonging to
+ * it. `Ma panen kinni akna täna` is not offered as `Ma panen täna kinni
+ * akna`: the other three positions say the same thing and none of them walks
+ * into the middle of a particle verb.
+ */
+function adverbMoves(
+  clause: string[],
+  verb: number,
+  clauses: string[][],
+  clauseIndex: number,
+  dict: OrderContext,
+  asks: boolean,
+  offer: (moved: string[]) => void,
+): void {
+  if (!opensItsClause(clauses, clauseIndex, dict)) return;
+  if (!endsItsClause(clauses, clauseIndex, dict)) return;
+
+  clause.forEach((word, at) => {
+    if (at === verb) return;
+    if (!MOBILE.has(word.toLowerCase())) return;
+    /*
+      A WHOLE ADVERBIAL ON ITS OWN, OR IT IS PART OF ONE. `täna hommikul`,
+      `eile õhtul` and `veel täna` are each one expression, and taking the
+      first word out of one leaves the rest of it stranded where the adverb
+      used to be.
+    */
+    const before = clause[at - 1];
+    const after = clause[at + 1];
+    if (before !== undefined && !dict.plainWord(before)) return;
+    if (after !== undefined && !dict.plainWord(after)) return;
+    /*
+      AND A PARTICIPLE AFTER IT IS AN ATTRIBUTE UNLESS THE VERB IS IN FRONT.
+      `Eile lõppenud Berliini filmifestivali peaauhind` is a prize described
+      as having ended yesterday, one phrase standing in front of its noun, and
+      taking `eile` out of it leaves a sentence about nothing. What tells that
+      from the ordinary perfect is the auxiliary: in `on tänavu võitnud` the
+      finite verb is the word before the adverb, and in the attribute there is
+      no finite verb in front of it at all.
+    */
+    if (after !== undefined && at !== verb + 1
+      && (dict.participle(after) || looksLikeAParticiple(after))) return;
+
+    const rest = [...clause.slice(0, at), ...clause.slice(at + 1)];
+    const seat = at < verb ? verb - 1 : verb; // where the verb sits once the adverb is out
+    const behindTheVerb = rest[seat + 1];
+    for (const slot of [0, seat, seat + 1, rest.length]) {
+      if (slot === at) continue; // the order the writer chose
+      if (slot === 0 && asks) continue; // nothing stands in front of a question word
+      /*
+        And nothing is fronted inside a clause that follows a comma. What
+        opens one is a subordinator, `et` or `kui` or `sest` or a relative
+        pronoun, and every one of them has to come first: `Nõder sulg ei suuda
+        kirjeldada, mis nüüd juhtus` came back as `kirjeldada nüüd mis juhtus`
+        on a sentence with no question mark in it to read. The first clause of
+        a sentence has nothing in front of it by definition.
+      */
+      if (slot === 0 && clauseIndex !== 0) continue;
+      /*
+        And nothing stands in front of a focus particle that opens the clause.
+        `Küll sa oled täna tubli!` puts `küll` first to do exactly that, so
+        `Täna küll sa oled tubli` takes the emphasis off the word carrying it.
+      */
+      if (slot === 0 && FOCUS.has((clause[0] ?? "").toLowerCase())) continue;
+      if (slot === seat + 1 && behindTheVerb !== undefined
+        && EITHER.has(behindTheVerb.toLowerCase())) continue;
+      /*
+        AND THE VERB DOES NOT END UP FIRST, unless the writer put it there.
+        Estonian opens a yes-or-no question with the verb, so an adverb taken
+        off the front of a clause it was the whole of leaves a statement
+        reading as a question: `Täna on väljas külm ilm` came back as `On
+        väljas külm ilm täna` and `Eile oli ilus ilm` as `Oli ilus ilm eile`,
+        which are both questions and neither is the sentence. A clause the
+        writer already opened with the verb keeps every position, since
+        nothing about it changes.
+      */
+      if (slot !== 0 && seat === 0 && verb !== 0) continue;
+      /*
+        AND NOTHING GOES BETWEEN THE NEGATOR AND ITS VERB. `ei` and the verb
+        after it are one form of the Estonian verb written in two words, so
+        `Rühma töö tulemused ei kajastu kohe` came back as `ei kohe kajastu`
+        and `Täna kirikut ei ole` as `kirikut ei täna ole`. `ära` is not on
+        this footing and is deliberately absent: `Ära kohe vasta` is the
+        sentence a lexicographer recorded.
+      */
+      if (slot === seat && NEGATORS.has((rest[seat - 1] ?? "").toLowerCase())) continue;
+      offer([...rest.slice(0, slot), word, ...rest.slice(slot)]);
+    }
+  });
 }
 
 /**
@@ -401,15 +712,37 @@ export function readOrder(
   original: string,
   alsoRight: readonly string[],
 ): OrderVerdict {
-  if (sentenceMatches(built, original)) return { reading: "exact", moved: null };
+  if (sentenceMatches(built, original)) return { reading: "exact", moved: null, writerPut: null };
   const target = sentenceTiles(original);
   const lowered = target.map((w) => w.toLowerCase());
   for (const order of alsoRight) {
     if (!sentenceMatches(built, order)) continue;
-    const at = sentenceTiles(order).findIndex((w, i) => w.toLowerCase() !== lowered[i]);
-    return { reading: "variant", moved: at < 0 ? null : target[at] ?? null };
+    const tiles = sentenceTiles(order);
+    const at = tiles.findIndex((w, i) => w.toLowerCase() !== lowered[i]);
+    if (at < 0) return { reading: "variant", moved: null, writerPut: null };
+    /*
+      The recording's word at that position and the built order's are the two
+      candidates, and this module knows which words it moves, so it asks
+      rather than infers. A swap of two neighbours is genuinely ambiguous from
+      the positions alone, since `Ma loen raamatut täna` and `Ma loen täna
+      raamatut` differ by `täna` going one place left or `raamatut` one place
+      right, and only the list says which of those this offered.
+    */
+    const recorded = target[at];
+    const wrote = tiles[at];
+    const moves = (w: string | undefined) =>
+      w !== undefined && (MOBILE.has(w.toLowerCase()) || EITHER.has(w.toLowerCase()));
+    if (moves(recorded) !== moves(wrote)) {
+      return moves(recorded)
+        ? { reading: "variant", moved: recorded ?? null, writerPut: "earlier" }
+        : { reading: "variant", moved: wrote ?? null, writerPut: "later" };
+    }
+    // Neither is a word this moves, or both are: read it off the shift instead.
+    return wrote?.toLowerCase() === lowered[at + 1]
+      ? { reading: "variant", moved: recorded ?? null, writerPut: "earlier" }
+      : { reading: "variant", moved: wrote ?? null, writerPut: "later" };
   }
-  return { reading: "wrong", moved: null };
+  return { reading: "wrong", moved: null, writerPut: null };
 }
 
 /** Whether the built order counts as right. A variant is never penalised. */
@@ -424,5 +757,6 @@ export function orderIsRight(reading: OrderReading): boolean {
  * carrying it twice is a second copy of the answer for somebody to get wrong.
  */
 export function alsoRightOrders(original: string, dict: OrderContext): string[] {
-  return acceptedOrders(original, dict).slice(1).map((order) => order.join(" "));
+  // Deduplicated, because two words of one clause can reach the same order.
+  return [...new Set(acceptedOrders(original, dict).slice(1).map((order) => order.join(" ")))];
 }
