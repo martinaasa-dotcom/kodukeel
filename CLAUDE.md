@@ -1483,13 +1483,26 @@ field and that every page hands it over. **`lib/progress/exam.ts`, `lib/progress
 the practice page are deliberately not on it**: the first two mark, and the third counts how many
 words could support a round rather than choosing one, so order cannot reach a screen.
 
-**The weights were swept rather than chosen, and the first pass had one of them wrong.** Only the
-shape of the cost was measured to begin with, that weighing the signals against each other beats
-chaining tie-breaks; the numbers themselves were judgement. Swept afterwards over the whole
-dictionary, the penalty for a sentence with no finite verb in it leaves the lead a phrase for 322
-of the 1,269 beginners' words at 0, 183 at 6, 129 at 12, and then flattens, 116 at 16 and 105 at
-30, while the mean length keeps climbing. 12 is the knee and it is what `NO_VERB` holds. The
-shipped 6 was too low by a third of the faults it exists to catch.
+**One weight was swept and has a knee; the other three have none and are not claimed to be
+optimal.** Only the shape of the cost was measured to begin with, that weighing the signals against
+each other beats chaining tie-breaks; the numbers were judgement. `NO_VERB` trades against length
+alone, so it has a knee: the lead is a phrase for 322 of the 1,269 beginners' words at 0, 183 at
+the shipped 6, 129 at 12, and then it flattens, 116 at 16 and 105 at 30, while the mean length
+keeps climbing. 12 is the knee, and the 6 that shipped was leaving a third of the faults it exists
+to catch.
+
+**The other three trade against each other, and the sweep over them reports rather than gates.**
+`npm run audit:plainness -- --weights` prints the shape over 168 settings: the fewest dead ends any
+of them reaches is 224, at 16/1/0, which costs 338 words a word above the band against the shipped
+257; the fewest above the band is 143, at 2/8/0, which takes dead ends from 262 to 394. The first
+version of that sweep asked whether anything beat the shipped four on every axis at once, got "none
+of 168", and reported it as a result. **It is not one**: detuned to 3/4/2, which takes dead ends
+from 262 to 346, the answer is still none, because nearly every setting in the grid is on the
+frontier. A check that passes on the thing it was written to catch is `A || !A` wearing a sweep's
+clothes, which is the fault this file records the Sõnad board having had. So it prints the price of
+moving a weight and carries no exit code. What the four are is a stated preference, and the
+statement is the report that started this: a word no entry vouches for costs most, because the
+learner cannot look it up and has nowhere to go.
 
 **And the first version charged every plural oblique as a word nobody could look up.** `gapForms`
 is the one answer to what spellings a word has and it walks `CASES` through `caseAnswer`, which is

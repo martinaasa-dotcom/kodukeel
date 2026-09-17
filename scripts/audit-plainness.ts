@@ -37,10 +37,11 @@
 import { dictionaryRows } from "./lib/dictionary";
 import { usableExamples, type Example } from "../lib/dict/examples";
 import { naturalSentence, nominalOpener, ESTONIAN_WORD } from "../lib/estonian/cloze";
-import { plainReach, plainerFirst, PLAIN_UP_TO } from "../lib/dict/plainness";
+import { plainReach, plainerFirst, PLAIN_UP_TO, WEIGHTS } from "../lib/dict/plainness";
 import { LEVELS } from "../lib/collections/syllabus/index";
 
 const listWords = process.argv.includes("--list");
+const sweepWeights = process.argv.includes("--weights");
 
 const rows = dictionaryRows();
 const reach = plainReach(rows);
@@ -150,6 +151,115 @@ if (shown < FLOOR) {
     + "producing rather than started passing: check that the dictionary loaded.",
   );
   process.exit(1);
+}
+
+/* ── The weight sweep (--weights) ─────────────────────────────────────────── */
+
+/**
+ * WHAT MOVING A WEIGHT WOULD COST, FOR WHOEVER IS ABOUT TO MOVE ONE.
+ *
+ * `NO_VERB` trades against length alone, so it has a knee and was swept on its
+ * own. The other three trade against each other, and there is no knee in that:
+ * every setting buys one fault down by pushing another up.
+ *
+ * THIS REPORTS AND MAY NOT GATE, and the reason is worth stating because the
+ * first version of it did gate and could not fail. It asked whether any other
+ * setting beats the shipped one on every axis at once, got "none of 168", and
+ * printed that as though it meant something. It does not: detuned to 3/4/2, a
+ * setting that takes dead ends from 262 to 346, the answer is still "none of
+ * 168", because 3/4/2 is on the frontier too. Nearly every setting is. A check
+ * that passes on the thing it was written to catch is the shape
+ * `scripts/lib/checks.mjs` gives a suite a floor to prevent, and an exit code
+ * on it would be `A || !A` wearing a sweep's clothes.
+ *
+ * So what it prints is the shape of the trade: the shipped setting, and the
+ * best any setting in the grid reaches on each axis alone with what that costs
+ * on the others. A reader deciding whether dead ends matter more than phrases
+ * can then see the price rather than be told a number is optimal.
+ */
+if (sweepWeights) {
+  interface Axes { deadEnd: number; above: number; verbless: number; len: number }
+
+  // The four facts per sentence, so the grid below is arithmetic and nothing else.
+  const facts = new Map<string, { n: number; verb: boolean; un: number; ab: number; c: number }>();
+  const pools: string[][] = [];
+  for (const row of beginner) {
+    const sentences = shownTo(row);
+    if (sentences.length === 0) continue;
+    pools.push(sentences);
+    for (const et of sentences) {
+      if (facts.has(et)) continue;
+      const read = readSentence(et);
+      facts.set(et, {
+        n: wordsOf(et).length,
+        verb: !read.phrase,
+        un: read.unvouched.length,
+        ab: read.unreachable.length,
+        c: (et.match(/,/g) ?? []).length,
+      });
+    }
+  }
+
+  const score = (nv: number, un: number, ab: number, co: number): Axes => {
+    let deadEnd = 0, above = 0, verbless = 0, len = 0;
+    for (const sentences of pools) {
+      let best = sentences[0]!;
+      let bestCost = Infinity;
+      for (const et of sentences) {
+        const f = facts.get(et)!;
+        const cost = f.n + (f.verb ? 0 : nv) + f.un * un + f.ab * ab + f.c * co;
+        if (cost < bestCost || (cost === bestCost && et.length < best.length)) {
+          best = et;
+          bestCost = cost;
+        }
+      }
+      const f = facts.get(best)!;
+      if (f.un > 0) deadEnd++;
+      if (f.ab > 0) above++;
+      if (!f.verb) verbless++;
+      len += f.n;
+    }
+    return { deadEnd, above, verbless, len: len / pools.length };
+  };
+
+  const line = (label: string, a: Axes) =>
+    `  ${label.padEnd(12)} dead end ${String(a.deadEnd).padStart(3)}   above ${String(a.above).padStart(3)}`
+    + `   verbless ${String(a.verbless).padStart(3)}   mean ${a.len.toFixed(2)}`;
+
+  const grid: { label: string; axes: Axes }[] = [];
+  for (const un of [2, 4, 6, 8, 10, 12, 16]) {
+    for (const ab of [1, 2, 3, 4, 6, 8]) {
+      for (const co of [0, 1, 2, 4]) {
+        grid.push({ label: `${un}/${ab}/${co}`, axes: score(WEIGHTS.NO_VERB, un, ab, co) });
+      }
+    }
+  }
+
+  const shipped = score(WEIGHTS.NO_VERB, WEIGHTS.UNVOUCHED, WEIGHTS.ABOVE_BAND, WEIGHTS.CLAUSE);
+  console.log(`\nWhat the weights buy, over ${pools.length} words and ${grid.length} settings.`);
+  console.log(`\nShipped, as unvouched/above/clause with NO_VERB at ${WEIGHTS.NO_VERB}:`);
+  console.log(line(`${WEIGHTS.UNVOUCHED}/${WEIGHTS.ABOVE_BAND}/${WEIGHTS.CLAUSE}`, shipped));
+
+  console.log(`\nThe best any setting reaches on one axis, and what it pays elsewhere:`);
+  const axes: { name: string; of: (a: Axes) => number }[] = [
+    { name: "fewest dead ends", of: (a) => a.deadEnd },
+    { name: "fewest above band", of: (a) => a.above },
+    { name: "fewest verbless", of: (a) => a.verbless },
+    { name: "shortest", of: (a) => a.len },
+  ];
+  for (const axis of axes) {
+    const best = [...grid].sort((x, y) => axis.of(x.axes) - axis.of(y.axes))[0]!;
+    console.log(`  ${axis.name}:`);
+    console.log(line(best.label, best.axes));
+  }
+  console.log(
+    `\nEvery one of them is worse than the shipped setting somewhere else, which is what a`
+    + `\nfrontier looks like and is a weak claim: most settings in this grid are on it. Which`
+    + `\nof the four faults matters most is a stated preference, not a number to tune. The`
+    + `\nstated one is that a word no entry vouches for costs most, because the learner cannot`
+    + `\nlook it up and has nowhere to go, which is the fault that was reported.`,
+  );
+  process.exit(0);
 }
 
 console.log(`\nCommonest spellings a beginner meets and cannot reach:`);

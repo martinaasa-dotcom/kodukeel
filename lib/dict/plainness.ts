@@ -234,8 +234,38 @@ function wordsOf(sentence: string): string[] {
  * - **A clause boundary** (2 each) and **each word** (1). Two things to hold
  *   in your head rather than one, and length.
  */
-/** What a sentence with no finite verb in it costs. Swept; see the header. */
+/**
+ * What each signal costs.
+ *
+ * `NO_VERB` was swept on its own, since it trades against length alone and has
+ * a knee: the lead is a phrase for 322 of the 1,269 beginners' words at 0, 183
+ * at 6, 129 at 12, and then it flattens while the mean length keeps climbing.
+ *
+ * THE OTHER THREE HAVE NO KNEE AND ARE NOT CLAIMED TO BE OPTIMAL. They trade
+ * against each other rather than against length, so every setting buys one
+ * fault down by pushing another up, and `npm run audit:plainness -- --weights`
+ * prints that shape over 168 of them: the fewest dead ends any setting reaches
+ * is 224, at 16/1/0, which costs 338 words a word above the band against these
+ * four's 257; the fewest above the band is 143, at 2/8/0, which takes dead ends
+ * from 262 to 394.
+ *
+ * The first version of that sweep asked whether anything beat these four on
+ * every axis at once, got "none of 168", and reported it as a result. It is
+ * not one: detuned to 3/4/2, which takes dead ends from 262 to 346, the answer
+ * is still none, because nearly every setting in the grid is on the frontier.
+ * A check that passes on the thing it was written to catch is no check, so the
+ * sweep reports and does not gate.
+ *
+ * What these four are is a **stated preference**, and the statement is the
+ * report that started all of this: a word no entry vouches for costs most,
+ * because the learner cannot look it up and has nowhere to go. Read the sweep
+ * before moving one, to see what it would cost rather than to be told a number
+ * is right.
+ */
 const NO_VERB = 12;
+const UNVOUCHED = 8;
+const ABOVE_BAND = 4;
+const CLAUSE = 2;
 
 export function plainnessCost(sentence: string, reach: PlainReach, limit: number): number {
   const words = wordsOf(sentence);
@@ -243,11 +273,22 @@ export function plainnessCost(sentence: string, reach: PlainReach, limit: number
   if (!words.some((w) => reach.finite.has(w))) cost += NO_VERB;
   for (const word of words) {
     const band = reach.bandOf.get(word);
-    if (band === undefined) cost += 8;
-    else if (band > limit) cost += 4;
+    if (band === undefined) cost += UNVOUCHED;
+    else if (band > limit) cost += ABOVE_BAND;
   }
-  return cost + (sentence.match(/,/g)?.length ?? 0) * 2;
+  return cost + (sentence.match(/,/g)?.length ?? 0) * CLAUSE;
 }
+
+/**
+ * The four weights, for the sweep that checks they are still worth having.
+ *
+ * Exported so `scripts/audit-plainness.ts` scores the shipped setting against
+ * the grid rather than carrying its own copy of the numbers, which is the fault
+ * this repository keeps finding in its own checks: a second copy is the one
+ * that rots, and a sweep measuring a setting the app does not have is a sweep
+ * about nothing.
+ */
+export const WEIGHTS = { NO_VERB, UNVOUCHED, ABOVE_BAND, CLAUSE } as const;
 
 /**
  * The comparator `usableExamples` applies to a word's attested sentences, or
