@@ -220,6 +220,17 @@ export function isBuildable(sentence: string): boolean {
  * `Vabadus, võrdsus, vendlus.`, `Standardkeel, õppijakeel jt keele
  * kasutusvariandid.` Narrowing to the noun keeps all fifteen of those and
  * hands back the ten it should never have taken.
+ *
+ * THE OTHER READING OF THE SAME MEASUREMENT, WRITTEN DOWN BECAUSE IT WAS MADE
+ * AND THEN ANSWERED. Under the `VERB` exemption the over-reach was measured
+ * over the shipped dictionary at 25 sentences of 15,126, and the case for
+ * leaving it alone was that about half of those really are the pattern and
+ * this rule is read by two *measurements*, the mock exam and the placement
+ * check, so a heuristic on a heuristic for 0.08% of the corpus was not worth
+ * the risk of re-admitting the fault. The narrowing above is what that
+ * argument was waiting for rather than a smaller number: those same 25 split
+ * 15 to 10 on the word class, so every refusal worth keeping is kept and the
+ * rest are handed back, which is a rule rather than a second heuristic.
  */
 export function nominalOpener(
   pos: string,

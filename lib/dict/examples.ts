@@ -217,15 +217,42 @@ export function sentenceWords(sentence: string): string[] {
  * itself refuses: a fragment, a compound, an ellipsis, a slash, a
  * parenthetical aside.
  */
+/**
+ * Every sentence of a word's that an exercise may be built out of.
+ *
+ * The two rules together, which is how every caller wants them and is the one
+ * shape that kept being written out by hand: `usableExamples` is the
+ * dictionary entry's own rule about what is worth printing, and
+ * `naturalSentence` is the stricter one a *question* needs, because Ekilex
+ * records a usage against a sense and what comes back is sometimes
+ * lexicography rather than something somebody said.
+ *
+ * ONE HOME, BECAUSE TWO COPIES IS EXACTLY HOW THIS WENT WRONG. The guided
+ * lesson's page wrote both lines out and the end-of-level checkpoint's page
+ * wrote neither, so the checkpoint built gap questions out of
+ * `Vanemametnikud on: ... 9) insener;` and `Esimene tingimus on, et ..`, on a
+ * measurement whose own screen says passing it moves the learner up a level.
+ * The two pages resolve the same kind of row for the same kind of exercise and
+ * had drifted a rule apart.
+ */
+export function teachableSentences(
+  examples: Example[],
+  opensWithNominal?: (word: string) => boolean,
+  plainest?: Rank,
+): Example[] {
+  const usable = usableExamples(examples, plainest);
+  return opensWithNominal
+    ? usable.filter((e) => naturalSentence(e.et, opensWithNominal))
+    : usable;
+}
+
 export function teachingSentence(
   examples: Example[],
   forms: readonly (string | null | undefined)[],
   opensWithNominal?: (word: string) => boolean,
   plainest?: Rank,
 ): { example: Example; form: string | null } | null {
-  const usable = opensWithNominal
-    ? usableExamples(examples, plainest).filter((e) => naturalSentence(e.et, opensWithNominal))
-    : usableExamples(examples, plainest);
+  const usable = teachableSentences(examples, opensWithNominal, plainest);
   if (usable.length === 0) return null;
 
   const tried = new Set<string>();

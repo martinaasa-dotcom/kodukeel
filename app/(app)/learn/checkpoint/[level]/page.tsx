@@ -6,7 +6,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { LEVELS, checkpointFor, wordsAtLevel, type Level } from "@/lib/collections/syllabus";
 import { buildCheckpoint, type CheckpointWord } from "@/lib/collections/checkpoint";
-import { parseExamples } from "@/lib/dict/examples";
+import { parseExamples, teachableSentences } from "@/lib/dict/examples";
+import { nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { CheckpointSession } from "./CheckpointSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -54,7 +55,23 @@ export default async function CheckpointPage({
     lemma: plainPhrase(row.lemma),
     gloss: plainPhrase(row.translation),
     pos: row.pos,
-    examples: parseExamples(row.examples).map((e) => e.et),
+    /*
+      THE SAME NARROWING THE GUIDED LESSON'S PAGE DOES, which this one did not
+      do at all. It handed the planner every recorded usage raw, so a
+      checkpoint could set `Vanemametnikud on: ... 9) insener;` or
+      `Esimene tingimus on, et ..` as a gap question, with no length rule, no
+      deduplication, no cap on how much of a shared word one learner's own
+      sentences may occupy, and no test of whether the thing is a sentence at
+      all. Passing this moves the learner up a level.
+
+      `teachableSentences` is the two rules in one place, for the reason the
+      drift itself gives: the two pages resolve the same kind of row for the
+      same kind of exercise and had come a rule apart.
+    */
+    examples: teachableSentences(
+      parseExamples(row.examples),
+      nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
+    ).map((e) => e.et),
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
     ),
