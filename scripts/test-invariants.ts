@@ -3109,8 +3109,22 @@ check("a screen built from a list of lemmas shows one entry per lemma", () => {
         honest code, which is how a check becomes one everybody waives.
       */
       const keyedOnBoth = /\.lemma\b[\s\S]{0,40}\.pos\b|\.pos\b[\s\S]{0,40}\.lemma\b/.test(window);
+      /*
+        And a fourth, which is a read that wants every row on purpose because
+        what it builds is a set of spellings. `orderContextFrom` asks which
+        words of a sentence are verbs, and `hall` being a noun and an
+        adjective is two sets of forms rather than a duplicate: picking one of
+        the pair would drop half the spellings and switch a rule off for
+        whichever entry lost. Nothing is rendered and nothing is written, so
+        the fault this check exists for cannot arise; a set collapses a
+        repeated spelling by construction. Named rather than left to the
+        `.lemma`/`.pos` pattern, because writing code to satisfy a regular
+        expression is what makes a check nobody reads.
+      */
+      const intoASetOfSpellings = /orderContextFrom/.test(window);
       assert.ok(
-        /oneEntryPerLemma/.test(window) || /new Set\(/.test(window) || keyedOnBoth,
+        /oneEntryPerLemma/.test(window) || /new Set\(/.test(window) || keyedOnBoth
+        || intoASetOfSpellings,
         `${file}: looks a list of lemmas up and uses every row. A lemma can hold two `
         + `entries, so pass the result through oneEntryPerLemma() (lib/dict/search.ts), `
         + `which applies the same rule the dictionary leads with. Counting distinct `
@@ -17454,7 +17468,6 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   );
 });
 
-
 /*
   NOTHING ESTONIAN IS SHOWN TO A LEARNER WITHOUT SAYING WHAT IT MEANS.
 
@@ -17558,6 +17571,248 @@ check("a screen showing an attested sentence says what it means", () => {
       `${file} draws the English now, so its exception is stale. Take the line out of lib/copy/sentenceCoverage.ts`,
     );
   }
+});
+
+check("an order the writer did not choose is not a wrong order", () => {
+  /*
+    REPORTED OFF THE APP'S OWN FIRST UNIT. `Muidugi tuleb ette näpukaid`
+    rebuilt as `Muidugi tuleb näpukaid ette` is what anybody says, and the
+    sentence builder marked it wrong under "Not the order Estonian uses here."
+    A learner told their own Estonian is a mistake stops trusting the marking,
+    and on this exercise the marking is the whole lesson.
+
+    `lib/estonian/wordOrder.ts` is the one reading of a built order, and the
+    three screens that set this exercise all go through it: the lesson, the
+    sentences round and the mock examination. What is guarded here is that
+    they keep going through it, because the exact comparison is still exported
+    (`readOrder` is built on it) and is the natural thing for a fourth screen
+    to reach for.
+  */
+  const rule = "lib/estonian/wordOrder.ts";
+  assert.ok(existsSync(rule), "the word-order reading has gone");
+
+  const markers = [
+    "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
+    "app/(app)/review/sentences/SentenceSession.tsx",
+    "lib/exam/score.ts",
+  ];
+  for (const file of markers) {
+    const body = code(file);
+    assert.match(body, /readOrder\(/, `${file} does not read the word order, it compares it`);
+    assert.doesNotMatch(
+      body, /sentenceMatches\(/,
+      `${file} marks a built sentence with the exact comparison again, so another order Estonian allows is wrong there`,
+    );
+  }
+
+  /*
+    And a variant is never penalised, which is the whole of what was asked
+    for. `orderIsRight` is the one place that is decided, so a screen reading
+    the three-way verdict and then grading `reading === "exact"` cannot creep
+    back in.
+  */
+  for (const file of markers) {
+    assert.match(
+      code(file), /orderIsRight\(/,
+      `${file} decides for itself whether a variant counts, which is how one screen starts penalising what another accepts`,
+    );
+  }
+
+  /*
+    THE ALTERNATIVES ARE WORKED OUT WHERE THE DICTIONARY IS. Two of the three
+    screens mark where there is none: the lesson marks in the browser, and the
+    examination rebuilds its paper to mark it and may not open a socket on the
+    way. So the rule takes its reading of the words as a parameter and the
+    caller resolves it, which is what keeps `lib/estonian/` and `lib/exam/`
+    free of Prisma.
+  */
+  assert.doesNotMatch(
+    code(rule), /@\/lib\/db|@prisma\/client|\bprisma\./,
+    "the word-order rule reaches a database, so the examination marker cannot use it",
+  );
+  assert.doesNotMatch(
+    code("lib/exam/score.ts"), /@\/lib\/db|@prisma\/client/,
+    "the examination marker reaches a database to mark a word order",
+  );
+
+  /*
+    And a builder that has not thought about it does not compile, which is the
+    shape `illSgShort` and `clueFrom` take: the fault this whole thing is
+    about is silent, since a missing reading marks correct Estonian wrong and
+    looks exactly like a learner getting it wrong.
+  */
+  assert.match(
+    code("lib/collections/lesson.ts"), /wordOrder: OrderContext;/,
+    "LessonInput's dictionary reading went optional, so a caller can build a lesson that marks correct Estonian wrong",
+  );
+  assert.match(
+    code("lib/exam/paper.ts"), /wordOrder: OrderContext,/,
+    "buildPaper stopped asking for a dictionary reading",
+  );
+
+  /*
+    AND THE READ IS BOUNDED BY THE SENTENCES THAT COULD FIRE. The rule moves a
+    verb particle and nothing else, so a sentence with no particle in it has no
+    alternative order whatever the dictionary says about its verbs, and asking
+    about its words is a wide query for an answer that is already known. The
+    examination is what makes it matter: a paper is built from a pool of 500
+    entries and rebuilt again to mark it, and those sentences bind 14,052
+    values against 1,792 for the ones holding a particle.
+  */
+  const resolver = code("lib/dict/wordOrder.ts");
+  /*
+    AND THE NARROWING IS THE RULE'S OWN, not a second reading of which words
+    matter. It was written against `PARTICLES` while the particle was the only
+    thing that moved and was not widened when the adverb arrived, so `Ma loen
+    raamatut täna` asked the dictionary about nothing, the reading came back
+    unable to say which word was the verb, and the whole adverb move was
+    offered by `npm run audit:order`, which reads every entry there is, and by
+    no screen a learner could reach. A list in the reader is a list that falls
+    behind the rule; `wordsWorthAsking` lives beside both word lists.
+  */
+  assert.match(
+    resolver, /wordsWorthAsking\(/,
+    "the dictionary read narrows by a rule of its own again, which is how a move the rule offers "
+    + "reaches the audit and never reaches a learner",
+  );
+  assert.doesNotMatch(
+    resolver, /\bPARTICLES\b/,
+    "the dictionary read names the particles itself, so the narrowing can fall behind the moves again",
+  );
+  assert.match(
+    code(rule), /MOVABLE_WORDS[^=]*=\s*\[\.\.\.PARTICLES, \.\.\.MOBILE_ADVERBS\]/,
+    "the list the dictionary read narrows by stopped covering both moves",
+  );
+  assert.match(
+    resolver, /possibleFirstPersons\(/,
+    "the dictionary read stopped reading the person endings backwards, so `tuleb` no longer finds `tulema`",
+  );
+
+  /*
+    AND THE WORD IS NOT SHOUTED. The note names an Estonian word, and the one
+    round that sets this line in `label-xs` uppercases it, so `ette` would
+    reach the screen as `ETTE`. It is `Chip`'s `caseSensitive` rule one screen
+    over, and the one that put `-SSE` on a grammar card.
+  */
+  for (const file of markers) {
+    const body = code(file);
+    /*
+      The element the note is printed in, which is the window from the run of
+      markup before it. A sweep of the whole file would answer about whichever
+      other caption came first, which is what the first version of this did.
+    */
+    for (const at of [...body.matchAll(/orderVariantNote\(/g)].map((m) => m.index)) {
+      const around = body.slice(Math.max(0, at - 600), at);
+      const opened = around.lastIndexOf("<p");
+      if (opened < 0) continue;
+      const tag = around.slice(opened);
+      if (!/\blabel-xs\b/.test(tag)) continue;
+      assert.match(
+        tag, /textTransform/,
+        `${file} prints the word a learner moved in a class that uppercases it`,
+      );
+    }
+  }
+
+  /*
+    The copy is one table, because it was three and they had drifted: the
+    examination's "That is not the order the writer chose" was the honest
+    wording of a marking that was wrong.
+  */
+  const copy = code("lib/copy/values.ts");
+  for (const name of ["ORDER_EXACT", "orderVariantNote", "ORDER_WRONG"]) {
+    assert.match(copy, new RegExp(`export (const|function) ${name}[ (]`), `${name} has gone from the copy table`);
+  }
+  for (const file of markers) {
+    assert.match(
+      code(file), /orderVariantNote\(/,
+      `${file} writes its own sentence about a word order rather than reading the one table`,
+    );
+  }
+
+  /*
+    AND NONE OF THE THREE SAYS WHAT ESTONIAN ALLOWS. The rule behind them
+    checks one thing, whether a verb particle moved, and its own header lists
+    the orders it refuses and knows to be ordinary Estonian, `Ta pani ära
+    raamatu` among them. A note reading "Not an order Estonian uses here" over
+    one of those is the app telling a learner their Estonian is wrong while
+    the module doing the marking says in writing that it is not, which is the
+    sentence that was reported in the first place. What the app knows is which
+    order the writer used.
+
+    Anchored on the copy table, since that is the one place all three read.
+  */
+  assert.doesNotMatch(
+    copy, /ORDER_WRONG = "[^"]*Estonian/,
+    "the refusal claims to know what Estonian allows again, on a rule that checks one word",
+  );
+
+  /*
+    AND A NOTE IS A WHOLE SENTENCE RATHER THAN A LEAD-IN. Two screens print
+    the recording directly under the note and the examination's result prints
+    the answer in the row *above* it, so a note ending in a colon reads as it
+    should on two screens and dangles on the third. Both spellings of the
+    variant note and the refusal are checked, because the fallback is the one
+    a caller with no reading of the order gets and is the one nobody looks at.
+  */
+  const orderCopy = copy.slice(copy.indexOf("export const ORDER_EXACT"));
+  const notes = [...orderCopy.matchAll(/("|`)((?:That|Not)[^"`]*)\1/g)].map((m) => m[2]!);
+  assert.ok(
+    notes.length >= 3,
+    `the word-order notes stopped being readable from the copy table (found ${notes.length}); the check "
+    + "for a dangling colon is looking at nothing`,
+  );
+  for (const note of notes) {
+    assert.doesNotMatch(
+      note, /:$/,
+      `a word-order note ends in a colon ("${note}"), which dangles on the examination's result`,
+    );
+  }
+
+  /*
+    AND THE NOTE IS TOLD WHICH WAY THE WORD WENT. `earlier` was written into
+    the sentence while a particle was the only thing that moved, because a
+    particle is accepted at the end of its clause and so always sits further
+    forward in the recording. A time adverb goes both ways, and telling
+    somebody who moved a word forward that the writer put it earlier is the
+    one claim on that screen a learner can check and find wrong.
+  */
+  for (const file of markers) {
+    assert.match(
+      code(file), /orderVariantNote\([^)]*,[^)]*\)/,
+      `${file} writes the word-order note without saying which way the word went`,
+    );
+  }
+
+  /*
+    AND A RIGHT ANSWER WITH A LINE AGAINST IT REACHES THE SCREEN. The result
+    lists `report.missed`, which is every mark that was *wrong*, and that was
+    the only list of marks it had. The marker writes a note on two answers
+    that were right: a dictation that forgives a dropped diacritic and names
+    the letter anyway, under a comment saying "a learner who never sees them
+    never fixes them", and an order the writer did not choose, which carries
+    the disclaimer this whole check is about. Both were computed on every
+    paper and drawn on none of it.
+
+    Keyed on the note rather than on the item kind, so a third answer that
+    grows one arrives on the screen without anybody wiring it up.
+  */
+  const report = code("lib/exam/report.ts");
+  assert.match(
+    report, /m\.correct && m\.note/,
+    "the report stopped gathering the marks that were right and still have something to say, so the "
+    + "marker's note on a correct answer reaches nobody",
+  );
+  const resultScreen = code("app/(app)/exam/result/[id]/page.tsx");
+  assert.match(
+    resultScreen, /report\.accepted/,
+    "the examination's result stopped drawing the answers that were right and carry a note",
+  );
+  const acceptedAt = resultScreen.indexOf("report.accepted");
+  assert.match(
+    resultScreen.slice(acceptedAt), /mark\.note/,
+    "the result draws the accepted answers without their note, which is the only thing they are there for",
+  );
 });
 
 /*
@@ -17816,9 +18071,25 @@ check("the lesson carries a sentence's English rather than dropping it", () => {
     "the lesson picks its meeting sentence itself again. `teachingSentence` is what review and the ladder ask",
   );
   const page = code("app/(app)/learn/[unitId]/lesson/page.tsx");
+  /*
+    AND THE FAULT IS THE FIELD RATHER THAN THE SPELLING. It was written as
+    "no `.map((e) => e.et)` anywhere on this page", which is the line that was
+    there, and the page has since grown an honest one: the word-order reading
+    asks the dictionary about the *words* of the sitting's sentences and takes
+    strings by design, so it maps to `.et` on its way into a query and drops
+    nothing a card was going to print. A check that fires on that is the kind
+    this file says everybody learns to waive. What may not happen is the word
+    reaching the planner without its English, so it is the field that is
+    asserted.
+  */
   assert.ok(
-    !/\.map\(\(e\) => e\.et\)/.test(page),
+    !/examples:[^\n]*\be\.et\b/.test(page),
     "the lesson page drops each example's English on the way in again. That one `.et` is the whole fault",
+  );
+  assert.match(
+    page, /examples: teachableSentences\(/,
+    "the lesson page stopped reading the dictionary's own sentences, so what it hands the planner is " +
+    "no longer the pair the card prints",
   );
   assert.match(
     page, /glossSentences\(/,

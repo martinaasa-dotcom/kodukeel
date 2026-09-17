@@ -143,3 +143,66 @@ export function joinWithOr(items: readonly string[]): string {
   if (items.length === 2) return `${items[0]} or ${items[1]}`;
   return `${items.slice(0, -1).join(", ")}, or ${items[items.length - 1]}`;
 }
+
+/**
+ * What the three sentence-building screens say about a word order.
+ *
+ * One table because there are three of them, and they had drifted before this
+ * existed: the lesson said "Not the order Estonian uses here", the round said
+ * "Not the order Estonian uses. It goes:" and the examination said "That is
+ * not the order the writer chose." The last one was the honest wording of a
+ * marking that was wrong: the order the writer chose is one Estonian sentence
+ * rather than the only one, and a learner who rebuilt `Muidugi tuleb ette
+ * näpukaid` as `Muidugi tuleb näpukaid ette` was told their own Estonian was
+ * a mistake.
+ *
+ * `ORDER_VARIANT` is the sentence that fault is worth: it is right, it is
+ * marked right, and the recorded order is shown under it as a fact about the
+ * recording rather than as a correction. `lib/estonian/wordOrder.ts` decides
+ * which is which.
+ *
+ * **None of the three says what Estonian allows, because none of them knows.**
+ * The first wording of this kept the old claim and read "Not an order Estonian
+ * uses here", which is the very sentence that was reported, and the rule
+ * behind it checks exactly one thing: whether a verb particle moved. Its own
+ * header lists what it refuses and knows to be ordinary Estonian, `Ta pani ära
+ * raamatu` among them, so on those answers the app was telling a learner their
+ * Estonian is wrong while the module doing the marking said in writing that it
+ * is not. What the app does know is which order the writer used, so that is
+ * what all three notes talk about now, and being right stays a matter for the
+ * mark rather than for the sentence.
+ *
+ * **And each one is a whole sentence rather than a lead-in.** They ended in a
+ * colon, which reads as it should on the two screens that print the recording
+ * directly underneath and as a dangling colon on the examination's result,
+ * where the answer is printed in the row *above* the note. A note that only
+ * parses in one layout is a note the next screen renders wrong.
+ */
+export const ORDER_EXACT = "That is the sentence.";
+export const ORDER_WRONG = "That is not the order the writer used.";
+
+/**
+ * What is said about an order Estonian allows that the writer did not choose.
+ *
+ * It names the word, because that is what the person who reported this asked
+ * for: a disclaimer that technically it goes with `ette` earlier rather than
+ * at the end, and that both are said. A learner who is told only that "the
+ * writer put it this way" has to diff two sentences to find out what the
+ * difference was, on a screen they are about to move on from.
+ *
+ * **Which way it went is a parameter rather than a word**, and that is a
+ * correction. `earlier` was written into the sentence while the particle was
+ * the only thing that moved, because a particle is accepted at the end of its
+ * clause and so always sits further forward in the recording. A time adverb
+ * goes both ways: somebody who rebuilds `Ma loen raamatut täna` as `Täna ma
+ * loen raamatut` has moved the word forward, and telling them the writer put
+ * it earlier is the one claim on that screen a learner can check and find
+ * wrong.
+ *
+ * Null falls back to the sentence without the word, which is what a caller
+ * with no reading of the order has.
+ */
+export function orderVariantNote(moved: string | null, writerPut: "earlier" | "later" | null): string {
+  if (!moved || !writerPut) return "That works. The writer put it another way.";
+  return `That works. The writer put ${moved} ${writerPut}.`;
+}

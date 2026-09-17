@@ -1,5 +1,6 @@
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
-import { sentenceMatches } from "@/lib/estonian/cloze";
+import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
+import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { checkDictation } from "@/lib/estonian/dictation";
 import { usesRequiredWord, wordsOf } from "./written";
 import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, type Band, type ExamLevel } from "./spec";
@@ -244,11 +245,25 @@ export function markItem(
 
     case "order": {
       const built = response.kind === "ordered" ? response.value : [];
-      const correct = built.length > 0 && sentenceMatches(built, item.answer);
+      /*
+        AN ORDER THE WRITER DID NOT CHOOSE IS NOT A WRONG ORDER. The field
+        after the verb is free in Estonian, so a particle the recording puts
+        straight after the verb is also said at the end of the clause, and a
+        candidate who writes it that way has not made a mistake.
+        `alsoRight` is worked out from the dictionary when the paper is built,
+        which is what keeps this marker offline and mechanical.
+      */
+      const verdict = built.length === 0
+        ? { reading: "wrong" as const, moved: null }
+        : readOrder(built, item.answer, item.alsoRight);
+      const correct = orderIsRight(verdict.reading);
       return scale({
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,
         expected: item.answer, given: built.join(" "),
-        note: correct ? "" : "That is not the order the writer chose.",
+        note:
+          verdict.reading === "variant" ? orderVariantNote(verdict.moved, verdict.writerPut)
+          : correct ? ""
+          : ORDER_WRONG,
         cardId: item.cardId, lexemeId: item.lexemeId, lemma: item.lemma, recalled: correct,
         language: "et",
       });

@@ -1864,6 +1864,211 @@ answer with distractors drawn from the same list, so widening what can be gapped
 questions a candidate is asked and what is offered against them. That is a change to a measurement
 rather than to an exercise and it is not made in passing.
 
+**The order the writer chose is one Estonian sentence, not the only one.** The sentence builder
+compared the tiles with the recording and called everything else wrong, and a learner reported it
+off the app's own first unit: `Muidugi tuleb ette näpukaid` rebuilt as `Muidugi tuleb näpukaid
+ette`, which is what anybody says, came back as "Not the order Estonian uses here." The field after
+the verb in this language is genuinely free, so that sentence was the app telling somebody their own
+Estonian was a mistake, on the one exercise where the marking is the whole lesson. A built order is
+read three ways now rather than two, the writer's own and another order Estonian allows are both
+right, and the recorded sentence is printed under the verdict as a fact about the recording rather
+than as a correction.
+
+**Accepting a permutation is this app making a claim about Estonian**, so `lib/estonian/wordOrder.ts`
+accepts the one it can be certain of and still refuses everything else. A verb particle standing
+directly after the finite verb may instead stand at the end of its clause, `panen kinni akna` and
+`panen akna kinni` being the same sentence twice. Four conditions sit on that and **each is there
+because taking it out accepts a sentence nobody says**, which is how they were arrived at: every one
+came off a run of `npm run audit:order`, which prints every alternative the rule offers over the
+9,464 sentences the shipped dictionary can set as this exercise, because a rate cannot check a claim
+about a language and reading the list can. **The verb is the anchor rather than a position**, since
+Estonian drops a pronoun subject and puts the verb first when it does, and read positionally
+`Pühkisin otsa eest higi` has a postposition exactly where `Muidugi tuleb ette näpukaid` has a
+particle. **Half of these words are also adpositions**, so `FREE_PARTICLES` moves whatever follows
+it and `BOUND_PARTICLES` moves only as a swap with the one word after it, which strands no
+complement and leaves a preposition as the postposition Estonian already uses for the same phrase
+(`üle tee` and `tee üle`, `mööda teed` and `teed mööda`). **A spelling that is a verb and a noun at
+once is neither**, which is `readCase`'s discipline one room over: `kaalu` is the genitive of `kaal`
+and the imperative of `kaaluma`, and without that rule `kui maiasmokk kaalu peale astus` came apart.
+And **nothing is carried past a comma, a joiner or a participle**: `ja` joins two clauses in `Nad
+kõndisid edasi ja jõudsid järveni` and two adjectives in `Mees nägi välja rõõsa ja ümarik` and
+nothing here can tell those apart, and `on ära toodud ka statistilised andmed` does not survive
+`ära` reaching the end. **A participle and not any verb form**, which is a correction to the first
+version and was found by asking whether each guard fires and reading what it refused: written as
+"any verb form" it withheld `Kunstnik annab oma nägemuse edasi`, `tahab anda saagalikkust edasi` and
+`peab leppima järgmise aasta eelarves kokku`, which are ordinary Estonian, since a particle goes
+past the infinitive it belongs to and lands after its complement. Its own comment named `lahti
+kirjutamata akronüümide` as what it caught, the dictionary holds no such participle, and that
+sentence was being refused by the joiner beside it, so the guard had never once fired on the example
+justifying it. A spelling that is a participle and something else is neither, on the argument
+`finiteVerb` already makes: `oma` is a form of `omama` and is the word anybody says. It offers an
+alternative for 53 of those 9,464.
+
+**One direction only, and the symmetric version was tried and reverted.** A particle the writer put
+at the end stays there, so `Ta pani raamatu ära` rebuilt as `Ta pani ära raamatu` is correct
+Estonian this refuses. With the verb known the reverse move looked safe for at least the free half,
+nothing there being an adposition, and the reading says otherwise: 218 reverse moves over the
+shipped dictionary, and the free ones are no better than the bound ones, because **Estonian puts the
+subject after the verb** whenever something else opens the clause and the slot straight after the
+verb is then inside the subject rather than in front of it. `Rahvatarkuse kohaselt võtab maamuna
+tolm vere kinni` came back as `võtab kinni maamuna tolm vere`, and `Auto tagumine põrkeraud oli
+vasakult poolt pisut katki` as `oli katki vasakult poolt pisut`. Forward, the particle lands at the
+clause end, where there is nothing to split. The asymmetry is the shape of the language rather than
+a gap in the rule. The lists name uninflected adverbs and conjunctions, so the lemma is
+the spelling, each is a request the accept list either vouches for or fails the suite on, and the
+module writes no Estonian of its own.
+
+**And a time adverb stands anywhere its clause has room for it, which is the second move.** The
+same native speaker reported it and the report is the whole rule: `Ma loen raamatut täna`, `Ma loen
+täna raamatut`, `Täna ma loen raamatut` and `Ma täna loen raamatut` are all said. Those four are not
+a sample of where the word may go, they are **the four the app can name with no parser**: the two
+edges, which need no reading of anything, and the two slots the verb makes, which split no phrase
+because the verb is a boundary on both sides. Anything between would have to be read off a phrase
+this module cannot see, so `Ma loen huvitavat raamatut täna` is never offered as `Ma loen huvitavat
+täna raamatut`. The fourth puts the verb third, which a textbook would mark and a native speaker
+asked for by name; the mark is a question for the exercise and the grammar is not.
+
+**And the whole adverb move reached the audit and nothing a learner could open.** `audit:order`
+builds its reading over every entry the dictionary ships, which is not what a screen does: the app
+narrows to the words of the sentences it is about to set and asks the database about those, because
+a paper is built from a pool of 500 entries and rebuilt again to mark it. That narrowing asked "does
+this sentence hold a particle", it was written when the particle was the only thing that moved, and
+it was not widened when the adverb arrived. So `Ma loen raamatut täna` contributed no words to the
+query, the reading came back unable to say which word was the verb, the clause failed the one-verb
+test, and every figure in the paragraphs above was true of the audit and of no screen. **The
+measurement is not the app**, one module over from where that was learned. `wordsWorthAsking` is the
+narrowing and it lives beside the two word lists rather than in the reader, since a list in the
+reader is a list that falls behind the rule; and `wordOrder.test.ts` rebuilds what the two queries
+would return and asserts the app's reading and the whole dictionary's offer the same orders for
+every sentence the builder can set, which is the check that had been missing rather than a second
+opinion about Estonian.
+
+**And the note named the word that stayed put, in the wrong direction.** `OrderVerdict.moved` is
+read at the first position the two orders differ, where one of them holds the word that moved and
+the other holds the word that shifted into its place, and which is which is the direction it went.
+That was written for the particle, which only ever travels rightward, so the recording's word at
+that position is always the mover; the adverb goes both ways, and read the particle's way the note
+said `Ma` for `Täna ma loen raamatut` and `raamatut` for `Ma loen täna raamatut`, which are the two
+words that did not move. **A swap of two neighbours is genuinely ambiguous from the positions
+alone**, since those two orders differ by `täna` going one place left or `raamatut` one place right,
+so the reading asks which of the two is a word this module moves rather than inferring it. And
+`earlier` went from the sentence into a parameter: somebody who rebuilds `Ma loen raamatut täna` as
+`Täna ma loen raamatut` has moved the word forward, and telling them the writer put it earlier is
+the one claim on that screen a learner can check and find wrong.
+
+**The list is points in time and nothing else, and `kohe` came off it on the reading.** A time adverb
+is movable because it governs nothing, heads no phrase and is not gradable, which is what makes it
+decidable where the adjacent swap of two nominals is not. `tihti`, `harva` and `hiljem` all take a
+modifier, `väga tihti` and `palju hiljem`, and moving one out of that pair strands the word modifying
+it; you cannot say `väga täna`. `kohe` looked safe and is a time in `Laps jäi kohe magama` and a
+place in `Protsessori pesa on kohe toiteploki juures`, where it means right beside the thing named
+after it, and the second came back as `Protsessori pesa on toiteploki juures kohe`. `täna` is also
+the imperative of `tänama` and needs no rule of its own, since `finiteVerb` refuses a spelling with
+two readings and a clause whose only verb candidate is refused moves nothing.
+
+**Six things refuse the move and every one of them came off the list the audit prints.** A neighbour
+the dictionary cannot place as a plain word, because `täna hommikul`, `tänavu veebruaris`, `veel
+täna` and `alles nüüd` are one expression each: `Ärkasin täna hommikul kell 7` came back as `Ärkasin
+hommikul kell täna`. **That test asks what the neighbour is rather than what it is not**, which is
+the half that matters: written as "the dictionary does not call this an adverb" it could only refuse
+a word somebody had got round to adding, so `veel täna` held and `alles nüüd` came apart, and the
+rule was really about dictionary coverage. A neighbour it cannot place blocks the move, so a thin
+dictionary offers fewer orders rather than wrong ones, and `Meri on täna tormine` is refused where
+`Meri on täna tige` is not. The two time cases are built rather than read, since `hommikul` is
+`hommik` in the alalütlev and `veebruaris` is `veebruar` in the seesütlev and neither is an entry.
+Then: a participle after it with no verb in front, because `Eile lõppenud filmifestivali peaauhind`
+is a prize described rather than a thing that happened yesterday, while `on tänavu võitnud` is an
+ordinary perfect and the auxiliary is what tells them apart. The verb ending up first, because
+Estonian opens a yes-or-no question that way and `Täna on väljas külm ilm` came back as `On väljas
+külm ilm täna`. The slot between `ei` and its verb, which are one form written in two words; `ära`
+is deliberately not on that footing, since `Ära kohe vasta` is a sentence a lexicographer recorded.
+And the front of a clause that asks something, or of one after a comma, or of one opening on a focus
+particle, because a question word, a subordinator and a fronted `küll` are each first for a reason.
+39 alternatives became 130, and all 130 read as Estonian.
+
+**And reading the whole list found two more, one of them the guard's own subject.** A rate cannot
+check a claim about a language and `npm run audit:order` prints every alternative for that reason,
+so the list is read rather than the total. `Ei puudunud palju, et tuumasõda oleks lahti läinud` came
+back as `oleks läinud lahti`: the participle guard read the words the particle passes *between*
+rather than the words it passes, and the one it left out is the word the particle ends up behind,
+which is where Estonian puts the participle in every perfect there is. And it can only answer about
+a verb the dictionary holds, so `Leib on ära hallitanud`, `Hobune on ära kärvanud` and two more went
+past it on verbs nobody has looked up; the ending is the backstop under it, `nud`, `tud`, `dud` and
+`mata`, which is a suffix rather than a word and **over-refuses on purpose**, since a spelling
+wrongly read as a participle costs an alternative nobody was offered and a missed one teaches that
+`Leib on hallitanud ära` is a sentence. `mata` is the shape the module's own header names, so the
+guard fires on the example justifying it for the first time.
+
+**And a comma separates a list as often as it ends a clause.** `Sünnipäevapidu oli täis muusikat,
+naeratusi ja õnnitlusi` split at the comma leaves a segment that looks like a whole clause and is
+half of one, since `täis` governs a list carrying on past it, and the swap inside it stranded the
+rest of the list behind the word governing it. A segment holding no finite verb is not a clause, so
+the one before it does not end where the comma does. **The reading may only ever refuse**, and the
+first version of it did not: written as a fold that made the two segments one clause, it moved the
+particle to the end of the merged run, and the second clause of `Kraadiklaas läks katki, elavhõbe
+voolas laiali` holds `voolas`, a simple past no rule here derives, so the verb was invisible, the
+two merged, and `katki` was carried into a clause it has no business in. That is worse than the
+fault it was fixing. 53 alternatives became 39, and all 39 read as Estonian.
+
+**And the refusal claimed to know what Estonian allows, on a rule that checks one word.** The
+paragraph above is the rule's own list of the orders it refuses and knows to be ordinary Estonian,
+and the sentence printed over every one of them was "Not an order Estonian uses here", which is the
+sentence that was reported in the first place. The marking was corrected and the copy kept the
+claim, so the app went on telling a learner their Estonian is wrong while the module doing the
+marking said in writing that it is not. What this app knows is which order the writer used, so
+that is what all three notes say now, and whether an answer is right stays a matter for the mark
+rather than for the sentence. **Each one is a whole sentence rather than a lead-in** with it: they
+ended in a colon, which reads as it should on the two screens that print the recording directly
+under the note and dangles on the examination's result, where the answer is printed in the row
+*above* it. A note that only parses in one layout is a note the next screen renders wrong.
+
+**And a right answer with a line against it reached nobody.** The result screen lists
+`report.missed`, which is every mark that was *wrong*, and that was the only list of marks it had.
+The marker writes a note on two answers that were right: a dictation forgives a dropped diacritic,
+because the real specification does, and `acceptsSlips` says in as many words why it names the
+letter anyway, "a learner who never sees them never fixes them", and an order the writer did not
+choose is marked right and carries the disclaimer the person who reported this asked for. Both were
+computed on every paper and drawn on none of it, so the slip note had been unreachable since it was
+written and the new one arrived unreachable. `ExamReport.accepted` is the marks that scored and
+still have something to say, keyed on **the note rather than on the item kind**, so a third answer
+that grows one arrives on the screen without anybody wiring it up, and the screen draws it as what
+it is, a right answer, rather than beside the ones that were wrong.
+
+**The judgment is the dictionary's and the marking happens where there is none.** Two of the three
+screens mark offline: the lesson marks in the browser and the examination rebuilds its paper to mark
+it, and `lib/exam/score.ts` may not open a socket to do it. So the rule takes its reading of the
+words as a parameter, `lib/dict/wordOrder.ts` resolves it, and the alternatives ride on the item.
+The read is **bounded by the sentences rather than by the dictionary, and then by the sentences that
+could fire**: the rule moves a particle and nothing else, so a sentence with no particle in it has
+no alternative order whatever the dictionary says about its verbs. The examination is what makes
+that matter rather than the lesson, since a paper is built from a pool of 500 entries and rebuilt
+again to mark it: those 1,642 sentences bind 14,052 values and the 125 holding a particle bind
+1,792. What is left is two queries keyed on the spellings in front of them: the verbs whose stored first person a person ending in one of these
+words could have come from, read through `possibleFirstPersons` the way the dictionary search
+already reads it so that `tuleb` finds `tulema`, and the entries that are not verbs and hold one of
+these spellings, which is what says `kaalu` is also a genitive. `LessonInput.wordOrder` and
+`buildPaper`'s fourth argument are **required**, for the reason `illSgShort` is: a caller that has
+not thought about this marks correct Estonian wrong, silently, and it looks exactly like a learner
+getting it wrong. What the three screens say about it is one table in `lib/copy/values.ts`, because
+it was three and they had drifted, and the examination's "That is not the order the writer chose"
+was the honest wording of a marking that was wrong. **The note names the word**, which is what the
+report asked for: technically it goes with `ette` earlier rather than at the end, and both are said.
+`OrderVerdict.moved` is read off the recorded sentence rather than the built one, and that is the
+whole of getting it right, since the particle moves rightward and at the first position the two
+differ the recording has the particle where the built order has the word that shifted into its
+place. Written the other way round first, it named `näpukaid` as the word that had moved, and
+nothing read it, so nothing said so.
+
+**And what a lesson may ask and how it marks the answer are one object.** `LessonRules` is what a
+unit's band and its own declaration decide, and the dictionary's reading of the word order rides in
+it rather than beside it as a fifth parameter through every builder: both halves answer one
+question about the same sitting, and two objects threaded through one signature is where the second
+one stops being passed. Nothing about the requirement moved, since `LessonInput.wordOrder` is still
+what `rulesFor` is handed. What did move is that **an ordering step starts at `BUILD_FROM`**, so
+the two moves above reach a lesson at A2 and never at A1: there is no syntax to order in a unit of
+thirteen words said alone, which is a fact about the course rather than about this rule, and the
+sentences round and the examination are unchanged.
+
 **A verb the app can conjugate is a verb the dictionary can find, and for a year it was not.** The
 search strips a case ending to look for a genitive stem, which is how `toas` finds `tuba`, and it
 knew nothing whatever about a person ending. So a verb was findable by its lemma, by its two
@@ -8716,6 +8921,7 @@ npm run audit:sense      # does every question make sense for the word it is abo
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
 npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
+npm run audit:order      # every alternative word order the sentence builder accepts; read the list
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
 npm run db:seed          # reload the built-in dictionary

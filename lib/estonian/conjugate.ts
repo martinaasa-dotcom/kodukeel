@@ -319,3 +319,75 @@ export function pres1sgFrom(
   )?.value;
   return retrieved ?? null;
 }
+
+/**
+ * Ekilex's morph codes for a verb form that carries a person and a tense.
+ *
+ * `Ind` is the indicative, `Imp` the imperative and `Knd` the conditional.
+ * What is deliberately outside it is every form that does not: `Pts` is a
+ * participle, `Sup` a supine and `Inf` an infinitive, and `Ähvardas kõri läbi
+ * lõigata` is the sentence that says why the distinction matters. Its finite
+ * verb is the first word and `läbi` belongs to the infinitive at the end.
+ */
+const FINITE_PREFIXES = ["Ind", "Imp", "Knd"];
+
+/**
+ * Ekilex's morph codes for a participle, plus the one the seed stores by name.
+ *
+ * `Pts` is the participle and `PART_TUD` is the principal part every entry
+ * carries. What is deliberately outside it is the two infinitives, which is
+ * the distinction this exists for: a particle may be sent past `anda` in
+ * `tahab edasi anda saagalikkust` and may not be sent past `toodud` in `on ära
+ * toodud ka statistilised andmed`, where it belongs to the participle.
+ */
+const PARTICIPLE_PREFIXES = ["Pts"];
+
+function bareCode(code: string): string {
+  return code.startsWith("EKILEX:") ? code.slice("EKILEX:".length) : code;
+}
+
+function isFiniteCode(code: string): boolean {
+  const bare = bareCode(code);
+  if (bare === "PRES_1SG" || bare === "PAST_1SG") return true;
+  return FINITE_PREFIXES.some((p) => bare.startsWith(p));
+}
+
+function isParticipleCode(code: string): boolean {
+  const bare = bareCode(code);
+  return bare === "PART_TUD" || PARTICIPLE_PREFIXES.some((p) => bare.startsWith(p));
+}
+
+/** Every participle of one verb the dictionary holds, lower-cased. */
+export function participlesFrom(
+  forms: readonly { formType?: string | null; morphCode?: string | null; value: string }[],
+): string[] {
+  return forms
+    .filter((f) => isParticipleCode(f.formType ?? f.morphCode ?? ""))
+    .map((f) => f.value.toLowerCase());
+}
+
+/**
+ * Every finite form of one verb this app can vouch for, stored and derived.
+ *
+ * The stored ones are whatever the dictionary holds under a finite code, which
+ * is where `olema`'s `on` and the simple past third person live, since neither
+ * is reachable by any rule. The derived ones are `derivedVerbForms`, which
+ * `npm run audit:verbs` checked against Ekilex on 797 verbs.
+ *
+ * Lower-cased, because the only question anybody asks of the answer is whether
+ * a word in a sentence is a verb.
+ */
+export function finiteFormsFrom(
+  lemma: string,
+  forms: readonly { formType?: string | null; morphCode?: string | null; value: string }[],
+): string[] {
+  const out: string[] = [];
+  for (const form of forms) {
+    const code = form.formType ?? form.morphCode ?? "";
+    if (isFiniteCode(code)) out.push(form.value.toLowerCase());
+  }
+  for (const derived of derivedVerbForms({ lemma, pres1sg: pres1sgFrom(forms) })) {
+    out.push(derived.value.toLowerCase());
+  }
+  return out;
+}
