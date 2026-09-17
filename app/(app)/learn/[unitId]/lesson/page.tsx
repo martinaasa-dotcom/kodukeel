@@ -140,16 +140,18 @@ export default async function LessonPage({
   */
   const words = oneEntryPerLemma(rows, unit.lemmas).map(toWord);
 
-  /*
-    What the dictionary says about the words of the sentences this lesson can
-    set, so a learner who rebuilds one in another order Estonian allows is not
-    marked wrong. Read once for the whole sitting rather than per step.
-  */
-  const wordOrder = await orderContextFor(words.flatMap((w) => w.examples));
-
   const lessons = splitIntoLessons(words);
   const index = Math.min(Math.max(Number(part) || 1, 1), Math.max(lessons.length, 1)) - 1;
   const chosen = lessons[index] ?? [];
+
+  /*
+    What the dictionary says about the words of the sentences this sitting can
+    set, so a learner who rebuilds one in another order Estonian allows is not
+    marked wrong. Read once for the sitting rather than per step, and asked of
+    this part's own words rather than the unit's: a unit splits into several
+    lessons and the other parts' sentences are not on screen tonight.
+  */
+  const wordOrder = await orderContextFor(chosen.flatMap((w) => w.examples));
 
   const steps = planLesson({
     unit,

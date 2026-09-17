@@ -231,8 +231,9 @@ export interface LessonInput {
    * Required rather than optional, and the reason is the report this was
    * written for: a caller that has not thought about it marks a learner wrong
    * for correct Estonian, quietly, on the one exercise where the marking is
-   * the whole lesson. `NO_ORDER_CONTEXT` is how a caller says it has no
-   * dictionary to hand.
+   * the whole lesson. `orderContextFrom([])` is how a caller with no
+   * dictionary to hand says so, and gives every sentence the one order the
+   * writer chose.
    */
   wordOrder: OrderContext;
 }

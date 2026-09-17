@@ -150,9 +150,15 @@ export interface OrderItem extends BaseItem {
    * The other orders of this sentence Estonian allows.
    *
    * On the item rather than worked out at marking time, because the marker
-   * rebuilds the paper offline and may not reach a dictionary to do it. The
-   * paper is a function of (level, seed, pool) as before; this is one more
-   * thing the pool decides.
+   * rebuilds the paper offline and may not reach a dictionary to do it.
+   *
+   * Which questions a paper asks is a function of (level, seed, pool) exactly
+   * as before, and this changes none of it: the reading is resolved from the
+   * dictionary again when the paper is rebuilt to mark it, so a word added
+   * between the sitting and the hand-in could add or drop one alternative
+   * order on one item. That is the same window the pool itself has, it can
+   * only ever change which of two right answers is marked right, and it costs
+   * at most the one mark a candidate would have lost before this existed.
    */
   alsoRight: string[];
 }

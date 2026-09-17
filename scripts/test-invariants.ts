@@ -16957,6 +16957,26 @@ check("an order the writer did not choose is not a wrong order", () => {
   );
 
   /*
+    AND THE READ IS BOUNDED BY THE SENTENCES THAT COULD FIRE. The rule moves a
+    verb particle and nothing else, so a sentence with no particle in it has no
+    alternative order whatever the dictionary says about its verbs, and asking
+    about its words is a wide query for an answer that is already known. The
+    examination is what makes it matter: a paper is built from a pool of 500
+    entries and rebuilt again to mark it, and those sentences bind 14,052
+    values against 1,792 for the ones holding a particle.
+  */
+  const resolver = code("lib/dict/wordOrder.ts");
+  assert.match(
+    resolver, /PARTICLE\.has\(/,
+    "the dictionary read stopped skipping sentences with no particle in them, so it asks about every "
+    + "word of every sentence in an examination pool",
+  );
+  assert.match(
+    resolver, /possibleFirstPersons\(/,
+    "the dictionary read stopped reading the person endings backwards, so `tuleb` no longer finds `tulema`",
+  );
+
+  /*
     The copy is one table, because it was three and they had drifted: the
     examination's "That is not the order the writer chose" was the honest
     wording of a marking that was wrong.

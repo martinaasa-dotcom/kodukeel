@@ -1596,12 +1596,17 @@ kõndisid edasi ja jõudsid järveni` and two adjectives in `Mees nägi välja r
 nothing here can tell those apart, and `lahti kirjutamata akronüümide` is a participle standing in
 front of its noun. It offers an alternative for 46 of those 9,464.
 
-**One direction only, and that is the stated residual.** A particle the writer put at the end stays
-there, because pulling one leftward out of the end of a clause is where a postposition lives (`Ma
-ootasin bussi ees`) and telling that from a particle needs the sentence parsed. So `Ta pani raamatu
-ära` rebuilt as `Ta pani ära raamatu` is correct Estonian this still refuses, which costs a learner
-the marking they already had; accepting it would teach them a sentence nobody says, and that is the
-fault this is built against. The lists name uninflected adverbs and conjunctions, so the lemma is
+**One direction only, and the symmetric version was tried and reverted.** A particle the writer put
+at the end stays there, so `Ta pani raamatu ära` rebuilt as `Ta pani ära raamatu` is correct
+Estonian this refuses. With the verb known the reverse move looked safe for at least the free half,
+nothing there being an adposition, and the reading says otherwise: 218 reverse moves over the
+shipped dictionary, and the free ones are no better than the bound ones, because **Estonian puts the
+subject after the verb** whenever something else opens the clause and the slot straight after the
+verb is then inside the subject rather than in front of it. `Rahvatarkuse kohaselt võtab maamuna
+tolm vere kinni` came back as `võtab kinni maamuna tolm vere`, and `Auto tagumine põrkeraud oli
+vasakult poolt pisut katki` as `oli katki vasakult poolt pisut`. Forward, the particle lands at the
+clause end, where there is nothing to split. The asymmetry is the shape of the language rather than
+a gap in the rule. The lists name uninflected adverbs and conjunctions, so the lemma is
 the spelling, each is a request the accept list either vouches for or fails the suite on, and the
 module writes no Estonian of its own.
 
@@ -1609,8 +1614,12 @@ module writes no Estonian of its own.
 screens mark offline: the lesson marks in the browser and the examination rebuilds its paper to mark
 it, and `lib/exam/score.ts` may not open a socket to do it. So the rule takes its reading of the
 words as a parameter, `lib/dict/wordOrder.ts` resolves it, and the alternatives ride on the item.
-The read is **bounded by the sentences rather than by the dictionary**, two queries keyed on the
-spellings in front of them: the verbs whose stored first person a person ending in one of these
+The read is **bounded by the sentences rather than by the dictionary, and then by the sentences that
+could fire**: the rule moves a particle and nothing else, so a sentence with no particle in it has
+no alternative order whatever the dictionary says about its verbs. The examination is what makes
+that matter rather than the lesson, since a paper is built from a pool of 500 entries and rebuilt
+again to mark it: those 1,642 sentences bind 14,052 values and the 125 holding a particle bind
+1,792. What is left is two queries keyed on the spellings in front of them: the verbs whose stored first person a person ending in one of these
 words could have come from, read through `possibleFirstPersons` the way the dictionary search
 already reads it so that `tuleb` finds `tulema`, and the entries that are not verbs and hold one of
 these spellings, which is what says `kaalu` is also a genitive. `LessonInput.wordOrder` and

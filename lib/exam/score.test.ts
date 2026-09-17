@@ -5,6 +5,7 @@ import {
 } from "./score";
 import { PASS_PCT } from "./spec";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
 
 /* No dictionary behind the paper, so every sentence keeps the one order the
    writer chose. What a reading of the dictionary adds is asserted in
@@ -338,5 +339,58 @@ describe("a recording that would not play", () => {
     const mark = markItem(item, { kind: "unheard" }, 1);
     expect(mark.available).toBe(0);
     expect(mark.note).toMatch(/would not play/);
+  });
+});
+
+describe("a word order the writer did not choose", () => {
+  /*
+    REPORTED OFF THE APP'S OWN FIRST UNIT, and the examination marks the same
+    exercise the lesson does. A candidate who rebuilds `Muidugi tuleb ette
+    näpukaid` as `Muidugi tuleb näpukaid ette` has written what anybody says,
+    and marking that wrong costs them a mark on a paper they may be sitting to
+    decide whether to book the real one.
+
+    Driven through `markPaper` rather than through `readOrder`, which is
+    covered next door: what is asked here is that the marker scores it, that
+    the log records it as recalled, and that the note says which of the two
+    orders the writer used. The paper built with no dictionary behind it
+    cannot reach this, so the item is built by hand.
+  */
+  const item = {
+    id: "order-0", lexemeId: "lex-0", lemma: "tulema", translation: "to come",
+    cardId: "card-0",
+    kind: "order" as const,
+    tiles: ["näpukaid", "Muidugi", "ette", "tuleb"],
+    answer: "Muidugi tuleb ette näpukaid.",
+    alsoRight: ["Muidugi tuleb näpukaid ette"],
+  };
+  const mark = (value: string[]) =>
+    markItem(item, { kind: "ordered", value }, 1);
+
+  it("scores the writer's own order", () => {
+    const result = mark(["Muidugi", "tuleb", "ette", "näpukaid"]);
+    expect(result.correct).toBe(true);
+    expect(result.scored).toBe(1);
+    expect(result.note).toBe("");
+  });
+
+  it("scores another order Estonian allows, and says whose it is", () => {
+    const result = mark(["Muidugi", "tuleb", "näpukaid", "ette"]);
+    expect(result.correct).toBe(true);
+    expect(result.scored).toBe(1);
+    expect(result.recalled).toBe(true);
+    expect(result.note).toBe(ORDER_VARIANT);
+  });
+
+  it("still refuses an order Estonian does not use", () => {
+    const result = mark(["Näpukaid", "ette", "tuleb", "Muidugi"]);
+    expect(result.correct).toBe(false);
+    expect(result.scored).toBe(0);
+    expect(result.note).toBe(ORDER_WRONG);
+  });
+
+  it("refuses an answer that is short of a word", () => {
+    expect(mark(["Muidugi", "tuleb", "ette"]).correct).toBe(false);
+    expect(mark([]).correct).toBe(false);
   });
 });

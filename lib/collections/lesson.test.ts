@@ -4,6 +4,7 @@ import {
   type LessonWord, type LessonStep,
 } from "./lesson";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { dictionaryRows } from "../../scripts/lib/dictionary";
 
 /*
   A lesson built with no dictionary behind it: every sentence keeps the one
@@ -266,5 +267,49 @@ describe("answerableCount", () => {
     expect(total).toBeLessThan(steps.length);
     expect(steps.filter((s) => s.kind === "intro" || s.kind === "recap" || s.kind === "meet")
       .every((s) => !isAnswerable(s))).toBe(true);
+  });
+});
+
+describe("the build step carries the orders Estonian allows", () => {
+  /*
+    The step is marked in the browser, so what the dictionary decided has to
+    travel with it. Everything above runs with no dictionary behind it, which
+    is how `alsoRight` could have shipped empty on every step with every test
+    still green: an empty list is exactly what an unreadable sentence gives.
+    So one step is built through a real reading, on the sentence the report
+    this was written for names.
+  */
+  const reported = "Muidugi tuleb ette näpukaid.";
+  const word: LessonWord = {
+    lexemeId: "lex-tulema",
+    lemma: "tulema",
+    gloss: "to come",
+    pos: "VERB",
+    semanticTypes: null,
+    examples: [reported],
+    /*
+      No stored first person, so no gap can be cut and the practice lane falls
+      through to the build step. `planLesson` offers one practice step per
+      word and the rotation starts at the gap for the first of a block.
+    */
+    parts: { INF_MA: "tulema" },
+    government: null,
+  };
+
+  const buildSteps = (order: Parameters<typeof planLesson>[0]["wordOrder"]) =>
+    planLesson({ unit, words: [word], distractors: DISTRACTORS, seed: 4, wordOrder: order })
+      .filter((s): s is Extract<LessonStep, { kind: "build" }> => s.kind === "build");
+
+  it("offers the order a learner actually says", () => {
+    const steps = buildSteps(orderContextFrom(dictionaryRows()));
+    expect(steps.length).toBeGreaterThan(0);
+    for (const step of steps) {
+      expect(step.sentence).toBe(reported);
+      expect(step.alsoRight).toEqual(["Muidugi tuleb näpukaid ette"]);
+    }
+  });
+
+  it("offers nothing when there is no dictionary to read", () => {
+    for (const step of buildSteps(orderContextFrom([]))) expect(step.alsoRight).toEqual([]);
   });
 });

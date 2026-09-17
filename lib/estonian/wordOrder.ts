@@ -44,14 +44,24 @@
  *    akronüümide` is a participle standing in front of its noun, which the
  *    particle in front of it belongs to.
  *
- * **One direction only, and that is the residual rather than an oversight.** A
- * particle the writer put at the end stays there: pulling one leftward out of
- * the end of a clause is where a postposition lives (`Ma ootasin bussi ees`),
- * and telling that from a particle needs the sentence parsed. So `Ta pani
- * raamatu ära` rebuilt as `Ta pani ära raamatu` is correct Estonian this still
- * refuses, which costs a learner the marking they already had. Getting it
- * wrong the other way would teach them a sentence nobody says, and that is the
- * fault this module exists against.
+ * **One direction only, and it was measured rather than argued.** A particle
+ * the writer put at the end stays there, so `Ta pani raamatu ära` rebuilt as
+ * `Ta pani ära raamatu` is correct Estonian this refuses. The obvious
+ * objection is that the rule should be symmetric, and with the verb known the
+ * reverse move looked safe for at least the free half, since nothing there can
+ * be an adposition. It was tried and reverted on the reading: 218 reverse
+ * moves over the shipped dictionary and the free ones are no better than the
+ * bound ones, because **Estonian puts the subject after the verb** whenever
+ * something else opens the clause, and the slot straight after the verb is
+ * then inside the subject rather than in front of it. `Rahvatarkuse kohaselt
+ * võtab maamuna tolm vere kinni` came back as `võtab kinni maamuna tolm vere`,
+ * `Tihti on kiibistik koondatud integraallülituse sisse` as `on sisse
+ * kiibistik koondatud`, and `Auto tagumine põrkeraud oli vasakult poolt pisut
+ * katki` as `oli katki vasakult poolt pisut`. Forward, the particle lands at
+ * the clause end, where nothing can be split. So the asymmetry is the shape of
+ * the language rather than a gap: what the refusal costs is the marking a
+ * learner already had, and accepting those would teach a sentence nobody
+ * says.
  *
  * Pure and framework-free, like the rest of `lib/estonian/`. **It writes no
  * Estonian**: every word it names is an uninflected adverb or conjunction, so

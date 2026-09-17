@@ -18,21 +18,37 @@
  * way `lib/dict/search.ts` already reads it so that `tuleb` finds `tulema`;
  * and the entries that are not verbs and hold one of these spellings, which is
  * what says `kaalu` is the genitive of `kaal` as well as an imperative.
+ *
+ * **And bounded again by the sentences that could fire**, which is most of the
+ * saving. The rule moves a verb particle and nothing else, so a sentence with
+ * no particle in it has no alternative order whatever the dictionary says
+ * about its verbs, and asking about its words is work for an answer that is
+ * already known. It is the examination that makes this matter rather than the
+ * lesson: a paper is built from a pool of 500 entries and rebuilt again to
+ * mark it, and measured over the shipped dictionary those 1,642 sentences bind
+ * 14,052 values where the 125 holding a particle bind 1,792. Postgres takes at
+ * most 65,535 in one statement, so the unfiltered read was not going to fail;
+ * it was going to be slow on the one path that already reads the most, twice
+ * per sitting.
  */
 import { prisma } from "@/lib/db";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { possibleFirstPersons } from "@/lib/estonian/conjugate";
-import { orderContextFrom, type OrderContext, type OrderWord } from "@/lib/estonian/wordOrder";
+import { orderContextFrom, PARTICLES, type OrderContext, type OrderWord } from "@/lib/estonian/wordOrder";
 
-/** The empty reading: no word is a verb, so no alternative order is offered. */
-export const NO_ORDER_CONTEXT: OrderContext = orderContextFrom([]);
+/** The empty reading: no word is a verb, so every sentence keeps its one order. */
+const NOTHING = orderContextFrom([]);
+
+const PARTICLE = new Set(PARTICLES);
 
 export async function orderContextFor(sentences: readonly string[]): Promise<OrderContext> {
   const words = new Set<string>();
   for (const sentence of sentences) {
-    for (const token of sentence.matchAll(ESTONIAN_WORD)) words.add(token[0].toLowerCase());
+    const tokens = [...sentence.matchAll(ESTONIAN_WORD)].map((t) => t[0].toLowerCase());
+    if (!tokens.some((t) => PARTICLE.has(t))) continue;
+    for (const token of tokens) words.add(token);
   }
-  if (words.size === 0) return NO_ORDER_CONTEXT;
+  if (words.size === 0) return NOTHING;
 
   const spellings = [...words];
   const firstPersons = [...new Set(spellings.flatMap((w) => possibleFirstPersons(w)))];
