@@ -189,6 +189,32 @@ export function caseQuestionFor(spec: CaseSpec, subject: CaseSubject): string {
 }
 
 /**
+ * IS THIS A WORD ENGLISH TALKS ABOUT THE WAY IT TALKS ABOUT A PERSON?
+ *
+ * The same fact `caseQuestionFor` picks a pronoun with, asked as the question a
+ * screen writing English needs answered. The three outside endings are the same
+ * letters either way and are not the same sentence: `raamatule` is onto the
+ * book, `mehele` is to the man, and `mehel` is the have-construction turned
+ * inside out, which is the one thing an English speaker has nothing to carry
+ * over for.
+ *
+ * Here rather than at the call site, and for `caseQuestionEnglishFor`'s reason
+ * one function down: what a classification *means* is this module's to decide
+ * and `lib/estonian/semantics.ts`'s to read, which is a pair
+ * `scripts/test-invariants.ts` holds closed. A screen or a table that answered
+ * it for itself would be a second rule about which words are people, and that
+ * is exactly how the wrong trio reached eight generators.
+ *
+ * Silence is not a person, which is the safe end here as everywhere else: an
+ * unclassified word takes the wording for a thing, because reading "we do not
+ * know" as "it is somebody" is what puts `raamatul` on a screen as "the book
+ * has it".
+ */
+export function asksAboutPerson(subject: CaseSubject): boolean {
+  return isAnimate(subject.semanticTypes);
+}
+
+/**
  * WHAT THAT QUESTION IS ASKING, IN ENGLISH.
  *
  * Here rather than at each call site, and reading `caseQuestionFor`'s own

@@ -68,6 +68,10 @@ import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
+import { planLesson, type LessonWord } from "../lib/collections/lesson";
+import { taughtSpellings } from "../lib/progress/lessonWords";
+import { buildCheckpoint, type CheckpointWord } from "../lib/collections/checkpoint";
+import { SYLLABUS, CHECKPOINTS, wordsAtLevel } from "../lib/collections/syllabus/index";
 
 const entries = dictionaryRows();
 
@@ -146,12 +150,29 @@ const REACHES: Record<string, number> = {
     against 45,856. Re-measured rather than scaled, which is what the paragraph
     above says about `exam` having been guessed once.
   */
-  deck: 10_800, exam: 2_000, crossword: 3_700, scene: 1_100, target: 4_100,
+  deck: 10_800, crossword: 3_700, scene: 1_100, target: 4_100,
+  /*
+    2,500 while every exam item was counted as asked, including the six shapes
+    with nothing on screen to search. 1,160 of those were being counted and not
+    examined, which is the state that let `WriteItem` hide in the section
+    below; they are skipped by name now and `asked` means examined.
+
+    Measured at 760, and the number going *down* is the point. Of the 2,500 it
+    used to count, the only shape it meaningfully examined was `gap-choice`:
+    `gloss-choice`, `case-form` and `form-choice` carry none of the four field
+    names it reached for and came back empty every time, and `match-usage` was
+    handed a lexeme id to look for. So this section went from examining one
+    shape to examining four, three of them the ones that print the case in
+    Estonian or the word beside its English. It found nothing, which is worth
+    writing down: the exam builder was already right.
+  */
+  exam: 760,
   // 627 while a `heard` item was skipped outright; the listening items are
   // asked the "also right" question now and counted. The placement draws a
   // fixed number of items per band, so this one does not move with the
-  // dictionary.
-  check: 590,
+  // dictionary. Then 740 once a writing item stopped arriving empty, and 660
+  // once dictation and speaking were skipped for having nothing to search.
+  check: 660,
   // Measured on the merged tree once the flash round read `caseFits`: the
   // local cases it may ask narrowed with everything else's, from 46,851. Then
   // 45,856 once the round led with the sentence: a gap whose English gloss
@@ -165,6 +186,19 @@ const REACHES: Record<string, number> = {
   // illatives in this dictionary are spelled like a principal part. 5,216 over
   // the whole of it.
   exceptions: 4_100,
+  /*
+    The guided unit lesson and the end-of-level checkpoint, neither of which
+    had ever been in this script. Both build a gap out of an attested sentence
+    and both print the word above it, which is the whole subject of this file;
+    a learner reported the lesson's own version of the fault. Three seeds over
+    83 units and five levels, which costs about 1.6 seconds between them.
+
+    MEASURED, AND THE FIRST FIGURE WAS GUESSED AND WRONG: written as 1,900 out
+    of the head, the lesson asked 1,254 and the run that introduced this
+    section failed its own floor. That is `exam` all over again, two hundred
+    lines up, and it is the check working.
+  */
+  lesson: 1_254, checkpoint: 120,
 };
 
 /*
@@ -186,16 +220,53 @@ const askedIn = new Map<string, number>();
 function timed<T>(what: string, run: () => T): T {
   const began = Date.now();
   const before = asked;
+  const blindBefore = blind;
   const out = run();
   spent.set(what, (spent.get(what) ?? 0) + (Date.now() - began));
   askedIn.set(what, (askedIn.get(what) ?? 0) + (asked - before));
+  blindIn.set(what, (blindIn.get(what) ?? 0) + (blind - blindBefore));
   return out;
 }
+
+/*
+  AND THE SCRIPT MEASURES ITS OWN BLINDNESS, because the one way this file can
+  be wrong is the way it was wrong for as long as the level check has been in
+  it. `ask` needs a haystack and a needle; hand it an empty one and it returns
+  having looked at nothing, and the only visible effect is the count going up.
+  That is indistinguishable from a clean pass.
+
+  It happened because every haystack here is assembled by reaching for field
+  names on an item the builder returns: the level check read `item.et`, which
+  `WriteItem` does not have, and `item.answer`, which it calls `targetForm`.
+  Both came back empty, for every writing item, on every run. The exam section
+  reaches for `prompt`, `sentence`, `text` and `hint` the same way, so the same
+  rename one directory over would blind it just as quietly.
+
+  So a blind ask is counted per section and the verdict fails a section that is
+  mostly blind. The threshold is generous rather than tight: a shape that shows
+  a picture and not a word, or refuses a cue on purpose, honestly has nothing
+  to search, and the lesson's own `none` rung is one of those. What it catches
+  is a whole section that stopped being able to see.
+*/
+const blindIn = new Map<string, number>();
+/** A few of the labels a section could not see, so the failure names them. */
+const blindCases = new Map<string, string[]>();
+let blind = 0;
 
 function ask(where: string, shown: string, answer: string): void {
   asked++;
   const wanted = answer.trim();
-  if (wanted.length < 2 || !shown.trim()) return;
+  if (wanted.length < 2 || !shown.trim()) {
+    blind++;
+    const why = !shown.trim() ? "no haystack" : `answer ${JSON.stringify(answer)}`;
+    // Three words, because a section's own label is "<section> <level> <kind>"
+    // and the kind is the half that says which builder went quiet.
+    const label = where.split(" ").slice(0, 3).join(" ");
+    const seen = blindCases.get(label) ?? [];
+    if (seen.length < 3) seen.push(why);
+    blindCases.set(label, seen);
+    return;
+  }
   // A case card's back is every accepted spelling, joined. Any one of them
   // showing is enough to make the card free.
   for (const one of wanted.split(" / ")) {
@@ -236,16 +307,110 @@ const pool: PoolWord[] = entries.map((e) => ({
   government: e.government, cardId: null,
 }));
 const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 10);
+/*
+  WHAT EACH EXAM SHAPE PUTS ON THE SCREEN, ONE ENTRY PER SHAPE.
+
+  This was a union of four field names (`prompt`, `sentence`, `text`, `hint`)
+  reached for on every item alike, which is how `WriteItem` hid in the level
+  check one section down, and it was wrong here in both directions at once.
+  `gloss-choice` has none of those four, so the shape whose whole risk is an
+  Estonian word spelled like its English answer was never looked at; and
+  `case-form` and `form-choice` name the case in Estonian and print the
+  question it answers, which is the shape that asked `kes` for the sisseütlev
+  under `kellesse? millesse?` one module over, and neither field was read.
+
+  Widening the union to cover them was tried first and is what a guess gets
+  you: adding `lemma` and `translation` to every shape reported 609 faults,
+  every one of them a matching task's own word list or a multiple choice's own
+  options, which is the exercise. `docs` has said so since this file was
+  written and the comment saying it was the thing being overridden.
+
+  So each shape names its own fields, and the six with nothing to search say so
+  rather than being counted as questions this script examined:
+    - `dictation` and `listen-choose` hide the answer from the eye on purpose;
+    - `order`'s tiles are the sentence scrambled, which is the exercise;
+    - `compose`, `message` and `speak` are free writing and speaking and have
+      no single answer to look for at all;
+    - `match-usage` answers with a lexeme id rather than a word, and its word
+      list is on screen because pairing needs both halves there;
+    - `government` answers with a case key (`PARTITIVE`), which is not Estonian
+      and cannot appear in the Estonian on the screen. The question worth
+      asking about that shape is whether a wrong option is also right, and
+      `buildOptions` answers it by refusing every case the entry governs
+      (`lib/estonian/government.ts`), which has its own tests.
+*/
+/*
+  KEYED ON `item.kind`, WHICH IS WHAT THE SITTING SCREEN SWITCHES ON.
+
+  Written against `task.spec.kind` first, which is the shape the specification
+  asked for rather than the shape the candidate is looking at, and the two come
+  apart twice over. `gap-type` is built by `buildGapChoice` and yields
+  `gap-choice` items, so a level that set one would have been reported here as
+  a shape with no entry while the screen rendered it perfectly; and a task that
+  falls back is set as something other than what its spec names
+  (`ExamTask.fallbackFrom`). `item.kind` is the one field that says which
+  fields exist and which branch draws them.
+
+  AND THE STATED RESIDUAL IS A HAYSTACK THAT IS NON-EMPTY BUT SHORT. The blind
+  count below catches a field name that stopped resolving, because the whole
+  string comes back empty and that is a fact a number can hold. It cannot catch
+  a screen that grows a *second* line: `EXAM_SHOWS` would still produce
+  something to search, `ask` would still look, and the new line would simply
+  never be looked in. Nothing here can see that without parsing JSX, which is
+  the thing `readerCopy.test.ts` tried once and reverted. What stands in for it
+  is that this table is short, one entry per shape, next to a comment saying
+  what each shape draws, so it is reviewable by somebody reading the branch it
+  describes. Check it against `ExamSession.tsx` when that file changes.
+*/
+const EXAM_SHOWS: Record<string, readonly string[]> = {
+  // The sentence alone: the options are forms of one word and picking between
+  // them is the exercise. What would be a fault is the sentence saying it.
+  "gap-choice": ["sentence"],
+  // The Estonian word, against English options. `saun` glossed "sauna".
+  "gloss-choice": ["word"],
+  // The word, its meaning, the case named in Estonian and the question that
+  // case answers, all printed above the options or the box.
+  "form-choice": ["lemma", "translation", "caseEt", "caseQuestion"],
+  "case-form": ["lemma", "translation", "caseEt", "caseQuestion"],
+};
+const NOTHING_TO_SEARCH = new Set([
+  "dictation", "listen-choose", "order", "compose", "message", "speak",
+  "match-usage", "government",
+]);
+
+/*
+  Every shape `lib/exam/paper.ts` can build is in one of those two tables, and
+  that is asserted in `scripts/test-invariants.ts` rather than here. The loop
+  below reports a shape with no entry, which only fires if some level at some
+  seed actually builds one, and `ExamItem` is a closed union: a member added
+  there and set at one level a year from now would otherwise reach a learner
+  first. The invariant reads the union's own declaration with the comments
+  stripped, which is what that file already has a `code()` for.
+*/
 timed("exam", () => {
 for (const level of EXAM_LEVELS) {
   for (let s = 0; s < SEEDS; s++) {
     for (const part of buildExam(level, pool, `audit-${s}`).parts) {
       for (const task of part.tasks) {
         for (const item of task.items as unknown as Record<string, unknown>[]) {
-          // `lemma` on a matching task is the word list, which is the exercise.
-          const shown = [item.prompt, item.sentence, item.text, item.hint]
-            .filter((x): x is string => typeof x === "string").join(" ");
-          ask(`exam ${level} ${task.spec.kind}`, shown, String(item.answer ?? ""));
+          // See EXAM_SHOWS: one entry per shape, and the shapes with nothing
+          // to search are skipped rather than counted and not looked at.
+          const shape = String(item.kind);
+          if (NOTHING_TO_SEARCH.has(shape)) continue;
+          const fields = EXAM_SHOWS[shape];
+          if (!fields) {
+            faults.push({
+              where: `exam ${level} ${shape}`,
+              shown: "no entry in EXAM_SHOWS",
+              answer: "say what this shape puts on screen, or name it in NOTHING_TO_SEARCH",
+            });
+            continue;
+          }
+          const shown = fields
+            .map((f) => item[f])
+            .filter((x): x is string => typeof x === "string")
+            .join(" ");
+          ask(`exam ${level} ${shape}`, shown, String(item.answer ?? ""));
         }
       }
     }
@@ -303,7 +468,11 @@ for (let seed = 1; seed <= SEEDS; seed++) {
     if (!Array.isArray(list)) continue;
     for (const item of list as Record<string, unknown>[]) {
       const options = (item.options ?? []) as string[];
-      const answer = typeof item.answer === "number" ? options[item.answer] ?? "" : String(item.answer ?? "");
+      // `WriteItem` names its answer `targetForm`, so reading `answer` alone
+      // handed `ask` an empty string and it returned on `wanted.length < 2`.
+      const answer = typeof item.answer === "number"
+        ? options[item.answer] ?? ""
+        : String(item.answer ?? item.targetForm ?? "");
       if (item.heard) {
         if (typeof item.answer !== "number") continue;
         asked++;
@@ -314,7 +483,31 @@ for (let seed = 1; seed <= SEEDS; seed++) {
         }
         continue;
       }
-      ask(`check ${skill} ${String(item.kind)}`, String(item.et ?? ""), answer);
+      /*
+        WHAT THE SCREEN SHOWS, WHICH FOR A WRITE ITEM IS NOT `et`. This read
+        `item.et` for every kind and `WriteItem` has no such field: a gap
+        carries `sentence`, and `WriteQuestion` prints the word above the box
+        in bold with what it means beside it. So both halves of every writing
+        item arrived here empty, `ask` returned on `!shown.trim()`, and the
+        count went up having looked at nothing. It had looked at nothing since
+        the section was written.
+
+        What it was not looking at: 1,549 of the 4,294 words the shipped
+        dictionary can gap wanted the dictionary form, so the answer was the
+        boldest thing on a screen that sets a learner's writing band.
+      */
+      /*
+        Dictation and speaking have nothing on screen to search, for the same
+        reasons the exam's own six do not: a dictation's answer is the
+        recording, and a speaking item is rated by the learner and has no
+        answer at all (ADR-018). Skipped with the reason rather than asked and
+        counted, so `asked` means "examined" here as it does everywhere else.
+      */
+      if (item.kind === "dictation" || item.kind === "speak") continue;
+      const shown = item.kind === "write"
+        ? `${String(item.lemma ?? "")} ${String(item.translation ?? "")} ${String(item.sentence ?? "")}`
+        : String(item.et ?? "");
+      ask(`check ${skill} ${String(item.kind)}`, shown, answer);
     }
   }
 }
@@ -520,6 +713,117 @@ for (const e of entries) {
 }
 });
 
+/* ── The guided lesson and the checkpoint ────────────────────────────────── */
+/*
+  THE SCREEN A LEARNER REPORTED, AND THE ONE THIS SCRIPT COULD NOT SEE. A unit
+  lesson's gap step read "The word is kindlasti (definitely), in the form the
+  sentence needs" over a gap wanting `kindlasti`. Every other generator that
+  hides a form in a sentence was already in here; the lesson and the
+  end-of-level checkpoint were not, so nothing ever asked. 616 of the 1,354
+  course words that can carry a gap at all wanted the dictionary form, which
+  is every adverb and every noun a lexicographer only ever wrote plain.
+
+  The lesson's case step is asked too, because it prints the lemma at 32px
+  above the box and Estonian spells some cases like the nominative: `kalli`
+  plus `s` is `kallis` again. The checkpoint's typed question is deliberately
+  not asked: it shows the English gloss alone and wants the lemma, which is a
+  production card, and a word spelled the same in both languages is a fact
+  said out loud on every screen that prints it (`sameSpelling`).
+*/
+const byLemmaPos = new Map(entries.map((e) => [`${e.lemma}|${e.pos}`, e]));
+function partsOf(e: DictionaryRow): Record<string, string> {
+  const parts: Record<string, string> = {};
+  for (const f of e.forms ?? []) parts[f.formType] ??= f.value;
+  return parts;
+}
+function lessonWord(lemma: string, pos: string): LessonWord | null {
+  const e = byLemmaPos.get(`${lemma}|${pos}`);
+  if (!e) return null;
+  return {
+    lexemeId: e.lemma, lemma: e.lemma, gloss: e.translation, pos: e.pos,
+    semanticTypes: e.semanticTypes ?? null,
+    examples: (e.examples ?? []).map((x) => x.et),
+    parts: partsOf(e), government: e.government ?? null,
+  };
+}
+
+/*
+  WHAT THE COURSE HAS TAUGHT, BUILT THE WAY THE PAGE BUILDS IT. At A1 a lesson
+  may only cut a sentence exercise out of a sentence whose every word the
+  course has already taught, and `taughtWords` is where that is decided
+  (`lib/collections/lesson.ts` rule 4). Handing in nothing is not a neutral
+  default: it fails closed, so every A1 gap would vanish and this section would
+  report a clean pass over questions the app does build. The page reads the
+  spellings off `courseFormsByLemma`; here they come off the shipped
+  dictionary, through the same pure `taughtSpellings`.
+*/
+const spellingsByLemma = new Map<string, Set<string>>();
+for (const e of entries) {
+  const held = spellingsByLemma.get(e.lemma) ?? new Set<string>();
+  const add = (text: string) => {
+    for (const word of text.toLowerCase().split(/[^\p{L}\p{M}]+/u)) if (word) held.add(word);
+  };
+  add(e.lemma);
+  for (const f of e.forms ?? []) add(f.value);
+  spellingsByLemma.set(e.lemma, held);
+}
+
+timed("lesson", () => {
+for (const unit of SYLLABUS) {
+  const words = unit.vocabulary
+    .map((w) => lessonWord(w.lemma, w.pos))
+    .filter((w): w is LessonWord => !!w);
+  if (words.length === 0) continue;
+  // The whole unit, since this plans it as one sitting rather than six words
+  // at a time.
+  const taughtWords = taughtSpellings(spellingsByLemma, unit.id, unit.lemmas);
+  for (let seed = 1; seed <= 3; seed++) {
+    for (const step of planLesson({ unit, words, distractors: words, taughtWords, seed })) {
+      if (step.kind === "gap") {
+        // Exactly the cue the screen draws, which `step.cue` decides: the word
+        // and its meaning, then the meaning alone, then nothing. A rung that
+        // says nothing shows nothing, and there is nothing to find in it.
+        // The third rung shows nothing, so there is nothing to search: skipped
+        // by name like the exam's own six rather than counted and not looked
+        // at. It is also the rung a regression would collapse everything into,
+        // and not counting it is what makes the section's floor notice.
+        if (step.cue === "none") continue;
+        const shown = step.cue === "word-and-meaning"
+          ? `${step.lemma} ${step.gloss}`
+          : step.gloss;
+        ask(`lesson ${unit.id} gap ${step.lemma}`, shown, step.answer);
+      } else if (step.kind === "case") {
+        // The word, its meaning, the case's Estonian name and the question it
+        // answers, which is every string on that card before the box.
+        ask(
+          `lesson ${unit.id} case ${step.lemma}`,
+          `${step.lemma} ${step.gloss} ${step.caseName} ${step.question}`,
+          step.answer,
+        );
+      }
+    }
+  }
+}
+});
+
+timed("checkpoint", () => {
+for (const checkpoint of CHECKPOINTS) {
+  const words = wordsAtLevel(checkpoint.level)
+    .map((w) => lessonWord(w.lemma, w.pos))
+    .filter((w): w is LessonWord => !!w)
+    .map((w): CheckpointWord => ({
+      lemma: w.lemma, gloss: w.gloss, pos: w.pos, examples: w.examples, parts: w.parts,
+    }));
+  if (words.length === 0) continue;
+  for (let seed = 1; seed <= 3; seed++) {
+    for (const q of buildCheckpoint(words, checkpoint.questions, seed)) {
+      if (q.kind !== "gap") continue;
+      ask(`checkpoint ${checkpoint.level} ${q.lemma}`, `${q.lemma} ${q.gloss} ${q.sentence}`, q.answer);
+    }
+  }
+}
+});
+
 /* ── The verdict ─────────────────────────────────────────────────────────── */
 
 /*
@@ -546,6 +850,42 @@ console.log(
     .join(", ")
   + ` (${SEEDS} seeds per paper)`,
 );
+console.log(
+  `  ${blind.toLocaleString("en-GB")} of them had nothing to search: `
+  + ([...blindIn.entries()].filter(([, n]) => n > 0)
+    .map(([what, n]) => `${what} ${n.toLocaleString("en-GB")}`).join(", ") || "none"),
+);
+/*
+  NO SECTION IS ALLOWED TO BE BLIND AT ALL, AND NONE IS.
+
+  This was written with an exemption table beside it, for the lesson's third
+  cue rung, which shows nothing by design. Then every shape with nothing on
+  screen to search was skipped by name where it is built, with the reason there
+  rather than here, and the table had no entries left. An empty exemption list
+  with a check round it is the parking space every exemption list becomes, so
+  it is gone: a shape this script cannot examine says so at its own builder and
+  is not counted as a question, and anything that reaches `ask` is expected to
+  be readable.
+*/
+const blinded = [...askedIn.entries()]
+  .filter(([what, n]) => n > 0 && (blindIn.get(what) ?? 0) > 0)
+  .map(([what, n]) => {
+    const cases = [...blindCases.entries()]
+      .filter(([label]) => label.startsWith(what))
+      .slice(0, 10)
+      .map(([label, why]) => `${label} (${[...new Set(why)].join(", ")})`);
+    return `${what}: ${(blindIn.get(what) ?? 0).toLocaleString("en-GB")} of `
+      + `${n.toLocaleString("en-GB")} asks had nothing to search\n    ` + cases.join("\n    ");
+  });
+if (blinded.length > 0) {
+  console.error(
+    "\nA section is asking questions it cannot see:\n  " + blinded.join("\n  ")
+    + "\nA haystack here is assembled by reaching for field names on a built item, so a rename in"
+    + "\nthe builder empties it silently. Check that every field the screen prints is still read.",
+  );
+  process.exit(1);
+}
+
 const thin = Object.entries(REACHES)
   .filter(([what, reaches]) => (askedIn.get(what) ?? 0) < Math.floor(reaches * 0.8))
   .map(([what, reaches]) => `${what} asked ${(askedIn.get(what) ?? 0).toLocaleString("en-GB")} against ${reaches.toLocaleString("en-GB")}`);
