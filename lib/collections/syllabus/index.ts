@@ -217,6 +217,27 @@ export function wordsAtLevel(level: Level): readonly CourseWord[] {
   return WORDS.filter((w) => w.level === level);
 }
 
+/**
+ * Every lemma the course has taught by the end of this unit, in course order.
+ *
+ * `SYLLABUS` is the teaching order, so "taught" is the units up to and
+ * including this one. It is the strict reading of the question on purpose:
+ * a unit later at the same level is a word the learner *will* meet, which is
+ * not the same claim as having met it, and `veel`, `üks` and `palun` are all
+ * A1 words that a learner on unit one has not seen.
+ *
+ * An unknown id gets nothing rather than the whole course, since reading "I
+ * cannot place this unit" as "everything has been taught" is the silent
+ * failure rather than the cautious one.
+ */
+export function lemmasTaughtUpTo(unitId: string): readonly string[] {
+  const end = SYLLABUS.findIndex((u) => u.id === unitId);
+  if (end < 0) return [];
+  const out = new Set<string>();
+  for (const u of SYLLABUS.slice(0, end + 1)) for (const lemma of u.lemmas) out.add(lemma);
+  return [...out];
+}
+
 export type UnitState = "done" | "learning" | "available" | "locked";
 
 export interface UnitProgress {

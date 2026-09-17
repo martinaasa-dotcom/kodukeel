@@ -43,6 +43,8 @@ import { TOPIC_GROUPS } from "../lib/estonian/grammar";
 import { NAV_MOTION } from "../lib/ux/navMotion";
 import { DESTINATIONS } from "../lib/ux/nav";
 import { rungOf } from "../lib/learn/ladder";
+import { BUILD_FROM } from "../lib/collections/lesson";
+import { LEVELS } from "../lib/collections/syllabus/types";
 import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
 import { grammarGroupTerm, grammarTerm } from "../lib/estonian/terms";
@@ -1308,6 +1310,65 @@ check("a question about one word is worded for that word", () => {
     cases,
     /question: \[row\.asksPerson, row\.asksThing, row\.asksWhere\]/,
     "a case's name stopped being built from its own parts",
+  );
+});
+
+/*
+  A BEGINNER IS NEVER SHOWN A WORD THE COURSE HAS NOT TAUGHT.
+
+  `lib/collections/lesson.ts` rule 1 has always said nothing is asked before it
+  is taught, and it was written about the word a step is *about*. An attested
+  usage is written to illustrate a headword rather than to be somebody's first
+  reading, so the words standing around it come from wherever the lexicographer
+  was: the first unit of the course, whose own blurb reads "Thirteen words,
+  said alone. Nothing here is a sentence yet", put `Palun võta veel üks komm. –
+  Aitäh!` on the screen as a six-tile ordering puzzle, five of the six words
+  never shown to anybody. Measured over the course at one lesson a sitting, 152
+  of the 162 word-ordering steps at A1 and 188 of the 210 gap-fills carried one.
+
+  Three things hold it, and each is the shape that would rot rather than
+  today's markup: word ordering starts above A1, the sentence builders reach a
+  sentence only through the rule that decides whether it is readable, and the
+  set of taught words is required so a caller cannot quietly reinstate the
+  fault by leaving it out.
+*/
+check("a lesson at A1 asks only about words the course has taught", () => {
+  assert.ok(
+    LEVELS.indexOf(BUILD_FROM) > 0,
+    "word ordering is offered at the first band of the course, where there is no syntax to order yet",
+  );
+
+  const lesson = code("lib/collections/lesson.ts");
+
+  /*
+    The pairing rather than either half: `usable` is where a sentence is held
+    to the unit's declaration and to what the learner has met, so a builder
+    that walks `word.examples` itself is a builder outside the rule. Anchored
+    on the call, because a builder can import the rule and go on using its own
+    list, which is the fault this file keeps finding in its own checks.
+  */
+  for (const builder of ["function gapStep(", "function buildStep("]) {
+    const body = lesson.slice(lesson.indexOf(builder), lesson.indexOf("\n}", lesson.indexOf(builder)));
+    assert.ok(body.length > 0, `lesson.ts no longer has ${builder}`);
+    assert.match(body, /usable\(word, rules\)/, `${builder} reaches a sentence without asking which are readable`);
+    assert.doesNotMatch(body, /word\.examples/, `${builder} walks the word's sentences itself, past the readable rule`);
+  }
+  assert.match(
+    lesson,
+    /const usable[^;]*rules\.maySentence[\s\S]{0,120}rules\.readable/,
+    "the one gate on a lesson's sentences stopped reading the unit's declaration or what the learner has met",
+  );
+
+  /*
+    Required and nullable, so a caller that cannot say what the course has
+    taught says so rather than being read as "everything". Optional is the one
+    edit that puts the fault back in silence, on a compiler that would say
+    nothing about it.
+  */
+  assert.match(
+    read("lib/collections/lesson.ts"),
+    /\n {2}taughtWords: ReadonlySet<string> \| null;/,
+    "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
 });
 

@@ -3364,6 +3364,53 @@ the grammar reference did, since every lesson at a level would then draw its dec
 sixty words at the front of the alphabet. The window starts where the unit points, which is the
 answer `paperFor` had already reached one file over.
 
+**A beginner is never asked about a word the course has not taught them, and putting a sentence in
+order is not a beginner's question at all.** `lib/collections/lesson.ts` has said since it was
+written that nothing is asked before it is taught, and that rule was about the word a step is
+*about*: it said nothing about the words standing around it. An Ekilex usage is written to
+illustrate a headword rather than to be somebody's first reading, so the first unit of the course,
+whose own blurb reads "Thirteen words, said alone. Nothing here is a sentence yet", put
+`Palun võta veel üks komm. – Aitäh!` on the screen as a six-tile ordering puzzle with five of the
+six words never shown to anybody. It was reported by somebody using it. Measured over the whole
+course at one lesson a sitting, 152 of the 162 word-ordering steps at A1 and 188 of the 210
+gap-fills carried a word the course had not reached, and none of either does now.
+
+**Word ordering starts at `BUILD_FROM`, which is A2.** Ordering words is a question about syntax and
+the first units teach words said alone, so at A1 the exercise degenerates into shuffling tiles until
+the button goes green; it is also the one exercise where every word has to be handled rather than
+read past, so it is the one an unfamiliar word costs most. **And at A1 a sentence exercise is offered
+only where the course has taught every word in it**, which is `LessonInput.taughtWords`: the lemmas
+and stored forms of every unit up to and including this one, in the course's own teaching order.
+Taught *so far* rather than anywhere at the level, because `veel`, `üks` and `palun` are all A1 words
+and a learner on unit one has met none of them. It is **required and nullable** for the reason
+`illSgShort` is required on `NounStems`: a caller that cannot say what the course has taught says so,
+and at A1 that means no sentence exercise rather than any sentence at all. Above A1 nothing is
+gated, because meeting an unfamiliar word inside a sentence is how reading grows and a B1 learner
+has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 gap-fills; what is
+left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
+can actually read.
+
+**And a lesson asks only what its unit says it teaches.** `cardTypes` is the unit author's own
+declaration and the flashcard builder has read it for as long as it has existed; the lesson planner
+never did, so `vastused`, which names `RECOGNITION` and `PRODUCTION` and nothing else, was getting
+gap-fills, a word-ordering puzzle and a case question anyway. Four units in the whole course declare
+no `CLOZE` and all four are at A1, so holding a sentence exercise to that declaration costs 55 steps
+and every one of them is a beginner handed a sentence their unit said it was not teaching yet. The
+case and government questions read the declaration **at A1 alone**, and that asymmetry is measured
+rather than tidy: holding a case question to `CASE_FORM` everywhere would take all 84 of C1's, and a
+government question to `GOVERNMENT` nearly every one in the course, since only four units declare it.
+Those are changes to what the course teaches rather than to what a beginner is protected from.
+
+What this does **not** reach is the meeting step, which also shows an attested sentence: nothing is
+asked there, the word and its meaning are printed directly above it, and withholding it would open a
+beginner's first screens with "No example sentence for this one yet" about words that have several.
+What that sentence is missing is the dictionary under its words, which `lib/dict/glossed.ts` already
+puts under the review card's first meeting and this screen does not. And the cost is stated rather
+than hidden: at A1 the practice lane is thinner for it, since `kodu` practised two ways in a sentence
+and once with a case before this and practises six times with a case after it. That is the material
+being thin rather than the lane being wrong, it is the case the unit declared it teaches, and the
+alternative is the sentence the learner cannot read.
+
 **A day is the learner's day, and every screen that counts one is rendered on a server.** The
 streak, the daily goal, the week strip, the heatmap and the errand of the day are all derived
 server-side, and a server's midnight is the deployment's. `lib/time/day.ts`

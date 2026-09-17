@@ -9,6 +9,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { planLesson, splitIntoLessons, type LessonWord } from "@/lib/collections/lesson";
 import { starredAmong } from "@/lib/progress/stars";
+import { taughtWords } from "@/lib/progress/lessonWords";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
@@ -86,12 +87,21 @@ export default async function LessonPage({
     which of them each question uses is the per-part seed's job, below.
   */
   const poolSeed = hash(unit.id);
-  const [rows, atLevel, settings] = await Promise.all([
+  const [rows, atLevel, settings, taught] = await Promise.all([
     prisma.lexeme.findMany({ where: { lemma: { in: [...unit.lemmas] } }, select }),
     prisma.lexeme.count({ where: { cefr: unit.level } }),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    /*
+      Every spelling the course has taught by the end of this unit, which is
+      what stops an A1 lesson asking about a sentence the learner cannot read
+      (rule 4 in `lib/collections/lesson.ts`). It rides in this batch rather
+      than after it because it needs nothing the other three return, and it is
+      a fact about the shared dictionary, so on a warm instance it is no query
+      at all.
+    */
+    taughtWords(unit.id),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const pool = await prisma.lexeme.findMany({
@@ -146,6 +156,7 @@ export default async function LessonPage({
   const steps = planLesson({
     unit,
     words: chosen,
+    taughtWords: taught,
     distractors: pool.map((p) => ({
       lexemeId: p.id,
       lemma: plainPhrase(p.lemma), gloss: plainPhrase(p.translation), pos: p.pos, semanticTypes: p.semanticTypes,

@@ -236,22 +236,66 @@ export async function substitutes(): Promise<ReadonlyMap<string, readonly string
   });
 }
 
-export async function courseForms(): Promise<ReadonlySet<string>> {
-  return remember("courseForms", FACTS_TTL_MS, async () => {
+/** Every word of a lemma or a form, folded, since a phrase is several words. */
+const spellingsIn = (text: string): string[] =>
+  text.toLowerCase().split(/[^\p{L}\p{M}]+/u).filter(Boolean);
+
+/**
+ * Every spelling of every course word, by the lemma it belongs to.
+ *
+ * Grouped rather than flattened because two questions are asked of this: "is
+ * this spelling Estonian a learner could have been taught", which is
+ * `courseForms` below and wants the union, and "is it one the course has
+ * reached *yet*", which a lesson asks of the units up to the one it is
+ * teaching (`taughtWords` in lib/progress/lessonWords.ts). One read answers
+ * both, the way `lemmaCountsByLevel` reads `gradedLemmas` rather than asking
+ * Postgres a second question about the same rows.
+ */
+export async function courseFormsByLemma(): Promise<ReadonlyMap<string, ReadonlySet<string>>> {
+  return remember("courseFormsByLemma", FACTS_TTL_MS, async () => {
     const lemmas = [...new Set(SYLLABUS.flatMap((unit) => unit.lemmas))];
-    const rows = await prisma.form.findMany({
-      where: { lexeme: { lemma: { in: lemmas } } },
-      select: { value: true },
-    });
-    const out = new Set<string>();
-    for (const lemma of lemmas) for (const word of lemma.toLowerCase().split(/[^\p{L}\p{M}]+/u)) {
-      if (word) out.add(word);
-    }
-    for (const row of rows) for (const word of row.value.toLowerCase().split(/[^\p{L}\p{M}]+/u)) {
-      if (word) out.add(word);
+    /*
+      Scalars only, and the lemma resolved through the dictionary this module
+      already holds. `select: { lexeme: { select: { lemma: true } } }` reads as
+      one query and is two, for the reason `lemmasByCardLexeme` gives at
+      length: Prisma fetches the forms, collects their `lexemeId`s and sends a
+      second statement carrying every one of them.
+
+      A form whose entry the cached dictionary does not know yet is dropped
+      rather than asked for, which is the one place this is looser than the
+      join. It can only be a course word created in the last minute, and the
+      lemma itself is added below whatever happens, so what a miss costs is a
+      word counting as taught by its headword alone for up to a minute.
+    */
+    const [rows, { byId }] = await Promise.all([
+      prisma.form.findMany({
+        where: { lexeme: { lemma: { in: lemmas } } },
+        select: { value: true, lexemeId: true },
+      }),
+      dictionary(),
+    ]);
+    const out = new Map<string, Set<string>>();
+    const add = (lemma: string, text: string) => {
+      const held = out.get(lemma) ?? new Set<string>();
+      for (const word of spellingsIn(text)) held.add(word);
+      out.set(lemma, held);
+    };
+    // The lemma itself first, so a word the dictionary holds no forms for
+    // still counts as taught by the unit that names it.
+    for (const lemma of lemmas) add(lemma, lemma);
+    for (const row of rows) {
+      const lemma = byId.get(row.lexemeId)?.lemma;
+      if (lemma !== undefined) add(lemma, row.value);
     }
     return out;
   });
+}
+
+export async function courseForms(): Promise<ReadonlySet<string>> {
+  const byLemma = await courseFormsByLemma();
+  const out = new Set<string>();
+  for (const forms of byLemma.values()) for (const word of forms) out.add(word);
+  return out;
 }
 
 /**
