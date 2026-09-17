@@ -6,6 +6,8 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { orderContextFor } from "@/lib/dict/wordOrder";
+import { alsoRightOrders } from "@/lib/estonian/wordOrder";
 import { courseLevelFor } from "@/lib/progress/level";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
@@ -93,7 +95,7 @@ export default async function SentencesPage() {
     }
   }
 
-  const tasks: SentenceTask[] = [];
+  const tasks: Omit<SentenceTask, "alsoRight">[] = [];
   for (const entry of byLexeme.values()) {
     /*
       And only out of a sentence. `isBuildable` counts the tiles and refuses a
@@ -121,7 +123,20 @@ export default async function SentencesPage() {
   // same eight sentences every time.
   const translated = shuffle(tasks.filter((t) => t.en));
   const untranslated = shuffle(tasks.filter((t) => !t.en));
+  const round = [...translated, ...untranslated].slice(0, ROUND);
 
-  return <SentenceSession tasks={[...translated, ...untranslated].slice(0, ROUND)} />;
+  /*
+    The other orders each of these sentences allows, worked out here because
+    the round marks the answer in the browser and the dictionary is what
+    decides. Asked of the eight sentences the round actually sets rather than
+    of every candidate, since the query is keyed on the words in front of it.
+  */
+  const wordOrder = await orderContextFor(round.map((t) => t.et));
+
+  return (
+    <SentenceSession
+      tasks={round.map((t) => ({ ...t, alsoRight: alsoRightOrders(t.et, wordOrder) }))}
+    />
+  );
 }
 

@@ -62,6 +62,7 @@
     "audit:questions": "tsx scripts/audit-questions.ts",
     "audit:sense": "tsx scripts/audit-sense.ts",
     "audit:homonyms": "tsx scripts/audit-homonyms.ts",
+    "audit:order": "tsx scripts/audit-order.ts",
     "audit:decks": "tsx scripts/audit-decks.ts",
     "audit:plainness": "tsx scripts/audit-plainness.ts",
     "audit:readable": "tsx scripts/audit-readable.ts"

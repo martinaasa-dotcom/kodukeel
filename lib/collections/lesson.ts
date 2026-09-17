@@ -70,6 +70,7 @@
  * dictionary rows and hands them in.
  */
 import { buildCloze, isBuildable, mentions, sentenceTiles } from "@/lib/estonian/cloze";
+import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { gapFormsFromParts } from "@/lib/estonian/gapForms";
 import { caseAnswer, stemsFromParts } from "@/lib/estonian/derive";
 import { CASES } from "@/lib/estonian/cases";
@@ -211,6 +212,15 @@ export interface BuildStep extends StepBase {
   lemma: string;
   tiles: readonly string[];
   sentence: string;
+  /**
+   * The other orders of this sentence Estonian allows, worked out by
+   * `lib/estonian/wordOrder.ts` off the dictionary when the step was built.
+   *
+   * Carried on the step rather than worked out when the answer is checked,
+   * because the checking happens in the browser and the dictionary is on the
+   * server.
+   */
+  alsoRight: readonly string[];
 }
 export interface CaseStep extends StepBase {
   kind: "case";
@@ -310,6 +320,18 @@ export interface LessonInput {
   seed?: number;
   /** Hard ceiling, so a 20-word unit is still one sitting. */
   maxSteps?: number;
+  /**
+   * What the dictionary says about the words of the sentences this lesson
+   * will set, for the one step that asks for a word order.
+   *
+   * Required rather than optional, and the reason is the report this was
+   * written for: a caller that has not thought about it marks a learner wrong
+   * for correct Estonian, quietly, on the one exercise where the marking is
+   * the whole lesson. `orderContextFrom([])` is how a caller with no
+   * dictionary to hand says so, and gives every sentence the one order the
+   * writer chose.
+   */
+  wordOrder: OrderContext;
 }
 
 /** What this lesson is allowed to ask, decided once from the unit. */
@@ -327,9 +349,22 @@ interface LessonRules {
    * practice rather than an ambush.
    */
   readable: (sentence: string) => boolean;
+  /**
+   * What the dictionary says about the words of the sentences this lesson can
+   * set, which is what decides whether a built order the writer did not choose
+   * is another order Estonian allows or one it does not.
+   *
+   * It rides here rather than as a parameter beside `rules` because both
+   * halves answer one question, what this lesson may ask and how it marks the
+   * answer, and two objects threaded through one builder is where the second
+   * one stops being passed.
+   */
+  wordOrder: OrderContext;
 }
 
-function rulesFor(unit: LessonUnitInfo, taught: ReadonlySet<string> | null): LessonRules {
+function rulesFor(
+  unit: LessonUnitInfo, taught: ReadonlySet<string> | null, wordOrder: OrderContext,
+): LessonRules {
   const beginner = !maySortWords(unit.level);
   const declares = (type: CardType) => unit.cardTypes.includes(type);
   return {
@@ -354,6 +389,7 @@ function rulesFor(unit: LessonUnitInfo, taught: ReadonlySet<string> | null): Les
     // two answers. The deck's cards are deliberately outside it, and that
     // module's own header is where the closed list of readers lives.
     readable: readableFor(unit.level, taught),
+    wordOrder,
   };
 }
 
@@ -600,7 +636,10 @@ function buildStep(
     if (!isBuildable(sentence)) continue;
     const tiles = sentenceTiles(sentence);
     if (tiles.length < 3 || tiles.length > 9) continue;
-    return { id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence };
+    return {
+      id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence,
+      alsoRight: alsoRightOrders(sentence, rules.wordOrder),
+    };
   }
   return null;
 }
@@ -790,7 +829,7 @@ export function splitIntoLessons<T>(words: readonly T[], size = LESSON_WORDS): T
  */
 export function planLesson(input: LessonInput): LessonStep[] {
   const { unit, words } = input;
-  const rules = rulesFor(unit, input.taughtWords);
+  const rules = rulesFor(unit, input.taughtWords, input.wordOrder);
   const rand = rng(input.seed ?? 1);
   const maxSteps = input.maxSteps ?? DEFAULT_MAX_STEPS;
   const steps: LessonStep[] = [];

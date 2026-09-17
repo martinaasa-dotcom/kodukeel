@@ -1,5 +1,6 @@
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { buildCloze, ESTONIAN_WORD, isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
+import { alsoRightOrders, type OrderContext } from "@/lib/estonian/wordOrder";
 import { buildOptions, maskExample, parseGovernment } from "@/lib/estonian/government";
 import { caseByKey } from "@/lib/estonian/cases";
 import { sameSpelling } from "@/lib/copy/values";
@@ -145,6 +146,21 @@ export interface OrderItem extends BaseItem {
   kind: "order";
   tiles: string[];
   answer: string;
+  /**
+   * The other orders of this sentence Estonian allows.
+   *
+   * On the item rather than worked out at marking time, because the marker
+   * rebuilds the paper offline and may not reach a dictionary to do it.
+   *
+   * Which questions a paper asks is a function of (level, seed, pool) exactly
+   * as before, and this changes none of it: the reading is resolved from the
+   * dictionary again when the paper is rebuilt to mark it, so a word added
+   * between the sitting and the hand-in could add or drop one alternative
+   * order on one item. That is the same window the pool itself has, it can
+   * only ever change which of two right answers is marked right, and it costs
+   * at most the one mark a candidate would have lost before this existed.
+   */
+  alsoRight: string[];
 }
 
 export interface CaseFormItem extends BaseItem {
@@ -501,6 +517,8 @@ interface BuildContext {
   random: () => number;
   /** Words already used for a question, so one word does not carry the paper. */
   spent: Set<string>;
+  /** What the dictionary says about the words of the sentences in the pool. */
+  wordOrder: OrderContext;
 }
 
 function base(word: PoolWord, id: string): BaseItem {
@@ -621,6 +639,7 @@ function buildOrder(spec: TaskSpec, ctx: BuildContext): ExamTask {
       kind: "order",
       tiles: scrambled,
       answer: sentence.text,
+      alsoRight: alsoRightOrders(sentence.text, ctx.wordOrder),
     });
   }
   return finish(spec, items, undefined, "sentences of four to twelve different words");
@@ -1077,6 +1096,7 @@ export function buildPaper(
   level: ExamLevel,
   pool: readonly PoolWord[],
   seed: string,
+  wordOrder: OrderContext,
 ): Paper {
   const spec = specFor(level);
   const words = eligibleWords(pool, level);
@@ -1087,6 +1107,7 @@ export function buildPaper(
     sentences: sentencesFrom(words),
     random,
     spent: new Set<string>(),
+    wordOrder,
   };
 
   const parts: ExamPart[] = spec.parts.map((partSpec) => ({

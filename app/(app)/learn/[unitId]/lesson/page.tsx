@@ -18,6 +18,7 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { orderContextFor } from "@/lib/dict/wordOrder";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -166,6 +167,15 @@ export default async function LessonPage({
   const chosen = lessons[index] ?? [];
 
   /*
+    What the dictionary says about the words of the sentences this sitting can
+    set, so a learner who rebuilds one in another order Estonian allows is not
+    marked wrong. Read once for the sitting rather than per step, and asked of
+    this part's own words rather than the unit's: a unit splits into several
+    lessons and the other parts' sentences are not on screen tonight.
+  */
+  const wordOrder = await orderContextFor(chosen.flatMap((w) => w.examples));
+
+  /*
     The units before this one, plus this unit's words up to and including the
     sitting being planned. Every unit in the course is more than one lesson, so
     crediting the whole unit would let lesson 1 gap a sentence holding a word
@@ -189,6 +199,7 @@ export default async function LessonPage({
     // Stable for this unit and part, so re-entering a lesson gives the same one
     // rather than reshuffling the questions under someone who came back to it.
     seed: hash(`${unit.id}:${index}`),
+    wordOrder,
   });
 
   /*

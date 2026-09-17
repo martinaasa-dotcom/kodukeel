@@ -4,6 +4,13 @@ import {
   BLANK_RESPONSE, allMarks, gradesFrom, markItem, markPaper, type Response,
 } from "./score";
 import { PASS_PCT } from "./spec";
+import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
+
+/* No dictionary behind the paper, so every sentence keeps the one order the
+   writer chose. What a reading of the dictionary adds is asserted in
+   `lib/estonian/wordOrder.test.ts`. */
+const WORD_ORDER = orderContextFrom([]);
 
 function pool(count: number): PoolWord[] {
   const letters = "abcdefghijklmnopqrstuvwxyz";
@@ -83,7 +90,7 @@ function perfect(paper: ReturnType<typeof buildPaper>): Map<string, Response> {
 }
 
 describe("marking a paper", () => {
-  const paper = buildPaper("B1", pool(60), "score-seed");
+  const paper = buildPaper("B1", pool(60), "score-seed", WORD_ORDER);
 
   it("gives full marks for every answer right", () => {
     const result = markPaper(paper, perfect(paper));
@@ -120,7 +127,7 @@ describe("marking a paper", () => {
   });
 
   it("marks a part out of what was actually set, not out of what was intended", () => {
-    const thin = buildPaper("B1", pool(4), "thin-seed");
+    const thin = buildPaper("B1", pool(4), "thin-seed", WORD_ORDER);
     const result = markPaper(thin, perfect(thin));
     expect(result.thin).toBe(true);
     // Everything that could be asked was answered right, so it is still full
@@ -142,7 +149,7 @@ describe("marking a paper", () => {
 });
 
 describe("what one answer is worth", () => {
-  const paper = buildPaper("B1", pool(60), "item-seed");
+  const paper = buildPaper("B1", pool(60), "item-seed", WORD_ORDER);
   const dictation = paper.parts
     .flatMap((p) => p.tasks)
     .flatMap((t) => t.items)
@@ -265,7 +272,7 @@ describe("what one answer is worth", () => {
 });
 
 describe("what the sitting tells the scheduler", () => {
-  const paper = buildPaper("B1", pool(60), "grade-seed");
+  const paper = buildPaper("B1", pool(60), "grade-seed", WORD_ORDER);
 
   it("grades every card the paper asked about", () => {
     const result = markPaper(paper, perfect(paper));
@@ -281,7 +288,7 @@ describe("what the sitting tells the scheduler", () => {
 
   it("writes nothing for a task with no card behind it", () => {
     const cardless = pool(60).map((word) => ({ ...word, cardId: null }));
-    const other = buildPaper("B1", cardless, "grade-seed");
+    const other = buildPaper("B1", cardless, "grade-seed", WORD_ORDER);
     expect(gradesFrom(markPaper(other, perfect(other)))).toEqual([]);
   });
 
@@ -293,7 +300,7 @@ describe("what the sitting tells the scheduler", () => {
 });
 
 describe("which language an answer is in", () => {
-  const paper = buildPaper("B1", pool(60), "lang-seed");
+  const paper = buildPaper("B1", pool(60), "lang-seed", WORD_ORDER);
   const items = paper.parts.flatMap((p) => p.tasks).flatMap((t) => t.items);
 
   it("tags the English answers as English, so they are not set in Estonian", () => {
@@ -311,7 +318,7 @@ describe("which language an answer is in", () => {
 });
 
 describe("a recording that would not play", () => {
-  const paper = buildPaper("B1", pool(60), "unheard-seed");
+  const paper = buildPaper("B1", pool(60), "unheard-seed", WORD_ORDER);
   const listening = paper.parts.find((p) => p.spec.skill === "listening")!;
 
   it("is left out of the marks rather than counted wrong", () => {
@@ -332,5 +339,60 @@ describe("a recording that would not play", () => {
     const mark = markItem(item, { kind: "unheard" }, 1);
     expect(mark.available).toBe(0);
     expect(mark.note).toMatch(/would not play/);
+  });
+});
+
+describe("a word order the writer did not choose", () => {
+  /*
+    REPORTED OFF THE APP'S OWN FIRST UNIT, and the examination marks the same
+    exercise the lesson does. A candidate who rebuilds `Muidugi tuleb ette
+    näpukaid` as `Muidugi tuleb näpukaid ette` has written what anybody says,
+    and marking that wrong costs them a mark on a paper they may be sitting to
+    decide whether to book the real one.
+
+    Driven through `markPaper` rather than through `readOrder`, which is
+    covered next door: what is asked here is that the marker scores it, that
+    the log records it as recalled, and that the note says which of the two
+    orders the writer used. The paper built with no dictionary behind it
+    cannot reach this, so the item is built by hand.
+  */
+  const item = {
+    id: "order-0", lexemeId: "lex-0", lemma: "tulema", translation: "to come",
+    cardId: "card-0",
+    kind: "order" as const,
+    tiles: ["näpukaid", "Muidugi", "ette", "tuleb"],
+    answer: "Muidugi tuleb ette näpukaid.",
+    alsoRight: ["Muidugi tuleb näpukaid ette"],
+  };
+  const mark = (value: string[]) =>
+    markItem(item, { kind: "ordered", value }, 1);
+
+  it("scores the writer's own order", () => {
+    const result = mark(["Muidugi", "tuleb", "ette", "näpukaid"]);
+    expect(result.correct).toBe(true);
+    expect(result.scored).toBe(1);
+    expect(result.note).toBe("");
+  });
+
+  it("scores another order Estonian allows, and says whose it is", () => {
+    const result = mark(["Muidugi", "tuleb", "näpukaid", "ette"]);
+    expect(result.correct).toBe(true);
+    expect(result.scored).toBe(1);
+    expect(result.recalled).toBe(true);
+    // And it names the word, which is the disclaimer that was asked for.
+    expect(result.note).toBe(orderVariantNote("ette", "earlier"));
+    expect(result.note).toContain("ette");
+  });
+
+  it("still refuses an order Estonian does not use", () => {
+    const result = mark(["Näpukaid", "ette", "tuleb", "Muidugi"]);
+    expect(result.correct).toBe(false);
+    expect(result.scored).toBe(0);
+    expect(result.note).toBe(ORDER_WRONG);
+  });
+
+  it("refuses an answer that is short of a word", () => {
+    expect(mark(["Muidugi", "tuleb", "ette"]).correct).toBe(false);
+    expect(mark([]).correct).toBe(false);
   });
 });

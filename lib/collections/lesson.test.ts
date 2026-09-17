@@ -3,6 +3,16 @@ import {
   answerableCount, isAnswerable, planLesson, splitIntoLessons,
   type LessonWord, type LessonStep,
 } from "./lesson";
+import { orderContextFrom } from "@/lib/estonian/wordOrder";
+import { dictionaryRows } from "../../scripts/lib/dictionary";
+
+/*
+  A lesson built with no dictionary behind it: every sentence keeps the one
+  order the writer chose, which is what the build step did before
+  `lib/estonian/wordOrder.ts` existed. What the reading changes is asserted in
+  `lib/estonian/wordOrder.test.ts`, against the shipped dictionary.
+*/
+const wordOrder = orderContextFrom([]);
 
 const unit = {
   id: "kodu",
@@ -59,7 +69,7 @@ const DISTRACTORS: LessonWord[] = [
 ];
 
 const plan = (words = WORDS, seed = 7) =>
-  planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed });
+  planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed, wordOrder });
 
 describe("planLesson", () => {
   it("opens with the teaching step and closes with the recap", () => {
@@ -146,7 +156,7 @@ describe("planLesson", () => {
     const lessons = splitIntoLessons(many);
     expect(lessons.length).toBeGreaterThan(1);
     for (const words of lessons) {
-      const steps = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 3 });
+      const steps = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 3, wordOrder });
       expect(steps.length).toBeLessThanOrEqual(40);
       expect(steps.at(-1)?.kind).toBe("recap");
     }
@@ -158,7 +168,7 @@ describe("planLesson", () => {
   });
 
   it("has nothing to plan for an empty unit, and says so by returning nothing", () => {
-    expect(planLesson({ unit, words: [], taughtWords: TAUGHT, seed: 1 })).toEqual([]);
+    expect(planLesson({ unit, words: [], taughtWords: TAUGHT, seed: 1, wordOrder })).toEqual([]);
   });
 });
 
@@ -177,7 +187,7 @@ describe("what a step is built from", () => {
   it("has no gap-fill at all when the unit carries no sentences", () => {
     // An honest absence. The alternative is inventing a sentence to blank.
     const bare = WORDS.map((w) => ({ ...w, examples: [] }));
-    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5 });
+    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder });
     expect(steps.some((s) => s.kind === "gap")).toBe(false);
   });
 
@@ -193,7 +203,9 @@ describe("what a step is built from", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5 });
+    const steps = planLesson({
+      unit, words: [friend], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
@@ -213,7 +225,9 @@ describe("what a step is built from", () => {
       examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
       government: null, semanticTypes: null,
     };
-    const steps = planLesson({ unit, words: [surely], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5 });
+    const steps = planLesson({
+      unit, words: [surely], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
@@ -229,7 +243,9 @@ describe("what a step is built from", () => {
       examples: ["Ta istub toas ja loeb."],
       parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" },
     });
-    const steps = planLesson({ unit, words: [room], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5 });
+    const steps = planLesson({
+      unit, words: [room], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) expect(gap.cue).toBe("word-and-meaning");
@@ -248,7 +264,9 @@ describe("what a step is built from", () => {
     // and a check that picked its own five seeds would have been green on the
     // code this was written against.
     for (let seed = 1; seed <= 30; seed++) {
-      const steps = planLesson({ unit, words: [dear], distractors: DISTRACTORS, taughtWords: TAUGHT, seed });
+      const steps = planLesson({
+        unit, words: [dear], distractors: DISTRACTORS, taughtWords: TAUGHT, seed, wordOrder,
+      });
       for (const step of steps) {
         if (step.kind !== "case") continue;
         for (const form of step.answer.split(" / ")) {
@@ -304,7 +322,7 @@ describe("what a step is built from", () => {
     ];
     const steps = planLesson({
       unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS],
-      taughtWords: TAUGHT, seed: 9,
+      taughtWords: TAUGHT, seed: 9, wordOrder,
     });
     const asked = steps.filter(
       (s): s is Extract<LessonStep, { kind: "choose" | "listen" }> =>
@@ -331,12 +349,11 @@ describe("what a step is built from", () => {
     // Second in its block, so the builder rotation reaches word order first:
     // at A1 it has to be refused and something else offered instead.
     const words = [noun("tool", "chair"), WORDS[0]!];
-    const atA1 = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4 });
+    const atA1 = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4, wordOrder });
     expect(atA1.some((step) => step.kind === "build")).toBe(false);
 
     const atA2 = planLesson({
-      unit: { ...unit, level: "A2" }, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4,
-    });
+      unit: { ...unit, level: "A2" }, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4, wordOrder });
     expect(atA2.some((step) => step.kind === "build")).toBe(true);
   });
 
@@ -351,14 +368,12 @@ describe("what a step is built from", () => {
   it("builds a sentence exercise at A1 only from words the course has taught", () => {
     const house = [WORDS[0]!];
     const known = planLesson({
-      unit, words: house, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5,
-    });
+      unit, words: house, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder });
     expect(known.some((step) => step.kind === "gap")).toBe(true);
 
     const untaught = new Set([...TAUGHT].filter((w) => w !== "valge"));
     const steps = planLesson({
-      unit, words: house, distractors: DISTRACTORS, taughtWords: untaught, seed: 5,
-    });
+      unit, words: house, distractors: DISTRACTORS, taughtWords: untaught, seed: 5, wordOrder });
     expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
   });
 
@@ -369,8 +384,7 @@ describe("what a step is built from", () => {
   */
   it("asks no sentence at A1 when nothing says what has been taught", () => {
     const steps = planLesson({
-      unit, words: WORDS, distractors: DISTRACTORS, taughtWords: null, seed: 7,
-    });
+      unit, words: WORDS, distractors: DISTRACTORS, taughtWords: null, seed: 7, wordOrder });
     expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
   });
 
@@ -382,8 +396,7 @@ describe("what a step is built from", () => {
   it("lets a sentence carry an unfamiliar word above A1", () => {
     const steps = planLesson({
       unit: { ...unit, level: "B1" }, words: [WORDS[0]!], distractors: DISTRACTORS,
-      taughtWords: new Set<string>(), seed: 5,
-    });
+      taughtWords: new Set<string>(), seed: 5, wordOrder });
     expect(steps.some((step) => step.kind === "gap")).toBe(true);
   });
 
@@ -397,16 +410,14 @@ describe("what a step is built from", () => {
   it("asks no sentence of a unit that says it teaches none", () => {
     const quiet = { ...unit, level: "A2", cardTypes: ["RECOGNITION", "PRODUCTION"] } as const;
     const steps = planLesson({
-      unit: quiet, words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7,
-    });
+      unit: quiet, words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7, wordOrder });
     expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
   });
 
   it("asks a beginner for a case only where the unit declares one", () => {
     const steps = planLesson({
       unit: { ...unit, cardTypes: ["RECOGNITION", "PRODUCTION"] },
-      words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7,
-    });
+      words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7, wordOrder });
     expect(steps.some((step) => step.kind === "case")).toBe(false);
     // And it still asks: the practice lane falls back rather than going quiet.
     expect(answerableCount(steps)).toBeGreaterThan(0);
@@ -419,7 +430,7 @@ describe("what a step is built from", () => {
     ];
     const steps = planLesson({
       unit: { ...unit, cardTypes: [...unit.cardTypes, "GOVERNMENT"] },
-      words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 2,
+      words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 2, wordOrder,
     });
     const govern = steps.filter((s) => s.kind === "govern");
     for (const step of govern) expect(step.lemma).toBe("aitama");
@@ -434,5 +445,60 @@ describe("answerableCount", () => {
     expect(total).toBeLessThan(steps.length);
     expect(steps.filter((s) => s.kind === "intro" || s.kind === "recap" || s.kind === "meet")
       .every((s) => !isAnswerable(s))).toBe(true);
+  });
+});
+
+describe("the build step carries the orders Estonian allows", () => {
+  /*
+    The step is marked in the browser, so what the dictionary decided has to
+    travel with it. Everything above runs with no dictionary behind it, which
+    is how `alsoRight` could have shipped empty on every step with every test
+    still green: an empty list is exactly what an unreadable sentence gives.
+    So one step is built through a real reading, on the sentence the report
+    this was written for names.
+  */
+  const reported = "Muidugi tuleb ette näpukaid.";
+  const word: LessonWord = {
+    lexemeId: "lex-tulema",
+    lemma: "tulema",
+    gloss: "to come",
+    pos: "VERB",
+    semanticTypes: null,
+    examples: [reported],
+    /*
+      No stored first person, so no gap can be cut and the practice lane falls
+      through to the build step. `planLesson` offers one practice step per
+      word and the rotation starts at the gap for the first of a block.
+    */
+    parts: { INF_MA: "tulema" },
+    government: null,
+  };
+
+  /*
+    At A2, because `BUILD_FROM` is where word ordering starts: there is no
+    syntax to order at A1, and it is the one exercise where every word has to
+    be handled rather than read past. The band is the fixture's rather than
+    the rule's to choose, so it is named here and not worked around.
+  */
+  const ordering = { ...unit, level: "A2" } as const;
+
+  const buildSteps = (order: Parameters<typeof planLesson>[0]["wordOrder"]) =>
+    planLesson({
+      unit: ordering, words: [word], distractors: DISTRACTORS, seed: 4,
+      wordOrder: order, taughtWords: TAUGHT,
+    })
+      .filter((s): s is Extract<LessonStep, { kind: "build" }> => s.kind === "build");
+
+  it("offers the order a learner actually says", () => {
+    const steps = buildSteps(orderContextFrom(dictionaryRows()));
+    expect(steps.length).toBeGreaterThan(0);
+    for (const step of steps) {
+      expect(step.sentence).toBe(reported);
+      expect(step.alsoRight).toEqual(["Muidugi tuleb näpukaid ette"]);
+    }
+  });
+
+  it("offers nothing when there is no dictionary to read", () => {
+    for (const step of buildSteps(orderContextFrom([]))) expect(step.alsoRight).toEqual([]);
   });
 });

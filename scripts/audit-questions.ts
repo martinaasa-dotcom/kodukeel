@@ -69,6 +69,7 @@ import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
+import { orderContextFrom } from "../lib/estonian/wordOrder";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
 import { taughtSpellings } from "../lib/progress/lessonWords";
 import { buildCheckpoint, type CheckpointWord } from "../lib/collections/checkpoint";
@@ -319,6 +320,10 @@ const pool: PoolWord[] = entries.map((e) => ({
   examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
   government: e.government, cardId: null,
 }));
+/* The same reading of the dictionary the app builds a paper with, so the audit
+   asks about the paper the app sets rather than one with no alternative
+   orders on it. */
+const WORD_ORDER = orderContextFrom(entries);
 const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("=")[1] ?? 10);
 /*
   WHAT EACH EXAM SHAPE PUTS ON THE SCREEN, ONE ENTRY PER SHAPE.
@@ -403,7 +408,7 @@ const NOTHING_TO_SEARCH = new Set([
 timed("exam", () => {
 for (const level of EXAM_LEVELS) {
   for (let s = 0; s < SEEDS; s++) {
-    for (const part of buildExam(level, pool, `audit-${s}`).parts) {
+    for (const part of buildExam(level, pool, `audit-${s}`, WORD_ORDER).parts) {
       for (const task of part.tasks) {
         for (const item of task.items as unknown as Record<string, unknown>[]) {
           // See EXAM_SHOWS: one entry per shape, and the shapes with nothing
@@ -791,7 +796,9 @@ for (const unit of SYLLABUS) {
   // at a time.
   const taughtWords = taughtSpellings(spellingsByLemma, unit.id, unit.lemmas);
   for (let seed = 1; seed <= 3; seed++) {
-    for (const step of planLesson({ unit, words, distractors: words, taughtWords, seed })) {
+    for (const step of planLesson({
+      unit, words, distractors: words, taughtWords, seed, wordOrder: WORD_ORDER,
+    })) {
       if (step.kind === "gap") {
         // Exactly the cue the screen draws, which `step.cue` decides: the word
         // and its meaning, then the meaning alone, then nothing. A rung that
