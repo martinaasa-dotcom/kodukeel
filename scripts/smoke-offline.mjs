@@ -23,8 +23,22 @@ const app = page.locator("main");
 
 // Floor: the count CI reaches, which is every check here, including the one
 // about the cache that is deliberately never trimmed.
-const { check, done } = suite("Offline review", { floor: 15 });
+const { check, absent, done } = suite("Offline review", { floor: 15 });
 
+
+/*
+  Anything the page threw, kept so a failure can name its own cause.
+
+  Every check below reads the screen and says whether what it wanted was on
+  it. None of them could say why it was not, so a session that threw and a
+  session the driver could not read looked identical: three FAIL lines about
+  grading offline, over a page that was showing an error boundary. That is the
+  failure-misnames-its-cause fault this repository keeps finding in its own
+  suites, and the cure is the same each time, which is to report what was
+  actually there.
+*/
+const pageErrors = [];
+page.on("pageerror", (err) => pageErrors.push(`threw: ${err.message}`.slice(0, 160)));
 
 /**
  * How many cards this session says it has graded.
@@ -32,11 +46,46 @@ const { check, done } = suite("Offline review", { floor: 15 });
  * Read rather than assumed, because the counter moves offline too: `submit`
  * enqueues to the outbox in its own catch and increments regardless, which is
  * the whole property this suite exists to check.
+ *
+ * TWO SCREENS CARRY THIS NUMBER AND ONLY ONE OF THEM WAS READ. A session in
+ * play prints "12 graded" in its footer; a session whose queue has run out
+ * replaces the whole card with the summary, where the same figure is a tile
+ * labelled "Reviewed" and the word "graded" appears nowhere. So grading the
+ * last card of a session read the counter back as absent, `-1 > 11` is false,
+ * and the suite reported a grade that had just happened as a card that could
+ * not be answered. Both spellings, because which screen a grade lands on is
+ * not something this driver gets to choose.
+ *
+ * The label leads the figure on a tile and trails it in the footer, which is
+ * a fact about `StatTile` rather than a guess: written the other way round
+ * first, the summary pattern matched nothing and this read exactly as it had
+ * before, which is the shape of a check that cannot fire.
  */
 async function gradedCount() {
-  const body = await page.textContent("body");
-  const found = /(\d+) graded/.exec(body ?? "");
+  const body = (await page.textContent("body")) ?? "";
+  const found = /(\d+) graded/.exec(body) ?? /Reviewed\s*(\d+)/.exec(body);
   return found ? Number(found[1]) : -1;
+}
+
+/**
+ * What is on screen, in the words a person reading a failure would want.
+ *
+ * Deliberately not a screenshot: this runs in CI, where nobody sees one, and
+ * the useful half is which of the four card shapes was there and how many
+ * controls `main` held, which is what every check here is really asking.
+ */
+async function whatIsOnScreen() {
+  const body = (await page.textContent("body")) ?? "";
+  const buttons = await app.locator("button").count();
+  const shape = (await app.getByRole("button", { name: /Got it, ask me later/ }).count()) ? "a first meeting"
+    : (await app.getByRole("button", { name: /Show answer/ }).count()) ? "a flip card"
+      : /Pick the meaning/.test(body) ? "a multiple choice"
+        : (await page.locator("main input[type='text'], main input:not([type])").count()) ? "a typed card"
+          : /Session complete/.test(body) ? "the summary, so the session had run out"
+            : /Nothing due|No cards yet/.test(body) ? "an empty deck"
+              : "no card shape this driver knows";
+  const threw = pageErrors.length ? `, and the page ${pageErrors[0]}` : "";
+  return `${shape}, ${buttons} buttons in main${threw}`;
 }
 
 /**
@@ -260,10 +309,18 @@ const shellIntact = await page.evaluate(async () => {
 check("the cache with no ceiling still holds the page it exists for", shellIntact);
 
 const hasCards = (await app.locator("button").count()) > 2 &&
-  !/Nothing due|No cards yet/i.test((await page.textContent("body")) ?? "");
-check("a review session is available to work with", hasCards);
+  !/Nothing due|No cards yet|Session complete/i.test((await page.textContent("body")) ?? "");
+check("a review session is available to work with", hasCards,
+  hasCards ? undefined : await whatIsOnScreen());
 if (!hasCards) {
-  console.log("\nNo due cards — run scripts/demo-data.ts first.");
+  /*
+    Named rather than assumed. This used to say "no due cards, run demo-data
+    first", which is one of several reasons a card is not on screen and sends
+    whoever reads it to seed a database that may be seeded perfectly well: the
+    summary screen after a session has been worked through looks nothing like
+    an empty deck and the old sentence could not tell them apart.
+  */
+  console.log(`\nNothing to answer: ${await whatIsOnScreen()}`);
   await browser.close();
   process.exit(1);
 }
@@ -310,28 +367,83 @@ await ctx.setOffline(true);
 // Whether a card was answered at all is the first thing to assert, because
 // every check after this one reads as an app fault when the answer is no.
 const answeredOffline = await answerOneCard();
-check("a card can be answered with the network gone", answeredOffline);
-// The server action has to fail and the grade has to reach IndexedDB.
-await waitForText(page, /saved on this device|Offline/i, 20000);
-await page.waitForTimeout(1500);
 
-const queuedAfterOne = await outboxSize();
-check("a grade taken offline is held on the device", queuedAfterOne >= 1, `${queuedAfterOne} queued`);
+/*
+  A SESSION THAT RAN OUT IS NOT AN APP THAT CANNOT GRADE OFFLINE.
+
+  This suite runs twenty-five suites deep, after every one of them has been
+  grading cards, so how much is left in the queue when it starts is decided by
+  everything above it rather than by anything here. Answer the last card and
+  the whole card is replaced by the summary: `main` drops to no buttons at all,
+  none of the four shapes is on screen, and the counter this driver reads moves
+  from the footer to a tile. Every check below then fails, in the app's name,
+  about a session that had simply finished.
+
+  Driven rather than reasoned: a one-card drill answered correctly ends on a
+  screen where `/(\d+) graded/` finds nothing, `Reviewed 1` is the same figure,
+  and `main` holds zero buttons.
+
+  So the deck running out is stated as what it is, which is this suite not
+  having had the thing it exists to test, and a card that *is* on screen and
+  cannot be answered is still a failure. The line between them is falsifiable
+  and is the summary screen itself.
+*/
+const ranOut = async () => /Session complete/.test((await page.textContent("body")) ?? "");
+// Declared out here because the reload check below reads it, and a `let` the
+// branch fills is what stops a suite that waived these checks from throwing
+// its way past the three that come after them.
+let queuedOffline = 0;
+if (!answeredOffline && await ranOut()) {
+  absent(4, "a card still due when the plug is pulled: the session ran out before one "
+    + "could be answered. Reseed and rerun, or run this suite earlier in the chain.");
+} else {
+  check("a card can be answered with the network gone", answeredOffline,
+    answeredOffline ? undefined : await whatIsOnScreen());
+  // The server action has to fail and the grade has to reach IndexedDB.
+  await waitForText(page, /saved on this device|Offline/i, 20000);
+  await page.waitForTimeout(1500);
+
+  const queuedAfterOne = await outboxSize();
+  queuedOffline = queuedAfterOne;
+  check("a grade taken offline is held on the device", queuedAfterOne >= 1, `${queuedAfterOne} queued`);
+
+  /*
+    And the deck can run out on the card that was just answered, which is the
+    ordinary way a one-card session ends: a flip grades itself and leaves, and
+    the summary is what "the session continues" is then asked about. There is
+    no second card for either of the two checks below to be about, so they say
+    so. Driven on a deck left holding a single flip card, where both of them
+    failed in the app's name over a session that had finished correctly.
+  */
+  if (await ranOut()) {
+    absent(2, "a second card after the first was graded: the session ran out, so "
+      + "nothing here could carry on or queue again. Reseed and rerun.");
+  } else {
+    // Keep going: a session must not stop at the first failed grade.
+    const stillReviewing = (await app.locator("button").count()) > 2;
+    check("the session continues after a failed grade", stillReviewing,
+      stillReviewing ? undefined : await whatIsOnScreen());
+
+    /*
+      `queuedAfterTwo >= queuedAfterOne` is true of a queue that never moved,
+      and the comment on `answerOneCard` above already names two of the three
+      checks around it as satisfied by zero. This was the third. What the check
+      means is that a second grade also queued, so it asks for a second grade
+      and says so when there was no second card to take one, rather than
+      passing on 0 >= 0.
+    */
+    const answeredTwice = stillReviewing ? await answerOneCard() : false;
+    if (answeredTwice) await page.waitForTimeout(1500);
+    const queuedAfterTwo = await outboxSize();
+    queuedOffline = queuedAfterTwo;
+    check("further offline grades queue too", answeredTwice && queuedAfterTwo > queuedAfterOne,
+      answeredTwice ? `${queuedAfterTwo} queued` : `no second card was answered: ${await whatIsOnScreen()}`);
+  }
+}
 
 const bannerOffline = await page.textContent("body");
 check("the learner is told their work is saved locally",
   /saved on this device|Offline/i.test(bannerOffline ?? ""));
-
-// Keep going: a session must not stop at the first failed grade.
-const stillReviewing = (await app.locator("button").count()) > 2;
-check("the session continues after a failed grade", stillReviewing);
-
-if (stillReviewing) {
-  await answerOneCard();
-  await page.waitForTimeout(1500);
-}
-const queuedAfterTwo = await outboxSize();
-check("further offline grades queue too", queuedAfterTwo >= queuedAfterOne, `${queuedAfterTwo} queued`);
 
 // A reload with no network must still show a session, not an empty state.
 await page.reload({ waitUntil: "domcontentloaded" }).catch(() => {});
@@ -342,7 +454,7 @@ check("review still renders with the network gone",
   offlineBody.slice(0, 60).replace(/\s+/g, " "));
 
 // The outbox must survive the reload.
-check("the outbox survives a reload", (await outboxSize()) >= queuedAfterTwo);
+check("the outbox survives a reload", (await outboxSize()) >= queuedOffline);
 
 // ── Plug it back in ──────────────────────────────────────────────────────────
 await ctx.setOffline(false);

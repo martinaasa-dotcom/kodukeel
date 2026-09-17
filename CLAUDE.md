@@ -8319,6 +8319,32 @@ allowance is spent and that restarting the server clears it, since the limiter i
 and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
 
+**And a counter the app prints in two places was read in one, so finishing a session read as an app
+that cannot grade.** `smoke-offline.mjs` decides whether a card was answered by reading the
+session's own tally before and after, which is the right instrument and had one spelling of it.
+A session in play prints `12 graded` in its footer; a session whose queue has run out replaces the
+whole card with the summary, where the same figure is a tile labelled `Reviewed` and the word
+`graded` is nowhere on the page. So grading the **last** card of a session read the tally back as
+absent, the comparison was false about a grade that had just happened, and `main` dropped to no
+buttons at all with none of the four card shapes on it: three checks failed, in the app's name,
+about a session that had finished correctly, and the fourth passed on `0 >= 0`, which the
+neighbouring comment already names as the shape two of its siblings had. It runs twenty-five
+suites deep, after every one of them has been grading, so how much is left in the queue when it
+starts is decided by everything above it rather than by anything in it.
+
+Both spellings are read now, and **the label leads the figure on a tile and trails it in the
+footer**, which is a fact about `StatTile` rather than a guess: written the other way round first,
+the summary pattern matched nothing and the counter read exactly as it had before, which is a
+check that cannot fire. **And a deck that has run out is stated as what it is** rather than failed,
+through `absent` with the state that lifts it, because a suite that never had a card has not
+tested offline grading and saying so is not the same as accusing the app; a card that *is* on
+screen and cannot be answered is still a failure, and the line between the two is the summary
+screen itself, which is falsifiable. Every check that can now fail says what was on screen when it
+did, the card shape, the control count and anything the page threw. Driven both ways on a real
+deck: left holding a single flip card, which grades itself and leaves, the old suite reported
+three faults it did not have and the new one passes the two checks it can still make and waives
+the two it cannot.
+
 `scripts/test-containment.mjs` is the one that looks inside a card rather than at the page. It
 walks every text-bearing element, every icon and everything that arrives with a width of its own,
 on **every route the app has** at 360 and 1280, plus the landing page with its disclosures open
