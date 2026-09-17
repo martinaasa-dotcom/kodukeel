@@ -26,6 +26,7 @@ import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
 import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
+import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -17064,6 +17065,185 @@ check("the lesson carries a sentence's English rather than dropping it", () => {
     page, /glossSentences\(/,
     "the lesson stopped putting the dictionary under its sentences, which review and the ladder both do",
   );
+});
+
+check("a sentence's English is never printed where it would be the answer", () => {
+  /*
+    Thirty entries in the dictionary are spelled the same in both languages, so
+    "I watched the film" over `Vaatasin ____` hands `filmi` over, and a
+    translation shown before an answer gives the meaning away on every other
+    card besides. Every round prints it on the reveal, which is where the
+    review card has always had it, and the sprint had it on the front for an
+    hour and was wrong for both reasons.
+
+    The learn ladder's gap question is the one screen in the app that shows a
+    sentence's English *before* an answer, because there the sentence is the
+    question. It withholds the line where the translation spells the answer and
+    carries the unwithheld one separately for the panel afterwards. That guard
+    used to be nearly unreachable, since no shipped sentence had an English
+    line at all; now every one of them does, so it is load-bearing.
+  */
+  const ladder = code("lib/progress/learn.ts");
+  assert.match(
+    ladder, /!mentions\(example\.en, cloze\.answer\)/,
+    "lib/progress/learn.ts hands the gap rung a translation that may spell the answer. Every shipped " +
+    "sentence carries English now, so this guard fires where it used to be theoretical",
+  );
+  assert.match(
+    ladder, /fullEn: example\.en/,
+    "the ladder stopped carrying the unwithheld English for its reveal, so a learner who just got a " +
+    "form wrong is shown the sentence and still not told what it says",
+  );
+
+  const sprint = code("app/(app)/review/sprint/SprintSession.tsx");
+  const revealAt = sprint.indexOf("{revealed && (");
+  const translationAt = sprint.indexOf("<SentenceTranslation");
+  assert.ok(
+    revealAt >= 0 && translationAt > revealAt,
+    "the sprint prints its sentence's English before the answer again. It belongs inside the reveal, " +
+    "like every other round's",
+  );
+});
+
+
+/*
+  AND THE ENGLISH SHIPS, SO A DEPLOYMENT WITH NO MODEL KEY HAS IT TOO.
+
+  The three drawings above end in the English and the runtime ask fills it in
+  one sentence at a time, which fixes this for whoever has a key and does
+  nothing at all for the default deployment, which has none. Measured: of the
+  12,172 sentences in `prisma/data/expanded.json` and the 5,221 in
+  `prisma/data/harvested.ts`, not one carried an English line, so the first
+  screenshot after the first fix was still a line of Estonian with underlines
+  under it and nothing to say what it meant. A rule that only holds where
+  somebody is paying for it is not the rule this app said it had.
+
+  `npm run translate:examples` asks once, into a file that ships, and the seed
+  reads it on both of its two paths. `lib/dict/exampleEnglish.ts` is the one
+  reader, keyed on the sentence rather than on the entry, because an English
+  line is a fact about the sentence: `borrow.ts` lends one word's usages to
+  another and they mean the same thing under both, and `harvested.ts` is
+  rewritten whole by every `npm run harvest`, which would take an English
+  column in it with no warning.
+*/
+check("the English of a shipped sentence is built once and read in one place", () => {
+  /*
+    `ALL` is app, lib and components; the two joiners are in `prisma/`, which
+    is where the seed lives, so the sweep reads both trees. Written against
+    `ALL` alone first, which found no readers at all and passed the day the
+    seed stopped joining.
+  */
+  const readers = [...ALL, ...sourceFiles("prisma")]
+    .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
+  assert.deepEqual(
+    readers.sort(),
+    ["prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts"].sort(),
+    "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and the " +
+    "seed is the one place it is joined on; a screen reads `Example.en` like it always did",
+  );
+
+  const seed = code("prisma/seed.ts");
+  assert.match(
+    seed, /englishFor\(et\)/,
+    "prisma/seed.ts writes the course's sentences without their English again, which is the fault the " +
+    "report was about: every word a lesson teaches carried a sentence nobody could read",
+  );
+  assert.match(
+    code("prisma/expanded.ts"), /englishFor\(e\.et\)/,
+    "prisma/expanded.ts stopped joining the shipped English onto the expansion's 12,172 sentences",
+  );
+
+  /*
+    And the deployments that already exist. `examples` is insert-only on a
+    reseed, for the reasons `prisma/columns.ts` states, so the join above
+    reaches a fresh database and not one existing row anywhere else: without
+    this every learner who installed before the translations existed keeps
+    sentences nobody can read, which is the half-fix `repairProductionBacks`
+    and `repairCaseFronts` were each written for.
+  */
+  assert.match(
+    code("prisma/repair.ts"), /export async function fillExampleEnglish/,
+    "prisma/repair.ts no longer fills the English onto sentences a deployment already holds",
+  );
+  const seedBody = code("prisma/seed.ts");
+  const repairAt = seedBody.indexOf("fillExampleEnglish(");
+  const earlyReturn = seedBody.indexOf("--only-if-empty");
+  assert.ok(
+    repairAt >= 0 && earlyReturn > repairAt,
+    "the seed fills the sentences' English after the `--only-if-empty` early return, which is the one " +
+    "case it exists for: a bare sentence only exists on a database that was already seeded",
+  );
+
+  /*
+    And the question is asked in one place too. The script and the runtime ask
+    have to be the same job, or the line a deployment ships and the line a
+    learner's own added sentence gets are two translations of two kinds and the
+    dictionary reads as two people wrote it.
+  */
+  assert.match(
+    code("scripts/translate-examples.ts"), /sentenceInstruction\(|readSentenceTranslation\(/,
+    "scripts/translate-examples.ts asks its own question instead of lib/tutor/translate.ts's",
+  );
+  assert.match(
+    code("lib/tutor/translate.ts"), /Translate this Estonian sentence into natural English/,
+    "the sentence prompt changed direction. A model may translate INTO English and never the other way (ADR-005)",
+  );
+});
+
+check("the shipped translations are English, and there are enough of them to matter", () => {
+  /*
+    A floor rather than a count, because the file grows every time somebody
+    runs the script and shrinking it is the change worth stopping. It was
+    15,900-odd when this was written, over 16,175 shipped sentences; a run that
+    wrote an empty file, or a merge that dropped it, reads as a dictionary that
+    has quietly gone back to showing bare Estonian.
+  */
+  assert.ok(
+    englishCount() >= 14_000,
+    `only ${englishCount()} sentences carry a shipped English line, which is far under what the last ` +
+    "run built. Re-run `npm run translate:examples -- --write`, or say why the file shrank",
+  );
+
+  /*
+    AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
+    the other language, and the way a weaker model fails this job is by handing
+    the sentence back: `looksLikeEcho` catches an exact echo and the script
+    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
+    printed under a heading promising English is worse than no line at all.
+  */
+  const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
+  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  assert.deepEqual(
+    estonian.slice(0, 3), [],
+    `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
+  );
+  const echoes = Object.entries(table).filter(([et, en]) => en.trim() === et.trim());
+  assert.deepEqual(
+    echoes.slice(0, 3), [],
+    `${echoes.length} shipped translations are the Estonian handed straight back`,
+  );
+
+  /*
+    AND NOT ONE INVENTS A DASH. A dash used as a clause break is the loudest
+    single tell that a sentence was generated, which `lib/copy/voice.ts` bans
+    on every screen; one the lexicographer's own sentence has, a street number
+    or a range of years, is the sentence rather than the model. Six lines out of
+    16,052 had one the source did not, and they are refused rather than
+    rewritten, because editing a translation to pass a check is how a check
+    stops measuring anything.
+  */
+  const dashes = Object.entries(table)
+    .filter(([et, en]) => /[\u2013\u2014]/.test(en) && !/[\u2013\u2014]/.test(et));
+  assert.deepEqual(
+    dashes.slice(0, 3), [],
+    `${dashes.length} shipped translations carry a dash their own sentence does not`,
+  );
+
+  // And the reader answers for a sentence the dictionary actually ships, which
+  // is the half a table keyed on free text can get wrong without anybody
+  // noticing: a key with a stray space matches nothing and costs a line.
+  const known = Object.keys(table)[0];
+  assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
 });
 
 console.log(

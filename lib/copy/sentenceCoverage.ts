@@ -30,6 +30,13 @@
  * properly, both fail until somebody takes the line out. An exception list
  * nobody has to keep earning is a parking space.
  *
+ * AND THE ENGLISH ITSELF SHIPS, so none of this depends on a deployment having
+ * a model key: `npm run translate:examples` builds
+ * `prisma/data/example-english.json` once and the seed reads it on both of its
+ * paths (`lib/dict/exampleEnglish.ts`). The runtime ask is what fills a gap the
+ * file does not cover, which is a learner's own added sentence or a word looked
+ * up live, rather than the whole dictionary.
+ *
  * TWO SCREENS ARE OUT OF THE SWEEP'S REACH RATHER THAN EXCUSED BY IT, and
  * saying so here is worth more than a line on the list that nothing can keep
  * honest. The printable worksheet names its sentences `gap.text` and is a page

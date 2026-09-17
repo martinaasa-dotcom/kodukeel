@@ -251,21 +251,6 @@ export function SprintSession({
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}
           </div>
 
-          {/* What the line says, where the front is a whole sentence with a
-              word taken out. On request rather than on arrival: this round is
-              forty cards in a minute and a call apiece is a day's allowance
-              spent on sentences nobody stopped at. */}
-          {card.front.includes(BLANK) && (
-            <SentenceTranslation
-              key={card.front}
-              lexemeId={card.lexemeId}
-              et={card.front.replace(BLANK, card.back)}
-              en={card.sentenceEn}
-              canTranslate={canTranslate}
-              ask="onRequest"
-            />
-          )}
-
           {revealed && (
             <>
               <div className="my-1 h-px w-16" style={{ background: "var(--rule)" }} />
@@ -281,6 +266,32 @@ export function SprintSession({
                     ReviewSession's own reveal states for itself. */}
                 {estonianSide(card.cardType, "back") && <Speak text={card.back} autoplay />}
               </div>
+
+              {/*
+                And what the whole line says, where the front is a sentence
+                with a word taken out.
+
+                ON THE REVEAL RATHER THAN ON THE FRONT, which is where this
+                sat for an hour and was wrong. Thirty entries in the dictionary
+                are spelled the same in both languages, so "I watched the film"
+                over `Vaatasin ____` hands the answer over, which is the fault
+                `mentions` exists for one module away; and a translation shown
+                before the answer is the meaning given away for free on every
+                other card too. Every other round in the app shows it here, and
+                this is the same rule rather than a new one. On request, since
+                forty cards in a minute is forty calls where the shipped table
+                has no line for the sentence.
+              */}
+              {card.front.includes(BLANK) && (
+                <SentenceTranslation
+                  key={card.front}
+                  lexemeId={card.lexemeId}
+                  et={card.front.replace(BLANK, card.back)}
+                  en={card.sentenceEn}
+                  canTranslate={canTranslate}
+                  ask="onRequest"
+                />
+              )}
             </>
           )}
         </div>

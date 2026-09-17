@@ -2264,6 +2264,53 @@ nobody had thought to put on a list; the rounds whose sentence field is called s
 asserted by name beside it, and the drawing is matched as an element rather than as an import,
 which is the trap `code()` exists for and which this check was made to fall into once.
 
+**And the English ships, because a rule that only holds where somebody is paying for it is not a
+rule.** The three drawings above end in the English and the runtime ask fills it in one sentence at
+a time, which fixed this for a deployment with a model key and did nothing at all for the default
+one, which has none. The first screenshot after that pass was still a line of Estonian with
+underlines under it. Measured: of the 12,172 sentences in `prisma/data/expanded.json` and the 5,221
+in `prisma/data/harvested.ts`, **not one carried an English line**. The render path was right and the
+data was empty.
+
+So the English is built the way the gloss is built, once, by `npm run translate:examples`, into
+`prisma/data/example-english.json`, which ships in the repository and is read by the seed. Every
+deployment then has it, keyless or not, on every screen, with no call and no wait; 16,175 sentences,
+about 15 minutes at eight questions in the air, and the answers are cached on disk so a run that
+stops halfway costs nothing to finish. **ADR-005 is untouched and this is the direction it allows**:
+the model translates *into* English and is never asked to produce the Estonian, which came from a
+lexicographer and is not ours to rewrite, so the worst a bad model can do here is gloss one
+clumsily. The question and the reading of the answer are `lib/tutor/translate.ts`'s own
+(`sentenceInstruction`, `readSentenceTranslation`), imported rather than retyped, because a line
+built by the script and one a learner asks for at runtime have to be the same translation of the
+same kind or the dictionary reads as two people wrote it.
+
+**It is a file keyed on the sentence rather than a column on the entry**, and both halves of that
+are about where a fact belongs. A translation is a fact about the *sentence*: `lib/dict/borrow.ts`
+lends one word's usages to another and they mean the same thing under both, so a copy per entry is a
+copy that goes stale on one side and is paid for twice. And `prisma/data/harvested.ts` is generated
+by `npm run harvest` and rewritten whole on every run, so an English column in it would be deleted
+by the next harvest, silently, in the file nobody re-reads. `lib/dict/exampleEnglish.ts` is the one
+reader and the seed is the one place it is joined on, both paths, asserted; every screen goes on
+reading `Example.en` exactly as before.
+
+**A refusal is never written down as an answer**, which is the lesson the seed and the Ekilex
+harvest each learned expensively. An empty answer, the word UNKNOWN, an essay where a sentence was
+asked for, the Estonian handed straight back (`looksLikeEcho`), or an answer still carrying õ, ä, ö,
+ü, š or ž is dropped and reported, and the sentence is left without a line, which is the state every
+sentence was in before this existed. Measured over the whole run: about one refusal in a hundred.
+Two invariants hold the file, that not one value carries an Estonian letter or echoes its key, and a
+floor on how many sentences it covers, because it grows every time somebody runs the script and
+shrinking it is the change worth stopping.
+
+**And a translation shown before the answer is the answer.** Thirty entries in the dictionary are
+spelled the same in both languages, so "I watched the film" over `Vaatasin ____` hands `filmi` over,
+and a sentence's English shown on a gap card's front gives the meaning away on every other card too.
+Every round prints it on the reveal, which is where the review card has always had it; the learn
+ladder's gap question is the one screen that shows a sentence's English *before* an answer and it
+withholds the line where the translation spells the answer (`mentions`), with `gap.fullEn` carrying
+the unwithheld one for the panel afterwards. The sprint had it on the front for an hour and it was
+wrong for both reasons.
+
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
 words, and neither tells somebody in their first week where to start. `scripts/build-frequency.ts`
@@ -7939,7 +7986,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
 `caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
-`meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`.
+`meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`, `englishFor`, `sentenceInstruction`,
+`readSentenceTranslation`, `withEnglish`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

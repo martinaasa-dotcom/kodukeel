@@ -46,6 +46,7 @@ import {
 } from "../lib/dict/examples";
 import { HARVESTED } from "./data/harvested";
 import { readExpanded } from "./expanded";
+import { englishFor } from "../lib/dict/exampleEnglish";
 
 /** Postgres binds at most 65,535 parameters, and each row here spends three. */
 const CHUNK = 500;
@@ -285,6 +286,79 @@ export async function repairThinExamples(prisma: PrismaClient): Promise<number> 
     `;
   }
   return widened;
+}
+
+/**
+ * PUTTING THE SHIPPED ENGLISH ONTO THE SENTENCES A DEPLOYMENT ALREADY HOLDS.
+ *
+ * `prisma/data/example-english.json` says what every sentence the dictionary
+ * ships means, and the seed joins it on as a row is written. `examples` is
+ * insert-only on a reseed, deliberately and for good reasons that are stated
+ * where the decision is (`prisma/columns.ts`): that column is also written by
+ * the live Ekilex cache and by a learner adding a sentence from class, and a
+ * reseed must not walk over either. So the join reaches a fresh deployment and
+ * not one existing row anywhere else, which is the same half-fix
+ * `repairProductionBacks` and `repairCaseFronts` were each written for: every
+ * learner who has already installed this keeps sentences nobody can read, for
+ * ever, which is the fault the whole pass was about.
+ *
+ * WHERE IT RUNS is where those two run and for their reason: before the
+ * `--only-if-empty` early return, since a row with a bare sentence only exists
+ * on a database that was already seeded, which is precisely the case that
+ * check skips. On a fresh deployment the rows arrive with their English and
+ * this matches nothing.
+ *
+ * WHAT IT MAY TOUCH is one field of one sentence: `en`, and only where it is
+ * absent. Never the Estonian, which came from a lexicographer and is not ours
+ * to rewrite; never the order, the source, or which sentences an entry has;
+ * and never an English line that is already there, so a translation a learner
+ * typed, one a past runtime ask resolved and one Ekilex itself supplied all
+ * survive untouched. It only ever fills a blank, which is what makes it safe
+ * to run on every seed and idempotent: a second pass finds nothing left blank
+ * that the file can answer for.
+ *
+ * The guard is the whole `examples` string read before the write, like
+ * `repairThinExamples`'s, so a row somebody changed between the read and the
+ * write is left exactly as it is.
+ */
+export async function fillExampleEnglish(prisma: PrismaClient): Promise<number> {
+  const lexemes = await prisma.lexeme.findMany({
+    select: { id: true, examples: true },
+  });
+
+  const rows: { id: string; from: string; to: string }[] = [];
+  for (const lexeme of lexemes) {
+    const existing = parseExamples(lexeme.examples);
+    if (existing.length === 0) continue;
+
+    let filled = false;
+    const merged: Example[] = existing.map((e) => {
+      if (e.en) return e;
+      const en = englishFor(e.et);
+      if (!en) return e;
+      filled = true;
+      return { ...e, en };
+    });
+    if (!filled) continue;
+
+    const to = serialiseExamples(merged);
+    if (to === lexeme.examples) continue;
+    rows.push({ id: lexeme.id, from: lexeme.examples, to });
+  }
+  if (rows.length === 0) return 0;
+
+  let written = 0;
+  for (const batch of chunk(rows, CHUNK)) {
+    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.from}, ${r.to})`);
+    written += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET examples = v.to_examples
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, from_examples, to_examples)
+      WHERE l.id = v.id
+        AND l.examples = v.from_examples
+    `;
+  }
+  return written;
 }
 
 /**
