@@ -4515,6 +4515,21 @@ screen over, wanting the opposite answer: the list hands the caret to the button
 reaching for, and the bar hands it to what they were reaching at. Every route carries exactly one
 `h1`, drawn or `sr-only`, so it is there to be moved to and reading it out is the announcement.
 
+**And "a heading different from the one that was there" is a race rather than a rule.** Which commit
+the page lands in is not this bar's to decide: the step comes off `useSearchParams`, so on one press
+the old heading is still standing and the new tree arrives frames later, and on the next the address
+and the content commit together and the heading in `#main` is already the new step's before the
+effect has run. Read as the old one, that heading is then waited past, the wait runs out of frames,
+and the caret stays on the body. Measured on the reading step of an ordinary evening, two presses in
+three: `scripts/test-module.mjs` was green on one run of CI and red on the next with the code
+untouched, and the failing one was the run whose fixture opened at the reading step rather than at
+the words. Taking the first heading it sees is the same fault pointed the other way. So a heading
+that *replaces* the one standing at the press is the new step and is read out the moment it lands,
+and where nothing replaces it the one standing was the new step's all along and is read out at the
+end of the window, unless the learner has since taken the caret onto the screen themselves. One
+announcement either way, always of the screen they ended up on, whichever order the two commits land
+in. Made to fail on the real line first, which is what said the two in three.
+
 **And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
 the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
 over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen
