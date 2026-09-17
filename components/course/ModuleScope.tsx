@@ -111,14 +111,45 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
   useEffect(() => {
     if (arrivedAt.current === focus.stepId) return;
     arrivedAt.current = focus.stepId;
-    const heading = document.querySelector<HTMLElement>("#main h1");
-    if (!heading) return;
-    /* A heading is not focusable on its own, and a permanent `tabindex` would
-       put it in the tab order of a page nobody navigated to. Taken off again
-       once it has been read, which is the shape every skip link takes. */
-    heading.setAttribute("tabindex", "-1");
-    heading.focus({ preventScroll: true });
-    heading.addEventListener("blur", () => heading.removeAttribute("tabindex"), { once: true });
+
+    /*
+      AND IT WAITS FOR THE HEADING, BECAUSE THE ADDRESS CHANGES FIRST.
+
+      This bar is in the shell, so it hears the new step the moment the URL
+      commits, and the page under it lands in a later one. Traced across a
+      press: the old heading was gone, a mutation arrived with no `h1` in
+      `#main` at all, and the new one turned up after that. A single
+      `querySelector` here found nothing and returned, which left focus on the
+      body and looked exactly like an effect that had never been written. That
+      is the silence this repository has a rule about, so it is waited for
+      rather than sampled.
+
+      `was` is whatever heading is there when the step changes, and the wait is
+      for a different one: on a machine that keeps the old tree through the
+      transition, taking the first `h1` it sees would move the caret to the
+      screen the learner is leaving.
+    */
+    const was = document.querySelector("#main h1");
+    let frames = 0;
+    let raf = 0;
+    const settle = () => {
+      const heading = document.querySelector<HTMLElement>("#main h1");
+      if (!heading || heading === was) {
+        /* About a second at sixty frames, after which the step genuinely has
+           no heading and there is nothing to hand the caret to. */
+        if (frames++ > 60) return;
+        raf = requestAnimationFrame(settle);
+        return;
+      }
+      /* A heading is not focusable on its own, and a permanent `tabindex` would
+         put it in the tab order of a page nobody navigated to. Taken off again
+         once it has been read, which is the shape every skip link takes. */
+      heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+      heading.addEventListener("blur", () => heading.removeAttribute("tabindex"), { once: true });
+    };
+    raf = requestAnimationFrame(settle);
+    return () => cancelAnimationFrame(raf);
   }, [focus.stepId]);
 
   const last = focus.n >= focus.of;
@@ -127,11 +158,20 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
     start(async () => {
       const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId);
       if (!result.ok) { setFailed(result.error); return; }
+      /*
+        AND NOTHING AFTER THE PUSH, WHICH IS A CORRECTION.
+
+        There was a `router.refresh()` here, so the module screen would not be
+        served from the router cache with the step still open on it. It is not
+        needed: `advanceCourseStep` revalidates `/course` and `/` inside the
+        action, which drops the client's copy of both, and the refresh was a
+        second render of the route this press had just opened. What that cost
+        was the caret: the effect above puts it on the new screen's heading and
+        the refresh remounted underneath it, so focus landed on the heading or
+        on the body depending on which won, which is a check that passes on
+        this machine and fails on a slower one.
+      */
       router.push(result.href);
-      /* The list and Today both read the tick, and the step just left is
-         behind us: without this the module screen is served from the router
-         cache with the step still open on it. */
-      router.refresh();
     });
   };
 

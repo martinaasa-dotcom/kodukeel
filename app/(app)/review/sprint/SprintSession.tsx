@@ -14,6 +14,7 @@ import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/adv
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
 import { WayOut } from "@/components/round/RoundExit";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 export interface SprintCard {
   id: string;
@@ -39,6 +40,9 @@ const estonianSide = (type: string, side: "front" | "back") =>
 export function SprintSession({
   cards: initialCards, best, seconds,
 }: { cards: SprintCard[]; best: number; seconds: number }) {
+  /* Whether this round is a step of tonight's module, which decides whether
+     the note about the clock carries a link out of it. */
+  const inModule = useModuleFocus() !== null;
   // Snapshotted once on mount, and never updated from later props. gradeCard()
   // is a Server Action, and Next.js refreshes this route's Server Component
   // after every call — which would hand down a shrinking `cards` prop as
@@ -158,10 +162,25 @@ export function SprintSession({
               somebody notices the round is too fast is the moment they are
               looking at this screen. */}
           <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
+            {/*
+              THE SENTENCE SURVIVES A MODULE AND THE DOOR DOES NOT.
+
+              WCAG 2.2.1 is met by the limit being adjustable before the round
+              starts, which it is, in Settings, at up to ten times this. What
+              it does not require is a link out of the round, and inside
+              tonight's module that link lands the learner on Settings with the
+              evening gone. So they are told the same thing and told where, and
+              the press is one they make between evenings rather than mid
+              round. See docs/08-ux-ia-a11y.md and lib/ux/roundClock.ts.
+            */}
             Need longer?{" "}
-            <Link href="/settings#round-pace" className="underline underline-offset-2">
-              Give yourself more time
-            </Link>
+            {inModule ? (
+              <span>Settings lets you give yourself more time</span>
+            ) : (
+              <Link href="/settings#round-pace" className="underline underline-offset-2">
+                Give yourself more time
+              </Link>
+            )}
             , up to ten times this.
           </p>
         </div>

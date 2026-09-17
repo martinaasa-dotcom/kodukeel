@@ -117,7 +117,10 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>
             Start
           </Button>
-          <ButtonLink href="/practice">Back to practice</ButtonLink>
+          {/* The way back to the menu somebody chose this round from, which
+              inside a module is a door out of the evening: the way on is the
+              bar at the foot of the screen. */}
+          <WayOut><ButtonLink href="/practice">Back to practice</ButtonLink></WayOut>
         </div>
       </Page>
     );

@@ -18,6 +18,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
@@ -17000,6 +17001,40 @@ check("a round's own way out stands down inside a module", () => {
         `${file} offers Today off a finish screen outside a WayOut, so a module step has a door out of it`,
       );
     }
+  }
+});
+
+/*
+  AND THE LIST OF SCREENS THE MODULE SUITE OPENS IS THE COURSE'S OWN.
+
+  `scripts/test-module.mjs` opens every screen a step can reach and asks
+  whether anything on it leaves the module, which is the check that found four
+  of the six doors: an evening deals two rounds out of ten, so walking one
+  evening sees a fifth of them. That sweep is only worth its name while its
+  list is the real one, and the suite cannot import `ACTIVITIES`, because it is
+  `.mjs` and the table is TypeScript behind a path alias. So the bridge is
+  here, where both can be read: a round added to a rotation and not to the
+  suite is a screen nobody opens, which is exactly the state the sweep exists
+  to end.
+*/
+check("the module suite opens every round the course can deal", () => {
+  const suite = code("scripts/test-module.mjs");
+  const declared = suite.slice(suite.indexOf("const MODULE_SCREENS"));
+  const listed = new Set([...declared.slice(0, declared.indexOf("];")).matchAll(/"([^"]+)"/g)].map((m) => m[1]!));
+  assert.ok(listed.size >= 15, `MODULE_SCREENS holds ${listed.size} screens; the sweep is reading the wrong thing`);
+
+  const missing = Object.values(ACTIVITIES).map((a) => a.href).filter((href) => !listed.has(href));
+  assert.deepEqual(
+    missing, [],
+    `${missing.join(", ")} is a round a rotation can deal that scripts/test-module.mjs never opens, so nothing checks whether it leads out of the module`,
+  );
+  /* And the four that are not rounds: the ladder, the closing queue, a
+     conversation and the reading's two shapes. */
+  for (const screen of ["/course/learn", "/review", "/situations/", "/grammar/topic/", "/grammar/"]) {
+    assert.ok(
+      [...listed].some((s) => s.startsWith(screen)),
+      `the module suite stopped opening anything under ${screen}`,
+    );
   }
 });
 

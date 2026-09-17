@@ -3611,19 +3611,37 @@ found the verb table on an A2 reading, four more. And a sweep of the same shape 
 structurally cannot reach.
 
 **That last part is the lesson and it is about coverage rather than about doors.** An evening deals
-two rounds out of a rotation of ten, so one walk sees two of them: the browser suite proves the
-mechanism on whatever tonight dealt and can never prove the rule. So the rule is asserted over what
-a step can open, read off `ACTIVITIES` plus the reading, the ladder and the conversation, and the
-two components that stand down are the only things in that reach allowed to write the link.
+two rounds out of a rotation of ten, so one walk sees two of them: the browser suite proved the
+mechanism on whatever tonight dealt and could never prove the rule. So it opens **every** screen a
+step can reach with a marker the app itself wrote and asks the one question, and
+`scripts/test-invariants.ts` holds that list to `ACTIVITIES`, because a browser suite here is `.mjs`
+and the table is TypeScript behind a path alias: a round added to a rotation and not to the sweep is
+a screen nobody opens, which is the state the sweep exists to end. Doing that found four more that
+no single evening reaches: "Back to practice" on the two boards' opening screens, the lesson behind
+a conversation, and "More on this" at the foot of the exceptions round. Ten doors in all, and two of
+them were found by reading.
+
+**The sprint's link to its own pace is the one that stayed, in a different shape.** WCAG 2.2.1 is
+met by the limit being adjustable *before* the round, which it is, at up to ten times the standard;
+what it does not ask for is a link out of the round. So inside a module the sentence survives and
+the door does not, because the learner still has to know the clock is theirs, and the press is one
+they make between evenings rather than mid round.
 `components/course/WordLink.tsx` is a word that opens its own entry, or just the word inside a
 module; `FullEntry` is the labelled control in a card's corner. **The word never goes, only the
 door**, and an underline is the door rather than the styling, so a caller says which of its classes
 are the promise: an underline carried onto the span would offer a press that is not there, which is
 worse than the link being gone, because the learner reaches for it.
 
-**And pressing on hands the caret to what it opened.** The bar lives in the shell, so it survives
-the navigation it causes and the browser leaves focus on a button now sitting above a different
-screen: measured, the body. A keyboard walked back to the top of the page for every step of every
+**And pressing on hands the caret to what it opened, once the heading is there to hand it to.** The
+bar lives in the shell, so it survives the navigation it causes and the browser leaves focus on a
+button now sitting above a different screen: measured, the body. The first fix for it read the
+heading once and found none, because the shell hears the new step the moment the address commits and
+the page lands in a later frame: traced across a press, the old heading was gone, a mutation arrived
+with no `h1` in `#main` at all, and the new one turned up after that. A `querySelector` that returns
+null and a return statement is an effect that looks exactly like one nobody wrote, which is the
+silence this file has a rule about, so it is waited for rather than sampled, and waited for as a
+heading *different* from the one that was there, or a machine keeping the old tree through the
+transition would be handed the screen the learner is leaving. A keyboard walked back to the top of the page for every step of every
 evening, and a screen reader was told nothing at all about arriving somewhere new, which on a
 five-step evening is five silent screen changes. It is the fault `StepList` has a header about, one
 screen over, wanting the opposite answer: the list hands the caret to the button the learner was

@@ -34,6 +34,29 @@ const OWNER = "local-single-user";
 /** Where a module step's one quiet way back goes, and where an evening ends. */
 const MODULE_HOME = "/course";
 
+/**
+ * Every screen a step of a module can open.
+ *
+ * `ACTIVITIES` in `lib/course/types.ts` is the one table of the rounds, plus
+ * the ladder, the reading, the conversation and the closing queue. This list
+ * has to match it and cannot import it, because a browser suite here is `.mjs`
+ * and that file is TypeScript behind a path alias; `scripts/test-invariants.ts`
+ * reads both and fails on a round in one and not the other, which is the only
+ * thing that keeps a second list honest.
+ *
+ * The two grammar pages are the reading's two shapes, and the topics named are
+ * the ones carrying a drill and a table of real verbs, which is where two of
+ * the six doors were found.
+ */
+const MODULE_SCREENS = [
+  "/review/match", "/review/listening", "/review/sprint", "/review/sentences", "/review/dictation",
+  "/review/emoji", "/review/describe", "/sonad", "/review/target", "/review/conjugation",
+  "/review/speaking", "/review/write", "/review/government", "/review/exceptions",
+  "/review/flashcards",
+  "/review", "/course/learn", "/situations/poodi-piima",
+  "/grammar/topic/imperative", "/grammar/topic/government", "/grammar/inessive",
+];
+
 const prisma = newPrismaClient();
 await requireLocalDatabase(prisma);
 
@@ -52,7 +75,7 @@ await requireLocalDatabase(prisma);
   list named. A floor alone cannot do it here and saying so is better than a
   number that looks stricter than it is.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 28 });
+const { check, absent, done } = suite("Tonight's module", { floor: 29 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -309,6 +332,43 @@ try {
     ticked.length >= 1 && after.some((s) => /Read the point/i.test(s.title) ? s.chip === "Done" : true),
     ticked.join(" | ") || "none",
   );
+
+  /*
+    AND EVERY ROUND A ROTATION CAN DEAL, NOT ONLY THE TWO TONIGHT DEALT.
+
+    The walk above proves the mechanism on whatever the evening dealt, and an
+    evening deals two rounds out of ten, so one run of it sees a fifth of them.
+    That is not a measurement of the rule, and saying so is not theoretical:
+    the walk found `Full entry` on the review card, CI's walk found the verb
+    table on an A2 reading, and opening all of them found four more that no
+    single evening would have reached. "Back to practice" on the two boards'
+    opening screens, the lesson behind a conversation, and the sprint's link
+    to its own pace.
+
+    So every screen a step can open is opened with a marker the app itself
+    wrote, and asked the one question: does anything here leave the module.
+    `MODULE_SCREENS` has to match the course's own table, which
+    `scripts/test-invariants.ts` asserts, because this file is `.mjs` and
+    cannot import it: a list that drifts is the fifth door nobody counted.
+  */
+  const marker = reading ? new URL(reading).searchParams.get("module") : null;
+  if (!marker) {
+    absent(1, "a marker the app wrote: this evening had no reading to take one from");
+  } else {
+    const wayOut = [];
+    for (const screen of MODULE_SCREENS) {
+      await page.goto(`${B}${screen}?module=${encodeURIComponent(marker)}`, { waitUntil: "domcontentloaded" });
+      await page.waitForSelector("main h1", { timeout: 30_000 });
+      const away = await waysOut();
+      const framed = await page.locator(".module-step").count() === 1;
+      if (away.length || !framed) wayOut.push(`${screen} ${framed ? "" : "(no frame) "}${JSON.stringify(away)}`);
+    }
+    check(
+      `none of the ${MODULE_SCREENS.length} screens a step can open leads out of the module`,
+      wayOut.length === 0,
+      wayOut.join("  ·  "),
+    );
+  }
 
   /*
     AND THE SAME PAGE REACHED ANY OTHER WAY IS THE PAGE IT WAS.
