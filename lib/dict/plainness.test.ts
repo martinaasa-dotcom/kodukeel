@@ -128,6 +128,39 @@ describe("plainReach", () => {
     expect(reach.bandOf.has("noh")).toBe(false);
   });
 
+  /*
+    THE BUG THE FIRST VERSION SHIPPED WITH. `gapForms` walks `CASES` through
+    `caseAnswer`, which is the singular, so every plural oblique in the
+    language was a spelling no entry claimed: the class `no` is in, charged the
+    heaviest penalty there is. `meestel` and `naistel` are the adessive plural
+    of two of the first words the course teaches, and the damage was exactly
+    what the ranking exists to prevent, `inimene` handed a noun phrase over a
+    sentence because the sentence carried two ordinary plurals.
+  */
+  it("reaches the plural obliques, which are stored rather than derivable", () => {
+    expect(reach.bandOf.get("meestel")).toBeDefined();
+    expect(reach.bandOf.get("naistel")).toBeDefined();
+    expect(reach.bandOf.get("raamatutes")).toBeDefined();
+  });
+
+  it("invents no plural for a word whose genitive plural is not stored", () => {
+    /*
+      `buildCaseTable` shows a gap rather than a form where `genPl` is missing,
+      which is ADR-005 and is what keeps this from vouching for spellings
+      nobody writes. Every plural this claims has to be one some entry stores a
+      genitive plural for.
+    */
+    const withoutGenPl = rows.filter((r) => r.pos !== "VERB"
+      && !r.forms.some((f) => f.formType === "GEN_PL"));
+    expect(withoutGenPl.length).toBeGreaterThan(0);
+    for (const row of withoutGenPl.slice(0, 200)) {
+      const genSg = row.forms.find((f) => f.formType === "GEN_SG")?.value;
+      if (!genSg) continue;
+      // A spelling the plural rule would have produced had it been allowed to guess.
+      expect(reach.bandOf.has(`${genSg.toLocaleLowerCase("et")}detes`)).toBe(false);
+    }
+  });
+
   it("bands a word at the easiest entry that could be spelled that way", () => {
     const a1 = LEVELS.indexOf("A1");
     expect(reach.bandOf.get("tere")).toBe(a1);

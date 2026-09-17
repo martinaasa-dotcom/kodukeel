@@ -52,6 +52,7 @@
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { buildCaseTable, stemsFromParts } from "@/lib/estonian/derive";
 import { LEVELS, type Level } from "@/lib/collections/syllabus/index";
 import type { Example } from "@/lib/dict/examples";
 
@@ -111,6 +112,23 @@ const UNBANDED = LEVELS.indexOf("B1");
  * and reading them as unknown vocabulary is how a check starts refusing the
  * sentences it was written to prefer.
  *
+ * AND THE PLURAL OBLIQUES, WHICH `gapForms` DOES NOT REACH AND WHICH THIS HAS
+ * TO. `gapForms` walks `CASES` through `caseAnswer`, and that is the singular:
+ * the plural obliques are suffixes on the genitive *plural*, which is stored
+ * rather than derivable. So without them `meestel` and `naistel` are spellings
+ * no entry claims, which is the class `no` is in, and they are the adessive
+ * plural of two of the first words the course teaches. The first version of
+ * this file charged them 8 apiece and the damage was exactly what the ranking
+ * exists to prevent: `inimene` was handed `Noored ja haritud inimesed.`, a noun
+ * phrase, over `Ma olen täiesti tavaline inimene.`, because the sentence was
+ * carrying two ordinary plurals and the phrase was carrying none.
+ *
+ * Through `buildCaseTable` rather than by joining a suffix here, because
+ * `lib/estonian/derive.ts` is the one module allowed to do that and is where
+ * the exceptions live: a word whose genitive plural is not stored gets a gap
+ * rather than an invented form, which is ADR-005 and is also what keeps this
+ * from vouching for spellings nobody writes.
+ *
  * Widest claim wins, and that is deliberate: a spelling two entries reach is
  * ranked at the easier of the two, because a beginner who recognises it
  * recognises it. This is the opposite of `claimIndex`'s rule, where an
@@ -136,7 +154,14 @@ export function plainReach(entries: readonly PlainEntry[]): PlainReach {
 
     for (const spelling of gapForms(entry).keys()) claim(spelling, band);
 
-    if (entry.pos !== "VERB") continue;
+    if (entry.pos !== "VERB") {
+      const parts: Record<string, string> = {};
+      for (const form of entry.forms) parts[form.formType] = form.value;
+      for (const derived of buildCaseTable(stemsFromParts(parts))) {
+        if (derived.plural) claim(derived.plural, band);
+      }
+      continue;
+    }
 
     const past = entry.forms.find((f) => f.formType === "PAST_1SG")?.value;
     if (past) {
@@ -191,17 +216,24 @@ function wordsOf(sentence: string): string[] {
  * - **A spelling no entry reaches** (8). The learner cannot look it up, so
  *   there is nowhere for them to go. `no`, `noh` and `nojah` are all in this
  *   class, and so is every proper noun and every abbreviation.
- * - **No finite verb** (6). `Hööveldamata lauad.` is a phrase, and a gap cut
- *   from a phrase asks for a form with no sentence around it to say why.
+ * - **No finite verb** (`NO_VERB`). `Hööveldamata lauad.` is a phrase, and a
+ *   gap cut from a phrase asks for a form with no sentence around it to say
+ *   why. Swept rather than chosen: at 0 the lead is a phrase for 322 of the
+ *   1,269 beginners' words, at 6 for 183, at 12 for 129, and past 12 it
+ *   flattens (116 at 16, 108 at 20, 105 at 30) while the mean length keeps
+ *   climbing. 12 is the knee, and it buys that 30% for a tenth of a word.
  * - **A spelling above the band** (4 each). Known to the dictionary, not to
  *   this reader.
  * - **A clause boundary** (2 each) and **each word** (1). Two things to hold
  *   in your head rather than one, and length.
  */
+/** What a sentence with no finite verb in it costs. Swept; see the header. */
+const NO_VERB = 12;
+
 export function plainnessCost(sentence: string, reach: PlainReach, limit: number): number {
   const words = wordsOf(sentence);
   let cost = words.length;
-  if (!words.some((w) => reach.finite.has(w))) cost += 6;
+  if (!words.some((w) => reach.finite.has(w))) cost += NO_VERB;
   for (const word of words) {
     const band = reach.bandOf.get(word);
     if (band === undefined) cost += 8;

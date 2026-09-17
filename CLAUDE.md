@@ -1483,6 +1483,38 @@ field and that every page hands it over. **`lib/progress/exam.ts`, `lib/progress
 the practice page are deliberately not on it**: the first two mark, and the third counts how many
 words could support a round rather than choosing one, so order cannot reach a screen.
 
+**The weights were swept rather than chosen, and the first pass had one of them wrong.** Only the
+shape of the cost was measured to begin with, that weighing the signals against each other beats
+chaining tie-breaks; the numbers themselves were judgement. Swept afterwards over the whole
+dictionary, the penalty for a sentence with no finite verb in it leaves the lead a phrase for 322
+of the 1,269 beginners' words at 0, 183 at 6, 129 at 12, and then flattens, 116 at 16 and 105 at
+30, while the mean length keeps climbing. 12 is the knee and it is what `NO_VERB` holds. The
+shipped 6 was too low by a third of the faults it exists to catch.
+
+**And the first version charged every plural oblique as a word nobody could look up.** `gapForms`
+is the one answer to what spellings a word has and it walks `CASES` through `caseAnswer`, which is
+the singular: the plural obliques are suffixes on the genitive *plural*, stored rather than
+derivable. So `meestel` and `naistel`, the adessive plural of two of the first words the course
+teaches, were spellings no entry claimed, which is the class `no` is in and the heaviest penalty
+there is. The damage was precisely what the ranking exists to prevent: `inimene` was handed `Noored
+ja haritud inimesed.`, a noun phrase, over a five-word sentence, because the sentence carried two
+ordinary plurals and the phrase carried none. `plainReach` reads them off `buildCaseTable` now,
+through `lib/estonian/derive.ts` because that is the one module allowed to join a suffix to a stem
+and the one that shows a gap rather than inventing a plural for a word whose genitive plural is not
+stored. Both directions are tested, and the test was made to fail on the real bug.
+
+**A deck already built keeps the sentence it was built with, and that is left alone deliberately.**
+`Card.front` is written when the card is made, so the 826 A1 and A2 gap-fill cards whose source
+sentence this moves reach a new deck and nobody else's. 1,027 of those words keep the same *set* of
+cards and differ only in which came first, which is nothing a learner can see; 309 genuinely trade
+a sentence. The precedent cuts both ways and the line between them is whether the old card can be
+answered at all: `repairCaseFronts` rewrites a bare case card because `ravim → millele?` is a
+question with no sentence behind it, and `audit:decks` removes a card whose answer is printed in
+its own question. A gap cut from a harder attested sentence is neither. It is a real question with
+a real answer that a lexicographer wrote, and rewriting every learner's deck to swap one valid
+sentence for another is a larger and riskier thing than the fault it would undo. Said here rather
+than left for somebody to find the asymmetry and assume it was an oversight.
+
 **And a name costs the same as an opaque particle, which is measured and left alone.** A spelling no
 entry reaches is charged most, because the learner cannot look it up, and a proper noun is exactly
 that shape while being the one word in a sentence nobody has to decode. Measured over the shipped
