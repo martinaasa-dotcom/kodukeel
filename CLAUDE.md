@@ -1629,6 +1629,21 @@ this module cannot see, so `Ma loen huvitavat raamatut täna` is never offered a
 täna raamatut`. The fourth puts the verb third, which a textbook would mark and a native speaker
 asked for by name; the mark is a question for the exercise and the grammar is not.
 
+**And the whole adverb move reached the audit and nothing a learner could open.** `audit:order`
+builds its reading over every entry the dictionary ships, which is not what a screen does: the app
+narrows to the words of the sentences it is about to set and asks the database about those, because
+a paper is built from a pool of 500 entries and rebuilt again to mark it. That narrowing asked "does
+this sentence hold a particle", it was written when the particle was the only thing that moved, and
+it was not widened when the adverb arrived. So `Ma loen raamatut täna` contributed no words to the
+query, the reading came back unable to say which word was the verb, the clause failed the one-verb
+test, and every figure in the paragraphs above was true of the audit and of no screen. **The
+measurement is not the app**, one module over from where that was learned. `wordsWorthAsking` is the
+narrowing and it lives beside the two word lists rather than in the reader, since a list in the
+reader is a list that falls behind the rule; and `wordOrder.test.ts` rebuilds what the two queries
+would return and asserts the app's reading and the whole dictionary's offer the same orders for
+every sentence the builder can set, which is the check that had been missing rather than a second
+opinion about Estonian.
+
 **And the note named the word that stayed put, in the wrong direction.** `OrderVerdict.moved` is
 read at the first position the two orders differ, where one of them holds the word that moved and
 the other holds the word that shifted into its place, and which is which is the direction it went.

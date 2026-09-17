@@ -16966,10 +16966,28 @@ check("an order the writer did not choose is not a wrong order", () => {
     values against 1,792 for the ones holding a particle.
   */
   const resolver = code("lib/dict/wordOrder.ts");
+  /*
+    AND THE NARROWING IS THE RULE'S OWN, not a second reading of which words
+    matter. It was written against `PARTICLES` while the particle was the only
+    thing that moved and was not widened when the adverb arrived, so `Ma loen
+    raamatut täna` asked the dictionary about nothing, the reading came back
+    unable to say which word was the verb, and the whole adverb move was
+    offered by `npm run audit:order`, which reads every entry there is, and by
+    no screen a learner could reach. A list in the reader is a list that falls
+    behind the rule; `wordsWorthAsking` lives beside both word lists.
+  */
   assert.match(
-    resolver, /PARTICLE\.has\(/,
-    "the dictionary read stopped skipping sentences with no particle in them, so it asks about every "
-    + "word of every sentence in an examination pool",
+    resolver, /wordsWorthAsking\(/,
+    "the dictionary read narrows by a rule of its own again, which is how a move the rule offers "
+    + "reaches the audit and never reaches a learner",
+  );
+  assert.doesNotMatch(
+    resolver, /\bPARTICLES\b/,
+    "the dictionary read names the particles itself, so the narrowing can fall behind the moves again",
+  );
+  assert.match(
+    code(rule), /MOVABLE_WORDS[^=]*=\s*\[\.\.\.PARTICLES, \.\.\.MOBILE_ADVERBS\]/,
+    "the list the dictionary read narrows by stopped covering both moves",
   );
   assert.match(
     resolver, /possibleFirstPersons\(/,

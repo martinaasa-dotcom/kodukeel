@@ -20,37 +20,36 @@
  * what says `kaalu` is the genitive of `kaal` as well as an imperative.
  *
  * **And bounded again by the sentences that could fire**, which is most of the
- * saving. The rule moves a verb particle and nothing else, so a sentence with
- * no particle in it has no alternative order whatever the dictionary says
- * about its verbs, and asking about its words is work for an answer that is
- * already known. It is the examination that makes this matter rather than the
- * lesson: a paper is built from a pool of 500 entries and rebuilt again to
- * mark it, and measured over the shipped dictionary those 1,642 sentences bind
- * 14,052 values where the 125 holding a particle bind 1,792. Postgres takes at
- * most 65,535 in one statement, so the unfiltered read was not going to fail;
- * it was going to be slow on the one path that already reads the most, twice
- * per sitting.
+ * saving. Both moves pick up a named word, so a sentence holding none of them
+ * has no alternative order whatever the dictionary says about its verbs, and
+ * asking about its words is work for an answer that is already known.
+ * `wordsWorthAsking` is that narrowing and it lives beside the lists rather
+ * than here: written against `PARTICLES` alone it went on narrowing by the
+ * particle after the adverb had been added, so `Ma loen raamatut täna` asked
+ * about nothing, the reading could not tell which word was the verb, and the
+ * whole adverb move was offered by the audit and by nothing a learner could
+ * reach. It is the examination that makes this matter rather than the lesson,
+ * since a paper is built from a pool of 500 entries and rebuilt again to mark
+ * it. Measured over the 9,480 sentences the builder can set in the shipped
+ * dictionary: 22,245 distinct spellings unfiltered, 4,106 once the sentences
+ * holding nothing movable are dropped, which is 1,218 sentences of the 9,480.
+ * **Widening it to the adverb cost about a tenth of that saving**, from 3,730
+ * spellings and 1,047 sentences, which is the price of the move working at
+ * all. Postgres takes at most 65,535 bind values in one statement, so the
+ * unfiltered read was never going to fail; it was going to be slow on the one
+ * path that already reads the most, twice per sitting.
  */
 import { prisma } from "@/lib/db";
-import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { possibleFirstPersons } from "@/lib/estonian/conjugate";
-import { orderContextFrom, PARTICLES, type OrderContext, type OrderWord } from "@/lib/estonian/wordOrder";
+import { orderContextFrom, wordsWorthAsking, type OrderContext, type OrderWord } from "@/lib/estonian/wordOrder";
 
 /** The empty reading: no word is a verb, so every sentence keeps its one order. */
 const NOTHING = orderContextFrom([]);
 
-const PARTICLE = new Set(PARTICLES);
-
 export async function orderContextFor(sentences: readonly string[]): Promise<OrderContext> {
-  const words = new Set<string>();
-  for (const sentence of sentences) {
-    const tokens = [...sentence.matchAll(ESTONIAN_WORD)].map((t) => t[0].toLowerCase());
-    if (!tokens.some((t) => PARTICLE.has(t))) continue;
-    for (const token of tokens) words.add(token);
-  }
-  if (words.size === 0) return NOTHING;
+  const spellings = wordsWorthAsking(sentences);
+  if (spellings.length === 0) return NOTHING;
 
-  const spellings = [...words];
   const firstPersons = [...new Set(spellings.flatMap((w) => possibleFirstPersons(w)))];
 
   const [verbs, nominals] = await Promise.all([

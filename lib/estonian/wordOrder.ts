@@ -213,6 +213,21 @@ export const FOCUS_PARTICLES: readonly string[] = [
   "veel", "juba", "alles", "just", "ikka", "ainult", "isegi", "ometi", "küll",
 ];
 
+/**
+ * Every word either move can pick up.
+ *
+ * One list, because the reading of the dictionary is narrowed by it: a
+ * sentence holding none of these has no alternative order whatever the
+ * dictionary says about its verbs, so the app does not ask about its words.
+ * That narrowing was written against `PARTICLES` when the particle was the
+ * only thing that moved, and when the adverb arrived it was not widened, so
+ * `Ma loen raamatut täna` contributed nothing to the query, the reading could
+ * not tell which word was the verb, and the move was offered by the audit and
+ * by nothing a learner could reach. The list and the narrowing live in one
+ * file for that reason.
+ */
+export const MOVABLE_WORDS: readonly string[] = [...PARTICLES, ...MOBILE_ADVERBS];
+
 const FREE = new Set(FREE_PARTICLES);
 const BOUND = new Set(BOUND_PARTICLES);
 const JOINERS = new Set(CLAUSE_JOINERS);
@@ -220,6 +235,7 @@ const MOBILE = new Set(MOBILE_ADVERBS);
 const EITHER = new Set(PARTICLES);
 const FOCUS = new Set(FOCUS_PARTICLES);
 const NEGATORS = new Set(["ei", "ega"]);
+const MOVABLE = new Set(MOVABLE_WORDS);
 
 /** How the built order stands to the one a lexicographer recorded. */
 export type OrderReading = "exact" | "variant" | "wrong";
@@ -392,6 +408,27 @@ export function orderContextFrom(words: Iterable<OrderWord>): OrderContext {
       return known.has(lower) && !adverbial.has(lower);
     },
   };
+}
+
+/**
+ * The spellings a caller has to ask the dictionary about.
+ *
+ * Pure and here rather than in the reader, so it cannot fall behind the lists
+ * it is narrowing by: it is every word of every sentence that holds something
+ * either move can pick up, and nothing at all from the rest. A sentence with
+ * none of them keeps its one order whatever any entry says, and asking about
+ * its words is work for an answer already known. The examination is what
+ * makes that worth doing rather than the lesson, since a paper is built from
+ * a pool of 500 entries and rebuilt again to mark it.
+ */
+export function wordsWorthAsking(sentences: readonly string[]): string[] {
+  const words = new Set<string>();
+  for (const sentence of sentences) {
+    const tokens = [...sentence.matchAll(ESTONIAN_WORD)].map((t) => t[0].toLowerCase());
+    if (!tokens.some((t) => MOVABLE.has(t))) continue;
+    for (const token of tokens) words.add(token);
+  }
+  return [...words];
 }
 
 /**

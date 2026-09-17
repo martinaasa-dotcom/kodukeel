@@ -4,9 +4,10 @@ import { describe, expect, it } from "vitest";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 import { isKnownForm } from "../dict/forms";
 import { sentenceTiles } from "./cloze";
+import { possibleFirstPersons } from "./conjugate";
 import {
   acceptedOrders, alsoRightOrders, orderIsRight, BOUND_PARTICLES, CLAUSE_JOINERS, FOCUS_PARTICLES,
-  FREE_PARTICLES, MOBILE_ADVERBS, orderContextFrom, readOrder, sentenceClauses,
+  FREE_PARTICLES, MOBILE_ADVERBS, orderContextFrom, readOrder, sentenceClauses, wordsWorthAsking,
 } from "./wordOrder";
 
 const ROWS = dictionaryRows();
@@ -289,6 +290,71 @@ describe("the word lists", () => {
       .map((m) => m[1]!)
       .filter((w) => /[õäöüšž]/.test(w) && !named.has(w));
     expect(estonian).toEqual([]);
+  });
+});
+
+/*
+  THE APP DOES NOT READ THE WHOLE DICTIONARY, AND THE AUDIT DOES. Everything
+  else here builds its reading over every entry there is, which is what
+  `npm run audit:order` does and is not what a screen does: the app narrows to
+  the words of the sentences it is about to set and asks the database about
+  those. A rule that works over one and not the other is a rule a learner
+  never meets, and that is exactly what happened when the adverb move landed:
+  the narrowing still asked "does this sentence hold a particle", `Ma loen
+  raamatut täna` answered no, the reading came back knowing nothing, and the
+  move was offered by the audit and by nothing anybody could reach.
+
+  So this rebuilds what the two queries in `lib/dict/wordOrder.ts` would
+  return and reads the sentence through that. It is the app's shape rather
+  than the app, which no unit test can be; what it can say is that the
+  narrowing and the rule still agree about which sentences matter.
+*/
+describe("through the narrowing the app does", () => {
+  function asTheAppReads(sentence: string) {
+    const asked = new Set(wordsWorthAsking([sentence]));
+    if (asked.size === 0) return orderContextFrom([]);
+    const firstPersons = new Set([...asked].flatMap((w) => possibleFirstPersons(w)));
+    const pool = ROWS.filter((row) => {
+      if (asked.has(row.lemma.toLowerCase())) return true;
+      return row.forms.some((f) => {
+        const value = f.value.toLowerCase();
+        return asked.has(value) || (row.pos === "VERB" && firstPersons.has(value));
+      });
+    });
+    return orderContextFrom(pool);
+  }
+
+  const reported = [
+    "Ma loen raamatut täna.",
+    "Meri on täna tige.",
+    "Muidugi tuleb ette näpukaid.",
+  ];
+
+  for (const sentence of reported) {
+    it(`offers the same orders for ${sentence} as the whole dictionary does`, () => {
+      const app = alsoRightOrders(sentence, asTheAppReads(sentence));
+      expect(app).toEqual(alsoRightOrders(sentence, DICT));
+      expect(app.length).toBeGreaterThan(0);
+    });
+  }
+
+  /*
+    And over the corpus, because three sentences is three sentences. The app
+    reads fewer entries, so it can only ever refuse more; what it may not do
+    is refuse something the audit accepted, since the figure in the audit is
+    the one anybody reads to decide whether this rule is right.
+  */
+  it("agrees with the whole dictionary on every sentence the builder can set", () => {
+    let checked = 0;
+    for (const row of ROWS) {
+      for (const example of row.examples) {
+        const whole = alsoRightOrders(example.et, DICT);
+        if (whole.length === 0) continue;
+        checked++;
+        expect(alsoRightOrders(example.et, asTheAppReads(example.et)), example.et).toEqual(whole);
+      }
+    }
+    expect(checked).toBeGreaterThan(50);
   });
 });
 
