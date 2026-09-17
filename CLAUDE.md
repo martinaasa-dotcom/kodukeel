@@ -1482,9 +1482,22 @@ builds the first meeting a review card shows, its own comment promises that `tea
 introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
 Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
 the review card is every morning.** The grammar reference's case examples and the description
-game's model answer were the other two. The lesson to carry: a sweep over one entry point is a
-sweep with the other two missing, and the invariant names all eleven files rather than describing
-the rule. The worksheet
+game's model answer were the other two. Then sweeping by the *column* rather than by any function
+found the exceptions round and the build-a-word walkthrough, which is the screen `/grammar` opens
+with for somebody who has just been told Estonian has fourteen cases.
+
+**So the invariant is a sweep and not a list, which is the durable half of this.** Four times the
+rule was a list of files and three times the list was short, because a list is a thing somebody has
+to remember to extend and each sweep was over one entry point with the others missing. The haystack
+is the filesystem now: every file that opens the `examples` column, by selecting it or through
+`parseExamples`, which is the one thing every picker does whatever function it picks with. Both
+halves of that net are needed and the first version had one: `lib/progress/exam.ts` is handed the
+row and never selects the column, so a sweep on the select alone could not see it. A file is honest
+if it reaches the rank, or if it is exempt **with a written reason**, which is
+`lib/legal/exportCoverage.ts`'s shape and is what stops an exemption being a way to make a check
+pass. The exemptions are checked for staleness in the other direction too, and that caught two of
+them naming files that take their sentences as a field and are outside the net entirely. Made to
+fail on a new picker file added from scratch, which is the case no list could ever have caught. The worksheet
 is the one that cost most, since it is printed and worked through on paper and nobody can ask about
 a gap afterwards. They are worth naming because the shape of the miss is the one this file keeps
 finding in its own checks: a page handing the rank in and a builder ignoring it passes any check

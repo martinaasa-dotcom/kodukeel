@@ -1284,67 +1284,107 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "for a class is cut from the shortest sentence rather than the plainest",
   );
 
-  const handed: Record<string, RegExp> = {
-    "lib/srs/deck.ts": /sentenceReach\(\)/,
-    "app/actions.ts": /sentenceReach\(\)/,
-    "app/(app)/review/flashcards/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/learn/[unitId]/lesson/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/review/dictation/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/review/sentences/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/review/speaking/page.tsx": /sentenceReach\(\)/,
-    "lib/progress/learn.ts": /sentenceReach\(\)/,
-    "lib/progress/wordOfDay.ts": /sentenceReach\(\)/,
-    /*
-      The three that were missed on the first pass and are as much a teaching
-      surface as the rest. The worksheet is the one that costs most: it is
-      printed and worked through on paper, so nobody can ask about a gap
-      afterwards. The dictionary entry prints every sentence and this only
-      decides which a learner reads first. The government drill falls back to
-      the word's first sentence when the column carries none.
-    */
-    "app/(app)/learn/[unitId]/worksheet/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/dictionary/page.tsx": /sentenceReach\(\)/,
-    "app/(app)/review/government/page.tsx": /sentenceReach\(\)/,
-    /*
-      And the four found by sweeping `teachingSentence` and `sentenceContaining`
-      rather than `usableExamples` alone, which is where the first two sweeps
-      stopped. `app/(app)/review/cards.ts` is the daily path's own first meeting
-      and the one that mattered: its comment promises `teachingSentence`
-      introduces a word the same way wherever it is met, and until this it
-      introduced `tere` as `No tere, Juhan.` on a review card and as `Tere, mina
-      olen Katrin.` in the unit lesson, which is the fault this whole rule
-      exists for, surviving on the daily path.
-    */
-    "app/(app)/review/cards.ts": /sentenceReach\(\)/,
-    "lib/progress/caseExamples.ts": /sentenceReach\(\)/,
-    "lib/progress/describe.ts": /sentenceReach\(\)/,
-    "prisma/repair.ts": /plainReach\(/,
-    "scripts/audit-decks.ts": /plainReach\(/,
-    "scripts/audit-questions.ts": /plainReach\(/,
+  /*
+    EVERY FILE THAT PICKS ONE OF A WORD'S SENTENCES IS SWEPT, RATHER THAN LISTED.
+
+    This rule was a list of files and grew twice, because a list is a thing
+    somebody has to remember to extend. The first version wired the card
+    builders; reading every `usableExamples` caller found the worksheet, the
+    dictionary entry and the government drill; reading `teachingSentence` and
+    `sentenceContaining` found four more, one of them the daily path's own
+    first meeting, where `tere` was still introduced as `No tere, Juhan.` Each
+    of those was a sweep over one entry point with the others missing.
+
+    So the haystack is the filesystem: every file that opens the `examples`
+    column, which is the one thing they all do whatever function they pick
+    with. Selecting it is not enough on its own, because a file can be handed
+    the row and pick from it: `lib/progress/exam.ts` does exactly that and the
+    first version of this sweep could not see it. `parseExamples` is the one
+    door into the column, so both are the net. A file is honest if it reaches
+    the rank, or if it is exempt *with a written reason*, which is the shape
+    `lib/legal/exportCoverage.ts` takes and is what stops an exemption being a
+    way to make a check pass.
+  */
+  const EXEMPT: Record<string, string> = {
+    // These three mark. The mock exam rebuilds its paper from (level, seed,
+    // pool) in order to mark it, so reordering what it is built from changes
+    // which questions a candidate is asked.
+    "lib/progress/exam.ts": "builds a marked paper",
+    "lib/progress/assessment.ts": "builds a marked level check",
+    "app/(app)/learn/checkpoint/[level]/page.tsx": "builds a marked checkpoint",
+    // These ask what a word could support rather than choosing a sentence for
+    // it, so no order of theirs reaches a screen.
+    "app/(app)/practice/page.tsx": "counts what a round could ask, picks nothing",
+    "lib/progress/common.ts": "asks which card types a word supports, picks nothing",
+    // Storage and pools. What they write is re-ordered on every read by
+    // whoever reads it, so ranking here would be ranking twice.
+    "lib/dict/examples.ts": "is the seam the rank plugs into",
+    "lib/dict/facts.ts": "caches the pool and the reach themselves",
+    "lib/dict/lookup.ts": "writes back what Ekilex returned",
+    // `lib/dict/borrow.ts` and `lib/ekilex/mapper.ts` are deliberately absent:
+    // both take their sentences as a field rather than opening the column, so
+    // they are outside the net and an exemption for them would be one nobody
+    // reads. The staleness loop below is what said so.
+    "lib/suggestions/queue.ts": "shows a reviewer what a report is about",
+    "lib/suggestions/apply.ts": "removes a sentence a reviewer accepted, and picks none",
+    // A scene line is chosen against a beat rather than to teach a word, and
+    // it has a gate of its own: see lib/scenes/retrieval.ts.
+    "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
   };
-  for (const [file, call] of Object.entries(handed)) {
+
+  /* The pure builders, which take the rank as a field rather than reading it. */
+  const BY_FIELD = [
+    "lib/srs/cards.ts", "lib/collections/worksheet.ts", "lib/estonian/caseBuild.ts",
+  ];
+
+  const readsExamples = [...sourceFiles("app"), ...sourceFiles("lib")]
+    .filter((file) => !file.includes(".test.") && !file.includes(".itest."))
+    .filter((file) => /examples:\s*true|parseExamples\(/.test(code(file)));
+
+  const unhandled = readsExamples.filter(
+    (file) => !EXEMPT[file] && !BY_FIELD.includes(file)
+      && !/sentenceReach\(\)|plainReach\(|plainerFirst\(/.test(code(file)),
+  );
+  assert.deepEqual(
+    unhandled, [],
+    "these read a word's sentences and never reach the plainness rank, so they lead with the "
+    + "shortest rather than the one a beginner can read. Wire them, or add an entry to EXEMPT "
+    + "saying why no order of theirs reaches a screen",
+  );
+
+  for (const file of BY_FIELD) {
     assert.match(
       code(file),
-      call,
-      `${file} picks a sentence for a beginner without the plainness rank, so it leads with ` +
-      "the shortest one rather than the one they can read",
+      /plainest/,
+      `${file} takes the rank as a field and no longer reads it, which passes every check that `
+      + "only looks at the call site",
     );
   }
 
   /*
-    AND THE TWO INSTRUMENTS THAT MARK ARE EXEMPT BY NAME, which is the rule
-    `gapForms` already states about itself. The mock exam rebuilds its paper
-    server-side from (level, seed, pool) in order to mark it, and the level
-    check draws its distractors from the same pool; reordering what either is
-    built from changes which questions a candidate is asked. That is a change
-    to a measurement rather than to an exercise and it is not made in passing.
+    And an exemption may not rot: one naming a file that no longer reads the
+    column is an exemption nobody is reading, and the next file to need one
+    gets added beside it rather than thought about.
+  */
+  for (const file of Object.keys(EXEMPT)) {
+    assert.ok(
+      readsExamples.includes(file),
+      `${file} is exempt from the plainness rank and no longer reads a word's sentences at all. `
+      + "Drop the exemption.",
+    );
+  }
+
+  /*
+    AND THE INSTRUMENTS THAT MARK MAY NOT REACH IT AT ALL, which is stronger
+    than being exempt: an exemption says nobody wired it, this says wiring it
+    would be wrong.
   */
   for (const file of ["lib/exam/paper.ts", "lib/assessment/items.ts", "lib/progress/exam.ts", "lib/progress/assessment.ts"]) {
     assert.doesNotMatch(
       code(file),
       /plainerFirst|sentenceReach|plainReach/,
-      `${file} ranks its sentences for a beginner, which changes what a candidate is asked ` +
-      "and marked on. Both instruments are exempt by name; see lib/dict/plainness.ts",
+      `${file} ranks its sentences for a beginner, which changes what a candidate is asked `
+      + "and marked on; see lib/dict/plainness.ts",
     );
   }
 });

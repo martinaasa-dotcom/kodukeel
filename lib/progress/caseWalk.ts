@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { oneEntryPerLemma } from "@/lib/dict/search";
 import { DEMO_LEMMAS, DEMO_STEMS, type DemoStems } from "@/lib/collections/demoWords";
 import { parseExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { CASES } from "@/lib/estonian/cases";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { toWalkWord, type WalkForm, type WalkSentence, type WalkWord } from "@/lib/estonian/caseBuild";
@@ -128,14 +130,20 @@ export async function caseWalk(ownerId: string): Promise<CaseWalk> {
  */
 async function walkWords(): Promise<WalkWord[]> {
   try {
-    const lexemes = await prisma.lexeme.findMany({
-      where: { lemma: { in: [...DEMO_LEMMAS] }, pos: "NOUN" },
-      select: {
-        id: true, provenance: true,
-        lemma: true, translation: true, pos: true, semanticTypes: true, examples: true,
-        forms: { select: { formType: true, value: true, morphCode: true } },
-      },
-    });
+    const [lexemes, reach] = await Promise.all([
+      prisma.lexeme.findMany({
+        where: { lemma: { in: [...DEMO_LEMMAS] }, pos: "NOUN" },
+        select: {
+          id: true, provenance: true,
+          lemma: true, translation: true, pos: true, semanticTypes: true, examples: true,
+          // The band, so the five words this walk is built from show a
+          // sentence a beginner can read. See lib/dict/plainness.ts.
+          cefr: true,
+          forms: { select: { formType: true, value: true, morphCode: true } },
+        },
+      }),
+      sentenceReach(),
+    ]);
     const built = oneEntryPerLemma(lexemes, [...DEMO_LEMMAS]).flatMap((lex) => {
       const stems = stemsFrom(lex.forms);
       /*
@@ -156,7 +164,10 @@ async function walkWords(): Promise<WalkWord[]> {
         semanticTypes: lex.semanticTypes,
         nomSg: stems.nomSg ?? null,
       };
-      return [toWalkWord(lex.lemma, lex.translation, stems, subject, parseExamples(lex.examples))];
+      return [toWalkWord(
+        lex.lemma, lex.translation, stems, subject, parseExamples(lex.examples),
+        plainerFirst(lex.cefr, reach),
+      )];
     });
     if (built.length > 0) return built;
   } catch {

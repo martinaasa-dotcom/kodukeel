@@ -1,4 +1,4 @@
-import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
+import { parseExamples, sentenceContaining, type Rank } from "@/lib/dict/examples";
 import { caseByKey } from "./cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "./caseQuestion";
 import { buildCaseTable, followsEndingRule, type DerivedForm, type NounStems } from "./derive";
@@ -85,6 +85,15 @@ export function toWalkWord(
   stems: NounStems,
   subject: CaseSubject,
   examples: ReturnType<typeof parseExamples>,
+  /**
+   * How this word's attested sentences are ordered, where the caller has an
+   * opinion. The five words this walk is built from are the awkward A1 ones,
+   * and the screen is the first thing on `/grammar` for somebody who has just
+   * been told Estonian has fourteen cases, so it is exactly the reader who
+   * cannot read past a word they do not have. See `lib/dict/plainness.ts`.
+   * Absent leaves the order as it was.
+   */
+  plainest?: Rank,
 ): WalkWord {
   const table = buildCaseTable(stems);
   const row = (form: DerivedForm): WalkForm => {
@@ -96,7 +105,7 @@ export function toWalkWord(
       header says why `origin` is not the test.
     */
     const stored = !spec.principal && !followsEndingRule(value, stems.genSg, spec);
-    const found = value ? sentenceContaining(examples, value) : null;
+    const found = value ? sentenceContaining(examples, value, plainest) : null;
     return {
       key: spec.key,
       suffix: spec.suffix,
