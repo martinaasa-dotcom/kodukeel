@@ -9,8 +9,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { planLesson, splitIntoLessons, type LessonWord } from "@/lib/collections/lesson";
 import { starredAmong } from "@/lib/progress/stars";
-import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { parseExamples, teachableSentences } from "@/lib/dict/examples";
+import { nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -130,9 +130,10 @@ export default async function LessonPage({
       jah.` in the smallest type on the card with nothing to say what it
       meant, and the answer had been sitting in the row the whole time.
     */
-    examples: usableExamples(parseExamples(row.examples))
-      .filter((e) => naturalSentence(e.et, nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)])))
-      .map((e) => ({ et: e.et, en: e.en ?? null })),
+    examples: teachableSentences(
+      parseExamples(row.examples),
+      nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
+    ).map((e) => ({ et: e.et, en: e.en ?? null })),
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
     ),

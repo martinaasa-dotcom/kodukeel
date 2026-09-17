@@ -58,8 +58,54 @@ export function BuildWalk({ walk, canTranslate }: {
 }) {
   const [wordAt, setWordAt] = useState(0);
   const [act, setAct] = useState(0);
+  /*
+    How far the reader has got, which is what turns a row of three buttons into
+    a route somebody is walking rather than three unrelated tabs. It never goes
+    down: stepping back to read the first part again does not un-visit the
+    second, and a check that appeared and then vanished would read as a bug.
+  */
+  const [furthest, setFurthest] = useState(0);
+  const top = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const jumped = useRef(false);
+
+  const go = useCallback((n: number) => {
+    setAct(n);
+    setFurthest((f) => Math.max(f, n));
+    jumped.current = true;
+  }, []);
+
+  /*
+    PRESSING A STEP GOES TO IT.
+
+    Reported by the reader, and the words are worth keeping: pressing the
+    second step "didn't go there automatically and it didn't feel intuitive".
+    It was doing exactly what it said, and nothing moved. The steps sit at the
+    top of a page taller than a screen, so somebody deep in the first part who
+    presses the second one swaps the content of a region they are scrolled past
+    and is left looking at the same paragraph: the press reads as broken rather
+    than as navigation, which is worse than a control that does nothing at all.
+
+    So the region comes to the top of the window and the part's own heading
+    takes focus, which is the same press answered twice, once for a pointer and
+    once for a keyboard or a screen reader. `preventScroll` because the scroll
+    above is the considered one and focus would otherwise redo it from the
+    heading rather than from the steps, leaving them off the top of the screen.
+
+    Only on a press: a first render is not a navigation, and a page that
+    scrolled itself on arrival would take the reader past the title of the
+    thing they just opened.
+  */
+  useEffect(() => {
+    if (!jumped.current) return;
+    jumped.current = false;
+    top.current?.scrollIntoView({ block: "start" });
+    heading.current?.focus({ preventScroll: true });
+  }, [act]);
+
   const word = walk.words[wordAt] ?? walk.words[0];
   if (!word) return null;
+  const here = ACTS[act] ?? ACTS[0]!;
 
   return (
     <Stack>
@@ -84,10 +130,34 @@ export function BuildWalk({ walk, canTranslate }: {
         )}
       </Card>
 
-      <ActRail act={act} onGo={setAct} />
+      <div ref={top} className="scroll-mt-4">
+        <ActRail act={act} furthest={furthest} onGo={go} />
+        {/*
+          WHICH OF THE THREE YOU ARE IN, SAID IN WORDS RATHER THAN IN A TINT.
 
-      {act === 0 && <Memorise word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => setAct(1)} />}
-      {act === 1 && <StackEndings word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => setAct(2)} />}
+          The steps above mark the current one the way every chosen control in
+          this app is marked, and on a screen you arrive at by pressing one of
+          them that is not enough on its own: the reader has just jumped, and
+          what they need first is confirmation that the jump landed. It is also
+          the heading this region never had, so the page went from its title
+          straight into prose, and the part somebody pressed had nothing for a
+          screen reader to announce on the way in.
+        */}
+        <h2
+          ref={heading}
+          tabIndex={-1}
+          className="mt-6 text-xl font-bold outline-none"
+          style={{ color: "var(--ink)" }}
+        >
+          <span className="label-xs mb-1 block" style={{ color: "var(--accent-deep)" }}>
+            Step {act + 1} of {ACTS.length}
+          </span>
+          {here.title}
+        </h2>
+      </div>
+
+      {act === 0 && <Memorise word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => go(1)} />}
+      {act === 1 && <StackEndings word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => go(2)} />}
       {/*
         A FRESH WORD IS A FRESH ROUND, AND `key` IS HOW THAT IS SAID.
 
@@ -105,39 +175,87 @@ export function BuildWalk({ walk, canTranslate }: {
   );
 }
 
+/**
+ * The three parts, and the hint that says what each one costs the reader.
+ *
+ * The title leads the accessible name and nothing is printed in front of it,
+ * because the numeral is decoration for the eye: a screen reader is told "2 of
+ * 3" by the radio group it is in, and hearing "2. 2 of 3. Stack an ending" is
+ * the same number three times.
+ */
 const ACTS = [
-  { title: "Three to learn", hint: "What has to be memorized, and why it is only three" },
-  { title: "Stack an ending", hint: "The other eleven, one at a time, in real sentences" },
-  { title: "Your turn", hint: "Pick the ending. Nothing here is written down" },
+  { title: "Three to learn", hint: "What is stored, and why it is only three" },
+  { title: "Stack an ending", hint: "The other eleven, one at a time" },
+  { title: "Your turn", hint: "Pick the ending. Nothing is written down" },
 ] as const;
 
-/** Where the reader is, and every act reachable from every act. */
-function ActRail({ act, onGo }: { act: number; onGo: (n: number) => void }) {
+/**
+ * Where the reader is, how far they have got, and every part reachable from
+ * every part.
+ *
+ * THREE STEPS RATHER THAN THREE TABS, WHICH IS WHAT THEY READ AS.
+ *
+ * A numbered box with a title in it is the shape of a progress indicator, so
+ * that is what the reader took them for: something reporting on the page
+ * rather than something to press. The tint marking the current one is the
+ * app's own and is right, and on this row it was doing all of the work, since
+ * three boxes that differ by a wash are three boxes.
+ *
+ * So the numeral says which state it is in as an object, which is the rule the
+ * palette states about every hue in the app: the one you are on is the accent
+ * filled, one you have been past carries a tick, and one ahead of you is the
+ * raised ground everything unvisited here sits on. Nothing is locked, because
+ * a reader who wants the endings before the explanation is allowed them, and a
+ * step ahead being pressable is exactly why it may not look like a report.
+ */
+function ActRail({ act, furthest, onGo }: {
+  act: number;
+  furthest: number;
+  onGo: (n: number) => void;
+}) {
   return (
     <ChoiceGroup ariaLabel="Which part to read" select="one" className="grid gap-2 sm:grid-cols-3">
-      {ACTS.map((a, n) => (
-        <button
-          key={a.title}
-          type="button"
-          role="radio"
-          aria-checked={n === act}
-          onClick={() => onGo(n)}
-          data-on={n === act ? "" : undefined}
-          className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left"
-        >
-          <span className="flex items-center gap-2">
-            <span
-              className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
-              style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
-              aria-hidden
-            >
-              {n + 1}
+      {ACTS.map((a, n) => {
+        const on = n === act;
+        // Been past rather than merely visited: the part you are standing in
+        // is not one you have finished with.
+        const done = n < furthest;
+        return (
+          <button
+            key={a.title}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onGo(n)}
+            data-on={on ? "" : undefined}
+            data-state={on ? "here" : done ? "done" : "ahead"}
+            className="choice-btn choice-card flex min-w-0 flex-col items-start gap-1 rounded-[var(--r-lg)] px-4 py-3 text-left"
+          >
+            <span className="flex items-center gap-2">
+              <span
+                className="tnum flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                /*
+                  `--accent-deep` rather than `--accent`, which is the material
+                  `.choice-chip[data-on]` is painted in one file over: the ink
+                  on a solid accent is measured against the deep one, and a
+                  hue's own `-ink` on its plain fill is the pairing
+                  `scripts/test-invariants.ts` refuses outright.
+                */
+                style={on
+                  ? { background: "var(--accent-deep)", color: "var(--accent-ink)" }
+                  : done
+                    ? { background: "var(--accent-soft)", color: "var(--accent-deep)" }
+                    : { background: "var(--raised)", color: "var(--ink-3)" }}
+                aria-hidden
+              >
+                {done ? <Check size={13} strokeWidth={3} /> : n + 1}
+              </span>
+              <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{a.title}</span>
             </span>
-            <span className="text-sm font-semibold" style={{ color: "var(--ink)" }}>{a.title}</span>
-          </span>
-          <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{a.hint}</span>
-        </button>
-      ))}
+            <span className="text-xs leading-snug" style={{ color: "var(--ink-3)" }}>{a.hint}</span>
+          </button>
+        );
+      })}
     </ChoiceGroup>
   );
 }
@@ -245,6 +363,76 @@ function Memorise({ word, sentences, canTranslate, onNext }: {
   );
 }
 
+/**
+ * WHAT THE WORD THAT WAS JUST BUILT MEANS, IN THE FEWEST ENGLISH WORDS TRUE.
+ *
+ * Reported by the reader off the second part, and the gap is exactly where
+ * they said it was. The card puts `raamatu + -lt = raamatult` up in three
+ * boxes, and the next thing it says about that word is four lines further
+ * down, under a heading reading "off, and from a person". Both are right and
+ * neither is the question somebody watching an ending arrive is asking, which
+ * is what the word now means. Sitting under the build line it closes the
+ * arithmetic: the stem, the ending, the word, and the word in English.
+ *
+ * Composed in `lib/estonian/caseReading.ts` out of a frame per case and the
+ * entry's own gloss, never here, and null wherever nothing honest fits: a
+ * person is not a surface, a gloss is sometimes a list, and the seeded stems
+ * carry no gloss at all. `data-reading` carries the phrase for the same reason
+ * `data-build` carries the arithmetic, so a suite reads a fact about the line
+ * rather than counting hops through the markup.
+ *
+ * The deeper explanation stays exactly where it was. This is the sentence in
+ * front of it rather than a replacement for it.
+ */
+function Reading({ of }: { of: WalkForm }) {
+  /*
+    AND WHERE THERE IS NO READING BECAUSE NOBODY SAYS THE FORM, THAT IS THE
+    SENTENCE, RATHER THAN A BLANK.
+
+    The card draws all eleven, because a table of forms is a reference and the
+    dictionary entry prints the whole of it. That left three rows on `mees` and
+    `sõber` showing a form under "Being inside something, and being in a month
+    or a mood", with nothing anywhere saying that Estonian puts a person on the
+    other set: a learner reading that card comes away saying `mehes`, which is
+    the fault `lib/estonian/caseQuestion.ts` exists for, on the one screen whose
+    job is explaining the system. `caseFits` had reached every card builder in
+    the app and never reached the explanation.
+
+    It points at "on top", which is the heading over those endings on this very
+    screen (`CASE_GROUPS`), rather than naming them: the reader can look up.
+    `caseIsUnsaidFor` is the one predicate for this and it asks for positive
+    evidence, so `toale` is never called unsaid.
+  */
+  if (of.unsaid) {
+    return (
+      <p className="mt-3 text-base" data-unsaid={of.unsaid} style={{ color: "var(--ink-2)" }}>
+        <span className="font-bold" style={{ color: "var(--ink)" }}>Nobody says this one.</span>{" "}
+        {/*
+          "a person" only where the word is one. The row fires for a `-maa`
+          word too, which is a country rather than somebody, and the first
+          version of this line said "a person" about both: the osastav fault
+          one commit earlier, committed inside the fix for it. What is left
+          names no class, so it stays true whatever the reason turns out to be.
+        */}
+        Estonian puts {of.unsaid === "person" ? "a person" : "this word"} on the endings under{" "}
+        “On top” instead.
+      </p>
+    );
+  }
+  if (!of.reading) return null;
+  return (
+    <p
+      className="mt-3 flex flex-wrap items-baseline gap-x-2"
+      data-reading={of.reading}
+    >
+      <span className="text-sm" style={{ color: "var(--ink-3)" }}>which means</span>
+      <span className="text-xl font-bold" style={{ color: "var(--ink)" }}>
+        “{of.reading}”
+      </span>
+    </p>
+  );
+}
+
 /** One case, explained: what it is for, and the word wearing it. */
 function FormPanel({ word, form, sentence, canTranslate }: {
   word: WalkWord;
@@ -271,6 +459,7 @@ function FormPanel({ word, form, sentence, canTranslate }: {
           {ref.plain}
         </span>
       </div>
+      <Reading of={form} />
       <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {ref.summary}
       </p>
@@ -465,6 +654,7 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
               <Speak text={form.value} label={`Hear ${form.value}`} size={17} />
             </span>
           </div>
+          <Reading of={form} />
           {form.stored && (
             <p className="mt-3 max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
               This one is the exception, and the dictionary holds it: no ending on the stem produces
@@ -518,6 +708,27 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
               ))}
             </ChoiceGroup>
           </div>
+          {/*
+            THE KEY THE HINT NAMES, DRAWN AS A BUTTON.
+
+            Eleven endings in three groups is a set to hunt through, and the
+            one way to walk them in order was a keyboard shortcut written in
+            six-point type above them: on a phone, where this app is measured,
+            there is no such key at all. A control that does what the shortcut
+            does makes the card a thing you can crank, which is the whole of
+            what the second part is for. It is quiet on purpose, because the
+            loud button on this screen is the one that leads out of it
+            (`components/Button.tsx`), and a focused button keeps its own Enter,
+            so pressing it repeatedly walks the eleven either way.
+          */}
+          <button
+            type="button"
+            onClick={step}
+            className="tap-tint mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
+            style={{ color: "var(--accent-deep)" }}
+          >
+            Next ending <ArrowRight size={14} aria-hidden />
+          </button>
         </div>
       </div>
 
@@ -573,6 +784,20 @@ function WithEnding({ value, suffix }: { value: string; suffix: string }) {
 }
 
 /* ───────────────────────────────────────────── act three ── */
+
+/**
+ * What the answer means, in the same words the second part used.
+ *
+ * The case's own `plain` is a fact about the ending ("off, and from a person")
+ * and the reading is a fact about the word in front of the reader ("off the
+ * book"). Both are true and only one of them answers "so what did I just
+ * spell", which is the question somebody who has just typed an ending has.
+ * `plain` is what is left where the dictionary gave no gloss to put in a
+ * frame, which is the sentence this line carried before the reading existed.
+ */
+function Means({ form, ref_ }: { form: WalkForm; ref_: ReturnType<typeof caseReference> }) {
+  return form.reading ? <>“{form.reading}”</> : <>{ref_?.plain}</>;
+}
 
 /** How many endings to ask about. Short enough to finish standing up. */
 const QUESTIONS = 4;
@@ -719,12 +944,12 @@ function YourTurn({ word }: { word: WalkWord }) {
           {picked === null ? "" : picked === form.suffix ? (
             <>
               Yes. <span lang="et">{word.genitive}</span> plus <span lang="et">-{form.suffix}</span>{" "}
-              is <span lang="et">{form.value}</span>, which means {ref?.plain}.
+              is <span lang="et">{form.value}</span>, which means <Means form={form} ref_={ref} />.
             </>
           ) : (
             <>
               Not that one. It is <span lang="et">{form.value}</span>, the stem with{" "}
-              <span lang="et">-{form.suffix}</span> on it, which means {ref?.plain}.
+              <span lang="et">-{form.suffix}</span> on it, which means <Means form={form} ref_={ref} />.
             </>
           )}
         </p>
