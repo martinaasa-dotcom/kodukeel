@@ -1,6 +1,7 @@
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { caseByKey } from "./cases";
 import { caseFits, caseQuestionFor, type CaseSubject } from "./caseQuestion";
+import { caseReading } from "./caseReading";
 import { buildCaseTable, followsEndingRule, type DerivedForm, type NounStems } from "./derive";
 import type { CaseKey } from "./types";
 
@@ -22,8 +23,11 @@ import type { CaseKey } from "./types";
  * NOTHING HERE IS WRITTEN AND NOTHING HERE IS GENERATED. The forms come out of
  * `buildCaseTable`, which is the function the dictionary entry and the
  * flashcard builder use; the sentences are ones a lexicographer recorded; and
- * the English about a case lives in `lib/estonian/grammar.ts`, which the screen
- * reads for itself. This module holds no Estonian of its own at all (ADR-005).
+ * the prose explaining a case lives in `lib/estonian/grammar.ts`, which the
+ * screen reads for itself. The one thing composed here is English: a row
+ * carries what the word means wearing that ending, out of a frame per case and
+ * the entry's own gloss (`lib/estonian/caseReading.ts`). This module holds no
+ * Estonian of its own at all (ADR-005).
  */
 
 /** One of the eleven, for one word. */
@@ -33,6 +37,18 @@ export interface WalkForm {
   readonly suffix: string;
   /** The question *this word* answers with this case, pronoun only. */
   readonly question: string;
+  /**
+   * This word in this case, in plain English, or null where nothing fits.
+   *
+   * The half a learner can cash in the moment the ending arrives. `raamatult`
+   * is a word the screen has just built out of two pieces and "off the book"
+   * is what it means; the case's own explanation, four lines down, is about
+   * the ending rather than about the word. Composed here rather than on the
+   * screen because this is the module holding both halves of it, the word's
+   * gloss and what the Institute says the word is, and the screen holding
+   * neither. See `lib/estonian/caseReading.ts` for what is refused and why.
+   */
+  readonly reading: string | null;
   /** The form to print. */
   readonly value: string;
   /** The other spelling that is also right, where Estonian has one. */
@@ -101,6 +117,7 @@ export function toWalkWord(
       key: spec.key,
       suffix: spec.suffix,
       question: caseQuestionFor(spec, subject),
+      reading: translation ? caseReading(spec.key, translation, subject) : null,
       value,
       alsoRight: form.alsoRight,
       stored,

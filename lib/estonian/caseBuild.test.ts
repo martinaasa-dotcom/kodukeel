@@ -62,6 +62,25 @@ describe("toWalkWord", () => {
     expect(rowFor("raamat", "ADESSIVE").question).toBe("millel?");
   });
 
+  it("carries what the word means wearing each ending", () => {
+    // The half a learner can cash in the moment the ending arrives. The
+    // frames are lib/estonian/caseReading.ts; what is checked here is that a
+    // row is handed one, and handed the reading for the kind of word it is.
+    const row = (lemma: string, gloss: string, key: string) =>
+      toWalkWord(lemma, gloss, stems(lemma), subject(lemma), [])
+        .derived.find((f) => f.key === key)!;
+    expect(row("raamat", "book", "ABLATIVE").reading).toBe("off the book");
+    expect(row("mees", "man, husband", "ABLATIVE").reading).toBe("from the man");
+    expect(row("mees", "man, husband", "INESSIVE").reading).toBeNull();
+  });
+
+  it("says nothing about meaning where the dictionary gave no gloss", () => {
+    // The seeded stems carry no gloss, because a gloss invented beside them
+    // would be the one authored column written by the wrong hand. The screen
+    // prints nothing where there is nothing.
+    expect(rowFor("raamat", "INESSIVE").reading).toBeNull();
+  });
+
   it("never asks for one of the three that are stored", () => {
     for (const form of walk("raamat").principal) expect(form.askable).toBe(false);
   });

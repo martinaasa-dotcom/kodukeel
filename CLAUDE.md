@@ -632,15 +632,62 @@ reason, and the way out at the end is a round that does grade. `caseFits` still 
 asked, so nobody is invited to produce `meheses`, and `caseQuestionFor` still words it, so a person
 is asked `kellel?`, with `CaseQuestion` saying what that asks.
 
+**And the word it just built says what it means, in the fewest English words that are true.** The
+card puts `raamatu + -lt = raamatult` up in three boxes and the next thing it said about that word
+was four lines further down, under a heading reading "off, and from a person". Both are right and
+neither is what somebody watching an ending arrive is asking, which is what the word now means. It
+was reported that way off that screen. `lib/estonian/caseReading.ts` is a frame per case and the
+entry's own gloss, so the line under the arithmetic reads "off the book", and the deeper
+explanation stays exactly where it was: this is the sentence in front of it rather than a
+replacement for it.
+
+**`lib/estonian/plainAsk.ts` considered this shape and refused it, and both are right.** Its header
+says why: a gloss is a comma-separated list, `tuba` is "room, chamber", and "when something is
+inside room, chamber" is worse than nothing. That argument holds against a whole gloss and against
+a *question*, which is what that module writes. This is a reading of an answer already on the
+screen, and the list is what `sensesOf` exists to take apart, so what goes in the frame is `room`
+and what comes out is "in the room". A first sense that is not one short noun prints nothing, since
+a reading nobody can check is worse than none and one somebody checks and finds wrong is worse
+still. **A person is not a surface**: `raamatule` is onto the book, `mehele` is to the man and
+`mehel` is the have-construction turned inside out, which is the distinction the case's own `plain`
+already carries and is read here through `asksAboutPerson`, the pronoun's own fact asked of the
+module that owns it. What a semantic code *means* stays `caseQuestion.ts`'s to decide, which is a
+pair asserted closed. And a reading is withheld outright where the language does not put the word
+in that case at all, through `caseIsUnsaidFor`, so "in the friend" is never written and `toale` is
+left alone. Four arms, each made to fail on the real line, and the one that says the screen draws
+it is anchored on the **element** rather than on the field, because `data-reading` is a hook for a
+suite and a component that carries a phrase and prints it to nobody is the `DangerZone.tsx` fault
+in a smaller room.
+
+**And pressing a step goes to it, which it did not.** Reported in the reader's own words: pressing
+the second one "didn't go there automatically and it didn't feel intuitive". It was doing exactly
+what it said and nothing moved, because the three sit at the top of a page taller than a screen, so
+somebody deep in the first part swapped the contents of a region they were scrolled past and was
+left looking at the same paragraph. A press that reads as broken is worse than a control that does
+nothing. The region comes to the top of the window now and the part's own heading takes focus,
+which is one press answered twice, once for a pointer and once for a keyboard; the heading is one
+the region never had, so the page went from its title straight into prose. Only on a press, since a
+first render is not a navigation. **And three numbered boxes with titles in them are the shape of a
+progress indicator**, which is what the reader took them for: the tint marking the current one was
+doing all of the work, and three boxes that differ by a wash are three boxes. The numeral says
+which state it is in as an object now, the one you are on filled, one you have been past ticked,
+one ahead of you on the raised ground. Nothing is locked, because a step ahead being pressable is
+exactly why it may not look like a report. The **"Next ending"** button is the same argument one
+control down: eleven endings in three groups is a set to hunt through, and the only way to walk
+them in order was a keyboard shortcut written in six-point type, which on a phone does not exist at
+all.
+
 **And the whole of it is driven in a browser, because none of what it claims is checkable from the
-source.** Thirteen checks in `scripts/test-teaching.mjs`, which is the suite for the half of the app
+source.** Nineteen checks in `scripts/test-teaching.mjs`, which is the suite for the half of the app
 that explains rather than tests: that the reference points at it, that the three stored forms are
 named the way a class names them and the stem is marked, that no case is named in Latin, that a
 form is shown inside a sentence somebody wrote, that **every one of the eleven endings really is
 the stem with those letters on the end**, read off `data-stem`, `data-ending` and `data-built` on
 the line itself rather than by counting hops through the markup, that the one word in five the rule
-does not reach says so instead of being taught as the rule, and that a person is never asked for
-the inside trio. Two of them were made to fail on the real fault first, and the Latin one could not
+does not reach says so instead of being taught as the rule, that a person is never asked for the
+inside trio, that the English under the build line is on the screen rather than only in the
+attribute a suite reads, and that a step pressed from the bottom of the page lands on the screen
+with its heading in hand. Two of them were made to fail on the real fault first, and the Latin one could not
 fail as written: `textContent` joins two elements into `GenitivePuhkus`, where `\b` finds no
 boundary, so it passed with the name printed on the panel. It asks a locator now, which has the
 boundaries the markup gives it.

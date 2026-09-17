@@ -14,10 +14,10 @@ import { retypeMiss, revealAnswer } from "./lib/review.mjs";
  * confident number computed from six reviews.
  */
 const B = baseUrl();
-// Floor: 73, measured in the state CI seeds, which is the 58 this suite had
-// before `/grammar/build-a-word` and the fifteen checks that screen added.
+// Floor: 79, measured in the state CI seeds, which is the 58 this suite had
+// before `/grammar/build-a-word` and the twenty-one checks that screen added.
 // A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 73 });
+const { check, absent, done } = suite("Teaching layer", { floor: 79 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -208,6 +208,39 @@ check("and every ending it calls regular really is the stem plus those letters",
   `${arithmetic} regular, ${stored} stored, of ${endingCount}`);
 
 /*
+  AND IT SAYS WHAT THE WORD IT JUST BUILT MEANS.
+
+  Reported off this card: the arithmetic is at the top and the only English
+  near it was four lines down, under a heading about the ending rather than
+  about the word. The reading is composed in `lib/estonian/caseReading.ts` out
+  of a frame per case and the entry's own gloss, and it rides on the line as
+  `data-reading` for the reason the arithmetic does: a fact about the line
+  rather than a count of hops through the markup.
+
+  Driven rather than unit tested because what is checked here is that the
+  screen is handed one at all. `raamat` is the word that does nothing, its
+  gloss is one word, and every one of the eleven can be read, so a blank here
+  is the wiring rather than the table.
+*/
+let readings = 0;
+let printed = 0;
+let last = "";
+for (let i = 0; i < endingCount; i++) {
+  await endings.nth(i).click();
+  const line = page.locator("[data-reading]").first();
+  const reading = (await line.getAttribute("data-reading").catch(() => "")) ?? "";
+  // The attribute is the claim and the text is whether anybody can read it: a
+  // phrase carried for a suite and printed to nobody passes any source check.
+  const shown = (await line.innerText().catch(() => "")) ?? "";
+  if (/\bbook\b/.test(reading)) readings++;
+  if (reading && shown.includes(reading)) printed++;
+  last = `${await build.getAttribute("data-built")} = ${reading}`;
+}
+check("and says in plain English what the word it just built means",
+  readings === endingCount && printed === endingCount,
+  `${readings} read back, ${printed} of ${endingCount} actually on the screen (${last})`);
+
+/*
   `raamat` is the word that does nothing, which is the point of it: the card
   above is the argument and this is the word it holds for. `tuba` is where the
   rule stops, and the screen has to say so rather than teach `toasse` as the
@@ -255,11 +288,74 @@ await page.keyboard.press("Enter");
 const afterStep = (await page.locator("[data-build]").getAttribute("data-built")) ?? "";
 check("the key the hint names steps to the next ending", afterStep !== "" && afterStep !== beforeStep,
   `${beforeStep} then ${afterStep}`);
+/*
+  AND THERE IS A CONTROL THAT DOES WHAT THE KEY DOES.
+
+  Eleven endings in three groups is a set to hunt through, and on a phone,
+  where this app is measured, the shortcut above does not exist at all.
+*/
+const cranked = (await page.locator("[data-build]").getAttribute("data-built")) ?? "";
+await page.getByRole("button", { name: /^Next ending/ }).click();
+check("and a button does the same, for a reader with no keyboard",
+  (await page.locator("[data-build]").getAttribute("data-built")) !== cranked,
+  `stayed on ${cranked}`);
 const onward = page.getByRole("button", { name: /Try one yourself/ });
 await onward.focus();
 await page.keyboard.press("Enter");
 check("and a focused button keeps its own Enter",
   (await page.locator("[data-ask]").count()) > 0, "Enter on the button did not open the last act");
+
+/*
+  PRESSING A STEP GOES TO IT, WHICH IS THE ONE THING NO SOURCE CHECK CAN SEE.
+
+  Reported by the reader: pressing the second step "didn't go there
+  automatically and it didn't feel intuitive". It was swapping the content of a
+  region at the top of a page taller than a screen, so somebody scrolled past
+  it saw nothing move and read the press as broken. So the page is scrolled to
+  the bottom, a step is pressed, and what is asked is where the window ended
+  up and what has focus, neither of which is in the markup.
+*/
+/*
+  A SHORT WINDOW, BECAUSE THE CLAIM IS ABOUT A PAGE TALLER THAN THE SCREEN.
+
+  At this suite's own 1100px there is nothing to scroll on the part that
+  presses, so the first version of this measured a page that never moved and
+  read the stillness as the fault it was written to catch. What it asks now is
+  where the part ended up rather than how far the window travelled, which is
+  the claim either way and is true at any height.
+*/
+await page.setViewportSize({ width: 1280, height: 600 });
+await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+await page.waitForTimeout(150);
+const scrolledAway = await page.evaluate(() => window.scrollY);
+await page.getByRole("radio", { name: /^Three to learn/ }).click();
+await page.waitForTimeout(300);
+const landed = (await page.getByText(/^Step 1 of 3$/).first().boundingBox())?.y ?? -1;
+check("pressing a step brings that part onto the screen",
+  scrolledAway > 200 && landed >= 0 && landed < 200,
+  `scrolled ${Math.round(scrolledAway)} away, then the part landed at ${Math.round(landed)}`);
+check("and the part it landed on says which of the three it is",
+  (await page.getByText(/^Step 1 of 3$/).count()) > 0, "no step counter on the part");
+check("and its heading takes focus, so a keyboard follows the same press",
+  (await page.evaluate(() => document.activeElement?.tagName)) === "H2",
+  `focus went to ${await page.evaluate(() => document.activeElement?.tagName)}`);
+
+/*
+  And the steps say how far the reader has got rather than only which one is
+  drawn. Three boxes that differ by a wash are three boxes, which is why this
+  row read as a progress indicator rather than as somewhere to press.
+
+  Pressing back into the last part is what the checks below are standing in,
+  so it restores the screen as well as making the claim: the reader has been
+  past the first two and is standing in the third.
+*/
+await page.setViewportSize({ width: 1280, height: 1100 });
+await page.getByRole("radio", { name: /^Your turn/ }).click();
+await page.waitForTimeout(250);
+const states = await page.locator("[role=radio][data-state]")
+  .evaluateAll((els) => els.map((el) => el.getAttribute("data-state")));
+check("and a step already walked past is marked apart from one not reached yet",
+  states.join(" ") === "done done here", states.join(" ") || "the steps carry no state");
 
 /*
   A PERSON IS NEVER ASKED FOR A FORM NOBODY SAYS.
