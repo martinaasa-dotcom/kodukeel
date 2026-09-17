@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, Ear, X, Volume2 } from "lucide-react";
+import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -19,6 +18,8 @@ import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WordLink } from "@/components/course/WordLink";
 
 export interface DictationTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -191,11 +192,11 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           <StatTile value={`${accuracy}%`} label="Word perfect" tone={accuracy >= 50 ? "mint" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/dictation" variant="primary" size="lg">Another round</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -215,14 +216,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">Dictation</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="grad-accent h-full rounded-full transition-[width] duration-500"
@@ -256,13 +250,9 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               when looking the word up is the natural next thing to do. */}
           {result && (
             <div className="ml-auto flex items-center gap-1">
-              <Link
-                href={`/dictionary?q=${encodeURIComponent(task.lemma)}`}
-                className="text-xs"
-                style={{ color: "var(--ink-3)" }}
-              >
+              <WordLink lemma={task.lemma} className="text-xs" style={{ color: "var(--ink-3)" }}>
                 {task.lemma}
-              </Link>
+              </WordLink>
               {/* Held back with the link above it, and for the link's reason:
                   the star's own label names the word, which is a word out of
                   the sentence being dictated. */}

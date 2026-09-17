@@ -1,4 +1,5 @@
-import type { Level } from "./syllabus/types";
+import { LEVELS, type Level } from "./syllabus/types";
+import { sentenceTiles } from "@/lib/estonian/cloze";
 
 /**
  * Which CEFR bands are worth putting in front of somebody at a given level.
@@ -125,6 +126,74 @@ export function challengeFirst<T>(
  * anything ranking a band has to know the whole ladder rather than the part
  * the syllabus uses.
  */
+/**
+ * The first band at which a learner is asked to put a sentence back in order.
+ *
+ * Ordering words is a question about syntax, and at A1 there is no syntax yet
+ * to ask about: the first units teach words said alone, and the exercise
+ * degenerates into shuffling tiles until the button goes green. It is also the
+ * one exercise where every word of a sentence has to be handled rather than
+ * read past, so it is the one an unfamiliar word costs most, and an attested
+ * usage is written to illustrate a headword rather than to be a beginner's
+ * first reading.
+ *
+ * It lives here rather than beside either of the two exercises that ask it,
+ * because there are two: the unit lesson's `build` step and the Sentences
+ * round. A constant in one of them is a constant the other disagrees with, and
+ * the round is the one a learner reaches from Practice with a deck of thirteen
+ * words in it.
+ */
+export const BUILD_FROM: Level = "A2";
+
+/** Whether a learner at this band is asked to order words at all. */
+export function maySortWords(level: Level): boolean {
+  return LEVELS.indexOf(level) >= LEVELS.indexOf(BUILD_FROM);
+}
+
+/**
+ * The bands every Estonian sentence is held to words the course has taught.
+ *
+ * The same boundary as `BUILD_FROM` today and a different question, so a
+ * different predicate: one decides whether an exercise is asked at all, the
+ * other decides which sentences it may be built from. A beginner three weeks
+ * in has thirteen words and no reading to grow; a B1 learner meeting an
+ * unfamiliar word inside a sentence is how reading grows.
+ */
+export function onlyTaughtWords(level: Level): boolean {
+  return !maySortWords(level);
+}
+
+/**
+ * Whether this sentence is one a learner at this band may be shown.
+ *
+ * TWO READERS, AND THE LIST IS CLOSED. The unit lesson's `build` and `gap`
+ * steps, and the Learn ladder's gap rung. Both are things the planned module
+ * puts in front of a beginner who did not choose them, which is the whole of
+ * what the rule covers.
+ *
+ * What is deliberately NOT here is as load-bearing as what is. The
+ * spaced-repetition deck's gap-fill and case cards are outside it by a decision
+ * with a number under it: at A1 the rule takes gap-fill cards from 786 to 51
+ * and case cards from 111 to nought, and a card names the word, names the
+ * question and asks for one form of a word the learner has been taught, which
+ * they can answer without reading past the blank. Dictation, the picture round
+ * and the grammar page a day reads are outside it too, and are named as
+ * residuals in `CLAUDE.md` rather than quietly gated. A third reader fails the
+ * invariant until somebody decides which side of that line it is on, in the
+ * shape `lib/legal/exportCoverage.ts` takes for its exemptions, because the
+ * cost of getting this wrong is a beginner's case drilling deleted in silence.
+ *
+ * A null set is "the course could not say", which fails closed at the bands
+ * that are held to it rather than letting every sentence through.
+ */
+export function readableFor(
+  level: Level, taught: ReadonlySet<string> | null,
+): (sentence: string) => boolean {
+  if (!onlyTaughtWords(level)) return () => true;
+  if (taught === null) return () => false;
+  return (sentence) => sentenceTiles(sentence).every((w) => taught.has(w.toLowerCase()));
+}
+
 export const BAND_ORDER: readonly string[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 /**

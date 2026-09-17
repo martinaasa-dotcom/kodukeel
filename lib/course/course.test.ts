@@ -7,7 +7,7 @@ import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
-  programmeStanding, programmeUnits, slice, wordsThrough, activityTitle,
+  programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP,
 } from "./index";
 
@@ -403,6 +403,29 @@ describe("where somebody is", () => {
     expect(wordsThrough(programme, 1)).toEqual([...programme.days[0]!.words]);
     expect(wordsThrough(programme, programme.days.length))
       .toHaveLength(programme.days.reduce((n, d) => n + d.words.length, 0));
+  });
+
+  it("credits every part before this one, not only the part in hand", () => {
+    /*
+      A `Programme` is one part of seventeen, so `wordsThrough` answers about a
+      fortnight and `taughtThrough` about the ladder. Drawn against the part,
+      the readability rule credited a learner on their first evening of a1.5
+      with eight words rather than 394 and refused nearly every sentence they
+      could read, so the difference between the two is the whole test.
+    */
+    const later = PROGRAMMES.find((p) => p.id === "a1.5")!;
+    const earlier = PROGRAMMES.slice(0, PROGRAMMES.indexOf(later));
+    const before = new Set(earlier.flatMap((p) => p.days.flatMap((d) => d.words)));
+
+    const firstEvening = taughtThrough(later, 1);
+    expect(wordsThrough(later, 1)).toEqual([...later.days[0]!.words]);
+    expect(firstEvening.length).toBeGreaterThan(before.size);
+    for (const word of before) expect(firstEvening).toContain(word);
+    for (const word of later.days[0]!.words) expect(firstEvening).toContain(word);
+    expect(new Set(firstEvening).size).toBe(firstEvening.length);
+
+    // The first part of the ladder has nothing ahead of it, so the two agree.
+    expect(taughtThrough(PROGRAMMES[0]!, 2)).toEqual(wordsThrough(PROGRAMMES[0]!, 2));
   });
 
   it("draws on units in the order it first needs them", () => {

@@ -1,8 +1,7 @@
 "use client";
 
 import { createRef, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Check, Repeat, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Check, Repeat } from "lucide-react";
 import { addToDeck, gradeCard } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
@@ -17,6 +16,7 @@ import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/
 import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 export type Tense = "present" | "conditional";
 
@@ -160,10 +160,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           <Stat value={`${accuracy}%`} label="Forms right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/conjugation">Another round</ButtonLink>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -175,9 +175,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     <div className="mx-auto flex max-w-2xl flex-col px-5 py-6 md:px-10 md:py-10">
       <h1 className="sr-only">Conjugation</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"

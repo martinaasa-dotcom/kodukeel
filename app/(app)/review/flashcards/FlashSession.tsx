@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, CircleAlert, X } from "lucide-react";
+import { Check, CircleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -20,6 +20,7 @@ import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -170,10 +171,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/flashcards">Another round</ButtonLink>
           <ButtonLink href="/words/mastery" variant="primary">Where your words stand</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -185,9 +186,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           accessibility run that met an empty deck saw one and passed. */}
       <h1 className="sr-only">Flash cards</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/practice" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession href="/practice" size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"

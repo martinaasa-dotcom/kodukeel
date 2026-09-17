@@ -55,6 +55,7 @@ import { drillable, tasksFor } from "../lib/games/exceptions";
 import { formIndex } from "../lib/games/flash";
 import { plainAskLine } from "../lib/estonian/plainAsk";
 import { borrowSentences } from "../lib/dict/borrow";
+import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { generateCards, availableCardTypes, type LexemeForCards } from "../lib/srs/cards";
 import { buildPaper as buildExam, type PoolWord } from "../lib/exam/paper";
 import { buildPaper as buildPlacement, type WordRow } from "../lib/assessment/items";
@@ -69,6 +70,7 @@ import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
 import { planLesson, type LessonWord } from "../lib/collections/lesson";
+import { taughtSpellings } from "../lib/progress/lessonWords";
 import { buildCheckpoint, type CheckpointWord } from "../lib/collections/checkpoint";
 import { SYLLABUS, CHECKPOINTS, wordsAtLevel } from "../lib/collections/syllabus/index";
 
@@ -84,6 +86,15 @@ const borrowed = borrowSentences(entries.map((e) => ({
   key: e.lemma, lemma: e.lemma, pos: e.pos,
   forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
   examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null, source: "EKILEX" as const })),
+})));
+
+/*
+  And how a beginner's word orders its own sentences, built off the same shipped
+  entries the app builds it off its own rows. See lib/dict/plainness.ts.
+*/
+const reach = plainReach(entries.map((e) => ({
+  lemma: e.lemma, pos: e.pos, cefr: e.cefr ?? null,
+  forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
 })));
 
 /** Everything a learner is shown, joined; and the string they have to produce. */
@@ -283,6 +294,9 @@ for (const e of entries) {
     examples: JSON.stringify(e.examples ?? []),
     forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
     borrowed: borrowed.get(e.lemma) ?? [],
+    // Ranked as the app ranks it, or the audit builds cards out of sentences
+    // no screen would have chosen. See lib/dict/plainness.ts.
+    plainest: plainerFirst(e.cefr ?? null, reach),
   } as unknown as LexemeForCards;
   let cards;
   try { cards = generateCards(lex, availableCardTypes(lex)); }
@@ -746,14 +760,38 @@ function lessonWord(lemma: string, pos: string): LessonWord | null {
   };
 }
 
+/*
+  WHAT THE COURSE HAS TAUGHT, BUILT THE WAY THE PAGE BUILDS IT. At A1 a lesson
+  may only cut a sentence exercise out of a sentence whose every word the
+  course has already taught, and `taughtWords` is where that is decided
+  (`lib/collections/lesson.ts` rule 4). Handing in nothing is not a neutral
+  default: it fails closed, so every A1 gap would vanish and this section would
+  report a clean pass over questions the app does build. The page reads the
+  spellings off `courseFormsByLemma`; here they come off the shipped
+  dictionary, through the same pure `taughtSpellings`.
+*/
+const spellingsByLemma = new Map<string, Set<string>>();
+for (const e of entries) {
+  const held = spellingsByLemma.get(e.lemma) ?? new Set<string>();
+  const add = (text: string) => {
+    for (const word of text.toLowerCase().split(/[^\p{L}\p{M}]+/u)) if (word) held.add(word);
+  };
+  add(e.lemma);
+  for (const f of e.forms ?? []) add(f.value);
+  spellingsByLemma.set(e.lemma, held);
+}
+
 timed("lesson", () => {
 for (const unit of SYLLABUS) {
   const words = unit.vocabulary
     .map((w) => lessonWord(w.lemma, w.pos))
     .filter((w): w is LessonWord => !!w);
   if (words.length === 0) continue;
+  // The whole unit, since this plans it as one sitting rather than six words
+  // at a time.
+  const taughtWords = taughtSpellings(spellingsByLemma, unit.id, unit.lemmas);
   for (let seed = 1; seed <= 3; seed++) {
-    for (const step of planLesson({ unit, words, distractors: words, seed })) {
+    for (const step of planLesson({ unit, words, distractors: words, taughtWords, seed })) {
       if (step.kind === "gap") {
         // Exactly the cue the screen draws, which `step.cue` decides: the word
         // and its meaning, then the meaning alone, then nothing. A rung that

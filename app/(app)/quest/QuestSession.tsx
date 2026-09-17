@@ -16,6 +16,7 @@ import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
+import { WayOut } from "@/components/round/RoundExit";
 
 
 export interface AimedCase {
@@ -270,10 +271,10 @@ export function QuestSession({
               ? "Nothing answered, so nothing recorded. The round is here again whenever you want it."
               : "Every one of those went into the schedule, so the cards you missed come back sooner."}
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Play a round</ButtonLink>
             <ButtonLink href="/" variant="primary" size="lg">Back to Today</ButtonLink>
-          </div>
+          </WayOut>
         </div>
       </Page>
     );

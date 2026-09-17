@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Mic, X } from "lucide-react";
+import { Mic } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Recorder } from "@/components/Recorder";
@@ -14,6 +13,7 @@ import { useResumeCard } from "@/components/useResumeCard";
 import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { Explain } from "@/components/Explain";
+import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 
 export interface SpeakingCard {
   cardId: string;
@@ -120,11 +120,11 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           <StatTile value={done} label="Spoken" tone="accent" />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/speaking" variant="primary" size="lg">Another round</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -142,14 +142,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">Speaking</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="grad-accent h-full rounded-full transition-[width] duration-500"
@@ -177,13 +170,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           <Chip tone="accent"><Mic size={12} aria-hidden /> Say it out loud</Chip>
           {card.isSentence && <Chip>sentence</Chip>}
           <div className="ml-auto flex items-center gap-1">
-            <Link
-              href={`/dictionary?q=${encodeURIComponent(card.lemma)}`}
-              className="text-xs"
-              style={{ color: "var(--ink-3)" }}
-            >
-              Full entry
-            </Link>
+            <FullEntry lemma={card.lemma} icon={false} />
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             {card.lexemeId && (

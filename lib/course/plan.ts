@@ -53,7 +53,23 @@ export const VERB_HEAVY = 0.5;
  * picture to a word is a question about vocabulary a B1 learner has.
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
-  A1: ["match", "listening", "sonad", "sentences", "picture", "dictation", "sprint", "describe", "target", "speaking"],
+  /*
+    A1 CARRIES NO WORD ORDERING, AND THAT IS THE RULE RATHER THAN THE LIST.
+
+    `sentences` sat in this slot and is "Sentences · Word order", which
+    `lib/collections/levels.ts` now opens at `BUILD_FROM`: the module was
+    scheduling an evening whose round a beginner cannot be given, and the
+    round would have met them with the band it opens at. Ordering words is a
+    question about syntax and the first units teach words said alone.
+
+    `conjugation` takes the slot, and it is the one drill in the table that is
+    a table rather than a sentence: it gives the first person and asks for the
+    others, so nothing in it is a usage a lexicographer wrote about some other
+    word. Two A1 units declare `CONJUGATION` already, and a verb you cannot put
+    in the third person is a verb you cannot use. It is also what a verb-heavy
+    day is pinned to, which is a day getting the round it was going to get.
+  */
+  A1: ["match", "listening", "sonad", "conjugation", "picture", "dictation", "sprint", "describe", "target", "speaking"],
   A2: ["match", "dictation", "sonad", "sentences", "target", "describe", "sprint", "listening", "picture", "write"],
   B1: ["sonad", "write", "target", "government", "sprint", "sentences", "match", "flash"],
   B2: ["sonad", "write", "target", "flash", "sprint", "describe", "match", "government"],

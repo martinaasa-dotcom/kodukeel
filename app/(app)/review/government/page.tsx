@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { caseByKey } from "@/lib/estonian/cases";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
@@ -57,7 +59,7 @@ export default async function GovernmentPage() {
     take: 200,
   };
 
-  const [banded, inDeck] = await Promise.all([
+  const [banded, inDeck, reach] = await Promise.all([
     /*
       Around the learner's level.
 
@@ -84,6 +86,9 @@ export default async function GovernmentPage() {
       orderBy: { id: "asc" },
       take: 2000,
     }),
+    // And how a beginner's verb orders its own sentences, so the example under
+    // the question is one they can read. See lib/dict/plainness.ts.
+    sentenceReach(),
   ]);
 
   /*
@@ -164,14 +169,14 @@ export default async function GovernmentPage() {
       answerQuestion: caseByKey(g.caseKey)?.question ?? "",
       answerEt: g.caseEt,
       alsoGoverned: [...g.alsoGoverned],
-      example: exampleFor(v, g),
-      exampleEn: g.example ? null : exampleEnFor(v, exampleFor(v, g)),
-      maskedExample: maskExample(exampleFor(v, g)),
+      example: exampleFor(v, g, reach),
+      exampleEn: g.example ? null : exampleEnFor(v, exampleFor(v, g, reach)),
+      maskedExample: maskExample(exampleFor(v, g, reach)),
       // Only a sentence that actually lives on the lexeme's own examples can be
       // translated and kept there: `government.example` is a fixed string the
       // seed carries inside the government column itself, which `translateExample`
       // has nowhere to store a translation on.
-      exampleTranslatable: !g.example && exampleFor(v, g) !== null,
+      exampleTranslatable: !g.example && exampleFor(v, g, reach) !== null,
       gloss: g.gloss,
       experiencer: g.experiencer,
       inDeck: mine.has(v.id),
@@ -206,12 +211,16 @@ export default async function GovernmentPage() {
  * is no attested one, the question is answered without an example.
  */
 function exampleFor(
-  lexeme: { lemma: string; examples: string | null },
+  lexeme: { lemma: string; examples: string | null; cefr: string | null },
   government: { example: string | null },
+  reach: PlainReach,
 ): string | null {
   if (government.example) return government.example;
-  const attested = usableExamples(parseExamples(lexeme.examples));
-  const containing = sentenceContaining(attested, lexeme.lemma);
+  // Plainest first where the verb is a beginner's, so the sentence printed
+  // under the question is one they can read. See lib/dict/plainness.ts.
+  const plainest = plainerFirst(lexeme.cefr, reach);
+  const attested = usableExamples(parseExamples(lexeme.examples), plainest);
+  const containing = sentenceContaining(attested, lexeme.lemma, plainest);
   return (containing ?? attested[0])?.et ?? null;
 }
 

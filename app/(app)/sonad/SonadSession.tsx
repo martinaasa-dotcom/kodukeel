@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CornerDownLeft, Delete } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button } from "@/components/Button";
 import { Card, Chip } from "@/components/ui";
 import {
@@ -14,6 +13,7 @@ import type { Puzzle } from "@/lib/progress/sonad";
 import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
+import { WordLink } from "@/components/course/WordLink";
 
 /**
  * SÕNAD'S BOARD.
@@ -506,14 +506,26 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           : "Not this time."}
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-        <Link
-          href={`/dictionary?q=${encodeURIComponent(puzzle.answer)}`}
-          className="font-semibold underline underline-offset-2"
+        {/*
+          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TONIGHT'S MODULE.
+
+          A word in the sentence saying what it means is content rather than
+          navigation, which is why an inline link like this survives everywhere
+          else the module reaches. It does not survive here, and the difference
+          is that this one is the last thing on the screen at the end of a
+          round: tapping it lands on the dictionary, outside the evening, with
+          the frame gone and nothing saying how to get back. The word is still
+          the word; what goes is the door. The button under it is what this
+          screen offers instead, and it keeps the learner where they are.
+        */}
+        <WordLink
+          lemma={puzzle.answer}
+          className="font-semibold"
+          linkClass="underline underline-offset-2"
           style={{ color: "var(--accent-deep)" }}
-          lang="et"
         >
           {puzzle.answer}
-        </Link>
+        </WordLink>
         {" is "}
         {puzzle.translation}.
       </p>

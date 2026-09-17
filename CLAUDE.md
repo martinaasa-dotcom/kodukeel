@@ -1559,6 +1559,181 @@ have rewritten as well as the ones it cannot; run against a seeded local databas
 cards on four words came back as one rewritten and ten named, the twelfth being `isa → milles?`,
 which the older rule already knew about.
 
+**The shortest sentence is not the plainest one, and a beginner was being handed the difference.**
+Every Estonian sentence in this app is one a lexicographer recorded, which is what keeps it honest
+and is not the same as its being a sentence a beginner can read: Ekilex records a usage to
+illustrate a word **to somebody who already speaks Estonian**. `usableExamples` sorted the attested
+pool shortest first, and what shortest selects for is the noun phrase and the idiom. Measured over
+the 1,269 words banded A1 or A2 that a screen shows a sentence for, 445 were shown something with
+no finite verb in it (`Hööveldamata lauad.`, `Noored ja haritud inimesed.`, `Laste joonistatud
+pildid.`) and 724 something carrying a spelling no A1 or A2 word reaches (`Papagoi pääses lahtise
+akna kaudu välja.` for `aken`, `Isa suri ööl vastu laupäeva.` for `öö`). A third of them were plain
+on both counts. It was reported off the first unit anybody opens: `tere` records two usages, and
+the shorter is `No tere, Juhan.`, which opens with a discourse particle this dictionary holds no
+entry for, spelled exactly like the English word for the opposite of yes.
+
+**The better sentence was nearly always already there**, which is what makes this a ranking fault
+rather than a gap in the data: 746 of those words carry a plain sentence among their own usages and
+were simply not being shown it. `lib/dict/plainness.ts` is the rank, and it weighs four things
+against each other rather than chaining tie-breaks, because ranked on vocabulary first and length
+last `inimene` moved from a three-word phrase to an eleven-word sentence about a virus. A spelling
+no entry vouches for costs most, since the learner cannot look it up and has nowhere to go; then a
+missing finite verb, then a spelling above the band, then a clause boundary and the words
+themselves. Measured after: 59% plain against 33%, with the mean at 4.1 words against 3.5.
+
+**It ranks and it may never refuse**, asserted both ways. Every sentence it sees has already passed
+`usableExamples` and `naturalSentence`; all it decides is which one a screen leads with, and a word
+whose only sentence is hard keeps it, because "no example sentence for this one yet" on a word the
+dictionary has a perfectly good sentence for is a worse screen than a hard example. That is
+`aroundFirst`'s rule one directory over, for its reason. **And the band is the word's, never the
+learner's**: which sentence teaches `aken` best is a fact about the shared dictionary, so it is
+cached in `lib/dict/facts.ts` with the others and is the same answer for everybody, where reading
+the learner's own level would put something keyed on a person into a file asserted to hold nothing
+of the kind. Above A2 the rank stands down entirely and shortest first is kept, since a B1 word is
+met by somebody who can read a subordinate clause and churning what every B1 card is cut from buys
+nothing anybody reported. `npm run audit:plainness` is the reading, band by band, and it reports
+rather than gates: of the 521 words still shown something a beginner cannot read straight through,
+514 have nothing plainer recorded anywhere in their own usages, which is a gap in what
+lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
+beginner keeps meeting, not the percentage.
+
+**Every surface that leads with one of a word's sentences is on the list, and it took three sweeps
+to find them all.** The first pass wired the card builders and called itself website wide. Reading
+every remaining `usableExamples` caller found the printable worksheet, the dictionary entry and the
+government drill. Reading `teachingSentence` and `sentenceContaining`, which is where the first two
+sweeps stopped, found four more, and one of them was the daily path: `app/(app)/review/cards.ts`
+builds the first meeting a review card shows, its own comment promises that `teachingSentence`
+introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
+Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
+the review card is every morning.** The grammar reference's case examples and the description
+game's model answer were the other two. Then sweeping by the *column* rather than by any function
+found the exceptions round and the build-a-word walkthrough, which is the screen `/grammar` opens
+with for somebody who has just been told Estonian has fourteen cases.
+
+**So the invariant is a sweep and not a list, which is the durable half of this.** Four times the
+rule was a list of files and three times the list was short, because a list is a thing somebody has
+to remember to extend and each sweep was over one entry point with the others missing. The haystack
+is the filesystem now: every file that opens the `examples` column, by selecting it or through
+`parseExamples`, which is the one thing every picker does whatever function it picks with. Both
+halves of that net are needed and the first version had one: `lib/progress/exam.ts` is handed the
+row and never selects the column, so a sweep on the select alone could not see it. A file is honest
+if it reaches the rank, or if it is exempt **with a written reason**, which is
+`lib/legal/exportCoverage.ts`'s shape and is what stops an exemption being a way to make a check
+pass. The exemptions are checked for staleness in the other direction too, and that caught two of
+them naming files that take their sentences as a field and are outside the net entirely. Made to
+fail on a new picker file added from scratch, which is the case no list could ever have caught. The worksheet
+is the one that cost most, since it is printed and worked through on paper and nobody can ask about
+a gap afterwards. They are worth naming because the shape of the miss is the one this file keeps
+finding in its own checks: a page handing the rank in and a builder ignoring it passes any check
+that reads only the call site, so the invariant asserts both ends, that `buildWorksheet` reads the
+field and that every page hands it over. **`lib/progress/exam.ts`, `lib/progress/assessment.ts` and
+the practice page are deliberately not on it**: the first two mark, and the third counts how many
+words could support a round rather than choosing one, so order cannot reach a screen.
+
+**One weight was swept and has a knee; the other three have none and are not claimed to be
+optimal.** Only the shape of the cost was measured to begin with, that weighing the signals against
+each other beats chaining tie-breaks; the numbers were judgement. `NO_VERB` trades against length
+alone, so it has a knee: the lead is a phrase for 322 of the 1,269 beginners' words at 0, 183 at
+the shipped 6, 129 at 12, and then it flattens, 116 at 16 and 105 at 30, while the mean length
+keeps climbing. 12 is the knee, and the 6 that shipped was leaving a third of the faults it exists
+to catch.
+
+**The other three trade against each other, and the sweep over them reports rather than gates.**
+`npm run audit:plainness -- --weights` prints the shape over 168 settings: the fewest dead ends any
+of them reaches is 224, at 16/1/0, which costs 338 words a word above the band against the shipped
+257; the fewest above the band is 143, at 2/8/0, which takes dead ends from 262 to 394. The first
+version of that sweep asked whether anything beat the shipped four on every axis at once, got "none
+of 168", and reported it as a result. **It is not one**: detuned to 3/4/2, which takes dead ends
+from 262 to 346, the answer is still none, because nearly every setting in the grid is on the
+frontier. A check that passes on the thing it was written to catch is `A || !A` wearing a sweep's
+clothes, which is the fault this file records the Sõnad board having had. So it prints the price of
+moving a weight and carries no exit code. What the four are is a stated preference, and the
+statement is the report that started this: a word no entry vouches for costs most, because the
+learner cannot look it up and has nowhere to go.
+
+**And the first version charged every plural oblique as a word nobody could look up.** `gapForms`
+is the one answer to what spellings a word has and it walks `CASES` through `caseAnswer`, which is
+the singular: the plural obliques are suffixes on the genitive *plural*, stored rather than
+derivable. So `meestel` and `naistel`, the adessive plural of two of the first words the course
+teaches, were spellings no entry claimed, which is the class `no` is in and the heaviest penalty
+there is. The damage was precisely what the ranking exists to prevent: `inimene` was handed `Noored
+ja haritud inimesed.`, a noun phrase, over a five-word sentence, because the sentence carried two
+ordinary plurals and the phrase carried none. `plainReach` reads them off `buildCaseTable` now,
+through `lib/estonian/derive.ts` because that is the one module allowed to join a suffix to a stem
+and the one that shows a gap rather than inventing a plural for a word whose genitive plural is not
+stored. Both directions are tested, and the test was made to fail on the real bug.
+
+**And a participle is not a finite verb, which the same check took every coded form to be.** The
+question "is this a sentence" turns on knowing which verb forms head a clause, and what the harvest
+stores on a verb is mostly the ones that do not: 322 past participles and 318 present participles
+against 319 simple pasts and 321 polite imperatives. Taking every coded form said that `Laste
+joonistatud pildid.` has a verb in it, which is the one shape the check is for. `isFiniteVerbCode`
+is the rule and it lives in `lib/estonian/conjugate.ts`, which owns the verb, rather than beside the
+caller. Three moods can head a clause, the indicative, the conditional and the imperative, and it
+**fails closed on the prefix**: a code nobody has seen is not counted, so a slot added to
+`VERB_SLOTS` later has to be admitted deliberately rather than by arriving. That is the opposite of
+`lib/estonian/semantics.ts`, which writes its codes out in full, and the reason is that these are a
+closed grammatical scheme where the first three letters really are the mood, where `in_rahvas_keel`
+is a semantic type that is not a person at all. The totals barely moved, which is the point: the
+check was accidentally right about most sentences and is now right about all of them.
+
+**The rank orders inside a cap it never reaches, and that is a fact about the data rather than a
+guarantee.** `usableExamples` sorts and then slices to `MAX_PER_WORD`, so a word holding more
+sentences than the cap would have the rank decide which of them *survive* rather than only which
+leads, and a sentence carrying the form `teachingSentence` is looking for could be ranked out of the
+pool. Measured over the shipped dictionary: no entry holds more than eight, so the slice never bites
+and the rank only ever reorders. Worth knowing rather than guarding, because the failure it would
+cause is one the code already handles gracefully, `teachingSentence` falling back to the first
+sentence with `form: null` and marking nothing up, and because a guard for a case no data reaches is
+a guard nobody can test. If a live Ekilex fetch ever brings a ninth, this is the coupling to look at.
+
+**A deck already built keeps the sentence it was built with, and that is left alone deliberately.**
+`Card.front` is written when the card is made, so the 826 A1 and A2 gap-fill cards whose source
+sentence this moves reach a new deck and nobody else's. 1,027 of those words keep the same *set* of
+cards and differ only in which came first, which is nothing a learner can see; 309 genuinely trade
+a sentence. The precedent cuts both ways and the line between them is whether the old card can be
+answered at all: `repairCaseFronts` rewrites a bare case card because `ravim → millele?` is a
+question with no sentence behind it, and `audit:decks` removes a card whose answer is printed in
+its own question. A gap cut from a harder attested sentence is neither. It is a real question with
+a real answer that a lexicographer wrote, and rewriting every learner's deck to swap one valid
+sentence for another is a larger and riskier thing than the fault it would undo. Said here rather
+than left for somebody to find the asymmetry and assume it was an oversight.
+
+**And a name costs the same as an opaque particle, which is measured and left alone.** A spelling no
+entry reaches is charged most, because the learner cannot look it up, and a proper noun is exactly
+that shape while being the one word in a sentence nobody has to decode. Measured over the shipped
+dictionary: fifteen A1 and A2 lead sentences carry an unvouched capital away from the opening, and
+seven of those would be plain but for the name. Seven words in 1,269 is below the noise of
+everything else here, and the repair is a capitalisation heuristic that has to tell a name from the
+first word of a sentence and from an inflected name that really is harder to read, so it would be a
+rule nobody has measured buying a fifth of a percent. Written down rather than fixed, and rather
+than left for somebody to rediscover.
+
+**And the label pattern is a noun's rule, which its name said and its code did not.** A usage
+opening with its own headword and a comma is a dictionary naming itself and then illustrating a
+sense the gloss beside it may not name, which is worth refusing on `Kahvel, lipp kukub!` and is
+ordinary speech everywhere else. The exemption was `VERB` alone, so an adverb, an adjective, a
+pronoun and a phrase were all read as nominals, and the one word class whose natural position *is*
+"word, then clause" is the interjection: `Tere, mina olen Katrin.` was refused, leaving `No tere,
+Juhan.` as the only sentence the course could teach hello with, and `Aitäh, Mari!` went the same
+way. Ten sentences across the dictionary, nine of them ordinary speech and four on an A1 or A2
+word. Narrowing to the noun keeps all fifteen refusals worth having and hands back the ten that
+were never the pattern. Both halves were made to fail on the real words before either landed, and
+the card that started this now reads `____, mina olen Katrin.`
+
+**And the two instruments that mark are exempt by name**, which is the rule `gapForms` already
+states about itself one section down. `lib/exam/paper.ts` rebuilds its paper server-side from
+(level, seed, pool) in order to mark it, and `lib/assessment/items.ts` draws its distractors from
+the same pool, so reordering what either is built from changes which questions a candidate is asked
+and what they are marked against. That is a change to a measurement rather than to an exercise.
+Asserted in both directions: every picker that teaches is handed the rank, and neither instrument
+that marks may reach it. The label-pattern narrowing does reach both, because it is a question about
+what counts as a sentence at all rather than about which of several to lead with, and it costs one
+deploy's worth of papers in flight marked against a pool drawn the new way, which is the cost the
+pool ordering already accepted and is ten sentences over the whole dictionary. `audit:questions`
+went from 85,224 questions to 85,227 and `audit:sense` from 58,818 to 58,832, both up and neither
+losing a card.
+
 **A sentence recorded under another word is still a lexicographer's sentence, and a word may
 borrow it.** The rule above made the sentence the card and left most words with nothing to cut one
 from: a word's own usages are a handful, Ekilex filed three under `ravim` and none in a case, and the
@@ -3664,6 +3839,193 @@ the grammar reference did, since every lesson at a level would then draw its dec
 sixty words at the front of the alphabet. The window starts where the unit points, which is the
 answer `paperFor` had already reached one file over.
 
+**A beginner is never asked about a word the course has not taught them, and putting a sentence in
+order is not a beginner's question at all.** `lib/collections/lesson.ts` has said since it was
+written that nothing is asked before it is taught, and that rule was about the word a step is
+*about*: it said nothing about the words standing around it. An Ekilex usage is written to
+illustrate a headword rather than to be somebody's first reading, so the first unit of the course,
+whose own blurb reads "Thirteen words, said alone. Nothing here is a sentence yet", put
+`Palun võta veel üks komm. – Aitäh!` on the screen as a six-tile ordering puzzle with five of the
+six words never shown to anybody. It was reported by somebody using it. Measured over the whole
+course at one lesson a sitting, 152 of the 162 word-ordering steps at A1 and 188 of the 210
+gap-fills carried a word the course had not reached, and none of either does now.
+
+**Word ordering starts at `BUILD_FROM`, which is A2, on both screens that ask it.** Ordering words is a question about syntax and
+the first units teach words said alone, so at A1 the exercise degenerates into shuffling tiles until
+the button goes green; it is also the one exercise where every word has to be handled rather than
+read past, so it is the one an unfamiliar word costs most. **And at A1 a sentence exercise is offered
+only where the course has taught every word in it**, which is `LessonInput.taughtWords`: the lemmas
+and stored forms of every unit up to and including this one, in the course's own teaching order.
+Taught *so far* rather than anywhere at the level, because `veel`, `üks` and `palun` are all A1 words
+and a learner on unit one has met none of them, and cut at the **sitting** rather than at the unit,
+since every unit in the course splits into more than one lesson and crediting the whole of one would
+let lesson 1 gap a sentence holding a word lesson 3 introduces. It is the *course's* order rather
+than this learner's history, which is the weaker of the two claims and is deliberate: the stronger
+one is a query over their own review log per lesson, which is a fact about a person and could not be
+cached across learners, and a unit at or below somebody's level is open whatever they have done. Where
+the two differ this one is the more permissive, so it is the direction to watch if the rule ever needs
+tightening. It is **required and nullable** for the reason
+`illSgShort` is required on `NounStems`: a caller that cannot say what the course has taught says so,
+and at A1 that means no sentence exercise rather than any sentence at all. Above A1 nothing is
+gated, because meeting an unfamiliar word inside a sentence is how reading grows and a B1 learner
+has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 gap-fills; what is
+left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
+can actually read.
+
+**And the deck's own cards were left alone, which is a decision with a number under it.** The rule
+was put to the review step, which is the last thing every evening does, and measured before it was
+applied: at A1 it takes gap-fill cards from 786 to 51, conjugation from 72 to 5, and **case cards
+from 111 to nought**. No budget of unfamiliar words rescues them either, since allowing three still
+loses 41% of the case cards and a beginner sentence with three unknown words in it is not readable
+by any reading of the word. Case drilling is the spine of this course, so a rule that deletes it at
+A1 is a rule that has stopped serving what it was written for.
+
+What separates a card from the exercises above is what the learner is asked to do with the sentence.
+A word-ordering puzzle makes them handle every tile; a gap-fill card names the word, names the
+question and asks for one form of a word they have been taught, which they can answer without
+reading past the blank. So the line is **what the module newly shows** rather than everything it
+puts on a screen: the lesson, the ladder's gap rung and word ordering are held to the rule, and the
+spaced-repetition deck is not. The operator drew that line and this paragraph is where it is written
+down, so it is not re-litigated by whoever next reads the strict version of rule 4.
+
+**The cause is the supply, not the rule, and `npm run audit:readable` is where the work list is.**
+An Ekilex usage is written to illustrate a headword rather than to be a beginner's first reading, so
+of the 464 A1 words the dictionary can cut a gap from at all, **53** have a sentence made only of
+words the course has taught by then. The fix is sentences a native speaker writes, which is what
+`docs/20-contributed-sentences.md` is already the channel for, and the audit prints the ranked list
+of what blocks a sentence rather than only the total, for the reason `eval:scene` does: a rate says
+there is a problem and a list says what it is.
+
+**And 53 is the unit lesson's number, which is not the number the rule is drawn for.** That walk
+credits everything an earlier unit taught *and the rest of the unit in hand*, so it is the most
+permissive of the readings and its total is an upper bound; the lesson cuts at the sitting and the
+module cuts at the evening. Walking the module's own evenings through `taughtThrough`, which is what
+`app/(app)/course/learn/page.tsx` hands the ladder, the answer is **49 of 464**. So the audit walks
+both and ranks the blockers off the module's, since that is the work list for the thing the operator
+asked to be held to the rule and a list built off the looser walk under-reports exactly the
+sentences a beginner's evening cannot use.
+
+**And a `Programme` is one part of seventeen, which made that number 3 for a day.** Both the ladder
+and the audit read `wordsThrough`, which answers about the part in hand, so a learner on the first
+evening of a1.5 was credited with eight words where the programme had handed them 394, and the rule
+refused nearly every sentence somebody deep in A1 can read: 3 of 464 against 49. `taughtThrough`
+walks the ladder and is the one both read, `wordsThrough` keeps the per-part meaning the milestone
+bar wants, and the invariant names the fault rather than the call, because the two read identically
+at a glance and only one of them is a fact about the learner. **The measurement was wrong in the
+direction that flattered the diagnosis**: it reported the supply as the whole problem and produced a
+top blocker that was an artifact, which is the argument for reading the ranked list against the app's
+own walk rather than any walk that looks close enough.
+
+**And the ranked list's first entry is the argument for reading it rather than the total.** On both
+walks it is `ja`, blocking nine sentences on the module's own and ten on the unit's, taught in
+`sidesonad`, the twenty-second of A1's twenty-seven units, so teaching one conjunction earlier is
+worth more than writing nine sentences. `ta`, `pluss`, `tule`, `ära` and `klassi` are the same
+shape one rank down. **`on` is not on the list at all**, and the version of this paragraph that led
+with it, recommending `olema` be moved to the front of A1 on the strength of eighteen blocked
+sentences, was reading the per-part fault above rather than the course: `olema` is taught in a1.2 and
+counts from a1.3 on. Read the list, and read it off a run of the script rather than off this
+paragraph.
+
+**And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
+special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
+`euro`, and the ladder already knows what that costs: `free` sends such a word straight past the
+choice rung, whose four options would include its own spelling, to the gap. With the gap gone at A1
+that jump has nowhere to land, so `euro`, the one of the three that had a readable-shaped gap at
+all, now sits on the choice rung with the answer among the options; `number` and `park` never had a
+gap and were in that state before any of this. It is one word of 493, it shrinks rather than grows
+as contributed sentences land, and the two ways out are both worse than saying it: carving the
+readability rule open for the words that need it least, or inventing a question the dictionary
+cannot support.
+
+**What is still outside the rule and is named rather than hidden**: dictation and the picture round
+stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
+for every word of it typed; and the grammar page a day reads prints attested examples. Each is a
+screen the module schedules, so each is a candidate for the same treatment, and each would need a
+replacement round or a thinner grammar page first, which is a change to what the course teaches
+rather than to what a beginner is protected from.
+
+**And the conjugation round tops up from the dictionary, which is the fourth and is the one this
+pass introduced.** `/review/conjugation` prefers the learner's own verbs and fills the rest of the
+eight from the dictionary at their band, which is right on a round somebody opened from Practice and
+is a word the course has not taught on a round the module scheduled. Measured over every A1 evening
+that draws it, 14 of the 28 have no verb in the programme at all by then, because `pohiverbid` is the
+eighth unit and four of the five A1 parts reach their third conjugation evening before any verb:
+every table in those rounds is a verb nobody has met. The slot it took held `sentences`, which drew
+from the deck alone, so this is a real narrowing bought with a larger one, and it is written down
+rather than traded away because every other drill A1 rotates through puts a whole sentence in front
+of a beginner instead. What would fix it is the round preferring to say it has nothing rather than
+reaching past the deck, and that is a change to a screen a learner also walks to themselves, which is
+the line the operator drew.
+
+**The planned module is held to the rule whole, and everything else a learner walks to themselves is
+not.** That is the line the operator drew and it is the one the code draws: what the module chose for
+them has to be answerable, and a round they opened from Practice is their own difficulty to pick. So
+the module's ladder hands `learnBatch` the words `wordsThrough` says the programme has given them
+through the day they are on, and its gap rung cuts only a sentence made of those; standalone Learn
+passes nothing and is untouched. `readableFor` in `lib/collections/levels.ts` is the one definition of
+whether a sentence may be shown, and **its readers are a closed list of two**, the unit lesson and
+the ladder, each with a reason beside it. What is outside it is the decision rather than the
+oversight, so a third reader fails until somebody says which side of the line it is on: its own
+header claimed five surfaces asked it while two did, and three of the five it named were the deck,
+dictation and the flash round, which are exactly the ones deliberately left out. A reader who
+trusted that sentence would have concluded a beginner's case drilling was already gated.
+
+**And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
+Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the
+sentence off the *meet* rung as well: measured over every A1 evening of the programme, 478 of the 493
+words had a sentence to be met with and 5 had one afterwards, so the first screen of a beginner's
+every evening would have read "No example sentence for this one yet" about words that have several,
+which is the exact argument the lesson's own carve-out makes one file over. Nothing is asked at a
+meeting and the word and its meaning are printed directly above the sentence; the gap rung is the one
+that hands somebody a sentence and waits. So the sentence is chosen the way it always was, one
+sentence for both rungs, and the gap is built only where that sentence is readable. A readable one is
+**preferred** when there is a choice, which buys nothing today and is still the right way round:
+not one of those five can carry a gap in the form the meet rung showed, so the A1 gap rung is empty
+either way until `npm run audit:readable`'s list is written down as sentences, and the preference is
+what makes a contributed sentence count the day it lands. Two invariant arms, because either alone
+passes on the broken shape, and both were made to fail on the real lines.
+
+**And the module may not schedule a round its own learner is not given.** `sentences` sat in the A1
+rotation, so taking word ordering out of the lesson left the module sending a beginner to a screen
+that answers with the band it opens at. `conjugation` takes the slot and is the one drill in the
+table that is a table rather than a sentence: it gives the first person and asks for the others, two
+A1 units declare `CONJUGATION`, and it is already what a verb-heavy day is pinned to. **Every other
+A1 drill is built on a sentence** (dictation reads one out, describe answers with one, government and
+write drill inside one), which is §29's finding arriving in the rotation: at A1 the course's own
+attested sentences are mostly unreadable to the learner, so a drill built on one is thin there
+whatever it is called.
+
+**Two screens put a sentence up as tiles and the rule has to reach both.** The lesson's `build` step
+is one; `/review/sentences`, titled "Sentences · Word order" on Practice, is the other, and it draws
+straight from the learner's own deck with no band in it at all, so taking the exercise out of the
+lesson left an A1 learner one press away from the same six tiles. `BUILD_FROM` and `maySortWords`
+live in `lib/collections/levels.ts` for that reason rather than beside either of them, both read it,
+and the pairing is asserted. The round answers before it queries, since there is nothing to draw from
+a deck for somebody it is not for, and **the empty state says which**: "no sentences to build yet"
+would send a beginner to the dictionary to fix something that is not broken, which is the rule about
+a failure never misnaming its cause.
+
+**And a lesson asks only what its unit says it teaches.** `cardTypes` is the unit author's own
+declaration and the flashcard builder has read it for as long as it has existed; the lesson planner
+never did, so `vastused`, which names `RECOGNITION` and `PRODUCTION` and nothing else, was getting
+gap-fills, a word-ordering puzzle and a case question anyway. Four units in the whole course declare
+no `CLOZE` and all four are at A1, so holding a sentence exercise to that declaration costs 55 steps
+and every one of them is a beginner handed a sentence their unit said it was not teaching yet. The
+case and government questions read the declaration **at A1 alone**, and that asymmetry is measured
+rather than tidy: holding a case question to `CASE_FORM` everywhere would take all 84 of C1's, and a
+government question to `GOVERNMENT` nearly every one in the course, since only four units declare it.
+Those are changes to what the course teaches rather than to what a beginner is protected from.
+
+What this does **not** reach is the meeting step, which also shows an attested sentence: nothing is
+asked there, the word and its meaning are printed directly above it, and withholding it would open a
+beginner's first screens with "No example sentence for this one yet" about words that have several.
+What that sentence is missing is the dictionary under its words, which `lib/dict/glossed.ts` already
+puts under the review card's first meeting and this screen does not. And the cost is stated rather
+than hidden: at A1 the practice lane is thinner for it, since `kodu` practised two ways in a sentence
+and once with a case before this and practises six times with a case after it. That is the material
+being thin rather than the lane being wrong, it is the case the unit declared it teaches, and the
+alternative is the sentence the learner cannot read.
+
 **A day is the learner's day, and every screen that counts one is rendered on a server.** The
 streak, the daily goal, the week strip, the heatmap and the errand of the day are all derived
 server-side, and a server's midnight is the deployment's. `lib/time/day.ts`
@@ -3850,6 +4212,138 @@ catch it because a suite clicks. Asserted, like the frequency rounds.
 every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
+decision made in advance and it was handing the learner straight back to the ordinary website the
+moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the
+corner that opens a tutor. It was reported off the reading step and the report is the whole
+specification. The page was read, the learner kept scrolling because nothing said where the reading
+had ended, and at the foot of it they met "Drill it" and took a drill that was never part of
+tonight. The drill was a good drill and it was not that step, which has its own rounds two steps
+below. Then they came back to the list and the step was not green, so the evening asked them to
+press "I did this" about a page they had visibly just read.
+
+So a step opened from the module says so, in the one place a screen can be told how it was reached,
+which is its own address. `lib/course/focus.ts` is the one table of what `?module=` carries, six
+short fields written by the list and read by the frame, and `readFocus` refuses anything that is not
+six fields with two numbers and a flag in them, because a hand-typed address reaches it like
+everything else off the wire. **Nothing in it is trusted**: it decides whether a frame is drawn, what
+the caption says and whether the bar says this step ticks itself off the learner's own answers, and
+`advanceCourseStep` resolves the programme, the day and the step again on the server,
+refuses a day nobody has reached for the reason `markCourseStep` does, refuses to write a row for a
+step the review log proves, and works out where to go from the day's own order rather than from
+anything sent to it.
+
+**The website goes by the hook a conversation already uses.** `body:has(.module-step) [data-chrome]`
+is the same rule `.scene-room` has, against the same three marked places, deliberately: two rules
+naming two sets of furniture is two answers to what this app is made of, and the second one rots the
+day somebody adds a third piece. In CSS rather than an attribute written from an effect, since an
+effect runs after the first paint and every step would draw the whole website for a frame and then
+take it away. The room the pinned bar takes is written **after** the conversation's own
+`padding-bottom: 0`, because the two selectors weigh the same and a conversation reached from a
+module matches both: in the other order the bar covers the box the one typed step is answered in.
+
+**Mounted once, in the shell, because eighteen screens cannot each remember.** A day's steps open a
+reading, four shapes of round, a conversation and the review queue, and one more whenever a rotation
+gains a round. Wired into each of those it is eighteen chances to forget, and the page that forgot
+would look exactly like a step nobody had opened yet. Mounted in `app/(app)/layout.tsx` it is the
+address that decides, so a step that did not exist when this was written arrives already inside the
+module. Asserted, along with there being only one mount: two frames are two answers to where the way
+on goes.
+
+**And a round's own way out stands down.** Every session had the same three written out by hand: a
+cross in the corner, a row on the finish screen offering Today, another round and the practice menu,
+and a link in the card's corner to the word's own entry. Each is right where somebody chose the
+round and each is a door out of a room where the module did.
+`components/round/RoundExit.tsx` is the one drawing of all three and each asks `useModuleFocus`; the
+sweep is anchored on the copy rather than on the import, because a session that wrote the markup back
+would satisfy any check looking only for the component. **"Another round" goes with them**: it is not
+an exit and it is still a second thing to decide, on the one screen whose job is to say how that
+round went and hand the evening on. So does an empty state's action, through one edit in `Empty`,
+since a learner whose deck cannot fill a board was being handed the dictionary. What is left in a
+module step is the button at the foot of it, which ticks the step and opens the next, and one quiet
+way back to the list, which is not leaving the evening.
+
+**Six doors into the dictionary were found one at a time, and only the first two by reading.** The
+first pass took the cross and the finish row, because those are the two shapes anybody notices.
+`scripts/test-module.mjs` walking an evening and listing every link on every step found "Full entry"
+in the corner of every review card and every rung of the ladder: four steps clean and the closing
+round offering `/dictionary?q=Venemaa`. CI's walk, on a fixture that deals a different evening,
+found the verb table on an A2 reading, four more. And a sweep of the same shape found two the walk
+structurally cannot reach.
+
+**That last part is the lesson and it is about coverage rather than about doors.** An evening deals
+two rounds out of a rotation of ten, so one walk sees two of them: the browser suite proved the
+mechanism on whatever tonight dealt and could never prove the rule. So it opens **every** screen a
+step can reach with a marker the app itself wrote and asks the one question, and
+`scripts/test-invariants.ts` holds that list to `ACTIVITIES`, because a browser suite here is `.mjs`
+and the table is TypeScript behind a path alias: a round added to a rotation and not to the sweep is
+a screen nobody opens, which is the state the sweep exists to end. Doing that found four more that
+no single evening reaches: "Back to practice" on the two boards' opening screens, the lesson behind
+a conversation, and "More on this" at the foot of the exceptions round. Ten doors in all, and two of
+them were found by reading.
+
+**The sprint's link to its own pace is the one that stayed, in a different shape.** WCAG 2.2.1 is
+met by the limit being adjustable *before* the round, which it is, at up to ten times the standard;
+what it does not ask for is a link out of the round. So inside a module the sentence survives and
+the door does not, because the learner still has to know the clock is theirs, and the press is one
+they make between evenings rather than mid round.
+`components/course/WordLink.tsx` is a word that opens its own entry, or just the word inside a
+module; `FullEntry` is the labelled control in a card's corner. **The word never goes, only the
+door**, and an underline is the door rather than the styling, so a caller says which of its classes
+are the promise: an underline carried onto the span would offer a press that is not there, which is
+worse than the link being gone, because the learner reaches for it.
+
+**And pressing on hands the caret to what it opened, once the heading is there to hand it to.** The
+bar lives in the shell, so it survives the navigation it causes and the browser leaves focus on a
+button now sitting above a different screen: measured, the body. The first fix for it read the
+heading once and found none, because the shell hears the new step the moment the address commits and
+the page lands in a later frame: traced across a press, the old heading was gone, a mutation arrived
+with no `h1` in `#main` at all, and the new one turned up after that. A `querySelector` that returns
+null and a return statement is an effect that looks exactly like one nobody wrote, which is the
+silence this file has a rule about, so it is waited for rather than sampled, and waited for as a
+heading *different* from the one that was there, or a machine keeping the old tree through the
+transition would be handed the screen the learner is leaving. A keyboard walked back to the top of the page for every step of every
+evening, and a screen reader was told nothing at all about arriving somewhere new, which on a
+five-step evening is five silent screen changes. It is the fault `StepList` has a header about, one
+screen over, wanting the opposite answer: the list hands the caret to the button the learner was
+reaching for, and the bar hands it to what they were reaching at. Every route carries exactly one
+`h1`, drawn or `sr-only`, so it is there to be moved to and reading it out is the announcement.
+
+**And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
+the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
+over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen
+given to the way on, on a step whose job is text somebody is reading. Under `max-height: 560px` the
+meter goes, since it says nothing the caption does not and is `aria-hidden` anyway, and the
+clearance comes down with it. Measured back at 20 percent, and the suite asks it there now.
+
+**And a press that never reached the server used to delete the room.** A Server Action returns a
+refusal it has and *throws* when it has no answer at all: the network is gone, the deployment is
+restarting, the tab has been asleep. Without a catch that rejection leaves the transition and React
+tears the tree down, and measured with the plug pulled that is what happened: `#main` empty, the bar
+gone, the learner looking at a blank screen with the step's own address still in the bar. On a
+feature whose promise is that a step is a room you cannot wander out of, the way on deleting the room
+is the worst of the failure modes, and it is the one that needs no network to be reached.
+`.catch(() => null)` is the shape `components/StarWord.tsx` already uses and it is used here and on
+the module's own list, for its reason: the honest thing to do with a press that did not land is to
+say so and leave everything as it was. The step still opens with the network gone, which is what the
+page cache is for, and `scripts/test-module.mjs` pulls the plug and presses on, because what a
+rejection does to a React tree is a fact about the runtime rather than about the source.
+
+**And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
+`Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
+shell and no module and never will. With the context living beside the bar, importing the hook
+dragged the bar, its icons and a reference to `advanceCourseStep` along: measured on a production
+build, `/welcome` and `/privacy` both pulled in the 44KB chunk holding the module's way on, to draw
+nothing. `components/course/moduleFocus.ts` is the context and the hook and not one thing more, and
+the invariant holds both halves, that it stays a leaf and that its readers read it rather than the
+file that draws the bar.
+
+**And the reading is a reading.** Both reference pages stand their unit list, their drill and their
+way back to the reference down inside a module, and both are asserted, because they are two pages
+answering one step and fixing one is a fault that shows on half the evenings. Nothing is deleted for
+anybody else: opened from the reference, from a card or from a search, each page is exactly what it
+was.
 
 **It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
 a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
@@ -8182,7 +8676,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
 `meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`, `englishFor`, `sentenceInstruction`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
-`CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`.
+`CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
+`continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
+`module-step`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -8203,6 +8699,7 @@ npm run audit:cases      # derive every case of every noun, both columns, and co
 npm run audit:senses     # re-check every course gloss against the sense Ekilex files it under
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
+npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
@@ -8229,6 +8726,9 @@ npm run test:browser     # the newer browser suites: routes, modes, offline, sca
                          # (test-first-day runs first and needs an empty deck: reseed before it)
 npm run test:mobile      # the phone, measured; needs the server running
 npm run test:containment # text and icons inside their boxes, measured; needs the server running
+# scripts/test-module.mjs is in test:browser: tonight's module walked, which is the only
+#   way to see the website gone, the reading carrying no drill, and a step ticking itself
+#   on the way past
 # scripts/test-security.mjs is in test:browser: the headers, the forged request, the caps
 #   and what the health endpoint will say, asked of a running server rather than of the source
 ```
@@ -8446,6 +8946,52 @@ suite exists to protect, and the answer was the clock. It reads the 429 now and 
 allowance is spent and that restarting the server clears it, since the limiter is per instance
 and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
+
+**And a counter the app prints in two places was read in one, so finishing a session read as an app
+that cannot grade.** `smoke-offline.mjs` decides whether a card was answered by reading the
+session's own tally before and after, which is the right instrument and had one spelling of it.
+A session in play prints `12 graded` in its footer; a session whose queue has run out replaces the
+whole card with the summary, where the same figure is a tile labelled `Reviewed` and the word
+`graded` is nowhere on the page. So grading the **last** card of a session read the tally back as
+absent, the comparison was false about a grade that had just happened, and `main` dropped to no
+buttons at all with none of the four card shapes on it: three checks failed, in the app's name,
+about a session that had finished correctly, and the fourth passed on `0 >= 0`, which the
+neighbouring comment already names as the shape two of its siblings had. It runs twenty-five
+suites deep, after every one of them has been grading, so how much is left in the queue when it
+starts is decided by everything above it rather than by anything in it.
+
+Both spellings are read now, and **the label leads the figure on a tile and trails it in the
+footer**, which is a fact about `StatTile` rather than a guess: written the other way round first,
+the summary pattern matched nothing and the counter read exactly as it had before, which is a
+check that cannot fire. **And a deck that has run out is stated as what it is** rather than failed,
+through `absent` with the state that lifts it, because a suite that never had a card has not
+tested offline grading and saying so is not the same as accusing the app; a card that *is* on
+screen and cannot be answered is still a failure, and the line between the two is the summary
+screen itself, which is falsifiable. Every check that can now fail says what was on screen when it
+did, the card shape, the control count and anything the page threw. Driven both ways on a real
+deck: left holding a single flip card, which grades itself and leaves, the old suite reported
+three faults it did not have and the new one passes the two checks it can still make and waives
+the two it cannot.
+
+**And the one state it most needed to name was the one `pageerror` cannot see.** With the counter
+reading both screens, the next run failed once more, on `further offline grades queue too`, and the
+detail it now printed was `no card shape this driver knows, 2 buttons in main`. Every card shape has
+five, eight or eleven controls, and the summary has none, so two is none of them. It is
+`app/error.tsx`: a `ButtonLink`, which is an anchor, beside `Try again` and the report button, which
+are the two. **A component that throws while rendering never reaches the window**, so `pageerror`
+fires for none of it: React catches the throw, draws the error screen and reports it through
+`console.error`. The suite listened to the first and not the second, so a session replaced by the
+app's own failure read as a driver that did not recognise the card, which is the failure-misnames-
+its-cause fault arriving in the diagnostic written to prevent it.
+
+Both are collected now and the screen is recognised ahead of every card shape, since it is a fault
+rather than a shape, keyed on the heading that file prints rather than on the framework's message,
+which a production build withholds. The detail carries the reference and the first console line with
+it, so the next occurrence arrives with what the app actually said. Driven against a server started
+on a database that is not there, which is `test-error.mjs`'s own technique: the screen matches, `main`
+holds exactly two buttons, `pageerror` captures nothing and `console.error` captures three. It stays
+a **failure** rather than a waiver, because a review session that throws with the network gone is the
+one thing ADR-015 exists to protect.
 
 `scripts/test-containment.mjs` is the one that looks inside a card rather than at the page. It
 walks every text-bearing element, every icon and everything that arrives with a width of its own,

@@ -8,7 +8,7 @@ import { numberFromMorphCode } from "@/lib/estonian/morph";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
-import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
+import { parseExamples, usableExamples, type Example, type Rank } from "@/lib/dict/examples";
 import { CONJUGATION_SLOTS, type ConjugationSlot } from "@/lib/srs/slots";
 import type { CaseKey } from "@/lib/estonian/types";
 
@@ -180,6 +180,13 @@ export interface LexemeForCards {
   government: string | null;
   /** The raw `Lexeme.examples` JSON column; parsed defensively. */
   examples?: string | null;
+  /**
+   * How this word's attested sentences are ordered, where the caller has an
+   * opinion. Beginners' words are taught with the plainest sentence rather
+   * than the shortest; see `lib/dict/plainness.ts`. Absent leaves the order
+   * exactly as it was.
+   */
+  plainest?: Rank;
   forms: { formType: string; value: string; morphCode?: string | null }[];
   /**
    * Other lemmas the dictionary glosses exactly the same way.
@@ -277,12 +284,20 @@ const DRILL_CASES: readonly CaseKey[] = ["COMITATIVE", "TRANSLATIVE"];
  * agreeing about what a sentence is. The opener is this word's own: the label
  * pattern is a usage that names its own headword and then illustrates a sense
  * the gloss beside it does not name.
+ *
+ * `plainest` is how a beginner's word gets its plainest sentence rather than
+ * its shortest (`lib/dict/plainness.ts`). It is handed in the way `borrowed`
+ * is, and for the same reason: it is a fact about the whole dictionary, this
+ * module may not reach one, and a card built without it is a card cut from
+ * whichever sentence happened to be ten characters shorter.
  */
 export function naturalSentencesFor(lex: {
   lemma: string; pos: string; examples?: string | null; forms: { value: string }[];
+  plainest?: Rank;
 }) {
   const opener = nominalOpener(lex.pos, [lex.lemma, ...lex.forms.map((f) => f.value)]);
-  return usableExamples(parseExamples(lex.examples)).filter((e) => naturalSentence(e.et, opener));
+  return usableExamples(parseExamples(lex.examples), lex.plainest)
+    .filter((e) => naturalSentence(e.et, opener));
 }
 
 /**
@@ -303,7 +318,10 @@ function formSentencesFor(lex: LexemeForCards) {
   const extra = lex.borrowed.filter(
     (e) => naturalSentence(e.et, opener) && !seen.has(e.et.toLocaleLowerCase("et")),
   );
-  return [...own, ...extra];
+  // Ranked within the borrowed tier and never across it: a sentence filed
+  // under the word is about the word, and a borrowed one is a second opinion
+  // however plain it reads.
+  return [...own, ...(lex.plainest ? [...extra].sort(lex.plainest) : extra)];
 }
 
 /**

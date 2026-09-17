@@ -9,7 +9,8 @@ import { isPhrase } from "@/lib/dict/pos";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions } from "@/lib/dict/facts";
+import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
 } from "@/lib/questions/distractors";
@@ -136,7 +137,9 @@ export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] &
  * Every string in here came out of the dictionary. Nothing is written, and
  * nothing is derived (ADR-005).
  */
-function introFor(c: CardRow, glossLanguage: GlossLanguage): ReviewCard["intro"] {
+function introFor(
+  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null,
+): ReviewCard["intro"] {
   if (!c.lexeme) return null;
 
   // The form the card is about to ask for comes first, then the lemma. On a
@@ -145,7 +148,16 @@ function introFor(c: CardRow, glossLanguage: GlossLanguage): ReviewCard["intro"]
   // the card what it is rather than reading whichever side happens to be
   // Estonian.
   const asked = c.cardType === "RECOGNITION" ? c.front : c.back;
-  const found = teachingSentence(parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma]);
+  /*
+    Ranked for a beginner where the word is one, so this rung and the unit
+    lesson introduce a word the same way: the comment above promises they do,
+    and without the rank `tere` was met here as `No tere, Juhan.` and there as
+    `Tere, mina olen Katrin.` See lib/dict/plainness.ts.
+  */
+  const plainest = reach ? plainerFirst(c.lexeme.cefr, reach) : undefined;
+  const found = teachingSentence(
+    parseExamples(c.lexeme.examples), [asked, c.lexeme.lemma], undefined, plainest,
+  );
 
   const equivalent = equivalentIn(c.lexeme, glossLanguage);
 
@@ -250,7 +262,9 @@ function clozeSentenceEn(c: CardRow): string | null {
   return translationOf(parseExamples(c.lexeme.examples), whole);
 }
 
-function toReviewCard(c: CardRow, glossLanguage: GlossLanguage): ReviewCard {
+function toReviewCard(
+  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
+): ReviewCard {
   return {
     id: c.id,
     cardType: c.cardType,
@@ -271,7 +285,7 @@ function toReviewCard(c: CardRow, glossLanguage: GlossLanguage): ReviewCard {
     isNew: c.state === 0,
     // Only on a card that has never been seen. Every other card in the session
     // would carry a sentence nothing renders.
-    intro: c.state === 0 ? introFor(c, glossLanguage) : null,
+    intro: c.state === 0 ? introFor(c, glossLanguage, reach) : null,
     sentenceEn: clozeSentenceEn(c),
     canTranslate: resolveProvider() !== null,
     choices: null,
@@ -436,9 +450,26 @@ export async function withChoices(
     on that round empty for a word that is a favorite. Every route rendering
     this session resolves an owner already.
   */
+  /*
+    AND HOW A BEGINNER'S WORD ORDERS ITS OWN SENTENCES, which decides what a
+    first meeting is taught with. This one the glossing genuinely waits on,
+    since it decides which sentence is on the card to be glossed, and this is
+    the hottest read in the app: a `Promise.all` of the three would serialise
+    the glossing behind it and turn one round trip into two on every request.
+
+    So all three are *started* here and only the cheap one is waited on.
+    `sentenceReach` is cached for a minute, so on all but the first request per
+    instance it is already resolved and this costs nothing; on that first one
+    the stars overlap it rather than queueing behind.
+  */
+  const reaching = sentenceReach();
+  const starring = starredAmong(
+    ownerId, rows.map((r) => r.lexemeId).filter((id): id is string => !!id),
+  );
+  const reach = await reaching;
   const [glossed, starred] = await Promise.all([
-    withGlosses(rows.map((c) => toReviewCard(c, glossLanguage)), ownerId),
-    starredAmong(ownerId, rows.map((r) => r.lexemeId).filter((id): id is string => !!id)),
+    withGlosses(rows.map((c) => toReviewCard(c, glossLanguage, reach)), ownerId),
+    starring,
   ]);
   const cards = glossed.map(
     (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),

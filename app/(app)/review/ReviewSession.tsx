@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { BookOpen, Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
+import { Check, Compass, Keyboard, MessageCircleQuestion, RotateCcw, Undo2, X, Zap } from "lucide-react";
 import { gradeCard, undoGrade } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -32,6 +32,7 @@ import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCh
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
+import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 
 export interface ReviewCard {
   id: string;
@@ -979,11 +980,11 @@ export function ReviewSession({
             They&rsquo;ll be sent the moment you&rsquo;re back online. You can close the tab.
           </p>
         )}
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg"><Zap size={15} aria-hidden /> Play a round</ButtonLink>
           <ButtonLink href="/learn/new" size="lg">Learn new words</ButtonLink>
           <ButtonLink href="/" variant="primary" size="lg">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -1006,14 +1007,7 @@ export function ReviewSession({
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">{title}</h1>
       <div className="mb-7 flex items-center gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="flex-1">
           <Meter pct={progress} label={`Session progress: ${index} of ${queue.length}`} height={10} />
         </div>
@@ -1036,13 +1030,7 @@ export function ReviewSession({
           {drillScan && <Chip tone="sky">{drillScan.title}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
-              <Link
-                href={`/dictionary?q=${encodeURIComponent(card.lemma)}`}
-                className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-60"
-                style={{ color: "var(--ink-3)" }}
-              >
-                <BookOpen size={13} aria-hidden /> Full entry
-              </Link>
+              <FullEntry lemma={card.lemma} />
             )}
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}

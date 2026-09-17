@@ -5,6 +5,8 @@ import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { unitById } from "@/lib/collections/syllabus";
 import { buildWorksheet, type WorksheetWord } from "@/lib/collections/worksheet";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { parseExamples } from "@/lib/dict/examples";
 import { Empty, Note } from "@/components/ui";
 import { ButtonLink } from "@/components/Button";
@@ -73,18 +75,30 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
   // dictionary, not published.
   await requireUserId();
 
-  const rows = await prisma.lexeme.findMany({
-    where: { lemma: { in: [...unit.lemmas] } },
-    select: {
-      id: true,
-      lemma: true,
-      translation: true,
-      pos: true,
-      provenance: true,
-      examples: true,
-      forms: { select: { formType: true, value: true, morphCode: true } },
-    },
-  });
+  const [rows, reach] = await Promise.all([
+    prisma.lexeme.findMany({
+      where: { lemma: { in: [...unit.lemmas] } },
+      select: {
+        id: true,
+        lemma: true,
+        translation: true,
+        pos: true,
+        provenance: true,
+        examples: true,
+        // The band the word sits at, which decides whether its sentences are
+        // ranked for a beginner rather than by length.
+        cefr: true,
+        forms: { select: { formType: true, value: true, morphCode: true } },
+      },
+    }),
+    /*
+      And how a beginner's word orders its own sentences. A sheet is printed
+      and worked through on paper, so nobody can ask about a gap afterwards:
+      this is the surface where the plainest sentence is worth most. See
+      lib/dict/plainness.ts.
+    */
+    sentenceReach(),
+  ]);
 
   // One row per lemma, in the unit's own order. This printed `tuba` six times,
   // once per section, wherever the dictionary held two entries for a word.
@@ -96,6 +110,7 @@ export default async function WorksheetPage({ params }: { params: Promise<{ unit
     pos: l.pos,
     forms: l.forms,
     examples: parseExamples(l.examples),
+    plainest: plainerFirst(l.cefr, reach),
   }));
 
   const sheet = buildWorksheet(words);

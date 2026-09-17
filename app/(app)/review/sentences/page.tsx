@@ -1,9 +1,13 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { courseLevelFor } from "@/lib/progress/level";
+import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
 export const metadata = { title: "Sentences" };
 
@@ -27,29 +31,54 @@ const ROUND = 8;
 export default async function SentencesPage() {
   const ownerId = await requireUserId();
 
-  const cards = await prisma.card.findMany({
-    /*
-      state: { not: 0 } is what makes "a word they are already studying" above
-      true rather than aspirational: a brand-new card is due the moment it is
-      created, so `orderBy due asc` with no state filter put an unmet word's
-      sentence at the front of the round, its order being asked for before the
-      word itself was ever taught. The same rule sprint, speaking, listening
-      and Match already apply to their own pools.
-    */
-    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
-    orderBy: [{ due: "asc" }],
-    take: 300,
-    select: {
-      id: true,
-      cardType: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true } },
-    },
-  });
+  /*
+    WORD ORDERING IS A2 AND ABOVE, HERE AS WELL AS IN A LESSON.
+
+    The unit lesson stopped asking a beginner to order a sentence and this
+    round, which is the same exercise reached from Practice, went on doing it:
+    it draws from the learner's own deck, so an A1 learner with thirteen words
+    in it was handed `Palun võta veel üks komm. – Aitäh!` as six tiles, five of
+    them words the course had not taught. `maySortWords` is the one answer to
+    which bands are asked at all, so the round and the lesson cannot disagree.
+
+    Answered before the query rather than after it: there is nothing to draw
+    from a deck for somebody this round is not for, and the reason travels with
+    the empty state, because "no sentences to build yet" would send them to the
+    dictionary to fix something that is not broken.
+  */
+  const level = await courseLevelFor(ownerId);
+  if (!maySortWords(level)) return <SentenceSession tasks={[]} opensAt={BUILD_FROM} />;
+
+  const [cards, reach] = await Promise.all([
+    prisma.card.findMany({
+      /*
+        state: { not: 0 } is what makes "a word they are already studying" above
+        true rather than aspirational: a brand-new card is due the moment it is
+        created, so `orderBy due asc` with no state filter put an unmet word's
+        sentence at the front of the round, its order being asked for before the
+        word itself was ever taught. The same rule sprint, speaking, listening
+        and Match already apply to their own pools.
+      */
+      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      orderBy: [{ due: "asc" }],
+      take: 300,
+      select: {
+        id: true,
+        cardType: true,
+        lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
+      },
+    }),
+    // And how a beginner's word orders its own sentences, so a round draws
+    // the plainest one recorded rather than the shortest, asked beside the
+    // deck read because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   // One task per word, and one card per word to grade against: a learner with
   // five cards for `raamat` should still meet its sentence once.
   const byLexeme = new Map<string, {
     cardId: string; lemma: string; pos: string; lexemeId: string; examples: string;
+    cefr: string | null;
   }>();
   for (const card of cards) {
     const lex = card.lexeme;
@@ -59,6 +88,7 @@ export default async function SentencesPage() {
     if (!held || card.cardType === "CLOZE") {
       byLexeme.set(lex.id, {
         cardId: card.id, lemma: lex.lemma, pos: lex.pos, lexemeId: lex.id, examples: lex.examples,
+        cefr: lex.cefr,
       });
     }
   }
@@ -73,7 +103,7 @@ export default async function SentencesPage() {
       mock exam and the level check already apply.
     */
     const opener = nominalOpener(entry.pos, [entry.lemma]);
-    for (const example of usableExamples(parseExamples(entry.examples))) {
+    for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
       if (!isBuildable(example.et)) continue;
       tasks.push({

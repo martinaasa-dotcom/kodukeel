@@ -7,6 +7,8 @@ import { dayHashFor, dayIndex } from "@/lib/random/dayHash";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { matchesGloss, senseIndex } from "@/lib/dict/gloss";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import type { DayClock, DayKey } from "@/lib/time/day";
 
@@ -213,7 +215,13 @@ async function pickThemed(
     take: CANDIDATE_LIMIT,
   });
 
-  const fresh = await withoutReviewed(ownerId, rows);
+  /*
+    What the dictionary vouches for at each band decides which of a beginner's
+    own recorded sentences this card leads with, and it is a fact about the
+    shared dictionary rather than about this learner, so it is asked beside the
+    read that filters their own met words rather than after it.
+  */
+  const [fresh, reach] = await Promise.all([withoutReviewed(ownerId, rows), sentenceReach()]);
   if (fresh.length === 0) return null;
 
   // The layers in the almanac's own order: a named day beats a number, a
@@ -221,8 +229,8 @@ async function pickThemed(
   for (const occasion of occasions) {
     for (const gloss of occasion.glosses) {
       const matches = fresh.filter((row) => matchesGloss(row.translation, gloss));
-      const chosen = choose(matches, gloss, day, level);
-      if (chosen) return build(chosen, occasion);
+      const chosen = choose(matches, gloss, day, level, reach);
+      if (chosen) return build(chosen, occasion, reach);
     }
   }
   return null;
@@ -284,8 +292,11 @@ async function pickAny(ownerId: string, day: DayKey, dayStart: Date, level: Leve
       the whole pick: the panel went blank, or, once this had a second pass
       under it, fell out of the learner's band over a single stale word.
     */
-    const chosen = (await withoutReviewed(ownerId, rows))[0];
-    if (chosen) return build(chosen, null);
+    const [candidates, reach] = await Promise.all([
+      withoutReviewed(ownerId, rows), sentenceReach(),
+    ]);
+    const chosen = candidates[0];
+    if (chosen) return build(chosen, null, reach);
   }
   return null;
 }
@@ -345,7 +356,9 @@ async function withoutReviewed(ownerId: string, rows: Candidate[]): Promise<Cand
  * The day breaks a tie among equals, so a gloss that comes round every month
  * does not hand over the same word twelve times a year.
  */
-function choose(matches: Candidate[], gloss: string, day: DayKey, level: Level): Candidate | undefined {
+function choose(
+  matches: Candidate[], gloss: string, day: DayKey, level: Level, reach?: PlainReach,
+): Candidate | undefined {
   if (matches.length === 0) return undefined;
 
   const scored = matches
@@ -354,7 +367,7 @@ function choose(matches: Candidate[], gloss: string, day: DayKey, level: Level):
       rank: [
         senseIndex(row.translation, gloss),
         isAround(row.cefr, level) ? 0 : 1,
-        firstExample(row) ? 0 : 1,
+        firstExample(row, reach) ? 0 : 1,
         row.cefr ? 0 : 1,
         row.lemma.length,
       ] as const,
@@ -385,8 +398,15 @@ function compare(a: readonly number[], b: readonly number[]): number {
  * heading saying today's word was chosen for you. Every sentence that reaches
  * this card was recorded by a person.
  */
-function firstExample(row: Candidate): Example | null {
-  const attested = usableExamples(parseExamples(row.examples)).filter((e) => e.source !== "AI");
+function firstExample(row: Candidate, reach?: PlainReach): Example | null {
+  /*
+    Plainest first where the word is a beginner's, because this card is on the
+    home page every morning and the sentence under it is the whole of what
+    makes it a lesson rather than a vocabulary item. See lib/dict/plainness.ts.
+  */
+  const attested = usableExamples(
+    parseExamples(row.examples), reach && plainerFirst(row.cefr, reach),
+  ).filter((e) => e.source !== "AI");
   /*
     Shortest first is right until the shortest is one word. Ekilex records a
     usage against a sense, and for `kool` that included `Kokakool.`, which the
@@ -401,7 +421,7 @@ function firstExample(row: Candidate): Example | null {
 const MIN_SENTENCE_WORDS = 3;
 const wordCount = (text: string) => text.trim().split(/\s+/).length;
 
-function build(row: Candidate, occasion: Occasion | null): WordOfDay {
+function build(row: Candidate, occasion: Occasion | null, reach?: PlainReach): WordOfDay {
   return {
     lexemeId: row.id,
     lemma: plainPhrase(row.lemma),
@@ -409,7 +429,7 @@ function build(row: Candidate, occasion: Occasion | null): WordOfDay {
     translation: plainPhrase(row.translation),
     cefr: row.cefr,
     gradationNote: row.gradationNote,
-    example: firstExample(row),
+    example: firstExample(row, reach),
     occasion,
   };
 }

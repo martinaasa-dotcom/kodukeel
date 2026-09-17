@@ -14,6 +14,7 @@ import { curveballById } from "@/lib/scenes/curveballs";
 import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";
@@ -80,6 +81,9 @@ export interface Debrief {
 }
 
 export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: () => void }) {
+  /* Whether this conversation is a step of tonight's module, which decides
+     whether the debrief carries a way on of its own. */
+  const inModule = useModuleFocus() !== null;
   const { scene, objectives, hurdles, outcome, gaps, turns, graded, review } = debrief;
   const byId = new Map(scene.beats.map((beat) => [beat.id, beat]));
   const required = scene.beats.filter((beat) => beat.required);
@@ -518,11 +522,21 @@ export function SceneDebrief({ debrief, onAgain }: { debrief: Debrief; onAgain: 
           The quiet way out first and the loud one last, which is the shape
           every other finish screen in the app has.
         */}
-        <div className="flex flex-wrap gap-2">
-          <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>
-          {/* Redoing it keeps this scene and redraws everything else. */}
-          <Button variant="primary" onClick={onAgain}>Rehearse this conversation again</Button>
-        </div>
+        {/*
+          AND INSIDE TONIGHT'S MODULE NEITHER OF THESE IS THE WAY ON. The
+          conversation is one step of an evening and what follows it is the
+          next step, on the frame's own button at the foot of the screen.
+          Offering a different conversation there is the catalogue again, and
+          offering this one again is a second decision on the screen whose job
+          is to say how it went.
+        */}
+        {!inModule && (
+          <div className="flex flex-wrap gap-2">
+            <ButtonLink href="/situations" variant="ghost">Rehearse a different conversation</ButtonLink>
+            {/* Redoing it keeps this scene and redraws everything else. */}
+            <Button variant="primary" onClick={onAgain}>Rehearse this conversation again</Button>
+          </div>
+        )}
 
         {(objectives.missed.length > 0 || graded > 0) && (
           <p className="text-sm" style={{ color: "var(--ink-2)" }}>
