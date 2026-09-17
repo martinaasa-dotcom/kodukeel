@@ -72,7 +72,7 @@
  * that in off the dictionary, the way the scene gate is handed its forms.
  */
 import { ESTONIAN_WORD, sentenceMatches, sentenceTiles } from "./cloze";
-import { finiteFormsFrom } from "./conjugate";
+import { finiteFormsFrom, participlesFrom } from "./conjugate";
 
 /**
  * Verb particles that are never adpositions, so nothing governs a case around
@@ -146,10 +146,17 @@ export interface OrderVerdict {
  * both are load-bearing. `finiteVerb` is what anchors the particle, so it has
  * to mean a form carrying a person and a tense: `Ähvardas kõri läbi lõigata`
  * has its finite verb at the front, and `läbi` belongs to the infinitive at
- * the end. `verbForm` is any form at all, and it is what stops a particle
- * being sent past a participle standing in front of its noun: `lahti
- * kirjutamata akronüümide` is one phrase and `kirjutamata akronüümide lahti`
- * is not Estonian.
+ * the end. `participle` is what the particle may not be sent past.
+ *
+ * **A participle and not any verb form**, which is a correction to the first
+ * version rather than a preference. Written as "any form of any verb" it
+ * refused `Kunstnik annab oma nägemuse edasi`, `tahab anda saagalikkust
+ * edasi` and `peab leppima järgmise aasta eelarves kokku`, which are all
+ * ordinary Estonian: a particle goes past the infinitive it belongs to and
+ * lands after its complement. What it may not go past is a participle, where
+ * `on ära toodud ka statistilised andmed` does not survive `ära` reaching the
+ * end. An intervening *finite* verb needs no rule of its own, since a clause
+ * holding two is one this stands down on already.
  *
  * Predicates rather than sets so a caller hands in whatever it already holds
  * and this module cannot reach a database.
@@ -164,8 +171,13 @@ export interface OrderContext {
    * exactly one reading or no claim.
    */
   finiteVerb: (word: string) => boolean;
-  /** A spelling the dictionary holds as any form of any verb at all. */
-  verbForm: (word: string) => boolean;
+  /**
+   * A spelling the dictionary holds as a participle **and as nothing else**,
+   * on the same argument `finiteVerb` makes at length: `oma` is a participle
+   * of nothing and a form of `omama`, and reading it as a verb refused a
+   * correct sentence.
+   */
+  participle: (word: string) => boolean;
 }
 
 /** An entry as this module needs to read it, which is every dictionary's shape. */
@@ -186,16 +198,13 @@ export interface OrderWord {
  */
 export function orderContextFrom(words: Iterable<OrderWord>): OrderContext {
   const finite = new Set<string>();
-  const anyVerb = new Set<string>();
+  const participles = new Set<string>();
   const nominal = new Set<string>();
   for (const word of words) {
     const spellings = [word.lemma, ...word.forms.map((f) => f.value)].map((v) => v.toLowerCase());
     if (word.pos === "VERB") {
-      for (const v of spellings) anyVerb.add(v);
-      for (const v of finiteFormsFrom(word.lemma, word.forms)) {
-        anyVerb.add(v);
-        finite.add(v);
-      }
+      for (const v of participlesFrom(word.forms)) participles.add(v);
+      for (const v of finiteFormsFrom(word.lemma, word.forms)) finite.add(v);
     } else {
       for (const v of spellings) nominal.add(v);
     }
@@ -205,7 +214,10 @@ export function orderContextFrom(words: Iterable<OrderWord>): OrderContext {
       const lower = w.toLowerCase();
       return finite.has(lower) && !nominal.has(lower);
     },
-    verbForm: (w) => anyVerb.has(w.toLowerCase()),
+    participle: (w) => {
+      const lower = w.toLowerCase();
+      return participles.has(lower) && !nominal.has(lower);
+    },
   };
 }
 
@@ -274,7 +286,7 @@ export function acceptedOrders(original: string, dict: OrderContext): string[][]
 
     const over = clause.slice(at + 1, last);
     if (over.some((w) => JOINERS.has(w.toLowerCase()))) return; // never past a joiner
-    if (over.some((w) => dict.verbForm(w))) return; // never past a participle or an infinitive
+    if (over.some((w) => dict.participle(w))) return; // never past a participle
 
     const moved = [...clause.slice(0, at), ...clause.slice(at + 1), word];
     orders.push(clauses.flatMap((c, i) => (i === clauseIndex ? moved : c)));

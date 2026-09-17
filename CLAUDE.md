@@ -1591,10 +1591,19 @@ complement and leaves a preposition as the postposition Estonian already uses fo
 (`üle tee` and `tee üle`, `mööda teed` and `teed mööda`). **A spelling that is a verb and a noun at
 once is neither**, which is `readCase`'s discipline one room over: `kaalu` is the genitive of `kaal`
 and the imperative of `kaaluma`, and without that rule `kui maiasmokk kaalu peale astus` came apart.
-And **nothing is carried past a comma, a joiner or another verb**: `ja` joins two clauses in `Nad
+And **nothing is carried past a comma, a joiner or a participle**: `ja` joins two clauses in `Nad
 kõndisid edasi ja jõudsid järveni` and two adjectives in `Mees nägi välja rõõsa ja ümarik` and
-nothing here can tell those apart, and `lahti kirjutamata akronüümide` is a participle standing in
-front of its noun. It offers an alternative for 46 of those 9,464.
+nothing here can tell those apart, and `on ära toodud ka statistilised andmed` does not survive
+`ära` reaching the end. **A participle and not any verb form**, which is a correction to the first
+version and was found by asking whether each guard fires and reading what it refused: written as
+"any verb form" it withheld `Kunstnik annab oma nägemuse edasi`, `tahab anda saagalikkust edasi` and
+`peab leppima järgmise aasta eelarves kokku`, which are ordinary Estonian, since a particle goes
+past the infinitive it belongs to and lands after its complement. Its own comment named `lahti
+kirjutamata akronüümide` as what it caught, the dictionary holds no such participle, and that
+sentence was being refused by the joiner beside it, so the guard had never once fired on the example
+justifying it. A spelling that is a participle and something else is neither, on the argument
+`finiteVerb` already makes: `oma` is a form of `omama` and is the word anybody says. It offers an
+alternative for 53 of those 9,464.
 
 **One direction only, and the symmetric version was tried and reverted.** A particle the writer put
 at the end stays there, so `Ta pani raamatu ära` rebuilt as `Ta pani ära raamatu` is correct

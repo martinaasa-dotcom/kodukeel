@@ -68,8 +68,12 @@ describe("what it refuses", () => {
     // cannot tell those apart.
     ["Nad kõndisid edasi ja jõudsid järveni.", "Nad kõndisid ja jõudsid järveni edasi"],
     ["Mees nägi välja rõõsa ja ümarik.", "Mees nägi rõõsa välja ja ümarik"],
-    // Past a participle standing in front of its noun.
-    ["Vältida tuleks lahti kirjutamata akronüümide kasutamist.", "Vältida tuleks kirjutamata akronüümide lahti kasutamist"],
+    /*
+      Past a participle, where the particle belongs to it. The infinitive is
+      deliberately not in this list: `tahab anda saagalikkust edasi` is
+      ordinary Estonian and an earlier version of the rule refused it.
+    */
+    ["Ajaloolise ülevaate kõrval on ära toodud statistilised andmed.", "Ajaloolise ülevaate kõrval on toodud statistilised andmed ära"],
     // A particle the writer put at the end stays there: the stated residual.
     ["Ta pani raamatu ära.", "Ta pani ära raamatu"],
   ];
@@ -88,6 +92,12 @@ describe("what it accepts", () => {
     ["Paraadi võtab vastu president.", "Paraadi võtab president vastu"],
     ["Rong sõidab mööda raudteed.", "Rong sõidab raudteed mööda"],
     ["Kella tuleb tagasi keerata.", "Kella tuleb keerata tagasi"],
+    // Past the infinitive the particle belongs to, which is where it goes.
+    ["Näitleja Liv Ullmann tahab edasi anda saagalikkust.", "Näitleja Liv Ullmann tahab anda saagalikkust edasi"],
+    ["Valitsus peab kokku leppima järgmise aasta eelarves.", "Valitsus peab leppima järgmise aasta eelarves kokku"],
+    // And a spelling that is a verb form and a determiner is neither, so it
+    // does not block: `oma` is a form of `omama` and the word anybody says.
+    ["Kunstnik annab edasi oma nägemuse.", "Kunstnik annab oma nägemuse edasi"],
   ];
   for (const [original, built] of accepted) {
     it(`accepts ${built}`, () => {

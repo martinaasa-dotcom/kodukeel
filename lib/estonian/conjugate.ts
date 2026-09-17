@@ -304,10 +304,39 @@ export function pres1sgFrom(
  */
 const FINITE_PREFIXES = ["Ind", "Imp", "Knd"];
 
+/**
+ * Ekilex's morph codes for a participle, plus the one the seed stores by name.
+ *
+ * `Pts` is the participle and `PART_TUD` is the principal part every entry
+ * carries. What is deliberately outside it is the two infinitives, which is
+ * the distinction this exists for: a particle may be sent past `anda` in
+ * `tahab edasi anda saagalikkust` and may not be sent past `toodud` in `on ära
+ * toodud ka statistilised andmed`, where it belongs to the participle.
+ */
+const PARTICIPLE_PREFIXES = ["Pts"];
+
+function bareCode(code: string): string {
+  return code.startsWith("EKILEX:") ? code.slice("EKILEX:".length) : code;
+}
+
 function isFiniteCode(code: string): boolean {
-  const bare = code.startsWith("EKILEX:") ? code.slice("EKILEX:".length) : code;
+  const bare = bareCode(code);
   if (bare === "PRES_1SG" || bare === "PAST_1SG") return true;
   return FINITE_PREFIXES.some((p) => bare.startsWith(p));
+}
+
+function isParticipleCode(code: string): boolean {
+  const bare = bareCode(code);
+  return bare === "PART_TUD" || PARTICIPLE_PREFIXES.some((p) => bare.startsWith(p));
+}
+
+/** Every participle of one verb the dictionary holds, lower-cased. */
+export function participlesFrom(
+  forms: readonly { formType?: string | null; morphCode?: string | null; value: string }[],
+): string[] {
+  return forms
+    .filter((f) => isParticipleCode(f.formType ?? f.morphCode ?? ""))
+    .map((f) => f.value.toLowerCase());
 }
 
 /**
