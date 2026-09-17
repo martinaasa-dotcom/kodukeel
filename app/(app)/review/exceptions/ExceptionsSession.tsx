@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, CircleAlert, TriangleAlert, X } from "lucide-react";
+import { Check, CircleAlert, TriangleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -20,6 +20,8 @@ import { AlsoRight } from "@/components/WordExceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * THE ROUND: MEET IT, TYPE IT, USE IT.
@@ -142,10 +144,10 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/exceptions">Another round</ButtonLink>
           <ButtonLink href="/grammar/exceptions" variant="primary">See the whole list</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -157,9 +159,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
           accessibility run that passes on the wrong screen. */}
       <h1 className="sr-only">Exceptions</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/practice" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession href="/practice" size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"
@@ -340,6 +340,17 @@ function Meeting({ task }: { task: ExceptionTask }) {
  */
 function MoreOnThis({ task, className }: { task: ExceptionTask; className?: string }) {
   const topic = task.topic ? grammarTopic(task.topic) : undefined;
+  /*
+    AND THERE IS NO "MORE ON THIS" INSIDE A MODULE.
+
+    Supplementary reading is worth offering where somebody chose this round and
+    has the evening to spend on it. Inside a step of tonight's module it is a
+    door into the reference with the evening behind it, which is the thing this
+    was reported as: a learner reading a page, following a link at the foot of
+    it, and doing something that was never part of tonight. The evening has its
+    own reading, two steps up.
+  */
+  if (useModuleFocus()) return null;
   if (!topic) return null;
   return (
     <p className={className} style={{ color: "var(--ink-3)" }}>

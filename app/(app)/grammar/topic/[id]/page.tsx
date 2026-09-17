@@ -12,6 +12,7 @@ import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { DrillLink } from "@/components/DrillLink";
 import { VerbTable } from "./VerbTable";
 import { verbExamples } from "@/lib/progress/verbExamples";
+import { focusFrom } from "@/lib/course";
 
 /**
  * The grammar topics with a drill of their own.
@@ -77,9 +78,30 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
  *
  * So this page explains in English and then hands over to the units that teach
  * the point, where the examples are attested and in context.
+ *
+ * AND READ FROM TONIGHT'S MODULE IT HANDS OVER TO NOTHING AT ALL.
+ *
+ * The module's second step is "read the point behind it", and this is the page
+ * it opens. It was reported from exactly here: the learner read it, kept
+ * scrolling because nothing said the reading had ended, and at the foot of it
+ * met "Drill it" and took a drill that was never part of tonight. Above that
+ * sit three units, each with a lesson to take, and above those a way back to
+ * the whole reference. Four doors out of a two-minute step.
+ *
+ * Inside a module this is the point and the verbs that show it, and the one
+ * way on is the frame's own button at the foot of the screen. The evening has
+ * its own rounds, two steps further down, on tonight's own words. Nothing is
+ * deleted for anybody else: opened from the reference or from a card, this
+ * page is exactly what it was.
  */
-export default async function TopicPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function TopicPage({
+  params, searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { id } = await params;
+  const inModule = focusFrom(await searchParams) !== null;
   const topic = grammarTopic(id);
   if (!topic) notFound();
 
@@ -109,11 +131,11 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
       eyebrow="Reference"
       title={topic.title}
       lead={topic.summary}
-      actions={
+      actions={inModule ? undefined : (
         <Link href="/grammar" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
           <ArrowLeft size={14} aria-hidden /> All grammar
         </Link>
-      }
+      )}
     >
       <Stack>
         {(term || topic.marker) && (
@@ -196,6 +218,9 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
           </section>
         )}
 
+        {/* The units that teach it and the drill that asks about it, which a
+            module step may not carry: see the header. */}
+        {!inModule && (
         <section>
           <SectionTitle hint={`${units.length} unit${units.length === 1 ? "" : "s"}`}>
             Where the course teaches it
@@ -238,8 +263,9 @@ export default async function TopicPage({ params }: { params: Promise<{ id: stri
             </ul>
           )}
         </section>
+        )}
 
-        {TOPIC_DRILL[id] && (
+        {!inModule && TOPIC_DRILL[id] && (
           <section>
             <SectionTitle hint="from your own deck">Drill it</SectionTitle>
             <DrillLink href={TOPIC_DRILL[id]!} />

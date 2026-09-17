@@ -28,6 +28,7 @@ export * from "./types";
 export * from "./plan";
 export * from "./build";
 export * from "./gate";
+export * from "./focus";
 export * from "./milestones";
 
 export const PROGRAMMES: readonly Programme[] = buildProgrammes();

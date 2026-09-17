@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { Check, Headphones, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
@@ -14,6 +13,7 @@ import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -156,10 +156,10 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/listening" variant="primary" size="lg">Listen again</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -179,14 +179,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">Listening</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="grad-accent h-full rounded-full transition-[width] duration-500"

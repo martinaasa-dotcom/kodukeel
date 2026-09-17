@@ -7,7 +7,7 @@ import { markCourseStep, startCourseDay } from "@/app/actions";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button, ButtonLink } from "@/components/Button";
 import { Card, Chip, Note } from "@/components/ui";
-import { MEET_STEP, type CourseStep } from "@/lib/course";
+import { MEET_STEP, focusedSteps, type CourseStep } from "@/lib/course";
 
 /**
  * TODAY'S MODULE, AS A LIST YOU WALK DOWN.
@@ -26,6 +26,14 @@ import { MEET_STEP, type CourseStep } from "@/lib/course";
  * watched a round it has no way of seeing. A `Review` row carries no note of
  * which mode wrote it, so there is no honest alternative, and saying so is
  * better than a tick that quietly means less than it looks.
+ *
+ * AND A STEP OPENED FROM HERE STAYS INSIDE THE MODULE. Every href carries the
+ * marker `lib/course/focus.ts` writes, which is what turns the screen it opens
+ * into a room: the rail, the phone bar and the tutor's button go, and the way
+ * on is one button at the foot of it that ticks this step and opens the next.
+ * So the ordinary evening never comes back to this list at all, and the "I did
+ * this" below is what is left for somebody who played the round somewhere else
+ * and is telling us so.
  *
  * THE WORDS GO IN THE DECK ON A PRESS AND NEVER ON A RENDER. The first step
  * runs `startCourseDay` before it opens the ladder, because `PrefetchLink`
@@ -48,6 +56,12 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
 
   const finished = (id: string) => ticked.includes(id);
   const next = steps.find((s) => !finished(s.id)) ?? null;
+  /*
+    Where each step goes, with the marker on it, worked out in one place so the
+    numbering the frame prints ("step 3 of 5") and the order this list draws
+    cannot come apart.
+  */
+  const opens = new Map(focusedSteps(programmeId, dayId, steps).map((f) => [f.step.id, f.href]));
 
   /*
     A TICK HANDS ITS FOCUS ON RATHER THAN DROPPING IT.
@@ -84,10 +98,13 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     setFailed(null);
     handOn.current = true;
     start(async () => {
-      const result = await markCourseStep(programmeId, dayId, step.id);
-      if (!result.ok) {
+      /* Caught for the reason `ModuleScope` catches its own: a Server Action
+         throws rather than answering when the network is gone, and an
+         uncaught rejection out of a transition takes the tree with it. */
+      const result = await markCourseStep(programmeId, dayId, step.id).catch(() => null);
+      if (!result || !result.ok) {
         setTicked((was) => was.filter((id) => id !== step.id));
-        setFailed(result.error);
+        setFailed(result ? result.error : "That did not reach the server.");
         return;
       }
       router.refresh();
@@ -103,9 +120,10 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     if (step.id !== MEET_STEP) return;
     setFailed(null);
     start(async () => {
-      const result = await startCourseDay(programmeId, dayId);
+      const result = await startCourseDay(programmeId, dayId).catch(() => null);
+      if (!result) { setFailed("That did not reach the server."); return; }
       if (!result.ok) { setFailed(result.error); return; }
-      router.push(step.href);
+      router.push(opens.get(step.id) ?? step.href);
     });
   };
 
@@ -188,7 +206,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                               Start <ArrowRight size={15} aria-hidden />
                             </Button>
                           ) : (
-                            <ButtonLink href={step.href} variant="primary">
+                            <ButtonLink href={opens.get(step.id) ?? step.href} variant="primary">
                               Start <ArrowRight size={15} aria-hidden />
                             </ButtonLink>
                           )}

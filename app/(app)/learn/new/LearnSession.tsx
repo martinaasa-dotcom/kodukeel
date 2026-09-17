@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, BookOpen, Check, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -29,6 +29,7 @@ import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
+import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -569,7 +570,7 @@ export function LearnSession({
           end of step one of five is the evening losing its thread, and the
           module screen is the thing that knows what comes next.
         */}
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           {back ? (
             <ButtonLink href={back.href} variant="primary" size="lg">
               {back.label} <ArrowRight size={15} aria-hidden />
@@ -585,7 +586,7 @@ export function LearnSession({
               )}
             </>
           )}
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -597,14 +598,7 @@ export function LearnSession({
       {/* The heading a session screen has no room to draw. */}
       <h1 className="sr-only">Learn</h1>
       <div className="mb-7 flex items-center gap-4">
-        <Link
-          href="/learn"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession href="/learn" />
         <div className="flex-1">
           <Meter pct={progress} label={`${left} of ${total} ${nouns} still on the ladder`} height={10} />
         </div>
@@ -626,13 +620,7 @@ export function LearnSession({
           </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
-            <Link
-              href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
-              className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-60"
-              style={{ color: "var(--ink-3)" }}
-            >
-              <BookOpen size={13} aria-hidden /> Full entry
-            </Link>
+            <FullEntry lemma={word.lemma} />
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />

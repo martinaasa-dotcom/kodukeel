@@ -27,6 +27,7 @@ import { SceneVignette } from "./SceneVignette";
 import { cueFor, movesTo, sceneryFor, type Setting } from "@/lib/scenes/scenery";
 import { practises } from "@/lib/scenes/practises";
 import { joinWithAnd } from "@/lib/copy/values";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * One conversation, from the desk to the debrief.
@@ -253,6 +254,10 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
    */
   learnerLevel: Level;
 }) {
+  /* Whether this conversation is a step of tonight's module, which decides
+     whether the briefing carries a door out of it. See
+     components/course/moduleFocus.ts. */
+  const inModule = useModuleFocus() !== null;
   const [phase, setPhase] = useState<Phase>("briefing");
   const [difficulty, setDifficulty] = useState<Difficulty>(() => defaultDifficultyFor(learnerLevel));
   /*
@@ -1072,7 +1077,11 @@ export function SceneSession({ scene, minutes, unit, learnerLevel }: {
           it is gone for the whole of the conversation, where a link to a
           lesson is a door out of a room somebody has just stepped into.
         */}
-        {unit && (
+        {/* AND GONE INSIDE A MODULE FOR THE REASON THE COMMENT ABOVE GIVES
+            ABOUT THE CONVERSATION ITSELF: a conversation reached from tonight's
+            module is one step of an evening, and a lesson is a door out of it.
+            Somebody who chose this conversation still gets the door. */}
+        {unit && !inModule && (
           <CardLink href={`/learn/${unit.id}`} icon={<BookOpen size={16} aria-hidden />}>
             The lesson behind it: {unit.title}
           </CardLink>

@@ -3645,6 +3645,138 @@ every one is a lemma its own unit teaches, asserted word by word; the unit is it
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
 
+**A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
+decision made in advance and it was handing the learner straight back to the ordinary website the
+moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the
+corner that opens a tutor. It was reported off the reading step and the report is the whole
+specification. The page was read, the learner kept scrolling because nothing said where the reading
+had ended, and at the foot of it they met "Drill it" and took a drill that was never part of
+tonight. The drill was a good drill and it was not that step, which has its own rounds two steps
+below. Then they came back to the list and the step was not green, so the evening asked them to
+press "I did this" about a page they had visibly just read.
+
+So a step opened from the module says so, in the one place a screen can be told how it was reached,
+which is its own address. `lib/course/focus.ts` is the one table of what `?module=` carries, six
+short fields written by the list and read by the frame, and `readFocus` refuses anything that is not
+six fields with two numbers and a flag in them, because a hand-typed address reaches it like
+everything else off the wire. **Nothing in it is trusted**: it decides whether a frame is drawn, what
+the caption says and whether the bar says this step ticks itself off the learner's own answers, and
+`advanceCourseStep` resolves the programme, the day and the step again on the server,
+refuses a day nobody has reached for the reason `markCourseStep` does, refuses to write a row for a
+step the review log proves, and works out where to go from the day's own order rather than from
+anything sent to it.
+
+**The website goes by the hook a conversation already uses.** `body:has(.module-step) [data-chrome]`
+is the same rule `.scene-room` has, against the same three marked places, deliberately: two rules
+naming two sets of furniture is two answers to what this app is made of, and the second one rots the
+day somebody adds a third piece. In CSS rather than an attribute written from an effect, since an
+effect runs after the first paint and every step would draw the whole website for a frame and then
+take it away. The room the pinned bar takes is written **after** the conversation's own
+`padding-bottom: 0`, because the two selectors weigh the same and a conversation reached from a
+module matches both: in the other order the bar covers the box the one typed step is answered in.
+
+**Mounted once, in the shell, because eighteen screens cannot each remember.** A day's steps open a
+reading, four shapes of round, a conversation and the review queue, and one more whenever a rotation
+gains a round. Wired into each of those it is eighteen chances to forget, and the page that forgot
+would look exactly like a step nobody had opened yet. Mounted in `app/(app)/layout.tsx` it is the
+address that decides, so a step that did not exist when this was written arrives already inside the
+module. Asserted, along with there being only one mount: two frames are two answers to where the way
+on goes.
+
+**And a round's own way out stands down.** Every session had the same three written out by hand: a
+cross in the corner, a row on the finish screen offering Today, another round and the practice menu,
+and a link in the card's corner to the word's own entry. Each is right where somebody chose the
+round and each is a door out of a room where the module did.
+`components/round/RoundExit.tsx` is the one drawing of all three and each asks `useModuleFocus`; the
+sweep is anchored on the copy rather than on the import, because a session that wrote the markup back
+would satisfy any check looking only for the component. **"Another round" goes with them**: it is not
+an exit and it is still a second thing to decide, on the one screen whose job is to say how that
+round went and hand the evening on. So does an empty state's action, through one edit in `Empty`,
+since a learner whose deck cannot fill a board was being handed the dictionary. What is left in a
+module step is the button at the foot of it, which ticks the step and opens the next, and one quiet
+way back to the list, which is not leaving the evening.
+
+**Six doors into the dictionary were found one at a time, and only the first two by reading.** The
+first pass took the cross and the finish row, because those are the two shapes anybody notices.
+`scripts/test-module.mjs` walking an evening and listing every link on every step found "Full entry"
+in the corner of every review card and every rung of the ladder: four steps clean and the closing
+round offering `/dictionary?q=Venemaa`. CI's walk, on a fixture that deals a different evening,
+found the verb table on an A2 reading, four more. And a sweep of the same shape found two the walk
+structurally cannot reach.
+
+**That last part is the lesson and it is about coverage rather than about doors.** An evening deals
+two rounds out of a rotation of ten, so one walk sees two of them: the browser suite proved the
+mechanism on whatever tonight dealt and could never prove the rule. So it opens **every** screen a
+step can reach with a marker the app itself wrote and asks the one question, and
+`scripts/test-invariants.ts` holds that list to `ACTIVITIES`, because a browser suite here is `.mjs`
+and the table is TypeScript behind a path alias: a round added to a rotation and not to the sweep is
+a screen nobody opens, which is the state the sweep exists to end. Doing that found four more that
+no single evening reaches: "Back to practice" on the two boards' opening screens, the lesson behind
+a conversation, and "More on this" at the foot of the exceptions round. Ten doors in all, and two of
+them were found by reading.
+
+**The sprint's link to its own pace is the one that stayed, in a different shape.** WCAG 2.2.1 is
+met by the limit being adjustable *before* the round, which it is, at up to ten times the standard;
+what it does not ask for is a link out of the round. So inside a module the sentence survives and
+the door does not, because the learner still has to know the clock is theirs, and the press is one
+they make between evenings rather than mid round.
+`components/course/WordLink.tsx` is a word that opens its own entry, or just the word inside a
+module; `FullEntry` is the labelled control in a card's corner. **The word never goes, only the
+door**, and an underline is the door rather than the styling, so a caller says which of its classes
+are the promise: an underline carried onto the span would offer a press that is not there, which is
+worse than the link being gone, because the learner reaches for it.
+
+**And pressing on hands the caret to what it opened, once the heading is there to hand it to.** The
+bar lives in the shell, so it survives the navigation it causes and the browser leaves focus on a
+button now sitting above a different screen: measured, the body. The first fix for it read the
+heading once and found none, because the shell hears the new step the moment the address commits and
+the page lands in a later frame: traced across a press, the old heading was gone, a mutation arrived
+with no `h1` in `#main` at all, and the new one turned up after that. A `querySelector` that returns
+null and a return statement is an effect that looks exactly like one nobody wrote, which is the
+silence this file has a rule about, so it is waited for rather than sampled, and waited for as a
+heading *different* from the one that was there, or a machine keeping the old tree through the
+transition would be handed the screen the learner is leaving. A keyboard walked back to the top of the page for every step of every
+evening, and a screen reader was told nothing at all about arriving somewhere new, which on a
+five-step evening is five silent screen changes. It is the fault `StepList` has a header about, one
+screen over, wanting the opposite answer: the list hands the caret to the button the learner was
+reaching for, and the bar hands it to what they were reaching at. Every route carries exactly one
+`h1`, drawn or `sr-only`, so it is there to be moved to and reading it out is the announcement.
+
+**And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
+the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
+over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen
+given to the way on, on a step whose job is text somebody is reading. Under `max-height: 560px` the
+meter goes, since it says nothing the caption does not and is `aria-hidden` anyway, and the
+clearance comes down with it. Measured back at 20 percent, and the suite asks it there now.
+
+**And a press that never reached the server used to delete the room.** A Server Action returns a
+refusal it has and *throws* when it has no answer at all: the network is gone, the deployment is
+restarting, the tab has been asleep. Without a catch that rejection leaves the transition and React
+tears the tree down, and measured with the plug pulled that is what happened: `#main` empty, the bar
+gone, the learner looking at a blank screen with the step's own address still in the bar. On a
+feature whose promise is that a step is a room you cannot wander out of, the way on deleting the room
+is the worst of the failure modes, and it is the one that needs no network to be reached.
+`.catch(() => null)` is the shape `components/StarWord.tsx` already uses and it is used here and on
+the module's own list, for its reason: the honest thing to do with a press that did not land is to
+say so and leave everything as it was. The step still opens with the network gone, which is what the
+page cache is for, and `scripts/test-module.mjs` pulls the plug and presses on, because what a
+rejection does to a React tree is a fact about the runtime rather than about the source.
+
+**And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
+`Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
+shell and no module and never will. With the context living beside the bar, importing the hook
+dragged the bar, its icons and a reference to `advanceCourseStep` along: measured on a production
+build, `/welcome` and `/privacy` both pulled in the 44KB chunk holding the module's way on, to draw
+nothing. `components/course/moduleFocus.ts` is the context and the hook and not one thing more, and
+the invariant holds both halves, that it stays a leaf and that its readers read it rather than the
+file that draws the bar.
+
+**And the reading is a reading.** Both reference pages stand their unit list, their drill and their
+way back to the reference down inside a module, and both are asserted, because they are two pages
+answering one step and fixing one is a fault that shows on half the evenings. Nothing is deleted for
+anybody else: opened from the reference, from a card or from a search, each page is exactly what it
+was.
+
 **It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
 a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
 turn off. Off changes nothing else, and the work done the other way still counts toward a module the
@@ -7973,7 +8105,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
-`caseExamplesFor`.
+`caseExamplesFor`, `MODULE_PARAM`, `readFocus`, `focusedSteps`, `continueHref`,
+`ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
+`module-step`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -8020,6 +8154,9 @@ npm run test:browser     # the newer browser suites: routes, modes, offline, sca
                          # (test-first-day runs first and needs an empty deck: reseed before it)
 npm run test:mobile      # the phone, measured; needs the server running
 npm run test:containment # text and icons inside their boxes, measured; needs the server running
+# scripts/test-module.mjs is in test:browser: tonight's module walked, which is the only
+#   way to see the website gone, the reading carrying no drill, and a step ticking itself
+#   on the way past
 # scripts/test-security.mjs is in test:browser: the headers, the forged request, the caps
 #   and what the health endpoint will say, asked of a running server rather than of the source
 ```
