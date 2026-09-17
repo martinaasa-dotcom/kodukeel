@@ -1,4 +1,5 @@
 import { LEVELS, type Level } from "./syllabus/types";
+import { sentenceTiles } from "@/lib/estonian/cloze";
 
 /**
  * Which CEFR bands are worth putting in front of somebody at a given level.
@@ -147,6 +148,35 @@ export const BUILD_FROM: Level = "A2";
 /** Whether a learner at this band is asked to order words at all. */
 export function maySortWords(level: Level): boolean {
   return LEVELS.indexOf(level) >= LEVELS.indexOf(BUILD_FROM);
+}
+
+/**
+ * The bands every Estonian sentence is held to words the course has taught.
+ *
+ * The same boundary as `BUILD_FROM` today and a different question, so a
+ * different predicate: one decides whether an exercise is asked at all, the
+ * other decides which sentences it may be built from. A beginner three weeks
+ * in has thirteen words and no reading to grow; a B1 learner meeting an
+ * unfamiliar word inside a sentence is how reading grows.
+ */
+export function onlyTaughtWords(level: Level): boolean {
+  return !maySortWords(level);
+}
+
+/**
+ * Whether this sentence is one a learner at this band may be shown.
+ *
+ * The one answer, because five surfaces ask it: the unit lesson, the Learn
+ * ladder's gap rung, the deck's gap-fill card, dictation and the flash round.
+ * A null set is "the course could not say", which fails closed at the bands
+ * that are held to it rather than letting every sentence through.
+ */
+export function readableFor(
+  level: Level, taught: ReadonlySet<string> | null,
+): (sentence: string) => boolean {
+  if (!onlyTaughtWords(level)) return () => true;
+  if (taught === null) return () => false;
+  return (sentence) => sentenceTiles(sentence).every((w) => taught.has(w.toLowerCase()));
 }
 
 export const BAND_ORDER: readonly string[] = ["A1", "A2", "B1", "B2", "C1", "C2"];

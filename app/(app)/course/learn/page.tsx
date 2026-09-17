@@ -3,6 +3,9 @@ import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts } from "@/lib/progress/learn";
+import { courseFormsByLemma } from "@/lib/dict/facts";
+import { spellingsOf } from "@/lib/progress/lessonWords";
+import { wordsThrough } from "@/lib/course";
 import { courseReading, programmeFor } from "@/lib/progress/course";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -39,10 +42,16 @@ export default async function CourseLearnPage() {
 
   const day = reading.current.day;
 
-  const [settings, level, counts] = await Promise.all([
+  const [settings, level, counts, courseSpellings] = await Promise.all([
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
     courseLevelFor(ownerId),
     learnCounts(ownerId),
+    /*
+      Every spelling of every course word. Which of them this learner has been
+      taught is `wordsThrough` below; this is a fact about the shared
+      dictionary, so on a warm instance it is no query at all.
+    */
+    courseFormsByLemma(),
   ]);
 
   const words = await learnBatch(
@@ -50,7 +59,24 @@ export default async function CourseLearnPage() {
     level,
     glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]),
     day.words.length,
-    { only: day.words },
+    {
+      only: day.words,
+      /*
+        WHAT THE MODULE HAS TAUGHT, THROUGH THE DAY THEY ARE ON.
+
+        The gap rung cuts a sentence a lexicographer wrote, and at A1 most of
+        those carry words from further up the course: the module's own first
+        evening would have gapped a sentence holding five words nobody had
+        shown. `wordsThrough` is what the programme has given them, which is a
+        different question from what their deck holds, and the right one here:
+        somebody who skipped a round still met the words.
+
+        Standalone Learn passes nothing and is untouched, because a learner
+        who went there themselves is choosing their own difficulty. This is
+        the module, which chose for them.
+      */
+      taughtWords: spellingsOf(courseSpellings, wordsThrough(programme, day.index)),
+    },
   );
 
   return (

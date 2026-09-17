@@ -50,9 +50,22 @@ export function taughtSpellings(
   unitId: string,
   reachedInUnit: readonly string[],
 ): ReadonlySet<string> {
+  return spellingsOf(byLemma, [...lemmasTaughtBefore(unitId), ...reachedInUnit]);
+}
+
+/**
+ * Every spelling of a named list of lemmas, folded to lower case.
+ *
+ * The primitive under the two ways of asking "what has this learner been
+ * taught": a unit lesson works it out from the syllabus, and the planned
+ * module already knows, because `wordsThrough` says what the programme has
+ * given them through the day they are on.
+ */
+export function spellingsOf(
+  byLemma: ReadonlyMap<string, ReadonlySet<string>>,
+  lemmas: readonly string[],
+): ReadonlySet<string> {
   const out = new Set<string>();
-  for (const lemma of [...lemmasTaughtBefore(unitId), ...reachedInUnit]) {
-    for (const spelling of byLemma.get(lemma) ?? []) out.add(spelling);
-  }
+  for (const lemma of lemmas) for (const spelling of byLemma.get(lemma) ?? []) out.add(spelling);
   return out;
 }

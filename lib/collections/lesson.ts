@@ -79,7 +79,7 @@ import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { differentMeaning } from "@/lib/questions/distractors";
 import { type Level } from "./syllabus/types";
-import { maySortWords } from "./levels";
+import { maySortWords, readableFor } from "./levels";
 import type { CardType } from "@/lib/srs/cards";
 
 export type StepKind =
@@ -321,9 +321,10 @@ function rulesFor(unit: LessonUnitInfo, taught: ReadonlySet<string> | null): Les
     */
     mayCase: !beginner || declares("CASE_FORM"),
     mayGovern: !beginner || declares("GOVERNMENT"),
-    readable: (sentence: string) =>
-      !beginner
-      || (taught !== null && sentenceTiles(sentence).every((w) => taught.has(w.toLowerCase()))),
+    // `readableFor` is `lib/collections/levels.ts`'s, because the ladder's gap
+    // rung and the deck's gap-fill card ask the same question of the same
+    // learner and five copies of it is five answers.
+    readable: readableFor(unit.level, taught),
   };
 }
 

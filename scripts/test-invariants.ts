@@ -44,6 +44,7 @@ import { NAV_MOTION } from "../lib/ux/navMotion";
 import { DESTINATIONS } from "../lib/ux/nav";
 import { rungOf } from "../lib/learn/ladder";
 import { BUILD_FROM, maySortWords } from "../lib/collections/levels";
+import { ROTATION } from "../lib/course/plan";
 import { LEVELS } from "../lib/collections/syllabus/types";
 import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
@@ -1356,6 +1357,35 @@ check("a lesson at A1 asks only about words the course has taught", () => {
       `${file} puts a sentence up as tiles without asking which bands are asked to order words`,
     );
   }
+  /*
+    And the planned module may not schedule a round its own learner is not
+    given: `sentences` sat in the A1 rotation, so taking word ordering out of
+    the lesson left the module sending a beginner to a screen that answers
+    with the band it opens at.
+  */
+  assert.ok(
+    !(ROTATION.A1 ?? []).includes("sentences"),
+    "the A1 rotation schedules the word-ordering round, which does not open until A2",
+  );
+
+  /*
+    THE MODULE'S OWN LADDER IS HELD TO WHAT THE MODULE HAS TAUGHT.
+
+    The gap rung cuts a sentence a lexicographer wrote against one headword,
+    so at A1 most of them carry words from further up the course. Standalone
+    Learn passes nothing and is deliberately untouched, because a learner who
+    went there themselves is choosing their own difficulty; the module chose
+    for them, so it hands in `wordsThrough`, what the programme has given them
+    through the day they are on.
+  */
+  const ladder = code("app/(app)/course/learn/page.tsx");
+  assert.match(ladder, /taughtWords:\s*spellingsOf\(/, "the module's ladder stopped saying what it has taught");
+  assert.match(ladder, /wordsThrough\(programme, day\.index\)/, "the module's ladder reads a different day's words");
+  assert.match(
+    code("lib/progress/learn.ts"),
+    /readableFor\(level, taughtWords\)/,
+    "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
 
   const lesson = code("lib/collections/lesson.ts");
 

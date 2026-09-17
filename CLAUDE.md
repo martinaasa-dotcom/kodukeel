@@ -3397,6 +3397,24 @@ has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 
 left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
 can actually read.
 
+**The planned module is held to the rule whole, and everything else a learner walks to themselves is
+not.** That is the line the operator drew and it is the one the code draws: what the module chose for
+them has to be answerable, and a round they opened from Practice is their own difficulty to pick. So
+the module's ladder hands `learnBatch` the words `wordsThrough` says the programme has given them
+through the day they are on, and its gap rung cuts only a sentence made of those; standalone Learn
+passes nothing and is untouched. `readableFor` in `lib/collections/levels.ts` is the one definition of
+whether a sentence may be shown, because five surfaces ask it.
+
+**And the module may not schedule a round its own learner is not given.** `sentences` sat in the A1
+rotation, so taking word ordering out of the lesson left the module sending a beginner to a screen
+that answers with the band it opens at. `conjugation` takes the slot and is the one drill in the
+table that is a table rather than a sentence: it gives the first person and asks for the others, two
+A1 units declare `CONJUGATION`, and it is already what a verb-heavy day is pinned to. **Every other
+A1 drill is built on a sentence** (dictation reads one out, describe answers with one, government and
+write drill inside one), which is §29's finding arriving in the rotation: at A1 the course's own
+attested sentences are mostly unreadable to the learner, so a drill built on one is thin there
+whatever it is called.
+
 **Two screens put a sentence up as tiles and the rule has to reach both.** The lesson's `build` step
 is one; `/review/sentences`, titled "Sentences · Word order" on Practice, is the other, and it draws
 straight from the learner's own deck with no band in it at all, so taking the exercise out of the
