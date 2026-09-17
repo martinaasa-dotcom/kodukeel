@@ -22,11 +22,21 @@
  *   for the same reason: a rate tells you there is a problem and a ranked list
  *   tells you what it is.
  *
+ * TWO WALKS, BECAUSE THERE ARE TWO TEACHING ORDERS AND THE STRICTER ONE IS THE
+ * ONE THE RULE PROTECTS. The unit lesson walks `SYLLABUS`, so everything an
+ * earlier unit taught counts; the planned module walks its own evenings, so
+ * only what the programme has handed over by that night counts, which is finer
+ * and therefore tighter. The ranked list is built off the module's order for
+ * that reason: it is the work list for the thing the operator asked to be held
+ * to the rule, and a list built off the looser walk would under-report exactly
+ * the sentences a beginner's evening cannot use.
+ *
  * Reports and never writes. No database, no key: it reads the two files the
  * seed loads, through the one adapter every other audit here reads them
  * through.
  */
 import { SYLLABUS } from "../lib/collections/syllabus/index";
+import { PROGRAMMES, wordsThrough } from "../lib/course";
 import { dictionaryRows } from "./lib/dictionary";
 import { buildCloze, naturalSentence, nominalOpener, sentenceTiles } from "../lib/estonian/cloze";
 import { usableExamples } from "../lib/dict/examples";
@@ -51,8 +61,56 @@ const spellingsOf = (lemma: string): string[] => {
   return out;
 };
 
+/**
+ * Whether this word can be gapped at all, and whether any sentence it can be
+ * gapped from is made only of spellings `taught` already holds. Counts the
+ * near misses toward `blockers` on the way past, since that is the list.
+ */
+function readWord(
+  lemma: string,
+  taught: ReadonlySet<string>,
+  blockers: Map<string, number>,
+): { any: boolean; ok: boolean } {
+  const row = (byLemma.get(lemma) ?? [])[0];
+  if (!row) return { any: false, ok: false };
+
+  const parts = Object.fromEntries(
+    row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
+  );
+  const hideable = [...gapFormsFromParts({ lemma: row.lemma, pos: row.pos, parts }).keys()];
+  const opener = nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]);
+
+  let any = false;
+  /*
+    `source` is what the dictionary column carries and what `usableExamples`
+    ranks on; the shipped-file adapter drops it, so it is put back as the one
+    thing every row here is: a sentence Ekilex recorded.
+  */
+  const examples = row.examples.map((e) => ({ ...e, source: "EKILEX" as const }));
+  for (const example of usableExamples(examples)) {
+    if (!naturalSentence(example.et, opener)) continue;
+    if (!buildCloze(example.et, hideable)) continue;
+    any = true;
+    const unknown = sentenceTiles(example.et).filter((w) => !taught.has(w.toLowerCase()));
+    if (unknown.length === 0) return { any: true, ok: true };
+    // Only the nearest miss counts toward the ranking, or a sentence with
+    // nine unfamiliar words would outvote nine sentences one word short.
+    if (unknown.length <= 2) {
+      for (const word of unknown) {
+        blockers.set(word.toLowerCase(), (blockers.get(word.toLowerCase()) ?? 0) + 1);
+      }
+    }
+  }
+  return { any, ok: false };
+}
+
+/*
+  THE UNIT LESSON'S WALK. Everything an earlier unit taught counts, and so does
+  the rest of the current unit, so this is the most permissive reading of the
+  three and its total is an upper bound. The lesson itself cuts at the sitting.
+*/
 const taught = new Set<string>();
-const blockers = new Map<string, number>();
+const unitBlockers = new Map<string, number>();
 let words = 0;
 let gappable = 0;
 let readable = 0;
@@ -64,38 +122,9 @@ for (const unit of SYLLABUS) {
 
   const missing: string[] = [];
   for (const lemma of unit.lemmas) {
-    const row = (byLemma.get(lemma) ?? [])[0];
-    if (!row) continue;
+    if (!byLemma.has(lemma)) continue;
     words++;
-
-    const parts = Object.fromEntries(
-      row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
-    );
-    const hideable = [...gapFormsFromParts({ lemma: row.lemma, pos: row.pos, parts }).keys()];
-    const opener = nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]);
-
-    let any = false;
-    let ok = false;
-    /*
-      `source` is what the dictionary column carries and what `usableExamples`
-      ranks on; the shipped-file adapter drops it, so it is put back as the one
-      thing every row here is: a sentence Ekilex recorded.
-    */
-    const examples = row.examples.map((e) => ({ ...e, source: "EKILEX" as const }));
-    for (const example of usableExamples(examples)) {
-      if (!naturalSentence(example.et, opener)) continue;
-      if (!buildCloze(example.et, hideable)) continue;
-      any = true;
-      const unknown = sentenceTiles(example.et).filter((w) => !taught.has(w.toLowerCase()));
-      if (unknown.length === 0) { ok = true; break; }
-      // Only the nearest miss counts toward the ranking, or a sentence with
-      // nine unfamiliar words would outvote nine sentences one word short.
-      if (unknown.length <= 2) {
-        for (const word of unknown) {
-          blockers.set(word.toLowerCase(), (blockers.get(word.toLowerCase()) ?? 0) + 1);
-        }
-      }
-    }
+    const { any, ok } = readWord(lemma, taught, unitBlockers);
     if (any) gappable++;
     if (ok) readable++;
     else if (any) missing.push(lemma);
@@ -105,12 +134,46 @@ for (const unit of SYLLABUS) {
   }
 }
 
-console.log("A1 words the dictionary can gap at all:", gappable, "of", words);
-console.log("A1 words with a sentence made only of words taught by then:", readable);
+/*
+  THE PLANNED MODULE'S WALK, which is the one the rule is drawn for: an evening
+  may show only what the programme has handed over through the night before, so
+  a word taught later in the same unit does not count. `wordsThrough` is the
+  module's own reading of that and is what `app/(app)/course/learn/page.tsx`
+  hands the ladder, so this asks the question the app asks.
+*/
+const dayBlockers = new Map<string, number>();
+let dayWords = 0;
+let dayGappable = 0;
+let dayReadable = 0;
+
+for (const programme of PROGRAMMES) {
+  if (programme.level !== "A1") continue;
+  for (const day of programme.days) {
+    const given = new Set<string>();
+    for (const lemma of wordsThrough(programme, day.index)) {
+      for (const spelling of spellingsOf(lemma)) given.add(spelling);
+    }
+    for (const lemma of day.words) {
+      if (!byLemma.has(lemma)) continue;
+      dayWords++;
+      const { any, ok } = readWord(lemma, given, dayBlockers);
+      if (any) dayGappable++;
+      if (ok) dayReadable++;
+    }
+  }
+}
+
+console.log("THE UNIT LESSON, walking the syllabus.");
+console.log("  A1 words the dictionary can gap at all:", gappable, "of", words);
+console.log("  With a sentence made only of words taught by then:", readable);
+console.log("\nTHE PLANNED MODULE, walking its own evenings. This is the rule's own reading.");
+console.log("  A1 words the dictionary can gap at all:", dayGappable, "of", dayWords);
+console.log("  With a sentence made only of words given by then:", dayReadable);
+
 console.log("\nWords with nothing readable, by unit:");
 console.log(thin.join("\n"));
 
-const ranked = [...blockers].sort((a, b) => b[1] - a[1]).slice(0, 30);
-console.log("\nWhat keeps a sentence out of reach, commonest first.");
+const ranked = [...dayBlockers].sort((a, b) => b[1] - a[1]).slice(0, 30);
+console.log("\nWhat keeps an evening's sentence out of reach, commonest first.");
 console.log("A word high on this list is either taught too late or the reason a sentence has to be written.\n");
 for (const [word, count] of ranked) console.log(`  ${String(count).padStart(4)}  ${word}`);

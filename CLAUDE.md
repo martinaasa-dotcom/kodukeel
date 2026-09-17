@@ -3419,11 +3419,39 @@ of the 464 A1 words the dictionary can cut a gap from at all, **53** have a sent
 words the course has taught by then. The fix is sentences a native speaker writes, which is what
 `docs/20-contributed-sentences.md` is already the channel for, and the audit prints the ranked list
 of what blocks a sentence rather than only the total, for the reason `eval:scene` does: a rate says
-there is a problem and a list says what it is. The list's own first entry is the argument for
-reading it. `ja` blocks ten sentences on its own and is taught in `sidesonad`, the twenty-second of
-A1's twenty-seven units, so **teaching one conjunction earlier is worth more than writing ten
-sentences**. `ta`, `oma`, `täna` and `väga` are the same shape. Read the list before writing
+there is a problem and a list says what it is.
+
+**And 53 is the unit lesson's number, which is not the number the rule is drawn for.** That walk
+credits everything an earlier unit taught *and the rest of the unit in hand*, so it is the most
+permissive of the three readings and its total is an upper bound; the lesson cuts at the sitting and
+the module cuts at the evening. Walking the module's own evenings through `wordsThrough`, which is
+what `app/(app)/course/learn/page.tsx` hands the ladder, the answer is **3 of 464**. So the audit
+walks both and ranks the blockers off the module's, since that is the work list for the thing the
+operator asked to be held to the rule and a list built off the looser walk under-reports exactly the
+sentences a beginner's evening cannot use.
+
+**And the ranked list's first entry is the argument for reading it rather than the total.** On the
+unit walk it is `ja`, blocking ten sentences and taught in `sidesonad`, the twenty-second of A1's
+twenty-seven units. On the module's own walk it is **`on`, blocking eighteen**, which is the third
+person of `olema` and the commonest word in the language: the harvest stores it, so the rule can see
+it, and the programme does not hand it over until the eleventh evening of A1.2, which is the
+twenty-ninth evening of A1. For twenty-eight evenings the copula is a word the learner has not been
+given, and nearly every attested sentence holds one. **Teaching `olema` earlier is worth more than
+writing eighteen sentences**, and it is a change to the course rather than to the code, which is the
+operator's to make: `korraldused` moved to the front of A2 on exactly that argument. `pluss`,
+`klassi`, `ta`, `oli` and `üks` are the same shape one rank down. Read the list before writing
 anything.
+
+**And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
+special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
+`euro`, and the ladder already knows what that costs: `free` sends such a word straight past the
+choice rung, whose four options would include its own spelling, to the gap. With the gap gone at A1
+that jump has nowhere to land, so `euro`, the one of the three that had a readable-shaped gap at
+all, now sits on the choice rung with the answer among the options; `number` and `park` never had a
+gap and were in that state before any of this. It is one word of 493, it shrinks rather than grows
+as contributed sentences land, and the two ways out are both worse than saying it: carving the
+readability rule open for the words that need it least, or inventing a question the dictionary
+cannot support.
 
 **What is still outside the rule and is named rather than hidden**: dictation and the picture round
 stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
