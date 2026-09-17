@@ -16865,6 +16865,199 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   );
 });
 
+/*
+  ────────────────────────── TONIGHT'S MODULE IS A ROOM ──────────────────────
+
+  A step opened from the module used to hand the learner back to the ordinary
+  website. It was reported off the reading step and the report is the whole
+  specification: the page was read, the learner kept scrolling because nothing
+  said where the reading ended, and at the foot of it they met a drill that was
+  never part of tonight. Then they came back to the list and the step was not
+  ticked, so the evening asked them to press "I did this" about a page they had
+  visibly just read.
+
+  Five things hold the answer up, and each is a way it would come apart
+  silently: a step link without the marker opens an ordinary page, a frame
+  mounted anywhere but the shell is a frame eighteen screens can forget, a
+  round that draws its own way out is a door out of the room, a reading that
+  keeps its drill is the fault itself, and a way on the client chose is a way
+  on nobody checked.
+*/
+
+/*
+  A LINK OUT OF THE LIST CARRIES THE MARKER, OR IT OPENS AN ORDINARY PAGE.
+
+  Anchored on the list calling `focusedSteps` and on no control in it reaching
+  for a bare `step.href`, because the two halves fail differently: without the
+  call nothing is focused at all, and with the call beside one link still
+  taking the raw href exactly one step of the evening quietly leaves the
+  module, which looks like a step somebody has not opened yet.
+*/
+check("a step opened from tonight's module carries the marker", () => {
+  const list = code("components/course/StepList.tsx");
+  assert.match(
+    list, /focusedSteps\(/,
+    "the module's list stopped writing the marker onto its step links. See lib/course/focus.ts",
+  );
+  assert.ok(
+    !/href=\{step\.href\}/.test(list) && !/push\(step\.href\)/.test(list),
+    "a control in the module's list opens a step's bare href, which leaves the module",
+  );
+  const focus = code("lib/course/focus.ts");
+  for (const name of ["MODULE_PARAM", "focusHref", "readFocus", "continueHref"]) {
+    assert.match(focus, new RegExp(`export (const|function) ${name}\\b`), `focus.ts stopped exporting ${name}`);
+  }
+});
+
+/*
+  AND THE FRAME IS MOUNTED ONCE, WHERE EVERY STEP PASSES THROUGH.
+
+  A day's steps open a reading, four shapes of round, a conversation and the
+  review queue, and one more whenever a rotation gains a round. Wired into each
+  of those it is eighteen chances to forget; mounted in the shell it is the
+  address that decides, so a screen that did not exist when this was written
+  arrives already inside the module. The CSS half is asserted with it, because
+  a frame drawn over a rail that is still there is not a room.
+*/
+check("the module frame is mounted once in the shell, and takes the website with it", () => {
+  const layout = code("app/(app)/layout.tsx");
+  assert.match(
+    layout, /<ModuleScope>/,
+    "the signed-in shell stopped mounting the module frame. See components/course/ModuleScope.tsx",
+  );
+  const mounts = ALL.filter((f) => f !== "app/(app)/layout.tsx" && /<ModuleScope>/.test(code(f)));
+  assert.deepEqual(
+    mounts, [],
+    `the module frame is mounted a second time (${mounts.join(", ")}). One mount, or two frames disagree about the way on`,
+  );
+
+  const css = read("app/globals.css");
+  assert.match(
+    css, /body:has\(\.module-step\) \[data-chrome\]/,
+    "a module step stopped taking the rail, the phone bar and the tutor's button off the screen",
+  );
+  /* The same hook the conversation hides by, deliberately: two rules naming
+     two sets of furniture is two answers to what the website is made of. */
+  assert.match(
+    code("components/course/ModuleScope.tsx"), /className="module-step/,
+    "nothing draws `.module-step`, so the rule above matches nothing",
+  );
+});
+
+/*
+  A ROUND ASKS BEFORE IT DRAWS A WAY OUT.
+
+  Every session had the same two written out by hand: a cross in the corner and
+  a row of buttons on the finish screen offering Today, another round and the
+  practice menu. Right where somebody chose the round; three doors out of a
+  room where the module did. One drawing rather than seventeen, so an
+  eighteenth round cannot keep its own door by being written before anybody
+  remembered this rule.
+
+  Anchored on the copy rather than on the component name, because a session
+  that reintroduced the markup would satisfy any check looking only for the
+  import.
+*/
+check("a round's own way out stands down inside a module", () => {
+  const rounds = ALL.filter((f) => /Session\.tsx$/.test(f));
+  assert.ok(rounds.length >= 15, `only ${rounds.length} session files found; the sweep is looking in the wrong place`);
+
+  const exit = code("components/round/RoundExit.tsx");
+  for (const name of ["EndSession", "WayOut"]) {
+    assert.match(exit, new RegExp(`export function ${name}\\b`), `RoundExit stopped drawing ${name}`);
+  }
+  assert.equal(
+    (exit.match(/useModuleFocus\(\)/g) ?? []).length, 2,
+    "one of the two ways out of a round stopped asking whether it is inside a module",
+  );
+
+  for (const file of rounds) {
+    const src = code(file);
+    assert.ok(
+      !/aria-label="End session"/.test(src),
+      `${file} draws its own cross. Use EndSession, which stands down inside a module`,
+    );
+    /* A finish screen's row of exits: the copy is the anchor, and it may only
+       appear inside the one wrapper that can take the row away. */
+    for (const match of src.matchAll(/>Back to Today</g)) {
+      const at = match.index ?? 0;
+      const before = src.slice(Math.max(0, at - 600), at);
+      assert.ok(
+        before.lastIndexOf("<WayOut") > before.lastIndexOf("</WayOut>"),
+        `${file} offers Today off a finish screen outside a WayOut, so a module step has a door out of it`,
+      );
+    }
+  }
+});
+
+/*
+  THE READING IS A READING, WHICH IS THE FAULT THIS WAS REPORTED AS.
+
+  Both reference pages are good pages and neither is the module's second step:
+  each hands over at the foot of it to the units that teach the point and to a
+  drill on the learner's own deck, which is exactly what was taken by somebody
+  who kept scrolling. Inside a module both stand down. Asserted on both,
+  because they are two pages answering one step and fixing one is the shape of
+  a fault that only shows on half the evenings.
+*/
+check("the module's reading step carries no drill and no way off the page", () => {
+  for (const page of [
+    "app/(app)/grammar/topic/[id]/page.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+  ]) {
+    const src = code(page);
+    assert.match(
+      src, /focusFrom\(await searchParams\)/,
+      `${page} does not ask whether it was opened from tonight's module`,
+    );
+    assert.match(
+      src, /inModule \? undefined : \(/,
+      `${page} keeps its way back to the reference inside a module`,
+    );
+    assert.match(
+      src, /\{!inModule &&/,
+      `${page} stopped holding anything back inside a module`,
+    );
+  }
+  /* The drill is the one the report named, so it is named here. */
+  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
+  assert.match(
+    topic, /\{!inModule && TOPIC_DRILL\[id\]/,
+    "the grammar topic page offers its drill inside a module again",
+  );
+});
+
+/*
+  AND THE WAY ON IS RESOLVED ON THE SERVER.
+
+  The marker came off an address a learner could have typed, so the step it
+  names decides what a caption says and nothing else. `advanceCourseStep` reads
+  the programme, the day and the step again, refuses a day nobody has reached
+  for the reason `markCourseStep` does (a tick is the pointer `dayReached`
+  reads), refuses to write a row for a step the review log proves, and works
+  out where to go from the day's own order.
+*/
+check("the module's way on is resolved on the server and ticks nothing it may not", () => {
+  const actions = code("app/actions.ts");
+  const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));
+  assert.ok(fn.length > 0, "advanceCourseStep is gone; the module has no way on");
+  const body = fn.slice(0, fn.indexOf("\n}\n") + 3);
+  assert.match(body, /await requireUserId\(\)/, "advanceCourseStep takes an owner from its caller");
+  assert.match(body, /dayIsInPlay\(/, "advanceCourseStep stopped checking the day is the one reached");
+  assert.match(body, /if \(!step\.derived\)/, "advanceCourseStep would write a row for a step the log proves");
+  assert.match(body, /continueHref\(/, "advanceCourseStep stopped working out the way on for itself");
+  assert.ok(
+    !/href:\s*(hrefFrom|input|next(Href)?\b)/.test(body),
+    "advanceCourseStep takes the way on from its caller rather than from the day's order",
+  );
+  /* And the frame sends nothing but the three ids. */
+  const scope = code("components/course/ModuleScope.tsx");
+  assert.match(
+    scope, /advanceCourseStep\(focus\.programmeId, focus\.dayId, focus\.stepId\)/,
+    "the module frame stopped asking the server where the way on goes",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

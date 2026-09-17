@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Scale, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Check, Scale } from "lucide-react";
 import { addToDeck, gradeCard } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
@@ -14,6 +13,7 @@ import { CASES, questionInEnglish } from "@/lib/estonian/cases";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import type { CaseKey } from "@/lib/estonian/types";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -142,10 +142,10 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/government">Another round</ButtonLink>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -158,9 +158,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           spends the round on. */}
       <h1 className="sr-only">Verb government</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"

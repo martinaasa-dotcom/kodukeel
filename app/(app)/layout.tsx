@@ -9,6 +9,7 @@ import { Wash } from "@/components/ui";
 import { AnuFab } from "@/components/anu/AnuFab";
 import { TimeZoneSync } from "@/components/TimeZoneSync";
 import { LetterBarScope } from "@/components/DiacriticBar";
+import { ModuleScope } from "@/components/course/ModuleScope";
 import { resolveProviders } from "@/lib/tutor/provider";
 import { requireUserId } from "@/lib/auth/session";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -137,7 +138,21 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           point the window is wide enough that the column no longer reaches,
           the column gives it room instead.
         */}
-        <main id="main" className="dock-pad min-w-0 flex-1 md:pr-[5rem] 2xl:pr-0">{children}</main>
+        {/*
+          TONIGHT'S MODULE IS A ROOM, AND THIS IS WHERE IT IS MOUNTED.
+
+          A step opened from the module says so in its own address, and this
+          reads it: the rest of the website goes off the screen, the way on is
+          one button at the foot of it, and pressing that button ticks the step
+          and opens the next one. Mounted once here rather than wired into each
+          step's own page, because a day's steps open eighteen screens today
+          and one more whenever a rotation gains a round, and the page that
+          forgot to draw the frame would look exactly like a step nobody had
+          opened yet. See components/course/ModuleScope.tsx.
+        */}
+        <main id="main" className="dock-pad min-w-0 flex-1 md:pr-[5rem] 2xl:pr-0">
+          <ModuleScope>{children}</ModuleScope>
+        </main>
       </div>
       {/* The browser's own pull to refresh went with `overscroll-behavior-y:
           none` in globals.css, and there is no setting that keeps one and not

@@ -10,6 +10,7 @@ import { plainAsk } from "@/lib/estonian/plainAsk";
 import { shuffle } from "@/lib/random/shuffle";
 import { gradeCard } from "@/app/actions";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
+import { WayOut } from "@/components/round/RoundExit";
 
 export interface EmojiPair {
   id: string;
@@ -208,10 +209,10 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
             ))}
           </ul>
 
-          <div className="flex flex-wrap justify-center gap-3">
+          <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
             <ButtonLink href="/review/emoji" variant="primary" size="lg">Another board</ButtonLink>
-          </div>
+          </WayOut>
         </div>
       </Page>
     );

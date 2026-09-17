@@ -3551,6 +3551,62 @@ every one is a lemma its own unit teaches, asserted word by word; the unit is it
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
 
+**A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
+decision made in advance and it was handing the learner straight back to the ordinary website the
+moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the
+corner that opens a tutor. It was reported off the reading step and the report is the whole
+specification. The page was read, the learner kept scrolling because nothing said where the reading
+had ended, and at the foot of it they met "Drill it" and took a drill that was never part of
+tonight. The drill was a good drill and it was not that step, which has its own rounds two steps
+below. Then they came back to the list and the step was not green, so the evening asked them to
+press "I did this" about a page they had visibly just read.
+
+So a step opened from the module says so, in the one place a screen can be told how it was reached,
+which is its own address. `lib/course/focus.ts` is the one table of what `?module=` carries, five
+short fields written by the list and read by the frame, and `readFocus` refuses anything that is not
+five fields with two numbers in them, because a hand-typed address reaches it like everything else
+off the wire. **Nothing in it is trusted**: it decides whether a frame is drawn and what the caption
+says, and `advanceCourseStep` resolves the programme, the day and the step again on the server,
+refuses a day nobody has reached for the reason `markCourseStep` does, refuses to write a row for a
+step the review log proves, and works out where to go from the day's own order rather than from
+anything sent to it.
+
+**The website goes by the hook a conversation already uses.** `body:has(.module-step) [data-chrome]`
+is the same rule `.scene-room` has, against the same three marked places, deliberately: two rules
+naming two sets of furniture is two answers to what this app is made of, and the second one rots the
+day somebody adds a third piece. In CSS rather than an attribute written from an effect, since an
+effect runs after the first paint and every step would draw the whole website for a frame and then
+take it away. The room the pinned bar takes is written **after** the conversation's own
+`padding-bottom: 0`, because the two selectors weigh the same and a conversation reached from a
+module matches both: in the other order the bar covers the box the one typed step is answered in.
+
+**Mounted once, in the shell, because eighteen screens cannot each remember.** A day's steps open a
+reading, four shapes of round, a conversation and the review queue, and one more whenever a rotation
+gains a round. Wired into each of those it is eighteen chances to forget, and the page that forgot
+would look exactly like a step nobody had opened yet. Mounted in `app/(app)/layout.tsx` it is the
+address that decides, so a step that did not exist when this was written arrives already inside the
+module. Asserted, along with there being only one mount: two frames are two answers to where the way
+on goes.
+
+**And a round's own way out stands down.** Every session had the same two written out by hand, a
+cross in the corner and a row on the finish screen offering Today, another round and the practice
+menu, which is right where somebody chose the round and is three doors out of a room where the
+module did. `components/round/RoundExit.tsx` is the one drawing of both and each asks
+`useModuleFocus`; the sweep is anchored on the copy rather than on the import, because a session that
+wrote the markup back would satisfy any check looking only for the component. **"Another round" goes
+with them**: it is not an exit and it is still a second thing to decide, on the one screen whose job
+is to say how that round went and hand the evening on. What is left in a module step is the button
+at the foot of it, which ticks the step and opens the next, and one quiet way back to the list, which
+is not leaving the evening. An inline link inside a sentence is not touched, here or anywhere: a word
+linked to its own dictionary entry in the sentence saying what it means is content rather than
+navigation.
+
+**And the reading is a reading.** Both reference pages stand their unit list, their drill and their
+way back to the reference down inside a module, and both are asserted, because they are two pages
+answering one step and fixing one is a fault that shows on half the evenings. Nothing is deleted for
+anybody else: opened from the reference, from a card or from a search, each page is exactly what it
+was.
+
 **It is a suggestion, not a track.** It is offered at the first part of the learner's own level, so
 a B1 speaker who turns it on gets B1.1 rather than five parts of greetings, and it is one setting to
 turn off. Off changes nothing else, and the work done the other way still counts toward a module the
@@ -7879,7 +7935,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
-`caseExamplesFor`.
+`caseExamplesFor`, `MODULE_PARAM`, `readFocus`, `focusedSteps`, `continueHref`,
+`ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
+`module-step`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -7926,6 +7984,9 @@ npm run test:browser     # the newer browser suites: routes, modes, offline, sca
                          # (test-first-day runs first and needs an empty deck: reseed before it)
 npm run test:mobile      # the phone, measured; needs the server running
 npm run test:containment # text and icons inside their boxes, measured; needs the server running
+# scripts/test-module.mjs is in test:browser: tonight's module walked, which is the only
+#   way to see the website gone, the reading carrying no drill, and a step ticking itself
+#   on the way past
 # scripts/test-security.mjs is in test:browser: the headers, the forged request, the caps
 #   and what the health endpoint will say, asked of a running server rather than of the source
 ```

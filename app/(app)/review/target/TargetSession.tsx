@@ -10,6 +10,7 @@ import { Chip, KeyCap, Page, StatTile } from "@/components/ui";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { TargetQuestion } from "@/lib/progress/target";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { WayOut } from "@/components/round/RoundExit";
 
 /** Seconds for the first shot. */
 const START_S = 8;
@@ -140,10 +141,10 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
           <p className="max-w-[42ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
             Every one of those went into the schedule, so what you missed comes back sooner.
           </p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
             <ButtonLink href="/review/target" variant="primary" size="lg">Again</ButtonLink>
-          </div>
+          </WayOut>
         </div>
       </Page>
     );

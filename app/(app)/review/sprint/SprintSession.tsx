@@ -13,6 +13,7 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
+import { WayOut } from "@/components/round/RoundExit";
 
 export interface SprintCard {
   id: string;
@@ -187,10 +188,10 @@ export function SprintSession({
           <StatTile value={`${accuracy}%`} label="Accuracy" tone={accuracy >= 85 ? "mint" : "butter"} />
           <StatTile value={attempted} label="Attempted" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/sprint" variant="primary" size="lg">Sprint again</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }

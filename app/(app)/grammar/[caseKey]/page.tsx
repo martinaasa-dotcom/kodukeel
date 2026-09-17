@@ -12,6 +12,7 @@ import { Card, Chip, Empty, Note, Page, SectionTitle, Stack } from "@/components
 import { Speak } from "@/components/Speak";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
+import { focusFrom } from "@/lib/course";
 
 export const dynamic = "force-dynamic";
 
@@ -77,9 +78,30 @@ const SENTENCES = 3;
  * `lib/progress/caseExamples.ts` and carries where it came from, because
  * "Ekilex says so" and "this app added an ending to a stem" are different
  * claims and a learner deserves to know which one they are looking at.
+ *
+ * AND READ FROM TONIGHT'S MODULE IT IS A READING AND NOTHING ELSE.
+ *
+ * The module's second step is "read the point behind it", and what it opened
+ * was this, whole: an ending explained, and then four buttons, a drill, a note
+ * about the drill and a way on to the next ending. It was reported from
+ * exactly there. The learner read the page, kept scrolling because nothing
+ * said the reading had ended, and took a drill that was never part of tonight.
+ * The drill was a good drill. It was not this step, and the evening has its
+ * own rounds two steps further down.
+ *
+ * So inside a module the page is the ending and the words that wear it, and
+ * the one way on is the frame's own button at the foot of the screen. Nothing
+ * here is deleted for anybody else: opened from the reference, from a card or
+ * from a search, this page is exactly what it was.
  */
-export default async function CasePage({ params }: { params: Promise<{ caseKey: string }> }) {
+export default async function CasePage({
+  params, searchParams,
+}: {
+  params: Promise<{ caseKey: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { caseKey } = await params;
+  const inModule = focusFrom(await searchParams) !== null;
   const ref = caseReference(caseKey.toUpperCase());
   if (!ref) notFound();
 
@@ -103,7 +125,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
       }
       title={asTitle(ref.plain)}
       lead={ref.summary}
-      actions={
+      actions={inModule ? undefined : (
         <Link
           href="/grammar"
           className="press inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-semibold transition-ui hover:-translate-y-px"
@@ -111,7 +133,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
         >
           <ArrowLeft size={14} aria-hidden /> All endings
         </Link>
-      }
+      )}
     >
       <Stack>
         <Card tone="accent">
@@ -237,6 +259,20 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
                   {examples.map((example) => (
                     <tr key={example.lexemeId} style={{ borderTop: "1px solid var(--rule-soft)" }}>
                       <td className="px-3 py-2.5">
+                        {/*
+                          AND THE WORD IS PRINTED RATHER THAN LINKED INSIDE A
+                          MODULE. Six words in a table, each a door into the
+                          dictionary, is six ways out of a two-minute reading,
+                          and the learner who takes one lands on a screen with
+                          no way back to the evening. The word itself is what
+                          the row is for and it is still here; what is gone is
+                          the door.
+                        */}
+                        {inModule ? (
+                          <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>
+                            {example.lemma}
+                          </span>
+                        ) : (
                         <Link
                           href={`/dictionary?q=${encodeURIComponent(example.lemma)}`}
                           className="hover:underline"
@@ -245,6 +281,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
                             {example.lemma}
                           </span>
                         </Link>
+                        )}
                         <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
                           {example.translation}
                         </span>
@@ -319,28 +356,34 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
           </section>
         )}
 
-        <div className="flex flex-wrap gap-3">
-          <ButtonLink href="/review/write">
-            <PenLine size={15} aria-hidden /> Write a sentence with it
-          </ButtonLink>
-          {/* Writing a sentence in a case is the hardest thing you can do with
-              one, so it belongs on the page that just explained it rather than
-              on a menu that cannot say which case you are stuck on. */}
-          <ButtonLink href="/dictionary">
-            <BookOpen size={15} aria-hidden /> Look a word up
-          </ButtonLink>
-          <ButtonLink href="/tutor">
-            <MessageCircleQuestion size={15} aria-hidden /> Ask Anu about it
-          </ButtonLink>
-          <ButtonLink href={`/review?case=${ref.key}`} variant="primary">
-            <Target size={15} aria-hidden /> Drill it
-          </ButtonLink>
-        </div>
+        {/* The drill and the three ways off this page, which a module step may
+            not carry: see the header. */}
+        {!inModule && (
+          <>
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/review/write">
+                <PenLine size={15} aria-hidden /> Write a sentence with it
+              </ButtonLink>
+              {/* Writing a sentence in a case is the hardest thing you can do with
+                  one, so it belongs on the page that just explained it rather than
+                  on a menu that cannot say which case you are stuck on. */}
+              <ButtonLink href="/dictionary">
+                <BookOpen size={15} aria-hidden /> Look a word up
+              </ButtonLink>
+              <ButtonLink href="/tutor">
+                <MessageCircleQuestion size={15} aria-hidden /> Ask Anu about it
+              </ButtonLink>
+              <ButtonLink href={`/review?case=${ref.key}`} variant="primary">
+                <Target size={15} aria-hidden /> Drill it
+              </ButtonLink>
+            </div>
 
-        <Note tone="neutral">
-          A drill only opens for words in your deck that carry this ending. If nothing comes up, add
-          a noun unit from the course.
-        </Note>
+            <Note tone="neutral">
+              A drill only opens for words in your deck that carry this ending. If nothing comes up, add
+              a noun unit from the course.
+            </Note>
+          </>
+        )}
 
         {/*
           The reference is prose we wrote about a language we do not speak
@@ -359,6 +402,9 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
           />
         </div>
 
+        {/* And the ending after this one, which is the course's business
+            tonight rather than the reader's. */}
+        {!inModule && (
         <nav
           aria-label="Endings"
           className="flex flex-wrap items-center justify-between gap-3 border-t pt-5"
@@ -385,6 +431,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
             </Link>
           )}
         </nav>
+        )}
       </Stack>
     </Page>
   );

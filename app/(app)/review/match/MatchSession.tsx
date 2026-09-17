@@ -9,6 +9,7 @@ import { Confetti } from "@/components/Confetti";
 import { Empty, Page, Stat } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
 import { OPTION_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { WayOut } from "@/components/round/RoundExit";
 
 export interface MatchPair {
   cardId: string;
@@ -209,11 +210,11 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           <Stat value={pairs.length} label="Pairs" />
           <Stat value={missed} label="Wrong taps" tone={missed === 0 ? VERDICT_INK.right : undefined} />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/practice">Other modes</ButtonLink>
           <ButtonLink href="/">Back to Today</ButtonLink>
           <ButtonLink href="/review/match" variant="primary">Another round</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }

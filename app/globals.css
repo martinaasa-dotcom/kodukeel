@@ -1024,6 +1024,44 @@
   body:has(.scene-room) [data-chrome] { display: none !important; }
 
   /*
+    AND A STEP OF TONIGHT'S MODULE IS A ROOM FOR THE SAME REASON.
+
+    The module screen is one decision made in advance, and pressing a step used
+    to hand the learner straight back to the ordinary website: a rail down the
+    left, a bar along the bottom of a phone, a button in the corner that opens
+    a tutor, and, on the reading step, a reference page whose foot carries
+    links to three units and a drill. It was reported off that step and the
+    report is the whole argument: the page was read, the learner kept
+    scrolling, and took a drill that was never part of tonight, because nothing
+    on the screen said where the reading ended.
+
+    Same hook, same reason it is a selector rather than an attribute written
+    from an effect, and deliberately the same `[data-chrome]` the conversation
+    already hides by: two rules naming two sets of things to take off the
+    screen is two answers to what the website is made of, and the second one
+    rots the day somebody adds a third piece of furniture.
+
+    `components/course/ModuleScope.tsx` draws `.module-step`, and it draws it
+    only where the address says a step was opened from the module. Every one of
+    these screens is still an ordinary page of the website when it is reached
+    any other way.
+  */
+  body:has(.module-step) [data-chrome] { display: none !important; }
+
+  /*
+    The gutter the tutor's button needs, and the room the bar at the foot of a
+    module step takes.
+
+    `#main` reserves 5rem on the right from the width the rail appears at, for
+    a button that is not drawn here; and `dock-pad` reserves the phone bar's
+    measured height, which is nought now that the bar has no box. What is drawn
+    instead is the way on, and it is `position: fixed`, so the last card of a
+    reading would otherwise sit under it. Enough for the bar and its own
+    padding at both sizes.
+  */
+  body:has(.module-step) #main { padding-right: 0; }
+
+  /*
     AND THE PAGE MOVES WHEN THIS SCREEN SAYS SO, WHICH IS NOT WHAT THE BROWSER
     WAS DOING.
 
@@ -1049,6 +1087,26 @@
   body:has(.scene-room) { overflow-anchor: none; }
   body:has(.scene-room) #main { padding-right: 0; }
   body:has(.scene-room) .dock-pad { padding-bottom: 0; }
+
+  /*
+    AND THE ROOM THE MODULE'S OWN BAR TAKES, WHICH IS THE LAST WORD ON THIS.
+
+    `dock-pad` is the phone bar's measured height spent as padding under the
+    page, and it is nought inside a conversation because a conversation draws
+    no phone bar and ends in a panel that is the foot of the screen. A step of
+    tonight's module draws something there instead: the way on, pinned, which
+    is exactly what the last card of a reading and the box a conversation is
+    answered in would otherwise sit under.
+
+    Written after the conversation's own rather than beside the rule that hides
+    the website, because the two selectors have the same weight and a
+    conversation reached from a module matches both: read in the other order
+    the bar would cover the panel on the one step that is typed into. The same
+    figure as scroll margin, since `scrollIntoView` stops when a box is inside
+    the window and the bar is drawn over the bottom of it.
+  */
+  body:has(.module-step) .dock-pad { padding-bottom: 8rem; }
+  body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
 
   /*
     THE ROOM'S OWN LIGHT.

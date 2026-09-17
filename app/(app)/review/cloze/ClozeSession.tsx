@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, CircleAlert, Loader2, ScissorsLineDashed, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Check, CircleAlert, Loader2, ScissorsLineDashed } from "lucide-react";
 import { buildClozeFromText, gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -13,6 +12,7 @@ import {
 } from "@/lib/estonian/passage";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -123,14 +123,14 @@ export function ClozeSession() {
             <p role="alert" className="mt-3 text-sm" style={{ color: "var(--again-ink)" }}>{error}</p>
           )}
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <WayOut className="mt-4 flex flex-wrap gap-3">
             <ButtonLink href="/">Back to Today</ButtonLink>
             <Button variant="primary" disabled={busy || !text.trim()} onClick={() => void build()}>
               {busy
                 ? <><Loader2 size={15} className="animate-spin" aria-hidden /> Reading…</>
                 : "Make exercises"}
             </Button>
-          </div>
+          </WayOut>
 
           <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
@@ -160,12 +160,12 @@ export function ClozeSession() {
           <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <Button onClick={() => { setPhase("paste"); setItems([]); setIndex(0); setCorrect(0); setText(""); }}>
             Another passage
           </Button>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -186,9 +186,7 @@ export function ClozeSession() {
           and the round itself did not. */}
       <h1 className="sr-only">From your reading</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"

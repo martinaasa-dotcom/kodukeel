@@ -411,6 +411,20 @@ jobs:
       # key, so that one check is waived with the state that would lift it
       # named, and every other rung and every screen is checked either way.
       - run: node scripts/test-scene.mjs
+      # TONIGHT'S MODULE, WALKED.
+      #
+      # A step of the module is a room, and every claim in that sentence is one
+      # only a browser can settle: the rail is hidden by a selector reading an
+      # element drawn several components away, whether the reading still
+      # carries a drill depends on a prop reaching a branch, and whether
+      # pressing on ticks the step is a Server Action, a redirect and a
+      # re-render apart. All three are green in the source and provable only by
+      # opening it, which is how the fault this was written for reached a
+      # learner: they read the page, kept scrolling, and took a drill that was
+      # never part of that evening.
+      #
+      # It needs no key: every step it walks is the reading and the list.
+      - run: node scripts/test-module.mjs
       - run: node scripts/a11y-check.mjs
       # And the five this list had quietly lost. The comment above about
       # `test-exam.mjs` sitting here unrun describes the drift in one

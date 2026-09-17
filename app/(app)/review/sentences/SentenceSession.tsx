@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, Eye, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
@@ -13,6 +13,7 @@ import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceMatches, sentenceTiles } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 export interface SentenceTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -178,11 +179,11 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "mint" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/sentences" variant="primary" size="lg">Another round</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -202,14 +203,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">Sentences</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="grad-accent h-full rounded-full transition-[width] duration-500"
