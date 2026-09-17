@@ -32,16 +32,19 @@ export default async function SpeakingPage() {
     lexeme: { select: { lemma: true, translation: true, examples: true, cefr: true } },
   } as const;
 
-  // How a beginner's word orders its own sentences, so this round says the
-  // plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
-  const reach = await sentenceReach();
-
-  const due = await prisma.card.findMany({
-    where: { ...base, due: { lte: now }, state: { not: 0 } },
-    orderBy: { due: "asc" },
-    take: ROUND,
-    include,
-  });
+  const [due, reach] = await Promise.all([
+    prisma.card.findMany({
+      where: { ...base, due: { lte: now }, state: { not: 0 } },
+      orderBy: { due: "asc" },
+      take: ROUND,
+      include,
+    }),
+    // How a beginner's word orders its own sentences, so this round says the
+    // plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
+    // Asked beside the deck read rather than in front of it: the two do not
+    // need each other, and a hosted database is a round trip away.
+    sentenceReach(),
+  ]);
 
   let pool = due;
   if (pool.length < ROUND) {

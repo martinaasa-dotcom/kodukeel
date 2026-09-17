@@ -37,31 +37,31 @@ export default async function DictationPage() {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
 
-  const cards = await prisma.card.findMany({
-    /*
-      state: { not: 0 } is what makes "already studying" above true rather than
-      aspirational: a brand-new card is due at the moment it is created, so
-      `orderBy due asc` with no state filter put an unmet word's own sentence
-      at the front of the round, dictated cold. A card graded at least once, in
-      any mode, is what this round means by "already studying", the same rule
-      sprint, speaking, listening and Match already apply to their own pools.
-    */
-    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
-    orderBy: [{ due: "asc" }],
-    take: 300,
-    select: {
-      id: true,
-      cardType: true,
-      reps: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
-    },
-  });
-
-  /*
-    And how a beginner's word orders its own sentences, so a round draws the
-    plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
-  */
-  const reach = await sentenceReach();
+  const [cards, reach] = await Promise.all([
+    prisma.card.findMany({
+      /*
+        state: { not: 0 } is what makes "already studying" above true rather than
+        aspirational: a brand-new card is due at the moment it is created, so
+        `orderBy due asc` with no state filter put an unmet word's own sentence
+        at the front of the round, dictated cold. A card graded at least once, in
+        any mode, is what this round means by "already studying", the same rule
+        sprint, speaking, listening and Match already apply to their own pools.
+      */
+      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      orderBy: [{ due: "asc" }],
+      take: 300,
+      select: {
+        id: true,
+        cardType: true,
+        reps: true,
+        lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
+      },
+    }),
+    // And how a beginner's word orders its own sentences, so a round draws
+    // the plainest one recorded rather than the shortest, asked beside the
+    // deck read because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   // One task per word, and one card per word to grade against.
   const byLexeme = new Map<string, {

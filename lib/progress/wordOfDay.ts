@@ -215,14 +215,14 @@ async function pickThemed(
     take: CANDIDATE_LIMIT,
   });
 
-  const fresh = await withoutReviewed(ownerId, rows);
-  if (fresh.length === 0) return null;
-
   /*
-    And what the dictionary vouches for at each band, which decides which of a
-    beginner's own recorded sentences this card leads with.
+    What the dictionary vouches for at each band decides which of a beginner's
+    own recorded sentences this card leads with, and it is a fact about the
+    shared dictionary rather than about this learner, so it is asked beside the
+    read that filters their own met words rather than after it.
   */
-  const reach = await sentenceReach();
+  const [fresh, reach] = await Promise.all([withoutReviewed(ownerId, rows), sentenceReach()]);
+  if (fresh.length === 0) return null;
 
   // The layers in the almanac's own order: a named day beats a number, a
   // number beats a month. Within one occasion its own glosses are in order too.
@@ -292,8 +292,11 @@ async function pickAny(ownerId: string, day: DayKey, dayStart: Date, level: Leve
       the whole pick: the panel went blank, or, once this had a second pass
       under it, fell out of the learner's band over a single stale word.
     */
-    const chosen = (await withoutReviewed(ownerId, rows))[0];
-    if (chosen) return build(chosen, null, await sentenceReach());
+    const [candidates, reach] = await Promise.all([
+      withoutReviewed(ownerId, rows), sentenceReach(),
+    ]);
+    const chosen = candidates[0];
+    if (chosen) return build(chosen, null, reach);
   }
   return null;
 }

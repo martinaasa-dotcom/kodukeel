@@ -393,28 +393,26 @@ export async function learnBatch(
   if (rows.length === 0) return [];
 
   /*
-    Which words the dictionary holds is not a fact about the person being
-    asked, so the decoy pool is one read per instance rather than one per
-    session. See lib/dict/facts.ts.
-  */
-  const pool = await decoyOptions();
+    Three reads that do not need each other, so they are asked at once rather
+    than one after the next: on a hosted database each `await` in a row is a
+    round trip, which is what turned Today into fourteen of them.
 
-  /*
-    And what the dictionary vouches for at each band, which is the same kind of
-    fact and cached the same way: it decides which of a beginner's own recorded
-    sentences the meet rung leads with. See lib/dict/plainness.ts.
+      - The decoy pool, which is what words the dictionary holds and therefore
+        one read per instance rather than one per session.
+      - What the dictionary vouches for at each band, the same kind of fact and
+        cached the same way: it decides which of a beginner's own recorded
+        sentences the meet rung leads with. See lib/dict/plainness.ts.
+      - Which of the batch are already favorites, so the star in the corner of
+        each card is drawn in the state it is actually in. One query for the
+        batch rather than one per word, and it is here rather than in the page
+        because the batch is assembled here and a second read would be a second
+        answer.
   */
-  const reach = await sentenceReach();
-
-  /*
-    Which of the batch are already favorites, so the star in the corner of
-    each card is drawn in the state it is actually in. One query for the batch
-    rather than one per word, and it is here rather than in the page because
-    the batch is assembled here and a second read would be a second answer.
-  */
-  const starred = await starredAmong(
-    ownerId, rows.map((row) => row.lexeme!.id),
-  );
+  const [pool, reach, starred] = await Promise.all([
+    decoyOptions(),
+    sentenceReach(),
+    starredAmong(ownerId, rows.map((row) => row.lexeme!.id)),
+  ]);
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;

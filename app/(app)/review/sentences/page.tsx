@@ -29,30 +29,30 @@ const ROUND = 8;
 export default async function SentencesPage() {
   const ownerId = await requireUserId();
 
-  const cards = await prisma.card.findMany({
-    /*
-      state: { not: 0 } is what makes "a word they are already studying" above
-      true rather than aspirational: a brand-new card is due the moment it is
-      created, so `orderBy due asc` with no state filter put an unmet word's
-      sentence at the front of the round, its order being asked for before the
-      word itself was ever taught. The same rule sprint, speaking, listening
-      and Match already apply to their own pools.
-    */
-    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
-    orderBy: [{ due: "asc" }],
-    take: 300,
-    select: {
-      id: true,
-      cardType: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
-    },
-  });
-
-  /*
-    And how a beginner's word orders its own sentences, so a round draws the
-    plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
-  */
-  const reach = await sentenceReach();
+  const [cards, reach] = await Promise.all([
+    prisma.card.findMany({
+      /*
+        state: { not: 0 } is what makes "a word they are already studying" above
+        true rather than aspirational: a brand-new card is due the moment it is
+        created, so `orderBy due asc` with no state filter put an unmet word's
+        sentence at the front of the round, its order being asked for before the
+        word itself was ever taught. The same rule sprint, speaking, listening
+        and Match already apply to their own pools.
+      */
+      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      orderBy: [{ due: "asc" }],
+      take: 300,
+      select: {
+        id: true,
+        cardType: true,
+        lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
+      },
+    }),
+    // And how a beginner's word orders its own sentences, so a round draws
+    // the plainest one recorded rather than the shortest, asked beside the
+    // deck read because the two do not need each other.
+    sentenceReach(),
+  ]);
 
   // One task per word, and one card per word to grade against: a learner with
   // five cards for `raamat` should still meet its sentence once.
