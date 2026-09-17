@@ -12,6 +12,7 @@ import { nextCursor, progress } from "@/lib/assessment/session";
 import type { Item, ItemRef, Placement, Response, Skill } from "@/lib/assessment/types";
 import { ChoiceQuestion, DictationQuestion, SpeakQuestion, WriteQuestion, type Answer } from "./Question";
 import { ResultPanel } from "./ResultPanel";
+import { Explain } from "@/components/Explain";
 
 /**
  * Sitting the check.
@@ -294,10 +295,10 @@ export function AssessmentRunner({ items: initialItems, missing, onFinish }: {
 
       <div className="mt-8">
         <SectionTitle>How this is marked</SectionTitle>
-        <p className="text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+        <Explain label="Why the length varies">
           A skill stops one level past the first one you do not pass, so how many questions you
           get depends on how far up you make it. Nothing you answer here becomes a flashcard.
-        </p>
+        </Explain>
       </div>
     </div>
   );

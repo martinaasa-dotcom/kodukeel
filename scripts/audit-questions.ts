@@ -760,7 +760,7 @@ function lessonWord(lemma: string, pos: string): LessonWord | null {
   return {
     lexemeId: e.lemma, lemma: e.lemma, gloss: e.translation, pos: e.pos,
     semanticTypes: e.semanticTypes ?? null,
-    examples: (e.examples ?? []).map((x) => x.et),
+    examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
     parts: partsOf(e), government: e.government ?? null,
   };
 }
@@ -832,7 +832,7 @@ for (const checkpoint of CHECKPOINTS) {
     .map((w) => lessonWord(w.lemma, w.pos))
     .filter((w): w is LessonWord => !!w)
     .map((w): CheckpointWord => ({
-      lemma: w.lemma, gloss: w.gloss, pos: w.pos, examples: w.examples, parts: w.parts,
+      lemma: w.lemma, gloss: w.gloss, pos: w.pos, examples: w.examples.map((e) => e.et), parts: w.parts,
     }));
   if (words.length === 0) continue;
   for (let seed = 1; seed <= 3; seed++) {

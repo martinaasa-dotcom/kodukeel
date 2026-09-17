@@ -10,6 +10,7 @@ import { caseFromMorphCode, VERB_GROUP_LABELS, verbSlot, type VerbSlot } from "@
 import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { Speak } from "@/components/Speak";
 import { NO_VALUE } from "@/lib/copy/values";
+import { Explain } from "@/components/Explain";
 
 export interface WordForm {
   value: string;
@@ -46,10 +47,10 @@ export function WordForms({ forms, pos, subject }: {
       <h3 className="label-xs mb-1" style={{ color: "var(--ink-3)" }}>
         Every form
       </h3>
-      <p className="mb-3 text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="Where these came from">
         These are the real forms, not worked out from a stem. Irregular plurals and the
         parallel forms Estonian really has are included.
-      </p>
+      </Explain>
       {isVerb ? <VerbTable forms={forms} /> : <CaseTable forms={forms} subject={subject} />}
     </div>
   );

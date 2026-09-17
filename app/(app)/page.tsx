@@ -32,6 +32,7 @@ import { TodayPlan } from "@/components/TodayPlan";
 import { eventsOn, kindFrom, span, weekdayOf, KIND_LABEL, KIND_TONE, WEEKDAY_LONG } from "@/lib/ux/schedule";
 import { featuredTitle, gameAfter, gameOn } from "@/lib/ux/weekGames";
 import { WordOfDayCard } from "@/components/WordOfDay";
+import { resolveProvider } from "@/lib/tutor/provider";
 import { SayItToday } from "@/components/SayItToday";
 import { errandForDay, startedUnits } from "@/lib/collections/errands";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
@@ -747,7 +748,7 @@ export default async function TodayPage() {
 
   /* The one panel here that is not about this learner's own deck. */
   const wordCard = shows(stage, "word")
-    ? <WordOfDayCard word={word} collection={collection} />
+    ? <WordOfDayCard word={word} collection={collection} canTranslate={resolveProvider() !== null} />
     : null;
 
   const nextCard = shows(stage, "next") && nextUnit ? (

@@ -7,6 +7,7 @@ import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
@@ -399,6 +400,16 @@ export function QuestSession({
                     {card.front.split(BLANK)[1]}
                   </p>
                   <Speak text={card.front.replace(BLANK, card.back)} autoplay />
+                  {/* And what the whole line says. The review card has done
+                      this since a gap card became a sentence; this round drew
+                      the sentence and left a beginner to work it out. */}
+                  <SentenceTranslation
+                    key={card.front}
+                    lexemeId={card.lexemeId}
+                    et={card.front.replace(BLANK, card.back)}
+                    en={card.sentenceEn}
+                    canTranslate={card.canTranslate}
+                  />
                 </div>
               ) : (
                 <div className="flex items-center gap-2" role="status">

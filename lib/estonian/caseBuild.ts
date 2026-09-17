@@ -114,6 +114,13 @@ export interface WalkForm {
 export interface WalkSentence {
   readonly et: string;
   readonly en: string | null;
+  /**
+   * The entry the sentence is filed under, so the screen can ask for its
+   * English and store what comes back. Null where the page is running off the
+   * seed stems with no dictionary behind it, which is the one state in which
+   * nothing can be asked.
+   */
+  readonly lexemeId: string | null;
   /** The form the sentence actually contains, for the screen to mark in it. */
   readonly form: string;
   /** The word the sentence is filed under, where that is not the word on the walk. */
@@ -148,6 +155,8 @@ export function toWalkWord(
    * Absent leaves the order as it was.
    */
   plainest?: Rank,
+  /** The entry these examples came off, so a sentence can carry where to store its English. */
+  lexemeId: string | null = null,
 ): WalkWord {
   const table = buildCaseTable(stems);
   const row = (form: DerivedForm): WalkForm => {
@@ -173,7 +182,7 @@ export function toWalkWord(
         : null,
       askable: !spec.principal && !stored && caseFits(spec.key, subject),
       sentence: found
-        ? { et: found.et, en: found.en ?? null, form: value, lemma: null, translation: null }
+        ? { et: found.et, en: found.en ?? null, lexemeId, form: value, lemma: null, translation: null }
         : null,
     };
   };

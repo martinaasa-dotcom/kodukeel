@@ -13,6 +13,9 @@ import { EstonianInput } from "@/components/EstonianInput";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
+import { WordIntro } from "@/components/WordIntro";
+import { EstonianSentence } from "@/components/EstonianSentence";
+import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
@@ -48,7 +51,7 @@ interface Answer {
  * carries an id generated once, here.
  */
 export function LessonSession({
-  unitId, unitTitle, initialSteps, part, parts, starred,
+  unitId, unitTitle, initialSteps, part, parts, starred, tokens, canTranslate,
 }: {
   unitId: string;
   unitTitle: string;
@@ -57,6 +60,15 @@ export function LessonSession({
   parts: number;
   /** The lexeme ids this learner has already favourited, read once by the page. */
   starred: readonly string[];
+  /**
+   * The dictionary under each meeting's sentence, by step id, where the page
+   * looked and the learner wants it. Keyed on the step rather than carried on
+   * it because `LessonStep` is built by a pure planner and what one learner's
+   * dictionary can vouch for is not a fact about the lesson.
+   */
+  tokens: Readonly<Record<string, GlossedToken[]>>;
+  /** Whether this deployment has a model to ask for a translation. */
+  canTranslate: boolean;
 }) {
   /*
     The plan, snapshotted on mount for the reason the header gives, and
@@ -160,6 +172,8 @@ export function LessonSession({
           onNext={advance}
           onAside={putAside}
           starred={starred}
+          tokens={tokens}
+          canTranslate={canTranslate}
           summary={{ correct, total: answered, saving, saved }}
         />
         {aside && (
@@ -266,7 +280,7 @@ function Options({
 }
 
 function StepCard({
-  step, onAnswer, onNext, onAside, starred, summary,
+  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate,
 }: {
   step: LessonStep;
   onAnswer: (lemma: string, kind: string, ok: boolean) => void;
@@ -275,6 +289,8 @@ function StepCard({
   onAside: (note: string) => void;
   starred: readonly string[];
   summary: { correct: number; total: number; saving: boolean; saved: { ok: boolean; error?: string } | null };
+  tokens: Readonly<Record<string, GlossedToken[]>>;
+  canTranslate: boolean;
 }) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
@@ -358,35 +374,30 @@ function StepCard({
               />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Et className="text-3xl">{step.lemma}</Et>
-            {/* Read aloud on arrival, the same rule and the same reason as
-                WordIntro's own "meet" card: the first time a word is met is
-                the one time hearing it is worth more than reading it. This
-                is a second, independent screen for that same moment (the
-                guided unit lesson rather than the daily ladder), and it had
-                drifted without it. */}
-            <Speak text={step.lemma} size={20} autoplay />
-          </div>
-          <p className="text-lg">{step.gloss}</p>
           {/*
-            The meaning in the language the learner thinks in, on the one step
-            of a lesson where a word is being learned rather than tested. Under
-            the English rather than instead of it, and never on a question's
-            options: those are drawn from a pool of English glosses, and one
-            option in a second language would be the answer before anybody read
-            it. From Ekilex, like everything else on this screen.
+            ONE DRAWING OF A FIRST MEETING, rather than this screen's own.
+
+            `WordIntro`'s header has said since it was written that two copies
+            would be two answers to how a word is introduced and the one nobody
+            was looking at would be the one that drifted. This was that copy. It
+            printed the lemma, the gloss, the learner's own language and then
+            the sentence as a bare line of Estonian in the smallest type on the
+            card: no marking of the form, no dictionary under the words, and no
+            English anywhere, so `jah` was taught as "yes" over `Sina jah.` and
+            a learner asked what that was doing there. Everything the review
+            card and the learn ladder already do for a first meeting now
+            happens here too, because it is the same component.
           */}
-          {step.equivalent && (
-            <p lang={step.equivalent.lang} className="text-lg" style={{ color: "var(--ink-2)" }}>
-              {step.equivalent.text}
-            </p>
-          )}
-          {step.example && (
-            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-              <Et>{step.example}</Et>
-            </p>
-          )}
+          <WordIntro
+            lemma={step.lemma}
+            gloss={step.gloss}
+            equivalent={step.equivalent ?? null}
+            sentence={step.example}
+            tokens={tokens[step.id] ?? null}
+            lexemeId={step.lexemeId}
+            canTranslate={canTranslate}
+            isPhrase={step.isPhrase}
+          />
           <Continue onNext={onNext} label="Got it" />
         </Card>
       );
@@ -510,9 +521,20 @@ function StepCard({
           {checked && (
             <>
               <Verdict ok={checked.ok} note={checked.note} />
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                <Et>{step.full}</Et>
-              </p>
+              {/* A gap is answered by a word and learned as a sentence, so the
+                  reveal is the whole recorded line with what it means under
+                  it, the same rule and the same drawing as every other
+                  sentence in the app. */}
+              <div className="rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--raised)" }}>
+                <EstonianSentence
+                  et={step.full}
+                  en={step.en}
+                  form={step.answer}
+                  lexemeId={step.lexemeId}
+                  canTranslate={canTranslate}
+                  className="flex-1 text-base leading-snug"
+                />
+              </div>
               <Continue onNext={onNext} />
             </>
           )}
@@ -647,7 +669,16 @@ function StepCard({
           {done && (
             <>
               <Verdict ok={checked.ok} note={checked.note} />
-              <p className="text-sm" style={{ color: "var(--ink-2)" }}><Et>{step.sentence}</Et></p>
+              {/* The sentence they just put back together, and what it says. */}
+              <div className="rounded-[var(--r)] px-3.5 py-3" style={{ background: "var(--raised)" }}>
+                <EstonianSentence
+                  et={step.sentence}
+                  en={step.en}
+                  lexemeId={step.lexemeId}
+                  canTranslate={canTranslate}
+                  className="flex-1 text-base leading-snug"
+                />
+              </div>
               <Continue onNext={onNext} />
             </>
           )}

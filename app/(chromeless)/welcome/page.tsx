@@ -22,6 +22,7 @@ import { LetterTile } from "@/components/LetterTile";
 import { LandingAnu, type AnuLine } from "@/components/LandingAnu";
 import { toneInk } from "@/components/ui";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { Explain } from "@/components/Explain";
 
 export const metadata: Metadata = {
   title: { absolute: "Kodukeel. Estonian that finally sticks" },
@@ -861,12 +862,12 @@ function Comparison() {
         ))}
       </div>
 
-      <p className="mx-auto mt-6 max-w-[68ch] text-center text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+      <Explain label="How this table was checked">
         A tick is yes, a dash is their pages not saying so, a question mark is us not being able to
         tell. Checked in August 2026 against each product&rsquo;s own site. Every name belongs to
         its owner and none of them has endorsed this. If something is wrong, tell us and we will
         fix it.
-      </p>
+      </Explain>
     </FaqItem>
   );
 }

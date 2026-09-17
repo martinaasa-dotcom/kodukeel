@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Languages, Loader2, Plus } from "lucide-react";
-import { addExample, translateExample } from "@/app/actions";
+import { Plus } from "lucide-react";
+import { addExample } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
-import { Speak } from "@/components/Speak";
+import { EstonianSentence } from "@/components/EstonianSentence";
 import type { Example } from "@/lib/dict/examples";
 import { isPhrase } from "@/lib/dict/pos";
 
@@ -112,52 +112,34 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
   tutorReady: boolean;
   onTranslated: (en: string) => void;
 }) {
-  const [pending, start] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-
-  const translate = () => {
-    setError(null);
-    start(async () => {
-      const result = await translateExample(lexemeId, example.et);
-      if (result.ok) onTranslated(result.en);
-      else setError(result.error);
-    });
-  };
-
   return (
     <li
       className="rounded-[var(--r)] px-4 py-3"
       style={{ background: "var(--raised)" }}
     >
-      <div className="flex items-start gap-2">
-        <p lang="et" className="flex-1 text-base leading-snug" style={{ color: "var(--ink)" }}>
-          {example.et}
-        </p>
-        <Speak text={example.et} label={`Hear "${example.et}"`} />
-      </div>
-
-      {example.en ? (
-        <p className="mt-1 flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-          {example.en}
-        </p>
-      ) : tutorReady ? (
-        <button
-          type="button"
-          onClick={translate}
-          disabled={pending}
-          className="tap-tint mt-1 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs disabled:opacity-50"
-          style={{ color: "var(--accent-deep)" }}
-        >
-          {pending
-            ? <><Loader2 size={12} className="animate-spin" aria-hidden /> Translating…</>
-            : <><Languages size={12} aria-hidden /> Translate this</>}
-        </button>
-      ) : null}
+      {/*
+        The same drawing every other screen gives an attested sentence, rather
+        than this file's own: it had a full second copy of `SentenceTranslation`
+        inside it, button, spinner, error line and all, which is two answers to
+        what "say this in English" looks like and two places for one of them to
+        stop working. Asked on request here and nowhere else in the app,
+        because an entry is a shelf of sentences and asking on arrival would
+        spend a call on each of the seven nobody stopped at.
+      */}
+      <EstonianSentence
+        et={example.et}
+        en={example.en ?? null}
+        lexemeId={lexemeId}
+        canTranslate={tutorReady}
+        ask="onRequest"
+        speakLabel={`Hear "${example.et}"`}
+        className="flex-1 text-base leading-snug"
+        onTranslated={onTranslated}
+      />
 
       {example.source === "USER" && (
         <span className="mt-1 block text-2xs" style={{ color: "var(--ink-3)" }}>your own sentence</span>
       )}
-      {error && <p role="alert" className="mt-1 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
     </li>
   );
 }

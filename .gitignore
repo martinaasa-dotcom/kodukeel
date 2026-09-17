@@ -30,3 +30,4 @@ prisma/data/.cache/
 
 # The hosted-mode build scripts/test-signin.mjs makes for itself.
 .next-signin/
+.translate-cache/

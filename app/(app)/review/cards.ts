@@ -1,7 +1,7 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
-import { parseExamples, teachingSentence } from "@/lib/dict/examples";
+import { parseExamples, teachingSentence, translationOf } from "@/lib/dict/examples";
 import { BLANK } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
@@ -259,8 +259,7 @@ async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<Review
 function clozeSentenceEn(c: CardRow): string | null {
   if (!c.front.includes(BLANK) || !c.lexeme) return null;
   const whole = c.front.replace(BLANK, c.back);
-  const example = parseExamples(c.lexeme.examples).find((e) => e.et === whole);
-  return example?.en ?? null;
+  return translationOf(parseExamples(c.lexeme.examples), whole);
 }
 
 function toReviewCard(

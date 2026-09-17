@@ -1,10 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Speak } from "@/components/Speak";
-import { GlossedSentence } from "@/components/GlossedSentence";
-import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { splitOnForm } from "@/lib/dict/examples";
+import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 
@@ -64,17 +61,6 @@ export function WordIntro({
   /** Anything the screen wants under the sentence, such as what comes next. */
   children?: React.ReactNode;
 }) {
-  /*
-    Whether the underlines were turned off from inside the panel a moment ago.
-    It decides one thing, which is the sentence the provenance line ends on:
-    "any underlined word opens its meaning" is true of the server's answer and
-    false for the second between the press and the refresh landing, and a
-    screen may not say a thing is there while somebody is looking at it not
-    being there. The sentence itself is drawn plain by the component that was
-    pressed. Reset by the next card, which arrives keyed on its own id.
-  */
-  const [plain, setPlain] = useState(false);
-
   return (
     <>
       <div className="flex items-center gap-2">
@@ -100,55 +86,33 @@ export function WordIntro({
 
       {sentence ? (
         <div className="w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left" style={{ background: "var(--raised)" }}>
-          {tokens ? (
-            /*
-              `plain` is not a second branch, deliberately. Swapping this
-              ternary the moment the panel is turned off leaves BOTH sentences
-              on screen: the swap lands inside the transition that refreshes
-              the route, React holds the outgoing subtree while the incoming
-              server render is pending, and the reader gets the line twice.
-              Measured. `GlossedSentence` draws itself plain instead, which it
-              has to be able to do for the conversation anyway, and all this
-              flag decides is what the caption underneath claims.
-            */
-            <GlossedSentence
-              key={sentence.et}
-              tokens={tokens}
-              sentence={sentence.et}
-              onTurnedOff={() => setPlain(true)}
-            />
-          ) : (
-            <div className="flex items-start gap-2">
-              <p lang="et" className="flex-1 text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-                {splitOnForm(sentence.et, sentence.form).map((run, i) => (
-                  run.match
-                    ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--accent-deep)" }}>{run.text}</mark>
-                    : <span key={i}>{run.text}</span>
-                ))}
-              </p>
-              <Speak text={sentence.et} label="Hear the sentence" />
-            </div>
-          )}
-
-          {/* Keyed on the sentence, because a session draws one card after
-              another through this same position: without it the word after a
-              translated one opens carrying the last word's English. */}
-          <SentenceTranslation
-            key={sentence.et}
-            lexemeId={lexemeId}
+          {/*
+            One drawing of an attested sentence, here and on every other screen
+            that shows one: the Estonian, the dictionary under it where the
+            page looked, and what the whole thing means.
+          */}
+          <EstonianSentence
             et={sentence.et}
             en={sentence.en}
+            form={sentence.form}
+            tokens={tokens}
+            lexemeId={lexemeId}
             canTranslate={canTranslate}
           />
 
-          {/* One line rather than two. The provenance is the half that has to
-              be there, and where there is something to open, saying so is
-              worth more than telling a beginner to read it aloud. */}
-          <p className="mt-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-            {!plain && tokens?.some((token) => token.entry)
-              ? "Any underlined word opens its meaning."
-              : "Try reading it out loud."}
-          </p>
+          {/*
+            AND NOTHING UNDER IT SAYING SO.
+
+            This carried a line of 12px grey reading "Any underlined word opens
+            its meaning", on every first meeting, for ever. It was reported as
+            part of the small print stuck to every screen, and it was: an
+            underline that opens on a tap is the oldest signal there is, the
+            panel it opens says what it is the moment anybody tries, and a
+            learner is told once by trying and then told again every card for
+            the rest of the course. The other branch, "Try reading it out
+            loud", was advice nobody asked for under a sentence somebody was
+            already reading.
+          */}
         </div>
       ) : (
         /* No sentence, said plainly. The dictionary carries examples for most

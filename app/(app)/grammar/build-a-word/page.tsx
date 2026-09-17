@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { requireUserId } from "@/lib/auth/session";
 import { caseWalk } from "@/lib/progress/caseWalk";
 import { Empty, Page, Stack } from "@/components/ui";
+import { resolveProvider } from "@/lib/tutor/provider";
 import { BuildWalk } from "./BuildWalk";
 
 export const dynamic = "force-dynamic";
@@ -71,7 +72,7 @@ export default async function BuildPage() {
           />
         </Stack>
       ) : (
-        <BuildWalk walk={walk} />
+        <BuildWalk canTranslate={resolveProvider() !== null} walk={walk} />
       )}
     </Page>
   );

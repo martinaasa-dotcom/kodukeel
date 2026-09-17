@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Keyboard, X } from "lucide-react";
 import { KeyCap } from "@/components/ui";
+import { Explain } from "@/components/Explain";
 
 /** The event the command palette fires to open this without a keyboard. */
 export const SHORTCUTS_EVENT = "kodukeel:shortcuts";
@@ -154,10 +155,12 @@ export function Shortcuts() {
           ))}
         </div>
 
-        <p className="border-t px-5 py-3 text-xs" style={{ borderColor: "var(--rule-soft)", color: "var(--ink-3)" }}>
+        <div className="border-t px-5 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          <Explain label="If you would rather not use a shortcut">
           You can also tab to every control, with a clear focus ring. These shortcuts are just a
           faster way in, never the only way.
-        </p>
+          </Explain>
+        </div>
       </div>
     </div>
   );

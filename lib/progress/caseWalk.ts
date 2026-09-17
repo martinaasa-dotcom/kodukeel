@@ -108,6 +108,7 @@ export async function caseWalk(ownerId: string): Promise<CaseWalk> {
     sentences[key] = {
       et: found.sentence.et,
       en: found.sentence.en,
+      lexemeId: found.lexemeId,
       form: found.sentenceForm,
       lemma: found.lemma,
       translation: found.translation,
@@ -166,7 +167,7 @@ async function walkWords(): Promise<WalkWord[]> {
       };
       return [toWalkWord(
         lex.lemma, lex.translation, stems, subject, parseExamples(lex.examples),
-        plainerFirst(lex.cefr, reach),
+        plainerFirst(lex.cefr, reach), lex.id,
       )];
     });
     if (built.length > 0) return built;

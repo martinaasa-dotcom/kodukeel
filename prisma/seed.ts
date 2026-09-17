@@ -9,11 +9,13 @@ import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
 import { applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
+  fillExampleEnglish,
   repairCaseFronts, repairPhrasePunctuation, repairProductionBacks, repairThinExamples,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
 import { courseWords } from "../lib/collections/syllabus/index";
+import { englishFor } from "../lib/dict/exampleEnglish";
 
 const prisma = newPrismaClient();
 
@@ -113,6 +115,20 @@ async function main() {
     console.log(`Cleaned the punctuation on ${depunctuated} phrase cards.`);
   }
 
+  /*
+    And the English onto the sentences a deployment already holds. The join
+    above happens as a row is written and `examples` is insert-only on a
+    reseed, so without this every learner who installed before the shipped
+    translations existed keeps sentences nobody can read, which is the fault
+    the whole pass was about. Here for the same reason as the four repairs
+    above it, and it only ever fills a blank: a translation somebody typed or
+    a past lookup resolved is never touched.
+  */
+  const englished = await fillExampleEnglish(prisma);
+  if (englished > 0) {
+    console.log(`Said what the sentences on ${englished} words mean.`);
+  }
+
   if (process.argv.includes("--only-if-empty")) {
     const existing = await prisma.lexeme.count();
     if (existing > 0) {
@@ -209,7 +225,17 @@ async function main() {
       gradation: gradation.type,
       gradationNote: gradation.note ?? null,
       government: word.government,
-      examples: JSON.stringify(word.usages.map((et) => ({ et, source: "EKILEX" }))),
+      /*
+        The sentences, each with what it means where the shipped table has it.
+
+        Ekilex records no English against a usage on a reader key, so this line
+        used to write `{ et, source }` and nothing else, and every course word
+        a learner met in a lesson carried a sentence with no way to read it.
+        `lib/dict/exampleEnglish.ts` is the one place that answer lives.
+      */
+      examples: JSON.stringify(
+        word.usages.map((et) => ({ et, en: englishFor(et), source: "EKILEX" })),
+      ),
       /*
         The principal parts, and beside them the whole forms no rule of this
         app reaches: the simple past third person of every verb, the present of

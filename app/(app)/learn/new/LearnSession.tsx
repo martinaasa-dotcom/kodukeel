@@ -13,6 +13,7 @@ import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -829,13 +830,25 @@ export function LearnSession({
               </p>
               {result.note && <p className="mt-1 text-sm">{result.note}</p>}
               {rung === "gap" && word.gap && (
-                <p lang="et" className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                  {splitOnForm(word.gap.full, word.gap.answer).map((part, i) => (
-                    part.match
-                      ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--ink)" }}>{part.text}</mark>
-                      : <span key={i}>{part.text}</span>
-                  ))}
-                </p>
+                <>
+                  <p lang="et" className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                    {splitOnForm(word.gap.full, word.gap.answer).map((part, i) => (
+                      part.match
+                        ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--ink)" }}>{part.text}</mark>
+                        : <span key={i}>{part.text}</span>
+                    ))}
+                  </p>
+                  {/* And what it says. Withheld on the question, where it
+                      would be the answer, and owed here: the whole point of
+                      the rung is that the sentence needed this form. */}
+                  <SentenceTranslation
+                    key={word.gap.full}
+                    lexemeId={word.lexemeId}
+                    et={word.gap.full}
+                    en={word.gap.fullEn}
+                    canTranslate={word.canTranslate}
+                  />
+                </>
               )}
               {/*
                 Why the form changed, not only what it is. A learner who has

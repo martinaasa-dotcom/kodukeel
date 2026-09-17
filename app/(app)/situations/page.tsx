@@ -13,6 +13,7 @@ import { practises } from "@/lib/scenes/practises";
 import { joinWithAnd } from "@/lib/copy/values";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneMotif } from "@/components/scene/SceneMotif";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Situations" };
 export const dynamic = "force-dynamic";
@@ -73,12 +74,27 @@ export default async function SituationsPage() {
         {/*
           Said once, before anybody starts, because it is the answer to a
           question a careful person would otherwise have to ask: nothing you
-          type here is about you (§3). It is one line rather than a panel.
+          type here is about you (§3).
+
+          IT IS ON THE PAGE RATHER THAN BEHIND THE PRESS BESIDE IT, and that is
+          the difference between an explanation and an assurance. The pass that
+          moved 33 paragraphs into `Explain` moved this one too, and
+          `test-scene.mjs` failed on it, correctly: a reader deciding whether
+          to type their real details finds out by asking, and somebody who has
+          to press to be told has already decided. An explanation may wait to
+          be asked for; the answer to "is this about me" may not. The
+          disclosure under it carries what the line does not say rather than
+          the line again, since a fact written down twice is a fact nobody is
+          checking.
         */}
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
-          You play somebody else, off a card we hand you. Nothing you write here is
-          about you, and nobody will ask you for a real document number.
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          You play somebody else, off a card we hand you. Nothing you write here is about you.
         </p>
+        <Explain label="Whose details these are">
+          The card is fiction, so no transcript is a record of anything you did. A scene never asks
+          you for a real document number, and what you type is kept with the run so the debrief can
+          read the conversation back to you.
+        </Explain>
 
         {/*
           Where the people are. A learning app that never says so is one that

@@ -178,24 +178,51 @@ export async function translateSentenceWithAnu(
   ownerId: string,
   sentence: string,
 ): Promise<TranslationOutcome> {
-  const instruction =
-    `Translate this Estonian sentence into natural English: "${sentence}"\n` +
-    `Reply with the English translation only, one sentence, no quotes, no notes. ` +
-    `If you cannot translate it, reply exactly: UNKNOWN`;
-
   try {
-    const answer = await ask(ownerId, instruction, 400);
+    const answer = await ask(ownerId, sentenceInstruction(sentence), 400);
     if (!answer.ok) return answer;
 
-    const cleaned = answer.text.replace(/^["'\s]+|["'\s]+$/g, "").split("\n")[0]?.trim();
-    if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 240) {
-      return { ok: false, reason: "unavailable" };
-    }
-    if (looksLikeEcho(cleaned, sentence)) {
-      return { ok: false, reason: "unavailable" };
-    }
-    return { ok: true, text: cleaned };
+    const cleaned = readSentenceTranslation(answer.text, sentence);
+    return cleaned ? { ok: true, text: cleaned } : { ok: false, reason: "unavailable" };
   } catch {
     return { ok: false, reason: "unavailable" };
   }
+}
+
+/**
+ * What the model is asked, and how its answer is read back. Pure, exported,
+ * and shared.
+ *
+ * `npm run translate:examples` asks this same question of every sentence the
+ * dictionary ships, once, so a deployment with no model key still shows a
+ * learner what a sentence means. Two copies of the wording would be two jobs:
+ * the shipped English and the one a learner's own added sentence gets at
+ * runtime have to be the same translation of the same kind, or the dictionary
+ * reads as two people wrote it. The script calls the provider chain itself,
+ * since it is an operator command with no learner to meter against, and it
+ * shares everything about the question except who pays for it.
+ */
+export function sentenceInstruction(sentence: string): string {
+  return (
+    `Translate this Estonian sentence into natural English: "${sentence}"\n` +
+    `Reply with the English translation only, one sentence, no quotes, no notes. ` +
+    `If you cannot translate it, reply exactly: UNKNOWN`
+  );
+}
+
+/**
+ * The English out of an answer, or null where there is none worth keeping.
+ *
+ * Four refusals and each is a thing a weaker free model does: nothing at all,
+ * the word UNKNOWN, an essay where a sentence was asked for, and the Estonian
+ * handed straight back (`looksLikeEcho`). A refusal is never written down as a
+ * translation, which is the rule the seed and the Ekilex harvest each learned
+ * expensively: a miss stored as an answer is a wrong answer nobody will look
+ * at again.
+ */
+export function readSentenceTranslation(text: string, sentence: string): string | null {
+  const cleaned = text.replace(/^["'\s]+|["'\s]+$/g, "").split("\n")[0]?.trim();
+  if (!cleaned || /^unknown$/i.test(cleaned) || cleaned.length > 240) return null;
+  if (looksLikeEcho(cleaned, sentence)) return null;
+  return cleaned;
 }

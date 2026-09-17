@@ -16,6 +16,7 @@ import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { Card, Chip, KeyCap, Page, SectionTitle, Stack } from "@/components/ui";
+import { Explain } from "@/components/Explain";
 import { StartProgramme } from "@/components/course/StartProgramme";
 
 import { courseReading, openingPart, programmeFor } from "@/lib/progress/course";
@@ -196,10 +197,10 @@ export default async function SettingsPage() {
           <section>
             <SectionTitle hint={mode === "type" ? "typing" : "flipping"}>How review asks</SectionTitle>
             <ReviewModePanel current={mode} />
-            <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+            <Explain label="Why new cards show the answer">
               Either way, brand-new cards are shown with their answer first. Being asked to produce a
               word you have never seen teaches nothing.
-            </p>
+            </Explain>
           </section>
 
           {/*
@@ -217,10 +218,10 @@ export default async function SettingsPage() {
                   <CurrentVoiceSample />
                 </p>
                 <VoicePanel current={voice} />
-                <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                <Explain label="Why change the voice">
                   Ten voices to choose from. The state examination is read by more than one
                   speaker, so it is worth changing this now and then.
-                </p>
+                </Explain>
               </div>
               <div>
                 <h3 className="label-xs mb-2 flex flex-wrap items-center gap-2" style={{ color: "var(--ink-3)" }}>
@@ -228,11 +229,11 @@ export default async function SettingsPage() {
                   <CurrentPaceSample />
                 </h3>
                 <SpeechPacePanel current={speechPace} fromLevel={levelPace} level={courseLevel} />
-                <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                <Explain label="How the slow speed is made">
                   Every speed is the one recording, slowed in your browser with the voice and the pitch
                   left alone, so the consonants stay as sharp as they were. The slow button beside a
                   word is always slower again than whatever you pick here.
-                </p>
+                </Explain>
               </div>
               <div>
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>When it speaks</h3>
@@ -246,10 +247,10 @@ export default async function SettingsPage() {
                 <h3 className="label-xs mb-2" style={{ color: "var(--ink-3)" }}>Listening and dictation</h3>
                 <HearingPanel current={hearing} />
                 <SupportPanel current={support} />
-                <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                <Explain label="What a hearing condition changes">
                   The words never change. What changes is the pace, the reader, and the room,
                   because the receptionist will not slow down for you and the counter is never quiet.
-                </p>
+                </Explain>
               </div>
             </Card>
           </section>
@@ -288,10 +289,10 @@ export default async function SettingsPage() {
                 entry; this decides what is printed beside it.
               </p>
               <GlossLanguagePanel current={glossLanguage} />
-              <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="Where these come from">
                 The Russian and Ukrainian come from the same dictionary source as the Estonian.
                 Where none was recorded, the entry says so by showing the English on its own.
-              </p>
+              </Explain>
 
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule)" }}>
                 <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
@@ -417,10 +418,10 @@ export default async function SettingsPage() {
                 gives you, and it changes nothing else about either round.
               </p>
               <RoundPacePanel current={roundPace} />
-              <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="The one clock this leaves alone">
                 The mock examination is the one clock this leaves alone. That paper is
                 imitating a timed state examination, so its parts keep the real timings.
-              </p>
+              </Explain>
             </Card>
           </section>
 
@@ -436,11 +437,11 @@ export default async function SettingsPage() {
               {ekilexOn ? (
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <Chip tone="good">Connected</Chip>
-                  <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+                  <Explain label="What gets saved here">
                     Words beyond the built-in set are looked up live and saved here so the next
                     lookup works offline too. Example sentences, dictation and the fuller mock exam
                     all draw on this.
-                  </p>
+                  </Explain>
                 </div>
               ) : (
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -485,11 +486,11 @@ export default async function SettingsPage() {
                       {provider.label} · <code className="text-xs">{provider.model}</code>
                     </span>
                   </div>
-                  <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                  <Explain label="What happens when a model is busy">
                     {resilience.models === 1
                       ? "Just one model is set up right now."
                       : `${resilience.models} models are tried in order, across ${resilience.providers.join(" and ")}.`}
-                  </p>
+                  </Explain>
                   {/*
                     Said plainly because it is invisible otherwise. A chain of
                     several Groq models reads as redundancy and is not: they
@@ -498,7 +499,7 @@ export default async function SettingsPage() {
                     down. A second provider is the only thing that changes that.
                   */}
                   {resilience.singlePointOfFailure && (
-                    <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                    <Explain label="What happens if the key stops answering">
                       Everything above runs through {resilience.providers[0]}, on one account. If
                       that key stops answering, whether it runs out of credit or just has a bad
                       minute, Anu stops with it.
@@ -508,7 +509,7 @@ export default async function SettingsPage() {
                       Read the note beside them in{" "}
                       <code className="text-xs">.env.example</code> first: free usually means the
                       provider may look at what goes through it.
-                    </p>
+                    </Explain>
                   )}
                 </div>
               ) : (
@@ -544,10 +545,10 @@ export default async function SettingsPage() {
                   <Download size={15} aria-hidden /> Download a backup
                 </a>
               </div>
-              <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="Why a backup is worth the ten seconds">
                 Your review history is the one thing here that can&rsquo;t be recreated. Downloading a
                 copy now and then is worth the ten seconds.
-              </p>
+              </Explain>
               <div className="mt-5 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
                 <RestorePanel currentReviews={reviews} />
               </div>
@@ -571,11 +572,11 @@ export default async function SettingsPage() {
           <section className="letters-choice">
             <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
             <LetterBarPanel current={letters} />
-            <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+            <Explain label="Why only on a computer">
               Only ever shows up on a computer. A phone keyboard already has these letters, on a
               long press or a keyboard switched to Estonian, so there is nothing to show on a phone
               either way.
-            </p>
+            </Explain>
           </section>
 
           <section>
@@ -645,11 +646,11 @@ export default async function SettingsPage() {
                     in the address bar on desktop Chrome. Installed, it opens straight into review and
                     keeps working without a connection.
                   </p>
-                  <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                  <Explain label="What happens to an answer with no connection">
                     Anything you grade offline is saved on the device and sent as soon as you are back
                     online, with the time you actually answered, so an offline session still counts
                     toward the right day&rsquo;s streak.
-                  </p>
+                  </Explain>
                   <InstallPanel />
                 </div>
               </div>

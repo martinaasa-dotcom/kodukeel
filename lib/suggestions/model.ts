@@ -60,6 +60,22 @@ export const SUGGESTION_CATEGORIES = {
     group: "Dictionary",
     applies: "DROP_EXAMPLE",
   },
+  /*
+    A WRONG TRANSLATION IS NOT AN UNHELPFUL SENTENCE, and until the English
+    shipped there was no way to tell the two apart because there was no English
+    to be wrong. `prisma/data/example-english.json` now says what all 16,037 of
+    the dictionary's sentences mean and no person has read one of them, so a
+    learner spotting a bad line had exactly one category to reach for and its
+    remedy is `DROP_EXAMPLE`: it would delete the lexicographer's Estonian over
+    a fault in our English, which is the one thing this app may never do to an
+    attested sentence.
+  */
+  WRONG_TRANSLATION: {
+    label: "Wrong translation",
+    lead: "The English under an example sentence does not say what the Estonian says.",
+    group: "Dictionary",
+    applies: "CLEAR_TRANSLATION",
+  },
   MARKED_WRONG: {
     label: "Marked wrong",
     lead: "The app marked your answer wrong and you think it was right.",
@@ -159,7 +175,26 @@ export interface DropExamplePatch {
   sentence: string;
 }
 
-export type Patch = CreateWordPatch | SetTranslationPatch | SetFormPatch | DropExamplePatch;
+/**
+ * Clears the English off one sentence, and touches nothing else.
+ *
+ * Deliberately not a correction. A reviewer accepting this is saying the line
+ * was wrong, not writing a better one: the Estonian stays exactly as the
+ * lexicographer recorded it, the sentence keeps its place on the entry, and
+ * `en` goes back to null, which is the honest "not yet" every sentence was in
+ * before the table was built. `SentenceTranslation` then asks for one again on
+ * a deployment that has a model, and a keyless one shows the word-by-word
+ * gloss, which is what it showed before.
+ */
+export interface ClearTranslationPatch {
+  kind: "CLEAR_TRANSLATION";
+  lexemeId: string;
+  /** The sentence whose English is wrong, matched exactly. Never an index. */
+  sentence: string;
+}
+
+export type Patch =
+  | CreateWordPatch | SetTranslationPatch | SetFormPatch | DropExamplePatch | ClearTranslationPatch;
 
 /** The parts of speech a proposal may name. Same set the dictionary uses. */
 export const PATCH_POS = ["NOUN", "VERB", "ADJECTIVE", "ADVERB", "PRONOUN", "PHRASE", "OTHER"] as const;
@@ -232,6 +267,12 @@ export function parsePatchValue(raw: unknown): Patch | null {
       const formValue = trimmed(value.value, SUGGESTION_LIMITS.form);
       if (!lexemeId || !formType || !formValue) return null;
       return { kind: "SET_FORM", lexemeId, formType, value: formValue };
+    }
+    case "CLEAR_TRANSLATION": {
+      const lexemeId = trimmed(value.lexemeId, 64);
+      const sentence = trimmed(value.sentence, SUGGESTION_LIMITS.sentence);
+      if (!lexemeId || !sentence) return null;
+      return { kind: "CLEAR_TRANSLATION", lexemeId, sentence };
     }
     case "DROP_EXAMPLE": {
       const lexemeId = trimmed(value.lexemeId, 64);
@@ -325,6 +366,11 @@ export function groupKeyFor(input: {
   if (category === "WRONG_FORM" && input.patch?.kind === "SET_FORM") {
     return `${category}|${subject ?? "?"}|${input.patch.formType}`;
   }
+  if (category === "WRONG_TRANSLATION" && input.patch?.kind === "CLEAR_TRANSLATION") {
+    // Grouped on the sentence, like the category beside it: everybody who
+    // reports the same bad line is reporting one thing.
+    return `${category}|${subject ?? "?"}|${shorten(input.patch.sentence)}`;
+  }
   if (category === "WRONG_EXAMPLE" && input.patch?.kind === "DROP_EXAMPLE") {
     return `${category}|${subject ?? "?"}|${shorten(input.patch.sentence)}`;
   }
@@ -349,6 +395,12 @@ export interface PatchSummary {
 
 export function summarisePatch(patch: Patch): PatchSummary {
   switch (patch.kind) {
+    case "CLEAR_TRANSLATION":
+      return {
+        action: "Take the English off this sentence",
+        field: "example translation",
+        after: patch.sentence,
+      };
     case "CREATE_WORD":
       return {
         action: "Add this word to the dictionary",

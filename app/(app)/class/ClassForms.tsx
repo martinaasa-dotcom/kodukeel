@@ -12,6 +12,7 @@ import {
   COHORT_DETAIL, COHORT_KINDS, COHORT_LABEL, type CohortKind,
 } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS } from "@/lib/exam/spec";
+import { Explain } from "@/components/Explain";
 
 export function CreateClass() {
   const router = useRouter();
@@ -131,11 +132,32 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         className="field text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
+      {/*
+        ADR-019's rule is that the join screen states this BEFORE anybody
+        joins, so the headline is on the screen and the full list is behind the
+        press. Putting the lot into the disclosure was the declutter pass
+        overreaching: somebody deciding whether to hand their week to a teacher
+        should not have to press to find out what goes with it, and a reader
+        who never presses would have joined without ever being told.
+
+        One line carries what the decision turns on, which is that effort
+        crosses and contents do not; the disclosure under the button carries
+        the field-by-field version, which is a real explanation and far too
+        long to be a caption.
+
+        ABOVE THE BUTTON, because "before anybody joins" is a claim about
+        reading order rather than about the sentence being somewhere on the
+        page. It was under the press for an hour, which is the same fault one
+        element along.
+      */}
+      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+        Your teacher and classmates see your name and your effort, never your deck or your answers.
+      </p>
       {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       <Button variant="primary" onClick={join} disabled={pending || code.trim().length < CODE_LENGTH}>
         {pending ? "Joining…" : "Join the class"}
       </Button>
-      <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="Exactly what a class sees">
         Joining shares your name, your streak, how many reviews you did this week, when you last
         practiced and how many words you know with your teacher and classmates. It shares one more
         thing with your teacher alone: which
@@ -143,7 +165,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         never a specific answer. A workplace group shares less: your name, whether you have been
         practicing, and one of four bands for the paper the group works toward. Not your deck, not
         your searches, not your mistakes one by one. Leaving stops all of it right away.
-      </p>
+      </Explain>
     </div>
   );
 }

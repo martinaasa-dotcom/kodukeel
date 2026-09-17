@@ -3,6 +3,7 @@ import { BookOpen, CalendarDays, Sprout } from "lucide-react";
 import { ALMANAC_SOURCE, type WordOfDay, type WordOfDayCollection } from "@/lib/progress/wordOfDay";
 import { AddWordButton } from "@/components/AddWordButton";
 import { Speak } from "@/components/Speak";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
 
 /**
@@ -27,7 +28,7 @@ import { Card, CardLink, Chip, SectionTitle } from "@/components/ui";
  * day the card claims pancakes over the word for a cupboard is the day nobody
  * reads it again.
  */
-export function WordOfDayCard({ word, collection, className }: {
+export function WordOfDayCard({ word, collection, canTranslate, className }: {
   word: WordOfDay | null;
   /**
    * What the learner has kept from this panel so far.
@@ -37,6 +38,8 @@ export function WordOfDayCard({ word, collection, className }: {
    * at nought, because "kept 0 so far" is a scoreboard for not having started.
    */
   collection: WordOfDayCollection;
+  /** Whether this deployment has a model to ask for a sentence's English. */
+  canTranslate: boolean;
   className?: string;
 }) {
   if (!word) {
@@ -109,9 +112,20 @@ export function WordOfDayCard({ word, collection, className }: {
           <blockquote lang="et" className="text-sm leading-relaxed" style={{ color: "var(--ink)" }}>
             {word.example.et}
           </blockquote>
-          {word.example.en && (
-            <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{word.example.en}</p>
-          )}
+          {/*
+            And what it says. `{word.example.en && ...}` was the whole of the
+            English here, and Ekilex records none on a reader key, so on a
+            fresh deployment this panel offered a beginner a sentence in a
+            language they are on day one of and nothing at all to read it
+            with, every morning, for ever.
+          */}
+          <SentenceTranslation
+            key={word.example.et}
+            lexemeId={word.lexemeId}
+            et={word.example.et}
+            en={word.example.en ?? null}
+            canTranslate={canTranslate}
+          />
           {/*
             Where the sentence came from, said out loud. Every Estonian sentence
             in this app is one a lexicographer recorded, and a page that shows

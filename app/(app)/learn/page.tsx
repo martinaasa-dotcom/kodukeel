@@ -14,6 +14,7 @@ import { Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Sparkles } from "lucide-react";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Learn" };
 
@@ -109,10 +110,10 @@ export default async function LearnPage() {
           <p className="text-base" style={{ color: "var(--ink)" }}>
             You are working at {placement} · {knownWords} of {totalWords} words known
           </p>
-          <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
+          <Explain label="What counts as known">
             A word counts as known once every card made from it has moved past the learning stage,
             not just been answered right once.
-          </p>
+          </Explain>
           <Link
             href="/assess"
             className="mt-1.5 inline-flex items-center gap-1.5 text-xs underline"
@@ -302,12 +303,12 @@ export default async function LearnPage() {
         })}
       </div>
 
-      <p className="mt-6 text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="How a unit relates to the dictionary">
         Units are shortcuts into the same dictionary, not a separate course. Everything in them can
         also be found by searching, and anything missing you can{" "}
         <Link href="/dictionary" className="underline" style={{ color: "var(--accent-deep)" }}>add yourself</Link>.
         Nothing is ever truly locked: a unit above your level shows what it builds on, and opens anyway.
-      </p>
+      </Explain>
     </Page>
   );
 }

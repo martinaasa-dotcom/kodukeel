@@ -23,6 +23,7 @@ import { DAY_MINUTES as COURSE_DAY_MINUTES } from "@/lib/course";
 import {
   DEFAULT_GLOSS_LANGUAGE, GLOSS_LANGUAGES, type GlossLanguage,
 } from "@/lib/collections/glossLanguage";
+import { Explain } from "@/components/Explain";
 
 /**
  * The deck a learner at one level starts with, sized by the server.
@@ -489,10 +490,10 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                   />
                 ))}
               </ChoiceGroup>
-              <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="What stays in English">
                 The English stays either way. The Russian and Ukrainian are the dictionary&rsquo;s own,
                 written alongside the Estonian.
-              </p>
+              </Explain>
             </div>
 
             {/*
@@ -730,7 +731,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 </ChoiceChip>
               ))}
             </ChoiceGroup>
-            <p className="mt-2.5 max-w-[62ch] text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That is {goal} cards to
               answer, not {goal} new ones. About nine in ten will be words you have already met,
               coming back right when you are starting to forget them.
@@ -795,7 +796,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 </li>
               ))}
             </ul>
-            <p className="mt-2 max-w-[62ch] text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-2 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {totalEvenings} evenings in all, and every word the course teaches is in one of them.
               You can leave the plan at any point and use the app the way you like: everything is
               still there, and the work counts either way.
@@ -846,7 +847,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
                 );
               })}
             </ul>
-            <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-3 text-sm" style={{ color: "var(--ink-2)" }}>
               {counted(deck.words, "word")}, {counted(deck.cards, "card")}.{" "}
               {deck.remaining > 0 && (
                 <>The other {counted(deck.remaining, "unit")} at {startBand}, and every other level, are on
@@ -911,7 +912,7 @@ export function WelcomeWizard({ starters, parts, suggestedName, paper }: {
               So it says both: what the pace buys, and what it costs, with the
               number for this learner's own deck rather than a general warning.
             */}
-            <p className="mt-2.5 max-w-[62ch] text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+            <p className="mt-2.5 max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               {minutesFor(goal)} minutes a day, {daysPerWeek} days a week. That is {goal} cards to
               answer, not {goal} new ones. About nine in ten will be words you have already met,
               coming back right when you are starting to forget them. These {counted(deck.cards, "card")} take

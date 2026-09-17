@@ -64,6 +64,7 @@
     "audit:homonyms": "tsx scripts/audit-homonyms.ts",
     "audit:order": "tsx scripts/audit-order.ts",
     "audit:decks": "tsx scripts/audit-decks.ts",
+    "translate:examples": "tsx scripts/translate-examples.ts",
     "audit:plainness": "tsx scripts/audit-plainness.ts",
     "audit:readable": "tsx scripts/audit-readable.ts"
   },

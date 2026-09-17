@@ -138,6 +138,17 @@ export interface LearnWord {
     full: string;
     en: string | null;
     /**
+     * The same sentence's English, unwithheld, for the reveal.
+     *
+     * `en` above is withheld where the translation spells the answer, because
+     * on the *question* it would be the answer. Once the answer is on screen
+     * there is nothing left to give away, and a learner who has just been
+     * shown a form they got wrong is exactly the person who needs to know
+     * what the line says. Two fields rather than one, because they answer two
+     * different questions about one sentence.
+     */
+    fullEn: string | null;
+    /**
      * Which word the gap wants, without saying which spelling.
      *
      * The rung before this one asked what the word means, so the gap is about
@@ -306,7 +317,10 @@ function sentenceAndGap(
         : explainForm(word, cloze.answer);
       return {
         sentence: { et: example.et, en: example.en ?? null, form: taught.form },
-        gap: { text: cloze.text, answer: cloze.answer, full: cloze.full, en, hint: cue, explanation },
+        gap: {
+          text: cloze.text, answer: cloze.answer, full: cloze.full,
+          en, fullEn: example.en ?? null, hint: cue, explanation,
+        },
       };
     }
   }

@@ -293,6 +293,36 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**And the translations reach a word looked up live, which was the hole left after the seed.**
+`mapEkilexDetails` built a new row's sentences as `({ et, source })`, the same `.et`-only shape the
+lesson page had one layer further out, so a deployment holding an Ekilex key and no model key looked
+a word up and got the bare Estonian the whole pass was about. It reads `englishFor` now, and most of
+what a live lookup returns is a sentence the shipped table already answers for, because the course
+and the expansion are where those words are. Four writers, all four asserted: the two halves of the
+seed, the repair for a database seeded before the table existed, and the mapper.
+
+**Nobody has read the 16,037 lines, and a mechanical second opinion was built and thrown away.** The
+gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
+from, and there is no equivalent here: a translation has no upstream to be checked against. What was
+tried instead was the dictionary itself, asking whether each English line shares a content word with
+the glosses of the Estonian words in its own sentence. It flags **14 percent of the 10,254 lines it
+can judge and every example is correct**: a gloss is terse where a translation is natural, `aas` is
+"meadow" and the line says "the meadows turned green", and Estonian morphology means the words do
+not line up. A check that fires on honest data one time in seven is the check this file says to
+waive and then nobody reads, so it is not shipped and this paragraph is the record of why. What is
+left is a person reading a sample, and the report button, below.
+
+**So a wrong translation has a way out, and it is not the one that deletes the sentence.**
+`WRONG_EXAMPLE` was the only category a learner could reach for and its remedy is `DROP_EXAMPLE`,
+which would take a lexicographer's Estonian off the entry over a fault in our English. That was
+harmless while no sentence had an English line and is the wrong door the moment all of them do.
+`WRONG_TRANSLATION` applies `CLEAR_TRANSLATION`, which sets `en` back to null on the one sentence and
+touches nothing else: not the Estonian, not the order, not which sentences an entry has. It is
+deliberately not a correction, because a reviewer accepting it is saying the line was wrong rather
+than that they have a better one, and null is the honest "not yet" every sentence was in before the
+table was built, from which a deployment with a model asks again and one without shows the
+word-by-word gloss.
+
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
 same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
@@ -2529,6 +2559,76 @@ page whose subject is an explanation is allowed to explain. What is capped is th
 the thing a reader came for. And a cap cannot tell a short sentence from a good one, which is
 `docs/18-voice.md`'s job exactly as before.
 
+**And the two caps above hold the top of a screen, which is not where the small print was.** A
+learner reported the effect rather than any one line: every screen had a second screen of small
+print stuck to it. Measured across `app/` and `components/`, 103 elements set in `text-xs` or
+smaller carried a whole sentence, the median was over 109 characters and one was 561. That is a
+paragraph in 13px grey, and Settings alone had twelve of them, one under each control.
+
+**Small type does not make a paragraph less intrusive.** It makes it harder to read and leaves it
+exactly where it was, so it costs the room and earns nothing, and the reader who needed it is the
+one least able to read it. The honest choices are to say it in one line at a size somebody can
+read, or to take it off the screen until it is asked for, and there is now a third cap holding them
+to one of the two: `CAPTION_MAX` is 110 characters, which is about a line and a half on a phone.
+The sweep reads every `text-xs` and `text-2xs` element in the tree whose content is a sentence, and
+what is **not** capped is the list the other two leave alone: prose in the body of a screen, a
+grammar explanation, a policy page.
+
+**`components/Explain.tsx` is where an explanation goes**, and it is a `details`, which is the
+browser's own disclosure: keyboard-reachable, announced as one, open on a printed page, no state
+and no effect, so it works in the server components most of this copy lives in. Its trigger is one
+short line saying what the reader would find out ("Where this comes from" rather than "More
+information"), and what opens is `text-sm` rather than `text-xs`, because the whole point of moving
+it behind a press is that it no longer has to apologise for the room it takes. Thirty-three of them
+now, across Settings, the class pages, the level check, the plan, the readiness page and the
+shortcut sheet.
+
+**Three kinds of small print are not an explanation and stay on the screen**, each argued for by
+name in `CAPTION_EXEMPT`: a **status** a reader has to see to know what happened, which is the audio
+that would not load and the recording that has not been made; a **form instruction**, which is how
+the form is filled in, so hiding it hides the task; a **printed task**, where there is no press to
+put anything behind; and an **attribution**, where the licence asks for the credit to be given
+rather than made available. The list is checked for staleness, so a file that no longer has a long
+caption cannot keep a line that reads as a standing decision.
+
+**And a caption that explains an affordance the affordance already carries is deleted rather than
+moved.** The line the report was about read "Any underlined word opens its meaning", under every
+first meeting, for ever. An underline that opens on a tap is the oldest signal there is: a learner
+finds out by trying, once, and was then told again on every card for the rest of the course. The
+other branch of it, "Try reading it out loud", was advice nobody asked for under a sentence
+somebody was already reading. What replaced the rule is the opposite of it, asserted: no screen
+says it, read off `code()` rather than the raw file, because the comment recording the deletion
+quotes the line and a check that fires on that note is this repository's oldest recurring mistake.
+
+**Where a sentence is load-bearing it went up rather than away.** First run's four plan paragraphs
+are what a stranger reads while deciding on their year, and one of them is the sentence CLAUDE.md
+argues about at length, that a daily goal is reviews rather than new words. They are `text-sm` on
+`--ink-2` now, which is the app's secondary body, not the size the rest of it was apologising in.
+Promoting is the other way out of the cap and is the right one exactly where a reader has to take
+the sentence in to answer the question in front of them.
+
+**And an assurance is not an explanation, which the same pass got wrong four times.** `Explain` is
+where an explanation goes and 33 paragraphs went into one, which was right for 29 of them. The
+difference is what the reader is doing at the moment the sentence matters. An explanation answers a
+question somebody has decided to ask, so it can wait to be asked: how the slow speed is made, where
+the hours come from, why a new card shows its answer. An assurance answers the question a careful
+person has *before* they type anything, and there are only three of those: is this about me, who
+ends up reading it, and what is the school on the hook for. Somebody who has to press to be told
+that has already typed it, and somebody who never presses was never told at all.
+
+`test-scene.mjs` caught one, on the situations chooser, because the sentence saying nothing you
+write there is about you is a check that suite has asked since the module was built, and a closed
+`details` is not in `innerText`. The other three were the same move and nothing would have said so:
+the join screen, where ADR-019's own rule is that the sharing is stated *before* anybody joins; the
+create-a-class screen, read by a teacher about to write a code on a board; and the box a learner
+types the name a class will see into. So each carries one line in the page, at `text-sm` on
+`--ink-2` like the plan paragraphs above and for the same reason, and **the disclosure beside it
+carries what the line does not say rather than the line again**, since a fact written down twice is
+a fact nobody is checking. The invariant is anchored on the sentence surviving with every `Explain`
+block cut out, because a phrase inside the press and a phrase above it read identically to a check
+that only greps the file, and it was made to fail on each of the four by putting the line back
+behind the press.
+
 **A blurb belongs where somebody is reading, not where they are scanning.** The targeted practice
 modes are drawn as the same compact tile the quick rounds already used, and their
 `blurb` was not deleted with the paragraph: `components/CommandPalette.tsx` shows it as the hint
@@ -2678,6 +2778,112 @@ rather than on either alone. **The way out is on the panel and the way back is i
 because the moment somebody decides they are done with this is the moment one is open in front of
 them, and a way out with no way back is a feature lost by pressing a button once. Five arms, each
 made to fail on the real line.
+
+**A sentence a learner is shown to read carries what it means, and that is one drawing rather than a
+rule each screen keeps for itself.** `WordIntro`'s header has said since it was written that two
+copies of a first meeting would be two answers and the one nobody was watching would drift, and the
+unit lesson was that copy for as long as it existed: it printed the lemma, the gloss and then the
+sentence as a bare line in the smallest type on the card, no form marked, no dictionary under the
+words, no English. A learner met `jah`, read "yes", read `Sina jah.` underneath and asked what that
+was doing there. It was never one screen either. Ekilex records no English against a usage on a
+reader key, so every recorded sentence in this app arrives bare, and each screen had answered that
+alone: `WordIntro` asked and stored, six review rounds were given the same one at a time, and the
+lesson, the daily quest, the learn ladder's own gap, the sprint, the word of the day, the case
+reference and the build-a-word walk each printed `{en && ...}`, which on a fresh deployment is
+nothing at all, for ever.
+
+**So there are three drawings of an attested sentence and no others.** `components/EstonianSentence.tsx`
+is the one a screen reaches for, the sentence with its form marked or the dictionary under every
+word of it, a speaker, and the English under that; `SentenceTranslation` and `GlossedSentence` are
+the two halves it is made of, used directly where a screen has chrome of its own to put between
+them. **All three end in the English**, so a screen cannot print the Estonian and leave the English
+out, and `en` and `canTranslate` are **required** props for the reason `illSgShort` is required on
+`NounStems`: a caller that has not thought about this does not compile. Null is "not yet" rather
+than "no", and `translateExample` is what turns one into the other, once per sentence per
+deployment, stored on the lexeme so the next learner reads it free. `ask` is the one thing a caller
+decides and has two honest answers: on arrival for a screen showing one sentence, which is every
+round and every first meeting, and on request for the dictionary entry, where eight sentences would
+be eight calls against the deployment's own cap spent on the seven nobody stopped at.
+
+**The fault under the report was a `.et` two files away from the screen.** The lesson page read the
+dictionary's own examples and mapped them to `e.et`, so the English was thrown out before the
+planner ever saw it and no amount of fixing the card could have put it back. `LessonWord.examples`
+carries `{ et, en }` now, the gap and build steps carry it too because both put a whole recorded
+sentence on screen, and the meet step asks `teachingSentence` which sentence and which form, the
+same function review and the ladder ask, so three screens introducing one word cannot introduce it
+three ways. `translationOf` is the one reader of "does the dictionary already say what this line
+means", asked by the review card, the quest and the sprint, which reconstruct a gap card's sentence
+by putting the answer back.
+
+**And the ladder's gap withholds the English on the question and owes it on the reveal.** `gap.en`
+is withheld where the translation spells the answer, because there it *is* the answer; `gap.fullEn`
+is the same sentence unwithheld, for the panel after the miss. Two fields rather than one, because
+they answer two different questions about one sentence.
+
+**What may not carry it is a measurement, and the list of those is argued for rather than
+appended to.** `lib/copy/sentenceCoverage.ts` holds every screen that prints a sentence and no
+English, with the reason: the mock examination and the level checkpoint and the placement check,
+where the sentence is the question and the English is the mark; the paste-your-own cloze and the
+writing round, where the sentence is the learner's own and there is nothing recorded to hang a
+translation on; and the handful of values the sweep finds that are named like a sentence and are
+not. A bare filename is not a decision, so the check refuses one, and an entry is checked for
+staleness in both directions, so a file that has stopped printing a sentence or has since started
+saying what it means fails until somebody takes the line out. Two screens are out of the sweep's
+reach rather than excused by it and the module's own header says so: the printable worksheet, which
+cannot ask anybody anything and prints what the dictionary holds, and the news block, which is
+somebody else's words off a feed with no entry behind them and the dictionary already under every
+word. The sweep is anchored on a JSX interpolation of a sentence-shaped value across the whole of
+`app/` and `components/`, rather than on a list of the rounds, because the fault was a screen
+nobody had thought to put on a list; the rounds whose sentence field is called something else are
+asserted by name beside it, and the drawing is matched as an element rather than as an import,
+which is the trap `code()` exists for and which this check was made to fall into once.
+
+**And the English ships, because a rule that only holds where somebody is paying for it is not a
+rule.** The three drawings above end in the English and the runtime ask fills it in one sentence at
+a time, which fixed this for a deployment with a model key and did nothing at all for the default
+one, which has none. The first screenshot after that pass was still a line of Estonian with
+underlines under it. Measured: of the 12,172 sentences in `prisma/data/expanded.json` and the 5,221
+in `prisma/data/harvested.ts`, **not one carried an English line**. The render path was right and the
+data was empty.
+
+So the English is built the way the gloss is built, once, by `npm run translate:examples`, into
+`prisma/data/example-english.json`, which ships in the repository and is read by the seed. Every
+deployment then has it, keyless or not, on every screen, with no call and no wait; 16,175 sentences,
+about 15 minutes at eight questions in the air, and the answers are cached on disk so a run that
+stops halfway costs nothing to finish. **ADR-005 is untouched and this is the direction it allows**:
+the model translates *into* English and is never asked to produce the Estonian, which came from a
+lexicographer and is not ours to rewrite, so the worst a bad model can do here is gloss one
+clumsily. The question and the reading of the answer are `lib/tutor/translate.ts`'s own
+(`sentenceInstruction`, `readSentenceTranslation`), imported rather than retyped, because a line
+built by the script and one a learner asks for at runtime have to be the same translation of the
+same kind or the dictionary reads as two people wrote it.
+
+**It is a file keyed on the sentence rather than a column on the entry**, and both halves of that
+are about where a fact belongs. A translation is a fact about the *sentence*: `lib/dict/borrow.ts`
+lends one word's usages to another and they mean the same thing under both, so a copy per entry is a
+copy that goes stale on one side and is paid for twice. And `prisma/data/harvested.ts` is generated
+by `npm run harvest` and rewritten whole on every run, so an English column in it would be deleted
+by the next harvest, silently, in the file nobody re-reads. `lib/dict/exampleEnglish.ts` is the one
+reader and the seed is the one place it is joined on, both paths, asserted; every screen goes on
+reading `Example.en` exactly as before.
+
+**A refusal is never written down as an answer**, which is the lesson the seed and the Ekilex
+harvest each learned expensively. An empty answer, the word UNKNOWN, an essay where a sentence was
+asked for, the Estonian handed straight back (`looksLikeEcho`), or an answer still carrying õ, ä, ö,
+ü, š or ž is dropped and reported, and the sentence is left without a line, which is the state every
+sentence was in before this existed. Measured over the whole run: about one refusal in a hundred.
+Two invariants hold the file, that not one value carries an Estonian letter or echoes its key, and a
+floor on how many sentences it covers, because it grows every time somebody runs the script and
+shrinking it is the change worth stopping.
+
+**And a translation shown before the answer is the answer.** Thirty entries in the dictionary are
+spelled the same in both languages, so "I watched the film" over `Vaatasin ____` hands `filmi` over,
+and a sentence's English shown on a gap card's front gives the meaning away on every other card too.
+Every round prints it on the reveal, which is where the review card has always had it; the learn
+ladder's gap question is the one screen that shows a sentence's English *before* an answer and it
+withholds the line where the translation spells the answer (`mentions`), with `gap.fullEn` carrying
+the unwithheld one for the panel afterwards. The sprint had it on the front for an hour and it was
+wrong for both reasons.
 
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
@@ -4308,6 +4514,21 @@ five-step evening is five silent screen changes. It is the fault `StepList` has 
 screen over, wanting the opposite answer: the list hands the caret to the button the learner was
 reaching for, and the bar hands it to what they were reaching at. Every route carries exactly one
 `h1`, drawn or `sr-only`, so it is there to be moved to and reading it out is the announcement.
+
+**And "a heading different from the one that was there" is a race rather than a rule.** Which commit
+the page lands in is not this bar's to decide: the step comes off `useSearchParams`, so on one press
+the old heading is still standing and the new tree arrives frames later, and on the next the address
+and the content commit together and the heading in `#main` is already the new step's before the
+effect has run. Read as the old one, that heading is then waited past, the wait runs out of frames,
+and the caret stays on the body. Measured on the reading step of an ordinary evening, two presses in
+three: `scripts/test-module.mjs` was green on one run of CI and red on the next with the code
+untouched, and the failing one was the run whose fixture opened at the reading step rather than at
+the words. Taking the first heading it sees is the same fault pointed the other way. So a heading
+that *replaces* the one standing at the press is the new step and is read out the moment it lands,
+and where nothing replaces it the one standing was the new step's all along and is read out at the
+end of the window, unless the learner has since taken the caret onto the screen themselves. One
+announcement either way, always of the screen they ended up on, whichever order the two commits land
+in. Made to fail on the real line first, which is what said the two in three.
 
 **And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
 the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
@@ -8672,8 +8893,11 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
-`caseExamplesFor`, `MODULE_PARAM`, `readFocus`, `focusedSteps`, `continueHref`,
-`ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
+`caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
+`meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`, `englishFor`, `sentenceInstruction`,
+`readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
+`CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
+`continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
 `module-step`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.

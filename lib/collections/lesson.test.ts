@@ -56,7 +56,7 @@ const noun = (lemma: string, gloss: string, extra: Partial<LessonWord> = {}): Le
 });
 
 const WORDS: LessonWord[] = [
-  noun("maja", "house", { examples: ["Maja on suur ja valge."], parts: { NOM_SG: "maja", GEN_SG: "maja", PART_SG: "maja" } }),
+  noun("maja", "house", { examples: [{ et: "Maja on suur ja valge.", en: "The house is big and white." }], parts: { NOM_SG: "maja", GEN_SG: "maja", PART_SG: "maja" } }),
   noun("tuba", "room", { parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" } }),
   noun("uks", "door", { parts: { NOM_SG: "uks", GEN_SG: "ukse", PART_SG: "ust" } }),
   noun("aken", "window", { parts: { NOM_SG: "aken", GEN_SG: "akna", PART_SG: "akent" } }),
@@ -177,7 +177,7 @@ describe("what a step is built from", () => {
     const gaps = plan().filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     for (const gap of gaps) {
       const source = WORDS.find((w) => w.lemma === gap.lemma);
-      expect(source?.examples).toContain(gap.full);
+      expect(source?.examples.map((e) => e.et)).toContain(gap.full);
       // The blank really removed something, and the answer really was in it.
       expect(gap.text).not.toEqual(gap.full);
       expect(gap.full).toContain(gap.answer);
@@ -200,7 +200,7 @@ describe("what a step is built from", () => {
   */
   it("never gaps a plural, even where the unit's own sentence carries one", () => {
     const friend = noun("sõber", "friend", {
-      examples: ["Oleme ikka sõbrad edasi!"],
+      examples: [{ et: "Oleme ikka sõbrad edasi!", en: null }],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
     const steps = planLesson({
@@ -222,7 +222,7 @@ describe("what a step is built from", () => {
     // the meaning, and where the meaning spells it too the cue says nothing.
     const surely: LessonWord = {
       lexemeId: "lex-kindlasti", lemma: "kindlasti", gloss: "definitely", pos: "ADVERB",
-      examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
+      examples: [{ et: "Koosolek toimub kindlasti.", en: null }], parts: { NOM_SG: "kindlasti" },
       government: null, semanticTypes: null,
     };
     const steps = planLesson({
@@ -240,7 +240,7 @@ describe("what a step is built from", () => {
     // The lemma is given deliberately: the question is the form, and the
     // vocabulary is what the meet and choose steps already asked.
     const room = noun("tuba", "room", {
-      examples: ["Ta istub toas ja loeb."],
+      examples: [{ et: "Ta istub toas ja loeb.", en: null }],
       parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" },
     });
     const steps = planLesson({
@@ -464,7 +464,7 @@ describe("the build step carries the orders Estonian allows", () => {
     gloss: "to come",
     pos: "VERB",
     semanticTypes: null,
-    examples: [reported],
+    examples: [{ et: reported, en: null }],
     /*
       No stored first person, so no gap can be cut and the practice lane falls
       through to the build step. `planLesson` offers one practice step per

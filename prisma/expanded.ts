@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 
 import { Prisma, type PrismaClient } from "@prisma/client";
+import { englishFor } from "../lib/dict/exampleEnglish";
 
 /**
  * The built-in dictionary beyond the words somebody typed by hand.
@@ -71,6 +72,21 @@ interface ExpandedEntry {
   examples: { et: string; en: string | null }[];
   forms: { formType: string; value: string }[];
   ekilexWordId: number;
+}
+
+/**
+ * The expansion's own sentences, each with what it means where the shipped
+ * table has it.
+ *
+ * `expanded.json` carries `en: null` on every one of its 12,172 sentences,
+ * because Ekilex records no English against a usage on a reader key and
+ * Wiktionary's Estonian usages are rarely translated. The file is the join of
+ * two sources and is not the place to put a third; `lib/dict/exampleEnglish.ts`
+ * is, and the join happens here, on the way into the row, so regenerating the
+ * expansion never has to know about it.
+ */
+function withEnglish(examples: ExpandedEntry["examples"]): ExpandedEntry["examples"] {
+  return (examples ?? []).map((e) => ({ ...e, en: e.en ?? englishFor(e.et) }));
 }
 
 export function readExpanded(): ExpandedEntry[] {
@@ -182,6 +198,7 @@ export async function writeExpanded(
     `examples` is NOT NULL with a '[]' default. An explicit null overrides a
     default rather than falling back to it, so a word with no attested sentence
     has to be given the empty list by name. The whole statement is one insert,
+
     so one such word failed the entire batch.
   */
   for (const batch of chunk(entries, 250)) {
@@ -191,7 +208,7 @@ export async function writeExpanded(
         ${e.cefr}::text, ${e.gradation}, ${e.gradationNote}::text,
         ${e.government}::text, ${e.notes}::text, ${e.semanticTypes ?? null}::text,
         ${e.definition ?? null}::text,
-        ${JSON.stringify(e.examples ?? [])}::text,
+        ${JSON.stringify(withEnglish(e.examples))}::text,
         'EKILEX', ${e.ekilexWordId}, NOW(), NOW()
       )`,
     );

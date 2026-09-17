@@ -26,6 +26,8 @@ import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
+import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
+import { englishCount, englishFor } from "../lib/dict/exampleEnglish";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -1334,6 +1336,12 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // A scene line is chosen against a beat rather than to teach a word, and
     // it has a gate of its own: see lib/scenes/retrieval.ts.
     "lib/progress/scene.ts": "picks a line for a beat, through the scene gate",
+    // These two open the column to read back the English of the sentence the
+    // card already carries (`translationOf`, an exact match on the sentence a
+    // gap was cut from). The card's front decided which sentence that is, when
+    // it was built, and a rank here would be ranking a list of one.
+    "app/(app)/review/sprint/page.tsx": "reads back the English of the card's own sentence, picks none",
+    "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
   };
 
   /* The pure builders, which take the rank as a field rather than reading it. */
@@ -15148,10 +15156,28 @@ check("a word is introduced by one drawing", () => {
   for (const file of ["app/(app)/review/ReviewSession.tsx", "app/(app)/learn/new/LearnSession.tsx"]) {
     assert.match(code(file), /<WordIntro\b/, `${file} draws a first meeting of its own again`);
   }
-  const provenance = ALL.filter((f) => /Any underlined word opens its meaning\./.test(read(f)));
+  /*
+    AND NOTHING UNDER IT EXPLAINS THE UNDERLINES.
+
+    This used to assert that exactly one screen carried the line "Any
+    underlined word opens its meaning", which was the right rule while the line
+    existed: two copies would have been two answers. The line is gone. It sat
+    in 12px grey under every first meeting for ever, and an underline that
+    opens on a tap is the oldest signal there is: a learner finds out by
+    trying, once, and was then told again on every card for the rest of the
+    course. So the rule is now that no screen says it, which is the same rule
+    pointed at the state the app is actually in rather than at the one it used
+    to be in. See components/Explain.tsx for where an explanation goes when it
+    is worth keeping.
+  */
+  // `code` rather than `read`: the comment in WordIntro.tsx that explains why
+  // the line went quotes it, and a check that fires on the note recording a
+  // deletion is the oldest recurring mistake in this file.
+  const explains = ALL.filter((f) => /underlined word opens/i.test(code(f)));
   assert.deepEqual(
-    provenance, ["components/WordIntro.tsx"],
-    "more than one screen says how to read a teaching sentence",
+    explains, [],
+    "a screen explains its own underlines again. The underline is the signal; a caption under every " +
+    "card is the small print a learner reported",
   );
 });
 
@@ -17945,7 +17971,6 @@ check("the module's way on is resolved on the server and ticks nothing it may no
     "the module frame stopped asking the server where the way on goes",
   );
 });
-
 check("every exam shape the audit can meet is one it knows what to search", () => {
   /*
     `npm run audit:questions` asks one question of every generator in this app:
@@ -17991,7 +18016,473 @@ check("every exam shape the audit can meet is one it knows what to search", () =
     `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
     + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
     + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
-    + " never examines, which is how the level check's writing item hid",  );
+    + " never examines, which is how the level check's writing item hid",
+  );
+});
+
+check("an assurance about what you type is on the screen, not behind a press", () => {
+  /*
+    `components/Explain.tsx` is where an explanation goes, and the pass that
+    built it moved 33 paragraphs into one. Four of them were not explanations.
+
+    The difference is what the reader is doing when the sentence matters. An
+    explanation answers a question somebody has decided to ask, so it can wait
+    to be asked: how the slow speed is made, where the hours come from, why a
+    new card shows its answer. An assurance answers the question a careful
+    person has before they type anything, which is whether this is about them,
+    who ends up reading it, and what the school is on the hook for. Somebody
+    who has to press to be told that has already typed it, and somebody who
+    never presses was never told at all.
+
+    `test-scene.mjs` caught one of the four, on the situations chooser, which
+    is the only one a browser suite happened to read. The other three were the
+    same move on the join screen, the create-a-class screen and the name field,
+    and nothing would have said so. So it is a rule rather than one check: each
+    of these screens carries its assurance in the page, and the disclosure
+    beside it, where there is one, carries what the line does not say rather
+    than the line again.
+
+    Anchored on the sentence surviving with every `Explain` block cut out,
+    because a phrase inside the disclosure and a phrase above it read
+    identically to a check that only greps the file. Made to fail on each of
+    the four by putting the line back inside the press.
+  */
+  const assurances: { file: string; says: RegExp; why: string }[] = [
+    {
+      file: "app/(app)/situations/page.tsx",
+      says: /Nothing\s+you\s+write\s+here\s+is\s+about\s+you/,
+      why: "a learner deciding whether to type their real details into a conversation",
+    },
+    {
+      file: "app/(app)/class/ClassForms.tsx",
+      says: /never\s+your\s+deck\s+or\s+your\s+answers/,
+      why: "ADR-019's rule that the join screen states what is shared before anybody joins",
+    },
+    {
+      file: "app/(app)/class/page.tsx",
+      says: /need\s+a\s+parent\s+to\s+agree\s+first/,
+      why: "a teacher about to write a join code on a board",
+    },
+    {
+      file: "app/(app)/settings/PreferencesPanel.tsx",
+      says: /Nothing\s+else\s+goes\s+with\s+it/,
+      why: "the box a learner types the name a class will see into",
+    },
+  ];
+
+  const hidden = assurances.filter(({ file, says }) => {
+    const onThePage = code(file).replace(/<Explain\b[\s\S]*?<\/Explain>/g, " ");
+    return !says.test(onThePage);
+  });
+
+  assert.deepEqual(
+    hidden.map((a) => `${a.file}: ${a.why}`), [],
+    "an assurance about what a learner types is behind a press again, or has been reworded. " +
+    "An explanation may wait to be asked for; the answer to \"is this about me\" may not",
+  );
+});
+
+
+/*
+  NOTHING ESTONIAN IS SHOWN TO A LEARNER WITHOUT SAYING WHAT IT MEANS.
+
+  A word is glossed wherever it is printed, which this app has always done.
+  An attested *sentence* was not, and that is the one a learner cannot work
+  out for themselves: Ekilex records no English against a usage on a reader
+  key, so every recorded sentence in this app arrives bare and every screen
+  had answered that for itself. `WordIntro` asked and stored; six review
+  rounds were given the same one at a time; and the unit lesson, the daily
+  quest, the learn ladder's own gap, the sprint, the word of the day, the case
+  reference and the build-a-word walk each printed `{en && ...}`, which on a
+  fresh deployment is nothing at all, for ever. It was reported off the lesson,
+  where a learner met `jah`, read "yes", and read `Sina jah.` under it with
+  nothing to say what that was.
+
+  So there are three drawings of an attested sentence and no others.
+  `EstonianSentence` is the one a screen reaches for; `SentenceTranslation`
+  and `GlossedSentence` are the two halves it is made of, used directly where
+  a screen has chrome of its own to put between them. All three end in the
+  English, so a screen cannot print the Estonian and leave the English out.
+
+  Anchored on a JSX interpolation of a sentence-shaped value rather than on any
+  screen's markup, and on the whole of `app/` and `components/` rather than a
+  list of the rounds, because the fault was a screen nobody had thought to put
+  on a list. `lib/copy/sentenceCoverage.ts` is where an exception is argued
+  for, and it is checked in both directions so it cannot become a parking
+  space.
+*/
+/**
+ * One of the three drawn as an element, never merely imported.
+ *
+ * Anchored on `<Name` for the reason half the checks in this file are: written
+ * as a bare name it matched the import line, so deleting the component from
+ * the render left the check passing on a screen that had stopped saying what
+ * its sentence meant. Made to fail that way first.
+ */
+const DRAWS_ENGLISH = /<(EstonianSentence|SentenceTranslation|GlossedSentence)\b/;
+/**
+ * A JSX interpolation of something sentence-shaped.
+ *
+ * Deliberately the four names this app gives a recorded sentence rather than
+ * every Estonian string: widening it to `.et` and `.front` sweeps in `spec.et`,
+ * which is a case's Estonian *name*, and `line.at`, which is a timestamp, and
+ * a check that fires on honest code is a check people learn to waive. What it
+ * cannot see is a screen that named the field something else, which is why the
+ * rounds drawing one are asserted by name below as well.
+ */
+const SHOWS_SENTENCE = /\{[A-Za-z0-9_.?[\]]*\b(sentence|example|passage|full)\b[A-Za-z0-9_.?![\]]*\}/i;
+
+check("a screen showing an attested sentence says what it means", () => {
+  /*
+    The three drawings themselves are what the rule is about and cannot satisfy
+    it by drawing one another: `GlossedSentence` prints the sentence and
+    `EstonianSentence` puts `SentenceTranslation` under it, which is the whole
+    pairing, asserted in the check below rather than here.
+  */
+  const DRAWINGS = [
+    "components/EstonianSentence.tsx",
+    "components/SentenceTranslation.tsx",
+    "components/GlossedSentence.tsx",
+  ];
+  const screens = [...APP, ...COMPONENTS]
+    .filter((f) => f.endsWith(".tsx") && !DRAWINGS.includes(f));
+  const shows = screens.filter((f) => SHOWS_SENTENCE.test(code(f)));
+  assert.ok(
+    shows.length >= 15,
+    `only ${shows.length} screens look like they print a sentence, so the sweep has stopped finding them`,
+  );
+
+  for (const file of shows) {
+    if (file in SENTENCE_WITHOUT_ENGLISH) continue;
+    assert.ok(
+      DRAWS_ENGLISH.test(code(file)),
+      `${file} prints an Estonian sentence and never draws EstonianSentence, SentenceTranslation ` +
+      "or GlossedSentence, so a learner reads a line of Estonian with nothing to say what it means. " +
+      "Draw it through components/EstonianSentence.tsx, or argue for the exception in " +
+      "lib/copy/sentenceCoverage.ts",
+    );
+  }
+
+  /*
+    And the exception list stays earned, in both directions. A file that has
+    stopped printing a sentence, or one that has since started saying what it
+    means properly, keeps a line here that reads as a standing decision and is
+    not one. That is the fault `lib/legal/exportCoverage.ts` exists for, one
+    list over: appending a name is how you make a check like this pass without
+    doing anything.
+  */
+  for (const [file, why] of Object.entries(SENTENCE_WITHOUT_ENGLISH)) {
+    assert.ok(existsSync(file), `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer exists`);
+    assert.ok(
+      why.length >= 120,
+      `the reason ${file} prints no English is too short to be an argument. A bare filename is not a decision`,
+    );
+    assert.ok(
+      shows.includes(file),
+      `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer prints a sentence. Take the line out`,
+    );
+    assert.ok(
+      !DRAWS_ENGLISH.test(code(file)),
+      `${file} draws the English now, so its exception is stale. Take the line out of lib/copy/sentenceCoverage.ts`,
+    );
+  }
+});
+
+check("the one drawing of a sentence cannot be called without its English", () => {
+  const sentence = read("components/EstonianSentence.tsx");
+  /*
+    `en` and `canTranslate` are required, for the reason `illSgShort` is
+    required on `NounStems`: a caller that has not thought about this does not
+    compile. `en?:` would make "no English" the default and every screen that
+    forgot one would render exactly the fault this component was written for.
+  */
+  assert.match(
+    sentence, /\n  en: string \| null;/,
+    "EstonianSentence's `en` stopped being a required prop, so a screen can draw a sentence and say nothing",
+  );
+  assert.match(
+    sentence, /\n  canTranslate: boolean;/,
+    "EstonianSentence's `canTranslate` stopped being required, so a screen can quietly offer nothing",
+  );
+  assert.match(
+    code("components/EstonianSentence.tsx"), /<SentenceTranslation\b/,
+    "EstonianSentence stopped rendering SentenceTranslation, so its whole pairing is gone",
+  );
+  /*
+    And the ladder underneath it. `translateExample` is what asks and stores,
+    once per sentence per deployment, so the next learner reads it free; a
+    version of this that only ever printed what was already there would be the
+    `{en && ...}` this replaced with more steps.
+  */
+  assert.match(
+    code("components/SentenceTranslation.tsx"), /translateExample\(/,
+    "SentenceTranslation stopped asking for a translation, so a sentence with none stays bare for ever",
+  );
+});
+
+check("every screen that teaches a word draws its sentence the same way", () => {
+  /*
+    The rounds and teaching screens by name, because the sweep above is blind
+    to a screen whose sentence field is called something else: the daily quest
+    reads `card.front`, the sprint the same, the conversation `line.text`. A
+    round added here without one is what the report was about.
+  */
+  const drawn = [
+    "app/(app)/review/ReviewSession.tsx",
+    "app/(app)/learn/new/LearnSession.tsx",
+    "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
+    "app/(app)/quest/QuestSession.tsx",
+    "app/(app)/review/sprint/SprintSession.tsx",
+    "app/(app)/review/flashcards/FlashSession.tsx",
+    "app/(app)/review/exceptions/ExceptionsSession.tsx",
+    "app/(app)/review/dictation/DictationSession.tsx",
+    "app/(app)/review/government/GovernmentSession.tsx",
+    "app/(app)/review/describe/DescribeSession.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+    "app/(app)/grammar/build-a-word/BuildWalk.tsx",
+    "app/(app)/dictionary/Examples.tsx",
+    "components/WordIntro.tsx",
+    "components/WordOfDay.tsx",
+    "components/scene/SceneSession.tsx",
+  ];
+  for (const file of drawn) {
+    assert.ok(existsSync(file), `${file} is gone. If the screen moved, move it here too`);
+    assert.match(
+      code(file), DRAWS_ENGLISH,
+      `${file} stopped drawing an attested sentence's English. It is one of the screens a learner ` +
+      "reads a recorded sentence on, and a sentence nobody can read teaches nothing",
+    );
+  }
+});
+
+check("the lesson carries a sentence's English rather than dropping it", () => {
+  /*
+    The fault under the report, one layer down from the screen. The lesson page
+    read the dictionary's own examples and mapped them to `e.et`, so the
+    English was thrown away before the planner ever saw it and no amount of
+    fixing the card could have put it back.
+  */
+  const planner = code("lib/collections/lesson.ts");
+  assert.match(
+    planner, /examples: readonly LessonExample\[\]/,
+    "lib/collections/lesson.ts takes bare Estonian strings again, so the lesson cannot say what a sentence means",
+  );
+  assert.match(
+    planner, /teachingSentence\(/,
+    "the lesson picks its meeting sentence itself again. `teachingSentence` is what review and the ladder ask",
+  );
+  const page = code("app/(app)/learn/[unitId]/lesson/page.tsx");
+  /*
+    Asked of what the planner is handed rather than of the file, which is where
+    the fault was and is not everything a page does with a sentence. The same
+    page also hands the sitting's sentences to `orderContextFor`, which reads
+    which of their words are verbs and has no use for the English: banning the
+    spelling outright fired on that, and the answer to a check that fires on
+    honest code is to say what it is about rather than to write round it.
+  */
+  const handedOver = page.slice(page.indexOf("examples:"));
+  assert.match(
+    handedOver.slice(0, handedOver.indexOf("\n    parts:")), /en: e\.en/,
+    "the lesson page drops each example's English on the way in again. That one `.et` is the whole fault",
+  );
+  assert.match(
+    page, /glossSentences\(/,
+    "the lesson stopped putting the dictionary under its sentences, which review and the ladder both do",
+  );
+});
+
+check("a sentence's English is never printed where it would be the answer", () => {
+  /*
+    Thirty entries in the dictionary are spelled the same in both languages, so
+    "I watched the film" over `Vaatasin ____` hands `filmi` over, and a
+    translation shown before an answer gives the meaning away on every other
+    card besides. Every round prints it on the reveal, which is where the
+    review card has always had it, and the sprint had it on the front for an
+    hour and was wrong for both reasons.
+
+    The learn ladder's gap question is the one screen in the app that shows a
+    sentence's English *before* an answer, because there the sentence is the
+    question. It withholds the line where the translation spells the answer and
+    carries the unwithheld one separately for the panel afterwards. That guard
+    used to be nearly unreachable, since no shipped sentence had an English
+    line at all; now every one of them does, so it is load-bearing.
+  */
+  const ladder = code("lib/progress/learn.ts");
+  assert.match(
+    ladder, /!mentions\(example\.en, cloze\.answer\)/,
+    "lib/progress/learn.ts hands the gap rung a translation that may spell the answer. Every shipped " +
+    "sentence carries English now, so this guard fires where it used to be theoretical",
+  );
+  assert.match(
+    ladder, /fullEn: example\.en/,
+    "the ladder stopped carrying the unwithheld English for its reveal, so a learner who just got a " +
+    "form wrong is shown the sentence and still not told what it says",
+  );
+
+  const sprint = code("app/(app)/review/sprint/SprintSession.tsx");
+  const revealAt = sprint.indexOf("{revealed && (");
+  const translationAt = sprint.indexOf("<SentenceTranslation");
+  assert.ok(
+    revealAt >= 0 && translationAt > revealAt,
+    "the sprint prints its sentence's English before the answer again. It belongs inside the reveal, " +
+    "like every other round's",
+  );
+});
+
+
+/*
+  AND THE ENGLISH SHIPS, SO A DEPLOYMENT WITH NO MODEL KEY HAS IT TOO.
+
+  The three drawings above end in the English and the runtime ask fills it in
+  one sentence at a time, which fixes this for whoever has a key and does
+  nothing at all for the default deployment, which has none. Measured: of the
+  12,172 sentences in `prisma/data/expanded.json` and the 5,221 in
+  `prisma/data/harvested.ts`, not one carried an English line, so the first
+  screenshot after the first fix was still a line of Estonian with underlines
+  under it and nothing to say what it meant. A rule that only holds where
+  somebody is paying for it is not the rule this app said it had.
+
+  `npm run translate:examples` asks once, into a file that ships, and the seed
+  reads it on both of its two paths. `lib/dict/exampleEnglish.ts` is the one
+  reader, keyed on the sentence rather than on the entry, because an English
+  line is a fact about the sentence: `borrow.ts` lends one word's usages to
+  another and they mean the same thing under both, and `harvested.ts` is
+  rewritten whole by every `npm run harvest`, which would take an English
+  column in it with no warning.
+*/
+check("the English of a shipped sentence is built once and read in one place", () => {
+  /*
+    `ALL` is app, lib and components; the two joiners are in `prisma/`, which
+    is where the seed lives, so the sweep reads both trees. Written against
+    `ALL` alone first, which found no readers at all and passed the day the
+    seed stopped joining.
+  */
+  const readers = [...ALL, ...sourceFiles("prisma")]
+    .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
+  assert.deepEqual(
+    readers.sort(),
+    ["lib/ekilex/mapper.ts", "prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts"].sort(),
+    "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
+    "there are four places a sentence is written down: the two halves of the seed, the repair that " +
+    "reaches a database seeded before the table existed, and the mapper that builds a row out of a " +
+    "live Ekilex lookup. A screen reads `Example.en` like it always did",
+  );
+
+  /*
+    The fourth is the one that is easy to forget, because it is not the seed.
+    A deployment holding an Ekilex key and no model key looks a word up live,
+    and the mapper built its sentences as `({ et, source })`: the same
+    `.et`-only shape the lesson page had, one layer further out, so the word
+    arrived with sentences nobody could read.
+  */
+  assert.match(
+    code("lib/ekilex/mapper.ts"), /en: englishFor\(et\)/,
+    "a word looked up live arrives with bare sentences again. The shipped table answers for most of " +
+    "them, because the course and the expansion are where those words are",
+  );
+
+  const seed = code("prisma/seed.ts");
+  assert.match(
+    seed, /englishFor\(et\)/,
+    "prisma/seed.ts writes the course's sentences without their English again, which is the fault the " +
+    "report was about: every word a lesson teaches carried a sentence nobody could read",
+  );
+  assert.match(
+    code("prisma/expanded.ts"), /englishFor\(e\.et\)/,
+    "prisma/expanded.ts stopped joining the shipped English onto the expansion's 12,172 sentences",
+  );
+
+  /*
+    And the deployments that already exist. `examples` is insert-only on a
+    reseed, for the reasons `prisma/columns.ts` states, so the join above
+    reaches a fresh database and not one existing row anywhere else: without
+    this every learner who installed before the translations existed keeps
+    sentences nobody can read, which is the half-fix `repairProductionBacks`
+    and `repairCaseFronts` were each written for.
+  */
+  assert.match(
+    code("prisma/repair.ts"), /export async function fillExampleEnglish/,
+    "prisma/repair.ts no longer fills the English onto sentences a deployment already holds",
+  );
+  const seedBody = code("prisma/seed.ts");
+  const repairAt = seedBody.indexOf("fillExampleEnglish(");
+  const earlyReturn = seedBody.indexOf("--only-if-empty");
+  assert.ok(
+    repairAt >= 0 && earlyReturn > repairAt,
+    "the seed fills the sentences' English after the `--only-if-empty` early return, which is the one " +
+    "case it exists for: a bare sentence only exists on a database that was already seeded",
+  );
+
+  /*
+    And the question is asked in one place too. The script and the runtime ask
+    have to be the same job, or the line a deployment ships and the line a
+    learner's own added sentence gets are two translations of two kinds and the
+    dictionary reads as two people wrote it.
+  */
+  assert.match(
+    code("scripts/translate-examples.ts"), /sentenceInstruction\(|readSentenceTranslation\(/,
+    "scripts/translate-examples.ts asks its own question instead of lib/tutor/translate.ts's",
+  );
+  assert.match(
+    code("lib/tutor/translate.ts"), /Translate this Estonian sentence into natural English/,
+    "the sentence prompt changed direction. A model may translate INTO English and never the other way (ADR-005)",
+  );
+});
+
+check("the shipped translations are English, and there are enough of them to matter", () => {
+  /*
+    A floor rather than a count, because the file grows every time somebody
+    runs the script and shrinking it is the change worth stopping. It was
+    15,900-odd when this was written, over 16,175 shipped sentences; a run that
+    wrote an empty file, or a merge that dropped it, reads as a dictionary that
+    has quietly gone back to showing bare Estonian.
+  */
+  assert.ok(
+    englishCount() >= 14_000,
+    `only ${englishCount()} sentences carry a shipped English line, which is far under what the last ` +
+    "run built. Re-run `npm run translate:examples -- --write`, or say why the file shrank",
+  );
+
+  /*
+    AND NOT ONE OF THEM IS ESTONIAN. The whole value of the file is that it is
+    the other language, and the way a weaker model fails this job is by handing
+    the sentence back: `looksLikeEcho` catches an exact echo and the script
+    refuses anything still carrying õ, ä, ö, ü, š or ž. A line of Estonian
+    printed under a heading promising English is worse than no line at all.
+  */
+  const table: Record<string, string> = JSON.parse(readFileSync("prisma/data/example-english.json", "utf8"));
+  const estonian = Object.entries(table).filter(([, en]) => /[õäöüšž]/i.test(en));
+  assert.deepEqual(
+    estonian.slice(0, 3), [],
+    `${estonian.length} shipped translations still carry Estonian's own letters, so they are not English`,
+  );
+  const echoes = Object.entries(table).filter(([et, en]) => en.trim() === et.trim());
+  assert.deepEqual(
+    echoes.slice(0, 3), [],
+    `${echoes.length} shipped translations are the Estonian handed straight back`,
+  );
+
+  /*
+    AND NOT ONE INVENTS A DASH. A dash used as a clause break is the loudest
+    single tell that a sentence was generated, which `lib/copy/voice.ts` bans
+    on every screen; one the lexicographer's own sentence has, a street number
+    or a range of years, is the sentence rather than the model. Six lines out of
+    16,052 had one the source did not, and they are refused rather than
+    rewritten, because editing a translation to pass a check is how a check
+    stops measuring anything.
+  */
+  const dashes = Object.entries(table)
+    .filter(([et, en]) => /[\u2013\u2014]/.test(en) && !/[\u2013\u2014]/.test(et));
+  assert.deepEqual(
+    dashes.slice(0, 3), [],
+    `${dashes.length} shipped translations carry a dash their own sentence does not`,
+  );
+
+  // And the reader answers for a sentence the dictionary actually ships, which
+  // is the half a table keyed on free text can get wrong without anybody
+  // noticing: a key with a stray space matches nothing and costs a line.
+  const known = Object.keys(table)[0];
+  assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
 });
 
 console.log(

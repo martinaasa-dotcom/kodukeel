@@ -13,6 +13,8 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
+import { BLANK } from "@/lib/estonian/cloze";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { WayOut } from "@/components/round/RoundExit";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
@@ -26,6 +28,8 @@ export interface SprintCard {
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   cardType: string;
+  /** What this card's sentence means, where the dictionary already holds it. */
+  sentenceEn: string | null;
 }
 
 const estonianSide = (type: string, side: "front" | "back") =>
@@ -38,8 +42,8 @@ const estonianSide = (type: string, side: "front" | "back") =>
  * its own length in an effect would start before it knew it.
  */
 export function SprintSession({
-  cards: initialCards, best, seconds,
-}: { cards: SprintCard[]; best: number; seconds: number }) {
+  cards: initialCards, best, seconds, canTranslate,
+}: { cards: SprintCard[]; best: number; seconds: number; canTranslate: boolean }) {
   /* Whether this round is a step of tonight's module, which decides whether
      the note about the clock carries a link out of it. */
   const inModule = useModuleFocus() !== null;
@@ -282,6 +286,32 @@ export function SprintSession({
                     ReviewSession's own reveal states for itself. */}
                 {estonianSide(card.cardType, "back") && <Speak text={card.back} autoplay />}
               </div>
+
+              {/*
+                And what the whole line says, where the front is a sentence
+                with a word taken out.
+
+                ON THE REVEAL RATHER THAN ON THE FRONT, which is where this
+                sat for an hour and was wrong. Thirty entries in the dictionary
+                are spelled the same in both languages, so "I watched the film"
+                over `Vaatasin ____` hands the answer over, which is the fault
+                `mentions` exists for one module away; and a translation shown
+                before the answer is the meaning given away for free on every
+                other card too. Every other round in the app shows it here, and
+                this is the same rule rather than a new one. On request, since
+                forty cards in a minute is forty calls where the shipped table
+                has no line for the sentence.
+              */}
+              {card.front.includes(BLANK) && (
+                <SentenceTranslation
+                  key={card.front}
+                  lexemeId={card.lexemeId}
+                  et={card.front.replace(BLANK, card.back)}
+                  en={card.sentenceEn}
+                  canTranslate={canTranslate}
+                  ask="onRequest"
+                />
+              )}
             </>
           )}
         </div>

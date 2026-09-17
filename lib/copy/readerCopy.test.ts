@@ -340,6 +340,99 @@ const EMPTY_BODY_MAX = 100;
 const LEAD_MAX = 95;
 
 /**
+ * What small type may say before it stops being a caption.
+ *
+ * The third cap, and the one a learner asked for. The two above hold the
+ * furniture at the top of a screen; this holds the furniture underneath it,
+ * which is where the app had quietly put most of its explaining. Measured
+ * across `app/` and `components/`: 103 elements set in `text-xs` or smaller
+ * carried a whole sentence, the median was over 109 characters, and one was
+ * 561. That is a paragraph in 13px grey, and small type does not make a
+ * paragraph less intrusive: it makes it harder to read and leaves it exactly
+ * where it was, so it costs the room and earns nothing. Settings alone had
+ * twelve of them, one under each control.
+ *
+ * 110 characters is about a line and a half on a phone, which is what a
+ * caption is. Anything longer is a real explanation and has two honest homes:
+ * `components/Explain.tsx`, which is a disclosure and takes no room until
+ * somebody wants it, or body type, which usually means saying it shorter.
+ *
+ * What this does NOT cap is the same list the two above leave alone: prose in
+ * the body of a screen, a grammar explanation, a policy page. A screen whose
+ * subject is an explanation is allowed to explain, at a size somebody can
+ * read.
+ */
+const CAPTION_MAX = 110;
+
+/**
+ * The screens whose small type may run long, and why each one may.
+ *
+ * Four kinds, and none of them is an explanation somebody could be spared.
+ * A **status** the reader has to see to know what happened, which is the
+ * audio that would not load and the recording that has not been made. A
+ * **form instruction** that is how the form is filled in, so hiding it hides
+ * the task. A **printed task**, where there is no press to put anything
+ * behind and the sheet has to say what to do. And an **attribution**, where
+ * the licence asks for the credit to be given rather than made available.
+ */
+const CAPTION_EXEMPT = new Set([
+  // "We couldn't reach the audio, so the word is shown instead." A round
+  // saying why it is not the round it promised.
+  "app/(app)/review/listening/ListeningSession.tsx",
+  // The same sentence in the round next door, where a dictation with no audio
+  // becomes a copying exercise and has to say so.
+  "app/(app)/review/dictation/DictationSession.tsx",
+  // "This deletes the N reviews currently in the app." The one warning before
+  // the one action here that cannot be undone. A disclosure over that is a
+  // warning somebody can restore a backup without having read.
+  "app/(app)/settings/RestorePanel.tsx",
+  // The setup guide, which is a screen whose whole subject is the
+  // instructions: hiding them behind a press hides the screen.
+  "app/(app)/settings/SetupGuide.tsx",
+  // "Record something first." A refusal to mark an empty attempt, on the
+  // screen that would otherwise score nothing.
+  "app/(app)/exam/[level]/ExamSession.tsx",
+  // "Fill in what you know. The omastav alone unlocks all eleven regular
+  // cases." How to fill the form it sits inside.
+  "app/(app)/dictionary/AddWord.tsx",
+  // The printed worksheet's own exercise instructions. Paper has no press.
+  "app/(app)/learn/[unitId]/worksheet/page.tsx",
+  // Ekilex, Wiktionary, FrequencyWords, Vabamorf and TartuNLP, credited as
+  // CC BY and the LGPL ask. A credit behind a disclosure is a credit somebody
+  // has to go looking for.
+  "app/(chromeless)/sign-in/page.tsx",
+]);
+
+/**
+ * Every run of small type that is a sentence, as a reader would see it.
+ *
+ * A caption is an element carrying `text-xs` or `text-2xs` (or a hand-rolled
+ * size under 14px, which a few screens still have). What is measured is the
+ * text between its tags with the markup taken out and every interpolation
+ * standing in at two characters, the same way `propStrings` measures a lead:
+ * the point is to catch a paragraph, not to argue about whether a count
+ * renders as one digit or three.
+ */
+function captions(source: string): string[] {
+  const out: string[] = [];
+  const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs|text-\[1[0-3](\.\d)?px\])\b[^>]*>([\s\S]*?)<\/\1>/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(source))) {
+    const text = (m[4] ?? "")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\{[^{}]*\}/g, "xx")
+      .replace(/&[a-z]+;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    // A label, a unit or a figure is not a sentence. A sentence ends in one.
+    if (!/[.!?]$/.test(text)) continue;
+    if (text.split(/\s+/).length < 5) continue;
+    out.push(text);
+  }
+  return out;
+}
+
+/**
  * The value of a JSX prop, as the strings a reader could end up seeing.
  *
  * `body="..."` is one string; `body={a ? "..." : "..."}` is two, and both
@@ -465,6 +558,33 @@ describe("there is not too much of it", () => {
         .map((lead) => `${f}: ${lead.length} chars: ${lead.slice(0, 70)}`),
     );
     expect(over).toEqual([]);
+  });
+
+  it("finds the captions it is supposed to be measuring", () => {
+    const all = FILES.flatMap((f) => captions(readFileSync(f, "utf8")));
+    expect(all.length).toBeGreaterThan(40);
+  });
+
+  it("keeps small type to a caption, and puts an explanation behind a press", () => {
+    const over = FILES.flatMap((f) =>
+      captions(readFileSync(f, "utf8"))
+        .filter((text) => text.length > CAPTION_MAX)
+        .filter(() => !CAPTION_EXEMPT.has(f))
+        .map((text) => `${f}: ${text.length} chars: ${text.slice(0, 70)}`),
+    );
+    expect(over).toEqual([]);
+  });
+
+  it("holds every exemption to still being one", () => {
+    // A file that no longer has a long caption keeps a line here that reads as
+    // a standing decision and is not one, which is how an exemption list
+    // becomes a parking space. The same rule `lib/legal/exportCoverage.ts`
+    // applies to a table left out of a backup.
+    const stale = [...CAPTION_EXEMPT].filter((f) =>
+      !FILES.includes(f)
+      || !captions(readFileSync(f, "utf8")).some((t) => t.length > CAPTION_MAX),
+    );
+    expect(stale).toEqual([]);
   });
 });
 
