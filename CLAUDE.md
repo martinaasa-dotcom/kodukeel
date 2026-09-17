@@ -3382,7 +3382,14 @@ read past, so it is the one an unfamiliar word costs most. **And at A1 a sentenc
 only where the course has taught every word in it**, which is `LessonInput.taughtWords`: the lemmas
 and stored forms of every unit up to and including this one, in the course's own teaching order.
 Taught *so far* rather than anywhere at the level, because `veel`, `üks` and `palun` are all A1 words
-and a learner on unit one has met none of them. It is **required and nullable** for the reason
+and a learner on unit one has met none of them, and cut at the **sitting** rather than at the unit,
+since every unit in the course splits into more than one lesson and crediting the whole of one would
+let lesson 1 gap a sentence holding a word lesson 3 introduces. It is the *course's* order rather
+than this learner's history, which is the weaker of the two claims and is deliberate: the stronger
+one is a query over their own review log per lesson, which is a fact about a person and could not be
+cached across learners, and a unit at or below somebody's level is open whatever they have done. Where
+the two differ this one is the more permissive, so it is the direction to watch if the rule ever needs
+tightening. It is **required and nullable** for the reason
 `illSgShort` is required on `NounStems`: a caller that cannot say what the course has taught says so,
 and at A1 that means no sentence exercise rather than any sentence at all. Above A1 nothing is
 gated, because meeting an unfamiliar word inside a sentence is how reading grows and a B1 learner
