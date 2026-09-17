@@ -162,5 +162,25 @@ export function joinWithOr(items: readonly string[]): string {
  * which is which.
  */
 export const ORDER_EXACT = "That is the sentence.";
-export const ORDER_VARIANT = "That works. The writer put it this way:";
 export const ORDER_WRONG = "Not an order Estonian uses here. It goes:";
+
+/**
+ * What is said about an order Estonian allows that the writer did not choose.
+ *
+ * It names the word, because that is what the person who reported this asked
+ * for: a disclaimer that technically it goes with `ette` earlier rather than
+ * at the end, and that both are said. A learner who is told only that "the
+ * writer put it this way" has to diff two sentences to find out what the
+ * difference was, on a screen they are about to move on from.
+ *
+ * `earlier` is safe to say because the move only ever goes one way: the
+ * particle is accepted at the end of its clause, so in the recording it is
+ * always further forward (`lib/estonian/wordOrder.ts`). Null falls back to the
+ * sentence without the word, which is what a caller with no reading of the
+ * order has.
+ */
+export function orderVariantNote(moved: string | null): string {
+  return moved
+    ? `That works. The writer put ${moved} earlier:`
+    : "That works. The writer put it this way:";
+}

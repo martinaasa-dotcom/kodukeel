@@ -30,7 +30,8 @@ describe("readOrder", () => {
   it("takes the particle at the end of the clause", () => {
     const v = readOrder(tiles("Muidugi tuleb näpukaid ette"), reported, alsoRightOrders(reported, DICT));
     expect(v.reading).toBe("variant");
-    expect(v.moved).toBe("näpukaid");
+    // The particle that moved, not the word that shifted into its place.
+    expect(v.moved).toBe("ette");
   });
 
   it("still refuses an order Estonian does not use", () => {

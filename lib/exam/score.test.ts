@@ -5,7 +5,7 @@ import {
 } from "./score";
 import { PASS_PCT } from "./spec";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
-import { ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
+import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 
 /* No dictionary behind the paper, so every sentence keeps the one order the
    writer chose. What a reading of the dictionary adds is asserted in
@@ -379,7 +379,9 @@ describe("a word order the writer did not choose", () => {
     expect(result.correct).toBe(true);
     expect(result.scored).toBe(1);
     expect(result.recalled).toBe(true);
-    expect(result.note).toBe(ORDER_VARIANT);
+    // And it names the word, which is the disclaimer that was asked for.
+    expect(result.note).toBe(orderVariantNote("ette"));
+    expect(result.note).toContain("ette");
   });
 
   it("still refuses an order Estonian does not use", () => {

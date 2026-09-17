@@ -1,6 +1,6 @@
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
+import { orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { checkDictation } from "@/lib/estonian/dictation";
 import { usesRequiredWord, wordsOf } from "./written";
 import { bandFor, PASS_PCT, RETAKE_WAIT_PCT, type Band, type ExamLevel } from "./spec";
@@ -261,7 +261,7 @@ export function markItem(
         itemId: item.id, scored: correct ? 1 : 0, available: 1, correct,
         expected: item.answer, given: built.join(" "),
         note:
-          verdict.reading === "variant" ? ORDER_VARIANT
+          verdict.reading === "variant" ? orderVariantNote(verdict.moved)
           : correct ? ""
           : ORDER_WRONG,
         cardId: item.cardId, lexemeId: item.lexemeId, lemma: item.lemma, recalled: correct,

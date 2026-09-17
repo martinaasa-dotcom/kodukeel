@@ -12,7 +12,7 @@ import { useUiText } from "@/components/UiLanguage";
 import { useResumeCard } from "@/components/useResumeCard";
 import { sentenceTiles } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 
@@ -69,7 +69,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
     because another order is not a near miss and may not wear butter.
   */
   const [checked, setChecked] = useState<null | "right" | "wrong">(null);
-  const [variant, setVariant] = useState(false);
+  const [variant, setVariant] = useState<string | null | false>(false);
   const [attempts, setAttempts] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [previewing, setPreviewing] = useState(false);
@@ -138,7 +138,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
     const verdict = readOrder(answer, task.et, task.alsoRight);
     const right = orderIsRight(verdict.reading);
     setChecked(right ? "right" : "wrong");
-    setVariant(verdict.reading === "variant");
+    setVariant(verdict.reading === "variant" ? verdict.moved : false);
     setAttempts((a) => a + 1);
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
@@ -344,7 +344,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
             <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
               <p className="label-xs">
                 {checked === "wrong" ? ORDER_WRONG
-                  : <>{uiText("Õige!", "Correct!")} {variant ? ORDER_VARIANT : ORDER_EXACT}</>}
+                  : <>{uiText("Õige!", "Correct!")} {variant === false ? ORDER_EXACT : orderVariantNote(variant)}</>}
               </p>
               <p className="mt-1 flex items-center justify-center gap-2">
                 <span lang="et" className="text-md" style={{ color: "var(--ink)" }}>{task.et}</span>

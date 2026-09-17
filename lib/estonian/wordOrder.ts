@@ -126,7 +126,16 @@ export type OrderReading = "exact" | "variant" | "wrong";
 
 export interface OrderVerdict {
   reading: OrderReading;
-  /** The particle that sits somewhere else. Null unless the reading is `variant`. */
+  /**
+   * The particle that sits somewhere else, spelled as the writer spelled it.
+   * Null unless the reading is `variant`.
+   *
+   * It is read off the **recorded** sentence rather than the built one, which
+   * is the whole of getting it right: the particle moves rightward, so at the
+   * first position the two differ the recording has the particle and the
+   * built order has the word that shifted into its place. Written the other
+   * way round first, and it named `näpukaid` as the word that had moved.
+   */
   moved: string | null;
 }
 
@@ -290,12 +299,12 @@ export function readOrder(
   alsoRight: readonly string[],
 ): OrderVerdict {
   if (sentenceMatches(built, original)) return { reading: "exact", moved: null };
-  const target = sentenceTiles(original).map((w) => w.toLowerCase());
+  const target = sentenceTiles(original);
+  const lowered = target.map((w) => w.toLowerCase());
   for (const order of alsoRight) {
     if (!sentenceMatches(built, order)) continue;
-    const tiles = sentenceTiles(order);
-    const moved = tiles.find((w, i) => w.toLowerCase() !== target[i]) ?? null;
-    return { reading: "variant", moved };
+    const at = sentenceTiles(order).findIndex((w, i) => w.toLowerCase() !== lowered[i]);
+    return { reading: "variant", moved: at < 0 ? null : target[at] ?? null };
   }
   return { reading: "wrong", moved: null };
 }

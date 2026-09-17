@@ -16982,12 +16982,12 @@ check("an order the writer did not choose is not a wrong order", () => {
     wording of a marking that was wrong.
   */
   const copy = code("lib/copy/values.ts");
-  for (const name of ["ORDER_EXACT", "ORDER_VARIANT", "ORDER_WRONG"]) {
-    assert.match(copy, new RegExp(`export const ${name} = `), `${name} has gone from the copy table`);
+  for (const name of ["ORDER_EXACT", "orderVariantNote", "ORDER_WRONG"]) {
+    assert.match(copy, new RegExp(`export (const|function) ${name}[ (]`), `${name} has gone from the copy table`);
   }
   for (const file of markers) {
     assert.match(
-      code(file), /ORDER_VARIANT/,
+      code(file), /orderVariantNote\(/,
       `${file} writes its own sentence about a word order rather than reading the one table`,
     );
   }

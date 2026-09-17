@@ -1627,7 +1627,13 @@ these spellings, which is what says `kaalu` is also a genitive. `LessonInput.wor
 not thought about this marks correct Estonian wrong, silently, and it looks exactly like a learner
 getting it wrong. What the three screens say about it is one table in `lib/copy/values.ts`, because
 it was three and they had drifted, and the examination's "That is not the order the writer chose"
-was the honest wording of a marking that was wrong.
+was the honest wording of a marking that was wrong. **The note names the word**, which is what the
+report asked for: technically it goes with `ette` earlier rather than at the end, and both are said.
+`OrderVerdict.moved` is read off the recorded sentence rather than the built one, and that is the
+whole of getting it right, since the particle moves rightward and at the first position the two
+differ the recording has the particle where the built order has the word that shifted into its
+place. Written the other way round first, it named `näpukaid` as the word that had moved, and
+nothing read it, so nothing said so.
 
 **A verb the app can conjugate is a verb the dictionary can find, and for a year it was not.** The
 search strips a case ending to look for a genitive stem, which is how `toas` finds `tuba`, and it

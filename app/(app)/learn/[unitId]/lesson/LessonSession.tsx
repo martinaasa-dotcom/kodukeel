@@ -16,7 +16,7 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder } from "@/lib/estonian/wordOrder";
-import { ORDER_EXACT, ORDER_VARIANT, ORDER_WRONG } from "@/lib/copy/values";
+import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
@@ -599,7 +599,7 @@ function StepCard({
                     ok,
                     note:
                       verdict.reading === "exact" ? ORDER_EXACT
-                      : verdict.reading === "variant" ? ORDER_VARIANT
+                      : verdict.reading === "variant" ? orderVariantNote(verdict.moved)
                       : ORDER_WRONG,
                   });
                   onAnswer(step.lemma, step.kind, ok);
