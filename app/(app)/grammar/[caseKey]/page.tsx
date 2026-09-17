@@ -13,6 +13,7 @@ import { Speak } from "@/components/Speak";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
 import { focusFrom } from "@/lib/course";
+import { WordLink } from "@/components/course/WordLink";
 
 export const dynamic = "force-dynamic";
 
@@ -266,22 +267,15 @@ export default async function CasePage({
                           and the learner who takes one lands on a screen with
                           no way back to the evening. The word itself is what
                           the row is for and it is still here; what is gone is
-                          the door.
+                          the door. One drawing of that, next door, because the
+                          third instance of it was found by CI rather than by
+                          reading: components/course/WordLink.tsx.
                         */}
-                        {inModule ? (
+                        <WordLink lemma={example.lemma} linkClass="hover:underline">
                           <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>
                             {example.lemma}
                           </span>
-                        ) : (
-                        <Link
-                          href={`/dictionary?q=${encodeURIComponent(example.lemma)}`}
-                          className="hover:underline"
-                        >
-                          <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>
-                            {example.lemma}
-                          </span>
-                        </Link>
-                        )}
+                        </WordLink>
                         <span className="block text-xs" style={{ color: "var(--ink-3)" }}>
                           {example.translation}
                         </span>

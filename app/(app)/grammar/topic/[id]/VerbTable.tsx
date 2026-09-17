@@ -1,5 +1,5 @@
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Chip } from "@/components/ui";
+import { WordLink } from "@/components/course/WordLink";
 import { Speak } from "@/components/Speak";
 import type { VerbExample, VerbExampleForm } from "@/lib/progress/verbExamples";
 import { NO_VALUE } from "@/lib/copy/values";
@@ -58,9 +58,11 @@ function Form({ form, bold }: { form: VerbExampleForm | undefined; bold?: boolea
 function Head({ verb }: { verb: VerbExample }) {
   return (
     <td className="px-3 py-2.5">
-      <Link href={`/dictionary?q=${encodeURIComponent(verb.lemma)}`} className="hover:underline">
+      {/* A door into the dictionary, and not one inside a module: see
+          components/course/WordLink.tsx. */}
+      <WordLink lemma={verb.lemma} linkClass="hover:underline">
         <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>{verb.lemma}</span>
-      </Link>
+      </WordLink>
       <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{verb.translation}</span>
     </td>
   );

@@ -17004,6 +17004,47 @@ check("a round's own way out stands down inside a module", () => {
 });
 
 /*
+  A SCREEN A MODULE STEP OPENS DOES NOT WRITE ITS OWN DOOR INTO THE DICTIONARY.
+
+  This is the rule the browser suite cannot reach, and the reason it cannot is
+  worth writing down: an evening deals two rounds out of a rotation of ten, so
+  one walk sees two of them. The first walk found `Full entry` on the review
+  card, CI's walk found the verb table on an A2 reading, and a sweep of the
+  same shape found two more, in dictation and in sentence building, that no
+  single evening would have opened. A measurement that covers one run in five
+  is not a measurement of the rule.
+
+  So the walk proves the mechanism and this proves the coverage. Scoped to what
+  a step can actually open, read off `ACTIVITIES` plus the reading, the ladder
+  and the conversation, rather than to every screen in the app: the dictionary
+  writes these links because it is the dictionary, and a rule that fired there
+  is a rule somebody waives.
+*/
+check("a screen a module step opens has no door of its own into the dictionary", () => {
+  const reach = [
+    "app/(app)/grammar/topic/",
+    "app/(app)/grammar/[caseKey]/",
+    "app/(app)/review/",
+    "app/(app)/sonad/",
+    "app/(app)/learn/new/",
+    "components/scene/",
+  ];
+  const under = ALL.filter((f) => reach.some((dir) => f.startsWith(dir)));
+  assert.ok(under.length >= 30, `only ${under.length} files in a module step's reach; the sweep is looking in the wrong place`);
+
+  const doors = under.filter((f) => /\/dictionary\?q=/.test(code(f)));
+  assert.deepEqual(
+    doors, [],
+    `${doors.join(", ")} writes its own link into the dictionary. Inside a module that is a door out of the evening with no way back: use WordLink or FullEntry, which stand down`,
+  );
+
+  /* And the two that stand down are the only ones allowed to write it. */
+  for (const file of ["components/course/WordLink.tsx", "components/round/RoundExit.tsx"]) {
+    assert.match(code(file), /useModuleFocus\(\)/, `${file} stopped asking whether it is inside a module`);
+  }
+});
+
+/*
   AND WHAT READS THE MODULE IS A LEAF, BECAUSE OF WHERE ITS READERS SIT.
 
   `WayOut` lives in `Empty`, and `Empty` is drawn on the landing page and on

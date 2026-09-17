@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -20,6 +19,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WordLink } from "@/components/course/WordLink";
 
 export interface DictationTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -250,13 +250,9 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               when looking the word up is the natural next thing to do. */}
           {result && (
             <div className="ml-auto flex items-center gap-1">
-              <Link
-                href={`/dictionary?q=${encodeURIComponent(task.lemma)}`}
-                className="text-xs"
-                style={{ color: "var(--ink-3)" }}
-              >
+              <WordLink lemma={task.lemma} className="text-xs" style={{ color: "var(--ink-3)" }}>
                 {task.lemma}
-              </Link>
+              </WordLink>
               {/* Held back with the link above it, and for the link's reason:
                   the star's own label names the word, which is a word out of
                   the sentence being dictated. */}

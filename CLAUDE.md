@@ -3602,17 +3602,40 @@ since a learner whose deck cannot fill a board was being handed the dictionary. 
 module step is the button at the foot of it, which ticks the step and opens the next, and one quiet
 way back to the list, which is not leaving the evening.
 
-**The third of those was found by measuring rather than by reading, which is the argument for
-measuring.** The first pass took the cross and the finish row, because those are the two shapes
-anybody notices, and left "Full entry" standing in the corner of every review card and every rung of
-the ladder. It came out of `scripts/test-module.mjs` walking a whole evening and listing every link
-on every step: four steps clean and the closing round offering `/dictionary?q=Venemaa`. A check that
-asked only about the step that was reported would have passed, and the next one of these would have
-reached a learner. **What is deliberately left is an inline link inside a sentence**, a word linked to
-its own entry in the line saying what it means, with one exception: Sõnad's finish card, where that
-word is the last thing on the screen at the end of a round and tapping it lands on the dictionary
-with the frame gone. A word in a table of six is not a sentence either, so the case page prints
-those rather than linking them.
+**Six doors into the dictionary were found one at a time, and only the first two by reading.** The
+first pass took the cross and the finish row, because those are the two shapes anybody notices.
+`scripts/test-module.mjs` walking an evening and listing every link on every step found "Full entry"
+in the corner of every review card and every rung of the ladder: four steps clean and the closing
+round offering `/dictionary?q=Venemaa`. CI's walk, on a fixture that deals a different evening,
+found the verb table on an A2 reading, four more. And a sweep of the same shape found two the walk
+structurally cannot reach.
+
+**That last part is the lesson and it is about coverage rather than about doors.** An evening deals
+two rounds out of a rotation of ten, so one walk sees two of them: the browser suite proves the
+mechanism on whatever tonight dealt and can never prove the rule. So the rule is asserted over what
+a step can open, read off `ACTIVITIES` plus the reading, the ladder and the conversation, and the
+two components that stand down are the only things in that reach allowed to write the link.
+`components/course/WordLink.tsx` is a word that opens its own entry, or just the word inside a
+module; `FullEntry` is the labelled control in a card's corner. **The word never goes, only the
+door**, and an underline is the door rather than the styling, so a caller says which of its classes
+are the promise: an underline carried onto the span would offer a press that is not there, which is
+worse than the link being gone, because the learner reaches for it.
+
+**And pressing on hands the caret to what it opened.** The bar lives in the shell, so it survives
+the navigation it causes and the browser leaves focus on a button now sitting above a different
+screen: measured, the body. A keyboard walked back to the top of the page for every step of every
+evening, and a screen reader was told nothing at all about arriving somewhere new, which on a
+five-step evening is five silent screen changes. It is the fault `StepList` has a header about, one
+screen over, wanting the opposite answer: the list hands the caret to the button the learner was
+reaching for, and the bar hands it to what they were reaching at. Every route carries exactly one
+`h1`, drawn or `sr-only`, so it is there to be moved to and reading it out is the announcement.
+
+**And a phone on its side is short rather than narrow.** Every check in the module's own suite pins
+the height at 900 and the phone suite pins it at 740, so the one shape neither saw is a phone turned
+over: at 844x390 the bar was 91px and the page reserved another 128 under it, a third of the screen
+given to the way on, on a step whose job is text somebody is reading. Under `max-height: 560px` the
+meter goes, since it says nothing the caption does not and is `aria-hidden` anyway, and the
+clearance comes down with it. Measured back at 20 percent, and the suite asks it there now.
 
 **And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
 `Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in

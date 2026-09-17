@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -14,6 +13,7 @@ import { sentenceMatches, sentenceTiles } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WordLink } from "@/components/course/WordLink";
 
 export interface SentenceTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -229,13 +229,9 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent">Build the sentence</Chip>
-          <Link
-            href={`/dictionary?q=${encodeURIComponent(task.lemma)}`}
-            className="ml-auto text-xs"
-            style={{ color: "var(--ink-3)" }}
-          >
+          <WordLink lemma={task.lemma} className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {task.lemma}
-          </Link>
+          </WordLink>
         </div>
 
         <div className="flex min-h-[300px] flex-col gap-5 px-6 py-8" aria-live="polite">

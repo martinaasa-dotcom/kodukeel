@@ -1109,6 +1109,29 @@
   body:has(.module-step) .dock-clear { scroll-margin-bottom: 8rem; }
 
   /*
+    AND A PHONE ON ITS SIDE IS SHORT RATHER THAN NARROW.
+
+    Measured at 844x390, which is a phone turned over: the bar was 91px and the
+    clearance under the page another 128, so a quarter of the screen was the
+    way on and a third of it was reserved for the way on, on a step whose whole
+    job is text somebody is reading. Every other check here pins the height at
+    740 or 900 and never saw it, which is the same blind spot the room band
+    has a rule about twenty lines up.
+
+    The meter goes first, because it is the one thing on the bar that says
+    nothing the caption does not: "step 3 of 5" is the same fact in words, and
+    it is already `aria-hidden`. What stays is the caption, the way back and
+    the way on, which is what the bar is.
+  */
+  @media (max-height: 560px) {
+    body:has(.module-step) .dock-pad { padding-bottom: 5.5rem; }
+    body:has(.module-step) .dock-clear { scroll-margin-bottom: 5.5rem; }
+    .module-step { padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
+    .module-step .module-bar { padding: 0.5rem 0.75rem; }
+    .module-step .module-meter { display: none; }
+  }
+
+  /*
     THE ROOM'S OWN LIGHT.
 
     `Wash` paints three pastel blobs behind every signed-in page, and a scene

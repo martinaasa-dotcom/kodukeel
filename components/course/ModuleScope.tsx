@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ListChecks } from "lucide-react";
 import { advanceCourseStep } from "@/app/actions";
@@ -87,6 +87,40 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState<string | null>(null);
 
+  /*
+    PRESSING ON HANDS THE CARET TO THE STEP IT OPENS.
+
+    This bar lives in the shell, so it survives the navigation it causes and
+    the browser leaves focus on a button that is now above a different screen;
+    measured, `document.activeElement` was the body afterwards. A keyboard
+    walked back to the top of the page for every step of every evening, and a
+    screen reader was told nothing at all about arriving somewhere new, which
+    on a five-step evening is five silent screen changes.
+
+    It is the same fault `components/course/StepList.tsx` has a header about,
+    one screen over, and it wants the opposite answer: the list hands the caret
+    to the button the learner was reaching for, and this hands it to what they
+    were reaching *at*. Every route in this app carries exactly one `h1`, drawn
+    or `sr-only`, which `scripts/test-invariants.ts` asserts, so it is there to
+    be moved to and reading it out is the announcement.
+
+    Only when the step changes, never on arrival: somebody who opened this
+    screen some other way has not asked to be moved.
+  */
+  const arrivedAt = useRef(focus.stepId);
+  useEffect(() => {
+    if (arrivedAt.current === focus.stepId) return;
+    arrivedAt.current = focus.stepId;
+    const heading = document.querySelector<HTMLElement>("#main h1");
+    if (!heading) return;
+    /* A heading is not focusable on its own, and a permanent `tabindex` would
+       put it in the tab order of a page nobody navigated to. Taken off again
+       once it has been read, which is the shape every skip link takes. */
+    heading.setAttribute("tabindex", "-1");
+    heading.focus({ preventScroll: true });
+    heading.addEventListener("blur", () => heading.removeAttribute("tabindex"), { once: true });
+  }, [focus.stepId]);
+
   const last = focus.n >= focus.of;
   const carryOn = () => {
     setFailed(null);
@@ -121,7 +155,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
       className="module-step fixed inset-x-0 bottom-0 z-[95] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3"
     >
       <div
-        className="mx-auto flex w-full max-w-3xl flex-col gap-2 rounded-[var(--r-xl)] border p-3"
+        className="module-bar mx-auto flex w-full max-w-3xl flex-col gap-2 rounded-[var(--r-xl)] border p-3"
         style={{
           borderColor: "var(--rule)",
           background: "var(--surface)",
@@ -137,7 +171,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
                 five or six steps and a dot apiece is furniture at 360px. */}
             <div
               aria-hidden
-              className="mt-1.5 h-1.5 overflow-hidden rounded-full"
+              className="module-meter mt-1.5 h-1.5 overflow-hidden rounded-full"
               style={{ background: "var(--raised)" }}
             >
               <div

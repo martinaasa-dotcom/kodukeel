@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CornerDownLeft, Delete } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Button } from "@/components/Button";
 import { Card, Chip } from "@/components/ui";
 import {
@@ -14,7 +13,7 @@ import type { Puzzle } from "@/lib/progress/sonad";
 import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
-import { useModuleFocus } from "@/components/course/moduleFocus";
+import { WordLink } from "@/components/course/WordLink";
 
 /**
  * SÕNAD'S BOARD.
@@ -494,9 +493,6 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   kept: boolean;
   onKeep: () => void;
 }) {
-  /* Whether this round is a step of tonight's module, which decides whether
-     the word above is a door out of it. See components/course/moduleFocus.ts. */
-  const inModule = useModuleFocus() !== null;
   const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
     const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds);
     if (result.ok) onKeep();
@@ -522,20 +518,14 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           the word; what goes is the door. The button under it is what this
           screen offers instead, and it keeps the learner where they are.
         */}
-        {inModule ? (
-          <span className="font-semibold" lang="et" style={{ color: "var(--ink)" }}>
-            {puzzle.answer}
-          </span>
-        ) : (
-          <Link
-            href={`/dictionary?q=${encodeURIComponent(puzzle.answer)}`}
-            className="font-semibold underline underline-offset-2"
-            style={{ color: "var(--accent-deep)" }}
-            lang="et"
-          >
-            {puzzle.answer}
-          </Link>
-        )}
+        <WordLink
+          lemma={puzzle.answer}
+          className="font-semibold"
+          linkClass="underline underline-offset-2"
+          style={{ color: "var(--accent-deep)" }}
+        >
+          {puzzle.answer}
+        </WordLink>
         {" is "}
         {puzzle.translation}.
       </p>

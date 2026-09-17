@@ -52,7 +52,7 @@ await requireLocalDatabase(prisma);
   list named. A floor alone cannot do it here and saying so is better than a
   number that looks stricter than it is.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 26 });
+const { check, absent, done } = suite("Tonight's module", { floor: 28 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -168,6 +168,59 @@ try {
     await page.locator(".module-step").getByRole("button", { name: /Continue|Finish/ }).click();
     await page.waitForFunction((u) => location.href !== u, was, { timeout: 30_000 });
     await page.waitForSelector("main h1", { timeout: 30_000 });
+    /*
+      AND THE FIRST PRESS ON HANDS THE CARET TO WHAT IT OPENED.
+
+      The bar lives in the shell and survives the navigation it causes, so the
+      browser leaves focus on a button now sitting above a different screen:
+      measured, the body. A keyboard walked back to the top for every step of
+      every evening and a screen reader was told nothing about arriving
+      somewhere new. Asked once rather than per step, because it is one
+      mechanism and five copies of the answer is five copies.
+    */
+    if (walked.length === 1) {
+      /* Waited for rather than sampled: the caret is moved by an effect, which
+         runs after React has committed the new route, and `waitForSelector`
+         resolves as soon as the markup is there. A check that reads it in the
+         same tick is asserting this machine's scheduling. */
+      await page.waitForFunction(
+        () => document.activeElement === document.querySelector("#main h1"),
+        null, { timeout: 5_000 },
+      ).catch(() => {});
+      const caret = await page.evaluate(() => {
+        const a = document.activeElement;
+        if (!a || a === document.body) return "the body";
+        return a === document.querySelector("#main h1") ? "the heading" : (a.tagName.toLowerCase());
+      });
+      check("pressing on hands the caret to the step it opened", caret === "the heading", caret);
+
+      /*
+        A PHONE ON ITS SIDE IS SHORT RATHER THAN NARROW.
+
+        Every other check in this suite pins the height at 900 and the phone
+        suite pins it at 740, so the one shape neither sees is a phone turned
+        over. Measured at 844x390 before the rule that fixed it: the bar was
+        91px and the page reserved another 128 under it, so a third of the
+        screen went to the way on, on a step whose job is text somebody is
+        reading. Asked here because this is the first point in the walk with an
+        address in hand: the step the list opens on is a button, since that is
+        the one press that writes cards.
+      */
+      const sideways = await browser.newPage({ viewport: { width: 844, height: 390 } });
+      await sideways.goto(page.url(), { waitUntil: "domcontentloaded" });
+      await sideways.waitForSelector("main h1", { timeout: 20_000 });
+      const share = await sideways.evaluate(() => {
+        const bar = document.querySelector(".module-step")?.getBoundingClientRect();
+        const pad = parseFloat(getComputedStyle(document.querySelector("main")).paddingBottom);
+        return bar ? { taken: Math.round(((innerHeight - bar.top) / innerHeight) * 100), pad: Math.round(pad) } : null;
+      });
+      await sideways.close();
+      check(
+        "a phone on its side keeps most of the screen for the step",
+        share !== null && share.taken <= 22 && share.pad <= 100,
+        JSON.stringify(share),
+      );
+    }
     /* The last step's way on is the list, which is where the evening ends. */
     if (new URL(page.url()).pathname === MODULE_HOME) break;
     check(`pressing on stays inside the module  (after ${here})`, page.url().includes("module="));
