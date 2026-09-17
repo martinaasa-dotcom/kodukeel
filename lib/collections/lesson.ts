@@ -409,18 +409,43 @@ const buildStep2: Builder = (w, r, nextId) => buildStep(w, nextId("build"), r);
 const caseStep2: Builder = (w, r, nextId) => caseStep(w, nextId("case"), r);
 const governStep2: Builder = (w, r, nextId) => governStep(w, nextId("govern"), r);
 
+/**
+ * THE SENTENCE THAT MAKES THIS A QUESTION ABOUT THE FORM, WHERE THE WORD HAS
+ * ONE. A word's recorded sentences are as often about it in the nominative as
+ * in anything else, and taking the first that clozes at all took the
+ * nominative on 616 of the 1,354 course words that can carry a gap: `Maja on
+ * suur` gapped for `Maja`, which asks the vocabulary the meet and choose steps
+ * asked two rounds ago and hands the answer over with the cue.
+ *
+ * 223 of those 616 have another sentence that wants a real form, and it is a
+ * strictly better question every time: `maja` gets `majas`, `uks` gets
+ * `uksele`, `laps` gets `last`, `klient` gets `kliendi`. The cue keeps the
+ * word and the meaning there, because the word is not the answer any more.
+ *
+ * The other 393 have nothing else to offer, which is every adverb and every
+ * noun whose lexicographer only ever wrote it plain, so the step is kept and
+ * the cue falls back instead. Dropping them would lose a rung on a word, and
+ * "which word goes in this gap, given what it means" is still worth asking.
+ */
 function gapStep(word: LessonWord, id: string): GapStep | null {
+  const forms = knownForms(word);
+  let fallback: GapStep | null = null;
   for (const sentence of word.examples) {
-    const cloze = buildCloze(sentence, knownForms(word));
-    if (cloze) {
-      return {
-        id, kind: "gap", lemma: word.lemma, gloss: word.gloss,
-        cue: gapCue(word, cloze.answer),
-        text: cloze.text, answer: cloze.answer, full: cloze.full,
-      };
-    }
+    const cloze = buildCloze(sentence, forms);
+    if (!cloze) continue;
+    const step: GapStep = {
+      id, kind: "gap", lemma: word.lemma, gloss: word.gloss,
+      cue: gapCue(word, cloze.answer),
+      text: cloze.text, answer: cloze.answer, full: cloze.full,
+    };
+    // The full cue is the test rather than the lemma, because the meaning
+    // gives an answer away as completely as the word does: `saun` is glossed
+    // "sauna" and `sauna` is a form of it, which is what the level check's own
+    // audit caught one module over.
+    if (step.cue === "word-and-meaning") return step;
+    fallback ??= step;
   }
-  return null;
+  return fallback;
 }
 
 /** See `GapCue`. A rung is taken only where it does not spell the answer. */

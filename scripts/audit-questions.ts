@@ -68,6 +68,9 @@ import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
 import { askableSlots, flashTask, type FlashWord } from "../lib/games/flash";
 import { caseQuestion } from "../lib/progress/target";
+import { planLesson, type LessonWord } from "../lib/collections/lesson";
+import { buildCheckpoint, type CheckpointWord } from "../lib/collections/checkpoint";
+import { SYLLABUS, CHECKPOINTS, wordsAtLevel } from "../lib/collections/syllabus/index";
 
 const entries = dictionaryRows();
 
@@ -165,6 +168,19 @@ const REACHES: Record<string, number> = {
   // illatives in this dictionary are spelled like a principal part. 5,216 over
   // the whole of it.
   exceptions: 4_100,
+  /*
+    The guided unit lesson and the end-of-level checkpoint, neither of which
+    had ever been in this script. Both build a gap out of an attested sentence
+    and both print the word above it, which is the whole subject of this file;
+    a learner reported the lesson's own version of the fault. Three seeds over
+    83 units and five levels, which costs about 1.6 seconds between them.
+
+    MEASURED, AND THE FIRST FIGURE WAS GUESSED AND WRONG: written as 1,900 out
+    of the head, the lesson asked 1,254 and the run that introduced this
+    section failed its own floor. That is `exam` all over again, two hundred
+    lines up, and it is the check working.
+  */
+  lesson: 1_254, checkpoint: 120,
 };
 
 /*
@@ -303,7 +319,11 @@ for (let seed = 1; seed <= SEEDS; seed++) {
     if (!Array.isArray(list)) continue;
     for (const item of list as Record<string, unknown>[]) {
       const options = (item.options ?? []) as string[];
-      const answer = typeof item.answer === "number" ? options[item.answer] ?? "" : String(item.answer ?? "");
+      // `WriteItem` names its answer `targetForm`, so reading `answer` alone
+      // handed `ask` an empty string and it returned on `wanted.length < 2`.
+      const answer = typeof item.answer === "number"
+        ? options[item.answer] ?? ""
+        : String(item.answer ?? item.targetForm ?? "");
       if (item.heard) {
         if (typeof item.answer !== "number") continue;
         asked++;
@@ -314,7 +334,23 @@ for (let seed = 1; seed <= SEEDS; seed++) {
         }
         continue;
       }
-      ask(`check ${skill} ${String(item.kind)}`, String(item.et ?? ""), answer);
+      /*
+        WHAT THE SCREEN SHOWS, WHICH FOR A WRITE ITEM IS NOT `et`. This read
+        `item.et` for every kind and `WriteItem` has no such field: a gap
+        carries `sentence`, and `WriteQuestion` prints the word above the box
+        in bold with what it means beside it. So both halves of every writing
+        item arrived here empty, `ask` returned on `!shown.trim()`, and the
+        count went up having looked at nothing. It had looked at nothing since
+        the section was written.
+
+        What it was not looking at: 1,549 of the 4,294 words the shipped
+        dictionary can gap wanted the dictionary form, so the answer was the
+        boldest thing on a screen that sets a learner's writing band.
+      */
+      const shown = item.kind === "write"
+        ? `${String(item.lemma ?? "")} ${String(item.translation ?? "")} ${String(item.sentence ?? "")}`
+        : String(item.et ?? "");
+      ask(`check ${skill} ${String(item.kind)}`, shown, answer);
     }
   }
 }
@@ -515,6 +551,89 @@ for (const e of entries) {
         ? `${task.gapped ?? ""} ${task.translation ?? ""}`
         : `${task.lemma} ${task.translation ?? ""} ${task.label} ${plainAskLine(task.slot) ?? ""}`;
       ask(`exceptions ${task.rung} ${e.lemma} ${task.kind}`, shown, task.accepted.join(" / "));
+    }
+  }
+}
+});
+
+/* ── The guided lesson and the checkpoint ────────────────────────────────── */
+/*
+  THE SCREEN A LEARNER REPORTED, AND THE ONE THIS SCRIPT COULD NOT SEE. A unit
+  lesson's gap step read "The word is kindlasti (definitely), in the form the
+  sentence needs" over a gap wanting `kindlasti`. Every other generator that
+  hides a form in a sentence was already in here; the lesson and the
+  end-of-level checkpoint were not, so nothing ever asked. 616 of the 1,354
+  course words that can carry a gap at all wanted the dictionary form, which
+  is every adverb and every noun a lexicographer only ever wrote plain.
+
+  The lesson's case step is asked too, because it prints the lemma at 32px
+  above the box and Estonian spells some cases like the nominative: `kalli`
+  plus `s` is `kallis` again. The checkpoint's typed question is deliberately
+  not asked: it shows the English gloss alone and wants the lemma, which is a
+  production card, and a word spelled the same in both languages is a fact
+  said out loud on every screen that prints it (`sameSpelling`).
+*/
+const byLemmaPos = new Map(entries.map((e) => [`${e.lemma}|${e.pos}`, e]));
+function partsOf(e: DictionaryRow): Record<string, string> {
+  const parts: Record<string, string> = {};
+  for (const f of e.forms ?? []) parts[f.formType] ??= f.value;
+  return parts;
+}
+function lessonWord(lemma: string, pos: string): LessonWord | null {
+  const e = byLemmaPos.get(`${lemma}|${pos}`);
+  if (!e) return null;
+  return {
+    lexemeId: e.lemma, lemma: e.lemma, gloss: e.translation, pos: e.pos,
+    semanticTypes: e.semanticTypes ?? null,
+    examples: (e.examples ?? []).map((x) => x.et),
+    parts: partsOf(e), government: e.government ?? null,
+  };
+}
+
+timed("lesson", () => {
+for (const unit of SYLLABUS) {
+  const words = unit.vocabulary
+    .map((w) => lessonWord(w.lemma, w.pos))
+    .filter((w): w is LessonWord => !!w);
+  if (words.length === 0) continue;
+  for (let seed = 1; seed <= 3; seed++) {
+    for (const step of planLesson({ unit, words, distractors: words, seed })) {
+      if (step.kind === "gap") {
+        // Exactly the cue the screen draws, which `step.cue` decides: the word
+        // and its meaning, then the meaning alone, then nothing. A rung that
+        // says nothing shows nothing, and there is nothing to find in it.
+        const shown = step.cue === "word-and-meaning" ? `${step.lemma} ${step.gloss}`
+          : step.cue === "meaning" ? step.gloss
+          : "";
+        if (shown) ask(`lesson ${unit.id} gap ${step.lemma}`, shown, step.answer);
+        else asked++;
+      } else if (step.kind === "case") {
+        // The word, its meaning, the case's Estonian name and the question it
+        // answers, which is every string on that card before the box.
+        ask(
+          `lesson ${unit.id} case ${step.lemma}`,
+          `${step.lemma} ${step.gloss} ${step.caseName} ${step.question}`,
+          step.answer,
+        );
+      }
+    }
+  }
+}
+});
+
+timed("checkpoint", () => {
+for (const checkpoint of CHECKPOINTS) {
+  const words = wordsAtLevel(checkpoint.level)
+    .map((w) => lessonWord(w.lemma, w.pos))
+    .filter((w): w is LessonWord => !!w)
+    .map((w): CheckpointWord => ({
+      lemma: w.lemma, gloss: w.gloss, pos: w.pos, examples: w.examples, parts: w.parts,
+    }));
+  if (words.length === 0) continue;
+  for (let seed = 1; seed <= 3; seed++) {
+    for (const q of buildCheckpoint(words, checkpoint.questions, seed)) {
+      if (q.kind !== "gap") continue;
+      ask(`checkpoint ${checkpoint.level} ${q.lemma}`, `${q.lemma} ${q.gloss} ${q.sentence}`, q.answer);
     }
   }
 }
