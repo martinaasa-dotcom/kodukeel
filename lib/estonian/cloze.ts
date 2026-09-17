@@ -203,12 +203,29 @@ export function isBuildable(sentence: string): boolean {
  * It lives here rather than beside either caller because there are two: the
  * level check has always passed it and the deck's gap-fill cards did not, so
  * `Kahvel, lipp kukub!` was refused in an exam and made into a flashcard.
+ *
+ * AND IT IS A NOUN'S RULE, WHICH THE NAME SAID AND THE CODE DID NOT. The
+ * exemption was `VERB` alone, so an adverb, an adjective, a pronoun and a
+ * phrase were all read as nominals, and the one word class whose natural
+ * position *is* "word, then clause" is the interjection. `tere` has two
+ * recorded usages and this refused `Tere, mina olen Katrin.`, leaving `No
+ * tere, Juhan.` as the only sentence the first unit anybody opens could teach
+ * hello with. `Aitäh, Mari!` went the same way, and `Nõus, teeme nii.`, and
+ * `Imelik, et teda kodus pole.` Ten sentences across the dictionary, nine of
+ * them ordinary speech and four of them on an A1 or A2 word.
+ *
+ * A noun is the word class a dictionary labels a sense with, which is the
+ * whole of what the pattern detects: an entry naming itself and then
+ * illustrating. Every refusal worth keeping is one — `Kahvel, lipp kukub!`,
+ * `Vabadus, võrdsus, vendlus.`, `Standardkeel, õppijakeel jt keele
+ * kasutusvariandid.` Narrowing to the noun keeps all fifteen of those and
+ * hands back the ten it should never have taken.
  */
 export function nominalOpener(
   pos: string,
   forms: readonly string[],
 ): ((opening: string) => boolean) | undefined {
-  if (pos === "VERB") return undefined;
+  if (pos !== "NOUN") return undefined;
   const known = new Set(forms.map((f) => f.trim().toLowerCase()));
   return (opening: string) => known.has(opening.trim().toLowerCase());
 }

@@ -95,7 +95,7 @@ export function serialiseExamples(examples: Example[]): string {
  * caller that has the word's part of speech, through `teachingSentence`'s own
  * optional third argument or `borrow.ts`'s.
  */
-export function usableExamples(examples: Example[]): Example[] {
+export function usableExamples(examples: Example[], plainest?: Rank): Example[] {
   const seen = new Set<string>();
   const out: Example[] = [];
 
@@ -125,10 +125,28 @@ export function usableExamples(examples: Example[]): Example[] {
   const mine = out.filter((e) => e.source === "USER" || e.source === "AI");
   const byLength = (a: Example, b: Example) => a.et.length - b.et.length;
   return [
-    ...attested.sort(byLength),
+    ...attested.sort(plainest ?? byLength),
     ...mine.sort(byLength).slice(0, MAX_USER_PER_WORD),
   ].slice(0, MAX_PER_WORD);
 }
+
+/**
+ * How the attested sentences are ordered, where the caller has an opinion.
+ *
+ * Shortest first is the default and the right one for a reader who can already
+ * read Estonian. It is the wrong one for a beginner, because Ekilex records a
+ * usage to illustrate a word rather than to teach one, and what shortest
+ * selects for is the noun phrase and the idiom: `tere` was taught with `No
+ * tere, Juhan.` over `Tere, mina olen Katrin.` because the first is ten
+ * characters shorter. `lib/dict/plainness.ts` is the ranking that fixes it and
+ * the argument for it; this is only the seam it plugs into, so that the
+ * ordering stays decided in one place and a caller with nothing to say still
+ * gets exactly the order it always had.
+ *
+ * It orders and never filters, so the cap and the attested-before-typed tier
+ * above are untouched: a word whose only sentence is hard still gets it.
+ */
+export type Rank = (a: Example, b: Example) => number;
 
 /** How many of a shared word's sentences one learner may occupy. */
 const MAX_USER_PER_WORD = 2;
@@ -158,10 +176,10 @@ export function mergeExamples(existing: Example[], incoming: Example[]): Example
  * sentence with a translation wins, because a learner can check their reading
  * against it.
  */
-export function sentenceContaining(examples: Example[], form: string): Example | null {
+export function sentenceContaining(examples: Example[], form: string, plainest?: Rank): Example | null {
   const wanted = form.trim().toLocaleLowerCase("et");
   if (!wanted) return null;
-  const matches = usableExamples(examples).filter((e) => sentenceWords(e.et).includes(wanted));
+  const matches = usableExamples(examples, plainest).filter((e) => sentenceWords(e.et).includes(wanted));
   return matches.find((e) => e.en) ?? matches[0] ?? null;
 }
 
@@ -203,10 +221,11 @@ export function teachingSentence(
   examples: Example[],
   forms: readonly (string | null | undefined)[],
   opensWithNominal?: (word: string) => boolean,
+  plainest?: Rank,
 ): { example: Example; form: string | null } | null {
   const usable = opensWithNominal
-    ? usableExamples(examples).filter((e) => naturalSentence(e.et, opensWithNominal))
-    : usableExamples(examples);
+    ? usableExamples(examples, plainest).filter((e) => naturalSentence(e.et, opensWithNominal))
+    : usableExamples(examples, plainest);
   if (usable.length === 0) return null;
 
   const tried = new Set<string>();
@@ -217,7 +236,7 @@ export function teachingSentence(
     if (tried.has(key)) continue;
     tried.add(key);
 
-    const match = sentenceContaining(usable, wanted);
+    const match = sentenceContaining(usable, wanted, plainest);
     if (match) return { example: match, form: wanted };
   }
 

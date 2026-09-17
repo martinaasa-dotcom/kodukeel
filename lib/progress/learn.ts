@@ -7,7 +7,8 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions } from "@/lib/dict/facts";
+import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
@@ -210,10 +211,17 @@ function schedulingOf(card: LearnRow): LearnScheduling {
  * null` already falls back to asking the word from its meaning, which is the
  * safe shape and not a new one.
  */
-function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>) {
-  const examples = usableExamples(parseExamples(lexeme.examples));
+function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>, reach: PlainReach) {
+  /*
+    Ranked for a beginner where the word is one, so a first meeting shows the
+    plainest sentence the dictionary holds rather than the shortest: `tere` was
+    taught with `No tere, Juhan.` over `Tere, mina olen Katrin.` on exactly
+    this rung. See lib/dict/plainness.ts.
+  */
+  const plainest = plainerFirst(lexeme.cefr, reach);
+  const examples = usableExamples(parseExamples(lexeme.examples), plainest);
   const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
-  const taught = teachingSentence(examples, [lexeme.lemma], opener);
+  const taught = teachingSentence(examples, [lexeme.lemma], opener, plainest);
   const word: WordRow = {
     id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
     pos: lexeme.pos, cefr: lexeme.cefr, government: null,
@@ -392,6 +400,13 @@ export async function learnBatch(
   const pool = await decoyOptions();
 
   /*
+    And what the dictionary vouches for at each band, which is the same kind of
+    fact and cached the same way: it decides which of a beginner's own recorded
+    sentences the meet rung leads with. See lib/dict/plainness.ts.
+  */
+  const reach = await sentenceReach();
+
+  /*
     Which of the batch are already favorites, so the star in the corner of
     each card is drawn in the state it is actually in. One query for the batch
     rather than one per word, and it is here rather than in the page because
@@ -403,7 +418,7 @@ export async function learnBatch(
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;
-    const { sentence, gap } = sentenceAndGap(lexeme);
+    const { sentence, gap } = sentenceAndGap(lexeme, reach);
     const equivalent = equivalentIn(lexeme, glossLanguage);
 
     /*

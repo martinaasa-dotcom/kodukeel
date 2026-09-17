@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { starredAmong } from "@/lib/progress/stars";
@@ -51,13 +53,20 @@ export default async function DictationPage() {
       id: true,
       cardType: true,
       reps: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true } },
+      lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
     },
   });
+
+  /*
+    And how a beginner's word orders its own sentences, so a round draws the
+    plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
+  */
+  const reach = await sentenceReach();
 
   // One task per word, and one card per word to grade against.
   const byLexeme = new Map<string, {
     cardId: string; lexemeId: string; reps: number; lemma: string; pos: string; examples: string;
+    cefr: string | null;
   }>();
   for (const card of cards) {
     const lex = card.lexeme;
@@ -68,7 +77,7 @@ export default async function DictationPage() {
     if (!held || card.cardType === "CLOZE") {
       byLexeme.set(lex.id, {
         cardId: card.id, lexemeId: lex.id, reps: card.reps,
-        lemma: lex.lemma, pos: lex.pos, examples: lex.examples,
+        lemma: lex.lemma, pos: lex.pos, examples: lex.examples, cefr: lex.cefr,
       });
     }
   }
@@ -93,7 +102,7 @@ export default async function DictationPage() {
       dictionary form.
     */
     const opener = nominalOpener(entry.pos, [entry.lemma]);
-    for (const example of usableExamples(parseExamples(entry.examples))) {
+    for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
       const count = dictationWords(example.et).length;
       if (count < MIN_WORDS || count > MAX_WORDS) continue;

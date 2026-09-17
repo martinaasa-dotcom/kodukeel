@@ -1216,6 +1216,123 @@ check("a word borrows sentences under one rule, and every builder is handed them
   }
 });
 
+/**
+ * A BEGINNER'S WORD IS TAUGHT WITH THE PLAINEST SENTENCE RECORDED FOR IT, NOT
+ * THE SHORTEST.
+ *
+ * Ekilex records a usage to illustrate a word to somebody who already speaks
+ * Estonian, so shortest-first selects for the noun phrase and the idiom: `tere`
+ * was taught with `No tere, Juhan.` over `Tere, mina olen Katrin.` because the
+ * first is ten characters shorter, and `no` is a discourse particle this
+ * dictionary holds no entry for, spelled like the English word for the opposite
+ * of yes. `lib/dict/plainness.ts` is the ranking and this is the assertion that
+ * it is reached, because a rank nothing passes in is a rank that changes
+ * nothing and looks exactly like one that does.
+ *
+ * Every screen that leads a beginner with one of a word's sentences is on the
+ * list, for the reason the borrowed pool's own list exists one check up: a
+ * picker that is not handed the rank shows a different sentence from the one the
+ * audits count, and a card cut from it is a card no screen would have chosen.
+ */
+check("a beginner's word is taught with its plainest sentence, and every picker is handed the rank", () => {
+  const rule = code("lib/dict/plainness.ts");
+  assert.match(
+    rule,
+    /LEVELS\.indexOf\(PLAIN_UP_TO\)/,
+    "lib/dict/plainness.ts no longer stands down above the bands it is for, so every B1 and " +
+    "B2 card is cut from a different sentence than the one it was built with",
+  );
+  assert.match(
+    rule,
+    /derivedVerbForms/,
+    "plainReach builds a verb's persons itself rather than through lib/estonian/conjugate.ts, " +
+    "which is the one module allowed to join a person ending to a stem and the one that holds " +
+    "the exceptions",
+  );
+
+  /*
+    IT ORDERS AND NEVER FILTERS. A word whose only sentence is hard keeps it,
+    because "no example sentence for this one yet" on a word the dictionary has
+    a perfectly good sentence for is a worse screen than a hard example. The
+    seam is `usableExamples`, so the assertion is that the rank reaches its sort
+    and nothing else: a `filter` on it would be a word losing a sentence.
+  */
+  const examples = code("lib/dict/examples.ts");
+  assert.match(
+    examples,
+    /attested\.sort\(plainest \?\? byLength\)/,
+    "lib/dict/examples.ts no longer applies the caller's ranking, so every beginner's word is " +
+    "back on shortest-first",
+  );
+  assert.doesNotMatch(
+    examples,
+    /\.filter\([^)]*plainest/,
+    "lib/dict/examples.ts filters on the plainness rank, which takes a sentence away from a " +
+    "word rather than ordering the ones it has",
+  );
+
+  const handed: Record<string, RegExp> = {
+    "lib/srs/deck.ts": /sentenceReach\(\)/,
+    "app/actions.ts": /sentenceReach\(\)/,
+    "app/(app)/review/flashcards/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/learn/[unitId]/lesson/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/review/dictation/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/review/sentences/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/review/speaking/page.tsx": /sentenceReach\(\)/,
+    "lib/progress/learn.ts": /sentenceReach\(\)/,
+    "lib/progress/wordOfDay.ts": /sentenceReach\(\)/,
+    "prisma/repair.ts": /plainReach\(/,
+    "scripts/audit-decks.ts": /plainReach\(/,
+    "scripts/audit-questions.ts": /plainReach\(/,
+  };
+  for (const [file, call] of Object.entries(handed)) {
+    assert.match(
+      code(file),
+      call,
+      `${file} picks a sentence for a beginner without the plainness rank, so it leads with ` +
+      "the shortest one rather than the one they can read",
+    );
+  }
+
+  /*
+    AND THE TWO INSTRUMENTS THAT MARK ARE EXEMPT BY NAME, which is the rule
+    `gapForms` already states about itself. The mock exam rebuilds its paper
+    server-side from (level, seed, pool) in order to mark it, and the level
+    check draws its distractors from the same pool; reordering what either is
+    built from changes which questions a candidate is asked. That is a change
+    to a measurement rather than to an exercise and it is not made in passing.
+  */
+  for (const file of ["lib/exam/paper.ts", "lib/assessment/items.ts", "lib/progress/exam.ts", "lib/progress/assessment.ts"]) {
+    assert.doesNotMatch(
+      code(file),
+      /plainerFirst|sentenceReach|plainReach/,
+      `${file} ranks its sentences for a beginner, which changes what a candidate is asked ` +
+      "and marked on. Both instruments are exempt by name; see lib/dict/plainness.ts",
+    );
+  }
+});
+
+/**
+ * AND THE LABEL PATTERN IS A NOUN'S RULE.
+ *
+ * A usage opening with its own headword and a comma is a dictionary naming
+ * itself and then illustrating, which is worth refusing on `Kahvel, lipp
+ * kukub!` and is ordinary speech everywhere else: `Tere, mina olen Katrin.`,
+ * `Aitäh, Mari!`, `Nõus, teeme nii.` The exemption was `VERB` alone, so an
+ * interjection, whose natural position *is* "word, then clause", was read as a
+ * nominal and lost the only sentence worth teaching it with.
+ */
+check("the label pattern refuses a noun naming itself and nothing else", () => {
+  const rule = code("lib/estonian/cloze.ts");
+  const opener = rule.slice(rule.indexOf("export function nominalOpener"));
+  assert.match(
+    opener,
+    /pos !== "NOUN"/,
+    "nominalOpener refuses the label pattern on a word class that is not a noun, so `Tere, " +
+    "mina olen Katrin.` is read as a dictionary labelling itself",
+  );
+});
+
 check("every generator that picks a case asks which ones the word takes", () => {
   const askers = [
     "lib/srs/cards.ts",

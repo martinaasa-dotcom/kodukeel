@@ -11,6 +11,8 @@ import { planLesson, splitIntoLessons, type LessonWord } from "@/lib/collections
 import { starredAmong } from "@/lib/progress/stars";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -53,6 +55,9 @@ export default async function LessonPage({
   const select = {
     id: true, lemma: true, translation: true, pos: true, provenance: true,
     examples: true, government: true,
+    // The band the word sits at, which decides whether its sentences are
+    // ranked for a beginner rather than by length. See lib/dict/plainness.ts.
+    cefr: true,
     // Which of the two sets of local cases the word takes, and whether it
     // answers `kes?` or `mis?`. See lib/estonian/caseQuestion.ts.
     semanticTypes: true,
@@ -86,12 +91,15 @@ export default async function LessonPage({
     which of them each question uses is the per-part seed's job, below.
   */
   const poolSeed = hash(unit.id);
-  const [rows, atLevel, settings] = await Promise.all([
+  const [rows, atLevel, settings, reach] = await Promise.all([
     prisma.lexeme.findMany({ where: { lemma: { in: [...unit.lemmas] } }, select }),
     prisma.lexeme.count({ where: { cefr: unit.level } }),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    // And how a beginner's word orders its own sentences, so the gap-fill is
+    // cut from the plainest rather than the shortest. See lib/dict/plainness.ts.
+    sentenceReach(),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const pool = await prisma.lexeme.findMany({
@@ -121,7 +129,7 @@ export default async function LessonPage({
       built out of `Nii ____ on öelda, et ..` or of a usage that leaves the
       answer standing beside the gap in its other spelling.
     */
-    examples: usableExamples(parseExamples(row.examples))
+    examples: usableExamples(parseExamples(row.examples), plainerFirst(row.cefr, reach))
       .filter((e) => naturalSentence(e.et, nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)])))
       .map((e) => e.et),
     parts: Object.fromEntries(

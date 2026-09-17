@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
+import { sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { shuffle } from "@/lib/random/shuffle";
@@ -42,14 +44,21 @@ export default async function SentencesPage() {
     select: {
       id: true,
       cardType: true,
-      lexeme: { select: { id: true, lemma: true, pos: true, examples: true } },
+      lexeme: { select: { id: true, lemma: true, pos: true, examples: true, cefr: true } },
     },
   });
+
+  /*
+    And how a beginner's word orders its own sentences, so a round draws the
+    plainest one recorded rather than the shortest. See lib/dict/plainness.ts.
+  */
+  const reach = await sentenceReach();
 
   // One task per word, and one card per word to grade against: a learner with
   // five cards for `raamat` should still meet its sentence once.
   const byLexeme = new Map<string, {
     cardId: string; lemma: string; pos: string; lexemeId: string; examples: string;
+    cefr: string | null;
   }>();
   for (const card of cards) {
     const lex = card.lexeme;
@@ -59,6 +68,7 @@ export default async function SentencesPage() {
     if (!held || card.cardType === "CLOZE") {
       byLexeme.set(lex.id, {
         cardId: card.id, lemma: lex.lemma, pos: lex.pos, lexemeId: lex.id, examples: lex.examples,
+        cefr: lex.cefr,
       });
     }
   }
@@ -73,7 +83,7 @@ export default async function SentencesPage() {
       mock exam and the level check already apply.
     */
     const opener = nominalOpener(entry.pos, [entry.lemma]);
-    for (const example of usableExamples(parseExamples(entry.examples))) {
+    for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
       if (!isBuildable(example.et)) continue;
       tasks.push({

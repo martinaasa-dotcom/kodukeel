@@ -41,6 +41,7 @@ import { plainPhrase } from "../lib/copy/values";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
+import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import {
   mergeExamples, parseExamples, serialiseExamples, teachingSentence, type Example,
 } from "../lib/dict/examples";
@@ -140,7 +141,7 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
       id: true, front: true, targetCase: true, lexemeId: true,
       lexeme: {
         select: {
-          lemma: true, translation: true, pos: true, semanticTypes: true,
+          lemma: true, translation: true, pos: true, semanticTypes: true, cefr: true,
           gradation: true, gradationNote: true, government: true, examples: true,
           forms: {
             select: { formType: true, value: true, morphCode: true },
@@ -162,13 +163,17 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
   */
   const all = await prisma.lexeme.findMany({
     select: {
-      id: true, lemma: true, pos: true, examples: true,
+      id: true, lemma: true, pos: true, cefr: true, examples: true,
       forms: { select: { formType: true, value: true, morphCode: true } },
     },
   });
   const borrowed = borrowSentences(all.map((r) => ({
     key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(r.examples),
   })));
+  // Built here rather than read from `lib/dict/facts.ts`, which the seed may
+  // not reach: the rows are already in hand, and a repaired card has to be the
+  // card the builder would make today, ranking included.
+  const reach = plainReach(all);
 
   const rows: { id: string; from: string; front: string; hint: string | null; back: string }[] = [];
   const builtFor = new Map<string, Map<string, { front: string; hint: string | null; back: string }>>();
@@ -176,7 +181,11 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
     if (!card.lexeme || !card.lexemeId || !card.targetCase || !isBareCaseFront(card.front)) continue;
     let byCase = builtFor.get(card.lexemeId);
     if (!byCase) {
-      const lex: LexemeForCards = { ...card.lexeme, borrowed: borrowed.get(card.lexemeId) ?? [] };
+      const lex: LexemeForCards = {
+        ...card.lexeme,
+        borrowed: borrowed.get(card.lexemeId) ?? [],
+        plainest: plainerFirst(card.lexeme.cefr, reach),
+      };
       byCase = new Map(
         generateCards(lex, ["CASE_FORM"])
           .filter((c) => c.targetCase)

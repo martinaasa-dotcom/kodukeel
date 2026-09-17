@@ -55,6 +55,7 @@ import { drillable, tasksFor } from "../lib/games/exceptions";
 import { formIndex } from "../lib/games/flash";
 import { plainAskLine } from "../lib/estonian/plainAsk";
 import { borrowSentences } from "../lib/dict/borrow";
+import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { generateCards, availableCardTypes, type LexemeForCards } from "../lib/srs/cards";
 import { buildPaper as buildExam, type PoolWord } from "../lib/exam/paper";
 import { buildPaper as buildPlacement, type WordRow } from "../lib/assessment/items";
@@ -81,6 +82,15 @@ const borrowed = borrowSentences(entries.map((e) => ({
   key: e.lemma, lemma: e.lemma, pos: e.pos,
   forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
   examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null, source: "EKILEX" as const })),
+})));
+
+/*
+  And how a beginner's word orders its own sentences, built off the same shipped
+  entries the app builds it off its own rows. See lib/dict/plainness.ts.
+*/
+const reach = plainReach(entries.map((e) => ({
+  lemma: e.lemma, pos: e.pos, cefr: e.cefr ?? null,
+  forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
 })));
 
 /** Everything a learner is shown, joined; and the string they have to produce. */
@@ -213,6 +223,9 @@ for (const e of entries) {
     examples: JSON.stringify(e.examples ?? []),
     forms: (e.forms ?? []).map((f) => ({ formType: f.formType, value: f.value, morphCode: null })),
     borrowed: borrowed.get(e.lemma) ?? [],
+    // Ranked as the app ranks it, or the audit builds cards out of sentences
+    // no screen would have chosen. See lib/dict/plainness.ts.
+    plainest: plainerFirst(e.cefr ?? null, reach),
   } as unknown as LexemeForCards;
   let cards;
   try { cards = generateCards(lex, availableCardTypes(lex)); }

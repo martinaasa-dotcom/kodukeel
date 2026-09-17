@@ -1435,6 +1435,68 @@ have rewritten as well as the ones it cannot; run against a seeded local databas
 cards on four words came back as one rewritten and ten named, the twelfth being `isa → milles?`,
 which the older rule already knew about.
 
+**The shortest sentence is not the plainest one, and a beginner was being handed the difference.**
+Every Estonian sentence in this app is one a lexicographer recorded, which is what keeps it honest
+and is not the same as its being a sentence a beginner can read: Ekilex records a usage to
+illustrate a word **to somebody who already speaks Estonian**. `usableExamples` sorted the attested
+pool shortest first, and what shortest selects for is the noun phrase and the idiom. Measured over
+the 1,269 words banded A1 or A2 that a screen shows a sentence for, 445 were shown something with
+no finite verb in it (`Hööveldamata lauad.`, `Noored ja haritud inimesed.`, `Laste joonistatud
+pildid.`) and 724 something carrying a spelling no A1 or A2 word reaches (`Papagoi pääses lahtise
+akna kaudu välja.` for `aken`, `Isa suri ööl vastu laupäeva.` for `öö`). A third of them were plain
+on both counts. It was reported off the first unit anybody opens: `tere` records two usages, and
+the shorter is `No tere, Juhan.`, which opens with a discourse particle this dictionary holds no
+entry for, spelled exactly like the English word for the opposite of yes.
+
+**The better sentence was nearly always already there**, which is what makes this a ranking fault
+rather than a gap in the data: 746 of those words carry a plain sentence among their own usages and
+were simply not being shown it. `lib/dict/plainness.ts` is the rank, and it weighs four things
+against each other rather than chaining tie-breaks, because ranked on vocabulary first and length
+last `inimene` moved from a three-word phrase to an eleven-word sentence about a virus. A spelling
+no entry vouches for costs most, since the learner cannot look it up and has nowhere to go; then a
+missing finite verb, then a spelling above the band, then a clause boundary and the words
+themselves. Measured after: 59% plain against 33%, with the mean at 4.1 words against 3.5.
+
+**It ranks and it may never refuse**, asserted both ways. Every sentence it sees has already passed
+`usableExamples` and `naturalSentence`; all it decides is which one a screen leads with, and a word
+whose only sentence is hard keeps it, because "no example sentence for this one yet" on a word the
+dictionary has a perfectly good sentence for is a worse screen than a hard example. That is
+`aroundFirst`'s rule one directory over, for its reason. **And the band is the word's, never the
+learner's**: which sentence teaches `aken` best is a fact about the shared dictionary, so it is
+cached in `lib/dict/facts.ts` with the others and is the same answer for everybody, where reading
+the learner's own level would put something keyed on a person into a file asserted to hold nothing
+of the kind. Above A2 the rank stands down entirely and shortest first is kept, since a B1 word is
+met by somebody who can read a subordinate clause and churning what every B1 card is cut from buys
+nothing anybody reported. `npm run audit:plainness` is the reading, band by band, and it reports
+rather than gates: 41% of what is left is a word with nothing plainer recorded, which is a gap in
+what lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
+beginner keeps meeting, not the percentage.
+
+**And the label pattern is a noun's rule, which its name said and its code did not.** A usage
+opening with its own headword and a comma is a dictionary naming itself and then illustrating a
+sense the gloss beside it may not name, which is worth refusing on `Kahvel, lipp kukub!` and is
+ordinary speech everywhere else. The exemption was `VERB` alone, so an adverb, an adjective, a
+pronoun and a phrase were all read as nominals, and the one word class whose natural position *is*
+"word, then clause" is the interjection: `Tere, mina olen Katrin.` was refused, leaving `No tere,
+Juhan.` as the only sentence the course could teach hello with, and `Aitäh, Mari!` went the same
+way. Ten sentences across the dictionary, nine of them ordinary speech and four on an A1 or A2
+word. Narrowing to the noun keeps all fifteen refusals worth having and hands back the ten that
+were never the pattern. Both halves were made to fail on the real words before either landed, and
+the card that started this now reads `____, mina olen Katrin.`
+
+**And the two instruments that mark are exempt by name**, which is the rule `gapForms` already
+states about itself one section down. `lib/exam/paper.ts` rebuilds its paper server-side from
+(level, seed, pool) in order to mark it, and `lib/assessment/items.ts` draws its distractors from
+the same pool, so reordering what either is built from changes which questions a candidate is asked
+and what they are marked against. That is a change to a measurement rather than to an exercise.
+Asserted in both directions: every picker that teaches is handed the rank, and neither instrument
+that marks may reach it. The label-pattern narrowing does reach both, because it is a question about
+what counts as a sentence at all rather than about which of several to lead with, and it costs one
+deploy's worth of papers in flight marked against a pool drawn the new way, which is the cost the
+pool ordering already accepted and is ten sentences over the whole dictionary. `audit:questions`
+went from 85,224 questions to 85,227 and `audit:sense` from 58,818 to 58,832, both up and neither
+losing a card.
+
 **A sentence recorded under another word is still a lexicographer's sentence, and a word may
 borrow it.** The rule above made the sentence the card and left most words with nothing to cut one
 from: a word's own usages are a handful, Ekilex filed three under `ravim` and none in a case, and the
