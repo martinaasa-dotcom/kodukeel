@@ -293,6 +293,36 @@ ceiling on the bill and default to three dollars a day, and a deployment whose G
 runs out composes on qwen at $0.8 and $4 a million, which is dearer than either Gemini link, so an
 empty Gemini balance raises the bill rather than lowering it.
 
+**And the translations reach a word looked up live, which was the hole left after the seed.**
+`mapEkilexDetails` built a new row's sentences as `({ et, source })`, the same `.et`-only shape the
+lesson page had one layer further out, so a deployment holding an Ekilex key and no model key looked
+a word up and got the bare Estonian the whole pass was about. It reads `englishFor` now, and most of
+what a live lookup returns is a sentence the shipped table already answers for, because the course
+and the expansion are where those words are. Four writers, all four asserted: the two halves of the
+seed, the repair for a database seeded before the table existed, and the mapper.
+
+**Nobody has read the 16,037 lines, and a mechanical second opinion was built and thrown away.** The
+gloss pipeline has `npm run audit:glosses`, which re-reads every English gloss off the page it came
+from, and there is no equivalent here: a translation has no upstream to be checked against. What was
+tried instead was the dictionary itself, asking whether each English line shares a content word with
+the glosses of the Estonian words in its own sentence. It flags **14 percent of the 10,254 lines it
+can judge and every example is correct**: a gloss is terse where a translation is natural, `aas` is
+"meadow" and the line says "the meadows turned green", and Estonian morphology means the words do
+not line up. A check that fires on honest data one time in seven is the check this file says to
+waive and then nobody reads, so it is not shipped and this paragraph is the record of why. What is
+left is a person reading a sample, and the report button, below.
+
+**So a wrong translation has a way out, and it is not the one that deletes the sentence.**
+`WRONG_EXAMPLE` was the only category a learner could reach for and its remedy is `DROP_EXAMPLE`,
+which would take a lexicographer's Estonian off the entry over a fault in our English. That was
+harmless while no sentence had an English line and is the wrong door the moment all of them do.
+`WRONG_TRANSLATION` applies `CLEAR_TRANSLATION`, which sets `en` back to null on the one sentence and
+touches nothing else: not the Estonian, not the order, not which sentences an entry has. It is
+deliberately not a correction, because a reviewer accepting it is saying the line was wrong rather
+than that they have a better one, and null is the honest "not yet" every sentence was in before the
+table was built, from which a deployment with a model asks again and one without shows the
+word-by-word gloss.
+
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
 same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
@@ -2054,6 +2084,54 @@ What is **not** capped is prose in the body of a screen, a grammar explanation o
 page whose subject is an explanation is allowed to explain. What is capped is the furniture around
 the thing a reader came for. And a cap cannot tell a short sentence from a good one, which is
 `docs/18-voice.md`'s job exactly as before.
+
+**And the two caps above hold the top of a screen, which is not where the small print was.** A
+learner reported the effect rather than any one line: every screen had a second screen of small
+print stuck to it. Measured across `app/` and `components/`, 103 elements set in `text-xs` or
+smaller carried a whole sentence, the median was over 109 characters and one was 561. That is a
+paragraph in 13px grey, and Settings alone had twelve of them, one under each control.
+
+**Small type does not make a paragraph less intrusive.** It makes it harder to read and leaves it
+exactly where it was, so it costs the room and earns nothing, and the reader who needed it is the
+one least able to read it. The honest choices are to say it in one line at a size somebody can
+read, or to take it off the screen until it is asked for, and there is now a third cap holding them
+to one of the two: `CAPTION_MAX` is 110 characters, which is about a line and a half on a phone.
+The sweep reads every `text-xs` and `text-2xs` element in the tree whose content is a sentence, and
+what is **not** capped is the list the other two leave alone: prose in the body of a screen, a
+grammar explanation, a policy page.
+
+**`components/Explain.tsx` is where an explanation goes**, and it is a `details`, which is the
+browser's own disclosure: keyboard-reachable, announced as one, open on a printed page, no state
+and no effect, so it works in the server components most of this copy lives in. Its trigger is one
+short line saying what the reader would find out ("Where this comes from" rather than "More
+information"), and what opens is `text-sm` rather than `text-xs`, because the whole point of moving
+it behind a press is that it no longer has to apologise for the room it takes. Thirty-three of them
+now, across Settings, the class pages, the level check, the plan, the readiness page and the
+shortcut sheet.
+
+**Three kinds of small print are not an explanation and stay on the screen**, each argued for by
+name in `CAPTION_EXEMPT`: a **status** a reader has to see to know what happened, which is the audio
+that would not load and the recording that has not been made; a **form instruction**, which is how
+the form is filled in, so hiding it hides the task; a **printed task**, where there is no press to
+put anything behind; and an **attribution**, where the licence asks for the credit to be given
+rather than made available. The list is checked for staleness, so a file that no longer has a long
+caption cannot keep a line that reads as a standing decision.
+
+**And a caption that explains an affordance the affordance already carries is deleted rather than
+moved.** The line the report was about read "Any underlined word opens its meaning", under every
+first meeting, for ever. An underline that opens on a tap is the oldest signal there is: a learner
+finds out by trying, once, and was then told again on every card for the rest of the course. The
+other branch of it, "Try reading it out loud", was advice nobody asked for under a sentence
+somebody was already reading. What replaced the rule is the opposite of it, asserted: no screen
+says it, read off `code()` rather than the raw file, because the comment recording the deletion
+quotes the line and a check that fires on that note is this repository's oldest recurring mistake.
+
+**Where a sentence is load-bearing it went up rather than away.** First run's four plan paragraphs
+are what a stranger reads while deciding on their year, and one of them is the sentence CLAUDE.md
+argues about at length, that a daily goal is reviews rather than new words. They are `text-sm` on
+`--ink-2` now, which is the app's secondary body, not the size the rest of it was apologising in.
+Promoting is the other way out of the cap and is the right one exactly where a reader has to take
+the sentence in to answer the question in front of them.
 
 **A blurb belongs where somebody is reading, not where they are scanning.** The targeted practice
 modes are drawn as the same compact tile the quick rounds already used, and their
@@ -7987,7 +8065,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
 `caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
 `meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`, `englishFor`, `sentenceInstruction`,
-`readSentenceTranslation`, `withEnglish`.
+`readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
+`CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

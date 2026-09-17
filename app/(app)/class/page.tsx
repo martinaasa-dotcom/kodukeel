@@ -7,6 +7,7 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Classes" };
 
@@ -124,13 +125,13 @@ export default async function ClassIndexPage() {
                   report. A workplace group leaves the grammar out and answers a different question:
                   who is on track for the paper they have to pass.
                 </p>
-                <p className="mb-4 text-xs" style={{ color: "var(--ink-3)" }}>
+                <Explain label="Who is responsible for consent">
                   If your pupils are under 13, a parent has to agree before they sign up. That is
                   the school&rsquo;s responsibility, not this app&rsquo;s, but worth knowing before
                   you write the code on the board. The{" "}
                   <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>{" "}
                   says what is held and what you can see.
-                </p>
+                </Explain>
                 <CreateClass />
               </Card>
             </section>

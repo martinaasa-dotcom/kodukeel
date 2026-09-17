@@ -17,6 +17,7 @@ import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGloss";
 import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
+import { Explain } from "@/components/Explain";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
   {
@@ -275,11 +276,11 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
       {message && (
         <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>
       )}
-      <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="Who sees your name">
         Used to greet you, and shown beside your reviews for the week if you join a class. Nothing else,
         not your email, not your words, not your history, goes with it. Leaving the class takes it
         back off.
-      </p>
+      </Explain>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { StarWord } from "@/components/StarWord";
 import { useResumeCard } from "@/components/useResumeCard";
 import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
+import { Explain } from "@/components/Explain";
 
 export interface SpeakingCard {
   cardId: string;
@@ -216,10 +217,10 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
                 <SpeakPair text={card.et} size={17} autoplay />
               </div>
               <Recorder />
-              <p className="max-w-[44ch] text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="Why you are the judge here">
                 Compare the two, then rate how close you were. Nothing is uploaded. This app can&rsquo;t
                 understand Estonian speech, so it won&rsquo;t pretend to score you.
-              </p>
+              </Explain>
             </>
           )}
         </div>

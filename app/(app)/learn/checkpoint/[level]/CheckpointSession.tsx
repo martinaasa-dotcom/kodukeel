@@ -12,6 +12,7 @@ import { checkAnswer, countsAsRecalled } from "@/lib/estonian/answer";
 import { BLANK } from "@/lib/estonian/cloze";
 import type { CheckpointQuestion } from "@/lib/collections/checkpoint";
 import type { Level } from "@/lib/collections/syllabus";
+import { Explain } from "@/components/Explain";
 
 /**
  * Sits a level checkpoint.
@@ -181,10 +182,10 @@ export function CheckpointSession({
           </Button>
           {saving && <p className="text-sm" style={{ color: "var(--ink-3)" }}>Marking…</p>}
           {error && <p className="text-sm" role="alert" style={{ color: "var(--again-ink)" }}>{error}</p>}
-          <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+          <Explain label="What passing and failing change">
             Passing moves you up a level. Failing changes nothing: a bad evening is not evidence
             that you have lost a level you already had.
-          </p>
+          </Explain>
         </Card>
       </div>
     </Page>

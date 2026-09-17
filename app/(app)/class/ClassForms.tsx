@@ -12,6 +12,7 @@ import {
   COHORT_DETAIL, COHORT_KINDS, COHORT_LABEL, type CohortKind,
 } from "@/lib/classroom/cohort";
 import { EXAM_LEVELS } from "@/lib/exam/spec";
+import { Explain } from "@/components/Explain";
 
 export function CreateClass() {
   const router = useRouter();
@@ -135,7 +136,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
       <Button variant="primary" onClick={join} disabled={pending || code.trim().length < CODE_LENGTH}>
         {pending ? "Joining…" : "Join the class"}
       </Button>
-      <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="Exactly what a class sees">
         Joining shares your name, your streak, how many reviews you did this week, when you last
         practiced and how many words you know with your teacher and classmates. It shares one more
         thing with your teacher alone: which
@@ -143,7 +144,7 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         never a specific answer. A workplace group shares less: your name, whether you have been
         practicing, and one of four bands for the paper the group works toward. Not your deck, not
         your searches, not your mistakes one by one. Leaving stops all of it right away.
-      </p>
+      </Explain>
     </div>
   );
 }

@@ -34,6 +34,7 @@ import { NO_VALUE } from "@/lib/copy/values";
 import type { Suggestions } from "@/lib/dict/suggest";
 import type { ReadableHeadline } from "@/lib/dict/headlines";
 import { Headlines } from "@/components/Headlines";
+import { Explain } from "@/components/Explain";
 
 export interface EntryForm {
   formType: string;
@@ -903,10 +904,10 @@ function Entry({ entry, tutorReady, glossLanguage }: {
               short forms are exactly the ones a seeded entry does not hold, so
               an example here would be one somebody typed. */}
           {entry.pos === "PRONOUN" && (
-            <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+            <Explain label="Why these are the long forms">
               Pronouns also have short forms, and those are the ones you will hear most. These are
               the long ones, which is what a dictionary lists first. Both are right.
-            </p>
+            </Explain>
           )}
         </div>
       )}
@@ -935,7 +936,7 @@ function EntryProblem({ entry }: { entry: EntryView }) {
       </p>
       <SuggestFix
         category="WRONG_MEANING"
-        categories={["WRONG_MEANING", "WRONG_FORM", "WRONG_EXAMPLE", "OTHER"]}
+        categories={["WRONG_MEANING", "WRONG_FORM", "WRONG_EXAMPLE", "WRONG_TRANSLATION", "OTHER"]}
         lemma={entry.lemma}
         lexemeId={entry.id}
         currentTranslation={entry.translation}

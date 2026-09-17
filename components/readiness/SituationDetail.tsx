@@ -9,6 +9,7 @@ import type { WordEvidence } from "@/lib/readiness/evidence";
 import { paceWords, verdictFor } from "@/lib/readiness/narrative";
 import { RUNG_INK, RungChip } from "./Rung";
 import { SCENES } from "@/lib/scenes/catalogue";
+import { Explain } from "@/components/Explain";
 
 /**
  * One situation, in full: the verdict, the three rungs as three bars, what
@@ -109,9 +110,9 @@ export function SituationDetail({
                       ? "Enough to answer a patient person. Leading means reaching for the next word while they are still finishing the last one."
                       : "A pause somebody at a counter will fill for you, usually in English. Speed is drilled separately from knowing."}
                 </p>
-                <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+                <Explain label="How quick and slow are decided">
                   Read off correct typed answers, typing included. Under {CONVERSATIONAL_MS / 1000} seconds is called quick and over {SLOW_MS / 1000} slow, which are assumptions, so the seconds are printed beside the word.
-                </p>
+                </Explain>
               </>
             )}
           </Card>
@@ -199,11 +200,11 @@ export function SituationDetail({
       )}
 
       {situation.live && (
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <Explain label="What this page does not measure">
           Nothing on this page has heard you speak. How you sound is yours to judge, in{" "}
           <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>speaking practice</Link>
           , and no number here pretends otherwise.
-        </p>
+        </Explain>
       )}
     </div>
   );

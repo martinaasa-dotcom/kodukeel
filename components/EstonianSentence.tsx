@@ -47,7 +47,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
  */
 export function EstonianSentence({
   et, en, lexemeId, canTranslate, form = null, tokens = null,
-  speak, speakLabel, className, onTurnedOff, ask, onTranslated,
+  speak, speakLabel, className, ask, onTranslated,
 }: {
   /** The sentence exactly as it was recorded. */
   et: string;
@@ -74,8 +74,6 @@ export function EstonianSentence({
   speak?: { voice?: string; rate?: number; autoplay?: boolean };
   speakLabel?: string;
   className?: string;
-  /** Told once when the underlines are turned off from inside the panel. */
-  onTurnedOff?: () => void;
   /** When the translation call is spent. See `SentenceTranslation`. */
   ask?: "onArrival" | "onRequest";
   /** Told what came back, for a caller keeping its own copy of the sentence. */
@@ -94,7 +92,6 @@ export function EstonianSentence({
           tokens={tokens}
           sentence={et}
           speak={speak}
-          onTurnedOff={onTurnedOff}
         />
       ) : (
         <div className="flex items-start gap-2">

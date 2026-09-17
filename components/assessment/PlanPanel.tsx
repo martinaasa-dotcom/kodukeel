@@ -10,6 +10,7 @@ import { PRE_A1, type Band, type Level } from "@/lib/assessment/types";
 import { ChevronRight } from "lucide-react";
 import { Card, Note, SectionTitle, StatTile } from "@/components/ui";
 import { icon } from "@/components/icons";
+import { Explain } from "@/components/Explain";
 
 /**
  * The honest timeline.
@@ -217,7 +218,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
       )}
 
       {compact && (
-        <p className="text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+        <Explain label="Where the hours come from">
           The hours are published estimates for an English speaker, averages from other people on
           other courses. Your own level, your week and, once there is one, your review log shape
           them from there.{" "}
@@ -225,7 +226,7 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
             Where the numbers come from
           </Link>
           , and the research behind the pace, live on the level check screen.
-        </p>
+        </Explain>
       )}
 
       {/*

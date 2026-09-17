@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { Explain } from "@/components/Explain";
 
 const STEPS = [
   { text: "Go to ", link: { href: "https://ekilex.ee", label: "ekilex.ee" }, after: " and register. It's free and needs no card." },
@@ -118,11 +119,11 @@ export function EkilexSetupGuide() {
         </pre>
       </div>
 
-      <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="What happens to the words you already have">
         Every word already in the deck gets upgraded to the real forms the next time it is opened.
         Nothing has to be re-added. A word Ekilex had nothing to say about the last time it was
         looked up is remembered as a miss for a day, so it will not retry until then.
-      </p>
+      </Explain>
     </div>
   );
 }

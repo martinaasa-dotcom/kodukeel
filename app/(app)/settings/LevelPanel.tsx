@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { setCourseLevel } from "@/app/actions";
 import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { LEVELS, type Level } from "@/lib/collections/syllabus";
+import { Explain } from "@/components/Explain";
 
 /**
  * The level the app holds for you, changed by hand.
@@ -68,10 +69,10 @@ export function LevelPanel({ current, measured }: {
           ? "This is where your last level check put you. Change it whenever it stops being true, and the check will not argue: what you set here is what the app goes on until you take another one."
           : "Change it whenever it stops being true. Taking a level check replaces it with what the check found."}
       </p>
-      <p className="text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+      <Explain label="What the level decides">
         It decides which unit the course opens at, which words review introduces next, and the band
         the practice rounds and the dictionary draw from. Nothing you have already learned moves.
-      </p>
+      </Explain>
     </div>
   );
 }

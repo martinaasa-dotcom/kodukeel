@@ -13,6 +13,7 @@ import { LocalDate } from "@/components/LocalDate";
 import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { ArchiveClass, AssignHomework, AssignUnit, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
+import { Explain } from "@/components/Explain";
 
 /*
   The class's own name, and never a fallback that names one to somebody who is
@@ -230,10 +231,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="How this is counted">
                 Combined across everyone who has answered a case-form card. Nobody but the learner
                 who gave an answer can see it on its own.
-              </p>
+              </Explain>
             </Card>
           </section>
         )}
@@ -245,10 +246,10 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
             <SectionTitle>Homework</SectionTitle>
             <Card>
               <AssignUnit classroomId={classroomId} units={units} />
-              <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="What this does to their deck">
                 Lands as a task in each student&rsquo;s own list, with a link to the unit. Nobody&rsquo;s
                 deck is changed, they choose when to add the words.
-              </p>
+              </Explain>
             </Card>
 
             <Card className="mt-3">

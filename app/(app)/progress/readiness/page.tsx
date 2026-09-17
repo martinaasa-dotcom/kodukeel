@@ -10,6 +10,7 @@ import { Card, Empty, Page, SectionTitle, Stack } from "@/components/ui";
 import { ReadinessSummary } from "@/components/readiness/Summary";
 import { SituationRow } from "@/components/readiness/SituationRow";
 import { RUNG_LABEL } from "@/lib/readiness/rungs";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "In real life" };
 
@@ -132,10 +133,10 @@ export default async function ReadinessPage() {
           );
         })}
 
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <Explain label="What this page does not measure">
           Nothing here has heard you speak, and no number on this page pretends to. How you sound is yours to judge, in{" "}
           <Link href="/review/speaking" className="underline" style={{ color: "var(--accent-deep)" }}>speaking practice</Link>.
-        </p>
+        </Explain>
       </Stack>
     </Page>
   );

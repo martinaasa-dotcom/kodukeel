@@ -14635,10 +14635,28 @@ check("a word is introduced by one drawing", () => {
   for (const file of ["app/(app)/review/ReviewSession.tsx", "app/(app)/learn/new/LearnSession.tsx"]) {
     assert.match(code(file), /<WordIntro\b/, `${file} draws a first meeting of its own again`);
   }
-  const provenance = ALL.filter((f) => /Any underlined word opens its meaning\./.test(read(f)));
+  /*
+    AND NOTHING UNDER IT EXPLAINS THE UNDERLINES.
+
+    This used to assert that exactly one screen carried the line "Any
+    underlined word opens its meaning", which was the right rule while the line
+    existed: two copies would have been two answers. The line is gone. It sat
+    in 12px grey under every first meeting for ever, and an underline that
+    opens on a tap is the oldest signal there is: a learner finds out by
+    trying, once, and was then told again on every card for the rest of the
+    course. So the rule is now that no screen says it, which is the same rule
+    pointed at the state the app is actually in rather than at the one it used
+    to be in. See components/Explain.tsx for where an explanation goes when it
+    is worth keeping.
+  */
+  // `code` rather than `read`: the comment in WordIntro.tsx that explains why
+  // the line went quotes it, and a check that fires on the note recording a
+  // deletion is the oldest recurring mistake in this file.
+  const explains = ALL.filter((f) => /underlined word opens/i.test(code(f)));
   assert.deepEqual(
-    provenance, ["components/WordIntro.tsx"],
-    "more than one screen says how to read a teaching sentence",
+    explains, [],
+    "a screen explains its own underlines again. The underline is the signal; a caption under every " +
+    "card is the small print a learner reported",
   );
 });
 
@@ -17137,9 +17155,24 @@ check("the English of a shipped sentence is built once and read in one place", (
     .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
   assert.deepEqual(
     readers.sort(),
-    ["prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts"].sort(),
-    "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and the " +
-    "seed is the one place it is joined on; a screen reads `Example.en` like it always did",
+    ["lib/ekilex/mapper.ts", "prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts"].sort(),
+    "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
+    "there are four places a sentence is written down: the two halves of the seed, the repair that " +
+    "reaches a database seeded before the table existed, and the mapper that builds a row out of a " +
+    "live Ekilex lookup. A screen reads `Example.en` like it always did",
+  );
+
+  /*
+    The fourth is the one that is easy to forget, because it is not the seed.
+    A deployment holding an Ekilex key and no model key looks a word up live,
+    and the mapper built its sentences as `({ et, source })`: the same
+    `.et`-only shape the lesson page had, one layer further out, so the word
+    arrived with sentences nobody could read.
+  */
+  assert.match(
+    code("lib/ekilex/mapper.ts"), /en: englishFor\(et\)/,
+    "a word looked up live arrives with bare sentences again. The shipped table answers for most of " +
+    "them, because the course and the expansion are where those words are",
   );
 
   const seed = code("prisma/seed.ts");

@@ -1,6 +1,7 @@
 import { CASES } from "@/lib/estonian/cases";
 import { classifyGradation, classifyVerbGradation } from "@/lib/estonian/gradation";
 import { usableExamples, type Example } from "@/lib/dict/examples";
+import { englishFor } from "@/lib/dict/exampleEnglish";
 import type { EkilexDetails } from "./client";
 
 /**
@@ -207,7 +208,23 @@ export function mapEkilexDetails(details: EkilexDetails): MappedLexeme | null {
     government: formatGovernment(details.governments),
     definition: details.definitions[0] ?? null,
     semanticTypes: details.semanticTypes.length > 0 ? details.semanticTypes.join(" ") : null,
-    examples: usableExamples(details.usages.map((et) => ({ et, source: "EKILEX" as const }))),
+    /*
+      And what each sentence means, where the shipped table has it.
+
+      This was `({ et, source })`, which is the same `.et`-only shape the
+      lesson page had, one layer further out: a word looked up live arrived
+      with sentences nobody could read, so a deployment holding an Ekilex key
+      and no model key got the bare Estonian the whole pass was about. Ekilex
+      records no English against a usage on a reader key and never will, and
+      most of what a live lookup returns is a sentence
+      `prisma/data/example-english.json` already answers for, because the
+      course and the expansion between them are where those words are.
+      `mergeExamples` keeps whatever a row already had, so this only ever
+      fills a blank.
+    */
+    examples: usableExamples(details.usages.map((et) => ({
+      et, en: englishFor(et), source: "EKILEX" as const,
+    }))),
     forms: forms.sort((a, b) => a.orderIndex - b.orderIndex),
   };
 }

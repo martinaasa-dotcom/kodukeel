@@ -22,7 +22,7 @@ describe("the category table", () => {
     patch kind answers to would be an accept that silently changes nothing.
   */
   it("names an apply step that a patch can actually satisfy", () => {
-    const kinds = ["CREATE_WORD", "SET_TRANSLATION", "SET_FORM", "DROP_EXAMPLE"];
+    const kinds = ["CREATE_WORD", "SET_TRANSLATION", "SET_FORM", "DROP_EXAMPLE", "CLEAR_TRANSLATION"];
     for (const key of CATEGORY_KEYS) {
       const applies = SUGGESTION_CATEGORIES[key].applies;
       if (applies !== null) expect(kinds).toContain(applies);

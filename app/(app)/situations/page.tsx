@@ -13,6 +13,7 @@ import { practises } from "@/lib/scenes/practises";
 import { joinWithAnd } from "@/lib/copy/values";
 import { sceneHistoryFor, type SceneHistory } from "@/lib/progress/scene";
 import { SceneMotif } from "@/components/scene/SceneMotif";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Situations" };
 export const dynamic = "force-dynamic";
@@ -75,10 +76,10 @@ export default async function SituationsPage() {
           question a careful person would otherwise have to ask: nothing you
           type here is about you (§3). It is one line rather than a panel.
         */}
-        <p className="text-xs" style={{ color: "var(--ink-3)" }}>
+        <Explain label="Whose details these are">
           You play somebody else, off a card we hand you. Nothing you write here is
           about you, and nobody will ask you for a real document number.
-        </p>
+        </Explain>
 
         {/*
           Where the people are. A learning app that never says so is one that

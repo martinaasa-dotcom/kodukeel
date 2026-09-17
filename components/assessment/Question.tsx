@@ -12,6 +12,7 @@ import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score"
 import type { ChoiceItem, DictationItem, Item, SpeakItem, WriteItem } from "@/lib/assessment/types";
 import type { WordStatus } from "@/lib/estonian/dictation";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { Explain } from "@/components/Explain";
 
 /**
  * One question, and its answer.
@@ -393,10 +394,10 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             autoFocus
             onEnter={() => setMark(gradeWrite(item, text))}
           />
-          <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
+          <Explain label="How this is marked">
             Checked directly against the word a lexicographer put in this sentence, so no AI is
             involved, and none is needed.
-          </p>
+          </Explain>
           <div className="mt-4">
             <Button variant="primary" size="lg" onClick={() => setMark(gradeWrite(item, text))}>
               Check

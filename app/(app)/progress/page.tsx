@@ -30,6 +30,7 @@ import { lemmasByCardLexeme } from "@/lib/dict/facts";
 import { Card, Chip, Empty, Meter, Page, Ring, SectionTitle, Stack, Stat } from "@/components/ui";
 import { NO_VALUE } from "@/lib/copy/values";
 import { formatHour } from "@/lib/time/clock";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Progress" };
 
@@ -443,13 +444,13 @@ export default async function ProgressPage() {
                   );
                 })}
               </ul>
-              <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
+              <Explain label="What counts as known">
                 This counts a word only once you know every card for it, so the real number could
                 be a little higher.{" "}
                 <Link href="/words" className="underline" style={{ color: "var(--accent-deep)" }}>
                   See your deck card by card
                 </Link>.
-              </p>
+              </Explain>
             </Card>
           </section>
 

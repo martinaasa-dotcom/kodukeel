@@ -111,6 +111,43 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       };
     }
 
+    /*
+      The English off one sentence, and nothing else.
+
+      Not a correction and not a deletion. The Estonian stays exactly as the
+      lexicographer recorded it and keeps its place on the entry; `en` goes
+      back to null, which is the honest "not yet" every sentence was in before
+      `prisma/data/example-english.json` was built, and the screens fall back
+      to what they showed then: a fresh ask on a deployment with a model, the
+      word-by-word gloss on one without. Nobody writes a replacement here,
+      because a reviewer accepting this is saying the line was wrong rather
+      than that they have a better one.
+    */
+    case "CLEAR_TRANSLATION": {
+      const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
+      if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };
+      const examples = parseExamples(lexeme.examples);
+      let cleared = false;
+      const next = examples.map((e) => {
+        if (e.et.trim() !== patch.sentence.trim() || !e.en) return e;
+        cleared = true;
+        return { ...e, en: null };
+      });
+      if (!cleared) {
+        return { ok: false, error: "That sentence has no English on it any more, so there is nothing to take off." };
+      }
+      await prisma.lexeme.update({
+        where: { id: lexeme.id },
+        data: { examples: serialiseExamples(next), editedBy: reviewerId, editedAt: new Date() },
+      });
+      return {
+        ok: true,
+        changed: true,
+        lexemeId: lexeme.id,
+        summary: `Took the English off one example on ${lexeme.lemma}.`,
+      };
+    }
+
     case "DROP_EXAMPLE": {
       const lexeme = await prisma.lexeme.findUnique({ where: { id: patch.lexemeId } });
       if (!lexeme) return { ok: false, error: "That entry is no longer in the dictionary." };

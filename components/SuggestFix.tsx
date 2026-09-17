@@ -116,6 +116,14 @@ export function SuggestFix({
     if (kind === "WRONG_EXAMPLE" && lexemeId && sentence.trim()) {
       return { kind: "DROP_EXAMPLE", lexemeId, sentence: sentence.trim() };
     }
+    /*
+      The same picker, a different remedy. A wrong English line is not an
+      unhelpful Estonian sentence, and reporting one as the other would delete
+      a lexicographer's sentence over a fault in our translation.
+    */
+    if (kind === "WRONG_TRANSLATION" && lexemeId && sentence.trim()) {
+      return { kind: "CLEAR_TRANSLATION", lexemeId, sentence: sentence.trim() };
+    }
     return null;
   };
 
@@ -316,7 +324,7 @@ export function SuggestFix({
         </div>
       )}
 
-      {kind === "WRONG_EXAMPLE" && examples && examples.length > 0 && (
+      {(kind === "WRONG_EXAMPLE" || kind === "WRONG_TRANSLATION") && examples && examples.length > 0 && (
         <div className="mt-4">
           <label htmlFor="suggest-sentence" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
             Which sentence

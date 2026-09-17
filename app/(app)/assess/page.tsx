@@ -10,6 +10,7 @@ import { ResultPanel } from "@/components/assessment/ResultPanel";
 import { learnerDayClock } from "@/lib/progress/dayClock";
 import { measuredPaceFor, standingFor } from "@/lib/progress/plan";
 import { DATE_AND_TIME, DateText } from "@/components/DateText";
+import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Level check" };
 
@@ -154,11 +155,11 @@ export default async function AssessPage({
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-xs leading-relaxed" style={{ color: "var(--ink-3)" }}>
+              <Explain label="Why the dates matter">
                 Every sitting is kept and none is ever edited, so this is a history rather than a
                 number that moved. A check taken a fortnight after the last one mostly measures the
                 questions, not you: leave it a couple of months.
-              </p>
+              </Explain>
             </Card>
           </div>
         )}

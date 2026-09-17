@@ -23,6 +23,7 @@ import {
 } from "@/lib/exam/spec";
 import { SKILL_ET } from "@/lib/exam/types";
 import { answeredIn, clearSitting, loadSitting, saveSitting, type SavedSitting } from "./resume";
+import { Explain } from "@/components/Explain";
 
 /**
  * Sitting the paper.
@@ -1270,10 +1271,10 @@ function MessageQuestion({ item, text, onWrite }: {
         <DiacriticBar />
       </div>
       <LengthMeter text={text} minWords={item.minWords} />
-      <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
+      <Explain label="Why nothing marks this for you">
         Check for yourself whether you covered all three points when you read it back. A machine
         can&apos;t tell without judging your Estonian, and nothing here does that.
-      </p>
+      </Explain>
     </div>
   );
 }
