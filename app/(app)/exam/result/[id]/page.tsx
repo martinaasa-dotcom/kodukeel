@@ -399,6 +399,50 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       </section>
 
       {/*
+        RIGHT, AND STILL WORTH A LINE. The list above reads `report.missed`,
+        which is every mark that was wrong, and the marker writes a note on two
+        answers that were right: a dictation where a diacritic went, which the
+        real specification forgives and which `acceptsSlips` says is reported
+        anyway because a learner who never sees it never fixes it, and a word
+        order the writer did not choose, which is right Estonian and carries
+        the note saying where the writer put the word. Both were computed on
+        every paper and drawn on none of it.
+
+        Drawn as a right answer rather than as a near miss: the tick and the
+        palette's own `right`, because that is what the mark was, and what they
+        wrote beside what the recording has, since on both of these the two
+        differ and the difference is the whole of what there is to say.
+      */}
+      {report.accepted.length > 0 && (
+        <section className="mt-8">
+          <SectionTitle hint={`${report.accepted.length} of them`}>Right, and worth a look</SectionTitle>
+          <ul className="grid gap-2">
+            {report.accepted.map((mark) => {
+              const et = mark.language !== "en";
+              return (
+                <Card as="li" key={mark.itemId} className="!py-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`${VERDICT_CLASS.right} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
+                      lang={et && mark.given ? "et" : undefined}
+                    >
+                      <Check size={14} aria-label="Your answer, and it counted" />
+                      {mark.given || NO_VALUE}
+                    </span>
+                    <span className="text-sm" style={{ color: "var(--ink-3)" }}>the recording has</span>
+                    <span className="text-md" lang={et ? "et" : undefined} style={{ color: "var(--ink)" }}>
+                      {mark.expected}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{mark.note}</p>
+                </Card>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/*
         WHAT THIS RESULT IS NOT, ON THE SCREEN WHERE SOMEBODY READS A NUMBER
         ABOUT THEMSELVES.
 

@@ -111,6 +111,29 @@ describe("the result report", () => {
     expect(report.missed).toHaveLength(3);
   });
 
+  /*
+    RIGHT, AND STILL WORTH A LINE. `missed` is every mark that was wrong, and
+    it was the only list of marks the result screen had, so a note the marker
+    writes on a *correct* answer was computed on every paper and drawn on none
+    of it. Two answers write one: a dictation that forgives a dropped
+    diacritic and names the letter anyway, and a word order the writer did not
+    choose. Keyed on the note rather than on the item type, so a third kind
+    that grows one arrives on the screen without being wired up.
+  */
+  it("keeps a right answer that has something to say, and leaves the silent ones out", () => {
+    const marks = [
+      { itemId: "slip", scored: 1, available: 1, correct: true, expected: "õde", given: "ode", note: "You dropped the õ.", cardId: null, lexemeId: "L1", lemma: "õde", recalled: true, language: "et" as const },
+      { itemId: "variant", scored: 1, available: 1, correct: true, expected: "Muidugi tuleb ette näpukaid", given: "Muidugi tuleb näpukaid ette", note: "That works. The writer put ette earlier.", cardId: null, lexemeId: "L2", lemma: "näpukas", recalled: true, language: "et" as const },
+      { itemId: "plain", scored: 1, available: 1, correct: true, expected: "toas", given: "toas", note: "", cardId: null, lexemeId: "L3", lemma: "tuba", recalled: true, language: "et" as const },
+      { itemId: "wrong", scored: 0, available: 1, correct: false, expected: "majas", given: "maja", note: "One letter out.", cardId: null, lexemeId: "L4", lemma: "maja", recalled: false, language: "et" as const },
+    ];
+    const parts = [part("writing", 10), part("listening", 10), part("reading", 10), part("speaking", 10)];
+    parts[0]!.tasks[0]!.marks = marks;
+    const report = buildReport(result({ parts }));
+    expect(report.accepted.map((m) => m.itemId)).toEqual(["slip", "variant"]);
+    expect(report.missed.map((m) => m.itemId)).toEqual(["wrong"]);
+  });
+
   it("says a whole clean paper is clean", () => {
     const perfect = result({
       parts: [part("writing", 25), part("listening", 25), part("reading", 25), part("speaking", 25)],
@@ -119,5 +142,6 @@ describe("the result report", () => {
     expect(report.gaps).toEqual([]);
     expect(report.strengths).toHaveLength(4);
     expect(report.missed).toEqual([]);
+    expect(report.accepted).toEqual([]);
   });
 });
