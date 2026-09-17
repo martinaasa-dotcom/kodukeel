@@ -44,6 +44,9 @@ import { TOPIC_GROUPS } from "../lib/estonian/grammar";
 import { NAV_MOTION } from "../lib/ux/navMotion";
 import { DESTINATIONS } from "../lib/ux/nav";
 import { rungOf } from "../lib/learn/ladder";
+import { BUILD_FROM, maySortWords } from "../lib/collections/levels";
+import { ROTATION } from "../lib/course/plan";
+import { LEVELS } from "../lib/collections/syllabus/types";
 import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
 import { grammarGroupTerm, grammarTerm } from "../lib/estonian/terms";
@@ -1309,6 +1312,177 @@ check("a question about one word is worded for that word", () => {
     cases,
     /question: \[row\.asksPerson, row\.asksThing, row\.asksWhere\]/,
     "a case's name stopped being built from its own parts",
+  );
+});
+
+/*
+  A BEGINNER IS NEVER SHOWN A WORD THE COURSE HAS NOT TAUGHT.
+
+  `lib/collections/lesson.ts` rule 1 has always said nothing is asked before it
+  is taught, and it was written about the word a step is *about*. An attested
+  usage is written to illustrate a headword rather than to be somebody's first
+  reading, so the words standing around it come from wherever the lexicographer
+  was: the first unit of the course, whose own blurb reads "Thirteen words,
+  said alone. Nothing here is a sentence yet", put `Palun võta veel üks komm. –
+  Aitäh!` on the screen as a six-tile ordering puzzle, five of the six words
+  never shown to anybody. Measured over the course at one lesson a sitting, 152
+  of the 162 word-ordering steps at A1 and 188 of the 210 gap-fills carried one.
+
+  Three things hold it, and each is the shape that would rot rather than
+  today's markup: word ordering starts above A1, the sentence builders reach a
+  sentence only through the rule that decides whether it is readable, and the
+  set of taught words is required so a caller cannot quietly reinstate the
+  fault by leaving it out.
+*/
+check("a lesson at A1 asks only about words the course has taught", () => {
+  assert.ok(
+    LEVELS.indexOf(BUILD_FROM) > 0,
+    "word ordering is offered at the first band of the course, where there is no syntax to order yet",
+  );
+  assert.ok(!maySortWords("A1") && maySortWords(BUILD_FROM), "maySortWords stopped agreeing with BUILD_FROM");
+
+  /*
+    BOTH SURFACES ASK, AND THEY ASK THE SAME THING.
+
+    Two screens put a sentence up as tiles: the unit lesson's `build` step and
+    the Sentences round on Practice, which draws from the learner's own deck
+    and had no band in it at all, so removing the exercise from the lesson left
+    an A1 learner one press away from the same six tiles. A constant in one of
+    them is a constant the other disagrees with, so the rule lives in
+    `lib/collections/levels.ts` and both read it.
+  */
+  for (const file of ["lib/collections/lesson.ts", "app/(app)/review/sentences/page.tsx"]) {
+    assert.match(
+      code(file),
+      /maySortWords\(/,
+      `${file} puts a sentence up as tiles without asking which bands are asked to order words`,
+    );
+  }
+  /*
+    And the planned module may not schedule a round its own learner is not
+    given: `sentences` sat in the A1 rotation, so taking word ordering out of
+    the lesson left the module sending a beginner to a screen that answers
+    with the band it opens at.
+  */
+  assert.ok(
+    !(ROTATION.A1 ?? []).includes("sentences"),
+    "the A1 rotation schedules the word-ordering round, which does not open until A2",
+  );
+
+  /*
+    THE MODULE'S OWN LADDER IS HELD TO WHAT THE MODULE HAS TAUGHT.
+
+    The gap rung cuts a sentence a lexicographer wrote against one headword,
+    so at A1 most of them carry words from further up the course. Standalone
+    Learn passes nothing and is deliberately untouched, because a learner who
+    went there themselves is choosing their own difficulty; the module chose
+    for them, so it hands in what the ladder has given them through the evening
+    they are on.
+
+    `taughtThrough` AND NEVER `wordsThrough`, which is the fault this arm was
+    written for: a `Programme` is one part of seventeen, so the per-part read
+    credits a learner on their first evening of a1.5 with eight words rather
+    than 394 and refuses nearly every sentence they can read. Measured over
+    every A1 evening, 3 of the 464 gappable words had a readable sentence
+    against 49 once the earlier parts count.
+  */
+  const ladder = code("app/(app)/course/learn/page.tsx");
+  assert.match(ladder, /taughtWords:\s*spellingsOf\(/, "the module's ladder stopped saying what it has taught");
+  assert.match(
+    ladder,
+    /taughtThrough\(programme, day\.index\)/,
+    "the module's ladder reads one part's words rather than the whole ladder's",
+  );
+  const learn = code("lib/progress/learn.ts");
+  assert.match(
+    learn,
+    /readableFor\(level, taughtWords\)/,
+    "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+
+  /*
+    AND THE READERS OF THE RULE ARE A CLOSED LIST.
+
+    `readableFor` decides whether a beginner may be shown a sentence at all,
+    and what is outside it is a decision with a number under it rather than an
+    oversight: at A1 the rule takes the deck's gap-fill cards from 786 to 51
+    and its case cards from 111 to nought, which is a beginner's case drilling
+    deleted in silence. Its own header said five surfaces asked it while two
+    did, and three of the five it named were the ones deliberately left out, so
+    a reader who trusted the prose would have concluded the deck was gated.
+
+    Two readers, each with a reason, in the shape `lib/legal/exportCoverage.ts`
+    takes for its exemptions: a third fails here until somebody decides which
+    side of the line it is on. Anchored on the call rather than the import,
+    because a file can import the rule and go on using its own.
+  */
+  const READS_READABLE_FOR: Record<string, string> = {
+    "lib/collections/lesson.ts": "the unit lesson's build and gap steps, which the module schedules",
+    "lib/progress/learn.ts": "the Learn ladder's gap rung, gated only where the module hands in what it taught",
+  };
+  const RULE_HOME = "lib/collections/levels.ts";
+  const readsRule = ALL
+    .filter((f) => f !== RULE_HOME)
+    .filter((f) => /\breadableFor\(/.test(code(f)));
+  assert.deepEqual(
+    readsRule.slice().sort(),
+    Object.keys(READS_READABLE_FOR).sort(),
+    `readableFor has a reader nobody decided about: ${readsRule.join(", ")}. `
+      + "Add it to READS_READABLE_FOR with a reason, or keep the surface outside the rule.",
+  );
+
+  /*
+    AND IT GATES THE GAP RATHER THAN THE MEETING, which is the line
+    `lib/collections/lesson.ts` draws and which this file had wrong first:
+    filtering the examples before `teachingSentence` took the sentence off the
+    meet rung too, 478 of 493 A1 words down to 5, so a beginner's first screen
+    every evening read "No example sentence for this one yet" about words with
+    several. Two arms, because either one alone passes on the broken shape: a
+    meeting always falls back to the unfiltered examples, and the gap is built
+    only where the sentence it shares is readable.
+  */
+  assert.match(
+    learn,
+    /\?\?\s*teachingSentence\(examples, \[lexeme\.lemma\], opener\)/,
+    "the ladder's meet rung stopped falling back to a sentence the rule would not gap",
+  );
+  assert.match(
+    learn,
+    /taught\?\.form && readable\(taught\.example\.et\)/,
+    "the ladder's gap stopped asking whether the sentence it hands over can be read",
+  );
+
+  const lesson = code("lib/collections/lesson.ts");
+
+  /*
+    The pairing rather than either half: `usable` is where a sentence is held
+    to the unit's declaration and to what the learner has met, so a builder
+    that walks `word.examples` itself is a builder outside the rule. Anchored
+    on the call, because a builder can import the rule and go on using its own
+    list, which is the fault this file keeps finding in its own checks.
+  */
+  for (const builder of ["function gapStep(", "function buildStep("]) {
+    const body = lesson.slice(lesson.indexOf(builder), lesson.indexOf("\n}", lesson.indexOf(builder)));
+    assert.ok(body.length > 0, `lesson.ts no longer has ${builder}`);
+    assert.match(body, /usable\(word, rules\)/, `${builder} reaches a sentence without asking which are readable`);
+    assert.doesNotMatch(body, /word\.examples/, `${builder} walks the word's sentences itself, past the readable rule`);
+  }
+  assert.match(
+    lesson,
+    /const usable[^;]*rules\.maySentence[\s\S]{0,120}rules\.readable/,
+    "the one gate on a lesson's sentences stopped reading the unit's declaration or what the learner has met",
+  );
+
+  /*
+    Required and nullable, so a caller that cannot say what the course has
+    taught says so rather than being read as "everything". Optional is the one
+    edit that puts the fault back in silence, on a compiler that would say
+    nothing about it.
+  */
+  assert.match(
+    read("lib/collections/lesson.ts"),
+    /\n {2}taughtWords: ReadonlySet<string> \| null;/,
+    "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
 });
 

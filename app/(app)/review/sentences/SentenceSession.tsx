@@ -45,7 +45,19 @@ const PREVIEW_MS = 4500;
  * - **Without one** — the sentence is shown for a few seconds, then scrambled.
  *   Weaker, and honest about being a recall drill rather than a translation.
  */
-export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[] }) {
+export function SentenceSession(
+  { tasks: initialTasks, opensAt }: {
+    tasks: SentenceTask[];
+    /**
+     * The band this round opens at, where the learner has not reached it.
+     *
+     * A failure may not misname its cause: an empty round for somebody below
+     * `BUILD_FROM` is not a thin deck, and sending them to the dictionary to
+     * add words would have them fixing something that is not broken.
+     */
+    opensAt?: string;
+  },
+) {
   const uiText = useUiText();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
@@ -150,11 +162,19 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   if (initialTasks.length === 0) {
     return (
       <Page title="Sentences" lead="Put real Estonian sentences back in order.">
-        <Empty
-          title="No sentences to build yet"
-          body="Sentences are linked to words already in your deck."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
-        />
+        {opensAt ? (
+          <Empty
+            title={`This one opens at ${opensAt}`}
+            body="Word order comes after the words themselves. Keep learning and it will be here."
+            action={<ButtonLink href="/learn" variant="primary">Carry on learning</ButtonLink>}
+          />
+        ) : (
+          <Empty
+            title="No sentences to build yet"
+            body="Sentences are linked to words already in your deck."
+            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          />
+        )}
       </Page>
     );
   }

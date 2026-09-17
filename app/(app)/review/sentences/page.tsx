@@ -4,6 +4,8 @@ import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { isBuildable, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { SentenceSession, type SentenceTask } from "./SentenceSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { courseLevelFor } from "@/lib/progress/level";
+import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
 
 export const metadata = { title: "Sentences" };
 
@@ -26,6 +28,24 @@ const ROUND = 8;
  */
 export default async function SentencesPage() {
   const ownerId = await requireUserId();
+
+  /*
+    WORD ORDERING IS A2 AND ABOVE, HERE AS WELL AS IN A LESSON.
+
+    The unit lesson stopped asking a beginner to order a sentence and this
+    round, which is the same exercise reached from Practice, went on doing it:
+    it draws from the learner's own deck, so an A1 learner with thirteen words
+    in it was handed `Palun võta veel üks komm. – Aitäh!` as six tiles, five of
+    them words the course had not taught. `maySortWords` is the one answer to
+    which bands are asked at all, so the round and the lesson cannot disagree.
+
+    Answered before the query rather than after it: there is nothing to draw
+    from a deck for somebody this round is not for, and the reason travels with
+    the empty state, because "no sentences to build yet" would send them to the
+    dictionary to fix something that is not broken.
+  */
+  const level = await courseLevelFor(ownerId);
+  if (!maySortWords(level)) return <SentenceSession tasks={[]} opensAt={BUILD_FROM} />;
 
   const cards = await prisma.card.findMany({
     /*

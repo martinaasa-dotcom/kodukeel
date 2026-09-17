@@ -3458,6 +3458,193 @@ the grammar reference did, since every lesson at a level would then draw its dec
 sixty words at the front of the alphabet. The window starts where the unit points, which is the
 answer `paperFor` had already reached one file over.
 
+**A beginner is never asked about a word the course has not taught them, and putting a sentence in
+order is not a beginner's question at all.** `lib/collections/lesson.ts` has said since it was
+written that nothing is asked before it is taught, and that rule was about the word a step is
+*about*: it said nothing about the words standing around it. An Ekilex usage is written to
+illustrate a headword rather than to be somebody's first reading, so the first unit of the course,
+whose own blurb reads "Thirteen words, said alone. Nothing here is a sentence yet", put
+`Palun võta veel üks komm. – Aitäh!` on the screen as a six-tile ordering puzzle with five of the
+six words never shown to anybody. It was reported by somebody using it. Measured over the whole
+course at one lesson a sitting, 152 of the 162 word-ordering steps at A1 and 188 of the 210
+gap-fills carried a word the course had not reached, and none of either does now.
+
+**Word ordering starts at `BUILD_FROM`, which is A2, on both screens that ask it.** Ordering words is a question about syntax and
+the first units teach words said alone, so at A1 the exercise degenerates into shuffling tiles until
+the button goes green; it is also the one exercise where every word has to be handled rather than
+read past, so it is the one an unfamiliar word costs most. **And at A1 a sentence exercise is offered
+only where the course has taught every word in it**, which is `LessonInput.taughtWords`: the lemmas
+and stored forms of every unit up to and including this one, in the course's own teaching order.
+Taught *so far* rather than anywhere at the level, because `veel`, `üks` and `palun` are all A1 words
+and a learner on unit one has met none of them, and cut at the **sitting** rather than at the unit,
+since every unit in the course splits into more than one lesson and crediting the whole of one would
+let lesson 1 gap a sentence holding a word lesson 3 introduces. It is the *course's* order rather
+than this learner's history, which is the weaker of the two claims and is deliberate: the stronger
+one is a query over their own review log per lesson, which is a fact about a person and could not be
+cached across learners, and a unit at or below somebody's level is open whatever they have done. Where
+the two differ this one is the more permissive, so it is the direction to watch if the rule ever needs
+tightening. It is **required and nullable** for the reason
+`illSgShort` is required on `NounStems`: a caller that cannot say what the course has taught says so,
+and at A1 that means no sentence exercise rather than any sentence at all. Above A1 nothing is
+gated, because meeting an unfamiliar word inside a sentence is how reading grows and a B1 learner
+has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 gap-fills; what is
+left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
+can actually read.
+
+**And the deck's own cards were left alone, which is a decision with a number under it.** The rule
+was put to the review step, which is the last thing every evening does, and measured before it was
+applied: at A1 it takes gap-fill cards from 786 to 51, conjugation from 72 to 5, and **case cards
+from 111 to nought**. No budget of unfamiliar words rescues them either, since allowing three still
+loses 41% of the case cards and a beginner sentence with three unknown words in it is not readable
+by any reading of the word. Case drilling is the spine of this course, so a rule that deletes it at
+A1 is a rule that has stopped serving what it was written for.
+
+What separates a card from the exercises above is what the learner is asked to do with the sentence.
+A word-ordering puzzle makes them handle every tile; a gap-fill card names the word, names the
+question and asks for one form of a word they have been taught, which they can answer without
+reading past the blank. So the line is **what the module newly shows** rather than everything it
+puts on a screen: the lesson, the ladder's gap rung and word ordering are held to the rule, and the
+spaced-repetition deck is not. The operator drew that line and this paragraph is where it is written
+down, so it is not re-litigated by whoever next reads the strict version of rule 4.
+
+**The cause is the supply, not the rule, and `npm run audit:readable` is where the work list is.**
+An Ekilex usage is written to illustrate a headword rather than to be a beginner's first reading, so
+of the 464 A1 words the dictionary can cut a gap from at all, **53** have a sentence made only of
+words the course has taught by then. The fix is sentences a native speaker writes, which is what
+`docs/20-contributed-sentences.md` is already the channel for, and the audit prints the ranked list
+of what blocks a sentence rather than only the total, for the reason `eval:scene` does: a rate says
+there is a problem and a list says what it is.
+
+**And 53 is the unit lesson's number, which is not the number the rule is drawn for.** That walk
+credits everything an earlier unit taught *and the rest of the unit in hand*, so it is the most
+permissive of the readings and its total is an upper bound; the lesson cuts at the sitting and the
+module cuts at the evening. Walking the module's own evenings through `taughtThrough`, which is what
+`app/(app)/course/learn/page.tsx` hands the ladder, the answer is **49 of 464**. So the audit walks
+both and ranks the blockers off the module's, since that is the work list for the thing the operator
+asked to be held to the rule and a list built off the looser walk under-reports exactly the
+sentences a beginner's evening cannot use.
+
+**And a `Programme` is one part of seventeen, which made that number 3 for a day.** Both the ladder
+and the audit read `wordsThrough`, which answers about the part in hand, so a learner on the first
+evening of a1.5 was credited with eight words where the programme had handed them 394, and the rule
+refused nearly every sentence somebody deep in A1 can read: 3 of 464 against 49. `taughtThrough`
+walks the ladder and is the one both read, `wordsThrough` keeps the per-part meaning the milestone
+bar wants, and the invariant names the fault rather than the call, because the two read identically
+at a glance and only one of them is a fact about the learner. **The measurement was wrong in the
+direction that flattered the diagnosis**: it reported the supply as the whole problem and produced a
+top blocker that was an artifact, which is the argument for reading the ranked list against the app's
+own walk rather than any walk that looks close enough.
+
+**And the ranked list's first entry is the argument for reading it rather than the total.** On both
+walks it is `ja`, blocking nine sentences on the module's own and ten on the unit's, taught in
+`sidesonad`, the twenty-second of A1's twenty-seven units, so teaching one conjunction earlier is
+worth more than writing nine sentences. `ta`, `pluss`, `tule`, `ära` and `klassi` are the same
+shape one rank down. **`on` is not on the list at all**, and the version of this paragraph that led
+with it, recommending `olema` be moved to the front of A1 on the strength of eighteen blocked
+sentences, was reading the per-part fault above rather than the course: `olema` is taught in a1.2 and
+counts from a1.3 on. Read the list, and read it off a run of the script rather than off this
+paragraph.
+
+**And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
+special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
+`euro`, and the ladder already knows what that costs: `free` sends such a word straight past the
+choice rung, whose four options would include its own spelling, to the gap. With the gap gone at A1
+that jump has nowhere to land, so `euro`, the one of the three that had a readable-shaped gap at
+all, now sits on the choice rung with the answer among the options; `number` and `park` never had a
+gap and were in that state before any of this. It is one word of 493, it shrinks rather than grows
+as contributed sentences land, and the two ways out are both worse than saying it: carving the
+readability rule open for the words that need it least, or inventing a question the dictionary
+cannot support.
+
+**What is still outside the rule and is named rather than hidden**: dictation and the picture round
+stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
+for every word of it typed; and the grammar page a day reads prints attested examples. Each is a
+screen the module schedules, so each is a candidate for the same treatment, and each would need a
+replacement round or a thinner grammar page first, which is a change to what the course teaches
+rather than to what a beginner is protected from.
+
+**And the conjugation round tops up from the dictionary, which is the fourth and is the one this
+pass introduced.** `/review/conjugation` prefers the learner's own verbs and fills the rest of the
+eight from the dictionary at their band, which is right on a round somebody opened from Practice and
+is a word the course has not taught on a round the module scheduled. Measured over every A1 evening
+that draws it, 14 of the 28 have no verb in the programme at all by then, because `pohiverbid` is the
+eighth unit and four of the five A1 parts reach their third conjugation evening before any verb:
+every table in those rounds is a verb nobody has met. The slot it took held `sentences`, which drew
+from the deck alone, so this is a real narrowing bought with a larger one, and it is written down
+rather than traded away because every other drill A1 rotates through puts a whole sentence in front
+of a beginner instead. What would fix it is the round preferring to say it has nothing rather than
+reaching past the deck, and that is a change to a screen a learner also walks to themselves, which is
+the line the operator drew.
+
+**The planned module is held to the rule whole, and everything else a learner walks to themselves is
+not.** That is the line the operator drew and it is the one the code draws: what the module chose for
+them has to be answerable, and a round they opened from Practice is their own difficulty to pick. So
+the module's ladder hands `learnBatch` the words `wordsThrough` says the programme has given them
+through the day they are on, and its gap rung cuts only a sentence made of those; standalone Learn
+passes nothing and is untouched. `readableFor` in `lib/collections/levels.ts` is the one definition of
+whether a sentence may be shown, and **its readers are a closed list of two**, the unit lesson and
+the ladder, each with a reason beside it. What is outside it is the decision rather than the
+oversight, so a third reader fails until somebody says which side of the line it is on: its own
+header claimed five surfaces asked it while two did, and three of the five it named were the deck,
+dictation and the flash round, which are exactly the ones deliberately left out. A reader who
+trusted that sentence would have concluded a beginner's case drilling was already gated.
+
+**And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
+Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the
+sentence off the *meet* rung as well: measured over every A1 evening of the programme, 478 of the 493
+words had a sentence to be met with and 5 had one afterwards, so the first screen of a beginner's
+every evening would have read "No example sentence for this one yet" about words that have several,
+which is the exact argument the lesson's own carve-out makes one file over. Nothing is asked at a
+meeting and the word and its meaning are printed directly above the sentence; the gap rung is the one
+that hands somebody a sentence and waits. So the sentence is chosen the way it always was, one
+sentence for both rungs, and the gap is built only where that sentence is readable. A readable one is
+**preferred** when there is a choice, which buys nothing today and is still the right way round:
+not one of those five can carry a gap in the form the meet rung showed, so the A1 gap rung is empty
+either way until `npm run audit:readable`'s list is written down as sentences, and the preference is
+what makes a contributed sentence count the day it lands. Two invariant arms, because either alone
+passes on the broken shape, and both were made to fail on the real lines.
+
+**And the module may not schedule a round its own learner is not given.** `sentences` sat in the A1
+rotation, so taking word ordering out of the lesson left the module sending a beginner to a screen
+that answers with the band it opens at. `conjugation` takes the slot and is the one drill in the
+table that is a table rather than a sentence: it gives the first person and asks for the others, two
+A1 units declare `CONJUGATION`, and it is already what a verb-heavy day is pinned to. **Every other
+A1 drill is built on a sentence** (dictation reads one out, describe answers with one, government and
+write drill inside one), which is §29's finding arriving in the rotation: at A1 the course's own
+attested sentences are mostly unreadable to the learner, so a drill built on one is thin there
+whatever it is called.
+
+**Two screens put a sentence up as tiles and the rule has to reach both.** The lesson's `build` step
+is one; `/review/sentences`, titled "Sentences · Word order" on Practice, is the other, and it draws
+straight from the learner's own deck with no band in it at all, so taking the exercise out of the
+lesson left an A1 learner one press away from the same six tiles. `BUILD_FROM` and `maySortWords`
+live in `lib/collections/levels.ts` for that reason rather than beside either of them, both read it,
+and the pairing is asserted. The round answers before it queries, since there is nothing to draw from
+a deck for somebody it is not for, and **the empty state says which**: "no sentences to build yet"
+would send a beginner to the dictionary to fix something that is not broken, which is the rule about
+a failure never misnaming its cause.
+
+**And a lesson asks only what its unit says it teaches.** `cardTypes` is the unit author's own
+declaration and the flashcard builder has read it for as long as it has existed; the lesson planner
+never did, so `vastused`, which names `RECOGNITION` and `PRODUCTION` and nothing else, was getting
+gap-fills, a word-ordering puzzle and a case question anyway. Four units in the whole course declare
+no `CLOZE` and all four are at A1, so holding a sentence exercise to that declaration costs 55 steps
+and every one of them is a beginner handed a sentence their unit said it was not teaching yet. The
+case and government questions read the declaration **at A1 alone**, and that asymmetry is measured
+rather than tidy: holding a case question to `CASE_FORM` everywhere would take all 84 of C1's, and a
+government question to `GOVERNMENT` nearly every one in the course, since only four units declare it.
+Those are changes to what the course teaches rather than to what a beginner is protected from.
+
+What this does **not** reach is the meeting step, which also shows an attested sentence: nothing is
+asked there, the word and its meaning are printed directly above it, and withholding it would open a
+beginner's first screens with "No example sentence for this one yet" about words that have several.
+What that sentence is missing is the dictionary under its words, which `lib/dict/glossed.ts` already
+puts under the review card's first meeting and this screen does not. And the cost is stated rather
+than hidden: at A1 the practice lane is thinner for it, since `kodu` practised two ways in a sentence
+and once with a case before this and practises six times with a case after it. That is the material
+being thin rather than the lane being wrong, it is the case the unit declared it teaches, and the
+alternative is the sentence the learner cannot read.
+
 **A day is the learner's day, and every screen that counts one is rendered on a server.** The
 streak, the daily goal, the week strip, the heatmap and the errand of the day are all derived
 server-side, and a server's midnight is the deployment's. `lib/time/day.ts`
@@ -8128,6 +8315,7 @@ npm run audit:cases      # derive every case of every noun, both columns, and co
 npm run audit:senses     # re-check every course gloss against the sense Ekilex files it under
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
+npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
