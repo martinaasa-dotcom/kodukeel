@@ -113,40 +113,54 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
     arrivedAt.current = focus.stepId;
 
     /*
-      AND IT WAITS FOR THE HEADING, BECAUSE THE ADDRESS CHANGES FIRST.
+      AND WHICH HEADING IS THE NEW ONE CANNOT BE DECIDED BY ELEMENT ALONE.
 
-      This bar is in the shell, so it hears the new step the moment the URL
-      commits, and the page under it lands in a later one. Traced across a
-      press: the old heading was gone, a mutation arrived with no `h1` in
-      `#main` at all, and the new one turned up after that. A single
-      `querySelector` here found nothing and returned, which left focus on the
-      body and looked exactly like an effect that had never been written. That
-      is the silence this repository has a rule about, so it is waited for
-      rather than sampled.
+      The bar hears the new step from `useSearchParams`, and which commit the
+      page under it lands in is not ours to decide: on one press the old
+      heading is still standing and the new tree arrives frames later, and on
+      the next the address and the content commit together, so the heading in
+      `#main` is already the new step's before this effect has run.
 
-      `was` is whatever heading is there when the step changes, and the wait is
-      for a different one: on a machine that keeps the old tree through the
-      transition, taking the first `h1` it sees would move the caret to the
-      screen the learner is leaving.
+      The first version read the heading present at that moment as the old one
+      and waited for a different element. Where the two commit together that
+      element never arrives, the wait ran out of frames, and the caret stayed
+      on the body: green on one run of `scripts/test-module.mjs` and red on
+      the next with the code untouched, which is a race rather than a flake.
+      Taking the first heading it sees is the same fault pointed the other way,
+      and moves the caret to the screen the learner is leaving.
+
+      So a heading that replaces the one standing at the press is the new step
+      and is announced the moment it lands, and where nothing replaces it the
+      one standing was already the new step's and is announced at the end of
+      the window. One announcement either way, always of the screen the learner
+      ended up on, whichever order the two commits land in.
     */
-    const was = document.querySelector("#main h1");
     let frames = 0;
     let raf = 0;
-    const settle = () => {
-      const heading = document.querySelector<HTMLElement>("#main h1");
-      if (!heading || heading === was) {
-        /* About a second at sixty frames, after which the step genuinely has
-           no heading and there is nothing to hand the caret to. */
-        if (frames++ > 60) return;
-        raf = requestAnimationFrame(settle);
-        return;
-      }
-      /* A heading is not focusable on its own, and a permanent `tabindex` would
-         put it in the tab order of a page nobody navigated to. Taken off again
-         once it has been read, which is the shape every skip link takes. */
+    /* A heading is not focusable on its own, and a permanent `tabindex` would
+       put it in the tab order of a page nobody navigated to. Taken off again
+       once it has been read, which is the shape every skip link takes. */
+    const announce = (heading: HTMLElement) => {
       heading.setAttribute("tabindex", "-1");
       heading.focus({ preventScroll: true });
       heading.addEventListener("blur", () => heading.removeAttribute("tabindex"), { once: true });
+    };
+    const was = document.querySelector("#main h1");
+    const settle = () => {
+      const heading = document.querySelector<HTMLElement>("#main h1");
+      if (heading && heading !== was) { announce(heading); return; }
+      /* About a second at sixty frames, after which the screen and the address
+         landed together and the heading standing is the one to read out. */
+      if (frames++ <= 60) { raf = requestAnimationFrame(settle); return; }
+      const settled = document.querySelector<HTMLElement>("#main h1");
+      /* Unless the learner has started on the new screen, in which case they
+         have the caret and are not to be interrupted a second after arriving.
+         The press they came in on does not count: that button is in this bar,
+         and measured across a navigation it is the body that holds the caret
+         afterwards anyway. */
+      const onTheScreen = document.activeElement instanceof HTMLElement
+        && document.getElementById("main")?.contains(document.activeElement);
+      if (settled && !onTheScreen) announce(settled);
     };
     raf = requestAnimationFrame(settle);
     return () => cancelAnimationFrame(raf);
