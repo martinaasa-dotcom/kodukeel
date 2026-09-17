@@ -1,6 +1,9 @@
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { caseByKey } from "./cases";
-import { caseFits, caseQuestionFor, type CaseSubject } from "./caseQuestion";
+import {
+  asksAboutPerson, caseFits, caseIsUnsaidFor, caseQuestionFor, type CaseSubject,
+} from "./caseQuestion";
+import { caseReading } from "./caseReading";
 import { buildCaseTable, followsEndingRule, type DerivedForm, type NounStems } from "./derive";
 import type { CaseKey } from "./types";
 
@@ -22,8 +25,11 @@ import type { CaseKey } from "./types";
  * NOTHING HERE IS WRITTEN AND NOTHING HERE IS GENERATED. The forms come out of
  * `buildCaseTable`, which is the function the dictionary entry and the
  * flashcard builder use; the sentences are ones a lexicographer recorded; and
- * the English about a case lives in `lib/estonian/grammar.ts`, which the screen
- * reads for itself. This module holds no Estonian of its own at all (ADR-005).
+ * the prose explaining a case lives in `lib/estonian/grammar.ts`, which the
+ * screen reads for itself. The one thing composed here is English: a row
+ * carries what the word means wearing that ending, out of a frame per case and
+ * the entry's own gloss (`lib/estonian/caseReading.ts`). This module holds no
+ * Estonian of its own at all (ADR-005).
  */
 
 /** One of the eleven, for one word. */
@@ -33,6 +39,18 @@ export interface WalkForm {
   readonly suffix: string;
   /** The question *this word* answers with this case, pronoun only. */
   readonly question: string;
+  /**
+   * This word in this case, in plain English, or null where nothing fits.
+   *
+   * The half a learner can cash in the moment the ending arrives. `raamatult`
+   * is a word the screen has just built out of two pieces and "off the book"
+   * is what it means; the case's own explanation, four lines down, is about
+   * the ending rather than about the word. Composed here rather than on the
+   * screen because this is the module holding both halves of it, the word's
+   * gloss and what the Institute says the word is, and the screen holding
+   * neither. See `lib/estonian/caseReading.ts` for what is refused and why.
+   */
+  readonly reading: string | null;
   /** The form to print. */
   readonly value: string;
   /** The other spelling that is also right, where Estonian has one. */
@@ -44,6 +62,42 @@ export interface WalkForm {
    * not follow.
    */
   readonly stored: boolean;
+  /**
+   * Why the language does not put this word in this case, or null where it does.
+   *
+   * `caseIsUnsaidFor`, which is the deleter's question rather than the
+   * builder's and asks for positive evidence: `mehes` is a form nobody says
+   * and `toale` is ordinary Estonian the builder happens not to choose for a
+   * room. Deliberately **not** the negation of `askable`, which is false for
+   * the three that are stored and for `tuppa`, a form people very much say.
+   *
+   * The row is still shown, because a table of forms is a reference. What the
+   * screen owes it is a sentence, and until this existed it had none: the card
+   * built `mehes`, printed "Being inside something, and being in a month or a
+   * mood" under it, and left a learner to conclude that is how you say it.
+   * That is the fault `lib/estonian/caseQuestion.ts` was written for, standing
+   * on the one screen whose whole job is explaining the case system.
+   *
+   * TWO REASONS, AND THE SENTENCE HAS TO BE TRUE OF BOTH. `caseIsUnsaidFor`
+   * fires for a word the Institute calls a person and for a lemma ending in
+   * `-maa`, which is a country, an island or a county. The first version of
+   * the line said "Estonian puts a person on the endings under On top", which
+   * is false about Germany: the same fault as the osastav reading a commit
+   * earlier, committed inside the fix for it.
+   *
+   * So the row says which, and `"other"` is deliberately not "a place". What
+   * is *known* here is that the word is not a person, since `asksAboutPerson`
+   * is the owner's own answer; that it is therefore a `-maa` word is an
+   * inference off `caseIsUnsaidFor` having exactly two disjuncts today, and an
+   * inference the screen would keep making silently if a third were added. The
+   * copy behind `"other"` names no class for that reason, so a third reason
+   * degrades to a sentence that is still true rather than to a wrong one.
+   *
+   * `caseIsUnsaidFor` itself is untouched: it decides what `npm run
+   * audit:decks --write` removes from a learner's deck, and nothing about a
+   * line of English is worth reshaping that.
+   */
+  readonly unsaid: "person" | "other" | null;
   /**
    * May the screen ask a learner to produce this form?
    *
@@ -101,9 +155,13 @@ export function toWalkWord(
       key: spec.key,
       suffix: spec.suffix,
       question: caseQuestionFor(spec, subject),
+      reading: translation ? caseReading(spec.key, translation, subject) : null,
       value,
       alsoRight: form.alsoRight,
       stored,
+      unsaid: caseIsUnsaidFor(spec.key, subject)
+        ? (asksAboutPerson(subject) ? "person" : "other")
+        : null,
       askable: !spec.principal && !stored && caseFits(spec.key, subject),
       sentence: found
         ? { et: found.et, en: found.en ?? null, form: value, lemma: null, translation: null }

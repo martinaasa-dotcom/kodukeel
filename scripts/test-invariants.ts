@@ -1442,6 +1442,99 @@ check("the module that writes about Estonian holds no Estonian", () => {
   assert.deepEqual(offenders, [], "an Estonian form is written into the grammar prose");
 });
 
+/**
+ * AND THE WORD THAT WAS JUST BUILT SAYS WHAT IT MEANS, OUT OF ONE TABLE.
+ *
+ * A learner reading `/grammar/build-a-word` watched `raamatu + -lt =
+ * raamatult` arrive and had to read four lines down, under a heading saying
+ * "off, and from a person", to find any English near it. That heading is a
+ * fact about the ending; what somebody watching an ending arrive wants is what
+ * the word now means, which is "off the book".
+ *
+ * `lib/estonian/caseReading.ts` composes it out of a frame per case and the
+ * entry's own gloss, and the three things that keep it honest are asserted
+ * here rather than described. It holds no Estonian, like `grammar.ts` above
+ * and for its reason. It is the one place a frame lives, so a screen cannot
+ * grow a second reading of the same ending. And the screen is handed the
+ * phrase rather than composing one, since the two halves it would need, what
+ * the Institute says the word is and what the gloss says it means, both live
+ * in the module that builds the row.
+ */
+check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
+  const table = "lib/estonian/caseReading.ts";
+  assert.ok(existsSync(table), "the case readings have gone");
+  assert.doesNotMatch(
+    code(table),
+    /[õäöüšž]/i,
+    "the module that says what a built word means has started writing Estonian",
+  );
+  /*
+    And what a semantic code *means* is still `caseQuestion.ts`'s to decide,
+    which is the pair the check above this file's own header names. A frame
+    table reading the column itself would be a second rule about which words
+    are people, which is how the wrong trio reached eight generators.
+  */
+  assert.doesNotMatch(
+    code(table),
+    /semanticTypes|isAnimate\(/,
+    "the frame table decides for itself which words are people",
+  );
+  /*
+    One reader, and it is the module that builds the row. A screen composing
+    its own would be a second answer to what an ending means in English, drawn
+    beside the first.
+  */
+  const readers = ["app", "lib", "components"]
+    .flatMap((dir) => sourceFiles(dir))
+    .filter((file) => file !== table && !/\.i?test\.tsx?$/.test(file))
+    .filter((file) => /caseReading\(/.test(code(file)));
+  assert.deepEqual(
+    readers,
+    ["lib/estonian/caseBuild.ts"],
+    "a second module composes what a word in a case means in English",
+  );
+  /*
+    And the screen draws it, on the act that builds the word and on the act
+    that explains the three that are stored. Anchored on the element rather
+    than on the field, for the reason `DangerZone.tsx` is: a component that is
+    complete, commented and rendered by nothing is a feature nobody has, and a
+    check reading the field would pass on a screen that carries the phrase in
+    `data-reading` for a suite and prints it to nobody.
+
+    Whether what is drawn is the phrase is a question for a browser, and
+    `scripts/test-teaching.mjs` asks it: the text under the build line has to
+    be the reading the line says it is.
+  */
+  const screen = code("app/(app)/grammar/build-a-word/BuildWalk.tsx");
+  assert.equal(
+    (screen.match(/<Reading\b/g) ?? []).length,
+    2,
+    "the screen that builds a word stopped drawing what the word it built means",
+  );
+  /*
+    AND A ROW WITH NO READING BECAUSE NOBODY SAYS THE FORM SAYS SO.
+
+    The card draws all eleven, which is right, and three of them on a person
+    are forms the app's own `caseFits` refuses to drill. Before this they were
+    drawn under "Being inside something, and being in a month or a mood" with
+    nothing saying Estonian puts a person on the other set, so the one screen
+    whose job is explaining the system was teaching `mehes`. A blank where the
+    reading goes is the shape that fault takes now, so the blank is what is
+    checked against: the row carries the reason.
+  */
+  assert.match(
+    code("lib/estonian/caseBuild.ts"),
+    /caseIsUnsaidFor\(/,
+    "a row no longer knows whether the language puts the word in that case at all",
+  );
+  assert.match(
+    screen,
+    /of\.unsaid/,
+    "the screen draws a form nobody says with no word about why, which is what it did before "
+    + "`caseFits` reached it",
+  );
+});
+
 check("Anu's worked examples are sourced from a table the dictionary checks", () => {
   /*
     `lib/estonian/grammar.ts` holds no Estonian at all, checked above.

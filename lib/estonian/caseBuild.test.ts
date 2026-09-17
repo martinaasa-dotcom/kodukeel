@@ -62,6 +62,57 @@ describe("toWalkWord", () => {
     expect(rowFor("raamat", "ADESSIVE").question).toBe("millel?");
   });
 
+  it("carries what the word means wearing each ending", () => {
+    // The half a learner can cash in the moment the ending arrives. The
+    // frames are lib/estonian/caseReading.ts; what is checked here is that a
+    // row is handed one, and handed the reading for the kind of word it is.
+    const row = (lemma: string, gloss: string, key: string) =>
+      toWalkWord(lemma, gloss, stems(lemma), subject(lemma), [])
+        .derived.find((f) => f.key === key)!;
+    expect(row("raamat", "book", "ABLATIVE").reading).toBe("off the book");
+    expect(row("mees", "man, husband", "ABLATIVE").reading).toBe("from the man");
+    expect(row("mees", "man, husband", "INESSIVE").reading).toBeNull();
+  });
+
+  it("marks the rows the language does not put the word in", () => {
+    /*
+      The card draws all eleven and three of them are forms nobody says, so
+      what the row owes the reader is the reason rather than a blank. Not the
+      negation of `askable`: that is false for a stored form too, and `tuppa`
+      is very much said.
+    */
+    expect(rowFor("mees", "INESSIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ILLATIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ELATIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ADESSIVE").unsaid).toBeNull();
+    // `toale` is ordinary Estonian the builder happens not to choose for a
+    // room, so it is never called unsaid; `tuppa` is stored and is said.
+    expect(rowFor("tuba", "ALLATIVE").unsaid).toBeNull();
+    expect(rowFor("tuba", "ILLATIVE").unsaid).toBeNull();
+    expect(rowFor("tuba", "ILLATIVE").askable).toBe(false);
+  });
+
+  it("does not call a country a person, which the first line of copy did", () => {
+    /*
+      `caseIsUnsaidFor` fires for two reasons and the sentence has to be true
+      of both: a lemma ending in `-maa` is a country, an island or a county
+      rather than somebody. No demo word is one, so the stems are borrowed and
+      only the subject is the point here; `unsaid` reads the key and the
+      subject and nothing else.
+    */
+    const country: CaseSubject = { lemma: "Saksamaa", semanticTypes: "koht_riik", nomSg: "Saksamaa" };
+    const row = toWalkWord("Saksamaa", "germany", stems("raamat"), country, [])
+      .derived.find((f) => f.key === "INESSIVE")!;
+    expect(row.unsaid).toBe("other");
+  });
+
+  it("says nothing about meaning where the dictionary gave no gloss", () => {
+    // The seeded stems carry no gloss, because a gloss invented beside them
+    // would be the one authored column written by the wrong hand. The screen
+    // prints nothing where there is nothing.
+    expect(rowFor("raamat", "INESSIVE").reading).toBeNull();
+  });
+
   it("never asks for one of the three that are stored", () => {
     for (const form of walk("raamat").principal) expect(form.askable).toBe(false);
   });
