@@ -1,6 +1,8 @@
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { caseByKey } from "./cases";
-import { caseFits, caseIsUnsaidFor, caseQuestionFor, type CaseSubject } from "./caseQuestion";
+import {
+  asksAboutPerson, caseFits, caseIsUnsaidFor, caseQuestionFor, type CaseSubject,
+} from "./caseQuestion";
 import { caseReading } from "./caseReading";
 import { buildCaseTable, followsEndingRule, type DerivedForm, type NounStems } from "./derive";
 import type { CaseKey } from "./types";
@@ -61,22 +63,41 @@ export interface WalkForm {
    */
   readonly stored: boolean;
   /**
-   * Does the language simply not put this word in this case?
+   * Why the language does not put this word in this case, or null where it does.
    *
    * `caseIsUnsaidFor`, which is the deleter's question rather than the
-   * builder's and asks for positive evidence: `mehes` is a form nobody says,
+   * builder's and asks for positive evidence: `mehes` is a form nobody says
    * and `toale` is ordinary Estonian the builder happens not to choose for a
-   * room. It is **not** the negation of `askable`, which is false for the three
-   * that are stored and for the one word in five whose form no rule reaches.
+   * room. Deliberately **not** the negation of `askable`, which is false for
+   * the three that are stored and for `tuppa`, a form people very much say.
    *
    * The row is still shown, because a table of forms is a reference. What the
    * screen owes it is a sentence, and until this existed it had none: the card
    * built `mehes`, printed "Being inside something, and being in a month or a
-   * mood" under it, and left a learner to conclude that is how you say it. That
-   * is the fault `lib/estonian/caseQuestion.ts` was written for, standing on the
-   * one screen whose whole job is explaining the case system.
+   * mood" under it, and left a learner to conclude that is how you say it.
+   * That is the fault `lib/estonian/caseQuestion.ts` was written for, standing
+   * on the one screen whose whole job is explaining the case system.
+   *
+   * TWO REASONS, AND THE SENTENCE HAS TO BE TRUE OF BOTH. `caseIsUnsaidFor`
+   * fires for a word the Institute calls a person and for a lemma ending in
+   * `-maa`, which is a country, an island or a county. The first version of
+   * the line said "Estonian puts a person on the endings under On top", which
+   * is false about Germany: the same fault as the osastav reading a commit
+   * earlier, committed inside the fix for it.
+   *
+   * So the row says which, and `"other"` is deliberately not "a place". What
+   * is *known* here is that the word is not a person, since `asksAboutPerson`
+   * is the owner's own answer; that it is therefore a `-maa` word is an
+   * inference off `caseIsUnsaidFor` having exactly two disjuncts today, and an
+   * inference the screen would keep making silently if a third were added. The
+   * copy behind `"other"` names no class for that reason, so a third reason
+   * degrades to a sentence that is still true rather than to a wrong one.
+   *
+   * `caseIsUnsaidFor` itself is untouched: it decides what `npm run
+   * audit:decks --write` removes from a learner's deck, and nothing about a
+   * line of English is worth reshaping that.
    */
-  readonly unsaid: boolean;
+  readonly unsaid: "person" | "other" | null;
   /**
    * May the screen ask a learner to produce this form?
    *
@@ -138,7 +159,9 @@ export function toWalkWord(
       value,
       alsoRight: form.alsoRight,
       stored,
-      unsaid: caseIsUnsaidFor(spec.key, subject),
+      unsaid: caseIsUnsaidFor(spec.key, subject)
+        ? (asksAboutPerson(subject) ? "person" : "other")
+        : null,
       askable: !spec.principal && !stored && caseFits(spec.key, subject),
       sentence: found
         ? { et: found.et, en: found.en ?? null, form: value, lemma: null, translation: null }

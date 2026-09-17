@@ -399,9 +399,17 @@ function Reading({ of }: { of: WalkForm }) {
   */
   if (of.unsaid) {
     return (
-      <p className="mt-3 text-base" data-unsaid style={{ color: "var(--ink-2)" }}>
+      <p className="mt-3 text-base" data-unsaid={of.unsaid} style={{ color: "var(--ink-2)" }}>
         <span className="font-bold" style={{ color: "var(--ink)" }}>Nobody says this one.</span>{" "}
-        Estonian puts a person on the endings under “On top” instead.
+        {/*
+          "a person" only where the word is one. The row fires for a `-maa`
+          word too, which is a country rather than somebody, and the first
+          version of this line said "a person" about both: the osastav fault
+          one commit earlier, committed inside the fix for it. What is left
+          names no class, so it stays true whatever the reason turns out to be.
+        */}
+        Estonian puts {of.unsaid === "person" ? "a person" : "this word"} on the endings under{" "}
+        “On top” instead.
       </p>
     );
   }

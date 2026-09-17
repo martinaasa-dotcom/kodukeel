@@ -672,6 +672,17 @@ which is false for the three that are stored and for `tuppa`, a form people very
 points at "On top", which is the heading over those endings on the same screen, rather than naming
 them.
 
+**And the line it first carried was the same fault again, one commit later.** `caseIsUnsaidFor`
+fires for two reasons, a word the Institute calls a person and a lemma ending in `-maa`, and the
+sentence said "Estonian puts **a person** on the endings under On top", which is false about
+Germany. No demo word is a country, so nothing on the screen printed it and it would have shipped
+silently the day somebody widened the five. The row carries *which* reason now, and `"other"` is
+deliberately not "a place": what is known there is that the word is not a person, and that it is
+therefore a `-maa` word is an inference off that predicate having exactly two disjuncts today, so
+the copy behind it names no class and a third reason degrades to a sentence that is still true.
+`caseIsUnsaidFor` itself was left alone, because it decides what `npm run audit:decks --write`
+removes from a learner's deck and no line of English is worth reshaping that.
+
 **Three numbers, measured over the shipped dictionary rather than reasoned about.** A frame is
 built out of somebody else's English and the ways that goes wrong are countable, so they were
 counted rather than argued over. **74** first senses carry their own article, so `ameeriklane` is

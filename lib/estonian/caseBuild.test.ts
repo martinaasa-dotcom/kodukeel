@@ -81,15 +81,29 @@ describe("toWalkWord", () => {
       negation of `askable`: that is false for a stored form too, and `tuppa`
       is very much said.
     */
-    expect(rowFor("mees", "INESSIVE").unsaid).toBe(true);
-    expect(rowFor("mees", "ILLATIVE").unsaid).toBe(true);
-    expect(rowFor("mees", "ELATIVE").unsaid).toBe(true);
-    expect(rowFor("mees", "ADESSIVE").unsaid).toBe(false);
+    expect(rowFor("mees", "INESSIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ILLATIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ELATIVE").unsaid).toBe("person");
+    expect(rowFor("mees", "ADESSIVE").unsaid).toBeNull();
     // `toale` is ordinary Estonian the builder happens not to choose for a
     // room, so it is never called unsaid; `tuppa` is stored and is said.
-    expect(rowFor("tuba", "ALLATIVE").unsaid).toBe(false);
-    expect(rowFor("tuba", "ILLATIVE").unsaid).toBe(false);
+    expect(rowFor("tuba", "ALLATIVE").unsaid).toBeNull();
+    expect(rowFor("tuba", "ILLATIVE").unsaid).toBeNull();
     expect(rowFor("tuba", "ILLATIVE").askable).toBe(false);
+  });
+
+  it("does not call a country a person, which the first line of copy did", () => {
+    /*
+      `caseIsUnsaidFor` fires for two reasons and the sentence has to be true
+      of both: a lemma ending in `-maa` is a country, an island or a county
+      rather than somebody. No demo word is one, so the stems are borrowed and
+      only the subject is the point here; `unsaid` reads the key and the
+      subject and nothing else.
+    */
+    const country: CaseSubject = { lemma: "Saksamaa", semanticTypes: "koht_riik", nomSg: "Saksamaa" };
+    const row = toWalkWord("Saksamaa", "germany", stems("raamat"), country, [])
+      .derived.find((f) => f.key === "INESSIVE")!;
+    expect(row.unsaid).toBe("other");
   });
 
   it("says nothing about meaning where the dictionary gave no gloss", () => {
