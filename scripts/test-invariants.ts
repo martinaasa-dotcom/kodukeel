@@ -16977,6 +16977,32 @@ check("an order the writer did not choose is not a wrong order", () => {
   );
 
   /*
+    AND THE WORD IS NOT SHOUTED. The note names an Estonian word, and the one
+    round that sets this line in `label-xs` uppercases it, so `ette` would
+    reach the screen as `ETTE`. It is `Chip`'s `caseSensitive` rule one screen
+    over, and the one that put `-SSE` on a grammar card.
+  */
+  for (const file of markers) {
+    const body = code(file);
+    /*
+      The element the note is printed in, which is the window from the run of
+      markup before it. A sweep of the whole file would answer about whichever
+      other caption came first, which is what the first version of this did.
+    */
+    for (const at of [...body.matchAll(/orderVariantNote\(/g)].map((m) => m.index)) {
+      const around = body.slice(Math.max(0, at - 600), at);
+      const opened = around.lastIndexOf("<p");
+      if (opened < 0) continue;
+      const tag = around.slice(opened);
+      if (!/\blabel-xs\b/.test(tag)) continue;
+      assert.match(
+        tag, /textTransform/,
+        `${file} prints the word a learner moved in a class that uppercases it`,
+      );
+    }
+  }
+
+  /*
     The copy is one table, because it was three and they had drifted: the
     examination's "That is not the order the writer chose" was the honest
     wording of a marking that was wrong.

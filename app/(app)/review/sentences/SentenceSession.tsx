@@ -342,7 +342,15 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
 
           {checked && (
             <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
-              <p className="label-xs">
+              {/*
+                `label-xs` uppercases, and this line names an Estonian word
+                now: `ette` would reach the screen as `ETTE`, which is the
+                fault `Chip`'s own `caseSensitive` exists for and the one that
+                put `-SSE` on a grammar card. The weight and the size are what
+                the line wants; the transform is what it never wanted, since
+                this is a sentence rather than a caption.
+              */}
+              <p className="label-xs" style={{ textTransform: "none" }}>
                 {checked === "wrong" ? ORDER_WRONG
                   : <>{uiText("Õige!", "Correct!")} {variant === false ? ORDER_EXACT : orderVariantNote(variant)}</>}
               </p>
