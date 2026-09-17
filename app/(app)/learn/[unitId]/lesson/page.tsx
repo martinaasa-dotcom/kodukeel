@@ -9,8 +9,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { uiText } from "@/lib/copy/uiLanguage";
 import { planLesson, splitIntoLessons, type LessonWord } from "@/lib/collections/lesson";
 import { starredAmong } from "@/lib/progress/stars";
-import { parseExamples, usableExamples } from "@/lib/dict/examples";
-import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { parseExamples, teachableSentences } from "@/lib/dict/examples";
+import { nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
@@ -121,9 +121,10 @@ export default async function LessonPage({
       built out of `Nii ____ on öelda, et ..` or of a usage that leaves the
       answer standing beside the gap in its other spelling.
     */
-    examples: usableExamples(parseExamples(row.examples))
-      .filter((e) => naturalSentence(e.et, nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)])))
-      .map((e) => e.et),
+    examples: teachableSentences(
+      parseExamples(row.examples),
+      nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)]),
+    ).map((e) => e.et),
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
     ),

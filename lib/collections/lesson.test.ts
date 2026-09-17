@@ -177,6 +177,66 @@ describe("what a step is built from", () => {
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
 
+  /*
+    A STEP MAY NOT PRINT ITS OWN ANSWER, which is the rule `lib/srs/cards.ts`
+    and the flash round already hold and the lesson did not. The screen read
+    "The word is kindlasti (definitely), in the form the sentence needs" over
+    a gap wanting `kindlasti`: true of every adverb, and of the 616 course
+    words out of 1,354 whose own sentence carries them in the nominative.
+  */
+  it("never names the word in a gap's cue when the gap wants the word itself", () => {
+    // An adverb is the flat case: it has one spelling, so the cue can only be
+    // the meaning, and where the meaning spells it too the cue says nothing.
+    const surely: LessonWord = {
+      lexemeId: "lex-kindlasti", lemma: "kindlasti", gloss: "definitely", pos: "ADVERB",
+      examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
+      government: null, semanticTypes: null,
+    };
+    const steps = planLesson({ unit, words: [surely], distractors: DISTRACTORS, seed: 5 });
+    const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) {
+      expect(gap.answer.toLowerCase()).toBe("kindlasti");
+      expect(gap.cue).toBe("meaning");
+    }
+  });
+
+  it("keeps the word in the cue where the gap wants an inflected form", () => {
+    // The lemma is given deliberately: the question is the form, and the
+    // vocabulary is what the meet and choose steps already asked.
+    const room = noun("tuba", "room", {
+      examples: ["Ta istub toas ja loeb."],
+      parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" },
+    });
+    const steps = planLesson({ unit, words: [room], distractors: DISTRACTORS, seed: 5 });
+    const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
+    expect(gaps.length).toBeGreaterThan(0);
+    for (const gap of gaps) expect(gap.cue).toBe("word-and-meaning");
+  });
+
+  it("never asks for a case this word spells like its own lemma", () => {
+    // `kalli` plus `s` is `kallis` again, and the step prints `kallis` above
+    // the box. The next case along is free, so the word keeps its step.
+    const dear: LessonWord = {
+      lexemeId: "lex-kallis", lemma: "kallis", gloss: "dear, expensive", pos: "ADJECTIVE",
+      examples: [], parts: { NOM_SG: "kallis", GEN_SG: "kalli", PART_SG: "kallist" },
+      government: null, semanticTypes: null,
+    };
+    // Every seed from 1 to 30, because which case the step draws is a roll:
+    // with these distractors 17 and 30 are the two that reach the seesütlev,
+    // and a check that picked its own five seeds would have been green on the
+    // code this was written against.
+    for (let seed = 1; seed <= 30; seed++) {
+      const steps = planLesson({ unit, words: [dear], distractors: DISTRACTORS, seed });
+      for (const step of steps) {
+        if (step.kind !== "case") continue;
+        for (const form of step.answer.split(" / ")) {
+          expect(form.trim().toLowerCase(), `${seed}`).not.toBe("kallis");
+        }
+      }
+    }
+  });
+
   it("offers real words as wrong answers, never invented ones", () => {
     const real = new Set([...WORDS, ...DISTRACTORS].flatMap((w) => [w.lemma, w.gloss]));
     for (const step of plan()) {

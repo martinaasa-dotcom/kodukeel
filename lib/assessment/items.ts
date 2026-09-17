@@ -1,5 +1,5 @@
 import { CASES } from "@/lib/estonian/cases";
-import { buildCloze, ESTONIAN_WORD, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
+import { buildCloze, ESTONIAN_WORD, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { dictationWords } from "@/lib/estonian/dictation";
 import { CASE_NOTES } from "@/lib/estonian/grammar";
@@ -222,6 +222,38 @@ export interface Gap {
  * finished. So a sibling that is the answer's partner in that pair is dropped
  * rather than offered. It costs a distractor and it is the one ambiguity this
  * shape can actually be rid of.
+ *
+ * AND A THIRD, WHICH IS THE ANSWER PRINTED IN BOLD ABOVE THE BOX. The screen
+ * leads with the word and what it means (`WriteQuestion`), deliberately,
+ * because the question is the *form* and the vocabulary is not what a writing
+ * band is measuring. That holds right up until the sentence wants the
+ * dictionary form, and then the boldest thing on the screen is the string the
+ * learner types back: `Minu ____ ja ema elavad Tallinnas` over `isa`,
+ * `Rahulolev ____ on iga firma unistus` over `klient`. Measured over the
+ * shipped dictionary, 1,549 of 4,294 gappable words, 36 percent.
+ *
+ * A question nobody can get wrong is worse in a measurement than on a card,
+ * which this module already says about the meaning question it refuses for a
+ * word spelled the same in both languages. It is worse again here: writing is
+ * one of the three skills whose average is the learner's level, it is the
+ * noisiest of them because nothing floors a typed answer the way four options
+ * do, and a free mark inside a six-item band is most of the distance between
+ * two bands.
+ *
+ * So the loop passes over such a sentence and takes the next one that wants a
+ * real form. A word with nothing else to offer gets no writing item at all,
+ * which is what this function has always done for a word it cannot gap, and
+ * `buildPaper` refuses a task it cannot fill and reports the shortfall rather
+ * than padding the band.
+ *
+ * THE TEST IS THE WHOLE CUE AND NOT THE LEMMA, which `npm run audit:questions`
+ * is what found: written against the lemma alone it still let through `saun`,
+ * glossed "sauna", over a gap wanting `sauna`. The English is printed beside
+ * the word and answers the question just as completely, which is the same
+ * shape as the meaning question this module already refuses for a word spelled
+ * the same in both languages. It is the ladder `lib/srs/cards.ts` walks over
+ * `${lemma}, ${translation}`, asked once here because a writing item has no
+ * quieter rung to fall to.
  */
 export function gapFrom(word: WordRow): Gap | null {
   const forms = vouchedForms(word);
@@ -236,12 +268,18 @@ export function gapFrom(word: WordRow): Gap | null {
       .map((f) => f.toLowerCase()),
   );
 
+  // Exactly what `WriteQuestion` prints above the box.
+  const cue = `${word.lemma} ${word.translation}`;
+
   for (const example of word.examples) {
     const sentence = example.et.trim().replace(/\s+/g, " ");
     if (!gappable(sentence, openerFor(word))) continue;
 
     const cloze = buildCloze(sentence, forms);
     if (!cloze || cloze.index === 0) continue;
+    // See the header: the screen prints the word and what it means above the
+    // gap, so either of them spelling the answer makes the item a free mark.
+    if (mentions(cue, cloze.answer)) continue;
 
     const standing = new Set(
       [...cloze.text.matchAll(ESTONIAN_WORD)].map((m) => m[0].toLowerCase()),
