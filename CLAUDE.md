@@ -1473,8 +1473,18 @@ rather than gates: of the 521 words still shown something a beginner cannot read
 lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
 beginner keeps meeting, not the percentage.
 
-**Every surface that leads with one of a word's sentences is on the list, and three were missed the
-first time**: the printable worksheet, the dictionary entry and the government drill. The worksheet
+**Every surface that leads with one of a word's sentences is on the list, and it took three sweeps
+to find them all.** The first pass wired the card builders and called itself website wide. Reading
+every remaining `usableExamples` caller found the printable worksheet, the dictionary entry and the
+government drill. Reading `teachingSentence` and `sentenceContaining`, which is where the first two
+sweeps stopped, found four more, and one of them was the daily path: `app/(app)/review/cards.ts`
+builds the first meeting a review card shows, its own comment promises that `teachingSentence`
+introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
+Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
+the review card is every morning.** The grammar reference's case examples and the description
+game's model answer were the other two. The lesson to carry: a sweep over one entry point is a
+sweep with the other two missing, and the invariant names all eleven files rather than describing
+the rule. The worksheet
 is the one that cost most, since it is printed and worked through on paper and nobody can ask about
 a gap afterwards. They are worth naming because the shape of the miss is the one this file keeps
 finding in its own checks: a page handing the rank in and a builder ignoring it passes any check

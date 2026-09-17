@@ -1305,6 +1305,19 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "app/(app)/learn/[unitId]/worksheet/page.tsx": /sentenceReach\(\)/,
     "app/(app)/dictionary/page.tsx": /sentenceReach\(\)/,
     "app/(app)/review/government/page.tsx": /sentenceReach\(\)/,
+    /*
+      And the four found by sweeping `teachingSentence` and `sentenceContaining`
+      rather than `usableExamples` alone, which is where the first two sweeps
+      stopped. `app/(app)/review/cards.ts` is the daily path's own first meeting
+      and the one that mattered: its comment promises `teachingSentence`
+      introduces a word the same way wherever it is met, and until this it
+      introduced `tere` as `No tere, Juhan.` on a review card and as `Tere, mina
+      olen Katrin.` in the unit lesson, which is the fault this whole rule
+      exists for, surviving on the daily path.
+    */
+    "app/(app)/review/cards.ts": /sentenceReach\(\)/,
+    "lib/progress/caseExamples.ts": /sentenceReach\(\)/,
+    "lib/progress/describe.ts": /sentenceReach\(\)/,
     "prisma/repair.ts": /plainReach\(/,
     "scripts/audit-decks.ts": /plainReach\(/,
     "scripts/audit-questions.ts": /plainReach\(/,
