@@ -64,7 +64,7 @@ import { errandById, outcomeFrom } from "@/lib/collections/errands";
 import { emptyScheduling, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { addPlanToDeck, addUnitsToDeck, lockDeck, planLemmas } from "@/lib/srs/deck";
 import {
-  DEFAULT_PROGRAMME, PROGRAMMES, dayById, programmeById,
+  DEFAULT_PROGRAMME, MODULE_HOME, PROGRAMMES, continueHref, dayById, programmeById,
 } from "@/lib/course";
 import { dayIsInPlay } from "@/lib/progress/course";
 
@@ -3468,6 +3468,65 @@ export async function markCourseStep(programmeId: string, dayId: string, stepId:
   revalidatePath("/course");
   revalidatePath("/");
   return { ok: true as const };
+}
+
+/**
+ * A STEP OF TONIGHT'S MODULE, FINISHED FROM INSIDE IT.
+ *
+ * `markCourseStep` is the module screen's own button and stays exactly what it
+ * was: a learner on the list saying they did a round somewhere else. This is
+ * the other half, and it is the one the evening actually runs on. A learner
+ * who has just read the grammar page or played the round is standing on that
+ * screen, not on the list, and what the list used to ask of them was to
+ * navigate back and press "I did this" about a thing they had visibly just
+ * done. So the way on from a step ticks it and opens the next one in the same
+ * press, and the learner never sees the list again until the evening is over.
+ *
+ * IT TICKS NOTHING IT IS NOT ALLOWED TO. A derived step is proved by the
+ * review log and is refused a row for the reason `markCourseStep`'s own header
+ * gives: meeting the words leaves a mark on every one of their cards and the
+ * closing round is answers graded since the day opened, and a tick beside
+ * either would be a second source of truth for a fact the app already knows.
+ * Pressing on from one of those moves the learner and writes nothing, so a
+ * closing round somebody walked out of half way is still unfinished on the
+ * list, which is the truth about it.
+ *
+ * AND IT RESOLVES THE WAY ON RATHER THAN TAKING IT. The frame that draws the
+ * button is a client component and its marker came off an address a learner
+ * could have typed, so the next step is read off the day's own order on the
+ * server. A caller cannot name where it goes.
+ */
+export async function advanceCourseStep(programmeId: string, dayId: string, stepId: string) {
+  const ownerId = await requireUserId();
+  const programme = programmeById(text(programmeId));
+  const day = programme ? dayById(programme, text(dayId)) : undefined;
+  const step = day?.steps.find((s) => s.id === text(stepId));
+  if (!programme || !day || !step) {
+    return { ok: false as const, error: "That is not a step of that day." };
+  }
+  /* The pointer rule, unchanged: a tick is what `dayReached` reads, so a step
+     of a day nobody has reached may not write one. A learner standing on a day
+     further back is sent to the list rather than refused outright, because the
+     honest answer to "where do I go from here" is the module's own screen. */
+  if (!await dayIsInPlay(ownerId, programme, day)) {
+    return { ok: true as const, href: MODULE_HOME };
+  }
+
+  if (!step.derived) {
+    await prisma.courseStep.upsert({
+      where: {
+        ownerId_programmeId_dayId_stepId: {
+          ownerId, programmeId: programme.id, dayId: day.id, stepId: step.id,
+        },
+      },
+      update: {},
+      create: { ownerId, programmeId: programme.id, dayId: day.id, stepId: step.id },
+    });
+    revalidatePath("/course");
+    revalidatePath("/");
+  }
+
+  return { ok: true as const, href: continueHref(programme.id, day, step.id) };
 }
 
 /**

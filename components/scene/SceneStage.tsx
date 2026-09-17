@@ -1,7 +1,10 @@
+"use client";
+
 import { type ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { SceneMotif } from "./SceneMotif";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * The room a conversation happens in, and the website taken off the screen for
@@ -77,6 +80,10 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
   stage?: ReactNode;
   children: ReactNode;
 }) {
+  /* A conversation reached from tonight's module is a step of an evening
+     rather than a thing chosen off a catalogue, so the door back to the
+     catalogue stands down. See components/course/ModuleScope.tsx. */
+  const inModule = useModuleFocus() !== null;
   const met = progress?.filter((one) => one.met).length ?? 0;
 
   return (
@@ -94,14 +101,24 @@ export function SceneStage({ sceneId, title, place, minutes, progress, stage, ch
             own "Leave" is a different act, and it says so: it ends the
             conversation and reads the debrief.
           */}
-          <Link
-            href="/situations"
-            aria-label="Back to Situations"
-            className="tap-tint -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
-            style={{ color: "var(--ink-2)" }}
-          >
-            <ArrowLeft size={18} aria-hidden />
-          </Link>
+          {/*
+            AND INSIDE TONIGHT'S MODULE THE DOOR IS THE MODULE'S OWN. A
+            conversation reached from a module is one step of an evening, and
+            the way on from it is the button at the foot of the screen, which
+            ticks the step and opens the next. A second door here would go to
+            the catalogue of every other conversation, which is the distraction
+            the module frame exists to take away.
+          */}
+          {inModule ? <span className="-ml-2 h-10 w-10 shrink-0" aria-hidden /> : (
+            <Link
+              href="/situations"
+              aria-label="Back to Situations"
+              className="tap-tint -ml-2 flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+              style={{ color: "var(--ink-2)" }}
+            >
+              <ArrowLeft size={18} aria-hidden />
+            </Link>
+          )}
 
           {/*
             The room's own mark, small, so the place is still saying which

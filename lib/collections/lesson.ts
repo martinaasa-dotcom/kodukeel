@@ -27,6 +27,39 @@
  *    thing that turns exposure into memory, and waiting for the SRS to do all of
  *    it wastes the session the learner is already in.
  *
+ * 4. **At A1 nothing a learner is *asked* to handle is a word the course has
+ *    not taught yet.** Rule 1 was written about the word a step is *about* and
+ *    said nothing about the words standing around it, and an attested sentence
+ *    is written to illustrate a headword rather than to be a beginner's first
+ *    reading. So the first unit of the course, whose own blurb says "Thirteen
+ *    words, said alone. Nothing here is a sentence yet", put `Palun võta veel
+ *    üks komm. – Aitäh!` on the screen as a word-ordering puzzle: six tiles,
+ *    five of them words nobody had been shown. Measured over the whole course
+ *    at one lesson per sitting, 152 of the 162 word-ordering steps at A1 and
+ *    188 of the 210 gap-fills held a word the course had not reached yet, and
+ *    none of either does now. `taughtWords` is what a sentence is checked
+ *    against and `readable` is where that is decided.
+ *
+ *    It is deliberately about the questions and not about the *meeting* step,
+ *    which also shows an attested sentence. That one is reading with the word
+ *    and its meaning printed directly above it, nothing is asked of the
+ *    learner, and the alternative is a beginner's first screens saying "No
+ *    example sentence for this one yet" about words that have several. What a
+ *    sentence on a meeting step is missing is the dictionary under its words,
+ *    which `lib/dict/glossed.ts` already does for the review card's first
+ *    meeting and this screen does not: that is a gap worth closing, and it is
+ *    a different change from this one.
+ *
+ * 5. **A lesson asks only what its unit says it teaches.** `cardTypes` is the
+ *    unit author's own declaration and the flashcard builder has obeyed it for
+ *    as long as it has existed; the lesson planner never read it, so a unit
+ *    declaring `RECOGNITION` and `PRODUCTION` alone still got sentence
+ *    exercises, case questions and government questions. Four units in the
+ *    whole course declare no `CLOZE` and all four are at A1, so holding a
+ *    sentence exercise to that declaration costs 55 steps and every one of
+ *    them is a beginner being handed a sentence their unit said it was not
+ *    teaching yet.
+ *
  * Everything a step contains is either English (ours to write) or Estonian that
  * came from the dictionary — a lemma, a stored form, a derived case, or an
  * attested sentence hidden or shuffled by `lib/estonian/cloze`. Nothing here
@@ -46,6 +79,9 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { differentMeaning } from "@/lib/questions/distractors";
+import { type Level } from "./syllabus/types";
+import { maySortWords, readableFor } from "./levels";
+import type { CardType } from "@/lib/srs/cards";
 
 export type StepKind =
   | "intro" | "meet" | "choose" | "produce" | "type"
@@ -230,6 +266,21 @@ export interface LessonUnitInfo {
   canDo: string;
   blurb: string;
   grammar: readonly string[];
+  /**
+   * The band this unit is taught at, which decides what a lesson may ask for.
+   *
+   * Word ordering starts at `BUILD_FROM`, and at A1 every sentence on the
+   * screen has to be made of words the course has already taught.
+   */
+  level: Level;
+  /**
+   * What the unit says it teaches, in the course's own words.
+   *
+   * The same declaration the flashcard builder reads. A lesson may not go past
+   * it: `vastused` names `RECOGNITION` and `PRODUCTION` and nothing else, and
+   * was getting gap-fills, a word-ordering puzzle and a case question anyway.
+   */
+  cardTypes: readonly CardType[];
 }
 
 export interface LessonInput {
@@ -241,6 +292,30 @@ export interface LessonInput {
    * somebody could look up rather than a plausible-looking invention.
    */
   distractors?: readonly LessonWord[];
+  /**
+   * Every spelling the course has taught by the point this sitting opens,
+   * folded to lower case: the lemmas and the stored forms of every word of
+   * every unit ahead of this one, plus this unit's own words up to and
+   * including the sitting being planned.
+   *
+   * CUT AT THE SITTING RATHER THAN AT THE UNIT, because every unit in the
+   * course splits into more than one lesson: crediting the whole of one would
+   * let lesson 1 of `millal` gap a sentence holding a word lesson 3
+   * introduces, which is the fault this field exists for arriving one sitting
+   * later. `lib/progress/lessonWords.ts` is where the two halves are joined.
+   *
+   * Required and nullable rather than optional, for the reason `illSgShort` is
+   * required on `NounStems`: `null` means the caller asked and the course could
+   * not say, and a caller that has not thought about it does not compile. It
+   * fails closed, because the alternative is the fault this exists to prevent
+   * coming back the day somebody adds a second caller and forgets — at A1 a
+   * missing set means no sentence exercise rather than any sentence at all.
+   *
+   * Unused above A1, where meeting a word inside a sentence before meeting it
+   * on a card is how a learner's reading grows. A beginner three weeks in has
+   * no such reading to grow yet: they have thirteen words.
+   */
+  taughtWords: ReadonlySet<string> | null;
   /** Makes a plan reproducible. The same seed gives the same lesson. */
   seed?: number;
   /** Hard ceiling, so a 20-word unit is still one sitting. */
@@ -257,6 +332,65 @@ export interface LessonInput {
    * writer chose.
    */
   wordOrder: OrderContext;
+}
+
+/** What this lesson is allowed to ask, decided once from the unit. */
+interface LessonRules {
+  /** Word ordering, which is `BUILD_FROM` and above. */
+  mayBuild: boolean;
+  /** Any exercise made out of a sentence. The unit declares it with `CLOZE`. */
+  maySentence: boolean;
+  mayCase: boolean;
+  mayGovern: boolean;
+  /**
+   * Whether every word of this sentence is one the course has taught.
+   *
+   * Always true above A1, where an unfamiliar word in a sentence is reading
+   * practice rather than an ambush.
+   */
+  readable: (sentence: string) => boolean;
+  /**
+   * What the dictionary says about the words of the sentences this lesson can
+   * set, which is what decides whether a built order the writer did not choose
+   * is another order Estonian allows or one it does not.
+   *
+   * It rides here rather than as a parameter beside `rules` because both
+   * halves answer one question, what this lesson may ask and how it marks the
+   * answer, and two objects threaded through one builder is where the second
+   * one stops being passed.
+   */
+  wordOrder: OrderContext;
+}
+
+function rulesFor(
+  unit: LessonUnitInfo, taught: ReadonlySet<string> | null, wordOrder: OrderContext,
+): LessonRules {
+  const beginner = !maySortWords(unit.level);
+  const declares = (type: CardType) => unit.cardTypes.includes(type);
+  return {
+    // `BUILD_FROM` is `lib/collections/levels.ts`'s, because the Sentences
+    // round asks the same question of the same learner from Practice.
+    mayBuild: maySortWords(unit.level) && declares("CLOZE"),
+    maySentence: declares("CLOZE"),
+    /*
+      The declaration is read at A1 alone for these two, and that asymmetry is
+      measured rather than tidy. Holding a sentence exercise to `CLOZE` costs
+      55 steps and all of them are at A1, because every unit above A1 declares
+      it. Holding a case question to `CASE_FORM` would take all 84 of C1's, and
+      a government question to `GOVERNMENT` would take nearly every one in the
+      course, since only four units declare it. Those are changes to what the
+      course teaches rather than to what a beginner is protected from, and they
+      are not made in passing.
+    */
+    mayCase: !beginner || declares("CASE_FORM"),
+    mayGovern: !beginner || declares("GOVERNMENT"),
+    // `readableFor` is `lib/collections/levels.ts`'s, because the ladder's gap
+    // rung asks the same question of the same learner and two copies of it is
+    // two answers. The deck's cards are deliberately outside it, and that
+    // module's own header is where the closed list of readers lives.
+    readable: readableFor(unit.level, taught),
+    wordOrder,
+  };
 }
 
 /** Words introduced together before being mixed. Three fits in working memory. */
@@ -425,13 +559,24 @@ const GOVERNMENT_OPTIONS = ["mida", "kellele", "kellest", "millega", "kelle", "m
 // attested sentences simply has no gap-fill rather than a broken one.
 
 type Builder = (
-  w: LessonWord, rand: () => number, nextId: (k: string) => string, wordOrder: OrderContext,
+  w: LessonWord, rand: () => number, nextId: (k: string) => string, rules: LessonRules,
 ) => LessonStep | null;
 
-const gapStep2: Builder = (w, _r, nextId) => gapStep(w, nextId("gap"));
-const buildStep2: Builder = (w, r, nextId, order) => buildStep(w, nextId("build"), r, order);
-const caseStep2: Builder = (w, r, nextId) => caseStep(w, nextId("case"), r);
-const governStep2: Builder = (w, r, nextId) => governStep(w, nextId("govern"), r);
+const gapStep2: Builder = (w, _r, nextId, rules) => gapStep(w, nextId("gap"), rules);
+const buildStep2: Builder = (w, r, nextId, rules) => buildStep(w, nextId("build"), r, rules);
+const caseStep2: Builder = (w, r, nextId, rules) => caseStep(w, nextId("case"), r, rules);
+const governStep2: Builder = (w, r, nextId, rules) => governStep(w, nextId("govern"), r, rules);
+
+/**
+ * A sentence this lesson may put in front of the learner.
+ *
+ * Both sentence builders keep looking rather than giving up on the first
+ * refusal, which is what earns the rule the few it can still ask: of the 464
+ * A1 words a gap-fill can be cut from at all, 40 have a readable sentence as
+ * their first usable one and 53 have one somewhere in their list.
+ */
+const usable = (word: LessonWord, rules: LessonRules): string[] =>
+  rules.maySentence ? word.examples.filter((s) => rules.readable(s)) : [];
 
 /**
  * THE SENTENCE THAT MAKES THIS A QUESTION ABOUT THE FORM, WHERE THE WORD HAS
@@ -450,11 +595,15 @@ const governStep2: Builder = (w, r, nextId) => governStep(w, nextId("govern"), r
  * noun whose lexicographer only ever wrote it plain, so the step is kept and
  * the cue falls back instead. Dropping them would lose a rung on a word, and
  * "which word goes in this gap, given what it means" is still worth asking.
+ *
+ * The pool it chooses from is `usable`, so the module's own rules decide which
+ * sentences are on offer before this decides which of them asks the better
+ * question.
  */
-function gapStep(word: LessonWord, id: string): GapStep | null {
+function gapStep(word: LessonWord, id: string, rules: LessonRules): GapStep | null {
   const forms = knownForms(word);
   let fallback: GapStep | null = null;
-  for (const sentence of word.examples) {
+  for (const sentence of usable(word, rules)) {
     const cloze = buildCloze(sentence, forms);
     if (!cloze) continue;
     const step: GapStep = {
@@ -480,21 +629,25 @@ function gapCue(word: LessonWord, answer: string): GapCue {
 }
 
 function buildStep(
-  word: LessonWord, id: string, rand: () => number, wordOrder: OrderContext,
+  word: LessonWord, id: string, rand: () => number, rules: LessonRules,
 ): BuildStep | null {
-  for (const sentence of word.examples) {
+  if (!rules.mayBuild) return null;
+  for (const sentence of usable(word, rules)) {
     if (!isBuildable(sentence)) continue;
     const tiles = sentenceTiles(sentence);
     if (tiles.length < 3 || tiles.length > 9) continue;
     return {
       id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence,
-      alsoRight: alsoRightOrders(sentence, wordOrder),
+      alsoRight: alsoRightOrders(sentence, rules.wordOrder),
     };
   }
   return null;
 }
 
-function caseStep(word: LessonWord, id: string, rand: () => number): CaseStep | null {
+function caseStep(
+  word: LessonWord, id: string, rand: () => number, rules: LessonRules,
+): CaseStep | null {
+  if (!rules.mayCase) return null;
   if (!isInflecting(word)) return null;
   const genitive = word.parts.GEN_SG;
   if (!genitive) return null;
@@ -529,7 +682,10 @@ function caseStep(word: LessonWord, id: string, rand: () => number): CaseStep | 
   return null;
 }
 
-function governStep(word: LessonWord, id: string, rand: () => number): GovernStep | null {
+function governStep(
+  word: LessonWord, id: string, rand: () => number, rules: LessonRules,
+): GovernStep | null {
+  if (!rules.mayGovern) return null;
   if (word.pos !== "VERB" || !word.government) return null;
   // Ekilex writes government as one or more question words; the first is the one
   // a learner needs. Anything longer is a note, not a drillable answer.
@@ -673,6 +829,7 @@ export function splitIntoLessons<T>(words: readonly T[], size = LESSON_WORDS): T
  */
 export function planLesson(input: LessonInput): LessonStep[] {
   const { unit, words } = input;
+  const rules = rulesFor(unit, input.taughtWords, input.wordOrder);
   const rand = rng(input.seed ?? 1);
   const maxSteps = input.maxSteps ?? DEFAULT_MAX_STEPS;
   const steps: LessonStep[] = [];
@@ -723,12 +880,24 @@ export function planLesson(input: LessonInput): LessonStep[] {
   // list; rotating means three consecutive words practice three different ways
   // whenever the material allows it, and falls back to the same order as before
   // when it does not.
+  //
+  // The rotation buys nothing where only one builder can fire at all, and at A1
+  // that is the ordinary case rather than the edge: `kodu` practised two ways in
+  // a sentence and one with a case before rule 4, and practises six times with a
+  // case after it, because none of its words has a sentence a beginner can read.
+  // That is the material being thin rather than the lane being wrong, and the
+  // alternative is the sentence they cannot read. What keeps it from reading as
+  // a grind is that the lane is one of five and `repairRuns` still holds rule 2,
+  // so no two of those questions are next to each other, and each asks a
+  // different case of a different word — which is what the unit declared it
+  // teaches.
+  
   const builders = [gapStep2, buildStep2, caseStep2, governStep2];
   const practiseLane = (block: readonly LessonWord[]) => block.flatMap((word, i): LessonStep[] => {
     const rotated = [...builders.slice(i % builders.length), ...builders.slice(0, i % builders.length)];
     let own: LessonStep | null = null;
     for (const make of rotated) {
-      own = make(word, rand, nextId, input.wordOrder);
+      own = make(word, rand, nextId, rules);
       if (own) break;
     }
     if (own) return [own];

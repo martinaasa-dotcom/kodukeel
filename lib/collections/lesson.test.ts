@@ -20,7 +20,28 @@ const unit = {
   canDo: "Describe your home and say where things are in it.",
   blurb: "Things you can point at.",
   grammar: ["inessive"],
-};
+  // The real unit's own band and declaration, because what a lesson may ask is
+  // read off both and a fixture that quietly says A2 measures a lesson nobody
+  // is given.
+  level: "A1",
+  cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
+} as const;
+
+/*
+  EVERY WORD THE FIXTURE'S OWN SENTENCES ARE MADE OF.
+
+  At A1 a sentence exercise is only offered where the course has taught every
+  word in it, so a fixture that hands in nothing gets no gap-fill and every
+  test about one passes by having nothing to look at. These are the words of
+  the two sentences the fixtures carry, which is what a unit that had taught
+  them would hold.
+*/
+const TAUGHT = new Set([
+  "maja", "on", "suur", "ja", "valge",
+  "oleme", "ikka", "sõbrad", "sõber", "sõbra", "sõpra", "edasi",
+  "koosolek", "toimub", "kindlasti",
+  "ta", "istub", "toas", "tuba", "toa", "loeb",
+]);
 
 const noun = (lemma: string, gloss: string, extra: Partial<LessonWord> = {}): LessonWord => ({
   lexemeId: `lex-${lemma}`,
@@ -48,7 +69,7 @@ const DISTRACTORS: LessonWord[] = [
 ];
 
 const plan = (words = WORDS, seed = 7) =>
-  planLesson({ unit, words, distractors: DISTRACTORS, seed, wordOrder });
+  planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed, wordOrder });
 
 describe("planLesson", () => {
   it("opens with the teaching step and closes with the recap", () => {
@@ -135,7 +156,7 @@ describe("planLesson", () => {
     const lessons = splitIntoLessons(many);
     expect(lessons.length).toBeGreaterThan(1);
     for (const words of lessons) {
-      const steps = planLesson({ unit, words, distractors: DISTRACTORS, seed: 3, wordOrder });
+      const steps = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 3, wordOrder });
       expect(steps.length).toBeLessThanOrEqual(40);
       expect(steps.at(-1)?.kind).toBe("recap");
     }
@@ -147,7 +168,7 @@ describe("planLesson", () => {
   });
 
   it("has nothing to plan for an empty unit, and says so by returning nothing", () => {
-    expect(planLesson({ unit, words: [], seed: 1, wordOrder })).toEqual([]);
+    expect(planLesson({ unit, words: [], taughtWords: TAUGHT, seed: 1, wordOrder })).toEqual([]);
   });
 });
 
@@ -166,7 +187,7 @@ describe("what a step is built from", () => {
   it("has no gap-fill at all when the unit carries no sentences", () => {
     // An honest absence. The alternative is inventing a sentence to blank.
     const bare = WORDS.map((w) => ({ ...w, examples: [] }));
-    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, seed: 5, wordOrder });
+    const steps = planLesson({ unit, words: bare, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder });
     expect(steps.some((s) => s.kind === "gap")).toBe(false);
   });
 
@@ -182,7 +203,9 @@ describe("what a step is built from", () => {
       examples: ["Oleme ikka sõbrad edasi!"],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
-    const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, seed: 5, wordOrder });
+    const steps = planLesson({
+      unit, words: [friend], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     for (const gap of gaps) expect(gap.answer.toLowerCase()).not.toBe("sõbrad");
   });
@@ -202,7 +225,9 @@ describe("what a step is built from", () => {
       examples: ["Koosolek toimub kindlasti."], parts: { NOM_SG: "kindlasti" },
       government: null, semanticTypes: null,
     };
-    const steps = planLesson({ unit, words: [surely], distractors: DISTRACTORS, seed: 5, wordOrder });
+    const steps = planLesson({
+      unit, words: [surely], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) {
@@ -218,7 +243,9 @@ describe("what a step is built from", () => {
       examples: ["Ta istub toas ja loeb."],
       parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" },
     });
-    const steps = planLesson({ unit, words: [room], distractors: DISTRACTORS, seed: 5, wordOrder });
+    const steps = planLesson({
+      unit, words: [room], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
+    });
     const gaps = steps.filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     expect(gaps.length).toBeGreaterThan(0);
     for (const gap of gaps) expect(gap.cue).toBe("word-and-meaning");
@@ -237,7 +264,9 @@ describe("what a step is built from", () => {
     // and a check that picked its own five seeds would have been green on the
     // code this was written against.
     for (let seed = 1; seed <= 30; seed++) {
-      const steps = planLesson({ unit, words: [dear], distractors: DISTRACTORS, seed, wordOrder });
+      const steps = planLesson({
+        unit, words: [dear], distractors: DISTRACTORS, taughtWords: TAUGHT, seed, wordOrder,
+      });
       for (const step of steps) {
         if (step.kind !== "case") continue;
         for (const form of step.answer.split(" / ")) {
@@ -292,7 +321,8 @@ describe("what a step is built from", () => {
       { lexemeId: "lex-vabandust", lemma: "vabandust", gloss: "Sorry!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null },
     ];
     const steps = planLesson({
-      unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS], seed: 9, wordOrder,
+      unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS],
+      taughtWords: TAUGHT, seed: 9, wordOrder,
     });
     const asked = steps.filter(
       (s): s is Extract<LessonStep, { kind: "choose" | "listen" }> =>
@@ -308,12 +338,100 @@ describe("what a step is built from", () => {
     }
   });
 
+  /*
+    WORD ORDER IS A2 AND ABOVE.
+
+    Ordering a sentence is a question about syntax, and the first units of the
+    course teach words said alone: `vastused` says so in its own blurb and was
+    handed `Palun võta veel üks komm. – Aitäh!` as a six-tile puzzle anyway.
+  */
+  it("never asks a beginner to put a sentence back in order", () => {
+    // Second in its block, so the builder rotation reaches word order first:
+    // at A1 it has to be refused and something else offered instead.
+    const words = [noun("tool", "chair"), WORDS[0]!];
+    const atA1 = planLesson({ unit, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4, wordOrder });
+    expect(atA1.some((step) => step.kind === "build")).toBe(false);
+
+    const atA2 = planLesson({
+      unit: { ...unit, level: "A2" }, words, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 4, wordOrder });
+    expect(atA2.some((step) => step.kind === "build")).toBe(true);
+  });
+
+  /*
+    NOTHING ON AN A1 SCREEN IS A WORD THE COURSE HAS NOT TAUGHT.
+
+    A usage is written to illustrate a headword rather than to be a beginner's
+    first reading, so most of them carry words from further up the course. The
+    sentence below is one of `sõber`'s own and holds `oleme`, `ikka` and
+    `edasi`; drop those from what the course has taught and it may not be used.
+  */
+  it("builds a sentence exercise at A1 only from words the course has taught", () => {
+    const house = [WORDS[0]!];
+    const known = planLesson({
+      unit, words: house, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder });
+    expect(known.some((step) => step.kind === "gap")).toBe(true);
+
+    const untaught = new Set([...TAUGHT].filter((w) => w !== "valge"));
+    const steps = planLesson({
+      unit, words: house, distractors: DISTRACTORS, taughtWords: untaught, seed: 5, wordOrder });
+    expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
+  });
+
+  /*
+    A caller that could not say what the course has taught gets no sentence
+    exercise at A1 rather than every sentence: the rule fails closed, because
+    the alternative is the fault it exists for coming back in silence.
+  */
+  it("asks no sentence at A1 when nothing says what has been taught", () => {
+    const steps = planLesson({
+      unit, words: WORDS, distractors: DISTRACTORS, taughtWords: null, seed: 7, wordOrder });
+    expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
+  });
+
+  /*
+    Above A1 an unfamiliar word inside a sentence is how reading grows, so the
+    same word and the same sentence are fine a band up. The rule is about a
+    beginner with thirteen words, not about sentences.
+  */
+  it("lets a sentence carry an unfamiliar word above A1", () => {
+    const steps = planLesson({
+      unit: { ...unit, level: "B1" }, words: [WORDS[0]!], distractors: DISTRACTORS,
+      taughtWords: new Set<string>(), seed: 5, wordOrder });
+    expect(steps.some((step) => step.kind === "gap")).toBe(true);
+  });
+
+  /*
+    A LESSON ASKS ONLY WHAT ITS UNIT SAYS IT TEACHES.
+
+    `cardTypes` is the unit author's own declaration and the flashcard builder
+    has read it for as long as it has existed. Four units in the course declare
+    no `CLOZE`, all of them at A1, and every one of them was getting gap-fills.
+  */
+  it("asks no sentence of a unit that says it teaches none", () => {
+    const quiet = { ...unit, level: "A2", cardTypes: ["RECOGNITION", "PRODUCTION"] } as const;
+    const steps = planLesson({
+      unit: quiet, words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7, wordOrder });
+    expect(steps.some((step) => step.kind === "gap" || step.kind === "build")).toBe(false);
+  });
+
+  it("asks a beginner for a case only where the unit declares one", () => {
+    const steps = planLesson({
+      unit: { ...unit, cardTypes: ["RECOGNITION", "PRODUCTION"] },
+      words: WORDS, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 7, wordOrder });
+    expect(steps.some((step) => step.kind === "case")).toBe(false);
+    // And it still asks: the practice lane falls back rather than going quiet.
+    expect(answerableCount(steps)).toBeGreaterThan(0);
+  });
+
   it("asks about government only where Ekilex recorded one", () => {
     const verbs: LessonWord[] = [
       { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda" },
       { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
     ];
-    const steps = planLesson({ unit, words: verbs, distractors: DISTRACTORS, seed: 2, wordOrder });
+    const steps = planLesson({
+      unit: { ...unit, cardTypes: [...unit.cardTypes, "GOVERNMENT"] },
+      words: verbs, distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 2, wordOrder,
+    });
     const govern = steps.filter((s) => s.kind === "govern");
     for (const step of govern) expect(step.lemma).toBe("aitama");
   });
@@ -356,8 +474,19 @@ describe("the build step carries the orders Estonian allows", () => {
     government: null,
   };
 
+  /*
+    At A2, because `BUILD_FROM` is where word ordering starts: there is no
+    syntax to order at A1, and it is the one exercise where every word has to
+    be handled rather than read past. The band is the fixture's rather than
+    the rule's to choose, so it is named here and not worked around.
+  */
+  const ordering = { ...unit, level: "A2" } as const;
+
   const buildSteps = (order: Parameters<typeof planLesson>[0]["wordOrder"]) =>
-    planLesson({ unit, words: [word], distractors: DISTRACTORS, seed: 4, wordOrder: order })
+    planLesson({
+      unit: ordering, words: [word], distractors: DISTRACTORS, seed: 4,
+      wordOrder: order, taughtWords: TAUGHT,
+    })
       .filter((s): s is Extract<LessonStep, { kind: "build" }> => s.kind === "build");
 
   it("offers the order a learner actually says", () => {

@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Ear, Loader2, Volume2, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Check, Ear, Loader2, Volume2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
@@ -12,6 +11,7 @@ import { useAudioPrefs } from "@/components/AudioPrefs";
 import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -159,9 +159,9 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           This exercise is all about what a word sounds like, so without audio there&rsquo;s nothing
           to show you. It needs a connection to work.
         </p>
-        <div className="mt-6 flex justify-center">
+        <WayOut className="mt-6 flex justify-center">
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -187,10 +187,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           <Stat value={`${accuracy}%`} label="Right" tone={VERDICT_INK[accuracy >= 80 ? "right" : "nearly"]} />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/pairs">Another round</ButtonLink>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -202,9 +202,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           and the round itself did not. */}
       <h1 className="sr-only">Minimal pairs</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"

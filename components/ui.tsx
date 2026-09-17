@@ -1,6 +1,7 @@
 import { Children, type CSSProperties, type ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import { Mascot } from "@/components/brand";
+import { WayOut } from "@/components/round/RoundExit";
 import { PrefetchLink } from "@/components/PrefetchLink";
 
 /**
@@ -250,7 +251,18 @@ export function Empty({ title, body, action, mood = "thinking" }: {
         {body && (
           <p className="mx-auto mt-2 max-w-[48ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{body}</p>
         )}
-        {action && <div className="mt-5 flex justify-center">{action}</div>}
+        {/*
+          AND AN EMPTY STATE'S WAY OUT STANDS DOWN INSIDE A MODULE.
+
+          Every one of these sends the reader somewhere that is not this
+          screen, which is exactly right on a round somebody chose and wrong on
+          a step of tonight's module: a learner whose deck cannot fill a board
+          would be handed the dictionary or the course, off the evening, with
+          nothing saying how to get back. The way on is the frame's own button
+          at the foot of the screen, and it is there whether the round could be
+          built or not. `WayOut` draws the same box everywhere else.
+        */}
+        {action && <WayOut className="mt-5 flex justify-center">{action}</WayOut>}
       </div>
     </div>
   );

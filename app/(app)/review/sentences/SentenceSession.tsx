@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, Check, Eye, RotateCcw, X } from "lucide-react";
+import { ArrowRight, Check, Eye, RotateCcw } from "lucide-react";
 import { gradeCard, translateExample } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
@@ -15,6 +14,8 @@ import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordO
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { WordLink } from "@/components/course/WordLink";
 
 export interface SentenceTask {
   /** The card this counts against — every mode grades through the same log. */
@@ -54,7 +55,19 @@ const PREVIEW_MS = 4500;
  * - **Without one** — the sentence is shown for a few seconds, then scrambled.
  *   Weaker, and honest about being a recall drill rather than a translation.
  */
-export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[] }) {
+export function SentenceSession(
+  { tasks: initialTasks, opensAt }: {
+    tasks: SentenceTask[];
+    /**
+     * The band this round opens at, where the learner has not reached it.
+     *
+     * A failure may not misname its cause: an empty round for somebody below
+     * `BUILD_FROM` is not a thin deck, and sending them to the dictionary to
+     * add words would have them fixing something that is not broken.
+     */
+    opensAt?: string;
+  },
+) {
   const uiText = useUiText();
   const [tasks, setTasks] = useState(initialTasks);
   // Which task to reopen on after a detour to its dictionary entry. See
@@ -169,11 +182,19 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
   if (initialTasks.length === 0) {
     return (
       <Page title="Sentences" lead="Put real Estonian sentences back in order.">
-        <Empty
-          title="No sentences to build yet"
-          body="Sentences are linked to words already in your deck."
-          action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
-        />
+        {opensAt ? (
+          <Empty
+            title={`This one opens at ${opensAt}`}
+            body="Word order comes after the words themselves. Keep learning and it will be here."
+            action={<ButtonLink href="/learn" variant="primary">Carry on learning</ButtonLink>}
+          />
+        ) : (
+          <Empty
+            title="No sentences to build yet"
+            body="Sentences are linked to words already in your deck."
+            action={<ButtonLink href="/dictionary" variant="primary">Open the dictionary</ButtonLink>}
+          />
+        )}
       </Page>
     );
   }
@@ -198,11 +219,11 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           <StatTile value={`${accuracy}%`} label="First time" tone={accuracy >= 70 ? "mint" : "butter"} />
           <StatTile value={`${minutes}m`} label="Time" tone="sky" />
         </div>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <WayOut className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/practice" size="lg">Other modes</ButtonLink>
           <ButtonLink href="/" size="lg">Back to Today</ButtonLink>
           <ButtonLink href="/review/sentences" variant="primary" size="lg">Another round</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -222,14 +243,7 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
           already carry one, which is how the gap survived a sweep. */}
       <h1 className="sr-only">Sentences</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link
-          href="/"
-          aria-label="End session"
-          className="press flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
-          style={{ color: "var(--ink-3)" }}
-        >
-          <X size={18} aria-hidden />
-        </Link>
+        <EndSession />
         <div className="h-2.5 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="grad-accent h-full rounded-full transition-[width] duration-500"
@@ -255,13 +269,9 @@ export function SentenceSession({ tasks: initialTasks }: { tasks: SentenceTask[]
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
           <Chip tone="accent">Build the sentence</Chip>
-          <Link
-            href={`/dictionary?q=${encodeURIComponent(task.lemma)}`}
-            className="ml-auto text-xs"
-            style={{ color: "var(--ink-3)" }}
-          >
+          <WordLink lemma={task.lemma} className="ml-auto text-xs" style={{ color: "var(--ink-3)" }}>
             {task.lemma}
-          </Link>
+          </WordLink>
         </div>
 
         <div className="flex min-h-[300px] flex-col gap-5 px-6 py-8" aria-live="polite">

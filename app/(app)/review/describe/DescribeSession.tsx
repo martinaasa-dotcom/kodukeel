@@ -2,8 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CaseQuestion } from "@/components/CaseQuestion";
-import { Check, CircleAlert, Loader2, X } from "lucide-react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { Check, CircleAlert, Loader2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -17,6 +16,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { grammarTerm } from "@/lib/estonian/terms";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
+import { EndSession, WayOut } from "@/components/round/RoundExit";
 
 export interface ScenePrompt {
   sceneId: string;
@@ -188,10 +188,10 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           />
           <Stat value={`${minutes}m`} label="Time" />
         </div>
-        <div className="mt-8 flex flex-wrap gap-3">
+        <WayOut className="mt-8 flex flex-wrap gap-3">
           <ButtonLink href="/review/describe">Another round</ButtonLink>
           <ButtonLink href="/" variant="primary">Back to Today</ButtonLink>
-        </div>
+        </WayOut>
       </div>
     );
   }
@@ -203,9 +203,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           accessibility run that met an empty deck saw one and passed. */}
       <h1 className="sr-only">Say what you see</h1>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <Link href="/" aria-label="End session" className="rounded p-1" style={{ color: "var(--ink-3)" }}>
-          <X size={19} aria-hidden />
-        </Link>
+        <EndSession size={19} />
         <div className="h-1 flex-1 overflow-hidden rounded-full" style={{ background: "var(--raised)" }}>
           <div
             className="h-full rounded-full transition-all duration-300"
