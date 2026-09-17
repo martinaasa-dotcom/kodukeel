@@ -1364,6 +1364,21 @@ check("the Institute's classification has one reader", () => {
   lesson planner and speaking practice did not, and built 81 cards out of them.
 */
 check("every exercise built from a sentence checks that it is one", () => {
+  /*
+    A LIST, AND THE LIST IS THE WEAKNESS: the end-of-level checkpoint's page
+    was not on it, and so it was the one page handing its planner every
+    recorded usage raw. A checkpoint could set `Olen seisukohal, et ..` as a
+    gap question, and the same sentence twice, on a measurement whose own
+    screen says passing it moves the learner up a level.
+
+    It stays a list because the narrowing does not happen in one layer. Some
+    of these build the exercise and narrow in the same file; the two course
+    pages resolve the dictionary row and hand a planner in `lib/collections/`
+    a list of strings, so the rule has to be applied before it crosses. A
+    mechanical sweep for `buildCloze` would flag those two planners and miss
+    the pages that actually owe the check. Add a page here when it starts
+    feeding one.
+  */
   const builders = [
     "lib/srs/cards.ts",
     "lib/collections/worksheet.ts",
@@ -1371,6 +1386,7 @@ check("every exercise built from a sentence checks that it is one", () => {
     "lib/assessment/items.ts",
     "lib/progress/describe.ts",
     "app/(app)/learn/[unitId]/lesson/page.tsx",
+    "app/(app)/learn/checkpoint/[level]/page.tsx",
     "app/(app)/review/speaking/page.tsx",
     "app/(app)/review/dictation/page.tsx",
     "app/(app)/review/sentences/page.tsx",
@@ -1378,8 +1394,24 @@ check("every exercise built from a sentence checks that it is one", () => {
   for (const file of builders) {
     assert.match(
       code(file),
-      /naturalSentence\(/,
+      // `teachableSentences` is `usableExamples` and `naturalSentence` in one
+      // place, which is what the two course pages read: the lesson's wrote
+      // both lines out and the checkpoint's wrote neither.
+      /naturalSentence\(|teachableSentences\(/,
       `${file} builds an exercise from a usage without checking that it is a sentence`,
+    );
+  }
+  /*
+    AND NEVER BESIDE THE CALL. A page can read the helper and go on mapping
+    the raw list one line down, which satisfies any check that only looks for
+    the call, and is the shape `caseReviewsFor`'s own pairing check was
+    written for after exactly that happened.
+  */
+  for (const page of builders.filter((f) => f.startsWith("app/"))) {
+    assert.ok(
+      !/parseExamples\([^)]*\)\s*\.map\(/.test(code(page)),
+      `${page} maps a raw parseExamples list straight to strings. That is the copy this`
+      + " check exists to stop, one line below the narrowing it just did",
     );
   }
   // One definition of the label pattern, beside the rule it is an argument to.
