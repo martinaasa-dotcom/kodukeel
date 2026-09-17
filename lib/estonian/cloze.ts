@@ -204,29 +204,39 @@ export function isBuildable(sentence: string): boolean {
  * level check has always passed it and the deck's gap-fill cards did not, so
  * `Kahvel, lipp kukub!` was refused in an exam and made into a flashcard.
  *
- * IT OVER-REACHES AND IS LEFT ALONE, WHICH IS MEASURED RATHER THAN ASSUMED.
- * Standing down on `VERB` alone means any other part of speech whose form
- * precedes a comma is read as opening the label pattern, and plenty of those
- * are ordinary sentences: `Tihased, kes majaseintest kivivilla välja kisuvad,
- * ennustavad lähiajal lund.` is a relative clause, `Eelnõud, arupärimised ja
- * muud dokumendid esitatakse eesti keeles.` is a list subject, and `Tõesti,
- * Oleviste kirik oli kunagi maailma kõrgeim ehitis.` is an adverb where a
- * comma is grammar rather than a label.
+ * AND IT IS A NOUN'S RULE, WHICH THE NAME SAID AND THE CODE DID NOT. The
+ * exemption was `VERB` alone, so an adverb, an adjective, a pronoun and a
+ * phrase were all read as nominals, and the one word class whose natural
+ * position *is* "word, then clause" is the interjection. `tere` has two
+ * recorded usages and this refused `Tere, mina olen Katrin.`, leaving `No
+ * tere, Juhan.` as the only sentence the first unit anybody opens could teach
+ * hello with. `Aitäh, Mari!` went the same way, and `Nõus, teeme nii.`, and
+ * `Imelik, et teda kodus pole.` Ten sentences across the dictionary, nine of
+ * them ordinary speech and four of them on an A1 or A2 word.
  *
- * Over the shipped dictionary that is **25 sentences of 15,126**, and about
- * half of them are the pattern this exists for: `Kiisu, kuidas elad?`,
- * `Vennas, kas sul suitsu on?`, `Häbi, proua minister!` and `Kahvel` itself
- * are the entry naming itself and then saying something that teaches nothing
- * about the word. So the trade is a dozen sentences recovered against
- * re-admitting the fault, in a rule two *measurements* read, the mock exam and
- * the placement check. Narrowing it would be a heuristic on a heuristic for
- * 0.08% of the corpus. Do not re-open it without a bigger number than that.
+ * A noun is the word class a dictionary labels a sense with, which is the
+ * whole of what the pattern detects: an entry naming itself and then
+ * illustrating. Every refusal worth keeping is one — `Kahvel, lipp kukub!`,
+ * `Vabadus, võrdsus, vendlus.`, `Standardkeel, õppijakeel jt keele
+ * kasutusvariandid.` Narrowing to the noun keeps all fifteen of those and
+ * hands back the ten it should never have taken.
+ *
+ * THE OTHER READING OF THE SAME MEASUREMENT, WRITTEN DOWN BECAUSE IT WAS MADE
+ * AND THEN ANSWERED. Under the `VERB` exemption the over-reach was measured
+ * over the shipped dictionary at 25 sentences of 15,126, and the case for
+ * leaving it alone was that about half of those really are the pattern and
+ * this rule is read by two *measurements*, the mock exam and the placement
+ * check, so a heuristic on a heuristic for 0.08% of the corpus was not worth
+ * the risk of re-admitting the fault. The narrowing above is what that
+ * argument was waiting for rather than a smaller number: those same 25 split
+ * 15 to 10 on the word class, so every refusal worth keeping is kept and the
+ * rest are handed back, which is a rule rather than a second heuristic.
  */
 export function nominalOpener(
   pos: string,
   forms: readonly string[],
 ): ((opening: string) => boolean) | undefined {
-  if (pos === "VERB") return undefined;
+  if (pos !== "NOUN") return undefined;
   const known = new Set(forms.map((f) => f.trim().toLowerCase()));
   return (opening: string) => known.has(opening.trim().toLowerCase());
 }

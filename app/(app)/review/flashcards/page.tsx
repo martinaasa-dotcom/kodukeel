@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { parseExamples, usableExamples, type Example } from "@/lib/dict/examples";
-import { borrowedSentences } from "@/lib/dict/facts";
+import { borrowedSentences, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { askableSlots, flashTask, hasSentence, type FlashWord } from "@/lib/games/flash";
 import { masteryFor, type MasteredWord } from "@/lib/progress/mastery";
 import { MASTERY_CORRECT, MASTERY_ORDER } from "@/lib/srs/mastery";
@@ -103,11 +104,11 @@ export default async function FlashcardsPage() {
     shortfall out of a longer list is one query; discovering it afterwards
     would be another.
   */
-  const [lexemes, cards, borrowed, starred] = await Promise.all([
+  const [lexemes, cards, borrowed, reach, starred] = await Promise.all([
     prisma.lexeme.findMany({
       where: { id: { in: lexemeIds } },
       select: {
-        id: true, lemma: true, translation: true, pos: true, examples: true,
+        id: true, lemma: true, translation: true, pos: true, examples: true, cefr: true,
         // Which local cases the word takes and which pronoun asks for it, both
         // of which are facts about the meaning rather than the spelling.
         semanticTypes: true,
@@ -124,6 +125,9 @@ export default async function FlashcardsPage() {
     // a form is shown in use wherever a lexicographer wrote it, not only
     // where one wrote it under this headword. See lib/dict/borrow.ts.
     borrowedSentences(),
+    // And how a beginner's word orders its own sentences, so a round asks
+    // about the plainest one rather than the shortest. See lib/dict/plainness.ts.
+    sentenceReach(),
     // Which of the round's words are already favorites, so the star in the
     // corner of each card is drawn in the state it is actually in.
     starredAmong(ownerId, lexemeIds),
@@ -141,7 +145,7 @@ export default async function FlashcardsPage() {
     if (prompts.length >= ROUND) break;
     const prompt = promptFor(
       word, byLexeme.get(word.lexemeId), cardsFor.get(word.lexemeId) ?? [], prompts.length,
-      borrowed.get(word.lexemeId) ?? [],
+      borrowed.get(word.lexemeId) ?? [], reach,
     );
     if (prompt) prompts.push({ ...prompt, starred: starred.has(word.lexemeId) });
   }
@@ -174,7 +178,7 @@ function promptFor(
   word: MasteredWord,
   lexeme: {
     id: string; lemma: string; translation: string; pos: string; examples: string;
-    semanticTypes: string | null;
+    semanticTypes: string | null; cefr: string | null;
     forms: { formType: string; value: string; morphCode: string | null }[];
   } | undefined,
   cards: { id: string; lexemeId: string | null; cardType: string; targetCase: string | null }[],
@@ -182,6 +186,8 @@ function promptFor(
   offset: number,
   /** Sentences recorded under other words that carry one of this word's forms. */
   borrowed: readonly Example[] = [],
+  /** What the dictionary vouches for at each band, for ranking a beginner's own. */
+  reach?: PlainReach,
 ): Omit<FlashPrompt, "starred"> | null {
   if (!lexeme || cards.length === 0) return null;
 
@@ -194,7 +200,10 @@ function promptFor(
     forms: lexeme.forms,
     // The word's own sentences first, then the borrowed ones, so `sentenceFor`
     // reaches a usage filed under the word before one filed under another.
-    examples: [...usableExamples(parseExamples(lexeme.examples)), ...borrowed],
+    examples: [
+      ...usableExamples(parseExamples(lexeme.examples), reach && plainerFirst(lexeme.cefr, reach)),
+      ...borrowed,
+    ],
   };
 
   /*

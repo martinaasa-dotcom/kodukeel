@@ -1529,6 +1529,181 @@ have rewritten as well as the ones it cannot; run against a seeded local databas
 cards on four words came back as one rewritten and ten named, the twelfth being `isa → milles?`,
 which the older rule already knew about.
 
+**The shortest sentence is not the plainest one, and a beginner was being handed the difference.**
+Every Estonian sentence in this app is one a lexicographer recorded, which is what keeps it honest
+and is not the same as its being a sentence a beginner can read: Ekilex records a usage to
+illustrate a word **to somebody who already speaks Estonian**. `usableExamples` sorted the attested
+pool shortest first, and what shortest selects for is the noun phrase and the idiom. Measured over
+the 1,269 words banded A1 or A2 that a screen shows a sentence for, 445 were shown something with
+no finite verb in it (`Hööveldamata lauad.`, `Noored ja haritud inimesed.`, `Laste joonistatud
+pildid.`) and 724 something carrying a spelling no A1 or A2 word reaches (`Papagoi pääses lahtise
+akna kaudu välja.` for `aken`, `Isa suri ööl vastu laupäeva.` for `öö`). A third of them were plain
+on both counts. It was reported off the first unit anybody opens: `tere` records two usages, and
+the shorter is `No tere, Juhan.`, which opens with a discourse particle this dictionary holds no
+entry for, spelled exactly like the English word for the opposite of yes.
+
+**The better sentence was nearly always already there**, which is what makes this a ranking fault
+rather than a gap in the data: 746 of those words carry a plain sentence among their own usages and
+were simply not being shown it. `lib/dict/plainness.ts` is the rank, and it weighs four things
+against each other rather than chaining tie-breaks, because ranked on vocabulary first and length
+last `inimene` moved from a three-word phrase to an eleven-word sentence about a virus. A spelling
+no entry vouches for costs most, since the learner cannot look it up and has nowhere to go; then a
+missing finite verb, then a spelling above the band, then a clause boundary and the words
+themselves. Measured after: 59% plain against 33%, with the mean at 4.1 words against 3.5.
+
+**It ranks and it may never refuse**, asserted both ways. Every sentence it sees has already passed
+`usableExamples` and `naturalSentence`; all it decides is which one a screen leads with, and a word
+whose only sentence is hard keeps it, because "no example sentence for this one yet" on a word the
+dictionary has a perfectly good sentence for is a worse screen than a hard example. That is
+`aroundFirst`'s rule one directory over, for its reason. **And the band is the word's, never the
+learner's**: which sentence teaches `aken` best is a fact about the shared dictionary, so it is
+cached in `lib/dict/facts.ts` with the others and is the same answer for everybody, where reading
+the learner's own level would put something keyed on a person into a file asserted to hold nothing
+of the kind. Above A2 the rank stands down entirely and shortest first is kept, since a B1 word is
+met by somebody who can read a subordinate clause and churning what every B1 card is cut from buys
+nothing anybody reported. `npm run audit:plainness` is the reading, band by band, and it reports
+rather than gates: of the 521 words still shown something a beginner cannot read straight through,
+514 have nothing plainer recorded anywhere in their own usages, which is a gap in what
+lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
+beginner keeps meeting, not the percentage.
+
+**Every surface that leads with one of a word's sentences is on the list, and it took three sweeps
+to find them all.** The first pass wired the card builders and called itself website wide. Reading
+every remaining `usableExamples` caller found the printable worksheet, the dictionary entry and the
+government drill. Reading `teachingSentence` and `sentenceContaining`, which is where the first two
+sweeps stopped, found four more, and one of them was the daily path: `app/(app)/review/cards.ts`
+builds the first meeting a review card shows, its own comment promises that `teachingSentence`
+introduces a word the same way wherever it is met, and until this it introduced `tere` as `No tere,
+Juhan.` there and as `Tere, mina olen Katrin.` in the unit lesson. **The lesson is a screenshot and
+the review card is every morning.** The grammar reference's case examples and the description
+game's model answer were the other two. Then sweeping by the *column* rather than by any function
+found the exceptions round and the build-a-word walkthrough, which is the screen `/grammar` opens
+with for somebody who has just been told Estonian has fourteen cases.
+
+**So the invariant is a sweep and not a list, which is the durable half of this.** Four times the
+rule was a list of files and three times the list was short, because a list is a thing somebody has
+to remember to extend and each sweep was over one entry point with the others missing. The haystack
+is the filesystem now: every file that opens the `examples` column, by selecting it or through
+`parseExamples`, which is the one thing every picker does whatever function it picks with. Both
+halves of that net are needed and the first version had one: `lib/progress/exam.ts` is handed the
+row and never selects the column, so a sweep on the select alone could not see it. A file is honest
+if it reaches the rank, or if it is exempt **with a written reason**, which is
+`lib/legal/exportCoverage.ts`'s shape and is what stops an exemption being a way to make a check
+pass. The exemptions are checked for staleness in the other direction too, and that caught two of
+them naming files that take their sentences as a field and are outside the net entirely. Made to
+fail on a new picker file added from scratch, which is the case no list could ever have caught. The worksheet
+is the one that cost most, since it is printed and worked through on paper and nobody can ask about
+a gap afterwards. They are worth naming because the shape of the miss is the one this file keeps
+finding in its own checks: a page handing the rank in and a builder ignoring it passes any check
+that reads only the call site, so the invariant asserts both ends, that `buildWorksheet` reads the
+field and that every page hands it over. **`lib/progress/exam.ts`, `lib/progress/assessment.ts` and
+the practice page are deliberately not on it**: the first two mark, and the third counts how many
+words could support a round rather than choosing one, so order cannot reach a screen.
+
+**One weight was swept and has a knee; the other three have none and are not claimed to be
+optimal.** Only the shape of the cost was measured to begin with, that weighing the signals against
+each other beats chaining tie-breaks; the numbers were judgement. `NO_VERB` trades against length
+alone, so it has a knee: the lead is a phrase for 322 of the 1,269 beginners' words at 0, 183 at
+the shipped 6, 129 at 12, and then it flattens, 116 at 16 and 105 at 30, while the mean length
+keeps climbing. 12 is the knee, and the 6 that shipped was leaving a third of the faults it exists
+to catch.
+
+**The other three trade against each other, and the sweep over them reports rather than gates.**
+`npm run audit:plainness -- --weights` prints the shape over 168 settings: the fewest dead ends any
+of them reaches is 224, at 16/1/0, which costs 338 words a word above the band against the shipped
+257; the fewest above the band is 143, at 2/8/0, which takes dead ends from 262 to 394. The first
+version of that sweep asked whether anything beat the shipped four on every axis at once, got "none
+of 168", and reported it as a result. **It is not one**: detuned to 3/4/2, which takes dead ends
+from 262 to 346, the answer is still none, because nearly every setting in the grid is on the
+frontier. A check that passes on the thing it was written to catch is `A || !A` wearing a sweep's
+clothes, which is the fault this file records the Sõnad board having had. So it prints the price of
+moving a weight and carries no exit code. What the four are is a stated preference, and the
+statement is the report that started this: a word no entry vouches for costs most, because the
+learner cannot look it up and has nowhere to go.
+
+**And the first version charged every plural oblique as a word nobody could look up.** `gapForms`
+is the one answer to what spellings a word has and it walks `CASES` through `caseAnswer`, which is
+the singular: the plural obliques are suffixes on the genitive *plural*, stored rather than
+derivable. So `meestel` and `naistel`, the adessive plural of two of the first words the course
+teaches, were spellings no entry claimed, which is the class `no` is in and the heaviest penalty
+there is. The damage was precisely what the ranking exists to prevent: `inimene` was handed `Noored
+ja haritud inimesed.`, a noun phrase, over a five-word sentence, because the sentence carried two
+ordinary plurals and the phrase carried none. `plainReach` reads them off `buildCaseTable` now,
+through `lib/estonian/derive.ts` because that is the one module allowed to join a suffix to a stem
+and the one that shows a gap rather than inventing a plural for a word whose genitive plural is not
+stored. Both directions are tested, and the test was made to fail on the real bug.
+
+**And a participle is not a finite verb, which the same check took every coded form to be.** The
+question "is this a sentence" turns on knowing which verb forms head a clause, and what the harvest
+stores on a verb is mostly the ones that do not: 322 past participles and 318 present participles
+against 319 simple pasts and 321 polite imperatives. Taking every coded form said that `Laste
+joonistatud pildid.` has a verb in it, which is the one shape the check is for. `isFiniteVerbCode`
+is the rule and it lives in `lib/estonian/conjugate.ts`, which owns the verb, rather than beside the
+caller. Three moods can head a clause, the indicative, the conditional and the imperative, and it
+**fails closed on the prefix**: a code nobody has seen is not counted, so a slot added to
+`VERB_SLOTS` later has to be admitted deliberately rather than by arriving. That is the opposite of
+`lib/estonian/semantics.ts`, which writes its codes out in full, and the reason is that these are a
+closed grammatical scheme where the first three letters really are the mood, where `in_rahvas_keel`
+is a semantic type that is not a person at all. The totals barely moved, which is the point: the
+check was accidentally right about most sentences and is now right about all of them.
+
+**The rank orders inside a cap it never reaches, and that is a fact about the data rather than a
+guarantee.** `usableExamples` sorts and then slices to `MAX_PER_WORD`, so a word holding more
+sentences than the cap would have the rank decide which of them *survive* rather than only which
+leads, and a sentence carrying the form `teachingSentence` is looking for could be ranked out of the
+pool. Measured over the shipped dictionary: no entry holds more than eight, so the slice never bites
+and the rank only ever reorders. Worth knowing rather than guarding, because the failure it would
+cause is one the code already handles gracefully, `teachingSentence` falling back to the first
+sentence with `form: null` and marking nothing up, and because a guard for a case no data reaches is
+a guard nobody can test. If a live Ekilex fetch ever brings a ninth, this is the coupling to look at.
+
+**A deck already built keeps the sentence it was built with, and that is left alone deliberately.**
+`Card.front` is written when the card is made, so the 826 A1 and A2 gap-fill cards whose source
+sentence this moves reach a new deck and nobody else's. 1,027 of those words keep the same *set* of
+cards and differ only in which came first, which is nothing a learner can see; 309 genuinely trade
+a sentence. The precedent cuts both ways and the line between them is whether the old card can be
+answered at all: `repairCaseFronts` rewrites a bare case card because `ravim → millele?` is a
+question with no sentence behind it, and `audit:decks` removes a card whose answer is printed in
+its own question. A gap cut from a harder attested sentence is neither. It is a real question with
+a real answer that a lexicographer wrote, and rewriting every learner's deck to swap one valid
+sentence for another is a larger and riskier thing than the fault it would undo. Said here rather
+than left for somebody to find the asymmetry and assume it was an oversight.
+
+**And a name costs the same as an opaque particle, which is measured and left alone.** A spelling no
+entry reaches is charged most, because the learner cannot look it up, and a proper noun is exactly
+that shape while being the one word in a sentence nobody has to decode. Measured over the shipped
+dictionary: fifteen A1 and A2 lead sentences carry an unvouched capital away from the opening, and
+seven of those would be plain but for the name. Seven words in 1,269 is below the noise of
+everything else here, and the repair is a capitalisation heuristic that has to tell a name from the
+first word of a sentence and from an inflected name that really is harder to read, so it would be a
+rule nobody has measured buying a fifth of a percent. Written down rather than fixed, and rather
+than left for somebody to rediscover.
+
+**And the label pattern is a noun's rule, which its name said and its code did not.** A usage
+opening with its own headword and a comma is a dictionary naming itself and then illustrating a
+sense the gloss beside it may not name, which is worth refusing on `Kahvel, lipp kukub!` and is
+ordinary speech everywhere else. The exemption was `VERB` alone, so an adverb, an adjective, a
+pronoun and a phrase were all read as nominals, and the one word class whose natural position *is*
+"word, then clause" is the interjection: `Tere, mina olen Katrin.` was refused, leaving `No tere,
+Juhan.` as the only sentence the course could teach hello with, and `Aitäh, Mari!` went the same
+way. Ten sentences across the dictionary, nine of them ordinary speech and four on an A1 or A2
+word. Narrowing to the noun keeps all fifteen refusals worth having and hands back the ten that
+were never the pattern. Both halves were made to fail on the real words before either landed, and
+the card that started this now reads `____, mina olen Katrin.`
+
+**And the two instruments that mark are exempt by name**, which is the rule `gapForms` already
+states about itself one section down. `lib/exam/paper.ts` rebuilds its paper server-side from
+(level, seed, pool) in order to mark it, and `lib/assessment/items.ts` draws its distractors from
+the same pool, so reordering what either is built from changes which questions a candidate is asked
+and what they are marked against. That is a change to a measurement rather than to an exercise.
+Asserted in both directions: every picker that teaches is handed the rank, and neither instrument
+that marks may reach it. The label-pattern narrowing does reach both, because it is a question about
+what counts as a sentence at all rather than about which of several to lead with, and it costs one
+deploy's worth of papers in flight marked against a pool drawn the new way, which is the cost the
+pool ordering already accepted and is ten sentences over the whole dictionary. `audit:questions`
+went from 85,224 questions to 85,227 and `audit:sense` from 58,818 to 58,832, both up and neither
+losing a card.
+
 **A sentence recorded under another word is still a lexicographer's sentence, and a word may
 borrow it.** The rule above made the sentence the card and left most words with nothing to cut one
 from: a word's own usages are a handful, Ekilex filed three under `ravim` and none in a case, and the
@@ -8562,6 +8737,52 @@ suite exists to protect, and the answer was the clock. It reads the 429 now and 
 allowance is spent and that restarting the server clears it, since the limiter is per instance
 and in memory. Still a failure rather than a waiver: a run that could not take a backup has not
 checked backup and restore.
+
+**And a counter the app prints in two places was read in one, so finishing a session read as an app
+that cannot grade.** `smoke-offline.mjs` decides whether a card was answered by reading the
+session's own tally before and after, which is the right instrument and had one spelling of it.
+A session in play prints `12 graded` in its footer; a session whose queue has run out replaces the
+whole card with the summary, where the same figure is a tile labelled `Reviewed` and the word
+`graded` is nowhere on the page. So grading the **last** card of a session read the tally back as
+absent, the comparison was false about a grade that had just happened, and `main` dropped to no
+buttons at all with none of the four card shapes on it: three checks failed, in the app's name,
+about a session that had finished correctly, and the fourth passed on `0 >= 0`, which the
+neighbouring comment already names as the shape two of its siblings had. It runs twenty-five
+suites deep, after every one of them has been grading, so how much is left in the queue when it
+starts is decided by everything above it rather than by anything in it.
+
+Both spellings are read now, and **the label leads the figure on a tile and trails it in the
+footer**, which is a fact about `StatTile` rather than a guess: written the other way round first,
+the summary pattern matched nothing and the counter read exactly as it had before, which is a
+check that cannot fire. **And a deck that has run out is stated as what it is** rather than failed,
+through `absent` with the state that lifts it, because a suite that never had a card has not
+tested offline grading and saying so is not the same as accusing the app; a card that *is* on
+screen and cannot be answered is still a failure, and the line between the two is the summary
+screen itself, which is falsifiable. Every check that can now fail says what was on screen when it
+did, the card shape, the control count and anything the page threw. Driven both ways on a real
+deck: left holding a single flip card, which grades itself and leaves, the old suite reported
+three faults it did not have and the new one passes the two checks it can still make and waives
+the two it cannot.
+
+**And the one state it most needed to name was the one `pageerror` cannot see.** With the counter
+reading both screens, the next run failed once more, on `further offline grades queue too`, and the
+detail it now printed was `no card shape this driver knows, 2 buttons in main`. Every card shape has
+five, eight or eleven controls, and the summary has none, so two is none of them. It is
+`app/error.tsx`: a `ButtonLink`, which is an anchor, beside `Try again` and the report button, which
+are the two. **A component that throws while rendering never reaches the window**, so `pageerror`
+fires for none of it: React catches the throw, draws the error screen and reports it through
+`console.error`. The suite listened to the first and not the second, so a session replaced by the
+app's own failure read as a driver that did not recognise the card, which is the failure-misnames-
+its-cause fault arriving in the diagnostic written to prevent it.
+
+Both are collected now and the screen is recognised ahead of every card shape, since it is a fault
+rather than a shape, keyed on the heading that file prints rather than on the framework's message,
+which a production build withholds. The detail carries the reference and the first console line with
+it, so the next occurrence arrives with what the app actually said. Driven against a server started
+on a database that is not there, which is `test-error.mjs`'s own technique: the screen matches, `main`
+holds exactly two buttons, `pageerror` captures nothing and `console.error` captures three. It stays
+a **failure** rather than a waiver, because a review session that throws with the network gone is the
+one thing ADR-015 exists to protect.
 
 `scripts/test-containment.mjs` is the one that looks inside a card rather than at the page. It
 walks every text-bearing element, every icon and everything that arrives with a width of its own,

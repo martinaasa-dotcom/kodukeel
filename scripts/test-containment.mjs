@@ -964,12 +964,51 @@ async function measure(page, label, atLeast = 25) {
   );
 }
 
+/**
+ * THE WAIT IS WHAT THIS IS ABOUT TO MEASURE, NOT WHETHER THE NETWORK WENT QUIET.
+ *
+ * `networkidle` is what this loop waited on and it threw in CI on
+ * `/review/clinic` after 720 checks, sixty seconds on a page that renders in
+ * 47ms and reaches idle in under a second on a developer's own machine. That
+ * wait is a known-fragile one and Playwright discourages it: the service worker
+ * fetches the shell a URL at a time and `PrefetchLink` fetches a whole page
+ * whenever a pointer settles, so on a two-core runner the network can keep
+ * finding something to do for longer than any ceiling worth setting. It is
+ * also the wrong question. Every check below measures *geometry*, so what it
+ * needs is the page laid out, which `test-first-day.mjs` already waits for by
+ * name and which this now does too.
+ *
+ * NOTHING IS SKIPPED BY IT. The checks are the same checks and the floor is
+ * the same floor; only the moment they run at is decided by the thing they are
+ * about. The wait is best-effort for that reason: a page that really does
+ * render nothing runs its budget out and is measured anyway, and the checks
+ * say what they found, where a throw here loses the 565 checks that had not
+ * run yet and reports one timeout instead.
+ */
+async function ready(page, budgetMs) {
+  await page.waitForSelector("main", { timeout: budgetMs }).catch(() => {});
+  await page
+    .waitForFunction(
+      () => {
+        const main = document.querySelector("main");
+        return Boolean(main) && (main.innerText || "").trim().length > 0;
+      },
+      undefined,
+      { timeout: budgetMs },
+    )
+    .catch(() => {});
+  // The fonts decide where text sits, and a box measured mid-swap is a box
+  // measured at the wrong width.
+  await page.evaluate(() => document.fonts?.ready).catch(() => {});
+  await page.waitForTimeout(250);
+}
+
 /** Every route, in one context, at whatever width and theme it was opened at. */
 async function sweep(ctx, at) {
   const page = await ctx.newPage();
   for (const route of ALL) {
-    await page.goto(`${B}${route}`, { waitUntil: "networkidle", timeout: 60000 });
-    await page.waitForTimeout(250);
+    await page.goto(`${B}${route}`, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await ready(page, 30000);
     await measure(page, `${route} ${at}`, SPARSE.get(route) ?? 25);
   }
   await page.close();

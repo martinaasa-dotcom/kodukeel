@@ -63,6 +63,7 @@
     "audit:sense": "tsx scripts/audit-sense.ts",
     "audit:homonyms": "tsx scripts/audit-homonyms.ts",
     "audit:decks": "tsx scripts/audit-decks.ts",
+    "audit:plainness": "tsx scripts/audit-plainness.ts",
     "audit:readable": "tsx scripts/audit-readable.ts"
   },
   "dependencies": {

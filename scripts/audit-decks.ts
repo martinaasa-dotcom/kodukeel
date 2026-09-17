@@ -77,6 +77,7 @@ import { prisma } from "../lib/db";
 import { acceptedAnswers } from "../lib/estonian/answer";
 import { retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
 import { borrowSentences } from "../lib/dict/borrow";
+import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { parseExamples } from "../lib/dict/examples";
 
 const write = process.argv.includes("--write");
@@ -164,17 +165,25 @@ async function main() {
   */
   const all = await prisma.lexeme.findMany({
     select: {
-      id: true, lemma: true, pos: true, examples: true,
+      id: true, lemma: true, pos: true, cefr: true, examples: true,
       forms: { select: { formType: true, value: true, morphCode: true } },
     },
   });
   const borrowed = borrowSentences(all.map((r) => ({
     key: r.id, lemma: r.lemma, pos: r.pos, forms: r.forms, examples: parseExamples(r.examples),
   })));
+  // Ranked as the app ranks it, or a card this condemns is compared against a
+  // card the builder would never make. See lib/dict/plainness.ts.
+  const reach = plainReach(all);
+  const bandOfLexeme = new Map(all.map((r) => [r.id, r.cefr]));
   const withBorrowed = cards.map((card) => ({
     ...card,
     lexeme: card.lexeme && card.lexemeId
-      ? { ...card.lexeme, borrowed: borrowed.get(card.lexemeId) ?? [] }
+      ? {
+          ...card.lexeme,
+          borrowed: borrowed.get(card.lexemeId) ?? [],
+          plainest: plainerFirst(bandOfLexeme.get(card.lexemeId) ?? null, reach),
+        }
       : card.lexeme,
   }));
   for (const gone of unsentencedCaseCards(withBorrowed)) {
