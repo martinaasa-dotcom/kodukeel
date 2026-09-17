@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ArrowRight, BookOpen, Check, Sparkles, X } from "lucide-react";
+import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
@@ -29,7 +29,7 @@ import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -620,13 +620,7 @@ export function LearnSession({
           </Chip>
           <Ladder rung={rung} />
           <div className="ml-auto flex items-center gap-1">
-            <Link
-              href={`/dictionary?q=${encodeURIComponent(word.lemma)}`}
-              className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-60"
-              style={{ color: "var(--ink-3)" }}
-            >
-              <BookOpen size={13} aria-hidden /> Full entry
-            </Link>
+            <FullEntry lemma={word.lemma} />
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             <StarWord lexemeId={word.lexemeId} starred={word.starred} label={word.lemma} />

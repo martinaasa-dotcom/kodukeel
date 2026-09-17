@@ -14,7 +14,7 @@ import { curveballById } from "@/lib/scenes/curveballs";
 import { errandForScene, errandPlaces, SAY_IT_TODAY } from "@/lib/collections/errands";
 import { PLACES_TO_TALK } from "@/lib/collections/placesToTalk";
 import type { SceneReview } from "@/lib/scenes/review";
-import { useModuleFocus } from "@/components/course/ModuleScope";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /** So "words your conversations needed" is a query and never a counter (ADR-014). */
 export const SCENE_SOURCE = "SCENE";

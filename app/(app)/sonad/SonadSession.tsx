@@ -14,6 +14,7 @@ import type { Puzzle } from "@/lib/progress/sonad";
 import { addToDeck, recordSonad } from "@/app/actions";
 import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { loadBoard, saveBoard } from "./resume";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * SÕNAD'S BOARD.
@@ -493,6 +494,9 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
   kept: boolean;
   onKeep: () => void;
 }) {
+  /* Whether this round is a step of tonight's module, which decides whether
+     the word above is a door out of it. See components/course/moduleFocus.ts. */
+  const inModule = useModuleFocus() !== null;
   const keeper = useKeepWord(puzzle.lexemeId, async (deckIds) => {
     const result = await addToDeck(puzzle.lexemeId, ["RECOGNITION", "PRODUCTION"], "LOOKUP", deckIds);
     if (result.ok) onKeep();
@@ -506,14 +510,32 @@ function Finish({ puzzle, outcome, at, kept, onKeep }: {
           : "Not this time."}
       </p>
       <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
-        <Link
-          href={`/dictionary?q=${encodeURIComponent(puzzle.answer)}`}
-          className="font-semibold underline underline-offset-2"
-          style={{ color: "var(--accent-deep)" }}
-          lang="et"
-        >
-          {puzzle.answer}
-        </Link>
+        {/*
+          THE WORD OPENS ITS ENTRY, EXCEPT INSIDE TONIGHT'S MODULE.
+
+          A word in the sentence saying what it means is content rather than
+          navigation, which is why an inline link like this survives everywhere
+          else the module reaches. It does not survive here, and the difference
+          is that this one is the last thing on the screen at the end of a
+          round: tapping it lands on the dictionary, outside the evening, with
+          the frame gone and nothing saying how to get back. The word is still
+          the word; what goes is the door. The button under it is what this
+          screen offers instead, and it keeps the learner where they are.
+        */}
+        {inModule ? (
+          <span className="font-semibold" lang="et" style={{ color: "var(--ink)" }}>
+            {puzzle.answer}
+          </span>
+        ) : (
+          <Link
+            href={`/dictionary?q=${encodeURIComponent(puzzle.answer)}`}
+            className="font-semibold underline underline-offset-2"
+            style={{ color: "var(--accent-deep)" }}
+            lang="et"
+          >
+            {puzzle.answer}
+          </Link>
+        )}
         {" is "}
         {puzzle.translation}.
       </p>

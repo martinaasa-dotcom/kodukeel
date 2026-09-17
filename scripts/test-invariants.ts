@@ -16963,12 +16963,17 @@ check("a round's own way out stands down inside a module", () => {
   assert.ok(rounds.length >= 15, `only ${rounds.length} session files found; the sweep is looking in the wrong place`);
 
   const exit = code("components/round/RoundExit.tsx");
-  for (const name of ["EndSession", "WayOut"]) {
+  const ways = ["EndSession", "WayOut", "FullEntry"];
+  for (const name of ways) {
     assert.match(exit, new RegExp(`export function ${name}\\b`), `RoundExit stopped drawing ${name}`);
   }
+  /* Every one of them asks, counted against the list rather than a number
+     typed beside it: a fourth way out added without the question is the fault
+     this file exists for, and a hardcoded 3 would let it through the day
+     somebody writes one. */
   assert.equal(
-    (exit.match(/useModuleFocus\(\)/g) ?? []).length, 2,
-    "one of the two ways out of a round stopped asking whether it is inside a module",
+    (exit.match(/useModuleFocus\(\)/g) ?? []).length, ways.length,
+    "one of the ways out of a round stopped asking whether it is inside a module",
   );
 
   for (const file of rounds) {
@@ -16976,6 +16981,14 @@ check("a round's own way out stands down inside a module", () => {
     assert.ok(
       !/aria-label="End session"/.test(src),
       `${file} draws its own cross. Use EndSession, which stands down inside a module`,
+    );
+    /* The third way out, and the one nobody counted the first time: a card's
+       corner carries a link to the word's entry, which is a door into the
+       dictionary in the middle of a round. It was found by a suite walking an
+       evening and listing every link, not by reading. */
+    assert.ok(
+      !/Full entry/.test(src),
+      `${file} draws its own link to a word's entry. Use FullEntry, which stands down inside a module`,
     );
     /* A finish screen's row of exits: the copy is the anchor, and it may only
        appear inside the one wrapper that can take the row away. */
@@ -16988,6 +17001,49 @@ check("a round's own way out stands down inside a module", () => {
       );
     }
   }
+});
+
+/*
+  AND WHAT READS THE MODULE IS A LEAF, BECAUSE OF WHERE ITS READERS SIT.
+
+  `WayOut` lives in `Empty`, and `Empty` is drawn on the landing page and on
+  the sign-in screen, which have no signed-in shell and no module and never
+  will. With the context living beside the bar, importing the hook dragged the
+  bar, its icons and a reference to `advanceCourseStep` along: measured on a
+  production build, `/welcome` and `/privacy` both pulled in the 44KB chunk
+  holding the module's way on, to draw nothing. The landing page is the one
+  screen a stranger decides on.
+
+  So the context is its own module with nothing in it, and this holds both
+  halves: that it stays a leaf, and that its readers read it rather than the
+  file that draws the bar. Anchored on the import, which is the thing the
+  bundler follows.
+*/
+check("the module's context is a leaf, so a public page does not ship the bar", () => {
+  const leaf = "components/course/moduleFocus.ts";
+  const src = code(leaf);
+  assert.match(src, /export function useModuleFocus/, `${leaf} stopped exporting the hook`);
+
+  const imports = [...src.matchAll(/^import\s[\s\S]*?from\s+"([^"]+)"/gm)].map((m) => m[1]!);
+  const allowed = imports.filter((from) => from !== "react" && from !== "@/lib/course");
+  assert.deepEqual(
+    allowed, [],
+    `${leaf} imports ${allowed.join(", ")}. It may reach React and the pure course types and nothing else, or every screen that reads a module ships whatever it reached`,
+  );
+
+  /* And nobody reads the hook off the file that draws the bar. */
+  const wrong = ALL.filter((f) => /useModuleFocus/.test(code(f)) && /course\/ModuleScope"/.test(code(f)));
+  assert.deepEqual(
+    wrong, [],
+    `${wrong.join(", ")} reads the hook from ModuleScope, which drags the bar and a server action into the bundle. Read it from ${leaf}`,
+  );
+
+  /* The bar itself is mounted once and is the one thing allowed to import
+     ModuleScope, which the check above this one already asserts. */
+  assert.match(
+    code("components/course/ModuleScope.tsx"), /from "\.\/moduleFocus"/,
+    "the module frame stopped filling the context its readers read",
+  );
 });
 
 /*

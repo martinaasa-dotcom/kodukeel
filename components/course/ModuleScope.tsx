@@ -1,11 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, useTransition, type ReactNode } from "react";
+import { useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, ListChecks } from "lucide-react";
 import { advanceCourseStep } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/course";
+import { ModuleContext } from "./moduleFocus";
 
 /**
  * TONIGHT'S MODULE, WITH THE REST OF THE WEBSITE TAKEN OFF THE SCREEN.
@@ -48,21 +49,12 @@ import { MODULE_HOME, MODULE_PARAM, readFocus, type ModuleFocus } from "@/lib/co
  * and the step again on the server, refuses to tick a derived step, refuses a
  * day nobody has reached, and works out the way on from the day's own order
  * rather than from anything sent to it.
- */
-const ModuleContext = createContext<ModuleFocus | null>(null);
-
-/**
- * The module a screen is being read inside, or nothing.
  *
- * What a round reads to know that its own way out is not wanted: inside a
- * module the only ways off a screen are the one at the foot of it and the way
- * back to the list, so a finish screen offering Today, Practice and another
- * round is offering three doors out of a room whose door is already drawn.
+ * THE CONTEXT ITSELF IS NEXT DOOR, in `moduleFocus.ts`, and its own header says
+ * why: everything that reads it would otherwise drag this file, its icons and a
+ * reference to `advanceCourseStep` along, including `Empty`, which is drawn on
+ * the landing page.
  */
-export function useModuleFocus(): ModuleFocus | null {
-  return useContext(ModuleContext);
-}
-
 export function ModuleScope({ children }: { children: ReactNode }) {
   const params = useSearchParams();
   const focus = readFocus(params.get(MODULE_PARAM));
@@ -82,11 +74,13 @@ export function ModuleScope({ children }: { children: ReactNode }) {
  * both end up. What is to its left is not a second choice about tonight, it is
  * the way back to the list, which is still inside the module.
  *
- * A DERIVED STEP IS PRESSED PAST RATHER THAN TICKED, and the line under the
- * button says so rather than letting the press imply a row was written. The
- * closing round and meeting the words are read off the learner's own answers,
- * so somebody who walks out of either half way is still looking at an
- * unfinished step when they reach the list, which is the truth about it.
+ * A DERIVED STEP IS PRESSED PAST RATHER THAN TICKED, and the bar says so
+ * rather than letting the press imply a row was written. The closing round and
+ * meeting the words are read off the learner's own answers, so somebody who
+ * walks out of either half way is still looking at an unfinished step when
+ * they reach the list, and being told that here is better than finding it out
+ * there. Which steps those are is the day's own business, so the frame is told
+ * rather than guessing from the step id.
  */
 function ModuleBar({ focus }: { focus: ModuleFocus }) {
   const router = useRouter();
@@ -166,6 +160,22 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
             {last ? "Finish" : "Continue"} <ArrowRight size={15} aria-hidden />
           </Button>
         </div>
+        {/*
+          AND A STEP THE LOG FINISHES SAYS SO BEFORE IT IS PRESSED PAST.
+
+          Meeting the words and the closing round are read off the learner's
+          own answers and this press writes nothing for either, so somebody who
+          walks out of one half way meets an unfinished step when they reach
+          the list. That surprise is the shape of the thing this whole change
+          was reported as, one room over, and one line here is cheaper than
+          finding it out there. The same fact the list states, in the tense of
+          somebody standing on the step.
+        */}
+        {focus.derived && (
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>
+            This one ticks itself off your answers rather than off this button.
+          </p>
+        )}
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
             {failed} Nothing was changed.

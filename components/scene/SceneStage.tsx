@@ -4,7 +4,7 @@ import { type ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { SceneMotif } from "./SceneMotif";
-import { useModuleFocus } from "@/components/course/ModuleScope";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * The room a conversation happens in, and the website taken off the screen for

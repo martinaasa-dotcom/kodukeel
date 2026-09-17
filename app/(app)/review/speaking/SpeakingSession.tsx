@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Mic } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
@@ -13,7 +12,7 @@ import { StarWord } from "@/components/StarWord";
 import { useResumeCard } from "@/components/useResumeCard";
 import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
-import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 
 export interface SpeakingCard {
   cardId: string;
@@ -170,13 +169,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           <Chip tone="accent"><Mic size={12} aria-hidden /> Say it out loud</Chip>
           {card.isSentence && <Chip>sentence</Chip>}
           <div className="ml-auto flex items-center gap-1">
-            <Link
-              href={`/dictionary?q=${encodeURIComponent(card.lemma)}`}
-              className="text-xs"
-              style={{ color: "var(--ink-3)" }}
-            >
-              Full entry
-            </Link>
+            <FullEntry lemma={card.lemma} icon={false} />
             {/* The corner of the card, which is where somebody looks for this
                 the moment a word turns out to be worth keeping. */}
             {card.lexemeId && (

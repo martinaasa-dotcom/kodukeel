@@ -3562,11 +3562,12 @@ below. Then they came back to the list and the step was not green, so the evenin
 press "I did this" about a page they had visibly just read.
 
 So a step opened from the module says so, in the one place a screen can be told how it was reached,
-which is its own address. `lib/course/focus.ts` is the one table of what `?module=` carries, five
+which is its own address. `lib/course/focus.ts` is the one table of what `?module=` carries, six
 short fields written by the list and read by the frame, and `readFocus` refuses anything that is not
-five fields with two numbers in them, because a hand-typed address reaches it like everything else
-off the wire. **Nothing in it is trusted**: it decides whether a frame is drawn and what the caption
-says, and `advanceCourseStep` resolves the programme, the day and the step again on the server,
+six fields with two numbers and a flag in them, because a hand-typed address reaches it like
+everything else off the wire. **Nothing in it is trusted**: it decides whether a frame is drawn, what
+the caption says and whether the bar says this step ticks itself off the learner's own answers, and
+`advanceCourseStep` resolves the programme, the day and the step again on the server,
 refuses a day nobody has reached for the reason `markCourseStep` does, refuses to write a row for a
 step the review log proves, and works out where to go from the day's own order rather than from
 anything sent to it.
@@ -3588,18 +3589,39 @@ address that decides, so a step that did not exist when this was written arrives
 module. Asserted, along with there being only one mount: two frames are two answers to where the way
 on goes.
 
-**And a round's own way out stands down.** Every session had the same two written out by hand, a
-cross in the corner and a row on the finish screen offering Today, another round and the practice
-menu, which is right where somebody chose the round and is three doors out of a room where the
-module did. `components/round/RoundExit.tsx` is the one drawing of both and each asks
-`useModuleFocus`; the sweep is anchored on the copy rather than on the import, because a session that
-wrote the markup back would satisfy any check looking only for the component. **"Another round" goes
-with them**: it is not an exit and it is still a second thing to decide, on the one screen whose job
-is to say how that round went and hand the evening on. What is left in a module step is the button
-at the foot of it, which ticks the step and opens the next, and one quiet way back to the list, which
-is not leaving the evening. An inline link inside a sentence is not touched, here or anywhere: a word
-linked to its own dictionary entry in the sentence saying what it means is content rather than
-navigation.
+**And a round's own way out stands down.** Every session had the same three written out by hand: a
+cross in the corner, a row on the finish screen offering Today, another round and the practice menu,
+and a link in the card's corner to the word's own entry. Each is right where somebody chose the
+round and each is a door out of a room where the module did.
+`components/round/RoundExit.tsx` is the one drawing of all three and each asks `useModuleFocus`; the
+sweep is anchored on the copy rather than on the import, because a session that wrote the markup back
+would satisfy any check looking only for the component. **"Another round" goes with them**: it is not
+an exit and it is still a second thing to decide, on the one screen whose job is to say how that
+round went and hand the evening on. So does an empty state's action, through one edit in `Empty`,
+since a learner whose deck cannot fill a board was being handed the dictionary. What is left in a
+module step is the button at the foot of it, which ticks the step and opens the next, and one quiet
+way back to the list, which is not leaving the evening.
+
+**The third of those was found by measuring rather than by reading, which is the argument for
+measuring.** The first pass took the cross and the finish row, because those are the two shapes
+anybody notices, and left "Full entry" standing in the corner of every review card and every rung of
+the ladder. It came out of `scripts/test-module.mjs` walking a whole evening and listing every link
+on every step: four steps clean and the closing round offering `/dictionary?q=Venemaa`. A check that
+asked only about the step that was reported would have passed, and the next one of these would have
+reached a learner. **What is deliberately left is an inline link inside a sentence**, a word linked to
+its own entry in the line saying what it means, with one exception: Sõnad's finish card, where that
+word is the last thing on the screen at the end of a round and tapping it lands on the dictionary
+with the frame gone. A word in a table of six is not a sentence either, so the case page prints
+those rather than linking them.
+
+**And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
+`Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
+shell and no module and never will. With the context living beside the bar, importing the hook
+dragged the bar, its icons and a reference to `advanceCourseStep` along: measured on a production
+build, `/welcome` and `/privacy` both pulled in the 44KB chunk holding the module's way on, to draw
+nothing. `components/course/moduleFocus.ts` is the context and the hook and not one thing more, and
+the invariant holds both halves, that it stays a leaf and that its readers read it rather than the
+file that draws the bar.
 
 **And the reading is a reading.** Both reference pages stand their unit list, their drill and their
 way back to the reference down inside a module, and both are asserted, because they are two pages

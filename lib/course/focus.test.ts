@@ -7,7 +7,10 @@ import {
 
 const programme = PROGRAMMES[0]!;
 const day = programme.days[0]!;
-const focus = { programmeId: programme.id, dayId: day.id, stepId: day.steps[0]!.id, n: 1, of: 5 };
+const focus = {
+  programmeId: programme.id, dayId: day.id, stepId: day.steps[0]!.id,
+  n: 1, of: 5, derived: true,
+};
 
 describe("the marker a focused step carries", () => {
   it("goes out and comes back the same", () => {
@@ -24,7 +27,7 @@ describe("the marker a focused step carries", () => {
         for (const { step, href, n, of } of focusedSteps(p.id, d.id, d.steps)) {
           const url = new URL(href, "https://example.test");
           expect(readFocus(url.searchParams.get(MODULE_PARAM))).toEqual({
-            programmeId: p.id, dayId: d.id, stepId: step.id, n, of,
+            programmeId: p.id, dayId: d.id, stepId: step.id, n, of, derived: step.derived,
           });
         }
       }
@@ -48,11 +51,12 @@ describe("the marker a focused step carries", () => {
   it.each([
     ["nothing", undefined],
     ["a number", 3],
-    ["too few fields", "a1.1~day-1~read"],
-    ["too many", "a1.1~day-1~read~1~5~6"],
-    ["a step out of range", "a1.1~day-1~read~9~5"],
-    ["a position that is not a number", "a1.1~day-1~read~one~5"],
-    ["an empty programme", "~day-1~read~1~5"],
+    ["too few fields", "a1.1~day-1~read~1~5"],
+    ["too many", "a1.1~day-1~read~1~5~0~x"],
+    ["a step out of range", "a1.1~day-1~read~9~5~0"],
+    ["a position that is not a number", "a1.1~day-1~read~one~5~0"],
+    ["an empty programme", "~day-1~read~1~5~0"],
+    ["a derived flag that is neither", "a1.1~day-1~read~1~5~maybe"],
   ])("refuses %s", (_what, value) => {
     expect(readFocus(value)).toBeNull();
   });
@@ -78,6 +82,7 @@ describe("the way on from a step", () => {
           expect(url.pathname).toBe(next.href.split("?")[0]);
           expect(readFocus(url.searchParams.get(MODULE_PARAM))).toEqual({
             programmeId: p.id, dayId: d.id, stepId: next.id, n: at + 2, of: d.steps.length,
+            derived: next.derived,
           });
         });
       }

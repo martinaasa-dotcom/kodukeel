@@ -26,7 +26,7 @@
  * app to draw one button. It could ask the server, and then the frame lands a
  * round trip after the page and the website is drawn around the step for a
  * beat before it is taken away, which is the flicker `.scene-room` exists not
- * to have. The five fields are short, the module screen has all of them in
+ * to have. The six fields are short, the module screen has all of them in
  * hand when it writes the link, and nothing here is trusted: `advanceCourseStep`
  * resolves the programme, the day and the step again on the server and refuses
  * a day the learner has not reached, exactly as `markCourseStep` always did.
@@ -65,6 +65,17 @@ export interface ModuleFocus {
   n: number;
   /** How many steps the evening has. */
   of: number;
+  /**
+   * Whether the review log is what finishes this one.
+   *
+   * Display only, like `n` and `of`: the frame says "this ticks itself off
+   * your answers" rather than letting a press imply a row was written, and a
+   * learner who walks out of the closing round half way is told so there
+   * rather than finding it out on the list. What actually decides whether a
+   * row is written is `CourseStep.derived`, read off the day on the server by
+   * `advanceCourseStep`, which never sees this.
+   */
+  derived: boolean;
 }
 
 /** Where the module's own screen is. The one place a focused step goes back to. */
@@ -80,7 +91,9 @@ export const MODULE_HOME = "/course";
  * day's own step order rather than these.
  */
 export function focusValue(focus: ModuleFocus): string {
-  return [focus.programmeId, focus.dayId, focus.stepId, focus.n, focus.of].join(SEP);
+  return [
+    focus.programmeId, focus.dayId, focus.stepId, focus.n, focus.of, focus.derived ? 1 : 0,
+  ].join(SEP);
 }
 
 /**
@@ -102,7 +115,7 @@ export function focusHref(href: string, focus: ModuleFocus): string {
  *
  * `unknown` in, because this arrives off the wire whatever a type says: a
  * hand-typed address, a stale bookmark or a link somebody shared all reach
- * this, and the honest answer to a value that is not five fields with two
+ * this, and the honest answer to a value that is not six fields with two
  * numbers in it is that there is no module in play. Nothing downstream is
  * trusted either; this only decides whether a frame is drawn.
  */
@@ -110,14 +123,17 @@ export function readFocus(value: unknown): ModuleFocus | null {
   const raw = typeof value === "string" ? value : Array.isArray(value) ? value[0] : null;
   if (typeof raw !== "string") return null;
   const parts = raw.split(SEP);
-  if (parts.length !== 5) return null;
-  const [programmeId, dayId, stepId, n, of] = parts as [string, string, string, string, string];
+  if (parts.length !== 6) return null;
+  const [programmeId, dayId, stepId, n, of, derived] = parts as [
+    string, string, string, string, string, string,
+  ];
   if (!programmeId || !dayId || !stepId) return null;
   const at = Number(n);
   const total = Number(of);
   if (!Number.isInteger(at) || !Number.isInteger(total)) return null;
   if (at < 1 || total < 1 || at > total) return null;
-  return { programmeId, dayId, stepId, n: at, of: total };
+  if (derived !== "0" && derived !== "1") return null;
+  return { programmeId, dayId, stepId, n: at, of: total, derived: derived === "1" };
 }
 
 /** The same, off a page's own `searchParams` object. */
@@ -142,7 +158,9 @@ export function focusedSteps(
     step,
     n: at + 1,
     of,
-    href: focusHref(step.href, { programmeId, dayId, stepId: step.id, n: at + 1, of }),
+    href: focusHref(step.href, {
+      programmeId, dayId, stepId: step.id, n: at + 1, of, derived: step.derived,
+    }),
   }));
 }
 

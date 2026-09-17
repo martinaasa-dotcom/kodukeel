@@ -1,9 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { X } from "lucide-react";
+import { BookOpen, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { useModuleFocus } from "@/components/course/ModuleScope";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
  * THE TWO WAYS OUT OF A ROUND, DRAWN ONCE, AND WHAT BECOMES OF THEM INSIDE A
@@ -21,6 +21,15 @@ import { useModuleFocus } from "@/components/course/ModuleScope";
  * next, and a finish screen offering three other places to be is three doors
  * out of a room whose door is already drawn. So inside a module both stand
  * down, and `components/course/ModuleScope.tsx` is what they ask.
+ *
+ * THE THIRD WAY OUT WAS THE ONE NOBODY COUNTED. A card in a round carries a
+ * "Full entry" link in its corner, which is a door into the dictionary in the
+ * middle of a round, and it was written out in three sessions. It survived the
+ * first pass at this because it is neither of the two shapes above, and it was
+ * found by a suite walking an evening and listing every link on every step
+ * rather than by anybody reading the code: the reading step was clean and the
+ * closing round offered `/dictionary?q=Venemaa`. It is one drawing now, so a
+ * fourth card inherits the answer.
  *
  * ONE DRAWING RATHER THAN SEVENTEEN. These were written out by hand in every
  * session, near enough identically, which is the state this project's own
@@ -71,4 +80,26 @@ export function WayOut({ className = "", children }: {
   const focus = useModuleFocus();
   if (focus) return null;
   return <div className={className}>{children}</div>;
+}
+
+/**
+ * The way to a word's own dictionary entry, from the corner of a card.
+ *
+ * Worth having where somebody chose the round: a word turns out to be worth
+ * reading about and the entry is one press away. Inside a module it is a door
+ * out of the evening in the middle of a round, so it stands down, and what
+ * stays in that corner is the star, which keeps the learner where they are.
+ */
+export function FullEntry({ lemma, icon = true }: { lemma: string; icon?: boolean }) {
+  const focus = useModuleFocus();
+  if (focus) return null;
+  return (
+    <Link
+      href={`/dictionary?q=${encodeURIComponent(lemma)}`}
+      className="flex items-center gap-1.5 text-xs font-semibold transition-opacity hover:opacity-60"
+      style={{ color: "var(--ink-3)" }}
+    >
+      {icon && <BookOpen size={13} aria-hidden />} Full entry
+    </Link>
+  );
 }
