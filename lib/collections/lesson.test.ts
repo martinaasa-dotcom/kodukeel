@@ -25,7 +25,7 @@ const noun = (lemma: string, gloss: string, extra: Partial<LessonWord> = {}): Le
 });
 
 const WORDS: LessonWord[] = [
-  noun("maja", "house", { examples: ["Maja on suur ja valge."], parts: { NOM_SG: "maja", GEN_SG: "maja", PART_SG: "maja" } }),
+  noun("maja", "house", { examples: [{ et: "Maja on suur ja valge.", en: "The house is big and white." }], parts: { NOM_SG: "maja", GEN_SG: "maja", PART_SG: "maja" } }),
   noun("tuba", "room", { parts: { NOM_SG: "tuba", GEN_SG: "toa", PART_SG: "tuba" } }),
   noun("uks", "door", { parts: { NOM_SG: "uks", GEN_SG: "ukse", PART_SG: "ust" } }),
   noun("aken", "window", { parts: { NOM_SG: "aken", GEN_SG: "akna", PART_SG: "akent" } }),
@@ -146,7 +146,7 @@ describe("what a step is built from", () => {
     const gaps = plan().filter((s): s is Extract<LessonStep, { kind: "gap" }> => s.kind === "gap");
     for (const gap of gaps) {
       const source = WORDS.find((w) => w.lemma === gap.lemma);
-      expect(source?.examples).toContain(gap.full);
+      expect(source?.examples.map((e) => e.et)).toContain(gap.full);
       // The blank really removed something, and the answer really was in it.
       expect(gap.text).not.toEqual(gap.full);
       expect(gap.full).toContain(gap.answer);
@@ -169,7 +169,7 @@ describe("what a step is built from", () => {
   */
   it("never gaps a plural, even where the unit's own sentence carries one", () => {
     const friend = noun("sõber", "friend", {
-      examples: ["Oleme ikka sõbrad edasi!"],
+      examples: [{ et: "Oleme ikka sõbrad edasi!", en: null }],
       parts: { NOM_SG: "sõber", GEN_SG: "sõbra", PART_SG: "sõpra", NOM_PL: "sõbrad" },
     });
     const steps = planLesson({ unit, words: [friend], distractors: DISTRACTORS, seed: 5 });

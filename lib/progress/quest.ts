@@ -5,6 +5,9 @@ import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { caseFormChoices, verbFormChoices, verbFormSlots } from "@/lib/questions/caseChoices";
+import { parseExamples, translationOf } from "@/lib/dict/examples";
+import { BLANK } from "@/lib/estonian/cloze";
+import { resolveProvider } from "@/lib/tutor/provider";
 
 /**
  * THE DAILY QUEST'S POOL: WHAT IS GOING WRONG, ASKED AGAIN TODAY.
@@ -50,6 +53,19 @@ export interface QuestCard {
   lemma: string | null;
   cardType: string;
   targetCase: string | null;
+  /** The entry the card's sentence hangs off, so its English can be asked for. */
+  lexemeId: string | null;
+  /**
+   * What this card's sentence means, where the dictionary already holds it.
+   *
+   * A gap-fronted card is answered by a word and learned as a sentence, and
+   * this round drew the whole line on the reveal with nothing to say what it
+   * was. The review card has carried it since gap cards became sentences; this
+   * one had not, on the round the app features a day a week.
+   */
+  sentenceEn: string | null;
+  /** Whether this deployment has a model to ask for one. */
+  canTranslate: boolean;
   /** True when this card is here because its case is one of the weak ones. */
   targetsWeakCase: boolean;
   /**
@@ -102,7 +118,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
     where: { ownerId, suspended: false, state: { not: 0 } },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
     take: POOL,
-    include: { lexeme: { select: { lemma: true } } },
+    include: { lexeme: { select: { lemma: true, examples: true } } },
   });
 
   const onWeakCase = rows.filter((c) => c.targetCase && weakKeys.includes(c.targetCase));
@@ -129,6 +145,11 @@ export async function questFor(ownerId: string): Promise<Quest> {
       lemma: c.lexeme?.lemma ?? null,
       cardType: c.cardType,
       targetCase: c.targetCase,
+      lexemeId: c.lexemeId,
+      sentenceEn: c.front.includes(BLANK) && c.lexeme
+        ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
+        : null,
+      canTranslate: resolveProvider() !== null,
       targetsWeakCase: Boolean(c.targetCase && weakKeys.includes(c.targetCase)),
       choices: options.get(c.id) ?? null,
     })),

@@ -150,6 +150,24 @@ export function mergeExamples(existing: Example[], incoming: Example[]): Example
 }
 
 /**
+ * The English already stored against one exact sentence of a word, or null.
+ *
+ * The one reader of "does the dictionary already say what this line means",
+ * asked by every screen that puts a recorded sentence in front of a learner:
+ * the review card and the daily quest reconstruct a gap card's sentence by
+ * putting the answer back and look it up here, and the grammar pages and the
+ * word of the day hand over the sentence they chose. Matched on the exact
+ * spelling, because a translation belongs to the sentence it was made of and
+ * a near miss is a different line.
+ *
+ * Null is "not yet", never "no": `SentenceTranslation` is what turns one into
+ * the other, once per sentence per deployment.
+ */
+export function translationOf(examples: Example[], sentence: string): string | null {
+  return examples.find((e) => e.et === sentence)?.en ?? null;
+}
+
+/**
  * The first sentence that contains a form as a whole word.
  *
  * Whole-word, not substring, and that is the entire point: `toa` sits inside

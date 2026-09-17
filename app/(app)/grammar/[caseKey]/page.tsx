@@ -10,6 +10,8 @@ import { caseExamples, type CaseExample } from "@/lib/progress/caseExamples";
 import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Speak } from "@/components/Speak";
+import { EstonianSentence } from "@/components/EstonianSentence";
+import { resolveProvider } from "@/lib/tutor/provider";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
 
@@ -92,6 +94,7 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
   const next = index < all.length - 1 ? all[index + 1] : undefined;
 
   const withSentence = examples.filter((e) => e.sentence).slice(0, SENTENCES);
+  const canTranslate = resolveProvider() !== null;
 
   return (
     <Page
@@ -295,17 +298,22 @@ export default async function CasePage({ params }: { params: Promise<{ caseKey: 
               {withSentence.map((example) => (
                 <li key={`${example.lexemeId}-sentence`}>
                   <Card>
-                    <div className="flex items-start gap-2">
-                      <p lang="et" className="min-w-0 flex-1 text-base leading-snug" style={{ color: "var(--ink)" }}>
-                        {example.sentence!.et}
-                      </p>
-                      <Speak text={example.sentence!.et} label="Hear the sentence" />
-                    </div>
-                    {example.sentence!.en && (
-                      <p className="mt-1 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-                        {example.sentence!.en}
-                      </p>
-                    )}
+                    {/*
+                      The sentence and what it says, through the one drawing
+                      every other screen gives an attested line. It used to be
+                      `{sentence.en && ...}`, and Ekilex records no English
+                      against a usage on a reader key, so the page that exists
+                      to show a case doing its job showed fourteen sentences of
+                      Estonian with nothing under any of them.
+                    */}
+                    <EstonianSentence
+                      et={example.sentence!.et}
+                      en={example.sentence!.en}
+                      form={example.sentenceForm ?? example.form}
+                      lexemeId={example.lexemeId}
+                      canTranslate={canTranslate}
+                      className="min-w-0 flex-1 text-base leading-snug"
+                    />
                     <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
                       contains{" "}
                       <span lang="et" style={{ color: "var(--accent-deep)" }}>{example.sentenceForm ?? example.form}</span>

@@ -45,10 +45,25 @@ import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { rng } from "@/lib/random/seeded";
 import { differentMeaning } from "@/lib/questions/distractors";
+import { teachingSentence } from "@/lib/dict/examples";
+import { isPhrase } from "@/lib/dict/pos";
 
 export type StepKind =
   | "intro" | "meet" | "choose" | "produce" | "type"
   | "listen" | "gap" | "build" | "case" | "govern" | "recap";
+
+/**
+ * One recorded sentence, and what it means.
+ *
+ * `en` is null where the dictionary holds no translation yet, which on a
+ * reader key is most of them; the screen asks for one and stores it. Null and
+ * absent are deliberately the same shape here, so a planner cannot build a
+ * step that has quietly forgotten the English half.
+ */
+export interface LessonExample {
+  et: string;
+  en: string | null;
+}
 
 /** A dictionary word, resolved, as the lesson needs it. */
 export interface LessonWord {
@@ -78,8 +93,17 @@ export interface LessonWord {
    * See lib/estonian/caseQuestion.ts.
    */
   semanticTypes: string | null;
-  /** Attested Estonian sentences. Never generated. */
-  examples: readonly string[];
+  /**
+   * Attested Estonian sentences, each with its English where one is stored.
+   *
+   * The English travels with the sentence rather than being dropped on the way
+   * in. It used to be `readonly string[]`, built by the page as
+   * `usableExamples(...).map((e) => e.et)`, and that one `.et` is the whole of
+   * why a learner met `jah` under `Sina jah.` with nothing to say what it
+   * meant: the dictionary's own translation was two fields away and thrown
+   * out before the planner ever saw it. Never generated (ADR-005).
+   */
+  examples: readonly LessonExample[];
   /** Stored principal parts, by formType. */
   parts: Readonly<Record<string, string>>;
   government: string | null;
@@ -110,8 +134,14 @@ export interface MeetStep extends StepBase {
   /** The meaning in the learner's own language, where Ekilex recorded one. */
   equivalent?: { text: string; lang: string } | null;
   pos: string;
-  /** One attested sentence, when the word has one, purely to see it in use. */
-  example: string | null;
+  /**
+   * One attested sentence, when the word has one, purely to see it in use:
+   * the Estonian, its English, and which form of the word it carries so the
+   * screen can mark it. Drawn by `WordIntro` like every other first meeting.
+   */
+  example: (LessonExample & { form: string | null }) | null;
+  /** A whole utterance rather than a word, which is why it has no example. */
+  isPhrase: boolean;
 }
 /** Estonian shown, English chosen. The easiest question there is. */
 export interface ChooseStep extends StepBase {
@@ -142,18 +172,26 @@ export interface ListenStep extends StepBase {
 }
 export interface GapStep extends StepBase {
   kind: "gap";
+  /** The entry the sentence hangs off, so its English can be asked for and stored. */
+  lexemeId: string;
   lemma: string;
   gloss: string;
   /** The sentence with one form blanked out. */
   text: string;
   answer: string;
   full: string;
+  /** What the whole sentence means, for the reveal. Null until one is asked for. */
+  en: string | null;
 }
 export interface BuildStep extends StepBase {
   kind: "build";
+  /** The entry the sentence hangs off, so its English can be asked for and stored. */
+  lexemeId: string;
   lemma: string;
   tiles: readonly string[];
   sentence: string;
+  /** What the assembled sentence means, for the reveal. Null until one is asked for. */
+  en: string | null;
 }
 export interface CaseStep extends StepBase {
   kind: "case";
@@ -388,13 +426,31 @@ const buildStep2: Builder = (w, r, nextId) => buildStep(w, nextId("build"), r);
 const caseStep2: Builder = (w, r, nextId) => caseStep(w, nextId("case"), r);
 const governStep2: Builder = (w, r, nextId) => governStep(w, nextId("govern"), r);
 
+/**
+ * The sentence a word is met with, and which form of it that sentence carries.
+ *
+ * `teachingSentence` wants `Example`s and a `LessonExample` is one without a
+ * source, which this lesson has no use for and the planner has no way to know:
+ * the page hands over what the dictionary recorded and every sentence reaching
+ * here is already attested. The source is filled in as `EKILEX` for the call
+ * alone and reaches no screen.
+ */
+function meetSentence(word: LessonWord): (LessonExample & { form: string | null }) | null {
+  const found = teachingSentence(
+    word.examples.map((e) => ({ et: e.et, en: e.en, source: "EKILEX" as const })),
+    [word.lemma],
+  );
+  if (!found) return null;
+  return { et: found.example.et, en: found.example.en ?? null, form: found.form };
+}
+
 function gapStep(word: LessonWord, id: string): GapStep | null {
   for (const sentence of word.examples) {
-    const cloze = buildCloze(sentence, knownForms(word));
+    const cloze = buildCloze(sentence.et, knownForms(word));
     if (cloze) {
       return {
-        id, kind: "gap", lemma: word.lemma, gloss: word.gloss,
-        text: cloze.text, answer: cloze.answer, full: cloze.full,
+        id, kind: "gap", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
+        text: cloze.text, answer: cloze.answer, full: cloze.full, en: sentence.en,
       };
     }
   }
@@ -403,10 +459,13 @@ function gapStep(word: LessonWord, id: string): GapStep | null {
 
 function buildStep(word: LessonWord, id: string, rand: () => number): BuildStep | null {
   for (const sentence of word.examples) {
-    if (!isBuildable(sentence)) continue;
-    const tiles = sentenceTiles(sentence);
+    if (!isBuildable(sentence.et)) continue;
+    const tiles = sentenceTiles(sentence.et);
     if (tiles.length < 3 || tiles.length > 9) continue;
-    return { id, kind: "build", lemma: word.lemma, tiles: shuffle(tiles, rand), sentence };
+    return {
+      id, kind: "build", lexemeId: word.lexemeId, lemma: word.lemma,
+      tiles: shuffle(tiles, rand), sentence: sentence.et, en: sentence.en,
+    };
   }
   return null;
 }
@@ -610,7 +669,16 @@ export function planLesson(input: LessonInput): LessonStep[] {
   const meetLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("meet"), kind: "meet", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
     equivalent: word.equivalent ?? null,
-    pos: word.pos, example: word.examples[0] ?? null,
+    pos: word.pos, isPhrase: isPhrase(word.pos),
+    /*
+      Which sentence, and which form of the word it carries, is
+      `teachingSentence`'s answer rather than "the first one": that is the
+      function the review card and the learn ladder both ask, and three
+      screens introducing one word three ways is three answers to how a word
+      is introduced. The lemma is what a lesson has taught by this point, so
+      it is the only form worth marking.
+    */
+    example: meetSentence(word),
   }));
 
   const chooseLane = (block: readonly LessonWord[]) => block.flatMap((word): LessonStep[] => {

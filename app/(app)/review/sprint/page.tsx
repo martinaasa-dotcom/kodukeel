@@ -3,6 +3,9 @@ import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { SprintSession, type SprintCard } from "./SprintSession";
+import { parseExamples, translationOf } from "@/lib/dict/examples";
+import { BLANK } from "@/lib/estonian/cloze";
+import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor } from "@/lib/ux/roundClock";
@@ -37,7 +40,7 @@ export default async function SprintPage() {
     where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 } },
     orderBy: { due: "asc" },
     take: POOL_SIZE,
-    include: { lexeme: { select: { lemma: true, translation: true } } },
+    include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
   });
 
   let cards = due;
@@ -47,7 +50,7 @@ export default async function SprintPage() {
       where: { ownerId, suspended: false, lapses: { gt: 0 }, id: { notIn: [...seenIds] } },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true } } },
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
     });
     cards = [...cards, ...weak];
   }
@@ -67,6 +70,17 @@ export default async function SprintPage() {
     lexemeId: c.lexemeId,
     starred: !!c.lexemeId && starred.has(c.lexemeId),
     cardType: c.cardType,
+    /*
+      A gap-fronted card is a whole recorded sentence with one word taken out,
+      and sprint draws whatever is due, so the fastest round in the app was
+      also one of the places a sentence went past with nothing to say what it
+      meant. Offered rather than fetched here (`ask="onRequest"` on the
+      session), because forty cards in a minute is forty calls against the
+      deployment's own daily cap for a reader who is racing past them.
+    */
+    sentenceEn: c.front.includes(BLANK) && c.lexeme
+      ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
+      : null,
   }));
 
   // Through the store, not straight at the table: the keys live there, and so
@@ -84,5 +98,5 @@ export default async function SprintPage() {
   */
   const seconds = secondsFor(BASE_DURATION_S, roundPaceFrom(settings[SETTING_KEYS.roundPace]));
 
-  return <SprintSession cards={sprintCards} best={best} seconds={seconds} />;
+  return <SprintSession cards={sprintCards} best={best} seconds={seconds} canTranslate={resolveProvider() !== null} />;
 }

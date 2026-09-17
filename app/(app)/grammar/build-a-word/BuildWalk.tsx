@@ -8,7 +8,7 @@ import { DrillLink } from "@/components/DrillLink";
 import { Speak } from "@/components/Speak";
 import { CaseQuestion } from "@/components/CaseQuestion";
 import { Card, KeyCap, Note, SectionTitle, Stack } from "@/components/ui";
-import { splitOnForm } from "@/lib/dict/examples";
+import { EstonianSentence } from "@/components/EstonianSentence";
 import { caseByKey } from "@/lib/estonian/cases";
 import { CASE_GROUPS, caseReference } from "@/lib/estonian/grammar";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
@@ -51,7 +51,11 @@ import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
  * room over. A first meeting in the learn ladder writes nothing for the same
  * reason. The way out at the end is a round that does grade.
  */
-export function BuildWalk({ walk }: { walk: CaseWalk }) {
+export function BuildWalk({ walk, canTranslate }: {
+  walk: CaseWalk;
+  /** Whether this deployment has a model to ask a sentence's English of. */
+  canTranslate: boolean;
+}) {
   const [wordAt, setWordAt] = useState(0);
   const [act, setAct] = useState(0);
   const word = walk.words[wordAt] ?? walk.words[0];
@@ -82,8 +86,8 @@ export function BuildWalk({ walk }: { walk: CaseWalk }) {
 
       <ActRail act={act} onGo={setAct} />
 
-      {act === 0 && <Memorise word={word} sentences={walk.sentences} onNext={() => setAct(1)} />}
-      {act === 1 && <StackEndings word={word} sentences={walk.sentences} onNext={() => setAct(2)} />}
+      {act === 0 && <Memorise word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => setAct(1)} />}
+      {act === 1 && <StackEndings word={word} sentences={walk.sentences} canTranslate={canTranslate} onNext={() => setAct(2)} />}
       {/*
         A FRESH WORD IS A FRESH ROUND, AND `key` IS HOW THAT IS SAID.
 
@@ -149,9 +153,10 @@ function ActRail({ act, onGo }: { act: number; onGo: (n: number) => void }) {
  * What is worth pressing is the question each one answers and the job it does,
  * which is the thing a table of three forms never says.
  */
-function Memorise({ word, sentences, onNext }: {
+function Memorise({ word, sentences, canTranslate, onNext }: {
   word: WalkWord;
   sentences: CaseWalk["sentences"];
+  canTranslate: boolean;
   onNext: () => void;
 }) {
   const [at, setAt] = useState(1);
@@ -212,6 +217,7 @@ function Memorise({ word, sentences, onNext }: {
         <FormPanel
           word={word}
           form={shown}
+          canTranslate={canTranslate}
           /*
             This word's own sentence where the dictionary has one, and a real
             sentence in the same case from another word where it does not.
@@ -240,10 +246,11 @@ function Memorise({ word, sentences, onNext }: {
 }
 
 /** One case, explained: what it is for, and the word wearing it. */
-function FormPanel({ word, form, sentence }: {
+function FormPanel({ word, form, sentence, canTranslate }: {
   word: WalkWord;
   form: WalkForm;
   sentence: WalkSentence | null;
+  canTranslate: boolean;
 }) {
   const ref = caseReference(form.key);
   if (!ref) return null;
@@ -283,7 +290,7 @@ function FormPanel({ word, form, sentence }: {
         {" · "}
         <CaseQuestion question={form.question} inline />
       </p>
-      {sentence && <Attested sentence={sentence} lemma={word.lemma} />}
+      {sentence && <Attested sentence={sentence} lemma={word.lemma} canTranslate={canTranslate} />}
     </Card>
   );
 }
@@ -296,7 +303,7 @@ function FormPanel({ word, form, sentence }: {
  * own argument about a word. Nothing is edited: `splitOnForm` finds the form
  * and the sentence is otherwise printed as recorded.
  */
-function Attested({ sentence, lemma }: { sentence: WalkSentence; lemma: string }) {
+function Attested({ sentence, lemma, canTranslate }: { sentence: WalkSentence; lemma: string; canTranslate: boolean }) {
   const borrowed = sentence.lemma && sentence.lemma !== lemma ? sentence.lemma : null;
   return (
     <div className="mt-4 rounded-[var(--r)] p-3.5" style={{ background: "var(--raised)" }}>
@@ -316,20 +323,21 @@ function Attested({ sentence, lemma }: { sentence: WalkSentence; lemma: string }
           The same case, on another word:
         </p>
       )}
-      <p lang="et" className="text-base leading-relaxed" style={{ color: "var(--ink)" }}>
-        {splitOnForm(sentence.et, sentence.form).map((part, n) => (
-          <span
-            key={n}
-            className={part.match ? "font-bold" : undefined}
-            style={part.match ? { color: "var(--accent-deep)" } : undefined}
-          >
-            {part.text}
-          </span>
-        ))}
-      </p>
-      {sentence.en && (
-        <p className="mt-1.5 text-sm" style={{ color: "var(--ink-2)" }}>{sentence.en}</p>
-      )}
+      {/*
+        The line, the form marked in it, and what it says. `{sentence.en && ...}`
+        was the whole of the English, and Ekilex records none against a usage
+        on a reader key: the walk's own argument is that an ending inside a
+        sentence somebody wrote is the case doing its job, and a reader who
+        cannot read the sentence is being shown the ending again.
+      */}
+      <EstonianSentence
+        et={sentence.et}
+        en={sentence.en}
+        form={sentence.form}
+        lexemeId={sentence.lexemeId}
+        canTranslate={canTranslate}
+        className="flex-1 text-base leading-relaxed"
+      />
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
         {borrowed
           ? <><span lang="et">{borrowed}</span>{sentence.translation ? `, ${sentence.translation}` : ""}, recorded in Ekilex.</>
@@ -356,9 +364,10 @@ function Attested({ sentence, lemma }: { sentence: WalkSentence; lemma: string }
  * the landing page's own card makes exactly this argument and those classes
  * are how it makes it (`app/globals.css`).
  */
-function StackEndings({ word, sentences, onNext }: {
+function StackEndings({ word, sentences, canTranslate, onNext }: {
   word: WalkWord;
   sentences: CaseWalk["sentences"];
+  canTranslate: boolean;
   onNext: () => void;
 }) {
   const [at, setAt] = useState(0);
@@ -531,7 +540,7 @@ function StackEndings({ word, sentences, onNext }: {
             </p>
           )}
           {sentence
-            ? <Attested sentence={sentence} lemma={word.lemma} />
+            ? <Attested sentence={sentence} lemma={word.lemma} canTranslate={canTranslate} />
             : (
               <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
                 No recorded sentence for this one yet.

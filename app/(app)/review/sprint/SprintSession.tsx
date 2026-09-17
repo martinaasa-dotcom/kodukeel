@@ -13,6 +13,8 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
+import { BLANK } from "@/lib/estonian/cloze";
+import { SentenceTranslation } from "@/components/SentenceTranslation";
 
 export interface SprintCard {
   id: string;
@@ -24,6 +26,8 @@ export interface SprintCard {
   /** Whether this word is already one of the learner's favorites. */
   starred: boolean;
   cardType: string;
+  /** What this card's sentence means, where the dictionary already holds it. */
+  sentenceEn: string | null;
 }
 
 const estonianSide = (type: string, side: "front" | "back") =>
@@ -36,8 +40,8 @@ const estonianSide = (type: string, side: "front" | "back") =>
  * its own length in an effect would start before it knew it.
  */
 export function SprintSession({
-  cards: initialCards, best, seconds,
-}: { cards: SprintCard[]; best: number; seconds: number }) {
+  cards: initialCards, best, seconds, canTranslate,
+}: { cards: SprintCard[]; best: number; seconds: number; canTranslate: boolean }) {
   // Snapshotted once on mount, and never updated from later props. gradeCard()
   // is a Server Action, and Next.js refreshes this route's Server Component
   // after every call — which would hand down a shrinking `cards` prop as
@@ -246,6 +250,21 @@ export function SprintSession({
             </p>
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}
           </div>
+
+          {/* What the line says, where the front is a whole sentence with a
+              word taken out. On request rather than on arrival: this round is
+              forty cards in a minute and a call apiece is a day's allowance
+              spent on sentences nobody stopped at. */}
+          {card.front.includes(BLANK) && (
+            <SentenceTranslation
+              key={card.front}
+              lexemeId={card.lexemeId}
+              et={card.front.replace(BLANK, card.back)}
+              en={card.sentenceEn}
+              canTranslate={canTranslate}
+              ask="onRequest"
+            />
+          )}
 
           {revealed && (
             <>

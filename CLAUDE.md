@@ -2205,6 +2205,65 @@ because the moment somebody decides they are done with this is the moment one is
 them, and a way out with no way back is a feature lost by pressing a button once. Five arms, each
 made to fail on the real line.
 
+**A sentence a learner is shown to read carries what it means, and that is one drawing rather than a
+rule each screen keeps for itself.** `WordIntro`'s header has said since it was written that two
+copies of a first meeting would be two answers and the one nobody was watching would drift, and the
+unit lesson was that copy for as long as it existed: it printed the lemma, the gloss and then the
+sentence as a bare line in the smallest type on the card, no form marked, no dictionary under the
+words, no English. A learner met `jah`, read "yes", read `Sina jah.` underneath and asked what that
+was doing there. It was never one screen either. Ekilex records no English against a usage on a
+reader key, so every recorded sentence in this app arrives bare, and each screen had answered that
+alone: `WordIntro` asked and stored, six review rounds were given the same one at a time, and the
+lesson, the daily quest, the learn ladder's own gap, the sprint, the word of the day, the case
+reference and the build-a-word walk each printed `{en && ...}`, which on a fresh deployment is
+nothing at all, for ever.
+
+**So there are three drawings of an attested sentence and no others.** `components/EstonianSentence.tsx`
+is the one a screen reaches for, the sentence with its form marked or the dictionary under every
+word of it, a speaker, and the English under that; `SentenceTranslation` and `GlossedSentence` are
+the two halves it is made of, used directly where a screen has chrome of its own to put between
+them. **All three end in the English**, so a screen cannot print the Estonian and leave the English
+out, and `en` and `canTranslate` are **required** props for the reason `illSgShort` is required on
+`NounStems`: a caller that has not thought about this does not compile. Null is "not yet" rather
+than "no", and `translateExample` is what turns one into the other, once per sentence per
+deployment, stored on the lexeme so the next learner reads it free. `ask` is the one thing a caller
+decides and has two honest answers: on arrival for a screen showing one sentence, which is every
+round and every first meeting, and on request for the dictionary entry, where eight sentences would
+be eight calls against the deployment's own cap spent on the seven nobody stopped at.
+
+**The fault under the report was a `.et` two files away from the screen.** The lesson page read the
+dictionary's own examples and mapped them to `e.et`, so the English was thrown out before the
+planner ever saw it and no amount of fixing the card could have put it back. `LessonWord.examples`
+carries `{ et, en }` now, the gap and build steps carry it too because both put a whole recorded
+sentence on screen, and the meet step asks `teachingSentence` which sentence and which form, the
+same function review and the ladder ask, so three screens introducing one word cannot introduce it
+three ways. `translationOf` is the one reader of "does the dictionary already say what this line
+means", asked by the review card, the quest and the sprint, which reconstruct a gap card's sentence
+by putting the answer back.
+
+**And the ladder's gap withholds the English on the question and owes it on the reveal.** `gap.en`
+is withheld where the translation spells the answer, because there it *is* the answer; `gap.fullEn`
+is the same sentence unwithheld, for the panel after the miss. Two fields rather than one, because
+they answer two different questions about one sentence.
+
+**What may not carry it is a measurement, and the list of those is argued for rather than
+appended to.** `lib/copy/sentenceCoverage.ts` holds every screen that prints a sentence and no
+English, with the reason: the mock examination and the level checkpoint and the placement check,
+where the sentence is the question and the English is the mark; the paste-your-own cloze and the
+writing round, where the sentence is the learner's own and there is nothing recorded to hang a
+translation on; and the handful of values the sweep finds that are named like a sentence and are
+not. A bare filename is not a decision, so the check refuses one, and an entry is checked for
+staleness in both directions, so a file that has stopped printing a sentence or has since started
+saying what it means fails until somebody takes the line out. Two screens are out of the sweep's
+reach rather than excused by it and the module's own header says so: the printable worksheet, which
+cannot ask anybody anything and prints what the dictionary holds, and the news block, which is
+somebody else's words off a feed with no entry behind them and the dictionary already under every
+word. The sweep is anchored on a JSX interpolation of a sentence-shaped value across the whole of
+`app/` and `components/`, rather than on a list of the rounds, because the fault was a screen
+nobody had thought to put on a list; the rounds whose sentence field is called something else are
+asserted by name beside it, and the drawing is matched as an element rather than as an import,
+which is the trap `code()` exists for and which this check was made to fall into once.
+
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
 words, and neither tells somebody in their first week where to start. `scripts/build-frequency.ts`
@@ -7879,7 +7938,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,
-`caseExamplesFor`.
+`caseExamplesFor`, `EstonianSentence`, `SentenceTranslation`, `translationOf`, `LessonExample`,
+`meetSentence`, `fullEn`, `SENTENCE_WITHOUT_ENGLISH`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

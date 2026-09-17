@@ -25,6 +25,7 @@ import { wordNote } from "../lib/estonian/dictation";
 import { ACTION_LIMITS } from "../lib/security/actionLimits";
 import { DEFAULT_KIND_BUDGETS, DEFAULT_LIMITS } from "../lib/usage/quota";
 import { NOT_EXPORTED } from "../lib/legal/exportCoverage";
+import { SENTENCE_WITHOUT_ENGLISH } from "../lib/copy/sentenceCoverage";
 import { IDENTIFIED_DEPLOYMENTS, resolveOperator } from "../lib/legal/operator";
 import { CATEGORY_KEYS } from "../lib/suggestions/model";
 import { CASES } from "../lib/estonian/cases";
@@ -16862,6 +16863,206 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   assert.match(
     bar, /aria-hidden/,
     "the milestone strip stopped being hidden from a screen reader. A row of dots is a picture of the list beneath it",
+  );
+});
+
+
+/*
+  NOTHING ESTONIAN IS SHOWN TO A LEARNER WITHOUT SAYING WHAT IT MEANS.
+
+  A word is glossed wherever it is printed, which this app has always done.
+  An attested *sentence* was not, and that is the one a learner cannot work
+  out for themselves: Ekilex records no English against a usage on a reader
+  key, so every recorded sentence in this app arrives bare and every screen
+  had answered that for itself. `WordIntro` asked and stored; six review
+  rounds were given the same one at a time; and the unit lesson, the daily
+  quest, the learn ladder's own gap, the sprint, the word of the day, the case
+  reference and the build-a-word walk each printed `{en && ...}`, which on a
+  fresh deployment is nothing at all, for ever. It was reported off the lesson,
+  where a learner met `jah`, read "yes", and read `Sina jah.` under it with
+  nothing to say what that was.
+
+  So there are three drawings of an attested sentence and no others.
+  `EstonianSentence` is the one a screen reaches for; `SentenceTranslation`
+  and `GlossedSentence` are the two halves it is made of, used directly where
+  a screen has chrome of its own to put between them. All three end in the
+  English, so a screen cannot print the Estonian and leave the English out.
+
+  Anchored on a JSX interpolation of a sentence-shaped value rather than on any
+  screen's markup, and on the whole of `app/` and `components/` rather than a
+  list of the rounds, because the fault was a screen nobody had thought to put
+  on a list. `lib/copy/sentenceCoverage.ts` is where an exception is argued
+  for, and it is checked in both directions so it cannot become a parking
+  space.
+*/
+/**
+ * One of the three drawn as an element, never merely imported.
+ *
+ * Anchored on `<Name` for the reason half the checks in this file are: written
+ * as a bare name it matched the import line, so deleting the component from
+ * the render left the check passing on a screen that had stopped saying what
+ * its sentence meant. Made to fail that way first.
+ */
+const DRAWS_ENGLISH = /<(EstonianSentence|SentenceTranslation|GlossedSentence)\b/;
+/**
+ * A JSX interpolation of something sentence-shaped.
+ *
+ * Deliberately the four names this app gives a recorded sentence rather than
+ * every Estonian string: widening it to `.et` and `.front` sweeps in `spec.et`,
+ * which is a case's Estonian *name*, and `line.at`, which is a timestamp, and
+ * a check that fires on honest code is a check people learn to waive. What it
+ * cannot see is a screen that named the field something else, which is why the
+ * rounds drawing one are asserted by name below as well.
+ */
+const SHOWS_SENTENCE = /\{[A-Za-z0-9_.?[\]]*\b(sentence|example|passage|full)\b[A-Za-z0-9_.?![\]]*\}/i;
+
+check("a screen showing an attested sentence says what it means", () => {
+  /*
+    The three drawings themselves are what the rule is about and cannot satisfy
+    it by drawing one another: `GlossedSentence` prints the sentence and
+    `EstonianSentence` puts `SentenceTranslation` under it, which is the whole
+    pairing, asserted in the check below rather than here.
+  */
+  const DRAWINGS = [
+    "components/EstonianSentence.tsx",
+    "components/SentenceTranslation.tsx",
+    "components/GlossedSentence.tsx",
+  ];
+  const screens = [...APP, ...COMPONENTS]
+    .filter((f) => f.endsWith(".tsx") && !DRAWINGS.includes(f));
+  const shows = screens.filter((f) => SHOWS_SENTENCE.test(code(f)));
+  assert.ok(
+    shows.length >= 15,
+    `only ${shows.length} screens look like they print a sentence, so the sweep has stopped finding them`,
+  );
+
+  for (const file of shows) {
+    if (file in SENTENCE_WITHOUT_ENGLISH) continue;
+    assert.ok(
+      DRAWS_ENGLISH.test(code(file)),
+      `${file} prints an Estonian sentence and never draws EstonianSentence, SentenceTranslation ` +
+      "or GlossedSentence, so a learner reads a line of Estonian with nothing to say what it means. " +
+      "Draw it through components/EstonianSentence.tsx, or argue for the exception in " +
+      "lib/copy/sentenceCoverage.ts",
+    );
+  }
+
+  /*
+    And the exception list stays earned, in both directions. A file that has
+    stopped printing a sentence, or one that has since started saying what it
+    means properly, keeps a line here that reads as a standing decision and is
+    not one. That is the fault `lib/legal/exportCoverage.ts` exists for, one
+    list over: appending a name is how you make a check like this pass without
+    doing anything.
+  */
+  for (const [file, why] of Object.entries(SENTENCE_WITHOUT_ENGLISH)) {
+    assert.ok(existsSync(file), `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer exists`);
+    assert.ok(
+      why.length >= 120,
+      `the reason ${file} prints no English is too short to be an argument. A bare filename is not a decision`,
+    );
+    assert.ok(
+      shows.includes(file),
+      `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer prints a sentence. Take the line out`,
+    );
+    assert.ok(
+      !DRAWS_ENGLISH.test(code(file)),
+      `${file} draws the English now, so its exception is stale. Take the line out of lib/copy/sentenceCoverage.ts`,
+    );
+  }
+});
+
+check("the one drawing of a sentence cannot be called without its English", () => {
+  const sentence = read("components/EstonianSentence.tsx");
+  /*
+    `en` and `canTranslate` are required, for the reason `illSgShort` is
+    required on `NounStems`: a caller that has not thought about this does not
+    compile. `en?:` would make "no English" the default and every screen that
+    forgot one would render exactly the fault this component was written for.
+  */
+  assert.match(
+    sentence, /\n  en: string \| null;/,
+    "EstonianSentence's `en` stopped being a required prop, so a screen can draw a sentence and say nothing",
+  );
+  assert.match(
+    sentence, /\n  canTranslate: boolean;/,
+    "EstonianSentence's `canTranslate` stopped being required, so a screen can quietly offer nothing",
+  );
+  assert.match(
+    code("components/EstonianSentence.tsx"), /<SentenceTranslation\b/,
+    "EstonianSentence stopped rendering SentenceTranslation, so its whole pairing is gone",
+  );
+  /*
+    And the ladder underneath it. `translateExample` is what asks and stores,
+    once per sentence per deployment, so the next learner reads it free; a
+    version of this that only ever printed what was already there would be the
+    `{en && ...}` this replaced with more steps.
+  */
+  assert.match(
+    code("components/SentenceTranslation.tsx"), /translateExample\(/,
+    "SentenceTranslation stopped asking for a translation, so a sentence with none stays bare for ever",
+  );
+});
+
+check("every screen that teaches a word draws its sentence the same way", () => {
+  /*
+    The rounds and teaching screens by name, because the sweep above is blind
+    to a screen whose sentence field is called something else: the daily quest
+    reads `card.front`, the sprint the same, the conversation `line.text`. A
+    round added here without one is what the report was about.
+  */
+  const drawn = [
+    "app/(app)/review/ReviewSession.tsx",
+    "app/(app)/learn/new/LearnSession.tsx",
+    "app/(app)/learn/[unitId]/lesson/LessonSession.tsx",
+    "app/(app)/quest/QuestSession.tsx",
+    "app/(app)/review/sprint/SprintSession.tsx",
+    "app/(app)/review/flashcards/FlashSession.tsx",
+    "app/(app)/review/exceptions/ExceptionsSession.tsx",
+    "app/(app)/review/dictation/DictationSession.tsx",
+    "app/(app)/review/government/GovernmentSession.tsx",
+    "app/(app)/review/describe/DescribeSession.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+    "app/(app)/grammar/build-a-word/BuildWalk.tsx",
+    "app/(app)/dictionary/Examples.tsx",
+    "components/WordIntro.tsx",
+    "components/WordOfDay.tsx",
+    "components/scene/SceneSession.tsx",
+  ];
+  for (const file of drawn) {
+    assert.ok(existsSync(file), `${file} is gone. If the screen moved, move it here too`);
+    assert.match(
+      code(file), DRAWS_ENGLISH,
+      `${file} stopped drawing an attested sentence's English. It is one of the screens a learner ` +
+      "reads a recorded sentence on, and a sentence nobody can read teaches nothing",
+    );
+  }
+});
+
+check("the lesson carries a sentence's English rather than dropping it", () => {
+  /*
+    The fault under the report, one layer down from the screen. The lesson page
+    read the dictionary's own examples and mapped them to `e.et`, so the
+    English was thrown away before the planner ever saw it and no amount of
+    fixing the card could have put it back.
+  */
+  const planner = code("lib/collections/lesson.ts");
+  assert.match(
+    planner, /examples: readonly LessonExample\[\]/,
+    "lib/collections/lesson.ts takes bare Estonian strings again, so the lesson cannot say what a sentence means",
+  );
+  assert.match(
+    planner, /teachingSentence\(/,
+    "the lesson picks its meeting sentence itself again. `teachingSentence` is what review and the ladder ask",
+  );
+  const page = code("app/(app)/learn/[unitId]/lesson/page.tsx");
+  assert.ok(
+    !/\.map\(\(e\) => e\.et\)/.test(page),
+    "the lesson page drops each example's English on the way in again. That one `.et` is the whole fault",
+  );
+  assert.match(
+    page, /glossSentences\(/,
+    "the lesson stopped putting the dictionary under its sentences, which review and the ladder both do",
   );
 });
 

@@ -14,6 +14,9 @@ import { naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
 import { oneEntryPerLemma } from "@/lib/dict/search";
+import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
+import { wordGlossFrom } from "@/lib/ux/wordGloss";
+import { resolveProvider } from "@/lib/tutor/provider";
 
 export async function generateMetadata({ params }: { params: Promise<{ unitId: string }> }) {
   const { unitId } = await params;
@@ -91,7 +94,7 @@ export default async function LessonPage({
     prisma.lexeme.count({ where: { cefr: unit.level } }),
     // Which language the meeting step gives a meaning in. Memoised per render,
     // so this shares the read every other page of this request already made.
-    readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
+    readSettings(ownerId, [SETTING_KEYS.glossLanguage, SETTING_KEYS.wordGloss]),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const pool = await prisma.lexeme.findMany({
@@ -120,10 +123,16 @@ export default async function LessonPage({
       and the level check put every sentence through, so a gap-fill is never
       built out of `Nii ____ on öelda, et ..` or of a usage that leaves the
       answer standing beside the gap in its other spelling.
+
+      AND THE ENGLISH TRAVELS WITH THE ESTONIAN. This line ended in
+      `.map((e) => e.et)`, which threw the dictionary's own translation away
+      one field from where it was needed: a learner met `jah` under `Sina
+      jah.` in the smallest type on the card with nothing to say what it
+      meant, and the answer had been sitting in the row the whole time.
     */
     examples: usableExamples(parseExamples(row.examples))
       .filter((e) => naturalSentence(e.et, nominalOpener(row.pos, [row.lemma, ...row.forms.map((f) => f.value)])))
-      .map((e) => e.et),
+      .map((e) => ({ et: e.et, en: e.en ?? null })),
     parts: Object.fromEntries(
       row.forms.filter((f) => isPrincipalFormType(f.formType)).map((f) => [f.formType, f.value]),
     ),
@@ -167,11 +176,37 @@ export default async function LessonPage({
     courseLevelFor(ownerId),
   ]);
 
+  /*
+    THE DICTIONARY UNDER EVERY SENTENCE A WORD IS MET WITH, IN ONE READ.
+
+    The same thing the review card and the learn ladder do, for the same
+    reason: a loop of lookups is a round trip each, and a lesson meets six
+    words. Nothing is written and nothing is proposed, `matchEstonianForm`
+    vouches for a word or it is printed plain (ADR-021), and the question of
+    whether the learner wants underlines at all is asked here, which is the one
+    place this screen looks a sentence up. Off leaves `tokens` null, which is
+    what every sentence on this screen looked like before any of this existed.
+  */
+  const meetings = steps.flatMap((step) =>
+    step.kind === "meet" && step.example
+      ? [{ id: step.id, et: step.example.et, form: step.example.form }]
+      : []);
+  const tokens: Record<string, GlossedToken[]> = {};
+  if (meetings.length > 0 && wordGlossFrom(settings[SETTING_KEYS.wordGloss]) === "on") {
+    const glossed = await glossSentences(meetings);
+    meetings.forEach((m, i) => {
+      const found = glossed[i];
+      if (found) tokens[m.id] = found;
+    });
+  }
+
   return (
     <LessonSession
       unitId={unit.id}
       unitTitle={uiText(placement, unit.title, unit.subtitle)}
       initialSteps={steps}
+      tokens={tokens}
+      canTranslate={resolveProvider() !== null}
       starred={[...starred]}
       part={index + 1}
       parts={lessons.length}

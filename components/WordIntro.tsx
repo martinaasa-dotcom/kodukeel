@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { Speak } from "@/components/Speak";
-import { GlossedSentence } from "@/components/GlossedSentence";
-import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { splitOnForm } from "@/lib/dict/examples";
+import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 
@@ -100,45 +98,27 @@ export function WordIntro({
 
       {sentence ? (
         <div className="w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left" style={{ background: "var(--raised)" }}>
-          {tokens ? (
-            /*
-              `plain` is not a second branch, deliberately. Swapping this
-              ternary the moment the panel is turned off leaves BOTH sentences
-              on screen: the swap lands inside the transition that refreshes
-              the route, React holds the outgoing subtree while the incoming
-              server render is pending, and the reader gets the line twice.
-              Measured. `GlossedSentence` draws itself plain instead, which it
-              has to be able to do for the conversation anyway, and all this
-              flag decides is what the caption underneath claims.
-            */
-            <GlossedSentence
-              key={sentence.et}
-              tokens={tokens}
-              sentence={sentence.et}
-              onTurnedOff={() => setPlain(true)}
-            />
-          ) : (
-            <div className="flex items-start gap-2">
-              <p lang="et" className="flex-1 text-lg font-semibold leading-snug" style={{ color: "var(--ink)" }}>
-                {splitOnForm(sentence.et, sentence.form).map((run, i) => (
-                  run.match
-                    ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--accent-deep)" }}>{run.text}</mark>
-                    : <span key={i}>{run.text}</span>
-                ))}
-              </p>
-              <Speak text={sentence.et} label="Hear the sentence" />
-            </div>
-          )}
-
-          {/* Keyed on the sentence, because a session draws one card after
-              another through this same position: without it the word after a
-              translated one opens carrying the last word's English. */}
-          <SentenceTranslation
-            key={sentence.et}
-            lexemeId={lexemeId}
+          {/*
+            One drawing of an attested sentence, here and on every other screen
+            that shows one: the Estonian, the dictionary under it where the
+            page looked, and what the whole thing means. `plain` is not a
+            second branch, deliberately. Swapping a ternary the moment the
+            panel is turned off leaves BOTH sentences on screen: the swap lands
+            inside the transition that refreshes the route, React holds the
+            outgoing subtree while the incoming server render is pending, and
+            the reader gets the line twice. Measured. `GlossedSentence` draws
+            itself plain instead, which it has to be able to do for the
+            conversation anyway, and all this flag decides is what the caption
+            underneath claims.
+          */}
+          <EstonianSentence
             et={sentence.et}
             en={sentence.en}
+            form={sentence.form}
+            tokens={tokens}
+            lexemeId={lexemeId}
             canTranslate={canTranslate}
+            onTurnedOff={() => setPlain(true)}
           />
 
           {/* One line rather than two. The provenance is the half that has to
