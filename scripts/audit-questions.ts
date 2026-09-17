@@ -338,6 +338,29 @@ const SEEDS = Number(process.argv.find((a) => a.startsWith("--seeds="))?.split("
       `buildOptions` answers it by refusing every case the entry governs
       (`lib/estonian/government.ts`), which has its own tests.
 */
+/*
+  KEYED ON `item.kind`, WHICH IS WHAT THE SITTING SCREEN SWITCHES ON.
+
+  Written against `task.spec.kind` first, which is the shape the specification
+  asked for rather than the shape the candidate is looking at, and the two come
+  apart twice over. `gap-type` is built by `buildGapChoice` and yields
+  `gap-choice` items, so a level that set one would have been reported here as
+  a shape with no entry while the screen rendered it perfectly; and a task that
+  falls back is set as something other than what its spec names
+  (`ExamTask.fallbackFrom`). `item.kind` is the one field that says which
+  fields exist and which branch draws them.
+
+  AND THE STATED RESIDUAL IS A HAYSTACK THAT IS NON-EMPTY BUT SHORT. The blind
+  count below catches a field name that stopped resolving, because the whole
+  string comes back empty and that is a fact a number can hold. It cannot catch
+  a screen that grows a *second* line: `EXAM_SHOWS` would still produce
+  something to search, `ask` would still look, and the new line would simply
+  never be looked in. Nothing here can see that without parsing JSX, which is
+  the thing `readerCopy.test.ts` tried once and reverted. What stands in for it
+  is that this table is short, one entry per shape, next to a comment saying
+  what each shape draws, so it is reviewable by somebody reading the branch it
+  describes. Check it against `ExamSession.tsx` when that file changes.
+*/
 const EXAM_SHOWS: Record<string, readonly string[]> = {
   // The sentence alone: the options are forms of one word and picking between
   // them is the exercise. What would be a fault is the sentence saying it.
@@ -353,6 +376,16 @@ const NOTHING_TO_SEARCH = new Set([
   "dictation", "listen-choose", "order", "compose", "message", "speak",
   "match-usage", "government",
 ]);
+
+/*
+  Every shape `lib/exam/paper.ts` can build is in one of those two tables, and
+  that is asserted in `scripts/test-invariants.ts` rather than here. The loop
+  below reports a shape with no entry, which only fires if some level at some
+  seed actually builds one, and `ExamItem` is a closed union: a member added
+  there and set at one level a year from now would otherwise reach a learner
+  first. The invariant reads the union's own declaration with the comments
+  stripped, which is what that file already has a `code()` for.
+*/
 timed("exam", () => {
 for (const level of EXAM_LEVELS) {
   for (let s = 0; s < SEEDS; s++) {
@@ -361,11 +394,12 @@ for (const level of EXAM_LEVELS) {
         for (const item of task.items as unknown as Record<string, unknown>[]) {
           // See EXAM_SHOWS: one entry per shape, and the shapes with nothing
           // to search are skipped rather than counted and not looked at.
-          if (NOTHING_TO_SEARCH.has(task.spec.kind)) continue;
-          const fields = EXAM_SHOWS[task.spec.kind];
+          const shape = String(item.kind);
+          if (NOTHING_TO_SEARCH.has(shape)) continue;
+          const fields = EXAM_SHOWS[shape];
           if (!fields) {
             faults.push({
-              where: `exam ${level} ${task.spec.kind}`,
+              where: `exam ${level} ${shape}`,
               shown: "no entry in EXAM_SHOWS",
               answer: "say what this shape puts on screen, or name it in NOTHING_TO_SEARCH",
             });
@@ -375,7 +409,7 @@ for (const level of EXAM_LEVELS) {
             .map((f) => item[f])
             .filter((x): x is string => typeof x === "string")
             .join(" ");
-          ask(`exam ${level} ${task.spec.kind}`, shown, String(item.answer ?? ""));
+          ask(`exam ${level} ${shape}`, shown, String(item.answer ?? ""));
         }
       }
     }

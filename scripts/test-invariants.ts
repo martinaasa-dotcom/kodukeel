@@ -16865,6 +16865,55 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   );
 });
 
+check("every exam shape the audit can meet is one it knows what to search", () => {
+  /*
+    `npm run audit:questions` asks one question of every generator in this app:
+    is the answer already visible in what the learner is shown. It can only ask
+    it of a shape whose fields it knows, so `EXAM_SHOWS` names what each exam
+    shape puts on screen and `NOTHING_TO_SEARCH` names the ones whose answer
+    genuinely cannot be there, a dictation's recording or a composition with no
+    single answer at all.
+
+    THE SCRIPT REPORTS AN UNCLASSIFIED SHAPE AND THAT IS A SAMPLING CHECK ON A
+    TOTAL QUESTION. It fires only if some level at some seed actually builds
+    one, and `ExamItem` is a closed union: a member added to it and set at one
+    level a year later would reach a learner before anything noticed. This is
+    the total version, read off the union's own declaration.
+
+    It is here rather than in the audit because that script would need a copy
+    of `code()` to read a declaration without reading the comments around it,
+    and a second comment-stripper is the second copy of the oldest recurring
+    mistake in this repository's own checks.
+  */
+  const paper = code("lib/exam/paper.ts");
+  const built = [...paper.matchAll(/kind:\s*"([a-z-]+)"/g)]
+    .map((m) => m[1]!)
+    .filter((kind, i, all) => all.indexOf(kind) === i);
+  assert.ok(
+    built.length >= 10,
+    `read ${built.length} exam item kinds out of lib/exam/paper.ts, which is too few to be the union.`
+    + " The declaration moved or the pattern stopped matching, and a check that finds nothing passes",
+  );
+
+  const audit = code("scripts/audit-questions.ts");
+  const shows = audit.match(/const EXAM_SHOWS[^}]*}/)?.[0] ?? "";
+  const nothing = audit.match(/const NOTHING_TO_SEARCH = new Set\(\[[^\]]*\]/)?.[0] ?? "";
+  assert.ok(
+    shows.length > 0 && nothing.length > 0,
+    "scripts/audit-questions.ts no longer declares EXAM_SHOWS and NOTHING_TO_SEARCH."
+    + " Whatever replaced them is what this check should be reading",
+  );
+
+  const missing = built.filter((kind) => !shows.includes(`"${kind}"`) && !nothing.includes(`"${kind}"`));
+  assert.deepEqual(
+    missing, [],
+    `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
+    + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
+    + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
+    + " never examines, which is how the level check's writing item hid",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
