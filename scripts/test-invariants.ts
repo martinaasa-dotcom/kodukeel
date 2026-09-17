@@ -1479,6 +1479,28 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     2,
     "the screen that builds a word stopped drawing what the word it built means",
   );
+  /*
+    AND A ROW WITH NO READING BECAUSE NOBODY SAYS THE FORM SAYS SO.
+
+    The card draws all eleven, which is right, and three of them on a person
+    are forms the app's own `caseFits` refuses to drill. Before this they were
+    drawn under "Being inside something, and being in a month or a mood" with
+    nothing saying Estonian puts a person on the other set, so the one screen
+    whose job is explaining the system was teaching `mehes`. A blank where the
+    reading goes is the shape that fault takes now, so the blank is what is
+    checked against: the row carries the reason.
+  */
+  assert.match(
+    code("lib/estonian/caseBuild.ts"),
+    /caseIsUnsaidFor\(/,
+    "a row no longer knows whether the language puts the word in that case at all",
+  );
+  assert.match(
+    screen,
+    /of\.unsaid/,
+    "the screen draws a form nobody says with no word about why, which is what it did before "
+    + "`caseFits` reached it",
+  );
 });
 
 check("Anu's worked examples are sourced from a table the dictionary checks", () => {

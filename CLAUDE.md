@@ -659,6 +659,19 @@ man" is a portion of a person, which is what two of the five words on this scree
 while. It is `null` in a total record rather than a missing key, so the silence is a decision
 somebody took and a fifteenth case is still a build error.
 
+**And a row the language does not put the word in says so, which is the fault the card had all
+along and the reading made visible.** The screen draws all eleven, because a table of forms is a
+reference and the dictionary entry prints the whole of it, so `mees` and `sõber` carry `mehesse`,
+`mehes` and `mehest`. Under them the card printed "Being inside something, and being in a month or
+a mood" and nothing anywhere said that Estonian puts a person on the other set: a learner reading
+that comes away saying `mehes`, which is exactly what `lib/estonian/caseQuestion.ts` was written to
+stop, standing on the one screen whose whole job is explaining the system. `caseFits` had reached
+every card builder in the app and had never reached the explanation. `WalkForm.unsaid` is
+`caseIsUnsaidFor` carried onto the row, and it is deliberately **not** the negation of `askable`,
+which is false for the three that are stored and for `tuppa`, a form people very much say. The line
+points at "On top", which is the heading over those endings on the same screen, rather than naming
+them.
+
 **Three numbers, measured over the shipped dictionary rather than reasoned about.** A frame is
 built out of somebody else's English and the ways that goes wrong are countable, so they were
 counted rather than argued over. **74** first senses carry their own article, so `ameeriklane` is

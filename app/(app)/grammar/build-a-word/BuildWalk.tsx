@@ -379,6 +379,32 @@ function Memorise({ word, sentences, onNext }: {
  * front of it rather than a replacement for it.
  */
 function Reading({ of }: { of: WalkForm }) {
+  /*
+    AND WHERE THERE IS NO READING BECAUSE NOBODY SAYS THE FORM, THAT IS THE
+    SENTENCE, RATHER THAN A BLANK.
+
+    The card draws all eleven, because a table of forms is a reference and the
+    dictionary entry prints the whole of it. That left three rows on `mees` and
+    `sõber` showing a form under "Being inside something, and being in a month
+    or a mood", with nothing anywhere saying that Estonian puts a person on the
+    other set: a learner reading that card comes away saying `mehes`, which is
+    the fault `lib/estonian/caseQuestion.ts` exists for, on the one screen whose
+    job is explaining the system. `caseFits` had reached every card builder in
+    the app and never reached the explanation.
+
+    It points at "on top", which is the heading over those endings on this very
+    screen (`CASE_GROUPS`), rather than naming them: the reader can look up.
+    `caseIsUnsaidFor` is the one predicate for this and it asks for positive
+    evidence, so `toale` is never called unsaid.
+  */
+  if (of.unsaid) {
+    return (
+      <p className="mt-3 text-base" data-unsaid style={{ color: "var(--ink-2)" }}>
+        <span className="font-bold" style={{ color: "var(--ink)" }}>Nobody says this one.</span>{" "}
+        Estonian puts a person on the endings under “On top” instead.
+      </p>
+    );
+  }
   if (!of.reading) return null;
   return (
     <p

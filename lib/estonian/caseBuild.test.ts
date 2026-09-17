@@ -74,6 +74,24 @@ describe("toWalkWord", () => {
     expect(row("mees", "man, husband", "INESSIVE").reading).toBeNull();
   });
 
+  it("marks the rows the language does not put the word in", () => {
+    /*
+      The card draws all eleven and three of them are forms nobody says, so
+      what the row owes the reader is the reason rather than a blank. Not the
+      negation of `askable`: that is false for a stored form too, and `tuppa`
+      is very much said.
+    */
+    expect(rowFor("mees", "INESSIVE").unsaid).toBe(true);
+    expect(rowFor("mees", "ILLATIVE").unsaid).toBe(true);
+    expect(rowFor("mees", "ELATIVE").unsaid).toBe(true);
+    expect(rowFor("mees", "ADESSIVE").unsaid).toBe(false);
+    // `toale` is ordinary Estonian the builder happens not to choose for a
+    // room, so it is never called unsaid; `tuppa` is stored and is said.
+    expect(rowFor("tuba", "ALLATIVE").unsaid).toBe(false);
+    expect(rowFor("tuba", "ILLATIVE").unsaid).toBe(false);
+    expect(rowFor("tuba", "ILLATIVE").askable).toBe(false);
+  });
+
   it("says nothing about meaning where the dictionary gave no gloss", () => {
     // The seeded stems carry no gloss, because a gloss invented beside them
     // would be the one authored column written by the wrong hand. The screen

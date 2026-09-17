@@ -1,6 +1,6 @@
 import { parseExamples, sentenceContaining } from "@/lib/dict/examples";
 import { caseByKey } from "./cases";
-import { caseFits, caseQuestionFor, type CaseSubject } from "./caseQuestion";
+import { caseFits, caseIsUnsaidFor, caseQuestionFor, type CaseSubject } from "./caseQuestion";
 import { caseReading } from "./caseReading";
 import { buildCaseTable, followsEndingRule, type DerivedForm, type NounStems } from "./derive";
 import type { CaseKey } from "./types";
@@ -60,6 +60,23 @@ export interface WalkForm {
    * not follow.
    */
   readonly stored: boolean;
+  /**
+   * Does the language simply not put this word in this case?
+   *
+   * `caseIsUnsaidFor`, which is the deleter's question rather than the
+   * builder's and asks for positive evidence: `mehes` is a form nobody says,
+   * and `toale` is ordinary Estonian the builder happens not to choose for a
+   * room. It is **not** the negation of `askable`, which is false for the three
+   * that are stored and for the one word in five whose form no rule reaches.
+   *
+   * The row is still shown, because a table of forms is a reference. What the
+   * screen owes it is a sentence, and until this existed it had none: the card
+   * built `mehes`, printed "Being inside something, and being in a month or a
+   * mood" under it, and left a learner to conclude that is how you say it. That
+   * is the fault `lib/estonian/caseQuestion.ts` was written for, standing on the
+   * one screen whose whole job is explaining the case system.
+   */
+  readonly unsaid: boolean;
   /**
    * May the screen ask a learner to produce this form?
    *
@@ -121,6 +138,7 @@ export function toWalkWord(
       value,
       alsoRight: form.alsoRight,
       stored,
+      unsaid: caseIsUnsaidFor(spec.key, subject),
       askable: !spec.principal && !stored && caseFits(spec.key, subject),
       sentence: found
         ? { et: found.et, en: found.en ?? null, form: value, lemma: null, translation: null }

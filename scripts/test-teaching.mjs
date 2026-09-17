@@ -15,9 +15,9 @@ import { retypeMiss, revealAnswer } from "./lib/review.mjs";
  */
 const B = baseUrl();
 // Floor: 79, measured in the state CI seeds, which is the 58 this suite had
-// before `/grammar/build-a-word` and the twenty-one checks that screen added.
+// before `/grammar/build-a-word` and the twenty-three checks that screen added.
 // A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 79 });
+const { check, absent, done } = suite("Teaching layer", { floor: 81 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -381,6 +381,40 @@ for (let i = 0; i < 4; i++) {
 }
 check("a person is never asked for the inside trio", inside === 0 && questions > 0,
   `${inside} of ${questions} questions asked a person where something is inside them`);
+
+/*
+  AND THE SECOND ACT SAYS WHY, RATHER THAN DRAWING THE FORM IN SILENCE.
+
+  It draws all eleven, which is right for a reference, and three of them on a
+  person are forms nobody says. Under the explanation of what the ending is
+  for, and with the English reading that every other row now carries simply
+  absent, that reads as a form the screen is endorsing: this is the screen the
+  app teaches the case system on, and `caseFits` had reached every card builder
+  and never reached it.
+*/
+await page.getByRole("radio", { name: /^Stack an ending/ }).click();
+await page.waitForTimeout(250);
+let said = 0;
+for (const i of [0, 1, 2]) {
+  await page.locator(".ending-row [role=radio]").nth(i).click();
+  await page.waitForTimeout(120);
+  const note = (await page.locator("[data-unsaid]").first().innerText().catch(() => "")) ?? "";
+  if (/Nobody says this one/.test(note)) said++;
+}
+check("and the inside trio on a person says nobody says it, rather than going quiet",
+  said === 3, `${said} of the 3 rows a person does not take carried the reason`);
+// And the row that is ordinary Estonian is never called unsaid: `toale` is a
+// form the builder happens not to choose for a room, not one nobody says.
+await page.getByRole("radio", { name: "tuba", exact: true }).click();
+await page.waitForTimeout(250);
+let quiet = 0;
+for (let i = 0; i < 11; i++) {
+  await page.locator(".ending-row [role=radio]").nth(i).click();
+  await page.waitForTimeout(90);
+  quiet += await page.locator("[data-unsaid]").count();
+}
+check("and a word the language does take is never told nobody says it",
+  quiet === 0, `${quiet} of a room's eleven endings were called unsaid`);
 
 // ─── Where the pattern stops ──────────────────────────────────────────────────
 
