@@ -1503,6 +1503,20 @@ through `lib/estonian/derive.ts` because that is the one module allowed to join 
 and the one that shows a gap rather than inventing a plural for a word whose genitive plural is not
 stored. Both directions are tested, and the test was made to fail on the real bug.
 
+**And a participle is not a finite verb, which the same check took every coded form to be.** The
+question "is this a sentence" turns on knowing which verb forms head a clause, and what the harvest
+stores on a verb is mostly the ones that do not: 322 past participles and 318 present participles
+against 319 simple pasts and 321 polite imperatives. Taking every coded form said that `Laste
+joonistatud pildid.` has a verb in it, which is the one shape the check is for. `isFiniteVerbCode`
+is the rule and it lives in `lib/estonian/conjugate.ts`, which owns the verb, rather than beside the
+caller. Three moods can head a clause, the indicative, the conditional and the imperative, and it
+**fails closed on the prefix**: a code nobody has seen is not counted, so a slot added to
+`VERB_SLOTS` later has to be admitted deliberately rather than by arriving. That is the opposite of
+`lib/estonian/semantics.ts`, which writes its codes out in full, and the reason is that these are a
+closed grammatical scheme where the first three letters really are the mood, where `in_rahvas_keel`
+is a semantic type that is not a person at all. The totals barely moved, which is the point: the
+check was accidentally right about most sentences and is now right about all of them.
+
 **A deck already built keeps the sentence it was built with, and that is left alone deliberately.**
 `Card.front` is written when the card is made, so the 826 A1 and A2 gap-fill cards whose source
 sentence this moves reach a new deck and nobody else's. 1,027 of those words keep the same *set* of

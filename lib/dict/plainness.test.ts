@@ -161,6 +161,25 @@ describe("plainReach", () => {
     }
   });
 
+  /*
+    AND A PARTICIPLE IS NOT A FINITE VERB, which the first version of this took
+    every coded form to be. What the harvest stores on a verb is mostly the
+    forms that cannot head a clause: 322 past participles and 318 present
+    participles against 319 simple pasts. Counting them said `Laste joonistatud
+    pildid.` has a verb in it, which is the one shape the check exists to catch.
+  */
+  it("does not read a participle or an infinitive as a finite verb", () => {
+    expect(reach.finite.has("olnud")).toBe(false);   // PtsPtPs, the past participle
+    expect(reach.finite.has("olev")).toBe(false);    // PtsPrPs, the present participle
+    expect(reach.finite.has("öelda")).toBe(false);   // Inf, the da-infinitive
+  });
+
+  it("still reads the stored forms that do head a clause", () => {
+    expect(reach.finite.has("oli")).toBe(true);      // IndIpfSg3, the simple past
+    expect(reach.finite.has("olge")).toBe(true);     // ImpPrPl2, the polite imperative
+    expect(reach.finite.has("pole")).toBe(true);     // IndPrPsN
+  });
+
   it("bands a word at the easiest entry that could be spelled that way", () => {
     const a1 = LEVELS.indexOf("A1");
     expect(reach.bandOf.get("tere")).toBe(a1);

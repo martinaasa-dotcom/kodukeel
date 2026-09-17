@@ -49,7 +49,7 @@
  * written anywhere in it (ADR-005) — every signal is a count over spellings the
  * dictionary already holds.
  */
-import { derivedVerbForms, pres1sgFrom } from "@/lib/estonian/conjugate";
+import { derivedVerbForms, isFiniteVerbCode, pres1sgFrom } from "@/lib/estonian/conjugate";
 import { ESTONIAN_WORD } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { buildCaseTable, stemsFromParts } from "@/lib/estonian/derive";
@@ -185,10 +185,17 @@ export function plainReach(entries: readonly PlainEntry[]): PlainReach {
       finite.add(derived.value.toLocaleLowerCase("et"));
       claim(derived.value, band);
     }
+    /*
+      And the stored forms the rule cannot reach, but only the ones that can
+      head a clause. The table is mostly the ones that cannot: 322 past
+      participles and 318 present participles against 319 simple pasts, so
+      taking every coded form would have told this that `Laste joonistatud
+      pildid.` has a verb in it, which is the one shape the check is for.
+    */
     for (const form of entry.forms) {
-      if (form.formType.startsWith("EKILEX:") || form.morphCode) {
-        finite.add(form.value.toLocaleLowerCase("et"));
-      }
+      const code = form.morphCode
+        ?? (form.formType.startsWith("EKILEX:") ? form.formType.slice(7) : null);
+      if (isFiniteVerbCode(code)) finite.add(form.value.toLocaleLowerCase("et"));
     }
   }
 
