@@ -3655,6 +3655,19 @@ given to the way on, on a step whose job is text somebody is reading. Under `max
 meter goes, since it says nothing the caption does not and is `aria-hidden` anyway, and the
 clearance comes down with it. Measured back at 20 percent, and the suite asks it there now.
 
+**And a press that never reached the server used to delete the room.** A Server Action returns a
+refusal it has and *throws* when it has no answer at all: the network is gone, the deployment is
+restarting, the tab has been asleep. Without a catch that rejection leaves the transition and React
+tears the tree down, and measured with the plug pulled that is what happened: `#main` empty, the bar
+gone, the learner looking at a blank screen with the step's own address still in the bar. On a
+feature whose promise is that a step is a room you cannot wander out of, the way on deleting the room
+is the worst of the failure modes, and it is the one that needs no network to be reached.
+`.catch(() => null)` is the shape `components/StarWord.tsx` already uses and it is used here and on
+the module's own list, for its reason: the honest thing to do with a press that did not land is to
+say so and leave everything as it was. The step still opens with the network gone, which is what the
+page cache is for, and `scripts/test-module.mjs` pulls the plug and presses on, because what a
+rejection does to a React tree is a fact about the runtime rather than about the source.
+
 **And what reads the module is a leaf, because of where its readers sit.** `WayOut` lives inside
 `Empty`, and `Empty` is drawn on the landing page and on the sign-in screen, which have no signed-in
 shell and no module and never will. With the context living beside the bar, importing the hook

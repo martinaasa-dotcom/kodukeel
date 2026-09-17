@@ -98,10 +98,13 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     setFailed(null);
     handOn.current = true;
     start(async () => {
-      const result = await markCourseStep(programmeId, dayId, step.id);
-      if (!result.ok) {
+      /* Caught for the reason `ModuleScope` catches its own: a Server Action
+         throws rather than answering when the network is gone, and an
+         uncaught rejection out of a transition takes the tree with it. */
+      const result = await markCourseStep(programmeId, dayId, step.id).catch(() => null);
+      if (!result || !result.ok) {
         setTicked((was) => was.filter((id) => id !== step.id));
-        setFailed(result.error);
+        setFailed(result ? result.error : "That did not reach the server.");
         return;
       }
       router.refresh();
@@ -117,7 +120,8 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
     if (step.id !== MEET_STEP) return;
     setFailed(null);
     start(async () => {
-      const result = await startCourseDay(programmeId, dayId);
+      const result = await startCourseDay(programmeId, dayId).catch(() => null);
+      if (!result) { setFailed("That did not reach the server."); return; }
       if (!result.ok) { setFailed(result.error); return; }
       router.push(opens.get(step.id) ?? step.href);
     });

@@ -156,7 +156,29 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
   const carryOn = () => {
     setFailed(null);
     start(async () => {
-      const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId);
+      /*
+        AND A PRESS THAT NEVER REACHED THE SERVER IS CAUGHT.
+
+        A Server Action returns `{ ok: false }` for an answer it has, and
+        *throws* when there was no answer: the network is gone, the deployment
+        is restarting, the tab has been asleep. Without the catch that rejection
+        leaves the transition, and React tears the tree down: measured with the
+        plug pulled, `#main` was empty, the bar was gone and the learner was
+        looking at a blank screen with the step's address still in the bar. On
+        a feature whose whole promise is that a step is a room you cannot
+        wander out of, the way on deleting the room is the worst of the failure
+        modes, and it is the one that needed no network to be reached.
+
+        `.catch(() => null)` is the shape `components/StarWord.tsx` already
+        uses, and for its reason: the honest thing to do with a press that did
+        not land is to say so and leave everything as it was.
+      */
+      const result = await advanceCourseStep(focus.programmeId, focus.dayId, focus.stepId)
+        .catch(() => null);
+      if (!result) {
+        setFailed("That did not reach the server, so this step is not ticked.");
+        return;
+      }
       if (!result.ok) { setFailed(result.error); return; }
       /*
         AND NOTHING AFTER THE PUSH, WHICH IS A CORRECTION.
@@ -252,7 +274,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         )}
         {failed && (
           <p role="status" className="text-sm" style={{ color: "var(--again-ink)" }}>
-            {failed} Nothing was changed.
+            {failed} Nothing was changed, and the reading is still here.
           </p>
         )}
       </div>

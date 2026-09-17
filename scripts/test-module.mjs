@@ -75,7 +75,7 @@ await requireLocalDatabase(prisma);
   list named. A floor alone cannot do it here and saying so is better than a
   number that looks stricter than it is.
 */
-const { check, absent, done } = suite("Tonight's module", { floor: 29 });
+const { check, absent, done } = suite("Tonight's module", { floor: 33 });
 
 /** The module's own screen, with a programme running. */
 async function openModule(page) {
@@ -368,6 +368,61 @@ try {
       wayOut.length === 0,
       wayOut.join("  ·  "),
     );
+  }
+
+  /*
+    AND A PRESS WITH THE PLUG OUT LEAVES THE ROOM STANDING.
+
+    A Server Action returns a refusal it has and *throws* when it has no
+    answer at all, and an uncaught rejection out of a transition takes the tree
+    with it. Measured before the catch that fixed it: `#main` was empty, the
+    bar was gone and the learner was looking at a blank screen with the step's
+    own address still in the bar. On a feature whose promise is that a step is
+    a room you cannot wander out of, the way on deleting the room is the worst
+    of the failure modes, and it needs no network to be reached.
+
+    Driven rather than reasoned about, because none of it is visible in the
+    source: what a rejection does to a React tree is a fact about the runtime.
+  */
+  const dark = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const unplugged = await dark.newPage();
+  try {
+    await unplugged.goto(`${B}${MODULE_HOME}`, { waitUntil: "domcontentloaded" });
+    await unplugged.evaluate(() => navigator.serviceWorker?.ready);
+    await unplugged.waitForTimeout(1_000);
+    const step = reading ?? `${B}${MODULE_SCREENS[0]}?module=${encodeURIComponent(marker ?? "")}`;
+    await unplugged.goto(step, { waitUntil: "domcontentloaded" });
+    await unplugged.waitForSelector("main h1", { timeout: 20_000 });
+    await unplugged.waitForTimeout(800);
+
+    await dark.setOffline(true);
+    /* The step itself still opens, which is what the page cache is for. */
+    await unplugged.reload({ waitUntil: "domcontentloaded" }).catch(() => {});
+    await unplugged.waitForTimeout(1_200);
+    check(
+      "a module step opens again with the network gone",
+      await unplugged.locator(".module-step").count() === 1
+        && (await unplugged.locator("#main").innerText().catch(() => "")).trim().length > 0,
+    );
+
+    await unplugged.locator(".module-step").getByRole("button", { name: /Continue|Finish/ })
+      .click().catch(() => {});
+    await unplugged.waitForTimeout(4_000);
+    const left = await unplugged.evaluate(() => ({
+      bar: !!document.querySelector(".module-step"),
+      main: (document.querySelector("#main")?.textContent || "").trim().length,
+      live: [...document.querySelectorAll(".module-step button")]
+        .some((b) => /Continue|Finish/.test(b.textContent || "") && !b.disabled),
+    }));
+    check("and pressing on with it gone leaves the room standing", left.bar && left.main > 0, JSON.stringify(left));
+    check("with the way on still pressable", left.live, JSON.stringify(left));
+    check(
+      "and says the step was not ticked",
+      /did not reach the server/i.test(await unplugged.locator(".module-step").innerText().catch(() => "")),
+    );
+  } finally {
+    await dark.setOffline(false);
+    await dark.close();
   }
 
   /*
