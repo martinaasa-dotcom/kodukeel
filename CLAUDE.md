@@ -3397,6 +3397,41 @@ has reading to grow. It costs A1 its 162 word-ordering steps and 175 of its 210 
 left is `Täna on kolmapäev.` and `Eile oli ilus ilm.`, which are sentences somebody three weeks in
 can actually read.
 
+**And the deck's own cards were left alone, which is a decision with a number under it.** The rule
+was put to the review step, which is the last thing every evening does, and measured before it was
+applied: at A1 it takes gap-fill cards from 786 to 51, conjugation from 72 to 5, and **case cards
+from 111 to nought**. No budget of unfamiliar words rescues them either, since allowing three still
+loses 41% of the case cards and a beginner sentence with three unknown words in it is not readable
+by any reading of the word. Case drilling is the spine of this course, so a rule that deletes it at
+A1 is a rule that has stopped serving what it was written for.
+
+What separates a card from the exercises above is what the learner is asked to do with the sentence.
+A word-ordering puzzle makes them handle every tile; a gap-fill card names the word, names the
+question and asks for one form of a word they have been taught, which they can answer without
+reading past the blank. So the line is **what the module newly shows** rather than everything it
+puts on a screen: the lesson, the ladder's gap rung and word ordering are held to the rule, and the
+spaced-repetition deck is not. The operator drew that line and this paragraph is where it is written
+down, so it is not re-litigated by whoever next reads the strict version of rule 4.
+
+**The cause is the supply, not the rule, and `npm run audit:readable` is where the work list is.**
+An Ekilex usage is written to illustrate a headword rather than to be a beginner's first reading, so
+of the 464 A1 words the dictionary can cut a gap from at all, **53** have a sentence made only of
+words the course has taught by then. The fix is sentences a native speaker writes, which is what
+`docs/20-contributed-sentences.md` is already the channel for, and the audit prints the ranked list
+of what blocks a sentence rather than only the total, for the reason `eval:scene` does: a rate says
+there is a problem and a list says what it is. The list's own first entry is the argument for
+reading it. `ja` blocks ten sentences on its own and is taught in `sidesonad`, the twenty-second of
+A1's twenty-seven units, so **teaching one conjunction earlier is worth more than writing ten
+sentences**. `ta`, `oma`, `täna` and `väga` are the same shape. Read the list before writing
+anything.
+
+**What is still outside the rule and is named rather than hidden**: dictation and the picture round
+stay in the A1 rotation and both put an attested sentence in front of a beginner, dictation asking
+for every word of it typed; and the grammar page a day reads prints attested examples. Each is a
+screen the module schedules, so each is a candidate for the same treatment, and each would need a
+replacement round or a thinner grammar page first, which is a change to what the course teaches
+rather than to what a beginner is protected from.
+
 **The planned module is held to the rule whole, and everything else a learner walks to themselves is
 not.** That is the line the operator drew and it is the one the code draws: what the module chose for
 them has to be answerable, and a round they opened from Practice is their own difficulty to pick. So
@@ -7982,6 +8017,7 @@ npm run audit:cases      # derive every case of every noun, both columns, and co
 npm run audit:senses     # re-check every course gloss against the sense Ekilex files it under
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
+npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
