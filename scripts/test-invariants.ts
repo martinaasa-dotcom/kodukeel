@@ -15181,68 +15181,6 @@ check("a word is introduced by one drawing", () => {
   );
 });
 
-check("an assurance about what you type is on the screen, not behind a press", () => {
-  /*
-    `components/Explain.tsx` is where an explanation goes, and the pass that
-    built it moved 33 paragraphs into one. Four of them were not explanations.
-
-    The difference is what the reader is doing when the sentence matters. An
-    explanation answers a question somebody has decided to ask, so it can wait
-    to be asked: how the slow speed is made, where the hours come from, why a
-    new card shows its answer. An assurance answers the question a careful
-    person has before they type anything, which is whether this is about them,
-    who ends up reading it, and what the school is on the hook for. Somebody
-    who has to press to be told that has already typed it, and somebody who
-    never presses was never told at all.
-
-    `test-scene.mjs` caught one of the four, on the situations chooser, which
-    is the only one a browser suite happened to read. The other three were the
-    same move on the join screen, the create-a-class screen and the name field,
-    and nothing would have said so. So it is a rule rather than one check: each
-    of these screens carries its assurance in the page, and the disclosure
-    beside it, where there is one, carries what the line does not say rather
-    than the line again.
-
-    Anchored on the sentence surviving with every `Explain` block cut out,
-    because a phrase inside the disclosure and a phrase above it read
-    identically to a check that only greps the file. Made to fail on each of
-    the four by putting the line back inside the press.
-  */
-  const assurances: { file: string; says: RegExp; why: string }[] = [
-    {
-      file: "app/(app)/situations/page.tsx",
-      says: /Nothing\s+you\s+write\s+here\s+is\s+about\s+you/,
-      why: "a learner deciding whether to type their real details into a conversation",
-    },
-    {
-      file: "app/(app)/class/ClassForms.tsx",
-      says: /never\s+your\s+deck\s+or\s+your\s+answers/,
-      why: "ADR-019's rule that the join screen states what is shared before anybody joins",
-    },
-    {
-      file: "app/(app)/class/page.tsx",
-      says: /need\s+a\s+parent\s+to\s+agree\s+first/,
-      why: "a teacher about to write a join code on a board",
-    },
-    {
-      file: "app/(app)/settings/PreferencesPanel.tsx",
-      says: /Nothing\s+else\s+goes\s+with\s+it/,
-      why: "the box a learner types the name a class will see into",
-    },
-  ];
-
-  const hidden = assurances.filter(({ file, says }) => {
-    const onThePage = code(file).replace(/<Explain\b[\s\S]*?<\/Explain>/g, " ");
-    return !says.test(onThePage);
-  });
-
-  assert.deepEqual(
-    hidden.map((a) => `${a.file}: ${a.why}`), [],
-    "an assurance about what a learner types is behind a press again, or has been reworded. " +
-    "An explanation may wait to be asked for; the answer to \"is this about me\" may not",
-  );
-});
-
 check("no rung of the ladder prints the answer it is asking for", () => {
   /*
     The rung before the gap asked what the word means, so the gap is about the
@@ -17468,111 +17406,6 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   );
 });
 
-/*
-  NOTHING ESTONIAN IS SHOWN TO A LEARNER WITHOUT SAYING WHAT IT MEANS.
-
-  A word is glossed wherever it is printed, which this app has always done.
-  An attested *sentence* was not, and that is the one a learner cannot work
-  out for themselves: Ekilex records no English against a usage on a reader
-  key, so every recorded sentence in this app arrives bare and every screen
-  had answered that for itself. `WordIntro` asked and stored; six review
-  rounds were given the same one at a time; and the unit lesson, the daily
-  quest, the learn ladder's own gap, the sprint, the word of the day, the case
-  reference and the build-a-word walk each printed `{en && ...}`, which on a
-  fresh deployment is nothing at all, for ever. It was reported off the lesson,
-  where a learner met `jah`, read "yes", and read `Sina jah.` under it with
-  nothing to say what that was.
-
-  So there are three drawings of an attested sentence and no others.
-  `EstonianSentence` is the one a screen reaches for; `SentenceTranslation`
-  and `GlossedSentence` are the two halves it is made of, used directly where
-  a screen has chrome of its own to put between them. All three end in the
-  English, so a screen cannot print the Estonian and leave the English out.
-
-  Anchored on a JSX interpolation of a sentence-shaped value rather than on any
-  screen's markup, and on the whole of `app/` and `components/` rather than a
-  list of the rounds, because the fault was a screen nobody had thought to put
-  on a list. `lib/copy/sentenceCoverage.ts` is where an exception is argued
-  for, and it is checked in both directions so it cannot become a parking
-  space.
-*/
-/**
- * One of the three drawn as an element, never merely imported.
- *
- * Anchored on `<Name` for the reason half the checks in this file are: written
- * as a bare name it matched the import line, so deleting the component from
- * the render left the check passing on a screen that had stopped saying what
- * its sentence meant. Made to fail that way first.
- */
-const DRAWS_ENGLISH = /<(EstonianSentence|SentenceTranslation|GlossedSentence)\b/;
-/**
- * A JSX interpolation of something sentence-shaped.
- *
- * Deliberately the four names this app gives a recorded sentence rather than
- * every Estonian string: widening it to `.et` and `.front` sweeps in `spec.et`,
- * which is a case's Estonian *name*, and `line.at`, which is a timestamp, and
- * a check that fires on honest code is a check people learn to waive. What it
- * cannot see is a screen that named the field something else, which is why the
- * rounds drawing one are asserted by name below as well.
- */
-const SHOWS_SENTENCE = /\{[A-Za-z0-9_.?[\]]*\b(sentence|example|passage|full)\b[A-Za-z0-9_.?![\]]*\}/i;
-
-check("a screen showing an attested sentence says what it means", () => {
-  /*
-    The three drawings themselves are what the rule is about and cannot satisfy
-    it by drawing one another: `GlossedSentence` prints the sentence and
-    `EstonianSentence` puts `SentenceTranslation` under it, which is the whole
-    pairing, asserted in the check below rather than here.
-  */
-  const DRAWINGS = [
-    "components/EstonianSentence.tsx",
-    "components/SentenceTranslation.tsx",
-    "components/GlossedSentence.tsx",
-  ];
-  const screens = [...APP, ...COMPONENTS]
-    .filter((f) => f.endsWith(".tsx") && !DRAWINGS.includes(f));
-  const shows = screens.filter((f) => SHOWS_SENTENCE.test(code(f)));
-  assert.ok(
-    shows.length >= 15,
-    `only ${shows.length} screens look like they print a sentence, so the sweep has stopped finding them`,
-  );
-
-  for (const file of shows) {
-    if (file in SENTENCE_WITHOUT_ENGLISH) continue;
-    assert.ok(
-      DRAWS_ENGLISH.test(code(file)),
-      `${file} prints an Estonian sentence and never draws EstonianSentence, SentenceTranslation ` +
-      "or GlossedSentence, so a learner reads a line of Estonian with nothing to say what it means. " +
-      "Draw it through components/EstonianSentence.tsx, or argue for the exception in " +
-      "lib/copy/sentenceCoverage.ts",
-    );
-  }
-
-  /*
-    And the exception list stays earned, in both directions. A file that has
-    stopped printing a sentence, or one that has since started saying what it
-    means properly, keeps a line here that reads as a standing decision and is
-    not one. That is the fault `lib/legal/exportCoverage.ts` exists for, one
-    list over: appending a name is how you make a check like this pass without
-    doing anything.
-  */
-  for (const [file, why] of Object.entries(SENTENCE_WITHOUT_ENGLISH)) {
-    assert.ok(existsSync(file), `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer exists`);
-    assert.ok(
-      why.length >= 120,
-      `the reason ${file} prints no English is too short to be an argument. A bare filename is not a decision`,
-    );
-    assert.ok(
-      shows.includes(file),
-      `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer prints a sentence. Take the line out`,
-    );
-    assert.ok(
-      !DRAWS_ENGLISH.test(code(file)),
-      `${file} draws the English now, so its exception is stale. Take the line out of lib/copy/sentenceCoverage.ts`,
-    );
-  }
-});
-
 check("an order the writer did not choose is not a wrong order", () => {
   /*
     REPORTED OFF THE APP'S OWN FIRST UNIT. `Muidugi tuleb ette näpukaid`
@@ -17987,6 +17820,374 @@ check("the module suite opens every round the course can deal", () => {
   }
 });
 
+/*
+  A SCREEN A MODULE STEP OPENS DOES NOT WRITE ITS OWN DOOR INTO THE DICTIONARY.
+
+  This is the rule the browser suite cannot reach, and the reason it cannot is
+  worth writing down: an evening deals two rounds out of a rotation of ten, so
+  one walk sees two of them. The first walk found `Full entry` on the review
+  card, CI's walk found the verb table on an A2 reading, and a sweep of the
+  same shape found two more, in dictation and in sentence building, that no
+  single evening would have opened. A measurement that covers one run in five
+  is not a measurement of the rule.
+
+  So the walk proves the mechanism and this proves the coverage. Scoped to what
+  a step can actually open, read off `ACTIVITIES` plus the reading, the ladder
+  and the conversation, rather than to every screen in the app: the dictionary
+  writes these links because it is the dictionary, and a rule that fired there
+  is a rule somebody waives.
+*/
+check("a screen a module step opens has no door of its own into the dictionary", () => {
+  const reach = [
+    "app/(app)/grammar/topic/",
+    "app/(app)/grammar/[caseKey]/",
+    "app/(app)/review/",
+    "app/(app)/sonad/",
+    "app/(app)/learn/new/",
+    "components/scene/",
+  ];
+  const under = ALL.filter((f) => reach.some((dir) => f.startsWith(dir)));
+  assert.ok(under.length >= 30, `only ${under.length} files in a module step's reach; the sweep is looking in the wrong place`);
+
+  const doors = under.filter((f) => /\/dictionary\?q=/.test(code(f)));
+  assert.deepEqual(
+    doors, [],
+    `${doors.join(", ")} writes its own link into the dictionary. Inside a module that is a door out of the evening with no way back: use WordLink or FullEntry, which stand down`,
+  );
+
+  /* And the two that stand down are the only ones allowed to write it. */
+  for (const file of ["components/course/WordLink.tsx", "components/round/RoundExit.tsx"]) {
+    assert.match(code(file), /useModuleFocus\(\)/, `${file} stopped asking whether it is inside a module`);
+  }
+});
+
+/*
+  AND WHAT READS THE MODULE IS A LEAF, BECAUSE OF WHERE ITS READERS SIT.
+
+  `WayOut` lives in `Empty`, and `Empty` is drawn on the landing page and on
+  the sign-in screen, which have no signed-in shell and no module and never
+  will. With the context living beside the bar, importing the hook dragged the
+  bar, its icons and a reference to `advanceCourseStep` along: measured on a
+  production build, `/welcome` and `/privacy` both pulled in the 44KB chunk
+  holding the module's way on, to draw nothing. The landing page is the one
+  screen a stranger decides on.
+
+  So the context is its own module with nothing in it, and this holds both
+  halves: that it stays a leaf, and that its readers read it rather than the
+  file that draws the bar. Anchored on the import, which is the thing the
+  bundler follows.
+*/
+check("the module's context is a leaf, so a public page does not ship the bar", () => {
+  const leaf = "components/course/moduleFocus.ts";
+  const src = code(leaf);
+  assert.match(src, /export function useModuleFocus/, `${leaf} stopped exporting the hook`);
+
+  const imports = [...src.matchAll(/^import\s[\s\S]*?from\s+"([^"]+)"/gm)].map((m) => m[1]!);
+  const allowed = imports.filter((from) => from !== "react" && from !== "@/lib/course");
+  assert.deepEqual(
+    allowed, [],
+    `${leaf} imports ${allowed.join(", ")}. It may reach React and the pure course types and nothing else, or every screen that reads a module ships whatever it reached`,
+  );
+
+  /* And nobody reads the hook off the file that draws the bar. */
+  const wrong = ALL.filter((f) => /useModuleFocus/.test(code(f)) && /course\/ModuleScope"/.test(code(f)));
+  assert.deepEqual(
+    wrong, [],
+    `${wrong.join(", ")} reads the hook from ModuleScope, which drags the bar and a server action into the bundle. Read it from ${leaf}`,
+  );
+
+  /* The bar itself is mounted once and is the one thing allowed to import
+     ModuleScope, which the check above this one already asserts. */
+  assert.match(
+    code("components/course/ModuleScope.tsx"), /from "\.\/moduleFocus"/,
+    "the module frame stopped filling the context its readers read",
+  );
+});
+
+/*
+  THE READING IS A READING, WHICH IS THE FAULT THIS WAS REPORTED AS.
+
+  Both reference pages are good pages and neither is the module's second step:
+  each hands over at the foot of it to the units that teach the point and to a
+  drill on the learner's own deck, which is exactly what was taken by somebody
+  who kept scrolling. Inside a module both stand down. Asserted on both,
+  because they are two pages answering one step and fixing one is the shape of
+  a fault that only shows on half the evenings.
+*/
+check("the module's reading step carries no drill and no way off the page", () => {
+  for (const page of [
+    "app/(app)/grammar/topic/[id]/page.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+  ]) {
+    const src = code(page);
+    assert.match(
+      src, /focusFrom\(await searchParams\)/,
+      `${page} does not ask whether it was opened from tonight's module`,
+    );
+    assert.match(
+      src, /inModule \? undefined : \(/,
+      `${page} keeps its way back to the reference inside a module`,
+    );
+    assert.match(
+      src, /\{!inModule &&/,
+      `${page} stopped holding anything back inside a module`,
+    );
+  }
+  /* The drill is the one the report named, so it is named here. */
+  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
+  assert.match(
+    topic, /\{!inModule && TOPIC_DRILL\[id\]/,
+    "the grammar topic page offers its drill inside a module again",
+  );
+});
+
+/*
+  AND THE WAY ON IS RESOLVED ON THE SERVER.
+
+  The marker came off an address a learner could have typed, so the step it
+  names decides what a caption says and nothing else. `advanceCourseStep` reads
+  the programme, the day and the step again, refuses a day nobody has reached
+  for the reason `markCourseStep` does (a tick is the pointer `dayReached`
+  reads), refuses to write a row for a step the review log proves, and works
+  out where to go from the day's own order.
+*/
+check("the module's way on is resolved on the server and ticks nothing it may not", () => {
+  const actions = code("app/actions.ts");
+  const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));
+  assert.ok(fn.length > 0, "advanceCourseStep is gone; the module has no way on");
+  const body = fn.slice(0, fn.indexOf("\n}\n") + 3);
+  assert.match(body, /await requireUserId\(\)/, "advanceCourseStep takes an owner from its caller");
+  assert.match(body, /dayIsInPlay\(/, "advanceCourseStep stopped checking the day is the one reached");
+  assert.match(body, /if \(!step\.derived\)/, "advanceCourseStep would write a row for a step the log proves");
+  assert.match(body, /continueHref\(/, "advanceCourseStep stopped working out the way on for itself");
+  assert.ok(
+    !/href:\s*(hrefFrom|input|next(Href)?\b)/.test(body),
+    "advanceCourseStep takes the way on from its caller rather than from the day's order",
+  );
+  /* And the frame sends nothing but the three ids. */
+  const scope = code("components/course/ModuleScope.tsx");
+  assert.match(
+    scope, /advanceCourseStep\(focus\.programmeId, focus\.dayId, focus\.stepId\)/,
+    "the module frame stopped asking the server where the way on goes",
+  );
+});
+check("every exam shape the audit can meet is one it knows what to search", () => {
+  /*
+    `npm run audit:questions` asks one question of every generator in this app:
+    is the answer already visible in what the learner is shown. It can only ask
+    it of a shape whose fields it knows, so `EXAM_SHOWS` names what each exam
+    shape puts on screen and `NOTHING_TO_SEARCH` names the ones whose answer
+    genuinely cannot be there, a dictation's recording or a composition with no
+    single answer at all.
+
+    THE SCRIPT REPORTS AN UNCLASSIFIED SHAPE AND THAT IS A SAMPLING CHECK ON A
+    TOTAL QUESTION. It fires only if some level at some seed actually builds
+    one, and `ExamItem` is a closed union: a member added to it and set at one
+    level a year later would reach a learner before anything noticed. This is
+    the total version, read off the union's own declaration.
+
+    It is here rather than in the audit because that script would need a copy
+    of `code()` to read a declaration without reading the comments around it,
+    and a second comment-stripper is the second copy of the oldest recurring
+    mistake in this repository's own checks.
+  */
+  const paper = code("lib/exam/paper.ts");
+  const built = [...paper.matchAll(/kind:\s*"([a-z-]+)"/g)]
+    .map((m) => m[1]!)
+    .filter((kind, i, all) => all.indexOf(kind) === i);
+  assert.ok(
+    built.length >= 10,
+    `read ${built.length} exam item kinds out of lib/exam/paper.ts, which is too few to be the union.`
+    + " The declaration moved or the pattern stopped matching, and a check that finds nothing passes",
+  );
+
+  const audit = code("scripts/audit-questions.ts");
+  const shows = audit.match(/const EXAM_SHOWS[^}]*}/)?.[0] ?? "";
+  const nothing = audit.match(/const NOTHING_TO_SEARCH = new Set\(\[[^\]]*\]/)?.[0] ?? "";
+  assert.ok(
+    shows.length > 0 && nothing.length > 0,
+    "scripts/audit-questions.ts no longer declares EXAM_SHOWS and NOTHING_TO_SEARCH."
+    + " Whatever replaced them is what this check should be reading",
+  );
+
+  const missing = built.filter((kind) => !shows.includes(`"${kind}"`) && !nothing.includes(`"${kind}"`));
+  assert.deepEqual(
+    missing, [],
+    `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
+    + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
+    + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
+    + " never examines, which is how the level check's writing item hid",
+  );
+});
+
+check("an assurance about what you type is on the screen, not behind a press", () => {
+  /*
+    `components/Explain.tsx` is where an explanation goes, and the pass that
+    built it moved 33 paragraphs into one. Four of them were not explanations.
+
+    The difference is what the reader is doing when the sentence matters. An
+    explanation answers a question somebody has decided to ask, so it can wait
+    to be asked: how the slow speed is made, where the hours come from, why a
+    new card shows its answer. An assurance answers the question a careful
+    person has before they type anything, which is whether this is about them,
+    who ends up reading it, and what the school is on the hook for. Somebody
+    who has to press to be told that has already typed it, and somebody who
+    never presses was never told at all.
+
+    `test-scene.mjs` caught one of the four, on the situations chooser, which
+    is the only one a browser suite happened to read. The other three were the
+    same move on the join screen, the create-a-class screen and the name field,
+    and nothing would have said so. So it is a rule rather than one check: each
+    of these screens carries its assurance in the page, and the disclosure
+    beside it, where there is one, carries what the line does not say rather
+    than the line again.
+
+    Anchored on the sentence surviving with every `Explain` block cut out,
+    because a phrase inside the disclosure and a phrase above it read
+    identically to a check that only greps the file. Made to fail on each of
+    the four by putting the line back inside the press.
+  */
+  const assurances: { file: string; says: RegExp; why: string }[] = [
+    {
+      file: "app/(app)/situations/page.tsx",
+      says: /Nothing\s+you\s+write\s+here\s+is\s+about\s+you/,
+      why: "a learner deciding whether to type their real details into a conversation",
+    },
+    {
+      file: "app/(app)/class/ClassForms.tsx",
+      says: /never\s+your\s+deck\s+or\s+your\s+answers/,
+      why: "ADR-019's rule that the join screen states what is shared before anybody joins",
+    },
+    {
+      file: "app/(app)/class/page.tsx",
+      says: /need\s+a\s+parent\s+to\s+agree\s+first/,
+      why: "a teacher about to write a join code on a board",
+    },
+    {
+      file: "app/(app)/settings/PreferencesPanel.tsx",
+      says: /Nothing\s+else\s+goes\s+with\s+it/,
+      why: "the box a learner types the name a class will see into",
+    },
+  ];
+
+  const hidden = assurances.filter(({ file, says }) => {
+    const onThePage = code(file).replace(/<Explain\b[\s\S]*?<\/Explain>/g, " ");
+    return !says.test(onThePage);
+  });
+
+  assert.deepEqual(
+    hidden.map((a) => `${a.file}: ${a.why}`), [],
+    "an assurance about what a learner types is behind a press again, or has been reworded. " +
+    "An explanation may wait to be asked for; the answer to \"is this about me\" may not",
+  );
+});
+
+
+/*
+  NOTHING ESTONIAN IS SHOWN TO A LEARNER WITHOUT SAYING WHAT IT MEANS.
+
+  A word is glossed wherever it is printed, which this app has always done.
+  An attested *sentence* was not, and that is the one a learner cannot work
+  out for themselves: Ekilex records no English against a usage on a reader
+  key, so every recorded sentence in this app arrives bare and every screen
+  had answered that for itself. `WordIntro` asked and stored; six review
+  rounds were given the same one at a time; and the unit lesson, the daily
+  quest, the learn ladder's own gap, the sprint, the word of the day, the case
+  reference and the build-a-word walk each printed `{en && ...}`, which on a
+  fresh deployment is nothing at all, for ever. It was reported off the lesson,
+  where a learner met `jah`, read "yes", and read `Sina jah.` under it with
+  nothing to say what that was.
+
+  So there are three drawings of an attested sentence and no others.
+  `EstonianSentence` is the one a screen reaches for; `SentenceTranslation`
+  and `GlossedSentence` are the two halves it is made of, used directly where
+  a screen has chrome of its own to put between them. All three end in the
+  English, so a screen cannot print the Estonian and leave the English out.
+
+  Anchored on a JSX interpolation of a sentence-shaped value rather than on any
+  screen's markup, and on the whole of `app/` and `components/` rather than a
+  list of the rounds, because the fault was a screen nobody had thought to put
+  on a list. `lib/copy/sentenceCoverage.ts` is where an exception is argued
+  for, and it is checked in both directions so it cannot become a parking
+  space.
+*/
+/**
+ * One of the three drawn as an element, never merely imported.
+ *
+ * Anchored on `<Name` for the reason half the checks in this file are: written
+ * as a bare name it matched the import line, so deleting the component from
+ * the render left the check passing on a screen that had stopped saying what
+ * its sentence meant. Made to fail that way first.
+ */
+const DRAWS_ENGLISH = /<(EstonianSentence|SentenceTranslation|GlossedSentence)\b/;
+/**
+ * A JSX interpolation of something sentence-shaped.
+ *
+ * Deliberately the four names this app gives a recorded sentence rather than
+ * every Estonian string: widening it to `.et` and `.front` sweeps in `spec.et`,
+ * which is a case's Estonian *name*, and `line.at`, which is a timestamp, and
+ * a check that fires on honest code is a check people learn to waive. What it
+ * cannot see is a screen that named the field something else, which is why the
+ * rounds drawing one are asserted by name below as well.
+ */
+const SHOWS_SENTENCE = /\{[A-Za-z0-9_.?[\]]*\b(sentence|example|passage|full)\b[A-Za-z0-9_.?![\]]*\}/i;
+
+check("a screen showing an attested sentence says what it means", () => {
+  /*
+    The three drawings themselves are what the rule is about and cannot satisfy
+    it by drawing one another: `GlossedSentence` prints the sentence and
+    `EstonianSentence` puts `SentenceTranslation` under it, which is the whole
+    pairing, asserted in the check below rather than here.
+  */
+  const DRAWINGS = [
+    "components/EstonianSentence.tsx",
+    "components/SentenceTranslation.tsx",
+    "components/GlossedSentence.tsx",
+  ];
+  const screens = [...APP, ...COMPONENTS]
+    .filter((f) => f.endsWith(".tsx") && !DRAWINGS.includes(f));
+  const shows = screens.filter((f) => SHOWS_SENTENCE.test(code(f)));
+  assert.ok(
+    shows.length >= 15,
+    `only ${shows.length} screens look like they print a sentence, so the sweep has stopped finding them`,
+  );
+
+  for (const file of shows) {
+    if (file in SENTENCE_WITHOUT_ENGLISH) continue;
+    assert.ok(
+      DRAWS_ENGLISH.test(code(file)),
+      `${file} prints an Estonian sentence and never draws EstonianSentence, SentenceTranslation ` +
+      "or GlossedSentence, so a learner reads a line of Estonian with nothing to say what it means. " +
+      "Draw it through components/EstonianSentence.tsx, or argue for the exception in " +
+      "lib/copy/sentenceCoverage.ts",
+    );
+  }
+
+  /*
+    And the exception list stays earned, in both directions. A file that has
+    stopped printing a sentence, or one that has since started saying what it
+    means properly, keeps a line here that reads as a standing decision and is
+    not one. That is the fault `lib/legal/exportCoverage.ts` exists for, one
+    list over: appending a name is how you make a check like this pass without
+    doing anything.
+  */
+  for (const [file, why] of Object.entries(SENTENCE_WITHOUT_ENGLISH)) {
+    assert.ok(existsSync(file), `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer exists`);
+    assert.ok(
+      why.length >= 120,
+      `the reason ${file} prints no English is too short to be an argument. A bare filename is not a decision`,
+    );
+    assert.ok(
+      shows.includes(file),
+      `lib/copy/sentenceCoverage.ts excuses ${file}, which no longer prints a sentence. Take the line out`,
+    );
+    assert.ok(
+      !DRAWS_ENGLISH.test(code(file)),
+      `${file} draws the English now, so its exception is stale. Take the line out of lib/copy/sentenceCoverage.ts`,
+    );
+  }
+});
+
 check("the one drawing of a sentence cannot be called without its English", () => {
   const sentence = read("components/EstonianSentence.tsx");
   /*
@@ -18072,24 +18273,17 @@ check("the lesson carries a sentence's English rather than dropping it", () => {
   );
   const page = code("app/(app)/learn/[unitId]/lesson/page.tsx");
   /*
-    AND THE FAULT IS THE FIELD RATHER THAN THE SPELLING. It was written as
-    "no `.map((e) => e.et)` anywhere on this page", which is the line that was
-    there, and the page has since grown an honest one: the word-order reading
-    asks the dictionary about the *words* of the sitting's sentences and takes
-    strings by design, so it maps to `.et` on its way into a query and drops
-    nothing a card was going to print. A check that fires on that is the kind
-    this file says everybody learns to waive. What may not happen is the word
-    reaching the planner without its English, so it is the field that is
-    asserted.
+    Asked of what the planner is handed rather than of the file, which is where
+    the fault was and is not everything a page does with a sentence. The same
+    page also hands the sitting's sentences to `orderContextFor`, which reads
+    which of their words are verbs and has no use for the English: banning the
+    spelling outright fired on that, and the answer to a check that fires on
+    honest code is to say what it is about rather than to write round it.
   */
-  assert.ok(
-    !/examples:[^\n]*\be\.et\b/.test(page),
-    "the lesson page drops each example's English on the way in again. That one `.et` is the whole fault",
-  );
+  const handedOver = page.slice(page.indexOf("examples:"));
   assert.match(
-    page, /examples: teachableSentences\(/,
-    "the lesson page stopped reading the dictionary's own sentences, so what it hands the planner is " +
-    "no longer the pair the card prints",
+    handedOver.slice(0, handedOver.indexOf("\n    parts:")), /en: e\.en/,
+    "the lesson page drops each example's English on the way in again. That one `.et` is the whole fault",
   );
   assert.match(
     page, /glossSentences\(/,
@@ -18289,205 +18483,6 @@ check("the shipped translations are English, and there are enough of them to mat
   // noticing: a key with a stray space matches nothing and costs a line.
   const known = Object.keys(table)[0];
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
-});
-
-/*
-  A SCREEN A MODULE STEP OPENS DOES NOT WRITE ITS OWN DOOR INTO THE DICTIONARY.
-
-  This is the rule the browser suite cannot reach, and the reason it cannot is
-  worth writing down: an evening deals two rounds out of a rotation of ten, so
-  one walk sees two of them. The first walk found `Full entry` on the review
-  card, CI's walk found the verb table on an A2 reading, and a sweep of the
-  same shape found two more, in dictation and in sentence building, that no
-  single evening would have opened. A measurement that covers one run in five
-  is not a measurement of the rule.
-
-  So the walk proves the mechanism and this proves the coverage. Scoped to what
-  a step can actually open, read off `ACTIVITIES` plus the reading, the ladder
-  and the conversation, rather than to every screen in the app: the dictionary
-  writes these links because it is the dictionary, and a rule that fired there
-  is a rule somebody waives.
-*/
-check("a screen a module step opens has no door of its own into the dictionary", () => {
-  const reach = [
-    "app/(app)/grammar/topic/",
-    "app/(app)/grammar/[caseKey]/",
-    "app/(app)/review/",
-    "app/(app)/sonad/",
-    "app/(app)/learn/new/",
-    "components/scene/",
-  ];
-  const under = ALL.filter((f) => reach.some((dir) => f.startsWith(dir)));
-  assert.ok(under.length >= 30, `only ${under.length} files in a module step's reach; the sweep is looking in the wrong place`);
-
-  const doors = under.filter((f) => /\/dictionary\?q=/.test(code(f)));
-  assert.deepEqual(
-    doors, [],
-    `${doors.join(", ")} writes its own link into the dictionary. Inside a module that is a door out of the evening with no way back: use WordLink or FullEntry, which stand down`,
-  );
-
-  /* And the two that stand down are the only ones allowed to write it. */
-  for (const file of ["components/course/WordLink.tsx", "components/round/RoundExit.tsx"]) {
-    assert.match(code(file), /useModuleFocus\(\)/, `${file} stopped asking whether it is inside a module`);
-  }
-});
-
-/*
-  AND WHAT READS THE MODULE IS A LEAF, BECAUSE OF WHERE ITS READERS SIT.
-
-  `WayOut` lives in `Empty`, and `Empty` is drawn on the landing page and on
-  the sign-in screen, which have no signed-in shell and no module and never
-  will. With the context living beside the bar, importing the hook dragged the
-  bar, its icons and a reference to `advanceCourseStep` along: measured on a
-  production build, `/welcome` and `/privacy` both pulled in the 44KB chunk
-  holding the module's way on, to draw nothing. The landing page is the one
-  screen a stranger decides on.
-
-  So the context is its own module with nothing in it, and this holds both
-  halves: that it stays a leaf, and that its readers read it rather than the
-  file that draws the bar. Anchored on the import, which is the thing the
-  bundler follows.
-*/
-check("the module's context is a leaf, so a public page does not ship the bar", () => {
-  const leaf = "components/course/moduleFocus.ts";
-  const src = code(leaf);
-  assert.match(src, /export function useModuleFocus/, `${leaf} stopped exporting the hook`);
-
-  const imports = [...src.matchAll(/^import\s[\s\S]*?from\s+"([^"]+)"/gm)].map((m) => m[1]!);
-  const allowed = imports.filter((from) => from !== "react" && from !== "@/lib/course");
-  assert.deepEqual(
-    allowed, [],
-    `${leaf} imports ${allowed.join(", ")}. It may reach React and the pure course types and nothing else, or every screen that reads a module ships whatever it reached`,
-  );
-
-  /* And nobody reads the hook off the file that draws the bar. */
-  const wrong = ALL.filter((f) => /useModuleFocus/.test(code(f)) && /course\/ModuleScope"/.test(code(f)));
-  assert.deepEqual(
-    wrong, [],
-    `${wrong.join(", ")} reads the hook from ModuleScope, which drags the bar and a server action into the bundle. Read it from ${leaf}`,
-  );
-
-  /* The bar itself is mounted once and is the one thing allowed to import
-     ModuleScope, which the check above this one already asserts. */
-  assert.match(
-    code("components/course/ModuleScope.tsx"), /from "\.\/moduleFocus"/,
-    "the module frame stopped filling the context its readers read",
-  );
-});
-
-/*
-  THE READING IS A READING, WHICH IS THE FAULT THIS WAS REPORTED AS.
-
-  Both reference pages are good pages and neither is the module's second step:
-  each hands over at the foot of it to the units that teach the point and to a
-  drill on the learner's own deck, which is exactly what was taken by somebody
-  who kept scrolling. Inside a module both stand down. Asserted on both,
-  because they are two pages answering one step and fixing one is the shape of
-  a fault that only shows on half the evenings.
-*/
-check("the module's reading step carries no drill and no way off the page", () => {
-  for (const page of [
-    "app/(app)/grammar/topic/[id]/page.tsx",
-    "app/(app)/grammar/[caseKey]/page.tsx",
-  ]) {
-    const src = code(page);
-    assert.match(
-      src, /focusFrom\(await searchParams\)/,
-      `${page} does not ask whether it was opened from tonight's module`,
-    );
-    assert.match(
-      src, /inModule \? undefined : \(/,
-      `${page} keeps its way back to the reference inside a module`,
-    );
-    assert.match(
-      src, /\{!inModule &&/,
-      `${page} stopped holding anything back inside a module`,
-    );
-  }
-  /* The drill is the one the report named, so it is named here. */
-  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
-  assert.match(
-    topic, /\{!inModule && TOPIC_DRILL\[id\]/,
-    "the grammar topic page offers its drill inside a module again",
-  );
-});
-
-/*
-  AND THE WAY ON IS RESOLVED ON THE SERVER.
-
-  The marker came off an address a learner could have typed, so the step it
-  names decides what a caption says and nothing else. `advanceCourseStep` reads
-  the programme, the day and the step again, refuses a day nobody has reached
-  for the reason `markCourseStep` does (a tick is the pointer `dayReached`
-  reads), refuses to write a row for a step the review log proves, and works
-  out where to go from the day's own order.
-*/
-check("the module's way on is resolved on the server and ticks nothing it may not", () => {
-  const actions = code("app/actions.ts");
-  const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));
-  assert.ok(fn.length > 0, "advanceCourseStep is gone; the module has no way on");
-  const body = fn.slice(0, fn.indexOf("\n}\n") + 3);
-  assert.match(body, /await requireUserId\(\)/, "advanceCourseStep takes an owner from its caller");
-  assert.match(body, /dayIsInPlay\(/, "advanceCourseStep stopped checking the day is the one reached");
-  assert.match(body, /if \(!step\.derived\)/, "advanceCourseStep would write a row for a step the log proves");
-  assert.match(body, /continueHref\(/, "advanceCourseStep stopped working out the way on for itself");
-  assert.ok(
-    !/href:\s*(hrefFrom|input|next(Href)?\b)/.test(body),
-    "advanceCourseStep takes the way on from its caller rather than from the day's order",
-  );
-  /* And the frame sends nothing but the three ids. */
-  const scope = code("components/course/ModuleScope.tsx");
-  assert.match(
-    scope, /advanceCourseStep\(focus\.programmeId, focus\.dayId, focus\.stepId\)/,
-    "the module frame stopped asking the server where the way on goes",
-  );
-});
-check("every exam shape the audit can meet is one it knows what to search", () => {
-  /*
-    `npm run audit:questions` asks one question of every generator in this app:
-    is the answer already visible in what the learner is shown. It can only ask
-    it of a shape whose fields it knows, so `EXAM_SHOWS` names what each exam
-    shape puts on screen and `NOTHING_TO_SEARCH` names the ones whose answer
-    genuinely cannot be there, a dictation's recording or a composition with no
-    single answer at all.
-
-    THE SCRIPT REPORTS AN UNCLASSIFIED SHAPE AND THAT IS A SAMPLING CHECK ON A
-    TOTAL QUESTION. It fires only if some level at some seed actually builds
-    one, and `ExamItem` is a closed union: a member added to it and set at one
-    level a year later would reach a learner before anything noticed. This is
-    the total version, read off the union's own declaration.
-
-    It is here rather than in the audit because that script would need a copy
-    of `code()` to read a declaration without reading the comments around it,
-    and a second comment-stripper is the second copy of the oldest recurring
-    mistake in this repository's own checks.
-  */
-  const paper = code("lib/exam/paper.ts");
-  const built = [...paper.matchAll(/kind:\s*"([a-z-]+)"/g)]
-    .map((m) => m[1]!)
-    .filter((kind, i, all) => all.indexOf(kind) === i);
-  assert.ok(
-    built.length >= 10,
-    `read ${built.length} exam item kinds out of lib/exam/paper.ts, which is too few to be the union.`
-    + " The declaration moved or the pattern stopped matching, and a check that finds nothing passes",
-  );
-
-  const audit = code("scripts/audit-questions.ts");
-  const shows = audit.match(/const EXAM_SHOWS[^}]*}/)?.[0] ?? "";
-  const nothing = audit.match(/const NOTHING_TO_SEARCH = new Set\(\[[^\]]*\]/)?.[0] ?? "";
-  assert.ok(
-    shows.length > 0 && nothing.length > 0,
-    "scripts/audit-questions.ts no longer declares EXAM_SHOWS and NOTHING_TO_SEARCH."
-    + " Whatever replaced them is what this check should be reading",
-  );
-
-  const missing = built.filter((kind) => !shows.includes(`"${kind}"`) && !nothing.includes(`"${kind}"`));
-  assert.deepEqual(
-    missing, [],
-    `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
-    + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
-    + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
-    + " never examines, which is how the level check's writing item hid",  );
 });
 
 console.log(
