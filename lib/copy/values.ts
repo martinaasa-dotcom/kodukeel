@@ -160,9 +160,26 @@ export function joinWithOr(items: readonly string[]): string {
  * marked right, and the recorded order is shown under it as a fact about the
  * recording rather than as a correction. `lib/estonian/wordOrder.ts` decides
  * which is which.
+ *
+ * **None of the three says what Estonian allows, because none of them knows.**
+ * The first wording of this kept the old claim and read "Not an order Estonian
+ * uses here", which is the very sentence that was reported, and the rule
+ * behind it checks exactly one thing: whether a verb particle moved. Its own
+ * header lists what it refuses and knows to be ordinary Estonian, `Ta pani ära
+ * raamatu` among them, so on those answers the app was telling a learner their
+ * Estonian is wrong while the module doing the marking said in writing that it
+ * is not. What the app does know is which order the writer used, so that is
+ * what all three notes talk about now, and being right stays a matter for the
+ * mark rather than for the sentence.
+ *
+ * **And each one is a whole sentence rather than a lead-in.** They ended in a
+ * colon, which reads as it should on the two screens that print the recording
+ * directly underneath and as a dangling colon on the examination's result,
+ * where the answer is printed in the row *above* the note. A note that only
+ * parses in one layout is a note the next screen renders wrong.
  */
 export const ORDER_EXACT = "That is the sentence.";
-export const ORDER_WRONG = "Not an order Estonian uses here. It goes:";
+export const ORDER_WRONG = "That is not the order the writer used.";
 
 /**
  * What is said about an order Estonian allows that the writer did not choose.
@@ -181,6 +198,6 @@ export const ORDER_WRONG = "Not an order Estonian uses here. It goes:";
  */
 export function orderVariantNote(moved: string | null): string {
   return moved
-    ? `That works. The writer put ${moved} earlier:`
-    : "That works. The writer put it this way:";
+    ? `That works. The writer put ${moved} earlier.`
+    : "That works. The writer put it another way.";
 }

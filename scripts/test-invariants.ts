@@ -17017,6 +17017,68 @@ check("an order the writer did not choose is not a wrong order", () => {
       `${file} writes its own sentence about a word order rather than reading the one table`,
     );
   }
+
+  /*
+    AND NONE OF THE THREE SAYS WHAT ESTONIAN ALLOWS. The rule behind them
+    checks one thing, whether a verb particle moved, and its own header lists
+    the orders it refuses and knows to be ordinary Estonian, `Ta pani ära
+    raamatu` among them. A note reading "Not an order Estonian uses here" over
+    one of those is the app telling a learner their Estonian is wrong while
+    the module doing the marking says in writing that it is not, which is the
+    sentence that was reported in the first place. What the app knows is which
+    order the writer used.
+
+    Anchored on the copy table, since that is the one place all three read.
+  */
+  assert.doesNotMatch(
+    copy, /ORDER_WRONG = "[^"]*Estonian/,
+    "the refusal claims to know what Estonian allows again, on a rule that checks one word",
+  );
+
+  /*
+    AND A NOTE IS A WHOLE SENTENCE RATHER THAN A LEAD-IN. Two screens print
+    the recording directly under the note and the examination's result prints
+    the answer in the row *above* it, so a note ending in a colon reads as it
+    should on two screens and dangles on the third. Both spellings of the
+    variant note and the refusal are checked, because the fallback is the one
+    a caller with no reading of the order gets and is the one nobody looks at.
+  */
+  for (const line of [...copy.matchAll(/(?:ORDER_WRONG = |\? |: )("|`)((?:That|Not)[^"`]*)\1/g)]) {
+    assert.doesNotMatch(
+      line[2]!, /:$/,
+      `a word-order note ends in a colon ("${line[2]}"), which dangles on the examination's result`,
+    );
+  }
+
+  /*
+    AND A RIGHT ANSWER WITH A LINE AGAINST IT REACHES THE SCREEN. The result
+    lists `report.missed`, which is every mark that was *wrong*, and that was
+    the only list of marks it had. The marker writes a note on two answers
+    that were right: a dictation that forgives a dropped diacritic and names
+    the letter anyway, under a comment saying "a learner who never sees them
+    never fixes them", and an order the writer did not choose, which carries
+    the disclaimer this whole check is about. Both were computed on every
+    paper and drawn on none of it.
+
+    Keyed on the note rather than on the item kind, so a third answer that
+    grows one arrives on the screen without anybody wiring it up.
+  */
+  const report = code("lib/exam/report.ts");
+  assert.match(
+    report, /m\.correct && m\.note/,
+    "the report stopped gathering the marks that were right and still have something to say, so the "
+    + "marker's note on a correct answer reaches nobody",
+  );
+  const resultScreen = code("app/(app)/exam/result/[id]/page.tsx");
+  assert.match(
+    resultScreen, /report\.accepted/,
+    "the examination's result stopped drawing the answers that were right and carry a note",
+  );
+  const acceptedAt = resultScreen.indexOf("report.accepted");
+  assert.match(
+    resultScreen.slice(acceptedAt), /mark\.note/,
+    "the result draws the accepted answers without their note, which is the only thing they are there for",
+  );
 });
 
 console.log(

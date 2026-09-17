@@ -1619,6 +1619,54 @@ a gap in the rule. The lists name uninflected adverbs and conjunctions, so the l
 the spelling, each is a request the accept list either vouches for or fails the suite on, and the
 module writes no Estonian of its own.
 
+**And reading the whole list found two more, one of them the guard's own subject.** A rate cannot
+check a claim about a language and `npm run audit:order` prints every alternative for that reason,
+so the list is read rather than the total. `Ei puudunud palju, et tuumasõda oleks lahti läinud` came
+back as `oleks läinud lahti`: the participle guard read the words the particle passes *between*
+rather than the words it passes, and the one it left out is the word the particle ends up behind,
+which is where Estonian puts the participle in every perfect there is. And it can only answer about
+a verb the dictionary holds, so `Leib on ära hallitanud`, `Hobune on ära kärvanud` and two more went
+past it on verbs nobody has looked up; the ending is the backstop under it, `nud`, `tud`, `dud` and
+`mata`, which is a suffix rather than a word and **over-refuses on purpose**, since a spelling
+wrongly read as a participle costs an alternative nobody was offered and a missed one teaches that
+`Leib on hallitanud ära` is a sentence. `mata` is the shape the module's own header names, so the
+guard fires on the example justifying it for the first time.
+
+**And a comma separates a list as often as it ends a clause.** `Sünnipäevapidu oli täis muusikat,
+naeratusi ja õnnitlusi` split at the comma leaves a segment that looks like a whole clause and is
+half of one, since `täis` governs a list carrying on past it, and the swap inside it stranded the
+rest of the list behind the word governing it. A segment holding no finite verb is not a clause, so
+the one before it does not end where the comma does. **The reading may only ever refuse**, and the
+first version of it did not: written as a fold that made the two segments one clause, it moved the
+particle to the end of the merged run, and the second clause of `Kraadiklaas läks katki, elavhõbe
+voolas laiali` holds `voolas`, a simple past no rule here derives, so the verb was invisible, the
+two merged, and `katki` was carried into a clause it has no business in. That is worse than the
+fault it was fixing. 53 alternatives became 39, and all 39 read as Estonian.
+
+**And the refusal claimed to know what Estonian allows, on a rule that checks one word.** The
+paragraph above is the rule's own list of the orders it refuses and knows to be ordinary Estonian,
+and the sentence printed over every one of them was "Not an order Estonian uses here", which is the
+sentence that was reported in the first place. The marking was corrected and the copy kept the
+claim, so the app went on telling a learner their Estonian is wrong while the module doing the
+marking said in writing that it is not. What this app knows is which order the writer used, so
+that is what all three notes say now, and whether an answer is right stays a matter for the mark
+rather than for the sentence. **Each one is a whole sentence rather than a lead-in** with it: they
+ended in a colon, which reads as it should on the two screens that print the recording directly
+under the note and dangles on the examination's result, where the answer is printed in the row
+*above* it. A note that only parses in one layout is a note the next screen renders wrong.
+
+**And a right answer with a line against it reached nobody.** The result screen lists
+`report.missed`, which is every mark that was *wrong*, and that was the only list of marks it had.
+The marker writes a note on two answers that were right: a dictation forgives a dropped diacritic,
+because the real specification does, and `acceptsSlips` says in as many words why it names the
+letter anyway, "a learner who never sees them never fixes them", and an order the writer did not
+choose is marked right and carries the disclaimer the person who reported this asked for. Both were
+computed on every paper and drawn on none of it, so the slip note had been unreachable since it was
+written and the new one arrived unreachable. `ExamReport.accepted` is the marks that scored and
+still have something to say, keyed on **the note rather than on the item kind**, so a third answer
+that grows one arrives on the screen without anybody wiring it up, and the screen draws it as what
+it is, a right answer, rather than beside the ones that were wrong.
+
 **The judgment is the dictionary's and the marking happens where there is none.** Two of the three
 screens mark offline: the lesson marks in the browser and the examination rebuilds its paper to mark
 it, and `lib/exam/score.ts` may not open a socket to do it. So the rule takes its reading of the

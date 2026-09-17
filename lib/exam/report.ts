@@ -37,6 +37,26 @@ export interface ExamReport {
   gaps: Feedback[];
   /** Every item that was wrong, worst part first, for the answers section. */
   missed: ItemMark[];
+  /**
+   * Every item that took the mark and still has something to say, worst part
+   * first, for the section under the answers.
+   *
+   * A mark is correct or it is not, and `missed` reads the second half, so the
+   * marker's own note on a *correct* answer reached no screen at all. Two
+   * kinds of answer write one. A dictation forgives a dropped diacritic
+   * because the real specification does, and `acceptsSlips` says in as many
+   * words why it still names the letter: "a learner who never sees them never
+   * fixes them". They never saw them. And an order the writer did not choose
+   * is marked right and carries the note saying where the writer put the word,
+   * which is the disclaimer the person who reported the marking asked for.
+   *
+   * So the test is the note rather than the shape: an answer that scored and
+   * has a line against it belongs on the screen, and a third item type that
+   * grows one lands here without anybody remembering to wire it up. It is not
+   * a second copy of `missed`, and the screen draws it as what it is, which is
+   * a right answer.
+   */
+  accepted: ItemMark[];
   /** Words that went wrong more than once across the paper. */
   repeatOffenders: { lemma: string; lexemeId: string; times: number }[];
 }
@@ -116,6 +136,8 @@ export function buildReport(result: ExamResult): ExamReport {
 
   const missed = ordered.flatMap((part) =>
     part.tasks.flatMap((task) => task.marks.filter((m) => !m.correct)));
+  const accepted = ordered.flatMap((part) =>
+    part.tasks.flatMap((task) => task.marks.filter((m) => m.correct && m.note !== "")));
 
   const counts = new Map<string, { lemma: string; lexemeId: string; times: number }>();
   for (const mark of missed) {
@@ -131,6 +153,7 @@ export function buildReport(result: ExamResult): ExamReport {
     strengths,
     gaps,
     missed,
+    accepted,
     repeatOffenders: [...counts.values()]
       .filter((row) => row.times > 1)
       .sort((a, b) => b.times - a.times),

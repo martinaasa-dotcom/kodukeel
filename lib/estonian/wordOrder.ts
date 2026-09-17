@@ -38,11 +38,25 @@
  *    a swap of the last two and can strand no complement. After that swap a
  *    preposition has become the postposition Estonian already uses for the
  *    same phrase, `üle tee` and `tee üle`, `mööda teed` and `teed mööda`.
- * 3. **Nothing is carried past a clause boundary, a joiner or another verb.**
- *    A comma ends a clause; `Nad kõndisid edasi ja jõudsid järveni` does not
- *    survive `edasi` being sent past the `ja`; and `lahti kirjutamata
- *    akronüümide` is a participle standing in front of its noun, which the
- *    particle in front of it belongs to.
+ * 3. **Nothing is carried past a clause boundary, a joiner or a participle.**
+ *    `Nad kõndisid edasi ja jõudsid järveni` does not survive `edasi` being
+ *    sent past the `ja`, and `lahti kirjutamata akronüümide` is a participle
+ *    standing in front of its noun, which the particle in front of it belongs
+ *    to. What the particle is carried past is **every** word from its own
+ *    position to the end of the clause, the last one included: written as the
+ *    words it passes between, the guard could not see the word the particle
+ *    ends up behind, which is how the ordinary Estonian perfect (`oleks lahti
+ *    läinud`) walked through the check written for it.
+ * 4. **A comma ends a clause only where what follows it has a verb of its
+ *    own.** A comma separates a list as often as it ends a clause, and
+ *    punctuation cannot tell those apart: in `Sünnipäevapidu oli täis
+ *    muusikat, naeratusi ja õnnitlusi` the segment before the comma looks
+ *    like a whole clause and is half of one, since `täis` governs a list that
+ *    carries on past it. The reading may only ever refuse, and that is not a
+ *    style note: written as a fold that made the two segments one clause, it
+ *    carried `katki` across the comma in `Kraadiklaas läks katki, elavhõbe
+ *    voolas laiali`, because `voolas` is a simple past no rule here derives
+ *    and the verb in the second clause was invisible.
  *
  * **One direction only, and it was measured rather than argued.** A particle
  * the writer put at the end stays there, so `Ta pani raamatu ära` rebuilt as
@@ -246,6 +260,70 @@ export function sentenceClauses(original: string): string[][] {
 }
 
 /**
+ * A participle by its ending, for a verb the dictionary does not hold.
+ *
+ * `OrderContext.participle` is the real answer and stays the first one asked,
+ * and it can only answer about a word the dictionary has an entry for. The
+ * four sentences that got past it are the ordinary Estonian perfect on a verb
+ * nobody has looked up: `Leib on ära hallitanud`, `Hobune on ära kärvanud`,
+ * `Laudatäis lehmi on ära kõngenud`, `Esiratta pidur oli kinni kiilunud`. The
+ * guard exists for exactly that shape and could not see one of them.
+ *
+ * So the ending is the backstop. `nud`, `tud` and `dud` are the past
+ * participle and `mata` is the one the module's own header names, `lahti
+ * kirjutamata akronüümide`, which no dictionary here holds either, so until
+ * now the guard had never fired on the example justifying it. None of the
+ * four is a case ending or a person ending, so a word carrying one is a
+ * participle or it is nothing Estonian builds.
+ *
+ * **It over-refuses on purpose**, which is the trade `claimIndex` states one
+ * directory over: a spelling wrongly read as a participle costs an
+ * alternative order nobody was offered anyway, and one missed teaches a
+ * learner that `Leib on hallitanud ära` is a sentence. It is a suffix rather
+ * than a word, so this file still writes no Estonian.
+ */
+const PARTICIPLE_ENDINGS = ["nud", "tud", "dud", "mata"];
+
+function looksLikeAParticiple(word: string): boolean {
+  const lower = word.toLowerCase();
+  return PARTICIPLE_ENDINGS.some((ending) => lower.length > ending.length && lower.endsWith(ending));
+}
+
+/**
+ * Whether the segment after this one carries on the same clause.
+ *
+ * **A comma is a list separator as often as it is a clause boundary**, and
+ * `sentenceClauses` cannot tell those apart because it reads punctuation and
+ * nothing else. In `Sünnipäevapidu oli täis muusikat, naeratusi ja
+ * õnnitlusi` the split leaves `Sünnipäevapidu oli täis muusikat`, which is a
+ * whole clause to look at and is half of one: `täis` governs a list that
+ * carries on past the comma. The swap inside it offered `oli muusikat täis
+ * naeratusi ja õnnitlusi`, which strands the rest of the list behind the word
+ * governing it, and it was the only thing the audit printed that nobody would
+ * say.
+ *
+ * What tells the two apart is a finite verb, which the dictionary is already
+ * handing in: a segment holding none is not a clause of its own, so the
+ * segment before it does not end where the comma does and its last word is
+ * not the end of anything.
+ *
+ * **It may only ever refuse.** Written the other way, as a fold that made the
+ * two segments one clause, it moved the particle to the end of the *merged*
+ * run, and that is worse than the fault it was fixing: the second clause of
+ * `Kraadiklaas läks katki, elavhõbe voolas laiali` holds `voolas`, a simple
+ * past no rule here derives, so the dictionary could not see the verb in it,
+ * the two segments merged, and `katki` was carried across the comma into a
+ * clause it has no business in. The rule is that nothing crosses a comma, and
+ * a reading of what is on the other side of one can take an order away and
+ * never add one.
+ */
+function endsItsClause(segments: string[][], index: number, dict: OrderContext): boolean {
+  const next = segments[index + 1];
+  if (!next) return true;
+  return next.some((w) => dict.finiteVerb(w));
+}
+
+/**
  * Every order of this sentence the app is prepared to call Estonian, the
  * writer's own first.
  *
@@ -284,9 +362,22 @@ export function acceptedOrders(original: string, dict: OrderContext): string[][]
     if (at === last) return; // already at the end: there is no move
     if (!free && at !== last - 1) return; // a swap of the last two, or nothing
 
-    const over = clause.slice(at + 1, last);
+    /*
+      EVERY WORD THE PARTICLE IS CARRIED PAST, WHICH INCLUDES THE LAST ONE.
+      Written as `slice(at + 1, last)` the guard read the words the particle
+      passes *between* rather than the words it passes, and the one it left
+      out is the word it ends up behind. That is the commonest shape there is:
+      Estonian writes its perfect as the particle then the participle, so `Ei
+      puudunud palju, et tuumasõda oleks lahti läinud` came back as `oleks
+      läinud lahti` with the participle guard never asked about `läinud`. The
+      guard exists for `on ära toodud ka statistilised andmed`, where the
+      participle happens not to be last, and could not fire on the sentence
+      shape it is actually about.
+    */
+    const over = clause.slice(at + 1);
     if (over.some((w) => JOINERS.has(w.toLowerCase()))) return; // never past a joiner
-    if (over.some((w) => dict.participle(w))) return; // never past a participle
+    if (over.some((w) => dict.participle(w) || looksLikeAParticiple(w))) return; // never past a participle
+    if (!endsItsClause(clauses, clauseIndex, dict)) return; // the comma is a list, not an end
 
     const moved = [...clause.slice(0, at), ...clause.slice(at + 1), word];
     orders.push(clauses.flatMap((c, i) => (i === clauseIndex ? moved : c)));

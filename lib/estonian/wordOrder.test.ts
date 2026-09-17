@@ -76,6 +76,38 @@ describe("what it refuses", () => {
     ["Ajaloolise ülevaate kõrval on ära toodud statistilised andmed.", "Ajaloolise ülevaate kõrval on toodud statistilised andmed ära"],
     // A particle the writer put at the end stays there: the stated residual.
     ["Ta pani raamatu ära.", "Ta pani ära raamatu"],
+    /*
+      AND PAST A PARTICIPLE THAT IS THE LAST WORD, which is how Estonian
+      writes its perfect and was the one shape the guard could not see: it
+      read the words the particle passes *between* rather than the words it
+      passes, and the word it left out is the one the particle ends up behind.
+    */
+    ["Ei puudunud palju, et tuumasõda oleks lahti läinud.", "Ei puudunud palju et tuumasõda oleks läinud lahti"],
+    /*
+      And past one on a verb the dictionary does not hold, which is why the
+      ending is a backstop under `OrderContext.participle`. Nothing here has
+      an entry for `hallitama` or `kärvama`, so the dictionary has no opinion
+      and the `nud` does.
+    */
+    ["Leib on ära hallitanud.", "Leib on hallitanud ära"],
+    ["Hobune on ära kärvanud.", "Hobune on kärvanud ära"],
+    /*
+      A COMMA THAT SEPARATES A LIST IS NOT THE END OF A CLAUSE. `täis` governs
+      the list that carries on past it, so the segment before the comma does
+      not end anything and the swap inside it strands the rest of the list
+      behind the word governing it.
+    */
+    ["Sünnipäevapidu oli täis muusikat, naeratusi ja õnnitlusi.", "Sünnipäevapidu oli muusikat täis naeratusi ja õnnitlusi"],
+    /*
+      AND NOTHING CROSSES A COMMA, whatever the dictionary can see on the
+      other side of it. The first fix for the list above folded the two
+      segments into one clause, which moved the particle to the end of the
+      merged run: `voolas` is a simple past no rule here derives, so the verb
+      in the second clause was invisible, the two merged, and `katki` was
+      carried into a clause it has no business in. A reading of what follows a
+      comma may take an order away and may never add one.
+    */
+    ["Kraadiklaas läks katki, elavhõbe voolas laiali.", "Kraadiklaas läks elavhõbe voolas laiali katki"],
   ];
 
   for (const [original, built] of refused) {
@@ -98,6 +130,12 @@ describe("what it accepts", () => {
     // And a spelling that is a verb form and a determiner is neither, so it
     // does not block: `oma` is a form of `omama` and the word anybody says.
     ["Kunstnik annab edasi oma nägemuse.", "Kunstnik annab oma nägemuse edasi"],
+    /*
+      And a clause that really does end at its comma still moves, so the
+      reading of what follows one refuses a list without costing a sentence:
+      the segment after this comma holds `on`, which is a verb of its own.
+    */
+    ["Hai tunned ära selle järgi, et tal on suu koonu all.", "Hai tunned selle järgi ära et tal on suu koonu all"],
   ];
   for (const [original, built] of accepted) {
     it(`accepts ${built}`, () => {
