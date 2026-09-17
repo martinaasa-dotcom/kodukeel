@@ -1468,9 +1468,30 @@ the learner's own level would put something keyed on a person into a file assert
 of the kind. Above A2 the rank stands down entirely and shortest first is kept, since a B1 word is
 met by somebody who can read a subordinate clause and churning what every B1 card is cut from buys
 nothing anybody reported. `npm run audit:plainness` is the reading, band by band, and it reports
-rather than gates: 41% of what is left is a word with nothing plainer recorded, which is a gap in
-what lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
+rather than gates: of the 521 words still shown something a beginner cannot read straight through,
+514 have nothing plainer recorded anywhere in their own usages, which is a gap in what
+lexicographers wrote and not a choice this app got wrong. Read the ranked list of spellings a
 beginner keeps meeting, not the percentage.
+
+**Every surface that leads with one of a word's sentences is on the list, and three were missed the
+first time**: the printable worksheet, the dictionary entry and the government drill. The worksheet
+is the one that cost most, since it is printed and worked through on paper and nobody can ask about
+a gap afterwards. They are worth naming because the shape of the miss is the one this file keeps
+finding in its own checks: a page handing the rank in and a builder ignoring it passes any check
+that reads only the call site, so the invariant asserts both ends, that `buildWorksheet` reads the
+field and that every page hands it over. **`lib/progress/exam.ts`, `lib/progress/assessment.ts` and
+the practice page are deliberately not on it**: the first two mark, and the third counts how many
+words could support a round rather than choosing one, so order cannot reach a screen.
+
+**And a name costs the same as an opaque particle, which is measured and left alone.** A spelling no
+entry reaches is charged most, because the learner cannot look it up, and a proper noun is exactly
+that shape while being the one word in a sentence nobody has to decode. Measured over the shipped
+dictionary: fifteen A1 and A2 lead sentences carry an unvouched capital away from the opening, and
+seven of those would be plain but for the name. Seven words in 1,269 is below the noise of
+everything else here, and the repair is a capitalisation heuristic that has to tell a name from the
+first word of a sentence and from an inflected name that really is harder to read, so it would be a
+rule nobody has measured buying a fifth of a percent. Written down rather than fixed, and rather
+than left for somebody to rediscover.
 
 **And the label pattern is a noun's rule, which its name said and its code did not.** A usage
 opening with its own headword and a comma is a dictionary naming itself and then illustrating a

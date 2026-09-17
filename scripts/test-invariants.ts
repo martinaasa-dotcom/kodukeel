@@ -1271,6 +1271,19 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "word rather than ordering the ones it has",
   );
 
+  /*
+    And the two pure builders that take the rank as a field have to read it.
+    A page handing one in and a builder ignoring it passes every check that
+    only looks at the call site, which is how the worksheet came to be wired
+    and still printing its shortest sentence for a run.
+  */
+  assert.match(
+    code("lib/collections/worksheet.ts"),
+    /usableExamples\(\[\.\.\.word\.examples\], word\.plainest\)/,
+    "lib/collections/worksheet.ts no longer reads the rank it is handed, so a sheet printed " +
+    "for a class is cut from the shortest sentence rather than the plainest",
+  );
+
   const handed: Record<string, RegExp> = {
     "lib/srs/deck.ts": /sentenceReach\(\)/,
     "app/actions.ts": /sentenceReach\(\)/,
@@ -1281,6 +1294,17 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     "app/(app)/review/speaking/page.tsx": /sentenceReach\(\)/,
     "lib/progress/learn.ts": /sentenceReach\(\)/,
     "lib/progress/wordOfDay.ts": /sentenceReach\(\)/,
+    /*
+      The three that were missed on the first pass and are as much a teaching
+      surface as the rest. The worksheet is the one that costs most: it is
+      printed and worked through on paper, so nobody can ask about a gap
+      afterwards. The dictionary entry prints every sentence and this only
+      decides which a learner reads first. The government drill falls back to
+      the word's first sentence when the column carries none.
+    */
+    "app/(app)/learn/[unitId]/worksheet/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/dictionary/page.tsx": /sentenceReach\(\)/,
+    "app/(app)/review/government/page.tsx": /sentenceReach\(\)/,
     "prisma/repair.ts": /plainReach\(/,
     "scripts/audit-decks.ts": /plainReach\(/,
     "scripts/audit-questions.ts": /plainReach\(/,

@@ -2,7 +2,7 @@ import { plainPhrase } from "@/lib/copy/values";
 import { buildCloze, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { numberFromMorphCode } from "@/lib/estonian/morph";
-import { usableExamples, type Example } from "@/lib/dict/examples";
+import { usableExamples, type Example, type Rank } from "@/lib/dict/examples";
 
 /**
  * A printable worksheet for one unit.
@@ -33,6 +33,14 @@ export interface WorksheetWord {
    */
   forms: readonly { formType: string; value: string; morphCode?: string | null }[];
   examples: readonly Example[];
+  /**
+   * How this word's attested sentences are ordered, where the caller has an
+   * opinion. A sheet is printed for a class and worked through on paper, so
+   * nobody can ask about a sentence afterwards: a beginner's word takes its
+   * plainest recorded sentence rather than its shortest. See
+   * `lib/dict/plainness.ts`. Absent leaves the order exactly as it was.
+   */
+  plainest?: Rank;
 }
 
 export interface VocabularyItem {
@@ -164,7 +172,7 @@ function firstGap(word: WorksheetWord): GapItem | null {
   */
   const opener = nominalOpener(word.pos, [word.lemma, ...word.forms.map((f) => f.value)]);
   const lemma = word.lemma.toLocaleLowerCase("et");
-  for (const example of usableExamples([...word.examples])) {
+  for (const example of usableExamples([...word.examples], word.plainest)) {
     if (!naturalSentence(example.et, opener)) continue;
     const cloze = buildCloze(example.et, forms);
     if (!cloze) continue;

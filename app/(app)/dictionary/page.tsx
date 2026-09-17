@@ -1,6 +1,7 @@
 import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
-import { dictionaryLemmas } from "@/lib/dict/facts";
+import { dictionaryLemmas, sentenceReach } from "@/lib/dict/facts";
+import { plainerFirst } from "@/lib/dict/plainness";
 import { soundAlike } from "@/lib/estonian/sounds";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
@@ -208,14 +209,24 @@ export default async function DictionaryPage({
 }
 
 async function loadEntry(id: string, ownerId: string): Promise<EntryView | null> {
-  const lex = await prisma.lexeme.findUnique({
-    where: { id },
-    include: {
-      forms: { orderBy: { orderIndex: "asc" } },
-      cards: { where: { ownerId }, select: { id: true } },
-      stars: { where: { ownerId }, select: { ownerId: true } },
-    },
-  });
+  const [lex, reach] = await Promise.all([
+    prisma.lexeme.findUnique({
+      where: { id },
+      include: {
+        forms: { orderBy: { orderIndex: "asc" } },
+        cards: { where: { ownerId }, select: { id: true } },
+        stars: { where: { ownerId }, select: { ownerId: true } },
+      },
+    }),
+    /*
+      And how a beginner's word orders its own sentences, so the entry leads
+      with the one they can read rather than the one ten characters shorter.
+      The entry prints them all, so nothing is hidden by this: what it decides
+      is which sentence somebody looking a word up reads first. See
+      lib/dict/plainness.ts.
+    */
+    sentenceReach(),
+  ]);
   if (!lex) return null;
   return {
     id: lex.id,
@@ -234,7 +245,7 @@ async function loadEntry(id: string, ownerId: string): Promise<EntryView | null>
     provenance: lex.provenance,
     inDeck: lex.cards.length > 0,
     starred: lex.stars.length > 0,
-    examples: usableExamples(parseExamples(lex.examples)),
+    examples: usableExamples(parseExamples(lex.examples), plainerFirst(lex.cefr, reach)),
     forms: lex.forms.map((f) => ({
       formType: f.formType,
       value: f.value,
