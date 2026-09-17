@@ -203,6 +203,24 @@ export function isBuildable(sentence: string): boolean {
  * It lives here rather than beside either caller because there are two: the
  * level check has always passed it and the deck's gap-fill cards did not, so
  * `Kahvel, lipp kukub!` was refused in an exam and made into a flashcard.
+ *
+ * IT OVER-REACHES AND IS LEFT ALONE, WHICH IS MEASURED RATHER THAN ASSUMED.
+ * Standing down on `VERB` alone means any other part of speech whose form
+ * precedes a comma is read as opening the label pattern, and plenty of those
+ * are ordinary sentences: `Tihased, kes majaseintest kivivilla välja kisuvad,
+ * ennustavad lähiajal lund.` is a relative clause, `Eelnõud, arupärimised ja
+ * muud dokumendid esitatakse eesti keeles.` is a list subject, and `Tõesti,
+ * Oleviste kirik oli kunagi maailma kõrgeim ehitis.` is an adverb where a
+ * comma is grammar rather than a label.
+ *
+ * Over the shipped dictionary that is **25 sentences of 15,126**, and about
+ * half of them are the pattern this exists for: `Kiisu, kuidas elad?`,
+ * `Vennas, kas sul suitsu on?`, `Häbi, proua minister!` and `Kahvel` itself
+ * are the entry naming itself and then saying something that teaches nothing
+ * about the word. So the trade is a dozen sentences recovered against
+ * re-admitting the fault, in a rule two *measurements* read, the mock exam and
+ * the placement check. Narrowing it would be a heuristic on a heuristic for
+ * 0.08% of the corpus. Do not re-open it without a bigger number than that.
  */
 export function nominalOpener(
   pos: string,
