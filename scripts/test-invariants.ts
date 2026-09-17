@@ -17291,7 +17291,8 @@ check("every exam shape the audit can meet is one it knows what to search", () =
     `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
     + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
     + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
-    + " never examines, which is how the level check's writing item hid",  );
+    + " never examines, which is how the level check's writing item hid",
+  );
 });
 
 console.log(
