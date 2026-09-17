@@ -1553,6 +1553,16 @@ closed grammatical scheme where the first three letters really are the mood, whe
 is a semantic type that is not a person at all. The totals barely moved, which is the point: the
 check was accidentally right about most sentences and is now right about all of them.
 
+**The rank orders inside a cap it never reaches, and that is a fact about the data rather than a
+guarantee.** `usableExamples` sorts and then slices to `MAX_PER_WORD`, so a word holding more
+sentences than the cap would have the rank decide which of them *survive* rather than only which
+leads, and a sentence carrying the form `teachingSentence` is looking for could be ranked out of the
+pool. Measured over the shipped dictionary: no entry holds more than eight, so the slice never bites
+and the rank only ever reorders. Worth knowing rather than guarding, because the failure it would
+cause is one the code already handles gracefully, `teachingSentence` falling back to the first
+sentence with `form: null` and marking nothing up, and because a guard for a case no data reaches is
+a guard nobody can test. If a live Ekilex fetch ever brings a ninth, this is the coupling to look at.
+
 **A deck already built keeps the sentence it was built with, and that is left alone deliberately.**
 `Card.front` is written when the card is made, so the 826 A1 and A2 gap-fill cards whose source
 sentence this moves reach a new deck and nobody else's. 1,027 of those words keep the same *set* of
