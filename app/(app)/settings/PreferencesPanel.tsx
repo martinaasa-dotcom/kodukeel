@@ -17,7 +17,6 @@ import { WORD_GLOSS_CHOICES, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossDefaultFor, type CaseGlossPref } from "@/lib/estonian/caseGloss";
 import type { Level } from "@/lib/collections/syllabus";
 import type { Participation } from "@/lib/research/participation";
-import { Explain } from "@/components/Explain";
 
 const MODES: { value: ReviewMode; label: string; detail: string; icon: typeof PenLine }[] = [
   {
@@ -276,11 +275,21 @@ export function ClassNamePanel({ currentName }: { currentName: string }) {
       {message && (
         <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>
       )}
-      <Explain label="Who sees your name">
-        Used to greet you, and shown beside your reviews for the week if you join a class. Nothing else,
-        not your email, not your words, not your history, goes with it. Leaving the class takes it
-        back off.
-      </Explain>
+      {/*
+        Beside the box rather than behind a press: this says what the field is
+        for and who ends up reading it, which is both a form instruction and an
+        assurance about a name a class is going to see. Either one keeps it on
+        the screen.
+
+        Two facts rather than the four the disclosure held. "Not your email,
+        not your words, not your history" is one fact said three ways, and
+        that leaving takes the name back off is a fact about the join rather
+        than about this box, said on the screen where somebody decides to
+        join. What is left is what a reader at this box needs, in one line.
+      */}
+      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+        Used to greet you, and shown beside your week if you join a class. Nothing else goes with it.
+      </p>
     </div>
   );
 }

@@ -14660,6 +14660,68 @@ check("a word is introduced by one drawing", () => {
   );
 });
 
+check("an assurance about what you type is on the screen, not behind a press", () => {
+  /*
+    `components/Explain.tsx` is where an explanation goes, and the pass that
+    built it moved 33 paragraphs into one. Four of them were not explanations.
+
+    The difference is what the reader is doing when the sentence matters. An
+    explanation answers a question somebody has decided to ask, so it can wait
+    to be asked: how the slow speed is made, where the hours come from, why a
+    new card shows its answer. An assurance answers the question a careful
+    person has before they type anything, which is whether this is about them,
+    who ends up reading it, and what the school is on the hook for. Somebody
+    who has to press to be told that has already typed it, and somebody who
+    never presses was never told at all.
+
+    `test-scene.mjs` caught one of the four, on the situations chooser, which
+    is the only one a browser suite happened to read. The other three were the
+    same move on the join screen, the create-a-class screen and the name field,
+    and nothing would have said so. So it is a rule rather than one check: each
+    of these screens carries its assurance in the page, and the disclosure
+    beside it, where there is one, carries what the line does not say rather
+    than the line again.
+
+    Anchored on the sentence surviving with every `Explain` block cut out,
+    because a phrase inside the disclosure and a phrase above it read
+    identically to a check that only greps the file. Made to fail on each of
+    the four by putting the line back inside the press.
+  */
+  const assurances: { file: string; says: RegExp; why: string }[] = [
+    {
+      file: "app/(app)/situations/page.tsx",
+      says: /Nothing\s+you\s+write\s+here\s+is\s+about\s+you/,
+      why: "a learner deciding whether to type their real details into a conversation",
+    },
+    {
+      file: "app/(app)/class/ClassForms.tsx",
+      says: /never\s+your\s+deck\s+or\s+your\s+answers/,
+      why: "ADR-019's rule that the join screen states what is shared before anybody joins",
+    },
+    {
+      file: "app/(app)/class/page.tsx",
+      says: /need\s+a\s+parent\s+to\s+agree\s+first/,
+      why: "a teacher about to write a join code on a board",
+    },
+    {
+      file: "app/(app)/settings/PreferencesPanel.tsx",
+      says: /Nothing\s+else\s+goes\s+with\s+it/,
+      why: "the box a learner types the name a class will see into",
+    },
+  ];
+
+  const hidden = assurances.filter(({ file, says }) => {
+    const onThePage = code(file).replace(/<Explain\b[\s\S]*?<\/Explain>/g, " ");
+    return !says.test(onThePage);
+  });
+
+  assert.deepEqual(
+    hidden.map((a) => `${a.file}: ${a.why}`), [],
+    "an assurance about what a learner types is behind a press again, or has been reworded. " +
+    "An explanation may wait to be asked for; the answer to \"is this about me\" may not",
+  );
+});
+
 check("no rung of the ladder prints the answer it is asking for", () => {
   /*
     The rung before the gap asked what the word means, so the gap is about the

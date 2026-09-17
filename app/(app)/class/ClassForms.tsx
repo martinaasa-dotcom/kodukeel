@@ -132,6 +132,27 @@ export function JoinClass({ suggestedName }: { suggestedName: string }) {
         className="field text-base"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" }}
       />
+      {/*
+        ADR-019's rule is that the join screen states this BEFORE anybody
+        joins, so the headline is on the screen and the full list is behind the
+        press. Putting the lot into the disclosure was the declutter pass
+        overreaching: somebody deciding whether to hand their week to a teacher
+        should not have to press to find out what goes with it, and a reader
+        who never presses would have joined without ever being told.
+
+        One line carries what the decision turns on, which is that effort
+        crosses and contents do not; the disclosure under the button carries
+        the field-by-field version, which is a real explanation and far too
+        long to be a caption.
+
+        ABOVE THE BUTTON, because "before anybody joins" is a claim about
+        reading order rather than about the sentence being somewhere on the
+        page. It was under the press for an hour, which is the same fault one
+        element along.
+      */}
+      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+        Your teacher and classmates see your name and your effort, never your deck or your answers.
+      </p>
       {error && <p role="alert" className="text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       <Button variant="primary" onClick={join} disabled={pending || code.trim().length < CODE_LENGTH}>
         {pending ? "Joining…" : "Join the class"}

@@ -7,7 +7,6 @@ import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { CreateClass, JoinClass } from "./ClassForms";
-import { Explain } from "@/components/Explain";
 
 export const metadata = { title: "Classes" };
 
@@ -125,13 +124,20 @@ export default async function ClassIndexPage() {
                   report. A workplace group leaves the grammar out and answers a different question:
                   who is on track for the paper they have to pass.
                 </p>
-                <Explain label="Who is responsible for consent">
-                  If your pupils are under 13, a parent has to agree before they sign up. That is
-                  the school&rsquo;s responsibility, not this app&rsquo;s, but worth knowing before
-                  you write the code on the board. The{" "}
+                {/*
+                  On the screen rather than behind the press beside it: this is
+                  read by a teacher about to write a code on a board, and the
+                  one moment it is worth anything is before they do. Estonia
+                  sets the age at 13 and the app's whole position on it is that
+                  stating the rule is what it is placed to do, which a
+                  disclosure nobody opens does not.
+                */}
+                <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+                  Pupils under 13 need a parent to agree first, and that is the school&rsquo;s call
+                  rather than ours. The{" "}
                   <Link href="/privacy" className="underline underline-offset-2">privacy page</Link>{" "}
                   says what is held and what you can see.
-                </Explain>
+                </p>
                 <CreateClass />
               </Card>
             </section>

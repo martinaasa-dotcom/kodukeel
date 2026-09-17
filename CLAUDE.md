@@ -2133,6 +2133,28 @@ argues about at length, that a daily goal is reviews rather than new words. They
 Promoting is the other way out of the cap and is the right one exactly where a reader has to take
 the sentence in to answer the question in front of them.
 
+**And an assurance is not an explanation, which the same pass got wrong four times.** `Explain` is
+where an explanation goes and 33 paragraphs went into one, which was right for 29 of them. The
+difference is what the reader is doing at the moment the sentence matters. An explanation answers a
+question somebody has decided to ask, so it can wait to be asked: how the slow speed is made, where
+the hours come from, why a new card shows its answer. An assurance answers the question a careful
+person has *before* they type anything, and there are only three of those: is this about me, who
+ends up reading it, and what is the school on the hook for. Somebody who has to press to be told
+that has already typed it, and somebody who never presses was never told at all.
+
+`test-scene.mjs` caught one, on the situations chooser, because the sentence saying nothing you
+write there is about you is a check that suite has asked since the module was built, and a closed
+`details` is not in `innerText`. The other three were the same move and nothing would have said so:
+the join screen, where ADR-019's own rule is that the sharing is stated *before* anybody joins; the
+create-a-class screen, read by a teacher about to write a code on a board; and the box a learner
+types the name a class will see into. So each carries one line in the page, at `text-sm` on
+`--ink-2` like the plan paragraphs above and for the same reason, and **the disclosure beside it
+carries what the line does not say rather than the line again**, since a fact written down twice is
+a fact nobody is checking. The invariant is anchored on the sentence surviving with every `Explain`
+block cut out, because a phrase inside the press and a phrase above it read identically to a check
+that only greps the file, and it was made to fail on each of the four by putting the line back
+behind the press.
+
 **A blurb belongs where somebody is reading, not where they are scanning.** The targeted practice
 modes are drawn as the same compact tile the quick rounds already used, and their
 `blurb` was not deleted with the paragraph: `components/CommandPalette.tsx` shows it as the hint
