@@ -8345,6 +8345,26 @@ deck: left holding a single flip card, which grades itself and leaves, the old s
 three faults it did not have and the new one passes the two checks it can still make and waives
 the two it cannot.
 
+**And the one state it most needed to name was the one `pageerror` cannot see.** With the counter
+reading both screens, the next run failed once more, on `further offline grades queue too`, and the
+detail it now printed was `no card shape this driver knows, 2 buttons in main`. Every card shape has
+five, eight or eleven controls, and the summary has none, so two is none of them. It is
+`app/error.tsx`: a `ButtonLink`, which is an anchor, beside `Try again` and the report button, which
+are the two. **A component that throws while rendering never reaches the window**, so `pageerror`
+fires for none of it: React catches the throw, draws the error screen and reports it through
+`console.error`. The suite listened to the first and not the second, so a session replaced by the
+app's own failure read as a driver that did not recognise the card, which is the failure-misnames-
+its-cause fault arriving in the diagnostic written to prevent it.
+
+Both are collected now and the screen is recognised ahead of every card shape, since it is a fault
+rather than a shape, keyed on the heading that file prints rather than on the framework's message,
+which a production build withholds. The detail carries the reference and the first console line with
+it, so the next occurrence arrives with what the app actually said. Driven against a server started
+on a database that is not there, which is `test-error.mjs`'s own technique: the screen matches, `main`
+holds exactly two buttons, `pageerror` captures nothing and `console.error` captures three. It stays
+a **failure** rather than a waiver, because a review session that throws with the network gone is the
+one thing ADR-015 exists to protect.
+
 `scripts/test-containment.mjs` is the one that looks inside a card rather than at the page. It
 walks every text-bearing element, every icon and everything that arrives with a width of its own,
 on **every route the app has** at 360 and 1280, plus the landing page with its disclosures open

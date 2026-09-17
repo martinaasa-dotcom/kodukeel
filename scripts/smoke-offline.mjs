@@ -39,6 +39,21 @@ const { check, absent, done } = suite("Offline review", { floor: 15 });
 */
 const pageErrors = [];
 page.on("pageerror", (err) => pageErrors.push(`threw: ${err.message}`.slice(0, 160)));
+/*
+  AND A REACT ERROR BOUNDARY IS NOT AN UNCAUGHT ERROR.
+
+  `pageerror` fires for what reaches the window, and a component that throws
+  while rendering does not: React catches it, draws `app/error.tsx` and reports
+  the throw through `console.error`. So the one state this suite most needs to
+  be able to name was the one it could not see at all, and a session replaced
+  by the error screen read as "no card shape this driver knows" with no hint
+  that the app had failed. Both are collected, and the screen itself is
+  recognised below, because a message in the console and a screen the learner
+  is looking at are two different claims.
+*/
+page.on("console", (msg) => {
+  if (msg.type() === "error") pageErrors.push(`logged: ${msg.text()}`.slice(0, 200));
+});
 
 /**
  * How many cards this session says it has graded.
@@ -77,15 +92,26 @@ async function gradedCount() {
 async function whatIsOnScreen() {
   const body = (await page.textContent("body")) ?? "";
   const buttons = await app.locator("button").count();
-  const shape = (await app.getByRole("button", { name: /Got it, ask me later/ }).count()) ? "a first meeting"
-    : (await app.getByRole("button", { name: /Show answer/ }).count()) ? "a flip card"
-      : /Pick the meaning/.test(body) ? "a multiple choice"
-        : (await page.locator("main input[type='text'], main input:not([type])").count()) ? "a typed card"
-          : /Session complete/.test(body) ? "the summary, so the session had run out"
-            : /Nothing due|No cards yet/.test(body) ? "an empty deck"
-              : "no card shape this driver knows";
+  /*
+    The error screen is asked about first, because it is the one state that is
+    a fault rather than a shape: every other branch here describes a session
+    doing something, and this one describes the app having stopped. It is
+    keyed on the heading `app/error.tsx` prints, which is copy this repository
+    owns and sweeps, rather than on the framework's message, which a production
+    build withholds.
+  */
+  const shape = /That screen didn.t load/.test(body) ? "the error screen, so the app threw"
+    : (await app.getByRole("button", { name: /Got it, ask me later/ }).count()) ? "a first meeting"
+      : (await app.getByRole("button", { name: /Show answer/ }).count()) ? "a flip card"
+        : /Pick the meaning/.test(body) ? "a multiple choice"
+          : (await page.locator("main input[type='text'], main input:not([type])").count()) ? "a typed card"
+            : /Session complete/.test(body) ? "the summary, so the session had run out"
+              : /Nothing due|No cards yet/.test(body) ? "an empty deck"
+                : "no card shape this driver knows";
+  const reference = /Reference\s+(\S+)/.exec(body)?.[1];
+  const said = reference ? `, reference ${reference}` : "";
   const threw = pageErrors.length ? `, and the page ${pageErrors[0]}` : "";
-  return `${shape}, ${buttons} buttons in main${threw}`;
+  return `${shape}, ${buttons} buttons in main${said}${threw}`;
 }
 
 /**
