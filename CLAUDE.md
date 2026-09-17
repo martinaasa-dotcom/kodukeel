@@ -3423,24 +3423,33 @@ there is a problem and a list says what it is.
 
 **And 53 is the unit lesson's number, which is not the number the rule is drawn for.** That walk
 credits everything an earlier unit taught *and the rest of the unit in hand*, so it is the most
-permissive of the three readings and its total is an upper bound; the lesson cuts at the sitting and
-the module cuts at the evening. Walking the module's own evenings through `wordsThrough`, which is
-what `app/(app)/course/learn/page.tsx` hands the ladder, the answer is **3 of 464**. So the audit
-walks both and ranks the blockers off the module's, since that is the work list for the thing the
-operator asked to be held to the rule and a list built off the looser walk under-reports exactly the
+permissive of the readings and its total is an upper bound; the lesson cuts at the sitting and the
+module cuts at the evening. Walking the module's own evenings through `taughtThrough`, which is what
+`app/(app)/course/learn/page.tsx` hands the ladder, the answer is **49 of 464**. So the audit walks
+both and ranks the blockers off the module's, since that is the work list for the thing the operator
+asked to be held to the rule and a list built off the looser walk under-reports exactly the
 sentences a beginner's evening cannot use.
 
-**And the ranked list's first entry is the argument for reading it rather than the total.** On the
-unit walk it is `ja`, blocking ten sentences and taught in `sidesonad`, the twenty-second of A1's
-twenty-seven units. On the module's own walk it is **`on`, blocking eighteen**, which is the third
-person of `olema` and the commonest word in the language: the harvest stores it, so the rule can see
-it, and the programme does not hand it over until the eleventh evening of A1.2, which is the
-twenty-ninth evening of A1. For twenty-eight evenings the copula is a word the learner has not been
-given, and nearly every attested sentence holds one. **Teaching `olema` earlier is worth more than
-writing eighteen sentences**, and it is a change to the course rather than to the code, which is the
-operator's to make: `korraldused` moved to the front of A2 on exactly that argument. `pluss`,
-`klassi`, `ta`, `oli` and `üks` are the same shape one rank down. Read the list before writing
-anything.
+**And a `Programme` is one part of seventeen, which made that number 3 for a day.** Both the ladder
+and the audit read `wordsThrough`, which answers about the part in hand, so a learner on the first
+evening of a1.5 was credited with eight words where the programme had handed them 394, and the rule
+refused nearly every sentence somebody deep in A1 can read: 3 of 464 against 49. `taughtThrough`
+walks the ladder and is the one both read, `wordsThrough` keeps the per-part meaning the milestone
+bar wants, and the invariant names the fault rather than the call, because the two read identically
+at a glance and only one of them is a fact about the learner. **The measurement was wrong in the
+direction that flattered the diagnosis**: it reported the supply as the whole problem and produced a
+top blocker that was an artifact, which is the argument for reading the ranked list against the app's
+own walk rather than any walk that looks close enough.
+
+**And the ranked list's first entry is the argument for reading it rather than the total.** On both
+walks it is `ja`, blocking nine sentences on the module's own and ten on the unit's, taught in
+`sidesonad`, the twenty-second of A1's twenty-seven units, so teaching one conjunction earlier is
+worth more than writing nine sentences. `ta`, `pluss`, `tule`, `ära` and `klassi` are the same
+shape one rank down. **`on` is not on the list at all**, and the version of this paragraph that led
+with it, recommending `olema` be moved to the front of A1 on the strength of eighteen blocked
+sentences, was reading the per-part fault above rather than the course: `olema` is taught in a1.2 and
+counts from a1.3 on. Read the list, and read it off a run of the script rather than off this
+paragraph.
 
 **And one word in the whole of A1 is asked a question nobody can fail, which is stated rather than
 special-cased.** Three A1 module words are spelled the same in both languages, `number`, `park` and
@@ -3479,7 +3488,12 @@ them has to be answerable, and a round they opened from Practice is their own di
 the module's ladder hands `learnBatch` the words `wordsThrough` says the programme has given them
 through the day they are on, and its gap rung cuts only a sentence made of those; standalone Learn
 passes nothing and is untouched. `readableFor` in `lib/collections/levels.ts` is the one definition of
-whether a sentence may be shown, because five surfaces ask it.
+whether a sentence may be shown, and **its readers are a closed list of two**, the unit lesson and
+the ladder, each with a reason beside it. What is outside it is the decision rather than the
+oversight, so a third reader fails until somebody says which side of the line it is on: its own
+header claimed five surfaces asked it while two did, and three of the five it named were the deck,
+dictation and the flash round, which are exactly the ones deliberately left out. A reader who
+trusted that sentence would have concluded a beginner's case drilling was already gated.
 
 **And the gate is on the gap rather than on the meeting, which this took two goes to get right.**
 Filtering the examples before `teachingSentence` is the tidier-looking place for it and takes the

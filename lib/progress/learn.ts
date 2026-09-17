@@ -376,8 +376,9 @@ export async function learnBatch(
   /*
     Undefined is "no caller asked", which is standalone Learn and every band
     above A1; `null` is "the module asked and the course could not say", which
-    fails closed. `readableFor` is the one definition, shared with the unit
-    lesson and the deck's gap-fill card.
+    fails closed. `readableFor` is the one definition and this is one of its
+    two readers, the unit lesson being the other; the deck's cards are outside
+    the rule by decision, which that module's header sets out.
   */
   const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords);
   const scope = only

@@ -262,15 +262,22 @@ export interface LessonInput {
    */
   distractors?: readonly LessonWord[];
   /**
-   * Every spelling the course has taught by the end of this unit, folded to
-   * lower case: the lemmas and the stored forms of every word of every unit up
-   * to and including this one, in course order.
+   * Every spelling the course has taught by the point this sitting opens,
+   * folded to lower case: the lemmas and the stored forms of every word of
+   * every unit ahead of this one, plus this unit's own words up to and
+   * including the sitting being planned.
+   *
+   * CUT AT THE SITTING RATHER THAN AT THE UNIT, because every unit in the
+   * course splits into more than one lesson: crediting the whole of one would
+   * let lesson 1 of `millal` gap a sentence holding a word lesson 3
+   * introduces, which is the fault this field exists for arriving one sitting
+   * later. `lib/progress/lessonWords.ts` is where the two halves are joined.
    *
    * Required and nullable rather than optional, for the reason `illSgShort` is
    * required on `NounStems`: `null` means the caller asked and the course could
    * not say, and a caller that has not thought about it does not compile. It
    * fails closed, because the alternative is the fault this exists to prevent
-   * coming back the day somebody adds a fifth caller and forgets — at A1 a
+   * coming back the day somebody adds a second caller and forgets — at A1 a
    * missing set means no sentence exercise rather than any sentence at all.
    *
    * Unused above A1, where meeting a word inside a sentence before meeting it
@@ -322,8 +329,9 @@ function rulesFor(unit: LessonUnitInfo, taught: ReadonlySet<string> | null): Les
     mayCase: !beginner || declares("CASE_FORM"),
     mayGovern: !beginner || declares("GOVERNMENT"),
     // `readableFor` is `lib/collections/levels.ts`'s, because the ladder's gap
-    // rung and the deck's gap-fill card ask the same question of the same
-    // learner and five copies of it is five answers.
+    // rung asks the same question of the same learner and two copies of it is
+    // two answers. The deck's cards are deliberately outside it, and that
+    // module's own header is where the closed list of readers lives.
     readable: readableFor(unit.level, taught),
   };
 }

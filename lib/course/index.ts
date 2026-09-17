@@ -195,3 +195,42 @@ export function wordsThrough(programme: Programme, index: number): string[] {
   }
   return words;
 }
+
+/**
+ * Every word the *ladder* has taught by a day, which is not the same question.
+ *
+ * A `Programme` is one part of seventeen, so `wordsThrough` answers about a
+ * fortnight: on the first evening of a1.5 it returns that evening's eight
+ * words and says nothing about the 386 the four parts before it handed over.
+ * That is the right answer for a bar counting a part's own progress and the
+ * wrong one for anything asking what this learner has met, which is why the
+ * two are separate functions rather than a flag.
+ *
+ * The rule in `lib/collections/levels.ts` is the caller that cares. Drawn
+ * against a part it refuses nearly every sentence a learner deep in A1 can
+ * read: measured over every A1 evening, 3 of the 464 words the dictionary can
+ * gap had a readable sentence against 49 once the earlier parts count, so the
+ * per-part reading was throwing away 94% of them and reporting the supply as
+ * the reason.
+ *
+ * `PROGRAMMES` is the ladder in order, so "before" is the parts ahead of this
+ * one. A programme that is not on the ladder is credited with nothing before
+ * it rather than with everything, which is `lemmasTaughtBefore`'s rule one
+ * level up: reading "I cannot place this" as "all of it has been taught" is
+ * the silent failure rather than the cautious one.
+ *
+ * It is the course's order rather than this learner's history, which is the
+ * weaker of the two claims and is deliberate, for the reason
+ * `lib/progress/lessonWords.ts` gives at length about units.
+ */
+export function taughtThrough(programme: Programme, index: number): string[] {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const words: string[] = [];
+  if (at > 0) {
+    for (const before of PROGRAMMES.slice(0, at)) {
+      for (const d of before.days) for (const w of d.words) if (!words.includes(w)) words.push(w);
+    }
+  }
+  for (const w of wordsThrough(programme, index)) if (!words.includes(w)) words.push(w);
+  return words;
+}

@@ -166,8 +166,23 @@ export function onlyTaughtWords(level: Level): boolean {
 /**
  * Whether this sentence is one a learner at this band may be shown.
  *
- * The one answer, because five surfaces ask it: the unit lesson, the Learn
- * ladder's gap rung, the deck's gap-fill card, dictation and the flash round.
+ * TWO READERS, AND THE LIST IS CLOSED. The unit lesson's `build` and `gap`
+ * steps, and the Learn ladder's gap rung. Both are things the planned module
+ * puts in front of a beginner who did not choose them, which is the whole of
+ * what the rule covers.
+ *
+ * What is deliberately NOT here is as load-bearing as what is. The
+ * spaced-repetition deck's gap-fill and case cards are outside it by a decision
+ * with a number under it: at A1 the rule takes gap-fill cards from 786 to 51
+ * and case cards from 111 to nought, and a card names the word, names the
+ * question and asks for one form of a word the learner has been taught, which
+ * they can answer without reading past the blank. Dictation, the picture round
+ * and the grammar page a day reads are outside it too, and are named as
+ * residuals in `CLAUDE.md` rather than quietly gated. A third reader fails the
+ * invariant until somebody decides which side of that line it is on, in the
+ * shape `lib/legal/exportCoverage.ts` takes for its exemptions, because the
+ * cost of getting this wrong is a beginner's case drilling deleted in silence.
+ *
  * A null set is "the course could not say", which fails closed at the bands
  * that are held to it rather than letting every sentence through.
  */

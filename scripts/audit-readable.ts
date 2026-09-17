@@ -36,7 +36,7 @@
  * through.
  */
 import { SYLLABUS } from "../lib/collections/syllabus/index";
-import { PROGRAMMES, wordsThrough } from "../lib/course";
+import { PROGRAMMES, taughtThrough } from "../lib/course";
 import { dictionaryRows } from "./lib/dictionary";
 import { buildCloze, naturalSentence, nominalOpener, sentenceTiles } from "../lib/estonian/cloze";
 import { usableExamples } from "../lib/dict/examples";
@@ -136,10 +136,12 @@ for (const unit of SYLLABUS) {
 
 /*
   THE PLANNED MODULE'S WALK, which is the one the rule is drawn for: an evening
-  may show only what the programme has handed over through the night before, so
-  a word taught later in the same unit does not count. `wordsThrough` is the
+  may show only what the ladder has handed over through the evening they are on,
+  so a word taught later in the same unit does not count. `taughtThrough` is the
   module's own reading of that and is what `app/(app)/course/learn/page.tsx`
-  hands the ladder, so this asks the question the app asks.
+  hands the ladder, so this asks the question the app asks. It walks the whole
+  ladder and not one part: drawn against a part this read answered 3 where the
+  truth is 49, and reported the supply as the reason for a fault in the walk.
 */
 const dayBlockers = new Map<string, number>();
 let dayWords = 0;
@@ -150,7 +152,7 @@ for (const programme of PROGRAMMES) {
   if (programme.level !== "A1") continue;
   for (const day of programme.days) {
     const given = new Set<string>();
-    for (const lemma of wordsThrough(programme, day.index)) {
+    for (const lemma of taughtThrough(programme, day.index)) {
       for (const spelling of spellingsOf(lemma)) given.add(spelling);
     }
     for (const lemma of day.words) {

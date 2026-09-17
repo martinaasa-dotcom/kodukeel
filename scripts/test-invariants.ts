@@ -1375,17 +1375,59 @@ check("a lesson at A1 asks only about words the course has taught", () => {
     so at A1 most of them carry words from further up the course. Standalone
     Learn passes nothing and is deliberately untouched, because a learner who
     went there themselves is choosing their own difficulty; the module chose
-    for them, so it hands in `wordsThrough`, what the programme has given them
-    through the day they are on.
+    for them, so it hands in what the ladder has given them through the evening
+    they are on.
+
+    `taughtThrough` AND NEVER `wordsThrough`, which is the fault this arm was
+    written for: a `Programme` is one part of seventeen, so the per-part read
+    credits a learner on their first evening of a1.5 with eight words rather
+    than 394 and refuses nearly every sentence they can read. Measured over
+    every A1 evening, 3 of the 464 gappable words had a readable sentence
+    against 49 once the earlier parts count.
   */
   const ladder = code("app/(app)/course/learn/page.tsx");
   assert.match(ladder, /taughtWords:\s*spellingsOf\(/, "the module's ladder stopped saying what it has taught");
-  assert.match(ladder, /wordsThrough\(programme, day\.index\)/, "the module's ladder reads a different day's words");
+  assert.match(
+    ladder,
+    /taughtThrough\(programme, day\.index\)/,
+    "the module's ladder reads one part's words rather than the whole ladder's",
+  );
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
     /readableFor\(level, taughtWords\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+
+  /*
+    AND THE READERS OF THE RULE ARE A CLOSED LIST.
+
+    `readableFor` decides whether a beginner may be shown a sentence at all,
+    and what is outside it is a decision with a number under it rather than an
+    oversight: at A1 the rule takes the deck's gap-fill cards from 786 to 51
+    and its case cards from 111 to nought, which is a beginner's case drilling
+    deleted in silence. Its own header said five surfaces asked it while two
+    did, and three of the five it named were the ones deliberately left out, so
+    a reader who trusted the prose would have concluded the deck was gated.
+
+    Two readers, each with a reason, in the shape `lib/legal/exportCoverage.ts`
+    takes for its exemptions: a third fails here until somebody decides which
+    side of the line it is on. Anchored on the call rather than the import,
+    because a file can import the rule and go on using its own.
+  */
+  const READS_READABLE_FOR: Record<string, string> = {
+    "lib/collections/lesson.ts": "the unit lesson's build and gap steps, which the module schedules",
+    "lib/progress/learn.ts": "the Learn ladder's gap rung, gated only where the module hands in what it taught",
+  };
+  const RULE_HOME = "lib/collections/levels.ts";
+  const readsRule = ALL
+    .filter((f) => f !== RULE_HOME)
+    .filter((f) => /\breadableFor\(/.test(code(f)));
+  assert.deepEqual(
+    readsRule.slice().sort(),
+    Object.keys(READS_READABLE_FOR).sort(),
+    `readableFor has a reader nobody decided about: ${readsRule.join(", ")}. `
+      + "Add it to READS_READABLE_FOR with a reason, or keep the surface outside the rule.",
   );
 
   /*
