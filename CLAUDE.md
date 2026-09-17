@@ -648,7 +648,30 @@ a *question*, which is what that module writes. This is a reading of an answer a
 screen, and the list is what `sensesOf` exists to take apart, so what goes in the frame is `room`
 and what comes out is "in the room". A first sense that is not one short noun prints nothing, since
 a reading nobody can check is worse than none and one somebody checks and finds wrong is worse
-still. **A person is not a surface**: `raamatule` is onto the book, `mehele` is to the man and
+still.
+
+**And the osastav gets no frame at all, which is the reference's own argument turned on this
+screen.** `CASE_NOTES` says of it that "English marks none of this, so there is nothing to carry
+over", and a one-phrase reading claiming otherwise contradicts the paragraph printed under it.
+"some of it" is right for `vett` and wrong twice over for everything else: `Ma loen raamatut` is
+reading a book and not finishing it rather than reading some of it, and `meest` under "some of the
+man" is a portion of a person, which is what two of the five words on this screen printed for a
+while. It is `null` in a total record rather than a missing key, so the silence is a decision
+somebody took and a fifteenth case is still a build error.
+
+**Three numbers, measured over the shipped dictionary rather than reasoned about.** A frame is
+built out of somebody else's English and the ways that goes wrong are countable, so they were
+counted rather than argued over. **74** first senses carry their own article, so `ameeriklane` is
+"an american" and framed it read "in the an american": the article is stripped rather than the
+sense refused, because what is left is exactly the reading wanted, and it is stripped before the
+length rule so it does not eat a word of the budget. **37** are judged wrongly by the letter rule
+for a/an, 5 taking "an" against it (`hour`, `honest`, `honour`) and 32 taking "a" (`euro`,
+`university`, `use`, `one`), which is the short certain list `DA_ONLY_VERBS` is one module over and
+is safe for its reason: these openings are never the other way, and English spelling does not
+change under us the way a word list does. And the length rule keeps **77** three-word senses and
+refuses **63**, which are "twilight before rising of the sun" and "in the estonian school system
+the 9-year comprehensive school", sentences rather than readings. Over all 64,296 readings the
+module can make, no double article and no article against the sound. **A person is not a surface**: `raamatule` is onto the book, `mehele` is to the man and
 `mehel` is the have-construction turned inside out, which is the distinction the case's own `plain`
 already carries and is read here through `asksAboutPerson`, the pronoun's own fact asked of the
 module that owns it. What a semantic code *means* stays `caseQuestion.ts`'s to decide, which is a

@@ -59,16 +59,33 @@ interface Frame {
 /**
  * Ordered as `CASES` is, and total over all fourteen rather than partial.
  *
- * `plainAsk` is deliberately partial because a slot can have nothing to add
- * beyond its name. Every case here has something to add, since the whole point
- * is the word in the frame, so a missing key is a row that would silently
- * print nothing on a screen whose subject is that row. `Record<CaseKey, Frame>`
- * is what makes a fifteenth case a build error rather than a blank line.
+ * Total, with `null` where a case is deliberately left alone, which is not the
+ * same thing as a key nobody wrote: `plainAsk` is partial and a missing entry
+ * there is indistinguishable from an oversight. `Record<CaseKey, Frame | null>`
+ * makes a fifteenth case a build error and makes the one refusal a decision
+ * somebody took, which the osastav's own entry argues for at length.
  */
-const FRAMES: Record<CaseKey, Frame> = {
+const FRAMES: Record<CaseKey, Frame | null> = {
   NOMINATIVE: { thing: "the %" },
   GENITIVE: { thing: "of the %" },
-  PARTITIVE: { thing: "some of the %" },
+
+  /*
+    THE ONE CASE THAT GETS NO FRAME, AND THE REASON IS THE REFERENCE'S OWN.
+
+    `CASE_NOTES` says of the osastav that "English marks none of this, so there
+    is nothing to carry over", and a one-phrase reading claiming otherwise is
+    this screen contradicting the paragraph printed under it. "some of it" is
+    right for `vett` and wrong twice over for everything else: `Ma loen
+    raamatut` is reading a book and not finishing it rather than reading some
+    of it, and `meest` under "some of the man" is a portion of a person, which
+    is what the five words on this screen would actually have printed.
+
+    So the case keeps its `plain`, its summary and its english hook, which are
+    on the same panel and say it properly at the length it needs, and this adds
+    nothing. `null` rather than a missing key, so the decision is stated and a
+    fifteenth case is still a build error.
+  */
+  PARTITIVE: null,
 
   /*
     Inside. Never reached for a word the Institute calls a person, since
@@ -108,25 +125,56 @@ const FRAMES: Record<CaseKey, Frame> = {
 /**
  * How many words a gloss's first sense may run to and still go in a frame.
  *
- * A gloss is usually one word and is sometimes a short phrase. "some of the
- * person who looks after a building" is a sentence rather than a reading, and
- * the honest thing to do with it is print nothing: the case's own explanation
- * is on the same screen and says the same thing properly.
+ * Measured over the shipped dictionary rather than guessed at, counted after
+ * the article above has been stripped, since that is the order the rules run
+ * in: of 5,194 nominals 4,408 first senses are one word and 645 are two, so
+ * three keeps 77 more and refuses 63. Read the 63 rather than the total, which
+ * is the rule `eval:scene` states about itself: they are "twilight before
+ * rising of the sun", "in the estonian school system the 9-year comprehensive
+ * school", "single game in e.g. chess". Those are sentences rather than
+ * readings, and the honest thing to do with one is print nothing, since the
+ * case's own explanation is on the same screen and says it properly.
  */
 const MAX_WORDS = 3;
 
 /**
- * The indefinite article for an English word.
+ * A GLOSS SOMETIMES BRINGS ITS OWN ARTICLE, AND THE FRAME SUPPLIES ONE.
  *
- * A fact about English spelling and a rough one: "an hour" and "a university"
- * both break it, and that is the stated residual rather than something to
- * chase with a list of exceptions that goes stale in silence. It is worth the
- * two lines regardless, because the words it does get right are ordinary
- * ("as an engineer") and "as a engineer" on a screen teaching English speakers
- * reads as the app not knowing their language either. Only the two frames that
- * introduce a role ever reach it, so the surface is two rows of fourteen.
+ * Measured over the shipped dictionary: 74 first senses open with one, so
+ * `ameeriklane` is "an american" and `avalikkus` is "the public sphere", and
+ * dropped into a frame they read "in the an american" and "in the the public
+ * sphere". Stripped rather than refused, because what is left is exactly the
+ * reading wanted: "in the american", "in the public sphere". It runs before
+ * the length rule, so an article does not eat a word of the budget, and before
+ * the article rule below, so "an american" comes back out as "as an american"
+ * rather than as "as a american".
  */
+const OWN_ARTICLE = /^(?:an?|the)\s+/i;
+
+/**
+ * English says "an" by sound and this is spelling, so two classes break it.
+ *
+ * The short certain list rather than a pronunciation dictionary, which is the
+ * shape `DA_ONLY_VERBS` takes one module over and for its reason: these
+ * openings are never the other way, so firing on them can only be right, and
+ * English spelling does not change under us the way a word list does. Measured
+ * over the shipped dictionary, they are the whole of it: 5 senses take "an"
+ * against the letter (`hour`, `honest`, `honesty`, `honour`, `hourglass`) and
+ * 32 take "a" against it (`euro`, `university`, `use`, `one`, `ukrainian` and
+ * their kin), and nothing else in 5,117 nominals is judged wrongly.
+ *
+ * `uni` excludes `unin` and `unim`, so "a uniform" and "a university" are right
+ * without taking "an uninhabited" with them. The residual is a word in neither
+ * class that English says by sound anyway, and it costs one article on two of
+ * the fourteen frames.
+ */
+const SILENT_H = /^(?:hour|honest|honou?r|heir)/i;
+const SOUNDS_LIKE_YOU = /^(?:eu|ewe|ufo|ubiq|uni(?![nm])|ura|uro|usa|use|usu|uti|uk|one\b|one[-'])/i;
+
+/** The indefinite article for an English word. */
 function article(noun: string): string {
+  if (SILENT_H.test(noun)) return "an";
+  if (SOUNDS_LIKE_YOU.test(noun)) return "a";
   return /^[aeiou]/i.test(noun) ? "an" : "a";
 }
 
@@ -139,7 +187,7 @@ function article(noun: string): string {
  * a sentence. Which of the two breads it is stays the entry's business.
  */
 function nounIn(gloss: string): string | null {
-  const first = sensesOf(gloss)[0]?.of;
+  const first = sensesOf(gloss)[0]?.of?.replace(OWN_ARTICLE, "");
   if (!first) return null;
   if (first.split(/\s+/).length > MAX_WORDS) return null;
   return first;
@@ -157,6 +205,7 @@ export function caseReading(key: CaseKey, gloss: string, subject: CaseSubject): 
   const noun = nounIn(gloss);
   if (!noun) return null;
   const frame = FRAMES[key];
+  if (!frame) return null;
   const person = asksAboutPerson(subject) ? frame.person : undefined;
   const shape = person ?? frame.thing;
   // The two frames that introduce a role take an article, and which article is

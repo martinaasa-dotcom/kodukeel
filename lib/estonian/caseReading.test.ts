@@ -38,6 +38,42 @@ describe("caseReading", () => {
     expect(caseReading("ALLATIVE", "book", thing)).not.toBeNull();
   });
 
+  it("leaves the one case English does not mark alone", () => {
+    /*
+      "some of the man" is a portion of a person and `Ma loen raamatut` is not
+      reading some of a book. The osastav's own note says English marks none of
+      this, and a frame claiming otherwise contradicts the paragraph printed
+      under it on the same screen.
+    */
+    expect(caseReading("PARTITIVE", "book", thing)).toBeNull();
+    expect(caseReading("PARTITIVE", "man", person)).toBeNull();
+  });
+
+  it("strips an article the gloss brought with it", () => {
+    // 74 first senses in the shipped dictionary open with one, and the frame
+    // supplies its own: "in the an american", "in the the public sphere".
+    expect(caseReading("INESSIVE", "an american", thing)).toBe("in the american");
+    expect(caseReading("INESSIVE", "the public sphere", thing)).toBe("in the public sphere");
+    expect(caseReading("ESSIVE", "an american", thing)).toBe("as an american");
+    // And the article does not eat a word of the length budget.
+    expect(caseReading("INESSIVE", "a young unmarried woman", thing)).toBe("in the young unmarried woman");
+  });
+
+  it("says an by sound rather than by spelling", () => {
+    // The two classes where English and the first letter disagree, measured
+    // over the shipped dictionary as the whole of it: 5 senses and 32.
+    expect(caseReading("ESSIVE", "hour", thing)).toBe("as an hour");
+    expect(caseReading("ESSIVE", "honest", thing)).toBe("as an honest");
+    expect(caseReading("ESSIVE", "university", thing)).toBe("as a university");
+    expect(caseReading("ESSIVE", "euro", thing)).toBe("as a euro");
+    expect(caseReading("ESSIVE", "user", thing)).toBe("as a user");
+    expect(caseReading("ESSIVE", "one", thing)).toBe("as a one");
+    // And the guard that keeps `uni` off the words that really do take "an".
+    expect(caseReading("ESSIVE", "uninteresting", thing)).toBe("as an uninteresting");
+    expect(caseReading("ESSIVE", "unimportant", thing)).toBe("as an unimportant");
+    expect(caseReading("ESSIVE", "uncle", person)).toBe("as an uncle");
+  });
+
   it("reads a gloss down to its first sense", () => {
     // `tuba` ships as "room, chamber" on the expansion. The whole list in a
     // frame is what lib/estonian/plainAsk.ts refused, and rightly.
@@ -45,6 +81,12 @@ describe("caseReading", () => {
     expect(caseReading("INESSIVE", "hand, arm", thing)).toBe("in the hand");
     // A qualifier is a note on the entry rather than part of the reading.
     expect(caseReading("INESSIVE", "bread (dark)", thing)).toBe("in the bread");
+    // A sense that is a sentence is one to leave alone: 63 of 5,194 measured,
+    // counted after the article is stripped, which is the order they run in.
+    expect(caseReading("INESSIVE", "twilight before rising of the sun", thing)).toBeNull();
+    // And an article does not push a short sense over the budget.
+    expect(caseReading("INESSIVE", "a large uninhabited forest", thing))
+      .toBe("in the large uninhabited forest");
   });
 
   it("puts an article on the two frames that introduce a role, and gets it right", () => {
@@ -60,13 +102,13 @@ describe("caseReading", () => {
     expect(caseReading("INESSIVE", "the person who looks after a building", thing)).toBeNull();
   });
 
-  it("answers for every case a word with no classification can be shown in", () => {
+  it("answers for every case but the one it refuses on purpose", () => {
     // An unclassified word keeps the inside trio and every other case, which
     // is what `caseIsUnsaidFor` refusing to guess means one module over. A
-    // missing frame here would be a blank line on a row whose subject it is.
-    for (const spec of CASES) {
-      expect(caseReading(spec.key, "book", unknown), spec.key).not.toBeNull();
-    }
+    // missing frame would be a blank line on a row whose subject it is, so
+    // the osastav is the only silence and it is a decision rather than a gap.
+    const silent = CASES.filter((spec) => caseReading(spec.key, "book", unknown) === null);
+    expect(silent.map((spec) => spec.key)).toEqual(["PARTITIVE"]);
   });
 
   it("holds no Estonian", () => {
