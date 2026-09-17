@@ -18,6 +18,7 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
 import { resolvePos } from "../lib/dict/pos";
@@ -43,6 +44,9 @@ import { TOPIC_GROUPS } from "../lib/estonian/grammar";
 import { NAV_MOTION } from "../lib/ux/navMotion";
 import { DESTINATIONS } from "../lib/ux/nav";
 import { rungOf } from "../lib/learn/ladder";
+import { BUILD_FROM, maySortWords } from "../lib/collections/levels";
+import { ROTATION } from "../lib/course/plan";
+import { LEVELS } from "../lib/collections/syllabus/types";
 import { LETTER_CHARACTERS, LETTER_CHEER, LETTER_CHEER_EVENT } from "../lib/ux/letterMotion";
 import { DEMO_STEMS } from "../lib/collections/demoWords";
 import { grammarGroupTerm, grammarTerm } from "../lib/estonian/terms";
@@ -1502,6 +1506,184 @@ check("a question about one word is worded for that word", () => {
     cases,
     /question: \[row\.asksPerson, row\.asksThing, row\.asksWhere\]/,
     "a case's name stopped being built from its own parts",
+  );
+});
+
+/*
+  A BEGINNER IS NEVER SHOWN A WORD THE COURSE HAS NOT TAUGHT.
+
+  `lib/collections/lesson.ts` rule 1 has always said nothing is asked before it
+  is taught, and it was written about the word a step is *about*. An attested
+  usage is written to illustrate a headword rather than to be somebody's first
+  reading, so the words standing around it come from wherever the lexicographer
+  was: the first unit of the course, whose own blurb reads "Thirteen words,
+  said alone. Nothing here is a sentence yet", put `Palun võta veel üks komm. –
+  Aitäh!` on the screen as a six-tile ordering puzzle, five of the six words
+  never shown to anybody. Measured over the course at one lesson a sitting, 152
+  of the 162 word-ordering steps at A1 and 188 of the 210 gap-fills carried one.
+
+  Three things hold it, and each is the shape that would rot rather than
+  today's markup: word ordering starts above A1, the sentence builders reach a
+  sentence only through the rule that decides whether it is readable, and the
+  set of taught words is required so a caller cannot quietly reinstate the
+  fault by leaving it out.
+*/
+check("a lesson at A1 asks only about words the course has taught", () => {
+  assert.ok(
+    LEVELS.indexOf(BUILD_FROM) > 0,
+    "word ordering is offered at the first band of the course, where there is no syntax to order yet",
+  );
+  assert.ok(!maySortWords("A1") && maySortWords(BUILD_FROM), "maySortWords stopped agreeing with BUILD_FROM");
+
+  /*
+    BOTH SURFACES ASK, AND THEY ASK THE SAME THING.
+
+    Two screens put a sentence up as tiles: the unit lesson's `build` step and
+    the Sentences round on Practice, which draws from the learner's own deck
+    and had no band in it at all, so removing the exercise from the lesson left
+    an A1 learner one press away from the same six tiles. A constant in one of
+    them is a constant the other disagrees with, so the rule lives in
+    `lib/collections/levels.ts` and both read it.
+  */
+  for (const file of ["lib/collections/lesson.ts", "app/(app)/review/sentences/page.tsx"]) {
+    assert.match(
+      code(file),
+      /maySortWords\(/,
+      `${file} puts a sentence up as tiles without asking which bands are asked to order words`,
+    );
+  }
+  /*
+    And the planned module may not schedule a round its own learner is not
+    given: `sentences` sat in the A1 rotation, so taking word ordering out of
+    the lesson left the module sending a beginner to a screen that answers
+    with the band it opens at.
+  */
+  assert.ok(
+    !(ROTATION.A1 ?? []).includes("sentences"),
+    "the A1 rotation schedules the word-ordering round, which does not open until A2",
+  );
+
+  /*
+    THE MODULE'S OWN LADDER IS HELD TO WHAT THE MODULE HAS TAUGHT.
+
+    The gap rung cuts a sentence a lexicographer wrote against one headword,
+    so at A1 most of them carry words from further up the course. Standalone
+    Learn passes nothing and is deliberately untouched, because a learner who
+    went there themselves is choosing their own difficulty; the module chose
+    for them, so it hands in what the ladder has given them through the evening
+    they are on.
+
+    `taughtThrough` AND NEVER `wordsThrough`, which is the fault this arm was
+    written for: a `Programme` is one part of seventeen, so the per-part read
+    credits a learner on their first evening of a1.5 with eight words rather
+    than 394 and refuses nearly every sentence they can read. Measured over
+    every A1 evening, 3 of the 464 gappable words had a readable sentence
+    against 49 once the earlier parts count.
+  */
+  const ladder = code("app/(app)/course/learn/page.tsx");
+  assert.match(ladder, /taughtWords:\s*spellingsOf\(/, "the module's ladder stopped saying what it has taught");
+  assert.match(
+    ladder,
+    /taughtThrough\(programme, day\.index\)/,
+    "the module's ladder reads one part's words rather than the whole ladder's",
+  );
+  const learn = code("lib/progress/learn.ts");
+  assert.match(
+    learn,
+    /readableFor\(level, taughtWords\)/,
+    "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+
+  /*
+    AND THE READERS OF THE RULE ARE A CLOSED LIST.
+
+    `readableFor` decides whether a beginner may be shown a sentence at all,
+    and what is outside it is a decision with a number under it rather than an
+    oversight: at A1 the rule takes the deck's gap-fill cards from 786 to 51
+    and its case cards from 111 to nought, which is a beginner's case drilling
+    deleted in silence. Its own header said five surfaces asked it while two
+    did, and three of the five it named were the ones deliberately left out, so
+    a reader who trusted the prose would have concluded the deck was gated.
+
+    Two readers, each with a reason, in the shape `lib/legal/exportCoverage.ts`
+    takes for its exemptions: a third fails here until somebody decides which
+    side of the line it is on. Anchored on the call rather than the import,
+    because a file can import the rule and go on using its own.
+  */
+  const READS_READABLE_FOR: Record<string, string> = {
+    "lib/collections/lesson.ts": "the unit lesson's build and gap steps, which the module schedules",
+    "lib/progress/learn.ts": "the Learn ladder's gap rung, gated only where the module hands in what it taught",
+  };
+  const RULE_HOME = "lib/collections/levels.ts";
+  const readsRule = ALL
+    .filter((f) => f !== RULE_HOME)
+    .filter((f) => /\breadableFor\(/.test(code(f)));
+  assert.deepEqual(
+    readsRule.slice().sort(),
+    Object.keys(READS_READABLE_FOR).sort(),
+    `readableFor has a reader nobody decided about: ${readsRule.join(", ")}. `
+      + "Add it to READS_READABLE_FOR with a reason, or keep the surface outside the rule.",
+  );
+
+  /*
+    AND IT GATES THE GAP RATHER THAN THE MEETING, which is the line
+    `lib/collections/lesson.ts` draws and which this file had wrong first:
+    filtering the examples before `teachingSentence` took the sentence off the
+    meet rung too, 478 of 493 A1 words down to 5, so a beginner's first screen
+    every evening read "No example sentence for this one yet" about words with
+    several. Two arms, because either one alone passes on the broken shape: a
+    meeting always falls back to the unfiltered examples, and the gap is built
+    only where the sentence it shares is readable.
+
+    The arguments after `opener` are not part of the claim: `teachingSentence`
+    also takes the ranking that puts a beginner's plainest recorded sentence
+    first, and the two readings are ranked alike on purpose, so pinning the
+    call to three arguments would fire on honest code the day a fourth is
+    passed. What is asserted is the fallback itself, over the *unfiltered*
+    examples.
+  */
+  assert.match(
+    learn,
+    /\?\?\s*teachingSentence\(examples, \[lexeme\.lemma\], opener[^)]*\)/,
+    "the ladder's meet rung stopped falling back to a sentence the rule would not gap",
+  );
+  assert.match(
+    learn,
+    /taught\?\.form && readable\(taught\.example\.et\)/,
+    "the ladder's gap stopped asking whether the sentence it hands over can be read",
+  );
+
+  const lesson = code("lib/collections/lesson.ts");
+
+  /*
+    The pairing rather than either half: `usable` is where a sentence is held
+    to the unit's declaration and to what the learner has met, so a builder
+    that walks `word.examples` itself is a builder outside the rule. Anchored
+    on the call, because a builder can import the rule and go on using its own
+    list, which is the fault this file keeps finding in its own checks.
+  */
+  for (const builder of ["function gapStep(", "function buildStep("]) {
+    const body = lesson.slice(lesson.indexOf(builder), lesson.indexOf("\n}", lesson.indexOf(builder)));
+    assert.ok(body.length > 0, `lesson.ts no longer has ${builder}`);
+    assert.match(body, /usable\(word, rules\)/, `${builder} reaches a sentence without asking which are readable`);
+    assert.doesNotMatch(body, /word\.examples/, `${builder} walks the word's sentences itself, past the readable rule`);
+  }
+  assert.match(
+    lesson,
+    /const usable[^;]*rules\.maySentence[\s\S]{0,120}rules\.readable/,
+    "the one gate on a lesson's sentences stopped reading the unit's declaration or what the learner has met",
+  );
+
+  /*
+    Required and nullable, so a caller that cannot say what the course has
+    taught says so rather than being read as "everything". Optional is the one
+    edit that puts the fault back in silence, on a compiler that would say
+    nothing about it.
+  */
+  assert.match(
+    read("lib/collections/lesson.ts"),
+    /\n {2}taughtWords: ReadonlySet<string> \| null;/,
+    "LessonInput.taughtWords stopped being required, so a lesson can be planned without asking what has been taught",
   );
 });
 
@@ -17184,6 +17366,330 @@ check("the milestone bar is filled by the scheduler rather than by attendance", 
   );
 });
 
+/*
+  ────────────────────────── TONIGHT'S MODULE IS A ROOM ──────────────────────
+
+  A step opened from the module used to hand the learner back to the ordinary
+  website. It was reported off the reading step and the report is the whole
+  specification: the page was read, the learner kept scrolling because nothing
+  said where the reading ended, and at the foot of it they met a drill that was
+  never part of tonight. Then they came back to the list and the step was not
+  ticked, so the evening asked them to press "I did this" about a page they had
+  visibly just read.
+
+  Five things hold the answer up, and each is a way it would come apart
+  silently: a step link without the marker opens an ordinary page, a frame
+  mounted anywhere but the shell is a frame eighteen screens can forget, a
+  round that draws its own way out is a door out of the room, a reading that
+  keeps its drill is the fault itself, and a way on the client chose is a way
+  on nobody checked.
+*/
+
+/*
+  A LINK OUT OF THE LIST CARRIES THE MARKER, OR IT OPENS AN ORDINARY PAGE.
+
+  Anchored on the list calling `focusedSteps` and on no control in it reaching
+  for a bare `step.href`, because the two halves fail differently: without the
+  call nothing is focused at all, and with the call beside one link still
+  taking the raw href exactly one step of the evening quietly leaves the
+  module, which looks like a step somebody has not opened yet.
+*/
+check("a step opened from tonight's module carries the marker", () => {
+  const list = code("components/course/StepList.tsx");
+  assert.match(
+    list, /focusedSteps\(/,
+    "the module's list stopped writing the marker onto its step links. See lib/course/focus.ts",
+  );
+  assert.ok(
+    !/href=\{step\.href\}/.test(list) && !/push\(step\.href\)/.test(list),
+    "a control in the module's list opens a step's bare href, which leaves the module",
+  );
+  const focus = code("lib/course/focus.ts");
+  for (const name of ["MODULE_PARAM", "focusHref", "readFocus", "continueHref"]) {
+    assert.match(focus, new RegExp(`export (const|function) ${name}\\b`), `focus.ts stopped exporting ${name}`);
+  }
+});
+
+/*
+  AND THE FRAME IS MOUNTED ONCE, WHERE EVERY STEP PASSES THROUGH.
+
+  A day's steps open a reading, four shapes of round, a conversation and the
+  review queue, and one more whenever a rotation gains a round. Wired into each
+  of those it is eighteen chances to forget; mounted in the shell it is the
+  address that decides, so a screen that did not exist when this was written
+  arrives already inside the module. The CSS half is asserted with it, because
+  a frame drawn over a rail that is still there is not a room.
+*/
+check("the module frame is mounted once in the shell, and takes the website with it", () => {
+  const layout = code("app/(app)/layout.tsx");
+  assert.match(
+    layout, /<ModuleScope>/,
+    "the signed-in shell stopped mounting the module frame. See components/course/ModuleScope.tsx",
+  );
+  const mounts = ALL.filter((f) => f !== "app/(app)/layout.tsx" && /<ModuleScope>/.test(code(f)));
+  assert.deepEqual(
+    mounts, [],
+    `the module frame is mounted a second time (${mounts.join(", ")}). One mount, or two frames disagree about the way on`,
+  );
+
+  const css = read("app/globals.css");
+  assert.match(
+    css, /body:has\(\.module-step\) \[data-chrome\]/,
+    "a module step stopped taking the rail, the phone bar and the tutor's button off the screen",
+  );
+  /* The same hook the conversation hides by, deliberately: two rules naming
+     two sets of furniture is two answers to what the website is made of. */
+  assert.match(
+    code("components/course/ModuleScope.tsx"), /className="module-step/,
+    "nothing draws `.module-step`, so the rule above matches nothing",
+  );
+});
+
+/*
+  A ROUND ASKS BEFORE IT DRAWS A WAY OUT.
+
+  Every session had the same two written out by hand: a cross in the corner and
+  a row of buttons on the finish screen offering Today, another round and the
+  practice menu. Right where somebody chose the round; three doors out of a
+  room where the module did. One drawing rather than seventeen, so an
+  eighteenth round cannot keep its own door by being written before anybody
+  remembered this rule.
+
+  Anchored on the copy rather than on the component name, because a session
+  that reintroduced the markup would satisfy any check looking only for the
+  import.
+*/
+check("a round's own way out stands down inside a module", () => {
+  const rounds = ALL.filter((f) => /Session\.tsx$/.test(f));
+  assert.ok(rounds.length >= 15, `only ${rounds.length} session files found; the sweep is looking in the wrong place`);
+
+  const exit = code("components/round/RoundExit.tsx");
+  const ways = ["EndSession", "WayOut", "FullEntry"];
+  for (const name of ways) {
+    assert.match(exit, new RegExp(`export function ${name}\\b`), `RoundExit stopped drawing ${name}`);
+  }
+  /* Every one of them asks, counted against the list rather than a number
+     typed beside it: a fourth way out added without the question is the fault
+     this file exists for, and a hardcoded 3 would let it through the day
+     somebody writes one. */
+  assert.equal(
+    (exit.match(/useModuleFocus\(\)/g) ?? []).length, ways.length,
+    "one of the ways out of a round stopped asking whether it is inside a module",
+  );
+
+  for (const file of rounds) {
+    const src = code(file);
+    assert.ok(
+      !/aria-label="End session"/.test(src),
+      `${file} draws its own cross. Use EndSession, which stands down inside a module`,
+    );
+    /* The third way out, and the one nobody counted the first time: a card's
+       corner carries a link to the word's entry, which is a door into the
+       dictionary in the middle of a round. It was found by a suite walking an
+       evening and listing every link, not by reading. */
+    assert.ok(
+      !/Full entry/.test(src),
+      `${file} draws its own link to a word's entry. Use FullEntry, which stands down inside a module`,
+    );
+    /* A finish screen's row of exits: the copy is the anchor, and it may only
+       appear inside the one wrapper that can take the row away. */
+    for (const match of src.matchAll(/>Back to Today</g)) {
+      const at = match.index ?? 0;
+      const before = src.slice(Math.max(0, at - 600), at);
+      assert.ok(
+        before.lastIndexOf("<WayOut") > before.lastIndexOf("</WayOut>"),
+        `${file} offers Today off a finish screen outside a WayOut, so a module step has a door out of it`,
+      );
+    }
+  }
+});
+
+/*
+  AND THE LIST OF SCREENS THE MODULE SUITE OPENS IS THE COURSE'S OWN.
+
+  `scripts/test-module.mjs` opens every screen a step can reach and asks
+  whether anything on it leaves the module, which is the check that found four
+  of the six doors: an evening deals two rounds out of ten, so walking one
+  evening sees a fifth of them. That sweep is only worth its name while its
+  list is the real one, and the suite cannot import `ACTIVITIES`, because it is
+  `.mjs` and the table is TypeScript behind a path alias. So the bridge is
+  here, where both can be read: a round added to a rotation and not to the
+  suite is a screen nobody opens, which is exactly the state the sweep exists
+  to end.
+*/
+check("the module suite opens every round the course can deal", () => {
+  const suite = code("scripts/test-module.mjs");
+  const declared = suite.slice(suite.indexOf("const MODULE_SCREENS"));
+  const listed = new Set([...declared.slice(0, declared.indexOf("];")).matchAll(/"([^"]+)"/g)].map((m) => m[1]!));
+  assert.ok(listed.size >= 15, `MODULE_SCREENS holds ${listed.size} screens; the sweep is reading the wrong thing`);
+
+  const missing = Object.values(ACTIVITIES).map((a) => a.href).filter((href) => !listed.has(href));
+  assert.deepEqual(
+    missing, [],
+    `${missing.join(", ")} is a round a rotation can deal that scripts/test-module.mjs never opens, so nothing checks whether it leads out of the module`,
+  );
+  /* And the four that are not rounds: the ladder, the closing queue, a
+     conversation and the reading's two shapes. */
+  for (const screen of ["/course/learn", "/review", "/situations/", "/grammar/topic/", "/grammar/"]) {
+    assert.ok(
+      [...listed].some((s) => s.startsWith(screen)),
+      `the module suite stopped opening anything under ${screen}`,
+    );
+  }
+});
+
+/*
+  A SCREEN A MODULE STEP OPENS DOES NOT WRITE ITS OWN DOOR INTO THE DICTIONARY.
+
+  This is the rule the browser suite cannot reach, and the reason it cannot is
+  worth writing down: an evening deals two rounds out of a rotation of ten, so
+  one walk sees two of them. The first walk found `Full entry` on the review
+  card, CI's walk found the verb table on an A2 reading, and a sweep of the
+  same shape found two more, in dictation and in sentence building, that no
+  single evening would have opened. A measurement that covers one run in five
+  is not a measurement of the rule.
+
+  So the walk proves the mechanism and this proves the coverage. Scoped to what
+  a step can actually open, read off `ACTIVITIES` plus the reading, the ladder
+  and the conversation, rather than to every screen in the app: the dictionary
+  writes these links because it is the dictionary, and a rule that fired there
+  is a rule somebody waives.
+*/
+check("a screen a module step opens has no door of its own into the dictionary", () => {
+  const reach = [
+    "app/(app)/grammar/topic/",
+    "app/(app)/grammar/[caseKey]/",
+    "app/(app)/review/",
+    "app/(app)/sonad/",
+    "app/(app)/learn/new/",
+    "components/scene/",
+  ];
+  const under = ALL.filter((f) => reach.some((dir) => f.startsWith(dir)));
+  assert.ok(under.length >= 30, `only ${under.length} files in a module step's reach; the sweep is looking in the wrong place`);
+
+  const doors = under.filter((f) => /\/dictionary\?q=/.test(code(f)));
+  assert.deepEqual(
+    doors, [],
+    `${doors.join(", ")} writes its own link into the dictionary. Inside a module that is a door out of the evening with no way back: use WordLink or FullEntry, which stand down`,
+  );
+
+  /* And the two that stand down are the only ones allowed to write it. */
+  for (const file of ["components/course/WordLink.tsx", "components/round/RoundExit.tsx"]) {
+    assert.match(code(file), /useModuleFocus\(\)/, `${file} stopped asking whether it is inside a module`);
+  }
+});
+
+/*
+  AND WHAT READS THE MODULE IS A LEAF, BECAUSE OF WHERE ITS READERS SIT.
+
+  `WayOut` lives in `Empty`, and `Empty` is drawn on the landing page and on
+  the sign-in screen, which have no signed-in shell and no module and never
+  will. With the context living beside the bar, importing the hook dragged the
+  bar, its icons and a reference to `advanceCourseStep` along: measured on a
+  production build, `/welcome` and `/privacy` both pulled in the 44KB chunk
+  holding the module's way on, to draw nothing. The landing page is the one
+  screen a stranger decides on.
+
+  So the context is its own module with nothing in it, and this holds both
+  halves: that it stays a leaf, and that its readers read it rather than the
+  file that draws the bar. Anchored on the import, which is the thing the
+  bundler follows.
+*/
+check("the module's context is a leaf, so a public page does not ship the bar", () => {
+  const leaf = "components/course/moduleFocus.ts";
+  const src = code(leaf);
+  assert.match(src, /export function useModuleFocus/, `${leaf} stopped exporting the hook`);
+
+  const imports = [...src.matchAll(/^import\s[\s\S]*?from\s+"([^"]+)"/gm)].map((m) => m[1]!);
+  const allowed = imports.filter((from) => from !== "react" && from !== "@/lib/course");
+  assert.deepEqual(
+    allowed, [],
+    `${leaf} imports ${allowed.join(", ")}. It may reach React and the pure course types and nothing else, or every screen that reads a module ships whatever it reached`,
+  );
+
+  /* And nobody reads the hook off the file that draws the bar. */
+  const wrong = ALL.filter((f) => /useModuleFocus/.test(code(f)) && /course\/ModuleScope"/.test(code(f)));
+  assert.deepEqual(
+    wrong, [],
+    `${wrong.join(", ")} reads the hook from ModuleScope, which drags the bar and a server action into the bundle. Read it from ${leaf}`,
+  );
+
+  /* The bar itself is mounted once and is the one thing allowed to import
+     ModuleScope, which the check above this one already asserts. */
+  assert.match(
+    code("components/course/ModuleScope.tsx"), /from "\.\/moduleFocus"/,
+    "the module frame stopped filling the context its readers read",
+  );
+});
+
+/*
+  THE READING IS A READING, WHICH IS THE FAULT THIS WAS REPORTED AS.
+
+  Both reference pages are good pages and neither is the module's second step:
+  each hands over at the foot of it to the units that teach the point and to a
+  drill on the learner's own deck, which is exactly what was taken by somebody
+  who kept scrolling. Inside a module both stand down. Asserted on both,
+  because they are two pages answering one step and fixing one is the shape of
+  a fault that only shows on half the evenings.
+*/
+check("the module's reading step carries no drill and no way off the page", () => {
+  for (const page of [
+    "app/(app)/grammar/topic/[id]/page.tsx",
+    "app/(app)/grammar/[caseKey]/page.tsx",
+  ]) {
+    const src = code(page);
+    assert.match(
+      src, /focusFrom\(await searchParams\)/,
+      `${page} does not ask whether it was opened from tonight's module`,
+    );
+    assert.match(
+      src, /inModule \? undefined : \(/,
+      `${page} keeps its way back to the reference inside a module`,
+    );
+    assert.match(
+      src, /\{!inModule &&/,
+      `${page} stopped holding anything back inside a module`,
+    );
+  }
+  /* The drill is the one the report named, so it is named here. */
+  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
+  assert.match(
+    topic, /\{!inModule && TOPIC_DRILL\[id\]/,
+    "the grammar topic page offers its drill inside a module again",
+  );
+});
+
+/*
+  AND THE WAY ON IS RESOLVED ON THE SERVER.
+
+  The marker came off an address a learner could have typed, so the step it
+  names decides what a caption says and nothing else. `advanceCourseStep` reads
+  the programme, the day and the step again, refuses a day nobody has reached
+  for the reason `markCourseStep` does (a tick is the pointer `dayReached`
+  reads), refuses to write a row for a step the review log proves, and works
+  out where to go from the day's own order.
+*/
+check("the module's way on is resolved on the server and ticks nothing it may not", () => {
+  const actions = code("app/actions.ts");
+  const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));
+  assert.ok(fn.length > 0, "advanceCourseStep is gone; the module has no way on");
+  const body = fn.slice(0, fn.indexOf("\n}\n") + 3);
+  assert.match(body, /await requireUserId\(\)/, "advanceCourseStep takes an owner from its caller");
+  assert.match(body, /dayIsInPlay\(/, "advanceCourseStep stopped checking the day is the one reached");
+  assert.match(body, /if \(!step\.derived\)/, "advanceCourseStep would write a row for a step the log proves");
+  assert.match(body, /continueHref\(/, "advanceCourseStep stopped working out the way on for itself");
+  assert.ok(
+    !/href:\s*(hrefFrom|input|next(Href)?\b)/.test(body),
+    "advanceCourseStep takes the way on from its caller rather than from the day's order",
+  );
+  /* And the frame sends nothing but the three ids. */
+  const scope = code("components/course/ModuleScope.tsx");
+  assert.match(
+    scope, /advanceCourseStep\(focus\.programmeId, focus\.dayId, focus\.stepId\)/,
+    "the module frame stopped asking the server where the way on goes",
+  );
+});
+
 check("every exam shape the audit can meet is one it knows what to search", () => {
   /*
     `npm run audit:questions` asks one question of every generator in this app:
@@ -17229,8 +17735,7 @@ check("every exam shape the audit can meet is one it knows what to search", () =
     `lib/exam/paper.ts can build ${missing.join(", ")}, and audit:questions says nothing about what`
     + " that shape puts on screen. Add it to EXAM_SHOWS, or to NOTHING_TO_SEARCH with the reason"
     + " its answer cannot be on the screen. A shape it cannot search is a shape it counts and"
-    + " never examines, which is how the level check's writing item hid",
-  );
+    + " never examines, which is how the level check's writing item hid",  );
 });
 
 console.log(

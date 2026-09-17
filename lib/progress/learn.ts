@@ -17,6 +17,7 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
+import { readableFor } from "@/lib/collections/levels";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
@@ -211,7 +212,32 @@ function schedulingOf(card: LearnRow): LearnScheduling {
  * null` already falls back to asking the word from its meaning, which is the
  * safe shape and not a new one.
  */
-function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>, reach: PlainReach) {
+function sentenceAndGap(
+  lexeme: NonNullable<LearnRow["lexeme"]>,
+  reach: PlainReach,
+  /**
+   * Whether the learner may be *asked* about this sentence.
+   *
+   * The module's own ladder hands in the words the course has taught through
+   * the day they are on, so a beginner's gap is cut from a sentence they can
+   * read; standalone Learn hands in nothing and is unchanged, because a
+   * learner who went there themselves is choosing their own difficulty.
+   *
+   * IT GATES THE GAP AND NOT THE MEETING, which is the same line
+   * `lib/collections/lesson.ts` draws one file over and was drawn wrongly
+   * here first. Filtering the examples before `teachingSentence` looked like
+   * the tidier place for it and took the sentence off the *meet* rung too:
+   * measured over every A1 evening of the programme, 478 of 493 words had a
+   * sentence to be met with and 5 had one afterwards, so the first screen of
+   * a beginner's every evening read "No example sentence for this one yet"
+   * about words with several. Nothing is asked at a meeting, the word and its
+   * meaning are printed directly above the sentence, and the gap rung is the
+   * one that hands somebody a sentence and waits. So the sentence is chosen
+   * the way it always was, one sentence for both rungs, and the gap is built
+   * only where that sentence is one they can read.
+   */
+  readable: (sentence: string) => boolean,
+) {
   /*
     Ranked for a beginner where the word is one, so a first meeting shows the
     plainest sentence the dictionary holds rather than the shortest: `tere` was
@@ -221,7 +247,27 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>, reach: PlainRea
   const plainest = plainerFirst(lexeme.cefr, reach);
   const examples = usableExamples(parseExamples(lexeme.examples), plainest);
   const opener = nominalOpener(lexeme.pos, [lexeme.lemma, ...lexeme.forms.map((f) => f.value)]);
-  const taught = teachingSentence(examples, [lexeme.lemma], opener, plainest);
+  /*
+    A readable sentence is preferred and never required. Preferred, because
+    the two rungs share one sentence and the gap is only built where that
+    sentence is readable, so choosing one the learner can read is what decides
+    whether the word gets a gap rung at all. It buys nothing today and is
+    still the right way round: measured over every A1 evening of the
+    programme, five of the 493 words have a readable sentence and not one of
+    those five can carry a gap in the form the meet rung showed, so the A1 gap
+    rung is empty either way until `npm run audit:readable`'s list is written
+    down as sentences. What it does is make a contributed sentence count the
+    day it lands, rather than losing the gap to whichever sentence
+    `teachingSentence` happened to prefer. Never required, for the reason the
+    gate above gives: a meeting asks nothing.
+
+    Both readings are ranked the same way, so the preference is only ever
+    about whether the learner can read the sentence: a plainness ranking on
+    one and not the other would quietly make the readable branch the shortest
+    sentence and the fallback the plainest.
+  */
+  const taught = teachingSentence(examples.filter((e) => readable(e.et)), [lexeme.lemma], opener, plainest)
+    ?? teachingSentence(examples, [lexeme.lemma], opener, plainest);
   const word: WordRow = {
     id: lexeme.id, lemma: lexeme.lemma, translation: lexeme.translation,
     pos: lexeme.pos, cefr: lexeme.cefr, government: null,
@@ -235,7 +281,7 @@ function sentenceAndGap(lexeme: NonNullable<LearnRow["lexeme"]>, reach: PlainRea
   */
   const hideable = gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms });
 
-  if (taught?.form && hideable.has(taught.form.trim().toLowerCase())) {
+  if (taught?.form && readable(taught.example.et) && hideable.has(taught.form.trim().toLowerCase())) {
     const example = taught.example;
     const cloze = buildCloze(example.et, [taught.form]);
     if (cloze) {
@@ -327,9 +373,28 @@ export async function learnBatch(
       would otherwise lose the greeting.
     */
     only?: readonly string[];
+    /**
+     * Every spelling the course has taught this learner so far, where the
+     * caller is the planned module and the learner is held to it.
+     *
+     * The gap rung cuts a sentence a lexicographer wrote, and a usage is
+     * written to illustrate a headword rather than to be a beginner's first
+     * reading, so at A1 most of them carry words from further up the course.
+     * `readableFor` decides; `undefined` is standalone Learn, which a learner
+     * reached by choosing to, and is unchanged.
+     */
+    taughtWords?: ReadonlySet<string> | null;
   } = {},
 ): Promise<LearnWord[]> {
-  const { kind = "word", now = new Date(), only } = opts;
+  const { kind = "word", now = new Date(), only, taughtWords } = opts;
+  /*
+    Undefined is "no caller asked", which is standalone Learn and every band
+    above A1; `null` is "the module asked and the course could not say", which
+    fails closed. `readableFor` is the one definition and this is one of its
+    two readers, the unit lesson being the other; the deck's cards are outside
+    the rule by decision, which that module's header sets out.
+  */
+  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords);
   const scope = only
     ? { lexeme: { lemma: { in: [...only] } } }
     : { lexeme: { pos: posFilter(kind) } };
@@ -416,7 +481,7 @@ export async function learnBatch(
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;
-    const { sentence, gap } = sentenceAndGap(lexeme, reach);
+    const { sentence, gap } = sentenceAndGap(lexeme, reach, readable);
     const equivalent = equivalentIn(lexeme, glossLanguage);
 
     /*

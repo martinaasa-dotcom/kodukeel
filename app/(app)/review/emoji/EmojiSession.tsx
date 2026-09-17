@@ -10,6 +10,7 @@ import { plainAsk } from "@/lib/estonian/plainAsk";
 import { shuffle } from "@/lib/random/shuffle";
 import { gradeCard } from "@/app/actions";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
+import { WayOut } from "@/components/round/RoundExit";
 
 export interface EmojiPair {
   id: string;
@@ -168,7 +169,10 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
           >
             Start
           </Button>
-          <ButtonLink href="/practice">Back to practice</ButtonLink>
+          {/* The way back to the menu somebody chose this round from, which
+              inside a module is a door out of the evening: the way on is the
+              bar at the foot of the screen. */}
+          <WayOut><ButtonLink href="/practice">Back to practice</ButtonLink></WayOut>
         </div>
       </Page>
     );
@@ -208,10 +212,10 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
             ))}
           </ul>
 
-          <div className="flex flex-wrap justify-center gap-3">
+          <WayOut className="flex flex-wrap justify-center gap-3">
             <ButtonLink href="/practice" size="lg">Back to practice</ButtonLink>
             <ButtonLink href="/review/emoji" variant="primary" size="lg">Another board</ButtonLink>
-          </div>
+          </WayOut>
         </div>
       </Page>
     );
