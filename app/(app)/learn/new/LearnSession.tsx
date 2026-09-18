@@ -31,6 +31,8 @@ import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/li
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { remember, type SeenCard } from "@/lib/ux/lookBack";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -182,6 +184,18 @@ export function LearnSession({
   const [right, setRight] = useState(0);
   const [busy, setBusy] = useState(false);
   const [pendingOffline, setPendingOffline] = useState(0);
+  /*
+    WHAT HAS BEEN ON THIS SCREEN, SO IT CAN BE READ BACK.
+
+    The ladder asks one word at a time and the browser's back button leaves
+    the whole batch, so somebody who wanted the word before this one had to
+    lose their place to see it. Read only, written nowhere, dropped with the
+    round: `lib/ux/lookBack.ts` is the rule. Nothing is un-graded by it, which
+    is what makes it safe on a screen whose every answer is already in the log.
+  */
+  const [seen, setSeen] = useState<SeenCard[]>([]);
+  const look = useLookBack(seen);
+  const showings = useRef(0);
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
@@ -261,6 +275,28 @@ export function LearnSession({
    */
   const advance = useCallback((updated: Record<string, Rung>) => {
     if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
+    /*
+      One choke point, so the record cannot fall behind the ladder: every rung
+      leaves the seat through here, and what is kept is what was on the screen
+      at the rung it was asked at rather than the word's row.
+    */
+    if (word) {
+      const gap = rung === "gap" ? word.gap : null;
+      const entry: Omit<SeenCard, "key"> = {
+        of: word.cardId,
+        label: rung === "meet"
+          ? (word.isPhrase ? "New phrase" : "New word")
+          : gap ? "Fill the gap" : "What it means",
+        question: gap ? gap.text : word.lemma,
+        answer: gap ? gap.answer : word.gloss,
+        note: gap ? gap.fullEn : null,
+        questionLang: "et",
+        answerLang: gap ? "et" : "en",
+        speak: gap ? gap.answer : word.lemma,
+      };
+      showings.current += 1;
+      setSeen((prev) => remember(prev, { ...entry, key: `${entry.of}#${showings.current}` }));
+    }
     const rest = [...queue];
     const [head] = rest.splice(0, 1);
     const next = head && updated[head] !== "kept" ? requeue(rest, head, 0, LEARN_BATCH) : rest;
@@ -278,7 +314,7 @@ export function LearnSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
-  }, [queue]);
+  }, [queue, word, rung]);
 
   /**
    * A word the learner has put aside, which is the mirror of the claim below.
@@ -454,6 +490,17 @@ export function LearnSession({
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
+      /*
+        A look back stands in the ladder's place, so the rung underneath is not
+        answerable and its keys are not either: a stray Enter over an older
+        word would otherwise grade the one the learner cannot see.
+      */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (phase === "feedback") {
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
         return;
@@ -467,7 +514,7 @@ export function LearnSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, rung, word, met, pick, carryOn]);
+  }, [phase, rung, word, met, pick, carryOn, look, seen.length]);
 
   if (total === 0) {
     return (
@@ -611,6 +658,21 @@ export function LearnSession({
         </span>
       </div>
 
+      {/* The look back stands in the ladder's place rather than over it: one
+          screen at a time, and the rung underneath cannot be answered by
+          accident while an older word is being read. */}
+      {look.looking && look.card && look.at !== null ? (
+        <LookBackCard
+          card={look.card}
+          position={look.at}
+          newest={seen.length - 1}
+          hasEarlier={look.hasEarlier}
+          hasLater={look.hasLater}
+          onBack={look.back}
+          onForward={look.forward}
+          onClose={look.close}
+        />
+      ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -944,10 +1006,15 @@ export function LearnSession({
           ) : null}
         </div>
       </div>
+      )}
 
       {asideNote}
 
-      <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
+      </div>
+
+      <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         {answered > 0
           ? `${right} of ${answered} right this round.`
           : `Meet each ${noun}, then answer it back. Nothing is written down until you answer.`}

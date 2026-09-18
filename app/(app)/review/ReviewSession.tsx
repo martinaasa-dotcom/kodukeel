@@ -33,6 +33,8 @@ import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/adv
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { forgetLast, remember, type SeenCard } from "@/lib/ux/lookBack";
 
 export interface ReviewCard {
   id: string;
@@ -153,6 +155,40 @@ function slotAsked(card: ReviewCard): string {
  * the answer instead, where it explains.
  */
 const isGap = (card: ReviewCard) => card.front.includes(BLANK);
+
+/**
+ * What a card leaves behind for somebody who wants to see it again.
+ *
+ * Built from the card as it was drawn rather than from the row, which is
+ * `lib/ux/lookBack.ts`'s own rule: `sizedBlank` is the question the learner
+ * actually read, gap and all, and the plain clause is the one this screen
+ * prints under it. A first meeting records the word and its meaning, since
+ * that is what was on the screen and there was no question to ask.
+ */
+function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
+  // A meeting is always the Estonian word over its English meaning, whatever
+  // side the card it came from would have called Estonian.
+  const word = card.intro?.lemma ?? card.lemma ?? card.front;
+  const speakable = met
+    ? spoken(word)
+    : estonianSide(card.cardType, "back")
+      ? spoken(card.back)
+      : estonianSide(card.cardType, "front") && !isGap(card)
+        ? spoken(card.lemma ?? card.front)
+        : null;
+  return {
+    of: card.id,
+    label: met
+      ? (card.intro?.isPhrase ? "New phrase" : "New word")
+      : TYPE_LABEL[card.cardType] ?? card.cardType,
+    question: met ? word : sizedBlank(card.front, card.back),
+    answer: met ? card.intro?.gloss ?? card.back : card.back,
+    note: met ? null : plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null,
+    questionLang: met ? "et" : estonianSide(card.cardType, "front") ? "et" : "en",
+    answerLang: met ? "en" : estonianSide(card.cardType, "back") ? "et" : "en",
+    speak: speakable,
+  };
+}
 
 /**
  * "Why?", at the only moment anyone asks it.
@@ -461,6 +497,24 @@ export function ReviewSession({
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
   /*
+    WHAT HAS BEEN ON THIS SCREEN, SO IT CAN BE READ BACK.
+
+    The browser's back button leaves the whole session, because a round is one
+    history entry, so a learner who wanted to see the word before this one had
+    no way to do it that did not cost them their place. This is that record:
+    what was drawn, kept in the session, dropped with it, and read only.
+    `lib/ux/lookBack.ts` is the rule and says at length why it is not undo.
+  */
+  const [seen, setSeen] = useState<SeenCard[]>([]);
+  const look = useLookBack(seen);
+  /* One card can be shown twice in a session, so the key is the showing. */
+  const showings = useRef(0);
+  const recordSeen = useCallback((card: ReviewCard, met: boolean) => {
+    const entry = shownAs(card, met);
+    showings.current += 1;
+    setSeen((s) => remember(s, { ...entry, key: `${entry.of}#${showings.current}` }));
+  }, []);
+  /*
     WHAT UNDO PUTS BACK IS WHAT THE SERVER LAST WROTE.
 
     `cards` is snapshotted on mount and its `scheduling` is deliberately never
@@ -598,6 +652,7 @@ export function ReviewSession({
    */
   const meetDone = useCallback(() => {
     if (!card || busy) return;
+    recordSeen(card, true);
     setMet((m) => new Set(m).add(wordKey(card)));
     setQueue((q) => {
       const next = [...q];
@@ -612,7 +667,7 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
-  }, [card, busy, index]);
+  }, [card, busy, index, recordSeen]);
 
   /**
    * A word the learner has just put aside.
@@ -707,6 +762,7 @@ export function ReviewSession({
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
     setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
+    recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
     if (rating === 1) {
@@ -730,7 +786,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox]);
+  }, [card, busy, index, refreshOutbox, recordSeen]);
 
   /**
    * Puts the last graded card back.
@@ -746,6 +802,9 @@ export function ReviewSession({
     if (result.ok) {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
+      // The card is in front of the learner again, so that showing has not
+      // happened any more and the look back must not offer it as the past.
+      setSeen((s) => forgetLast(s, last.cardId));
       setDone((d) => Math.max(0, d - 1));
       if (last.rating >= 3) setCorrect((c) => Math.max(0, c - 1));
       // Taking an answer back is not a run continuing.
@@ -823,6 +882,20 @@ export function ReviewSession({
         : null;
       const typing = field !== null;
 
+      /*
+        WHILE A LOOK BACK IS OPEN, THE ROUND IS NOT ON THE SCREEN.
+
+        The card it replaced is not answerable and its keys must not be
+        either, or a stray Enter over a word somebody is re-reading grades a
+        card they are not looking at. Escape is the way out and the advance
+        key walks forward, which is what the buttons under it say.
+      */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !typing) { e.preventDefault(); look.forward(); return; }
+        return;
+      }
+
       // `u` has to reach undo from inside the answer box, because that is where
       // focus already is: grading a typed card advances to the next one, whose
       // input takes focus on mount — and the moment just after a grade is
@@ -833,6 +906,15 @@ export function ReviewSession({
       // Only while that box is still empty, though. Estonian is full of u —
       // tuba, kuu, muusika — so once there is anything typed, u is a letter.
       const startedAnswering = field !== null && field.value.length > 0;
+
+      // `b` opens the look back on the same terms, and for the same reason:
+      // the moment somebody wants the last word back is the moment just after
+      // it went, with focus already inside the next card's answer box.
+      if (e.key.toLowerCase() === "b" && !startedAnswering && seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
 
       if (e.key.toLowerCase() === "u" && !startedAnswering && history.length > 0) {
         e.preventDefault();
@@ -880,7 +962,7 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk]);
+  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, seen.length]);
 
   if (wasEmptyAtStart) {
     return (
@@ -1019,6 +1101,21 @@ export function ReviewSession({
         </span>
       </div>
 
+      {/* A look back stands in the round's place rather than over it: the card
+          underneath must not be answerable while somebody is reading an older
+          one, and one screen at a time is what every other step here does. */}
+      {look.looking && look.card && look.at !== null ? (
+        <LookBackCard
+          card={look.card}
+          position={look.at}
+          newest={seen.length - 1}
+          hasEarlier={look.hasEarlier}
+          hasLater={look.hasLater}
+          onBack={look.back}
+          onForward={look.forward}
+          onClose={look.close}
+        />
+      ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -1395,10 +1492,12 @@ export function ReviewSession({
           )}
         </div>
       </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
+        <LookBackButton count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
         <button
           type="button"
           onClick={() => void undo()}

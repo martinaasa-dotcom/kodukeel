@@ -31,7 +31,9 @@ page.on("console", (m) => {
 // arrived on two branches at once, so the number is measured on the merged tree
 // rather than added from either side: 44. Three more for the columns on
 // Today ending level: 47.
-const { check, absent, done } = suite("Practice modes", { floor: 49 });
+// Five more for the way back to the last word, which is driven rather than
+// asserted from the source: 54.
+const { check, absent, done } = suite("Practice modes", { floor: 54 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -219,6 +221,55 @@ if (rateable) {
   check("u undoes the last grade", gradedBefore !== gradedAfter, `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
 } else {
   absent(1, "a card that reached the point of waiting on an answer, which none did here");
+}
+
+/*
+  5b — LOOKING BACK AT THE WORD BEFORE THIS ONE.
+
+  The browser's back button leaves the whole round, so the round carries its
+  own way back to the card that just went. Three things about it can only be
+  known by driving it: that it reads back an older card rather than the one on
+  screen, that walking forward lands back in the round, and that none of it
+  grades anything, which is the whole difference between this and undo.
+
+  Run here, after the undo section, because it needs cards to have gone past:
+  the button is deliberately not drawn on the first card of a session, where
+  there is nothing behind the learner.
+*/
+await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await page.waitForTimeout(600);
+
+const lookButton = () => page.locator("main").getByRole("button", { name: /See it again/i });
+check("no way back is offered on the first card of a session", (await lookButton().count()) === 0);
+
+let answered = 0;
+for (let i = 0; i < 6 && answered < 2; i += 1) {
+  if (await answerCurrentCard()) answered += 1;
+  await page.waitForTimeout(700);
+}
+
+if (answered >= 2 && (await lookButton().count()) > 0) {
+  const onScreen = (await page.locator("main").innerText()).slice(0, 400);
+  const gradedBefore = await page.getByText(/\d+ graded/).textContent();
+  await lookButton().first().click();
+  await page.waitForTimeout(400);
+
+  const looking = await page.locator("main").innerText();
+  check("the way back reads an older card rather than the one on screen",
+    /back to the round/i.test(looking) && looking.slice(0, 400) !== onScreen);
+  check("and says it is not a question being asked again",
+    /nothing here is graded/i.test(looking));
+
+  const forward = page.locator("main").locator("button").filter({ hasText: /^(Next|Back to the round)/ }).last();
+  await forward.click();
+  await page.waitForTimeout(700);
+  const after = await page.locator("main").innerText();
+  const gradedAfter = await page.getByText(/\d+ graded/).textContent();
+  check("walking forward lands back in the round", (await lookButton().count()) > 0 && /\d+ graded/.test(after));
+  check("and nothing about a look back is graded", gradedBefore === gradedAfter,
+    `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
+} else {
+  absent(4, "two cards answered in this session, which the deck here could not supply");
 }
 
 /**

@@ -5066,6 +5066,38 @@ so a word put aside can still turn up in dictation or in a game, exactly as a wo
 can. The deferral holds where the app chooses what to teach, which is review and the ladder, and
 that is the line rather than an omission.
 
+**The browser's back button leaves the whole round, so there is one inside it that does not.** A
+session is a single history entry, since a card is a state rather than an address, so somebody who
+wanted to see the word before this one again pressed back and lost their place finding out that it
+takes them out of the round entirely. It was reported in those words. `lib/ux/lookBack.ts` is the
+rule and `components/round/LookBack.tsx` is the one drawing of it, on the two screens that step
+through words a learner is learning: the review session and the learn ladder.
+
+**It is not undo, and that distinction is the whole of why it is safe.** `undoGrade` rewinds what
+the scheduler was told and puts a card back to be answered again, which is right for an answer
+somebody did not mean and far too much for "what was that word?". A look back writes nothing,
+grades nothing, reorders nothing and takes nothing out of the queue: what it holds is a record of
+what was *drawn*, made at the moment it was drawn, so a card since requeued, graded again or put
+aside still reads back exactly as it was shown. The invariant holds the module to being free of
+every door onto a grade and the drawing to offering no control over the round, because a rating, a
+star or a report button on a screen the learner is only passing through is a second place to answer
+a question they were not asked. Undo is the one thing that reaches in: rewinding a grade puts that
+card back in front of them, so `forgetLast` takes that showing out again, the most recent showing of
+that card rather than every one of them, since a card answered twice was genuinely shown twice.
+
+**It stands in the round's place rather than over it, and the way back is also the way forward.**
+A panel over a card in a 360px round is the shape this file already has a rule against, and it
+would leave the round underneath answerable by a stray key; one screen at a time is what every
+other step of a round does, it needs no scrim and no focus trap, and the buttons at the foot of it
+are the round's own buttons in the round's own place. The primary is always the forward one, "Next"
+while there is a newer card to see and "Back to the round" at the newest, which is the half that was
+asked for by name: somebody two words back walks home the way they came rather than hunting for a
+different button. `B` opens it on the same terms `U` takes undo, from inside an answer box while it
+is still empty, because the moment somebody wants the last word back is the moment just after it
+went with focus already in the next card's box, and it is on the shortcut sheet, which says every
+shortcut the app has. The button is not drawn at all on the first card of a session: a control that
+can only ever say "there is nothing behind you" is a control that teaches people to ignore that row.
+
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
@@ -8898,7 +8930,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
 `CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
-`module-step`.
+`module-step`, `useLookBack`,
+`LookBackCard`, `forgetLast`, `shownAs`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -9314,3 +9347,13 @@ opens again" rather than "one route is special".
 CI runs typecheck, lint, the unit suite, the invariants, integration tests against a real
 Postgres, the production build, the credential scan, the phone and the offline smoke test. It is the enforcement behind
 the rules above: do not add a rule without one.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

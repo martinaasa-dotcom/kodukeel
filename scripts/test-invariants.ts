@@ -18485,6 +18485,60 @@ check("the shipped translations are English, and there are enough of them to mat
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
 });
 
+/*
+  LOOKING BACK AT THE LAST WORD IS ONE DRAWING, AND IT IS NEVER A GRADE.
+
+  A round is one card at a time and the browser's back button leaves the whole
+  session, so the two screens that step through words a learner is learning,
+  the review session and the learn ladder, each carry a way back to the word
+  before this one. Two things are asserted and both are about what it must not
+  become.
+
+  ONE DRAWING. Two sessions writing their own would be two answers to what a
+  look back shows and what it does at the oldest card, and the one nobody was
+  watching would drift, which is the state this project's own rules describe
+  at length. Anchored on the component being used as an element rather than on
+  the import, because a session that imports it and then writes the markup
+  back satisfies any check that only greps for the import.
+
+  AND NOT UNDO. `undoGrade` rewinds what the scheduler was told; this reads
+  back what was on the screen and writes nothing at all. So the rule holds the
+  module to being free of every door onto a grade: the moment it can reach one,
+  a screen the learner is only passing through can change their history.
+*/
+check("looking back at the last word is one drawing, and it grades nothing", () => {
+  const sessions = [
+    "app/(app)/review/ReviewSession.tsx",
+    "app/(app)/learn/new/LearnSession.tsx",
+  ];
+  for (const file of sessions) {
+    const body = code(file);
+    assert.match(body, /<LookBackCard\b/, `${file} no longer draws the one look back`);
+    assert.match(body, /<LookBackButton\b/, `${file} has no way to open a look back`);
+    assert.doesNotMatch(
+      body, /className="[^"]*"[^>]*>\s*One more back/,
+      `${file} draws its own way back rather than the one in components/round/LookBack.tsx`,
+    );
+  }
+
+  const rule = code("lib/ux/lookBack.ts");
+  for (const door of ["gradeCard", "undoGrade", "prisma", "enqueueGrade", "Review"]) {
+    assert.ok(
+      !rule.includes(door),
+      `lib/ux/lookBack.ts reaches ${door}. A look back is a reading of what was on the screen: `
+      + "the moment it can grade, a screen the learner is passing through can rewrite their history",
+    );
+  }
+
+  // And the drawing itself offers nothing that would answer the round: a
+  // rating on a card somebody is re-reading is a grade for a question they
+  // were not asked.
+  const drawing = code("components/round/LookBack.tsx");
+  for (const door of ["gradeCard", "RATINGS", "SELF_GRADES", "StarWord", "SuggestFix"]) {
+    assert.ok(!drawing.includes(door), `components/round/LookBack.tsx offers ${door}, which is a control over the round`);
+  }
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
