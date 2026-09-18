@@ -107,7 +107,7 @@ export function SentenceSession(
     marked right (`readOrder`).
   */
   const ladder = task ? hintLadder({ answer: task.et }) : [];
-  const hints = useHints({ key: task?.cardId ?? null, ladder });
+  const hints = useHints({ word: task?.cardId ?? null, question: task?.cardId ?? null, ladder });
 
   useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
 

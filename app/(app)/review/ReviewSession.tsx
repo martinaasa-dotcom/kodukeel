@@ -574,7 +574,10 @@ export function ReviewSession({
     is exactly the shape `hintsOpen` is about.
   */
   const hints = useHints({
-    key: card ? wordKey(card) : null,
+    word: card ? wordKey(card) : null,
+    // The card rather than the word: a deck holds several cards of one word,
+    // and two letters of `toas` are not two letters of `toale`.
+    question: card?.id ?? null,
     ladder,
     lapses: card?.scheduling.lapses ?? 0,
   });

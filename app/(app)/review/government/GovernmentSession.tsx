@@ -108,7 +108,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     backwards.
   */
   const ladder = question ? narrowLadder(question.options, question.answer) : [];
-  const hints = useHints({ key: question?.cardId ?? question?.lemma ?? null, ladder });
+  const hints = useHints({
+    word: question?.lemma ?? null,
+    question: question?.cardId ?? question?.lemma ?? null,
+    ladder,
+  });
   const struck = question ? struckOptions(question.options, question.answer, hints.taken) : [];
 
   const choose = useCallback((option: CaseKey) => {

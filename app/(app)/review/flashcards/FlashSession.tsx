@@ -103,7 +103,13 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       stems: [task.lemma],
       suffix: caseByKey(task.slot)?.suffix,
     });
-  const hints = useHints({ key: task ? `${task.lexemeId}:${task.slot}` : null, ladder });
+  const hints = useHints({
+    word: task?.lexemeId ?? null,
+    // The slot too: this round asks one word in several forms in a sitting, and
+    // being stuck on the kaasaütlev is not being stuck on the seesütlev.
+    question: task?.id ?? null,
+    ladder,
+  });
 
   const check = useCallback(async () => {
     if (!task || mark) return;

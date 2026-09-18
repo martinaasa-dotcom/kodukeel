@@ -1908,6 +1908,33 @@ render go past with the old count standing and that render is the one where Chec
 only the latest rung, since the ladder is cumulative and stacking four spellings of one word up a
 card puts the three useless ones at the top.
 
+**And the misses follow the word while the ladder follows the question, which is two keys rather
+than one.** The first version keyed both on the word, which is right for the misses and wrong for
+the ladder, and the fault was real rather than theoretical: a deck holds several cards of one word,
+so a learner who missed `tuba`'s recognition card and took two rungs met its case card later with
+two rungs already spent. The panel opened with half the answer uncovered and the grade capped at
+Hard, before they had pressed anything at all. Being stuck on `toas` is being stuck on `tuba`,
+which is why the misses follow the word; two letters of `toas` are not two letters of `toale`,
+which is why the ladder follows the question. Both are required on `useHints`, for the reason
+`illSgShort` is required on `NounStems`, and the reset is asserted to read the question.
+
+**`scripts/test-hints.mjs` is the half no source check can make, and its first run found three
+faults, all three in the suite.** The invariants say every round draws the hint, reads its ceiling
+and holds its state in the one hook, and all three are true of a hint that never appears, one that
+appears before anybody has had a go, and a ladder whose rungs uncover nothing. The suite answered
+the card and then looked for the hint, which is the one moment it is never drawn; it matched the
+button by role and visible text, where the accessible name is the `aria-label`; and it assumed the
+letter ladder on a card asked as four options. Each printed a waiver whose stated reason was false,
+which is the failure this file names: the output sends the reader to reseed a database that is
+already seeded. It reads `data-hint` and `data-hint-shown` now, which are hooks for a suite rather
+than shapes to walk, and it branches on which ladder it got. **It zeroes `lapses` first and puts the
+deck back after**, because `hintsOpen` opens the ladder straight away for a word the clinic already
+calls one they keep failing, so on a fixture carrying leeches "no hint before a miss" is true of the
+code and unverifiable from a browser. **And the driver that answers wrongly is
+`scripts/lib/miss.mjs` rather than a fifth argument to `revealAnswer`**, which reveals and never
+grades on purpose: driven with that one the round sat on one card for sixteen answers, because the
+guess was right and the undo inside it put the card back.
+
 **Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
 ask was website wide and that is not the same as every file. The three **measurements** may not have
 one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a
@@ -9402,3 +9429,13 @@ opens again" rather than "one route is special".
 CI runs typecheck, lint, the unit suite, the invariants, integration tests against a real
 Postgres, the production build, the credential scan, the phone and the offline smoke test. It is the enforcement behind
 the rules above: do not add a rule without one.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

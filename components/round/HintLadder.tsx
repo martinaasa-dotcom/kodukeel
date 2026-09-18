@@ -66,6 +66,17 @@ export function HintLadder({
       {shown && (
         <div
           role="status"
+          /*
+            A hook for `scripts/test-hints.mjs` rather than a shape for it to
+            walk. That suite asks whether each press uncovers strictly more of
+            the same spelling than the last, and the first version found the
+            covered form by hunting for a `lang="et"` span inside a live region,
+            which is a fact about today's markup: one element between them and
+            it reads nothing and waives the check with a reason that is not the
+            reason. This is the `data-rung` lesson one component over.
+          */
+          data-hint-shown={shown.shown}
+          data-hint-kind={shown.kind}
           className="flex flex-col items-center gap-1 rounded-lg px-3 py-2"
           style={{ background: "var(--raised)" }}
         >
@@ -87,6 +98,15 @@ export function HintLadder({
         <button
           type="button"
           onClick={onTake}
+          data-hint
+          /*
+            The accessible name is this rather than the words on the button, so
+            a suite looking for it by role and name finds "Get a hint for aeg".
+            `data-hint` is what `scripts/test-hints.mjs` anchors on: the first
+            version of that suite matched the visible text through the role,
+            found nothing on a round where the hint was on screen every time,
+            and waived eight checks saying the deck never repeated a word.
+          */
           aria-label={taken === 0 ? `Get a hint for ${label}` : `${next.label} for ${label}`}
           className="tap-tint flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold"
           style={{ color: "var(--ink-3)" }}

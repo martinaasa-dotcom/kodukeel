@@ -18564,6 +18564,33 @@ check("the hint's state is one hook rather than a copy per round", () => {
     [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
     "these rounds hold the hint's state themselves rather than through `useHints`",
   );
+
+  /*
+    AND THE HOOK KEEPS ITS TWO KEYS APART.
+
+    The misses follow the *word* and the ladder follows the *question*, and
+    collapsing them is not a tidy-up, it is the fault the hook's own header
+    records: a deck holds several cards of one word, so keyed on the word alone
+    a learner who took two rungs on `tuba`'s recognition card met its case card
+    with two rungs already spent, half the answer uncovered and the grade capped
+    before they pressed anything. Anchored on the reset reading `question`,
+    because that is the half that would silently go.
+  */
+  const hook = code("components/round/useHints.tsx");
+  assert.ok(/word[,:]/.test(hook) && /question[,:]/.test(hook),
+    "useHints has stopped taking a word and a question as two different things");
+  assert.match(
+    hook, /question !== asked[\s\S]{0,120}setTaken\(0\)/,
+    "useHints no longer resets the ladder on the question, so rungs spent on one ask carry to the next",
+  );
+  const collapsed = drawing.filter((f) => {
+    const call = code(f).match(/useHints\(\{[\s\S]{0,400}?\}\)/);
+    return call ? !/\bword:/.test(call[0]) || !/\bquestion:/.test(call[0]) : true;
+  });
+  assert.deepEqual(
+    [...new Set(collapsed.map((f) => f.replace(/\\/g, "/")))], [],
+    "these rounds do not tell `useHints` what the word is and what the question is",
+  );
 });
 
 check("nothing but the hint ladder decides what a hint gives away", () => {

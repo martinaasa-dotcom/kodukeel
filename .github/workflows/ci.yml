@@ -379,6 +379,15 @@ jobs:
       # usual: a deck of this learner's own changes what the dictionary's add
       # panel draws for every suite that follows.
       - run: node scripts/test-decks.mjs
+      # The way out of being stuck. The invariants assert that every round draws
+      # the hint, reads its ceiling and holds its state in the one hook, and all
+      # three are true of a hint that never appears, one that appears before
+      # anybody has had a go, and a ladder whose rungs uncover nothing: the
+      # wiring is a fact about the source and the behaviour is not. This misses
+      # cards until a missed word comes back, then walks the rungs and checks
+      # each uncovers strictly more of the same spelling than the last. It
+      # grades, so it runs after the suites that need the fixture untouched.
+      - run: node scripts/test-hints.mjs
       # Paper to deck, driven end to end with only the model stubbed: the
       # picture leaving the device, the confirmation list, a ticked word
       # becoming a card, and the review session asking about it.

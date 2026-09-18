@@ -142,7 +142,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     a form, so it uncovers from the front.
   */
   const ladder = task ? hintLadder({ answer: task.et }) : [];
-  const hints = useHints({ key: task?.cardId ?? null, ladder });
+  const hints = useHints({ word: task?.cardId ?? null, question: task?.cardId ?? null, ladder });
 
   const submit = useCallback(async () => {
     if (!task || busy || result) return;

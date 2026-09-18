@@ -81,7 +81,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const ladder = task && task.rung !== "meet" && task.accepted[0]
     ? hintLadder({ answer: task.accepted[0] })
     : [];
-  const hints = useHints({ key: task ? `${task.lexemeId}:${task.slot}` : null, ladder });
+  const hints = useHints({
+    word: task?.lexemeId ?? null,
+    question: task?.id ?? null,
+    ladder,
+  });
 
   const check = useCallback(async () => {
     if (!task || mark || task.rung === "meet") return;

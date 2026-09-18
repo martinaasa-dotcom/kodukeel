@@ -334,7 +334,7 @@ function StepCard({
       suffix: step.kind === "case" ? caseByKey(step.caseKey)?.suffix : null,
     })
     : [];
-  const hints = useHints({ key: step.id, ladder, missedBefore });
+  const hints = useHints({ word: step.lemma ?? step.id, question: step.id, ladder, missedBefore });
   const hint = !checked && ladder.length > 0
     ? (
       <HintLadder

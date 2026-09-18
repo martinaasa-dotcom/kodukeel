@@ -263,7 +263,10 @@ export function LearnSession({
     four already struck by the letters somebody uncovered a lap ago.
   */
   const hints = useHints({
-    key: word ? `${word.cardId}:${rung}` : null,
+    word: word?.cardId ?? null,
+    // The rung as well as the word, because the two rungs that can be stuck on
+    // ask different questions about it and hand over different kinds of help.
+    question: word ? `${word.cardId}:${rung}` : null,
     ladder,
     lapses: word?.scheduling.lapses ?? 0,
   });

@@ -105,7 +105,11 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const ladder = prompt
     ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
     : [];
-  const hints = useHints({ key: prompt ? `${prompt.lexemeId}:${prompt.caseKey}` : null, ladder });
+  const hints = useHints({
+    word: prompt?.lexemeId ?? null,
+    question: prompt ? `${prompt.lexemeId}:${prompt.caseKey}` : null,
+    ladder,
+  });
 
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;

@@ -46,7 +46,8 @@ export function ClozeSession() {
     pasted needs.
   */
   const ladder = item ? hintLadder({ answer: item.answer }) : [];
-  const hints = useHints({ key: item ? `${index}` : null, ladder });
+  // The learner's own passage, so one gap is one word and one question both.
+  const hints = useHints({ word: item ? `${index}` : null, question: item ? `${index}` : null, ladder });
 
   const build = useCallback(async () => {
     setBusy(true);

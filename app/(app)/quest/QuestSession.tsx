@@ -127,7 +127,11 @@ export function QuestSession({
       .some((f) => f.toLocaleLowerCase("et") === text.toLocaleLowerCase("et"))) ?? card.back
     : "";
   const ladder = card?.choices ? narrowLadder(options, answerText) : [];
-  const hints = useHints({ key: card?.id ?? null, ladder });
+  const hints = useHints({
+    word: card?.lemma ?? card?.id ?? null,
+    question: card?.id ?? null,
+    ladder,
+  });
   const struck = card?.choices ? struckOptions(options, answerText, hints.taken) : [];
 
   useEffect(() => {

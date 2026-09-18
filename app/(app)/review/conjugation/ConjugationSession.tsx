@@ -118,7 +118,11 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       stems: [first.answer.slice(0, sharedStart(question.given.value, first.answer))],
     })
     : [];
-  const hints = useHints({ key: question ? `${question.lemma}:${question.tense}` : null, ladder });
+  const hints = useHints({
+    word: question?.lemma ?? null,
+    question: question ? `${question.lemma}:${question.tense}` : null,
+    ladder,
+  });
 
   const check = useCallback(() => {
     if (!question || verdicts) return;

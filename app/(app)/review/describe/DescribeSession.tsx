@@ -123,7 +123,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   const ladder = prompt?.targetForm
     ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
     : [];
-  const hints = useHints({ key: prompt ? `${prompt.sceneId}:${prompt.caseKey}` : null, ladder });
+  const hints = useHints({
+    word: prompt?.askLemma ?? null,
+    question: prompt ? `${prompt.sceneId}:${prompt.caseKey}` : null,
+    ladder,
+  });
 
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;

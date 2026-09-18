@@ -99,7 +99,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     than reading four, and a hint that removed the near rival would answer it.
   */
   const ladder = card ? narrowLadder(card.choices, card.correct) : [];
-  const hints = useHints({ key: card?.id ?? null, ladder });
+  const hints = useHints({ word: card?.id ?? null, question: card?.id ?? null, ladder });
   const struck = card ? struckOptions(card.choices, card.correct, hints.taken) : [];
 
   useEffect(() => {
