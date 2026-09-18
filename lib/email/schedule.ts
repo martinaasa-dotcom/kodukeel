@@ -12,7 +12,13 @@
   coming back, because two letters on one morning from an app they have not
   opened is how a sender becomes spam.
 
-  THE FOUR GATES, IN THE ORDER THEY ARE CHEAPEST TO ASK.
+  NEWS BEFORE ASKS. Of the seven kinds, two report something that has already
+  happened and five want something. A milestone and a spent shield go first
+  wherever both are owed, because somebody who has just finished A1 should be
+  told about A1 rather than about tonight, and the thing that can wait is the
+  thing that asks.
+
+  THE GATES, IN THE ORDER THEY ARE CHEAPEST TO ASK.
 
   Do they want it. The stored preference, and `system` is not reachable here at
   all: nothing in this module sends one.
@@ -66,6 +72,18 @@ export const MIN_GAP_HOURS: Readonly<Record<EmailKind, number>> = {
     side.
   */
   errand: 24 * 6,
+  /*
+    A DAY, AND THE GAP IS NOT WHAT KEEPS EITHER OF THESE FROM REPEATING.
+
+    A milestone happens five times in a learner's whole time here and a shield
+    covers a particular day once. What stops a second letter about the same
+    news is the high-water mark each of them carries, not a clock: a gap alone
+    would announce A1 again next week, and a mark alone would be fine except
+    that a run which crashed between sending and writing it should not manage
+    two in one morning. So both, and the day is the belt.
+  */
+  milestone: 24,
+  shield: 24,
 };
 
 /**
@@ -144,6 +162,19 @@ export interface Candidate {
   readonly stage: Stage;
   /** Conversations reported in the last thirty days. */
   readonly conversations: number;
+  /**
+   * A level whose words the scheduler has graduated and which no letter has
+   * mentioned, or null.
+   *
+   * Resolved by the gathering rather than decided here, because "new" is a
+   * comparison against a stored mark and this module reads nothing. Null is by
+   * far the commonest answer: five of these exist per learner, ever.
+   */
+  readonly milestoneReached: string | null;
+  /**
+   * A day a banked shield covered that no letter has mentioned, or null.
+   */
+  readonly shieldSpent: string | null;
   /**
    * Whether the errand pool has anything in it for them.
    *
@@ -232,6 +263,56 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     return wants(who.prefs, "comeback") && gapClear(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
       : null;
+  }
+
+  /*
+    NEWS BEFORE HOMEWORK, AND BOTH OF THESE ARE NEWS.
+
+    A milestone and a spent shield are the only two letters here that report
+    something that has already happened rather than asking for something. They
+    sit above the errand and above the Sunday summary for that reason: a
+    learner who has just finished A1 and is also due a summary should be told
+    about A1, and the summary keeps until next week.
+
+    They are morning letters because they are worth reading over coffee and
+    because neither is a thing to act on. The window is the errand's, and the
+    gathering does the extra reads for all three at once rather than three
+    times.
+
+    THE MILESTONE FIRES ON GRADUATED WORDS, WHICH IS WHAT KEEPS IT FROM BEING A
+    PARTICIPATION TROPHY. A card reaches Review state days after it was met and
+    only by being recalled, so this cannot be run up by opening the app or by
+    ticking evenings, and the letter says so. It also means the letter arrives
+    days after the evening that earned it, which is a thing to admit rather
+    than paper over.
+  */
+  if (
+    who.milestoneReached !== null &&
+    who.localHour >= 8 &&
+    who.localHour < 11 &&
+    wants(who.prefs, "milestone") &&
+    gapClear(who, "milestone", now)
+  ) {
+    return { kind: "milestone", because: `graduated the words of ${who.milestoneReached}` };
+  }
+
+  /*
+    AND THE SHIELD, WHICH IS A NOTIFICATION RATHER THAN A CELEBRATION.
+
+    This app banks a shield at seven, thirty and a hundred days and spends one
+    silently to cover a missed day. Until this letter the learner had no way of
+    knowing any of that happened: something they earned was used on their
+    behalf and nothing said so, which is the shape of thing an app should tell
+    somebody about whether or not it is good news.
+  */
+  if (
+    who.shieldSpent !== null &&
+    who.localHour >= 8 &&
+    who.localHour < 11 &&
+    wants(who.prefs, "shield") &&
+    gapClear(who, "shield", now)
+  ) {
+    return { kind: "shield", because: `a shield covered ${who.shieldSpent}` };
   }
 
   /*

@@ -485,6 +485,20 @@ and they are told none of that figure. It is refused to anybody `stageOf` calls 
 readiness screen is built against arriving by post, and the stage comes from that module rather than
 a threshold of its own, which is its rule and an invariant.
 
+**And two of the letters report rather than ask, which is why they go first.** A milestone fires on
+the scheduler having graduated a level's words, never on evenings ticked: a card reaches Review
+state days after it was met and only by being recalled, so it is the one number in this app about
+somebody's memory rather than their attendance, and it is the only thing worth a letter in an app
+that withdrew its XP and its badges for being a second scoring system. That also makes the letter
+late, which it says rather than hides. The shield letter is a **notification and not a
+celebration**: this app banks a shield at seven, thirty and a hundred days and spends one silently
+to cover a missed day, and until now nothing told the learner that something they earned had been
+used on their behalf. It does not congratulate anybody, because they did not do anything yesterday
+and praise for a day off is seen through instantly, and it does not make the streak frightening,
+because the shield exists precisely so a missed day costs nothing. Both carry a high-water mark
+written **after the send and nowhere earlier**: a mark written when the letter was decided is a
+mark against news that never arrived, and there is no second chance at a level somebody passes once.
+
 **Every figure in a letter is read back through the function the screen showing the same figure
 reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`
 for the gift. A screen that disagrees with itself is a bug somebody reports; a letter that

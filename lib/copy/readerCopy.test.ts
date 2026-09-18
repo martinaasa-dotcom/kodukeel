@@ -35,6 +35,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells } from "./voice";
+import { CAPTION_MAX } from "./values";
 
 /**
  * Files allowed to break one of these rules, which rule, and why.
@@ -352,17 +353,10 @@ const LEAD_MAX = 95;
  * where it was, so it costs the room and earns nothing. Settings alone had
  * twelve of them, one under each control.
  *
- * 110 characters is about a line and a half on a phone, which is what a
- * caption is. Anything longer is a real explanation and has two honest homes:
- * `components/Explain.tsx`, which is a disclosure and takes no room until
- * somebody wants it, or body type, which usually means saying it shorter.
- *
- * What this does NOT cap is the same list the two above leave alone: prose in
- * the body of a screen, a grammar explanation, a policy page. A screen whose
- * subject is an explanation is allowed to explain, at a size somebody can
- * read.
+ * Read from `lib/copy/values.ts`, which is where it lives now: the invariant
+ * suite applies the same cap to the email panel, whose small print is
+ * interpolated out of a table and so is invisible to the sweep below.
  */
-const CAPTION_MAX = 110;
 
 /**
  * The screens whose small type may run long, and why each one may.

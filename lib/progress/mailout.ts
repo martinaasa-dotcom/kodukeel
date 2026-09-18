@@ -25,18 +25,18 @@
 */
 import { prisma } from "@/lib/db";
 import { dayClock } from "@/lib/time/day";
-import { readSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, readSettings, SETTING_KEYS, type SettingKey } from "@/lib/settings/store";
 import { emailPrefsFrom } from "@/lib/email/prefs";
 import { EMAIL_KINDS, type EmailKind } from "@/lib/email/letter";
 import type { Candidate } from "@/lib/email/schedule";
 import { AWAY_DAYS } from "@/lib/email/schedule";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
-import { wordsLeftAt } from "@/lib/course/milestones";
+import { ladderWordsAt, wordsLeftAt } from "@/lib/course/milestones";
 
 import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThere } from "@/lib/progress/outThere";
-import { dailySummary, deckSnapshot } from "@/lib/progress/summary";
+import { dailySummary, deckSnapshot, SHIELD_MILESTONES } from "@/lib/progress/summary";
 import { stageOf } from "@/lib/ux/disclosure";
 import { errandForDay, errandPlaces, sceneForErrand, startedUnits } from "@/lib/collections/errands";
 import { unitById } from "@/lib/collections/syllabus";
@@ -47,6 +47,14 @@ import type { WelcomeInput } from "@/lib/email/letters/welcome";
 import type { ComebackInput } from "@/lib/email/letters/comeback";
 import type { WeeklyInput } from "@/lib/email/letters/weekly";
 import type { ErrandInput } from "@/lib/email/letters/errand";
+import type { MilestoneInput } from "@/lib/email/letters/milestone";
+import type { ShieldInput } from "@/lib/email/letters/shield";
+
+/** A high-water mark to write once a letter has really gone. */
+export interface Remember {
+  readonly key: SettingKey;
+  readonly value: string;
+}
 
 /**
  * How far back the run looks for somebody worth writing to.
@@ -266,7 +274,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     that is already closed. The same shape as `finishedToday` above, which is
     skipped outside the evening for the same reason.
   */
-  const couldBeErrand = localHour >= 8 && localHour < 11 && weekdayOn(clock, now) !== 0;
+  const morning = localHour >= 8 && localHour < 11;
+  const couldBeErrand = morning && weekdayOn(clock, now) !== 0;
   const errandFacts = couldBeErrand
     ? await (async () => {
         const [snapshot, conversations, cards, reviews] = await Promise.all([
@@ -284,6 +293,67 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
           stage: stageOf({ totalCards: cards, reviewsAllTime: reviews }),
           conversations: conversations.total,
           hasErrand: snapshot.startedLemmas.size > 0,
+        };
+      })()
+    : null;
+
+  /*
+    THE TWO PIECES OF NEWS, ASKED FOR IN THE SAME MORNING WINDOW AS THE ERRAND.
+
+    Both are rare: five milestones exist per learner ever, and a shield covers
+    a particular day once. So neither is worth a query on every run, and both
+    are worth one in the window where the letter could actually go out. Outside
+    it they answer null, which closes the branch rather than guessing at it.
+
+    The high-water marks are what make "new" answerable. A shield is spent
+    silently by whichever render or run resolves the streak first, and a level
+    is passed at whatever moment the last of its words graduated, so neither
+    can be read off what this particular run just did.
+  */
+  const news = morning
+    ? await (async () => {
+        const marks = await readSettings(ownerId, [
+          SETTING_KEYS.milestoneToldFor,
+          SETTING_KEYS.shieldToldFor,
+          SETTING_KEYS.streakShieldDates,
+          SETTING_KEYS.cefrGoal,
+        ]);
+
+        /*
+          A day a shield covered that no letter has mentioned. Day keys sort
+          lexically, which is what makes "newer than the last one we said" a
+          string comparison; a row that will not parse means we know of none,
+          which is said by saying nothing.
+        */
+        let shieldSpent: string | null = null;
+        try {
+          const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
+          const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
+          const days = Array.isArray(parsed)
+            ? parsed.filter((d): d is string => typeof d === "string" && d > told)
+            : [];
+          shieldSpent = days.sort().at(-1) ?? null;
+        } catch {
+          shieldSpent = null;
+        }
+
+        /*
+          AND A LEVEL WHOSE WORDS ARE ALL GRADUATED, WHICH IS FIVE COUNTS AND
+          IS WHY IT IS ASKED ONLY ONCE THE MARK LEAVES ROOM FOR AN ANSWER.
+
+          Somebody already told about the top of their own climb can never have
+          news again, so the ladder is not read for them at all.
+        */
+        const target = targetFrom(marks[SETTING_KEYS.cefrGoal]);
+        const told = marks[SETTING_KEYS.milestoneToldFor] ?? "";
+        if (told >= target) return { shieldSpent, milestoneReached: null };
+
+        const ladder = await ladderPosition(ownerId, target);
+        const passed = ladder.milestones.filter((m) => m.state === "passed");
+        const highest = passed.at(-1)?.level ?? null;
+        return {
+          shieldSpent,
+          milestoneReached: highest !== null && highest > told ? highest : null,
         };
       })()
     : null;
@@ -319,6 +389,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     stage: errandFacts?.stage ?? "arriving",
     conversations: errandFacts?.conversations ?? 0,
     hasErrand: errandFacts?.hasErrand ?? false,
+    milestoneReached: news?.milestoneReached ?? null,
+    shieldSpent: news?.shieldSpent ?? null,
   };
 }
 
@@ -346,6 +418,17 @@ export async function letterInputFor(
   | { kind: "comeback"; input: ComebackInput }
   | { kind: "weekly"; input: WeeklyInput }
   | { kind: "errand"; input: ErrandInput }
+  /*
+    THESE TWO CARRY A `remember`, WHICH IS WHAT STOPS THEM REPEATING.
+
+    A milestone and a spent shield are announced once, and the mark that says
+    so has to be written after the letter actually went rather than when it was
+    decided: a mark written on a send that then failed is news nobody is ever
+    told, and there is no second chance at a level somebody passes once. The
+    run writes it on success, which is the only place that knows.
+  */
+  | { kind: "milestone"; input: MilestoneInput; remember: Remember }
+  | { kind: "shield"; input: ShieldInput; remember: Remember }
   | null
 > {
   const settings = await readSettings(ownerId, [
@@ -566,6 +649,97 @@ export async function letterInputFor(
               }
             : null,
       },
+    };
+  }
+
+  if (kind === "milestone" || kind === "shield") {
+    /*
+      The news was already resolved by `candidateFor`, and it is resolved again
+      here rather than threaded through the decision: the two passes are
+      minutes apart at most, the reads are the same, and a value carried across
+      them is a value that can be stale in a way nothing would report.
+    */
+    const marks = await readSettings(ownerId, [
+      SETTING_KEYS.milestoneToldFor,
+      SETTING_KEYS.cefrGoal,
+      SETTING_KEYS.streakShieldDates,
+      SETTING_KEYS.shieldToldFor,
+    ]);
+
+    if (kind === "milestone") {
+      const target = targetFrom(marks[SETTING_KEYS.cefrGoal]);
+      const ladder = await ladderPosition(ownerId, target);
+      const reached = ladder.milestones.filter((m) => m.state === "passed").at(-1);
+      if (!reached) return null;
+
+      const here = ladder.milestones.find((m) => m.state === "here");
+      return {
+        kind: "milestone",
+        input: {
+          name,
+          origin,
+          level: {
+            key: reached.level,
+            title: reached.title,
+            arrival: reached.arrival,
+            words: ladderWordsAt(reached.level),
+          },
+          pct: ladder.pct,
+          target,
+          next: here ? { level: here.level, wordsAway: wordsLeftAt(here) } : null,
+        },
+        remember: { key: SETTING_KEYS.milestoneToldFor, value: reached.level },
+      };
+    }
+
+    const summary = await dailySummary(ownerId, now, clock);
+    let covered: string | null = null;
+    try {
+      const parsed: unknown = JSON.parse(marks[SETTING_KEYS.streakShieldDates] ?? "[]");
+      const told = marks[SETTING_KEYS.shieldToldFor] ?? "";
+      covered = (Array.isArray(parsed) ? parsed.filter((d): d is string => typeof d === "string" && d > told) : [])
+        .sort()
+        .at(-1) ?? null;
+    } catch {
+      covered = null;
+    }
+    if (!covered) return null;
+
+    /*
+      The week the gap sits in, drawn the way the Sunday summary draws one, so
+      the learner can see which day was covered rather than being told a date.
+    */
+    const weekKeys = clock.recentDayKeys(8, now).slice(0, 7);
+    const studiedKeys = new Set(
+      (
+        await prisma.review.findMany({
+          where: { ownerId, reviewedAt: { gte: clock.shiftDay(now, 7), lt: clock.startOfDay(now) } },
+          select: { reviewedAt: true },
+        })
+      ).map((row) => clock.dayKey(row.reviewedAt)),
+    );
+
+    return {
+      kind: "shield",
+      input: {
+        name,
+        origin,
+        streak: summary.streak,
+        remaining: summary.shieldsAvailable,
+        /*
+          Read off the app's own ladder rather than typed, so the letter cannot
+          promise a milestone this app does not award.
+        */
+        nextAt: SHIELD_MILESTONES.find((m) => m > summary.streak) ?? null,
+        week: weekKeys.map((key) => ({
+          label: new Date(`${key}T00:00:00Z`).toLocaleDateString("en-GB", {
+            weekday: "narrow",
+            timeZone: "UTC",
+          }),
+          studied: studiedKeys.has(key),
+        })),
+      },
+      remember: { key: SETTING_KEYS.shieldToldFor, value: covered },
     };
   }
 

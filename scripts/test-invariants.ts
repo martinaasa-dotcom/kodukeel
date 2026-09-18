@@ -65,6 +65,7 @@ import {
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
 import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
+import { CAPTION_MAX } from "../lib/copy/values";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
 
@@ -18569,6 +18570,35 @@ check("every letter this app can send has a way out of it", () => {
     unsub,
     /timingSafeEqual/,
     "an unsubscribe token is compared in a way that leaks how much of it was right",
+  );
+});
+
+check("the email panel's small print stays a caption", () => {
+  /*
+    THE CAP THE SWEEP CANNOT REACH.
+
+    `readerCopy.test.ts` holds every `text-xs` element in the tree to
+    `CAPTION_MAX`, because small type does not make a paragraph less intrusive,
+    it makes it harder to read and leaves it where it was. It reads literal JSX
+    text, and this panel's small print is interpolated out of a table, so four
+    of these shipped at 118, 121, 148 and 155 characters with the sweep green.
+    That is the interpolation residual that file already names, met in the one
+    place it actually cost something.
+
+    Read off the table rather than off the rendered markup, which is the only
+    thing a source check can do here and is enough: the table is where the copy
+    is written and where somebody lengthening it would type.
+  */
+  const panel = code("app/(app)/settings/EmailPanel.tsx");
+  const details = [...panel.matchAll(/detail:\s*\n?\s*"([^"]+)"/g)].map((m) => m[1] ?? "");
+  assert.ok(details.length >= 4, `only found ${details.length} letter descriptions, so this stopped looking`);
+
+  const long = details.filter((d) => d.length > CAPTION_MAX).map((d) => `${d.length}: ${d.slice(0, 50)}`);
+  assert.deepEqual(
+    long,
+    [],
+    `a letter's description is longer than a caption (${CAPTION_MAX}). Small type does not make a ` +
+      "paragraph less intrusive. Say it in a line, or say less.",
   );
 });
 

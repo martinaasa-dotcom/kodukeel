@@ -188,6 +188,30 @@ export const SETTING_KEYS = {
    */
   emailsOff: "emailsOff",
   /**
+   * The highest level a milestone letter has already congratulated them on.
+   *
+   * A high-water mark, the shape `streakShieldsAwarded` takes and for its
+   * reason: the levels are a ladder, so one comparison says whether there is
+   * anything new to say, even to somebody whose whole A1 arrived at once in a
+   * restore. Without it the letter either fires on every run for ever or needs
+   * a row per level, and the first of those is the one that happens.
+   *
+   * Written after the letter has actually gone, never when it is decided: a
+   * mark written on a send that then failed is a milestone nobody is ever told
+   * about, and there is no second chance at a level somebody passes once.
+   */
+  milestoneToldFor: "milestoneToldFor",
+  /**
+   * The last day a shield covered that the learner has been told about.
+   *
+   * A shield is spent silently by `resolveStreakFor` on whichever render or
+   * run happens to resolve the streak first, so "did we tell them" cannot be
+   * read off whether this run spent it. The day key is the mark, and a day key
+   * sorts lexically, which is what makes "newer than the last one we mentioned"
+   * a string comparison rather than a parse.
+   */
+  shieldToldFor: "shieldToldFor",
+  /**
    * Set once the sending provider has refused this address outright.
    *
    * Not a preference and never shown as one: it is a fact about the address

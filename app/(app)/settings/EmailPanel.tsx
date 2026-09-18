@@ -29,7 +29,19 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     kind: "tonight",
     title: "A note on an evening you have not studied",
     detail:
-      "At the hour below, and only when there is an unfinished evening waiting. Nothing on the days you have already done it.",
+      "At the hour below, when an evening is unfinished. Nothing on a day you have already done it.",
+  },
+  {
+    kind: "milestone",
+    title: "When a level's words have stuck",
+    detail:
+      "Rare, and always late: a word only counts once it has come back days later and been right.",
+  },
+  {
+    kind: "shield",
+    title: "When a shield covers a day you missed",
+    detail:
+      "Earned at seven, thirty and a hundred days, and spent silently. This is the only way to find out.",
   },
   {
     kind: "comeback",
@@ -40,7 +52,7 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     kind: "errand",
     title: "One thing to say to a real person, once a week",
     detail:
-      "A weekday morning, and only while the app can see you are not already speaking Estonian to anybody. One sentence, one place, and you can rehearse it first.",
+      "A weekday morning, while the app can see you are not already speaking Estonian to people.",
   },
   {
     kind: "weekly",

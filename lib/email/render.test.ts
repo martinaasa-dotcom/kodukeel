@@ -16,6 +16,8 @@ import { welcomeLetter } from "./letters/welcome";
 import { comebackLetter } from "./letters/comeback";
 import { weeklyLetter } from "./letters/weekly";
 import { errandLetter } from "./letters/errand";
+import { milestoneLetter } from "./letters/milestone";
+import { shieldLetter } from "./letters/shield";
 
 const CHROME: Chrome = {
   origin: "https://kodukeel.ee",
@@ -81,6 +83,22 @@ const EVERY: Letter[] = [
     },
     word: { lemma: "kohv", translation: "coffee" },
   }),
+  milestoneLetter({
+    name: NASTY,
+    origin: CHROME.origin,
+    level: { key: "A1", title: NASTY, arrival: NASTY, words: 493 },
+    pct: 41,
+    target: "B1",
+    next: { level: "A2", wordsAway: 118 },
+  }),
+  shieldLetter({
+    name: NASTY,
+    origin: CHROME.origin,
+    streak: 12,
+    remaining: 1,
+    nextAt: 30,
+    week: ["M", "T", "W", "T", "F", "S", "S"].map((label, i) => ({ label, studied: i !== 5 })),
+  }),
   weeklyLetter({
     name: NASTY,
     origin: CHROME.origin,
@@ -105,9 +123,16 @@ describe("every letter, whatever it is given", () => {
           for free. `goalNote` is a free-text box and a display name is
           whatever somebody typed, and both land in a document their mail
           client renders.
+
+          The claim is only this: no letter may carry unescaped markup. That
+          the escaping is really happening is proved once, below, over the
+          letters that interpolate learner text at all, because two of these
+          carry none by construction and asserting the escaped form on those
+          would be asserting something about the test data rather than about
+          the letter.
         */
         expect(html).not.toContain("<script>");
-        expect(html).toContain("&lt;script&gt;");
+        expect(html).not.toContain("<img");
       });
 
       it("says the same thing in plain text as in HTML", () => {
@@ -165,6 +190,26 @@ describe("every letter, whatever it is given", () => {
       });
     });
   }
+});
+
+describe("the escaping really happens", () => {
+  it("escapes learner text in every letter that carries any", () => {
+    /*
+      The half the per-letter check cannot make. Without it, a renderer that
+      silently dropped every interpolated value would pass "no unescaped
+      markup" on all seven, which is `A || !A` wearing a sweep's clothes.
+
+      Counted rather than listed, so a letter that starts carrying learner text
+      is covered the day it does. The floor is what makes it a claim: at the
+      time of writing five of the seven interpolate something a learner typed,
+      and the two that do not are the ones about a level and a shield, which
+      are made of numbers.
+    */
+    const escaping = EVERY.filter((letter) =>
+      renderHtml(letter, CHROME).includes("&lt;script&gt;"),
+    );
+    expect(escaping.length, "no letter interpolates learner text any more, so nothing proves the escaping works").toBeGreaterThanOrEqual(5);
+  });
 });
 
 describe("the preheader", () => {

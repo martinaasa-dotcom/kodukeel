@@ -38,6 +38,8 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     stage: "settled",
     conversations: 0,
     hasErrand: true,
+    milestoneReached: null,
+    shieldSpent: null,
     ...over,
   };
 }
@@ -155,6 +157,78 @@ describe("the welcome", () => {
     // Otherwise switching this feature on mails a welcome to every existing
     // learner, telling each of them their deck has just been built.
     expect(letterOwed(candidate({ onboardedAt: daysAgo(30) }), NOW)?.kind).not.toBe("welcome");
+  });
+});
+
+describe("news before asks", () => {
+  const morning = (over: Partial<Candidate> = {}) =>
+    candidate({ localHour: 9, localWeekday: 3, ...over });
+
+  it("announces a level whose words the scheduler has graduated", () => {
+    expect(letterOwed(morning({ milestoneReached: "A1" }), NOW)?.kind).toBe("milestone");
+  });
+
+  it("tells somebody a shield covered a day", () => {
+    expect(letterOwed(morning({ shieldSpent: "2026-09-17" }), NOW)?.kind).toBe("shield");
+  });
+
+  it("puts a milestone above the errand, the summary and the evening", () => {
+    /*
+      Somebody who has just finished A1 should be told about A1 rather than
+      about tonight, and the thing that can wait is the thing that asks. Driven
+      against each of the three it has to outrank rather than against one.
+    */
+    expect(letterOwed(morning({ milestoneReached: "A1" }), NOW)?.kind).toBe("milestone");
+    expect(
+      letterOwed(morning({ milestoneReached: "A1", localWeekday: 0, localHour: 10 }), NOW)?.kind,
+    ).toBe("milestone");
+    expect(
+      letterOwed(candidate({ milestoneReached: "A1", localHour: 9, localWeekday: 3, finishedToday: false }), NOW)?.kind,
+    ).toBe("milestone");
+  });
+
+  it("puts a milestone above a shield, where both landed", () => {
+    // Finishing a level is the bigger of the two, and two letters in one
+    // morning is what the weekly ceiling exists to stop.
+    const both = morning({ milestoneReached: "A1", shieldSpent: "2026-09-17" });
+    expect(letterOwed(both, NOW)?.kind).toBe("milestone");
+  });
+
+  it("says nothing where there is no news", () => {
+    // The commonest answer by a long way: five milestones exist per learner
+    // ever, and a shield covers a particular day once.
+    expect(letterOwed(morning(), NOW)?.kind).not.toBe("milestone");
+    expect(letterOwed(morning(), NOW)?.kind).not.toBe("shield");
+  });
+
+  it("does not wake anybody up with news", () => {
+    // Neither is a thing to act on, so neither is worth an evening or a
+    // six-in-the-morning delivery.
+    expect(letterOwed(morning({ milestoneReached: "A1", localHour: 6 }), NOW)?.kind).not.toBe("milestone");
+    expect(letterOwed(morning({ milestoneReached: "A1", localHour: 20 }), NOW)?.kind).not.toBe("milestone");
+  });
+
+  it("is switched off on its own without taking the others", () => {
+    const off = morning({ milestoneReached: "A1", prefs: emailPrefsFrom("milestone") });
+    expect(letterOwed(off, NOW)?.kind).not.toBe("milestone");
+    expect(letterOwed({ ...off, localHour: 19 }, NOW)?.kind).toBe("tonight");
+  });
+
+  it("still never reaches somebody who has stopped studying", () => {
+    /*
+      Being away returns either way, so even news waits. Somebody a fortnight
+      gone gets the one letter about coming back, and a milestone earned
+      before they stopped is not the thing to open with.
+    */
+    const away = morning({ milestoneReached: "A1", lastReviewAt: daysAgo(20) });
+    expect(letterOwed(away, NOW)?.kind).toBe("comeback");
+  });
+
+  it("does not repeat the same news twice in a morning", () => {
+    // The high-water mark is what stops it repeating at all; the gap is the
+    // belt for a run that crashed between sending and writing the mark.
+    const sent = new Map<EmailKind, Date>([["milestone", hoursAgo(2)]]);
+    expect(letterOwed(morning({ milestoneReached: "A1", lastSent: sent }), NOW)?.kind).not.toBe("milestone");
   });
 });
 

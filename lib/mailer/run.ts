@@ -44,6 +44,8 @@ import { welcomeLetter } from "@/lib/email/letters/welcome";
 import { comebackLetter } from "@/lib/email/letters/comeback";
 import { weeklyLetter } from "@/lib/email/letters/weekly";
 import { errandLetter } from "@/lib/email/letters/errand";
+import { milestoneLetter } from "@/lib/email/letters/milestone";
+import { shieldLetter } from "@/lib/email/letters/shield";
 import { candidateFor, letterInputFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
 import { addressDigest, blocks } from "@/lib/email/webhook";
 import { writeSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -90,6 +92,10 @@ function letterFrom(
       return weeklyLetter(built.input);
     case "errand":
       return errandLetter(built.input);
+    case "milestone":
+      return milestoneLetter(built.input);
+    case "shield":
+      return shieldLetter(built.input);
   }
 }
 
@@ -224,6 +230,18 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
       if (result.ok) {
         report.sent += 1;
         report.byKind[letter.kind] = (report.byKind[letter.kind] ?? 0) + 1;
+        /*
+          AND THE HIGH-WATER MARK, WRITTEN HERE AND NOWHERE EARLIER.
+
+          A milestone and a spent shield are announced once, and the mark is
+          what says so. Written when the letter was *decided* it would be a
+          mark against news that never arrived, and there is no second chance
+          at a level somebody passes once: this is the only place that knows
+          the message actually went.
+        */
+        if ("remember" in built) {
+          await writeSetting(ownerId, built.remember.key, built.remember.value);
+        }
         if (result.messageId) {
           /*
             By id, because the booking above knows which row it made. Matching

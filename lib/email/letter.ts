@@ -46,6 +46,8 @@ export const EMAIL_KINDS = [
   "comeback",
   "weekly",
   "errand",
+  "milestone",
+  "shield",
 ] as const;
 
 export type EmailKind = (typeof EMAIL_KINDS)[number];

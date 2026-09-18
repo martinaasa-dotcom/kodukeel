@@ -20,6 +20,8 @@ complaining about it. Every rule below follows from that one sentence.
 | `welcome` | An hour to two days after first run, once | Turning an intention into a plan: a named hour, and the deck that is already built |
 | `tonight` | The hour they picked, on an evening they have not finished | The evening is genuinely unfinished, and their own words about why they started |
 | `comeback` | Six days without a review, at most one a fortnight | What survived, and an ask small enough to say yes to |
+| `milestone` | A morning, once per level, when its words have graduated | A claim about memory rather than attendance, and an admission that it is late |
+| `shield` | A morning, once per covered day | Telling somebody a thing they earned was spent for them |
 | `errand` | A weekday morning, at most once a week, while the conversation count is flat | One thing to say to one person, a rehearsal first, and permission to be answered in English |
 | `weekly` | Sunday morning where they are | A week drawn rather than scored, and the next named stop on the climb |
 | `system` | Sign-in links, and notices about an account | Not optional, and not in this system: Supabase sends them |
@@ -28,6 +30,10 @@ complaining about it. Every rule below follows from that one sentence.
 argument, so the decision is driven over a year of made-up days in a unit test rather than by
 sending anybody anything. At most one letter per learner per run, and a ceiling of five a week
 over all kinds.
+
+**News before asks.** Two of the seven report something that has already happened and five want
+something. Where both are owed the news goes first: somebody who has just finished A1 should be
+told about A1 rather than about tonight, and the thing that can wait is the thing that asks.
 
 ## The psychology, and its limits
 
@@ -95,6 +101,54 @@ readiness screen is built against, arriving by post. Not somebody whose deck has
 since the errand pool is narrowed to units they have begun for the same reason. Not in the evening,
 because an errand needs a day in front of it. Not on Sunday, which is the summary's morning. And
 never to somebody who has stopped studying, who gets the one letter about coming back instead.
+
+### The milestone, and what keeps it from being a participation trophy
+
+This app withdrew its XP, its badges and its daily quests on the argument that they were a second
+scoring system beside the ones that mean something. A letter congratulating somebody for turning up
+would be that argument lost by post, so the thing announced has to be a real claim, and there is
+exactly one here that qualifies.
+
+**It fires on graduated words.** A card reaches Review state days after it was met and only by
+being recalled after the scheduler had begun to doubt it, so a level's words being graduated cannot
+be run up by opening the app, by ticking evenings or by one long Sunday. It is the one number in
+this app that is about somebody's memory rather than their attendance.
+
+**Which means the letter is late, and it says so.** The evening that earned this was days ago; what
+happened since is that the words stayed. A letter implying otherwise would be claiming the learner
+had just done something, when the interesting thing is the opposite.
+
+It does not compare them to anybody, does not say how fast they got there (a slow arrival is still
+an arrival, and there is no version of that sentence that is kind to somebody who took a year), and
+does not project what the next level will cost, because `lib/assessment/plan.ts` is where a
+projection lives.
+
+### The shield, which is a notification and not a celebration
+
+This app banks a shield at seven, thirty and a hundred days and spends one silently to cover a
+missed day. All of that already worked and none of it was ever announced: the learner sees a streak
+that did not break and is never told why.
+
+That is the gap, and the framing follows from it. Something of theirs was used. An app that quietly
+spends a thing somebody earned and says nothing is doing the small dishonest version of what this
+module is written against, and the test of whether the framing is right is that the same letter
+would be worth sending if the news were bad.
+
+So **it does not congratulate anybody**: they did not do anything yesterday, that is the premise,
+and praise for a day off is something a learner sees through instantly. And **it does not make the
+streak frightening**: the shield exists precisely so a missed day costs nothing, and a letter using
+it to imply the next miss will hurt would be inventing the stake the mechanic was built to remove.
+It says what happened, what is left, where the next one comes from, and stops.
+
+### Announced once, and the mark is written after the letter went
+
+Both carry a high-water mark: the highest level already mentioned, and the last covered day already
+mentioned. A gap alone would announce A1 again next week; a mark alone would be fine except that a
+run which crashed between sending and writing it should not manage two in one morning, so both.
+
+The mark is written **after a successful send and nowhere earlier**. Written when the letter was
+decided, it would be a mark against news that never arrived, and there is no second chance at a
+level somebody passes once.
 
 ### What a letter may not do
 
@@ -278,17 +332,6 @@ last review. A row that will not parse means we do not know, which is said by sa
 
 Each of these has a real trigger already in the schema. They are listed with what would have to be
 decided first, because the decision is the work rather than the template.
-
-**A milestone letter.** A part of the ladder finished, or A1 done. `lib/course/gate.ts` already
-reads the hand-off and `ladderProgress` already knows the stops. The thing to decide is what stops
-it being a participation trophy: the honest version fires on the scheduler having graduated the
-words rather than on evenings being ticked, which means it can arrive days after the evening that
-earned it and has to say so.
-
-**The shield letter.** A banked shield covered a missed day. The app does this silently today and
-it is the one moment in the whole system where the news is unambiguously good and the learner did
-something earlier to earn it. Needs `SHIELD_MILESTONES` to record which day a shield covered, which
-`streakShieldDates` nearly does.
 
 **The deadline letter.** A target date approaching, with the honest projection from
 `lib/assessment/plan.ts`. The whole value is that this app's projection is calibrated to the one
