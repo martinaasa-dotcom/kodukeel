@@ -1,9 +1,49 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import Script from "next/script";
 import { Button } from "@/components/Button";
 import { createClient } from "@/lib/supabase/client";
 import { ssoDomainFor } from "@/lib/auth/sso";
+import { GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
+
+/** The public client ID, when a deployment has one. Never a secret. */
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+/**
+ * The one shape of Google Identity Services this file reads. There is no
+ * official type package for it, so this is written out by hand rather than
+ * reached for as `any`.
+ */
+interface GoogleAccountsId {
+  initialize(config: {
+    client_id: string;
+    callback: (response: { credential: string }) => void;
+    nonce: string;
+    use_fedcm_for_prompt?: boolean;
+  }): void;
+  renderButton(
+    parent: HTMLElement,
+    options: {
+      type?: "standard";
+      theme?: "outline";
+      size?: "large";
+      shape?: "rectangular";
+      text?: "continue_with";
+      logo_alignment?: "left";
+      width?: number;
+    },
+  ): void;
+}
+
+declare global {
+  interface Window {
+    google?: { accounts?: { id?: GoogleAccountsId } };
+  }
+}
+
+/** How long the Google button gets to render before the old door reopens. */
+const GOOGLE_BUTTON_TIMEOUT_MS = 4000;
 
 /**
  * Three ways in, and the second and third exist because the first excludes people.
@@ -41,6 +81,19 @@ import { ssoDomainFor } from "@/lib/auth/sso";
  * browser with nothing to exchange the code against. That is a property of
  * the flow rather than a bug, and the one sentence explaining it is cheaper
  * than the dead end it prevents.
+ *
+ * GOOGLE IS TWO DOORS, NOT ONE, AND THE SCRIPT DECIDES WHICH IS DRAWN.
+ * `signInWithOAuth` sends the learner to Google by way of Supabase's own
+ * `/auth/v1/callback`, which is why Google's own screen used to show the raw
+ * Supabase project domain rather than this app's. Google Identity Services
+ * runs entirely on this page instead and hands Supabase an ID token, so
+ * there is no redirect URI for Google to name and it shows this app's own
+ * domain. It needs `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, which is public (it is
+ * the Client ID, never the secret), and it is drawn only once Google's own
+ * script has answered; the old redirect door stays underneath it and opens
+ * itself if the script never loads, errors, or is blocked, so a learner
+ * behind an extension that refuses third-party scripts is never left with
+ * no way in.
  */
 export function SignInForm({
   emailLink,
@@ -55,17 +108,23 @@ export function SignInForm({
   /** The address we mailed, which is also the flag that we mailed anything. */
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  /** Whether Google's own button has taken over from the redirect one. */
+  const [googleButtonReady, setGoogleButtonReady] = useState(false);
+  const googleButtonRef = useRef<HTMLDivElement | null>(null);
 
   const ssoPolicy = useMemo(() => ({ domains: [...ssoDomains] }), [ssoDomains]);
   const sso = ssoDomains.length > 0;
   /** The provider this address would go to, recomputed as they type. */
   const ssoDomain = sso ? ssoDomainFor(email, ssoPolicy) : null;
 
+  /** The page this browser asked to land on, carried through whichever door. */
+  function nextPath(): string {
+    return new URLSearchParams(window.location.search).get("next") ?? "/";
+  }
+
   /** Where the provider sends somebody back to, carrying the page they wanted. */
   function callbackUrl(): string {
-    const params = new URLSearchParams(window.location.search);
-    const next = params.get("next") ?? "/";
-    return `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+    return `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath())}`;
   }
 
   async function signInWithGoogle() {
@@ -81,6 +140,81 @@ export function SignInForm({
       setPending(null);
     }
   }
+
+  /** The ID token Google's own button collected, handed straight to Supabase. */
+  async function signInWithGoogleIdToken(credential: string, nonce: string) {
+    setPending("google");
+    setError(null);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: "google",
+      token: credential,
+      nonce,
+    });
+    if (error) {
+      setError(`${error.message}. Try again, or reload the page.`);
+      setPending(null);
+      return;
+    }
+    // The session is already set: signInWithIdToken never redirected anywhere,
+    // so there is nothing for /auth/callback to exchange. Go straight there.
+    window.location.assign(nextPath());
+  }
+
+  /**
+   * Google's script answered: build the nonce, hand it a callback, and draw
+   * its button into our container. `googleButtonReady` starts false, which
+   * is the redirect door showing, so a script that never loads or a button
+   * that never draws simply leaves that door in place; the timeout below
+   * only stops the poll from running forever in that case.
+   */
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID) return;
+    let cancelled = false;
+    const timeout = window.setTimeout(() => {
+      cancelled = true;
+      window.clearInterval(poll);
+    }, GOOGLE_BUTTON_TIMEOUT_MS);
+
+    async function draw() {
+      const id = window.google?.accounts?.id;
+      const container = googleButtonRef.current;
+      if (!id || !container || cancelled) return;
+      const nonce = randomNonce();
+      const hashed = await hashNonce(nonce);
+      if (cancelled) return;
+      id.initialize({
+        client_id: GOOGLE_CLIENT_ID!,
+        callback: (response) => { void signInWithGoogleIdToken(response.credential, nonce); },
+        nonce: hashed,
+        use_fedcm_for_prompt: true,
+      });
+      id.renderButton(container, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        shape: "rectangular",
+        text: "continue_with",
+        logo_alignment: "left",
+        width: Math.min(container.clientWidth || 360, 400),
+      });
+      setGoogleButtonReady(true);
+    }
+
+    const poll = window.setInterval(() => {
+      if (window.google?.accounts?.id) {
+        window.clearInterval(poll);
+        void draw();
+      }
+    }, 100);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+      window.clearInterval(poll);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /**
    * Hand somebody over to their company's provider.
@@ -168,15 +302,32 @@ export function SignInForm({
         instead, so no browser suite reached the button until
         `scripts/test-signin.mjs` did.
       */}
-      <Button
-        variant="primary"
-        size="lg"
-        onClick={signInWithGoogle}
-        disabled={pending !== null}
-        className="w-full"
-      >
-        {pending === "google" ? "Redirecting…" : "Continue with Google"}
-      </Button>
+      {GOOGLE_CLIENT_ID && (
+        <Script src={GSI_SCRIPT_SRC} strategy="afterInteractive" />
+      )}
+
+      {/*
+        Both are always in the tree; only one is ever visible. The GIS
+        container draws Google's own button once its script has answered, and
+        the redirect button underneath is what a learner sees until then, or
+        for ever on a deployment with no client ID configured.
+      */}
+      <div
+        ref={googleButtonRef}
+        className="flex w-full justify-center"
+        style={{ display: googleButtonReady ? "flex" : "none" }}
+      />
+      {!googleButtonReady && (
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={signInWithGoogle}
+          disabled={pending !== null}
+          className="w-full"
+        >
+          {pending === "google" ? "Redirecting…" : "Continue with Google"}
+        </Button>
+      )}
 
       {(emailLink || sso) && (
         <>
