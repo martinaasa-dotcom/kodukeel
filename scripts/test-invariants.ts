@@ -4292,6 +4292,52 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
   assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
 });
 
+check("a string of several answers is cleaned in one place, not by each caller", () => {
+  /*
+    A GLOSS CAN BE SEVERAL PHRASES, AND ONLY ONE FILE KNEW IT.
+
+    `plainPhrase` drops a phrase's own capital and exclamation mark so a card
+    teaches `tere hommikust` rather than shouting `Tere hommikust!`. It read
+    the first character of whatever string it was given and the mark at the
+    very end of it, which is right for one phrase and wrong for a gloss that
+    holds three: `palun` is glossed `Please / You're welcome / Here you are`
+    and a learner met it on the ladder as `please / You're welcome / Here you
+    are`, one of the three lowered and the other two still shouting, which
+    reads as a rendering fault rather than as three ways of saying it. It was
+    reported off that screen. `Sorry! / Excuse me!` was worse, since the mark
+    dropped was the one at the end and the one kept was in the middle.
+
+    `prisma/repair.ts` had already worked this out for a card's back, whose
+    accepted answers are joined the same way, and kept the splitting to
+    itself: one answer to how a string of answers is cleaned, with the copy in
+    the busier file being the one that had not learned it. That is the shape
+    this repository keeps finding in its own rules, so the splitting lives in
+    `plainPhrase` and a second caller doing it by hand fails here.
+
+    Anchored on the call rather than on the separator, because the separator
+    is joined and split all over the app for reasons that have nothing to do
+    with case: what may not come back is a caller cleaning the parts itself.
+  */
+  const byHand = /\.split\(\s*["'`] \/ ["'`]\s*\)[\s\S]{0,40}?plainPhrase/;
+  const offenders = [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]
+    .filter((file) => !file.endsWith("test-invariants.ts"))
+    .filter((file) => byHand.test(code(file)))
+    .map((file) => `${file} splits the answers itself`);
+  assert.deepEqual(offenders, [], "plainPhrase already reads every answer in the string");
+
+  /*
+    And the function itself has to: written to read the whole string, every
+    check above it passes and every multi-answer gloss goes back to being half
+    lowered.
+  */
+  const values = code("lib/copy/values.ts");
+  assert.match(
+    values,
+    /export function plainPhrase[\s\S]{0,200}?\.split\(/,
+    "plainPhrase reads the whole string again, so a gloss of several phrases lowers only the first",
+  );
+});
+
 check("the voice is one table, and everything that speaks reads from it", () => {
   /*
     THE RULE THAT KEEPS THE COPY SOUNDING LIKE A PERSON, AND THE WAY IT ROTS.

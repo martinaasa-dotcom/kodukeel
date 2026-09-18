@@ -106,9 +106,13 @@ async function main() {
   /*
     And the phrase cards built before `plainPhrase` existed, still carrying
     `Tere hommikust!` and `Goodbye!` on a card whose whole point is the word
-    rather than its punctuation. Here for the same reason as the three
-    repairs above it: the fault only exists on a database that was already
-    seeded, which is exactly what `--only-if-empty` skips.
+    rather than its punctuation. It takes the cards built while `plainPhrase`
+    read only the first phrase of a string with them, which is every gloss
+    that holds several: `palun` was dealt as `please / You're welcome / Here
+    you are`, one of the three lowered and the other two still shouting. Here
+    for the same reason as the three repairs above it: the fault only exists
+    on a database that was already seeded, which is exactly what
+    `--only-if-empty` skips.
   */
   const depunctuated = await repairPhrasePunctuation(prisma);
   if (depunctuated > 0) {

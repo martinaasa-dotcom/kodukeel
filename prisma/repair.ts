@@ -382,13 +382,19 @@ export async function fillExampleEnglish(prisma: PrismaClient): Promise<number> 
  * nothing in the app rewrites one on its own.
  *
  * WHAT IT MAY TOUCH. `front` and `back`, on a RECOGNITION or PRODUCTION card
- * whose entry is a `PHRASE`, and only by running `plainPhrase` over each `/`
- * separated answer in turn, which is what keeps this safe to run after
- * `repairProductionBacks`: a back already widened to "answer / other answer"
- * keeps every answer it was widened to, cleaned rather than collapsed. Never
- * a scheduling column. The guard compares both the front and the back it read
- * against what it is about to write, so a card touched between the read and
- * the write is left exactly as it is.
+ * whose entry is a `PHRASE`, and only by running `plainPhrase` over them,
+ * which cleans each `/` separated answer in turn. That is what keeps this
+ * safe to run after `repairProductionBacks`: a back already widened to
+ * "answer / other answer" keeps every answer it was widened to, cleaned
+ * rather than collapsed. Never a scheduling column. The guard compares both
+ * the front and the back it read against what it is about to write, so a card
+ * touched between the read and the write is left exactly as it is.
+ *
+ * THE SPLITTING USED TO LIVE HERE, and that was the only place that knew a
+ * string can hold several answers: `plainPhrase` itself read the first
+ * character of whatever it was given, so every screen printing a gloss of
+ * several phrases printed one of them lowered and the rest shouting. It reads
+ * every part now, so this asks for nothing of its own.
  */
 export async function repairPhrasePunctuation(prisma: PrismaClient): Promise<number> {
   const cards = await prisma.card.findMany({
@@ -396,9 +402,11 @@ export async function repairPhrasePunctuation(prisma: PrismaClient): Promise<num
     select: { id: true, front: true, back: true },
   });
 
-  const clean = (s: string) => s.split(" / ").map(plainPhrase).join(" / ");
   const rows = cards
-    .map((c) => ({ id: c.id, oldFront: c.front, oldBack: c.back, front: clean(c.front), back: clean(c.back) }))
+    .map((c) => ({
+      id: c.id, oldFront: c.front, oldBack: c.back,
+      front: plainPhrase(c.front), back: plainPhrase(c.back),
+    }))
     .filter((r) => r.front !== r.oldFront || r.back !== r.oldBack);
   if (rows.length === 0) return 0;
 

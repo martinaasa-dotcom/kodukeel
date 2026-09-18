@@ -49,6 +49,18 @@ export function sameSpelling(estonian: string, english: string): boolean {
 export const SAME_SPELLING = "Spelled the same in English.";
 
 /**
+ * How several answers are held in one string, everywhere in this app.
+ *
+ * `acceptedAnswers` splits a card's back on it, `lib/srs/cards.ts` joins the
+ * accepted answers with it, and every screen that prints a pair prints it
+ * this way. Spaces on both sides are what makes it a separator rather than a
+ * character in a word: the dictionary glosses `lemmik` as `favorite/favourite`
+ * and `värv` as `color/colour`, which are one answer spelled two ways and
+ * are not two answers.
+ */
+const PARTS = " / ";
+
+/**
  * A phrase's own capital letter and exclamation mark, dropped for word
  * learning.
  *
@@ -66,8 +78,31 @@ export const SAME_SPELLING = "Spelled the same in English.";
  * first letter is lowered the way a lemma already is everywhere else in the
  * dictionary, which is safe here because no phrase in it opens on a proper
  * noun.
+ *
+ * AND A STRING HOLDING SEVERAL ANSWERS IS SEVERAL PHRASES, which is the half
+ * this did not do. It read the first character of the whole string and the
+ * mark at the very end of it, so a gloss that is three phrases came out with
+ * one of them lowered and the other two shouting: `palun` is glossed
+ * `Please / You're welcome / Here you are` and a learner met it on the
+ * ladder as `please / You're welcome / Here you are`, which reads as a
+ * rendering fault rather than as three ways of saying it. `Sorry! / Excuse
+ * me!` was worse, since the mark it dropped was the one at the end and the
+ * one it kept was in the middle. Each part is a phrase and each is cleaned as
+ * one. `prisma/repair.ts` had worked this out for a card's back and kept the
+ * splitting to itself, which is two answers to one question with the copy in
+ * the busier file being the one that had not learned; it reads this now.
+ *
+ * ONLY THE SEPARATOR, NEVER THE COMMA. A comma separates the senses of an
+ * ordinary gloss, and those carry capitals that are the language rather than
+ * the app shouting: `vist` is `probably, I think`, `bemar` is `BMW, Beamer`
+ * and `inglane` is `English person, Englishman`. Lowering those would be this
+ * app correcting English it did not write.
  */
 export function plainPhrase(text: string): string {
+  return text.split(PARTS).map(onePhrase).join(PARTS);
+}
+
+function onePhrase(text: string): string {
   const trimmed = text.replace(/!+\s*$/, "").trimEnd();
   return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1) : trimmed;
 }
