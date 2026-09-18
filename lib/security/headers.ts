@@ -75,6 +75,18 @@ function supabaseConnectSrc(): string[] {
 }
 
 /**
+ * Google's own sign-in script, only when a deployment has told it a client
+ * ID to sign in with. It is the one third-party script this app loads in a
+ * browser, because it is what lets Google's sign-in screen show this app's
+ * own domain instead of Supabase's: `lib/auth/googleIdentity.ts` explains
+ * why. Without the client ID nothing about this policy widens, which is the
+ * same rule `supabaseConnectSrc` follows for the database.
+ */
+function googleIdentitySrc(): string[] {
+  return process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ? ["https://accounts.google.com"] : [];
+}
+
+/**
  * The policy.
  *
  * `'unsafe-inline'` in `script-src` is required rather than chosen: the app
@@ -94,19 +106,23 @@ function supabaseConnectSrc(): string[] {
  * - `connect-src` needs no third party at all: Ekilex, Wiktionary and the
  *   TartuNLP speech service are only ever reached from the server, which is
  *   the same rule that keeps their keys off the client.
- * - `frame-src` and `frame-ancestors` are both `'none'`. Neither direction of
- *   framing is wanted here, and the outward one was verified rather than
- *   assumed (docs/00-audit-v4.md section A).
+ * - `frame-ancestors` is `'none'`. Nothing here is meant to be embedded
+ *   anywhere (docs/00-audit-v4.md section A). `frame-src` is `'none'` for
+ *   the same reason, except that Google Identity Services renders its own
+ *   button inside an `accounts.google.com` iframe, so a deployment with a
+ *   Google client ID configured allows that one origin and no other.
  */
 export function buildContentSecurityPolicy(): string {
   const isDev = process.env.NODE_ENV !== "production";
+  const google = googleIdentitySrc();
 
-  const scriptSrc = ["'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : [])];
+  const scriptSrc = ["'self'", "'unsafe-inline'", ...google, ...(isDev ? ["'unsafe-eval'"] : [])];
   const connectSrc = [
     "'self'",
     ...supabaseConnectSrc(),
     ...(isDev ? ["ws://localhost:*", "ws://127.0.0.1:*", "http://localhost:*"] : []),
   ];
+  const frameSrc = google.length > 0 ? google.join(" ") : "'none'";
 
   return [
     "default-src 'self'",
@@ -117,7 +133,7 @@ export function buildContentSecurityPolicy(): string {
     "font-src 'self'",
     "media-src 'self' blob: data:",
     `connect-src ${connectSrc.join(" ")}`,
-    "frame-src 'none'",
+    `frame-src ${frameSrc}`,
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",

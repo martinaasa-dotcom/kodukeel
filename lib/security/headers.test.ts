@@ -24,6 +24,18 @@ describe("the policy says what the app actually needs", () => {
     expect(header("X-Frame-Options")).toBe("DENY");
   });
 
+  it("allows Google's own sign-in iframe only when a client ID is configured", () => {
+    const previous = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = "abc.apps.googleusercontent.com";
+    try {
+      expect(directive("frame-src")).toBe("frame-src https://accounts.google.com");
+      expect(directive("script-src")).toContain("https://accounts.google.com");
+    } finally {
+      if (previous === undefined) delete process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      else process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = previous;
+    }
+  });
+
   it("keeps the microphone and the camera, because two features need them", () => {
     // geolocation=() is a denial. The other two are not: components/Recorder.tsx
     // needs the microphone for speaking practice, and scanning a page needs the

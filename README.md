@@ -469,6 +469,29 @@ to set up, both one-time:
 Neither Google credential nor the Supabase service role key is ever needed in this app's own code, 
 the OAuth exchange happens entirely inside Supabase.
 
+**Optional: Google's own screen naming this app rather than Supabase's project.** With only the
+steps above, Google's sign-in screen shows "to continue to `<your-project-ref>.supabase.co`",
+because that is the domain of the callback URL Google was actually given. To have it show this
+app's own domain instead:
+
+1. **Google Cloud Console** → **APIs & Services → OAuth consent screen / Branding**: set **App
+   name**, **Application home page** (`https://kodukeel.ee`), **Application privacy policy link**
+   and **Application terms of service link**, and add your own domain (`kodukeel.ee`) as a second
+   **Authorized domain**, alongside the Supabase one that is already there (keep both; do not
+   remove the Supabase one, it is still the domain the redirect URI from step 1 above lives on).
+   Google may ask to verify ownership of your domain through **Google Search Console** first.
+2. **Credentials → your Web application client → Authorized JavaScript origins**: add
+   `https://kodukeel.ee` (and `http://localhost:3000` for local development). Leave the Authorized
+   redirect URIs from step 1 as they are.
+3. Copy the **Client ID** (not the secret) into `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, in both your local
+   `.env` and Vercel's environment variables.
+
+With that set, the sign-in page runs Google Identity Services on `kodukeel.ee` itself and hands
+Supabase an ID token (`signInWithIdToken`), so there is no redirect through Supabase's domain for
+Google to show on its own screen. The redirect flow from step 2 above stays as a fallback for a
+learner whose browser blocks Google's script, so nothing above is wasted if this optional part is
+skipped.
+
 **One address, and Supabase has to be told which.** A Vercel deployment answers on
 `<app>.vercel.app` as well as on the domain you point at it, and Google sign-in is the one path
 that cannot survive the difference: the sign-in starts on the origin the learner is on, and
