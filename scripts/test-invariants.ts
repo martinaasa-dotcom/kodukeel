@@ -673,6 +673,18 @@ check("a word is asked for finished, in one place, and the two clip versions agr
     /update\(`\$\{CLIP_SHAPE\}\|\$\{text\}\|\$\{speaker\}`\)/,
     "the store is keyed on something other than the text that was spoken",
   );
+  /*
+    And the finished text is what actually goes out. The three links are the
+    request body, the key the clip is stored under and the body sent upstream,
+    and only the last of them is what a learner hears: a route that finished
+    the text, keyed the store on it and then posted `body.text` would pass
+    every check above while shipping the fault back.
+  */
+  assert.match(
+    route,
+    /body: JSON\.stringify\(\{ text, speaker \}\)/,
+    "the speech service is sent something other than the text the route finished and keyed on",
+  );
 
   const say = code("lib/audio/say.ts");
   assert.doesNotMatch(say, /import |window\.|prisma/, "the spoken-text rule stopped being pure");
