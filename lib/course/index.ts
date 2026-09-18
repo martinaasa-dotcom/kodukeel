@@ -200,7 +200,7 @@ export function wordsThrough(programme: Programme, index: number): string[] {
 /**
  * Every word the *ladder* has taught by a day, which is not the same question.
  *
- * A `Programme` is one part of seventeen, so `wordsThrough` answers about a
+ * A `Programme` is one part of eighteen, so `wordsThrough` answers about a
  * fortnight: on the first evening of a1.5 it returns that evening's eight
  * words and says nothing about the 386 the four parts before it handed over.
  * That is the right answer for a bar counting a part's own progress and the

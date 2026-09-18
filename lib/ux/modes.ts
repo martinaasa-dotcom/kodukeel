@@ -255,10 +255,10 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/conjugation", title: "Conjugation", subtitle: "Fill the table", icon: "Repeat",
-    tone: "accent", group: "targeted", note: "Typed, six persons", within: "/grammar/topic/present-tense",
+    tone: "accent", group: "targeted", note: "Six persons", within: "/grammar/topic/present-tense",
     blurb:
-      "One verb, the first person given, the other five to type. Every form is checked against " +
-      "the dictionary, and the conditional joins in from B1.",
+      "One verb, the first person given, the other five to put in place at A1 and to type from A2. " +
+      "Every form is checked against the dictionary, and the conditional joins in from B1.",
   },
   {
     /*

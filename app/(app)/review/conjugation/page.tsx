@@ -7,7 +7,8 @@ import { conjugatedForms, type VerbExampleForm } from "@/lib/progress/verbExampl
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { shuffle } from "@/lib/random/shuffle";
-import { ConjugationSession, type ConjugationQuestion, type Tense } from "./ConjugationSession";
+import { ConjugationSession, type ConjugationQuestion, type Shape, type Tense } from "./ConjugationSession";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Conjugation" };
 
@@ -55,9 +56,32 @@ const GIVEN: Record<Tense, string> = { present: "IndPrSg1", conditional: "KndPrS
  * joins from B1, which is where the course introduces it, and alternates with
  * the present so a round is never one table eight times.
  */
-export default async function ConjugationPage() {
+export default async function ConjugationPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const level = await courseLevelFor(ownerId);
+
+  /*
+    OPENED FROM THE MODULE, THE TABLE IS THE MODULE'S OWN VERBS. This round
+    fills itself from the deck and then from the dictionary at the learner's
+    band, which on the module's second evening dealt `tekkima` and `jätma` to
+    somebody who had met eleven words and no verb. Off the step's address
+    (`lib/course/scope.ts`) both reads narrow to what the ladder has taught,
+    and the builder deals the table only once that includes a verb.
+  */
+  const scope = moduleScopeFrom(await searchParams);
+  const scoped = scope ? { lemma: { in: [...scope.lemmas] } } : {};
+
+  /*
+    AT A1 THE TABLE IS MATCHED, NOT TYPED. A beginner who has just met `sina`
+    and `-d` is asked to put the six forms, all on the screen, beside their
+    pronouns; typing them from nothing is A2's question. Same table, same
+    marking, same card graded: only what the learner does with the row.
+  */
+  const shape: Shape = level === "A1" ? "match" : "type";
 
   const select = {
     id: true, lemma: true, translation: true, cefr: true,
@@ -76,7 +100,7 @@ export default async function ConjugationPage() {
       take: 2000,
     }),
     prisma.lexeme.findMany({
-      where: { pos: "VERB", cefr: { in: [...bandsAround(level)] } },
+      where: { pos: "VERB", cefr: { in: [...bandsAround(level)] }, ...scoped },
       orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
       take: CANDIDATES,
       select,
@@ -93,7 +117,7 @@ export default async function ConjugationPage() {
   const owned = [...cardFor.keys()];
   const mine = owned.length
     ? await prisma.lexeme.findMany({
-        where: { id: { in: owned }, pos: "VERB" },
+        where: { id: { in: owned }, pos: "VERB", ...scoped },
         // Ordered because it is cut, and shuffled afterwards anyway: the cut
         // decides which of a large deck's verbs are eligible at all.
         orderBy: [{ lemma: "asc" }, { id: "asc" }],
@@ -110,7 +134,7 @@ export default async function ConjugationPage() {
   // The conditional is a B1 point. Below that a round is the present only.
   const conditionalToo = level !== "A1" && level !== "A2";
 
-  const questions: Omit<ConjugationQuestion, "starred">[] = [];
+  const questions: Omit<ConjugationQuestion, "starred" | "shape">[] = [];
   for (const verb of ordered) {
     if (questions.length >= ROUND) break;
     const forms = conjugatedForms(verb.lemma, verb.forms);
@@ -141,7 +165,7 @@ export default async function ConjugationPage() {
 
   return (
     <ConjugationSession
-      questions={questions.map((q) => ({ ...q, starred: starred.has(q.lexemeId) }))}
+      questions={questions.map((q) => ({ ...q, shape, starred: starred.has(q.lexemeId) }))}
     />
   );
 }
@@ -151,7 +175,7 @@ function questionFor(
   forms: readonly VerbExampleForm[],
   tense: Tense,
   cardId: string | null,
-): Omit<ConjugationQuestion, "starred"> | null {
+): Omit<ConjugationQuestion, "starred" | "shape"> | null {
   const given = forms.find((f) => f.code === GIVEN[tense]);
   if (!given) return null;
   const blanks = PERSONS[tense].flatMap(({ person, code }) => {

@@ -5,14 +5,21 @@ import { aroundFirst, bandsAround, challengeFirst, challengeRank, isAround } fro
 describe("the level window", () => {
   it("covers every level the course has", () => {
     for (const level of LEVELS) {
-      expect(bandsAround(level).length).toBeGreaterThan(1);
+      expect(bandsAround(level).length).toBeGreaterThan(0);
       expect(bandsAround(level)).toContain(level);
     }
   });
 
-  it("reaches one band up, so a learner meets what is next", () => {
-    expect(bandsAround("A1")).toContain("A2");
+  it("reaches one band up from A2, so a learner meets what is next", () => {
+    expect(bandsAround("A2")).toContain("B1");
     expect(bandsAround("B1")).toContain("B2");
+  });
+
+  it("keeps a beginner inside A1, because eleven words have no next band", () => {
+    // Measured on the module's second evening: an A2 verb from Sõnad and an
+    // A2 conjugation table dealt to somebody who had met eleven words.
+    expect(bandsAround("A1")).toEqual(["A1"]);
+    expect(isAround("A2", "A1")).toBe(false);
   });
 
   it("leaves out what is two bands away in either direction", () => {

@@ -8,8 +8,22 @@ import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
-  MEET_STEP, REVIEW_STEP,
+  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, taughtFrom,
 } from "./index";
+import { moduleScopeFrom } from "./scope";
+import { emojiFor } from "@/lib/collections/emoji";
+
+/**
+ * What the ladder had taught by the end of a day, in the shape the builder
+ * decides a round against: every word of every part before, then this part's
+ * own through the day. Rebuilt here from the syllabus rather than read off the
+ * builder, so the test is a second opinion rather than the builder agreeing
+ * with itself.
+ */
+function taughtBy(programme: (typeof PROGRAMMES)[number], index: number) {
+  const lemmas = new Set(taughtThrough(programme, index));
+  return taughtFrom(SYLLABUS.flatMap((u) => u.vocabulary).filter((v) => lemmas.has(v.lemma)));
+}
 
 const DAYS = PROGRAMMES.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
 
@@ -207,20 +221,106 @@ describe("what a day reads and where it goes", () => {
     }
   });
 
-  it("never runs the same pair of rounds two evenings running", () => {
+  /*
+    Except where the words cannot carry a different pair yet: the first two
+    evenings of A1 have no verb and no pictured noun, so Match and Listening
+    are the whole of what may be dealt, and a repeat there is a fact about the
+    words rather than a fault in the walk. The allowance is exactly that case,
+    read off what had been taught, and nothing wider.
+  */
+  it("never runs the same pair of rounds two evenings running, once the words allow another", () => {
     for (const programme of PROGRAMMES) {
       programme.days.forEach((day, at) => {
         if (at === 0) return;
         const before = programme.days[at - 1]!.practice.join("+");
+        const could = supportedRounds(programme.level, taughtBy(programme, day.index));
+        // One game and one drill is one pair; and a unit of verbs pins its
+        // drill to the table, so two verb evenings with one game between them
+        // are one pair as well.
+        const games = could.filter((key) => ACTIVITIES[key].kind === "game");
+        if (could.length <= 2 || games.length <= 1) return;
         expect(day.practice.join("+"), `${day.id}`).not.toBe(before);
       });
     }
   });
 
+  /*
+    A ROUND IS DEALT ONLY ONCE THE WORDS BEHIND IT HAVE BEEN TAUGHT. The
+    conjugation table on the module's second evening was a table of verbs
+    nobody had met, filled from the dictionary a band up; a picture board
+    before a pictured noun is an empty board with a way out on it. The builder
+    asks `taughtFrom` before it deals either, and this walks every evening of
+    the ladder and asks the same question a second way.
+  */
+  it("never deals a round before the words it needs have been taught", () => {
+    for (const { programme, day } of DAYS) {
+      const taught = taughtBy(programme, day.index);
+      for (const key of day.practice) {
+        const need = NEEDS[key];
+        if (need) expect(taught[need], `${day.id} deals ${key} before a ${need} word`).toBe(true);
+      }
+    }
+  });
+
+  /*
+    AND A1 IS HELD TO THE FOUR ROUNDS A BEGINNER'S OWN WORDS CAN CARRY. Every
+    other round on the app either deals a word off the dictionary, asks for a
+    case, or puts a whole attested sentence in front of somebody, and at A1
+    every one of those is something nobody has taught. The list is the
+    rotation's, and the rotation is the argument: see `plan.ts`.
+  */
+  it("keeps A1 to rounds played on the words the module has taught", () => {
+    const allowed = new Set<string>(["match", "listening", "picture", "conjugation"]);
+    for (const { programme, day } of DAYS) {
+      if (programme.level !== "A1") continue;
+      for (const key of day.practice) expect(allowed.has(key), `${day.id} deals ${key}`).toBe(true);
+    }
+    expect(ROTATION.A1!.every((key) => allowed.has(key))).toBe(true);
+  });
+
+  /*
+    THE PRONOUNS ON THE SECOND EVENING AND THE VERB TO BE ON THE THIRD. A
+    conjugation table asked of somebody who has never been shown `sina` is a
+    guess at both halves of every row, which is what the second evening of
+    the first version of this ladder was, and it took forty minutes.
+  */
+  it("teaches the pronouns on the second evening and the verb to be straight after", () => {
+    const a1 = PROGRAMMES[0]!;
+    expect(a1.days[0]!.unitId).toBe("vastused");
+    expect(a1.days[0]!.words.length).toBeLessThanOrEqual(5);
+    expect(a1.days[1]!.unitId).toBe("asesonad");
+    expect(a1.days[1]!.words).toContain("mina");
+    const be = a1.days.find((d) => d.unitId === "esimesed-verbid")!;
+    expect(be.index).toBeLessThanOrEqual(4);
+    expect(be.words).toContain("olema");
+    expect(be.practice).toContain("conjugation");
+  });
+
+  /*
+    And a round the module opens can find out what the module has taught, off
+    the address the step wrote (`scope.ts`), which is what lets Match,
+    Listening, the board and the table narrow themselves to it.
+  */
+  it("tells a round what has been taught, off the step's own address", () => {
+    const a1 = PROGRAMMES[0]!;
+    const third = a1.days[2]!;
+    const scope = moduleScopeFrom({ module: `${a1.id}~${third.id}~do:match~3~5~0` });
+    expect(scope?.day.id).toBe(third.id);
+    expect(scope?.lemmas).toContain("tere");
+    expect(scope?.lemmas).toContain("mina");
+    expect(scope?.lemmas).not.toContain("õpetaja");
+    expect(moduleScopeFrom({ module: "a1.1~nowhere~do:match~1~5~0" })).toBeNull();
+    expect(moduleScopeFrom(undefined)).toBeNull();
+    // A pictured noun is what the board needs, and the pronouns carry none.
+    expect(scope!.lemmas.some((l) => emojiFor(l))).toBe(false);
+  });
+
   it("conjugates a unit of verbs", () => {
     const verbDay = DAYS.find(({ day }) => day.unitId === "pohiverbid")!;
     expect(verbDay.day.practice).toContain("conjugation");
-    const nounDay = DAYS.find(({ day }) => day.unitId === "kodu")!;
+    // An A2 unit of nouns, because A1's own rotation carries the table once a
+    // verb has been taught, so a noun evening there may honestly deal it.
+    const nounDay = DAYS.find(({ day }) => day.unitId === "loodus")!;
     expect(nounDay.day.practice).not.toContain("conjugation");
   });
 

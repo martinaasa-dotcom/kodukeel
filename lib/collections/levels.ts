@@ -16,7 +16,8 @@ import { sentenceTiles } from "@/lib/estonian/cloze";
  * the words somebody already knows are, and a round made only of those is
  * revision dressed as practice; one band up is where the next thing they need
  * is, and a learner who never meets it never moves. A1 has nothing under it
- * and the top reaches C2, which the course does not go to and the dictionary
+ * and nothing above it either, for the reason on the table itself; the top
+ * reaches C2, which the course does not go to and the dictionary
  * does grade, so a C1 learner is the one person those seventy odd words are
  * any use to.
  *
@@ -24,7 +25,18 @@ import { sentenceTiles } from "@/lib/estonian/cloze";
  * with a database in it and a unit test can both read the same answer.
  */
 export const BANDS_AROUND: Record<Level, readonly string[]> = {
-  A1: ["A1", "A2"],
+  /*
+    A1 IS A1 ALONE, AND THAT IS THE OPERATOR'S CALL RATHER THAN THE TABLE'S.
+
+    The argument above, that one band up is where the next thing somebody
+    needs is, holds from A2 on and was measured wrong at the bottom: on the
+    second evening of the curated module a beginner was dealt an A2 verb by
+    Sõnad and an A2 table by the conjugation drill, having met eleven words.
+    A learner with eleven words has no "next thing" in A2; what they need is
+    the next thing in A1. So the window for a beginner is their own band, and
+    a word above it arrives when their level does.
+  */
+  A1: ["A1"],
   A2: ["A1", "A2", "B1"],
   B1: ["A2", "B1", "B2"],
   B2: ["B1", "B2", "C1"],

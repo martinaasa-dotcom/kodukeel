@@ -1,5 +1,5 @@
 /**
- * THE WHOLE LADDER, PLANNED: A1.1 TO C1.3, SEVENTEEN PARTS.
+ * THE WHOLE LADDER, PLANNED: A1.1 TO C1.3, EIGHTEEN PARTS.
  *
  * This file is the judgement. Everything else in `lib/course/` is machinery
  * that turns it into evenings, and the machinery has no opinions: it does not
@@ -54,22 +54,35 @@ export const VERB_HEAVY = 0.5;
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   /*
-    A1 CARRIES NO WORD ORDERING, AND THAT IS THE RULE RATHER THAN THE LIST.
+    A1 IS FOUR ROUNDS, AND EVERY ONE OF THEM IS PLAYED ON THE WORDS THE MODULE
+    HAS TAUGHT AND NOTHING ELSE.
 
-    `sentences` sat in this slot and is "Sentences · Word order", which
-    `lib/collections/levels.ts` now opens at `BUILD_FROM`: the module was
-    scheduling an evening whose round a beginner cannot be given, and the
-    round would have met them with the band it opens at. Ordering words is a
-    question about syntax and the first units teach words said alone.
+    It was ten, and the second evening of the module was measured at forty
+    minutes against a promise of sixteen. Eight of the ten put something in
+    front of a beginner that nobody had taught them: Sõnad deals a word off
+    the dictionary, and dealt an A2 verb on the second evening; the sprint,
+    Target, the picture board and Describe all ask for a case; dictation and
+    speaking put a whole attested sentence up, which at A1 is a sentence made
+    of words further up the course (`npm run audit:readable`). None of that is
+    a fault in the round. Each is the right round for somebody who opened it
+    from Practice and the wrong one for somebody the module sent there with
+    eleven words.
 
-    `conjugation` takes the slot, and it is the one drill in the table that is
-    a table rather than a sentence: it gives the first person and asks for the
-    others, so nothing in it is a usage a lexicographer wrote about some other
-    word. Two A1 units declare `CONJUGATION` already, and a verb you cannot put
-    in the third person is a verb you cannot use. It is also what a verb-heavy
-    day is pinned to, which is a day getting the round it was going to get.
+    What is left is the four a beginner's own words can carry: Match and
+    Listening ask the words back as meanings; the picture board asks a
+    pictured noun as a word rather than as a case at A1; the conjugation table
+    asks the verbs in its matching shape. Each of the four reads the module's
+    own taught list off the address it was opened from
+    (`lib/course/scope.ts`), so the words on the board are the words met. And
+    a round is scheduled only once the words behind it exist: `rounds()` in
+    `build.ts` swaps the table for Listening until a verb has been taught and
+    the board for Match until a pictured noun has, which is why the first two
+    evenings are the same pair and `course.test.ts` allows exactly that.
+
+    Sõnad, the sprint and the rest stay on Practice, in the palette and as the
+    game of the day, where a learner chooses them.
   */
-  A1: ["match", "listening", "sonad", "conjugation", "picture", "dictation", "sprint", "describe", "target", "speaking"],
+  A1: ["match", "listening", "picture", "conjugation"],
   A2: ["match", "dictation", "sonad", "sentences", "target", "describe", "sprint", "listening", "picture", "write"],
   B1: ["sonad", "write", "target", "government", "sprint", "sentences", "match", "flash"],
   B2: ["sonad", "write", "target", "flash", "sprint", "describe", "match", "government"],
@@ -159,7 +172,7 @@ export interface PartSpec {
 }
 
 /**
- * The seventeen parts.
+ * The eighteen parts.
  *
  * WHERE THE BREAKS FALL IS THE ONE THING ARITHMETIC COULD NOT DECIDE. A part
  * is two to three weeks of fifteen-minute evenings, which is short enough to
@@ -174,52 +187,66 @@ export interface PartSpec {
  * second answer waiting to go stale. Every screen that says how long a part is
  * counts its days.
  *
- * A1 is five parts because A1 is the biggest level in this course by a long
- * way, 424 words against 235 at A2, and that is the language rather than an
- * imbalance: a beginner needs the words for a room before anything else can
- * be said about one.
+ * A1 is six parts because A1 is the biggest level in this course by a long
+ * way, over four hundred words against 235 at A2, and that is the language
+ * rather than an imbalance: a beginner needs the words for a room before
+ * anything else can be said about one. Six rather than five since the
+ * evenings got shorter: five words a night at A1 is the Learn ladder's own
+ * batch, and a part is held to under four weeks of them.
  */
 export const PARTS: readonly PartSpec[] = [
   {
     id: "a1.1", level: "A1",
-    title: "Esimesed sõnad", subtitle: "Hello, who you are, how many, and home",
+    title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and who is in the room",
     blurb:
-      "From nothing. At the end you can greet somebody, introduce yourself, say who is in "
-      + "your family, count, and describe the room you are standing in.",
-    units: ["tervitused", "inimesed", "tutvumine", "arvud", "kodu"],
+      "From nothing, in the order a sentence needs: five words on the first evening, the "
+      + "pronouns on the second, the verb to be and its six endings straight after, and then "
+      + "the greetings and the people around you. At the end you can say hello, say who you "
+      + "are, and say who is in your family.",
+    units: ["vastused", "asesonad", "esimesed-verbid", "tervitused", "inimesed"],
   },
   {
     id: "a1.2", level: "A1",
-    title: "Söök, aeg ja tegevused", subtitle: "Food, the clock, and the verbs that do things",
+    title: "Sina, arvud ja kodu", subtitle: "Who you are, counting, home, and the verbs that break the rules",
     blurb:
-      "The words for ordering and the fourteen verbs an Estonian sentence cannot avoid. At the "
-      + "end you can say what you are doing, when, and order a coffee while you do it.",
-    units: ["sook-ja-jook", "aeg", "pohiverbid", "iga-paev"],
+      "Your name and address, the numbers, the room you are standing in, and the eleven verbs "
+      + "an Estonian sentence cannot avoid. At the end you can introduce yourself, count, and "
+      + "describe your home.",
+    units: ["tutvumine", "arvud", "kodu", "pohiverbid"],
   },
   {
     id: "a1.3", level: "A1",
-    title: "Milline ja kus", subtitle: "Describing things, and getting round a shop",
+    title: "Söök, aeg ja tegevused", subtitle: "Food, the clock, what you do all day, and what things are like",
     blurb:
-      "Adjectives, colors, clothes and weather, the numbers a price needs, and then the shop "
-      + "where you use all of them. At the end you can say what something is like and buy it.",
-    units: ["omadussonad", "varvid", "riided", "ilm", "suured-arvud", "ostmine"],
+      "The words for ordering, the days and the hours, the verbs of an ordinary day, and the "
+      + "first adjectives and colors. At the end you can say what you are doing, when, and what "
+      + "it is like.",
+    units: ["sook-ja-jook", "aeg", "iga-paev", "omadussonad", "varvid"],
   },
   {
     id: "a1.4", level: "A1",
-    title: "Kus, kes, millal", subtitle: "Places, the bus, questions, pronouns and when",
+    title: "Riided, ilm ja pood", subtitle: "Clothes, weather, prices, and a shop",
     blurb:
-      "The words a sentence is built out of rather than the ones it is about. At the end you "
-      + "can ask where something is, catch a bus to it, and say when you got there.",
-    units: ["kus-ja-kuhu", "transport", "kusisonad", "asesonad", "millal", "kohasonad"],
+      "Clothes and weather, the numbers a price needs, and then the shop where you use all of "
+      + "them. At the end you can say what something is like and buy it.",
+    units: ["riided", "ilm", "suured-arvud", "ostmine"],
   },
   {
     id: "a1.5", level: "A1",
-    title: "Kuud, riigid ja sidesõnad", subtitle: "The calendar, the world, and asking for help",
+    title: "Kus, kes, millal", subtitle: "Places, the bus, questions, the rest of the pronouns, and when",
     blurb:
-      "The last of A1: the months, where people are from, the small words that turn two "
-      + "sentences into one, and how to ask somebody for help. At the end you have every "
+      "The words a sentence is built out of rather than the ones it is about. At the end you "
+      + "can ask where something is, catch a bus to it, and say when you got there.",
+    units: ["kus-ja-kuhu", "transport", "kusisonad", "umbmaarased", "millal", "kohasonad"],
+  },
+  {
+    id: "a1.6", level: "A1",
+    title: "Sidesõnad, kuud ja abi", subtitle: "The small words, the calendar, the world, and asking for help",
+    blurb:
+      "The last of A1: the words that join two sentences or say how sure you are, the months, "
+      + "where people are from, and how to ask somebody for help. At the end you have every "
       + "word A1 asks for.",
-    units: ["sidesonad", "vastused", "maaramine", "kuud", "riigid", "abi"],
+    units: ["sidesonad", "kindlus", "maaramine", "kuud", "riigid", "abi"],
   },
 
   {

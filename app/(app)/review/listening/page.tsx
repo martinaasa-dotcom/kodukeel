@@ -8,6 +8,7 @@ import { ListeningSession, type ListeningCard } from "./ListeningSession";
 import { shuffle } from "@/lib/random/shuffle";
 import { decoyOptions } from "@/lib/dict/facts";
 import { unitIntroducing } from "@/lib/collections/syllabus";
+import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
 } from "@/lib/questions/distractors";
@@ -36,12 +37,21 @@ const MIN_LEXEMES_FOR_CHOICES = CHOICE_COUNT;
  * re-evaluating as the pool is graded away, swapping to Empty right as the
  * final card is graded — before the session summary would show.
  */
-export default async function ListeningPage() {
+export default async function ListeningPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const now = new Date();
 
+  // Opened from the module, the round hears the module's own words and no
+  // others, off the step's address. See lib/course/scope.ts and Match.
+  const scope = moduleScopeFrom(await searchParams);
+  const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
+
   const due = await prisma.card.findMany({
-    where: { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null }, due: { lte: now }, state: { not: 0 } },
+    where: { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null }, due: { lte: now }, state: { not: 0 }, ...scoped },
     orderBy: { due: "asc" },
     take: POOL_SIZE,
     include: { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } },
@@ -53,7 +63,7 @@ export default async function ListeningPage() {
     const weak = await prisma.card.findMany({
       where: {
         ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
-        lapses: { gt: 0 }, id: { notIn: [...seenIds] },
+        lapses: { gt: 0 }, id: { notIn: [...seenIds] }, ...scoped,
       },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,

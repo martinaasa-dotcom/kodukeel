@@ -4314,7 +4314,7 @@ start on rather than leaving it to be inferred, because the fallback would silen
 measured up to B1 in March the part they had not worked up to.
 
 **Deciding what to do tonight is the expensive part of an evening, and it was left to the one
-person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+person least able to do it.** Everything this app can do is on a menu somewhere: 89 units, twenty
 rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
 choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
 choice made in advance. A day names its words and the order it does things in, the learner presses
@@ -4328,7 +4328,7 @@ not want to choose no longer has to, and the work they do the other way still co
 
 **Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
 of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
-words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+words in all 89 units is in exactly one evening of exactly one part, which is a stronger claim than
 a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
 one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
 are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
@@ -4417,6 +4417,41 @@ catch it because a suite clicks. Asserted, like the frequency rounds.
 every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**A1 is vocabulary and phrases, in the order a sentence needs, and a round the module deals is
+played on the words the module has taught.** The second evening of the planned module was measured
+at forty minutes against a promise of sixteen, and the reason was not the words. Everything round
+them assumed grammar nobody had shown: a conjugation table dealt to somebody who had never been
+shown `sina` or `-d`, filled from the dictionary at the band above (`tekkima`, `jätma`); a case
+card in the closing review (`Ta ei kõlba ____.` for `õpetaja`) cut from a sentence a beginner
+cannot read; and Sõnad dealing an A2 verb to somebody holding eleven words. The operator's call, and
+this paragraph is where it is written down so it is not re-litigated: **no case and no gap card
+anywhere in A1**, asserted in `syllabus.test.ts`, so an A1 deck is what a word means and how it is
+said plus the verb table for the units of verbs, and the cases arrive with A2. The A1 units are in
+the order a sentence needs: five words on the first evening (`vastused` is five on purpose, the one
+unit under the floor), the six persons on the second (`asesonad`, cut to the personal pronouns and
+two pointers; the indefinite ones are `umbmaarased`, late in A1), the verb to be and the six endings
+on the third and fourth (`esimesed-verbid`), and only then the greetings and the people. The eight
+"how sure you are" particles that used to open the course are `kindlus`, late in A1. A1 is six
+parts now, held under four weeks each.
+
+Three things follow and each is asserted. **The A1 rotation is four rounds**, Match, Listening, the
+picture board and the conjugation table, because every other round either deals a word off the
+dictionary, asks for a case, or puts a whole attested sentence in front of a beginner; and
+`rounds()` deals a round only once the words behind it exist, the table after a verb and the board
+after a pictured noun, standing Match and Listening in before that, which is why the first two
+evenings are honestly the same pair and `course.test.ts` allows exactly that case. **A round opened
+from the module reads what the module has taught off the step's own address** (`lib/course/scope.ts`,
+the same marker `focus.ts` writes) and narrows its query to it: Match, Listening, the board, the
+table and the closing review's new-card window, so first run's starter deck cannot meet a beginner
+with unit four on the first evening. Nothing in the marker is trusted and nothing needs to be, since
+the worst a forged one can do is narrow a round to a different slice of the course. **And at A1 the
+board is the word and the table is matched**: the picture against the lemma rather than a case of
+it, graded on the recognition card, and the six forms on the screen to be put beside their pronouns
+(`Shape` in `ConjugationSession.tsx`) before anybody is asked to type one. `BANDS_AROUND.A1` is A1
+alone with it, so the standalone rounds, the suggestion row and Sõnad stop reaching into A2 for a
+beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
+sentence now: that a clue is coming, what it says, and when.
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the

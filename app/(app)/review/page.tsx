@@ -16,6 +16,7 @@ import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
+import { moduleScopeFrom } from "@/lib/course/scope";
 import {
   include, notOnLadder, pastTheLadder, withChoices, type CardRow,
 } from "./cards";
@@ -45,10 +46,21 @@ const MAX_SESSION = 60;
 export default async function ReviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ case?: string; unit?: string; scan?: string }>;
+  searchParams: Promise<{ case?: string; unit?: string; scan?: string; module?: string }>;
 }) {
   const ownerId = await requireUserId();
-  const { case: targetCase, unit: unitId, scan: scanId } = await searchParams;
+  const params = await searchParams;
+  const { case: targetCase, unit: unitId, scan: scanId } = params;
+  /*
+    THE MODULE'S CLOSING ROUND INTRODUCES NOTHING THE MODULE HAS NOT TAUGHT.
+    This screen trickles new cards in beside what is due, which is right for
+    somebody who opened it themselves and wrong for the last step of a planned
+    evening: first run builds a starter deck of four units, so the closing
+    round of the first evening was meeting a beginner with words from unit
+    four. Opened from the module (`lib/course/scope.ts`) the new-card window is
+    the words the ladder has taught, and what is due is due whatever taught it.
+  */
+  const scope = moduleScopeFrom(params);
   const now = new Date();
 
   // Started here and awaited where it is read, so the one settings row rides
@@ -216,7 +228,11 @@ export default async function ReviewPage({
         is what a deferral moves, and without it a word put aside would be
         introduced again on the next session (`lib/srs/defer.ts`).
       */
-      where: { ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId) },
+      where: {
+        ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId),
+        // Inside the module, only a word the module has taught: see above.
+        ...(scope ? { lexeme: { lemma: { in: [...scope.lemmas] } } } : {}),
+      },
       // And the id here too: a word's cards tie on both of these, which is the
       // very thing the comment above says they do.
       orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
@@ -247,7 +263,7 @@ export default async function ReviewPage({
   const spaced = spaceSiblings(due, (card) => card.lexemeId);
 
   const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
-  const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room), hardWords()]);
+  const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
   const fresh = atLevelFirst(unseen, level, raised).slice(0, room);
   const gloss = await glossChosen();
   const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId);
@@ -316,6 +332,8 @@ export default async function ReviewPage({
  */
 async function inBandPool(
   ownerId: string, window: CardRow[], level: Level, room: number,
+  /** The module's own taught list, so the wider read stays inside it too. */
+  only: readonly string[] | null = null,
 ): Promise<CardRow[]> {
   if (room === 0) return window;
   if (window.some((c) => isAround(c.lexeme?.cefr, level))) return window;
@@ -324,7 +342,7 @@ async function inBandPool(
     where: {
       ownerId, suspended: false, state: 0, due: { lte: new Date() },
       ...pastTheLadder(ownerId),
-      lexeme: { cefr: { in: [...bandsAround(level)] } },
+      lexeme: { cefr: { in: [...bandsAround(level)] }, ...(only ? { lemma: { in: [...only] } } : {}) },
     },
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
     take: NEW_CANDIDATES,
