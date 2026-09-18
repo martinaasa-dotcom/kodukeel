@@ -85,8 +85,18 @@ const CANNOT_FINISH = /[\s,;:\u2010-\u2015-]+$/u;
 /**
  * A closing quote or bracket sits *after* the punctuation, so `(vt ka.)` has
  * ended and `raamat"` has not.
+ *
+ * ESTONIAN CLOSES A QUOTATION WITH U+201C, THE GLYPH ENGLISH OPENS WITH.
+ * Estonian writes `„nii“`, so the mark this has to read past at the end of a
+ * quoted sentence is the one an English keyboard calls an opening quote, and
+ * the first version of this list carried only the English closing one. It put
+ * a stop after a sentence that had already ended: `Ta ütles: „Tere.“` came out
+ * as `Ta ütles: „Tere.“.` One string in the 18,262 the shipped dictionary can
+ * be asked to speak ends that way today, which is the wrong reason to leave it:
+ * `docs/20-contributed-sentences.md` is a channel for sentences a native
+ * speaker writes, and a native speaker writes `„...“`.
  */
-const TRAILING_MARKS = /[\u00bb\u201d"')\]]+$/u;
+const TRAILING_MARKS = /[\u00bb\u201c\u201d\u2019"')\]]+$/u;
 
 /**
  * The text as the speech service should receive it: finished, so it is read as

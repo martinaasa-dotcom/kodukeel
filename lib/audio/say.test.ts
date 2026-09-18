@@ -42,6 +42,15 @@ describe("spokenText", () => {
     expect(spokenText("„Järgne mulle!”")).toBe("„Järgne mulle!”");
   });
 
+  it("knows Estonian closes a quotation with the glyph English opens with", () => {
+    // „nii“ — U+201C is the *closing* mark here, so the sentence inside has
+    // already ended and nothing may be written after it.
+    expect(spokenText("Ta ütles: „Tere.“")).toBe("Ta ütles: „Tere.“");
+    expect(spokenText("Rida kõlas: „Valentina ...“")).toBe("Rida kõlas: „Valentina ...“");
+    // And a quotation with no sentence end inside it still needs one.
+    expect(spokenText("Ta ütles: „Tere“")).toBe("Ta ütles: „Tere“.");
+  });
+
   it("moves punctuation and never a letter (ADR-005)", () => {
     const texts = [
       "õde", "Kuidas läheb?", "kass", "Ma ei tea", "šokolaad", "ÕUN", "Tere,",
