@@ -4749,6 +4749,32 @@ English gloss's capital, which would have taught `August` as the Estonian word. 
 `npm run audit:questions` asks 84,790 questions over 6,153 entries, identical to the baseline
 section by section, so nothing about what the app asks moved.
 
+**And "it may only change the case" was not the whole of why that is safe.** The sentence above is
+true and says nothing about a card whose front is a sentence, where a case change *is* the reported
+fault rather than a correction of it. The restriction to the two card types whose front is a word
+lived in a `where` clause in `prisma/repair.ts`, one file away from the judgment, with nothing
+tying the two together: handed a CLOZE card of a phrase entry, `spellingFor` answered
+`tere hommikust! Kuidas läheb?`, a sentence a lexicographer wrote with its opening letter lowered.
+Nothing in the data made that unreachable on purpose, either. It is `gradates(pos)` refusing a
+phrase and a phrase carrying no recorded usage that leave the combination absent today, which is an
+accident rather than a property, and both could move without anybody here noticing. `SIDES` names
+the two and says which side of each holds the Estonian, a card type it does not answer for keeps
+exactly the text it had, and both ends are asserted, since a guard in the judgment with a widened
+query above it is the same silence pointed the other way.
+
+**And the separator is one constant, because the splitting is the fix.** `PARTS` was declared in
+`lib/copy/values.ts` and again in `lib/srs/cardSpelling.ts`, which is two readings of where an
+answer ends: a character apart, the repair matches nothing, falls back to the whole string, and
+writes the reported bug back with no way to see it. It is exported and read. **It is narrower than
+the marker's split and that is a decision**: `acceptedForms` splits on a slash, a comma, a
+semicolon or the word `or` with the surrounding spaces optional, so `favorite/favourite` reaches
+the marker as two answers and both are let through. Right for deciding what to accept, which can
+afford to over-reach, and wrong for deciding what to print, which cannot, since lowering the half
+after that slash edits a word rather than opens a sentence. The comment here used to say the spaces
+were what kept the marker from splitting it, which is not what the marker does, and a comment
+stating a false fact about the module next door is the fault this file keeps finding in its own
+prose.
+
 **A missing example is news; a phrase having none is not.** Ekilex records a usage against a
 *word*, to show it doing its job in a sentence, so it holds none for `Tere!`, `Aitäh!`,
 `Kuidas läheb?` or `Ma ei saa aru` and never will: those are already the sentence. All twenty
@@ -8887,7 +8913,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `readIdentity`, `boundedTransport`, `gapFrom`,
 `explainGap`, `ESTONIAN_WORD`, `formatDuration`, `alsoGoverned`, `teachingSentence`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
-`alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`,
+`alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`, `SIDES`,
+`PARTS`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,

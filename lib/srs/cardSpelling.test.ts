@@ -84,4 +84,31 @@ describe("the spelling a card should be holding", () => {
       expect(twice).toEqual(once);
     }
   });
+  /*
+    AND A CARD WHOSE FRONT IS A SENTENCE IS NOT THIS FUNCTION'S TO TOUCH.
+    Only `prisma/repair.ts`'s own `where` clause kept it away from one, in
+    another file, with nothing tying the two together. Driven over the real
+    shapes, a CLOZE card of a phrase entry came back as
+    `tere hommikust! Kuidas läheb?`: the reported fault inside a sentence a
+    lexicographer wrote. Every other card type keeps the text it had, so a
+    caller that has not read the `where` clause cannot break one.
+  */
+  it("keeps a card it does not answer for exactly as it is", () => {
+    const phrase = { lemma: "Tere hommikust!", translation: "Good morning!", pos: "PHRASE" };
+    for (const cardType of ["CLOZE", "CASE_FORM", "GRADATION", "GOVERNMENT", "CONJUGATION", "WHATEVER"]) {
+      const card = { cardType, front: "Tere hommikust! Kuidas läheb?", back: "Tere hommikust!" };
+      expect(spellingFor(card, phrase)).toEqual({ front: card.front, back: card.back });
+    }
+  });
+
+  /*
+    And the two it does answer for are still answered, or the guard above
+    would be a way of doing nothing at all.
+  */
+  it("still answers for the two the repair sends it", () => {
+    expect(say("RECOGNITION", "Tere hommikust!", "Good morning!", "Tere hommikust!", "Good morning!", "PHRASE"))
+      .toBe("tere hommikust | good morning");
+    expect(say("PRODUCTION", "Good morning!", "Tere hommikust!", "Tere hommikust!", "Good morning!", "PHRASE"))
+      .toBe("good morning | tere hommikust");
+  });
 });

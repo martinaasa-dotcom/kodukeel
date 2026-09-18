@@ -1,4 +1,4 @@
-import { plainPhrase } from "@/lib/copy/values";
+import { PARTS, plainPhrase } from "@/lib/copy/values";
 
 /**
  * WHAT A CARD SHOULD SAY, GIVEN WHAT IT SAYS AND WHAT ITS ENTRY HOLDS.
@@ -22,8 +22,28 @@ import { plainPhrase } from "@/lib/copy/values";
  * `prisma/repair.ts` is the one caller.
  */
 
-/** The separator a card's several accepted answers are joined with. */
-const PARTS = " / ";
+/**
+ * WHICH SIDE OF A CARD HOLDS THE ESTONIAN, for the two card types whose front
+ * and back are a word rather than a sentence, and the whole of what says this
+ * may be run over a card at all.
+ *
+ * `prisma/repair.ts` asks only about those two, in a `where` clause, and that
+ * was the only thing keeping this honest: handed a CLOZE card of a phrase
+ * entry it answered `tere hommikust! Kuidas läheb?`, which is the reported
+ * fault inside a sentence somebody wrote. A card whose front is an attested
+ * sentence has no capital of ours to drop, and its back is a form rather than
+ * an answer either half of this could recognise. Nothing about the data made
+ * that safe: it is `gradates(pos)` and a phrase having no recorded usage that
+ * leave the combination unreachable today, which is an accident rather than a
+ * property. So the restriction is asked here, where the judgment is, and a
+ * card type this does not answer for keeps exactly the text it had.
+ */
+const SIDES: Readonly<Record<string, { front: Side; back: Side }>> = {
+  RECOGNITION: { front: "lemma", back: "translation" },
+  PRODUCTION: { front: "translation", back: "lemma" },
+};
+
+type Side = "lemma" | "translation";
 
 /**
  * Case and a trailing mark folded away, which is exactly what this may change.
@@ -49,11 +69,14 @@ export interface EntryText {
 /**
  * The front and back the builder would write for this card today.
  *
- * WHAT IT MAY CHANGE, and it is the whole of why this is safe to run over
- * every card rather than over phrases alone: two strings are the same answer
- * when they differ only in case and in a trailing `!`. So this can change a
- * card's capitals and its mark and can never change which word it asks for or
- * which answers it takes.
+ * WHAT IT MAY CHANGE, in two parts, because the first was written down alone
+ * and is not sufficient. Two strings are the same answer when they differ
+ * only in case and in a trailing `!`, so this can change a card's capitals
+ * and its mark and can never change which word it asks for or which answers
+ * it takes. That is what makes it safe to run over a phrase and a word alike,
+ * and it says nothing about a card whose front is a sentence: a case change
+ * there is the reported fault rather than a correction of it, which is what
+ * `SIDES` is for.
  *
  * EACH COLUMN AGAINST ITS OWN SIDE OF THE CARD, never against both. Five
  * shipped entries are one string in both languages once the case is folded
@@ -77,7 +100,9 @@ export interface EntryText {
  * is nothing there to restore.
  */
 export function spellingFor(card: CardText, entry: EntryText): { front: string; back: string } {
-  const recognition = card.cardType === "RECOGNITION";
+  const sides = SIDES[card.cardType];
+  if (!sides) return { front: card.front, back: card.back };
+
   const adopt = (stored: string, source: string) => {
     const known = new Map(
       plainPhrase(source, entry.pos).split(PARTS).map((written) => [key(written), written] as const),
@@ -88,7 +113,7 @@ export function spellingFor(card: CardText, entry: EntryText): { front: string; 
       .join(PARTS);
   };
   return {
-    front: adopt(card.front, recognition ? entry.lemma : entry.translation),
-    back: adopt(card.back, recognition ? entry.translation : entry.lemma),
+    front: adopt(card.front, entry[sides.front]),
+    back: adopt(card.back, entry[sides.back]),
   };
 }

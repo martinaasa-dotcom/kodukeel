@@ -4375,6 +4375,54 @@ check("the app drops a capital only where the capital is its own to drop", () =>
     !/plainPhrase/.test(repair),
     "the repair reaches past lib/srs/cardSpelling.ts to lower a card itself",
   );
+
+  /*
+    AND IT ANSWERS FOR THE TWO CARD TYPES WHOSE FRONT IS A WORD, refusing the
+    rest itself rather than trusting the `where` clause in the file above.
+    Driven over the real shapes, a CLOZE card of a phrase entry came back as
+    `tere hommikust! Kuidas läheb?`: a sentence a lexicographer wrote with its
+    opening letter lowered, which is the fault this whole rule was reported
+    for. Nothing about the data made that unreachable on purpose. It is
+    `gradates(pos)` and a phrase carrying no recorded usage that leave the
+    combination absent today, and either could move without anybody here
+    noticing.
+
+    Both ends, because a guard in the judgment with a widened query above it
+    is the same silence pointed the other way.
+  */
+  const spelling = code("lib/srs/cardSpelling.ts");
+  assert.match(
+    spelling,
+    /const SIDES[\s\S]{0,200}?RECOGNITION[\s\S]{0,100}?PRODUCTION/,
+    "lib/srs/cardSpelling.ts no longer names the two card types it answers for",
+  );
+  assert.match(
+    spelling,
+    /export function spellingFor[\s\S]{0,200}?SIDES\[card\.cardType\][\s\S]{0,140}?return \{ front: card\.front, back: card\.back \}/,
+    "spellingFor reads a card type it was not written for as one it was",
+  );
+  assert.match(
+    repair,
+    /cardType:\s*\{\s*in:\s*\["RECOGNITION",\s*"PRODUCTION"\]/,
+    "the repair hands spellingFor a card whose front is a sentence",
+  );
+
+  /*
+    AND THERE IS ONE SEPARATOR. `lib/copy/values.ts` exports it and this reads
+    it, because the splitting is what makes `palun` three phrases rather than
+    one, and two constants a character apart would leave the repair matching
+    nothing and falling back to the whole string, which is the reported bug
+    with no way to see it.
+  */
+  assert.match(
+    spelling,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cardSpelling.ts keeps its own copy of the answer separator",
+  );
+  assert.ok(
+    !/^\s*const PARTS\b/m.test(spelling),
+    "lib/srs/cardSpelling.ts declares a separator beside the one it imports",
+  );
 });
 
 check("the voice is one table, and everything that speaks reads from it", () => {

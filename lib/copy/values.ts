@@ -53,14 +53,23 @@ export const SAME_SPELLING = "Spelled the same in English.";
 /**
  * How several answers are held in one string, everywhere in this app.
  *
- * `acceptedAnswers` splits a card's back on it, `lib/srs/cards.ts` joins the
- * accepted answers with it, and every screen that prints a pair prints it
- * this way. Spaces on both sides are what makes it a separator rather than a
- * character in a word: the dictionary glosses `lemmik` as `favorite/favourite`
- * and `värv` as `color/colour`, which are one answer spelled two ways and
- * are not two answers.
+ * `lib/srs/cards.ts` joins a card's accepted answers with it, every screen
+ * that prints a pair prints it this way, and `lib/srs/cardSpelling.ts` reads
+ * it back to put an already-built card right. One constant, because two
+ * copies of a separator are two readings of where an answer ends.
+ *
+ * IT IS NARROWER THAN THE MARKER'S SPLIT, and that is a decision rather than
+ * an oversight. `acceptedForms` in `lib/estonian/answer.ts` splits on a
+ * slash, a comma, a semicolon or the word `or`, with the surrounding spaces
+ * optional, so `favorite/favourite` reaches the marker as two answers and
+ * both are let through. That is right for deciding what to accept, which can
+ * afford to over-reach, and wrong for deciding what to print, which cannot:
+ * `favorite/favourite` is one answer spelled two ways, and lowering the half
+ * after the slash would edit a word rather than open a sentence. The comma is
+ * left alone for the same reason, since a sense past the first is not a new
+ * sentence: `vist` is `probably, I think` and `bemar` is `BMW, Beamer`.
  */
-const PARTS = " / ";
+export const PARTS = " / ";
 
 /**
  * The one English word that is capital wherever it stands.
