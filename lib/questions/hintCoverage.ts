@@ -77,7 +77,9 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   },
   {
     file: "app/(app)/review/target/TargetSession.tsx",
-    why: "a speed drill whose questions never repeat inside a round, so the second go at one word this is drawn for never arrives",
+    why: "the answer is one of four forms drawn against a clock that shortens on every hit, so a"
+      + " press that spends seconds is the drill rather than a way through it, and the round"
+      + " already shows the answer on the miss it moves on from",
   },
 
   /*

@@ -36,7 +36,7 @@ import { HINT_COST_NOTE, type Hint } from "@/lib/questions/hints";
  * still press.
  */
 export function HintLadder({
-  ladder, taken, onTake, open, label = "word",
+  ladder, taken, onTake, open, label = "word", graded = true,
 }: {
   /** Every rung, mildest first. `hintLadder` or `narrowLadder` built it. */
   ladder: readonly Hint[];
@@ -54,6 +54,18 @@ export function HintLadder({
   open: boolean;
   /** The word, so the button says which one it is about to help with. */
   label?: string;
+  /**
+   * Whether a grade is going to be written for this question at all.
+   *
+   * False on the handful of asks that have no card behind them: a word the
+   * exceptions round found in the dictionary rather than in the deck, a gap cut
+   * from a passage the learner pasted in. There is no schedule to move, so
+   * `HINT_COST_NOTE` would be the app claiming a consequence it is not going to
+   * have, which is a small lie told at exactly the moment it is asking to be
+   * trusted. The ladder is offered all the same: somebody stuck on a word they
+   * do not hold a card for is as stuck as anybody.
+   */
+  graded?: boolean;
 }) {
   if (!open || ladder.length === 0) return null;
 
@@ -122,7 +134,7 @@ export function HintLadder({
           <span aria-hidden>{left > 1 ? `· ${left} left` : "· last one"}</span>
         </button>
       )}
-      {taken > 0 && (
+      {taken > 0 && graded && (
         <p className="text-2xs" style={{ color: "var(--ink-3)" }}>{HINT_COST_NOTE}</p>
       )}
     </div>

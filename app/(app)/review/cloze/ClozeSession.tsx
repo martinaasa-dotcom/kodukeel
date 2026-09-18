@@ -268,6 +268,8 @@ export function ClozeSession() {
                   onTake={hints.take}
                   open={hints.open}
                   label="this gap"
+                  // A gap cut from the learner's own passage may have no card.
+                  graded={Boolean(item.cardId)}
                 />
               </div>
             )}

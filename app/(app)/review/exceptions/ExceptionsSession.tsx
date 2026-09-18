@@ -261,6 +261,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
                     onTake={hints.take}
                     open={hints.open}
                     label={task.lemma}
+                    // No card, no schedule to move, so the note may not claim one.
+                    graded={task.cardId !== null}
                   />
                 </div>
               )}

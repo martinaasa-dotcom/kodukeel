@@ -1935,6 +1935,16 @@ code and unverifiable from a browser. **And the driver that answers wrongly is
 grades on purpose: driven with that one the round sat on one card for sixteen answers, because the
 guess was right and the undo inside it put the card back.
 
+**What is left is written down rather than left to be rediscovered.** The conjugation table's hint
+is about its **first** cell rather than whichever one has focus, because a table is answered top to
+bottom and reading the focused one would reset the ladder every time the caret moved, on the one
+round where it moves five times a question; somebody stuck on the fourth row is helped with the
+first. The narrowing ladder has a branch in `test-hints.mjs` and whether it runs depends on what
+the deck deals, so the letters are covered on every run and the crossing-out is not; the floor is
+met either way, which is the shape that rots. And `HINT_COST_NOTE` is withheld where no card is
+behind the ask, since there is no schedule to move and claiming one is a small lie told at the
+moment the app is asking to be trusted.
+
 **Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
 ask was website wide and that is not the same as every file. The three **measurements** may not have
 one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a
@@ -9429,13 +9439,3 @@ opens again" rather than "one route is special".
 CI runs typecheck, lint, the unit suite, the invariants, integration tests against a real
 Postgres, the production build, the credential scan, the phone and the offline smoke test. It is the enforcement behind
 the rules above: do not add a rule without one.
-
-<!-- BEGIN:nextjs-agent-rules -->
-
-# This is NOT the Next.js you know
-
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
