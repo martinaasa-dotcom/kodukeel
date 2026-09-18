@@ -956,6 +956,23 @@ model EmailSend {
   /// letter itself. Null when the transport returned no id.
   messageId String?
 
+  /// ONE LETTER OF A KIND PER LEARNER PER DAY, ENFORCED HERE RATHER THAN BY
+  /// TIMING.
+  ///
+  /// The run takes an advisory lock to read the roster and releases it before
+  /// it starts posting, because a transaction held open across two hundred
+  /// HTTP requests to somebody else's service is a transaction holding a
+  /// pooled connection for minutes. That leaves a window: two invocations can
+  /// both read the same roster and both decide the same learner is owed the
+  /// same letter, and the per-kind gap cannot see a send that has not been
+  /// written down yet.
+  ///
+  /// So the duplicate is impossible rather than unlikely. Every gap in
+  /// `MIN_GAP_HOURS` is at least twenty hours, so no two letters of one kind
+  /// legitimately fall in one of the learner's days, and the second `create`
+  /// fails instead of sending. The run reads that failure as "somebody else
+  /// has this one" and steps over it.
+  @@unique([ownerId, kind, dayKey])
   /// Every read is "this learner, this kind, recently", in that order.
   @@index([ownerId, kind, sentAt])
   /// And the run's own "who has already had one today", which walks a day.

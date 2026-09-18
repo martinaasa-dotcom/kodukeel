@@ -175,11 +175,27 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         operator: operator.name,
       };
 
-      /* Booked before it is posted. See the header. */
-      const booking = await prisma.emailSend.create({
-        data: { ownerId, kind: letter.kind, dayKey: who.dayKey },
-        select: { id: true },
-      });
+      /*
+        Booked before it is posted, and the booking is what claims the learner.
+
+        `(ownerId, kind, dayKey)` is unique, so where two runs overlap the
+        second `create` raises rather than sending a second copy. That is the
+        ordinary outcome of a retried invocation rather than an error worth
+        reporting, so it is stepped over quietly: the letter went, and it went
+        once.
+      */
+      let booking: { id: string };
+      try {
+        booking = await prisma.emailSend.create({
+          data: { ownerId, kind: letter.kind, dayKey: who.dayKey },
+          select: { id: true },
+        });
+      } catch (error) {
+        // P2002 is Prisma's unique violation. Anything else is a real failure
+        // and belongs in the outer catch with everything else.
+        if ((error as { code?: string }).code === "P2002") continue;
+        throw error;
+      }
 
       const result = await send(
         {

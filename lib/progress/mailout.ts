@@ -25,7 +25,7 @@
 */
 import { prisma } from "@/lib/db";
 import { dayClock } from "@/lib/time/day";
-import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { readSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { emailPrefsFrom } from "@/lib/email/prefs";
 import { EMAIL_KINDS, type EmailKind } from "@/lib/email/letter";
 import type { Candidate } from "@/lib/email/schedule";
@@ -66,8 +66,58 @@ export const LOOK_BACK_DAYS = 45;
  * nobody else. Read as ids so the expensive reads happen once the decision is
  * made rather than for everybody.
  */
+/**
+ * Which page of the roster this run looks at.
+ *
+ * A CAP ON A SORTED LIST IS NOT A CAP, IT IS AN EXCLUSION. The first version
+ * ordered on the owner id and took the first two thousand, every run, for
+ * ever: on a deployment with five thousand learners the same three thousand
+ * were never considered, and not because they were quiet or had opted out but
+ * because of where their id sorted. Nothing would have reported it. The letters
+ * would simply have worked, for some people, and the operator would have read
+ * the rest as a feature nobody wanted.
+ *
+ * It is the fault this project already has a rule about one directory over,
+ * where the dictionary's suggestion row moved by one row a day and spent its
+ * whole life inside the letter A. The answer there is the answer here: a walk
+ * rather than a fixed window.
+ *
+ * The page turns with the hour, so a deployment larger than one page is
+ * covered in `ceil(total / limit)` runs, which at the hourly schedule is under
+ * a day for anything up to forty-eight thousand learners. Deterministic, so it
+ * needs no stored cursor and two runs in the same hour look at the same page,
+ * which is what the per-learner gap in `EmailSend` is there to make harmless.
+ */
+export function rosterPage(now: Date, total: number, limit: number): number {
+  if (total <= limit) return 0;
+  const pages = Math.ceil(total / limit);
+  return (Math.floor(now.getTime() / 3_600_000) % pages) * limit;
+}
+
+/**
+ * Who the run considers at all.
+ *
+ * Everybody who has graded a card or finished first run inside the window, one
+ * page at a time. Read as ids so the expensive reads happen once the decision
+ * is made rather than for everybody.
+ */
 export async function mailoutRoster(now: Date, limit: number): Promise<string[]> {
   const since = new Date(now.getTime() - LOOK_BACK_DAYS * 86_400_000);
+
+  /*
+    The sizes first, so the walk knows how far it has to reach. Two counts on
+    indexed columns, and `distinct` here is a real `COUNT(DISTINCT)` rather
+    than the client-side deduplication a `take` beside a `distinct` would get,
+    which is the rule this project states about that pairing.
+  */
+  const [reviewers, starters] = await Promise.all([
+    prisma.review
+      .findMany({ where: { reviewedAt: { gte: since } }, distinct: ["ownerId"], select: { ownerId: true } })
+      .then((rows) => rows.length),
+    prisma.setting.count({
+      where: { key: SETTING_KEYS.onboardedAt, value: { gte: since.toISOString() } },
+    }),
+  ]);
 
   const [reviewed, settled] = await Promise.all([
     prisma.review.findMany({
@@ -77,17 +127,18 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
       /*
         Ends on the primary key, because `ownerId` is not unique in `Review`
         and a `take` over a loose order is the plan deciding which learners a
-        run considers. Arbitrary is survivable here, since anybody missed this
-        hour is picked up the next; arbitrary and *unstable* is not, because
-        the same learner could sit past the cap every hour of the evening.
+        run considers. Stable is what matters: the page above walks, and a walk
+        over an order that moves would skip and repeat rather than cover.
       */
       orderBy: [{ ownerId: "asc" }, { id: "asc" }],
+      skip: rosterPage(now, reviewers, limit),
       take: limit,
     }),
     /*
       And the people who finished first run and have not answered a card yet,
       who are exactly the ones a welcome is for and who a review-log query
-      cannot see.
+      cannot see. Paged on their own count, since the two sets barely overlap:
+      somebody who has reviewed is in the first and not usually in the second.
     */
     prisma.setting.findMany({
       /*
@@ -108,6 +159,7 @@ export async function mailoutRoster(now: Date, limit: number): Promise<string[]>
       // `(ownerId, key)` is the primary key and `key` is pinned by the filter,
       // so ordering on `ownerId` alone is already total here.
       orderBy: [{ ownerId: "asc" }, { key: "asc" }],
+      skip: rosterPage(now, starters, limit),
       take: limit,
     }),
   ]);
@@ -340,16 +392,47 @@ export async function letterInputFor(
   }
 
   if (kind === "comeback") {
-    const [summary, kept, word] = await Promise.all([
+    const [summary, kept, word, shieldRow] = await Promise.all([
       dailySummary(ownerId, now, clock),
       prisma.card.count({ where: { ownerId, suspended: false, state: 2 } }),
       gift(),
+      readSetting(ownerId, SETTING_KEYS.streakShieldDates),
     ]);
     const last = await prisma.review.findFirst({
       where: { ownerId },
       orderBy: { reviewedAt: "desc" },
       select: { reviewedAt: true },
     });
+
+    /*
+      DID A SHIELD ACTUALLY COVER THIS GAP, RATHER THAN PROBABLY.
+
+      This read `streak > 0 && shieldsAvailable >= 0 && streak >= 2`, and the
+      middle term is a count, so it is always true: the whole condition was
+      "their streak is at least two". The letter then told anybody with a
+      surviving streak that a shield had covered their gap, which is a claim
+      about a mechanic made on a guess. Somebody who reads it and opens the app
+      to a broken streak has been told something false by the one letter whose
+      job is to be reassuring.
+
+      `streakShieldDates` is the record of which days a shield really covered,
+      written by `resolveStreakFor`. A shield covered this gap when one of
+      those days falls after the last review, which is exactly the question and
+      is answerable rather than guessable. A row that will not parse means we
+      do not know, which is said by saying nothing.
+    */
+    const shieldedDates: string[] = (() => {
+      try {
+        const parsed: unknown = JSON.parse(shieldRow ?? "[]");
+        return Array.isArray(parsed) ? parsed.filter((d): d is string => typeof d === "string") : [];
+      } catch {
+        return [];
+      }
+    })();
+    const gapStart = last ? clock.dayKey(last.reviewedAt) : null;
+    const shieldUsed =
+      gapStart !== null && summary.streak >= 2 && shieldedDates.some((day) => day > gapStart);
+
     return {
       kind: "comeback",
       input: {
@@ -357,7 +440,7 @@ export async function letterInputFor(
         origin,
         daysAway: last ? clock.daysBetween(last.reviewedAt, now) : 0,
         wordsKept: kept,
-        shieldUsed: summary.streak > 0 && summary.shieldsAvailable >= 0 && summary.streak >= 2,
+        shieldUsed,
         streak: summary.streak,
         /*
           THE SMALLER ASK IS A REAL ROUND, NAMED.

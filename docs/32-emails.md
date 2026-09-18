@@ -184,6 +184,34 @@ Nothing has posted a real message to a real mailbox either. The transport is one
 headers, the multipart split and the `From` are exercised against Resend. Worth doing against one
 address before any schedule is switched on.
 
+## Three faults found by asking whether it was reliable
+
+Worth writing down because none of them would have announced itself, and all three are shapes this
+project has a rule about already.
+
+**The roster excluded most of a deployment.** It ordered on the owner id and took the first two
+thousand, every run, for ever. On five thousand learners that is three thousand people who never
+get a letter, not because they are quiet or opted out but because of where their id sorts, and the
+operator would have read the silence as nobody wanting the feature. It is the `aberratsioon` fault
+from the dictionary's suggestion row, which spent its whole life inside the letter A, and it takes
+the same answer: `rosterPage` walks, so a deployment larger than one page is covered in
+`ceil(total / limit)` runs. Driven over a day of runs at the sizes the funding page models.
+
+**Two overlapping runs could both send the same letter.** The advisory lock is released before the
+sends, because a transaction held open across two hundred requests to somebody else's service holds
+a pooled connection for minutes, and the per-kind gap cannot see a send that has not been written
+down yet. `(ownerId, kind, dayKey)` is unique now, so the second `create` raises instead of a
+second copy arriving, and the run steps over it. Every gap in `MIN_GAP_HOURS` is at least twenty
+hours, so no two letters of one kind legitimately fall in one of the learner's days.
+
+**The coming-back letter claimed a shield had covered the gap, on a condition that was always
+true.** `streak > 0 && shieldsAvailable >= 0 && streak >= 2` has a count in the middle of it, so the
+whole thing reduced to "their streak is at least two". Somebody who read that and opened the app to
+a broken streak had been told something false by the one letter whose job is to reassure.
+`streakShieldDates` is the record of which days a shield really covered, so the question is
+answerable rather than guessable: a shield covered this gap when one of those days falls after the
+last review. A row that will not parse means we do not know, which is said by saying nothing.
+
 ## Proposed, and not built
 
 Each of these has a real trigger already in the schema. They are listed with what would have to be
