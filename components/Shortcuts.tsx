@@ -43,6 +43,7 @@ const GROUPS: Group[] = [
       { press: ["1", "2"], does: "On a card you flip: I did not know it, I knew it" },
       { press: ["B"], does: "See the word before this one again, changing nothing" },
       { press: ["U"], does: "Undo the last grade, scheduling and all" },
+      { press: ["⌘", "Z"], does: "…the same, without leaving the answer box" },
     ],
   },
   {

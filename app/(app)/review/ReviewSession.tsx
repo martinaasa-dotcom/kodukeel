@@ -897,16 +897,39 @@ export function ReviewSession({
         return;
       }
 
-      // `u` has to reach undo from inside the answer box, because that is where
-      // focus already is: grading a typed card advances to the next one, whose
-      // input takes focus on mount — and the moment just after a grade is
-      // exactly when you notice you hit the wrong key. Requiring focus to be
-      // outside the field meant the shortcut silently did nothing there, and
-      // quietly dropped a `u` into the next answer instead.
-      //
-      // Only while that box is still empty, though. Estonian is full of u —
-      // tuba, kuu, muusika — so once there is anything typed, u is a letter.
+      /*
+        UNDO IS REACHABLE FROM THE ANSWER BOX, AND NOT BY A LETTER.
+
+        The reach is worth keeping and the comment that used to sit here made
+        the case for it: grading a typed card advances to the next one, whose
+        box takes focus on mount, so the moment you notice you hit the wrong
+        key is a moment with the caret already inside a field. A shortcut that
+        silently does nothing there is a shortcut nobody has, and typing is
+        the mode this app opens in.
+
+        What that comment got wrong is which keystrokes are safe. It allowed
+        `u` while the box was still empty, on the argument that Estonian is
+        full of u once there is anything typed. An empty box is where the
+        *first* letter goes, and 46 entries in the shipped dictionary begin
+        with one: `uks`, `uus`, `uni`, `ujuma`, `unustama`. A learner
+        answering any of them undid the grade before it, lost the letter, and
+        watched a card they had finished come back.
+
+        So the reach is kept and the key is changed. A bare `u` is a letter
+        wherever a field has focus and a shortcut everywhere else, and from
+        inside the box undo is `Cmd`/`Ctrl` and `z`, which is the gesture
+        everybody already has for taking something back and is a letter in no
+        language. Only while the box is empty, so somebody who has typed
+        something keeps the field's own undo for their own typing.
+      */
       const startedAnswering = field !== null && field.value.length > 0;
+      const takeItBack = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z";
+
+      if (takeItBack && !startedAnswering && history.length > 0) {
+        e.preventDefault();
+        void undo();
+        return;
+      }
 
       /*
         `b` OPENS THE LOOK BACK, AND ONLY WHERE IT IS NOT A LETTER.
@@ -931,7 +954,7 @@ export function ReviewSession({
         return;
       }
 
-      if (e.key.toLowerCase() === "u" && !startedAnswering && history.length > 0) {
+      if (e.key.toLowerCase() === "u" && !typing && history.length > 0) {
         e.preventDefault();
         void undo();
         return;
@@ -1526,7 +1549,10 @@ export function ReviewSession({
           className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >
-          <Undo2 size={12} aria-hidden /> Undo <KeyCap>U</KeyCap>
+          {/* The cap names the key that works on the card in front of you:
+              `u` is a letter while a box has focus, so a typed card carries
+              the gesture that is not one. Same rule as the hint beside it. */}
+          <Undo2 size={12} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
         </button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />

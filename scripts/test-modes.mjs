@@ -34,8 +34,9 @@ page.on("console", (m) => {
 // Five more for the way back to the last word, which is driven rather than
 // asserted from the source: 54. One more for the key that opens it not being
 // a letter somebody was typing, which is how it shipped first: 55, and one
-// for the caret not being dropped on the way out: 56.
-const { check, absent, done } = suite("Practice modes", { floor: 56 });
+// for the caret not being dropped on the way out: 56. Two more for undo,
+// which had the same fault and was there first: 58.
+const { check, absent, done } = suite("Practice modes", { floor: 58 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -217,10 +218,20 @@ if (rateable) {
   }
   await page.waitForTimeout(1200);
   const gradedBefore = await page.getByText(/\d+ graded/).textContent();
-  await page.keyboard.press("u");
+  /*
+    Whichever of the two keys reaches undo from where the caret actually is.
+    `u` is a letter while an answer box has focus, since 46 entries in the
+    shipped dictionary begin with one, so from there undo is the gesture that
+    is not a letter. Asking for the right key rather than one of them is what
+    keeps this a check about undo rather than about which card came up: the
+    card after a grade is whatever the queue had next.
+  */
+  const inABox = (await page.getByLabel("Type your answer").count()) > 0;
+  await page.keyboard.press(inABox ? "Control+z" : "u");
   await page.waitForTimeout(1500);
   const gradedAfter = await page.getByText(/\d+ graded/).textContent();
-  check("u undoes the last grade", gradedBefore !== gradedAfter, `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
+  check("the last grade can be taken back from the keyboard", gradedBefore !== gradedAfter,
+    `${inABox ? "Ctrl+z from the answer box" : "u"}: ${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
 } else {
   absent(1, "a card that reached the point of waiting on an answer, which none did here");
 }
@@ -310,6 +321,37 @@ if (typedCard) {
     `opened: ${opened}, box holds: ${JSON.stringify(typedIn)}`);
 } else {
   absent(1, "a typed card, which this deck did not offer in eight tries");
+}
+
+/*
+  AND NEITHER IS THE KEY THAT UNDOES A GRADE.
+
+  `u` had the same shape and was there first: bound from inside the answer box
+  while it was still empty, so `uks`, `uus` and `uni` rewound the card before
+  them and lost the letter. The reach is kept through a gesture that is not a
+  letter, so both halves are driven: the letter goes in, and the gesture takes
+  the grade back from the same box.
+*/
+if (typedCard) {
+  const box = page.getByLabel("Type your answer");
+  const before = await page.getByText(/\d+ graded/).textContent();
+  await box.click();
+  await box.fill("");
+  await page.keyboard.type("u");
+  await page.waitForTimeout(400);
+  const afterLetter = await page.getByText(/\d+ graded/).textContent();
+  const held = (await page.getByLabel("Type your answer").count()) ? await box.inputValue() : "";
+  check("u in the answer box is a letter rather than an undo",
+    held === "u" && before === afterLetter, `box holds ${JSON.stringify(held)}, ${before?.trim()} -> ${afterLetter?.trim()}`);
+
+  await box.fill("");
+  await page.keyboard.press("Control+z");
+  await page.waitForTimeout(1600);
+  const afterUndo = await page.getByText(/\d+ graded/).textContent();
+  check("and the gesture that is not a letter still takes a grade back from there",
+    before !== afterUndo, `${before?.trim()} -> ${afterUndo?.trim()}`);
+} else {
+  absent(2, "a typed card, which this deck did not offer in eight tries");
 }
 
 /**

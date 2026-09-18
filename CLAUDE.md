@@ -5092,10 +5092,24 @@ other step of a round does, it needs no scrim and no focus trap, and the buttons
 are the round's own buttons in the round's own place. The primary is always the forward one, "Next"
 while there is a newer card to see and "Back to the round" at the newest, which is the half that was
 asked for by name: somebody two words back walks home the way they came rather than hunting for a
-different button. `B` opens it on the same terms `U` takes undo, from inside an answer box while it
-is still empty, because the moment somebody wants the last word back is the moment just after it
-went with focus already in the next card's box, and it is on the shortcut sheet, which says every
-shortcut the app has. The button is not drawn at all on the first card of a session: a control that
+different button. `B` opens it wherever the keyboard is not typing
+Estonian, which is the flip, the choice and a first meeting, and it is on the shortcut sheet, which
+says every shortcut the app has. It was bound from inside the answer box first, on the argument undo
+made one line below, and that argument is wrong about which keystrokes are free: an empty box is
+where the *first* letter of an answer goes, 63 entries in the shipped dictionary begin with a `b`,
+and a learner answering `buss` had the panel opened and the letter swallowed. The cap on the button
+stands down with the key rather than promising one the card in front of you does not answer to.
+
+**And the same fault was already there under `U`, which is the one that undoes a grade.** 46 entries
+begin with a `u`, `uks`, `uus`, `uni`, `ujuma`, and typing any of them into an empty box rewound the
+card before it, lost the letter, and brought back a card the learner had finished. The reach it was
+written for is real and is kept: grading a typed card advances to the next one, whose box takes focus
+on mount, so the moment you notice you hit the wrong key is a moment with the caret already inside a
+field, and a shortcut that does nothing there is a shortcut nobody has in the mode this app opens in.
+What changed is the keystroke. A bare `u` is a letter wherever a field has focus and a shortcut
+everywhere else, and from inside the box undo is `⌘Z`, which is the gesture everybody already has for
+taking something back and is not a letter in any language. Only while the box is empty, so somebody
+who has typed something keeps the field's own undo for their own typing. The button is not drawn at all on the first card of a session: a control that
 can only ever say "there is nothing behind you" is a control that teaches people to ignore that row.
 
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
