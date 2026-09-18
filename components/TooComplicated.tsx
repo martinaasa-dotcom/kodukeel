@@ -52,12 +52,23 @@ export function TooComplicated({
 
   useEffect(() => {
     if (!asking) return;
+    // The review, lesson and ladder sessions each bind Enter, the digits and
+    // `u` straight onto `window` with no notion of a dialog sitting on top,
+    // so without this every one of those kept grading, revealing or undoing
+    // the card underneath while somebody was deciding whether to put a
+    // different word aside. Capturing on `window` runs before those
+    // bubble-phase listeners ever see the key, and `stopPropagation` alone
+    // (never `preventDefault`) is what keeps that from also breaking Tab and
+    // Enter/Space on whichever of the dialog's own two buttons has focus:
+    // those are native behaviors tied to the key reaching its target, not to
+    // whether some other listener elsewhere also got to run.
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setAsking(false);
+      e.stopPropagation();
+      if (e.key === "Escape" && !pending) setAsking(false);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [asking]);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [asking, pending]);
 
   const confirm = () => {
     setFailed(false);
