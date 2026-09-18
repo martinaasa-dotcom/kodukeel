@@ -1945,6 +1945,17 @@ met either way, which is the shape that rots. And `HINT_COST_NOTE` is withheld w
 behind the ask, since there is no schedule to move and claiming one is a small lie told at the
 moment the app is asking to be trusted.
 
+**And the icon on the button declared one size and was drawn at another.** `<Lightbulb
+className="h-3.5 w-3.5" />` is a lucide icon whose `width` and `height` attributes still say 24,
+because those come off the `size` prop, so `test-containment.mjs` measured it at 14 and called it
+deformed, which is exactly what it was. The browser caught it on **one route at one width**, and
+that is the shape this file keeps naming: the hint is drawn only after a miss, so whether the sweep
+ever sees the button at all depends on which card a fixture happened to be dealt. So the rule is
+asked of the source too, anchored on the names each file imports from lucide rather than on any
+capitalised tag, since a component of ours may legitimately take a width class and an svg carrying
+its size in an attribute may not. It reads a few hundred icon tags and was made to fail on the real
+line.
+
 **Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
 ask was website wide and that is not the same as every file. The three **measurements** may not have
 one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a

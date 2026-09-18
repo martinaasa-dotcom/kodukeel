@@ -4801,6 +4801,48 @@ check("nobody opts back out of the wrapping default", () => {
   }
 });
 
+check("an icon is sized by its own size prop, never by a class", () => {
+  /*
+    A lucide icon writes `width` and `height` onto the svg from its `size`
+    prop, so `<Lightbulb className="h-3.5 w-3.5" />` ships an element that
+    declares 24 and is drawn at 14. Nothing about that is visible in the
+    source, and `test-containment.mjs` reads it as a deformed icon, which is
+    what it is: the one that shipped was caught on a single route at a single
+    width, because the hint it sits on is only drawn after a miss and only one
+    route in the sweep happened to reach that state. A browser check that fires
+    where a fixture happens to walk is a browser check that rots, so the rule
+    is asked of the source as well.
+
+    Anchored on the names each file imports from lucide rather than on any
+    capitalised tag, because a component of ours may legitimately take a width
+    class: what may not is the svg that carries its size in an attribute.
+  */
+  const FROM_LUCIDE = /import\s*\{([^}]+)\}\s*from\s*"lucide-react"/;
+  const SIZED_BY_CLASS = /\b(?:h|w)-(?:\d|\[)/;
+  let seen = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (/\.(test|itest)\.tsx?$/.test(file)) continue;
+    const source = code(file);
+    const imported = FROM_LUCIDE.exec(source);
+    if (!imported?.[1]) continue;
+    const names = imported[1]
+      .split(",")
+      .map((one) => one.split(" as ").pop()!.trim())
+      .filter((one) => /^[A-Z][A-Za-z0-9]*$/.test(one));
+    for (const name of names) {
+      for (const found of source.matchAll(new RegExp(`<${name}\\b[^>]*>`, "g"))) {
+        seen += 1;
+        assert.equal(
+          SIZED_BY_CLASS.test(found[0]),
+          false,
+          `${file} sizes a lucide icon with a class rather than its size prop: ${found[0].slice(0, 80)}`,
+        );
+      }
+    }
+  }
+  assert.ok(seen > 200, `expected to read a few hundred icon tags, read ${seen}`);
+});
+
 check("no icon is given a flex of its own", () => {
   /*
     `svg.lucide { flex: none }` is one declaration standing in for `shrink-0`

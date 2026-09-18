@@ -123,7 +123,7 @@ export function HintLadder({
           className="tap-tint flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold"
           style={{ color: "var(--ink-3)" }}
         >
-          <Lightbulb className="h-3.5 w-3.5" aria-hidden />
+          <Lightbulb size={14} aria-hidden />
           {taken === 0 ? "Stuck? Take a hint" : next.label}
           {/*
             Not faded to say it is secondary: `opacity` on a box that holds
