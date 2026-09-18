@@ -126,10 +126,10 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Tubli töö. Writing your own sentences takes longer, but it&rsquo;s what really helps with
           speaking.
         </p>
@@ -193,7 +193,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         </div>
 
         <div className="px-6 py-8">
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             Use{" "}
             <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
               {prompt.lemma}
@@ -211,14 +211,14 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           */}
           {plainAsk(prompt.caseKey) ? (
             <>
-              <p className="mt-2 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <p className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 {plainAskLine(prompt.caseKey)}
               </p>
               {/* The Estonian name carries the line's `lang`, since it is the
                   part a screen reader has to pronounce as Estonian and the part
                   `smoke-interact.mjs` reads the task off; the English name is
                   marked back as English inside it. */}
-              <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+              <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                 {prompt.caseEt} · {prompt.caseQuestion}
                 {/* What the question is asking rather than the Latin name,
                     which was the only English on this line and the one word
@@ -234,7 +234,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {prompt.caseEt}
               </p>
-              <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
                 <CaseQuestion question={prompt.caseQuestion} inline />
               </p>
             </>
@@ -257,7 +257,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
               }}
               placeholder="Kirjuta oma lause siia…"
-              className="field-lg mt-2 w-full resize-none text-[17px] disabled:opacity-70"
+              className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!marked && <div className="under-field"><DiacriticBar /></div>}
@@ -291,7 +291,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
       </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the form is checked. That check is the reliable half.
         </p>
       )}
@@ -318,7 +318,7 @@ function Feedback({ marked }: { marked: Marked }) {
         {formCheck.used
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           {formCheck.used
             ? "That is the right form."
             : formCheck.usedAnotherForm
@@ -332,7 +332,7 @@ function Feedback({ marked }: { marked: Marked }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
               <>
                 Anu&rsquo;s note is hidden here. It used a word we couldn&rsquo;t confirm as Estonian,
@@ -360,7 +360,7 @@ function Feedback({ marked }: { marked: Marked }) {
               {graded.verdict === "correct" ? "reads well" : graded.verdict === "almost" ? "almost" : "not yet"}
             </Chip>
           </div>
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
               Rule: {graded.rule}

@@ -486,19 +486,19 @@ function StepCard({
               can carry a gap at all. */}
           {step.cue === "word-and-meaning" ? (
             <div>
-              <Et className="block text-[32px] font-bold leading-tight">{step.lemma}</Et>
-              <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
-              <p className="mt-4 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <Et className="block text-3xl font-bold leading-tight">{step.lemma}</Et>
+              <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
+              <p className="mt-4 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Write it in the form this sentence needs.
               </p>
             </div>
           ) : (
             <div>
-              <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Which word goes in the gap?
               </p>
               {step.cue === "meaning" && (
-                <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>
+                <p className="mt-1.5 text-base" style={{ color: "var(--ink-2)" }}>
                   It means <strong style={{ color: "var(--ink)" }}>{step.gloss}</strong>.
                 </p>
               )}
@@ -556,10 +556,10 @@ function StepCard({
               `--ink-2` above the word, so what the learner was being asked to
               produce was fainter than the word they were producing it from. */}
           <div className="flex flex-wrap items-center gap-3">
-            <Et className="text-[32px] font-bold leading-tight">{step.lemma}</Et>
+            <Et className="text-3xl font-bold leading-tight">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
-          <span className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+          <span className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
           </span>
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>

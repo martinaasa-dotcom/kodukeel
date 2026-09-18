@@ -46,10 +46,10 @@ export function Favorites({ words, total }: { words: readonly Favorite[]; total:
               className="tap-tint -mx-1 min-w-0 flex-1 rounded-[var(--r-sm)] px-1 py-1"
             >
               <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span lang="et" className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
+                <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                   {word.lemma}
                 </span>
-                <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>
+                <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                   {word.translation}
                 </span>
               </span>

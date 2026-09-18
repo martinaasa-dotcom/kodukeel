@@ -624,7 +624,10 @@ model Deferral {
   band  String?
   level String?
 
-  /// WEEKS (a few weeks, then back) or BAND (it waits for a band).
+  /// SOON (a few days, then back) or BAND (it waits for a band). Rows written
+  /// before the plain wait went from three weeks to three days carry the old
+  /// name `WEEKS` for the same thing; `deferrals.ts` is the one reader and it
+  /// normalises them, so nothing keys on the string and no migration is owed.
   reason     String
   /// When it comes back whatever else happens.
   untilAt    DateTime

@@ -4983,7 +4983,7 @@ can see this.
 **So a second press never shortens a wait, and that is a rule about the cards rather than about
 politeness.** Both ways back match the date the deferral wrote, which is the whole of what stops
 either of them pulling a card forward, so a press that wrote an *earlier* date over a wait already
-standing would leave the cards on the old one, matched by nothing: the row would read three weeks
+standing would leave the cards on the old one, matched by nothing: the row would read a few days
 while the word stayed gone for a term and the way back would do nothing at all. It is reachable
 through a wait for a band, a level rise and the same word on a screen that was already open. Where
 a standing wait reaches further than tonight's would it is the one kept, whole, the date and the
@@ -4994,22 +4994,42 @@ sooner.
 scheduling a card had before the grade, and that includes the date it was due, which is earlier than
 the one the button has just written, so a review session keeping a graded card of that word in its
 undo history would let one press of Undo resurrect it under a note still saying it was gone for
-three weeks. The word's grades leave the history with it, and the undo those grades were for is the
+a few days. The word's grades leave the history with it, and the undo those grades were for is the
 one the note offers, which takes the whole word. What is left moves up, because a history entry
 holds a position in the queue and this is the one thing in a session that shortens the queue behind
 where the learner is standing: an entry pointing at where a card used to be reopens on its
 neighbour.
 
 **How long is decided by the word's own band and there are two answers.** A word at or below the
-learner's level goes back three weeks: a bad evening is a bad evening. A word above it did not
+learner's level goes back three days: a bad evening is a bad evening. A word above it did not
 arrive late, it arrived early, so it waits for the band it belongs to, and `recordCourseLevel` is
 where it comes back, since that is the one writer of a level and a level moves about twice a year.
 The date behind that is a backstop and is **deliberately shorter than a band actually takes**:
 `lib/assessment/plan.ts` puts a band at 180 hours and up, which at five found hours a week is most
 of a year, and a backstop that honest is a word deleted with extra steps. A term, and if it comes
-back still beyond them the button is one press away. An untagged word takes the plain three weeks,
+back still beyond them the button is one press away. An untagged word takes the plain three days,
 because a word somebody typed in or photographed carries no claim about its difficulty and reading a
 missing band as "beyond them" would put their own word away for a term.
+
+**And three days was three weeks, which was this button's own argument misread.** The paragraph
+above says a bad evening is a bad evening, and the app then answered one bad evening by taking the
+word away for most of a month. It was reported off `ma ei saa aru`, a phrase the first unit of the
+course teaches: three weeks is not "not tonight", it is a word out of the deck for six or eight
+sittings, and by the time it comes round the evening it was refused on has nothing to do with
+anything. What the button means is *now*, so the answer is the next study day but one, which is
+three calendar days on every schedule this app supports: daily study skips two evenings, three
+times a week lands on the next study day, twice a week on the one after. **The band backstop did
+not move with it**, because the two answer different questions: "not tonight" is about an evening
+and "not yet" is about a band, and shortening the second would hand somebody the word they were
+not ready for before anything about them had changed. What the short wait also buys is that a
+second press means something, since at three weeks `times` recorded almost nothing and at three
+days a learner who keeps refusing a word says so repeatedly, which is the signal
+`tooHardForEveryone` is built out of. **And the unit follows the size**, which is
+`lib/time/duration.ts`'s rule applied to a stretch of calendar: `awayIn` writes days up to a
+fortnight, weeks up to ten and months above, because "3 days" is a date somebody can picture and
+"84 days" is a sum. The stored `reason` still reads `WEEKS` on a row written before this and is
+normalised where it is read, since nothing else in the app compares the string and a name is not
+worth a migration.
 
 **And when enough people say it, the course is what is wrong.** One learner putting a word aside is
 a fact about their evening. Enough of them is a fact about where the word sits, and leaving each of
@@ -5038,8 +5058,8 @@ read path has to fetch a level to find out whether a deferral is still holding.
 
 **And the words it takes are listed where somebody can get them back.** `/words/mastery`, beside the
 favorites, because those are the two lists on that page a learner wrote themselves and a second page
-for a handful of words is a page nobody finds. A button whose whole effect is invisible for three
-weeks has to say what it did, so the sentence `deferralNote` writes is printed under the card with
+for a handful of words is a page nobody finds. A button whose whole effect is invisible for days
+has to say what it did, so the sentence `deferralNote` writes is printed under the card with
 the way back beside it: a press that only made a card disappear reads as a fault. What the admin
 sees is a reading rather than a queue, on `/admin/suggestions` under the reports, with the words
 under the threshold in it too, since a word at four learners out of nine is the next one to look at
@@ -7917,6 +7937,52 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   because light and dark are two palettes rather than one with a filter over it: the first batch of
   failures was entirely in dark mode and the second entirely in light. What a colour is worth
   depends on what it is sitting on, which a palette cannot tell you.
+- **A size is a step's name, never a number, and the whole app is resized by editing one block.**
+  The type scale lives in `@theme` in `app/globals.css` and is the only place the size of anything
+  is decided. That was already the rule and the rule was drawn one notch too loose: the invariant
+  asked that a literal *land* on a step, on the argument that what a reader meets is the set of
+  sizes rather than the set of tokens, and its own comment conceded the rest. What that waved
+  through was **127 elements across 25 files** written as `text-[13.5px]` and `text-[15px]`, every
+  one an honest size and not one of them a token, on the lesson, the mastery board, the readiness
+  rows and every review round. They were the screens a learner spends the evening on, so the first
+  time the scale moved the app would have grown everywhere except there, and nothing would have
+  said so. The literal is the fault now, wherever it lands, and **both doors are swept**, since an
+  inline `fontSize` sets a size as firmly as a class does: four files are exempt by name, two OG
+  images Satori renders without this stylesheet, an emoji scaled to its card, and the root error
+  boundary, which runs when `globals.css` may never have loaded. **An `em` is not a literal** and is
+  allowed, because it is a proportion of the step the text already sits on and therefore moves with
+  the scale, which is the property the whole rule protects; the one in the tree is the 0.92em on
+  inline code in Anu's replies, which is an optical correction and is still right at 14px and at
+  17px.
+- **And the floor was 12px, drawn for a phone rather than for whoever is holding it.** It was
+  argued for as the smallest an uppercase label can be at arm's length in the evening. Most people
+  learning Estonian in Estonia are learning it because they live here, which takes in everybody who
+  arrived forty years ago, so the reader is as likely to be sixty and wearing glasses as to be
+  twenty-five; it was reported in those words, as small fonts that are horrible to read, off a
+  review card. The bottom four steps went 12/13/13.5/15 to **14/15/16/17**, which is a body above
+  the 16px most of the web settles on, and `md`, `lg` and `xl` went 17/19/22 to 19/21/24 with them.
+  They ramp a pixel at a time at the bottom rather than keeping the old proportions, deliberately:
+  a caption has to read as quieter than the body over it, and once the floor is somewhere a reader
+  can see, quieter is carried by colour and weight far more than by two more pixels off something
+  already small. **The display steps did not move at all**: 32px was never the complaint, `text-3xl`
+  is a long Estonian word in a 360px column, and the hero is measured against the width *and* the
+  height of the window it has to fit in, so growing it would break a fit that was measured rather
+  than chosen. What the invariant guards now is the scale itself, that the smallest step clears the
+  floor and that every step is larger than the one below, since two neighbouring steps a pixel
+  apart is where a hierarchy quietly inverts. Measured after: `test-containment.mjs` 1,350 checks
+  and 0 failed at 360, 768 and 1280 in both themes, axe 635 and 0, and the phone 71 and 0.
+- **And two things that had a second copy of the scale said so the moment it moved.**
+  `test-design.mjs` kept its own list of the thirteen steps and called the new scale off-scale on
+  four pages; it reads `--text-*` off the running page now, with the floor read as the smallest of
+  them, because a number typed twice is a number about to disagree with itself. And
+  `--landing-nav` is a typed constant standing in for the height of a pill that is drawn on screen:
+  the pill went 79px to 83px because the words in it grew, which is exactly the drift its check
+  exists for, and what said so was the measurement rather than anybody noticing. The same growth
+  ran the landing nav out of width at 768, where flex answered by breaking "What you get" over two
+  lines and the button under it over two more, so the three anchors are disclosed at `lg` rather
+  than `md` and carry `whitespace-nowrap` as the backstop: a label that wraps is not a nav that has
+  adapted, and the next thing that runs that row out of room should overflow somewhere
+  `test-containment.mjs` can see rather than fold itself in half again.
 - **`opacity` never goes on a box that holds words.** It multiplies through everything inside, so a
   fade meaning "not yet" fades the sentence explaining why. A locked unit on the course page ended
   up saying "you can still open it" at 2.63:1, on every locked row of a 73-unit course; the badge
@@ -8850,7 +8916,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
 `alsoRight`, `shownForms`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
-`staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `derivedVerbForms`,
+`staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `--text-2xs`, `--landing-nav`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
 `nomPl`, `EMOJI_LEMMAS`, `acceptedUses`, `markDescription`, `prepareClip`, `SPEECH_PACES`, `paceFrom`,
 `PACE_FOR_LEVEL`, `SLOW_OF_NORMAL`, `trimSilence`, `fadeIn`,
@@ -8889,7 +8955,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `shrugOwed`, `anticipated`, `saysGoodbye`, `verblessQuestion`, `QUESTION_FLOOR`,
 `deferralFor`, `deferredWordIds`, `offeredBand`, `tooHardForEveryone`, `wakeForLevel`,
 `putWordAside`, `bringWordBack`, `TooComplicated`, `PutAside`, `movedWords`, `raiseBand`,
-`deferredDues`, `weeksBetween`,
+`deferredDues`, `daysBetween`, `awayIn`, `DEFER_DAYS`,
 `questionInEnglish`, `questionEn`, `asksEn`, `asksThingEn`, `CaseQuestion`, `asksInEnglish`,
 `readableGovernment`, `nounField`, `nominalPart`, `PRINCIPAL_CASES`,
 `caseWalk`, `toWalkWord`, `followsEndingRule`, `endingOptions`, `unmistakable`,

@@ -127,10 +127,10 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     const accuracy = Math.round((correct / questions.length) * 100);
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           There&rsquo;s no rule for rektsioon, you just remember it verb by verb. A little often
           beats a lot at once.
         </p>
@@ -197,15 +197,15 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             </p>
             <Speak text={question.lemma} />
           </div>
-          <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
 
           {question.maskedExample && !revealed && (
-            <p lang="et" className="mt-5 text-[19px]" style={{ color: "var(--ink-2)" }}>
+            <p lang="et" className="mt-5 text-lg" style={{ color: "var(--ink-2)" }}>
               {question.maskedExample}
             </p>
           )}
 
-          <p className="mt-5 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
             Which question does it answer?
           </p>
         </div>
@@ -243,8 +243,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                     {/* And what that is asking, because a list of question
                         words is a list of Estonian to somebody who has not met
                         them: see `lib/estonian/cases.ts`. */}
-                    <span className="block text-[13px]">{questionInEnglish(spec?.question)}</span>
-                    <span lang="et" className="block text-[13px]" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
+                    <span className="block text-xs">{questionInEnglish(spec?.question)}</span>
+                    <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
                 </button>
@@ -273,7 +273,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
               />
             )}
             {question.gloss && (
-              <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-2)" }}>{question.gloss}</p>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{question.gloss}</p>
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
@@ -324,7 +324,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         )}
       </div>
 
-      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
         {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer
       </p>
     </div>

@@ -126,10 +126,10 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           These are the forms no rule reaches. A few at a time, often, is how they stick.
         </p>
         <div
@@ -221,7 +221,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
                 spellCheck={false}
                 disabled={!!mark}
                 onChange={(e) => setTyped(e.target.value)}
-                className="field-lg mt-2 w-full text-[19px] disabled:opacity-70"
+                className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
               {!mark && <div className="under-field"><DiacriticBar /></div>}
@@ -269,11 +269,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
 function Meeting({ task }: { task: ExceptionTask }) {
   return (
     <div>
-      <p lang="et" className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+      <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
         {task.lemma}
       </p>
       {task.translation && (
-        <p className="text-[15px]" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
+        <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
       )}
 
       {task.accepted.length > 0 && (
@@ -282,7 +282,7 @@ function Meeting({ task }: { task: ExceptionTask }) {
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
           <div className="flex flex-wrap items-center gap-2">
-            <p lang="et" className="text-[27px] font-semibold leading-tight" style={{ color: "var(--ink)" }}>
+            <p lang="et" className="text-2xl font-semibold leading-tight" style={{ color: "var(--ink)" }}>
               {task.accepted.join(" / ")}
             </p>
             {/* This is the round's own "meet" rung, the same moment
@@ -290,13 +290,13 @@ function Meeting({ task }: { task: ExceptionTask }) {
                 one time hearing it is worth more than reading it. */}
             <SpeakPair text={task.accepted[0] ?? task.lemma} autoplay />
           </div>
-          <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
+          <p lang="et" className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
             {task.label}
           </p>
         </div>
       )}
 
-      <p className="mt-5 flex items-start gap-2 text-[15px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
+      <p className="mt-5 flex items-start gap-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         <TriangleAlert size={16} aria-hidden className="mt-1 shrink-0" style={{ color: "var(--ink-3)" }} />
         <span>{departureLine(task)}</span>
       </p>
@@ -310,10 +310,10 @@ function Meeting({ task }: { task: ExceptionTask }) {
       <AlsoRight
         short={task.accepted[0] ?? null}
         long={task.alsoRight}
-        className="mt-3 text-[13.5px]"
+        className="mt-3 text-sm"
       />
 
-      <MoreOnThis task={task} className="mt-4 text-[13.5px]" />
+      <MoreOnThis task={task} className="mt-4 text-sm" />
     </div>
   );
 }
@@ -373,7 +373,7 @@ function Asking({ task }: { task: ExceptionTask }) {
   if (task.rung === "use") {
     return (
       <div>
-        <p lang="et" className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+        <p lang="et" className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
           {task.gapped}
         </p>
         {/*
@@ -381,7 +381,7 @@ function Asking({ task }: { task: ExceptionTask }) {
           gap-fill card learned: printing the lemma beside a gap that wants the
           lemma hands the answer over, and this gap wants a form built on it.
         */}
-        <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
           The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
         </p>
       </div>
@@ -390,20 +390,20 @@ function Asking({ task }: { task: ExceptionTask }) {
 
   return (
     <div>
-      <p lang="et" className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+      <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
         {task.lemma}
       </p>
       {/* Dropped where the gloss says the answer: `saun` is "sauna". */}
       {task.translation && (
-        <p className="text-[15px]" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
+        <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
       )}
       <div className="mt-5">
         {plain ? (
           <>
-            <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+            <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
               {plain}
             </p>
-            <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+            <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
               {task.label}
             </p>
           </>
@@ -435,7 +435,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           <strong className="font-semibold">{head}.</strong>
           {mark.note && <> {mark.note}</>}
         </p>
@@ -448,19 +448,19 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         <p
           lang="et"
           data-exception-answer=""
-          className="text-[22px] font-semibold leading-tight"
+          className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
           {task.accepted.join(" / ")}
         </p>
-        <p lang="et" className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p lang="et" className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
           {task.label}
         </p>
       </div>
 
       {task.rung === "use" && task.sentence && (
         <div className="mt-4">
-          <p lang="et" className="text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
+          <p lang="et" className="text-base leading-snug" style={{ color: "var(--ink-2)" }}>
             {task.sentence}
           </p>
           <SentenceTranslation
@@ -473,11 +473,11 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         </div>
       )}
 
-      <p className="mt-4 text-[13.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
+      <p className="mt-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {departureLine(task)}
       </p>
 
-      <p className="mt-3 text-[13px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-3 text-xs" style={{ color: "var(--ink-3)" }}>
         <Link
           href={`/grammar/exceptions/${task.kind.toLowerCase()}`}
           className="font-semibold underline underline-offset-2"
@@ -487,7 +487,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
         </Link>
       </p>
 
-      <MoreOnThis task={task} className="mt-1.5 text-[13px]" />
+      <MoreOnThis task={task} className="mt-1.5 text-xs" />
     </div>
   );
 }

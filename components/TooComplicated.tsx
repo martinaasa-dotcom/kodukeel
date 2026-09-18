@@ -20,10 +20,10 @@ import { putWordAside } from "@/app/actions";
  * press did.
  *
  * IT SAYS WHAT IT DID, and the session it sits in is what shows that: the
- * whole effect of this button is invisible for three weeks, so a press that
- * only made a card disappear would read as a fault. `putWordAside` returns the
- * sentence (`deferralNote`) and the caller prints it, with the way back beside
- * it.
+ * whole effect of this button is that a card stops arriving for a few days, so
+ * a press that only made a card disappear would read as a fault.
+ * `putWordAside` returns the sentence (`deferralNote`) and the caller prints
+ * it, with the way back beside it.
  *
  * NOT OPTIMISTIC, which is where it differs from the star. A star is a
  * bookmark and can be put back the way it was if it did not land; this moves

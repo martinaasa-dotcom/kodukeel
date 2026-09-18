@@ -153,10 +153,10 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Every answer counted toward the word it was about.
         </p>
         <div
@@ -238,7 +238,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 autoFocus
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder="Kirjuta oma lause siia…"
-                className="field-lg mt-2 w-full resize-none text-[17px] disabled:opacity-70"
+                className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
             ) : (
@@ -252,7 +252,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 spellCheck={false}
                 disabled={!!mark}
                 onChange={(e) => setTyped(e.target.value)}
-                className="field-lg mt-2 w-full text-[19px] disabled:opacity-70"
+                className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
             )}
@@ -290,10 +290,10 @@ function Question({
   task, shape, onNoAudio,
 }: { task: FlashPrompt; shape: FlashTask["shape"]; onNoAudio: () => void }) {
   const meaning = (
-    <p className="text-[15px]" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
+    <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
   const word = (
-    <p lang="et" className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+    <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
       {task.lemma}
     </p>
   );
@@ -301,10 +301,10 @@ function Question({
   if (shape === "recall") {
     return (
       <div>
-        <p className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+        <p className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
           {task.translation}
         </p>
-        <p className="mt-2 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
           {task.pos.toLowerCase()}
         </p>
       </div>
@@ -314,7 +314,7 @@ function Question({
   if (shape === "gap") {
     return (
       <div>
-        <p lang="et" className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+        <p lang="et" className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
           {task.gapped}
         </p>
         {/*
@@ -324,7 +324,7 @@ function Question({
           dictionary form beside a gap wanting the dictionary form hands the
           answer over. That was 2,468 cards once.
         */}
-        <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
           The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
         </p>
         <SlotLine task={task} />
@@ -347,7 +347,7 @@ function Question({
             onUnavailable={onNoAudio}
             autoplay
           />
-          <span className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
             Play it, then type the form of {task.lemma} you hear.
           </span>
         </div>
@@ -362,7 +362,7 @@ function Question({
       {meaning}
       <SlotLine task={task} />
       {shape === "build" && !plainAskFor(task) && (
-        <p className="mt-4 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
           Write one sentence of your own with it in that form.
         </p>
       )}
@@ -395,10 +395,10 @@ function SlotLine({ task }: { task: FlashPrompt }) {
     <div className="mt-5">
       {plain ? (
         <>
-          <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+          <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plain}
           </p>
-          <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+          <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {task.label}
             {english && <span lang="en"> · the {english}</span>}
           </p>
@@ -409,7 +409,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
             {task.label}
           </p>
           {english && (
-            <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>the {english}</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>the {english}</p>
           )}
         </>
       )}
@@ -456,7 +456,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           <strong className="font-semibold">{head}.</strong>
           {mark.note && <> {mark.note}</>}
         </p>
@@ -475,12 +475,12 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         <p
           lang="et"
           data-flash-answer=""
-          className="text-[22px] font-semibold leading-tight"
+          className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
           {task.shown.join(" / ")}
         </p>
-        <p className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
           <span lang="et" data-flash-slot="">{task.label}</span>
           {english && <> · the {english}</>}
         </p>
@@ -488,7 +488,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
       {task.sentence && (
         <>
-          <p lang="et" className="mt-4 text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
+          <p lang="et" className="mt-4 text-base leading-snug" style={{ color: "var(--ink-2)" }}>
             {/* The spelling the sentence itself carries, which is not always the
                 one the slot leads with: `tuppa` and `toasse` are both the
                 illative and a lexicographer writes whichever the sentence
@@ -518,7 +518,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         </>
       )}
 
-      <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
           ? "This form is the one the dictionary records."
           : "This form is worked out from the stem the dictionary records."}{" "}
@@ -552,7 +552,7 @@ function Standing({ task }: { task: FlashPrompt }) {
           short of the variety is the ordinary state of a word this round is
           about, and it is what the sentence has to say plainly.
         */}
-      <p className="mt-2 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-2 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{task.lemma}</span>:{" "}
         {correct >= needCorrect
           ? `right ${correct} times`

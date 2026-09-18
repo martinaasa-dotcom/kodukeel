@@ -1102,7 +1102,7 @@ export function ReviewSession({
             somebody who has not met `seesütlev` yet can still answer the card.
           */}
           {(isGap(card) ? answerShown : !answerShown) && plainAsk(slotAsked(card)) && (
-            <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {plainAskLine(slotAsked(card))}
             </p>
           )}
