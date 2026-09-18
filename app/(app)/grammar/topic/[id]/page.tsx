@@ -10,7 +10,10 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { Card, Chip, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { DrillLink } from "@/components/DrillLink";
+import { PointExamples } from "@/components/grammar/PointExamples";
 import { VerbTable } from "./VerbTable";
+import { resolveProvider } from "@/lib/tutor/provider";
+import { pinnedExamples } from "@/lib/progress/grammarExamples";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { focusFrom } from "@/lib/course";
 
@@ -123,6 +126,9 @@ export default async function TopicPage({
     `scripts/audit-verbs.ts` checked against Ekilex for every verb in the
     dictionary. Each form says which. The other topics keep to English.
   */
+  const pinned = await pinnedExamples("topic", id);
+  const canTranslate = resolveProvider() !== null;
+
   const shown = VERB_TOPICS[id];
   const verbs = shown ? await verbExamples(ownerId, 4) : [];
 
@@ -197,6 +203,9 @@ export default async function TopicPage({
                 style={{ borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink-2)" }}
               >
                 {point}
+                {/* And somebody saying it. See `components/grammar/PointExamples.tsx`
+                    for why the reference may name a sentence at all. */}
+                <PointExamples examples={pinned.get(point)} canTranslate={canTranslate} />
               </li>
             ))}
           </ul>

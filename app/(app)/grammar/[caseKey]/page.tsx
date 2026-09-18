@@ -11,6 +11,8 @@ import { ButtonLink } from "@/components/Button";
 import { Card, Chip, Empty, Note, Page, SectionTitle, Stack } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { PointExamples } from "@/components/grammar/PointExamples";
+import { pinnedExamples } from "@/lib/progress/grammarExamples";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
@@ -118,6 +120,7 @@ export default async function CasePage({
 
   const withSentence = examples.filter((e) => e.sentence).slice(0, SENTENCES);
   const canTranslate = resolveProvider() !== null;
+  const pinned = await pinnedExamples("case", ref.key);
 
   return (
     <Page
@@ -199,7 +202,12 @@ export default async function CasePage({
                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ background: "var(--accent)" }}
                   />
-                  {use}
+                  <span className="min-w-0 flex-1">
+                    {use}
+                    {/* And somebody saying it, under the use rather than in the
+                        table below, which lists words rather than uses. */}
+                    <PointExamples examples={pinned.get(use)} canTranslate={canTranslate} />
+                  </span>
                 </li>
               ))}
             </ul>
