@@ -14,8 +14,10 @@
 
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
+import { naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { emojiFor } from "@/lib/collections/emoji";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
+import { HARVESTED } from "@/prisma/data/harvested";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
 import {
   ACTIVITIES, day, ordinaryWords,
@@ -76,38 +78,91 @@ export function reads(unit: SyllabusUnit, at: number, level: string = unit.level
 }
 
 /**
- * What the words taught so far can carry, which is what decides whether a
- * round may be dealt yet.
+ * WHAT THE LADDER HAS TAUGHT SO FAR, WHICH IS WHAT DECIDES WHETHER A ROUND MAY
+ * BE DEALT YET.
  *
- * A round is only worth scheduling once the words behind it exist: the
- * conjugation table with no verb taught is a table of verbs nobody has met,
- * and the picture board with no pictured noun taught is an empty board with a
- * way out on it. Both were dealt on the module's second evening, and the
- * table came filled from the dictionary at the band above.
+ * Every round on the app is honest about one thing and quiet about another:
+ * it draws on the deck or the dictionary, and it never asks whether the
+ * learner has been shown what it is about to ask. The module chose the round,
+ * so the module has to know. A conjugation table before a verb is a table of
+ * verbs nobody has met; a picture board before a pictured noun is an empty
+ * board with a way out on it; a case sprint before a case page is the whole
+ * reference asked in sixty seconds; a dictation before a sentence made of
+ * taught words is somebody typing words nobody has told them.
+ *
+ * So the builder keeps a ledger of what every evening has handed over, in the
+ * vocabulary a round is dealt against, and `supportsRound` is the one place
+ * that says what each round needs. The pages read the same ledger back off
+ * the step's address (`scope.ts`) and narrow themselves to it, so a round
+ * that is dealt is a round that has something to deal.
  */
 export interface Taught {
   /** A verb has been taught, so the conjugation table has something to run down. */
   verbs: boolean;
   /** A noun with a picture has been taught, so the board has a tile. */
   pictured: boolean;
+  /** The case pages read so far, by key. A case is asked only after it is read. */
+  cases: ReadonlySet<string>;
+  /** The topic pages read so far, by id. */
+  topics: ReadonlySet<string>;
+  /** Taught verbs the dictionary records a government for. */
+  governed: number;
+  /**
+   * Whether a sentence a lexicographer wrote exists that is made entirely of
+   * taught words, three to nine of them, which is what dictation and word
+   * ordering are built out of inside the module.
+   */
+  readable: boolean;
 }
 
-/** The rounds whose material has to have been taught before they are dealt. */
-export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
-  conjugation: "verbs",
-  picture: "pictured",
+export const NO_TAUGHT: Taught = {
+  verbs: false, pictured: false, cases: new Set(), topics: new Set(), governed: 0, readable: false,
 };
 
-export function supportsRound(key: ActivityKey, taught: Taught): boolean {
-  const need = NEEDS[key];
-  return need ? taught[need] : true;
+const ALL_TAUGHT: Taught = {
+  verbs: true, pictured: true, cases: new Set(CASES.map((c) => c.key)),
+  topics: new Set(["government", "conditional"]), governed: 99, readable: true,
+};
+
+/** How many governed verbs a government round needs before it is dealt. */
+export const GOVERNED_FOR_ROUND = 4;
+
+/**
+ * What each round needs to have been taught before the module deals it.
+ *
+ * Match and Listening need nothing but words, which is why they stand in for
+ * everything else. A case round needs a case page read; the picture board is
+ * the word at A1 and a case above it; government wants its own page and a
+ * handful of verbs that carry one; dictation and word ordering want a sentence
+ * of taught words to exist at all. Sõnad is on no rotation, because its word
+ * is dealt off the dictionary by design and marked on the server from the
+ * date, and there is no honest way to hold it to a taught list.
+ */
+export function supportsRound(key: ActivityKey, taught: Taught, level = "A2"): boolean {
+  const cases = taught.cases.size > 0;
+  switch (key) {
+    case "conjugation": return taught.verbs;
+    case "picture": return taught.pictured && (level === "A1" || cases);
+    case "sprint": case "target": case "write": return cases;
+    case "describe": return taught.pictured && cases;
+    case "dictation": case "sentences": return taught.readable;
+    case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
+    case "sonad": return false;
+    default: return true;
+  }
 }
 
 /** The rotation's rounds this evening could deal, given what has been taught. */
 export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
-  return rotation.filter((key) => supportsRound(key, taught));
+  return rotation.filter((key) => supportsRound(key, taught, level));
 }
+
+/** The rounds that need something taught first, for the tests to walk. */
+export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
+  conjugation: "verbs",
+  picture: "pictured",
+};
 
 /**
  * The round that stands in for one the words cannot carry yet: the same kind,
@@ -129,9 +184,10 @@ const STAND_IN: Record<"game" | "drill", ActivityKey> = { game: "match", drill: 
  * drill, because a verb you cannot put in the third person is a verb you
  * cannot use, and it keeps the rotation's game so the evening still has one.
  *
- * A round whose words have not been taught yet is swapped for its stand-in,
- * which at A1 is the first two evenings: the pair is the same on both, and
- * that is a fact about the words rather than a fault in the walk.
+ * A round whose material has not been taught yet is swapped for its stand-in.
+ * Early in a level that is most evenings, and the pair repeats: a fact about
+ * the words rather than a fault in the walk, and `course.test.ts` allows
+ * exactly that case.
  */
 export function rounds(level: string, at: number, verbHeavy: boolean, taught: Taught = ALL_TAUGHT): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
@@ -141,21 +197,90 @@ export function rounds(level: string, at: number, verbHeavy: boolean, taught: Ta
   const other = game === first ? second : first;
   const drill = verbHeavy ? "conjugation" : other;
   return [game, drill].map((key) => {
-    if (supportsRound(key, taught)) return key;
+    if (supportsRound(key, taught, level)) return key;
     return STAND_IN[ACTIVITIES[key].kind === "game" ? "game" : "drill"];
   });
 }
 
-const ALL_TAUGHT: Taught = { verbs: true, pictured: true };
+/**
+ * THE LEDGER, WALKED DAY BY DAY.
+ *
+ * Reads the harvest rather than a database, because the builder runs at
+ * import and may reach nothing (ADR-005 keeps the words a unit's; this only
+ * reads what the harvest already brought back for them). The readability
+ * check stops the moment one sentence qualifies, since a boolean that has
+ * turned true stays true, so the whole walk costs a few milliseconds.
+ */
+export class Ledger {
+  private readonly harvest = HARVEST_BY_KEY;
+  private readonly spellings = new Set<string>();
+  private readonly cases = new Set<string>();
+  private readonly topics = new Set<string>();
+  private pending: string[] = [];
+  private verbs = false;
+  private pictured = false;
+  private governed = 0;
+  private readable = false;
 
-/** What a list of words, taught in order, can carry. */
+  /** A word handed over, with what the harvest holds for it. */
+  teach(lemma: string, pos: string): void {
+    if (pos === "VERB") this.verbs = true;
+    if (pos === "NOUN" && emojiFor(lemma) !== undefined) this.pictured = true;
+    const word = this.harvest.get(`${lemma}|${pos}`);
+    this.spellings.add(lemma.toLowerCase());
+    if (!word) return;
+    if (pos === "VERB" && word.government) this.governed += 1;
+    for (const form of Object.values(word.parts)) this.spellings.add(form.toLowerCase());
+    for (const extra of word.extraForms) this.spellings.add(extra.value.toLowerCase());
+    if (!this.readable) this.pending.push(...word.usages);
+  }
+
+  /** A page read, which counts on the evening it is read. */
+  read(reads: Pick<DaySpec, "grammar" | "grammarCase">): void {
+    if (reads.grammarCase) this.cases.add(reads.grammarCase);
+    if (reads.grammar) this.topics.add(reads.grammar);
+  }
+
+  /** What the ledger says now, as a snapshot a day can be dealt against. */
+  taught(): Taught {
+    if (!this.readable) {
+      this.readable = this.pending.some((usage) => readableSentence(usage, this.spellings));
+      if (this.readable) this.pending = [];
+    }
+    return {
+      verbs: this.verbs,
+      pictured: this.pictured,
+      cases: new Set(this.cases),
+      topics: new Set(this.topics),
+      governed: this.governed,
+      readable: this.readable,
+    };
+  }
+}
+
+const HARVEST_BY_KEY: ReadonlyMap<string, (typeof HARVESTED)[number]> = new Map(
+  HARVESTED.map((w) => [`${w.lemma}|${w.pos}`, w]),
+);
+
+/** Three to nine tiles, every one a taught spelling, and a sentence at all. */
+export const DICTATION_TILES = { min: 3, max: 9 } as const;
+
+export function readableSentence(sentence: string, spellings: ReadonlySet<string>): boolean {
+  const tiles = sentenceTiles(sentence);
+  if (tiles.length < DICTATION_TILES.min || tiles.length > DICTATION_TILES.max) return false;
+  if (!naturalSentence(sentence)) return false;
+  return tiles.every((t) => spellings.has(t.toLowerCase()));
+}
+
+/** What a list of words, taught in order, can carry, for a test to rebuild. */
 export function taughtFrom(
   words: readonly { lemma: string; pos: string }[],
+  reads: readonly Pick<DaySpec, "grammar" | "grammarCase">[] = [],
 ): Taught {
-  return {
-    verbs: words.some((w) => w.pos === "VERB"),
-    pictured: words.some((w) => w.pos === "NOUN" && emojiFor(w.lemma) !== undefined),
-  };
+  const ledger = new Ledger();
+  for (const w of words) ledger.teach(w.lemma, w.pos);
+  for (const r of reads) ledger.read(r);
+  return ledger.taught();
 }
 
 const isVerbHeavy = (unit: SyllabusUnit): boolean =>
@@ -172,7 +297,7 @@ const isVerbHeavy = (unit: SyllabusUnit): boolean =>
  * an A1 verb again inside B1's object unit is the course revisiting it on
  * purpose, and the review queue is what decides whether it is still known.
  */
-export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBefore(spec)): Programme {
+export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): Programme {
   /*
     ONE SIZE, BECAUSE AN EVENING IS FIFTEEN MINUTES WHATEVER SHAPE IT TAKES.
     The fixed part is a reading, two rounds and the closing review, or a
@@ -183,15 +308,6 @@ export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBef
   const perDay = ordinaryWords(spec.level);
   const taught = new Set<string>();
   const days: CourseDay[] = [];
-  /*
-    What the ladder has taught so far, in the vocabulary a round is dealt
-    against: every word of every part before this one, and then this part's
-    own words as each evening hands them over. The day's own words count on the
-    day, since meeting them is the first step of the evening.
-  */
-  const soFar: { lemma: string; pos: string }[] = before
-    .flatMap((p) => p.units)
-    .flatMap((id) => unitById(id)?.vocabulary ?? []);
   /* The rotation walks the whole part rather than restarting per unit, or the
      first evening of every unit would be the same pair for a fortnight. */
   let turn = 0;
@@ -211,10 +327,17 @@ export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBef
 
     chunks.forEach((chunk, n) => {
       const last = n === chunks.length - 1;
+      /*
+        The day's own words and its own reading count on the day, since
+        meeting the words is the first step of the evening and the reading
+        the second, and the rounds come after both.
+      */
       for (const lemma of chunk) {
         const entry = unit.vocabulary.find((v) => v.lemma === lemma);
-        if (entry) soFar.push(entry);
+        if (entry) ledger.teach(entry.lemma, entry.pos);
       }
+      const reading = reads(unit, n, spec.level);
+      ledger.read(reading);
       days.push(day(
         {
           id: `${spec.id}-${String(days.length + 1).padStart(2, "0")}`,
@@ -224,8 +347,8 @@ export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBef
           unitId,
           level: spec.level,
           words: chunk,
-          ...reads(unit, n, spec.level),
-          practice: rounds(spec.level, turn, verbs, taughtFrom(soFar)),
+          ...reading,
+          practice: rounds(spec.level, turn, verbs, ledger.taught()),
           ...(last && scene ? { scene } : {}),
         },
         days.length + 1,
@@ -245,10 +368,19 @@ export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBef
   };
 }
 
-/** The parts of the ladder ahead of this one, whose words count as taught. */
-export function partsBefore(spec: PartSpec): readonly PartSpec[] {
+/** The ledger as it stands at the start of a part: every part before it, built. */
+export function ledgerBefore(spec: PartSpec): Ledger {
+  const ledger = new Ledger();
   const at = PARTS.findIndex((p) => p.id === spec.id);
-  return at > 0 ? PARTS.slice(0, at) : [];
+  for (const before of at > 0 ? PARTS.slice(0, at) : []) buildPart(before, ledger);
+  return ledger;
 }
 
-export const buildProgrammes = (): Programme[] => PARTS.map((spec) => buildPart(spec));
+/**
+ * The whole ladder, built in order over one ledger, so what a1.6 taught is what
+ * a2.1's first evening is dealt against.
+ */
+export function buildProgrammes(): Programme[] {
+  const ledger = new Ledger();
+  return PARTS.map((spec) => buildPart(spec, ledger));
+}

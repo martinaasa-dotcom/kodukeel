@@ -24,8 +24,10 @@
  * database.
  */
 
-import { programmeById, taughtThrough, dayById } from "./index";
+import { programmeById, taughtThrough, grammarThrough, dayById } from "./index";
 import { focusFrom } from "./focus";
+import { readableSentence } from "./build";
+import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
 import type { CourseDay, Programme } from "./types";
 
 export interface ModuleScope {
@@ -33,6 +35,10 @@ export interface ModuleScope {
   day: CourseDay;
   /** Every lemma the ladder has taught through this day, in teaching order. */
   lemmas: readonly string[];
+  /** The case pages read through this day, by key. A case is asked only after it is read. */
+  cases: readonly string[];
+  /** The topic pages read through this day, by id. */
+  topics: readonly string[];
 }
 
 type SearchParams = Record<string, string | string[] | undefined> | undefined;
@@ -47,7 +53,57 @@ export function moduleScopeFrom(searchParams: SearchParams): ModuleScope | null 
   const programme = programmeById(focus.programmeId);
   const day = programme ? dayById(programme, focus.dayId) : undefined;
   if (!programme || !day) return null;
-  return { programme, day, lemmas: taughtThrough(programme, day.index) };
+  const grammar = grammarThrough(programme, day.index);
+  return { programme, day, lemmas: taughtThrough(programme, day.index), ...grammar };
+}
+
+/**
+ * Whether a case may be asked inside the module: its page has been read.
+ *
+ * A card or a question that names no case is a question about a word and is
+ * held to the taught list alone.
+ */
+export function caseWithin(scope: ModuleScope | null, caseKey: string | null | undefined): boolean {
+  if (!scope || !caseKey) return true;
+  return scope.cases.includes(caseKey);
+}
+
+/**
+ * Whether a card in the learner's deck may be asked inside the module.
+ *
+ * Three questions, in the order a card raises them: is it about a taught
+ * word (the caller has already narrowed the query to those), is it about a
+ * taught case, and, for a gap-fill, is the sentence around the gap made of
+ * taught spellings. The last needs the course's forms, which are a fact about
+ * the dictionary (`lib/dict/facts.ts`), so the caller hands them in.
+ */
+export function cardWithin(
+  scope: ModuleScope | null,
+  card: { cardType: string; targetCase: string | null; front: string },
+  spellings: ReadonlySet<string> | null,
+): boolean {
+  if (!scope) return true;
+  if (card.cardType === "CASE_FORM" || card.cardType === "GRADATION") {
+    if (!caseWithin(scope, card.targetCase ?? (card.cardType === "GRADATION" ? "GENITIVE" : null))) return false;
+  }
+  if (card.cardType === "CLOZE" || card.cardType === "CASE_FORM" || card.cardType === "CONJUGATION") {
+    // A sentence front, with the gap taken out. A bare front (`lemma → ask`)
+    // has no sentence to check and passes.
+    if (card.front.includes(BLANK)) {
+      if (!spellings) return false;
+      return sentenceTiles(card.front.replace(BLANK, " ")).every((t) => spellings.has(t.toLowerCase()));
+    }
+  }
+  return true;
+}
+
+/** A sentence somebody can be dictated or asked to rebuild inside the module. */
+export function sentenceWithin(scope: ModuleScope | null, spellings: ReadonlySet<string> | null) {
+  return (sentence: string): boolean => {
+    if (!scope) return true;
+    if (!spellings) return false;
+    return readableSentence(sentence, spellings);
+  };
 }
 
 /**

@@ -83,10 +83,25 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     game of the day, where a learner chooses them.
   */
   A1: ["match", "listening", "picture", "conjugation"],
-  A2: ["match", "dictation", "sonad", "sentences", "target", "describe", "sprint", "listening", "picture", "write"],
-  B1: ["sonad", "write", "target", "government", "sprint", "sentences", "match", "flash"],
-  B2: ["sonad", "write", "target", "flash", "sprint", "describe", "match", "government"],
-  C1: ["sonad", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
+  /*
+    AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
+    learner's band by design, and `recordSonad` rebuilds the day's puzzle from
+    the date and the level on the server to grade it, so there is no honest
+    way to hold it to what the module has taught: a scoped board would be
+    marked against a different word. It stays the game of the day and on
+    Practice, where a learner chooses it. The picture board takes its slot,
+    which above A1 is the case board over taught nouns and taught cases.
+
+    Every other round on these lists is dealt only once `supportsRound` in
+    `build.ts` says the evenings before have taught what it needs, a case page
+    for a case round, a sentence of taught words for dictation and ordering,
+    the government page and a few governed verbs for government; and each
+    reads the same ledger back off the step's address and narrows to it.
+  */
+  A2: ["match", "dictation", "target", "sentences", "sprint", "write", "picture", "describe"],
+  B1: ["picture", "write", "target", "government", "sprint", "sentences", "match", "flash"],
+  B2: ["picture", "write", "target", "flash", "sprint", "describe", "match", "government"],
+  C1: ["picture", "write", "target", "exceptions", "sprint", "describe", "match", "flash"],
 };
 
 /**

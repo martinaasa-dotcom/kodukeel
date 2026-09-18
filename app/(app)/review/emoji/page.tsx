@@ -13,7 +13,7 @@ import { bandsAround } from "@/lib/collections/levels";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { EmojiSession, boardLead, type EmojiPair } from "./EmojiSession";
-import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Picture match" };
 
@@ -171,6 +171,8 @@ export default async function EmojiPage({
 
     const spec = CASES.find((c) => c.key === card.targetCase);
     if (!spec) continue;
+    // Inside the module, a case only once its page has been read.
+    if (!caseWithin(scope, spec.key)) continue;
 
     /*
       AND NOT A CARD WHOSE ANSWER SPELLS THE WORD. `lib/srs/cards.ts` stopped
@@ -243,7 +245,7 @@ export default async function EmojiPage({
       stored rather than derived and the nominative is the lemma, so a tile
       reading `mis? maja` beside 🏠 would be asking nothing.
     */
-    const askable = CASES.filter((c) => !c.principal);
+    const askable = CASES.filter((c) => !c.principal && caseWithin(scope, c.key));
 
     for (const row of shuffle(rows)) {
       if (pairs.length === PAIRS) break;

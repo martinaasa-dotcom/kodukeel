@@ -16,7 +16,8 @@ import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
-import { moduleScopeFrom } from "@/lib/course/scope";
+import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 import {
   include, notOnLadder, pastTheLadder, withChoices, type CardRow,
 } from "./cards";
@@ -260,11 +261,22 @@ export default async function ReviewPage({
     puts a word's cards together and in the order a lesson teaches them,
     because a first meeting is a teaching screen rather than a retrieval.
   */
-  const spaced = spaceSiblings(due, (card) => card.lexemeId);
+  /*
+    AND A CARD ABOUT A CASE NOBODY HAS READ, OR A GAP IN A SENTENCE OF WORDS
+    NOBODY HAS TAUGHT, WAITS FOR THE EVENING THAT TEACHES IT. A word's cards
+    are built together, so a deck holding a taught word can hold its case
+    cards before the case page has been read; inside the module those are
+    left in the queue for standalone review and the module's own round asks
+    what the module has taught (`cardWithin`).
+  */
+  const spellings = await moduleSpellings(scope);
+  const within = (card: CardRow) => cardWithin(scope, card, spellings);
+  const dueWithin = due.filter(within);
+  const spaced = spaceSiblings(dueWithin, (card) => card.lexemeId);
 
   const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
   const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
-  const fresh = atLevelFirst(unseen, level, raised).slice(0, room);
+  const fresh = atLevelFirst(unseen.filter(within), level, raised).slice(0, room);
   const gloss = await glossChosen();
   const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId, scope?.lemmas ?? null);
 

@@ -6740,7 +6740,7 @@ check("a card never answers the card before it", () => {
     rather than a retrieval.
   */
   const review = code("app/(app)/review/page.tsx");
-  assert.match(review, /spaceSiblings\(due,/, "the review queue no longer spaces a word's cards apart");
+  assert.match(review, /spaceSiblings\(dueWithin,/, "the review queue no longer spaces a word's cards apart");
   assert.match(review, /inTeachingOrder\(fresh\)/, "new cards no longer arrive in teaching order");
 
   const queue = code("lib/srs/queue.ts");
@@ -17288,6 +17288,38 @@ check("a planned course day names words rather than writing any", () => {
     tests, /teaches only words its own unit teaches/,
     "the check that a day may not introduce vocabulary is gone",
   );
+});
+
+/*
+  A ROUND THE MODULE CAN DEAL READS WHAT THE MODULE HAS TAUGHT.
+
+  Every step of a planned evening opens a screen a learner can also reach from
+  Practice, and that screen fills itself from the deck or the dictionary at
+  the learner's band. Opened from the module it has to narrow itself to the
+  words and the case pages the ladder has handed over (`lib/course/scope.ts`),
+  or the module's second evening deals an A2 verb table to somebody holding
+  eleven words, which is how this was found. The list is `ACTIVITIES`, read
+  off the table rather than typed, so a round added to a rotation without the
+  scope fails here. Sõnad is the one exemption and is on no rotation: its word
+  is marked on the server from the date, so it cannot be held to a list.
+*/
+check("every round a rotation can deal reads the module's scope off its address", () => {
+  const exempt = new Set(["/sonad"]);
+  const rotated = new Set(Object.values(ROTATION).flat());
+  let reads = 0;
+  for (const [key, spec] of Object.entries(ACTIVITIES)) {
+    if (exempt.has(spec.href)) {
+      assert.ok(!rotated.has(key as never), `${spec.href} is exempt from the module's scope and is on a rotation`);
+      continue;
+    }
+    const page = code(`app/(app)${spec.href}/page.tsx`);
+    assert.match(page, /moduleScopeFrom\(/, `${spec.href} is a round the module can deal and never asks what the module has taught`);
+    reads += 1;
+  }
+  assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
+  // And the closing review reads it too, since it is the last step of every evening.
+  assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
+  assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
 });
 
 /*

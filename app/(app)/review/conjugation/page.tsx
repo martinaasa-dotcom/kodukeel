@@ -132,7 +132,9 @@ export default async function ConjugationPage({
   ];
 
   // The conditional is a B1 point. Below that a round is the present only.
-  const conditionalToo = level !== "A1" && level !== "A2";
+  // Inside the module, once the conditional's own page has been read: it is
+  // the third unit of B1, and the first evening of B1 is not it.
+  const conditionalToo = scope ? scope.topics.includes("conditional") : level !== "A1" && level !== "A2";
 
   const questions: Omit<ConjugationQuestion, "starred" | "shape">[] = [];
   for (const verb of ordered) {

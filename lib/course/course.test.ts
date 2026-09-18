@@ -9,7 +9,7 @@ import {
   READ_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
-  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, taughtFrom,
+  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough,
 } from "./index";
 import { moduleScopeFrom } from "./scope";
 import { emojiFor } from "@/lib/collections/emoji";
@@ -23,7 +23,11 @@ import { emojiFor } from "@/lib/collections/emoji";
  */
 function taughtBy(programme: (typeof PROGRAMMES)[number], index: number) {
   const lemmas = new Set(taughtThrough(programme, index));
-  return taughtFrom(SYLLABUS.flatMap((u) => u.vocabulary).filter((v) => lemmas.has(v.lemma)));
+  const grammar = grammarThrough(programme, index);
+  return taughtFrom(
+    SYLLABUS.flatMap((u) => u.vocabulary).filter((v) => lemmas.has(v.lemma)),
+    [...grammar.cases.map((c) => ({ grammarCase: c })), ...grammar.topics.map((t) => ({ grammar: t }))],
+  );
 }
 
 const DAYS = PROGRAMMES.flatMap((p) => p.days.map((d) => ({ programme: p, day: d })));
@@ -259,8 +263,43 @@ describe("what a day reads and where it goes", () => {
       for (const key of day.practice) {
         const need = NEEDS[key];
         if (need) expect(taught[need], `${day.id} deals ${key} before a ${need} word`).toBe(true);
+        expect(supportsRound(key, taught, programme.level), `${day.id} deals ${key} before its material`).toBe(true);
       }
     }
+  });
+
+  /*
+    A CASE IS ASKED ONLY AFTER ITS PAGE HAS BEEN READ, ON EVERY LEVEL. The
+    sprint, Target, Write, Describe and the case board each ask for an ending,
+    and the first evening of A2 has read no case page; the first case page is
+    the inessive, in the third unit of A2.1. So those rounds wait for it, and
+    dictation and word ordering wait for a sentence made entirely of taught
+    words to exist, and government waits for its page and a handful of verbs.
+  */
+  it("asks a case round only once a case page has been read, and a sentence round only once a sentence exists", () => {
+    const caseRounds = new Set(["sprint", "target", "write", "describe"]);
+    let firstCase: string | null = null;
+    for (const { programme, day } of DAYS) {
+      const taught = taughtBy(programme, day.index);
+      if (taught.cases.size > 0 && !firstCase) firstCase = day.id;
+      for (const key of day.practice) {
+        if (caseRounds.has(key)) expect(taught.cases.size, `${day.id} deals ${key} with no case read`).toBeGreaterThan(0);
+        if (key === "picture" && programme.level !== "A1") expect(taught.cases.size, day.id).toBeGreaterThan(0);
+        if (key === "dictation" || key === "sentences") expect(taught.readable, `${day.id} deals ${key}`).toBe(true);
+        if (key === "government") expect(taught.topics.has("government"), `${day.id} deals government unread`).toBe(true);
+      }
+    }
+    expect(firstCase, "no evening ever reads a case page").not.toBeNull();
+    expect(firstCase!.startsWith("a2."), `the first case page is read on ${firstCase}`).toBe(true);
+    // And every case round is actually dealt somewhere, or the gate is a wall.
+    for (const key of [...caseRounds, "dictation", "sentences", "government", "picture"]) {
+      expect(DAYS.some(({ day }) => day.practice.includes(key as never)), `${key} is never dealt`).toBe(true);
+    }
+  });
+
+  it("puts Sõnad on no rotation, since its word is dealt off the dictionary and marked from the date", () => {
+    for (const [level, keys] of Object.entries(ROTATION)) expect(keys, level).not.toContain("sonad");
+    expect(supportsRound("sonad", taughtBy(PROGRAMMES.at(-1)!, 999), "C1")).toBe(false);
   });
 
   /*
@@ -325,6 +364,18 @@ describe("what a day reads and where it goes", () => {
     expect(moduleScopeFrom(undefined)).toBeNull();
     // A pictured noun is what the board needs, and the pronouns carry none.
     expect(scope!.lemmas.some((l) => emojiFor(l))).toBe(false);
+    // No case page has been read by then, and the topics are the ones read.
+    expect(scope!.cases).toEqual([]);
+    expect(scope!.topics).toContain("politeness");
+
+    // Deep into A2, the cases read so far and not the ones ahead.
+    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
+    const lastOfLoodus = [...a2.days].reverse().find((d) => d.unitId === "loodus")!;
+    const later = moduleScopeFrom({ module: `${a2.id}~${lastOfLoodus.id}~do:sprint~3~5~0` })!;
+    expect(later.cases).toContain("INESSIVE");
+    expect(later.cases).not.toContain("COMITATIVE");
+    expect(later.lemmas).toContain("tere");
+    expect(later.topics).toContain("imperative");
   });
 
   it("conjugates a unit of verbs", () => {

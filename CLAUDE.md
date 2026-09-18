@@ -4453,6 +4453,31 @@ alone with it, so the standalone rounds, the suggestion row and Sõnad stop reac
 beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
 sentence now: that a clue is coming, what it says, and when.
 
+**And then the same rule was asked of every evening of every level, because a beginner is not the
+only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
+before any case page had been read, B1's first evening a conjugation table with the conditional in
+it two units before the conditional's own page, and Sõnad on every rotation dealt a word off the
+dictionary at whatever band. So the builder keeps a **ledger** (`Ledger` in `lib/course/build.ts`)
+of what every evening has handed over, walked in order over the whole ladder so what a1.6 taught is
+what a2.1 is dealt against: the words and their spellings off the harvest, the case pages and the
+topic pages read, the taught verbs that carry a government, and whether a sentence a lexicographer
+wrote yet exists made entirely of taught words. `supportsRound` is the one place that says what each
+round needs: a case page read for the sprint, Target, Write, Describe and the case board; that
+sentence for dictation and word ordering; the government page and four governed verbs for
+government; a verb for the table and a pictured noun for the board. A round whose material is not
+there yet is stood in for by Match or Listening, and the pair repeating on consecutive evenings is
+allowed exactly where the ledger leaves nothing else. **Sõnad is on no rotation**, since
+`recordSonad` rebuilds the day's puzzle from the date and the level on the server to mark it, so a
+board held to a taught list would be marked against a different word; it stays the game of the day.
+The scope a round reads off its address carries the same ledger (`ModuleScope.cases`, `.topics`),
+and every page a rotation can open holds to it, asserted by a sweep over `ACTIVITIES`: taught words
+in the query, a case only through `caseWithin`, a sentence only through `sentenceWithin`, a deck
+card only through `cardWithin`, which is what keeps a starter deck's case cards and gap cards out of
+the closing round until the evening that reads the page or teaches the words. The conditional joins
+the module's conjugation table when its page has been read rather than at B1. `course.test.ts`
+rebuilds the ledger from the syllabus and the readings as a second opinion and walks all 273
+evenings against it.
+
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
 case names at A1, so the pronoun evenings read nothing and the verb evenings read the verb to be
