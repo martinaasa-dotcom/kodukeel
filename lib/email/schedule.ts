@@ -102,7 +102,15 @@ export const QUIET_CONVERSATIONS = 2;
 export interface Candidate {
   readonly ownerId: string;
   readonly email: string | null;
-  /** Set where the address has hard bounced or the person marked one as spam. */
+  /**
+   * Whether the address this run is about to write to has already bounced.
+   *
+   * A boolean rather than the stored value, and resolved by the run rather
+   * than by the gathering, because the question is about an *address* and only
+   * the run has one: `lib/email/webhook.ts` stores which address failed so
+   * that somebody who changes theirs can be written to again, and comparing
+   * the two needs both halves in the same place.
+   */
   readonly undeliverable: boolean;
   readonly prefs: EmailPrefs;
   /** Their own clock, since "already had one today" is their today. */

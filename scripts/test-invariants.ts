@@ -18697,6 +18697,71 @@ check("a letter holds no picture, and nothing counts who opened one", () => {
   }
 });
 
+check("what the provider sends back is verified before it is read", () => {
+  /*
+    A PUBLIC ENDPOINT THAT DECIDES WHETHER THIS APP WILL WRITE TO SOMEBODY.
+
+    Forging one is worth doing in both directions: stopping a stranger's mail,
+    or finding a way into the settings table. The signature is the whole
+    control, so the ways it can be quietly weakened are what this holds.
+  */
+  const route = code("app/api/email/bounce/route.ts");
+  const webhook = code("lib/email/webhook.ts");
+
+  /*
+    VERIFIED BEFORE PARSED, WHICH IS THE ORDER THIS IS USUALLY BROKEN IN. The
+    signature is over the bytes the provider sent, so a route that parses first
+    and verifies a re-serialised body verifies something else. It fails in the
+    direction that looks like the provider's fault, which is why it survives.
+  */
+  const readsRaw = route.indexOf("request.text()");
+  const verifies = route.indexOf("verifyDelivery(");
+  const parses = route.indexOf("JSON.parse(");
+  assert.ok(readsRaw !== -1 && verifies !== -1 && parses !== -1, "the bounce route stopped verifying");
+  assert.ok(readsRaw < verifies, "the bounce route verifies something other than the bytes it was sent");
+  assert.ok(
+    verifies < parses,
+    "the bounce route parses the body before checking the signature, so it reads a forgery before " +
+      "deciding whether it is one",
+  );
+
+  /* No secret, no webhook. A control that fails open is not a control. */
+  assert.match(
+    route,
+    /if \(!secret\) return new Response\("Not found", \{ status: 404 \}\)/,
+    "the bounce route accepts deliveries when no signing secret is configured",
+  );
+
+  /*
+    And the pieces the verification is made of. Each of these removed leaves a
+    check that still looks like one: a comparison that leaks how much of a
+    forged signature was right, and a signature that is valid for ever so that
+    anybody who captured one delivery can replay it whenever they like.
+  */
+  assert.match(webhook, /timingSafeEqual/, "a webhook signature is compared in variable time");
+  assert.match(webhook, /TOLERANCE_SECONDS/, "a webhook signature no longer expires, so a captured one replays for ever");
+
+  /*
+    IT IS ITS OWN SECRET. `EMAIL_TOKEN_SECRET` signs the unsubscribe links this
+    app hands out and this one verifies what somebody else sends in: different
+    blast radius, different rotation, and a shared key makes a leaked
+    unsubscribe link a way to forge a bounce.
+  */
+  assert.match(webhook, /RESEND_WEBHOOK_SECRET/, "the webhook reads some other secret");
+  assert.doesNotMatch(webhook, /EMAIL_TOKEN_SECRET/, "the webhook shares a key with the unsubscribe links");
+
+  /*
+    And it is reachable. A webhook behind the sign-in gate is one the provider
+    cannot deliver to, which looks exactly like a provider that never sends
+    anything.
+  */
+  assert.match(
+    code("middleware.ts"),
+    /api\/email\/bounce/,
+    "the bounce webhook fell behind the sign-in gate, where the provider cannot reach it",
+  );
+});
+
 check("the scheduled run is the only thing that sends, and it is gated", () => {
   /*
     An endpoint that mails every learner on the deployment is a way for a

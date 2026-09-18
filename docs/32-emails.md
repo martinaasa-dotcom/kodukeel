@@ -161,6 +161,60 @@ The letter says how many words the scheduler counts as theirs today, which is tr
 other figure needs a row written when a card changes state, which is a schema change and a decision
 about another append-only table rather than something to smuggle in behind a count.
 
+## What comes back, and what is done about it
+
+A send either goes or it does not, and the send path reads only the second case: an address the
+provider refuses at the door. That is the smaller half. Most bad addresses are accepted and then
+rejected minutes later by the receiving server, and a spam complaint arrives hours after somebody
+has read the message. Neither reaches the code that sent it, so without a webhook this app would go
+on writing to a dead address for ever, which is exactly what a mailbox provider reads as a sender
+who is not paying attention. The cost of that lands on the sign-in links.
+
+`/api/email/bounce` takes `email.bounced` and `email.complained` **and nothing else**. Resend will
+also send opens and clicks, and those are precisely what `/privacy` says this app does not keep:
+subscribing to them and dropping them would be a promise kept by nothing but a function.
+
+**The signature is the whole control.** This endpoint changes whether the deployment will write to
+a learner, so forging one is worth doing in both directions: stopping a stranger's mail, or finding
+a way into the settings table. Every delivery carries an HMAC over `id.timestamp.body`, and three
+things about how it is checked are each a way it could be quietly weakened:
+
+- **Verified before parsed.** The signature is over the bytes that arrived, so a route that parses
+  first and verifies a re-serialised body verifies something else. That is the usual way this is
+  broken and it fails in the direction that looks like the provider's fault.
+- **Compared in constant time**, or a wrong signature leaks how much of it was right.
+- **Stamped, with a five-minute window**, or a signature is valid for ever and anybody who has ever
+  captured one delivery can replay it whenever they like. Checked in both directions, since a
+  timestamp far in the future is as much a sign of a forgery as one far in the past.
+
+It is its own secret. `EMAIL_TOKEN_SECRET` signs the unsubscribe links this app hands out and
+`RESEND_WEBHOOK_SECRET` verifies what somebody else sends in: different blast radius, different
+rotation, and a shared key would make a leaked unsubscribe link a way to forge a bounce.
+
+**A transient bounce is not a dead address.** A full mailbox and a server having a bad afternoon
+both arrive as `email.bounced`, and only the provider's own `"Permanent"` is acted on. Anything
+else, including a classification this code has not seen, is read as transient: blocking on one
+costs somebody every future letter, silently, for a condition that fixes itself.
+
+**A complaint is a different instruction.** The address works; they read it and pressed the spam
+button, which is somebody saying stop in the plainest terms available. It is answered the way the
+one-click link is answered, every optional letter off, and it is deliberately not a delivery block:
+the sign-in links are not optional and are not what anybody complains about.
+
+**And a block names the address, not the learner.** The first version of this marked the person,
+which is a deadlock: somebody whose old address bounced changes it in their account and this app
+refuses to write to them for ever, silently, with nothing to report it. What is stored is a digest
+of the address that failed, and the send path compares it with the address it is about to use. A
+digest because the schema deliberately holds no email address, which is what lets erasure promise
+that deleting an account takes the address with it.
+
+**It answers 200 to nearly everything**, which is deliberate: a webhook that errors is one the
+provider retries and then disables. An event with no action, a message this deployment did not
+send, a learner who has since deleted their account and a database having a bad minute are all
+accepted and dropped. A signature that does not verify is the one refusal, and it says nothing
+about why, because a route that answered differently for a bad signature and an unknown message
+would be a way to find out which message ids exist.
+
 ## What is checked, and what is not
 
 The decision is a pure function and is driven over a fortnight of made-up days: which letter is
@@ -179,10 +233,18 @@ gate refuses. The token logic underneath is unit tested and the middleware allow
 so what is missing is the wiring between them, which is exactly the layer this project has been
 caught by before.
 
-Nothing has posted a real message to a real mailbox either. The transport is one function with a
-`fetch` seam in it and no test drives that seam, so the first real send is the first time the
-headers, the multipart split and the `From` are exercised against Resend. Worth doing against one
-address before any schedule is switched on.
+The webhook's signature verification is driven with signatures built the way the provider builds
+them rather than against a stub that agrees with the implementation, and each of the three ways it
+could be weakened was removed once to watch the tests fail: the comparison, the replay window and
+the permanent-versus-transient reading.
+
+Nothing has posted a real message to a real mailbox, and nothing has received a real delivery from
+Resend. The transport is one function with a `fetch` seam that no test drives, and the webhook has
+only ever seen signatures this repository made. So the first real send is the first time the
+headers and the multipart split meet Resend, and the first real bounce is the first time the
+payload shape is confirmed against a live one. Both are worth doing once, deliberately, before any
+schedule is switched on: send to one address, then send to an address that cannot exist and watch
+the row appear.
 
 ## Three faults found by asking whether it was reliable
 
@@ -242,9 +304,3 @@ else, and the rules for that are not the rules above.
 **A word of the day letter with no ask in it at all.** Opt-in, for people who like the word and are
 not currently doing the course. Cheap, and the one kind here that would be worth sending to somebody
 who has stopped.
-
-**Bounce and complaint handling by webhook.** The send path marks an address the provider refuses
-outright, which is the synchronous half. Asynchronous bounces and spam complaints arrive at a
-webhook and need signature verification, which is a dependency and a route. Until then an address
-that starts failing later keeps being tried, which is the gap most worth closing before this is
-pointed at any real number of people.

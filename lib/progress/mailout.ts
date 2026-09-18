@@ -182,6 +182,11 @@ function weekdayOn(clock: { dayKey(date?: Date): string }, now: Date): number {
   return new Date(`${clock.dayKey(now)}T00:00:00Z`).getUTCDay();
 }
 
+/** What the run needs to decide whether a bounce still applies. */
+export async function undeliverableRow(ownerId: string): Promise<string | null> {
+  return readSetting(ownerId, SETTING_KEYS.emailUndeliverable);
+}
+
 /** The five cheap facts the decision needs. */
 export async function candidateFor(ownerId: string, now: Date): Promise<Candidate> {
   const settings = await readSettings(ownerId, [
@@ -287,7 +292,12 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     ownerId,
     // Filled by the run, which is the only layer allowed to read an address.
     email: null,
-    undeliverable: settings[SETTING_KEYS.emailUndeliverable] === "1",
+    /*
+      False here, and decided by the run. The stored block names the address
+      that bounced rather than the learner, so it cannot be read without one,
+      and the run is the only layer that may hold an address.
+    */
+    undeliverable: false,
     prefs: emailPrefsFrom(settings[SETTING_KEYS.emailsOff]),
     dayKey: clock.dayKey(now),
     localHour,

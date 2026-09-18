@@ -550,7 +550,20 @@ EMAIL_TOKEN_SECRET=...           # 32+ random bytes, signs the unsubscribe links
 CRON_SECRET=...                  # the scheduler's bearer token
 EMAIL_REPLY_TO=hei@your-domain   # optional, and worth setting: a letter nobody
                                  # can answer is a letter from a machine
+RESEND_WEBHOOK_SECRET=whsec_...  # verifies what Resend sends back
 ```
+
+Add a webhook in Resend's dashboard pointing at `https://your-domain/api/email/bounce`,
+subscribed to **`email.bounced`** and **`email.complained`** and nothing else. The signing secret
+it gives you is `RESEND_WEBHOOK_SECRET`. With none set the route answers 404 to everybody, which
+is the state this repository ships in.
+
+Subscribe to those two and no others on purpose. Resend will also send opens and clicks, and those
+are exactly what `/privacy` says this app does not keep; asking for them and dropping them would be
+a promise kept by nothing but a function. A permanent bounce stops writing to **that address**,
+not to that learner, so somebody who changes theirs is written to again. A spam complaint switches
+off every optional letter, and leaves the sign-in links alone, because those are not what anybody
+complains about.
 
 `SUPABASE_SERVICE_ROLE_KEY` has to be set too. Addresses live with the sign-in provider rather
 than in this app's database, which is what lets erasure promise it takes the address with it, so

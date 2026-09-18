@@ -44,7 +44,8 @@ import { welcomeLetter } from "@/lib/email/letters/welcome";
 import { comebackLetter } from "@/lib/email/letters/comeback";
 import { weeklyLetter } from "@/lib/email/letters/weekly";
 import { errandLetter } from "@/lib/email/letters/errand";
-import { candidateFor, letterInputFor, mailoutRoster } from "@/lib/progress/mailout";
+import { candidateFor, letterInputFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
+import { addressDigest, blocks } from "@/lib/email/webhook";
 import { writeSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { resolveOperator } from "@/lib/legal/operator";
 import { adminClient, addressFor } from "./audience";
@@ -160,7 +161,19 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
       if (!letterOwed({ ...who, email: "pending@example.invalid" }, now)) continue;
 
       const email = await addressFor(admin, ownerId);
-      const decision = letterOwed({ ...who, email }, now);
+      /*
+        AND WHETHER A BOUNCE STILL APPLIES IS ABOUT THE ADDRESS, NOT THE
+        LEARNER.
+
+        The webhook stores which address failed rather than marking the person,
+        so that somebody whose old address bounced and who has since changed it
+        can be written to again. Reading it as a fact about the learner is a
+        deadlock: this app would refuse them for ever, silently, and nothing
+        would report it. The comparison lives here because this is the only
+        layer allowed to hold an address at all.
+      */
+      const blocked = email ? blocks(await undeliverableRow(ownerId), email) : false;
+      const decision = letterOwed({ ...who, email, undeliverable: blocked }, now);
       if (!decision || !email) continue;
 
       const built = await letterInputFor(ownerId, decision.kind, origin, now);
@@ -236,7 +249,11 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
             actually needs.
           */
           report.refused += 1;
-          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, "1");
+          /*
+            The same shape the webhook writes, so one reader answers both: the
+            address that was refused, rather than the learner who held it.
+          */
+          await writeSetting(ownerId, SETTING_KEYS.emailUndeliverable, addressDigest(email));
         }
         reportError(new Error(`mailout: ${result.reason}`), { at: "mailer/run", ownerId });
       }

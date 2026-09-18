@@ -157,6 +157,17 @@ export async function middleware(request: NextRequest) {
       of its own and answers 404 to everybody else.
     */
     path.startsWith("/api/email/unsubscribe") ||
+    /*
+      AND WHAT THE SENDING PROVIDER TELLS US AFTERWARDS, WHICH ARRIVES FROM
+      THEIR SERVERS AND NOT FROM A BROWSER.
+
+      There is no session on a webhook and there never will be. It is not
+      unprotected for being public: every delivery carries an HMAC over its own
+      id, timestamp and body, verified in `lib/email/webhook.ts` before the
+      body is parsed at all, and a deployment with no signing secret answers
+      404 to everybody.
+    */
+    path.startsWith("/api/email/bounce") ||
     // The offline fallback holds no data and has to render from the service
     // worker's cache, where there is no session to check.
     path.startsWith("/offline") ||
