@@ -9,6 +9,9 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
@@ -86,6 +89,19 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const finished = !card;
   const answered = selected !== null;
 
+  /*
+    THE WAY OUT OF BEING STUCK, WHERE THE ANSWERS ARE ALREADY ON THE SCREEN.
+
+    Nothing to uncover, because every option is printed in full, so the help a
+    teacher gives is crossing one out. `struckOptions` strikes the meaning
+    furthest from the right one first, which leaves the pair worth telling
+    apart standing longest: the point of this round is hearing a word rather
+    than reading four, and a hint that removed the near rival would answer it.
+  */
+  const ladder = card ? narrowLadder(card.choices, card.correct) : [];
+  const hints = useHints({ key: card?.id ?? null, ladder });
+  const struck = card ? struckOptions(card.choices, card.correct, hints.taken) : [];
+
   useEffect(() => {
     shownAt.current = Date.now();
     setSelected(null);
@@ -97,15 +113,17 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     const isCorrect = choice === card.correct;
     const duration = Date.now() - shownAt.current;
     setSelected(choice);
+    if (!isCorrect) hints.noteMiss();
     try {
-      await gradeCard(card.id, isCorrect ? 3 : 1, duration);
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      await gradeCard(card.id, Math.min(isCorrect ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration);
     } catch {
       // The grade did not reach the database; the round still shows feedback.
     }
     setAttempted((a) => a + 1);
     if (isCorrect) setCorrect((c) => c + 1);
     setBusy(false);
-  }, [card, answered, busy]);
+  }, [card, answered, busy, hints]);
 
   const next = useCallback(() => {
     if (!answered) return;
@@ -279,13 +297,26 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                     At 60% this read 2.46 to 4.16 depending on which of the
                     four tones the option was wearing. */}
                 <KeyCap>{i + 1}</KeyCap>
-                <span className="flex-1">{choice}</span>
+                <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>
+                {!answered && struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
                 {answered && isCorrectChoice && <Check size={15} aria-hidden />}
                 {answered && isPicked && !isCorrectChoice && <X size={15} aria-hidden />}
               </button>
             );
           })}
         </div>
+
+        {!answered && (
+          <div className="border-t px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+            <HintLadder
+              ladder={ladder}
+              taken={hints.taken}
+              onTake={hints.take}
+              open={hints.open}
+              label="this word"
+            />
+          </div>
+        )}
 
         {answered && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>

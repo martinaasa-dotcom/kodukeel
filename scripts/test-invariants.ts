@@ -64,6 +64,7 @@ import {
 } from "../lib/research/corpus";
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
+import { HINT_EXEMPT, HINT_SWEPT_DIRS } from "../lib/questions/hintCoverage";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
 
@@ -18483,6 +18484,117 @@ check("the shipped translations are English, and there are enough of them to mat
   // noticing: a key with a stray space matches nothing and costs a line.
   const known = Object.keys(table)[0];
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
+});
+
+
+/*
+  THE WAY OUT OF BEING STUCK, EVERYWHERE SOMEBODY CAN BE STUCK.
+
+  Four arms, and the shape of them is the one this file keeps arriving at: a
+  sweep with a written exemption beside it rather than a list of the files
+  somebody got round to wiring, because a list is a thing that falls behind and
+  the fault it produces is a screen with no way out, which looks exactly like a
+  screen nobody has pressed the hint on.
+*/
+check("every round offers a hint, or says in writing why it does not", () => {
+  const rounds = HINT_SWEPT_DIRS
+    .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
+    .map((f) => f.replace(/\\/g, "/"))
+    .sort();
+  assert.ok(rounds.length >= 20, `only ${rounds.length} round components found; the sweep is looking in the wrong place`);
+
+  const exempt = new Map(HINT_EXEMPT.map((e) => [e.file, e.why]));
+  /*
+    The element rather than the import, which is the trap `code()` exists for
+    one directory over: a session that imported the hint and drew nothing would
+    satisfy any check that only greps for the module's name, and would look on
+    screen exactly like a round nobody had needed help on.
+  */
+  const draws = (file: string) => /<HintLadder\b/.test(code(file));
+
+  const silent = rounds.filter((f) => !draws(f) && !exempt.has(f));
+  assert.deepEqual(silent, [], `these rounds offer no hint and are not exempt: ${silent.join(", ")}`);
+
+  // And in the other direction, so an exemption cannot outlive its reason.
+  const stale = [...exempt.keys()].filter((f) => !rounds.includes(f) || draws(f));
+  assert.deepEqual(stale, [], `these exemptions are stale: ${stale.join(", ")}`);
+
+  // A bare filename is not a decision.
+  const unexplained = HINT_EXEMPT.filter((e) => e.why.trim().split(/\s+/).length < 6);
+  assert.deepEqual(unexplained, [], "every hint exemption states its reason in a sentence");
+});
+
+check("a round that draws a hint pays for it in the grade it sends", () => {
+  /*
+    THE HALF THAT MAKES THE HINT SAFE.
+
+    `npm run audit:decks` exists because a card whose answer is printed in its
+    own question is a card nobody can fail: the learner reads it off the screen,
+    the log records a recall, and the slot is spent for ever. A hint is that
+    made deliberate, and the only thing that stops it being the same fault is
+    that the grade says so. So a round drawing `HintLadder` has to read the
+    ceiling, and it is asserted on the member access rather than on the word,
+    because a comment about paying for hints satisfies neither.
+  */
+  const drawing = HINT_SWEPT_DIRS
+    .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
+    .filter((f) => /<HintLadder\b/.test(code(f)));
+  const free = drawing.filter((f) => !/\.ceiling\b/.test(code(f)));
+  assert.deepEqual(
+    free.map((f) => f.replace(/\\/g, "/")), [],
+    "these rounds draw a hint and never read its ceiling, so a helped answer is logged as an unaided one",
+  );
+});
+
+check("the hint's state is one hook rather than a copy per round", () => {
+  /*
+    A ladder has to be reset when the question changes and not before, and every
+    round changes question in its own way: some advance an index, some splice
+    the answered card out and leave the index alone, some requeue a miss several
+    places on. A copy per round is twenty chances to reset on the wrong thing,
+    and what that produces is the next word opening with the last word's hints
+    counted against it, so a learner is graded Again on a card they answered
+    cleanly and nothing on the screen says why.
+  */
+  const drawing = [...HINT_SWEPT_DIRS, "app/(app)"]
+    .flatMap((dir) => sourceFiles(dir, /\.tsx$/))
+    .filter((f) => /<HintLadder\b/.test(code(f)));
+  const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
+  assert.deepEqual(
+    [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
+    "these rounds hold the hint's state themselves rather than through `useHints`",
+  );
+});
+
+check("nothing but the hint ladder decides what a hint gives away", () => {
+  /*
+    One module writes the covered spellings and one component draws them. A
+    screen that built its own `_`-masked form would be a second answer to how
+    much a hint uncovers and what it costs, and the one nobody was watching
+    would be the one that handed the answer over free.
+  */
+  const HOME = /lib[\\/]questions[\\/]hints(\.test)?\.ts$/;
+  const readers = ALL
+    .filter((f) => !HOME.test(f))
+    .filter((f) => /\bCOVER\b|\bhintLadder\(|\bnarrowLadder\(/.test(code(f)));
+  /*
+    `code` rather than `read`, which this check was made to fall into once
+    before it was believed: every one of these files carries a comment saying
+    "see `lib/questions/hints.ts`" beside the grade it caps, so with the import
+    deleted and the call left standing the raw text still matched and the check
+    passed on the broken file. Prose about a rule is not compliance with it,
+    which is the oldest recurring mistake in this repository's own checks.
+  */
+  const strays = readers.filter((f) => !/lib\/questions\/hints/.test(code(f)));
+  assert.deepEqual(strays, [], "these files build a hint without reading lib/questions/hints.ts");
+
+  // And the encouragement is one sentence, from one table, for the same reason
+  // a second copy of any line of copy in this app is a second copy: they drift.
+  const notes = ALL.filter((f) => /It is fine not to know this one yet/.test(read(f)));
+  assert.deepEqual(
+    notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
+    "the first-try line is written out somewhere other than the one table that holds it",
+  );
 });
 
 console.log(

@@ -11,6 +11,9 @@ import { StarWord } from "@/components/StarWord";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { CASES, questionInEnglish } from "@/lib/estonian/cases";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import type { CaseKey } from "@/lib/estonian/types";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
@@ -93,6 +96,21 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   const finished = !question;
   const revealed = picked !== null;
 
+  /*
+    THE WAY OUT OF BEING STUCK, WHICH HERE CROSSES A CASE OUT.
+
+    Government is the one thing about an Estonian verb an English speaker
+    cannot reason their way to, so a learner stuck here is stuck on a fact
+    rather than on a rule and has nothing to work from. The options are case
+    keys, and `struckOptions` ranks them on the strings themselves, which for
+    these is the key: it strikes the one least like the answer first and leaves
+    the near rivals standing, which is `caseNearness`'s own preference asked
+    backwards.
+  */
+  const ladder = question ? narrowLadder(question.options, question.answer) : [];
+  const hints = useHints({ key: question?.cardId ?? question?.lemma ?? null, ladder });
+  const struck = question ? struckOptions(question.options, question.answer, hints.taken) : [];
+
   const choose = useCallback((option: CaseKey) => {
     if (!question || picked) return;
     setPicked(option);
@@ -100,8 +118,11 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     if (right) setCorrect((c) => c + 1);
     // ADR-016: the same review log as every other mode, so rektsioon practice
     // moves the schedule instead of scoring itself.
-    if (question.cardId) void gradeCard(question.cardId, right ? 3 : 1, 0).catch(() => {});
-  }, [question, picked]);
+    if (!right) hints.noteMiss();
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
+    if (question.cardId) void gradeCard(question.cardId, rating, 0).catch(() => {});
+  }, [question, picked, hints]);
 
   const next = useCallback(() => {
     setPicked(null);
@@ -234,7 +255,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                   {/* One character at 60%, which measured 4.12:1 against a
                       bar of 4.5 on the unrevealed option alone. */}
                   <KeyCap>{i + 1}</KeyCap>
-                  <span className="min-w-0">
+                  <span className={`min-w-0 ${!revealed && struck.includes(option) ? "line-through" : ""}`}>
+                    {!revealed && struck.includes(option) && <span className="sr-only">Ruled out by a hint. </span>}
                     {/* The question leads because the dictionary records
                         government as the question a verb answers, and because
                         that is how the answer is said out loud: "aitama" takes
@@ -251,6 +273,17 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
               );
             })}
           </div>
+          {!revealed && (
+            <div className="mt-3">
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label={question.lemma}
+              />
+            </div>
+          )}
         </div>
 
         {revealed && (

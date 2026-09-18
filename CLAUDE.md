@@ -1838,6 +1838,94 @@ the marking back. The flip survives where there is genuinely nothing to compare:
 whose answer is a gloss rather than a form, and speaking, where ADR-018 says the learner is the only
 judge there is.
 
+**Being stuck has a way out now, and it costs something.** A learner drove the Learn ladder, met a
+word ninety seconds earlier, was shown an empty box and a Check button, and had nothing to do but
+guess or leave. Two things were missing and they are different. Nothing on the screen said that
+being unable to fill that box is the ordinary state of somebody three weeks into Estonian, so a
+blank box read as a test, and the thing people do with a test they expect to fail is not take it.
+And nothing offered help on the second go: `lib/scenes/coach.ts` had worked all of this out for a
+conversation, where two people reported the same thing in the same words, that it makes you feel
+stupid, and every other screen in the app could not answer it at all.
+
+**`lib/copy/firstTry.ts` is the one line and it is said once in a word's life.** On a first
+production, which is a word being asked for in writing by somebody who has not already missed it
+today and whose card carries no lapses. Not under every box for ever, which is the fault this file
+records about "Any underlined word opens its meaning": advice nobody asked for, printed again on
+every card until it stops being read and takes the screen's other sentences with it. The claim in it
+is the app's own cited finding rather than encouragement: attempting retrieval and missing beats not
+attempting it (Karpicke and Roediger, about 80 percent recalled a week later against 35). **The same
+line at every level**, which is a decision: the request named A1 and A1 is where nearly every ask is
+a first production, and a B1 learner meeting a new word is standing in exactly the same place. A
+reassurance withdrawn once somebody is judged good enough not to need it was never about them.
+
+**`lib/questions/hints.ts` is the ladder, and it writes no Estonian.** Every character a hint puts
+on the screen is a character of the answer the round was already holding, and the only thing the
+module does to it is decide which letters to cover up. That is `buildCloze`'s standing exactly
+(ADR-005): hiding part of a form a lexicographer wrote is not writing one. The English around it is
+authored, which is the one language this project writes. **The letters are uncovered from the end
+first**, which is a fact about the language rather than a choice about puzzles: `/grammar/build-a-word`
+teaches that eleven cases are the second stored form with a fixed ending on it, so the ending is the
+half a rule gives you and the stem is the half you have to have memorised, and handing over the
+ending is the mild hint. The ending is read off the word's own stem where the round holds one and
+off the case's own `suffix` where it does not, and **both are checked against the answer rather than
+trusted**: `tuba` goes to `tuppa`, which does not end in `sse`, so nothing is claimed about it. An
+answer with no stem and no suffix behind it, which is every English gloss and every phrase, uncovers
+from the front. Where the options are already on the screen there is nothing to uncover, so a hint
+crosses one out instead, **worst rival first**, which is `lib/questions/distractors.ts`'s own
+argument asked backwards: striking the near rival would hand the answer over on the first press.
+
+**A hint is paid for, and that is the half that makes it safe.** `npm run audit:decks` exists
+because a card whose answer is printed in its own question is a card nobody can fail: the learner
+reads it off the screen, the log records a recall, the interval stretches and the slot is spent for
+ever. A hint is that fault made deliberate, and the only thing that stops it being the same fault is
+that the grade says so. So a rung that narrows caps the grade at Hard and the rung that spells the
+answer out caps it at Again, applied with `Math.min` against what the answer earned, so a miss is
+still a miss and a hint can only ever lower. Neither is a punishment: Hard means the word comes back
+sooner, which is what should happen to a word somebody needed help with, and `lib/scenes/coach.ts`
+already grades a handed-over word `Again` for the same reason. The ceiling is **4** with nothing
+taken rather than 3, which is not a detail: a flip card and the speaking round are self-graded and
+Easy is one of their four, so a ceiling of 3 on an untouched ladder would quietly take Easy off
+every screen in the app. `RATINGS` and the scheduler are untouched (ADR-016).
+
+**It opens on the second go around the same word, and the screen says what it cost.** One miss in
+this sitting, which is the learner's own wording, or a card that arrived carrying `LEECH_LAPSES`,
+since a word the clinic already calls one they keep failing is demonstrably a struggle and making
+somebody miss it once more first is the app knowing something and sitting on it. `HINT_COST_NOTE`
+arrives **with the first hint** rather than before it or never: before, it is a warning off the one
+thing this exists to offer, and never is a grade changing without anybody being told.
+
+**The state is one hook because the reset is what twenty copies would get wrong.**
+`components/round/useHints.tsx` holds how often this sitting has put a word up and been told no, and
+how far down the ladder the learner has gone. A ladder has to be reset when the question changes and
+not before, and every round changes question in its own way: some advance an index, some splice the
+answered card out and leave the index alone, some requeue a miss several places on. A copy per round
+is twenty chances to reset on the wrong thing, and the fault is silent in the way this repository
+keeps finding: the next word opens with the last word's hints counted against it, so a learner is
+graded Again on a card they answered cleanly and nothing on the screen says why. Adjusted during
+render rather than in an effect, which is React's own shape for it, because an effect lets one
+render go past with the old count standing and that render is the one where Check is pressed.
+`components/round/HintLadder.tsx` is the one drawing, for the reason `StarWord` is one, and it shows
+only the latest rung, since the ladder is cumulative and stacking four spellings of one word up a
+card puts the three useless ones at the top.
+
+**Fourteen rounds offer it and eleven are exempt by name, in `lib/questions/hintCoverage.ts`.** The
+ask was website wide and that is not the same as every file. The three **measurements** may not have
+one, which is the line `lib/exam/paper.ts` and `lib/assessment/items.ts` are already exempt on: a
+candidate helped through a mock paper has been measured at something other than what the screen
+says. The **flip against a clock** and **speaking** already put the answer behind one press the
+learner controls, so a ladder under either offers nothing shorter. The **boards** put several words
+up at once or none in particular, which is the class `components/StarWord.tsx` is exempt on. And
+**Sõnad, the crossword and a conversation each have a ladder of their own** (`cluesAt`, the crossing
+letters, `coachFor`), and a second one beside it would be two answers to how this app helps somebody
+who is stuck. The sweep is the filesystem rather than a list, for the reason every other sweep here
+is: a list is a thing somebody has to remember to extend, and what it leaves behind is a screen with
+no way out that looks exactly like a screen nobody has pressed the hint on. A bare filename is not a
+decision, and an exemption is checked for staleness in both directions. Five arms, each made to fail
+on the real fault first, and the fifth **failed to fail** on the first attempt: every wired round
+carries a comment saying "see `lib/questions/hints.ts`" beside the grade it caps, so with the import
+deleted and the call left standing the raw text still matched. It reads `code()` now, which is the
+oldest recurring mistake in this repository's own checks made for the sixth time.
+
 **Which forms a gap-fill may hide is one answer, and it was five.** `buildCloze` hides a word it is
 told to look for, so what it can hide is whatever list the caller hands it. Two callers, the lesson
 planner and the level checkpoint, added the ten regular cases and were the same twenty lines twice.

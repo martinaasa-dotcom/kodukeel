@@ -7,6 +7,9 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { EstonianInput } from "@/components/EstonianInput";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -94,6 +97,29 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     return () => window.clearTimeout(t);
   }, [index, question, inputs]);
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON A TABLE OF FIVE.
+
+    The ladder is over the **first** cell rather than whichever one has focus.
+    A table is answered top to bottom, so the first empty cell is where
+    somebody stuck is standing, and reading the focused one would mean a ladder
+    that resets itself every time the caret moves, on the one round where the
+    caret moves five times a question.
+
+    The stem handed over is the shared opening of the first person and the form
+    asked for, which is `sharedStart`, the same rule the ending chip beside the
+    answer already uses. So the ending rung names exactly the letters that chip
+    lights up.
+  */
+  const first = question?.blanks[0];
+  const ladder = question && first
+    ? hintLadder({
+      answer: first.answer,
+      stems: [first.answer.slice(0, sharedStart(question.given.value, first.answer))],
+    })
+    : [];
+  const hints = useHints({ key: question ? `${question.lemma}:${question.tense}` : null, ladder });
+
   const check = useCallback(() => {
     if (!question || verdicts) return;
     const marks = question.blanks.map((b, i) => checkAnswer(typed[i] ?? "", b.answer, "et"));
@@ -110,10 +136,14 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     sound(clean ? "right" : "wrong", run.current);
     // ADR-016: the same review log as every other mode. Four of five is the
     // table known; less is a lapse worth seeing again.
+    if (!clean) hints.noteMiss();
     if (question.cardId) {
-      void gradeCard(question.cardId, right >= marks.length - 1 ? 3 : 1, Date.now() - startedAt.current).catch(() => {});
+      // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
+      // nothing taken, so a table nobody asked for help on grades as it did.
+      const earned = right >= marks.length - 1 ? 3 : 1;
+      void gradeCard(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current).catch(() => {});
     }
-  }, [question, verdicts, typed, sound]);
+  }, [question, verdicts, typed, sound, hints]);
 
   const next = useCallback(() => setIndex((i) => i + 1), []);
 
@@ -297,6 +327,17 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
               <DiacriticBar standalone={false} fallbackRef={inputs[0]} />
             </div>
           )}
+          {!revealed && (
+            <div className="mt-4">
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label={question.lemma}
+              />
+            </div>
+          )}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
@@ -356,9 +397,22 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
  * Read off the two strings rather than off the rule, so a stored irregular
  * form (`olen`, `on`) is shown honestly with whatever it does not share.
  */
-function Ending({ stem, form }: { stem: string; form: string }) {
+/**
+ * How much of a form the person ending has not touched.
+ *
+ * Pulled out of `Ending` below because the hint ladder asks the same question:
+ * which letters of `loeb` are the stem `loen` was built on. Two copies of it
+ * would be two answers to what counts as the ending of a verb in one file, and
+ * the one nobody was watching would be the hint.
+ */
+function sharedStart(stem: string, form: string): number {
   let shared = 0;
   while (shared < stem.length && shared < form.length && stem[shared] === form[shared]) shared += 1;
+  return shared;
+}
+
+function Ending({ stem, form }: { stem: string; form: string }) {
+  const shared = sharedStart(stem, form);
   // A form that shares nothing, or everything, has no ending worth lighting.
   if (shared === 0 || shared === form.length) return <>{form}</>;
   return (

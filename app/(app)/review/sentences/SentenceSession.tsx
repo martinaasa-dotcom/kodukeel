@@ -13,6 +13,9 @@ import { sentenceTiles } from "@/lib/estonian/cloze";
 import { orderIsRight, readOrder, type OrderVerdict } from "@/lib/estonian/wordOrder";
 import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { WordLink } from "@/components/course/WordLink";
@@ -93,6 +96,19 @@ export function SentenceSession(
   const task = tasks[index];
   const finished = !task;
 
+  /*
+    THE WAY OUT OF BEING STUCK, WHERE THE WORDS ARE ALL ON THE SCREEN ALREADY.
+
+    Uncovering the writer's own sentence from the front, which on a round about
+    order is exactly the right shape: the first rung says how many words there
+    are and how long each one is, and the next says which word opens it. That
+    is the question a learner stuck on a shuffle of six tiles is asking, and
+    nothing about it says which of two orders Estonian allows, since both are
+    marked right (`readOrder`).
+  */
+  const ladder = task ? hintLadder({ answer: task.et }) : [];
+  const hints = useHints({ key: task?.cardId ?? null, ladder });
+
   useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
 
   // Shuffling happens after mount, never during the server render: the server
@@ -156,14 +172,16 @@ export function SentenceSession(
     if (right) setCorrect((c) => c + 1);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
 
-    const rating = right ? 3 : 1;
+    if (!right) hints.noteMiss();
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const rating = Math.min(right ? 3 : 1, hints.ceiling) as 1 | 2 | 3;
     try {
       await gradeCard(task.cardId, rating, Date.now() - shownAt.current);
     } catch {
       // The round still counts on screen; the grade is simply not recorded.
     }
     setBusy(false);
-  }, [task, busy, checked, answer]);
+  }, [task, busy, checked, answer, hints]);
 
   const next = () => setIndex((i) => i + 1);
 
@@ -378,7 +396,15 @@ export function SentenceSession(
               Next sentence <ArrowRight size={15} aria-hidden />
             </Button>
           ) : (
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3">
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label="this sentence"
+              />
+              <div className="flex gap-2">
               <Button variant="ghost" onClick={() => setBuilt([])} disabled={built.length === 0}>
                 <RotateCcw size={14} aria-hidden /> Clear
               </Button>
@@ -391,6 +417,7 @@ export function SentenceSession(
               >
                 <Check size={15} aria-hidden /> Check
               </Button>
+              </div>
             </div>
           )}
         </div>

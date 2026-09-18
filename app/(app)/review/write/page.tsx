@@ -89,6 +89,7 @@ export default async function WritePage() {
         caseKey: task.caseKey,
         caseEt: task.caseEt,
         caseQuestion: task.caseQuestion,
+        targetForm: task.targetForm,
         provenance: task.provenance,
         weak: weakCases.has(task.caseKey),
       });

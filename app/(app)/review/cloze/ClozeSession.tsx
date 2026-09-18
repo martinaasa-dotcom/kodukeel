@@ -5,6 +5,9 @@ import { Check, CircleAlert, Loader2, ScissorsLineDashed } from "lucide-react";
 import { buildClozeFromText, gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { Chip, KeyCap, Page, Stat } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import {
@@ -33,6 +36,17 @@ export function ClozeSession() {
   const startedAt = useRef(Date.now());
 
   const item = items[index];
+  /*
+    THE WAY OUT OF BEING STUCK, IN THE LEARNER'S OWN TEXT.
+
+    No stem and no suffix: the passage is theirs, the gap is whatever form
+    their sentence happened to hold, and nothing on this screen knows which
+    case it is. The letters uncover from the front, which claims nothing about
+    Estonian and is exactly what somebody staring at a gap in a paragraph they
+    pasted needs.
+  */
+  const ladder = item ? hintLadder({ answer: item.answer }) : [];
+  const hints = useHints({ key: item ? `${index}` : null, ladder });
 
   const build = useCallback(async () => {
     setBusy(true);
@@ -69,11 +83,13 @@ export function ClozeSession() {
       side game with a score of its own. A missing diacritic is a keyboard slip,
       not a memory failure, so it grades Hard rather than Again.
     */
+    if (!right) hints.noteMiss();
     if (item.cardId) {
-      const rating = right ? 3 : isDiacriticSlip(attempt, item.answer) ? 2 : 1;
-      void gradeCard(item.cardId, rating, 0).catch(() => {});
+      const earned = right ? 3 : isDiacriticSlip(attempt, item.answer) ? 2 : 1;
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      void gradeCard(item.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, 0).catch(() => {});
     }
-  }, [item, checked, attempt]);
+  }, [item, checked, attempt, hints]);
 
   useEffect(() => {
     if (phase !== "drill") return;
@@ -243,6 +259,17 @@ export function ClozeSession() {
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!checked && <div className="under-field"><DiacriticBar /></div>}
+            {!checked && (
+              <div className="mt-4">
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label="this gap"
+                />
+              </div>
+            )}
           </div>
 
           {checked && (

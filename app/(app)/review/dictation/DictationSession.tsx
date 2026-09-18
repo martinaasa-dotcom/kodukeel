@@ -5,6 +5,9 @@ import { ArrowRight, Check, Ear, Volume2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { EstonianInput } from "@/components/EstonianInput";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { Chip, Empty, Page, StatTile } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -128,6 +131,19 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     shownAt.current = Date.now();
   }, [index]);
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON A WHOLE SENTENCE.
+
+    The shape rung is worth most here and is worth nothing anywhere else: a
+    dictation is the one ask in the app whose answer is several words, so
+    `____ _____ ______` says how many words were said and how long each one is,
+    which is exactly what somebody who caught the sense and lost the edges
+    needs. No stem and no suffix, because the answer is a sentence rather than
+    a form, so it uncovers from the front.
+  */
+  const ladder = task ? hintLadder({ answer: task.et }) : [];
+  const hints = useHints({ key: task?.cardId ?? null, ladder });
+
   const submit = useCallback(async () => {
     if (!task || busy || result) return;
     setBusy(true);
@@ -138,13 +154,16 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     if (marked.verdict === "wrong" && typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(60);
     }
+    if (marked.verdict === "wrong") hints.noteMiss();
     try {
-      await gradeCard(task.cardId, marked.suggestedRating as RatingValue, Date.now() - shownAt.current);
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      const rating = Math.min(marked.suggestedRating, hints.ceiling) as RatingValue;
+      await gradeCard(task.cardId, rating, Date.now() - shownAt.current);
     } catch {
       // The round still counts on screen; the grade is simply not recorded.
     }
     setBusy(false);
-  }, [task, busy, result, typed]);
+  }, [task, busy, result, typed, hints]);
 
   const next = () => setIndex((i) => i + 1);
 
@@ -322,14 +341,23 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
               )}
             </>
           ) : (
-            <EstonianInput
-              value={typed}
-              onChange={(v) => { setTyped(v); setPlayed(true); }}
-              onEnter={() => void submit()}
-              ariaLabel="What you heard"
-              placeholder="Type the sentence…"
-              autoFocus
-            />
+            <>
+              <EstonianInput
+                value={typed}
+                onChange={(v) => { setTyped(v); setPlayed(true); }}
+                onEnter={() => void submit()}
+                ariaLabel="What you heard"
+                placeholder="Type the sentence…"
+                autoFocus
+              />
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label="this sentence"
+              />
+            </>
           )}
 
           {result && (

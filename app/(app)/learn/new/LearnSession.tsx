@@ -28,6 +28,10 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
+import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
@@ -230,6 +234,57 @@ export function LearnSession({
   const total = words.length;
   const left = queue.length;
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE TWO RUNGS THAT CAN BE STUCK ON.
+
+    `meet` asks nothing, so there is nothing to be helped with. `choice` puts
+    four meanings on the screen, where the help a teacher gives is crossing one
+    out; `gap` asks for a form, where it is uncovering the letters of the one
+    the dictionary holds. `lib/questions/hints.ts` builds both and prices both.
+
+    The stems handed over are every form of the word the session is holding,
+    nulls included: the module takes the longest that really is the front of the
+    answer and ignores the rest, so nothing here has to decide which of them is
+    "the stem". That is what stops twenty rounds each keeping their own opinion
+    about Estonian morphology.
+  */
+  const ladder = useMemo(() => {
+    if (!word) return [];
+    if (rung === "choice") return narrowLadder(word.choices ?? [], word.gloss);
+    if (rung !== "gap") return [];
+    const answer = word.gap ? word.gap.answer : word.lemma;
+    return hintLadder({ answer, stems: [word.gap?.stem, word.lemma] });
+  }, [word, rung]);
+  /*
+    Keyed on the card and the rung together, because the two rungs that can be
+    stuck on ask different questions about one word and hand over different
+    kinds of help. A word that fell from the gap back to the choice should be
+    offered the crossing-out from scratch rather than arriving with three of
+    four already struck by the letters somebody uncovered a lap ago.
+  */
+  const hints = useHints({
+    key: word ? `${word.cardId}:${rung}` : null,
+    ladder,
+    lapses: word?.scheduling.lapses ?? 0,
+  });
+  const struck = useMemo(
+    () => (rung === "choice" ? struckOptions(word?.choices ?? [], word?.gloss ?? "", hints.taken) : []),
+    [rung, word, hints.taken],
+  );
+
+  /*
+    The one screen in the round that says being unable to answer is ordinary.
+
+    Only on a first production: a word being asked for in writing for the first
+    time, by somebody who has not already missed it today and whose card carries
+    no lapses. A word carries this line once in its life, which is what keeps it
+    from becoming the small print under every box (`lib/copy/firstTry.ts`).
+  */
+  const firstTry = word !== undefined && rung === "gap" && isFirstProduction({
+    produced: hints.missed + word.scheduling.lapses,
+    typed: true,
+  });
+
   useEffect(() => { rememberWord(word ? { id: word.cardId } : undefined); }, [rememberWord, word]);
 
   useEffect(() => { setPendingOffline(outboxPending); }, [outboxPending]);
@@ -322,7 +377,21 @@ export function LearnSession({
   const send = useCallback(async (outcome: Outcome, shown: Result) => {
     if (!word || busy) return;
     setBusy(true);
-    const rating = ratingFor(outcome) as RatingValue;
+    if (outcome !== "right" && outcome !== "known") hints.noteMiss();
+    /*
+      A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
+
+      `hintCeiling` is 3 with nothing taken, which is no ceiling at all, so a
+      round nobody asked for help in grades exactly as it always did. Once a
+      rung has been taken the grade cannot rise above Hard, and once the answer
+      itself has been shown it cannot rise above Again. Written as a floor under
+      `Math.min` rather than as a branch, so a miss is still a miss: a hint can
+      only ever lower what the answer earned. The argument for charging at all
+      is in `lib/questions/hints.ts`, and it is the one `audit:decks` makes: a
+      question whose answer is on the screen is a question nobody can fail, and
+      the only thing that keeps this from being that is the log saying so.
+    */
+    const rating = Math.min(ratingFor(outcome), hints.ceiling) as RatingValue;
     const durationMs = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
     const before = scheduled.current.get(word.cardId) ?? word.scheduling;
@@ -391,7 +460,7 @@ export function LearnSession({
     } finally {
       setBusy(false);
     }
-  }, [word, busy, rungs, advance, refreshOutbox]);
+  }, [word, busy, rungs, advance, refreshOutbox, hints]);
 
   /** The meeting writes nothing. The word comes back a lap later as a question. */
   const met = useCallback(() => {
@@ -675,16 +744,33 @@ export function LearnSession({
                        chose, on a screen only ever reached by pressing the
                        wrong one. */
                     const state = marked ? optionState(isAnswer, option === chosen) : null;
+                    /*
+                      A HINT HERE CROSSES ONE OUT, WHICH IS WHAT A TEACHER DOES.
+
+                      Struck rather than removed: an option that vanishes takes
+                      the row under it up the screen while somebody is reading,
+                      and a learner who has just pressed for help should be able
+                      to see what the help ruled out. It is left pressable and
+                      graded exactly as it would have been, because refusing the
+                      press would be the app telling them they are wrong before
+                      they have answered. The ranking is `struckOptions`': the
+                      option nobody would confuse with the answer goes first, so
+                      the rivals worth telling apart are the ones left standing.
+                    */
+                    const out = !marked && struck.includes(option);
                     return (
                       <button
                         key={option}
                         type="button"
                         onClick={() => pick(option)}
                         disabled={busy || marked}
-                        className={`choice-btn ${state ? OPTION_CLASS[state] : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
+                        aria-describedby={out ? "hint-struck" : undefined}
+                        className={`choice-btn ${state ? OPTION_CLASS[state] : ""} ${out ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
+                        style={out ? { color: "var(--ink-3)" } : undefined}
                       >
                         <KeyCap>{i + 1}</KeyCap>
                         <span className="min-w-0 flex-1">{option}</span>
+                        {out && <span className="sr-only"> (ruled out by a hint)</span>}
                         {state === "right" && <Check size={16} aria-label="Right" />}
                         {state === "wrong" && <X size={16} aria-label="Your pick" />}
                       </button>
@@ -697,6 +783,15 @@ export function LearnSession({
                    returns nothing rather than padding a question out with a
                    second right answer. */
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
+              )}
+              {phase === "ask" && (
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={word.lemma}
+                />
               )}
             </>
           )}
@@ -787,6 +882,19 @@ export function LearnSession({
                   <p className="text-xs" style={{ color: "var(--ink-3)" }}>Write it in Estonian.</p>
                 </>
               )}
+              {/*
+                THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.
+
+                Above the box rather than under it, because it is read while
+                somebody is deciding whether to type anything and a sentence
+                under the box is a sentence they meet after they have decided.
+                Only on a first production, so a word carries it once: see
+                `lib/copy/firstTry.ts` for why it is not the small print under
+                every box for ever.
+              */}
+              {firstTry && phase === "ask" && (
+                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{FIRST_TRY_NOTE}</p>
+              )}
               <div className="w-full max-w-sm text-left">
                 <EstonianInput
                   value={typed}
@@ -798,6 +906,15 @@ export function LearnSession({
                   large
                 />
               </div>
+              {phase === "ask" && (
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={word.lemma}
+                />
+              )}
               {/*
                 Not disabled on an empty box, which is the review screen's own
                 answer and is the way out of a word you cannot produce: an empty

@@ -6,6 +6,10 @@ import { Check, CircleAlert, Loader2 } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
+import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
@@ -39,6 +43,15 @@ export interface ScenePrompt {
   askLemma: string;
   askTranslation: string;
   caseKey: string;
+  /**
+   * The form the sentence has to carry, which is what a hint uncovers.
+   *
+   * Sent down like every other round's answer, and the marking is not: the
+   * route still decides whether the form was used, so nothing a client could
+   * forge reaches the log. Null where the round could not name one, and the
+   * ladder is simply not offered there.
+   */
+  targetForm: string | null;
   caseEt: string;
   caseQuestion: string;
 }
@@ -98,6 +111,20 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   const prompt = prompts[index];
   const finished = !prompt;
 
+  /*
+    THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
+
+    The sentence is the learner's own and nothing here holds it. What this
+    round marks is whether the named word turned up in the case it asked for,
+    so the ending is the one thing somebody can be stuck on, and the ladder
+    uncovers that. The suffix comes off the case's own table, so the ending
+    rung names what the case adds and leaves the stem to be remembered.
+  */
+  const ladder = prompt?.targetForm
+    ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
+    : [];
+  const hints = useHints({ key: prompt ? `${prompt.sceneId}:${prompt.caseKey}` : null, ladder });
+
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;
     setBusy(true);
@@ -121,6 +148,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
       const result = body as Marked;
       setMarked(result);
       if (result.mark.rightCase) setRight((n) => n + 1);
+      else hints.noteMiss();
 
       /*
         ADR-016: the same review log as everything else, and the dictionary
@@ -148,8 +176,10 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         */
         const reached = result.mark.verdict?.kind === "one" ? result.mark.verdict.key : undefined;
         void gradeCard(
-          prompt.cardId, result.mark.rating, Date.now() - startedAt.current,
-          undefined, prompt.caseKey, reached,
+          // A hint is paid for: see `lib/questions/hints.ts`. It can only lower
+          // what the dictionary's own check already decided.
+          prompt.cardId, Math.min(result.mark.rating, hints.ceiling) as 1 | 2 | 3,
+          Date.now() - startedAt.current, undefined, prompt.caseKey, reached,
         ).catch(() => {});
       }
     } catch {
@@ -281,6 +311,17 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!marked && <div className="under-field"><DiacriticBar /></div>}
+            {!marked && (
+              <div className="mt-4">
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={prompt.askLemma}
+                />
+              </div>
+            )}
           </div>
 
           {error && (
