@@ -15706,6 +15706,17 @@ check("the ladder says the answer once, and still marks it", () => {
     memo, /rung !== "gap"/,
     "the merge reaches a rung whose answer is an English gloss, which would mark it lang=\"et\"",
   );
+  // And the weight is on the form rather than on the whole sentence. Every
+  // other panel bolds its lead word and leaves the note in the body weight,
+  // so a merged note set semibold end to end is one screen out of step.
+  assert.match(
+    memo, /data-answer className="font-semibold"/,
+    "the merged line stopped bolding the form, so the answer no longer leads the sentence it sits in",
+  );
+  assert.match(
+    ladder, /className=\{saidOnce \? undefined : "font-semibold"\}/,
+    "the ladder sets a whole merged sentence in semibold, which no other verdict panel does",
+  );
 });
 
 /*

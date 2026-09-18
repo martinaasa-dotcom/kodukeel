@@ -449,7 +449,7 @@ export function LearnSession({
     if (!parts.some((part) => part.match)) return null;
     return parts.map((part, i) => (
       part.match
-        ? <span key={i} lang="et" data-answer>{part.text}</span>
+        ? <span key={i} lang="et" data-answer className="font-semibold">{part.text}</span>
         : <span key={i}>{part.text}</span>
     ));
   }, [result, rung]);
@@ -876,7 +876,19 @@ export function LearnSession({
                 both of those the answer is the only thing the learner is
                 waiting for.
               */}
-              <p className="font-semibold">
+              {/*
+                And the weight goes on the form rather than on the sentence.
+                Every other verdict panel in the app bolds the lead word and
+                leaves the note in the body weight (`Nearly.` then the note),
+                and this one used to carry a four-word headline, so the whole
+                paragraph being semibold was right. Merging the note into it
+                made that a whole sentence set bold, at `--text-md`, which is
+                the heaviest thing on the screen and is not what the learner
+                is reading for: the form is. So the merged line takes the
+                body weight and the form inside it is the bold part, which is
+                the same decision `FlashSession` makes one card over.
+              */}
+              <p className={saidOnce ? undefined : "font-semibold"}>
                 {result.outcome === "right"
                   ? uiText("Õige!", "Correct!")
                   : saidOnce
