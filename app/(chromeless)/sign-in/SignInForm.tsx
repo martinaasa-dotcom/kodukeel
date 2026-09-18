@@ -8,9 +8,6 @@ import { createClient } from "@/lib/supabase/client";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
 
-/** The public client ID, when a deployment has one. Never a secret. */
-const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
 /**
  * The one shape of Google Identity Services this file reads. There is no
  * official type package for it, so this is written out by hand rather than
@@ -45,6 +42,51 @@ declare global {
 
 /** How long the Google button gets to render before the old door reopens. */
 const GOOGLE_BUTTON_TIMEOUT_MS = 4000;
+
+/** How long the column gets to stop moving before it is measured anyway. */
+const SETTLE_TIMEOUT_MS = 1500;
+
+/** The narrowest and widest button Google's own API will draw. */
+const MIN_BUTTON_WIDTH = 200;
+const MAX_BUTTON_WIDTH = 400;
+
+/**
+ * A BOX IS WORTH MEASURING ONCE NOTHING IS MOVING IT.
+ *
+ * `renderButton` is handed a number of pixels and draws a button that keeps
+ * that number for ever, so it has to be the column's real width, and twice
+ * now it has not been. The first reading was the button's own container,
+ * which is `display: none` until the button has been drawn into it, so it
+ * read zero every time and a hardcoded 360 went to Google instead. The second
+ * was the column, which is visible throughout and is also still arriving: the
+ * card wears `pop-in`, which scales it up from 0.9 over most of half a
+ * second, and Google's script can answer well inside that. Measured a beat
+ * into that animation, the column's layout width read 374 and its own
+ * rectangle read 361.
+ *
+ * What either mistake looks like on a screen is a button that does not fit
+ * the column it sits in, which is a right edge stopping before its own
+ * border. It was reported that way both times.
+ *
+ * So this resolves once the column's rectangle agrees with the width it was
+ * laid out at, which is what says no transform is scaling it, and has not
+ * moved since the frame before. It gives up at the deadline, because a
+ * browser where something never settles should still get a button.
+ */
+function settled(el: HTMLElement, deadlineMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    const deadline = Date.now() + deadlineMs;
+    let previous = -1;
+    const frame = () => {
+      const measured = el.getBoundingClientRect().width;
+      const still = Math.abs(measured - el.clientWidth) < 0.5 && Math.abs(measured - previous) < 0.5;
+      if (still || Date.now() > deadline) return resolve();
+      previous = measured;
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  });
+}
 
 /**
  * Three ways in, and the second and third exist because the first excludes people.
@@ -99,10 +141,21 @@ const GOOGLE_BUTTON_TIMEOUT_MS = 4000;
 export function SignInForm({
   emailLink,
   ssoDomains = [],
+  googleClientId,
 }: {
   emailLink: boolean;
   /** Domains this deployment has an identity provider for. Empty means none. */
   ssoDomains?: readonly string[];
+  /*
+    The Client ID, read on the server and handed down rather than reached for
+    here. It is public, which is why it carries the `NEXT_PUBLIC_` prefix and
+    why the CSP can name Google's host off the same variable. Reading it here
+    would inline it at build time, and then one build could only ever serve
+    one of the two states, which is what kept the whole of this door outside
+    `scripts/test-signin.mjs`: that suite makes one build and runs it twice
+    with different environments, exactly as `EMAIL_SIGN_IN` is read.
+  */
+  googleClientId?: string;
 }) {
   const [pending, setPending] = useState<"google" | "email" | "sso" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -118,7 +171,7 @@ export function SignInForm({
    * flashing into another rather than as one screen settling once.
    */
   const [googleState, setGoogleState] = useState<"loading" | "gis" | "fallback">(
-    GOOGLE_CLIENT_ID ? "loading" : "fallback",
+    googleClientId ? "loading" : "fallback",
   );
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   /**
@@ -128,6 +181,8 @@ export function SignInForm({
    * `renderButton` needs a width. This wrapper is visible the whole time.
    */
   const columnRef = useRef<HTMLDivElement | null>(null);
+  /** The width the button was last drawn at, so a resize knows to draw it again. */
+  const drawnWidth = useRef<number | null>(null);
 
   const ssoPolicy = useMemo(() => ({ domains: [...ssoDomains] }), [ssoDomains]);
   const sso = ssoDomains.length > 0;
@@ -184,30 +239,57 @@ export function SignInForm({
    * runs rather than the redirect button, so nothing has to be swapped out
    * once Google's own button is ready; the timeout below is what falls back
    * to the redirect door if the script never answers or never draws.
+   *
+   * THE WIDTH IS THE ONE THING THIS HAS TO GET RIGHT, AND IT IS MEASURED
+   * TWICE. `settled` above says why the first measurement has to wait. The
+   * second is this: a number of pixels is right for the column it was taken
+   * from and for no other, so a column that changes size afterwards leaves a
+   * button that no longer fits it, and a button that no longer fits it is a
+   * right edge stopping short of its own border. A phone turned on its side,
+   * a scrollbar arriving once the page is long enough to need one, and a
+   * browser zoom are all that same change. So the column is watched and the
+   * button is drawn again whenever its width moves, which is cheap: the
+   * observer answers once per resize and `renderButton` is local work on a
+   * script that has already loaded.
+   *
+   * The rectangle rather than `clientWidth`, floored, because what has to fit
+   * is the painted box and a number rounded up is a number one pixel too
+   * wide. `initialize` is called once, since the nonce belongs to the attempt
+   * rather than to the drawing, and only `renderButton` is repeated.
    */
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
+    if (!googleClientId) return;
     let cancelled = false;
+    let drawn = false;
+    let observer: ResizeObserver | null = null;
+    /*
+      The deadline gives up on Google's script, not on a button that has
+      already arrived. Written to cancel whatever had happened, it also shut
+      the observer below down four seconds in, so a phone turned on its side
+      after that kept the width it was drawn at, which is the fault this is
+      here to fix arriving by the back door.
+    */
     const timeout = window.setTimeout(() => {
+      if (drawn) return;
       cancelled = true;
       window.clearInterval(poll);
       setGoogleState((state) => (state === "loading" ? "fallback" : state));
     }, GOOGLE_BUTTON_TIMEOUT_MS);
 
-    async function draw() {
-      const id = window.google?.accounts?.id;
+    /** The column's own width, floored so the number can never exceed the box. */
+    function widthNow(): number | null {
+      const column = columnRef.current;
+      if (!column) return null;
+      const measured = Math.floor(column.getBoundingClientRect().width);
+      return Math.max(MIN_BUTTON_WIDTH, Math.min(measured, MAX_BUTTON_WIDTH));
+    }
+
+    /** Draw the button at the column's width, replacing whatever was there. */
+    function paint(id: GoogleAccountsId) {
       const container = googleButtonRef.current;
-      if (!id || !container || cancelled) return;
-      const nonce = randomNonce();
-      const hashed = await hashNonce(nonce);
-      if (cancelled) return;
-      id.initialize({
-        client_id: GOOGLE_CLIENT_ID!,
-        callback: (response) => { void signInWithGoogleIdToken(response.credential, nonce); },
-        nonce: hashed,
-        use_fedcm_for_prompt: true,
-      });
-      const available = columnRef.current?.clientWidth || 320;
+      const width = widthNow();
+      if (!container || width === null) return;
+      container.replaceChildren();
       id.renderButton(container, {
         type: "standard",
         theme: "outline",
@@ -215,9 +297,36 @@ export function SignInForm({
         shape: "rectangular",
         text: "continue_with",
         logo_alignment: "left",
-        width: Math.max(200, Math.min(available, 400)),
+        width,
       });
+      drawnWidth.current = width;
+    }
+
+    async function draw() {
+      const id = window.google?.accounts?.id;
+      const container = googleButtonRef.current;
+      const column = columnRef.current;
+      if (!id || !container || !column || cancelled) return;
+      const nonce = randomNonce();
+      const hashed = await hashNonce(nonce);
+      if (cancelled) return;
+      await settled(column, SETTLE_TIMEOUT_MS);
+      if (cancelled) return;
+      id.initialize({
+        client_id: googleClientId!,
+        callback: (response) => { void signInWithGoogleIdToken(response.credential, nonce); },
+        nonce: hashed,
+        use_fedcm_for_prompt: true,
+      });
+      paint(id);
+      drawn = true;
       setGoogleState("gis");
+      observer = new ResizeObserver(() => {
+        if (cancelled) return;
+        const width = widthNow();
+        if (width !== null && width !== drawnWidth.current) paint(id);
+      });
+      observer.observe(column);
     }
 
     const poll = window.setInterval(() => {
@@ -231,9 +340,10 @@ export function SignInForm({
       cancelled = true;
       window.clearTimeout(timeout);
       window.clearInterval(poll);
+      observer?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [googleClientId]);
 
   /**
    * Hand somebody over to their company's provider.
@@ -321,7 +431,7 @@ export function SignInForm({
         instead, so no browser suite reached the button until
         `scripts/test-signin.mjs` did.
       */}
-      {GOOGLE_CLIENT_ID && (
+      {googleClientId && (
         <Script src={GSI_SCRIPT_SRC} strategy="afterInteractive" />
       )}
 
