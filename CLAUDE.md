@@ -4552,6 +4552,26 @@ being the unit every conversation needs first: asking needs the everyday verbs, 
 requires now. The three scenes whose units cross a part boundary are what fixed where the swaps
 could land, since a scene is opened only once every unit it declares has been taught.
 
+**And a page was read four evenings running, and the impersonal nineteen times.** `reads()` walked a
+unit's grammar list round and round, one page an evening, so the greetings read the politeness page
+on four consecutive evenings, the numbers read the numerals page on five, and between B1 and C1 the
+impersonal was read nineteen times by nine units: a reading the learner did last night, put in front
+of them again as tonight's step, is the step they skip past and then stop trusting. `readingPlan` is
+one page an evening, each page a unit declares once in the unit and in the order its author wrote
+them, none that an earlier unit of the same part has already read; an evening past the end of the
+list reads nothing, which the fifteen-minute test allows
+at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
+the conversation replaces the reading (`day()`): the first version handed it one, counted it read
+in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
+been shown. One page is lost to that, the terminative on the travel unit, whose four pages meet
+four evenings and a scene on the last, and it is named in the test rather than waived. Fresh pages
+first was tried and reverted: it put the conditional in front of the imperative on the request unit
+because the imperative had been met at A1, and a unit's list is a lesson plan whose revision at the
+front is the revision its author wanted first. **And a verb
+card in the closing review is held to the page teaching its part**, through `slotWithin` like the
+flash round, since a card built for a verb met on A2's first evening carries the past three
+evenings before its page and the conditional a level before the table asks it.
+
 **And a verb inside the module was asked for its dictionary form and nothing else, at every
 level.** The flash round read every slot through `caseWithin`, which answers about cases, so a
 verb code like `IndPrSg3` was read as a case nobody had opened and refused. Wrong the safe way, and

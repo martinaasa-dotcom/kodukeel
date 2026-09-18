@@ -9,11 +9,11 @@ import {
   READ_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
-  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough,
+  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
   PICTURES_FOR_BOARD,
 } from "./index";
 import { readFileSync } from "node:fs";
-import { moduleScopeFrom, slotWithin } from "./scope";
+import { cardWithin, moduleScopeFrom, slotWithin } from "./scope";
 import { emojiFor } from "@/lib/collections/emoji";
 
 /**
@@ -520,6 +520,77 @@ describe("what a day reads and where it goes", () => {
     }
   });
 
+  /*
+    A PAGE IS READ ONCE. The greetings read the politeness page four evenings
+    running and the impersonal was read nineteen times between B1 and C1,
+    which is a step a learner skips past and then stops trusting.
+  */
+  it("reads a page once in a unit and once in a part, in the order its author wrote", () => {
+    for (const programme of PROGRAMMES) {
+      const seen = new Set<string>();
+      for (const day of programme.days) {
+        const page = day.grammarCase ?? day.grammar;
+        if (!page) continue;
+        expect(seen.has(page), `${day.id} reads ${page} again inside ${programme.id}`).toBe(false);
+        seen.add(page);
+      }
+    }
+    // The pages a unit declares are its plan, in its order, each once.
+    const keha = unitById("keha-ja-tervis")!;
+    expect(readingPlan(keha, "A2", new Set())).toEqual(["partitive", "adessive", "gradation"]);
+    expect(readingPlan(keha, "A2", new Set(["partitive"]))).toEqual(["adessive", "gradation"]);
+    // At A1 a case is not a page, and a unit of nothing but cases reads nothing.
+    expect(readingPlan(unitById("kodu")!, "A1", new Set())).toEqual([]);
+    // And every page a unit declares above A1 is read somewhere on the ladder,
+    // except the one page a unit with as many pages as evenings loses to the
+    // conversation on its last evening, which is named here rather than waived.
+    const LOST_TO_A_SCENE: Record<string, string> = { reisimine: "terminative" };
+    const everRead = new Set(DAYS.map(({ day }) => (day.grammarCase ?? day.grammar)?.toLowerCase()));
+    for (const unit of SYLLABUS) {
+      if (unit.level === "A1") continue;
+      for (const name of unit.grammar) {
+        if (!grammarTopic(name) && !CASES.some((c) => c.key === name.toUpperCase())) continue;
+        if (LOST_TO_A_SCENE[unit.id] === name) {
+          expect(SCENE_FOR_UNIT[unit.id], `${unit.id} ends on no scene`).toBeDefined();
+          expect(everRead.has(name), `${unit.id} reads ${name} after all; take it off the list`).toBe(false);
+          continue;
+        }
+        expect(everRead.has(name), `${unit.id} declares ${name} and the ladder never reads it`).toBe(true);
+      }
+    }
+  });
+
+  it("counts no page as read on a scene evening, since the conversation replaces the reading", () => {
+    let scenes = 0;
+    for (const { day } of DAYS) {
+      if (!day.scene) continue;
+      scenes += 1;
+      expect(day.grammar ?? day.grammarCase, `${day.id} reads a page nobody is shown`).toBeUndefined();
+      expect(day.steps.some((s) => s.kind === "read"), day.id).toBe(false);
+    }
+    expect(scenes).toBe(Object.keys(SCENE_FOR_UNIT).length);
+  });
+
+  it("holds a verb card in the closing review to the page teaching its part", () => {
+    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
+    const first = a2.days[0]!;
+    const scope = moduleScopeFrom({ module: `${a2.id}~${first.id}~do:review~3~5~0` })!;
+    const past = { cardType: "CONJUGATION", targetCase: null, front: "Ta ____ eile.", slot: "IndIpfSg3" };
+    const present = { ...past, slot: "IndPrSg3" };
+    const spellings = new Set(["ta", "eile"]);
+    expect(cardWithin(scope, past, spellings)).toBe(false);
+    expect(cardWithin(scope, present, spellings)).toBe(true);
+    // The conditional waits for B1 even once A2's request unit has read its page.
+    const later = [...a2.days].reverse().find((d) => d.unitId === "korraldused")!;
+    const afterPage = moduleScopeFrom({ module: `${a2.id}~${later.id}~do:review~3~5~0` })!;
+    expect(afterPage.topics).toContain("conditional");
+    expect(cardWithin(afterPage, { ...past, slot: "KndPrSg1" }, spellings)).toBe(false);
+    const b1 = PROGRAMMES.find((p) => p.id === "b1.1")!;
+    const tingiv = [...b1.days].reverse().find((d) => d.unitId === "tingiv")!;
+    const b1scope = moduleScopeFrom({ module: `${b1.id}~${tingiv.id}~do:review~3~5~0` })!;
+    expect(cardWithin(b1scope, { ...past, slot: "KndPrSg1" }, spellings)).toBe(true);
+  });
+
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {
     const verbDay = DAYS.find(({ day }) => day.unitId === "pohiverbid")!;
     expect(verbDay.day.practice).toContain("conjugation");
@@ -547,16 +618,17 @@ describe("what a day reads and where it goes", () => {
     short and no more.
   */
   it("is fifteen minutes, every evening, and shorter only where there is nothing to read", () => {
-    for (const { programme, day } of DAYS) {
+    for (const { day } of DAYS) {
       /*
-        An A1 evening whose unit is about a case reads nothing, since a
-        beginner reads no case page, and it is two minutes shorter for it
-        rather than two minutes of something invented to fill the slot. A
-        quarter of an hour is the ceiling somebody planned their evening
-        around; thirteen is that promise kept.
+        An evening with nothing new to read reads nothing: a beginner reads
+        no case page, and a page read last night is not put in front of
+        anybody again as tonight's step (`readingPlan`). It is two minutes
+        shorter for it rather than two minutes of something invented to fill
+        the slot. A quarter of an hour is the ceiling somebody planned their
+        evening around; thirteen is that promise kept.
       */
       const reads = day.steps.some((s) => s.kind === "read" || s.kind === "talk");
-      const floor = reads || programme.level !== "A1" ? DAY_MINUTES - 2 : DAY_MINUTES - 2 - READ_MINUTES;
+      const floor = reads ? DAY_MINUTES - 2 : DAY_MINUTES - 2 - READ_MINUTES;
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
         .toBeGreaterThanOrEqual(floor);
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)

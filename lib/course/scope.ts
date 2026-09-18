@@ -102,7 +102,13 @@ export function slotWithin(scope: ModuleScope | null, slot: string | null | unde
   if (!scope || !slot) return true;
   if (scope.cases.includes(slot)) return true;
   const verb = VERB_SLOT_PAGE.find((v) => slot.startsWith(v.opens));
-  if (verb) return scope.topics.includes(verb.page) || (verb.also !== undefined && scope.topics.includes(verb.also));
+  if (verb) {
+    // The conditional is asked from B1, as the module's own table asks it
+    // (`app/(app)/review/conjugation/page.tsx`): A2's request unit reads the
+    // page to soften a request and is not asking anybody to conjugate it.
+    if (verb.page === "conditional" && ["A1", "A2"].includes(scope.programme.level)) return false;
+    return scope.topics.includes(verb.page) || (verb.also !== undefined && scope.topics.includes(verb.also));
+  }
   if (/^[A-Z][a-z]+[A-Z]/.test(slot)) return false;
   return caseWithin(scope, isCaseKey(slot) ? slot : null);
 }
@@ -120,13 +126,16 @@ const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
  */
 export function cardWithin(
   scope: ModuleScope | null,
-  card: { cardType: string; targetCase: string | null; front: string },
+  card: { cardType: string; targetCase: string | null; front: string; slot?: string | null },
   spellings: ReadonlySet<string> | null,
 ): boolean {
   if (!scope) return true;
   if (card.cardType === "CASE_FORM" || card.cardType === "GRADATION") {
     if (!caseWithin(scope, card.targetCase ?? (card.cardType === "GRADATION" ? "GENITIVE" : null))) return false;
   }
+  // A verb card is about a part of the verb, and the past on the first
+  // evening of A2 is three evenings before the page that teaches it.
+  if (card.cardType === "CONJUGATION" && !slotWithin(scope, card.slot)) return false;
   if (card.cardType === "CLOZE" || card.cardType === "CASE_FORM" || card.cardType === "CONJUGATION") {
     // A sentence front, with the gap taken out. A bare front (`lemma → ask`)
     // has no sentence to check and passes.

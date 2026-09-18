@@ -58,24 +58,51 @@ export function slice<T>(items: readonly T[], n: number): T[][] {
  * point the reference does not carry, the evening simply reads nothing rather
  * than linking somewhere that does not exist.
  */
-export function reads(unit: SyllabusUnit, at: number, level: string = unit.level): Pick<DaySpec, "grammar" | "grammarCase"> {
-  /*
-    NO CASE PAGE AT A1. A beginner is asked for no case anywhere in A1, and a
-    page of fourteen endings on the second evening is the reference being
-    handed to somebody who has just been told the language is impossible. So
-    at A1 an evening reads only a topic page, the present tense, the verb to
-    be, negation, and where a unit's grammar is nothing but cases it reads
-    nothing rather than a page it is not going to be asked about. The cases
-    are read from A2, where they are drilled.
-  */
-  const names = level === "A1"
-    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()))
-    : unit.grammar;
-  if (names.length === 0) return {};
-  const name = names[at % names.length]!;
+export function reads(
+  unit: SyllabusUnit, at: number, level: string = unit.level, readInPart: ReadonlySet<string> = new Set(),
+): Pick<DaySpec, "grammar" | "grammarCase"> {
+  const name = readingPlan(unit, level, readInPart)[at];
+  return name ? readingFor(name) : {};
+}
+
+/** A declared grammar name as the page it opens: a case page, a topic page, or nothing the reference carries. */
+function readingFor(name: string): Pick<DaySpec, "grammar" | "grammarCase"> {
   const asCase = name.toUpperCase();
   if (CASE_KEYS.has(asCase)) return { grammarCase: asCase };
   return grammarTopic(name) ? { grammar: name } : {};
+}
+
+/**
+ * The pages a unit reads, one an evening, in order.
+ *
+ * NO CASE PAGE AT A1. A beginner is asked for no case anywhere in A1, and a
+ * page of fourteen endings on the second evening is the reference being
+ * handed to somebody who has just been told the language is impossible. So
+ * at A1 an evening reads only a topic page, the present tense, the verb to
+ * be, negation, and where a unit's grammar is nothing but cases it reads
+ * nothing rather than a page it is not going to be asked about. The cases
+ * are read from A2, where they are drilled.
+ *
+ * AND A PAGE IS READ ONCE. The first version walked a unit's list round and
+ * round, so the greetings read the politeness page four evenings running and
+ * the numbers read the numerals page five, and the impersonal was read
+ * nineteen times between B1 and C1: a reading the learner did last night,
+ * put in front of them again as tonight's step, is furniture, and it is the
+ * step a learner reported skipping past. Each page a unit declares is read
+ * once in the unit, in the order its author wrote them, and a page already
+ * read in this part is not read again by a later unit of it. An evening past
+ * the end of the list reads nothing, which the fifteen-minute test allows
+ * for. The author's order is kept over a fresh-first one, which was tried
+ * and put the conditional in front of the imperative on the request unit
+ * because the imperative had been met at A1: a unit's list is a lesson plan
+ * and the revision at the front of it is the revision the author wanted
+ * first.
+ */
+export function readingPlan(unit: SyllabusUnit, level: string, readInPart: ReadonlySet<string>): string[] {
+  const names = level === "A1"
+    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()))
+    : unit.grammar;
+  return [...new Set(names.filter((name) => !readInPart.has(name)))];
 }
 
 /**
@@ -368,6 +395,8 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
   */
   const perDay = ordinaryWords(spec.level);
   const taught = new Set<string>();
+  /* A page read once in a part is not read again by a later unit of it. */
+  const readInPart = new Set<string>();
   const days: CourseDay[] = [];
   /* The rotation walks the whole part rather than restarting per unit, or the
      first evening of every unit would be the same pair for a fortnight. */
@@ -385,6 +414,11 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
     const scene = SCENE_FOR_UNIT[unitId];
 
     const chunks = slice(words, Math.max(1, Math.ceil(words.length / perDay)));
+    const plan = readingPlan(unit, spec.level, readInPart);
+    /* The conversation replaces the reading (`day()` in types.ts), so a scene
+       evening takes no page off the plan: the first version handed it one,
+       counted it read in the ledger, and never showed it to anybody. */
+    let nextPage = 0;
 
     chunks.forEach((chunk, n) => {
       const last = n === chunks.length - 1;
@@ -397,8 +431,10 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
         const entry = unit.vocabulary.find((v) => v.lemma === lemma);
         if (entry) ledger.teach(entry.lemma, entry.pos);
       }
-      const reading = reads(unit, n, spec.level);
+      const name = last && scene ? undefined : plan[nextPage++];
+      const reading = name ? readingFor(name) : {};
       ledger.read(reading);
+      if (name) readInPart.add(name);
       days.push(day(
         {
           id: `${spec.id}-${String(days.length + 1).padStart(2, "0")}`,
