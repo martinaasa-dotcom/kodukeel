@@ -8,7 +8,9 @@
 */
 import { describe, expect, it } from "vitest";
 
-import { AWAY_DAYS, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS, type Candidate } from "./schedule";
+import {
+  AWAY_DAYS, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS, QUIET_CONVERSATIONS, type Candidate,
+} from "./schedule";
 import { emailPrefsFrom } from "./prefs";
 import type { EmailKind } from "./letter";
 
@@ -33,6 +35,9 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     onboardedAt: daysAgo(30),
     hasProgramme: true,
     finishedToday: false,
+    stage: "settled",
+    conversations: 0,
+    hasErrand: true,
     ...over,
   };
 }
@@ -150,6 +155,76 @@ describe("the welcome", () => {
     // Otherwise switching this feature on mails a welcome to every existing
     // learner, telling each of them their deck has just been built.
     expect(letterOwed(candidate({ onboardedAt: daysAgo(30) }), NOW)?.kind).not.toBe("welcome");
+  });
+});
+
+describe("the errand", () => {
+  /** A weekday morning where they are, which is the errand's own window. */
+  const morning = (over: Partial<Candidate> = {}) =>
+    candidate({ localHour: 9, localWeekday: 3, ...over });
+
+  it("goes out on a weekday morning, to somebody the number is flat for", () => {
+    expect(letterOwed(morning(), NOW)?.kind).toBe("errand");
+  });
+
+  it("is a morning letter, because an errand needs a day in front of it", () => {
+    /*
+      "Go and buy bread" at nine in the evening is a letter about tomorrow, and
+      by tomorrow it is gone.
+    */
+    expect(letterOwed(morning({ localHour: 7 }), NOW)?.kind).not.toBe("errand");
+    expect(letterOwed(morning({ localHour: 12 }), NOW)?.kind).not.toBe("errand");
+  });
+
+  it("leaves Sunday morning to the summary", () => {
+    // Two letters on one morning is what the weekly ceiling exists to stop,
+    // and of the two the summary has to land on the day it is about.
+    expect(letterOwed(morning({ localWeekday: 0, localHour: 10 }), NOW)?.kind).toBe("weekly");
+  });
+
+  it("is never sent to somebody three days in", () => {
+    /*
+      "Say one thing to a stranger today" to somebody who has met thirty words
+      is a dare rather than a task, which is the false confidence the readiness
+      screen is built against arriving by post. The stage comes from
+      `stageOf` rather than from a number here.
+    */
+    expect(letterOwed(morning({ stage: "arriving" }), NOW)).toBeNull();
+    expect(letterOwed(morning({ stage: "starting" }), NOW)).toBeNull();
+  });
+
+  it("is never sent to somebody with no deck to draw an errand from", () => {
+    expect(letterOwed(morning({ hasErrand: false }), NOW)).toBeNull();
+  });
+
+  it("stops once somebody is actually having conversations", () => {
+    /*
+      The trigger is that the one number this app says it is measured by is
+      flat for this person. Telling somebody to go and speak Estonian when the
+      app can see they already are is the app not reading its own data.
+    */
+    expect(letterOwed(morning({ conversations: QUIET_CONVERSATIONS }), NOW)?.kind).toBe("errand");
+    expect(letterOwed(morning({ conversations: QUIET_CONVERSATIONS + 1 }), NOW)).toBeNull();
+  });
+
+  it("comes at most once a week, because it is the biggest ask in the app", () => {
+    const sent = new Map<EmailKind, Date>([["errand", daysAgo(3)]]);
+    expect(letterOwed(morning({ lastSent: sent }), NOW)).toBeNull();
+    expect(MIN_GAP_HOURS.errand).toBeGreaterThanOrEqual(24 * 6);
+  });
+
+  it("is switched off on its own, without taking the evening letter with it", () => {
+    const off = morning({ prefs: emailPrefsFrom("errand") });
+    expect(letterOwed(off, NOW)).toBeNull();
+    // And the evening one still reaches them that evening.
+    expect(letterOwed({ ...off, localHour: 19 }, NOW)?.kind).toBe("tonight");
+  });
+
+  it("never outranks the letter to somebody who has stopped studying", () => {
+    // Somebody a fortnight away gets the one letter about coming back. Being
+    // sent out to talk to a stranger is not what that person needs first.
+    const away = morning({ lastReviewAt: daysAgo(20) });
+    expect(letterOwed(away, NOW)?.kind).toBe("comeback");
   });
 });
 

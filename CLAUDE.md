@@ -470,6 +470,21 @@ footer, it is an HMAC over the learner and the kind so it works with no session,
 A reader who can press that presses it instead of the spam button, and that difference is the
 whole of a sender's reputation, which the sign-in links share.
 
+**And the letter that asks somebody to leave is the one the purpose rests on.** A conversation
+outside the app is the number `docs/22-real-life.md` says this app is measured by, and it was
+collected on Today and acted on nowhere: somebody who does their fifteen minutes and closes the tab
+was never asked to leave. The errand letter is one thing to say to one person, off
+`lib/collections/errands.ts`, with the rehearsal as its button where the errand names a scene,
+because the errand happens somewhere this app cannot follow and the practice is the one press on
+offer. It says that being answered in English still counts, which is true of `isConversation` rather
+than a kindness invented for the copy, and is the sentence the whole letter is for: the moment
+everybody who freezes at a counter is frightened of is the one no other app will tell them is not a
+failure, because no other app is counting. The trigger is that the number is flat for this learner,
+and they are told none of that figure. It is refused to anybody `stageOf` calls `arriving` or
+`starting`, because "say one thing to a stranger today" thirty words in is the false confidence the
+readiness screen is built against arriving by post, and the stage comes from that module rather than
+a threshold of its own, which is its rule and an invariant.
+
 **Every figure in a letter is read back through the function the screen showing the same figure
 reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`
 for the gift. A screen that disagrees with itself is a bug somebody reports; a letter that

@@ -15,6 +15,7 @@ import { tonightLetter } from "./letters/tonight";
 import { welcomeLetter } from "./letters/welcome";
 import { comebackLetter } from "./letters/comeback";
 import { weeklyLetter } from "./letters/weekly";
+import { errandLetter } from "./letters/errand";
 
 const CHROME: Chrome = {
   origin: "https://kodukeel.ee",
@@ -67,6 +68,18 @@ const EVERY: Letter[] = [
     streak: 7,
     smallStep: { title: NASTY, href: `${CHROME.origin}/review/match`, minutes: 2 },
     word: { lemma: "lumi", translation: "snow", occasion: null },
+  }),
+  errandLetter({
+    name: NASTY,
+    origin: CHROME.origin,
+    errand: {
+      says: NASTY,
+      places: "A café or a shop",
+      unitId: "sook-ja-jook",
+      unitTitle: NASTY,
+      scene: { id: "kohvikus", title: NASTY },
+    },
+    word: { lemma: "kohv", translation: "coffee" },
   }),
   weeklyLetter({
     name: NASTY,

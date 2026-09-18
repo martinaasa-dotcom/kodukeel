@@ -33,14 +33,20 @@ import { AWAY_DAYS } from "@/lib/email/schedule";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
 import { wordsLeftAt } from "@/lib/course/milestones";
-import { dailySummary } from "@/lib/progress/summary";
+
 import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThere } from "@/lib/progress/outThere";
+import { dailySummary, deckSnapshot } from "@/lib/progress/summary";
+import { stageOf } from "@/lib/ux/disclosure";
+import { errandForDay, errandPlaces, sceneForErrand, startedUnits } from "@/lib/collections/errands";
+import { unitById } from "@/lib/collections/syllabus";
+import { oneEntryPerLemma } from "@/lib/dict/search";
 import { parseReminderTime } from "@/lib/time/reminder";
 import type { TonightInput } from "@/lib/email/letters/tonight";
 import type { WelcomeInput } from "@/lib/email/letters/welcome";
 import type { ComebackInput } from "@/lib/email/letters/comeback";
 import type { WeeklyInput } from "@/lib/email/letters/weekly";
+import type { ErrandInput } from "@/lib/email/letters/errand";
 
 /**
  * How far back the run looks for somebody worth writing to.
@@ -193,6 +199,38 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
   const onboardedRaw = settings[SETTING_KEYS.onboardedAt];
   const onboardedAt = onboardedRaw ? new Date(onboardedRaw) : null;
 
+  /*
+    THE THREE FACTS THE ERRAND LETTER TURNS ON, AND THEY ARE ASKED ONLY IN THE
+    MORNING WHERE THE LEARNER IS.
+
+    Each is a query, and the errand is the one letter that goes out in a
+    three-hour window: outside it the answer cannot change what is sent, so
+    asking would be three round trips per learner per run spent on a branch
+    that is already closed. The same shape as `finishedToday` above, which is
+    skipped outside the evening for the same reason.
+  */
+  const couldBeErrand = localHour >= 8 && localHour < 11 && weekdayOn(clock, now) !== 0;
+  const errandFacts = couldBeErrand
+    ? await (async () => {
+        const [snapshot, conversations, cards, reviews] = await Promise.all([
+          deckSnapshot(ownerId, now),
+          outThere(ownerId, clock, now),
+          prisma.card.count({ where: { ownerId, suspended: false } }),
+          prisma.review.count({ where: { ownerId } }),
+        ]);
+        return {
+          /*
+            `stageOf` rather than a threshold of our own. A second answer to
+            "has this learner started yet" is how the first one rots, which
+            `lib/ux/disclosure.ts` states and an invariant enforces.
+          */
+          stage: stageOf({ totalCards: cards, reviewsAllTime: reviews }),
+          conversations: conversations.total,
+          hasErrand: snapshot.startedLemmas.size > 0,
+        };
+      })()
+    : null;
+
   return {
     ownerId,
     // Filled by the run, which is the only layer allowed to read an address.
@@ -211,6 +249,14 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     onboardedAt: onboardedAt && !Number.isNaN(onboardedAt.getTime()) ? onboardedAt : null,
     hasProgramme: programme !== null,
     finishedToday,
+    /*
+      Outside the errand's own window these say "not now" rather than a guess:
+      `arriving` and nought conversations would both let the letter through on
+      their own, so the pair that closes the branch is the honest default.
+    */
+    stage: errandFacts?.stage ?? "arriving",
+    conversations: errandFacts?.conversations ?? 0,
+    hasErrand: errandFacts?.hasErrand ?? false,
   };
 }
 
@@ -237,6 +283,7 @@ export async function letterInputFor(
   | { kind: "welcome"; input: WelcomeInput }
   | { kind: "comeback"; input: ComebackInput }
   | { kind: "weekly"; input: WeeklyInput }
+  | { kind: "errand"; input: ErrandInput }
   | null
 > {
   const settings = await readSettings(ownerId, [
@@ -425,6 +472,76 @@ export async function letterInputFor(
                 eveningsLeft: programme.days.length - reading.current.day.index + 1,
               }
             : null,
+      },
+    };
+  }
+
+  if (kind === "errand") {
+    /*
+      THE ERRAND IS THE APP'S OWN, READ THROUGH THE FUNCTION TODAY READS IT
+      THROUGH.
+
+      `errandForDay` over the units their deck has started, which is the same
+      call `app/(app)/page.tsx` makes, so the letter and the card offer the
+      same errand on the same day rather than two. That matters more here than
+      anywhere: somebody who reads the letter, does the thing and then opens
+      the app should not be handed a different task.
+    */
+    const snapshot = await deckSnapshot(ownerId, now);
+    const errand = errandForDay(clock.dayKey(now), startedUnits(snapshot.startedLemmas));
+    const unit = unitById(errand.unit);
+    const scene = sceneForErrand(errand);
+
+    /*
+      ONE WORD OFF THE ERRAND'S OWN UNIT, AND THE DICTIONARY PICKS IT.
+
+      An errand names a unit and never a word (ADR-005), so the letter may not
+      choose one either: what it does is ask the dictionary for the unit's
+      lemmas and print the first one the deployment can actually answer for,
+      with the gloss the dictionary holds. A deployment whose dictionary is
+      thin prints nothing, which is the state the letter renders rather than
+      asserts away.
+    */
+    /*
+      A LEMMA CAN HOLD TWO ENTRIES, SO WHICH ONE IS A DECISION.
+
+      `hall` is a noun meaning frost and an adjective meaning grey, and a word
+      somebody confirmed off a photograph sits beside the seeded one for any
+      lemma at all. Taking the first row a query returns lets the ordering pick,
+      which is the plan deciding what a learner reads; `oneEntryPerLemma` is
+      the rule the dictionary itself leads with, so the letter and the entry it
+      links to name the same word.
+
+      Ordered on the primary key before that, because the rows are truncated: a
+      cut over a loose order is the fault one rule further out.
+    */
+    const rows = unit
+      ? await prisma.lexeme.findMany({
+          where: { lemma: { in: [...unit.lemmas] }, translation: { not: "" } },
+          orderBy: { id: "asc" },
+          select: { id: true, lemma: true, pos: true, provenance: true, translation: true, forms: { select: { id: true } } },
+        })
+      : [];
+    /*
+      And the unit's own teaching order decides which word, rather than the
+      band: a unit is written in the order a person would teach it, so its
+      first word is the one somebody meeting this errand has most likely met.
+    */
+    const lemma = unit ? oneEntryPerLemma(rows, [...unit.lemmas])[0] ?? null : null;
+
+    return {
+      kind: "errand",
+      input: {
+        name,
+        origin,
+        errand: {
+          says: errand.says,
+          places: errandPlaces(errand),
+          unitId: errand.unit,
+          unitTitle: unit?.title ?? errand.unit,
+          scene: scene ? { id: scene.id, title: scene.title } : null,
+        },
+        word: lemma ? { lemma: lemma.lemma, translation: lemma.translation } : null,
       },
     };
   }

@@ -20,6 +20,7 @@ complaining about it. Every rule below follows from that one sentence.
 | `welcome` | An hour to two days after first run, once | Turning an intention into a plan: a named hour, and the deck that is already built |
 | `tonight` | The hour they picked, on an evening they have not finished | The evening is genuinely unfinished, and their own words about why they started |
 | `comeback` | Six days without a review, at most one a fortnight | What survived, and an ask small enough to say yes to |
+| `errand` | A weekday morning, at most once a week, while the conversation count is flat | One thing to say to one person, a rehearsal first, and permission to be answered in English |
 | `weekly` | Sunday morning where they are | A week drawn rather than scored, and the next named stop on the climb |
 | `system` | Sign-in links, and notices about an account | Not optional, and not in this system: Supabase sends them |
 
@@ -55,6 +56,45 @@ imagined to be enormous. The useful thing to tell them is how small the first st
 body who reads that and presses nothing has still got something out of opening the letter, and a
 letter worth opening on the evenings you do not study is one that still gets opened on the evenings
 you do.
+
+### The errand letter, which is the one the purpose rests on
+
+Every other letter asks somebody to open a tab. This one asks them to speak a language they are not
+confident in, out loud, to a stranger who may be in a hurry. The failure mode is not annoyance, it
+is shame: a person who reads it and does not go has been reminded that they did not, and enough of
+those and the sender is the app that makes them feel bad.
+
+Four things make it survivable.
+
+**The ask is one sentence.** Not "speak Estonian today", which is a mood. One thing, to one person,
+in one place, off `lib/collections/errands.ts`, which already names a place and a moment. That is
+the shape a plan needs to get done at all, and the shape somebody can picture themselves doing
+before they have decided to.
+
+**They can rehearse it first.** Where the errand names a scene, the same conversation is playable
+in two minutes against somebody with an agenda. `errands.ts` calls that join the one the purpose
+rests on, and offering it before the door is the difference between a dare and a task. It is the
+letter's button, because the errand itself happens somewhere this app cannot follow: the one press
+on offer is the practice.
+
+**Switching to English still counts, and saying so is the most useful sentence in the letter.**
+`isConversation` counts `SWITCHED` as a conversation that happened, because it did: the learner
+opened their mouth and the other person answered in English, which is a fact about the other
+person. Nearly everybody who freezes at a counter is frightened of exactly that moment, and no
+other app will tell them it is not a failure, because no other app is counting.
+
+**It is sent on the app's own reading and never reports it back.** The trigger is that the number
+this app says it is measured by is flat for this learner: at or under `QUIET_CONVERSATIONS` in the
+last thirty days. Somebody already speaking Estonian to people is not sent out, because being told
+to by an app that can see they already are is the app not reading its own data. The learner is told
+none of that figure, for the reason `comeback` prints no day count.
+
+Who it may not go to is as much of the design. Not somebody `stageOf` calls `arriving` or
+`starting`: thirty words in, "say one thing to a stranger today" is the false confidence the
+readiness screen is built against, arriving by post. Not somebody whose deck has started no unit,
+since the errand pool is narrowed to units they have begun for the same reason. Not in the evening,
+because an errand needs a day in front of it. Not on Sunday, which is the summary's morning. And
+never to somebody who has stopped studying, who gets the one letter about coming back instead.
 
 ### What a letter may not do
 
@@ -159,12 +199,6 @@ earned it and has to say so.
 it is the one moment in the whole system where the news is unambiguously good and the learner did
 something earlier to earn it. Needs `SHIELD_MILESTONES` to record which day a shield covered, which
 `streakShieldDates` nearly does.
-
-**The errand.** One conversation in Estonian with a real person, which `docs/22-real-life.md` says
-is the number this app is measured by, and which currently lives only on Today. This is the letter
-most worth building next, and it is also the one most likely to be unwelcome: sending somebody out
-to talk to a stranger is a much bigger ask than fifteen minutes at a desk, and it should go to
-people whose readiness reading supports it rather than to everybody.
 
 **The deadline letter.** A target date approaching, with the honest projection from
 `lib/assessment/plan.ts`. The whole value is that this app's projection is calibrated to the one

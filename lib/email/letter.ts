@@ -45,6 +45,7 @@ export const EMAIL_KINDS = [
   "tonight",
   "comeback",
   "weekly",
+  "errand",
 ] as const;
 
 export type EmailKind = (typeof EMAIL_KINDS)[number];
@@ -55,6 +56,26 @@ export function isEmailKind(value: unknown): value is EmailKind {
 
 /** Kinds a learner may switch off. `system` is deliberately absent. */
 export const OPTIONAL_KINDS = EMAIL_KINDS.filter((k) => k !== "system");
+
+/**
+ * Kinds the settings screen deliberately does not draw a switch for, and why.
+ *
+ * The shape `lib/legal/exportCoverage.ts` takes about the backup: a bare name
+ * is not a decision, so the reason is required and the invariant refuses one
+ * too short to be an argument. Without it, "not on the settings screen" covers
+ * both a considered omission and a letter somebody forgot, and those have to
+ * look different or the check is a list of everything anybody has left out.
+ *
+ * Nothing here is unstoppable. The one-click link at the bottom of every
+ * letter works from `OPTIONAL_KINDS`, so a kind absent from the screen is
+ * still switched off by its own footer and by the mail client's own button.
+ */
+export const NOT_IN_SETTINGS: Readonly<Partial<Record<EmailKind, string>>> = {
+  welcome:
+    "Arrives once, between an hour and two days after first run. By the time anybody is on the " +
+    "settings screen it has either come or it never will, so a switch for it is a control that " +
+    "does nothing. Its own footer still switches every letter off, like any other.",
+};
 
 /**
  * One piece of a letter.

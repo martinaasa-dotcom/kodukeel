@@ -64,6 +64,7 @@ import {
 } from "../lib/research/corpus";
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
+import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
 
@@ -18568,6 +18569,78 @@ check("every letter this app can send has a way out of it", () => {
     unsub,
     /timingSafeEqual/,
     "an unsubscribe token is compared in a way that leaks how much of it was right",
+  );
+});
+
+check("every optional letter is on the settings screen, or is named as absent", () => {
+  /*
+    THE LIST THAT FALLS BEHIND, CAUGHT BEFORE IT DOES.
+
+    `EMAIL_KINDS` is the closed list and four other places read it. The
+    settings panel does not: it draws a row per letter with a sentence about
+    when that one arrives, which cannot be generated, so it is a hand-written
+    list of kinds and therefore the one that goes stale. A letter missing from
+    it is a letter a learner can only stop from a footer, which is a switch
+    they have to receive the letter to find.
+
+    Adding the errand letter walked straight into the neighbouring version of
+    this: the settings page passed `new Set(["tonight", "comeback", "weekly"])`
+    as "everything off", a fifth copy of the kinds written as a literal, which
+    would have shown a new letter as *on* to somebody who had switched every
+    letter off. That is fixed by reading `OPTIONAL_KINDS`, and this is what
+    stops the panel's own list going the same way.
+
+    `welcome` is deliberately absent and says so in the file: it arrives once
+    in the first two days, so by the time anybody is on that screen it has
+    either come or never will, and a switch for it is a control that does
+    nothing. An absence with a reason beside it is a decision; a bare absence
+    is the bug.
+  */
+  const panel = code("app/(app)/settings/EmailPanel.tsx");
+  const page = code("app/(app)/settings/page.tsx");
+
+  for (const kind of OPTIONAL_KINDS) {
+    const why = NOT_IN_SETTINGS[kind];
+    if (why !== undefined) {
+      // A bare name is not a decision. The reason has to be long enough to be
+      // an argument, which is `exportCoverage.ts`'s rule about the same shape.
+      assert.ok(
+        why.length >= 80,
+        `${kind} is exempted from the settings screen with a reason too short to be one`,
+      );
+      continue;
+    }
+    assert.ok(
+      new RegExp(`kind:\\s*"${kind}"`).test(panel),
+      `${kind} is a letter a learner can be sent, is not on the settings screen, and is not ` +
+        "named in NOT_IN_SETTINGS with a reason. The only way to stop it is then a link in a " +
+        "letter they have to receive first.",
+    );
+  }
+
+  /*
+    And the exemptions are checked for staleness the other way, so a kind that
+    has since grown a row on the screen cannot keep a line that reads as a
+    standing decision.
+  */
+  for (const kind of Object.keys(NOT_IN_SETTINGS)) {
+    assert.equal(
+      new RegExp(`kind:\\s*"${kind}"`).test(panel),
+      false,
+      `${kind} is on the settings screen and still named in NOT_IN_SETTINGS`,
+    );
+  }
+
+  /*
+    And the page hands the panel every optional kind rather than a list of the
+    ones that existed when it was written, which is what "everything off" has
+    to mean for a kind added later.
+  */
+  assert.match(
+    page,
+    /OPTIONAL_KINDS/,
+    "the settings page writes its own list of email kinds again, so a letter added later reads " +
+      "as on to somebody who switched every letter off",
   );
 });
 

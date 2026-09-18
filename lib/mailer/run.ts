@@ -43,6 +43,7 @@ import { tonightLetter } from "@/lib/email/letters/tonight";
 import { welcomeLetter } from "@/lib/email/letters/welcome";
 import { comebackLetter } from "@/lib/email/letters/comeback";
 import { weeklyLetter } from "@/lib/email/letters/weekly";
+import { errandLetter } from "@/lib/email/letters/errand";
 import { candidateFor, letterInputFor, mailoutRoster } from "@/lib/progress/mailout";
 import { writeSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { resolveOperator } from "@/lib/legal/operator";
@@ -86,6 +87,8 @@ function letterFrom(
       return comebackLetter(built.input);
     case "weekly":
       return weeklyLetter(built.input);
+    case "errand":
+      return errandLetter(built.input);
   }
 }
 

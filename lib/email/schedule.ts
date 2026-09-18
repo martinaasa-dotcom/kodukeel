@@ -35,6 +35,7 @@
 */
 import type { EmailKind } from "./letter";
 import { wants, type EmailPrefs } from "./prefs";
+import type { Stage } from "@/lib/ux/disclosure";
 
 /**
  * The least time between two letters of one kind, in hours.
@@ -54,6 +55,17 @@ export const MIN_GAP_HOURS: Readonly<Record<EmailKind, number>> = {
   tonight: 20,
   comeback: 24 * 14,
   weekly: 24 * 6,
+  /*
+    ONCE A WEEK, AND IT IS THE BIGGEST ASK IN THE APP.
+
+    Every other letter asks somebody to open a tab. This one asks them to say
+    something out loud to a stranger, which for most people learning a language
+    is the hardest thing on the list and the reason they are learning it. A
+    daily version of it would be a daily reminder that they are not doing the
+    frightening thing, which is how somebody decides an app is not on their
+    side.
+  */
+  errand: 24 * 6,
 };
 
 /**
@@ -69,6 +81,22 @@ export const MAX_PER_WEEK = 5;
 
 /** Days away before the coming-back letter is the right one. */
 export const AWAY_DAYS = 6;
+
+/**
+ * Conversations in the last month at or under which the errand is worth
+ * sending.
+ *
+ * The trigger is not "they have not done an errand", it is that the one number
+ * this app says it is measured by is flat for this person. Somebody already
+ * speaking Estonian to people does not need to be sent out, and a nudge to do
+ * a thing they are plainly already doing is the app not looking at its own
+ * data.
+ *
+ * Two rather than nought, because one conversation in a month is nearer to
+ * none than to a habit, and the letter is written to be welcome to the person
+ * who has had one.
+ */
+export const QUIET_CONVERSATIONS = 2;
 
 /** What the run knows about one learner when it decides. */
 export interface Candidate {
@@ -97,6 +125,26 @@ export interface Candidate {
   readonly hasProgramme: boolean;
   /** Whether tonight's evening is already finished, on their clock. */
   readonly finishedToday: boolean;
+  /**
+   * How far in they are, as `lib/ux/disclosure.ts` decides it.
+   *
+   * Read from there rather than compared against a number here, which is that
+   * module's own rule and an invariant: a second answer to "has this learner
+   * started yet" is how the first one rots. The errand letter is for `settled`
+   * alone.
+   */
+  readonly stage: Stage;
+  /** Conversations reported in the last thirty days. */
+  readonly conversations: number;
+  /**
+   * Whether the errand pool has anything in it for them.
+   *
+   * An errand is offered only over the units a deck has started, because
+   * "order a coffee" to somebody who has not met the word is a dare rather
+   * than a task. Two errands need only greetings, so this is false only for
+   * somebody with no deck at all.
+   */
+  readonly hasErrand: boolean;
 }
 
 export interface Decision {
@@ -194,6 +242,51 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     gapClear(who, "weekly", now)
   ) {
     return { kind: "weekly", because: "Sunday morning where they are" };
+  }
+
+  /*
+    THE ERRAND, IN THE MORNING, AND ONLY WHERE THE APP'S OWN NUMBER IS FLAT.
+
+    This is the letter the purpose rests on and the one most easily resented.
+    `docs/22-real-life.md` says the app is to be left and that a conversation
+    outside it is the number it is measured by; that number is collected on
+    Today and acted on nowhere, so somebody who never opens Today is never
+    asked to leave.
+
+    Four conditions, and each of them is a way it would otherwise be the wrong
+    letter to somebody.
+
+    THE MORNING, because an errand is done during a day. A letter at nine in
+    the evening saying to go and buy bread is a letter about tomorrow, and by
+    tomorrow it is gone. The window closes at eleven for the same reason it
+    opens at eight: an errand needs a day in front of it.
+
+    NOT SUNDAY, which is the summary's morning. Two letters on one morning is
+    what the weekly ceiling exists to stop, and of the two the summary is the
+    one that has to land on the day it is about.
+
+    `settled` ONLY, through `stageOf` rather than a number of our own. Somebody
+    three days in has met thirty words, and "say one thing to a stranger today"
+    to them is a dare rather than a task: it is the false confidence the
+    readiness screen is built against, arriving by post. The errand pool is
+    already narrowed to the units their deck has started, which is the same
+    argument one level down, and `hasErrand` is what says the pool is not empty.
+
+    AND THE NUMBER HAS TO BE FLAT. Somebody already speaking Estonian to people
+    does not need sending out, and being told to by an app that can see they
+    are already doing it is the app not reading its own data.
+  */
+  if (
+    who.localWeekday !== 0 &&
+    who.localHour >= 8 &&
+    who.localHour < 11 &&
+    who.stage === "settled" &&
+    who.hasErrand &&
+    who.conversations <= QUIET_CONVERSATIONS &&
+    wants(who.prefs, "errand") &&
+    gapClear(who, "errand", now)
+  ) {
+    return { kind: "errand", because: `${who.conversations} conversations in the window` };
   }
 
   /*

@@ -37,6 +37,12 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     detail: "At most one a fortnight, and never a count of the days you missed.",
   },
   {
+    kind: "errand",
+    title: "One thing to say to a real person, once a week",
+    detail:
+      "A weekday morning, and only while the app can see you are not already speaking Estonian to anybody. One sentence, one place, and you can rehearse it first.",
+  },
+  {
     kind: "weekly",
     title: "A summary on Sunday morning",
     detail: "What the week held, and how far along the course you are.",

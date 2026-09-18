@@ -12,6 +12,7 @@ import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
 import { emailPrefsFrom } from "@/lib/email/prefs";
+import { OPTIONAL_KINDS } from "@/lib/email/letter";
 import { mailerConfig } from "@/lib/mailer/transport";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
@@ -619,7 +620,17 @@ export default async function SettingsPage() {
             <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
             <Card>
               <EmailPanel
-                off={emailPrefs.kind === "all-off" ? new Set(["tonight", "comeback", "weekly"]) : emailPrefs.off}
+                off={
+                  /*
+                    `all-off` is a value rather than a list, so the panel is
+                    handed every optional kind rather than the four that
+                    existed when it was written. That literal was a fifth list
+                    of the kinds, and the one that would have quietly shown a
+                    new letter as on to somebody who had switched everything
+                    off.
+                  */
+                  emailPrefs.kind === "all-off" ? new Set(OPTIONAL_KINDS) : emailPrefs.off
+                }
                 reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
                 sending={canSend}
               />
