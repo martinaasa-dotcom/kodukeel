@@ -27,7 +27,7 @@ import { Explain } from "@/components/Explain";
 export const metadata: Metadata = {
   title: { absolute: "Kodukeel. Estonian that finally sticks" },
   description:
-    "Kodukeel means home language. Practice that sticks, a conversation to rehearse with somebody who has an agenda of their own, and one small thing to say out loud today, for anybody making a home in Estonia.",
+    "Kodukeel means home language. Practice that sticks, conversations to rehearse with somebody who wants something from you, and one small thing to say out loud today. For anybody making a home in Estonia.",
 };
 
 /** The landing page is public and read-only, so it can be cached hard. */
@@ -351,9 +351,9 @@ function Cases({ words }: { words: DemoWord[] }) {
           </h2>
           <p className="mx-auto mt-5 max-w-[52ch] text-md leading-relaxed" style={{ color: "var(--ink-2)" }}>
             You can hold a 400-day streak and still freeze when somebody speaks to you at the
-            counter. Three forms of a word are yours to learn, sometimes four. Everything after
-            them is the same regular endings every time, and where a word breaks the pattern you
-            get the form Estonians say beside the one the rule predicts. Press a word and watch.
+            counter. Three forms of a word are yours to learn, sometimes four. After that it is
+            the same regular endings every time. Where a word breaks the pattern, you get the form
+            Estonians actually say beside the one the rule predicts. Press a word and watch.
           </p>
         </div>
       </Reveal>
@@ -895,7 +895,7 @@ const FAQS = [
   ],
   [
     "Where do the Estonian forms come from?",
-    "From a dictionary, never from AI: it invents plausible forms that are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, it says so on the sentence.",
+    "From a dictionary, never from AI. AI invents forms that look right and are wrong, and a flashcard would drill the mistake straight in. Where Anu translates a sentence for you, the sentence says so.",
   ],
   [
     "Is this only for beginners?",
@@ -912,7 +912,7 @@ const FAQS = [
   ],
   [
     "Will it actually get me talking to people?",
-    "That is what it is for. Situations puts you in front of somebody with an agenda of their own, a receptionist, a landlord, a clerk, and marks you against the dictionary rather than a model, so you cannot be told you were wrong when you were right. Today asks each morning whether you spoke Estonian to anybody yesterday, offers one small thing to say out loud where the answer is no, and Progress counts the conversations, including the times somebody switched to English. Nothing here scores your pronunciation, because the only recognizer available gets native speakers wrong, and we would rather say so than pretend.",
+    "That is what it is for. Situations puts you in front of somebody who wants something from you, a receptionist, a landlord, a clerk. You are marked against the dictionary and never by an AI, so you cannot be told you were wrong when you were right. Today asks each morning whether you spoke Estonian to anybody yesterday, and offers one small thing to say out loud if the answer is no. Progress counts those conversations, including the times somebody switched to English. Nothing here scores your pronunciation: the only recognizer available gets native speakers wrong, and we would rather say so than pretend.",
   ],
   [
     "What happens to my data?",
@@ -1163,7 +1163,7 @@ function Footer() {
             <Wordmark size={32} />
             <p className="mt-5 max-w-[34ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
               Kodukeel means home language. Free to use, and every Estonian form in it comes from a
-              dictionary rather than a model.
+              dictionary, never from an AI.
             </p>
           </div>
 

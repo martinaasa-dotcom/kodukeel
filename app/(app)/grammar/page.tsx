@@ -305,7 +305,7 @@ export default async function GrammarIndexPage() {
         <section>
           <SectionTitle hint={`${TOPIC_NOTES.length} points`}>Beyond the endings</SectionTitle>
           <p className="mt-1 max-w-[68ch] text-sm" style={{ color: "var(--ink-2)" }}>
-            Sorted by what kind of word is doing the work, which is how a course orders them.
+            Sorted by the kind of word doing the work, the way a course orders them.
           </p>
           <div className="mt-4 flex flex-col gap-6">
             {TOPIC_GROUPS.map((group) => {

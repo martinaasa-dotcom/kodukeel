@@ -237,7 +237,7 @@ export default async function ProgressPage() {
         {/* The number FSRS is actually steering, and what it means. Placed
             above the charts because it is the one that changes what to do. */}
         <section>
-          <SectionTitle hint="cards the scheduler thought you knew">True retention</SectionTitle>
+          <SectionTitle hint="cards we thought you knew">How much is actually sticking</SectionTitle>
           <Card tone={
             retention.verdict === "below" ? "peach"
               : retention.verdict === "above" ? "butter"
@@ -348,7 +348,7 @@ export default async function ProgressPage() {
         */}
         {(pace.slow.length > 0 || mixedUp.length > 0) && (
           <section>
-            <SectionTitle hint="from answers a round timed">Not automatic yet</SectionTitle>
+            <SectionTitle hint="from answers a round timed">Right, but still slow</SectionTitle>
             <Card tone="butter">
               <NotAutomatic slow={pace.slow} mixedUp={mixedUp} medianMs={pace.medianMs} />
             </Card>
@@ -424,7 +424,7 @@ export default async function ProgressPage() {
           </section>
 
           <section>
-            <SectionTitle hint={`${pathKnown} of ${pathTotal} path words · your deck only`}>Vocabulary reach</SectionTitle>
+            <SectionTitle hint={`${pathKnown} of ${pathTotal} course words · your deck only`}>How many words you know</SectionTitle>
             <Card>
               <ul className="flex flex-col gap-2">
                 {CEFR_LEVELS.map((level) => {

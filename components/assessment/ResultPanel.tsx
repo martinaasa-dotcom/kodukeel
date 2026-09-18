@@ -126,18 +126,17 @@ export function ResultPanel({ result, heading = "Where you are" }: { result: Pla
             and C1 by the authority that sets them. This is half an hour in an app.
           </li>
           <li>
-            Not a measurement of your speaking. Nothing here can score how you say Estonian
-            honestly, so the speaking line is how confident you said you felt and is kept out of
-            the level entirely.
+            Not a measurement of your speaking. Nothing here can honestly score how you say
+            Estonian, so the speaking line is only how confident you said you felt. It is left
+            out of the level.
           </li>
           <li>
-            Not a measurement of conversation. Nothing in this app talks back to you at real speed,
-            and reading a sentence when you can take your time is easier than following one as it
-            is spoken.
+            Not a measurement of conversation. Nothing here talks back to you at real speed, and
+            reading a sentence in your own time is far easier than following one as it is spoken.
           </li>
           <li>
-            Built from this dictionary. Every word and sentence came from the same set
-            the rest of the app teaches from, which is broad but not the whole language.
+            Built from this dictionary. Every word and sentence came from the same set the rest
+            of the app teaches from. That is broad, but it is not the whole language.
           </li>
         </ul>
       </Card>

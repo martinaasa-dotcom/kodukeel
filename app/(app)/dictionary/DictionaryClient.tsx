@@ -906,7 +906,7 @@ function Entry({ entry, tutorReady, glossLanguage }: {
           {entry.pos === "PRONOUN" && (
             <Explain label="Why these are the long forms">
               Pronouns also have short forms, and those are the ones you will hear most. These are
-              the long ones, which is what a dictionary lists first. Both are right.
+              the long ones, which a dictionary lists first. Both are right.
             </Explain>
           )}
         </div>

@@ -415,7 +415,7 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
       */}
       {report.accepted.length > 0 && (
         <section className="mt-8">
-          <SectionTitle hint={`${report.accepted.length} of them`}>Right, and worth a look</SectionTitle>
+          <SectionTitle hint={`${report.accepted.length} of them`}>Right, with something to add</SectionTitle>
           <ul className="grid gap-2">
             {report.accepted.map((mark) => {
               const et = mark.language !== "en";

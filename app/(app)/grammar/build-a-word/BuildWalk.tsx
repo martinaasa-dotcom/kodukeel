@@ -657,8 +657,8 @@ function StackEndings({ word, sentences, canTranslate, onNext }: {
           <Reading of={form} />
           {form.stored && (
             <p className="mt-3 max-w-[62ch] text-sm" style={{ color: "var(--ink-2)" }}>
-              This one is the exception, and the dictionary holds it: no ending on the stem produces
-              it, so it is learned rather than worked out.
+              This one is the exception, and the dictionary stores it. No ending on the stem
+              produces it, so you learn this form instead of working it out.
             </p>
           )}
           {form.alsoRight && (
@@ -863,7 +863,7 @@ function YourTurn({ word }: { word: WalkWord }) {
     return (
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          This word keeps its endings in the dictionary rather than working them out. Pick another
+          This word&rsquo;s endings are stored in the dictionary instead of worked out. Pick another
           word above and the questions come back.
         </p>
       </Card>
@@ -979,8 +979,8 @@ function YourTurn({ word }: { word: WalkWord }) {
               {right} of {asks.length} endings
             </p>
             <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-              Nothing here was written down. It is an explanation rather than a test, and the round
-              below is the one that counts towards what you know.
+              Nothing here was recorded. This is an explanation, not a test. The round below is
+              the one that counts.
             </p>
             <div className="mt-4 flex flex-wrap items-center justify-end gap-3">
               <Button onClick={() => { setAt(0); setPicked(null); setRight(0); }}>

@@ -118,11 +118,11 @@ export default async function ClassIndexPage() {
               <SectionTitle hint="teachers and employers">Start a group</SectionTitle>
               <Card tone="accent">
                 <p className="mb-4 text-sm" style={{ color: "var(--ink-2)" }}>
-                  You get a six-character join code and a roster either way. A class shows who is
-                  actually reviewing, what the whole group keeps getting wrong, and which case each
-                  student personally struggles with most, which is the useful half of a progress
-                  report. A workplace group leaves the grammar out and answers a different question:
-                  who is on track for the paper they have to pass.
+                  Either way you get a six-character join code and a roster. A class shows who is
+                  actually reviewing, what the whole group keeps getting wrong, and the one case
+                  each student struggles with most. That is the useful half of a progress report.
+                  A workplace group leaves the grammar out and answers a different question: who
+                  is on track for the paper they have to pass.
                 </p>
                 {/*
                   On the screen rather than behind the press beside it: this is

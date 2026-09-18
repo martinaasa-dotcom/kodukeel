@@ -60,12 +60,12 @@ export default async function ExceptionsPage() {
                 Most words follow the pattern. These do not.
               </p>
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                Learn the omastav and eleven cases follow. That holds until the stem itself moves,
-                and then it stops holding for every case at once. {scale} graded words in this
-                dictionary break a pattern somewhere, and this is which ones and where.
+                Learn the omastav and eleven cases follow from it. That holds until the stem
+                itself changes, and then it stops holding for every case at once. {scale} graded
+                words here break a pattern somewhere. This page is which ones, and where.
               </p>
               <p className="mt-2 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
-                A word that is not here can be guessed at. That is what the area is for.
+                Any word not on this page follows the rules, so you can work it out.
               </p>
             </div>
           </div>

@@ -227,7 +227,7 @@ export default async function TopicPage({
           </SectionTitle>
           {units.length === 0 ? (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              No unit names this point yet. It is here as reference rather than as a lesson.
+              No unit teaches this point yet. It is here as reference, not as a lesson.
             </p>
           ) : (
             <ul className="mt-2 grid gap-2 sm:grid-cols-2">

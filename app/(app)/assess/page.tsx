@@ -40,7 +40,7 @@ export default async function AssessPage({
     const paper = await paperFor(ownerId, Date.now() % 1_000_000);
     if (paper.items.length === 0) {
       return (
-        <Page title="Level check" lead="Reading, listening, writing and speaking, measured against the dictionary.">
+        <Page title="Level check" lead="Reading, listening, writing and speaking, all checked against the dictionary.">
           <Empty
             title="No questions could be built"
             body="Questions come from dictionary entries that have a level set, and there are none yet."
@@ -94,7 +94,7 @@ export default async function AssessPage({
   return (
     <Page
       title="Level check"
-      lead="Reading, listening, writing and speaking, measured against the dictionary."
+      lead="Reading, listening, writing and speaking, all checked against the dictionary."
       actions={
         <ButtonLink href="/assess?take=1" variant="primary" size="lg">
           <Compass size={16} aria-hidden /> {latest ? "Take it again" : "Take the check"}

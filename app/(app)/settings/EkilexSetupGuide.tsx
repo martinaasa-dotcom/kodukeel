@@ -120,9 +120,9 @@ export function EkilexSetupGuide() {
       </div>
 
       <Explain label="What happens to the words you already have">
-        Every word already in the deck gets upgraded to the real forms the next time it is opened.
-        Nothing has to be re-added. A word Ekilex had nothing to say about the last time it was
-        looked up is remembered as a miss for a day, so it will not retry until then.
+        Every word already in your deck picks up the real forms the next time you open it, so
+        nothing has to be added again. If Ekilex had nothing to say about a word, we remember that
+        for a day before asking again.
       </Explain>
     </div>
   );

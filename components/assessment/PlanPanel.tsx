@@ -132,8 +132,8 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
       <Card>
         <SectionTitle>Your plan</SectionTitle>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Pick a level to aim for, and this turns into a timeline: how many hours the distance
-          usually takes, how many your daily goal covers, and how many are left to find elsewhere.
+          Pick a level to aim for and this becomes a timeline. It shows how many hours that
+          distance usually takes, how many your daily goal covers, and how many are left over.
         </p>
         <Link
           href="/settings#goals"
@@ -261,14 +261,14 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {standing.source === "measured"
             ? bySkill
-              ? "Your level was measured, and your skills came out at different levels, so the distance is the average of what each skill still has to cover rather than the distance from the overall."
+              ? "Your level was measured, and your skills came out at different levels. So the distance is the average of what each skill still has to cover, not the distance from your overall level."
               : "Your level was measured, so nothing was added to the distance for a guess."
-            : "Your level is your own estimate, so the far end of the distance allows for it being half a band lower than you think. Take the level check and that allowance goes."}{" "}
+            : "Your level is your own estimate, so the far end of the distance allows for you being half a band lower than you think. Take the level check and that allowance goes."}{" "}
           {plan.paceSource === "measured"
-            ? `Your pace is read off your own last ${weeksWord(plan.paceWeeks)} here rather than off what you said you would do.`
+            ? `Your pace comes from your own last ${weeksWord(plan.paceWeeks)} here, not from what you said you would do.`
             : plan.paceSource === "lapsed"
               ? `Nothing has been reviewed here in the last ${weeksWord(plan.paceWeeks)}, so the pace is the one you said. Review for a fortnight and it becomes the one you keep.`
-              : "Once you have a fortnight of reviews here, the pace is read off your own log rather than off what you said you would do."}
+              : "Once you have two weeks of reviews here, the pace comes from what you actually do, not from what you said you would do."}
         </p>
         {spec && (
           <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>

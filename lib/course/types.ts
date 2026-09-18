@@ -99,7 +99,7 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Eight pairs against the clock, so the meanings settle before anything asks you to produce one.",
+    why: "Eight pairs against the clock. The meanings settle before anything asks you to produce one.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
@@ -107,11 +107,11 @@ export const ACTIVITIES = {
   },
   sprint: {
     href: "/review/sprint", kind: "game",
-    why: "Sixty seconds of endings. Speed is what turns a form you can work out into one you have.",
+    why: "Sixty seconds of endings. Speed turns a form you can work out into one you simply know.",
   },
   sentences: {
     href: "/review/sentences", kind: "drill",
-    why: "Rebuild a sentence a native writer wrote, so the words arrive in the order Estonian puts them.",
+    why: "Rebuild a sentence a native writer wrote, and the words land in the order Estonian uses.",
   },
   dictation: {
     href: "/review/dictation", kind: "drill",
@@ -143,7 +143,7 @@ export const ACTIVITIES = {
   },
   write: {
     href: "/review/write", kind: "drill",
-    why: "A sentence of your own with a named form in it. The form is checked against the dictionary before anything else looks at it.",
+    why: "Write your own sentence using a form we name. The form is checked against the dictionary first.",
   },
   government: {
     href: "/review/government", kind: "drill",
@@ -151,11 +151,11 @@ export const ACTIVITIES = {
   },
   exceptions: {
     href: "/review/exceptions", kind: "drill",
-    why: "The words where the ending rule stops holding, met and then produced rather than looked up each time.",
+    why: "The words where the ending rule breaks down. You meet them and then write them, instead of looking them up every time.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
-    why: "Words you have already met, asked in a shape review does not use: heard, gapped, or built into a sentence.",
+    why: "Words you have already met, asked in ways review does not: heard, gapped, or built into a sentence.",
   },
 } as const satisfies Record<string, ActivitySpec>;
 
@@ -410,7 +410,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     id: MEET_STEP,
     kind: "meet",
     title: `Meet today's ${spec.words.length} words`,
-    why: "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
+    why: "You meet each word, pick it out of four, then type it back into a sentence a native writer wrote.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -433,8 +433,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read the point behind it",
-      why: "One page on the thing today's words all do. Read it now, while the forms still look odd.",
+      title: "Read the grammar behind it",
+      why: "One page on what today's words all do. Read it now, while the forms still look strange.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,
@@ -470,7 +470,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     id: REVIEW_STEP,
     kind: "review",
     title: "Quick review, and you are done",
-    why: "Everything the scheduler says you are about to forget, today's words included. This is the part that keeps them.",
+    why: "Everything you are about to forget, today's words included. This is the part that makes them stick.",
     href: "/review",
     minutes: REVIEW_MINUTES,
     derived: true,
