@@ -15613,8 +15613,8 @@ check("a verdict is one size, and never below the body step", () => {
   const panel = CSS.match(/\.verdict-panel\s*\{([^}]*)\}/);
   assert.ok(panel, ".verdict-panel is worn by the marking screens and painted nowhere in app/globals.css");
   assert.match(
-    panel![1]!, /font-size:\s*var\(--text-base\)/,
-    ".verdict-panel stopped setting the body step, so every panel is back to whatever it inherits",
+    panel![1]!, /font-size:\s*var\(--text-md\)/,
+    ".verdict-panel stopped setting its own step, so every panel is back to whatever it inherits",
   );
 
   const wearing = [...APP, ...COMPONENTS].filter((file) => /\bverdict-panel\b/.test(code(file)));

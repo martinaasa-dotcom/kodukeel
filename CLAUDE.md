@@ -7590,8 +7590,9 @@ the lesson wrote `p-3 text-sm`, the word ordering round set a whole sentence in 
 is 12px and uppercase, the dictation round set its own verdict sentence the same way, and the
 examination's result printed the answer at 17px beside the candidate's own at 13.5px. A learner
 reported the ladder's box as tiny and off-putting under a prompt set at 27px, which is what 13.5px
-on a panel reads as. `.verdict-panel` is the box and `--text-base` is the step, and the rule over
-everything else is that a verdict is never set below it: it is the one line on the screen saying
+on a panel reads as. `.verdict-panel` is the box and `--text-md` is the step, raised from
+`--text-base` because one commit at the body step was reported as still small, and the rule over
+everything else is that a verdict is never set below the body step: it is the one line on the screen saying
 whether the last half minute went anywhere, and it is not a caption. A caption genuinely inside a
 panel, the provenance under a sentence or the "you typed" line under a marked word, still takes its
 own step, so the invariant is drawn on the element wearing the tint rather than on everything under

@@ -386,12 +386,12 @@ function Marked({ result }: { result: DictationResult }) {
         `label-xs` is 12px, tracked and uppercase, so "Every word heard, one
         is missing its Estonian letters." was shouted in the smallest type the
         system has, as the headline over the thing the learner came back to
-        read. It takes the body step every other verdict takes, and the weight
+        read. It takes the step every other verdict takes, and the weight
         rather than the transform is what makes it the headline; the ink is
         unchanged, so the hue still says which of the three it was and the
         sentence still says it in words.
       */}
-      <p className="text-center text-base font-semibold" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
+      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
         {result.note}
       </p>
       <div className="pop-in flex flex-wrap justify-center gap-1.5">

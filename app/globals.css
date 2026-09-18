@@ -2158,12 +2158,15 @@
     scale entirely. A learner reported the ladder's box as tiny and off-putting
     beside a prompt set at 27px, which is what 13.5px on a panel does.
 
-    So the panel is `--text-base`, which is the body step rather than a fifth
-    size invented for this, and everything inside it inherits that: a verdict
-    is the one line on the screen that says whether the last thirty seconds
-    went anywhere, and it is not a caption. The padding and the radius are the
-    majority shape the five rounds already had. A line inside that really is
-    meta, the provenance under a sentence, still asks for its own size.
+    So the panel is `--text-md`, and everything inside it inherits that: a
+    verdict is the one line on the screen that says whether the last thirty
+    seconds went anywhere, and it is not a caption. It sat at `--text-base` for
+    a commit and was reported as still small, which is the reading to trust:
+    the body step is right for a paragraph a reader is already inside, and this
+    is one line under a prompt set at 27px, read in the half second before the
+    next card. The padding and the radius are the majority shape the five
+    rounds already had. A line inside that really is meta, the provenance under
+    a sentence, still asks for its own size.
 
     It sits in `@layer utilities` beside the tints, after the generated
     utilities, so a `text-sm` written on the same element loses to it silently
@@ -2175,7 +2178,7 @@
   .verdict-panel {
     border-radius: var(--r-sm);
     padding: 0.75rem 0.875rem;
-    font-size: var(--text-base);
+    font-size: var(--text-md);
     line-height: 1.45;
   }
   .option-right {

@@ -139,11 +139,13 @@ wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering round set a w
 learner reported the ladder's box as tiny and off-putting under a prompt set at 27px, which is
 what 13.5px on a panel reads as.
 
-The panel is `--r-sm`, 12px by 14px of padding and `--text-base`, and a verdict is never set
-below the body step anywhere: it is the one line that says whether the last half minute went
-anywhere. A caption genuinely inside a panel, the provenance under a sentence or the "you typed"
-line under a marked word, still takes its own step, so the rule is drawn on the element wearing
-the tint rather than on everything under it.
+The panel is `--r-sm`, 12px by 14px of padding and `--text-md`, and a verdict is never set below
+the body step anywhere: it is the one line that says whether the last half minute went anywhere.
+It sat at `--text-base` for a commit and was reported as still small, which is the reading to
+trust, since the body step is right for a paragraph a reader is already inside and this is one
+line under a prompt set at 27px. A caption genuinely inside a panel, the provenance under a
+sentence or the "you typed" line under a marked word, still takes its own step, so the rule is
+drawn on the element wearing the tint rather than on everything under it.
 
 ## 2. Tokens
 
