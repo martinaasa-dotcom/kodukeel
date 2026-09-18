@@ -64,10 +64,22 @@ export async function pinnedExamples(
     where: { lemma: { in: lemmas } },
     // A lemma can carry two entries (`hall` is frost and grey), and which of
     // them holds the sentence is decided by looking rather than by ordering.
-    select: { id: true, lemma: true, examples: true },
+    select: { id: true, examples: true },
     orderBy: { id: "asc" },
   });
 
+  return matchPins(wanted, rows);
+}
+
+/**
+ * The pins joined onto the rows, kept pure so it can be driven without a
+ * database: the query above is three lines and this is where a sentence is
+ * actually found or lost.
+ */
+export function matchPins(
+  wanted: Map<string, PinnedExample[]>,
+  rows: readonly { id: string; examples: string }[],
+): Map<string, ResolvedExample[]> {
   const found = new Map<string, { id: string; en: string | null }>();
   for (const row of rows) {
     for (const ex of parseExamples(row.examples)) {

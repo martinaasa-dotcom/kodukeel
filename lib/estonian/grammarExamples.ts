@@ -247,6 +247,14 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "teisipäev", et: "Koosolek toimub teisipäeval.", form: "teisipäeval" },
       { lemma: "juuli", et: "Lähen juulis puhkusele.", form: "juulis" },
     ],
+    "Duration is expressed differently again": [
+      { lemma: "kirurg", et: "Kirurg tegi päeva jooksul kolm operatsiooni.", form: "jooksul" },
+      { lemma: "kestma", et: "Film kestis kaks tundi.", form: "tundi" },
+    ],
+    "From and until each have their own ending": [
+      { lemma: "esmaspäev", et: "Käin tööl esmaspäevast reedeni.", form: "esmaspäevast" },
+      { lemma: "pääsuke", et: "Pääsuke laulab aprillist augustini.", form: "augustini" },
+    ],
   },
   aspect: {
     "A finished action takes a whole object": [
@@ -286,6 +294,89 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "kraan", et: "Keerasin kraani kinni.", form: "kinni" },
     ],
   },
+  converb: {
+    "Two simultaneous actions without a conjunction": [
+      { lemma: "ige", et: "Naerdes paljastusid laiad esihambad ja igemed.", form: "Naerdes" },
+      { lemma: "tatt", et: "Mees köhib tatti pritsides.", form: "pritsides" },
+    ],
+    "Strongly preferred in writing over two joined clauses": [
+      { lemma: "pidur", et: "Peo edenedes pidurid kadusid.", form: "edenedes" },
+    ],
+    "Its subject is understood to be the main clause's": [
+      { lemma: "viibima", et: "Ta kuulis juhtunust puhkusel viibides.", form: "viibides" },
+      { lemma: "üllatuma", et: "Ta oli auhinnast kuuldes rõõmsalt üllatunud.", form: "kuuldes" },
+    ],
+  },
+  quotative: {
+    "Reported speech, rumor and hearsay": [
+      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
+      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat" },
+    ],
+    "Can carry doubt, depending on delivery": [
+      { lemma: "väitma", et: "Mees väidab end mitte teadvat, kuhu ta auto jättis.", form: "teadvat" },
+    ],
+  },
+  numerals: {
+    "After two and up, the counted noun is partitive singular": [
+      { lemma: "pirn", et: "Aias kasvab kolm pirni.", form: "pirni" },
+      { lemma: "pudel", et: "Ostsin kaks pudelit vett.", form: "pudelit" },
+    ],
+    "Numbers themselves decline when the phrase is in a case": [
+      { lemma: "minut", et: "Buss tuleb viie minuti pärast.", form: "viie" },
+      { lemma: "broneerima", et: "Broneerisin laua kahele.", form: "kahele" },
+    ],
+    "Ordinals are regular and decline too": [
+      { lemma: "baar", et: "Hotelli baar asub esimesel korrusel.", form: "esimesel" },
+      { lemma: "lennuk", et: "Laps sõidab lennukiga esimest korda.", form: "esimest" },
+    ],
+  },
+  derivation: {
+    "An action noun from any verb, entirely regular": [
+      { lemma: "võõras", et: "Vabandamine on talle võõras.", form: "Vabandamine" },
+    ],
+    "Adjectives meaning like it, and meaning without it": [
+      { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke" },
+      { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud" },
+    ],
+    "A quality noun from an adjective": [
+      { lemma: "sõprus", et: "Meid seob ammune sõprus.", form: "sõprus" },
+      { lemma: "rikkus", et: "Ega rikkus pole häbiasi.", form: "rikkus" },
+    ],
+  },
+  "word-order": {
+    "Endings mark who did what, so order is free for other work": [
+      { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel" },
+      { lemma: "toimuma", et: "Eile toimus mitu õnnetust.", form: "Eile" },
+    ],
+    "The verb tends to sit second in a main clause": [
+      { lemma: "alustama", et: "Homme alustan dieeti.", form: "alustan" },
+      { lemma: "kütma", et: "Õhtul kütan sauna.", form: "kütan" },
+    ],
+  },
+  idiom: {
+    "Sayings still in daily use": [
+      { lemma: "ilu", et: "Ilu peitub vaataja silmades.", form: "silmades" },
+      { lemma: "põhimõte", et: "Lähtusin põhimõttest, et topelt ei kärise.", form: "kärise" },
+    ],
+    "Fixed verb phrases that resist a literal reading": [
+      { lemma: "tööline", et: "Häid töölisi otsitakse tikutulega taga.", form: "tikutulega" },
+      { lemma: "naer", et: "Olime kõik naerust kõveras.", form: "kõveras" },
+    ],
+    "Figurative senses of ordinary words": [
+      { lemma: "suvi", et: "Suvi on käes.", form: "käes" },
+      { lemma: "hambapasta", et: "Hambapasta sai otsa.", form: "otsa" },
+    ],
+  },
+  "adjective-agreement": {
+    "Same case and same number as the noun": [
+      { lemma: "liha", et: "Ostsin turult värsket liha.", form: "värsket" },
+      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "rasvast" },
+    ],
+    "For -ni, -na, -ta and -ga the adjective stops at the genitive": [
+      { lemma: "aeglane", et: "Aeglase vooluga jõgi.", form: "Aeglase" },
+      { lemma: "lõpp", et: "Õnneliku lõpuga film.", form: "Õnneliku" },
+    ],
+  },
   comparative: {
     "Built on the genitive stem, like nearly everything": [
       { lemma: "väike", et: "Anna väiksem lusikas!", form: "väiksem" },
@@ -293,6 +384,9 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Say than and use the plain form, or drop than and use -st": [
       { lemma: "diisel", et: "Bensiin on kallim kui diisel.", form: "kui" },
+    ],
+    "A handful of common adjectives are irregular": [
+      { lemma: "parem", et: "Kumb auto on parem?", form: "parem" },
     ],
   },
   superlative: {
@@ -334,6 +428,9 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "imelik", et: "Imelik, et teda kodus pole.", form: "et" },
       { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes" },
     ],
+    "Or the quotative, which needs no reporting verb": [
+      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
+    ],
   },
   concession: {
     "Adverbs that carry it across a full stop": [
@@ -346,6 +443,9 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
       { lemma: "vist", et: "Ema vist magab juba.", form: "vist" },
       { lemma: "vist", et: "Hakkab vist sadama.", form: "vist" },
     ],
+    "The quotative, which puts the claim on somebody else": [
+      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat" },
+    ],
     "The conditional, which softens a claim as well as a request": [
       { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks" },
       { lemma: "arutama", et: "Neid probleeme tuleks koosolekul arutada.", form: "tuleks" },
@@ -355,6 +455,14 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     "Contrast and consequence": [
       { lemma: "tõsi", et: "Kurb, aga tõsi.", form: "aga" },
       { lemma: "välk", et: "Müristab, aga välku ei löö.", form: "aga" },
+    ],
+    "Ordering and adding: first, also, finally": [
+      { lemma: "pühak", et: "Patukotist sai lõpuks pühak.", form: "lõpuks" },
+      { lemma: "lehtpuu", et: "Leiliruumi lagi ja seinad, samuti lava on lehtpuust.", form: "samuti" },
+    ],
+    "Referring back without repeating the noun": [
+      { lemma: "kiikuma", et: "Kiikusin toolil ja see läks katki.", form: "see" },
+      { lemma: "petma", et: "Ära usu Jaani, ta petab.", form: "ta" },
     ],
   },
   emphasis: {
@@ -375,6 +483,9 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
   },
   "relative-clause": {
+    "Always separated by a comma": [
+      { lemma: "nimekiri", et: "Tegin nimekirja asjadest, mida poest tuua.", form: "mida" },
+    ],
     "Different pronouns for people and for things": [
       { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes" },
       { lemma: "teadus", et: "Bioloogia on teadus, mis uurib elu.", form: "mis" },
@@ -385,6 +496,10 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
   },
   government: {
+    "The required case is a fact about the verb": [
+      { lemma: "uskuma", et: "Ta usub Jumalasse.", form: "Jumalasse" },
+      { lemma: "pall", et: "Laps mängib palliga.", form: "palliga" },
+    ],
     "Helping, calling, liking and thinking are the traps": [
       { lemma: "juuksur", et: "Mulle ei meeldi juuksuris käia.", form: "Mulle" },
       { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest" },
@@ -405,6 +520,10 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
   },
   GENITIVE: {
+    "Saying whose something is": [
+      { lemma: "uus", et: "Uue filmi esilinastus.", form: "filmi" },
+      { lemma: "klient", et: "Rahulolev klient on iga firma unistus.", form: "firma" },
+    ],
     "A finished, whole object": [
       { lemma: "odav", et: "Ostsin odava auto.", form: "auto" },
       { lemma: "taldrik", et: "Sõin taldriku tühjaks.", form: "taldriku" },
@@ -427,6 +546,9 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     "Going into a place or a container": [
       { lemma: "vihik", et: "Kirjuta ülesanne vihikusse.", form: "vihikusse" },
       { lemma: "trepp", et: "See trepp viib keldrisse.", form: "keldrisse" },
+    ],
+    "Going into a state or a stretch of time": [
+      { lemma: "õnnetus", et: "Buss sattus õnnetusse.", form: "õnnetusse" },
     ],
   },
   ADESSIVE: {
@@ -554,6 +676,94 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
  * because it does not say whether anybody looked.
  */
 export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
+  "topic:participles|Four of them: active and impersonal, present and past":
+    "a count of how many there are rather than a thing a sentence does, and the three points beside it are where each one is shown",
+  "topic:impersonal|Has its own forms across the tenses":
+    "a claim about the whole table of forms, which one sentence in one tense cannot show",
+  "topic:infinitives|Both are stored, because neither predicts the other":
+    "a fact about the lexicon rather than about a sentence: the two points above it are where each infinitive is shown at work",
+  "topic:government|The dictionary records it as the question the verb answers":
+    "about what the dictionary stores rather than about Estonian, and the entry's own government block is where a learner reads it",
+  "case:NOMINATIVE|The form you look a word up under":
+    "about how the dictionary is indexed rather than about a sentence, and every entry on every page demonstrates it",
+  "case:GENITIVE|The stem every ending below needs":
+    "a claim about the eleven cases built on it, which the build-a-word walk shows on a word the reader picks",
+  "topic:gradation|The written kind changes consonants and can be spotted":
+    "a pattern across words rather than one sentence, and the exceptions area lists the words it happens to",
+  "topic:gradation|The other kind is a change in length that spelling hides":
+    "spelling does not record it, so no written sentence can show it; the minimal pairs round plays the difference instead",
+  "topic:gradation|Which words do it is a property of the word":
+    "a fact about the dictionary, which the entry's own gradation chip names word by word",
+  "topic:word-order|New information tends to go last":
+    "a contrast between two orders of one sentence, and a pin holds one sentence rather than a pair",
+  "topic:emphasis|Move a word to the front to stress it":
+    "the same sentence in two orders is what shows this, and a pin holds one of them",
+  "topic:emphasis|Word order stands in for the stress English puts in the voice":
+    "a comparison with spoken English, which nothing written in Estonian can carry on its own",
+  "topic:rhetorical-questions|Leaving it out, with question intonation, reads differently":
+    "the point is what changes when the particle goes, so it needs the pair, and the corpus records only the written form",
+  "topic:rhetorical-questions|Common in speeches and opinion writing":
+    "a claim about where the form turns up rather than about what it means",
+  "topic:reported-speech|The tense does not shift back the way English does":
+    "a contrast with English tense agreement, which needs the English original beside it",
+  "topic:concession|Conjunctions that subordinate a concession":
+    "the dictionary records kuigi almost only in its other sense, not very, so nothing attested shows the conjunction",
+  "topic:concession|The core move of any argued essay":
+    "about how an argument is built rather than about a sentence, and no single line is an argument",
+  "topic:subordination|The comma before a subordinate clause is compulsory":
+    "the point is a comma somebody left out, and every recorded sentence has it",
+  "topic:subordination|Chains of clauses are normal in writing, rare in speech":
+    "a claim about how often a shape turns up in two registers, which one sentence cannot carry",
+  "topic:quotative|Common in news writing, where the source matters":
+    "about where the mood is used rather than what it does, and the dictionary records usages rather than the writing around them",
+  "topic:adjective-agreement|A few borrowed adjectives never change at all":
+    "a short list of words rather than a rule, and the dictionary has no sentence that shows one failing to agree",
+  "topic:superlative|A one-word form, shorter and more literary":
+    "the corpus holds no short superlative in a sentence a beginner could read, so the helper-word form is the one shown above",
+  "topic:superlative|Both are common and neither is wrong":
+    "a claim about two forms being interchangeable, which needs the same sentence said both ways",
+  "topic:nominalisation|An action noun replaces a subordinate clause":
+    "the point is the clause it replaces, so it needs the pair rather than the result",
+  "topic:nominalisation|The doer becomes a genitive in front of it":
+    "only legible beside the clause it was rewritten from, which no recorded usage carries",
+  "topic:nominalisation|Standard in academic, legal and official writing":
+    "about which register the shape belongs to, and the dictionary records the sentence rather than where it was written",
+  "topic:punctuation|A comma before a subordinate clause, pause or no pause":
+    "the rule is about where a comma may not be left out, and every recorded sentence already follows it",
+  "topic:punctuation|Rules for lists and for asides":
+    "a rule about marks rather than words, so a sentence obeying it shows nothing a reader could notice",
+  "topic:punctuation|Quotation marks are shaped differently from English ones":
+    "about the shape of a glyph, which a sentence carries without teaching anybody to reach for it",
+  "topic:register|A written standard noticeably unlike speech":
+    "the point is the distance between two ways of saying one thing, and a pin holds one of them",
+  "topic:register|Officialese, which is its own much-mocked style":
+    "a style rather than a construction, and one sentence out of it reads as ordinary prose",
+  "topic:register|Spoken forms that are correct and wrong in an essay":
+    "the dictionary records the written standard, so the spoken form this is about is not in the corpus",
+  "topic:collocation|Pairings fixed by convention rather than by grammar":
+    "what teaches a pairing is the wrong one beside it, and this app may not write the wrong one",
+  "topic:collocation|Near-synonyms that do not swap in context":
+    "needs the swap that does not work, which would be Estonian nobody wrote",
+  "topic:collocation|The last thing learned, the first thing noticed":
+    "about how the thing is acquired rather than about the language",
+  "topic:irony|Carried by intonation, understatement and context":
+    "intonation and context are what carry it, and a recorded sentence arrives without either",
+  "topic:irony|Understatement is the commonest form here":
+    "reading it as understatement needs the situation it was said in, which a usage does not record",
+  "topic:irony|Rarely flagged, so it has to be inferred":
+    "the point is the absence of a marker, which no sentence can show by itself",
+  "topic:nuance|Separated by register, strength or connotation":
+    "a difference between two words, so it needs both, and the dictionary files a usage under one",
+  "topic:nuance|Shades a bilingual dictionary flattens":
+    "about what a translation leaves out, which the English under a sentence would leave out too",
+  "topic:nuance|Settled by reading real usage, not definitions":
+    "advice about how to learn the thing rather than a construction to see",
+  "topic:variation|Regional dialects, some quite far from the standard":
+    "the dictionary records the standard, so nothing dialectal is in the corpus to point at",
+  "topic:variation|The gap between the written standard and speech":
+    "a distance between two registers, and what is recorded is one end of it",
+  "topic:variation|Older and literary forms you still meet reading":
+    "the corpus is contemporary usage, so the older forms this is about are not in it",
 };
 
 /** The key a gap is filed under. One spelling, so the two readers agree. */

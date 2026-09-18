@@ -18389,6 +18389,14 @@ check("the English of a shipped sentence is built once and read in one place", (
         them bare. It reads the table to check it rather than to show it.
       */
       "lib/estonian/grammarExamples.test.ts",
+      /*
+        And the check over the join, which builds the rows a seeded deployment
+        would hold in order to drive the resolver without a database. It joins
+        the English on exactly as `prisma/seed.ts` does, which is the point:
+        a resolver tested against rows the seed would not write is a resolver
+        tested against nothing.
+      */
+      "lib/progress/grammarExamples.test.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +

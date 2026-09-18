@@ -28,7 +28,14 @@ import {
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 
 const ATTESTED = new Set<string>();
-for (const row of dictionaryRows()) for (const ex of row.examples) ATTESTED.add(ex.et);
+/** Which entries a sentence is recorded under, for the lemma a pin names. */
+const RECORDED_UNDER = new Map<string, Set<string>>();
+for (const row of dictionaryRows()) {
+  for (const ex of row.examples) {
+    ATTESTED.add(ex.et);
+    (RECORDED_UNDER.get(ex.et) ?? RECORDED_UNDER.set(ex.et, new Set()).get(ex.et)!).add(row.lemma);
+  }
+}
 
 const TABLES = [
   ["topic", TOPIC_EXAMPLES] as const,
@@ -102,6 +109,20 @@ describe("grammar examples", () => {
   });
 
   /*
+    AND THE LEMMA IS THE ENTRY THE SENTENCE IS ACTUALLY FILED UNDER, because
+    that is what the page looks the row up by: `Lexeme.examples` is a JSON
+    column rather than a table, so a wrong lemma is a sentence the page cannot
+    find and silently does not draw, which looks exactly like a point nobody
+    has pinned yet.
+  */
+  it("names the entry each sentence is really recorded under", () => {
+    const wrong = allPins()
+      .filter(({ pin }) => !RECORDED_UNDER.get(pin.et)?.has(pin.lemma))
+      .map(({ kind, id, pin }) => `${kind}:${id} — "${pin.et}" is not a usage of ${pin.lemma}`);
+    expect(wrong).toEqual([]);
+  });
+
+  /*
     Keyed by the point's own text rather than by its index, so a reorder of
     `points` cannot hand one point's examples to its neighbour. That is the one
     failure nothing on screen would show, so it is checked here.
@@ -146,14 +167,45 @@ describe("grammar examples", () => {
   });
 
   /*
-    A FLOOR ON COVERAGE, because a pin list that quietly stopped growing looks
-    exactly like one nobody needed. Raise it when you add pins; the only reason
-    to lower it is a point leaving the reference.
+    EVERY POINT IS ANSWERED, WHICH IS THE WHOLE CLAIM.
+
+    A floor on how many are pinned would let a point arrive with no example and
+    no reason and nothing to say so, which is the state this replaced: the
+    screen draws nothing either way, so an unpinned point and a point nobody
+    has thought about look identical. A new point in `grammar.ts` fails here
+    until somebody either finds it a sentence or writes down why there is not
+    one.
   */
-  it("covers most of what the reference claims", () => {
-    const covered = everyPoint().filter(
+  it("answers every point, with a sentence or with a reason", () => {
+    const unanswered = everyPoint()
+      .filter(
+        (p) =>
+          examplesFor(p.kind, p.id, p.point).length === 0
+          && !EXAMPLE_GAPS[gapKey(p.kind, p.id, p.point)],
+      )
+      .map((p) => `${p.kind}:${p.id} — ${p.point}`);
+    expect(unanswered).toEqual([]);
+  });
+
+  /*
+    And a floor under how many are answered with a sentence rather than a
+    reason, because a gap is always available and a table of 168 reasons would
+    pass the check above while teaching nobody anything. Raise it when you pin
+    more; the only honest reason to lower it is a point leaving the reference.
+  */
+  it("answers most of them with a sentence rather than a reason", () => {
+    const pinned = everyPoint().filter(
       (p) => examplesFor(p.kind, p.id, p.point).length > 0,
     ).length;
-    expect(covered).toBeGreaterThanOrEqual(55);
+    expect(pinned).toBeGreaterThanOrEqual(120);
+  });
+
+  /* And two is the ask, so most of them carry two rather than one. */
+  it("mostly gives two", () => {
+    const lists = everyPoint()
+      .map((p) => examplesFor(p.kind, p.id, p.point))
+      .filter((l) => l.length > 0);
+    const pairs = lists.filter((l) => l.length >= 2).length;
+    expect(pairs * 2).toBeGreaterThan(lists.length);
   });
 });

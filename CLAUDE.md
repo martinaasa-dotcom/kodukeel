@@ -787,6 +787,66 @@ form the sentence actually holds, exactly one case is spelled that way or nothin
 the walk prefers a sentence that passes it. `/grammar/[caseKey]` reads the same examples and ignores
 the field, so nothing about that page moved.
 
+**A reference that only asserts is a reference nobody can act on, so every claim on one ships with
+somebody saying it.** The politeness page headed three boxes "The plural as a polite singular with
+strangers", "The conditional to soften a request" and "Directness is less rude here than English
+speakers expect", and showed none of them. It was reported from exactly there, with the ask in one
+line: each of these needs a very specific example, two would be better, and the same goes for every
+module with text like it. The topic page's own header had argued the other way, that there is no
+safe way to illustrate the quotative because "picking sentences whose words end in the right letters
+would be the app asserting a grammatical analysis it has not verified, which is the same failure as
+generating a form, wearing a different hat". That is right about a **suffix** and wrong about a
+**slot**. `Tahaksin` is the conditional first person of `tahtma` because the dictionary derives it
+from a stored first person that `npm run audit:verbs` checked against Ekilex for all 797 verbs it
+holds, and `Peske` is the polite imperative of `pesema` because the Institute recorded it. Naming a
+sentence a lexicographer wrote and a form the dictionary vouches for is choosing rather than
+writing, which is the standing `BeatSpec.lines` already has one module over (ADR-005).
+
+**`lib/estonian/grammar.ts` still holds no Estonian at all**, and the pins live next door in
+`lib/estonian/grammarExamples.ts`, keyed by the point's own text rather than by its index: an index
+follows a reorder and a point does not, so moving one line of `points` would hand its examples to
+its neighbour, which is the one failure nothing on screen would show. A pin is a sentence, the entry
+it is recorded under, and the word in it that carries the point, and all four things about it are
+checked rather than trusted: the sentence is in the shipped dictionary character for character, it
+carries a shipped English line so a keyless deployment never draws it bare, it passes
+`naturalSentence` so a usage that trails off cannot stand in for a sentence, and the marked word is
+in it. The lemma is there because `Lexeme.examples` is a JSON column rather than a table, so a
+lookup by text would read the whole dictionary; the test asserts the sentence really is one of that
+entry's usages, which caught 28 lemmas guessed wrong on the way in.
+
+**Every one of the 168 points is answered, 124 with sentences and 44 with a written reason**, and
+the check is that none is answered with neither. A floor on how many are pinned would let a point
+arrive with no example, no reason and nothing to say so, which is the state this replaced: the
+screen draws nothing either way, so an unpinned point and a point nobody has thought about look
+identical. The 44 are one shape three times over and it is worth naming, because it is the argument
+for not stretching: **a point claiming a contrast, a frequency, or a fact about the system cannot be
+shown by one sentence.** "New information tends to go last" needs the same sentence in two orders;
+"Officialese, which is its own much-mocked style" needs the plain version beside it; "Which words
+gradate is a property of the word" is what the exceptions area lists word by word; and
+"Quotation marks are shaped differently from English ones" is about a glyph a sentence carries
+without teaching anybody to reach for it. Where the reason is really "nobody has looked" it is not a
+reason, so a gap is at least six words and is checked in both directions, because a gap beside a pin
+is somebody who stopped reading.
+
+**The screen reads `Example.en` like every other screen.** `lib/dict/exampleEnglish.ts` has a closed
+list of four readers and every one of them is a writer, the two halves of the seed, the repair and
+the live Ekilex mapper, so a page reaching past the column would be a fifth answer to what a
+sentence means and the copy nobody is watching is the one that goes stale.
+`lib/progress/grammarExamples.ts` is the read: one query per page whatever it holds, the lemmas of
+every pin on it in a single `findMany`, and a pin the live dictionary no longer holds is dropped
+rather than drawn from the text in the table. `matchPins` is that join kept pure, because the query
+is three lines and the join is where a sentence is actually found or lost, and it is driven over
+every pin in the app against rows built the way the seed writes them.
+
+**A duplicate key in that table deletes pins and nothing says so.** It happened twice while the
+table was being filled: `future` and `object` were each written once and then again, and a second
+`object: { ... }` in an object literal does not merge with the first, it replaces it. Nothing could
+catch it from the outside. The unit test reads the table after JavaScript has already collapsed the
+duplicate, so it sees a consistent table with two points missing and correctly reports them as
+unpinned; `tsc` allows it; and the page draws nothing, which is what an unpinned point draws anyway.
+So it is asked of the **source**, which is the only place the second key still exists, at both
+depths, since two point texts colliding is the same fault one level down.
+
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
 found", which is the same blank a learner gets for a misspelling and for an English word. That was
