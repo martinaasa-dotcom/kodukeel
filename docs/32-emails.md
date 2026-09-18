@@ -24,6 +24,9 @@ complaining about it. Every rule below follows from that one sentence.
 | `shield` | A morning, once per covered day | Telling somebody a thing they earned was spent for them |
 | `errand` | A weekday morning, at most once a week, while the conversation count is flat | One thing to say to one person, a rehearsal first, and permission to be answered in English |
 | `weekly` | Sunday morning where they are | A week drawn rather than scored, and the next named stop on the climb |
+| `deadline` | Early afternoon, twice at most, four to sixteen weeks out | The levers while they still work, and moving the date offered as plainly as the other two |
+| `classroom` | Monday morning, to whoever runs a group | The group's shape and nobody's name, because a letter is a copy and a board is not |
+| `wordday` | A morning, off unless asked for | One word, a sentence, and nothing to press |
 | `system` | Sign-in links, and notices about an account | Not optional, and not in this system: Supabase sends them |
 
 `lib/email/schedule.ts` decides which, and it is pure: everything, including `now`, arrives as an
@@ -31,9 +34,21 @@ argument, so the decision is driven over a year of made-up days in a unit test r
 sending anybody anything. At most one letter per learner per run, and a ceiling of five a week
 over all kinds.
 
-**News before asks.** Two of the seven report something that has already happened and five want
-something. Where both are owed the news goes first: somebody who has just finished A1 should be
-told about A1 rather than about tonight, and the thing that can wait is the thing that asks.
+**News before asks.** A milestone and a spent shield report something that has already happened and
+the rest want something. Where both are owed the news goes first: somebody who has just finished A1
+should be told about A1 rather than about tonight, and the thing that can wait is the thing that
+asks. The word of the day is the other way round again and sits at the bottom of the order, because
+it asks for nothing and so is never the thing that had to go today.
+
+**And two of them are not about the reader's own evenings.** `classroom` goes to somebody about a
+group they run and `wordday` goes to somebody who asked for a word, so neither is what the weekly
+ceiling is about and both sit outside it (`UNCAPPED`); each still has its own gap, which is what
+actually bounds how often it arrives. Their placement against the coming-back branch is a decision
+rather than where they happened to fall. The register is checked **above** it, because a teacher a
+fortnight out of their own deck is still running a class that met on Tuesday and answering their
+Monday register with "we have not seen you in a while" is the app mistaking one of its readers for
+the other. The word is checked **inside** it, because the away branch returns rather than falling
+through and the people the word letter is for are exactly the ones on the far side of that.
 
 ## The psychology, and its limits
 
@@ -328,22 +343,92 @@ a broken streak had been told something false by the one letter whose job is to 
 answerable rather than guessable: a shield covered this gap when one of those days falls after the
 last review. A row that will not parse means we do not know, which is said by saying nothing.
 
+## The last three, and what each of them had to settle
+
+These were listed as proposed with a reservation written against each, and every reservation turned
+out to be about *when* or *what*, never about whether. They are what changed.
+
+### The deadline letter
+
+The reservation was right: a message saying a date will not be met is a message somebody stops
+opening the app over. What makes an honest version possible is when it arrives and what it leads
+with. Sent at the end it is a post-mortem; sent with a couple of months left it is a decision
+somebody made in ninety seconds during first run, put back in front of them while every lever still
+works. So `DEADLINE_WEEKS_MIN` and `DEADLINE_WEEKS_MAX` are both arguments: closer than four weeks
+nobody changes a pace, and further out than sixteen it is a letter about something that has not
+started mattering.
+
+It leads with the lever rather than the verdict, and **moving the date is offered as plainly as the
+other two**. An app whose only suggestion is "study more" is an app that thinks the learner's
+calendar is wrong. Every figure is `examCountdown`'s, which is what Today draws, including
+`distanceLine`'s own sentence: an invariant already fails on a screen writing its own over
+`weeksWithFound`, and a letter is not a softer surface than a screen. The confidence carries its
+evidence tier (ADR-022) for the same reason.
+
+`ExamCountdown.fits` is the one field this added, deliberately a boolean rather than the plan's
+verdict: a caller holding six named cases will sooner or later write a sentence per case, and what a
+letter legitimately needs it for is a tone and whether to offer the levers. `possible` is false,
+because that verdict means the date fits only if the learner commits to hours nobody has put in yet.
+
+### The register
+
+The reservation was that it is mail about third parties, and that is still true, so the rule here is
+**stricter than either roster applies to its own screen**. A screen is behind a sign-in, says who is
+looking, and ends when the tab does. A letter is a copy: archived to a shared staffroom mailbox,
+forwarded to a head of department, read over somebody's shoulder, kept after the group is archived.
+What a learner agreed to when they joined is a board. It is not a copy of their name and their
+weakest case leaving the app every Monday.
+
+So **the letter carries the group's shape and never a person's**, in either kind: how many
+practised, how many answers, and then the one thing the group as a whole is worth saying. The names
+are on the board and the button goes there. What is left differs by seat, which is the rosters' own
+line rather than a new one: a class gets the cases the class is weakest at, which is next week's
+lesson and is a fact about nobody, and a workplace gets the band counts and the tier behind them and
+reads no case at all, because `workplaceRoster` never selects one.
+
+The invariant has two halves and either alone passes on the broken shape: the letter may not draw a
+member's field, and the branch that gathers its input may not reach a member's row. `weakestCases`,
+the plural, is the class-wide aggregate and is the one piece of answer data allowed out; the
+singular is a named student's and is exactly what may not. The word boundary between them is what
+the check is built on.
+
+It reports a quiet week as a quiet week, because a digest that only goes out when the news is good
+is an advertisement. What it may not do is editorialise about the people in it: "7 did not open it"
+is a fact a teacher can act on, and anything about why is a guess about somebody the letter is not
+even allowed to name.
+
+### The word of the day
+
+The only letter that asks for nothing, and the only one somebody has to switch on. Both follow from
+the same thing: it is not part of the course. Every other letter is a short note about an evening
+somebody chose, sent to the address they gave for it, which is what makes it defensible to send
+without being asked. A daily message that is not about that is a daily message nobody asked for,
+whatever is in it.
+
+Who it is actually for is somebody who has stopped the course and still likes the language, which is
+a real person this app had nothing to say to: the coming-back letter goes once and then there is
+silence, which is right for a nudge and leaves the door shut on anybody who would have been glad of
+something small. This goes through that door precisely because it wants nothing.
+
+**So it may not grow an ask.** No button, which is the one letter here without one, and a link to
+the entry only because a word with no way to look it up is a word somebody has to go and find.
+`render.test.ts` holds every other letter to exactly one button and this one to none, by name, so a
+second letter cannot quietly lose its button.
+
+`DEFAULT_OFF` is the one place this app's usual reading of a missing row is inverted, and it needed a
+second stored row rather than an inversion of the first. `emailsOff` is a refusal of something we
+would otherwise send; `emailsOn` is a request for something we otherwise would not. One list cannot
+hold both without a rule that says "present means off for these kinds and on for that one", decided
+by a table somewhere else, which is the shape that comes apart the day a kind is added.
+
 ## Proposed, and not built
 
-Each of these has a real trigger already in the schema. They are listed with what would have to be
-decided first, because the decision is the work rather than the template.
+**A digest per group.** Somebody running two classes gets the older one and a button to the board
+with both on it. A letter per group would be two letters on one Monday morning, which is the thing
+the ceiling exists to stop, arriving through a loop. What would settle it is whether anybody
+actually runs more than one.
 
-**The deadline letter.** A target date approaching, with the honest projection from
-`lib/assessment/plan.ts`. The whole value is that this app's projection is calibrated to the one
-learner rather than to an average, and the whole risk is that a letter saying a date is not going
-to be met is the letter somebody stops opening the app over. Probably belongs behind a request
-rather than on a schedule.
-
-**A teacher's digest.** `classRoster` and `workplaceRoster` already produce exactly this, and the
-boundary between them is already drawn: effort and aggregates for a class, bands and no ranking for
-a workplace. The reason it is not built is that it is mail about a third party, sent to somebody
-else, and the rules for that are not the rules above.
-
-**A word of the day letter with no ask in it at all.** Opt-in, for people who like the word and are
-not currently doing the course. Cheap, and the one kind here that would be worth sending to somebody
-who has stopped.
+**A letter when a class assignment is set.** The trigger exists and is one row. What has to be
+decided first is whose letter it is: a teacher setting homework at eleven at night should not wake
+twenty-five phones, and holding it to the morning makes it a different letter from the one the
+teacher pressed send on.

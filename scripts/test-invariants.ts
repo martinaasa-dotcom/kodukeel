@@ -65,6 +65,7 @@ import {
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
 import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
+import { UNCAPPED } from "../lib/email/schedule";
 import { CAPTION_MAX } from "../lib/copy/values";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
@@ -18662,15 +18663,117 @@ check("every optional letter is on the settings screen, or is named as absent", 
   }
 
   /*
-    And the page hands the panel every optional kind rather than a list of the
-    ones that existed when it was written, which is what "everything off" has
-    to mean for a kind added later.
+    And the page hands the panel `wants` asked of every kind rather than a list
+    of the ones that existed when it was written.
+
+    It used to hand over the off-set and let the panel invert it, which was
+    true while every kind was on by default and became false the day one was
+    not: the daily word is absent from both stored rows until somebody asks
+    for it, so "not switched off" and "switched on" are different answers about
+    it. `kindStates` is `wants` asked of each, which is the one function that
+    knows what a missing row means for a given kind, and it covers what
+    `OPTIONAL_KINDS` used to cover here because it walks the closed list
+    itself.
   */
   assert.match(
     page,
-    /OPTIONAL_KINDS/,
-    "the settings page writes its own list of email kinds again, so a letter added later reads " +
-      "as on to somebody who switched every letter off",
+    /kindStates\(/,
+    "the settings page decides which letters are on without asking `wants`, so a kind that is " +
+      "off by default reads as on to everybody who never asked for it",
+  );
+});
+
+check("the letter about other people carries nobody's name", () => {
+  /*
+    THE ONE LETTER THIS APP SENDS ABOUT SOMEBODY ELSE, AND THE RULE IS
+    STRICTER THAN THE SCREEN'S.
+
+    `/class` shows a teacher a name, a streak and the case one named student
+    keeps missing, and `lib/classroom/cohort.ts` argues at length for where
+    that line sits between a teacher's seat and a sponsor's. None of that
+    argument is about mail. A screen is behind a sign-in, says who is looking,
+    and ends when the tab does; a letter is a copy, archived to a shared
+    mailbox, forwarded to a head of department, and kept after the sender's
+    access to the group has gone. What a learner agreed to when they joined is
+    a board, not a copy of their week leaving the app every Monday.
+
+    So the letter carries the group's shape and never a person's, which is one
+    claim in two halves: the letter cannot draw a member, and the gathering
+    cannot hand it one. Either half alone passes on the broken shape, since a
+    field that is passed and not printed is still a field in an inbox the day
+    somebody adds a line that prints it.
+  */
+  const letter = code("lib/email/letters/classroom.ts");
+  const gathering = code("lib/progress/mailout.ts");
+
+  for (const field of ["displayName", "weakestCase", "streak", "ownerId", "band"]) {
+    assert.equal(
+      new RegExp(`\\b${field}\\b`).test(letter),
+      false,
+      `the classroom letter reads ${field}, which is a fact about one person in the group`,
+    );
+  }
+
+  /*
+    And the half that matters more, because it is upstream: the branch that
+    builds the letter's input may not reach a member's row at all. Anchored on
+    the two rosters' own per-person fields rather than on a shape in the
+    markup, since what is being protected is what crosses into the letter.
+  */
+  const branch = gathering.slice(gathering.indexOf('if (kind === "classroom")'));
+  const upTo = branch.slice(0, branch.indexOf('if (kind === "errand")'));
+  assert.ok(upTo.length > 400, "the classroom branch moved, so this check is reading nothing");
+  /*
+    `weakestCases`, the plural, is the class-wide aggregate and is the one
+    piece of answer data allowed out: it is gated at ten reviews across
+    everybody and is a fact about the class rather than about anybody in it,
+    which is what `classRoster` itself calls a lesson plan. The singular is a
+    named student's own rolled-up percentage and is exactly what may not leave.
+    The word boundary is what keeps those two apart, and it is why this reads
+    regexes rather than substrings.
+  */
+  for (const field of ["displayName", "weakestCase", "streak", "wordsKnown"]) {
+    assert.equal(
+      new RegExp(`\\b${field}\\b`).test(upTo),
+      false,
+      `the classroom letter's gathering reads ${field}, so a person's row is on its way into an inbox`,
+    );
+  }
+  for (const field of ["entries[", ".members["]) {
+    assert.equal(
+      upTo.includes(field),
+      false,
+      `the classroom letter's gathering indexes a member out of ${field}`,
+    );
+  }
+});
+
+check("the weekly ceiling counts the letters it is about", () => {
+  /*
+    A COUNT THAT INCLUDED THE UNCAPPED KINDS WOULD SILENCE EVERYTHING ELSE.
+
+    `MAX_PER_WEEK` stops the letters that ask somebody to study from adding up
+    into a course nagging them. Two kinds are outside it and say why: the word
+    of the day asks for nothing and had to be switched on, and the register is
+    about a group rather than about the reader's own evenings.
+
+    A word a day is seven rows a week on its own. Counted, it would spend the
+    whole ceiling by Tuesday, so somebody who went and switched a letter on
+    would stop receiving the ones they never had to ask for, which is the
+    opposite of what they said. The exclusion lives in the query rather than in
+    the decision, and this is what holds the two together.
+  */
+  const gathering = code("lib/progress/mailout.ts");
+  assert.match(
+    gathering,
+    /emailSend\.count\(\{[\s\S]{0,240}?kind:\s*\{\s*notIn:\s*\[\.\.\.UNCAPPED\]/,
+    "the week's count reads every kind, so a letter that is exempt from the weekly ceiling still " +
+      "spends it",
+  );
+  assert.ok(
+    UNCAPPED.length > 0 &&
+      UNCAPPED.every((kind) => (OPTIONAL_KINDS as readonly string[]).includes(kind)),
+    "UNCAPPED names a kind that is not an optional letter",
   );
 });
 

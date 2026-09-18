@@ -47,7 +47,7 @@ import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
 import { isEmailKind } from "@/lib/email/letter";
-import { emailPrefsFrom, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
+import { emailPrefsFrom, emailOptInTo, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
 import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
@@ -1740,9 +1740,23 @@ export async function setEmailKind(input: { kind: string; on: boolean }) {
     return { ok: false as const, error: "That is not something we send." };
   }
 
-  const current = emailPrefsFrom(await readSetting(ownerId, SETTING_KEYS.emailsOff));
+  /*
+    BOTH ROWS, BECAUSE THERE ARE TWO DEFAULTS AND ONE ROW CANNOT CARRY THEM.
+
+    `emailsOff` is what somebody has refused and `emailsOn` is what they have
+    asked for; `lib/email/prefs.ts` says at length why those are two questions
+    rather than one list read two ways. Written together so a kind cannot end
+    up refused and requested at once, which is the state a single write would
+    leave behind if the second one failed.
+  */
+  const [off, on] = await Promise.all([
+    readSetting(ownerId, SETTING_KEYS.emailsOff),
+    readSetting(ownerId, SETTING_KEYS.emailsOn),
+  ]);
+  const current = emailPrefsFrom(off, on);
   const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
   await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
+  await writeSetting(ownerId, SETTING_KEYS.emailsOn, emailOptInTo(next));
   revalidatePath("/settings");
   return { ok: true as const, on: input.on };
 }

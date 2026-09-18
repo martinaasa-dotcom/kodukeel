@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { Check, Copy, LogOut, Plus, Printer } from "lucide-react";
-import { archiveClassroom, assignHomework, assignUnit, createClassroom, joinClassroom, leaveClassroom } from "@/app/actions";
+import { archiveClassroom, assignHomework, assignUnit, createClassroom, joinClassroom, leaveClassroom, setEmailKind } from "@/app/actions";
 import { Button } from "@/components/Button";
 import { ChoiceCard, ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import { CODE_LENGTH } from "@/lib/classroom/code";
@@ -387,5 +387,43 @@ export function AssignHomework({ classroomId }: { classroomId: string }) {
       </div>
       {message && <p role="status" className="text-xs" style={{ color: "var(--ink-3)" }}>{message}</p>}
     </div>
+  );
+}
+
+/**
+ * The Monday digest, switched from the page it is about.
+ *
+ * `NOT_IN_SETTINGS` in `lib/email/letter.ts` says why it is here rather than
+ * among somebody's own study reminders: it is the only letter this app sends
+ * about other people, it reaches only whoever runs a group, and a row for it
+ * on every learner's settings screen would be a switch for a letter most of
+ * them can never receive.
+ *
+ * Off is stored the way every other refusal is, through `setEmailKind` into
+ * the same row, so the one-click link at the bottom of the digest itself and
+ * this button are two doors onto one preference rather than two preferences.
+ * The write is not awaited and a failure puts the state back, which is
+ * `StarWord`'s rule about a press that did not land.
+ */
+export function ClassDigest({ on }: { on: boolean }) {
+  const [want, setWant] = useState(on);
+  const [, start] = useTransition();
+
+  return (
+    <label className="flex cursor-pointer items-center gap-2 text-xs" style={{ color: "var(--ink-2)" }}>
+      <input
+        type="checkbox"
+        checked={want}
+        onChange={(event) => {
+          const next = event.target.checked;
+          setWant(next);
+          start(async () => {
+            const result = await setEmailKind({ kind: "classroom", on: next }).catch(() => null);
+            if (!result?.ok) setWant(!next);
+          });
+        }}
+      />
+      Email me this on Monday mornings
+    </label>
   );
 }

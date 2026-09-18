@@ -188,6 +188,22 @@ export const SETTING_KEYS = {
    */
   emailsOff: "emailsOff",
   /**
+   * Which letters this learner has switched **on** that are off by default.
+   *
+   * A second row rather than an inversion of the one above, because the two
+   * answer different questions and a single list cannot hold both: `emailsOff`
+   * is a refusal of something we would otherwise send, and this is a request
+   * for something we otherwise would not. Folding them together would mean a
+   * missing entry had to be read one way for one kind and the other way for
+   * another, decided by a table somewhere else, which is exactly the shape of
+   * thing that comes apart when a kind is added.
+   *
+   * `DEFAULT_OFF` in `lib/email/prefs.ts` is what says which kinds this is
+   * consulted for, and it is one: a daily word is not part of the course
+   * somebody signed up for, so it waits to be asked for.
+   */
+  emailsOn: "emailsOn",
+  /**
    * The highest level a milestone letter has already congratulated them on.
    *
    * A high-water mark, the shape `streakShieldsAwarded` takes and for its

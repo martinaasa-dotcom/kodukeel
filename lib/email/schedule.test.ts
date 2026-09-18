@@ -9,7 +9,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  AWAY_DAYS, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS, QUIET_CONVERSATIONS, type Candidate,
+  AWAY_DAYS, DEADLINE_WEEKS_MAX, DEADLINE_WEEKS_MIN, letterOwed, MAX_PER_WEEK, MIN_GAP_HOURS,
+  QUIET_CONVERSATIONS, type Candidate,
 } from "./schedule";
 import { emailPrefsFrom } from "./prefs";
 import type { EmailKind } from "./letter";
@@ -40,6 +41,8 @@ function candidate(over: Partial<Candidate> = {}): Candidate {
     hasErrand: true,
     milestoneReached: null,
     shieldSpent: null,
+    runsGroup: false,
+    deadlineWeeks: null,
     ...over,
   };
 }
@@ -350,5 +353,105 @@ describe("the ordinary answer is nothing", () => {
     */
     const settled = candidate({ finishedToday: true, lastReviewAt: hoursAgo(2) });
     expect(letterOwed(settled, NOW)).toBeNull();
+  });
+});
+
+describe("the register", () => {
+  /** Monday morning where the owner is, with a group under them. */
+  const owner = (over: Partial<Candidate> = {}) =>
+    candidate({ runsGroup: true, localWeekday: 1, localHour: 8, ...over });
+
+  it("goes out on Monday morning to somebody who runs a group", () => {
+    expect(letterOwed(owner(), NOW)?.kind).toBe("classroom");
+  });
+
+  it("does not go to somebody who runs nothing", () => {
+    expect(letterOwed(owner({ runsGroup: false }), NOW)?.kind).not.toBe("classroom");
+  });
+
+  it("outranks the coming-back letter, because it is not about their own course", () => {
+    /*
+      The one that had to be a test rather than a comment. Every other branch
+      below the away check is about the reader's own evenings and is correctly
+      silenced by their having stepped away; this one is about a class that met
+      on Tuesday. Written as one more branch under the away check, a teacher a
+      fortnight out of their own deck would have been answered with "we have
+      not seen you in a while" on the morning they wanted their register.
+    */
+    const away = owner({ lastReviewAt: daysAgo(AWAY_DAYS + 8) });
+    expect(letterOwed(away, NOW)?.kind).toBe("classroom");
+  });
+
+  it("is not stopped by a full week of their own letters", () => {
+    expect(letterOwed(owner({ sentThisWeek: MAX_PER_WEEK + 3 }), NOW)?.kind).toBe("classroom");
+  });
+});
+
+describe("the word of the day", () => {
+  /** Morning, with the word asked for. Off by default, so it has to be switched on. */
+  const asked = (over: Partial<Candidate> = {}) =>
+    candidate({
+      localHour: 8,
+      prefs: emailPrefsFrom(null, "wordday"),
+      ...over,
+    });
+
+  it("does not go to somebody who never asked for it", () => {
+    expect(letterOwed(candidate({ localHour: 8, hasErrand: false }), NOW)?.kind).not.toBe("wordday");
+  });
+
+  it("goes in the morning once it has been asked for", () => {
+    // `hasErrand: false` closes the errand branch, which owns the same window.
+    expect(letterOwed(asked({ hasErrand: false }), NOW)?.kind).toBe("wordday");
+  });
+
+  it("still reaches somebody who has walked away from the course", () => {
+    /*
+      The reason `worddayOwed` is called in two places. The away branch returns
+      rather than falling through, deliberately and at length, so without the
+      second call the people the letter is actually for, somebody who stopped
+      the course and still likes the language, would be the one group never
+      sent one.
+    */
+    const gone = asked({ lastReviewAt: daysAgo(90), lastSent: new Map([["comeback", hoursAgo(4)]]) });
+    expect(letterOwed(gone, NOW)?.kind).toBe("wordday");
+  });
+
+  it("gives way to anything that is actually about the course", () => {
+    const both = asked({ milestoneReached: "A1", localHour: 9 });
+    expect(letterOwed(both, NOW)?.kind).toBe("milestone");
+  });
+
+  it("does not spend the weekly ceiling and is not stopped by it", () => {
+    expect(letterOwed(asked({ hasErrand: false, sentThisWeek: MAX_PER_WEEK + 2 }), NOW)?.kind)
+      .toBe("wordday");
+  });
+});
+
+describe("the date they set", () => {
+  /** Early afternoon, mid-window on a deadline they gave. */
+  const facing = (over: Partial<Candidate> = {}) =>
+    candidate({ localHour: 12, deadlineWeeks: 9, ...over });
+
+  it("goes out inside the window", () => {
+    expect(letterOwed(facing(), NOW)?.kind).toBe("deadline");
+  });
+
+  it("says nothing with no date set", () => {
+    expect(letterOwed(facing({ deadlineWeeks: null }), NOW)?.kind).not.toBe("deadline");
+  });
+
+  it("says nothing once there is no lever left to pull", () => {
+    /*
+      Both ends of the window are the argument rather than a tidy range.
+      Nobody changes a pace with a fortnight to go, so a letter that arrives
+      there is the post-mortem the letter exists not to be.
+    */
+    expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MIN - 1 }), NOW)?.kind).not.toBe("deadline");
+    expect(letterOwed(facing({ deadlineWeeks: DEADLINE_WEEKS_MAX + 1 }), NOW)?.kind).not.toBe("deadline");
+  });
+
+  it("gives way to news, which is what the order says", () => {
+    expect(letterOwed(facing({ shieldSpent: "2026-09-14", localHour: 9 }), NOW)?.kind).toBe("shield");
   });
 });

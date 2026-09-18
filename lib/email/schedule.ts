@@ -12,11 +12,18 @@
   coming back, because two letters on one morning from an app they have not
   opened is how a sender becomes spam.
 
-  NEWS BEFORE ASKS. Of the seven kinds, two report something that has already
-  happened and five want something. A milestone and a spent shield go first
-  wherever both are owed, because somebody who has just finished A1 should be
-  told about A1 rather than about tonight, and the thing that can wait is the
-  thing that asks.
+  NEWS BEFORE ASKS. A milestone and a spent shield report something that has
+  already happened; the rest want something. Those two go first wherever both
+  are owed, because somebody who has just finished A1 should be told about A1
+  rather than about tonight, and the thing that can wait is the thing that
+  asks. The word of the day is the other way round again and sits at the
+  bottom: it asks for nothing, so it is never the thing that had to go today.
+
+  AND TWO OF THEM ARE NOT ABOUT THE READER'S OWN EVENINGS. The register goes
+  to somebody about a group they run, and the word goes to somebody who asked
+  for a word. Both sit outside the weekly ceiling and both are placed against
+  the coming-back branch deliberately rather than by where they happen to
+  fall: see `UNCAPPED`, the classroom branch, and `worddayOwed`.
 
   THE GATES, IN THE ORDER THEY ARE CHEAPEST TO ASK.
 
@@ -84,6 +91,31 @@ export const MIN_GAP_HOURS: Readonly<Record<EmailKind, number>> = {
   */
   milestone: 24,
   shield: 24,
+  /*
+    A MONTH, INSIDE A WINDOW THAT IS ITSELF ONLY A COUPLE OF MONTHS WIDE.
+
+    So at most two of these exist per deadline, which is the whole of what the
+    letter is for: a decision somebody made in ninety seconds during first run,
+    put back in front of them twice while every lever still works, rather than
+    a countdown that arrives every week and teaches them to stop reading.
+  */
+  deadline: 24 * 30,
+  /*
+    A WEEK, AND IT IS A DIGEST RATHER THAN A REMINDER.
+
+    Weekly is the rhythm a register is read on. A daily version would be a
+    daily report on other people's homework, which is a different and worse
+    thing than a weekly one.
+  */
+  classroom: 24 * 6,
+  /*
+    TWENTY HOURS, FOR THE REASON `tonight` IS TWENTY.
+
+    A flat twenty-four on a daily letter is pushed an hour later every day by
+    the run that sent yesterday's, which walks a morning word out of the
+    morning inside a fortnight.
+  */
+  wordday: 20,
 };
 
 /**
@@ -96,6 +128,22 @@ export const MIN_GAP_HOURS: Readonly<Record<EmailKind, number>> = {
  * a course reminding them of itself.
  */
 export const MAX_PER_WEEK = 5;
+
+/**
+ * The kinds the weekly ceiling is not about.
+ *
+ * The ceiling exists so that the letters asking somebody to study do not add
+ * up into a course nagging them, and neither of these is one of those.
+ * `wordday` is off by default and asks for nothing at all, so counting it
+ * would let a gift somebody went and switched on crowd out the reminders they
+ * never had to; `classroom` is about a group rather than about the reader's
+ * own evenings, and a teacher who is also a learner should not lose their
+ * register because they had a diligent week.
+ *
+ * Each of them still has its own gap, which is what actually bounds how often
+ * either arrives.
+ */
+export const UNCAPPED: readonly EmailKind[] = ["wordday", "classroom"];
 
 /** Days away before the coming-back letter is the right one. */
 export const AWAY_DAYS = 6;
@@ -115,6 +163,24 @@ export const AWAY_DAYS = 6;
  * who has had one.
  */
 export const QUIET_CONVERSATIONS = 2;
+
+/**
+ * The window, in weeks left, where the letter about somebody's own deadline is
+ * worth sending.
+ *
+ * Both ends are the argument. Closer than `DEADLINE_WEEKS_MIN` and there is no
+ * lever left to pull, so the letter degrades into the post-mortem its own
+ * header says it must not be: nobody changes a pace with a fortnight to go.
+ * Further out than `DEADLINE_WEEKS_MAX` and it is a letter about something
+ * that has not started mattering, which is how a reader learns that this
+ * sender writes about nothing.
+ *
+ * A quarter wide, against a gap of a month, so at most two of these exist per
+ * deadline and the second one only reaches somebody who did not act on the
+ * first.
+ */
+export const DEADLINE_WEEKS_MIN = 4;
+export const DEADLINE_WEEKS_MAX = 16;
 
 /** What the run knows about one learner when it decides. */
 export interface Candidate {
@@ -141,7 +207,14 @@ export interface Candidate {
   readonly localWeekday: number;
   /** When each kind last went out. Absent means never. */
   readonly lastSent: ReadonlyMap<EmailKind, Date>;
-  /** Letters in the last seven days, all kinds. */
+  /**
+   * Letters in the last seven days, counting the kinds the ceiling is about.
+   *
+   * `UNCAPPED` kinds are left out by the gathering rather than subtracted
+   * here, because a word a day is seven of them and a count that included
+   * those would spend the whole ceiling on a letter that is exempt from it,
+   * silencing every reminder for anybody who switched the word on.
+   */
   readonly sentThisWeek: number;
   /** When they last graded a card. Null where they never have. */
   readonly lastReviewAt: Date | null;
@@ -184,6 +257,24 @@ export interface Candidate {
    * somebody with no deck at all.
    */
   readonly hasErrand: boolean;
+  /**
+   * Whether they run a group with anybody in it.
+   *
+   * A boolean, because this module decides which letter and never which
+   * group: the run resolves the group again when it gathers, and a classroom
+   * id sitting on a decision is an id that could be sent to somebody by a
+   * later branch that did not read this comment.
+   */
+  readonly runsGroup: boolean;
+  /**
+   * Whole weeks until the date they set themselves, or null where they set
+   * none or it has already passed.
+   *
+   * Past is null rather than negative, because a deadline already gone is its
+   * own verdict and `lib/assessment/plan.ts` says so on the screen; a letter
+   * about it would be the post-mortem the letter exists not to be.
+   */
+  readonly deadlineWeeks: number | null;
 }
 
 export interface Decision {
@@ -204,6 +295,38 @@ function gapClear(who: Candidate, kind: EmailKind, now: Date): boolean {
 }
 
 /**
+ * The three gates that are the same question for every kind: do they want it,
+ * has it been long enough, and is the week already full.
+ *
+ * One function rather than three clauses per branch, because the weekly
+ * ceiling stopped being a single early return the moment two kinds were
+ * exempt from it, and eleven copies of a three-part condition is where one of
+ * them comes to be missing a part.
+ */
+function allowed(who: Candidate, kind: EmailKind, now: Date): boolean {
+  if (!wants(who.prefs, kind)) return false;
+  if (!UNCAPPED.includes(kind) && who.sentThisWeek >= MAX_PER_WEEK) return false;
+  return gapClear(who, kind, now);
+}
+
+/**
+ * The word, which is checked in two places and is the reason that is not a
+ * mistake.
+ *
+ * It sits at the bottom of the priority order, below everything that is about
+ * the course, and it is also the one letter somebody who has walked away from
+ * the course may still be glad of: the coming-back branch returns rather than
+ * falling through, deliberately and at length, so without this the people the
+ * word letter's own header says it is for would be the one group never sent
+ * one. So the away branch ends here instead of at null.
+ */
+function worddayOwed(who: Candidate, now: Date): Decision | null {
+  return who.localHour >= 7 && who.localHour < 10 && allowed(who, "wordday", now)
+    ? { kind: "wordday", because: "morning where they are, and they asked for it" }
+    : null;
+}
+
+/**
  * The one letter this learner is owed, or null.
  *
  * `null` is the ordinary answer and by a long way the commonest one. Most
@@ -212,7 +335,6 @@ function gapClear(who: Candidate, kind: EmailKind, now: Date): boolean {
  */
 export function letterOwed(who: Candidate, now: Date): Decision | null {
   if (!who.email || who.undeliverable) return null;
-  if (who.sentThisWeek >= MAX_PER_WEEK) return null;
 
   /*
     THE WELCOME, FIRST AND ONCE.
@@ -225,12 +347,36 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
   */
   if (
     who.onboardedAt &&
-    wants(who.prefs, "welcome") &&
-    gapClear(who, "welcome", now) &&
+    allowed(who, "welcome", now) &&
     hoursBetween(now, who.onboardedAt) >= 1 &&
     hoursBetween(now, who.onboardedAt) <= 48
   ) {
     return { kind: "welcome", because: "finished first run and has not been welcomed" };
+  }
+
+  /*
+    THE REGISTER, AND IT IS ABOVE THE COMING-BACK LETTER FOR ONE REASON.
+
+    Every other branch below this point is about the reader's own evenings, so
+    every one of them is correctly silenced by their having stepped away from
+    the course. This one is not about their course at all. A teacher who has
+    not opened their own deck in a fortnight is still running a class that
+    met on Tuesday, and answering their Monday register with "we have not seen
+    you in a while" is the app mistaking one of its readers for the other.
+
+    Monday, because that is the morning somebody plans a week on. Sunday
+    belongs to the learner's own summary, and the two arriving together is
+    exactly what the weekly ceiling exists to stop, except that this one is
+    not under the ceiling, so the day is what keeps them apart.
+  */
+  if (
+    who.runsGroup &&
+    who.localWeekday === 1 &&
+    who.localHour >= 7 &&
+    who.localHour < 11 &&
+    allowed(who, "classroom", now)
+  ) {
+    return { kind: "classroom", because: "Monday morning, and they run a group" };
   }
 
   /*
@@ -260,9 +406,9 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
       the respectful answer and it is also the one that keeps the sign-in links
       landing in an inbox rather than in a spam folder.
     */
-    return wants(who.prefs, "comeback") && gapClear(who, "comeback", now)
+    return allowed(who, "comeback", now)
       ? { kind: "comeback", because: `no review in ${away} days` }
-      : null;
+      : worddayOwed(who, now);
   }
 
   /*
@@ -290,8 +436,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.milestoneReached !== null &&
     who.localHour >= 8 &&
     who.localHour < 11 &&
-    wants(who.prefs, "milestone") &&
-    gapClear(who, "milestone", now)
+    allowed(who, "milestone", now)
   ) {
     return { kind: "milestone", because: `graduated the words of ${who.milestoneReached}` };
   }
@@ -309,10 +454,33 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.shieldSpent !== null &&
     who.localHour >= 8 &&
     who.localHour < 11 &&
-    wants(who.prefs, "shield") &&
-    gapClear(who, "shield", now)
+    allowed(who, "shield", now)
   ) {
     return { kind: "shield", because: `a shield covered ${who.shieldSpent}` };
+  }
+
+  /*
+    THE DATE THEY SET, WHICH IS NEWS AND AN ASK AT ONCE.
+
+    Below the two that are only news, because a milestone is worth a morning
+    of its own, and above the summary and the errand, because it fires at most
+    twice per deadline where those fire every week: the rarer letter is the one
+    that cannot wait for next week's slot.
+
+    Not Sunday and not the errand's morning, which is the same reason twice:
+    those two already own a morning each, and this letter has a quarter of the
+    year to land in and no reason at all to take one of them.
+  */
+  if (
+    who.deadlineWeeks !== null &&
+    who.deadlineWeeks >= DEADLINE_WEEKS_MIN &&
+    who.deadlineWeeks <= DEADLINE_WEEKS_MAX &&
+    who.localWeekday !== 0 &&
+    who.localHour >= 11 &&
+    who.localHour < 15 &&
+    allowed(who, "deadline", now)
+  ) {
+    return { kind: "deadline", because: `${who.deadlineWeeks} weeks until the date they set` };
   }
 
   /*
@@ -327,8 +495,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.localHour >= 9 &&
     who.localHour < 12 &&
     who.lastReviewAt !== null &&
-    wants(who.prefs, "weekly") &&
-    gapClear(who, "weekly", now)
+    allowed(who, "weekly", now)
   ) {
     return { kind: "weekly", because: "Sunday morning where they are" };
   }
@@ -372,8 +539,7 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     who.stage === "settled" &&
     who.hasErrand &&
     who.conversations <= QUIET_CONVERSATIONS &&
-    wants(who.prefs, "errand") &&
-    gapClear(who, "errand", now)
+    allowed(who, "errand", now)
   ) {
     return { kind: "errand", because: `${who.conversations} conversations in the window` };
   }
@@ -401,11 +567,10 @@ export function letterOwed(who: Candidate, now: Date): Decision | null {
     !who.finishedToday &&
     who.localHour >= hour &&
     who.localHour < 22 &&
-    wants(who.prefs, "tonight") &&
-    gapClear(who, "tonight", now)
+    allowed(who, "tonight", now)
   ) {
     return { kind: "tonight", because: `evening where they are, and tonight is unfinished` };
   }
 
-  return null;
+  return worddayOwed(who, now);
 }

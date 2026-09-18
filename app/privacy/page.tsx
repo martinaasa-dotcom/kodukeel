@@ -99,6 +99,14 @@ export default function PrivacyPage() {
           messages you cannot switch off are the ones you asked for, like a sign-in link.
         </P>
         <P>
+          <strong>And one of them is about other people.</strong> Whoever runs a class or a
+          workplace group can be sent a weekly note about it. That note carries how many people
+          practised and how many answers they gave between them, and never a name, a figure about
+          one person, or anybody&rsquo;s mistakes. Those are on the board inside the app, where
+          everyone who joined was told they would be. It is switched off from the group&rsquo;s
+          own page.
+        </P>
+        <P>
           <strong>Your level checks.</strong> Each sitting is kept: the levels it measured,
           how many questions it came from, and the rating you gave your own speaking. Nothing
           you record is uploaded, and no audio is stored anywhere.

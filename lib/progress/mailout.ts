@@ -29,9 +29,15 @@ import { readSetting, readSettings, SETTING_KEYS, type SettingKey } from "@/lib/
 import { emailPrefsFrom } from "@/lib/email/prefs";
 import { EMAIL_KINDS, type EmailKind } from "@/lib/email/letter";
 import type { Candidate } from "@/lib/email/schedule";
-import { AWAY_DAYS } from "@/lib/email/schedule";
+import { AWAY_DAYS, UNCAPPED } from "@/lib/email/schedule";
+import { weeksUntil } from "@/lib/assessment/goals";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
+import { examCountdown } from "@/lib/progress/countdown";
+import { EVIDENCE_NOTE } from "@/lib/exam/readiness";
+import type { ExamLevel } from "@/lib/exam/spec";
+import { cohortKind } from "@/lib/classroom/cohort";
+import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
 import { ladderWordsAt, wordsLeftAt } from "@/lib/course/milestones";
 
 import { wordOfDay } from "@/lib/progress/wordOfDay";
@@ -47,6 +53,9 @@ import type { WelcomeInput } from "@/lib/email/letters/welcome";
 import type { ComebackInput } from "@/lib/email/letters/comeback";
 import type { WeeklyInput } from "@/lib/email/letters/weekly";
 import type { ErrandInput } from "@/lib/email/letters/errand";
+import type { DeadlineInput } from "@/lib/email/letters/deadline";
+import type { ClassroomInput } from "@/lib/email/letters/classroom";
+import type { WorddayInput } from "@/lib/email/letters/wordday";
 import type { MilestoneInput } from "@/lib/email/letters/milestone";
 import type { ShieldInput } from "@/lib/email/letters/shield";
 
@@ -196,6 +205,23 @@ export async function undeliverableRow(ownerId: string): Promise<string | null> 
 }
 
 /** The five cheap facts the decision needs. */
+/**
+ * One letter over a day key, and the same one `recentDayKeys` would put on
+ * Today.
+ *
+ * Here rather than inline because two letters draw a week strip now and two
+ * copies of a date format is where one of them comes to say Mon and the other
+ * M. `en-GB` and UTC are both deliberate: the key is already the learner's own
+ * day, so the only job left is to name it, and naming it on the server's
+ * locale is the fault `components/LocalDate.tsx` exists for.
+ */
+function dayLabel(key: string): string {
+  return new Date(`${key}T00:00:00Z`).toLocaleDateString("en-GB", {
+    weekday: "narrow",
+    timeZone: "UTC",
+  });
+}
+
 export async function candidateFor(ownerId: string, now: Date): Promise<Candidate> {
   const settings = await readSettings(ownerId, [
     SETTING_KEYS.timeZone,
@@ -203,6 +229,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     SETTING_KEYS.emailUndeliverable,
     SETTING_KEYS.onboardedAt,
     SETTING_KEYS.reminderAt,
+    SETTING_KEYS.goalDeadline,
+    SETTING_KEYS.emailsOn,
   ]);
 
   const clock = dayClock(settings[SETTING_KEYS.timeZone]);
@@ -229,7 +257,19 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
         return [kind, row?.sentAt];
       }),
     ),
-    prisma.emailSend.count({ where: { ownerId, sentAt: { gte: weekAgo } } }),
+    /*
+      THE WEEK'S COUNT, OVER THE KINDS THE CEILING IS ABOUT.
+
+      `UNCAPPED` is excluded here rather than subtracted in the decision,
+      because the word of the day is seven rows a week on its own: counted,
+      it would spend the whole ceiling by Tuesday and silence every reminder
+      for exactly the people who went and switched a letter on. The gaps are
+      what bound those two, and `lib/email/schedule.ts` says so where it says
+      which kinds they are.
+    */
+    prisma.emailSend.count({
+      where: { ownerId, sentAt: { gte: weekAgo }, kind: { notIn: [...UNCAPPED] } },
+    }),
     programmeFor(ownerId),
   ]);
 
@@ -265,6 +305,41 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
   const onboardedAt = onboardedRaw ? new Date(onboardedRaw) : null;
 
   /*
+    THE REGISTER'S ONE FACT, ASKED ON MONDAY MORNINGS AND NOT OTHERWISE.
+
+    Somebody who runs no group is nearly everybody, so this is a cheap
+    indexed read that answers no on almost every row it is asked about; the
+    window is what keeps it from being asked at all on the other six days.
+    An owner with nobody in the group yet is not a group: a register of
+    nought people is a letter about nothing, and it is the state every class
+    is in for the hour between being created and the code going on a board.
+  */
+  const runsGroup =
+    weekdayOn(clock, now) === 1 && localHour >= 7 && localHour < 11
+      ? (await prisma.classroomMember.count({
+          where: {
+            ownerId: { not: ownerId },
+            classroom: { ownerId, archived: false },
+          },
+        })) > 0
+      : false;
+
+  /*
+    AND THE WEEKS LEFT ON THE DATE THEY SET, WHICH IS A SETTING RATHER THAN A
+    QUERY.
+
+    `goalsFor` reads five keys and this needs one of them, so it is read
+    directly: the decision only has to know whether the date is inside the
+    window, and `letterInputFor` reads the whole goal properly when it turns
+    out to be. Past is null rather than negative, which is the type's own rule
+    and `weeksUntil`'s: a date already gone is its own verdict and there is no
+    letter to write about it.
+  */
+  const deadlineRaw = settings[SETTING_KEYS.goalDeadline];
+  const weeksLeft = deadlineRaw ? weeksUntil(deadlineRaw, now) : null;
+  const deadlineWeeks = weeksLeft !== null && weeksLeft > 0 ? weeksLeft : null;
+
+  /*
     THE THREE FACTS THE ERRAND LETTER TURNS ON, AND THEY ARE ASKED ONLY IN THE
     MORNING WHERE THE LEARNER IS.
 
@@ -275,7 +350,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     skipped outside the evening for the same reason.
   */
   const morning = localHour >= 8 && localHour < 11;
-  const couldBeErrand = morning && weekdayOn(clock, now) !== 0;
+  const weekday = weekdayOn(clock, now);
+  const couldBeErrand = morning && weekday !== 0;
   const errandFacts = couldBeErrand
     ? await (async () => {
         const [snapshot, conversations, cards, reviews] = await Promise.all([
@@ -368,11 +444,11 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
       and the run is the only layer that may hold an address.
     */
     undeliverable: false,
-    prefs: emailPrefsFrom(settings[SETTING_KEYS.emailsOff]),
+    prefs: emailPrefsFrom(settings[SETTING_KEYS.emailsOff], settings[SETTING_KEYS.emailsOn]),
     dayKey: clock.dayKey(now),
     localHour,
     reminderHour,
-    localWeekday: weekdayOn(clock, now),
+    localWeekday: weekday,
     lastSent: new Map(
       sends.filter((entry): entry is [EmailKind, Date] => entry[1] !== undefined),
     ),
@@ -391,6 +467,8 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
     hasErrand: errandFacts?.hasErrand ?? false,
     milestoneReached: news?.milestoneReached ?? null,
     shieldSpent: news?.shieldSpent ?? null,
+    runsGroup,
+    deadlineWeeks,
   };
 }
 
@@ -429,6 +507,9 @@ export async function letterInputFor(
   */
   | { kind: "milestone"; input: MilestoneInput; remember: Remember }
   | { kind: "shield"; input: ShieldInput; remember: Remember }
+  | { kind: "deadline"; input: DeadlineInput }
+  | { kind: "classroom"; input: ClassroomInput }
+  | { kind: "wordday"; input: WorddayInput }
   | null
 > {
   const settings = await readSettings(ownerId, [
@@ -612,11 +693,7 @@ export async function letterInputFor(
         name,
         origin,
         week: weekKeys.map((key) => ({
-          // One letter, and the same one `recentDayKeys` would put on Today.
-          label: new Date(`${key}T00:00:00Z`).toLocaleDateString("en-GB", {
-            weekday: "narrow",
-            timeZone: "UTC",
-          }),
+          label: dayLabel(key),
           studied: studiedKeys.has(key),
         })),
         reviews,
@@ -740,6 +817,165 @@ export async function letterInputFor(
         })),
       },
       remember: { key: SETTING_KEYS.shieldToldFor, value: covered },
+    };
+  }
+
+  if (kind === "wordday") {
+    /*
+      THE GIFT ON ITS OWN, WHICH IS THE WHOLE LETTER.
+
+      `gift()` above is the same fetch three other letters make, and it drops
+      the example sentence because those three have no room for one. This
+      letter is the sentence, so it reads `wordOfDay` itself rather than
+      widening the shared shape for the one caller that wants the extra field.
+
+      Null where the dictionary could answer for nothing at all, which returns
+      no letter. That is the honest state rather than a defensive one: a
+      deployment whose dictionary is empty has no word of the day on Today
+      either, and a letter announcing that would be the app reporting a gap in
+      itself to somebody who asked for a word.
+    */
+    const word = await wordOfDay(
+      ownerId,
+      clock.dayKey(now),
+      clock.startOfDay(now),
+      await courseLevelFor(ownerId),
+    );
+    if (!word) return null;
+    return {
+      kind: "wordday",
+      input: {
+        origin,
+        word: {
+          lemma: word.lemma,
+          translation: word.translation,
+          occasion: word.occasion?.note ?? null,
+          example: word.example ? { et: word.example.et, en: word.example.en ?? null } : null,
+        },
+      },
+    };
+  }
+
+  if (kind === "deadline") {
+    /*
+      THE COUNTDOWN CARD'S OWN READING, NOT A SECOND ONE.
+
+      `examCountdown` is what Today draws and what the examination hub's
+      countdown reads, and every figure in this letter comes off it: the band,
+      the phrase, the confidence with its tier, the one thing in the way, and
+      `distanceLine`'s own sentence. An invariant already fails on a screen
+      writing its own sentence over `weeksWithFound`, and a letter is not a
+      softer surface than a screen.
+
+      Null where there is no phrase, which means no date was set. The decision
+      only reaches this branch for somebody with weeks left on a date, so it
+      is a state that can only arise between the two passes: somebody who
+      cleared their deadline in the minute after the roster was read.
+    */
+    const countdown = await examCountdown(ownerId, now, clock);
+    if (!countdown || !countdown.phrase) return null;
+    return {
+      kind: "deadline",
+      input: {
+        name,
+        origin,
+        band: countdown.band,
+        label: countdown.label,
+        phrase: countdown.phrase,
+        distance: countdown.distance,
+        confidence: countdown.confidence,
+        evidence: EVIDENCE_NOTE[countdown.evidence],
+        gap: countdown.gap?.title ?? null,
+        onTrack: countdown.fits,
+      },
+    };
+  }
+
+  if (kind === "classroom") {
+    /*
+      THE GROUP, THROUGH WHICHEVER ROSTER ITS KIND CALLS FOR.
+
+      Which query runs is the whole of the boundary between the two seats, as
+      `lib/classroom/cohort.ts` says at length, so the letter picks by kind and
+      never by which fields it feels like printing. A teacher's roster reads
+      the class-wide case aggregate; a workplace's never selects a case at all,
+      and the summary it returns has nowhere to put one.
+
+      The first group they own, ordered on the primary key, because the letter
+      is one letter: somebody running two classes gets the older one and the
+      button opens the board with both on it. A digest per group would be two
+      letters on one Monday morning, which is the thing the ceiling exists to
+      stop, arriving through a loop.
+    */
+    const group = await prisma.classroom.findFirst({
+      where: { ownerId, archived: false },
+      orderBy: { id: "asc" },
+      select: { id: true, name: true, kind: true, targetLevel: true },
+    });
+    if (!group) return null;
+
+    /*
+      SEVEN DAYS, OLDEST FIRST, EACH SAYING WHETHER ANYBODY STUDIED.
+
+      The strip and the counts have to cover the same week or the drawing and
+      the sentence above it describe two different things, which is the fault
+      the weekly letter was corrected for. One window, read on the owner's own
+      clock, since it is their Monday the letter arrives on.
+    */
+    const weekKeys = clock.recentDayKeys(8, now).slice(0, 7);
+    const members = await prisma.classroomMember.findMany({
+      where: { classroomId: group.id, ownerId: { not: ownerId } },
+      select: { ownerId: true },
+    });
+    const ids = members.map((m) => m.ownerId);
+    if (ids.length === 0) return null;
+    const days = await prisma.review.findMany({
+      where: {
+        ownerId: { in: ids },
+        reviewedAt: { gte: clock.shiftDay(now, 7), lt: clock.startOfDay(now) },
+      },
+      orderBy: { id: "asc" },
+      select: { reviewedAt: true },
+    });
+    const studied = new Set(days.map((d) => clock.dayKey(d.reviewedAt)));
+    const week = weekKeys.map((key) => ({ label: dayLabel(key), studied: studied.has(key) }));
+
+    if (cohortKind(group.kind) === "WORKPLACE") {
+      const cohort = await workplaceRoster(group.id, group.targetLevel as ExamLevel, now);
+      return {
+        kind: "classroom",
+        input: {
+          origin,
+          groupName: group.name,
+          members: cohort.members.length,
+          active: cohort.active,
+          reviews: days.length,
+          week,
+          detail: {
+            kind: "WORKPLACE",
+            level: cohort.level,
+            onTrack: cohort.counts.likely,
+            close: cohort.counts.close,
+            needTime: cohort.counts.far,
+            tooEarly: cohort.counts.unknown,
+            evidence: EVIDENCE_NOTE[cohort.evidence],
+          },
+        },
+      };
+    }
+
+    const roster = await classRoster(group.id, now);
+    return {
+      kind: "classroom",
+      input: {
+        origin,
+        groupName: group.name,
+        members: roster.entries.length,
+        active: roster.activeThisWeek,
+        reviews: roster.totalReviewsThisWeek,
+        week,
+        detail: { kind: "CLASS", weakestCases: roster.weakestCases },
+      },
     };
   }
 

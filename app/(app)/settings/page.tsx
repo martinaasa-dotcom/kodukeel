@@ -11,8 +11,7 @@ import { letterBarFrom } from "@/lib/ux/letterBar";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
-import { emailPrefsFrom } from "@/lib/email/prefs";
-import { OPTIONAL_KINDS } from "@/lib/email/letter";
+import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
 import { mailerConfig } from "@/lib/mailer/transport";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
@@ -123,7 +122,7 @@ export default async function SettingsPage() {
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
-      SETTING_KEYS.emailsOff, SETTING_KEYS.reminderAt,
+      SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn, SETTING_KEYS.reminderAt,
     ]),
     currentLearner(),
     goalsFor(ownerId),
@@ -141,7 +140,7 @@ export default async function SettingsPage() {
   const mode = reviewModeFrom(settings[SETTING_KEYS.reviewMode]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const participation = participationFrom(settings[SETTING_KEYS.researchOptOut]);
-  const emailPrefs = emailPrefsFrom(settings[SETTING_KEYS.emailsOff]);
+  const emailPrefs = emailPrefsFrom(settings[SETTING_KEYS.emailsOff], settings[SETTING_KEYS.emailsOn]);
   /*
     Whether this installation can send at all, read here and handed down as a
     boolean. `lib/funding/` takes the same shape about the environment for the
@@ -620,16 +619,21 @@ export default async function SettingsPage() {
             <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
             <Card>
               <EmailPanel
-                off={
+                on={
                   /*
-                    `all-off` is a value rather than a list, so the panel is
-                    handed every optional kind rather than the four that
-                    existed when it was written. That literal was a fifth list
-                    of the kinds, and the one that would have quietly shown a
-                    new letter as on to somebody who had switched everything
-                    off.
+                    WHAT IS ON, RATHER THAN WHAT IS OFF, WHICH IS NOT THE SAME
+                    QUESTION ANY MORE.
+
+                    It used to hand over the off-set and let the panel invert
+                    it, which was true while every kind was on by default. The
+                    daily word is not: it is absent from both rows until
+                    somebody asks for it, so "not switched off" and "switched
+                    on" are different answers about it and only `wants` knows
+                    which. `kindStates` is that function asked of every kind at
+                    once, which also retires the `all-off` special case this
+                    prop used to carry.
                   */
-                  emailPrefs.kind === "all-off" ? new Set(OPTIONAL_KINDS) : emailPrefs.off
+                  new Set(kindStates(emailPrefs).filter((s) => s.on).map((s) => s.kind))
                 }
                 reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
                 sending={canSend}

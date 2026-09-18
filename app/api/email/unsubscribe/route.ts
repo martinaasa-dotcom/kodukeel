@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
+import { emailOptInTo, emailPrefsFrom, emailPrefsTo, switchOff } from "@/lib/email/prefs";
 import { kindsInScope, mailSecret, readUnsubscribe } from "@/lib/email/unsubscribe";
 import { esc } from "@/lib/email/html";
 import { PALETTE as P } from "@/lib/email/palette";
@@ -145,12 +145,30 @@ export async function POST(request: Request) {
   if (!allowed.ok) return page(DONE, "That is already being dealt with.");
 
   try {
-    const existing = await prisma.setting.findUnique({
-      where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff } },
-      select: { value: true },
+    const existing = await prisma.setting.findMany({
+      where: {
+        ownerId: read.ownerId,
+        key: { in: [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn] },
+      },
+      select: { key: true, value: true },
     });
-    const next = switchOff(emailPrefsFrom(existing?.value), kindsInScope(read.scope));
+    const rowFor = (key: string) => existing.find((row) => row.key === key)?.value ?? null;
+    const next = switchOff(
+      emailPrefsFrom(rowFor(SETTING_KEYS.emailsOff), rowFor(SETTING_KEYS.emailsOn)),
+      kindsInScope(read.scope),
+    );
     const value = emailPrefsTo(next);
+    /*
+      AND THE OPT-IN ROW IS WITHDRAWN WITH IT.
+
+      `switchOff` already drops a kind from the asked-for set, and writing only
+      the refusal row would leave the old request standing on disk: harmless
+      today, because `wants` reads the refusal first, and exactly the kind of
+      contradiction that gets resolved the wrong way by whoever next changes
+      which row wins. Somebody who pressed unsubscribe did not leave a standing
+      request behind.
+    */
+    const optIn = emailOptInTo(next);
 
     /*
       Written directly rather than through `writeSetting`, which memoises per
@@ -158,11 +176,18 @@ export async function POST(request: Request) {
       is whoever the token names, so the helper's cache would be keyed on the
       wrong person.
     */
-    await prisma.setting.upsert({
-      where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff } },
-      create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff, value },
-      update: { value },
-    });
+    await prisma.$transaction([
+      prisma.setting.upsert({
+        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff } },
+        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOff, value },
+        update: { value },
+      }),
+      prisma.setting.upsert({
+        where: { ownerId_key: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn } },
+        create: { ownerId: read.ownerId, key: SETTING_KEYS.emailsOn, value: optIn },
+        update: { value: optIn },
+      }),
+    ]);
     /*
       And the store is told, because a request holds one memoised read of a
       learner's settings and a write it does not know about is a value the rest

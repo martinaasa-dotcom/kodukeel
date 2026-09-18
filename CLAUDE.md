@@ -462,8 +462,8 @@ follow-up, explaining why you were late.
 
 **A letter is the app writing to somebody who is not looking at it, and the only thing that
 makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
-`lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. Five kinds, a closed
-list (`EMAIL_KINDS`) for the reason `CARD_SOURCES` is one: a learner switches a *kind* off, so a
+`lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. A closed list
+(`EMAIL_KINDS`) for the reason `CARD_SOURCES` is one: a learner switches a *kind* off, so a
 letter that is not on the list is a letter nobody has a way to stop. The way out is in every
 footer, it is an HMAC over the learner and the kind so it works with no session, and
 `List-Unsubscribe-Post` is what lets a mail client draw its own button beside the sender's name.
@@ -498,6 +498,53 @@ and praise for a day off is seen through instantly, and it does not make the str
 because the shield exists precisely so a missed day costs nothing. Both carry a high-water mark
 written **after the send and nowhere earlier**: a mark written when the letter was decided is a
 mark against news that never arrived, and there is no second chance at a level somebody passes once.
+
+**And the date somebody set is put back in front of them while the levers still work.** A letter
+saying a date will not be met is a letter people stop opening the app over, which is the reservation
+this one was proposed with and is about *when* it arrives rather than whether. `DEADLINE_WEEKS_MIN`
+and `DEADLINE_WEEKS_MAX` are both arguments: inside four weeks nobody changes a pace, so the letter
+degrades into a post-mortem, and past sixteen it is about something that has not started mattering.
+It leads with the lever rather than the verdict, and **moving the date is offered as plainly as the
+other two**, because an app whose only suggestion is "study more" thinks the learner's calendar is
+wrong. Every figure is `examCountdown`'s, `distanceLine`'s own sentence included, since an invariant
+already fails on a screen writing its own over `weeksWithFound` and a letter is not a softer surface
+than a screen. `ExamCountdown.fits` is the one field it added and is deliberately a boolean rather
+than the plan's verdict, because a caller holding six named cases writes a sentence per case; and
+`possible` is false, since that verdict means the date fits only on hours nobody has put in yet.
+
+**The one letter about other people carries nobody's name, which is stricter than the screen it is a
+copy of.** `/class` shows a teacher a name, a streak and the case one named student keeps missing,
+and `lib/classroom/cohort.ts` argues at length for where that line sits between a teacher's seat and
+a sponsor's. None of that argument is about mail. A screen is behind a sign-in, says who is looking
+and ends when the tab does; a letter is archived to a shared staffroom mailbox, forwarded to a head
+of department, read over a shoulder, and kept after the sender's access to the group has gone. What
+a learner agreed to on joining is a board, not a copy of their week leaving the app every Monday. So
+the register carries how many practised, how many answers, and then the one thing the group as a
+whole is worth saying: the cases the **class** is weakest at, which is next week's lesson and is a
+fact about nobody, or a workplace's band counts and the tier behind them, which reads no case at all
+because `workplaceRoster` never selects one. The names are on the board and the button goes there.
+The invariant has two halves, since either alone passes on the broken shape: the letter may not draw
+a member's field, and the branch that gathers its input may not reach a member's row. `weakestCases`
+is the aggregate and may leave; `weakestCase` is one student's and may not, and the word boundary
+between them is what the check is built on. It is checked **above** the coming-back branch, because
+a teacher a fortnight out of their own deck is still running a class that met on Tuesday.
+
+**And one letter asks for nothing, which is why it is the only one somebody has to switch on.**
+`wordday` is not part of the course: every other letter is a short note about an evening somebody
+chose, sent to the address they gave for it, and a daily message that is not about that is a daily
+message nobody asked for, whatever is in it. Who it is for is somebody who stopped the course and
+still likes the language, which is a real person this app had nothing to say to, since the
+coming-back letter goes once and then there is silence. It goes through that door precisely because
+it wants nothing, so it is checked **inside** the away branch rather than below it, and it **may not
+grow an ask**: no button, which is the one letter here without one, held by name in
+`render.test.ts` so a second letter cannot quietly lose its own. `DEFAULT_OFF` is the one place this
+app's usual reading of a missing row is inverted, and it needed a second stored row rather than an
+inversion of the first: `emailsOff` is a refusal and `emailsOn` is a request, and one list holding
+both would mean "present" reading one way for most kinds and the other way for that one, which is
+the rule that gets inverted by whoever next edits it. **Neither of those two spends the weekly
+ceiling** (`UNCAPPED`), because that ceiling is about the letters asking somebody to study, and a
+word a day counted against it would silence every reminder by Tuesday for exactly the people who
+went and asked for something.
 
 **Every figure in a letter is read back through the function the screen showing the same figure
 reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`

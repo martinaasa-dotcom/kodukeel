@@ -46,6 +46,9 @@ import { weeklyLetter } from "@/lib/email/letters/weekly";
 import { errandLetter } from "@/lib/email/letters/errand";
 import { milestoneLetter } from "@/lib/email/letters/milestone";
 import { shieldLetter } from "@/lib/email/letters/shield";
+import { deadlineLetter } from "@/lib/email/letters/deadline";
+import { classroomLetter } from "@/lib/email/letters/classroom";
+import { worddayLetter } from "@/lib/email/letters/wordday";
 import { candidateFor, letterInputFor, mailoutRoster, undeliverableRow } from "@/lib/progress/mailout";
 import { addressDigest, blocks } from "@/lib/email/webhook";
 import { writeSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -96,6 +99,12 @@ function letterFrom(
       return milestoneLetter(built.input);
     case "shield":
       return shieldLetter(built.input);
+    case "deadline":
+      return deadlineLetter(built.input);
+    case "classroom":
+      return classroomLetter(built.input);
+    case "wordday":
+      return worddayLetter(built.input);
   }
 }
 

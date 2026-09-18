@@ -48,6 +48,9 @@ export const EMAIL_KINDS = [
   "errand",
   "milestone",
   "shield",
+  "deadline",
+  "classroom",
+  "wordday",
 ] as const;
 
 export type EmailKind = (typeof EMAIL_KINDS)[number];
@@ -55,6 +58,19 @@ export type EmailKind = (typeof EMAIL_KINDS)[number];
 export function isEmailKind(value: unknown): value is EmailKind {
   return typeof value === "string" && (EMAIL_KINDS as readonly string[]).includes(value);
 }
+
+/**
+ * Kinds that arrive only if somebody asks for them.
+ *
+ * Everything else here is part of the course a learner signed up to, which is
+ * the whole argument in `lib/email/prefs.ts` for those being on by default: a
+ * short note about the evening they chose, sent to the address they gave for
+ * it. `wordday` is not that. It is a daily word with nothing to do and nothing
+ * to press, and a daily message nobody asked for is a daily message, whatever
+ * is in it. So it is off until somebody turns it on, and that is the one place
+ * this app's usual reading of a missing row is inverted.
+ */
+export const DEFAULT_OFF: readonly EmailKind[] = ["wordday"];
 
 /** Kinds a learner may switch off. `system` is deliberately absent. */
 export const OPTIONAL_KINDS = EMAIL_KINDS.filter((k) => k !== "system");
@@ -73,6 +89,11 @@ export const OPTIONAL_KINDS = EMAIL_KINDS.filter((k) => k !== "system");
  * still switched off by its own footer and by the mail client's own button.
  */
 export const NOT_IN_SETTINGS: Readonly<Partial<Record<EmailKind, string>>> = {
+  classroom:
+    "Goes to whoever runs a class or a workplace group, about the people in it, and only to "
+    + "somebody who has one. A row on a learner's own settings screen would be a switch for a "
+    + "letter most of them can never receive; it is turned off from the group's own page, beside "
+    + "the roster it is a copy of.",
   welcome:
     "Arrives once, between an hour and two days after first run. By the time anybody is on the " +
     "settings screen it has either come or it never will, so a switch for it is a control that " +

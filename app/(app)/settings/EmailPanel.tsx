@@ -17,6 +17,12 @@ import type { EmailKind } from "@/lib/email/letter";
  * answering is whether they want their evening interrupted, and no label
  * answers that.
  *
+ * `classroom` is absent too, and for a different reason: it is not about the
+ * reader's own evenings, so its switch belongs on the page for the group it is
+ * about rather than among somebody's own study reminders. `NOT_IN_SETTINGS` in
+ * `lib/email/letter.ts` is where both exemptions are written down with the
+ * reason, so a kind cannot quietly go missing from this list.
+ *
  * `welcome` is deliberately absent. It arrives once, in the first two days,
  * and by the time anybody is on this screen it has either come or never will,
  * so a switch for it is a control that does nothing. Nothing is hidden by
@@ -59,24 +65,38 @@ const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
     title: "A summary on Sunday morning",
     detail: "What the week held, and how far along the course you are.",
   },
+  {
+    kind: "deadline",
+    title: "Where the date you set stands, while it can still move",
+    detail: "Twice at most, and only in the months where changing something would still work.",
+  },
+  {
+    kind: "wordday",
+    title: "One Estonian word a day",
+    detail: "Off unless you ask. A word, what it means, a sentence, and nothing to do.",
+  },
 ];
 
 /** The hours offered, which are the ones the calendar file already offered. */
 const HOURS = ["08:00", "12:30", "18:00", "20:30"];
 
 export function EmailPanel({
-  off,
+  on,
   reminderAt,
   sending,
 }: {
-  /** Kinds currently switched off. */
-  off: ReadonlySet<string>;
+  /**
+   * Kinds currently switched on, which is `wants` asked of each rather than
+   * the complement of the off-set: the daily word is absent from both stored
+   * rows until somebody asks for it, so the two readings differ there.
+   */
+  on: ReadonlySet<string>;
   reminderAt: string | null;
   /** Whether this installation can send at all. */
   sending: boolean;
 }) {
   const [state, setState] = useState<Record<string, boolean>>(
-    Object.fromEntries(LETTERS.map((l) => [l.kind, !off.has(l.kind)])),
+    Object.fromEntries(LETTERS.map((l) => [l.kind, on.has(l.kind)])),
   );
   const [hour, setHour] = useState(reminderAt ?? "18:00");
   const [, start] = useTransition();

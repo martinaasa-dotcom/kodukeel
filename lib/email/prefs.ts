@@ -34,12 +34,33 @@
   said. So `all` is stored as `all` and means every optional letter, now and
   later.
 */
-import { EMAIL_KINDS, OPTIONAL_KINDS, isEmailKind, type EmailKind } from "./letter";
+import { DEFAULT_OFF, EMAIL_KINDS, OPTIONAL_KINDS, isEmailKind, type EmailKind } from "./letter";
 
-/** What a learner has switched off. */
+/**
+ * What a learner has switched off, and what they have switched on.
+ *
+ * TWO SETS, BECAUSE THERE ARE TWO DEFAULTS. Nearly every kind is part of the
+ * course somebody signed up to and is on until they say otherwise; `wordday`
+ * is a daily message with nothing to do in it and is off until they ask. One
+ * set cannot carry both readings: an off-set alone would have to mean "present
+ * means off" for six kinds and "present means on" for one, which is a rule
+ * nobody can hold in their head and the sort that gets inverted by whoever
+ * next edits it.
+ *
+ * `all-off` still means all off, including the opted-in kind, and that is the
+ * half worth stating: somebody who presses the mail client's own unsubscribe
+ * button has said stop, and a daily word arriving afterwards because they had
+ * once asked for it would be the plainest possible breach of what that button
+ * promises.
+ */
 export type EmailPrefs =
   | { readonly kind: "all-off" }
-  | { readonly kind: "some-off"; readonly off: ReadonlySet<EmailKind> };
+  | {
+      readonly kind: "some-off";
+      readonly off: ReadonlySet<EmailKind>;
+      /** Opt-in kinds explicitly asked for. Empty for nearly everybody. */
+      readonly on: ReadonlySet<EmailKind>;
+    };
 
 export const ALL_OFF = "all";
 
@@ -51,18 +72,31 @@ export const ALL_OFF = "all";
  * nobody watching and one odd row should cost that learner's preference rather
  * than everybody's letters. A missing row is every letter on.
  */
-export function emailPrefsFrom(stored: string | null | undefined): EmailPrefs {
+export function emailPrefsFrom(
+  stored: string | null | undefined,
+  /** The opt-in row, which is empty for nearly everybody. */
+  optedIn?: string | null,
+): EmailPrefs {
   const value = (stored ?? "").trim();
-  if (!value) return { kind: "some-off", off: new Set() };
   if (value === ALL_OFF) return { kind: "all-off" };
-  return {
-    kind: "some-off",
-    off: new Set(value.split(/\s+/).filter(isEmailKind).filter((k) => k !== "system")),
-  };
+  const read = (raw: string | null | undefined): Set<EmailKind> =>
+    new Set(
+      (raw ?? "")
+        .trim()
+        .split(/\s+/)
+        .filter(isEmailKind)
+        .filter((k) => k !== "system"),
+    );
+  return { kind: "some-off", off: read(value), on: read(optedIn) };
 }
 
 export function emailPrefsTo(prefs: EmailPrefs): string {
   return prefs.kind === "all-off" ? ALL_OFF : [...prefs.off].sort().join(" ");
+}
+
+/** The opt-in row, written beside the one above. */
+export function emailOptInTo(prefs: EmailPrefs): string {
+  return prefs.kind === "all-off" ? "" : [...prefs.on].sort().join(" ");
 }
 
 /**
@@ -73,7 +107,9 @@ export function emailPrefsTo(prefs: EmailPrefs): string {
  */
 export function wants(prefs: EmailPrefs, kind: EmailKind): boolean {
   if (kind === "system") return true;
-  return prefs.kind === "all-off" ? false : !prefs.off.has(kind);
+  if (prefs.kind === "all-off") return false;
+  if (prefs.off.has(kind)) return false;
+  return DEFAULT_OFF.includes(kind) ? prefs.on.has(kind) : true;
 }
 
 /** Switch some off, keeping whatever was already off. */
@@ -82,21 +118,31 @@ export function switchOff(prefs: EmailPrefs, kinds: readonly EmailKind[]): Email
   const wanted = kinds.filter((k) => k !== "system");
   const off = new Set([...prefs.off, ...wanted]);
   /*
+    Switching something off also withdraws any asking for it, so that turning
+    the daily word off and on again is two presses rather than a state where
+    one row says off and the other says on and the reader has to know which
+    wins.
+  */
+  const on = new Set([...prefs.on].filter((k) => !off.has(k)));
+  /*
     Turning off every kind there is means the same thing as pressing the
     client's own button, so it is stored the same way. Otherwise somebody who
-    unticked all four boxes by hand would be opted in to the fifth the day it
+    unticked every box by hand would be opted in to the next kind the day it
     exists, having plainly said they wanted none.
   */
-  return OPTIONAL_KINDS.every((k) => off.has(k)) ? { kind: "all-off" } : { kind: "some-off", off };
+  return OPTIONAL_KINDS.every((k) => off.has(k))
+    ? { kind: "all-off" }
+    : { kind: "some-off", off, on };
 }
 
 /** Switch one back on, which `all-off` has to be expanded to do. */
 export function switchOn(prefs: EmailPrefs, kind: EmailKind): EmailPrefs {
   if (kind === "system") return prefs;
-  const off =
-    prefs.kind === "all-off" ? new Set(OPTIONAL_KINDS) : new Set(prefs.off);
+  const off = prefs.kind === "all-off" ? new Set(OPTIONAL_KINDS) : new Set(prefs.off);
   off.delete(kind);
-  return { kind: "some-off", off };
+  const on = prefs.kind === "all-off" ? new Set<EmailKind>() : new Set(prefs.on);
+  if (DEFAULT_OFF.includes(kind)) on.add(kind);
+  return { kind: "some-off", off, on };
 }
 
 /** Every optional kind with whether it is on, for the settings screen. */
