@@ -199,6 +199,12 @@ export function LearnSession({
     pause moves on once rather than twice.
   */
   const autoNext = useRef<number | null>(null);
+  // A round left mid-pause — closing the tab, navigating away, the queue
+  // itself running out under the timer — must not let it fire `advance` on a
+  // component that is no longer there to hold the state it updates.
+  useEffect(() => {
+    return () => { if (autoNext.current !== null) window.clearTimeout(autoNext.current); };
+  }, []);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const run = useRef(0);
