@@ -121,6 +121,13 @@ export function SignInForm({
     GOOGLE_CLIENT_ID ? "loading" : "fallback",
   );
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  /**
+   * The column the button lives in, measured instead of the button's own
+   * container: that one is `display: none` until the button has already
+   * been drawn into it, so its `clientWidth` is always zero at the moment
+   * `renderButton` needs a width. This wrapper is visible the whole time.
+   */
+  const columnRef = useRef<HTMLDivElement | null>(null);
 
   const ssoPolicy = useMemo(() => ({ domains: [...ssoDomains] }), [ssoDomains]);
   const sso = ssoDomains.length > 0;
@@ -200,6 +207,7 @@ export function SignInForm({
         nonce: hashed,
         use_fedcm_for_prompt: true,
       });
+      const available = columnRef.current?.clientWidth || 320;
       id.renderButton(container, {
         type: "standard",
         theme: "outline",
@@ -207,7 +215,7 @@ export function SignInForm({
         shape: "rectangular",
         text: "continue_with",
         logo_alignment: "left",
-        width: Math.min(container.clientWidth || 360, 400),
+        width: Math.max(200, Math.min(available, 400)),
       });
       setGoogleState("gis");
     }
@@ -304,7 +312,7 @@ export function SignInForm({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div ref={columnRef} className="flex flex-col gap-4">
       {/*
         `size="lg"` rather than a padding of its own. The ad-hoc `px-6 py-3`
         this carried put the button at 41px tall on a 360px phone, under the
