@@ -410,11 +410,21 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   const steps: CourseStep[] = [];
   const perWord = MINUTES_PER_WORD[spec.level] ?? MINUTES_PER_WORD.A1!;
 
+  /*
+    WHAT THE LADDER ASKS IS SAID FOR THE LEVEL IT ASKS IT AT. At A1 the gap
+    rung is off (no case and no gap card anywhere in A1), so a line promising
+    a sentence typed back would be the first promise of the course and a
+    broken one. A word at A1 is heard, met and picked out of four; the
+    sentence arrives with A2.
+  */
+  const atA1 = spec.level === "A1";
   steps.push({
     id: MEET_STEP,
     kind: "meet",
     title: `Meet today's ${spec.words.length} words`,
-    why: "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
+    why: atA1
+      ? "Each one heard and met, then picked out of four a little later, so it is yours by the end of the round."
+      : "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -438,7 +448,7 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
       id: READ_STEP,
       kind: "read",
       title: "Read the point behind it",
-      why: "One page on the thing today's words all do. Read it now, while the forms still look odd.",
+      why: "One page on the thing today's words all do, and three taps at the foot of it to try the point on real words.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,

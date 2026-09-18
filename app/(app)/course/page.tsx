@@ -11,7 +11,8 @@ import type { Level } from "@/lib/collections/syllabus";
 import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { PROGRAMMES, dayById, holdAdvice, holdReason, programmeAfter, unitOf } from "@/lib/course";
 import { ButtonLink } from "@/components/Button";
-import { Card, Chip, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Chip, Meter, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Explain } from "@/components/Explain";
 import { StepList } from "@/components/course/StepList";
 import { StartProgramme } from "@/components/course/StartProgramme";
 import { NextPart } from "@/components/course/NextPart";
@@ -403,11 +404,18 @@ export default async function CoursePage({
           </div>
         </div>
 
-        <Note tone="neutral">
+        {/*
+          AN EXPLANATION WAITS TO BE ASKED. This sat on the list as a paragraph
+          about which ticks the app can see, which is a fact about the review
+          log put in front of somebody who came to do tonight's five words. It
+          is worth knowing and it is not worth the room, which is the rule
+          `components/Explain.tsx` exists for.
+        */}
+        <Explain label="How a step gets ticked">
           Two of these are read off your own answers rather than ticked: meeting the words, and the
           closing review. The rest are yours to tick, because a review row does not record which
           round wrote it and the app would rather say so than pretend it watched.
-        </Note>
+        </Explain>
 
         <Card>
           <SectionTitle hint={`${reading.daysDone} of ${total}`}>The whole course</SectionTitle>
