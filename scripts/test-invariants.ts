@@ -1598,7 +1598,7 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
-    /readableFor\(level, taughtWords\)/,
+    /readableFor\(level, taughtWords, "module"\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
   );
 
@@ -1620,11 +1620,11 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   */
   const READS_READABLE_FOR: Record<string, string> = {
     "lib/collections/lesson.ts": "the unit lesson's build and gap steps, which the module schedules",
-    "lib/progress/learn.ts": "the Learn ladder's gap rung, gated only where the module hands in what it taught",
+    "lib/progress/learn.ts": "the Learn ladder's gap rung, held at every level where the module hands in what it taught",
   };
   const RULE_HOME = "lib/collections/levels.ts";
   const readsRule = ALL
-    .filter((f) => f !== RULE_HOME)
+    .filter((f) => f !== RULE_HOME && !f.endsWith(".test.ts"))
     .filter((f) => /\breadableFor\(/.test(code(f)));
   assert.deepEqual(
     readsRule.slice().sort(),

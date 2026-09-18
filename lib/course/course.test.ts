@@ -13,7 +13,7 @@ import {
   PICTURES_FOR_BOARD,
 } from "./index";
 import { readFileSync } from "node:fs";
-import { moduleScopeFrom } from "./scope";
+import { moduleScopeFrom, slotWithin } from "./scope";
 import { emojiFor } from "@/lib/collections/emoji";
 
 /**
@@ -385,6 +385,32 @@ describe("what a day reads and where it goes", () => {
     expect(later.cases).not.toContain("COMITATIVE");
     expect(later.lemmas).toContain("tere");
     expect(later.topics).toContain("imperative");
+  });
+
+  it("asks a part of a verb only once the page teaching it has been read", () => {
+    const a1 = PROGRAMMES[0]!;
+    // The second evening: pronouns, no verb page yet.
+    const second = a1.days[1]!;
+    const early = moduleScopeFrom({ module: `${a1.id}~${second.id}~do:flash~3~5~0` })!;
+    expect(early.topics).not.toContain("present-tense");
+    expect(slotWithin(early, "IndPrSg3")).toBe(false);
+    expect(slotWithin(early, "PRODUCTION")).toBe(true);
+    expect(slotWithin(early, "INESSIVE")).toBe(false);
+    // Once the present tense has been read, the persons and not the past.
+    const verbDay = [...a1.days].reverse().find((d) => d.unitId === "esimesed-verbid")!;
+    const later = moduleScopeFrom({ module: `${a1.id}~${verbDay.id}~do:flash~3~5~0` })!;
+    expect(later.topics).toContain("present-tense");
+    expect(slotWithin(later, "IndPrSg3")).toBe(true);
+    expect(slotWithin(later, "IndIpfSg3")).toBe(false);
+    expect(slotWithin(later, "KndPrSg1")).toBe(false);
+    // The past arrives with its page in A2, and a code nobody listed fails closed.
+    const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
+    const pastDay = [...a2.days].reverse().find((d) => d.unitId === "minevik")!;
+    const a2scope = moduleScopeFrom({ module: `${a2.id}~${pastDay.id}~do:flash~3~5~0` })!;
+    expect(slotWithin(a2scope, "IndIpfSg3")).toBe(true);
+    expect(slotWithin(a2scope, "IndPrPs_")).toBe(true);
+    expect(slotWithin(a2scope, "PtcPtPs")).toBe(false);
+    expect(slotWithin(null, "IndIpfSg3")).toBe(true);
   });
 
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {

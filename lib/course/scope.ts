@@ -28,6 +28,7 @@ import { programmeById, taughtThrough, grammarThrough, dayById } from "./index";
 import { focusFrom } from "./focus";
 import { readableSentence } from "./build";
 import { BLANK, sentenceTiles } from "@/lib/estonian/cloze";
+import { CASES } from "@/lib/estonian/cases";
 import type { CourseDay, Programme } from "./types";
 
 export interface ModuleScope {
@@ -67,6 +68,46 @@ export function caseWithin(scope: ModuleScope | null, caseKey: string | null | u
   if (!scope || !caseKey) return true;
   return scope.cases.includes(caseKey);
 }
+
+/**
+ * The page a verb slot waits for, by the opening of its morph code.
+ *
+ * `IndPr` is the present and the negative (`IndPrPs_`, `ei loe`), which the
+ * negation page teaches and which the present's own page prints beside the
+ * persons; `IndIpf` is the simple past, `KndPr` the conditional, `ImpPr` the
+ * imperative. A prefix nobody has listed fails closed, which is the discipline
+ * `isFiniteVerbCode` keeps one module over: a slot added to the table later
+ * is admitted here deliberately rather than by arriving.
+ */
+const VERB_SLOT_PAGE: readonly { opens: string; page: string; also?: string }[] = [
+  { opens: "IndPrPs", page: "negation", also: "present-tense" },
+  { opens: "IndPr", page: "present-tense" },
+  { opens: "IndIpf", page: "imperfect" },
+  { opens: "KndPr", page: "conditional" },
+  { opens: "ImpPr", page: "imperative" },
+];
+
+/**
+ * Whether a slot may be asked inside the module: a case once its page has
+ * been read, a part of a verb once the page teaching it has, and a slot that
+ * is neither (production, recognition, a gap) on the taught list alone.
+ *
+ * The flash round read every slot through `caseWithin`, which answers about
+ * cases and read a verb code as a case nobody had opened, so inside the module
+ * a verb was asked for its dictionary form and nothing else, at every level.
+ * Wrong the safe way, and still a B1 evening on a unit of verbs with no verb
+ * asked in any person.
+ */
+export function slotWithin(scope: ModuleScope | null, slot: string | null | undefined): boolean {
+  if (!scope || !slot) return true;
+  if (scope.cases.includes(slot)) return true;
+  const verb = VERB_SLOT_PAGE.find((v) => slot.startsWith(v.opens));
+  if (verb) return scope.topics.includes(verb.page) || (verb.also !== undefined && scope.topics.includes(verb.also));
+  if (/^[A-Z][a-z]+[A-Z]/.test(slot)) return false;
+  return caseWithin(scope, isCaseKey(slot) ? slot : null);
+}
+
+const isCaseKey = (slot: string): boolean => CASES.some((c) => c.key === slot);
 
 /**
  * Whether a card in the learner's deck may be asked inside the module.

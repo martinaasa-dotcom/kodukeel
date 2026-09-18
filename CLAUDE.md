@@ -4504,6 +4504,31 @@ Listening are drawn from the taught words wherever those reach four (`decoysAmon
 evening's four options are the five words met an hour ago and not three glosses of words nobody
 has shown; outside the module the whole ranked pool stands, as before.
 
+**And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
+module disagreeing with itself.** The closing review holds every level's gap cards to the taught
+spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung
+held A1's alone, on the argument that a B1 learner meeting an unfamiliar word inside a sentence is
+how reading grows. That argument is right about a screen somebody walked to and wrong about one
+the module dealt them: inside the module a gap cut from a sentence of untaught words is exactly
+"this is new, I was never told", whatever the band. So `readableFor` takes its reader by name,
+`heldToTaughtWords` holds the module at every level and the unit lesson at A1, and standalone Learn
+is untouched. What it costs is measured rather than guessed, by `npm run audit:readable` walking
+every level's evenings now rather than A1's: of the words the dictionary can gap at all, a
+sentence made only of words given by then exists for 52 of 464 at A1, 36 of 220 at A2, 24 of 194
+at B1, 19 of 211 at B2 and 19 of 235 at C1. The rest are met and chosen and go on to Practice
+without a gap, which is what the closing review already did with their cards. The ranked list of
+blockers is the work list at every level, and the sentences a native speaker writes through
+`docs/20-contributed-sentences.md` are what move it.
+
+**And a verb inside the module was asked for its dictionary form and nothing else, at every
+level.** The flash round read every slot through `caseWithin`, which answers about cases, so a
+verb code like `IndPrSg3` was read as a case nobody had opened and refused. Wrong the safe way, and
+still a B1 evening on a unit of verbs with no verb asked in any person. `slotWithin` is the one
+answer for a slot: a case once its page has been read, a part of a verb once the page teaching it
+has, the present and the negative behind the present tense and negation pages, the past behind
+the imperfect, the conditional and the imperative behind their own, and a morph code nobody has
+listed fails closed, which is `isFiniteVerbCode`'s discipline one module over.
+
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
 moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the

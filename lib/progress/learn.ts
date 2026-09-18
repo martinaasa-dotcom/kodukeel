@@ -394,21 +394,22 @@ export async function learnBatch(
      * The gap rung cuts a sentence a lexicographer wrote, and a usage is
      * written to illustrate a headword rather than to be a beginner's first
      * reading, so at A1 most of them carry words from further up the course.
-     * `readableFor` decides; `undefined` is standalone Learn, which a learner
-     * reached by choosing to, and is unchanged.
+     * `readableFor` decides, at every level inside the module; `undefined` is
+     * standalone Learn, which a learner reached by choosing to, and is unchanged.
      */
     taughtWords?: ReadonlySet<string> | null;
   } = {},
 ): Promise<LearnWord[]> {
   const { kind = "word", now = new Date(), only, taughtWords } = opts;
   /*
-    Undefined is "no caller asked", which is standalone Learn and every band
-    above A1; `null` is "the module asked and the course could not say", which
-    fails closed. `readableFor` is the one definition and this is one of its
-    two readers, the unit lesson being the other; the deck's cards are outside
-    the rule by decision, which that module's header sets out.
+    Undefined is "no caller asked", which is standalone Learn; `null` is "the
+    module asked and the course could not say", which fails closed. Inside the
+    module the rule holds at every level, since the module chose the screen
+    (`heldToTaughtWords`). `readableFor` is the one definition and this is one
+    of its two readers, the unit lesson being the other; the deck's cards are
+    outside the rule by decision, which that module's header sets out.
   */
-  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords);
+  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords, "module");
   const scope = only
     ? { lexeme: { lemma: { in: [...only] } } }
     : { lexeme: { pos: posFilter(kind) } };

@@ -11,7 +11,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { starredAmong } from "@/lib/progress/stars";
 import { FlashSession, type FlashPrompt } from "./FlashSession";
-import { caseWithin, moduleScopeFrom, sentenceWithin, type ModuleScope } from "@/lib/course/scope";
+import { moduleScopeFrom, sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
 import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Flash cards" };
@@ -229,8 +229,9 @@ function promptFor(
     not mastered, which is the count half being short, the first slot is asked
     again: that is the honest thing to do rather than dropping the word.
   */
-  // A case slot only once its page has been read, inside the module.
-  const askable = askableSlots(source).filter((s) => caseWithin(scope, s.slot));
+  // Inside the module, a case once its page has been read and a part of a
+  // verb once the page teaching it has (`slotWithin`).
+  const askable = askableSlots(source).filter((s) => slotWithin(scope, s.slot));
   if (askable.length === 0) return null;
   const filled = new Set(word.verdict.filled);
   const open = askable.filter((s) => !filled.has(s.slot));

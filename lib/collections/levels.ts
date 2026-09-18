@@ -162,16 +162,34 @@ export function maySortWords(level: Level): boolean {
   return LEVELS.indexOf(level) >= LEVELS.indexOf(BUILD_FROM);
 }
 
+/** Who is asking whether a sentence may be shown: see `heldToTaughtWords`. */
+export type SentenceReader = "lesson" | "module";
+
 /**
- * The bands every Estonian sentence is held to words the course has taught.
+ * Whether every Estonian sentence this reader shows is held to words the
+ * course has taught.
  *
- * The same boundary as `BUILD_FROM` today and a different question, so a
- * different predicate: one decides whether an exercise is asked at all, the
- * other decides which sentences it may be built from. A beginner three weeks
- * in has thirteen words and no reading to grow; a B1 learner meeting an
- * unfamiliar word inside a sentence is how reading grows.
+ * TWO READERS, TWO ANSWERS, AND THE DIFFERENCE IS WHO CHOSE THE SCREEN.
+ *
+ * The planned module chose for the learner, at every level, so inside it a
+ * gap cut from a sentence of untaught words is exactly the thing the module is
+ * built not to do: "this is new, I was never told", on the one screen whose
+ * whole promise is that nothing on it is. It was A1 alone for a while, on the
+ * argument that a B1 learner meeting an unfamiliar word inside a sentence is
+ * how reading grows, and that argument is right about a screen somebody walked
+ * to and wrong about one the module dealt them. It also left the module
+ * disagreeing with itself: the closing review held every level's gap cards to
+ * the taught spellings (`cardWithin` in `lib/course/scope.ts`) while the
+ * ladder's gap rung two steps earlier held only A1's.
+ *
+ * The unit lesson is reached by pressing a unit, which is the learner choosing,
+ * so it keeps the boundary `BUILD_FROM` draws: a beginner three weeks in has
+ * thirteen words and no reading to grow, and above A1 the lesson may show a
+ * lexicographer's sentence whole. `npm run audit:readable` prints what each
+ * level's evenings can still gap under this rule.
  */
-export function onlyTaughtWords(level: Level): boolean {
+export function heldToTaughtWords(level: Level, reader: SentenceReader): boolean {
+  if (reader === "module") return true;
   return !maySortWords(level);
 }
 
@@ -179,9 +197,10 @@ export function onlyTaughtWords(level: Level): boolean {
  * Whether this sentence is one a learner at this band may be shown.
  *
  * TWO READERS, AND THE LIST IS CLOSED. The unit lesson's `build` and `gap`
- * steps, and the Learn ladder's gap rung. Both are things the planned module
- * puts in front of a beginner who did not choose them, which is the whole of
- * what the rule covers.
+ * steps, and the Learn ladder's gap rung when the planned module opened it.
+ * Each says which it is, because the two are held differently
+ * (`heldToTaughtWords`) and a caller that has not said is a caller nobody
+ * decided about.
  *
  * What is deliberately NOT here is as load-bearing as what is. The
  * spaced-repetition deck's gap-fill and case cards are outside it by a decision
@@ -195,13 +214,13 @@ export function onlyTaughtWords(level: Level): boolean {
  * shape `lib/legal/exportCoverage.ts` takes for its exemptions, because the
  * cost of getting this wrong is a beginner's case drilling deleted in silence.
  *
- * A null set is "the course could not say", which fails closed at the bands
- * that are held to it rather than letting every sentence through.
+ * A null set is "the course could not say", which fails closed wherever the
+ * reader is held rather than letting every sentence through.
  */
 export function readableFor(
-  level: Level, taught: ReadonlySet<string> | null,
+  level: Level, taught: ReadonlySet<string> | null, reader: SentenceReader,
 ): (sentence: string) => boolean {
-  if (!onlyTaughtWords(level)) return () => true;
+  if (!heldToTaughtWords(level, reader)) return () => true;
   if (taught === null) return () => false;
   return (sentence) => sentenceTiles(sentence).every((w) => taught.has(w.toLowerCase()));
 }
