@@ -99,7 +99,7 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Eight pairs against the clock, so the meanings settle before anything asks you to produce one.",
+    why: "Pairs against the clock, so the meanings settle before anything asks you to produce one.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
