@@ -10,8 +10,13 @@
  * Pure, so the nonce is unit tested rather than driven through a browser.
  */
 
-/** The one script this flow needs, loaded once. */
-export const GSI_SCRIPT_SRC = "https://accounts.google.com/gsi/client";
+/**
+ * The one script this flow needs, loaded once. `hl=en` pins the button's own
+ * text to English rather than letting Google guess a locale off the
+ * browser: left to itself it drew "Jätka Google'iga" on an Estonian browser,
+ * on a page whose every other word is English.
+ */
+export const GSI_SCRIPT_SRC = "https://accounts.google.com/gsi/client?hl=en";
 
 /** A fresh nonce for one sign-in attempt. */
 export function randomNonce(): string {
