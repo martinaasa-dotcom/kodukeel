@@ -87,6 +87,32 @@ export function resolveRecipients(): Recipient[] {
     });
   }
 
+  /*
+    THE SENDING PROVIDER, WHICH IS A RECIPIENT OF THE ONE THING THIS APP
+    OTHERWISE NEVER HANDS OVER.
+
+    Every other entry on this list gets a word, a phrase or a photograph with
+    no account attached. This one gets an email address and a letter addressed
+    to it, which is personal data by the plainest reading there is, and it is
+    the only place outside the sign-in provider where this deployment's
+    addresses go.
+
+    Named whenever the transport is configured rather than whenever a letter is
+    sent, because the question a reader is asking is who their address could
+    reach rather than who it has reached this week. It was already true before
+    any of this: the README has had Resend as the SMTP behind Supabase's
+    sign-in links from the beginning, and the list never said so, which is
+    exactly the shape of omission `resolveRecipients` exists to end.
+  */
+  if (process.env.RESEND_API_KEY?.trim()) {
+    recipients.push({
+      name: "Resend, which posts the letters",
+      what: "your email address, and whatever a message to you says about your own course",
+      // Resend Inc. is established in the United States.
+      eea: false,
+    });
+  }
+
   recipients.push({
     name: "TartuNLP, at the University of Tartu",
     what: "a phrase you asked to hear read aloud, with no account attached",

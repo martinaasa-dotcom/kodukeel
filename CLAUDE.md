@@ -460,6 +460,70 @@ how an Estonian counter actually works, in the shape `docs/20-contributed-senten
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
+**A letter is the app writing to somebody who is not looking at it, and the only thing that
+makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
+`lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. Five kinds, a closed
+list (`EMAIL_KINDS`) for the reason `CARD_SOURCES` is one: a learner switches a *kind* off, so a
+letter that is not on the list is a letter nobody has a way to stop. The way out is in every
+footer, it is an HMAC over the learner and the kind so it works with no session, and
+`List-Unsubscribe-Post` is what lets a mail client draw its own button beside the sender's name.
+A reader who can press that presses it instead of the spam button, and that difference is the
+whole of a sender's reputation, which the sign-in links share.
+
+**Every figure in a letter is read back through the function the screen showing the same figure
+reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`
+for the gift. A screen that disagrees with itself is a bug somebody reports; a letter that
+disagrees with the screen it links to is a bug nobody can see from inside the app.
+
+**The psychology is the honest half, and the honest half is the half that works.** The evening
+letter leans on four things and every one is a fact this app already derives about that one
+person: an evening that is genuinely unfinished, with the ticks read off their own `CourseStep`
+rows; their own sentence from first run, quoted and never edited; the same fifteen minutes the
+course model holds true; and one word with the reason it is today's, which asks for nothing. What
+it may not do is written down beside what it does: no invented deadline, nobody falling behind,
+nobody compared to anybody else, and no number put at risk that is not, which the streak is not,
+because this app banks shields and its own rules say a day without study is never punished.
+`lib/email/letters/comeback.ts` is where that is argued hardest, since the guilt version of that
+letter works exactly once, on somebody who was coming back anyway, and costs the sender every
+later letter.
+
+**Being away is a state rather than a moment**, which the scheduler got wrong first. Written as
+one more branch, the coming-back letter went out and then, once its fortnight gap closed, fell
+through to the evening nudge: somebody three weeks gone got "Tonight is five new words" every
+evening, describing a course they had stepped out of. The branch returns either way now, so the
+answer after that one letter is silence. Found by driving `letterOwed` over a fortnight of made-up
+days, which is the argument for the decision being a pure function of an explicit `now`.
+
+**There is no image in a letter and no pixel counting who opened one.** `/privacy` says there are
+no third-party trackers and no analytics; a one-pixel image in an email is both, aimed at
+somebody reading their own mail, and it is the single most standard thing in this genre. It is
+banned, `EmailSend` may not grow an `openedAt`, and an invariant fails on either. The drawings
+are coloured table cells rather than SVG for a reason that happens to agree: Gmail strips `<svg>`
+and refuses a `data:` URI, images are off by default in a great many clients, and a letter built
+out of pictures is a letter read as a column of empty boxes. What carries the delight instead is
+what carries it in the app, the four letters an English keyboard has no key for and a real word
+doing a real thing. The tick is the one glyph, which is the one the voice table already names as
+allowed.
+
+**`EmailSend` is append-only and the row is written before the send.** It is the frequency cap,
+and a row written afterwards is a row that is missing exactly when the process died between the
+provider accepting and the write landing, which is the one case where sending twice is most
+likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
+tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
+is what people unsubscribe over.
+
+**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
+scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
+than theirs to be handed.
+
+**And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
+you learned this week" needs a row written when a card changes state, and nothing records one:
+`Review` holds ratings rather than transitions and `lastReview` is when a card was answered
+rather than when it was learned. Reporting it off `lastReview` would have printed a plausible
+figure wrong in the direction that flatters, since a week of reviewing long-known words would
+read as a week of learning them. The letter says what it can check, which is how many words the
+scheduler counts as theirs today.
+
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
 seeded principal parts; example sentences come from Ekilex `usages` and are only ever *hidden* or
 *reordered* to make an exercise (`lib/estonian/cloze.ts`). The model may translate into English and

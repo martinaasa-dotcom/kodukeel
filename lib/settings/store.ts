@@ -177,6 +177,42 @@ export const SETTING_KEYS = {
    */
   researchOptOut: "researchOptOut",
   /**
+   * Which letters this learner has switched off, or `all`.
+   *
+   * A missing row is every letter on, which is the one default in this file
+   * that is not simply "what everybody already had": email is new, so nobody
+   * is in any state yet, and the argument for it is written out in
+   * `lib/email/prefs.ts` rather than repeated here. The value is read by the
+   * scheduled run and written from Settings and from the one-click link at the
+   * bottom of every message.
+   */
+  emailsOff: "emailsOff",
+  /**
+   * Set once the sending provider has refused this address outright.
+   *
+   * Not a preference and never shown as one: it is a fact about the address
+   * rather than about the person, and the person may well not know. Carrying
+   * on mailing a dead address is what a mailbox provider reads as a sender who
+   * is not paying attention, and the cost of that reputation lands on the
+   * sign-in links, which are the messages somebody actually needs. Cleared by
+   * nothing automatic, because an address that starts working again is an
+   * address somebody changed, and changing it clears this with it.
+   */
+  emailUndeliverable: "emailUndeliverable",
+  /**
+   * The hour they want to be reminded at, as "HH:MM" on their own clock.
+   *
+   * There are two things that remind somebody to study here and until this
+   * there was no one answer to when: the calendar file took an hour off a
+   * query string and stored nothing, and the evening letter had nowhere to
+   * read one from. So an app that offered a reminder at 08:00 would have
+   * mailed the same learner at six in the evening.
+   *
+   * A missing row is early evening, which is what the calendar file has always
+   * defaulted to, and `parseReminderTime` is the one reader of the format.
+   */
+  reminderAt: "reminderAt",
+  /**
    * The order the cards on Today are dealt in, as slot ids space separated.
    *
    * A missing row is the shipped order, which is an argument about what to do

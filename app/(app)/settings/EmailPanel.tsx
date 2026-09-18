@@ -1,0 +1,161 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { Mail, Clock } from "lucide-react";
+
+import { setEmailKind, setReminderHour } from "@/app/actions";
+import { Explain } from "@/components/Explain";
+import type { EmailKind } from "@/lib/email/letter";
+
+/**
+ * WHAT EACH LETTER IS, IN THE WORDS OF WHAT ARRIVES RATHER THAN OF WHAT IT IS
+ * CALLED.
+ *
+ * "Tonight" is a key. What somebody deciding needs is the sentence that says
+ * when it turns up and what is in it, because the question they are actually
+ * answering is whether they want their evening interrupted, and no label
+ * answers that.
+ *
+ * `welcome` is deliberately absent. It arrives once, in the first two days,
+ * and by the time anybody is on this screen it has either come or never will,
+ * so a switch for it is a control that does nothing. Nothing is hidden by
+ * that: the one-click link in its own footer switches everything off, and
+ * `OPTIONAL_KINDS` is what the unsubscribe route works from rather than this
+ * list.
+ */
+const LETTERS: { kind: EmailKind; title: string; detail: string }[] = [
+  {
+    kind: "tonight",
+    title: "A note on an evening you have not studied",
+    detail:
+      "At the hour below, and only when there is an unfinished evening waiting. Nothing on the days you have already done it.",
+  },
+  {
+    kind: "comeback",
+    title: "One note if you have been away a while",
+    detail: "At most one a fortnight, and never a count of the days you missed.",
+  },
+  {
+    kind: "weekly",
+    title: "A summary on Sunday morning",
+    detail: "What the week held, and how far along the course you are.",
+  },
+];
+
+/** The hours offered, which are the ones the calendar file already offered. */
+const HOURS = ["08:00", "12:30", "18:00", "20:30"];
+
+export function EmailPanel({
+  off,
+  reminderAt,
+  sending,
+}: {
+  /** Kinds currently switched off. */
+  off: ReadonlySet<string>;
+  reminderAt: string | null;
+  /** Whether this installation can send at all. */
+  sending: boolean;
+}) {
+  const [state, setState] = useState<Record<string, boolean>>(
+    Object.fromEntries(LETTERS.map((l) => [l.kind, !off.has(l.kind)])),
+  );
+  const [hour, setHour] = useState(reminderAt ?? "18:00");
+  const [, start] = useTransition();
+
+  const toggle = (kind: EmailKind, on: boolean) => {
+    setState((s) => ({ ...s, [kind]: on }));
+    /*
+      The write is not awaited and a failure puts the box back, which is
+      `StarWord`'s rule: the honest thing to do with a press that did not land
+      is to say so and leave everything as it was, rather than to promise it
+      later. A preference is not a graded answer, so there is no outbox here.
+    */
+    start(() => {
+      void setEmailKind({ kind, on }).then((result) => {
+        if (!result?.ok) setState((s) => ({ ...s, [kind]: !on }));
+      });
+    });
+  };
+
+  const pickHour = (at: string) => {
+    setHour(at);
+    start(() => { void setReminderHour({ at }); });
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      {!sending && (
+        /*
+          A screen full of switches that do nothing is worse than no screen.
+          This installation has not configured a sending address, which is the
+          state this repository ships in, and saying so is the same discipline
+          `/privacy` takes about an operator nobody has named.
+        */
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          This installation is not set up to send email, so none of these will arrive.
+          Your answers are kept in case that changes.
+        </p>
+      )}
+
+      <fieldset className="flex flex-col gap-2 border-0 p-0">
+        <legend className="sr-only">Which emails to send</legend>
+        {LETTERS.map((letter) => (
+          <label
+            key={letter.kind}
+            className="choice-btn flex cursor-pointer items-start gap-3 rounded-xl p-3 text-left"
+          >
+            <input
+              type="checkbox"
+              checked={state[letter.kind] ?? true}
+              onChange={(e) => toggle(letter.kind, e.target.checked)}
+              className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--accent)]"
+            />
+            <span>
+              <span className="block text-sm" style={{ color: "var(--ink)" }}>{letter.title}</span>
+              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{letter.detail}</span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
+
+      <div>
+        <p className="flex items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+          <Clock size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
+          The evening note, and the calendar reminder, are both read at this hour on your own clock.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Reminder hour">
+          {HOURS.map((at) => (
+            <button
+              key={at}
+              type="button"
+              onClick={() => pickHour(at)}
+              aria-pressed={hour === at}
+              className="choice-btn rounded-xl px-3 py-1.5 text-sm"
+              style={
+                hour === at
+                  ? { ["--choice-bg" as string]: "var(--accent-soft)", color: "var(--accent-deep)" }
+                  : { color: "var(--ink-2)" }
+              }
+            >
+              {at}
+            </button>
+          ))}
+          <a
+            href={`/api/reminder?at=${encodeURIComponent(hour)}`}
+            className="tap-tint rounded-xl px-3 py-1.5 text-sm underline underline-offset-2"
+            style={{ color: "var(--accent-deep)" }}
+          >
+            <Mail size={14} aria-hidden className="mr-1 inline" />
+            Add it to your calendar
+          </a>
+        </div>
+        <Explain label="What the calendar reminder is">
+          An ordinary repeating event, not a notification. It fires on your phone whether or not
+          this app is open, needs no permission from us, and you delete it like any other event.
+          The hour is read on your own clock wherever you are, so it stays put when the clocks
+          change, and it works whether or not the emails above are on.
+        </Explain>
+      </div>
+    </div>
+  );
+}

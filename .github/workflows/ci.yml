@@ -171,6 +171,9 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: canary-SUPABASE_SERVICE_ROLE_KEY-must-not-ship
           METRICS_TOKEN: canary-METRICS_TOKEN-must-not-ship
           RESEARCH_TOKEN: canary-RESEARCH_TOKEN-must-not-ship
+          RESEND_API_KEY: canary-RESEND_API_KEY-must-not-ship
+          EMAIL_TOKEN_SECRET: canary-EMAIL_TOKEN_SECRET-must-not-ship
+          CRON_SECRET: canary-CRON_SECRET-must-not-ship
           ERROR_WEBHOOK_URL: https://example.invalid/canary-ERROR_WEBHOOK_URL-must-not-ship
         run: npx next build
       - name: Grep the client bundle

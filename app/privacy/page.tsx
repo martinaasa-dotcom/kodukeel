@@ -90,6 +90,15 @@ export default function PrivacyPage() {
           forgets it is not the app you signed up for.
         </P>
         <P>
+          <strong>What we have sent you.</strong> If this installation sends email, we keep a
+          line for each message: which kind it was and when it went, so that the next one is
+          not a repeat and so that there is a cap on how often you hear from us. We do{" "}
+          <strong>not</strong> keep the message itself, and there is no tracking pixel in any of
+          them, so nothing anywhere records whether you opened one. Every message carries a link
+          that switches its kind off without signing in, and Settings has the same switches. The
+          messages you cannot switch off are the ones you asked for, like a sign-in link.
+        </P>
+        <P>
           <strong>Your level checks.</strong> Each sitting is kept: the levels it measured,
           how many questions it came from, and the rating you gave your own speaking. Nothing
           you record is uploaded, and no audio is stored anywhere.

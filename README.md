@@ -537,6 +537,37 @@ switch was one more thing to remember in a dashboard, and the one deployment thi
 weeks offering Google as the only way in. Turn it off only for a copy whose mail really does not
 go out, and set up SMTP before anybody but you is asking for links.
 
+### Course reminders
+
+Separate from the sign-in links above, and off until four variables are set. With any of them
+missing the app sends nothing at all, which is the state this repository ships in: nothing warns
+about it, nothing degrades, and the course works exactly as it does now.
+
+```
+RESEND_API_KEY=re_...            # the same key the SMTP settings above use
+EMAIL_FROM="Kodukeel <hei@your-domain>"   # a verified sending address on your domain
+EMAIL_TOKEN_SECRET=...           # 32+ random bytes, signs the unsubscribe links
+CRON_SECRET=...                  # the scheduler's bearer token
+EMAIL_REPLY_TO=hei@your-domain   # optional, and worth setting: a letter nobody
+                                 # can answer is a letter from a machine
+```
+
+`SUPABASE_SERVICE_ROLE_KEY` has to be set too. Addresses live with the sign-in provider rather
+than in this app's database, which is what lets erasure promise it takes the address with it, so
+the run has to go and ask for them.
+
+`vercel.json` schedules `/api/email/send` hourly. The route answers 404 to anybody without the
+bearer token and 404 when `CRON_SECRET` is unset, so it fails closed rather than open. Hourly
+rather than daily because a letter has to arrive in the learner's own evening and this app's
+learners are not in one timezone; the run itself is idempotent, capped, and takes a lock across
+every instance, so firing it more often than necessary costs nothing but a few queries. **A
+Vercel Hobby plan runs cron once a day at most**, which makes the evening letter roughly useless
+on one: a Pro plan, or any scheduler that can POST to that URL with the bearer token, does the job.
+
+What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
+What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
+other string in `lib/`.
+
 The link is opened in the browser that asked for it, because that is where the verifier lives, and
 the sign-in screen says so. If you would rather it survived being forwarded to a phone, change the
 magic-link email template to point at

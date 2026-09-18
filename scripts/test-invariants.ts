@@ -4053,7 +4053,7 @@ check("the pure modules stay free of React, Next and Prisma", () => {
     while the module under it can be imported without a framework.
   */
   const pure = [
-    "assessment", "collections", "copy", "estonian", "exam", "funding", "games",
+    "assessment", "collections", "copy", "email", "estonian", "exam", "funding", "games",
     "learn", "offline", "random", "research", "scan", "security", "stats", "time", "ux",
   ];
   for (const file of LIB) {
@@ -8689,8 +8689,18 @@ check("a route that spends something is throttled", () => {
              requests share one bucket by design (`lib/security/rateLimit.ts`),
              which would have every monitor in the world spending one
              allowance and answering 429 about an application that is up.
+
+    send     is the mail run, and is the same shape as `research` twice over: it
+             carries its own bearer secret, 404s to everybody when none is
+             configured, and its caller is a scheduler rather than a person. A
+             per-owner bucket is the wrong instrument for the same reason it is
+             wrong there, since there is no owner to resolve. What actually
+             bounds it is written into the run: one advisory lock across every
+             instance, so two invocations cannot both work, a ceiling on how
+             many letters one run sends, and a per-learner gap in `EmailSend`
+             that a second run reads before it sends anything.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send"]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
@@ -18483,6 +18493,185 @@ check("the shipped translations are English, and there are enough of them to mat
   // noticing: a key with a stray space matches nothing and costs a line.
   const known = Object.keys(table)[0];
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
+});
+
+check("every letter this app can send has a way out of it", () => {
+  /*
+    THE RULE THE WHOLE FEATURE STANDS OR FALLS ON.
+
+    A message with no visible way to stop it is the definition of the thing a
+    spam button exists for, and once somebody presses that, every other message
+    this deployment sends is worth less: the sign-in links go to the same
+    folder. So the way out is not a courtesy and it is not a footer decoration,
+    it is the thing that keeps the rest of the mail working.
+
+    Four arms, because each of them alone passes on a broken feature.
+  */
+  const letter = code("lib/email/letter.ts");
+  const render = code("lib/email/render.ts");
+  const unsub = code("lib/email/unsubscribe.ts");
+
+  /*
+    The kinds are a closed list, which is what makes "every kind can be
+    switched off" a checkable sentence rather than a promise. A letter added
+    as a free string is a letter the settings screen cannot show and the
+    unsubscribe route will not act on.
+  */
+  assert.match(letter, /EMAIL_KINDS\s*=\s*\[/, "lib/email/letter.ts no longer holds a closed list of kinds");
+  assert.match(
+    letter,
+    /OPTIONAL_KINDS/,
+    "nothing separates the letters a learner may switch off from the ones they may not",
+  );
+
+  /*
+    And the renderer *requires* one, rather than drawing a footer when it
+    happens to be handed a link. `Chrome.unsubscribeUrl` being optional is the
+    one change that would let a caller send a letter with no way out and have
+    every other check here still pass.
+  */
+  assert.match(
+    render,
+    /readonly unsubscribeUrl:\s*string;/,
+    "lib/email/render.ts no longer requires a way out on every letter it draws",
+  );
+  assert.ok(
+    render.includes("chrome.unsubscribeUrl") && render.split("chrome.unsubscribeUrl").length >= 3,
+    "the way out no longer reaches both the HTML and the plain text part",
+  );
+
+  /*
+    The one-click endpoint, which is what lets a mail client draw its own
+    unsubscribe button. A reader who can press that presses it instead of the
+    spam button, and the large mailbox providers require it of anybody sending
+    at volume.
+  */
+  assert.match(
+    code("lib/mailer/transport.ts"),
+    /List-Unsubscribe-Post/,
+    "a letter goes out without the header that gives a mail client its own unsubscribe button",
+  );
+
+  /*
+    And it works signed out. Somebody unsubscribing is reading their mail
+    rather than this app and may not have a session on that device at all, so
+    an unsubscribe behind the sign-in gate is one the mail client will not
+    honour. The token is what makes that safe, and it is signed.
+  */
+  assert.match(
+    code("middleware.ts"),
+    /api\/email\/unsubscribe/,
+    "the unsubscribe route fell behind the sign-in gate, where a mail client cannot reach it",
+  );
+  assert.match(unsub, /createHmac/, "an unsubscribe link is no longer signed, so it stops anybody's mail");
+  assert.match(
+    unsub,
+    /timingSafeEqual/,
+    "an unsubscribe token is compared in a way that leaks how much of it was right",
+  );
+});
+
+check("a letter holds no picture, and nothing counts who opened one", () => {
+  /*
+    TWO CLAIMS ON /privacy, ENFORCED RATHER THAN PROMISED.
+
+    That page says there are no third-party trackers and no analytics. A
+    one-pixel image in an email is both, aimed at somebody reading their own
+    mail, and it is the single most standard thing in this whole genre: every
+    mail tool offers it and most turn it on by default. It is banned here and
+    the ban is worth a check, because the sentence on the privacy page is the
+    only thing a reader has to go on.
+
+    The second half is about the drawings. Images are off by default in a great
+    many clients and nearly always off for a first message from an unknown
+    sender, so a letter built out of them is a letter read as a column of empty
+    boxes. `lib/email/art.ts` makes its drawings out of coloured table cells for
+    that reason, and there is nothing to fetch.
+  */
+  const letters = LIB.filter(
+    (f) =>
+      (f.startsWith("lib/email/") || f.startsWith("lib/mailer/")) &&
+      // A suite is not a letter, and the one that asserts this very rule has
+      // to name the thing it bans in order to look for it. The oldest
+      // recurring mistake in this repository's own checks, made once more.
+      !/\.(test|itest)\.ts$/.test(f),
+  );
+  assert.ok(letters.length >= 6, `only found ${letters.length} letter files, so this check stopped looking`);
+  for (const file of letters) {
+    const source = code(file);
+    assert.doesNotMatch(
+      source,
+      /<img\b|background-image|\btracking(Pixel|_pixel)\b/i,
+      `${file} puts an image in a letter. Nothing is fetched from a Kodukeel email: a pixel would ` +
+        "be the tracker /privacy says this app does not have, and a picture would be the hole " +
+        "where a picture was for everybody who reads mail with images off.",
+    );
+  }
+
+  /*
+    And the record of a send holds the fact and not the message. A column for
+    the subject or the body would be a copy of somebody's letter sitting in a
+    table, and an `openedAt` would be the pixel arriving through the schema.
+  */
+  const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
+  const fields = model.slice(0, model.indexOf("\n}"));
+  for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
+    assert.ok(
+      !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
+      `EmailSend has grown a \`${banned}\` column. It records that a letter went, not what it said ` +
+        "and not what anybody did with it.",
+    );
+  }
+});
+
+check("the scheduled run is the only thing that sends, and it is gated", () => {
+  /*
+    An endpoint that mails every learner on the deployment is a way for a
+    stranger to make this app send mail on demand, which is a spam incident and
+    a way to burn the sending reputation the sign-in links depend on. So it is
+    a secret in a header, compared in constant time, and with no secret set it
+    refuses rather than allowing: a cap that fails open is not a cap, which is
+    the rule `lib/usage` states about spending and which is worth more here.
+  */
+  const route = code("app/api/email/send/route.ts");
+  assert.match(route, /CRON_SECRET/, "the mail run no longer checks a secret");
+  assert.match(route, /if \(!secret\) return false/, "the mail run allows everybody when no secret is set");
+  assert.match(route, /404/, "the mail run says what it is to a caller who is not the scheduler");
+
+  /*
+    And the run is the one caller of the transport. A second sender is a second
+    answer to the frequency cap, the preference and the unsubscribe, and the
+    one nobody is watching is the one that mails somebody who asked it not to.
+  */
+  const senders = [...LIB, ...APP].filter((file) => {
+    if (file.includes("lib/mailer/transport")) return false;
+    const source = code(file);
+    /*
+      Asks for the importer of `send` rather than of the module, because
+      `mailerConfig` is the honest other export: the settings screen reads it
+      to find out whether this installation can send at all, and that is a
+      question rather than an act.
+    */
+    const imports = /import\s*\{([^}]*)\}\s*from\s*["'][^"']*mailer\/transport["']/.exec(source);
+    return Boolean(imports?.[1] && /\bsend\b/.test(imports[1]));
+  });
+  assert.deepEqual(
+    senders.filter((f) => f !== "lib/mailer/run.ts"),
+    [],
+    "something other than the mail run reaches the transport, so a letter can go out without " +
+      "the preference, the frequency cap or the send log being consulted",
+  );
+
+  /*
+    And the schedule points at the route that exists. A cron path with a typo
+    in it is a feature that silently never runs, which looks exactly like a
+    feature nobody is using.
+  */
+  const vercel = JSON.parse(read("vercel.json")) as { crons?: { path: string }[] };
+  assert.ok(
+    vercel.crons?.some((c) => c.path === "/api/email/send"),
+    "vercel.json no longer schedules the mail run, so nothing fires it",
+  );
 });
 
 console.log(

@@ -912,3 +912,52 @@ model RateLimit {
   @@id([bucket, windowStart])
   @@index([expiresAt])
 }
+
+/// One letter, sent.
+///
+/// APPEND-ONLY, LIKE `Review` AND `UsageEvent`, AND FOR A REASON OF ITS OWN:
+/// this is the only record that a message was sent to a person, and it is what
+/// every decision about the next one is made from. A run asks "has this
+/// learner had a `tonight` today" and "when did they last hear from us at
+/// all", and both of those are questions about history. A counter column
+/// would answer neither and would drift besides (ADR-014).
+///
+/// IT IS THE FREQUENCY CAP, WHICH IS THE WHOLE POINT. Nothing else stops a
+/// deployment mailing somebody twice in an evening because two cron runs
+/// overlapped, or sending a `comeback` on Monday and another on Tuesday to
+/// somebody who is on holiday. `lib/email/schedule.ts` reads these rows and
+/// decides; the send writes one before the letter goes out, not after, for the
+/// reason `authoriseCall` books a model call before making it. A row written
+/// afterwards is a row that is missing exactly when the process died halfway,
+/// which is the one case where sending twice is most likely.
+///
+/// WHAT IT DELIBERATELY DOES NOT HOLD: the subject, the body, or anything
+/// about whether it was opened. There is no tracking pixel in this app and
+/// there is not going to be one. /privacy says there are no third-party
+/// trackers and no analytics, and a one-pixel image in a letter is both, aimed
+/// at a person who is reading their own mail. An open rate is a number nobody
+/// here would act on that costs the one claim on that page worth keeping.
+///
+/// In the export and in the erasure, like everything else owner-scoped.
+model EmailSend {
+  id        String   @id @default(uuid())
+  ownerId   String
+  /// One of `EMAIL_KINDS`. Checked against the closed list before it is
+  /// written, the way `Card.source` and `Review.slot` are, because a kind
+  /// nobody can switch off is a kind the unsubscribe screen cannot show.
+  kind      String
+  /// The learner's own day, as their clock reads it, so "already had one
+  /// today" means their today and not the deployment's. Same discipline as
+  /// the streak: a server's midnight is nobody's.
+  dayKey    String
+  sentAt    DateTime @default(now())
+  /// What the provider called it, where it said. Kept so a bounce or a
+  /// complaint reported later can be traced to a send without keeping the
+  /// letter itself. Null when the transport returned no id.
+  messageId String?
+
+  /// Every read is "this learner, this kind, recently", in that order.
+  @@index([ownerId, kind, sentAt])
+  /// And the run's own "who has already had one today", which walks a day.
+  @@index([dayKey])
+}

@@ -46,6 +46,9 @@ import { isTimeZone } from "@/lib/time/day";
 import {
   forgetSettings, numberSetting, readSetting, SETTING_KEYS, writeSetting, type ReviewMode,
 } from "@/lib/settings/store";
+import { isEmailKind } from "@/lib/email/letter";
+import { emailPrefsFrom, emailPrefsTo, switchOff, switchOn } from "@/lib/email/prefs";
+import { parseReminderTime } from "@/lib/time/reminder";
 import { letterBarFrom, type LetterBar } from "@/lib/ux/letterBar";
 import { wordGlossFrom, type WordGloss } from "@/lib/ux/wordGloss";
 import { caseGlossFrom } from "@/lib/estonian/caseGloss";
@@ -1719,6 +1722,51 @@ export async function setResearchParticipation(value: string) {
 }
 
 /**
+ * Which letters this learner gets, and when the evening one arrives.
+ *
+ * Two server actions rather than one, because they answer different
+ * questions and a screen that saved both together would make changing the
+ * hour look like a change of mind about the whole feature.
+ *
+ * The kind is checked against the closed list rather than trusted. Every
+ * export of this file is a public endpoint whose arguments are JSON off the
+ * wire whatever the types say, and an unchecked value here would write a row
+ * the scheduler cannot read back, which reads to the learner as a switch that
+ * does nothing.
+ */
+export async function setEmailKind(input: { kind: string; on: boolean }) {
+  const ownerId = await requireUserId();
+  if (!isEmailKind(input?.kind) || input.kind === "system") {
+    return { ok: false as const, error: "That is not something we send." };
+  }
+
+  const current = emailPrefsFrom(await readSetting(ownerId, SETTING_KEYS.emailsOff));
+  const next = input.on ? switchOn(current, input.kind) : switchOff(current, [input.kind]);
+  await writeSetting(ownerId, SETTING_KEYS.emailsOff, emailPrefsTo(next));
+  revalidatePath("/settings");
+  return { ok: true as const, on: input.on };
+}
+
+/**
+ * The hour the evening letter and the calendar file both read.
+ *
+ * One answer to "when does this learner want reminding", because there were
+ * two ways to be reminded here and no answer shared between them: the calendar
+ * file took an hour off a query string and stored nothing. `parseReminderTime`
+ * is the one reader of the format and it clamps rather than rejects, so a
+ * malformed value costs an hour somebody has to set again rather than an
+ * error on a settings screen.
+ */
+export async function setReminderHour(input: { at: string }) {
+  const ownerId = await requireUserId();
+  const { hour, minute } = parseReminderTime(text(input?.at));
+  const at = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  await writeSetting(ownerId, SETTING_KEYS.reminderAt, at);
+  revalidatePath("/settings");
+  return { ok: true as const, at };
+}
+
+/**
  * The name a class sees, which is the learner's own text and not their
  * Google account name.
  *
@@ -2832,6 +2880,13 @@ export async function deleteMyAccount(confirmation: string) {
       // reading of how many people said a thing, and this person is leaving.
       await tx.deferral.deleteMany({ where: { ownerId } });
       await tx.courseStep.deleteMany({ where: { ownerId } });
+      /*
+        And every record that this deployment wrote to them. It is the row that
+        decides whether they are written to again, so leaving it would be an
+        account that is gone everywhere except in the one table that could put
+        a letter in front of somebody who asked to be forgotten.
+      */
+      await tx.emailSend.deleteMany({ where: { ownerId } });
       await tx.lexeme.updateMany({ where: { editedBy: ownerId }, data: { editedBy: null } });
       /*
         And the attribution on anything they reviewed, for the same reason the
