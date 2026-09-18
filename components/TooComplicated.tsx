@@ -74,18 +74,16 @@ export function TooComplicated({
 
   return (
     <span className="flex items-center gap-2">
-      {failed && (
-        <span className="text-sm" style={{ color: "var(--hard-ink)" }} role="status">
-          Not saved. Try again.
-        </span>
-      )}
       <button
         type="button"
         disabled={pending}
-        aria-label={`Put ${label} aside, it is too complicated for now`}
+        aria-label={`Ask about putting ${label} aside for now`}
         className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold disabled:opacity-40"
         style={{ color: "var(--ink-3)" }}
-        onClick={() => setAsking(true)}
+        onClick={() => {
+          setFailed(false);
+          setAsking(true);
+        }}
       >
         <CalendarClock size={13} aria-hidden /> Too complicated
       </button>
@@ -113,6 +111,11 @@ export function TooComplicated({
               belongs to, whichever fits. You can bring it back sooner any time from
               My words.
             </p>
+            {failed && (
+              <p className="mt-3 text-sm" role="status" style={{ color: "var(--hard-ink)" }}>
+                Not saved. Try again.
+              </p>
+            )}
             <div className="mt-5 flex justify-end gap-2">
               <Button variant="secondary" onClick={() => setAsking(false)} disabled={pending}>
                 Cancel
