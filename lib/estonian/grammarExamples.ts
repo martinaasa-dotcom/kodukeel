@@ -70,6 +70,45 @@ export interface PinnedExample {
    * the claim did not teach it.
    */
   readonly form: string;
+  /**
+   * The slot the marked word fills, where the dictionary can be asked.
+   *
+   * `CASE:INESSIVE` or `VERB:KndPrSg1`, checked by `readSlot` in
+   * `scripts/lib/slotIndex.ts` against the forms the shipped dictionary holds
+   * and the ones its own rules derive. A pin on a case page needs none, since
+   * the page's own case is the claim; this is for a topic page, where the
+   * point is a mood or a tense and nothing about the file says which.
+   *
+   * It is what stops the argument in the header rotting. Naming a form the
+   * dictionary vouches for is choosing rather than writing, and that holds
+   * only while somebody checks the vouching: without this, a later edit could
+   * swap in a sentence whose "conditional" is an indicative and every test
+   * here would still pass, because the sentence is attested and the word is in
+   * it.
+   *
+   * Optional, because plenty of points are not about a slot at all. The
+   * quotative and the converb are not stored on any entry, `ei` and `ära` do
+   * not inflect, and a point about word order has no form to name. What is not
+   * claimed is reported as unclaimed by `npm run audit:grammar-pins` rather
+   * than passing quietly.
+   */
+  readonly slot?: string;
+  /**
+   * Whether somebody who speaks Estonian has read it against the point.
+   *
+   * Every mechanical check here is about the sentence: that the dictionary
+   * holds it, that it carries English, that it is a sentence, that the marked
+   * word is in it and really is the slot claimed. None of them can ask the
+   * question that matters most, which is whether the sentence *illustrates*
+   * the claim it is filed under. That is a person, and it is the standing
+   * `lib/scenes/bank.ts` already states about its own lines.
+   *
+   * False on all of them, which is the truth. A reviewer flips them one at a
+   * time; nothing on screen reads it, because a learner is shown an attested
+   * sentence either way and a chip saying "nobody has checked this" would be
+   * the app doubting itself in front of the person it is teaching.
+   */
+  readonly reviewed: boolean;
 }
 
 /** Pins for a topic page, keyed by the point's own text. */
@@ -86,423 +125,431 @@ export type PointPins = Readonly<Record<string, readonly PinnedExample[]>>;
 export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   olema: {
     "The one verb you cannot avoid, and one of the few irregular ones": [
-      { lemma: "sünnipäev", et: "Mul on täna sünnipäev.", form: "on" },
-      { lemma: "väga", et: "Te olete väga sarnased.", form: "olete" },
+      { lemma: "sünnipäev", et: "Mul on täna sünnipäev.", form: "on", slot: "VERB:IndPrSg3", reviewed: false },
+      { lemma: "väga", et: "Te olete väga sarnased.", form: "olete", slot: "VERB:IndPrPl2", reviewed: false },
     ],
     "Having something is said as it being at you, with -l": [
-      { lemma: "oma", et: "Mul on oma maja.", form: "Mul" },
-      { lemma: "perekond", et: "Tal on suur perekond.", form: "Tal" },
+      { lemma: "oma", et: "Mul on oma maja.", form: "Mul", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "perekond", et: "Tal on suur perekond.", form: "Tal", slot: "CASE:ADESSIVE", reviewed: false },
     ],
     "Feelings, needs and obligations run on the same pattern": [
-      { lemma: "uni", et: "Mul on kange uni.", form: "Mul" },
-      { lemma: "isu", et: "Tal on hea isu.", form: "Tal" },
+      { lemma: "uni", et: "Mul on kange uni.", form: "Mul", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "isu", et: "Tal on hea isu.", form: "Tal", slot: "CASE:ADESSIVE", reviewed: false },
     ],
   },
   "present-tense": {
     "Six person endings on a stem": [
-      { lemma: "alustama", et: "Alustame tööd esmaspäeval.", form: "Alustame" },
-      { lemma: "nädalavahetus", et: "Mida te nädalavahetusel teete?", form: "teete" },
+      { lemma: "alustama", et: "Alustame tööd esmaspäeval.", form: "Alustame", slot: "VERB:IndPrPl1", reviewed: false },
+      { lemma: "nädalavahetus", et: "Mida te nädalavahetusel teete?", form: "teete", slot: "VERB:IndPrPl2", reviewed: false },
     ],
     "Covers both English presents at once": [
-      { lemma: "ahv", et: "Ahv sööb banaani.", form: "sööb" },
-      { lemma: "magama", et: "Karu magab talveund.", form: "magab" },
+      { lemma: "ahv", et: "Ahv sööb banaani.", form: "sööb", slot: "VERB:IndPrSg3", reviewed: false },
+      { lemma: "magama", et: "Karu magab talveund.", form: "magab", slot: "VERB:IndPrSg3", reviewed: false },
     ],
     "Does the future as well, since there is no future tense": [
-      { lemma: "toimuma", et: "Kontsert toimub homme.", form: "toimub" },
-      { lemma: "esindaja", et: "Kahe riigi esindajad kohtuvad homme.", form: "kohtuvad" },
+      { lemma: "toimuma", et: "Kontsert toimub homme.", form: "toimub", slot: "VERB:IndPrSg3", reviewed: false },
+      { lemma: "esindaja", et: "Kahe riigi esindajad kohtuvad homme.", form: "kohtuvad", slot: "VERB:IndPrPl3", reviewed: false },
     ],
   },
   negation: {
     "The verb goes back to a bare stem": [
-      { lemma: "aeg", et: "Aeg ei peatu.", form: "peatu" },
-      { lemma: "leidma", et: "Ma ei leia oma rahakotti.", form: "leia" },
+      { lemma: "aeg", et: "Aeg ei peatu.", form: "peatu", slot: "VERB:IndPrPs_", reviewed: false },
+      { lemma: "leidma", et: "Ma ei leia oma rahakotti.", form: "leia", slot: "VERB:IndPrPs_", reviewed: false },
     ],
     "One word covers every person, unlike do not and does not": [
-      { lemma: "juuksur", et: "Mulle ei meeldi juuksuris käia.", form: "ei" },
-      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "ei" },
+      { lemma: "juuksur", et: "Mulle ei meeldi juuksuris käia.", form: "ei", reviewed: false },
+      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "ei", reviewed: false },
     ],
     "The past is negated differently from the present": [
-      { lemma: "isa", et: "Isa ja ema ei olnud kodus.", form: "olnud" },
-      { lemma: "juhuslik", et: "Koha valik polnud juhuslik.", form: "polnud" },
+      { lemma: "isa", et: "Isa ja ema ei olnud kodus.", form: "olnud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "juhuslik", et: "Koha valik polnud juhuslik.", form: "polnud", reviewed: false },
     ],
   },
   imperfect: {
     "Built on the second infinitive's stem, with -si- after it": [
-      { lemma: "meri", et: "Käisin meres ujumas.", form: "Käisin" },
-      { lemma: "mets", et: "Eksisin metsa ära.", form: "Eksisin" },
+      { lemma: "meri", et: "Käisin meres ujumas.", form: "Käisin", slot: "VERB:IndIpfSg1", reviewed: false },
+      { lemma: "mets", et: "Eksisin metsa ära.", form: "Eksisin", slot: "VERB:IndIpfSg1", reviewed: false },
     ],
     "A short list of common verbs takes -i- instead": [
-      { lemma: "vesi", et: "Jõin klaasi vett.", form: "Jõin" },
-      { lemma: "kala", et: "Kala ujus sügavamale.", form: "ujus" },
+      { lemma: "vesi", et: "Jõin klaasi vett.", form: "Jõin", slot: "VERB:IndIpfSg1", reviewed: false },
+      { lemma: "kala", et: "Kala ujus sügavamale.", form: "ujus", slot: "VERB:IndIpfSg3", reviewed: false },
     ],
     "Used for completed events, however recent": [
-      { lemma: "jooma", et: "Jõin tassi kohvi.", form: "Jõin" },
-      { lemma: "algus", et: "Ootasime kontserdi algust.", form: "Ootasime" },
+      { lemma: "jooma", et: "Jõin tassi kohvi.", form: "Jõin", slot: "VERB:IndIpfSg1", reviewed: false },
+      { lemma: "algus", et: "Ootasime kontserdi algust.", form: "Ootasime", reviewed: false },
     ],
   },
   perfect: {
     "Built from to be, never from to have": [
-      { lemma: "kiirabi", et: "Mare on aastaid kiirabis töötanud.", form: "on" },
-      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "on" },
+      { lemma: "kiirabi", et: "Mare on aastaid kiirabis töötanud.", form: "on", slot: "VERB:IndPrSg3", reviewed: false },
+      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "on", slot: "VERB:IndPrSg3", reviewed: false },
     ],
     "Used where the result matters more than the event": [
-      { lemma: "sügis", et: "Värviline sügis on kätte jõudnud.", form: "jõudnud" },
-      { lemma: "käärid", et: "Käärid on nüriks läinud.", form: "läinud" },
+      { lemma: "sügis", et: "Värviline sügis on kätte jõudnud.", form: "jõudnud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "käärid", et: "Käärid on nüriks läinud.", form: "läinud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
     "The participle never changes for person": [
-      { lemma: "eestikeelne", et: "Ta on saanud eestikeelse hariduse.", form: "saanud" },
-      { lemma: "traditsioon", et: "Laulupeod on Eestis traditsiooniks saanud.", form: "saanud" },
+      { lemma: "eestikeelne", et: "Ta on saanud eestikeelse hariduse.", form: "saanud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "traditsioon", et: "Laulupeod on Eestis traditsiooniks saanud.", form: "saanud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
   },
   pluperfect: {
     "An event finished before another past event": [
-      { lemma: "vistrik", et: "Näkku oli tekkinud uus vistrik.", form: "oli" },
-      { lemma: "isand", et: "Kohale olid tulnud tähtsad vaimulikud isandad.", form: "olid" },
+      { lemma: "vistrik", et: "Näkku oli tekkinud uus vistrik.", form: "oli", slot: "VERB:IndIpfSg3", reviewed: false },
+      { lemma: "isand", et: "Kohale olid tulnud tähtsad vaimulikud isandad.", form: "olid", reviewed: false },
     ],
     "Common in stories and in reported speech": [
-      { lemma: "nõges", et: "Risuhunnik oli nõgestesse kasvanud.", form: "oli" },
+      { lemma: "seen", et: "Nikolai oli läinud hommikul metsa seenele ja polnud õhtuks tagasi jõudnud.", form: "oli", slot: "VERB:IndIpfSg3", reviewed: false },
+      { lemma: "süüdlane", et: "Politsei oli saanud mitu vihjet võimalike süüdlaste kohta.", form: "oli", slot: "VERB:IndIpfSg3", reviewed: false },
     ],
     "Uses exactly the participle the perfect uses": [
-      { lemma: "nõges", et: "Risuhunnik oli nõgestesse kasvanud.", form: "kasvanud" },
-      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "kasvanud" },
+      { lemma: "nõges", et: "Risuhunnik oli nõgestesse kasvanud.", form: "kasvanud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "kasvanud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
   },
   conditional: {
     "Hypotheticals and their consequences": [
-      { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks" },
-      { lemma: "kündma", et: "Kui oleksin maal edasi, künnaksin traktoriga põldu.", form: "oleksin" },
+      { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks", slot: "VERB:KndPrPs", reviewed: false },
+      { lemma: "kündma", et: "Kui oleksin maal edasi, künnaksin traktoriga põldu.", form: "oleksin", slot: "VERB:KndPrSg1", reviewed: false },
     ],
     "Softening a request so a stranger does not find it blunt": [
-      { lemma: "paluma", et: "Ma tahaksin sinult midagi paluda.", form: "tahaksin" },
-      { lemma: "külmik", et: "Tahaksin vana külmiku tasuta ära anda.", form: "Tahaksin" },
+      { lemma: "paluma", et: "Ma tahaksin sinult midagi paluda.", form: "tahaksin", slot: "VERB:KndPrSg1", reviewed: false },
+      { lemma: "külmik", et: "Tahaksin vana külmiku tasuta ära anda.", form: "Tahaksin", slot: "VERB:KndPrSg1", reviewed: false },
     ],
     "Giving advice without issuing an order": [
-      { lemma: "hambaarst", et: "Kui hammas valutab, siis peaksid hambaarsti juurde minema.", form: "peaksid" },
-      { lemma: "arutama", et: "Neid probleeme tuleks koosolekul arutada.", form: "tuleks" },
+      { lemma: "hambaarst", et: "Kui hammas valutab, siis peaksid hambaarsti juurde minema.", form: "peaksid", slot: "VERB:KndPrSg2", reviewed: false },
+      { lemma: "arutama", et: "Neid probleeme tuleks koosolekul arutada.", form: "tuleks", slot: "VERB:KndPrPs", reviewed: false },
     ],
   },
   imperative: {
     "Separate singular and plural forms, unlike English": [
-      { lemma: "istuma", et: "Istu minu kõrvale.", form: "Istu" },
-      { lemma: "puhas", et: "Peske käed puhtaks.", form: "Peske" },
+      { lemma: "istuma", et: "Istu minu kõrvale.", form: "Istu", slot: "VERB:ImpPrSg2", reviewed: false },
+      { lemma: "puhas", et: "Peske käed puhtaks.", form: "Peske", slot: "VERB:ImpPrPl2", reviewed: false },
     ],
     "The plural doubles as the polite form for one person": [
-      { lemma: "tualett", et: "Palun öelge, kus siin tualett on.", form: "öelge" },
-      { lemma: "saatma", et: "Saatke mulle takso.", form: "Saatke" },
+      { lemma: "tualett", et: "Palun öelge, kus siin tualett on.", form: "öelge", slot: "VERB:ImpPrPl2", reviewed: false },
+      { lemma: "saatma", et: "Saatke mulle takso.", form: "Saatke", slot: "VERB:ImpPrPl2", reviewed: false },
     ],
     "Negated with its own word": [
-      { lemma: "vaatama", et: "Ära otse päikesesse vaata!", form: "Ära" },
-      { lemma: "rumal", et: "Ära ole rumal!", form: "Ära" },
+      { lemma: "vaatama", et: "Ära otse päikesesse vaata!", form: "Ära", reviewed: false },
+      { lemma: "rumal", et: "Ära ole rumal!", form: "Ära", reviewed: false },
     ],
   },
   impersonal: {
     "Notices, instructions, official prose and news": [
-      { lemma: "magustoit", et: "Dessertveini serveeritakse koos magustoiduga.", form: "serveeritakse" },
-      { lemma: "kontrollima", et: "Doonoril kontrollitakse vererõhku.", form: "kontrollitakse" },
+      { lemma: "magustoit", et: "Dessertveini serveeritakse koos magustoiduga.", form: "serveeritakse", reviewed: false },
+      { lemma: "kontrollima", et: "Doonoril kontrollitakse vererõhku.", form: "kontrollitakse", reviewed: false },
     ],
     "Says people did something, without saying which people": [
-      { lemma: "nimetama", et: "Kuidas seda asutust nimetatakse?", form: "nimetatakse" },
-      { lemma: "hobi", et: "Ratsutamist peetakse kulukaks hobiks.", form: "peetakse" },
+      { lemma: "nimetama", et: "Kuidas seda asutust nimetatakse?", form: "nimetatakse", reviewed: false },
+      { lemma: "hobi", et: "Ratsutamist peetakse kulukaks hobiks.", form: "peetakse", reviewed: false },
     ],
   },
   "past-participle": {
     "Combines with to be for have done and had done": [
-      { lemma: "vale", et: "Oled elanud vales.", form: "elanud" },
-      { lemma: "jutt", et: "Meil pole sellest juttu olnud.", form: "olnud" },
+      { lemma: "vale", et: "Oled elanud vales.", form: "elanud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "jutt", et: "Meil pole sellest juttu olnud.", form: "olnud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
     "Describes a noun as having done something": [
-      { lemma: "vihik", et: "Ilmunud vihik tegi luuletajale palju rõõmu.", form: "Ilmunud" },
+      { lemma: "vihik", et: "Ilmunud vihik tegi luuletajale palju rõõmu.", form: "Ilmunud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
     "Has an impersonal twin for things done to something": [
-      { lemma: "kook", et: "Vanaema küpsetatud kook.", form: "küpsetatud" },
-      { lemma: "pilt", et: "Laste joonistatud pildid.", form: "joonistatud" },
+      { lemma: "kook", et: "Vanaema küpsetatud kook.", form: "küpsetatud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "pilt", et: "Laste joonistatud pildid.", form: "joonistatud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
   },
   participles: {
     "Used to describe a noun the way an adjective would": [
-      { lemma: "mobiiltelefon", et: "Mobiiltelefoniga tehtud fotod.", form: "tehtud" },
-      { lemma: "masin", et: "Masinal kootud vaip.", form: "kootud" },
+      { lemma: "mobiiltelefon", et: "Mobiiltelefoniga tehtud fotod.", form: "tehtud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "masin", et: "Masinal kootud vaip.", form: "kootud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
     "Carry the perfect and pluperfect with the auxiliary": [
-      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "kasvanud" },
-      { lemma: "vistrik", et: "Näkku oli tekkinud uus vistrik.", form: "tekkinud" },
+      { lemma: "elanik", et: "Riigi elanike arv on kasvanud.", form: "kasvanud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "vistrik", et: "Näkku oli tekkinud uus vistrik.", form: "tekkinud", slot: "VERB:PtsPtPs", reviewed: false },
     ],
   },
   politeness: {
     "The plural as a polite singular with strangers": [
-      { lemma: "kohv", et: "Kas te soovite teed või kohvi?", form: "soovite" },
-      { lemma: "või", et: "Kas te maksate sularahas või ülekandega?", form: "maksate" },
+      { lemma: "kohv", et: "Kas te soovite teed või kohvi?", form: "soovite", slot: "VERB:IndPrPl2", reviewed: false },
+      { lemma: "või", et: "Kas te maksate sularahas või ülekandega?", form: "maksate", slot: "VERB:IndPrPl2", reviewed: false },
     ],
     "The conditional to soften a request": [
-      { lemma: "paluma", et: "Ma tahaksin sinult midagi paluda.", form: "tahaksin" },
-      { lemma: "külmik", et: "Tahaksin vana külmiku tasuta ära anda.", form: "Tahaksin" },
+      { lemma: "paluma", et: "Ma tahaksin sinult midagi paluda.", form: "tahaksin", slot: "VERB:KndPrSg1", reviewed: false },
+      { lemma: "külmik", et: "Tahaksin vana külmiku tasuta ära anda.", form: "Tahaksin", slot: "VERB:KndPrSg1", reviewed: false },
     ],
     "Directness is less rude here than English speakers expect": [
-      { lemma: "tualett", et: "Palun öelge, kus siin tualett on.", form: "öelge" },
-      { lemma: "saatma", et: "Saatke mulle takso.", form: "Saatke" },
+      { lemma: "tualett", et: "Palun öelge, kus siin tualett on.", form: "öelge", slot: "VERB:ImpPrPl2", reviewed: false },
+      { lemma: "saatma", et: "Saatke mulle takso.", form: "Saatke", slot: "VERB:ImpPrPl2", reviewed: false },
     ],
   },
   "time-expressions": {
     "Days, seasons and years take -l; months take -s": [
-      { lemma: "teisipäev", et: "Koosolek toimub teisipäeval.", form: "teisipäeval" },
-      { lemma: "juuli", et: "Lähen juulis puhkusele.", form: "juulis" },
+      { lemma: "teisipäev", et: "Koosolek toimub teisipäeval.", form: "teisipäeval", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "juuli", et: "Lähen juulis puhkusele.", form: "juulis", slot: "CASE:INESSIVE", reviewed: false },
     ],
     "Duration is expressed differently again": [
-      { lemma: "kirurg", et: "Kirurg tegi päeva jooksul kolm operatsiooni.", form: "jooksul" },
-      { lemma: "kestma", et: "Film kestis kaks tundi.", form: "tundi" },
+      { lemma: "kirurg", et: "Kirurg tegi päeva jooksul kolm operatsiooni.", form: "jooksul", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "kestma", et: "Film kestis kaks tundi.", form: "tundi", slot: "CASE:PARTITIVE", reviewed: false },
     ],
     "From and until each have their own ending": [
-      { lemma: "esmaspäev", et: "Käin tööl esmaspäevast reedeni.", form: "esmaspäevast" },
-      { lemma: "pääsuke", et: "Pääsuke laulab aprillist augustini.", form: "augustini" },
+      { lemma: "esmaspäev", et: "Käin tööl esmaspäevast reedeni.", form: "esmaspäevast", slot: "CASE:ELATIVE", reviewed: false },
+      { lemma: "pääsuke", et: "Pääsuke laulab aprillist augustini.", form: "augustini", slot: "CASE:TERMINATIVE", reviewed: false },
     ],
   },
   aspect: {
     "A finished action takes a whole object": [
-      { lemma: "odav", et: "Ostsin odava auto.", form: "auto" },
-      { lemma: "taldrik", et: "Sõin taldriku tühjaks.", form: "taldriku" },
+      { lemma: "odav", et: "Ostsin odava auto.", form: "auto", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "taldrik", et: "Sõin taldriku tühjaks.", form: "taldriku", slot: "CASE:GENITIVE", reviewed: false },
     ],
     "An unfinished or partial one takes the partitive": [
-      { lemma: "tort", et: "Sõin tüki torti.", form: "torti" },
-      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett" },
+      { lemma: "tort", et: "Sõin tüki torti.", form: "torti", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett", slot: "CASE:PARTITIVE", reviewed: false },
     ],
     "Particles reinforce completion": [
-      { lemma: "kartul", et: "Palun koori kartulid ära.", form: "ära" },
-      { lemma: "hambapasta", et: "Hambapasta sai otsa.", form: "otsa" },
+      { lemma: "kartul", et: "Palun koori kartulid ära.", form: "ära", reviewed: false },
+      { lemma: "hambapasta", et: "Hambapasta sai otsa.", form: "otsa", reviewed: false },
     ],
   },
   infinitives: {
     "The -ma one follows starting, going and having to": [
-      { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "küpsetama" },
-      { lemma: "orkester", et: "Orkester hakkas mängima.", form: "mängima" },
+      { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "küpsetama", slot: "VERB:Sup", reviewed: false },
+      { lemma: "orkester", et: "Orkester hakkas mängima.", form: "mängima", slot: "VERB:Sup", reviewed: false },
     ],
     "The -da one follows wanting and being able": [
-      { lemma: "valuuta", et: "Kus saab valuutat vahetada?", form: "vahetada" },
-      { lemma: "võima", et: "Ma võin jälle kõndida!", form: "kõndida" },
+      { lemma: "valuuta", et: "Kus saab valuutat vahetada?", form: "vahetada", slot: "VERB:Inf", reviewed: false },
+      { lemma: "võima", et: "Ma võin jälle kõndida!", form: "kõndida", slot: "VERB:Inf", reviewed: false },
     ],
   },
   "particle-verbs": {
     "The particle usually adds completion or direction": [
-      { lemma: "veekeetja", et: "Lülita veekeetja sisse.", form: "sisse" },
-      { lemma: "tõmbama", et: "Tõmba uks kinni.", form: "kinni" },
+      { lemma: "veekeetja", et: "Lülita veekeetja sisse.", form: "sisse", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "tõmbama", et: "Tõmba uks kinni.", form: "kinni", reviewed: false },
     ],
     "Often the difference between doing and finishing": [
-      { lemma: "lamp", et: "Lamp põles läbi.", form: "läbi" },
-      { lemma: "talu", et: "Talu põles maha.", form: "maha" },
+      { lemma: "lamp", et: "Lamp põles läbi.", form: "läbi", reviewed: false },
+      { lemma: "talu", et: "Talu põles maha.", form: "maha", slot: "CASE:ILLATIVE", reviewed: false },
     ],
     "It moves around the sentence rather than staying put": [
-      { lemma: "televiisor", et: "Pane televiisor kinni.", form: "kinni" },
-      { lemma: "kraan", et: "Keerasin kraani kinni.", form: "kinni" },
+      { lemma: "televiisor", et: "Pane televiisor kinni.", form: "kinni", reviewed: false },
+      { lemma: "kraan", et: "Keerasin kraani kinni.", form: "kinni", reviewed: false },
     ],
   },
   converb: {
     "Two simultaneous actions without a conjunction": [
-      { lemma: "ige", et: "Naerdes paljastusid laiad esihambad ja igemed.", form: "Naerdes" },
-      { lemma: "tatt", et: "Mees köhib tatti pritsides.", form: "pritsides" },
+      { lemma: "ige", et: "Naerdes paljastusid laiad esihambad ja igemed.", form: "Naerdes", reviewed: false },
+      { lemma: "tatt", et: "Mees köhib tatti pritsides.", form: "pritsides", reviewed: false },
     ],
     "Strongly preferred in writing over two joined clauses": [
-      { lemma: "pidur", et: "Peo edenedes pidurid kadusid.", form: "edenedes" },
+      { lemma: "pidur", et: "Peo edenedes pidurid kadusid.", form: "edenedes", reviewed: false },
     ],
     "Its subject is understood to be the main clause's": [
-      { lemma: "viibima", et: "Ta kuulis juhtunust puhkusel viibides.", form: "viibides" },
-      { lemma: "üllatuma", et: "Ta oli auhinnast kuuldes rõõmsalt üllatunud.", form: "kuuldes" },
+      { lemma: "viibima", et: "Ta kuulis juhtunust puhkusel viibides.", form: "viibides", reviewed: false },
+      { lemma: "üllatuma", et: "Ta oli auhinnast kuuldes rõõmsalt üllatunud.", form: "kuuldes", reviewed: false },
     ],
   },
   quotative: {
     "Reported speech, rumor and hearsay": [
-      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
-      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat" },
+      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat", reviewed: false },
+      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat", reviewed: false },
     ],
     "Can carry doubt, depending on delivery": [
-      { lemma: "väitma", et: "Mees väidab end mitte teadvat, kuhu ta auto jättis.", form: "teadvat" },
+      { lemma: "väitma", et: "Mees väidab end mitte teadvat, kuhu ta auto jättis.", form: "teadvat", reviewed: false },
     ],
   },
   numerals: {
     "After two and up, the counted noun is partitive singular": [
-      { lemma: "pirn", et: "Aias kasvab kolm pirni.", form: "pirni" },
-      { lemma: "pudel", et: "Ostsin kaks pudelit vett.", form: "pudelit" },
+      { lemma: "pirn", et: "Aias kasvab kolm pirni.", form: "pirni", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "pudel", et: "Ostsin kaks pudelit vett.", form: "pudelit", slot: "CASE:PARTITIVE", reviewed: false },
     ],
     "Numbers themselves decline when the phrase is in a case": [
-      { lemma: "minut", et: "Buss tuleb viie minuti pärast.", form: "viie" },
-      { lemma: "broneerima", et: "Broneerisin laua kahele.", form: "kahele" },
+      { lemma: "minut", et: "Buss tuleb viie minuti pärast.", form: "viie", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "broneerima", et: "Broneerisin laua kahele.", form: "kahele", slot: "CASE:ALLATIVE", reviewed: false },
     ],
     "Ordinals are regular and decline too": [
-      { lemma: "baar", et: "Hotelli baar asub esimesel korrusel.", form: "esimesel" },
-      { lemma: "lennuk", et: "Laps sõidab lennukiga esimest korda.", form: "esimest" },
+      { lemma: "baar", et: "Hotelli baar asub esimesel korrusel.", form: "esimesel", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "lennuk", et: "Laps sõidab lennukiga esimest korda.", form: "esimest", slot: "CASE:PARTITIVE", reviewed: false },
     ],
   },
   derivation: {
     "An action noun from any verb, entirely regular": [
-      { lemma: "võõras", et: "Vabandamine on talle võõras.", form: "Vabandamine" },
+      { lemma: "võõras", et: "Vabandamine on talle võõras.", form: "Vabandamine", reviewed: false },
     ],
     "Adjectives meaning like it, and meaning without it": [
-      { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke" },
-      { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud" },
+      { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "abikaasa", et: "Abikaasad on võrdõiguslikud.", form: "võrdõiguslikud", reviewed: false },
     ],
     "A quality noun from an adjective": [
-      { lemma: "sõprus", et: "Meid seob ammune sõprus.", form: "sõprus" },
-      { lemma: "rikkus", et: "Ega rikkus pole häbiasi.", form: "rikkus" },
+      { lemma: "sõprus", et: "Meid seob ammune sõprus.", form: "sõprus", slot: "CASE:NOMINATIVE", reviewed: false },
+      { lemma: "rikkus", et: "Ega rikkus pole häbiasi.", form: "rikkus", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
   },
   "word-order": {
     "Endings mark who did what, so order is free for other work": [
-      { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel" },
-      { lemma: "toimuma", et: "Eile toimus mitu õnnetust.", form: "Eile" },
+      { lemma: "talv", et: "Talvel sadas palju lund.", form: "Talvel", slot: "CASE:ADESSIVE", reviewed: false },
+      { lemma: "toimuma", et: "Eile toimus mitu õnnetust.", form: "Eile", reviewed: false },
     ],
     "The verb tends to sit second in a main clause": [
-      { lemma: "alustama", et: "Homme alustan dieeti.", form: "alustan" },
-      { lemma: "kütma", et: "Õhtul kütan sauna.", form: "kütan" },
+      { lemma: "alustama", et: "Homme alustan dieeti.", form: "alustan", slot: "VERB:IndPrSg1", reviewed: false },
+      { lemma: "kütma", et: "Õhtul kütan sauna.", form: "kütan", slot: "VERB:IndPrSg1", reviewed: false },
     ],
   },
   idiom: {
     "Sayings still in daily use": [
-      { lemma: "ilu", et: "Ilu peitub vaataja silmades.", form: "silmades" },
-      { lemma: "põhimõte", et: "Lähtusin põhimõttest, et topelt ei kärise.", form: "kärise" },
+      { lemma: "ilu", et: "Ilu peitub vaataja silmades.", form: "silmades", slot: "CASE:INESSIVE", reviewed: false },
+      { lemma: "põhimõte", et: "Lähtusin põhimõttest, et topelt ei kärise.", form: "kärise", reviewed: false },
     ],
     "Fixed verb phrases that resist a literal reading": [
-      { lemma: "tööline", et: "Häid töölisi otsitakse tikutulega taga.", form: "tikutulega" },
-      { lemma: "naer", et: "Olime kõik naerust kõveras.", form: "kõveras" },
+      { lemma: "tööline", et: "Häid töölisi otsitakse tikutulega taga.", form: "tikutulega", reviewed: false },
+      { lemma: "naer", et: "Olime kõik naerust kõveras.", form: "kõveras", reviewed: false },
     ],
     "Figurative senses of ordinary words": [
-      { lemma: "suvi", et: "Suvi on käes.", form: "käes" },
-      { lemma: "hambapasta", et: "Hambapasta sai otsa.", form: "otsa" },
+      { lemma: "suvi", et: "Suvi on käes.", form: "käes", slot: "CASE:INESSIVE", reviewed: false },
+      { lemma: "hambapasta", et: "Hambapasta sai otsa.", form: "otsa", reviewed: false },
     ],
   },
   "adjective-agreement": {
     "Same case and same number as the noun": [
-      { lemma: "liha", et: "Ostsin turult värsket liha.", form: "värsket" },
-      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "rasvast" },
+      { lemma: "liha", et: "Ostsin turult värsket liha.", form: "värsket", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "rasvast", reviewed: false },
     ],
     "For -ni, -na, -ta and -ga the adjective stops at the genitive": [
-      { lemma: "aeglane", et: "Aeglase vooluga jõgi.", form: "Aeglase" },
-      { lemma: "lõpp", et: "Õnneliku lõpuga film.", form: "Õnneliku" },
+      { lemma: "aeglane", et: "Aeglase vooluga jõgi.", form: "Aeglase", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "lõpp", et: "Õnneliku lõpuga film.", form: "Õnneliku", slot: "CASE:GENITIVE", reviewed: false },
     ],
   },
   comparative: {
     "Built on the genitive stem, like nearly everything": [
-      { lemma: "väike", et: "Anna väiksem lusikas!", form: "väiksem" },
-      { lemma: "parem", et: "Kumb auto on parem?", form: "parem" },
+      { lemma: "väike", et: "Anna väiksem lusikas!", form: "väiksem", reviewed: false },
+      { lemma: "palk", et: "Eesti keskmine palk on suurem kui Lätis.", form: "suurem", reviewed: false },
     ],
     "Say than and use the plain form, or drop than and use -st": [
-      { lemma: "diisel", et: "Bensiin on kallim kui diisel.", form: "kui" },
+      { lemma: "diisel", et: "Bensiin on kallim kui diisel.", form: "kui", reviewed: false },
+      { lemma: "oluliselt", et: "Ta on oma abikaasast oluliselt noorem.", form: "abikaasast", slot: "CASE:ELATIVE", reviewed: false },
     ],
     "A handful of common adjectives are irregular": [
-      { lemma: "parem", et: "Kumb auto on parem?", form: "parem" },
+      { lemma: "parem", et: "Kumb auto on parem?", form: "parem", slot: "CASE:NOMINATIVE", reviewed: false },
+      { lemma: "palju", et: "Täna on enesetunne palju parem.", form: "parem", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
   },
   superlative: {
     "A helper word plus the comparative, which always works": [
-      { lemma: "veebruar", et: "Veebruar on tavaliselt aasta kõige külmem kuu.", form: "kõige" },
-      { lemma: "ingel", et: "Sa oled mu ingel, mu kõige kallim!", form: "kõige" },
+      { lemma: "veebruar", et: "Veebruar on tavaliselt aasta kõige külmem kuu.", form: "kõige", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "ingel", et: "Sa oled mu ingel, mu kõige kallim!", form: "kõige", slot: "CASE:GENITIVE", reviewed: false },
+    ],
+    "A one-word form, shorter and more literary": [
+      { lemma: "linn", et: "Tallinn on Eesti suurim linn.", form: "suurim", reviewed: false },
+      { lemma: "sõbranna", et: "Kaisa on minu parim sõbranna.", form: "parim", reviewed: false },
     ],
   },
   future: {
     "A time expression is what makes a sentence future": [
-      { lemma: "toimuma", et: "Kontsert toimub homme.", form: "homme" },
-      { lemma: "abielupaar", et: "Nendest saab varsti abielupaar.", form: "varsti" },
+      { lemma: "toimuma", et: "Kontsert toimub homme.", form: "homme", reviewed: false },
+      { lemma: "abielupaar", et: "Nendest saab varsti abielupaar.", form: "varsti", reviewed: false },
     ],
     "Verbs of planning and intending carry the rest": [
-      { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "hakkab" },
-      { lemma: "koguma", et: "Kogun raha, et uut autot osta.", form: "Kogun" },
+      { lemma: "kook", et: "Ema hakkab kooki küpsetama.", form: "hakkab", slot: "VERB:IndPrSg3", reviewed: false },
+      { lemma: "koguma", et: "Kogun raha, et uut autot osta.", form: "Kogun", slot: "VERB:IndPrSg1", reviewed: false },
     ],
     "A particle can imply something is going to finish": [
-      { lemma: "kütus", et: "Autol hakkab kütus otsa saama.", form: "otsa" },
-      { lemma: "pastakas", et: "Pastakas hakkab tühjaks saama.", form: "tühjaks" },
+      { lemma: "kütus", et: "Autol hakkab kütus otsa saama.", form: "otsa", reviewed: false },
+      { lemma: "pastakas", et: "Pastakas hakkab tühjaks saama.", form: "tühjaks", slot: "CASE:TRANSLATIVE", reviewed: false },
     ],
   },
   object: {
     "A finished action on a whole thing: genitive or plain form": [
-      { lemma: "odav", et: "Ostsin odava auto.", form: "auto" },
-      { lemma: "panema", et: "Pane raamat lauale.", form: "raamat" },
+      { lemma: "odav", et: "Ostsin odava auto.", form: "auto", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "panema", et: "Pane raamat lauale.", form: "raamat", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
     "Unfinished, or only part of it: partitive": [
-      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett" },
-      { lemma: "ahv", et: "Ahv sööb banaani.", form: "banaani" },
+      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "ahv", et: "Ahv sööb banaani.", form: "banaani", slot: "CASE:PARTITIVE", reviewed: false },
     ],
     "Anything negated: partitive, always": [
-      { lemma: "ulme", et: "Ma ei loe ulmet.", form: "ulmet" },
-      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "sealiha" },
+      { lemma: "ulme", et: "Ma ei loe ulmet.", form: "ulmet", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "sealiha", et: "Ta ei söö rasvast sealiha.", form: "sealiha", slot: "CASE:PARTITIVE", reviewed: false },
     ],
   },
   "reported-speech": {
     "A conjunction plus a clause, closest to English": [
-      { lemma: "imelik", et: "Imelik, et teda kodus pole.", form: "et" },
-      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes" },
+      { lemma: "imelik", et: "Imelik, et teda kodus pole.", form: "et", reviewed: false },
+      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
     "Or the quotative, which needs no reporting verb": [
-      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat" },
+      { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat", reviewed: false },
     ],
   },
   concession: {
     "Adverbs that carry it across a full stop": [
-      { lemma: "kokkuvõttes", et: "Esinemine oli kokkuvõttes siiski rahuldav.", form: "siiski" },
-      { lemma: "kõhklema", et: "Mari kõhkles hetke, ent siis otsustas teistega kaasa minna.", form: "ent" },
+      { lemma: "kokkuvõttes", et: "Esinemine oli kokkuvõttes siiski rahuldav.", form: "siiski", reviewed: false },
+      { lemma: "kõhklema", et: "Mari kõhkles hetke, ent siis otsustas teistega kaasa minna.", form: "ent", reviewed: false },
     ],
   },
   hedging: {
     "Adverbs and adjectives of likelihood": [
-      { lemma: "vist", et: "Ema vist magab juba.", form: "vist" },
-      { lemma: "vist", et: "Hakkab vist sadama.", form: "vist" },
+      { lemma: "vist", et: "Ema vist magab juba.", form: "vist", reviewed: false },
+      { lemma: "vist", et: "Hakkab vist sadama.", form: "vist", reviewed: false },
     ],
     "The quotative, which puts the claim on somebody else": [
-      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat" },
+      { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat", reviewed: false },
     ],
     "The conditional, which softens a claim as well as a request": [
-      { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks" },
-      { lemma: "arutama", et: "Neid probleeme tuleks koosolekul arutada.", form: "tuleks" },
+      { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks", slot: "VERB:KndPrPs", reviewed: false },
+      { lemma: "arutama", et: "Neid probleeme tuleks koosolekul arutada.", form: "tuleks", slot: "VERB:KndPrPs", reviewed: false },
     ],
   },
   cohesion: {
     "Contrast and consequence": [
-      { lemma: "tõsi", et: "Kurb, aga tõsi.", form: "aga" },
-      { lemma: "välk", et: "Müristab, aga välku ei löö.", form: "aga" },
+      { lemma: "tõsi", et: "Kurb, aga tõsi.", form: "aga", reviewed: false },
+      { lemma: "välk", et: "Müristab, aga välku ei löö.", form: "aga", reviewed: false },
     ],
     "Ordering and adding: first, also, finally": [
-      { lemma: "pühak", et: "Patukotist sai lõpuks pühak.", form: "lõpuks" },
-      { lemma: "lehtpuu", et: "Leiliruumi lagi ja seinad, samuti lava on lehtpuust.", form: "samuti" },
+      { lemma: "pühak", et: "Patukotist sai lõpuks pühak.", form: "lõpuks", slot: "CASE:TRANSLATIVE", reviewed: false },
+      { lemma: "lehtpuu", et: "Leiliruumi lagi ja seinad, samuti lava on lehtpuust.", form: "samuti", reviewed: false },
     ],
     "Referring back without repeating the noun": [
-      { lemma: "kiikuma", et: "Kiikusin toolil ja see läks katki.", form: "see" },
-      { lemma: "petma", et: "Ära usu Jaani, ta petab.", form: "ta" },
+      { lemma: "kiikuma", et: "Kiikusin toolil ja see läks katki.", form: "see", slot: "CASE:NOMINATIVE", reviewed: false },
+      { lemma: "petma", et: "Ära usu Jaani, ta petab.", form: "ta", reviewed: false },
     ],
   },
   emphasis: {
     "Small particles that mark the focus": [
-      { lemma: "kuulama", et: "Kuulake mind ka!", form: "ka" },
-      { lemma: "leib", et: "Määri leivale võid ka.", form: "ka" },
+      { lemma: "kuulama", et: "Kuulake mind ka!", form: "ka", reviewed: false },
+      { lemma: "leib", et: "Määri leivale võid ka.", form: "ka", reviewed: false },
     ],
   },
   "rhetorical-questions": {
     "A particle marks a genuine yes or no question": [
-      { lemma: "kohv", et: "Kas te soovite teed või kohvi?", form: "Kas" },
-      { lemma: "vann", et: "Kas täna vanni teeme?", form: "Kas" },
+      { lemma: "kohv", et: "Kas te soovite teed või kohvi?", form: "Kas", reviewed: false },
+      { lemma: "vann", et: "Kas täna vanni teeme?", form: "Kas", reviewed: false },
     ],
   },
   subordination: {
     "Word order shifts inside the clause": [
-      { lemma: "firma", et: "Töötan firmas, mis toodab autode varuosi.", form: "mis" },
+      { lemma: "firma", et: "Töötan firmas, mis toodab autode varuosi.", form: "mis", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
   },
   "relative-clause": {
     "Always separated by a comma": [
-      { lemma: "nimekiri", et: "Tegin nimekirja asjadest, mida poest tuua.", form: "mida" },
+      { lemma: "puu", et: "Metsas on kohti, kus puud ei kasva.", form: "kus", reviewed: false },
+      { lemma: "ettevõte", et: "Töötan ettevõttes, mis tegeleb autode remondiga.", form: "mis", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
     "Different pronouns for people and for things": [
-      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes" },
-      { lemma: "teadus", et: "Bioloogia on teadus, mis uurib elu.", form: "mis" },
+      { lemma: "elus", et: "Ma olin viimane, kes teda elusana nägi.", form: "kes", slot: "CASE:NOMINATIVE", reviewed: false },
+      { lemma: "teadus", et: "Bioloogia on teadus, mis uurib elu.", form: "mis", slot: "CASE:NOMINATIVE", reviewed: false },
     ],
     "Its case is decided inside the relative clause": [
-      { lemma: "režissöör", et: "Ta on hea režissöör, kelle filme tasub vaadata.", form: "kelle" },
-      { lemma: "nimekiri", et: "Tegin nimekirja asjadest, mida poest tuua.", form: "mida" },
+      { lemma: "režissöör", et: "Ta on hea režissöör, kelle filme tasub vaadata.", form: "kelle", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "nimekiri", et: "Tegin nimekirja asjadest, mida poest tuua.", form: "mida", slot: "CASE:PARTITIVE", reviewed: false },
     ],
   },
   government: {
     "The required case is a fact about the verb": [
-      { lemma: "uskuma", et: "Ta usub Jumalasse.", form: "Jumalasse" },
-      { lemma: "pall", et: "Laps mängib palliga.", form: "palliga" },
+      { lemma: "uskuma", et: "Ta usub Jumalasse.", form: "Jumalasse", slot: "CASE:ILLATIVE", reviewed: false },
+      { lemma: "pall", et: "Laps mängib palliga.", form: "palliga", slot: "CASE:COMITATIVE", reviewed: false },
     ],
     "Helping, calling, liking and thinking are the traps": [
-      { lemma: "juuksur", et: "Mulle ei meeldi juuksuris käia.", form: "Mulle" },
-      { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest" },
+      { lemma: "juuksur", et: "Mulle ei meeldi juuksuris käia.", form: "Mulle", slot: "CASE:ALLATIVE", reviewed: false },
+      { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest", slot: "CASE:ELATIVE", reviewed: false },
     ],
   },
 };
@@ -511,159 +558,159 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
 export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
   NOMINATIVE: {
     "Who or what is doing the verb": [
-      { lemma: "ahv", et: "Ahv sööb banaani.", form: "Ahv" },
-      { lemma: "magama", et: "Karu magab talveund.", form: "Karu" },
+      { lemma: "ahv", et: "Ahv sööb banaani.", form: "Ahv", reviewed: false },
+      { lemma: "magama", et: "Karu magab talveund.", form: "Karu", reviewed: false },
     ],
     "A whole object, in the plural or after a command": [
-      { lemma: "panema", et: "Pane raamat lauale.", form: "raamat" },
-      { lemma: "kartul", et: "Palun koori kartulid ära.", form: "kartulid" },
+      { lemma: "panema", et: "Pane raamat lauale.", form: "raamat", reviewed: false },
+      { lemma: "kartul", et: "Palun koori kartulid ära.", form: "kartulid", reviewed: false },
     ],
   },
   GENITIVE: {
     "Saying whose something is": [
-      { lemma: "uus", et: "Uue filmi esilinastus.", form: "filmi" },
-      { lemma: "klient", et: "Rahulolev klient on iga firma unistus.", form: "firma" },
+      { lemma: "uus", et: "Uue filmi esilinastus.", form: "filmi", reviewed: false },
+      { lemma: "klient", et: "Rahulolev klient on iga firma unistus.", form: "firma", reviewed: false },
     ],
     "A finished, whole object": [
-      { lemma: "odav", et: "Ostsin odava auto.", form: "auto" },
-      { lemma: "taldrik", et: "Sõin taldriku tühjaks.", form: "taldriku" },
+      { lemma: "odav", et: "Ostsin odava auto.", form: "auto", slot: "CASE:GENITIVE", reviewed: false },
+      { lemma: "taldrik", et: "Sõin taldriku tühjaks.", form: "taldriku", reviewed: false },
     ],
   },
   PARTITIVE: {
     "Some of a thing rather than all of it": [
-      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett" },
-      { lemma: "tort", et: "Sõin tüki torti.", form: "torti" },
+      { lemma: "vesi", et: "Jõin klaasi vett.", form: "vett", reviewed: false },
+      { lemma: "tort", et: "Sõin tüki torti.", form: "torti", slot: "CASE:PARTITIVE", reviewed: false },
     ],
     "An action still going on": [
-      { lemma: "ahv", et: "Ahv sööb banaani.", form: "banaani" },
-      { lemma: "algus", et: "Ootasime kontserdi algust.", form: "algust" },
+      { lemma: "ahv", et: "Ahv sööb banaani.", form: "banaani", slot: "CASE:PARTITIVE", reviewed: false },
+      { lemma: "algus", et: "Ootasime kontserdi algust.", form: "algust", reviewed: false },
     ],
     "After any number above one": [
-      { lemma: "kott", et: "Kolm kotti kartuleid.", form: "kotti" },
+      { lemma: "kott", et: "Kolm kotti kartuleid.", form: "kotti", reviewed: false },
     ],
   },
   ILLATIVE: {
     "Going into a place or a container": [
-      { lemma: "vihik", et: "Kirjuta ülesanne vihikusse.", form: "vihikusse" },
-      { lemma: "trepp", et: "See trepp viib keldrisse.", form: "keldrisse" },
+      { lemma: "vihik", et: "Kirjuta ülesanne vihikusse.", form: "vihikusse", reviewed: false },
+      { lemma: "trepp", et: "See trepp viib keldrisse.", form: "keldrisse", reviewed: false },
     ],
     "Going into a state or a stretch of time": [
-      { lemma: "õnnetus", et: "Buss sattus õnnetusse.", form: "õnnetusse" },
+      { lemma: "õnnetus", et: "Buss sattus õnnetusse.", form: "õnnetusse", reviewed: false },
     ],
   },
   ADESSIVE: {
     "Position on a surface": [
-      { lemma: "söök", et: "Söök on laual.", form: "laual" },
-      { lemma: "diivan", et: "Eva oli diivanil röötsakil.", form: "diivanil" },
+      { lemma: "söök", et: "Söök on laual.", form: "laual", reviewed: false },
+      { lemma: "diivan", et: "Eva oli diivanil röötsakil.", form: "diivanil", reviewed: false },
     ],
     "Having something: the owner takes this ending": [
-      { lemma: "oma", et: "Mul on oma maja.", form: "Mul" },
-      { lemma: "perekond", et: "Tal on suur perekond.", form: "Tal" },
+      { lemma: "oma", et: "Mul on oma maja.", form: "Mul", reviewed: false },
+      { lemma: "perekond", et: "Tal on suur perekond.", form: "Tal", reviewed: false },
     ],
     "When something happens": [
-      { lemma: "teisipäev", et: "Koosolek toimub teisipäeval.", form: "teisipäeval" },
-      { lemma: "reede", et: "Kontsert toimub reedel.", form: "reedel" },
+      { lemma: "teisipäev", et: "Koosolek toimub teisipäeval.", form: "teisipäeval", reviewed: false },
+      { lemma: "reede", et: "Kontsert toimub reedel.", form: "reedel", reviewed: false },
     ],
   },
   ABLATIVE: {
     "Coming off a surface": [
-      { lemma: "korjama", et: "Korjasin peenralt lilli.", form: "peenralt" },
-      { lemma: "tramm", et: "Kopli tramm sõitis rööbastelt maha.", form: "rööbastelt" },
+      { lemma: "korjama", et: "Korjasin peenralt lilli.", form: "peenralt", reviewed: false },
+      { lemma: "tramm", et: "Kopli tramm sõitis rööbastelt maha.", form: "rööbastelt", reviewed: false },
     ],
     "The person something is taken, bought or asked from": [
-      { lemma: "paluma", et: "Pead vanematelt luba paluma.", form: "vanematelt" },
+      { lemma: "paluma", et: "Pead vanematelt luba paluma.", form: "vanematelt", reviewed: false },
     ],
   },
   TRANSLATIVE: {
     "Turning into a state or a role": [
-      { lemma: "puhas", et: "Peske käed puhtaks.", form: "puhtaks" },
-      { lemma: "pliiats", et: "Pliiats hakkab nüriks minema.", form: "nüriks" },
+      { lemma: "puhas", et: "Peske käed puhtaks.", form: "puhtaks", reviewed: false },
+      { lemma: "pliiats", et: "Pliiats hakkab nüriks minema.", form: "nüriks", reviewed: false },
     ],
     "What something is for": [
-      { lemma: "šokolaad", et: "Sain kingituseks tahvli šokolaadi.", form: "kingituseks" },
-      { lemma: "riis", et: "Lõunaks oli kanafilee riisiga.", form: "Lõunaks" },
+      { lemma: "šokolaad", et: "Sain kingituseks tahvli šokolaadi.", form: "kingituseks", reviewed: false },
+      { lemma: "riis", et: "Lõunaks oli kanafilee riisiga.", form: "Lõunaks", reviewed: false },
     ],
     "A deadline: by when": [
-      { lemma: "neljapäev", et: "Töö valmib neljapäevaks.", form: "neljapäevaks" },
-      { lemma: "lõpetama", et: "Pean töö homseks lõpetama.", form: "homseks" },
+      { lemma: "neljapäev", et: "Töö valmib neljapäevaks.", form: "neljapäevaks", reviewed: false },
+      { lemma: "lõpetama", et: "Pean töö homseks lõpetama.", form: "homseks", reviewed: false },
     ],
   },
   TERMINATIVE: {
     "As far as a place": [
-      { lemma: "kõndima", et: "Nad kõndisid edasi ja jõudsid järveni.", form: "järveni" },
-      { lemma: "poolteist", et: "Linnani on poolteist kilomeetrit.", form: "Linnani" },
+      { lemma: "kõndima", et: "Nad kõndisid edasi ja jõudsid järveni.", form: "järveni", reviewed: false },
+      { lemma: "poolteist", et: "Linnani on poolteist kilomeetrit.", form: "Linnani", reviewed: false },
     ],
     "Until a moment": [
-      { lemma: "lõuna", et: "Ta magas lõunani.", form: "lõunani" },
-      { lemma: "näitus", et: "Näitus jääb avatuks sügiseni.", form: "sügiseni" },
+      { lemma: "lõuna", et: "Ta magas lõunani.", form: "lõunani", reviewed: false },
+      { lemma: "näitus", et: "Näitus jääb avatuks sügiseni.", form: "sügiseni", reviewed: false },
     ],
     "Up to an amount": [
-      { lemma: "arv", et: "Arvud ühest kümneni.", form: "kümneni" },
+      { lemma: "arv", et: "Arvud ühest kümneni.", form: "kümneni", reviewed: false },
     ],
   },
   ESSIVE: {
     "Working as something": [
-      { lemma: "juuksur", et: "Ta töötab juuksurina.", form: "juuksurina" },
-      { lemma: "arhitekt", et: "Ema töötab arhitektina.", form: "arhitektina" },
+      { lemma: "juuksur", et: "Ta töötab juuksurina.", form: "juuksurina", reviewed: false },
+      { lemma: "arhitekt", et: "Ema töötab arhitektina.", form: "arhitektina", reviewed: false },
     ],
     "A role or a capacity you are in for now": [
-      { lemma: "vallaline", et: "Marie suri vallalisena.", form: "vallalisena" },
+      { lemma: "vallaline", et: "Marie suri vallalisena.", form: "vallalisena", reviewed: false },
     ],
   },
   ABESSIVE: {
     "The absence of a thing": [
-      { lemma: "supermarket", et: "Ilma autota pole supermarketisse mõtet minna.", form: "autota" },
-      { lemma: "kulgema", et: "Rasedus kulges probleemideta.", form: "probleemideta" },
+      { lemma: "supermarket", et: "Ilma autota pole supermarketisse mõtet minna.", form: "autota", reviewed: false },
+      { lemma: "kulgema", et: "Rasedus kulges probleemideta.", form: "probleemideta", reviewed: false },
     ],
     "Doing something without a tool, a person or permission": [
-      { lemma: "kõrvaklapid", et: "Kasutasin juhtmeta kõrvaklappe.", form: "juhtmeta" },
-      { lemma: "paus", et: "Mees rääkis peaaegu pausideta.", form: "pausideta" },
+      { lemma: "kõrvaklapid", et: "Kasutasin juhtmeta kõrvaklappe.", form: "juhtmeta", reviewed: false },
+      { lemma: "paus", et: "Mees rääkis peaaegu pausideta.", form: "pausideta", reviewed: false },
     ],
   },
   COMITATIVE: {
     "Together with somebody": [
-      { lemma: "kohvik", et: "Käisin sõbrannaga kohvikus.", form: "sõbrannaga" },
-      { lemma: "foto", et: "Fotol on Mari tütrega.", form: "tütrega" },
+      { lemma: "kohvik", et: "Käisin sõbrannaga kohvikus.", form: "sõbrannaga", reviewed: false },
+      { lemma: "foto", et: "Fotol on Mari tütrega.", form: "tütrega", reviewed: false },
     ],
     "The tool you did it with": [
-      { lemma: "pall", et: "Laps mängib palliga.", form: "palliga" },
-      { lemma: "lusikas", et: "Suppi süüakse lusikaga.", form: "lusikaga" },
+      { lemma: "pall", et: "Laps mängib palliga.", form: "palliga", reviewed: false },
+      { lemma: "lusikas", et: "Suppi süüakse lusikaga.", form: "lusikaga", reviewed: false },
     ],
     "How you got there": [
-      { lemma: "jalgratas", et: "Käin tööl jalgrattaga.", form: "jalgrattaga" },
-      { lemma: "tramm", et: "Sõitsin trammiga koju.", form: "trammiga" },
+      { lemma: "jalgratas", et: "Käin tööl jalgrattaga.", form: "jalgrattaga", reviewed: false },
+      { lemma: "tramm", et: "Sõitsin trammiga koju.", form: "trammiga", reviewed: false },
     ],
   },
   INESSIVE: {
     "Position inside a place": [
-      { lemma: "meri", et: "Käisin meres ujumas.", form: "meres" },
-      { lemma: "tuli", et: "Süütasin ahjus tule.", form: "ahjus" },
+      { lemma: "meri", et: "Käisin meres ujumas.", form: "meres", reviewed: false },
+      { lemma: "tuli", et: "Süütasin ahjus tule.", form: "ahjus", reviewed: false },
     ],
     "Being in a state, a language, or a month": [
-      { lemma: "detsember", et: "Detsembris on jõulud.", form: "Detsembris" },
-      { lemma: "vale", et: "Oled elanud vales.", form: "vales" },
+      { lemma: "detsember", et: "Detsembris on jõulud.", form: "Detsembris", reviewed: false },
+      { lemma: "vale", et: "Oled elanud vales.", form: "vales", reviewed: false },
     ],
   },
   ELATIVE: {
     "Coming out of a place": [
-      { lemma: "laev", et: "Laev väljub sadamast.", form: "sadamast" },
-      { lemma: "buss", et: "Me jäime bussist maha.", form: "bussist" },
+      { lemma: "laev", et: "Laev väljub sadamast.", form: "sadamast", reviewed: false },
+      { lemma: "buss", et: "Me jäime bussist maha.", form: "bussist", reviewed: false },
     ],
     "What something is made of": [
-      { lemma: "oder", et: "Odrast saab karaskit.", form: "Odrast" },
+      { lemma: "oder", et: "Odrast saab karaskit.", form: "Odrast", reviewed: false },
     ],
     "What a text or a conversation is about": [
-      { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest" },
-      { lemma: "surm", et: "Saime teate isa surmast.", form: "surmast" },
+      { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest", reviewed: false },
+      { lemma: "surm", et: "Saime teate isa surmast.", form: "surmast", reviewed: false },
     ],
   },
   ALLATIVE: {
     "Going onto a surface": [
-      { lemma: "panema", et: "Pane raamat lauale.", form: "lauale" },
-      { lemma: "tool", et: "Külaline istus toolile.", form: "toolile" },
+      { lemma: "panema", et: "Pane raamat lauale.", form: "lauale", reviewed: false },
+      { lemma: "tool", et: "Külaline istus toolile.", form: "toolile", reviewed: false },
     ],
     "The person something is given, said or sent to": [
-      { lemma: "vann", et: "Tegin lapsele vanni.", form: "lapsele" },
+      { lemma: "vann", et: "Tegin lapsele vanni.", form: "lapsele", reviewed: false },
     ],
   },
 };
@@ -689,7 +736,7 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
   "case:GENITIVE|The stem every ending below needs":
     "a claim about the eleven cases built on it, which the build-a-word walk shows on a word the reader picks",
   "topic:gradation|The written kind changes consonants and can be spotted":
-    "a pattern across words rather than one sentence, and the exceptions area lists the words it happens to",
+    "the change is between two forms of one word and a pin holds one sentence, so what shows it is the entry's own principal parts and the exceptions area beside them",
   "topic:gradation|The other kind is a change in length that spelling hides":
     "spelling does not record it, so no written sentence can show it; the minimal pairs round plays the difference instead",
   "topic:gradation|Which words do it is a property of the word":
@@ -718,8 +765,6 @@ export const EXAMPLE_GAPS: Readonly<Record<string, string>> = {
     "about where the mood is used rather than what it does, and the dictionary records usages rather than the writing around them",
   "topic:adjective-agreement|A few borrowed adjectives never change at all":
     "a short list of words rather than a rule, and the dictionary has no sentence that shows one failing to agree",
-  "topic:superlative|A one-word form, shorter and more literary":
-    "the corpus holds no short superlative in a sentence a beginner could read, so the helper-word form is the one shown above",
   "topic:superlative|Both are common and neither is wrong":
     "a claim about two forms being interchangeable, which needs the same sentence said both ways",
   "topic:nominalisation|An action noun replaces a subordinate clause":

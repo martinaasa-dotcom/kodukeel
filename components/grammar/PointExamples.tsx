@@ -31,7 +31,17 @@ export function PointExamples({
   if (!examples || examples.length === 0) return null;
 
   return (
-    <ul className="mt-3 flex flex-col gap-2.5 border-t pt-3" style={{ borderColor: "var(--rule)" }}>
+    /*
+      `data-point-examples` is the hook `scripts/test-teaching.mjs` finds this
+      by. A suite that located it by counting hops through the markup would go
+      blind the day a sentence grew the dictionary under it, which is exactly
+      what happened to the scene suite's provenance check.
+    */
+    <ul
+      data-point-examples={examples.length}
+      className="mt-3 flex flex-col gap-2.5 border-t pt-3"
+      style={{ borderColor: "var(--rule)" }}
+    >
       {examples.map((example) => (
         <li key={example.et}>
           <EstonianSentence

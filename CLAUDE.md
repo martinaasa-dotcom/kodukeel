@@ -847,6 +847,57 @@ unpinned; `tsc` allows it; and the page draws nothing, which is what an unpinned
 So it is asked of the **source**, which is the only place the second key still exists, at both
 depths, since two point texts colliding is the same fault one level down.
 
+**And the thing that made the pins trustworthy was a scratch script, which is the same fault one
+room over.** Every mechanical check on a pin was about the *sentence*: that the shipped dictionary
+holds it character for character, that it carries a shipped English line, that it is a sentence,
+that the marked word is in it. None of those can tell a conditional from an indicative, which is the
+whole of what a pin on the conditional page claims, and for the first pass that was checked by an
+index built for the afternoon and then deleted. The pins were right and what made them right was
+nowhere, so a later edit could swap in a sentence whose "conditional" is an indicative and every
+test would pass. `scripts/lib/slotIndex.ts` is that index shipped: one pass over the files the seed
+loads, through the app's own derivation rather than any reading of endings, so a case comes off
+`buildCaseTable` and a verb form off `derivedVerbForms` beside the parts the harvest stored.
+**A case page needs no claim**, since the page's own case is the claim and `CASE_EXAMPLES` is keyed
+on it; a topic page's points are moods and tenses and nothing in the file says which, so a pin there
+carries `slot`. The verdict has four values rather than two and only `wrong` fails, which is
+`readCase`'s discipline: `jooksid` is the simple past of `jooksma` and the conditional of `jooma`,
+the sentence decides which, and that is a parse this file cannot make. 155 of the 236 pins verify,
+`shared` is Estonian's own syncretism and `unknown` is a slot the dictionary does not store, which
+is every converb and every quotative. `npm run audit:pins` is where all of it is read rather than
+counted, for the reason `eval:scene` prints a ranked list, and it was the reading that found the
+faults below.
+
+**Nobody who speaks Estonian has read any of them, and the table says so rather than implying
+otherwise.** `PinnedExample.reviewed` is false on all 236, which is the standing `lib/scenes/bank.ts`
+already has about its own lines and is the honest state: the checks above are about attestation and
+about slots, and whether a sentence *illustrates* the claim it is filed under is a person. Nothing
+on screen reads the field, because a learner is shown an attested sentence either way and a chip
+saying nobody has checked this would be the app doubting itself in front of the person it is
+teaching. The audit prints the count, so the number a reviewer has moved is one command away.
+
+**Three faults the reading found, and the first was a gap that was not one.** The superlative's
+one-word form was written down as impossible, "the corpus holds no short superlative in a sentence a
+beginner could read", and the corpus holds `Tallinn on Eesti suurim linn.` and `Kaisa on minu parim
+sõbranna.` A gap that is really "I did not find one" wearing the clothes of "one cannot exist" is
+the shape this file warns about, so it is pinned and the reason is gone. The comparative page led
+its "built on the genitive stem" point with `parem`, which is the irregular one it names two points
+below, and led both points with the same sentence. And three sentences were doing duty **twice on
+one page**, which is the reuse worth fixing: across pages `Käisin meres ujumas.` is the imperfect on
+one and the inessive on another and nobody reads both in a sitting, where twice on one screen reads
+as a dictionary with nothing else in it. The pluperfect's minimal pair is the one deliberate repeat
+and it stays, since the same participle under `oli` and under `on` is the point. The audit reports
+both kinds apart, and same-page reuse is nought.
+
+**And whether any of it reaches a screen is a different claim from the table being right.**
+`scripts/test-teaching.mjs` opens the page the report came from and asks it there: that a claim
+carries examples at all, that the one reported is among them, that what is under it is Estonian with
+the point marked in it, and that the English ships beside it. The hook is `data-point-examples` on
+the list itself rather than a count of hops through the markup, which is what went blind on the
+scene suite the day a sentence grew the dictionary under it, and the pairing is asserted in both
+directions. The other half of the same pass was invalid markup nothing could see: the case page put
+the list inside the `span` carrying the use text, and a `ul` in phrasing content is a tree the
+browser rebuilds however it likes.
+
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
 found", which is the same blank a learner gets for a misspelling and for an English word. That was
@@ -8958,7 +9009,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
 `CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
-`module-step`.
+`module-step`, `buildSlotIndex`, `readSlot`, `PointExamples`, `data-point-examples`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -8980,6 +9031,7 @@ npm run audit:senses     # re-check every course gloss against the sense Ekilex 
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
 npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
+npm run audit:pins       # every grammar example: what vouches for it, what nothing can check, what repeats
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:order      # every alternative word order the sentence builder accepts; read the list
 npm run audit:merge      # after merging: what the other side added that is no longer here

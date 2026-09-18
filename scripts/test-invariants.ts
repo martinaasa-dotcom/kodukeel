@@ -18557,6 +18557,61 @@ check("the grammar pin table has no key written twice", () => {
   }
 });
 
+/*
+  AND THE THING THAT MAKES THE PINS TRUSTWORTHY IS IN THE REPOSITORY.
+
+  A pin claims a sentence shows a slot, and for one pass that claim was checked
+  by a script written for the afternoon and then deleted: the pins were right
+  and the thing that made them right was nowhere, so the next editor could file
+  a sentence whose "conditional" is an indicative and every test would pass,
+  because the sentence is attested and the word is in it.
+
+  Three things have to hold together and any one of them alone is silence. The
+  index has to exist, the unit test CI runs has to ask it, and the audit
+  somebody reads has to be reachable by name. A check that only read the first
+  would pass on a module nothing imports, which is the `DangerZone.tsx` fault
+  in a smaller room.
+*/
+check("what vouches for a grammar pin is shipped, read and runnable", () => {
+  const index = code("scripts/lib/slotIndex.ts");
+  assert.ok(/export function buildSlotIndex/.test(index), "the slot index is gone");
+  assert.ok(/export function readSlot/.test(index), "nothing reads the slot index back");
+
+  const test = code("lib/estonian/grammarExamples.test.ts");
+  assert.ok(
+    /readSlot\(/.test(test),
+    "the pin test no longer asks whether a marked word is the slot it claims",
+  );
+
+  const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+  assert.ok(
+    Object.values(pkg.scripts).some((s) => s.includes("audit-grammar-pins")),
+    "the pin audit is not reachable by name",
+  );
+});
+
+/*
+  And what a browser looks for is a hook the component writes.
+
+  `test-teaching.mjs` is where the claim that a reference shows its claims is
+  actually driven, and a suite that found the list by counting hops through the
+  markup would go blind the day a sentence grew the dictionary under it, which
+  is what happened to the scene suite's provenance check. So the component
+  writes `data-point-examples` and the suite reads exactly that, asserted in
+  both directions: a hook nobody renders and a suite that stopped reading it
+  are the same silence one file apart.
+*/
+check("the grammar examples carry the hook the browser suite finds them by", () => {
+  assert.ok(
+    /data-point-examples=/.test(code("components/grammar/PointExamples.tsx")),
+    "PointExamples no longer marks itself for the suite that drives it",
+  );
+  assert.ok(
+    /data-point-examples/.test(read("scripts/test-teaching.mjs")),
+    "the teaching suite no longer checks that a claim is shown rather than stated",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`

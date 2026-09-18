@@ -26,6 +26,7 @@ import {
   CASE_EXAMPLES, EXAMPLE_GAPS, TOPIC_EXAMPLES, everyPoint, examplesFor, gapKey,
 } from "./grammarExamples";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
+import { buildSlotIndex, readSlot } from "../../scripts/lib/slotIndex";
 
 const ATTESTED = new Set<string>();
 /** Which entries a sentence is recorded under, for the lemma a pin names. */
@@ -207,5 +208,67 @@ describe("grammar examples", () => {
       .filter((l) => l.length > 0);
     const pairs = lists.filter((l) => l.length >= 2).length;
     expect(pairs * 2).toBeGreaterThan(lists.length);
+  });
+
+  /*
+    AND THE MARKED WORD IS THE FORM THE PIN SAYS IT IS.
+
+    The other checks are about the sentence: that it is attested, that it
+    carries English, that it is a sentence, that the word is in it. None of
+    them can tell a conditional from an indicative, which is the whole of what
+    a pin on the conditional page claims, so for one pass that was checked by a
+    scratch script that was then deleted. `scripts/lib/slotIndex.ts` is that
+    script shipped, and this is it asked on every run.
+
+    A case page needs no declared slot, because the page's own case is the
+    claim and `CASE_EXAMPLES` is keyed on it. A topic page's points are moods
+    and tenses and nothing in the file says which, so a pin there says so
+    itself.
+
+    Only `wrong` fails. `shared` is Estonian's own syncretism, `aadressi`
+    being three cases at once, and `unknown` is a slot the dictionary does not
+    store, which is every converb and every quotative; `npm run
+    audit:grammar-pins` is where both are read rather than counted.
+  */
+  const SLOT_INDEX = buildSlotIndex();
+
+  it("marks a word that really is the case the page is about", () => {
+    const wrong: string[] = [];
+    for (const [key, pins] of Object.entries(CASE_EXAMPLES)) {
+      for (const [point, list] of Object.entries(pins)) {
+        for (const pin of list) {
+          const v = readSlot(SLOT_INDEX, pin.form, pin.slot ?? `CASE:${key}`);
+          if (v.kind === "wrong") {
+            wrong.push(`${key} — ${pin.form} in "${pin.et}" is ${v.instead.join(", ")}, under ${point}`);
+          }
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  it("marks a word that really is the slot a topic pin claims", () => {
+    const wrong: string[] = [];
+    for (const [id, pins] of Object.entries(TOPIC_EXAMPLES)) {
+      for (const [point, list] of Object.entries(pins)) {
+        for (const pin of list) {
+          if (!pin.slot) continue;
+          const v = readSlot(SLOT_INDEX, pin.form, pin.slot);
+          if (v.kind === "wrong") {
+            wrong.push(`${id} — ${pin.form} in "${pin.et}" is ${v.instead.join(", ")}, not ${pin.slot}, under ${point}`);
+          }
+        }
+      }
+    }
+    expect(wrong).toEqual([]);
+  });
+
+  /*
+    And a floor under how many carry one at all, because the claim is optional
+    and an optional claim is one a later pin quietly does without.
+  */
+  it("claims a slot wherever there is one to claim", () => {
+    const claimed = allPins().filter(({ kind, pin }) => kind === "case" || pin.slot).length;
+    expect(claimed).toBeGreaterThanOrEqual(170);
   });
 });
