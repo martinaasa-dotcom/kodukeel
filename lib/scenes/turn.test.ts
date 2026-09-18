@@ -1032,3 +1032,12 @@ describe("hello and goodbye the way people say them", () => {
     expect(readTurn("ciao", beat(), context()).reading).not.toBe("complete");
   });
 });
+
+describe("answering a yes-or-no question in its own words", () => {
+  it("is an answer, never an echo", () => {
+    const seen = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["valu"] }], shape: "word" }), context({ previous: "Kas valu on?" }));
+    expect(seen.reading).toBe("complete");
+    const still = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["palavik"] }] }), context({ previous: "Valu on." }));
+    expect(still.reading).toBe("echo");
+  });
+});

@@ -7476,7 +7476,12 @@ the Estonian half vouched word by word by the forms list and the foreign half on
 English list takes, read by `readTurn` alone and by nothing that says, banks or grades a line: a
 casual hello meets the greet beat ungraded and a casual goodbye meets the close beat as a
 substitution, in a turn of three words or fewer, so a question opening with `tsau` is still a
-question. `docs/21-situations.md` §73.
+question. `docs/21-situations.md` §73. **And the news is felt keyless too**: a beat says what kind of news its
+answer is (`BeatSpec.feel`) and the reply says the course's word for it, `Tõesti?` or `Tore!`,
+through `feltAt`, the one reader the composer's briefing shares, so both voices feel the same thing
+about the same turn; `oi` and `kahju` are what a native says and no unit teaches either, so they
+are not written. And a yes-or-no question answered in its own words is a yes, not an echo, since
+Estonian answers `kas` with the verb.
 
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a

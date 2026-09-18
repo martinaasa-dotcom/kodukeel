@@ -46,6 +46,7 @@ import { NEW_WORDS } from "./gate";
 import { MAX_COMPOSED_WORDS } from "./gate";
 import { pitchFor } from "./pitch";
 import type { Level } from "@/lib/collections/syllabus/types";
+import type { Feel } from "./types";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -183,6 +184,13 @@ export interface ComposeAsk {
    * judgment about a person, which this module does not make.
    */
   readonly note?: string;
+  /**
+   * What kind of news the turn just taken was for this person, off the beat
+   * it answered (`BeatSpec.feel`, `feltAt`). The general rule says to feel
+   * what was said; this says what it was, so the composed voice and the
+   * keyless one react to the same turn the same way.
+   */
+  readonly feel?: Feel;
 }
 
 /*
@@ -458,5 +466,11 @@ export function composeLive(ask: ComposeAsk): string {
       lines above it are about the beat.
     */
     ask.note ?? "",
+    ask.feel === "sorry"
+      ? "What they just told you is bad news for them: take it in as a person would, in a few"
+        + " words, before your move."
+      : ask.feel === "glad"
+        ? "What they just told you is good news: be glad for them, in a few words, before your move."
+        : "",
   ].filter(Boolean).join("\n");
 }

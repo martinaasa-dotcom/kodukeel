@@ -41,6 +41,7 @@ import { seedFrom } from "../lib/random/seeded";
 import {
   replyFor, composeNote, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, factsFor, stageFor,
   wantsAsideFor,
+  feltAt,
 } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
@@ -423,6 +424,7 @@ async function play(sceneId: string) {
               turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow,
               { offer: handing, answer: anticipated },
             ),
+            feel: feltAt(answered, turns.length > 0 ? response : null),
             avoid,
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,

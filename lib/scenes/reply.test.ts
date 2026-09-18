@@ -4,7 +4,7 @@ import { propBySlot } from "./props";
 import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, replyFor,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, feltAt, replyFor,
   reaction, stageFor, wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
@@ -49,6 +49,22 @@ describe("the opening line", () => {
 });
 
 describe("a turn that landed", () => {
+  it("is felt before it is filed, where the beat says what kind of news it is", () => {
+    const bad = replyFor(input({ answered: { ...ASK, feel: "sorry" }, beat: OFFER, line: FRESH }));
+    expect(bad[0]?.text).toBe("Tõesti?");
+    expect(bad[0]?.reaction).toBe(true);
+    const good = replyFor(input({ answered: { ...ASK, feel: "glad" }, beat: OFFER, line: FRESH }));
+    expect(good[0]?.text).toBe("Tore!");
+    // A feeling is about news, and a turn that missed brought none.
+    expect(feltAt({ ...ASK, feel: "sorry" }, "narrow")).toBeUndefined();
+    expect(feltAt(ASK, "answer")).toBeUndefined();
+    // And a composed line has already felt it, so nothing is bolted on in front.
+    const composed = replyFor(input({
+      answered: { ...ASK, feel: "sorry" }, beat: OFFER, line: { ...FRESH, provenance: "composed" },
+    }));
+    expect(composed.map((l) => l.text)).not.toContain("Tõesti?");
+  });
+
   it("is acknowledged, and then they move on", () => {
     const lines = replyFor(input({ answered: ASK, beat: OFFER, line: FRESH }));
     expect(lines).toHaveLength(2);

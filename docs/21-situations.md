@@ -4945,3 +4945,21 @@ What this does not do is give the keyless deployment feelings. `REACTIONS.acknow
 says `Hästi.` to somebody whose hand hurts, because nothing without a model can read that a turn
 was sad; a beat could carry a reaction of its own the way it carries `they`, and that is the next
 thing here if the keyless voice is worth more work than the composed one.
+
+**And the news is felt keyless too, with the two words the course has for it.** A beat says what
+kind of news its answer is (`BeatSpec.feel`, `sorry` or `glad`), and where a turn answered such a
+beat the keyless reply says the feeling's word rather than the rotation's: `Tõesti?` to a landlord
+hearing the heating is out, `Tore!` to a neighbour hearing you have just moved in. `tõesti` is
+`vastused` and `tore` is `omadussonad`, both declared by every scene, and the course is thin here
+by fact rather than by choice: `oi` and `kahju` are what a native speaker says and no A1 or A2 unit
+teaches either, so they are not written. `feltAt` is the one reader, and the composer is told the
+same thing on the same turn (`ComposeAsk.feel`) on the route and in both harnesses, asserted, so
+the composed voice and the keyless one feel the same thing about the same turn. The two desks
+that file rather than feel, the health centre and the pharmacy, carry none, because "really?" to a
+symptom reads as disbelief.
+
+**And a yes-or-no question answered in its own words is a yes.** `Kas küte on katki?` answered
+`Küte on katki` was read as the question handed back, and the landlord said he had not understood
+somebody who had just confirmed what he asked. Estonian answers a polar question with its verb, so
+the echo rule stands down where the line heard opens with `kas`, which is the one-word reading the
+acknowledgments already make. Found by replaying the landlord scene for the feeling above.

@@ -1,3 +1,5 @@
+import type { Feel } from "@/lib/scenes/types";
+import { feltAt } from "@/lib/scenes/reply";
 import { after } from "next/server";
 import { seedFrom } from "@/lib/random/seeded";
 import { requireUserId } from "@/lib/auth/session";
@@ -1056,6 +1058,8 @@ export async function POST(request: Request) {
         turns.length > 0 ? response : null, progress.reading, elsewhere > 0, askedNow,
         { offer: handing, answer: anticipated },
       ),
+      // And what that turn was to this person, so the model feels what the keyless reply feels.
+      feel: feltAt(answered, turns.length > 0 ? response : null),
       conversation,
       avoid,
     }),
@@ -1178,6 +1182,8 @@ async function compose(
     avoid: readonly string[];
     /** What happened to the learner's turn, where anything did (`composeNote`). */
     note?: string;
+    /** What kind of news that turn was for this person (`feltAt`). */
+    feel?: Feel;
   },
 ): Promise<string | null> {
   /*

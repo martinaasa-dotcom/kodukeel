@@ -22,7 +22,7 @@
  * seventeenth pass added for the words between the words: greetings, question
  * words, pronouns, and the clock. A conversation is mostly those.
  */
-import type { SaysPart, SceneSpec } from "./types";
+import type { Feel, SaysPart, SceneSpec } from "./types";
 
 /** Greetings, question words, pronouns, time and number. Every scene needs them. */
 /*
@@ -95,6 +95,25 @@ export const FALLBACK_PHRASE = "Ma ei saa aru";
  * and it is the whole reply to a one-word turn where a sentence was due: a
  * person who has heard "palavik" and is waiting for the rest says "Jah?".
  */
+/**
+ * What the other side says on hearing news, before their next move.
+ *
+ * `REACTIONS.acknowledge` is what a clerk says to a fact, and it was said to
+ * everything: a symptom got "Hästi.", which is the moment a learner decided
+ * the other side was a machine. A beat says what kind of news its answer is
+ * (`BeatSpec.feel`) and this is the word for it. The words are the course's,
+ * and the course is thin here on purpose rather than by oversight: `oi` and
+ * `kahju` are what a native speaker reaches for and no A1 or A2 unit teaches
+ * either, and writing one here would be this file writing Estonian. `tõesti`
+ * is `vastused` and `tore` is `omadussonad`, which every scene declares; a
+ * sympathetic "really?" and a warm "lovely!" are what the course can say, and
+ * the composer says the rest.
+ */
+export const FEELINGS: Readonly<Record<Feel, { readonly word: string; readonly mark: "." | "?" | "!" }>> = {
+  sorry: { word: "tõesti", mark: "?" },
+  glad: { word: "tore", mark: "!" },
+};
+
 export const REACTIONS = {
   acknowledge: ["hästi", "aitäh", "jah"],
   waiting: ["jah"],
@@ -479,6 +498,7 @@ const LANDLORD: SceneSpec = {
       id: "problem",
       goal: "Tell them what has broken.",
       they: "They ask what has gone wrong.",
+      feel: "sorry",
       move: "ask",
       topic: ["küte", "elekter", "remont", "lekkima", "mööbel"],
       /*
@@ -1313,6 +1333,7 @@ const RESTAURANT: SceneSpec = {
       goal: "Ask them for the bill.",
       meanwhile: "You have eaten. The waiter comes back to clear the table.",
       they: "They ask whether it was good.",
+      feel: "glad",
       move: "ask",
       topic: ["maitse", "hea", "arve", "maksma"],
       needs: [{ kind: "lemma", oneOf: ["arve", "maksma", "raha"] }],
@@ -1488,6 +1509,7 @@ const NEIGHBOR: SceneSpec = {
       id: "new",
       goal: "Tell them you have just moved in.",
       they: "They ask whether you have just moved in.",
+      feel: "glad",
       move: "ask",
       topic: ["uus", "korter", "maja", "elama"],
       needs: [{ kind: "lemma", oneOf: ["uus", "jah", "elama", "korter", "nüüd"] }],
@@ -1510,6 +1532,7 @@ const NEIGHBOR: SceneSpec = {
       id: "from",
       goal: "Tell them which country you came here from.",
       they: "They ask where you are from.",
+      feel: "glad",
       move: "ask",
       topic: ["kust", "kodumaa", "välismaalane", "Eesti"],
       needs: [{ kind: "datum", slot: "from" }],
@@ -1735,6 +1758,7 @@ const COURSE: SceneSpec = {
       id: "from",
       goal: "Tell them which country you came here from.",
       they: "They ask where you are from.",
+      feel: "glad",
       move: "ask",
       topic: ["kust", "kodumaa", "Eesti", "välismaalane"],
       needs: [{ kind: "datum", slot: "from" }],
@@ -1746,6 +1770,7 @@ const COURSE: SceneSpec = {
       id: "why",
       goal: "Tell them why you are learning Estonian.",
       they: "They ask why you are learning Estonian.",
+      feel: "glad",
       move: "ask",
       topic: ["miks", "õppima", "keel", "sest"],
       needs: [{ kind: "datum", slot: "why" }],
@@ -1868,6 +1893,7 @@ const INTERVIEW: SceneSpec = {
       id: "skill",
       goal: "Tell them the thing you are good at.",
       they: "They ask what you are good at.",
+      feel: "glad",
       move: "ask",
       topic: ["oskus", "hästi", "teadma", "kogemus"],
       needs: [{ kind: "datum", slot: "skill" }],
@@ -2027,6 +2053,7 @@ const COMPLAINT: SceneSpec = {
       id: "problem",
       goal: "Tell them what you bought and what is wrong with it.",
       they: "They ask what the matter is.",
+      feel: "sorry",
       move: "ask",
       topic: ["probleem", "viga", "kaebus", "aitama"],
       needs: [{ kind: "datum", slot: "item" }, { kind: "lemma", oneOf: ["probleem", "viga", "halb", "kahju", "töötama", "vana"] }],

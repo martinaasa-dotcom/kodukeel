@@ -1319,8 +1319,21 @@ function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): bool
 const ECHO_FLOOR = 2;
 function isEcho(spoken: readonly string[], previous: string): boolean {
   if (spoken.length < ECHO_FLOOR || !previous) return false;
-  const said = new Set(words(previous));
-  return spoken.every((word) => said.has(word));
+  const said = words(previous);
+  /*
+    AND REPEATING A YES-OR-NO QUESTION IS HOW ESTONIAN SAYS YES. Asked
+    `Kas küte on katki?`, a tenant who answers `Küte on katki` has said yes
+    in the ordinary way, since the language answers a polar question with
+    its verb rather than with a word for yes; read as parroting, the
+    landlord said "I did not understand" to somebody who had just confirmed
+    what he asked. A polar question opens with `kas`, which is the one-word
+    reading `acknowledgements` already makes, so a turn made of that
+    question's own words is an answer to it rather than the question handed
+    back.
+  */
+  if (said[0] === "kas") return false;
+  const heard = new Set(said);
+  return spoken.every((word) => heard.has(word));
 }
 
 /** Whether this reading lets the scene move to the next beat. */

@@ -19,7 +19,7 @@ import {
 } from "../lib/progress/scene";
 import { planRun } from "../lib/scenes/run";
 import { seedFrom } from "../lib/random/seeded";
-import { replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
+import { feltAt, replyFor, datumLine, cardAfterHurdles, cardChosen, cardInPlay, counterBeat, wantsAsideFor } from "../lib/scenes/reply";
 import { asideFor, asideOwed, asksToHearAgain, shrug } from "../lib/scenes/aside";
 import { currentBeat, hurdleBeat, hurdleSpec, isOver } from "../lib/scenes/state";
 import { sceneLine } from "../lib/scenes/line";
@@ -151,6 +151,7 @@ async function main() {
             examples: [...context.scripted.entries()].filter(([id]) => id !== beatFor.id).flatMap(([, l]) => l.slice(0, 1)).slice(0, 6),
             asked: (context.scripted.get(beatFor.id) ?? []).slice(0, 2),
             note: composeNote(turns.length > 0 ? response : null, last?.reading ?? null, elsewhere > 0, askedNow, { offer: handing, answer: anticipated }),
+            feel: feltAt(answered, turns.length > 0 ? response : null),
             avoid,
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,

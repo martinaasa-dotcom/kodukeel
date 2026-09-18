@@ -6197,6 +6197,19 @@ check("the other side talks like a person: short pronouns, feelings, and hello i
   ]) {
     assert.doesNotMatch(code(file), /from "\.\/casual"/, `${file} reads the casual greetings, which are accept-only`);
   }
+  /*
+    And the news is felt by both voices off one reading: a beat says what
+    kind of news its answer is (`BeatSpec.feel`), `feltAt` is the one reader,
+    the keyless reply says the course's word for it (`FEELINGS`) and the
+    composer is told the same thing on the same turn, on the route and in the
+    two harnesses that print transcripts, or a run changes character the day
+    the allowance runs out.
+  */
+  assert.match(code("lib/scenes/reply.ts"), /const felt = feltAt\(answered, response\)/, "the keyless reply no longer feels the beat's news");
+  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts"]) {
+    assert.match(code(file), /feel: feltAt\(answered,/, `${file} composes without telling the model what the turn was to this person`);
+  }
+  assert.match(prompt, /ask\.feel === "sorry"/, "the prompt no longer reads the beat's feeling");
   const casual = code("lib/scenes/casual.ts");
   assert.match(casual, /export const CASUAL = \{/, "the casual table is gone");
   assert.doesNotMatch(casual, /Head aega|Nägemist|"tere"/, "the casual table names a course phrase, which the scene already hears");
