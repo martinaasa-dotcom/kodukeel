@@ -136,6 +136,14 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "house rather than maja. Six pairs against the clock.",
   },
   {
+    href: "/review/letters", title: "Tähed", subtitle: "Letters, shuffled", icon: "Blocks", tone: "accent",
+    group: "targeted", note: "Eight words",
+    within: "/practice",
+    blurb:
+      "A word you know, its letters in the wrong order. Hear it, then put them back: the one " +
+      "game a beginner's first five words can carry, and where õ and ä stop being o and a.",
+  },
+  {
     href: "/sonad", title: "Sõnad", subtitle: "One word a day",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, six guesses",
     within: "/practice",

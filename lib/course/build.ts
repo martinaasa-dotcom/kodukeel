@@ -16,6 +16,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { emojiFor } from "@/lib/collections/emoji";
+import { spellable } from "@/lib/games/letters";
 import { SCENES } from "@/lib/collections/scenes";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
@@ -137,6 +138,8 @@ export interface Taught {
   governed: number;
   /** A picture scene (`lib/collections/scenes.ts`) whose three words have all been taught. */
   scene: boolean;
+  /** Taught words Tähed can scramble: one word, three letters or more (`spellable`). */
+  spellable: number;
   /**
    * Whether a sentence a lexicographer wrote exists that is made entirely of
    * taught words, three to nine of them, which is what dictation and word
@@ -147,12 +150,13 @@ export interface Taught {
 
 export const NO_TAUGHT: Taught = {
   verbs: false, pictured: 0, cases: new Set(), topics: new Set(), governed: 0, scene: false,
-  readable: false,
+  readable: false, spellable: 0,
 };
 
 const ALL_TAUGHT: Taught = {
   verbs: true, pictured: 99, cases: new Set(CASES.map((c) => c.key)),
   topics: new Set(["government", "conditional"]), governed: 99, scene: true, readable: true,
+  spellable: 99,
 };
 
 /**
@@ -182,6 +186,14 @@ export const CASES_FOR_DESCRIBE = 3;
 export const GOVERNED_FOR_ROUND = 4;
 
 /**
+ * How many words Tähed needs before it is dealt: its round is eight and it
+ * draws only words with an order to find, so on the first evening's five
+ * words it would be a round of three. Four is a game; the first evening
+ * stays Match.
+ */
+export const WORDS_FOR_LETTERS = 4;
+
+/**
  * What each round needs to have been taught before the module deals it.
  *
  * Match and Listening need nothing but words, which is why they stand in for
@@ -204,6 +216,7 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
     case "describe": return taught.scene && taught.cases.size >= CASES_FOR_DESCRIBE;
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
+    case "letters": return taught.spellable >= WORDS_FOR_LETTERS;
     case "sonad": return false;
     default: return true;
   }
@@ -219,6 +232,7 @@ export function supportedRounds(level: string, taught: Taught): ActivityKey[] {
 export const NEEDS: Partial<Record<ActivityKey, keyof Taught>> = {
   conjugation: "verbs",
   picture: "pictured",
+  letters: "spellable",
 };
 
 /**
@@ -250,26 +264,55 @@ const STAND_IN: Record<"game" | "drill", ActivityKey> = { game: "match", drill: 
  * the words rather than a fault in the walk, and `course.test.ts` allows
  * exactly that case.
  */
-export function rounds(level: string, at: number, table: boolean, taught: Taught = ALL_TAUGHT): ActivityKey[] {
+export function rounds(
+  level: string, at: number, table: boolean, taught: Taught = ALL_TAUGHT,
+  /**
+   * Whether this unit pins the table on its alternate evenings. On the other
+   * evenings the rotation's own drill may itself be the table, since A1
+   * carries it on the rotation, and that is the fortnight of tables the
+   * alternation exists to stop: the drill after it on the rotation stands in.
+   */
+  pinsTable = false,
+  /**
+   * What the evening before dealt, so a stand-in does not deal it again: two
+   * unsupported rounds on consecutive evenings walk to the same supported
+   * one, and the sixth evening of A1 was the fifth again. Preferred rather
+   * than refused, since early in a level the supported rounds may be one.
+   */
+  avoid: readonly ActivityKey[] = [],
+): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
   const first = rotation[(at * 2) % rotation.length]!;
   const second = rotation[(at * 2 + 1) % rotation.length]!;
   const game = ACTIVITIES[first].kind === "game" ? first : second;
   const other = game === first ? second : first;
-  const drill = table ? "conjugation" : other;
-  return [game, drill].map((key) => {
-    if (supportsRound(key, taught, level)) return key;
-    /*
-      The stand-in is whatever of the same kind the ledger does support,
-      walked with the evening so it still alternates: early in A2 the games
-      the words can carry are Match and the board, and a stand-in fixed on
-      Match would deal Match six evenings running with the board sitting
-      there. Where nothing on the rotation is supported, Match and Listening.
-    */
+  /*
+    The stand-in is the next round of the same kind along the rotation that
+    the ledger does support, so it still alternates with the evening: early
+    in A2 the games the words can carry are Match and the board, and a
+    stand-in fixed on Match would deal Match six evenings running with the
+    board sitting there. Walked from the round it stands in for rather than
+    indexed on the evening, because two unsupported rounds on consecutive
+    evenings indexed the same way landed on the same stand-in, and the sixth
+    evening of A1 was the fifth again. Where nothing on the rotation is
+    supported, Match and Listening.
+  */
+  const standIn = (key: ActivityKey, skip: ActivityKey | null = null): ActivityKey => {
     const kind = ACTIVITIES[key].kind === "game" ? "game" : "drill";
-    const could = supportedRounds(level, taught).filter((k) => ACTIVITIES[k].kind === kind);
-    return could[at % could.length] ?? STAND_IN[kind];
-  });
+    const from = rotation.indexOf(key);
+    for (const fresh of [true, false]) {
+      for (let step = 1; step <= rotation.length; step++) {
+        const next = rotation[(from + step) % rotation.length]!;
+        if (next === skip || ACTIVITIES[next].kind !== kind) continue;
+        if (fresh && avoid.includes(next)) continue;
+        if (supportsRound(next, taught, level)) return next;
+      }
+    }
+    return STAND_IN[kind];
+  };
+  const offTable = other === "conjugation" && pinsTable ? standIn(other, "conjugation") : other;
+  const drill = table ? "conjugation" : offTable;
+  return [game, drill].map((key) => (supportsRound(key, taught, level) ? key : standIn(key)));
 }
 
 /**
@@ -293,11 +336,13 @@ export class Ledger {
   private governed = 0;
   private scene = false;
   private readable = false;
+  private spellable = 0;
 
   /** A word handed over, with what the harvest holds for it. */
   teach(lemma: string, pos: string): void {
     if (pos === "VERB") this.verbs = true;
     if (pos === "NOUN" && emojiFor(lemma) !== undefined && !this.lemmas.has(lemma)) this.pictured += 1;
+    if (spellable(lemma) && !this.lemmas.has(lemma)) this.spellable += 1;
     this.lemmas.add(lemma);
     if (!this.scene) this.scene = SCENES.some((s) => s.lemmas.every((l) => this.lemmas.has(l)));
     const word = this.harvest.get(`${lemma}|${pos}`);
@@ -329,6 +374,7 @@ export class Ledger {
       governed: this.governed,
       scene: this.scene,
       readable: this.readable,
+      spellable: this.spellable,
     };
   }
 }
@@ -447,7 +493,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
           ...reading,
           // The table on the unit's first evening and every other one after,
           // so a unit of verbs is still conjugated and still has its other drill.
-          practice: rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught()),
+          practice: rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught(), verbs, days.at(-1)?.practice ?? []),
           ...(last && scene ? { scene } : {}),
         },
         days.length + 1,

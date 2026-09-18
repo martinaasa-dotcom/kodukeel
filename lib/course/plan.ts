@@ -54,7 +54,7 @@ export const VERB_HEAVY = 0.5;
  */
 export const ROTATION: Record<string, readonly ActivityKey[]> = {
   /*
-    A1 IS FOUR ROUNDS, AND EVERY ONE OF THEM IS PLAYED ON THE WORDS THE MODULE
+    A1 IS SIX ROUNDS, AND EVERY ONE OF THEM IS PLAYED ON THE WORDS THE MODULE
     HAS TAUGHT AND NOTHING ELSE.
 
     It was ten, and the second evening of the module was measured at forty
@@ -79,10 +79,23 @@ export const ROTATION: Record<string, readonly ActivityKey[]> = {
     the board for Match until a pictured noun has, which is why the first two
     evenings are the same pair and `course.test.ts` allows exactly that.
 
+    AND THEN IT WAS FOUR, AND THE EVENINGS WERE REPORTED AS THE SAME EVENING.
+    Match and Listening are what a handful of words can carry and both ask
+    the words back as meanings, so most of A1 was the one pair with a table
+    on the verb units, and A1 is where people give up. Tähed is the game the
+    words can carry from the first evening: the letters of a taught word,
+    scrambled, put back in order (`lib/games/letters.ts`), which is the one
+    thing about Estonian a beginner has to notice before anything else. And
+    the flash round is the drill beside it, held inside the module to the
+    taught words, the taught verb pages and nothing else (`slotWithin`), so at
+    A1 it is the word typed from its meaning and, once the present tense has
+    been read, a person of a verb. Three pairs rather than one, walked two an
+    evening, so a fortnight of A1 is not the same fortnight three times.
+
     Sõnad, the sprint and the rest stay on Practice, in the palette and as the
     game of the day, where a learner chooses them.
   */
-  A1: ["match", "listening", "picture", "conjugation"],
+  A1: ["match", "listening", "letters", "conjugation", "picture", "flash"],
   /*
     AND SÕNAD IS ON NONE OF THEM. Its word is dealt off the dictionary at the
     learner's band by design, and `recordSonad` rebuilds the day's puzzle from

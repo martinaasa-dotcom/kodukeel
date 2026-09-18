@@ -153,6 +153,10 @@ export const ACTIVITIES = {
     href: "/review/exceptions", kind: "drill",
     why: "The words where the ending rule stops holding, met and then produced rather than looked up each time.",
   },
+  letters: {
+    href: "/review/letters", kind: "game",
+    why: "A word you know, its letters shuffled. Put them back and õ, ä, ö and ü stop being a's and o's.",
+  },
   flash: {
     href: "/review/flashcards", kind: "drill",
     why: "Words you have already met, asked in a shape review does not use: heard, gapped, or built into a sentence.",

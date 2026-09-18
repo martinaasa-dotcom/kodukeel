@@ -4435,9 +4435,10 @@ on the third and fourth (`esimesed-verbid`), and only then the greetings and the
 "how sure you are" particles that used to open the course are `kindlus`, late in A1. A1 is six
 parts now, held under four weeks each.
 
-Three things follow and each is asserted. **The A1 rotation is four rounds**, Match, Listening, the
+Three things follow and each is asserted. **The A1 rotation was four rounds**, Match, Listening, the
 picture board and the conjugation table, because every other round either deals a word off the
-dictionary, asks for a case, or puts a whole attested sentence in front of a beginner; and
+dictionary, asks for a case, or puts a whole attested sentence in front of a beginner (it is six now,
+with Tähed and the flash round, two paragraphs down); and
 `rounds()` deals a round only once the words behind it exist, the table after a verb and the board
 after a pictured noun, standing Match and Listening in before that, which is why the first two
 evenings are honestly the same pair and `course.test.ts` allows exactly that case. **A round opened
@@ -4452,6 +4453,36 @@ it, graded on the recognition card, and the six forms on the screen to be put be
 alone with it, so the standalone rounds, the suggestion row and Sõnad stop reaching into A2 for a
 beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
 sentence now: that a clue is coming, what it says, and when.
+
+**And then A1 was still the same evening every night, which is where people give up.** Four rounds
+held to the taught words was honest and it was thin: the board waits for six pictured nouns, which
+arrive in the twelfth evening, and the table waits for a verb and then alternates, so most of A1
+was Match and Listening with the closing review behind them, both asking the words back as meanings.
+What a beginner has at A1 is a few dozen words and the alphabet they are spelled in, and the alphabet
+is the thing an English keyboard makes strange: õ, ä, ö and ü are not letters somebody has, they are
+letters somebody has to notice. So `/review/letters` is Tähed, the letters of a taught word
+scrambled onto tiles and put back in order, the meaning shown and the word heard, marked by string
+comparison against the lemma and graded on the word's production card through `gradeCard` like every
+other mode (ADR-016). A first miss shakes the row and places the first letter for them, since a
+beginner who has the letters has usually lost the shape; a second shows the word. `lib/games/letters.ts`
+is the rules and holds no Estonian: the tiles are the code points of a dictionary lemma, shuffled with
+the app's one shuffle and never handed back in the word's own order, and `spellable` is what may be
+played, one word of three letters or more with an order to find, so `ei` and `Tere hommikust!` are
+never dealt. It is dealt once four such words have been taught (`WORDS_FOR_LETTERS`), which is the
+second evening, and the flash round is the drill beside it, held inside the module to the taught
+words and the taught verb pages by `slotWithin`, so at A1 it is the word typed from its meaning and,
+once the present tense has been read, a person of a verb. Three pairs rather than one, walked two an
+evening.
+
+**The stand-in walks from the round it stands in for, and passes over last night.** Indexed on the
+evening, two unsupported rounds on consecutive evenings landed on the same stand-in and the sixth
+evening of A1 was the fifth again; walked forward from the unsupported round to the next supported
+one of its kind, two different rounds still met at the board on the two table evenings of A2's
+opening. So `rounds` takes what the evening before dealt and passes over it on the first walk,
+preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
+verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
+carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
+pair repeats where the words allow another stands over all 289 evenings unchanged.
 
 **And then the same rule was asked of every evening of every level, because a beginner is not the
 only person who can be handed something nobody told them.** A2's first evening dealt a case sprint

@@ -10,7 +10,7 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
-  PICTURES_FOR_BOARD,
+  PICTURES_FOR_BOARD, WORDS_FOR_LETTERS, NO_TAUGHT, rounds,
 } from "./index";
 import { readFileSync } from "node:fs";
 import { cardWithin, moduleScopeFrom, slotWithin } from "./scope";
@@ -330,7 +330,7 @@ describe("what a day reads and where it goes", () => {
   });
 
   it("keeps A1 to rounds played on the words the module has taught", () => {
-    const allowed = new Set<string>(["match", "listening", "picture", "conjugation"]);
+    const allowed = new Set<string>(["match", "listening", "picture", "conjugation", "letters", "flash"]);
     for (const { programme, day } of DAYS) {
       if (programme.level !== "A1") continue;
       for (const key of day.practice) expect(allowed.has(key), `${day.id} deals ${key}`).toBe(true);
@@ -482,6 +482,46 @@ describe("what a day reads and where it goes", () => {
       checked += 1;
     }
     expect(checked).toBeGreaterThanOrEqual(6);
+  });
+
+  /*
+    TÄHED IS THE GAME A1'S OWN WORDS CAN CARRY, AND IT IS DEALT ONLY ONCE THERE
+    ARE ENOUGH OF THEM TO BE A GAME. A round is eight words with an order to
+    find, so the first evening's five, three of them spellable, would be a
+    round of three; the second evening has the pronouns and is the first to
+    deal it. The rest of the rule is in the walk: a stand-in never deals the
+    evening before again where the ledger allows another, and a unit of verbs
+    that pins the table on one evening does not meet it on the rotation the
+    next.
+  */
+  it("deals Tähed once four words with an order to find have been taught, and from the second A1 evening", () => {
+    const a1 = PROGRAMMES.find((p) => p.level === "A1")!;
+    expect(a1.days[0]!.practice).not.toContain("letters");
+    expect(a1.days[1]!.practice).toContain("letters");
+    expect(supportsRound("letters", NO_TAUGHT, "A1")).toBe(false);
+    expect(supportsRound("letters", { ...NO_TAUGHT, spellable: WORDS_FOR_LETTERS }, "A1")).toBe(true);
+    // A1 deals it on a third of its evenings or thereabouts, which is the whole point.
+    const dealt = a1.days.filter((d) => d.practice.includes("letters")).length;
+    expect(dealt / a1.days.length).toBeGreaterThan(0.2);
+  });
+
+  it("stands in with a round the evening before did not deal, where the ledger allows one", () => {
+    // Nothing but Match and Tähed supported: the board's slot on the A1
+    // rotation is at pair three, and the evening before it dealt Tähed.
+    const taught = { ...NO_TAUGHT, spellable: WORDS_FOR_LETTERS };
+    const pair = rounds("A1", 2, false, taught, false, ["letters", "flash"]);
+    expect(pair[0]).toBe("match");
+    // With nothing to avoid, the walk from the board lands on Match too, and
+    // with Match avoided as well it takes the next supported game along.
+    expect(rounds("A1", 2, false, taught, false, ["match"])[0]).toBe("letters");
+  });
+
+  it("does not deal the table on the rotation the evening after a unit of verbs pinned it", () => {
+    const taught = { ...NO_TAUGHT, verbs: true, spellable: WORDS_FOR_LETTERS };
+    // Pair two of A1 is Tähed and the table.
+    expect(rounds("A1", 1, false, taught, false)).toEqual(["letters", "conjugation"]);
+    expect(rounds("A1", 1, false, taught, true)).toEqual(["letters", "flash"]);
+    expect(rounds("A1", 1, true, taught, true)).toEqual(["letters", "conjugation"]);
   });
 
   /*
