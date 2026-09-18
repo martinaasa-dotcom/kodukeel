@@ -18022,6 +18022,60 @@ check("the module's reading step carries no drill and no way off the page", () =
   reads), refuses to write a row for a step the review log proves, and works
   out where to go from the day's own order.
 */
+/*
+  THE READING ASKS BACK, AND GRADES NOTHING.
+
+  A reading step was a page of prose with a table under it, read once and
+  pressed past. Both reference pages end in three taps on the table they just
+  drew now (`components/course/TryIt.tsx`, off `lib/course/tryIt.ts`), which is
+  the reading being used a moment after it was read. Every answer is printed
+  on the page above, so a row in the review log would tell the scheduler
+  somebody recalled a form they were looking at, which is the fault
+  `audit:questions` exists to catch: the component may reach no Server Action
+  and no outbox, and the builder writes no Estonian of its own.
+
+  Anchored on the element rather than on the import, because a page that
+  imports the check and then forgets to draw it is the `DangerZone.tsx` fault
+  in a smaller room.
+*/
+check("the reading's Try it is drawn on both reference pages and grades nothing", () => {
+  const component = code("components/course/TryIt.tsx");
+  assert.ok(
+    !/gradeCard|enqueueGrade|from "@\/app\/actions"|lib\/offline/.test(component),
+    "components/course/TryIt.tsx can reach a grade. The answer is on the page above it; it may write nothing",
+  );
+  assert.match(component, /role="status" aria-live="polite"/, "the Try it verdict is a tint alone; a live region says it in words");
+  assert.match(component, /OPTION_CLASS\[state\]/, "the Try it options stopped wearing the app's own marking classes");
+
+  const builder = code("lib/course/tryIt.ts");
+  assert.ok(!/[õäöüšž]/.test(builder), "lib/course/tryIt.ts writes Estonian. It cuts questions from the rows it is handed (ADR-005)");
+  assert.ok(!/from "@\/lib\/db"/.test(builder), "lib/course/tryIt.ts imports Prisma. lib/course is pure");
+
+  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
+  assert.match(topic, /<TryIt asks=\{verbAsks\(verbs, shown\)\}/, "the verb page stopped drawing Try it off the rows its table drew");
+  const casePage = code("app/(app)/grammar/[caseKey]/page.tsx");
+  assert.match(casePage, /<TryIt asks=\{caseAsks\(examples, /, "the case page stopped drawing Try it off the rows its table drew");
+});
+
+/*
+  AN EVENING ENDS ON THE WORDS, OUT LOUD, AND ON THE RUN OF EVENINGS.
+
+  The finished screen said the evening was over and offered tomorrow; what a
+  learner has at that moment is five words they met an hour ago, and hearing
+  them once more is the cheapest repetition there is. The run of evenings is
+  read off the step log through `computeStreak` (the same midnight the review
+  streak breaks at) and stored nowhere, which is ADR-014.
+*/
+check("the finished module plays tonight's words back and counts evenings off the log", () => {
+  const page = code("app/(app)/course/page.tsx");
+  assert.match(page, /data-recap-words/, "the finished module screen stopped listing tonight's words");
+  assert.match(page, /<Speak text=\{word\}/, "tonight's words on the finished screen carry no speaker");
+  assert.match(page, /reading\.eveningsInARow >= 2/, "the finished module screen stopped saying the run of evenings");
+  const reading = code("lib/progress/course.ts");
+  assert.match(reading, /computeStreak\(ticks\.at, now, clock\)/, "the run of evenings is no longer read off the step log through computeStreak");
+  assert.ok(!/eveningsInARow[^\n]*prisma\.(setting|courseStep)\.(upsert|update|create)/.test(reading), "the run of evenings is being written down (ADR-014)");
+});
+
 check("the module's way on is resolved on the server and ticks nothing it may not", () => {
   const actions = code("app/actions.ts");
   const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));

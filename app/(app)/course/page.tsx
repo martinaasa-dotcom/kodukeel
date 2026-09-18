@@ -15,6 +15,7 @@ import { Card, Chip, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/
 import { StepList } from "@/components/course/StepList";
 import { StartProgramme } from "@/components/course/StartProgramme";
 import { NextPart } from "@/components/course/NextPart";
+import { Speak } from "@/components/Speak";
 
 export const metadata = { title: "Today's module" };
 
@@ -217,7 +218,17 @@ export default async function CoursePage({
           </span>
         }
         title="Today's module is learned"
-        lead={`${reading.daysDone} of ${total} done. That is the evening.`}
+        lead={
+          /*
+            THE RUN OF EVENINGS IS THE ONE FIGURE WORTH SAYING HERE. "Six days
+            in a row" is warmer than any adjective because it is about the
+            learner and required us to have been looking. Under two it says
+            nothing, since "one evening in a row" is a sentence nobody says.
+          */
+          reading.eveningsInARow >= 2
+            ? `${reading.daysDone} of ${total} done, and ${reading.eveningsInARow} evenings in a row. That is the evening.`
+            : `${reading.daysDone} of ${total} done. That is the evening.`
+        }
       >
         <Stack>
           <Card tone="mint">
@@ -258,6 +269,35 @@ export default async function CoursePage({
                 </p>
               </div>
             </div>
+            {/*
+              TONIGHT'S WORDS, ONCE MORE, OUT LOUD. The evening ended on a
+              checklist, and what a learner has at the end of it is five words
+              they met an hour ago. A row of them with a speaker apiece is the
+              cheapest spaced repetition there is and the one moment somebody
+              is glad to hear them: the words are theirs now. The Estonian
+              alone and no gloss, since the closing review just asked for it.
+            */}
+            {justDone && justDone.words.length > 0 && (
+              <div className="mt-4">
+                <p className="label-xs" style={{ color: "var(--ink-3)" }}>
+                  Tonight&rsquo;s words, once more out loud
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-2" data-recap-words>
+                  {justDone.words.map((word) => (
+                    <li
+                      key={word}
+                      className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5"
+                      style={{ borderColor: "var(--rule)", background: "var(--surface)" }}
+                    >
+                      <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
+                        {word}
+                      </span>
+                      <Speak text={word} size={14} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <div className="mt-4 flex flex-wrap gap-2">
               <ButtonLink href="/course?next=1">Start the next one now</ButtonLink>
               <ButtonLink href="/" variant="primary">

@@ -4580,6 +4580,30 @@ is a principal part, beside the third the harvest stores, both marked as memoriz
 out, on the module's own verbs inside a module; a verb the dictionary holds no past for shows a gap.
 Both asserted, on the call rather than on the import, since a page that reads the scope and then
 ignores it is the fault this file records Today having had.
+**And the reading asks back, on the table it just showed, and grades nothing.** A reading step
+was a page of prose with a table under it, and a beginner reads a table once and presses
+Continue with nothing to show for it. Both reference pages end in three taps now
+(`components/course/TryIt.tsx`, cut by `lib/course/tryIt.ts` from the very rows the table drew):
+which one is *we* with `olema`, which of these words says *not*, which of the six words on the
+case page is this one with the ending on. Worded as a person would ask it, since the point of the
+reading is that a form means something, and the table stays on the screen above, so looking up is
+doing the thing the page is for. **It grades nothing and may not**: every answer is printed two
+inches up, so a row in the log would tell the scheduler somebody recalled a form they were looking
+at, which is the fault `audit:questions` exists to catch and the reason the build-a-word walk's
+last act writes nothing either. The component reaches no Server Action and no outbox, the builder
+holds no Estonian, and both are asserted, anchored on the element rather than the import. Driven
+on the `olema` page inside the fourth evening: "Which one is I, with olema, to be?" over the six
+persons, a wrong tap marked in words and in the palette's own classes, the form heard on a press.
+
+**And an evening ends on the words, out loud, and on the run of evenings.** The finished screen
+said the evening was over and offered tomorrow, and what a learner holds at that moment is five
+words met an hour ago: they are listed with a speaker apiece, the Estonian alone since the closing
+round just asked for the meaning, because hearing them once more is the cheapest repetition there
+is and the one moment somebody is glad to. The lead says "2 evenings in a row" from two upward,
+which is warmer than any adjective because it is about the learner and required us to have been
+looking; `eveningsInARow` is `computeStreak` over the step log, the same midnight the review streak
+breaks at, and is stored nowhere (ADR-014). Today's finished card carries the same figure.
+
 **And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
 module disagreeing with itself.** The closing review holds every level's gap cards to the taught
 spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung

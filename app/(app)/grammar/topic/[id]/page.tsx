@@ -14,6 +14,8 @@ import { VerbTable } from "./VerbTable";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { focusFrom } from "@/lib/course";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { verbAsks } from "@/lib/course/tryIt";
+import { TryIt } from "@/components/course/TryIt";
 
 /**
  * The grammar topics with a drill of their own.
@@ -242,6 +244,15 @@ export default async function TopicPage({
             <VerbTable verbs={verbs} show={shown} />
           </section>
         )}
+
+        {/*
+          THE TABLE ASKS BACK. Three taps on the forms just shown, nothing
+          scored: the reading being used rather than tested, which is the
+          difference between a page somebody read and a form somebody has.
+          Built on the server off the same rows the table drew, so the
+          question and the table cannot disagree about a form.
+        */}
+        {shown && verbs.length > 0 && <TryIt asks={verbAsks(verbs, shown)} />}
 
         {/* The units that teach it and the drill that asks about it, which a
             module step may not carry: see the header. */}

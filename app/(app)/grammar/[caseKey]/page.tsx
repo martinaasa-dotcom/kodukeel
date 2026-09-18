@@ -16,6 +16,8 @@ import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
 import { focusFrom } from "@/lib/course";
 import { moduleScopeFrom } from "@/lib/course/scope";
+import { caseAsks } from "@/lib/course/tryIt";
+import { TryIt } from "@/components/course/TryIt";
 import { WordLink } from "@/components/course/WordLink";
 
 export const dynamic = "force-dynamic";
@@ -325,6 +327,13 @@ export default async function CasePage({
             </div>
           )}
         </section>
+
+        {/* The table asks back: which of these words is this one, with the
+            ending on. The stem is the question, and the stem is what the page
+            is about. Nothing is scored; see components/course/TryIt.tsx. */}
+        {examples.length > 0 && (
+          <TryIt asks={caseAsks(examples, ref.spec.et, ref.spec.suffix)} />
+        )}
 
         {withSentence.length > 0 && (
           <section>
