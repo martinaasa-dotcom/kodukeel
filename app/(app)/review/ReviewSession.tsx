@@ -1523,7 +1523,19 @@ export function ReviewSession({
         <button
           type="button"
           onClick={() => void undo()}
-          disabled={history.length === 0 || busy}
+          /*
+            AND IT STANDS DOWN WHILE A LOOK BACK IS OPEN, LIKE ITS OWN KEY.
+
+            The keydown handler has refused `u` and `⌘Z` there since the panel
+            was built, so the button beside it staying live was the control
+            disagreeing with the shortcut printed on its own cap. What it
+            would do is worse than the inconsistency: undo rewinds the *last*
+            grade, which on a learner three cards back is not the card they
+            are reading, so the one thing they can see is the panel vanishing
+            under their hand. The round is not on the screen, so neither is
+            the way to change it: the way out is the button that says so.
+          */
+          disabled={history.length === 0 || busy || look.looking}
           className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >

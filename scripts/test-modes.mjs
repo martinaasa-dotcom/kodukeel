@@ -37,8 +37,9 @@ page.on("console", (m) => {
 // for the caret not being dropped on the way out: 56. Two more for undo,
 // which had the same fault and was there first: 58. And two for the round
 // behind the panel not answering the key the panel names, which two of the
-// fifteen rounds drawing it did: 60.
-const { check, absent, done } = suite("Practice modes", { floor: 60 });
+// fifteen rounds drawing it did: 60, and one for the round's own undo standing
+// down beside the panel the way its key already did: 61.
+const { check, absent, done } = suite("Practice modes", { floor: 61 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -290,6 +291,21 @@ if (answered >= 2 && (await lookButton().count()) > 0) {
   */
   const caret = await page.evaluate(() => document.activeElement?.tagName ?? "NONE");
   check("and the caret lands on a control rather than the body", caret !== "BODY" && caret !== "NONE", caret);
+  /*
+    And the round's own footer stands down with it. The panel replaces the
+    card and the footer stays under it, so undo was the one control over the
+    round still live beside a screen the learner is passing through: its key
+    had been refused there since the panel was built, and the button had not,
+    which is a control disagreeing with the shortcut on its own cap. What it
+    rewinds is the last grade rather than the card being read, so from inside
+    the panel it acts on something the reader cannot see.
+  */
+  await lookButton().first().click();
+  await page.waitForTimeout(400);
+  const undoLive = await page.locator("main").getByRole("button", { name: /^Undo/ }).isEnabled().catch(() => null);
+  check("and the round's undo stands down while a look back is open", undoLive === false, `enabled: ${undoLive}`);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(400);
   check("and nothing about a look back is graded", gradedBefore === gradedAfter,
     `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
 } else {
