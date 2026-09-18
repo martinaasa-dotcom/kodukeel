@@ -2907,6 +2907,20 @@ An unmarked line is a sentence whose English happens not to carry the gloss as a
 there the cue is the only thing saying which word is wanted, so both are drawn. Nothing is lost on
 any card: a gap with no stored English is exactly what it was before this existed.
 
+**And it replaces the gloss and never the word, which the first version of it got wrong.** The
+sentence above reasons about a gloss, and the cue on a gap-fill card is usually two things:
+`lib/srs/cards.ts` builds it as `lemma, translation` and says in as many words why, that the card
+asks for the right *form* rather than for the vocabulary, which the recognition card already tests.
+So a screen that hid the whole cue the moment the line was marked took the Estonian headword off
+the question along with the gloss. Measured over every gap card the shipped dictionary builds,
+3,760 of the 5,746 marked ones carry a lemma in the cue, so `Läksin ____ juurde.` was asked over
+"I went to the **doctor**." with `arst` nowhere on the screen, on two thirds of the marked cards on
+the daily path. `gapCue` is that decision in one place: the gloss goes where the sentence took its
+place, the word never does, and a round that withholds the headword on purpose passes none and gets
+none back. It can print nothing the cue did not, since the hint ladder already falls to the meaning
+alone wherever the gap wants the dictionary form. The invariant is drawn on a screen *reading*
+`marked` rather than on any one screen's markup, and it was made to fail on the two that shipped.
+
 **What moved is what is drawn, never what is asked for.** The question prints the English the
 dictionary already holds, built once by `npm run translate:examples` and shipped, so it costs no
 call, no wait and no daily allowance and works on a deployment with no model at all.

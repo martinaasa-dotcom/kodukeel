@@ -17,7 +17,7 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
-import { gapMeaning } from "@/lib/copy/gapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -557,6 +557,12 @@ export function ReviewSession({
   const meaning = card && isGap(card)
     ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
     : null;
+  /*
+    And what the cue still has to say once that line has said it, which on a
+    gap is the headword and never the gloss twice (`gapCue`). Every other card
+    keeps its cue whole, since there is no sentence to have taken its place.
+  */
+  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
 
   // Draining the queue is the provider's job, not this screen's — it has to keep
   // happening on pages that are not a review session. Here we only report it.
@@ -1134,18 +1140,20 @@ export function ReviewSession({
           {meaning && !answerShown && <GapMeaning meaning={meaning} />}
 
           {/*
-            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE.
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE,
+            WHILE THE WORD STAYS EITHER WAY.
 
             A marked line already says which word is wanted and says it in
             context, so printing `four` under `Let's meet at four.` is the
-            same word twice. An *unmarked* line is a sentence whose English
-            happens not to carry the gloss as a whole word, and there the cue
-            is the only thing naming the word: both are drawn. So is the cue
-            alone, on every card that is not a gap and on every gap the
-            dictionary holds no English for.
+            same word twice. What it does not say is the Estonian headword,
+            and this cue is `lemma, meaning` on two gap cards in three, so
+            hiding the whole of it took `arst` off `Läksin ____ juurde.` and
+            asked for the vocabulary as well as the form. `gapCue` is that
+            rule: the gloss goes where the sentence took its place, the word
+            never does, and an unmarked line keeps both.
           */}
-          {card.hint && !answerShown && !meaning?.marked && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+          {cue && !answerShown && (
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 
           {ask === "type" && !verdict && (

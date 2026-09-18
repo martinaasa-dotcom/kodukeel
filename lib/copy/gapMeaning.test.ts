@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gapMeaning } from "./gapMeaning";
+import { gapCue, gapMeaning } from "./gapMeaning";
 
 const marked = (m: ReturnType<typeof gapMeaning>) =>
   m?.runs.find((run) => run.asked)?.text ?? null;
@@ -155,5 +155,39 @@ describe("gapMeaning, where the sentence is plural and the gloss is not", () => 
     const m = gapMeaning({ en: "The ox is in the field.", answer: "härgi", cue: "härg, ox", lemma: "härg" });
     expect(m?.runs.map((r) => r.text).join("")).toBe("The ox is in the field.");
     expect(m?.runs.find((r) => r.asked)?.text).toBe("ox");
+  });
+});
+
+describe("gapCue: a marked sentence replaces the gloss and never the word", () => {
+  it("keeps the whole cue where the line is not marked", () => {
+    expect(gapCue({ hint: "arst, doctor", lemma: "arst", marked: false })).toBe("arst, doctor");
+  });
+
+  it("keeps the headword where the line is marked, because the mark is the gloss", () => {
+    // `Läksin ____ juurde.` over "I went to the **doctor**." used to print
+    // nothing at all, so the card asked for the vocabulary as well as the form,
+    // which `lib/srs/cards.ts` says in as many words it is not for.
+    expect(gapCue({ hint: "arst, doctor", lemma: "arst", marked: true })).toBe("arst");
+  });
+
+  it("says nothing where the cue was the gloss alone and the sentence took it", () => {
+    expect(gapCue({ hint: "doctor", lemma: "arst", marked: true })).toBeNull();
+  });
+
+  it("says nothing where the round withholds the headword on purpose", () => {
+    // The flash round and the exceptions round pass no lemma, deliberately:
+    // printing the dictionary form beside a gap built on it hands the answer over.
+    expect(gapCue({ hint: "doctor", lemma: null, marked: true })).toBeNull();
+    expect(gapCue({ hint: "doctor", lemma: null, marked: false })).toBe("doctor");
+  });
+
+  it("has nothing to say about a card with no cue", () => {
+    expect(gapCue({ hint: null, lemma: "film", marked: true })).toBeNull();
+    expect(gapCue({ hint: "   ", lemma: "film", marked: false })).toBeNull();
+  });
+
+  it("matches the headword as a whole word, not as an opening", () => {
+    // `saun` must not be read out of `sauna, sauna`'s gloss half by a prefix.
+    expect(gapCue({ hint: "kohtuma, to meet", lemma: "koht", marked: true })).toBeNull();
   });
 });

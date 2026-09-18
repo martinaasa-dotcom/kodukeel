@@ -9,7 +9,7 @@ import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
-import { gapMeaning } from "@/lib/copy/gapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
@@ -110,6 +110,11 @@ export function QuestSession({
   const meaning = card && isGap(card.front)
     ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
     : null;
+  /*
+    And what the cue still has to say once that line has said it: the headword
+    where the cue carries one, never the gloss a second time (`gapCue`).
+  */
+  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
   const exhausted = cards.length > 0 && attempted >= cards.length;
 
   useEffect(() => {
@@ -350,8 +355,8 @@ export function QuestSession({
             dictionary already holds, so this costs the quest no call.
           */}
           {meaning && !revealed && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
-          {card.hint && !revealed && !meaning?.marked && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+          {cue && !revealed && (
+            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 
           {card.choices ? (

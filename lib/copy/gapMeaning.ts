@@ -258,3 +258,38 @@ export function gapMeaning(
 
   return plain;
 }
+
+/**
+ * What the card's own cue still has to say, once the sentence has said it.
+ *
+ * A MARKED SENTENCE REPLACES THE GLOSS AND NEVER THE WORD, and the first
+ * version of this replaced both. `Card.hint` on a gap is one string and it is
+ * usually two things: `lib/srs/cards.ts` builds it as `${lemma}, ${translation}`
+ * and says in as many words why, that the card "asks for the right *form*, not
+ * for the vocabulary, which the recognition card already tests". So a screen
+ * that hides the whole cue the moment the English line is marked takes the
+ * Estonian headword off the question with the gloss, and asks for the
+ * vocabulary after all. Measured over every gap card the shipped dictionary
+ * builds: 5,746 are marked and 3,760 of them, 65.4%, carry a lemma in the cue,
+ * so `Läksin ____ juurde.` was asked over "I went to the **doctor**." with
+ * `arst` nowhere on the screen.
+ *
+ * What is redundant under a marked line is the gloss, because the mark is that
+ * gloss printed in context. The lemma is not, so it stays.
+ *
+ * This can never print more than the cue already printed: a hint carrying the
+ * lemma is by construction a hint whose lemma is *not* the answer, since the
+ * ladder in `lib/srs/cards.ts` falls to the meaning alone wherever the gap
+ * wants the dictionary form. A caller whose cue is the gloss alone passes no
+ * lemma and gets nothing back, which is the flash round and the exceptions
+ * round, both of which withhold the lemma on purpose.
+ */
+export function gapCue(
+  { hint, lemma, marked }: { hint: string | null; lemma: string | null; marked: boolean },
+): string | null {
+  const cue = hint?.trim();
+  if (!cue) return null;
+  if (!marked) return cue;
+  const word = lemma?.trim();
+  return word && mentions(cue, word) ? word : null;
+}

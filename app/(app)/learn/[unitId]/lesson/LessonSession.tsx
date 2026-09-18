@@ -16,7 +16,7 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import { GapMeaning } from "@/components/GapMeaning";
-import { gapMeaning } from "@/lib/copy/gapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
@@ -469,7 +469,22 @@ function StepCard({
         </Card>
       );
 
-    case "gap":
+    case "gap": {
+      /*
+        The English of this gap's own sentence with the asked word marked, and
+        what the cue still has to say once that line has said it. One rule for
+        both (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in
+        context, so a marked line takes the gloss and never the word, and the
+        step's own `cue` ladder still decides whether there was a gloss to show
+        at all.
+      */
+      const meaning = gapMeaning({
+        en: step.en,
+        answer: step.answer,
+        cue: step.cue === "none" ? null : step.gloss,
+        lemma: step.lemma,
+      });
+      const gloss = gapCue({ hint: step.gloss, lemma: null, marked: meaning?.marked ?? false });
       return (
         <Card className="flex flex-col gap-4">
           {/* THE WORD, THEN WHAT TO DO WITH IT, THEN THE SENTENCE CLOSEST TO
@@ -489,7 +504,7 @@ function StepCard({
           {step.cue === "word-and-meaning" ? (
             <div>
               <Et className="block text-[32px] font-bold leading-tight">{step.lemma}</Et>
-              <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
+              {gloss && <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{gloss}</p>}
               <p className="mt-4 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Write it in the form this sentence needs.
               </p>
@@ -499,9 +514,9 @@ function StepCard({
               <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Which word goes in the gap?
               </p>
-              {step.cue === "meaning" && (
+              {step.cue === "meaning" && gloss && (
                 <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>
-                  It means <strong style={{ color: "var(--ink)" }}>{step.gloss}</strong>.
+                  It means <strong style={{ color: "var(--ink)" }}>{gloss}</strong>.
                 </p>
               )}
             </div>
@@ -520,19 +535,12 @@ function StepCard({
             the answer (`lib/copy/gapMeaning.ts`).
 
             The cue goes in only where the step is already allowed to show it:
-            `gapCue` returns "none" for a word whose own meaning spells the
+            `step.cue` reads "none" for a word whose own meaning spells the
             answer, and marking that meaning inside the English would put back
-            exactly what that ladder took off the screen.
+            exactly what that ladder took off the screen. Resolved at the top
+            of this branch beside the gloss, because the two are one decision.
           */}
-          {(() => {
-            const meaning = gapMeaning({
-              en: step.en,
-              answer: step.answer,
-              cue: step.cue === "none" ? null : step.gloss,
-              lemma: step.lemma,
-            });
-            return meaning && !checked ? <GapMeaning meaning={meaning} /> : null;
-          })()}
+          {meaning && !checked && <GapMeaning meaning={meaning} />}
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
@@ -566,6 +574,7 @@ function StepCard({
           )}
         </Card>
       );
+    }
 
     case "case":
       return (

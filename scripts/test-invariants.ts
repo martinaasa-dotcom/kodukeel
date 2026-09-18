@@ -18433,6 +18433,34 @@ check("every gap question says what its sentence means, one rule and one drawing
   }
 
   /*
+    AND A MARKED SENTENCE REPLACES THE GLOSS AND NEVER THE WORD.
+
+    `Card.hint` on a gap is usually two things, `${lemma}, ${translation}`, and
+    `lib/srs/cards.ts` says in as many words why: the card "asks for the right
+    *form*, not for the vocabulary, which the recognition card already tests".
+    The first version of this pass had two screens hide the whole cue the
+    moment the English line was marked, which took the Estonian headword off
+    the question with the gloss and asked for the vocabulary after all, on
+    3,760 of the 5,746 marked gap cards the shipped dictionary builds. So a
+    screen may not read `marked` to decide what its cue says: `gapCue` is that
+    decision, and it keeps the word wherever the cue carried one.
+
+    Anchored on reading the field rather than on any one screen's markup, since
+    the fault is a branch and every branch has to spell it.
+  */
+  for (const file of drawn) {
+    if (exempt.has(file)) continue;
+    const source = code(file);
+    if (!/\.marked\b/.test(source)) continue;
+    assert.match(
+      source, /gapCue\(\{/,
+      `${file} reads whether its line is marked and decides its own cue from it. A marked line is the ` +
+      "gloss printed in context and says nothing about the Estonian headword, so hiding the whole cue " +
+      "asks for the vocabulary as well as the form. Ask lib/copy/gapMeaning.ts through gapCue",
+    );
+  }
+
+  /*
     AND A MEASUREMENT MAY NOT REACH IT, whether or not the sweep can see it.
     The examination gaps its sentences in `lib/exam/paper.ts` and hands the
     paper down already blanked, so it names none of the marks and is outside

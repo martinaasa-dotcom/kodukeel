@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, TriangleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { GapMeaning } from "@/components/GapMeaning";
-import { gapMeaning } from "@/lib/copy/gapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -396,19 +396,27 @@ function Asking({ task }: { task: ExceptionTask }) {
             cue: task.translation,
             lemma: task.lemma,
           });
-          return meaning?.marked
-            ? <div className="mt-4"><GapMeaning meaning={meaning} /></div>
-            : (
-              /*
-                The meaning rather than the dictionary form, which is the rule
-                the gap-fill card learned: printing the lemma beside a gap that
-                wants the lemma hands the answer over, and this gap wants a
-                form built on it.
-              */
-              <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
-                The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-              </p>
-            );
+          /*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE
+            (`gapCue`): a marked line is that gloss printed in context and an
+            unmarked one is a sentence whose English happens not to carry it,
+            where the cue is the only thing naming the word. No lemma is
+            passed, which is the rule the gap-fill card learned: printing the
+            dictionary form beside a gap that wants a form built on it hands
+            the answer over.
+          */
+          const cue = gapCue({ hint: task.translation, lemma: null, marked: meaning?.marked ?? false });
+          if (!meaning && !cue) return null;
+          return (
+            <div className="mt-4">
+              {meaning && <GapMeaning meaning={meaning} />}
+              {cue && (
+                <p className="text-[15px]" style={{ color: "var(--ink-2)" }}>
+                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                </p>
+              )}
+            </div>
+          );
         })()}
       </div>
     );
