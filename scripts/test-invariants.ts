@@ -18806,6 +18806,46 @@ check("the weekly ceiling counts the letters it is about", () => {
   );
 });
 
+check("every week strip is named by the one function that names a day", () => {
+  /*
+    THREE LETTERS DRAW A WEEK NOW, AND THE THIRD ONE WROTE ITS OWN.
+
+    `dayLabel` was pulled out of the weekly letter with a comment saying, in as
+    many words, that two copies of a date format is where one of them comes to
+    say Mon and the other M. The shield letter kept its inline copy through
+    that extraction and through the register's arrival after it, so the helper's
+    own justification was a claim about a file that had two.
+
+    Nothing was visibly wrong, because the two spellings are the same bytes
+    today. That is exactly what makes it worth a check rather than a reading:
+    the strips are drawn by one component and read by one reader, so a letter
+    whose labels drift from its neighbour's is a difference nobody sees until
+    somebody holds two Mondays' mail side by side. The locale and the zone are
+    both load-bearing and both easy to leave out of a copy, since the key is
+    already the learner's own day and naming it on the server's locale is the
+    fault `components/LocalDate.tsx` exists for.
+
+    Anchored on the formatter rather than on the word `label`, because what may
+    not be duplicated is the formatting, and made to fail by putting the shield
+    letter's own inline copy back.
+  */
+  const gathering = code("lib/progress/mailout.ts");
+  const formatters = gathering.match(/toLocaleDateString\(/g) ?? [];
+  assert.equal(
+    formatters.length,
+    1,
+    `lib/progress/mailout.ts formats a date in ${formatters.length} places. dayLabel is the one ` +
+      "that names a day of a week strip: a second copy is a strip that can come to say Mon where " +
+      "its neighbour says M, in the same reader's mail.",
+  );
+  const strips = gathering.match(/label: dayLabel\(/g) ?? [];
+  assert.ok(
+    strips.length >= 3,
+    `only ${strips.length} week strips read dayLabel, so this check has stopped covering the ` +
+      "letters it was written for",
+  );
+});
+
 check("a letter holds no picture, and nothing counts who opened one", () => {
   /*
     TWO CLAIMS ON /privacy, ENFORCED RATHER THAN PROMISED.

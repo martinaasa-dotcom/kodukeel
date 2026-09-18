@@ -809,10 +809,7 @@ export async function letterInputFor(
         */
         nextAt: SHIELD_MILESTONES.find((m) => m > summary.streak) ?? null,
         week: weekKeys.map((key) => ({
-          label: new Date(`${key}T00:00:00Z`).toLocaleDateString("en-GB", {
-            weekday: "narrow",
-            timeZone: "UTC",
-          }),
+          label: dayLabel(key),
           studied: studiedKeys.has(key),
         })),
       },
