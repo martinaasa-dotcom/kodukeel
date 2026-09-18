@@ -157,8 +157,8 @@ export default async function AssessPage({
               </ul>
               <Explain label="Why the dates matter">
                 Every sitting is kept and none is ever edited, so this is a history rather than a
-                number that moved. A check taken a fortnight after the last one mostly measures the
-                questions, not you: leave it a couple of months.
+                number that moved. A check taken two weeks after the last one mostly measures the
+                questions, not you. Leave it a couple of months.
               </Explain>
             </Card>
           </div>

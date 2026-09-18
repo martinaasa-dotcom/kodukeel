@@ -62,7 +62,8 @@ export default async function ExceptionsPage() {
               <p className="mt-2 max-w-[62ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 Learn the omastav and eleven cases follow from it. That holds until the stem
                 itself changes, and then it stops holding for every case at once. {scale} graded
-                words here break a pattern somewhere. This page is which ones, and where.
+                words in this dictionary break a pattern somewhere. This page is which ones, and
+                where.
               </p>
               <p className="mt-2 max-w-[62ch] text-sm" style={{ color: "var(--ink-3)" }}>
                 Any word not on this page follows the rules, so you can work it out.

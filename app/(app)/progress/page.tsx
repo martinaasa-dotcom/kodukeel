@@ -385,7 +385,7 @@ export default async function ProgressPage() {
                     back as a fortnight of conversations. lib/collections/errands.ts
                     is where that is decided, for this panel and Today alike.
                   */}
-                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
                     <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
                     <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" tone="var(--good-ink)" />
                     <Stat value={outside.byOutcome.SWITCHED} label="switched to English" tone="var(--hard-ink)" />

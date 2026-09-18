@@ -251,8 +251,8 @@ export function retentionReading(
     return {
       reviews: count, recalled, retention, target,
       verdict: "above",
-      headline: "Recalling more than the schedule expects",
-      advice: `You are getting ${retention}% of long-term cards right where the scheduler plans for ${target}%. That is comfortable rather than wrong, it usually means there is room to take on more new words each day. Raise the daily goal in Settings before adding another mode.`,
+      headline: "You are remembering more than expected",
+      advice: `You are getting ${retention}% of your long-term cards right, and the schedule is built for ${target}%. That is comfortable rather than wrong. It usually means there is room for more new words each day, so raise the daily goal in Settings before adding another mode.`,
     };
   }
 
@@ -260,8 +260,8 @@ export function retentionReading(
     return {
       reviews: count, recalled, retention, target,
       verdict: "below",
-      headline: "Forgetting more than the schedule expects",
-      advice: `You are recalling ${retention}% of long-term cards where the scheduler plans for ${target}%. Usually that is too many new cards arriving at once, or cards added before the grammar behind them made sense. Ease off new words for a week, and read up on whichever case the breakdown below keeps flagging.`,
+      headline: "You are forgetting more than expected",
+      advice: `You are remembering ${retention}% of your long-term cards, and the schedule is built for ${target}%. Usually that means too many new cards at once, or cards added before the grammar behind them made sense. Ease off new words for a week, and read up on whichever case the list below keeps flagging.`,
     };
   }
 
@@ -269,6 +269,6 @@ export function retentionReading(
     reviews: count, recalled, retention, target,
     verdict: "on-target",
     headline: "The schedule is working",
-    advice: `${retention}% of long-term cards recalled against a ${target}% target, which is exactly where the scheduler is aiming. Nothing to change.`,
+    advice: `You are remembering ${retention}% of your long-term cards, against a target of ${target}%. That is exactly where it should be. Nothing to change.`,
   };
 }

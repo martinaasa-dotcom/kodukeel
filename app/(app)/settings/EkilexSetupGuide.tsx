@@ -120,9 +120,19 @@ export function EkilexSetupGuide() {
       </div>
 
       <Explain label="What happens to the words you already have">
-        Every word already in your deck picks up the real forms the next time you open it, so
-        nothing has to be added again. If Ekilex had nothing to say about a word, we remember that
-        for a day before asking again.
+        {/*
+          NOT "already in your deck": `ImportPanel` prints that phrase as its own
+          result when a paste adds nothing new, on this same page, and
+          `scripts/e2e.mjs` waits for it to know the import finished. A second
+          copy of it here is on screen from the first paint, so the wait
+          returned at once, the driver typed into the box while the import was
+          still in flight, and the panel's own `setText("")` wiped what it had
+          typed. The check could not have failed either, which is the worse
+          half: it would have passed with the importer saying nothing at all.
+        */}
+        Every word you already have picks up the real forms the next time you open it, so nothing
+        has to be added again. If Ekilex had nothing to say about a word, we remember that for a
+        day before asking again.
       </Explain>
     </div>
   );
