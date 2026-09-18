@@ -247,11 +247,11 @@ export function ClozeSession() {
 
           {checked && (
             <div className="mt-5" aria-live="polite">
-              <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+              <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
                 {right
                   ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-                <p className="text-[15px]">
+                <p>
                   {right
                     ? "Exactly the form the writer used."
                     : slip

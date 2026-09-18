@@ -15590,6 +15590,99 @@ check("a verdict is painted once, in the tint and the ink", () => {
 });
 
 /*
+  AND A VERDICT IS ONE SIZE, WHICH IS THE BODY STEP.
+
+  The check above settles the colour of a marked answer and says nothing about
+  the box or the type, so those were decided per screen: five rounds wrote
+  `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the
+  ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering
+  round set a whole sentence in `label-xs`, and the examination's result put
+  the answer at 17px beside the candidate's own at 13.5px. Four sizes for one
+  object, three of them under the body step and two off the scale entirely. A
+  learner reported the ladder's box as tiny and off-putting under a prompt set
+  at 27px, which is what 13.5px on a panel reads as.
+
+  `.verdict-panel` is the box, painted in `app/globals.css` beside the tints,
+  and the rule over everything else is that a verdict is never set below the
+  body step: it is the one line on the screen that says whether the last half
+  minute went anywhere, and it is not a caption. A caption *inside* one still
+  asks for its own size, so this is drawn on the element wearing the tint
+  rather than on everything under it.
+*/
+check("a verdict is one size, and never below the body step", () => {
+  const panel = CSS.match(/\.verdict-panel\s*\{([^}]*)\}/);
+  assert.ok(panel, ".verdict-panel is worn by the marking screens and painted nowhere in app/globals.css");
+  assert.match(
+    panel![1]!, /font-size:\s*var\(--text-base\)/,
+    ".verdict-panel stopped setting the body step, so every panel is back to whatever it inherits",
+  );
+
+  const wearing = [...APP, ...COMPONENTS].filter((file) => /\bverdict-panel\b/.test(code(file)));
+  assert.ok(
+    wearing.length >= 8,
+    `only ${wearing.length} screens wear .verdict-panel; the panels have gone back to painting their own box`,
+  );
+
+  /*
+    Anchored on the class name inside a className rather than on a list of
+    screens: what is being refused is a verdict painted small, wherever it is
+    written. `text-md` and up are fine, and so is a bracket size at or above
+    the body step, which is what the five rounds had before this.
+  */
+  const small = /\btext-(?:2xs|xs|sm)\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  for (const file of [...APP, ...COMPONENTS]) {
+    const body = code(file);
+    if (!/VERDICT_CLASS/.test(body)) continue;
+    for (const literal of body.match(/`[^`]*`/g) ?? []) {
+      if (!/VERDICT_CLASS/.test(literal)) continue;
+      assert.doesNotMatch(
+        literal, small,
+        `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
+      );
+    }
+  }
+});
+
+/*
+  THE ANSWER IS SAID ONCE, AND THE RETYPE CAN STILL READ IT.
+
+  `checkAnswer` names the form inside its own note on three of its four
+  readings, so the ladder's panel, which opened with the answer and printed
+  the note under it, said the same sentence twice: `The word is kuidas läheb?`
+  over `Not quite, it's "kuidas läheb?"`, and in butter rather than peach for
+  a near miss. The merge is the note with the form marked inside it, which is
+  worth an invariant for one reason: `scripts/lib/review.mjs` types a miss
+  again by reading `data-answer` off the screen, so a merge that dropped the
+  headline without moving that hook would leave the driver with nothing to
+  read, the retype unanswerable, and no check anywhere would have said so.
+*/
+check("the ladder says the answer once, and still marks it", () => {
+  const ladder = code("app/(app)/learn/new/LearnSession.tsx");
+  assert.match(
+    ladder, /const saidOnce = useMemo\(/,
+    "the ladder no longer works out whether its note already names the answer",
+  );
+  assert.match(
+    ladder, /splitOnForm\(result\.note, result\.expected\)/,
+    "the merge stopped asking splitOnForm and is guessing from the verdict instead",
+  );
+  assert.match(
+    ladder, /result\.note && !saidOnce/,
+    "the ladder prints the note under a line that already says it, which is the redundancy this removed",
+  );
+  const marked = ladder.match(/data-answer/g) ?? [];
+  assert.ok(
+    marked.length >= 2,
+    "the merged line lost data-answer, so scripts/lib/review.mjs cannot read the answer to type it again",
+  );
+  const memo = ladder.slice(ladder.indexOf("const saidOnce = useMemo("), ladder.indexOf("const saidOnce = useMemo(") + 700);
+  assert.match(
+    memo, /rung !== "gap"/,
+    "the merge reaches a rung whose answer is an English gloss, which would mark it lang=\"et\"",
+  );
+});
+
+/*
   THE EXCEPTION AREA IS A READING OF THE DICTIONARY, NOT A LIST SOMEBODY TYPED.
 
   `/grammar/exceptions` says which words the ending rule does not reach, and the

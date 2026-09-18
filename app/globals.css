@@ -2146,6 +2146,31 @@
   .verdict-right { background: var(--good-soft); color: var(--good-ink); }
   .verdict-nearly { background: var(--hard-soft); color: var(--hard-ink); }
   .verdict-wrong { background: var(--again-soft); color: var(--again-ink); }
+  /*
+    AND THE BOX IT IS SAID IN, ALSO PAINTED ONCE.
+
+    The three classes above settle the colour and settled nothing else, so the
+    geometry and the type were decided per screen: five rounds wrote
+    `rounded-md px-3.5 py-3` with a `text-[15px]` inside it, the daily path and
+    the ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, and the word
+    ordering round set a whole sentence in `label-xs`. Four sizes for one
+    object, three of them under the body step, and two of the four are off the
+    scale entirely. A learner reported the ladder's box as tiny and off-putting
+    beside a prompt set at 27px, which is what 13.5px on a panel does.
+
+    So the panel is `--text-base`, which is the body step rather than a fifth
+    size invented for this, and everything inside it inherits that: a verdict
+    is the one line on the screen that says whether the last thirty seconds
+    went anywhere, and it is not a caption. The padding and the radius are the
+    majority shape the five rounds already had. A line inside that really is
+    meta, the provenance under a sentence, still asks for its own size.
+  */
+  .verdict-panel {
+    border-radius: var(--r-sm);
+    padding: 0.75rem 0.875rem;
+    font-size: var(--text-base);
+    line-height: 1.45;
+  }
   .option-right {
     --choice-bg: var(--good-soft);
     --choice-border: var(--good);

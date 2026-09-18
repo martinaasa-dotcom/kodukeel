@@ -130,6 +130,21 @@ tell apart with certainty, a dropped diacritic or the right word in the wrong en
 graded Hard wherever it is painted butter, since a colour that disagrees with the grade under it
 is a small dishonesty a learner catches once.
 
+And the box is `.verdict-panel`, which is the other half of the same argument. The three classes
+above settled the colour and nothing else, so every round decided the geometry and the type for
+itself: five wrote `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the ladder
+wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering round set a whole sentence in
+`label-xs`, and the examination result printed the answer at 17px beside the candidate's own at
+13.5px. Four sizes for one object, three of them under the body step and two off the scale. A
+learner reported the ladder's box as tiny and off-putting under a prompt set at 27px, which is
+what 13.5px on a panel reads as.
+
+The panel is `--r-sm`, 12px by 14px of padding and `--text-base`, and a verdict is never set
+below the body step anywhere: it is the one line that says whether the last half minute went
+anywhere. A caption genuinely inside a panel, the provenance under a sentence or the "you typed"
+line under a marked word, still takes its own step, so the rule is drawn on the element wearing
+the tint rather than on everything under it.
+
 ## 2. Tokens
 
 Defined twice in `app/globals.css`, deliberately:

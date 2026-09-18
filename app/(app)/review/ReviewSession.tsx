@@ -1131,7 +1131,7 @@ export function ReviewSession({
           {ask === "type" && verdict && (
             <div className="w-full max-w-sm">
               <p
-                className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} rounded-md px-4 py-2.5 text-sm`}
+                className={`${verdict.verdict === "correct" ? "pop-in" : "shake"} ${VERDICT_CLASS[verdictOfCheck(verdict.verdict)]} verdict-panel`}
               >
                 {verdict.verdict === "correct" ? uiText("Õige!", "Correct!") : verdict.note}
               </p>
@@ -1168,7 +1168,7 @@ export function ReviewSession({
               {verdict.verdict !== "correct" && (
                 <div className="mt-4 text-left">
                   {retypeOk ? (
-                    <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
+                    <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
                       {uiText("Õige!", "Correct!")} That is the one.
                     </p>
                   ) : (
