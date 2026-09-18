@@ -15,6 +15,8 @@ import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
@@ -507,6 +509,30 @@ function StepCard({
           <p className="text-xl">
             <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
+          {/*
+            AND WHAT THE LINE SAYS, CLOSEST TO THE SENTENCE IT IS ABOUT.
+
+            The card above says which word and this says what the sentence is
+            doing with it, which is the pair a gap-fill is for: a learner
+            producing a form because a sentence needs it rather than because a
+            gloss was printed over a hole. Marked with the same rule every
+            other gap screen uses and withheld by it where the English carries
+            the answer (`lib/copy/gapMeaning.ts`).
+
+            The cue goes in only where the step is already allowed to show it:
+            `gapCue` returns "none" for a word whose own meaning spells the
+            answer, and marking that meaning inside the English would put back
+            exactly what that ladder took off the screen.
+          */}
+          {(() => {
+            const meaning = gapMeaning({
+              en: step.en,
+              answer: step.answer,
+              cue: step.cue === "none" ? null : step.gloss,
+              lemma: step.lemma,
+            });
+            return meaning && !checked ? <GapMeaning meaning={meaning} /> : null;
+          })()}
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"

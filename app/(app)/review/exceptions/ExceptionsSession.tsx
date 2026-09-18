@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, TriangleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -377,13 +379,37 @@ function Asking({ task }: { task: ExceptionTask }) {
           {task.gapped}
         </p>
         {/*
-          The meaning rather than the dictionary form, which is the rule the
-          gap-fill card learned: printing the lemma beside a gap that wants the
-          lemma hands the answer over, and this gap wants a form built on it.
+          WHAT THE LINE SAYS, WITH THE MISSING WORD MARKED IN IT, AND THE BARE
+          MEANING ONLY WHERE THE SENTENCE DID NOT SAY IT.
+
+          This round asks for the forms no rule reaches, so its `use` rung is
+          the hardest gap in the app and was also the one with the least to go
+          on: one word of English over a sentence a learner could not read.
+          One rule and one drawing for every gap screen there is
+          (`lib/copy/gapMeaning.ts`), including both of its refusals, and the
+          fallback is the line this replaced.
         */}
-        <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
-          The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-        </p>
+        {(() => {
+          const meaning = gapMeaning({
+            en: task.sentenceEn,
+            answer: task.gapForm ?? task.accepted[0] ?? "",
+            cue: task.translation,
+            lemma: task.lemma,
+          });
+          return meaning?.marked
+            ? <div className="mt-4"><GapMeaning meaning={meaning} /></div>
+            : (
+              /*
+                The meaning rather than the dictionary form, which is the rule
+                the gap-fill card learned: printing the lemma beside a gap that
+                wants the lemma hands the answer over, and this gap wants a
+                form built on it.
+              */
+              <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
+                The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
+              </p>
+            );
+        })()}
       </div>
     );
   }

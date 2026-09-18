@@ -14,6 +14,8 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -776,9 +778,28 @@ export function LearnSession({
                         </span>
                       ))}
                     </p>
-                    {word.gap.en && (
-                      <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>{word.gap.en}</p>
-                    )}
+                    {/*
+                      AND WHICH WORD OF IT THE GAP WANTS.
+
+                      This screen has had the line since it was written and
+                      drew it flat, so a learner read `Let's meet at four.`
+                      under a sentence with a hole in it and still had to work
+                      out which of its words the hole was. It is marked now,
+                      by the same rule and the same drawing as the five other
+                      gap screens (`lib/copy/gapMeaning.ts`).
+
+                      `gap.en` is already withheld upstream where the English
+                      carries the answer, and `gapMeaning` applies that same
+                      `mentions` guard again rather than trusting the caller:
+                      it is one line and it is what stands between this screen
+                      and printing the answer.
+                    */}
+                    {(() => {
+                      const meaning = gapMeaning({
+                        en: word.gap.en, answer: word.gap.answer, cue: word.gap.hint, lemma: word.lemma,
+                      });
+                      return meaning ? <GapMeaning meaning={meaning} className="mt-1.5 text-sm leading-snug" /> : null;
+                    })()}
                   </div>
                 </div>
               ) : (

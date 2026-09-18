@@ -13,6 +13,8 @@ import { useOffline } from "@/components/OfflineProvider";
 import { StarWord } from "@/components/StarWord";
 import { enqueueGrade } from "@/lib/offline/db";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
@@ -318,15 +320,36 @@ function Question({
           {task.gapped}
         </p>
         {/*
-          The meaning rather than the lemma, which is what makes this harder
-          than the gap-fill card review already has: the sentence and the
-          meaning together are what say which form is wanted, and printing the
-          dictionary form beside a gap wanting the dictionary form hands the
-          answer over. That was 2,468 cards once.
+          WHAT THE MISSING WORD MEANS, AND WHERE THE DICTIONARY CAN, THE WHOLE
+          LINE WITH THAT MEANING MARKED INSIDE IT.
+
+          "The missing word means four" says what the word is and nothing about
+          the sentence it is missing from, which is the report this pass
+          started from one round over. Where the dictionary has the line, it is
+          the better sentence of the two and says the same thing: it names the
+          meaning and puts it where the gap is. Where it has none, the sentence
+          above stands, which is what every gap card said before this.
+          `lib/copy/gapMeaning.ts` is the one rule, including its two refusals.
         */}
-        <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
-          The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-        </p>
+        {(() => {
+          const meaning = gapMeaning({
+            en: task.sentenceEn, answer: task.value, cue: task.translation,
+          });
+          return meaning?.marked
+            ? <div className="mt-4"><GapMeaning meaning={meaning} /></div>
+            : (
+              /*
+                The meaning rather than the lemma, which is what makes this
+                harder than the gap-fill card review already has: the sentence
+                and the meaning together are what say which form is wanted, and
+                printing the dictionary form beside a gap wanting the dictionary
+                form hands the answer over. That was 2,468 cards once.
+              */
+              <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
+                The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
+              </p>
+            );
+        })()}
         <SlotLine task={task} />
       </div>
     );

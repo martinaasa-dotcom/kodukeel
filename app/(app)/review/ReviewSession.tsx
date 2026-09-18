@@ -16,6 +16,8 @@ import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -533,6 +535,28 @@ export function ReviewSession({
     wrong the same way.
   */
   const answerShown = revealed || ask === "intro";
+
+  /*
+    WHAT THE SENTENCE AROUND THE GAP SAYS, ON THE QUESTION.
+
+    `Kohtume kell ____.` used to be asked over the one word `four`, which is
+    the missing word's meaning and says nothing about the line it is missing
+    from. A learner reported it: the gloss tells you which word and the
+    sentence tells you what you are saying, and a gap-fill is for producing a
+    form *because a sentence needs it*. The line reads `Let's meet at four.`
+    now, with `four` marked, which is the same gloss in the place it belongs.
+
+    ASKED FOR NOTHING AND ANSWERED FROM WHAT IS ALREADY HELD. `sentenceEn` is
+    the dictionary's own English, built once by `npm run translate:examples`
+    and shipped, so this costs no call, no wait and no daily allowance, and
+    works on a deployment with no model at all. Where the dictionary holds
+    none, the card is exactly what it was before this existed. The reveal
+    below is still where a translation is *asked* for, so a sentence nobody
+    had a line for arrives on the question the next time it comes round.
+  */
+  const meaning = card && isGap(card)
+    ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
+    : null;
 
   // Draining the queue is the provider's job, not this screen's — it has to keep
   // happening on pages that are not a review session. Here we only report it.
@@ -1107,7 +1131,20 @@ export function ReviewSession({
             </p>
           )}
 
-          {card.hint && !answerShown && (
+          {meaning && !answerShown && <GapMeaning meaning={meaning} />}
+
+          {/*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE.
+
+            A marked line already says which word is wanted and says it in
+            context, so printing `four` under `Let's meet at four.` is the
+            same word twice. An *unmarked* line is a sentence whose English
+            happens not to carry the gloss as a whole word, and there the cue
+            is the only thing naming the word: both are drawn. So is the cue
+            alone, on every card that is not a gap and on every gap the
+            dictionary holds no English for.
+          */}
+          {card.hint && !answerShown && !meaning?.marked && (
             <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
           )}
 

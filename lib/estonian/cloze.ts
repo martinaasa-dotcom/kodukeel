@@ -75,15 +75,26 @@ export function sizedBlank(textWithBlank: string, answer: string): string {
  * rather than failing to match, which is what took every hyphenated Estonian
  * word through `splitOnForm` the hard way.
  *
- * One definition, because two questions turn on it: whether a gap leaves its
- * own answer standing in the sentence, and whether the hint under the gap
- * hands it over.
+ * One definition, because three questions turn on it: whether a gap leaves its
+ * own answer standing in the sentence, whether the hint under the gap hands it
+ * over, and which run of the English sentence under the gap is the word being
+ * asked for (`lib/copy/gapMeaning.ts`).
+ *
+ * `mentions` is `whereWhole` with the position thrown away, rather than a
+ * second regular expression that agrees with it today: the third caller wants
+ * the index, and two spellings of "a whole word" are two answers waiting to
+ * differ about a hyphen.
  */
-export function mentions(text: string, word: string): boolean {
+export function whereWhole(text: string, word: string): { index: number; length: number } | null {
   const wanted = word.trim();
-  if (!wanted) return false;
+  if (!wanted) return null;
   const escaped = wanted.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  return new RegExp(`(?<![\\p{L}\\p{M}-])${escaped}(?![\\p{L}\\p{M}-])`, "iu").test(text);
+  const found = new RegExp(`(?<![\\p{L}\\p{M}-])${escaped}(?![\\p{L}\\p{M}-])`, "iu").exec(text);
+  return found ? { index: found.index, length: found[0].length } : null;
+}
+
+export function mentions(text: string, word: string): boolean {
+  return whereWhole(text, word) !== null;
 }
 
 export function buildCloze(sentence: string, forms: readonly string[]): Cloze | null {
