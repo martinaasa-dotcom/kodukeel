@@ -66,6 +66,18 @@ export default async function SprintPage({
     });
     cards = [...cards, ...weak];
   }
+  if (cards.length < POOL_SIZE) {
+    // And then any met word, as Match and Listening already do: on an evening
+    // where nothing is due and nothing has lapsed the sprint had no cards.
+    const seenIds = new Set(cards.map((c) => c.id));
+    const met = await prisma.card.findMany({
+      where: { ownerId, suspended: false, state: { not: 0 }, id: { notIn: [...seenIds] }, ...scoped },
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: POOL_SIZE - cards.length,
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
+    });
+    cards = [...cards, ...met];
+  }
 
   // Shuffled so the same session doesn't always open on the same word.
   const shuffled = shuffle(cards.filter((c) => cardWithin(scope, c, spellings)));

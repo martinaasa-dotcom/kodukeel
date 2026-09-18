@@ -10,7 +10,9 @@ import {
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough,
+  PICTURES_FOR_BOARD,
 } from "./index";
+import { readFileSync } from "node:fs";
 import { moduleScopeFrom } from "./scope";
 import { emojiFor } from "@/lib/collections/emoji";
 
@@ -262,7 +264,8 @@ describe("what a day reads and where it goes", () => {
       const taught = taughtBy(programme, day.index);
       for (const key of day.practice) {
         const need = NEEDS[key];
-        if (need) expect(taught[need], `${day.id} deals ${key} before a ${need} word`).toBe(true);
+        if (need) expect(Boolean(taught[need]), `${day.id} deals ${key} before a ${need} word`).toBe(true);
+        if (key === "picture") expect(taught.pictured, `${day.id} deals a board it cannot fill`).toBeGreaterThanOrEqual(PICTURES_FOR_BOARD);
         expect(supportsRound(key, taught, programme.level), `${day.id} deals ${key} before its material`).toBe(true);
       }
     }
@@ -296,6 +299,11 @@ describe("what a day reads and where it goes", () => {
     for (const key of [...caseRounds, "dictation", "sentences", "government", "picture"]) {
       expect(DAYS.some(({ day }) => day.practice.includes(key as never)), `${key} is never dealt`).toBe(true);
     }
+  });
+
+  it("needs as many pictured nouns as the board has pairs", () => {
+    const page = readFileSync("app/(app)/review/emoji/page.tsx", "utf8");
+    expect(page).toMatch(new RegExp(`const PAIRS = ${PICTURES_FOR_BOARD};`));
   });
 
   it("puts Sõnad on no rotation, since its word is dealt off the dictionary and marked from the date", () => {

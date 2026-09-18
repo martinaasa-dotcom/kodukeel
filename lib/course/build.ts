@@ -14,7 +14,7 @@
 
 import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
-import { naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
+import { isBuildable, naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { emojiFor } from "@/lib/collections/emoji";
 import { SCENES } from "@/lib/collections/scenes";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
@@ -100,8 +100,8 @@ export function reads(unit: SyllabusUnit, at: number, level: string = unit.level
 export interface Taught {
   /** A verb has been taught, so the conjugation table has something to run down. */
   verbs: boolean;
-  /** A noun with a picture has been taught, so the board has a tile. */
-  pictured: boolean;
+  /** Taught nouns with a picture. The board needs `PICTURES_FOR_BOARD` of them. */
+  pictured: number;
   /** The case pages read so far, by key. A case is asked only after it is read. */
   cases: ReadonlySet<string>;
   /** The topic pages read so far, by id. */
@@ -119,14 +119,23 @@ export interface Taught {
 }
 
 export const NO_TAUGHT: Taught = {
-  verbs: false, pictured: false, cases: new Set(), topics: new Set(), governed: 0, scene: false,
+  verbs: false, pictured: 0, cases: new Set(), topics: new Set(), governed: 0, scene: false,
   readable: false,
 };
 
 const ALL_TAUGHT: Taught = {
-  verbs: true, pictured: true, cases: new Set(CASES.map((c) => c.key)),
+  verbs: true, pictured: 99, cases: new Set(CASES.map((c) => c.key)),
   topics: new Set(["government", "conditional"]), governed: 99, scene: true, readable: true,
 };
+
+/**
+ * How many pictured nouns the board needs before it is dealt: six pairs, the
+ * board's own size (`PAIRS` in `app/(app)/review/emoji/page.tsx`, asserted
+ * equal). One pictured noun was the first gate, and inside the module the
+ * board's top-up is the taught words, so with five of them it is the empty
+ * state with a way out on it.
+ */
+export const PICTURES_FOR_BOARD = 6;
 
 /**
  * How many case pages Target needs before it is dealt: it draws four forms of
@@ -135,8 +144,12 @@ const ALL_TAUGHT: Taught = {
  */
 export const CASES_FOR_TARGET = 4;
 
-/** Describe wants a whole scene of taught words and a choice of case for it. */
-export const CASES_FOR_DESCRIBE = 2;
+/**
+ * Describe wants a whole scene of taught words and a choice of case for it,
+ * since a case the pictured word does not take builds no task: an animal is
+ * not in the inside trio, and the first case page read is the inessive.
+ */
+export const CASES_FOR_DESCRIBE = 3;
 
 /** How many governed verbs a government round needs before it is dealt. */
 export const GOVERNED_FOR_ROUND = 4;
@@ -158,7 +171,7 @@ export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): 
     case "conjugation": return taught.verbs;
     // The board is the word until a case page has been read, on every level
     // (`app/(app)/review/emoji/page.tsx`), so a pictured noun is all it needs.
-    case "picture": return taught.pictured;
+    case "picture": return taught.pictured >= PICTURES_FOR_BOARD;
     case "sprint": case "write": return cases;
     case "target": return taught.cases.size >= CASES_FOR_TARGET;
     case "describe": return taught.scene && taught.cases.size >= CASES_FOR_DESCRIBE;
@@ -245,7 +258,7 @@ export class Ledger {
   private pending: string[] = [];
   private readonly lemmas = new Set<string>();
   private verbs = false;
-  private pictured = false;
+  private pictured = 0;
   private governed = 0;
   private scene = false;
   private readable = false;
@@ -253,7 +266,7 @@ export class Ledger {
   /** A word handed over, with what the harvest holds for it. */
   teach(lemma: string, pos: string): void {
     if (pos === "VERB") this.verbs = true;
-    if (pos === "NOUN" && emojiFor(lemma) !== undefined) this.pictured = true;
+    if (pos === "NOUN" && emojiFor(lemma) !== undefined && !this.lemmas.has(lemma)) this.pictured += 1;
     this.lemmas.add(lemma);
     if (!this.scene) this.scene = SCENES.some((s) => s.lemmas.every((l) => this.lemmas.has(l)));
     const word = this.harvest.get(`${lemma}|${pos}`);
@@ -303,7 +316,9 @@ export const DICTATION_TILES = { min: 4, max: 9 } as const;
 export function readableSentence(sentence: string, spellings: ReadonlySet<string>): boolean {
   const tiles = sentenceTiles(sentence);
   if (tiles.length < DICTATION_TILES.min || tiles.length > DICTATION_TILES.max) return false;
-  if (!naturalSentence(sentence)) return false;
+  // `isBuildable` is word ordering's own rule, no repeated tile among them,
+  // and a sentence that passes it is one both rounds can set.
+  if (!naturalSentence(sentence) || !isBuildable(sentence)) return false;
   return tiles.every((t) => spellings.has(t.toLowerCase()));
 }
 

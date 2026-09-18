@@ -4483,8 +4483,11 @@ dictation more than nine. The stand-in walks whatever the ledger does support ra
 Match, so early A2 alternates the word board and Match rather than dealing Match six evenings
 running, and a unit is pinned to the table only where it is mostly verbs **and declares the card**,
 since the share alone pinned nine B1 evenings to a table on units about the object and government.
-`course.test.ts` rebuilds the ledger from the syllabus and the readings as a second opinion and walks
-all 289 evenings against it.
+The board waits for six pictured nouns, the board's own size, since inside
+the module its top-up is the taught words and five of them is the empty state; the first board falls
+on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
+nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
+syllabus and the readings as a second opinion and walks all 289 evenings against it.
 
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
