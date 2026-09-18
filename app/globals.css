@@ -2164,6 +2164,13 @@
     went anywhere, and it is not a caption. The padding and the radius are the
     majority shape the five rounds already had. A line inside that really is
     meta, the provenance under a sentence, still asks for its own size.
+
+    It sits in `@layer utilities` beside the tints, after the generated
+    utilities, so a `text-sm` written on the same element loses to it silently
+    rather than shrinking the panel. That is the right way round for the fault
+    this was drawn against and it is worth knowing before wondering why a size
+    on a call site did nothing: the size belongs here, and the invariant in
+    `scripts/test-invariants.ts` refuses one written there.
   */
   .verdict-panel {
     border-radius: var(--r-sm);

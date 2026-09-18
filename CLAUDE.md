@@ -7583,6 +7583,34 @@ tick is a choice and mint is what a marked answer wears. The sprint's clock in i
 seconds is peach by the hue's name rather than by the grade's, because it is overdue rather than
 wrong, which is the same colour meaning a different thing and is written down as such.
 
+**And the box that verdict is said in was four sizes, three of them under the body step.** The
+colour was settled and the geometry was not, so each round decided for itself: five wrote
+`rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the ladder wrote `text-sm`,
+the lesson wrote `p-3 text-sm`, the word ordering round set a whole sentence in `label-xs`, which
+is 12px and uppercase, the dictation round set its own verdict sentence the same way, and the
+examination's result printed the answer at 17px beside the candidate's own at 13.5px. A learner
+reported the ladder's box as tiny and off-putting under a prompt set at 27px, which is what 13.5px
+on a panel reads as. `.verdict-panel` is the box and `--text-base` is the step, and the rule over
+everything else is that a verdict is never set below it: it is the one line on the screen saying
+whether the last half minute went anywhere, and it is not a caption. A caption genuinely inside a
+panel, the provenance under a sentence or the "you typed" line under a marked word, still takes its
+own step, so the invariant is drawn on the element wearing the tint rather than on everything under
+it, and on the element carrying `VERDICT_INK` for the verdict that has no box at all.
+
+**And the answer was printed twice in the same box, which is what was reported.** `checkAnswer`
+names the form inside its own note on three of its four readings, so the ladder's panel, which
+opened with the answer and put the note under it, said the same sentence twice with a line break in
+the middle: `The word is kuidas läheb?` over `Not quite, it's "kuidas läheb?"`, and in butter as
+readily as in peach. Where the note already names the form the note *is* the line, decided by
+`splitOnForm` rather than by the verdict so that the merge follows the copy, and the form inside it
+carries the `lang="et"` and the `data-answer` the headline used to: `scripts/lib/review.mjs` reads
+that attribute to type the answer into the retype box, so a merge that dropped it would have left
+the retype unanswerable in silence. The headline stays on the two readings that name no form,
+`Almost, it's õ, not o.` and `Nothing typed.`, where the answer is the whole of what is owed. The
+conjugation table is deliberately **not** merged the same way: its note is the only thing telling a
+near miss from a miss in words, since the form itself is already drawn beside it, so dropping the
+note there would leave the hue carrying that distinction alone.
+
 **And the feedback box was painting a hue's ink on that hue's own fill.** The same round drew its
 verdict on `background: var(--butter)` with `color: var(--butter-ink)`, which is two halves of one
 mistake. `--butter` is the *fill*, the thing a bar or a button is painted, and `--butter-soft` is the

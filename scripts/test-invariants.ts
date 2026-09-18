@@ -15629,7 +15629,7 @@ check("a verdict is one size, and never below the body step", () => {
     written. `text-md` and up are fine, and so is a bracket size at or above
     the body step, which is what the five rounds had before this.
   */
-  const small = /\btext-(?:2xs|xs|sm)\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  const small = /\btext-(?:2xs|xs|sm)\b|\blabel-xs\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
   for (const file of [...APP, ...COMPONENTS]) {
     const body = code(file);
     if (!/VERDICT_CLASS/.test(body)) continue;
@@ -15638,6 +15638,32 @@ check("a verdict is one size, and never below the body step", () => {
       assert.doesNotMatch(
         literal, small,
         `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
+      );
+    }
+  }
+
+  /*
+    The other shape a verdict takes is a run of text with nothing behind it,
+    written in `VERDICT_INK` (`lib/ux/verdict.ts` names the dictation headline
+    as the example), and the sweep above cannot see it because there is no
+    tint class on the element. That headline was `label-xs`, which is 12px,
+    tracked and uppercase, so "Every word heard, one is missing its Estonian
+    letters." was shouted in the smallest type the system has.
+
+    Read per opening tag rather than by proximity, so the summary tiles and
+    the 13px tick that carry the same ink are left alone: what is refused is a
+    caption class on the element the ink is written on.
+  */
+  for (const file of [...APP, ...COMPONENTS]) {
+    const body = code(file);
+    if (!/VERDICT_INK/.test(body)) continue;
+    for (const tag of body.match(/<[A-Za-z][^<]*?(?<!=)>/gs) ?? []) {
+      if (!/VERDICT_INK/.test(tag)) continue;
+      const classes = tag.match(/className=(?:"([^"]*)"|\{`([^`]*)`\})/);
+      const names = classes?.[1] ?? classes?.[2] ?? "";
+      assert.doesNotMatch(
+        names, small,
+        `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
       );
     }
   }
