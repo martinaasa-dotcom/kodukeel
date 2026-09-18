@@ -121,6 +121,29 @@ The letter says how many words the scheduler counts as theirs today, which is tr
 other figure needs a row written when a card changes state, which is a schema change and a decision
 about another append-only table rather than something to smuggle in behind a count.
 
+## What is checked, and what is not
+
+The decision is a pure function and is driven over a fortnight of made-up days: which letter is
+owed, the four gates, the priority between them, and the case that two runs overlapping cannot
+send twice. The rendering is checked against a learner display name with a script tag in it, in
+every letter, and the escaping was removed once to watch all four fail. The palette is compared
+against `app/globals.css` value by value. Three invariants cover the way out, the absence of any
+image or open-tracking, and the run being the only sender; each was made to fail on the real fault.
+
+**What is not checked is the HTTP round trip.** Nothing drives a real request at
+`/api/email/unsubscribe` and asserts that a GET does not mutate, that a POST with a forged token
+answers the same page as one with a good token, or that either is reachable with no session. Those
+are the claims `scripts/test-security.mjs` exists for, and its own header makes the argument: a
+source check can tell you the middleware mentions the gate, and only a request can tell you the
+gate refuses. The token logic underneath is unit tested and the middleware allowlist is asserted,
+so what is missing is the wiring between them, which is exactly the layer this project has been
+caught by before.
+
+Nothing has posted a real message to a real mailbox either. The transport is one function with a
+`fetch` seam in it and no test drives that seam, so the first real send is the first time the
+headers, the multipart split and the `From` are exercised against Resend. Worth doing against one
+address before any schedule is switched on.
+
 ## Proposed, and not built
 
 Each of these has a real trigger already in the schema. They are listed with what would have to be

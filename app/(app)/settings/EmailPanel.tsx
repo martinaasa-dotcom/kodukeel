@@ -5,6 +5,7 @@ import { Mail, Clock } from "lucide-react";
 
 import { setEmailKind, setReminderHour } from "@/app/actions";
 import { Explain } from "@/components/Explain";
+import { ChoiceChip, ChoiceGroup } from "@/components/Choice";
 import type { EmailKind } from "@/lib/email/letter";
 
 /**
@@ -123,32 +124,41 @@ export function EmailPanel({
           <Clock size={16} aria-hidden style={{ color: "var(--accent-deep)" }} />
           The evening note, and the calendar reminder, are both read at this hour on your own clock.
         </p>
-        <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Reminder hour">
+        {/*
+          A RADIO GROUP, NOT FOUR SWITCHES.
+
+          Four hours of which exactly one holds is the shape `ChoiceGroup`
+          exists for, and the first version of this wore `aria-pressed` on four
+          bare buttons instead. That announces as four unrelated toggles and
+          costs four tab stops, where the group says "2 of 4" and takes one,
+          which is the exact fault CLAUDE.md records the goal chips having had.
+        */}
+        <ChoiceGroup ariaLabel="Reminder hour" className="mt-2 flex flex-wrap items-center gap-2">
           {HOURS.map((at) => (
-            <button
-              key={at}
-              type="button"
-              onClick={() => pickHour(at)}
-              aria-pressed={hour === at}
-              className="choice-btn rounded-xl px-3 py-1.5 text-sm"
-              style={
-                hour === at
-                  ? { ["--choice-bg" as string]: "var(--accent-soft)", color: "var(--accent-deep)" }
-                  : { color: "var(--ink-2)" }
-              }
-            >
+            <ChoiceChip key={at} selected={hour === at} onSelect={() => pickHour(at)} even>
               {at}
-            </button>
+            </ChoiceChip>
           ))}
+        </ChoiceGroup>
+        <p className="mt-2">
+          {/*
+            `pill` carries no styling. It is the marker that puts an anchor
+            inside the coarse-pointer floor in `app/globals.css` and inside the
+            sweep in `scripts/test-mobile.mjs`, and this link needs it for the
+            reason that rule states: a link drawn as a control in a row of
+            controls is a control, whatever element it is spelled with. Without
+            it neither the floor nor the sweep can see it, which is a target a
+            thumb has to hit that nothing measures.
+          */}
           <a
             href={`/api/reminder?at=${encodeURIComponent(hour)}`}
-            className="tap-tint rounded-xl px-3 py-1.5 text-sm underline underline-offset-2"
+            className="pill tap-tint inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm underline underline-offset-2"
             style={{ color: "var(--accent-deep)" }}
           >
-            <Mail size={14} aria-hidden className="mr-1 inline" />
+            <Mail size={14} aria-hidden />
             Add it to your calendar
           </a>
-        </div>
+        </p>
         <Explain label="What the calendar reminder is">
           An ordinary repeating event, not a notification. It fires on your phone whether or not
           this app is open, needs no permission from us, and you delete it like any other event.

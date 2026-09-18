@@ -173,8 +173,9 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
       };
 
       /* Booked before it is posted. See the header. */
-      await prisma.emailSend.create({
+      const booking = await prisma.emailSend.create({
         data: { ownerId, kind: letter.kind, dayKey: who.dayKey },
+        select: { id: true },
       });
 
       const result = await send(
@@ -192,8 +193,17 @@ export async function runMailout(now = new Date()): Promise<RunReport> {
         report.sent += 1;
         report.byKind[letter.kind] = (report.byKind[letter.kind] ?? 0) + 1;
         if (result.messageId) {
-          await prisma.emailSend.updateMany({
-            where: { ownerId, kind: letter.kind, dayKey: who.dayKey, messageId: null },
+          /*
+            By id, because the booking above knows which row it made. Matching
+            on the shape of it instead (`{ownerId, kind, dayKey, messageId:
+            null}`) is a `updateMany` that stamps every unstamped row of that
+            shape, which is one row today and is one row only because the
+            per-kind gap happens to hold. A write that is correct because of a
+            rule enforced somewhere else is a write waiting for that rule to be
+            relaxed.
+          */
+          await prisma.emailSend.update({
+            where: { id: booking.id },
             data: { messageId: result.messageId },
           });
         }

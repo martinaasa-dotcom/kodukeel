@@ -32,6 +32,7 @@ import type { Candidate } from "@/lib/email/schedule";
 import { AWAY_DAYS } from "@/lib/email/schedule";
 import { courseReading, ladderPosition, programmeFor, targetFrom } from "@/lib/progress/course";
 import { courseLevelFor } from "@/lib/progress/level";
+import { wordsLeftAt } from "@/lib/course/milestones";
 import { dailySummary } from "@/lib/progress/summary";
 import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThere } from "@/lib/progress/outThere";
@@ -326,12 +327,21 @@ export async function letterInputFor(
 
   if (kind === "weekly") {
     const target = targetFrom(settings[SETTING_KEYS.cefrGoal]);
+    /*
+      The seven days the strip draws, and the window the counts are read over,
+      are the same seven days. `recentDayKeys(8)` runs seven days ago to today,
+      so the strip drops today and the counts have to drop it too: a summary
+      sent on Sunday morning that says "five of the last seven" over a card
+      count including this morning is two readings of one week.
+    */
     const weekKeys = clock.recentDayKeys(8, now).slice(0, 7);
     const weekStart = clock.shiftDay(now, 7);
+    const weekEnd = clock.startOfDay(now);
+    const window = { gte: weekStart, lt: weekEnd };
 
     const [ladder, reviews, held, conversations, programme] = await Promise.all([
       ladderPosition(ownerId, target),
-      prisma.review.count({ where: { ownerId, reviewedAt: { gte: weekStart } } }),
+      prisma.review.count({ where: { ownerId, reviewedAt: window } }),
       /*
         WORDS HELD, AND DELIBERATELY NOT WORDS GRADUATED THIS WEEK.
 
@@ -364,7 +374,7 @@ export async function letterInputFor(
     const studiedKeys = new Set(
       (
         await prisma.review.findMany({
-          where: { ownerId, reviewedAt: { gte: weekStart } },
+          where: { ownerId, reviewedAt: window },
           select: { reviewedAt: true },
         })
       ).map((row) => clock.dayKey(row.reviewedAt)),
@@ -392,7 +402,21 @@ export async function letterInputFor(
         ladder: {
           target,
           pct: ladder.pct,
-          next: here ? { level: here.level, wordsAway: Math.max(0, ladder.total - ladder.known) } : null,
+          /*
+            THE NEXT STOP'S OWN DISTANCE, NOT THE WHOLE CLIMB'S.
+
+            This read `ladder.total - ladder.known`, which is how far the
+            *target* is, under a sentence saying how far the next stop is. On
+            somebody at A1 aiming for B1 that printed the distance to B1 beside
+            the word A2, which is a letter being confidently wrong about the one
+            number it exists to make concrete.
+
+            `here.pct` is how far through that level's own words they are, so
+            what is left of it is the share of that level's count. Rounded up,
+            because "0 words away" from a stop they have not reached reads as a
+            bug.
+          */
+          next: here ? { level: here.level, wordsAway: wordsLeftAt(here) } : null,
         },
         part:
           programme && reading?.current
