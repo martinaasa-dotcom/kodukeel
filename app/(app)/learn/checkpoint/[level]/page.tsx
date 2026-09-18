@@ -52,8 +52,8 @@ export default async function CheckpointPage({
   const rows = oneEntryPerLemma(found, lemmas);
 
   const words: CheckpointWord[] = rows.map((row) => ({
-    lemma: plainPhrase(row.lemma),
-    gloss: plainPhrase(row.translation),
+    lemma: plainPhrase(row.lemma, row.pos),
+    gloss: plainPhrase(row.translation, row.pos),
     pos: row.pos,
     /*
       THE SAME NARROWING THE GUIDED LESSON'S PAGE DOES, which this one did not

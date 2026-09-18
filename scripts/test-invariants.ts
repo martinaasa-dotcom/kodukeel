@@ -4292,49 +4292,88 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
   assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
 });
 
-check("a string of several answers is cleaned in one place, not by each caller", () => {
+check("the app drops a capital only where the capital is its own to drop", () => {
   /*
-    A GLOSS CAN BE SEVERAL PHRASES, AND ONLY ONE FILE KNEW IT.
+    `plainPhrase` exists so a card teaches `tere hommikust` rather than
+    shouting `Tere hommikust!`. Its own header argued that was safe "because
+    no phrase in it opens on a proper noun" — an argument about a PHRASE
+    entry — and it was then run over the lemma and the gloss of every word
+    the app teaches, reading the first character of whatever string it was
+    handed. Three faults came out of that and all three reached a screen.
 
-    `plainPhrase` drops a phrase's own capital and exclamation mark so a card
-    teaches `tere hommikust` rather than shouting `Tere hommikust!`. It read
-    the first character of whatever string it was given and the mark at the
-    very end of it, which is right for one phrase and wrong for a gloss that
-    holds three: `palun` is glossed `Please / You're welcome / Here you are`
-    and a learner met it on the ladder as `please / You're welcome / Here you
-    are`, one of the three lowered and the other two still shouting, which
-    reads as a rendering fault rather than as three ways of saying it. It was
-    reported off that screen. `Sorry! / Excuse me!` was worse, since the mark
-    dropped was the one at the end and the one kept was in the middle.
+    A WORD'S CAPITAL IS THE LANGUAGE'S. 166 shipped entries and 30 of the
+    course's own 1,514 words were taught with a capital that is theirs
+    removed: `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as
+    `midsummer Day`, `mina` as `i`, and `Eesti` as `eesti`, which is a
+    different word — the language rather than the country, which is the very
+    fault `lib/estonian/answer.ts` has a comment about, fixed in the marker
+    and never in the builder standing beside it.
 
-    `prisma/repair.ts` had already worked this out for a card's back, whose
-    accepted answers are joined the same way, and kept the splitting to
-    itself: one answer to how a string of answers is cleaned, with the copy in
-    the busier file being the one that had not learned it. That is the shape
-    this repository keeps finding in its own rules, so the splitting lives in
-    `plainPhrase` and a second caller doing it by hand fails here.
+    A STRING OF SEVERAL ANSWERS IS SEVERAL PHRASES. `palun` is glossed
+    `Please / You're welcome / Here you are` and a learner met it on the
+    ladder as `please / You're welcome / Here you are`, one lowered and two
+    still shouting, which reads as a rendering fault rather than as three ways
+    of saying it. It was reported off that screen. `prisma/repair.ts` had
+    worked this out for a card's back and kept the splitting to itself, which
+    is two answers to one question with the copy in the busier file being the
+    one that had not learned it.
 
-    Anchored on the call rather than on the separator, because the separator
-    is joined and split all over the app for reasons that have nothing to do
-    with case: what may not come back is a caller cleaning the parts itself.
-  */
-  const byHand = /\.split\(\s*["'`] \/ ["'`]\s*\)[\s\S]{0,40}?plainPhrase/;
-  const offenders = [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]
-    .filter((file) => !file.endsWith("test-invariants.ts"))
-    .filter((file) => byHand.test(code(file)))
-    .map((file) => `${file} splits the answers itself`);
-  assert.deepEqual(offenders, [], "plainPhrase already reads every answer in the string");
+    AND A PHRASE CAN OPEN ON THE ONE ENGLISH WORD THAT IS ALWAYS CAPITAL, so
+    the part of speech is not enough by itself: `Ma ei saa aru` was dealt as
+    `i don't understand`.
 
-  /*
-    And the function itself has to: written to read the whole string, every
-    check above it passes and every multi-answer gloss goes back to being half
-    lowered.
+    Each arm is anchored on the shape that would bring the fault back rather
+    than on today's wording.
   */
   const values = code("lib/copy/values.ts");
   assert.match(
     values,
-    /export function plainPhrase[\s\S]{0,200}?\.split\(/,
+    /export function plainPhrase\([^)]*pos[^)]*\)[\s\S]{0,120}?isPhrase\(pos\)/,
+    "plainPhrase lowers without asking whether the entry is a phrase",
+  );
+  assert.match(
+    values,
+    /export function plainPhrase[\s\S]{0,240}?\.split\(/,
     "plainPhrase reads the whole string again, so a gloss of several phrases lowers only the first",
+  );
+  assert.match(
+    values,
+    /ALWAYS_CAPITAL[\s\S]{0,400}?toLocaleLowerCase/,
+    "nothing holds the English pronoun back from being lowered",
+  );
+
+  /*
+    And nobody may keep a copy of the splitting, or force the lowering with a
+    literal part of speech rather than reading the entry's. There is no
+    exemption: `prisma/repair.ts` needed one while it named `PHRASE` itself,
+    and asking `lib/srs/cardSpelling.ts` what a card should say took the
+    decision, and the carve-out, out of it.
+  */
+  const offenders: string[] = [];
+  for (const file of [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]) {
+    if (file.endsWith("test-invariants.ts") || file.endsWith(".test.ts") || file.endsWith(".itest.ts")) continue;
+    const body = code(file);
+    if (/\.split\(\s*["'`] \/ ["'`]\s*\)[\s\S]{0,40}?plainPhrase/.test(body)) {
+      offenders.push(`${file} splits the answers itself`);
+    }
+    if (/plainPhrase\([^)]*,\s*["'`]/.test(body)) {
+      offenders.push(`${file} forces a part of speech rather than reading the entry's`);
+    }
+  }
+  assert.deepEqual(offenders, [], "plainPhrase is the one place a card's spelling is decided");
+
+  /*
+    And the repair that puts an already-built card right asks that module
+    rather than working it out again. It is the same fault one layer up: the
+    judgment was inside the Prisma file, where no unit test could reach it,
+    and driving it over real shapes is what found a recognition card's
+    Estonian front adopting the English gloss's capital.
+  */
+  const repair = code("prisma/repair.ts");
+  assert.match(repair, /spellingFor\(/, "the repair decides a card's spelling for itself again");
+  assert.ok(
+    !/plainPhrase/.test(repair),
+    "the repair reaches past lib/srs/cardSpelling.ts to lower a card itself",
   );
 });
 

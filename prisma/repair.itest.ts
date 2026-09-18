@@ -14,7 +14,7 @@
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { sharedPrompts } from "@/lib/collections/senses";
-import { repairCaseFronts, repairPhrasePunctuation, repairProductionBacks } from "./repair";
+import { repairCaseFronts, repairCardSpelling, repairProductionBacks } from "./repair";
 import { generateCards, isBareCaseFront } from "@/lib/srs/cards";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { plainPhrase } from "@/lib/copy/values";
@@ -71,6 +71,63 @@ describe("repairProductionBacks", () => {
     expect(after.lapses).toBe(3);
     expect(after.state).toBe(2);
     expect(after.front).toBe(card.front);
+  });
+
+  /*
+    THE SECOND CORRECTION, AND THE ONE A WORD CARD NEEDS. While `plainPhrase`
+    read the first character of whatever it was handed, it lowered a capital
+    that belongs to English or to Estonian: `aprill` was taught as `april` and
+    `Eesti` as `eesti`, which is the language rather than the country. The
+    entry itself was never touched, so the card is put back to what the entry
+    holds.
+  */
+  it("restores a capital the builder no longer drops", async () => {
+    const word = await prisma.lexeme.findFirst({
+      where: { pos: { not: "PHRASE" }, translation: { startsWith: "A", not: { startsWith: "a" } } },
+      select: { id: true, lemma: true, translation: true },
+    });
+    if (!word) return; // A dictionary with no capitalised gloss has nothing to restore.
+
+    const lowered = word.translation[0]!.toLowerCase() + word.translation.slice(1);
+    expect(lowered).not.toBe(word.translation);
+
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: word.id, cardType: "RECOGNITION",
+        front: word.lemma, back: lowered,
+      },
+    });
+
+    expect(await repairCardSpelling(prisma)).toBeGreaterThan(0);
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.back).toBe(word.translation);
+    expect(after.front).toBe(word.lemma);
+  });
+
+  /*
+    AND IT MAY ONLY EVER CHANGE THE CAPITALS AND THE MARK. A card holding a
+    different word is a card this has nothing to say about: restoring one
+    would be the repair deciding what a card asks, which is the builder's.
+  */
+  it("leaves a card holding a different answer exactly as it is", async () => {
+    const word = await prisma.lexeme.findFirst({
+      where: { pos: { not: "PHRASE" } },
+      select: { id: true, lemma: true, translation: true },
+    });
+    if (!word) return;
+
+    const card = await prisma.card.create({
+      data: {
+        ownerId: MINE, lexemeId: word.id, cardType: "RECOGNITION",
+        front: word.lemma, back: "something else entirely",
+      },
+    });
+
+    await repairCardSpelling(prisma);
+
+    const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
+    expect(after.back).toBe("something else entirely");
   });
 
   it("runs twice without changing anything the second time", async () => {
@@ -237,13 +294,14 @@ describe("repairCaseFronts", () => {
 });
 
 /**
- * The repair that drops a phrase's own capital and exclamation mark off a
- * RECOGNITION or PRODUCTION card built before `plainPhrase` existed.
+ * The repair that puts a card back to the spelling the builder writes today.
  *
- * Against a real database for the reason the two suites above are: what it
- * claims is that the punctuation changed and the schedule did not.
+ * What it should say is `lib/srs/cardSpelling.ts` and is unit tested there,
+ * over shapes no fixture reaches. What is left for a real database is what
+ * only a real database can say: that the write lands, that the schedule is
+ * untouched, and that a second run changes nothing.
  */
-describe("repairPhrasePunctuation", () => {
+describe("repairCardSpelling", () => {
   beforeEach(wipe);
   afterAll(wipe);
 
@@ -268,11 +326,11 @@ describe("repairPhrasePunctuation", () => {
       },
     });
 
-    expect(await repairPhrasePunctuation(prisma)).toBeGreaterThan(0);
+    expect(await repairCardSpelling(prisma)).toBeGreaterThan(0);
 
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
-    expect(after.front).toBe(plainPhrase(phrase.lemma));
-    expect(after.back).toBe(plainPhrase(phrase.translation));
+    expect(after.front).toBe(plainPhrase(phrase.lemma, "PHRASE"));
+    expect(after.back).toBe(plainPhrase(phrase.translation, "PHRASE"));
     expect(after.due).toEqual(due);
     expect(after.stability).toBe(12.5);
     expect(after.difficulty).toBe(6.25);
@@ -293,13 +351,13 @@ describe("repairPhrasePunctuation", () => {
       },
     });
 
-    await repairPhrasePunctuation(prisma);
+    await repairCardSpelling(prisma);
 
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
     expect(after.back).toBe(
-      [plainPhrase(phrase.lemma), plainPhrase(`${phrase.lemma} synonym`)].join(" / "),
+      [plainPhrase(phrase.lemma, "PHRASE"), plainPhrase(`${phrase.lemma} synonym`, "PHRASE")].join(" / "),
     );
-    expect(after.front).toBe(plainPhrase(phrase.translation));
+    expect(after.front).toBe(plainPhrase(phrase.translation, "PHRASE"));
   });
 
   it("runs twice without changing anything the second time", async () => {
@@ -313,9 +371,9 @@ describe("repairPhrasePunctuation", () => {
       },
     });
 
-    expect(await repairPhrasePunctuation(prisma)).toBeGreaterThan(0);
+    expect(await repairCardSpelling(prisma)).toBeGreaterThan(0);
     const once = await prisma.card.findMany({ where: { ownerId: MINE }, select: { front: true, back: true } });
-    expect(await repairPhrasePunctuation(prisma)).toBe(0);
+    expect(await repairCardSpelling(prisma)).toBe(0);
     const twice = await prisma.card.findMany({ where: { ownerId: MINE }, select: { front: true, back: true } });
     expect(twice).toEqual(once);
   });
@@ -333,7 +391,7 @@ describe("repairPhrasePunctuation", () => {
       },
     });
 
-    await repairPhrasePunctuation(prisma);
+    await repairCardSpelling(prisma);
     const after = await prisma.card.findUniqueOrThrow({ where: { id: card.id } });
     expect(after.front).toBe(first!.lemma);
     expect(after.back).toBe(first!.translation);

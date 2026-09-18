@@ -37,7 +37,7 @@
  * readily as a seeded one.
  */
 import { Prisma, type PrismaClient } from "@prisma/client";
-import { plainPhrase } from "../lib/copy/values";
+import { spellingFor } from "../lib/srs/cardSpelling";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
@@ -371,42 +371,33 @@ export async function fillExampleEnglish(prisma: PrismaClient): Promise<number> 
 }
 
 /**
- * DROPPING A PHRASE'S OWN CAPITAL LETTER AND EXCLAMATION MARK FROM A CARD
- * BUILT BEFORE `plainPhrase` EXISTED.
+ * PUTTING A CARD BACK TO THE SPELLING THE BUILDER WRITES TODAY.
  *
- * `lib/srs/cards.ts` builds a RECOGNITION or PRODUCTION card out of
- * `plainPhrase(lex.lemma)` and `plainPhrase(lex.translation)` now, so `Tere
- * hommikust!` reads `tere hommikust` on the front of a fresh card and
- * `Goodbye!` reads `goodbye` on the back. That reaches every card built since
- * and not one built before: a `Card` row carries its own front and back, and
- * nothing in the app rewrites one on its own.
+ * A `Card` row carries its own front and back and nothing in the app rewrites
+ * one, so each correction to `plainPhrase` reached every card built after it
+ * and none built before: first a phrase card shouting its greeting, then a
+ * word card taught with a capital that was the language's removed, `aprill`
+ * as `april` and `Eesti` as `eesti`, which is a different word.
  *
- * WHAT IT MAY TOUCH. `front` and `back`, on a RECOGNITION or PRODUCTION card
- * whose entry is a `PHRASE`, and only by running `plainPhrase` over them,
- * which cleans each `/` separated answer in turn. That is what keeps this
- * safe to run after `repairProductionBacks`: a back already widened to
- * "answer / other answer" keeps every answer it was widened to, cleaned
- * rather than collapsed. Never a scheduling column. The guard compares both
- * the front and the back it read against what it is about to write, so a card
- * touched between the read and the write is left exactly as it is.
- *
- * THE SPLITTING USED TO LIVE HERE, and that was the only place that knew a
- * string can hold several answers: `plainPhrase` itself read the first
- * character of whatever it was given, so every screen printing a gloss of
- * several phrases printed one of them lowered and the rest shouting. It reads
- * every part now, so this asks for nothing of its own.
+ * `lib/srs/cardSpelling.ts` is what this card should say and is where that is
+ * argued and tested; this is the read, the guard and the write. It may touch
+ * `front` and `back` on a RECOGNITION or PRODUCTION card and never a
+ * scheduling column, and the guard compares both the front and the back it
+ * read against what it is about to write, so a card touched between the read
+ * and the write is left exactly as it is.
  */
-export async function repairPhrasePunctuation(prisma: PrismaClient): Promise<number> {
+export async function repairCardSpelling(prisma: PrismaClient): Promise<number> {
   const cards = await prisma.card.findMany({
-    where: { cardType: { in: ["RECOGNITION", "PRODUCTION"] }, lexeme: { pos: "PHRASE" } },
-    select: { id: true, front: true, back: true },
+    where: { cardType: { in: ["RECOGNITION", "PRODUCTION"] } },
+    select: {
+      id: true, cardType: true, front: true, back: true,
+      lexeme: { select: { lemma: true, translation: true, pos: true } },
+    },
   });
 
   const rows = cards
-    .map((c) => ({
-      id: c.id, oldFront: c.front, oldBack: c.back,
-      front: plainPhrase(c.front), back: plainPhrase(c.back),
-    }))
+    .filter((c): c is typeof c & { lexeme: NonNullable<typeof c.lexeme> } => !!c.lexeme)
+    .map((c) => ({ id: c.id, oldFront: c.front, oldBack: c.back, ...spellingFor(c, c.lexeme) }))
     .filter((r) => r.front !== r.oldFront || r.back !== r.oldBack);
   if (rows.length === 0) return 0;
 

@@ -507,7 +507,7 @@ export async function learnBatch(
     const picked = pool.length >= CHOICES
       ? pickOptions({
           answer: glossOption({
-            text: plainPhrase(lexeme.translation),
+            text: plainPhrase(lexeme.translation, lexeme.pos),
             pos: lexeme.pos,
             band: bandOf(lexeme.cefr),
             theme: unitIntroducing(lexeme.lemma, lexeme.pos),
@@ -522,8 +522,8 @@ export async function learnBatch(
     return {
       cardId: row.id,
       lexemeId: lexeme.id,
-      lemma: plainPhrase(lexeme.lemma),
-      gloss: plainPhrase(lexeme.translation),
+      lemma: plainPhrase(lexeme.lemma, lexeme.pos),
+      gloss: plainPhrase(lexeme.translation, lexeme.pos),
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,

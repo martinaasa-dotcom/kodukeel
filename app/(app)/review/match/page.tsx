@@ -29,7 +29,7 @@ export default async function MatchPage() {
   const base = {
     ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
   } as const;
-  const include = { lexeme: { select: { lemma: true } } } as const;
+  const include = { lexeme: { select: { lemma: true, pos: true } } } as const;
 
   /*
     The best score is one settings row and has nothing to do with which cards
@@ -70,7 +70,7 @@ export default async function MatchPage() {
   const pairs: MatchPair[] = [];
   for (const card of pool) {
     const english = card.back.trim();
-    const estonian = plainPhrase(card.lexeme?.lemma ?? card.front);
+    const estonian = plainPhrase(card.lexeme?.lemma ?? card.front, card.lexeme?.pos);
     const key = english.toLowerCase();
     if (seenAnswers.has(key)) continue;
     seenAnswers.add(key);

@@ -1,3 +1,5 @@
+import { isPhrase } from "@/lib/dict/pos";
+
 /**
  * What a cell says when there is no value to put in it.
  *
@@ -61,6 +63,24 @@ export const SAME_SPELLING = "Spelled the same in English.";
 const PARTS = " / ";
 
 /**
+ * The one English word that is capital wherever it stands.
+ *
+ * A short certain list, in the shape `DA_ONLY_VERBS` and the a/an rule in
+ * `lib/estonian/caseReading.ts` take, and safe for their reason: this one is
+ * never the other way, and English spelling does not change under us.
+ *
+ * Holding a phrase to its part of speech is not enough on its own, because a
+ * phrase can open on it: `Ma ei saa aru` was taught as `i don't understand`
+ * and `Ma õpin eesti keelt` as `i am learning Estonian`, on two of the first
+ * twenty cards anybody meets. The lookahead is what keeps it to the pronoun,
+ * so `Ice cream` is still lowered and `I'm` and `I` are not.
+ *
+ * It is asked of the Estonian side too, which costs nothing and is worth
+ * saying: no Estonian word is spelled `I`, so the guard cannot fire there.
+ */
+const ALWAYS_CAPITAL = /^I(?=$|[\s'’])/;
+
+/**
  * A phrase's own capital letter and exclamation mark, dropped for word
  * learning.
  *
@@ -74,37 +94,50 @@ const PARTS = " / ";
  * shouting the greeting rather than teaching it.
  *
  * Trailing `!` only, and only where the text actually ends on one, so a
- * question a phrase genuinely asks (`Kuidas läheb?`) keeps its mark. The
- * first letter is lowered the way a lemma already is everywhere else in the
- * dictionary, which is safe here because no phrase in it opens on a proper
- * noun.
+ * question a phrase genuinely asks (`Kuidas läheb?`) keeps its mark.
  *
- * AND A STRING HOLDING SEVERAL ANSWERS IS SEVERAL PHRASES, which is the half
- * this did not do. It read the first character of the whole string and the
- * mark at the very end of it, so a gloss that is three phrases came out with
- * one of them lowered and the other two shouting: `palun` is glossed
- * `Please / You're welcome / Here you are` and a learner met it on the
- * ladder as `please / You're welcome / Here you are`, which reads as a
- * rendering fault rather than as three ways of saying it. `Sorry! / Excuse
- * me!` was worse, since the mark it dropped was the one at the end and the
- * one it kept was in the middle. Each part is a phrase and each is cleaned as
- * one. `prisma/repair.ts` had worked this out for a card's back and kept the
- * splitting to itself, which is two answers to one question with the copy in
- * the busier file being the one that had not learned; it reads this now.
+ * ONLY A PHRASE, WHICH IS WHAT THE ARGUMENT ABOVE WAS ALWAYS ABOUT. It said
+ * lowering was safe "because no phrase in it opens on a proper noun", and
+ * then it was applied to the lemma and the gloss of every word the app
+ * teaches. A word's capital is the language's rather than the app shouting,
+ * so dropping it is this app correcting English and Estonian it did not
+ * write: measured over the shipped dictionary, 166 entries and 30 of the
+ * course's own 1,514 words were taught with a capital that is theirs removed.
+ * `aprill` was taught as `april`, `esmaspäev` as `monday`, `jaanipäev` as
+ * `midsummer Day`, `mina` as `i`, and `Eesti` came out as `eesti`, which is a
+ * different word: the language rather than the country, which is the very
+ * fault `lib/estonian/answer.ts` has a comment about, fixed in the marker and
+ * never in the builder standing beside it. `pos` is required rather than
+ * optional for the reason `NounStems.illSgShort` is: a caller that has not
+ * thought about this quietly mis-teaches a word, and it looks exactly like a
+ * word whose gloss was written in lower case.
  *
- * ONLY THE SEPARATOR, NEVER THE COMMA. A comma separates the senses of an
- * ordinary gloss, and those carry capitals that are the language rather than
- * the app shouting: `vist` is `probably, I think`, `bemar` is `BMW, Beamer`
- * and `inglane` is `English person, Englishman`. Lowering those would be this
- * app correcting English it did not write.
+ * AND A STRING HOLDING SEVERAL ANSWERS IS SEVERAL PHRASES. This read the
+ * first character of the whole string and the mark at the very end of it, so
+ * a gloss that is three phrases came out with one of them lowered and the
+ * other two shouting: `palun` is glossed `Please / You're welcome / Here you
+ * are` and a learner met it on the ladder as `please / You're welcome / Here
+ * you are`, which reads as a rendering fault rather than as three ways of
+ * saying it. `Sorry! / Excuse me!` was worse, since the mark it dropped was
+ * the one at the end and the one it kept was in the middle. Each part is a
+ * phrase and each is cleaned as one. `prisma/repair.ts` had worked this out
+ * for a card's back and kept the splitting to itself, which is two answers to
+ * one question with the copy in the busier file being the one that had not
+ * learned; it reads this now.
+ *
+ * NEVER THE COMMA. A comma separates the senses of one gloss, and a sense past
+ * the first is not a new sentence: `vist` is `probably, I think` and `bemar`
+ * is `BMW, Beamer`. There is nothing there to lower even on a phrase.
  */
-export function plainPhrase(text: string): string {
+export function plainPhrase(text: string, pos: string | null | undefined): string {
+  if (!isPhrase(pos)) return text;
   return text.split(PARTS).map(onePhrase).join(PARTS);
 }
 
 function onePhrase(text: string): string {
   const trimmed = text.replace(/!+\s*$/, "").trimEnd();
-  return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1) : trimmed;
+  if (trimmed.length === 0 || ALWAYS_CAPITAL.test(trimmed)) return trimmed;
+  return trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1);
 }
 
 /**

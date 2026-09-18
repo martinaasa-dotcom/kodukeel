@@ -10,7 +10,7 @@ import { applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
-  repairCaseFronts, repairPhrasePunctuation, repairProductionBacks, repairThinExamples,
+  repairCaseFronts, repairCardSpelling, repairProductionBacks, repairThinExamples,
 } from "./repair";
 import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
@@ -104,19 +104,20 @@ async function main() {
   }
 
   /*
-    And the phrase cards built before `plainPhrase` existed, still carrying
-    `Tere hommikust!` and `Goodbye!` on a card whose whole point is the word
-    rather than its punctuation. It takes the cards built while `plainPhrase`
-    read only the first phrase of a string with them, which is every gloss
-    that holds several: `palun` was dealt as `please / You're welcome / Here
-    you are`, one of the three lowered and the other two still shouting. Here
-    for the same reason as the three repairs above it: the fault only exists
-    on a database that was already seeded, which is exactly what
-    `--only-if-empty` skips.
+    And the cards whose front or back was written before `plainPhrase` said
+    what it says now. It shouted a greeting before that function existed, and
+    then, while it read the first character of whatever string it was handed,
+    it lowered capitals that were the language's: `aprill` was taught as
+    `april`, `Eesti` as `eesti`, `Ma ei saa aru` as `i don't understand`, and a
+    gloss holding several phrases came out half lowered, `palun` as
+    `please / You're welcome / Here you are`. Each correction reached the cards
+    built after it and none built before. Here for the same reason as the three
+    repairs above it: the fault only exists on a database that was already
+    seeded, which is exactly what `--only-if-empty` skips.
   */
-  const depunctuated = await repairPhrasePunctuation(prisma);
-  if (depunctuated > 0) {
-    console.log(`Cleaned the punctuation on ${depunctuated} phrase cards.`);
+  const respelled = await repairCardSpelling(prisma);
+  if (respelled > 0) {
+    console.log(`Put ${respelled} cards back to the spelling the builder writes today.`);
   }
 
   /*

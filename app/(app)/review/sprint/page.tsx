@@ -40,7 +40,7 @@ export default async function SprintPage() {
     where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 } },
     orderBy: { due: "asc" },
     take: POOL_SIZE,
-    include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
+    include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
   });
 
   let cards = due;
@@ -50,7 +50,7 @@ export default async function SprintPage() {
       where: { ownerId, suspended: false, lapses: { gt: 0 }, id: { notIn: [...seenIds] } },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
     });
     cards = [...cards, ...weak];
   }
@@ -66,7 +66,7 @@ export default async function SprintPage() {
     id: c.id,
     front: c.front,
     back: c.back,
-    lemma: c.lexeme ? plainPhrase(c.lexeme.lemma) : null,
+    lemma: c.lexeme ? plainPhrase(c.lexeme.lemma, c.lexeme.pos) : null,
     lexemeId: c.lexemeId,
     starred: !!c.lexemeId && starred.has(c.lexemeId),
     cardType: c.cardType,

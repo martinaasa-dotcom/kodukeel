@@ -203,7 +203,7 @@ export function askableSlots(word: FlashWord): FlashSlot[] {
     asked, in its cases, where there is something to produce.
   */
   if (!sameSpelling(word.lemma, word.translation) && !shownInGloss([word.lemma])) {
-    const value = plainPhrase(word.lemma);
+    const value = plainPhrase(word.lemma, word.pos);
     out.push({
       slot: "PRODUCTION",
       value,
@@ -460,8 +460,8 @@ export function flashTask(input: {
     id: `${word.lexemeId}:${slot.slot}`,
     cardId,
     lexemeId: word.lexemeId,
-    lemma: plainPhrase(word.lemma),
-    translation: plainPhrase(word.translation),
+    lemma: plainPhrase(word.lemma, word.pos),
+    translation: plainPhrase(word.translation, word.pos),
     pos: word.pos,
     shape,
     /*
