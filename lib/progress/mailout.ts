@@ -36,7 +36,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { examCountdown } from "@/lib/progress/countdown";
 import { EVIDENCE_NOTE } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
-import { cohortKind } from "@/lib/classroom/cohort";
+import { cohortKind, withoutMember } from "@/lib/classroom/cohort";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
 import { ladderWordsAt, wordsLeftAt } from "@/lib/course/milestones";
 
@@ -908,7 +908,19 @@ export async function letterInputFor(
       stop, arriving through a loop.
     */
     const group = await prisma.classroom.findFirst({
-      where: { ownerId, archived: false },
+      /*
+        A GROUP WITH SOMEBODY IN IT, WHICH IS THE SAME QUESTION THE DECISION
+        ASKED.
+
+        Written as the oldest group they own, this and `candidateFor`'s
+        `runsGroup` could name two different groups: somebody who ran a class
+        last term and opened a new one this term was decided owed a register,
+        and then this picked the empty old one and returned null. The letter
+        never arrived, every Monday, and nothing looked wrong, since a
+        gathering that answers null is skipped before a send is ever booked.
+        Both halves ask for a group holding a member besides its owner now.
+      */
+      where: { ownerId, archived: false, members: { some: { ownerId: { not: ownerId } } } },
       orderBy: { id: "asc" },
       select: { id: true, name: true, kind: true, targetLevel: true },
     });
@@ -935,21 +947,42 @@ export async function letterInputFor(
         reviewedAt: { gte: clock.shiftDay(now, 7), lt: clock.startOfDay(now) },
       },
       orderBy: { id: "asc" },
-      select: { reviewedAt: true },
+      select: { ownerId: true, reviewedAt: true },
     });
     const studied = new Set(days.map((d) => clock.dayKey(d.reviewedAt)));
     const week = weekKeys.map((key) => ({ label: dayLabel(key), studied: studied.has(key) }));
 
+    /*
+      ONE POPULATION AND ONE WINDOW FOR ALL FOUR FIGURES, WHICH IS WHY NONE OF
+      THEM IS THE ROSTER'S.
+
+      Both rosters answer for a screen and count the owner, who holds a
+      `ClassroomMember` row of their own: a class of 24 students read 25 and a
+      teacher who studied that morning was counted among those who practised.
+      And their week is a rolling 168 hours including this morning where the
+      strip is the seven whole days ending yesterday, so the sentence and the
+      drawing under it described different weeks, which is the fault the weekly
+      letter's own comment records.
+
+      So the three headline figures are derived here from the one read the
+      strip is already built from. What still comes from the roster is what
+      only the roster can answer, the class-wide weakest case and the bands,
+      and the count it hands over is the one a member is taken out of.
+    */
+    const practised = new Set(days.map((d) => d.ownerId));
+    const headline = { members: ids.length, active: practised.size, reviews: days.length };
+
     if (cohortKind(group.kind) === "WORKPLACE") {
-      const cohort = await workplaceRoster(group.id, group.targetLevel as ExamLevel, now);
+      const cohort = withoutMember(
+        await workplaceRoster(group.id, group.targetLevel as ExamLevel, now),
+        ownerId,
+      );
       return {
         kind: "classroom",
         input: {
           origin,
           groupName: group.name,
-          members: cohort.members.length,
-          active: cohort.active,
-          reviews: days.length,
+          ...headline,
           week,
           detail: {
             kind: "WORKPLACE",
@@ -970,9 +1003,7 @@ export async function letterInputFor(
       input: {
         origin,
         groupName: group.name,
-        members: roster.entries.length,
-        active: roster.activeThisWeek,
-        reviews: roster.totalReviewsThisWeek,
+        ...headline,
         week,
         detail: { kind: "CLASS", weakestCases: roster.weakestCases },
       },

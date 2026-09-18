@@ -18746,6 +18746,35 @@ check("the letter about other people carries nobody's name", () => {
       `the classroom letter's gathering indexes a member out of ${field}`,
     );
   }
+
+  /*
+    AND ITS THREE FIGURES COME FROM ONE POPULATION AND ONE WINDOW.
+
+    Both rosters answer for a screen, where the owner is a member like any
+    other and the week is a rolling 168 hours. The register is a count about
+    other people over the seven whole days the strip beside it draws, so a
+    figure borrowed from either read the teacher into their own class and
+    described a different week from the drawing under the sentence.
+
+    Named rather than counted, because the natural edit here is to reach back
+    for `roster.totalReviewsThisWeek` as a tidy-up: it is one field where the
+    derivation is three lines, it is obviously about the right thing, and it is
+    wrong twice over.
+  */
+  for (const borrowed of ["entries.length", "activeThisWeek", "totalReviewsThisWeek", "cohort.active"]) {
+    assert.equal(
+      upTo.includes(borrowed),
+      false,
+      `the register reads ${borrowed}, which counts the owner among their own group and over a ` +
+        "different week from the strip it prints beside it",
+    );
+  }
+  assert.match(
+    upTo,
+    /const headline = \{/,
+    "the register no longer derives its own figures, so the sentence and the strip under it can " +
+      "describe two different groups again",
+  );
 });
 
 check("the weekly ceiling counts the letters it is about", () => {
