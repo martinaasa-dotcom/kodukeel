@@ -189,6 +189,61 @@ app is careful about, and it belongs in the briefing rather than in front of the
 The test that holds this is a ceiling, not a target: 100 characters for a dead end's body, 95 for a
 page lead. Neither number makes a sentence good. What they do is catch the paragraph growing back.
 
+## 3a. Shape: the fault the bans cannot see
+
+Every example in section 3 is about tone. This one is about how a sentence is built, and it is the
+fault that survived every rule in this document for a year, because each of the sentences below is
+warm, is concise by word count, and contains not one banned phrase.
+
+It was reported off the module card on Today:
+
+> Learned, and that is the evening
+
+against
+
+> All done for today
+
+The first is a noun with a clause bolted on and no subject anywhere in it. It reads as clever,
+which on a screen somebody opens every morning is a cost with nothing on the other side of it. The
+second is what a person says. Both are the same length.
+
+The shape has three habits and they travel together.
+
+**A fragment where a sentence belongs.** "Learned, and that is the evening." "Part 2 of 4 toward",
+which was a heading sitting over the thing it was the start of a sentence about. A heading may be a
+fragment: "Where you are" is right, and so is "On today". What may not happen is a fragment
+standing in for the sentence that would have said the thing.
+
+**An appositive tail doing a clause's work.** A comma, then a participle, then the real point:
+
+> Reading, listening, writing and speaking, measured against the dictionary.
+
+against
+
+> Reading, listening, writing and speaking, all checked against the dictionary.
+
+**A sentence that keeps going after it has finished.** This is the one a machine can hold, and
+`SENTENCE_MAX` in `lib/copy/readerCopy.test.ts` does, at 36 words. The accessibility statement had
+one at 59:
+
+> Alongside those, the app is built out of real buttons and links with a visible focus ring,
+> animation is turned off for anybody whose system asks for reduced motion, no part of it uses a
+> dragging movement, and colour is never the only thing carrying a distinction: a correct answer
+> says so in words as well as in green.
+
+against
+
+> Alongside those, the app is built out of real buttons and links with a visible focus ring.
+> Animation is turned off for anybody whose system asks for reduced motion, and no part of it needs
+> a dragging movement. Colour is never the only thing carrying a distinction, so a correct answer
+> says so in words as well as in green.
+
+Nothing was cut. Four claims that were one sentence are four sentences.
+
+**The test.** Read it aloud and stop where you would draw breath. If you run out of breath before
+the full stop, it is two sentences. If you cannot say it aloud at all without rearranging it, it is
+a fragment pretending to be one.
+
 ## 4. What this rule does not cover
 
 **Comments, and code quoted inside a document.** Comments are for whoever maintains the code and may
@@ -246,12 +301,15 @@ swept in hand-written copy, and left alone in a stream.
 | The same rules given to Anu | `lib/tutor/prompt.ts` |
 | One table, one sweep, and the rules actually reaching the prompt | `scripts/test-invariants.ts` |
 | The ceiling on a dead end's body and a page lead | `lib/copy/readerCopy.test.ts` |
+| The ceiling on one sentence, at 36 words | `lib/copy/readerCopy.test.ts` |
 
 Adding a tell means arguing that the phrase is never right on a screen in this app. `perfect` is not
 on the list, because taisminevik is the perfect tense and a grammar page has to be able to say so.
 `unlock` is not on the list, because the exam recordings genuinely unlock. A check that fires on
 honest copy gets waived, and a check everybody waives is a check nobody reads.
 
-The half in the table is the half a machine can hold. Sections 1 and 3 are a review standard, and
-the only thing enforcing them is somebody reading the sentence back and asking whether a teacher
-would have said it that way.
+The half in the table is the half a machine can hold. Sections 1, 3 and 3a are a review standard,
+and the only thing enforcing them is somebody reading the sentence back and asking whether a teacher
+would have said it that way. Section 3a is the clearest case of the split: its third habit is a word
+count and is held in the build, and its first two are "Learned, and that is the evening", which is
+six words and which no count will ever tell from "Where you are".

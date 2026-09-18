@@ -89,7 +89,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Layers", tone: "accent", group: "targeted", note: "Typed, varied",
     within: "/practice", headline: true,
     blurb:
-      "Words review has already taught you, asked in ways it never does: hear a sentence and " +
+      "Words review has already taught you, asked in ways it never does. Hear a sentence and " +
       "type the form you heard, fill a gap from the meaning alone, or write your own sentence " +
       "around a form we name. A word leaves once you get it right five times, three ways.",
   },

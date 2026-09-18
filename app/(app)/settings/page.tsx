@@ -447,9 +447,9 @@ export default async function SettingsPage() {
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
                     There is no live dictionary lookup set up here yet, so search stops at the {words}{" "}
-                    built-in words: nothing outside that set can be looked up, and dictation, the
-                    sentence builder and the mock exam&rsquo;s reading and listening parts stay thin or
-                    empty, because the built-in set has almost no real example sentences.
+                    built-in words, and nothing outside that set can be looked up. The built-in set has
+                    almost no real example sentences either, so dictation, the sentence builder and the
+                    mock exam&rsquo;s reading and listening parts stay thin or empty.
                   </p>
                   <EkilexSetupGuide />
                 </div>

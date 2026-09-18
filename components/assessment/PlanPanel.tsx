@@ -253,9 +253,9 @@ export function PlanPanel({ standing, goals, dailyGoal, pace = null, now = new D
           <SectionTitle hint="what the numbers assume">Where these come from</SectionTitle>
         <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {target} sits at roughly {range(CUMULATIVE_HOURS[target].low, CUMULATIVE_HOURS[target].high, "hours")} of
-          study from nothing, for an English speaker. Estonian costs more than French or Spanish
-          and the difference sits in the middle: the cases and the gradation make A2 to B1 the
-          longest step, and B1 to B2 costs nearer what it costs in any language once the grammar
+          study from nothing, for an English speaker. Estonian costs more than French or Spanish,
+          and the difference sits in the middle. The cases and the gradation make A2 to B1 the
+          longest step. B1 to B2 costs nearer what it costs in any language, once the grammar
           underneath it works. Those are averages across other people, on other courses.
         </p>
         <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
