@@ -41,6 +41,28 @@ const config: NextConfig = {
   poweredByHeader: false,
 
   /*
+    NEXT WRITES A BLOCK INTO CLAUDE.md, AND IT IS WRITTEN IN THE VOICE THIS
+    REPOSITORY BANS.
+
+    `next dev` appends a managed block to `CLAUDE.md` at the project root
+    pointing an agent at `node_modules/next/dist/docs/`, and the block's own
+    text says that committing it "keeps the tree clean". Here it does the
+    opposite: it carries two dashes used as clause breaks, which is the
+    loudest single tell in `lib/copy/voice.ts`, and `readerCopy.test.ts`
+    sweeps `CLAUDE.md` along with every other file a person reads. So the
+    block fails `npm run test` at whichever lines it lands on, and it has
+    already cost one red CI run, having arrived while the app was being
+    driven locally to check a change.
+
+    That leaves a contributor the choice of committing something they did not
+    type and watching CI go red, or working out where an unexplained
+    modification to the repository's own standing document came from. Neither
+    is worth what the block buys, which is a pointer to documentation that is
+    in `node_modules` either way.
+  */
+  agentRules: false,
+
+  /*
     LINT IS PART OF THE BUILD, NOT ONLY PART OF CI, AND IT LIVES IN `prebuild`.
 
     This was `eslint: { ignoreDuringBuilds: false }` here, and the argument for
