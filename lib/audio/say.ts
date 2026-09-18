@@ -56,17 +56,37 @@
  * A question keeps its question mark and `Aitäh!` keeps its exclamation,
  * because what is being added is the *end of a sentence* rather than a full
  * stop in particular, and putting a stop after a question mark would be
- * writing a sentence nobody writes. A colon and a semicolon end a clause
- * rather than a sentence and are deliberately on the list anyway: the model
- * has somewhere to stop, which is all this is for.
+ * writing a sentence nobody writes.
  */
-const ENDS_A_SENTENCE = /[.!?…:;]$/u;
+const ENDS_A_SENTENCE = /[.!?\u2026]$/u;
+
+/**
+ * A MARK THAT CANNOT FINISH AN UTTERANCE IS TAKEN OFF, NOT WRITTEN AFTER.
+ *
+ * Appending to whatever arrived was the first version of this and it was wrong
+ * at both ends of one rule. A text ending in a comma came out as `Tere,.`,
+ * which is not punctuation anybody writes and is text this app hands to
+ * somebody else's service; the cloze round speaks a passage the learner pasted
+ * in themselves, so a trailing comma is an ordinary Monday rather than a
+ * hypothetical. And a colon and a semicolon were on the list of marks that
+ * already finish a sentence, on the reasoning that the model then has
+ * somewhere to stop. It does not: `Ta ütles:` is the definition of a fragment,
+ * which is the one thing this module exists to stop sending, so calling it
+ * finished left the fault standing on the shape that has it worst. Both are
+ * the same repair, which is to take the mark off and finish the text properly.
+ *
+ * Written as escapes rather than as the characters themselves, which is
+ * `DASH_SEPARATED`'s rule one directory over: an en dash and an em dash are
+ * banned on sight in this repository's copy, so a rule that has to *read* one
+ * names it rather than printing it.
+ */
+const CANNOT_FINISH = /[\s,;:\u2010-\u2015-]+$/u;
 
 /**
  * A closing quote or bracket sits *after* the punctuation, so `(vt ka.)` has
  * ended and `raamat"` has not.
  */
-const TRAILING_MARKS = /[»”"')\]]+$/u;
+const TRAILING_MARKS = /[\u00bb\u201d"')\]]+$/u;
 
 /**
  * The text as the speech service should receive it: finished, so it is read as
@@ -75,12 +95,19 @@ const TRAILING_MARKS = /[»”"')\]]+$/u;
  * Deliberately narrow. Text that already ends like a sentence comes back
  * unchanged, which is most of what this app speaks aloud, since an attested
  * Ekilex sentence carries its own punctuation and `Tere hommikust!` carries
- * its own. What it is for is the other half: six thousand dictionary
- * headwords and every form of them, each of which reaches the service as one
- * bare token.
+ * its own. What it is for is the other half: six thousand dictionary headwords
+ * and every form of them, each of which reaches the service as one bare token.
+ *
+ * It moves punctuation and never a letter, which `say.test.ts` asserts over
+ * every shape it is given rather than trusting the reading of these two
+ * expressions.
  */
 export function spokenText(text: string): string {
   const trimmed = text.trim();
   if (!trimmed) return trimmed;
-  return ENDS_A_SENTENCE.test(trimmed.replace(TRAILING_MARKS, "")) ? trimmed : `${trimmed}.`;
+  const finished = trimmed.replace(CANNOT_FINISH, "");
+  // Nothing but punctuation is left exactly as it came: there is no utterance
+  // to finish, and the route has already refused an empty string above this.
+  if (!finished) return trimmed;
+  return ENDS_A_SENTENCE.test(finished.replace(TRAILING_MARKS, "")) ? finished : `${finished}.`;
 }

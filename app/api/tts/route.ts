@@ -121,9 +121,9 @@ export async function POST(request: Request) {
       Finished, rather than as typed. TartuNLP reads sentences, and a bare
       headword with no stop on it is a fragment to its front end, which renders
       it as one: measured, the word itself comes back an eighth shorter, which
-      is the "the word is incomplete" a learner reported. `spokenText` appends
-      one full stop and changes nothing else, and the store is keyed on what
-      comes out of it, so the cache and the request cannot come apart.
+      is the "the word is incomplete" a learner reported. `spokenText` moves
+      punctuation and never a letter, and the store is keyed on what comes out
+      of it, so the cache and the request cannot come apart.
     */
     text = spokenText(body.text.trim().slice(0, MAX_CHARS));
     /*
