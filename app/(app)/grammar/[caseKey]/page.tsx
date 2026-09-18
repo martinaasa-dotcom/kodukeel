@@ -202,12 +202,13 @@ export default async function CasePage({
                     className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
                     style={{ background: "var(--accent)" }}
                   />
-                  <span className="min-w-0 flex-1">
+                  {/* A div rather than a span, because what goes under the use
+                      is a list, and a list inside phrasing content is markup no
+                      browser has to parse the way it was written. */}
+                  <div className="min-w-0 flex-1">
                     {use}
-                    {/* And somebody saying it, under the use rather than in the
-                        table below, which lists words rather than uses. */}
                     <PointExamples examples={pinned.get(use)} canTranslate={canTranslate} />
-                  </span>
+                  </div>
                 </li>
               ))}
             </ul>
