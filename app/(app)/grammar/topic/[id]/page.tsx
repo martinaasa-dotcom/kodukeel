@@ -36,7 +36,13 @@ const TOPIC_DRILL: Record<string, string> = {
 };
 
 /** The topics with a table of real verbs, and which slots that table shows. */
-const VERB_TOPICS: Record<string, "present" | "negative" | "conditional" | "imperative"> = {
+const VERB_TOPICS: Record<string, "present" | "negative" | "conditional" | "imperative" | "past"> = {
+  /*
+    The page about the past said the third person does something to the stem
+    that is learned per verb, and showed no verb. Both persons the dictionary
+    stores are on it now, on the module's own verbs inside a module.
+  */
+  imperfect: "past",
   "present-tense": "present",
   /*
     THE VERB TO BE SHOWS ITSELF. The page said it was the one verb you cannot

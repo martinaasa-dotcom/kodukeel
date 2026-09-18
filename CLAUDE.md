@@ -4574,8 +4574,12 @@ met and no others; the standalone reference passes nothing and is unchanged. And
 said it was the one verb you cannot avoid and one of the few irregular ones and then showed not one
 form of it, on the fourth evening of the course. Its present is stored per person because no rule
 reaches `on`, so the table is the six the harvest holds, marked as such, and it is the only verb on
-that page. Both asserted, on the call rather than on the import, since a page that reads the scope
-and then ignores it is the fault this file records Today having had.
+that page. The page about the past had the same hole one part later: it said what the third person
+does to the stem is learned per verb and showed no verb, so it tables the past first person, which
+is a principal part, beside the third the harvest stores, both marked as memorized and never worked
+out, on the module's own verbs inside a module; a verb the dictionary holds no past for shows a gap.
+Both asserted, on the call rather than on the import, since a page that reads the scope and then
+ignores it is the fault this file records Today having had.
 **And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
 module disagreeing with itself.** The closing review holds every level's gap cards to the taught
 spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung

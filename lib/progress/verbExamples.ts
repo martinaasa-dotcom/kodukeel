@@ -117,6 +117,15 @@ const CODES: readonly string[] = [
   "IndPrSg1", "IndPrSg2", "IndPrSg3", "IndPrPl1", "IndPrPl2", "IndPrPl3", "IndPrPs_",
   "KndPrSg1", "KndPrSg2", "KndPrPs", "KndPrPl1", "KndPrPl2", "KndPrPl3",
   "ImpPrSg2", "ImpPrPl2",
+  /*
+    The simple past, which is never derived: `tahtsin` goes to `tahtis` and
+    `võtsin` to `võttis` with the grade changing on the way. The first person
+    is a principal part and the third is stored by the harvest for the course
+    verbs, so the page about the past can show both on real verbs where the
+    dictionary holds them, and shows a gap where it does not. The drill reads
+    forms by code and asks for neither, so it is untouched.
+  */
+  "IndIpfSg1", "IndIpfSg3",
 ];
 
 /**
@@ -152,6 +161,11 @@ export function conjugatedForms(
   */
   const firstPersonIsPrincipal = !attested.has("IndPrSg1");
   if (firstPersonIsPrincipal) attested.set("IndPrSg1", pres1sg);
+  // The past first person is the same shape: a principal part under its own
+  // name, which the loop above cannot see.
+  const past1sg = forms.find((f) => f.formType === "PAST_1SG")?.value;
+  const pastIsPrincipal = !attested.has("IndIpfSg1") && Boolean(past1sg);
+  if (pastIsPrincipal) attested.set("IndIpfSg1", past1sg!);
   const derived = new Map<string, ReturnType<typeof derivedVerbForms>[number]>(
     derivedVerbForms({ lemma, pres1sg }).map((f) => [f.morphCode as string, f]),
   );
@@ -162,7 +176,7 @@ export function conjugatedForms(
     if (fromEkilex) {
       // The principal part is STORED wherever it comes from, so the provenance
       // a reader sees for `olen` is the one they see for `loen`.
-      const principal = code === "IndPrSg1" && firstPersonIsPrincipal;
+      const principal = (code === "IndPrSg1" && firstPersonIsPrincipal) || (code === "IndIpfSg1" && pastIsPrincipal);
       out.push({ code, value: fromEkilex, origin: principal ? "STORED" : "EKILEX" });
       continue;
     }
