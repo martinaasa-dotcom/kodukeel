@@ -46,6 +46,9 @@ const GOOGLE_BUTTON_TIMEOUT_MS = 4000;
 /** How long the column gets to stop moving before it is measured anyway. */
 const SETTLE_TIMEOUT_MS = 1500;
 
+/** How long a resize has to stop before the button is drawn again. */
+const REDRAW_SETTLE_MS = 150;
+
 /** The narrowest and widest button Google's own API will draw. */
 const MIN_BUTTON_WIDTH = 200;
 const MAX_BUTTON_WIDTH = 400;
@@ -72,15 +75,31 @@ const MAX_BUTTON_WIDTH = 400;
  * laid out at, which is what says no transform is scaling it, and has not
  * moved since the frame before. It gives up at the deadline, because a
  * browser where something never settles should still get a button.
+ *
+ * THE DEADLINE IS A TIMER RATHER THAN A COUNT OF FRAMES, and that is not
+ * tidiness. A browser runs no animation frames in a tab nobody is looking
+ * at, so a loop that gives up by reading the clock inside a frame never
+ * gives up at all there: written that way, `/sign-in` opened in a background
+ * tab waited out the fallback above instead and came back to the redirect
+ * door, having drawn nothing. It reports whether it settled or ran out,
+ * because the two are measured differently by the caller.
  */
-function settled(el: HTMLElement, deadlineMs: number): Promise<void> {
+function settled(el: HTMLElement, deadlineMs: number): Promise<boolean> {
   return new Promise((resolve) => {
-    const deadline = Date.now() + deadlineMs;
+    let done = false;
+    const finish = (still: boolean) => {
+      if (done) return;
+      done = true;
+      window.clearTimeout(timer);
+      resolve(still);
+    };
+    const timer = window.setTimeout(() => finish(false), deadlineMs);
     let previous = -1;
     const frame = () => {
+      if (done) return;
       const measured = el.getBoundingClientRect().width;
       const still = Math.abs(measured - el.clientWidth) < 0.5 && Math.abs(measured - previous) < 0.5;
-      if (still || Date.now() > deadline) return resolve();
+      if (still) return finish(true);
       previous = measured;
       requestAnimationFrame(frame);
     };
@@ -262,6 +281,7 @@ export function SignInForm({
     let cancelled = false;
     let drawn = false;
     let observer: ResizeObserver | null = null;
+    let redraw = 0;
     /*
       The deadline gives up on Google's script, not on a button that has
       already arrived. Written to cancel whatever had happened, it also shut
@@ -276,18 +296,30 @@ export function SignInForm({
       setGoogleState((state) => (state === "loading" ? "fallback" : state));
     }, GOOGLE_BUTTON_TIMEOUT_MS);
 
-    /** The column's own width, floored so the number can never exceed the box. */
-    function widthNow(): number | null {
+    /**
+     * The column's own width, floored so the number can never exceed the box.
+     *
+     * The rectangle is the exact painted width and is the one to take, so
+     * long as nothing is scaling it. Where `settled` gave up rather than
+     * settling, something still is, and then the layout width is the truth
+     * and the rectangle is a frame of an animation. `Math.min` is the guard
+     * either way: a rectangle wider than the box it was laid out at is a
+     * transform, never a wider box, and asking Google for that number is the
+     * right edge stopping short of its border that started all this.
+     */
+    function widthNow(still: boolean): number | null {
       const column = columnRef.current;
       if (!column) return null;
-      const measured = Math.floor(column.getBoundingClientRect().width);
+      const laid = column.clientWidth;
+      const rect = column.getBoundingClientRect().width;
+      const measured = Math.floor(still ? Math.min(rect, laid) : laid);
       return Math.max(MIN_BUTTON_WIDTH, Math.min(measured, MAX_BUTTON_WIDTH));
     }
 
     /** Draw the button at the column's width, replacing whatever was there. */
-    function paint(id: GoogleAccountsId) {
+    function paint(id: GoogleAccountsId, still: boolean) {
       const container = googleButtonRef.current;
-      const width = widthNow();
+      const width = widthNow(still);
       if (!container || width === null) return;
       container.replaceChildren();
       id.renderButton(container, {
@@ -310,7 +342,7 @@ export function SignInForm({
       const nonce = randomNonce();
       const hashed = await hashNonce(nonce);
       if (cancelled) return;
-      await settled(column, SETTLE_TIMEOUT_MS);
+      const still = await settled(column, SETTLE_TIMEOUT_MS);
       if (cancelled) return;
       id.initialize({
         client_id: googleClientId!,
@@ -318,13 +350,23 @@ export function SignInForm({
         nonce: hashed,
         use_fedcm_for_prompt: true,
       });
-      paint(id);
+      paint(id, still);
       drawn = true;
       setGoogleState("gis");
+      /*
+        Coalesced, because a window dragged across the clamp range fires the
+        observer on every frame of the drag and each answer is a button torn
+        down and built again under somebody's pointer. One redraw once the
+        dragging stops is the same button and none of the churn.
+      */
       observer = new ResizeObserver(() => {
         if (cancelled) return;
-        const width = widthNow();
-        if (width !== null && width !== drawnWidth.current) paint(id);
+        window.clearTimeout(redraw);
+        redraw = window.setTimeout(() => {
+          if (cancelled) return;
+          const width = widthNow(true);
+          if (width !== null && width !== drawnWidth.current) paint(id, true);
+        }, REDRAW_SETTLE_MS);
       });
       observer.observe(column);
     }
@@ -340,6 +382,7 @@ export function SignInForm({
       cancelled = true;
       window.clearTimeout(timeout);
       window.clearInterval(poll);
+      window.clearTimeout(redraw);
       observer?.disconnect();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

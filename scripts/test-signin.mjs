@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 28 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 32 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -203,6 +203,9 @@ const withGoogle = serve(GSI_PORT, { googleClientId: GOOGLE_CLIENT_ID });
 const B = `http://127.0.0.1:${PORT}`;
 const OFF = `http://127.0.0.1:${OFF_PORT}`;
 const GSI = `http://127.0.0.1:${GSI_PORT}`;
+
+/** `GOOGLE_BUTTON_TIMEOUT_MS` in the form, which this has to outwait to ask anything. */
+const GOOGLE_FALLBACK_MS = 4000;
 
 /*
   Killed however this ends, and not only on the happy path. The first version
@@ -447,14 +450,100 @@ check("so the button's own edges are inside the column, which is what a cut-off 
   scrollbar arriving once the page is long enough to want one, and a browser
   zoom are all that same change.
 */
-await gsiPage.setViewportSize({ width: 420, height: 900 });
-await gsiPage.waitForFunction("window.__gsi.calls.length > 1", { timeout: 5_000 }).catch(() => {});
+const column = () => gsiPage.evaluate(() =>
+  document.querySelector("[data-stub-button]")?.parentElement?.parentElement?.clientWidth ?? 0);
+const wide = await column();
+await gsiPage.setViewportSize({ width: 360, height: 900 });
+/*
+  The new width is waited for before the redraw is, because the observer has
+  nothing to answer about until the page has laid itself out again and a
+  headless browser does that when something asks. Waited for the redraw alone,
+  this spent its whole timeout and then measured the observer arriving.
+*/
+await gsiPage
+  .waitForFunction(
+    `(document.querySelector("[data-stub-button]")?.parentElement?.parentElement?.clientWidth ?? 0) !== ${wide}`,
+    { timeout: 5_000 })
+  .catch(() => {});
+const narrow = await column();
+/*
+  A plain wait rather than a condition, because what is being waited for is a
+  browser deciding to lay the page out again: the observer, and then the
+  redraw's own settle, are both downstream of a frame this headless browser
+  has no other reason to draw. Waited for as a condition it spent its whole
+  timeout and then measured the observer arriving.
+*/
+await gsiPage.waitForTimeout(2_000);
+/*
+  Stated rather than assumed: this asks nothing at a width where the column
+  comes out the same, and the check that preceded it did exactly that. Resized
+  to 420 the column is 374 at either end, and what made it pass was a reading
+  taken while the resize was still running, which is the mid-animation fault
+  this whole block is about, wearing a suite's clothes.
+*/
+check("the column really is a different width at a phone's, or the redraw asks nothing",
+  narrow > 0 && narrow !== wide, `${wide} then ${narrow}`);
 const after = await gsiPage.evaluate(() => window.__gsi?.calls ?? []);
 const last = after[after.length - 1];
 check("a column that changes width afterwards gets the button drawn again to match it",
-  after.length > drawn.length && !!last && last.width === Math.floor(last.columnRect),
-  `${after.length} render(s), last asked ${last?.width} for ${last?.columnRect?.toFixed(1)}`);
+  after.length > drawn.length && !!last && last.width === Math.floor(last.columnLayout),
+  `${after.length} render(s), last asked ${last?.width} for a column laid out at ${last?.columnLayout}`);
 await gsiCtx.close();
+
+/*
+  A TAB NOBODY IS LOOKING AT RUNS NO ANIMATION FRAMES, and the wait for the
+  column to stop moving is driven by them. Written to give up by reading the
+  clock inside a frame, it never gave up in a background tab at all: nothing
+  was drawn, the four-second fallback fired, and somebody who opened the sign-in
+  page in a second tab came back to the redirect door with Google's own button
+  never attempted.
+
+  `requestAnimationFrame` stubbed to answer nobody is that tab exactly, and it
+  is the one way to ask this deterministically: whether a headless browser
+  suspends frames for a page that is not in front is the browser's business
+  and changes between versions. What has to hold is that the deadline is a
+  timer, so the button still arrives and still fits.
+*/
+const hiddenCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+await hiddenCtx.route("https://accounts.google.com/gsi/client*", (route) =>
+  route.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
+await hiddenCtx.addInitScript(() => {
+  window.requestAnimationFrame = () => 0;
+  const calls = [];
+  window.__gsi = { calls };
+  window.google = {
+    accounts: {
+      id: {
+        initialize() {},
+        renderButton(parent, options) {
+          const column = parent.parentElement;
+          calls.push({ width: options.width, columnLayout: column.clientWidth });
+          const button = document.createElement("div");
+          button.dataset.stubButton = "1";
+          button.style.cssText =
+            `width:${options.width}px;height:40px;box-sizing:border-box;border:1px solid #747775`;
+          parent.appendChild(button);
+        },
+      },
+    },
+  };
+});
+const hiddenPage = await hiddenCtx.newPage();
+hiddenPage.on("pageerror", (e) => errors.push(e.message));
+await hiddenPage.goto(`${GSI}/sign-in`, { waitUntil: "domcontentloaded" });
+await hiddenPage.locator("[data-stub-button]").waitFor({ timeout: 10_000 }).catch(() => {});
+const hidden = await hiddenPage.evaluate(() => window.__gsi?.calls ?? []);
+const only = hidden[0];
+check("a tab running no animation frames still gets Google's own button",
+  hidden.length > 0, `${hidden.length} render(s)`);
+check("and it is drawn at the width the column was laid out at, which no transform moves",
+  !!only && only.width === Math.floor(only.columnLayout),
+  only ? `asked ${only.width} for a column laid out at ${only.columnLayout}` : "never drawn");
+/* Past the fallback's own deadline, or this asks nothing: it fires at four seconds. */
+await hiddenPage.waitForTimeout(GOOGLE_FALLBACK_MS + 400);
+check("and the redirect door does not open over it once the fallback's own deadline has passed",
+  (await hiddenPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+await hiddenCtx.close();
 
 check("no page error on the way through", errors.length === 0, errors[0] ?? "");
 
