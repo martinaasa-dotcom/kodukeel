@@ -99,14 +99,21 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     re-render never reorders the chips under a finger. Shuffled here rather
     than sent, since the answers are already on the question.
   */
-  const bank = useMemo<string[]>(() => {
+  /*
+    The forms to put beside the pronouns, in a fixed shuffle per question, so a
+    re-render never reorders the chips under a finger. KEYED BY SLOT RATHER
+    THAN BY SPELLING, because a table can hold one spelling twice: `olema` is
+    `on` for `ta` and `on` for `nad`, and a bank keyed on the word had one
+    chip for two rows and a duplicate React key. Each chip knows which row it
+    came from, and a chip is spent when that row's form has been placed.
+  */
+  const bank = useMemo<{ slot: number; form: string }[]>(() => {
     if (!question || question.shape !== "match") return [];
-    const forms = question.blanks.map((b) => b.answer);
     const seed = [...question.lexemeId].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
-    return forms
-      .map((form, at) => ({ form, key: ((seed * (at + 1) * 2654435761) >>> 0) }))
-      .sort((a, b) => a.key - b.key || a.form.localeCompare(b.form))
-      .map((x) => x.form);
+    return question.blanks
+      .map((b, slot) => ({ slot, form: b.answer, key: ((seed * (slot + 1) * 2654435761) >>> 0) }))
+      .sort((a, b) => a.key - b.key || a.slot - b.slot)
+      .map(({ slot, form }) => ({ slot, form }));
   }, [question]);
 
   const inputs = useMemo<RefObject<HTMLInputElement | null>[]>(
@@ -132,7 +139,23 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     undo, and the same `typed` array the typed shape marks: the marker cannot
     tell the two shapes apart, which is the point.
   */
-  const placed = useMemo(() => new Set(typed.filter(Boolean)), [typed]);
+  /*
+    Which chips are spent: as many chips of a spelling as there are rows
+    holding it, so placing one `on` leaves the other on offer.
+  */
+  const spent = useMemo(() => {
+    const used = new Set<number>();
+    const counts = new Map<string, number>();
+    for (const v of typed) if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
+    for (const chip of bank) {
+      const left = counts.get(chip.form) ?? 0;
+      if (left > 0) {
+        used.add(chip.slot);
+        counts.set(chip.form, left - 1);
+      }
+    }
+    return used;
+  }, [typed, bank]);
   const place = useCallback((form: string) => {
     if (verdicts) return;
     setTyped((t) => {
@@ -376,14 +399,14 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             <div className="under-field pl-16">
               <p className="sr-only" id="conjugation-bank">The forms to place</p>
               <div className="flex flex-wrap gap-2" role="group" aria-labelledby="conjugation-bank">
-                {bank.map((form) => (
+                {bank.map(({ slot, form }) => (
                   <button
-                    key={form}
+                    key={slot}
                     type="button"
                     lang="et"
                     className="choice-btn rounded-full px-3 py-1.5 text-base"
-                    disabled={placed.has(form)}
-                    aria-label={placed.has(form) ? `${form}, placed` : form}
+                    disabled={spent.has(slot)}
+                    aria-label={spent.has(slot) ? `${form}, placed` : form}
                     onClick={() => place(form)}
                   >
                     {form}

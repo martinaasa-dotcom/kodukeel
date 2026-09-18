@@ -7,7 +7,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -487,11 +487,20 @@ export async function learnBatch(
         because the batch is assembled here and a second read would be a second
         answer.
   */
-  const [pool, reach, starred] = await Promise.all([
+  const [wholePool, reach, starred] = await Promise.all([
     decoyOptions(),
     sentenceReach(),
     starredAmong(ownerId, rows.map((row) => row.lexeme!.id)),
   ]);
+
+  /*
+    THE FOUR OPTIONS ARE TAUGHT WORDS WHERE THE MODULE SAID WHAT IT HAS TAUGHT.
+    A beginner picking `tere` out of "hello, thank you, yes, no" is choosing
+    among words they met an hour ago; picking it out of the ranked dictionary
+    is reading three glosses of words nobody has shown. Standalone Learn passes
+    nothing and keeps the whole pool, as with the sentence rule above.
+  */
+  const pool = decoysAmong(wholePool, taughtWords ? [...taughtWords] : null, CHOICES);
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;

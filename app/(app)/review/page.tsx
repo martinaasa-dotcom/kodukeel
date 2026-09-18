@@ -266,7 +266,7 @@ export default async function ReviewPage({
   const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
   const fresh = atLevelFirst(unseen, level, raised).slice(0, room);
   const gloss = await glossChosen();
-  const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId);
+  const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId, scope?.lemmas ?? null);
 
   /*
     WHEN THE NEXT CARD COMES BACK, WHICH IS THE ONLY QUESTION AN EMPTY QUEUE

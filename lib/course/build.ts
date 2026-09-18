@@ -55,8 +55,19 @@ export function slice<T>(items: readonly T[], n: number): T[][] {
  * point the reference does not carry, the evening simply reads nothing rather
  * than linking somewhere that does not exist.
  */
-export function reads(unit: SyllabusUnit, at: number): Pick<DaySpec, "grammar" | "grammarCase"> {
-  const names = unit.grammar;
+export function reads(unit: SyllabusUnit, at: number, level: string = unit.level): Pick<DaySpec, "grammar" | "grammarCase"> {
+  /*
+    NO CASE PAGE AT A1. A beginner is asked for no case anywhere in A1, and a
+    page of fourteen endings on the second evening is the reference being
+    handed to somebody who has just been told the language is impossible. So
+    at A1 an evening reads only a topic page, the present tense, the verb to
+    be, negation, and where a unit's grammar is nothing but cases it reads
+    nothing rather than a page it is not going to be asked about. The cases
+    are read from A2, where they are drilled.
+  */
+  const names = level === "A1"
+    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()))
+    : unit.grammar;
   if (names.length === 0) return {};
   const name = names[at % names.length]!;
   const asCase = name.toUpperCase();
@@ -213,7 +224,7 @@ export function buildPart(spec: PartSpec, before: readonly PartSpec[] = partsBef
           unitId,
           level: spec.level,
           words: chunk,
-          ...reads(unit, n),
+          ...reads(unit, n, spec.level),
           practice: rounds(spec.level, turn, verbs, taughtFrom(soFar)),
           ...(last && scene ? { scene } : {}),
         },

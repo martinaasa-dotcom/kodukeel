@@ -6,6 +6,7 @@ import { SYLLABUS, unitById } from "@/lib/collections/syllabus";
 import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
+  READ_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, taughtFrom,
@@ -269,6 +270,17 @@ describe("what a day reads and where it goes", () => {
     every one of those is something nobody has taught. The list is the
     rotation's, and the rotation is the argument: see `plan.ts`.
   */
+  it("opens no case page at A1, and only a topic page a beginner can use", () => {
+    for (const { programme, day } of DAYS) {
+      if (programme.level !== "A1") continue;
+      expect(day.grammarCase, `${day.id} reads a case page`).toBeUndefined();
+      if (day.grammar) expect(grammarTopic(day.grammar), day.id).toBeTruthy();
+      expect(day.grammar, `${day.id} reads the B1 object rule`).not.toBe("object");
+    }
+    // And the pages are still read from A2, where the cases are drilled.
+    expect(DAYS.some(({ programme, day }) => programme.level === "A2" && day.grammarCase)).toBe(true);
+  });
+
   it("keeps A1 to rounds played on the words the module has taught", () => {
     const allowed = new Set<string>(["match", "listening", "picture", "conjugation"]);
     for (const { programme, day } of DAYS) {
@@ -332,10 +344,19 @@ describe("what a day reads and where it goes", () => {
     slack: a unit is sliced evenly, so the short night of a unit is one word
     short and no more.
   */
-  it("is fifteen minutes, every evening", () => {
-    for (const { day } of DAYS) {
+  it("is fifteen minutes, every evening, and shorter only where there is nothing to read", () => {
+    for (const { programme, day } of DAYS) {
+      /*
+        An A1 evening whose unit is about a case reads nothing, since a
+        beginner reads no case page, and it is two minutes shorter for it
+        rather than two minutes of something invented to fill the slot. A
+        quarter of an hour is the ceiling somebody planned their evening
+        around; thirteen is that promise kept.
+      */
+      const reads = day.steps.some((s) => s.kind === "read" || s.kind === "talk");
+      const floor = reads || programme.level !== "A1" ? DAY_MINUTES - 2 : DAY_MINUTES - 2 - READ_MINUTES;
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
-        .toBeGreaterThanOrEqual(DAY_MINUTES - 2);
+        .toBeGreaterThanOrEqual(floor);
       expect(day.minutes, `${day.id} claims ${day.minutes} minutes`)
         .toBeLessThanOrEqual(DAY_MINUTES + 2);
     }

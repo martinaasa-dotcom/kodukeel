@@ -353,7 +353,9 @@ export const A1 = [
     module: "Igapäevaelu",
     canDo: "Order food, shop for groceries and say what you like to eat.",
     blurb: "Enough to order, shop and read a menu. The osastav lives here (ma joon kohvi).",
-    grammar: ["partitive", "object"],
+    // The partitive alone. The object rule was here too, and its own page
+    // says it is the main thing separating B1 from A2; it is B1's `objekt`.
+    grammar: ["partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["kodu"],
     words: [

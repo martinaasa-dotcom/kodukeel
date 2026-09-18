@@ -346,25 +346,51 @@ export async function lemmaCountsByLevel(): Promise<Map<string, number>> {
  * the dictionary holds is not a fact about the person being asked, so the whole
  * of it is one cached read for everybody.
  */
-export function decoyOptions(): Promise<GlossOption[]> {
+/**
+ * A wrong answer with the word it came from, so a caller that knows which
+ * words a learner has been taught can keep the options to those. The module's
+ * rounds do (`lib/course/scope.ts`); everybody else ignores the field.
+ */
+export type DecoyOption = GlossOption & { readonly lemma: string };
+
+/**
+ * The pool narrowed to some words, or the whole pool where those words could
+ * not fill a question. Four options need at least `need` distinct lines, and a
+ * beginner on the first evening holds five words: the taught words are the
+ * honest options wherever they reach, and the ranked pool stands in wherever
+ * they do not, which is the same answer the picker already gives a thin pool.
+ */
+export function decoysAmong(
+  pool: readonly DecoyOption[], lemmas: readonly string[] | null | undefined, need: number,
+): readonly DecoyOption[] {
+  if (!lemmas) return pool;
+  const wanted = new Set(lemmas);
+  const narrowed = pool.filter((o) => wanted.has(o.lemma));
+  return narrowed.length >= need ? narrowed : pool;
+}
+
+export function decoyOptions(): Promise<DecoyOption[]> {
   return remember("decoy-options", FACTS_TTL_MS, async () => {
     const rows = await prisma.lexeme.findMany({
       select: { translation: true, pos: true, cefr: true, lemma: true },
     });
     const seen = new Set<string>();
-    const out: GlossOption[] = [];
+    const out: DecoyOption[] = [];
     for (const row of rows) {
       const text = plainPhrase(row.translation.trim());
       // One line per meaning. Two entries glossed the same way are one option,
       // and offering both would be two right answers wearing different ids.
       if (!text || seen.has(text)) continue;
       seen.add(text);
-      out.push(glossOption({
-        text,
-        pos: row.pos,
-        band: bandOf(row.cefr),
-        theme: unitIntroducing(row.lemma, row.pos),
-      }));
+      out.push({
+        ...glossOption({
+          text,
+          pos: row.pos,
+          band: bandOf(row.cefr),
+          theme: unitIntroducing(row.lemma, row.pos),
+        }),
+        lemma: row.lemma,
+      });
     }
     return out;
   });

@@ -4453,6 +4453,21 @@ alone with it, so the standalone rounds, the suggestion row and Sõnad stop reac
 beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
 sentence now: that a clue is coming, what it says, and when.
 
+**And the second pass over the same evenings found four more, which is the argument for walking
+them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
+case names at A1, so the pronoun evenings read nothing and the verb evenings read the verb to be
+and the present tense, and an evening with nothing to read is two minutes shorter rather than two
+minutes of something invented, which the fifteen-minute test allows for exactly that case. The food
+unit read the object rule, whose own page says it is what separates B1 from A2; it reads the
+partitive alone. Listening filled itself from what was due and what had lapsed and a beginner has
+neither, so the module's first evening sent them to its empty state: it tops up from any met word,
+as Match always did. And a table can hold one spelling twice, `olema` is `on` for `ta` and for
+`nad`, so the matching chips are keyed by slot rather than by word and a chip is spent when its
+row's form is placed. The wrong answers on the ladder's choice rung, the closing review and
+Listening are drawn from the taught words wherever those reach four (`decoysAmong`), so the first
+evening's four options are the five words met an hour ago and not three glosses of words nobody
+has shown; outside the module the whole ranked pool stands, as before.
+
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
 moment they pressed a step: a rail down the left, a bar along the bottom of a phone, a button in the

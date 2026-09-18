@@ -6,7 +6,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ListeningSession, type ListeningCard } from "./ListeningSession";
 import { shuffle } from "@/lib/random/shuffle";
-import { decoyOptions } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import {
@@ -71,6 +71,25 @@ export default async function ListeningPage({
     });
     cards = [...cards, ...weak];
   }
+  if (cards.length < POOL_SIZE) {
+    /*
+      AND THEN ANY WORD THEY HAVE MET, which is what Match already did and this
+      round did not: a beginner on the first evening has nothing due and no
+      lapses, so the module sent them to a round that answered with its empty
+      state. `state: { not: 0 }`, so a word never met is never asked cold.
+    */
+    const seenIds = new Set(cards.map((c) => c.id));
+    const met = await prisma.card.findMany({
+      where: {
+        ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
+        state: { not: 0 }, id: { notIn: [...seenIds] }, ...scoped,
+      },
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: POOL_SIZE - cards.length,
+      include: { lexeme: { select: { lemma: true, translation: true, pos: true, cefr: true } } },
+    });
+    cards = [...cards, ...met];
+  }
 
   // The dictionary's overall size is stable across a session (grading never
   // changes it), so this check is safe to keep here rather than in the client.
@@ -78,7 +97,9 @@ export default async function ListeningPage({
     // Which words the dictionary holds is the same answer for everybody and
     // the same answer next round, so it is read once per instance rather than
     // once per round: see lib/dict/facts.ts.
-    const pool = await decoyOptions();
+    // Inside the module, the wrong answers are taught words wherever those
+    // reach four, so nothing on the screen is a word nobody has shown.
+    const pool = decoysAmong(await decoyOptions(), scope?.lemmas, MIN_LEXEMES_FOR_CHOICES);
     if (pool.length < MIN_LEXEMES_FOR_CHOICES) {
       return (
         <Page title="Listening" lead="Hear a word, pick its meaning.">
