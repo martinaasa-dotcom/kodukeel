@@ -4774,6 +4774,11 @@ after that slash edits a word rather than opens a sentence. The comment here use
 were what kept the marker from splitting it, which is not what the marker does, and a comment
 stating a false fact about the module next door is the fault this file keeps finding in its own
 prose.
+And the builder writes the one the repair reads back: `lib/srs/cards.ts` joined a card's accepted
+answers with the characters typed out while both halves of the rule split on the constant, which is
+the same two readings standing in the busiest of the three files. Its other two joins went the same
+way, since the answer to how several answers are held in one string may not be two answers in one
+file.
 
 **A missing example is news; a phrase having none is not.** Ekilex records a usage against a
 *word*, to show it doing its job in a sentence, so it holds none for `Tere!`, `Aitäh!`,

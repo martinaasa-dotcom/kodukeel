@@ -4423,6 +4423,25 @@ check("the app drops a capital only where the capital is its own to drop", () =>
     !/^\s*const PARTS\b/m.test(spelling),
     "lib/srs/cardSpelling.ts declares a separator beside the one it imports",
   );
+
+  /*
+    And the builder writes the one the repair reads back, which is the same
+    fault standing in the busiest of the three files: `lib/srs/cards.ts`
+    joined a card's accepted answers with the characters typed out while both
+    halves of the rule split on the constant. The other two joins in it are
+    the same separator and go the same way, since the answer to how several
+    answers are held in one string may not be two answers in one file.
+  */
+  const builder = code("lib/srs/cards.ts");
+  assert.match(
+    builder,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cards.ts writes a separator of its own",
+  );
+  assert.ok(
+    !/\.join\(\s*["'`] \/ ["'`]\s*\)/.test(builder),
+    "lib/srs/cards.ts joins a card's answers with the characters rather than the constant",
+  );
 });
 
 check("the voice is one table, and everything that speaks reads from it", () => {
