@@ -32,8 +32,10 @@ page.on("console", (m) => {
 // rather than added from either side: 44. Three more for the columns on
 // Today ending level: 47.
 // Five more for the way back to the last word, which is driven rather than
-// asserted from the source: 54.
-const { check, absent, done } = suite("Practice modes", { floor: 54 });
+// asserted from the source: 54. One more for the key that opens it not being
+// a letter somebody was typing, which is how it shipped first: 55, and one
+// for the caret not being dropped on the way out: 56.
+const { check, absent, done } = suite("Practice modes", { floor: 56 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -266,10 +268,48 @@ if (answered >= 2 && (await lookButton().count()) > 0) {
   const after = await page.locator("main").innerText();
   const gradedAfter = await page.getByText(/\d+ graded/).textContent();
   check("walking forward lands back in the round", (await lookButton().count()) > 0 && /\d+ graded/.test(after));
+  /*
+    And the caret comes with it. The buttons inside the panel unmount when it
+    closes, so without somewhere to put focus a keyboard is left on the body,
+    which is the fault this app has a written rule about: the card's own
+    answer box takes it where there is one, the button that opened the panel
+    where there is not, and never nothing.
+  */
+  const caret = await page.evaluate(() => document.activeElement?.tagName ?? "NONE");
+  check("and the caret lands on a control rather than the body", caret !== "BODY" && caret !== "NONE", caret);
   check("and nothing about a look back is graded", gradedBefore === gradedAfter,
     `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
 } else {
   absent(4, "two cards answered in this session, which the deck here could not supply");
+}
+
+/*
+  AND THE KEY THAT OPENS IT IS NOT A LETTER SOMEBODY WAS TYPING.
+
+  `b` was bound from inside the answer box while that box was still empty, on
+  the argument undo makes about `u`. An empty box is exactly where the first
+  letter of an answer goes, and 63 entries in the shipped dictionary begin
+  with one: pressing `b` on a card asking for `buss` opened the panel and
+  swallowed the keystroke. Driven here rather than reasoned about, because
+  which key reaches which handler is a fact about the browser.
+*/
+let typedCard = false;
+for (let i = 0; i < 8 && !typedCard; i += 1) {
+  typedCard = (await page.getByLabel("Type your answer").count()) > 0;
+  if (!typedCard) { await answerCurrentCard(); await page.waitForTimeout(700); }
+}
+
+if (typedCard) {
+  const box = page.getByLabel("Type your answer");
+  await box.click();
+  await page.keyboard.type("b");
+  await page.waitForTimeout(300);
+  const opened = (await page.locator("main").getByRole("button", { name: /One more back/i }).count()) > 0;
+  const typedIn = (await page.getByLabel("Type your answer").count()) ? await box.inputValue() : "";
+  check("b in the answer box is a letter rather than a shortcut", !opened && typedIn === "b",
+    `opened: ${opened}, box holds: ${JSON.stringify(typedIn)}`);
+} else {
+  absent(1, "a typed card, which this deck did not offer in eight tries");
 }
 
 /**

@@ -507,6 +507,7 @@ export function ReviewSession({
   */
   const [seen, setSeen] = useState<SeenCard[]>([]);
   const look = useLookBack(seen);
+  const { trigger: lookTrigger } = look;
   /* One card can be shown twice in a session, so the key is the showing. */
   const showings = useRef(0);
   const recordSeen = useCallback((card: ReviewCard, met: boolean) => {
@@ -907,10 +908,24 @@ export function ReviewSession({
       // tuba, kuu, muusika — so once there is anything typed, u is a letter.
       const startedAnswering = field !== null && field.value.length > 0;
 
-      // `b` opens the look back on the same terms, and for the same reason:
-      // the moment somebody wants the last word back is the moment just after
-      // it went, with focus already inside the next card's answer box.
-      if (e.key.toLowerCase() === "b" && !startedAnswering && seen.length > 0) {
+      /*
+        `b` OPENS THE LOOK BACK, AND ONLY WHERE IT IS NOT A LETTER.
+
+        This was written to reach from inside the answer box while that box
+        was still empty, on the argument `u` makes above: the moment somebody
+        wants the last word back is the moment just after it went, with focus
+        already in the next card's box. That is where it costs most, because
+        an empty box is exactly where the *first* letter of an answer is
+        typed. Driven in a browser on a production card: pressing `b` opened
+        the panel and swallowed the keystroke. 63 entries in the shipped
+        dictionary begin with one, `buss`, `bussipilet`, `banaan`,
+        `bensiin`, and a learner answering any of them met it every time.
+
+        So it is a shortcut for the shapes where the keyboard is not typing
+        Estonian: the flip, the choice and a first meeting. On a typed card
+        the button in the footer is one press away and the letter is a letter.
+      */
+      if (e.key.toLowerCase() === "b" && !typing && seen.length > 0) {
         e.preventDefault();
         look.open();
         return;
@@ -1497,7 +1512,13 @@ export function ReviewSession({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
-        <LookBackButton count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
+        <LookBackButton
+          ref={lookTrigger}
+          count={seen.length}
+          onOpen={look.open}
+          disabled={busy || look.looking}
+          keyHint={ask !== "type"}
+        />
         <button
           type="button"
           onClick={() => void undo()}

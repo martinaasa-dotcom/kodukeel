@@ -195,6 +195,7 @@ export function LearnSession({
   */
   const [seen, setSeen] = useState<SeenCard[]>([]);
   const look = useLookBack(seen);
+  const { trigger: lookTrigger } = look;
   const showings = useRef(0);
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const { voice, pace } = useAudioPrefs();
@@ -500,6 +501,9 @@ export function LearnSession({
         if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
         return;
       }
+      // Safe as a letter here because this handler has already returned above
+      // if focus is in a text box, which is where `b` is the first letter of
+      // `buss`. The review screen had to be corrected for exactly that.
       if (e.key.toLowerCase() === "b" && seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (phase === "feedback") {
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
@@ -1011,7 +1015,7 @@ export function LearnSession({
       {asideNote}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <LookBackButton count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
+        <LookBackButton ref={lookTrigger} count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
       </div>
 
       <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>

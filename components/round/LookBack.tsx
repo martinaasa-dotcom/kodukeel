@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, History, Undo2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Chip, KeyCap } from "@/components/ui";
@@ -36,25 +36,70 @@ import { earlier, later, openAt, type SeenCard } from "@/lib/ux/lookBack";
  * already offers, on a screen the learner is only passing through.
  */
 
-/** The look back's own position, held by the round that draws it. */
+/**
+ * The look back's own position, held by the round that draws it.
+ *
+ * WHERE THE CARET GOES IS PART OF IT. The button that opens this unmounts
+ * nothing, and the buttons inside it unmount when it closes, so without the
+ * ref below a keyboard leaves the panel and lands on the body: this app has
+ * a rule about exactly that, written for the conversation's send button, and
+ * a round is where it costs most, since the next thing a learner does is
+ * answer a card they can no longer reach with the keyboard. So closing puts
+ * the caret back on the control that opened it, which is also where the
+ * reader was standing.
+ */
 export function useLookBack(seen: readonly SeenCard[]) {
   const [at, setAt] = useState<number | null>(null);
+  /*
+    Held through a callback rather than handed out as the ref object itself,
+    and read by a caller that destructures it (`const { trigger } = look`).
+    Both halves are about the hooks lint rule rather than about React:
+    `ref={look.trigger}` is reported as a ref access during render whatever
+    is behind it, which is three warnings per call site for a thing this is
+    not doing, and a callback prop says what is actually meant, which is
+    "tell me which node you drew".
+  */
+  const triggerEl = useRef<HTMLButtonElement | null>(null);
+  const trigger = useCallback((node: HTMLButtonElement | null) => { triggerEl.current = node; }, []);
 
   const open = useCallback(() => setAt(openAt(seen)), [seen]);
-  const close = useCallback(() => setAt(null), []);
+  const leave = useCallback(() => setAt(null), []);
   const back = useCallback(() => setAt((i) => (i === null ? null : earlier(i, seen) ?? i)), [seen]);
-  /** Forward, and past the newest that means back to the round. */
+  /** Forward, and past the newest that is the round itself. */
   const forward = useCallback(() => setAt((i) => (i === null ? null : later(i, seen))), [seen]);
+
+  /*
+    AND THE CARET GOES BACK AFTER THE PANEL HAS GONE, NOT WHILE IT IS LEAVING.
+
+    Focusing inside the handler that closes it does nothing at all, which is
+    the sort of fix that looks like it works: the round draws the trigger
+    disabled while the panel is open, a disabled control cannot take focus,
+    and the handler runs before React has re-rendered it back into an enabled
+    one. Measured on a typed card it appeared to work anyway, because the next
+    card's answer box autofocuses on mount and that is what the caret was
+    landing on; on a flip card, which has no box, it landed on the body.
+
+    So the restore is an effect on the panel having closed, which runs after
+    the commit that enables the button again. A card that pulls focus into its
+    own answer box still wins, and that is the better place for it to be.
+  */
+  const wasLooking = useRef(false);
+  useEffect(() => {
+    const looking = at !== null;
+    if (wasLooking.current && !looking) triggerEl.current?.focus();
+    wasLooking.current = looking;
+  }, [at]);
 
   const card = at === null ? null : seen[at] ?? null;
   return {
     at,
     card,
+    trigger,
     looking: card !== null,
     hasEarlier: at !== null && earlier(at, seen) !== null,
     hasLater: at !== null && later(at, seen) !== null,
     open,
-    close,
+    close: leave,
     back,
     forward,
   };
@@ -67,21 +112,33 @@ export function useLookBack(seen: readonly SeenCard[]) {
  * of a session: a control that can only ever say "there is nothing behind
  * you" is a control that teaches people to ignore that row.
  */
-export function LookBackButton({ count, onOpen, disabled = false }: {
+export function LookBackButton({ count, onOpen, disabled = false, keyHint = true, ref }: {
   count: number;
   onOpen: () => void;
   disabled?: boolean;
+  /**
+   * Whether to name the key, which is false on a card being typed.
+   *
+   * `b` is the first letter of `buss`, so the shortcut stands down while an
+   * answer box has focus, and a cap promising a key the card in front of you
+   * does not answer to is the fault the review footer's own hint was
+   * corrected for.
+   */
+  keyHint?: boolean;
+  /** So closing the panel can put the caret back where it was opened from. */
+  ref?: React.Ref<HTMLButtonElement>;
 }) {
   if (count === 0) return null;
   return (
     <button
+      ref={ref}
       type="button"
       onClick={onOpen}
       disabled={disabled}
       className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
       style={{ color: "var(--ink-3)" }}
     >
-      <History size={12} aria-hidden /> See it again <KeyCap>B</KeyCap>
+      <History size={12} aria-hidden /> See it again {keyHint && <KeyCap>B</KeyCap>}
     </button>
   );
 }
@@ -105,9 +162,26 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
   onForward: () => void;
   onClose: () => void;
 }) {
+  /*
+    THE PANEL TAKES THE CARET WHEN IT OPENS, AND SAYS WHAT IT IS.
+
+    A live region added to the page at the same time as its content is not
+    reliably read out: stepping between cards changes the content of a region
+    that is already there and announces, and opening the panel does not. So
+    arriving is a focus move, which every screen reader reads, onto a box that
+    carries its own name. On mount alone, because moving the caret on every
+    step would take it off the button the reader is pressing.
+  */
+  const panel = useRef<HTMLDivElement>(null);
+  useEffect(() => { panel.current?.focus(); }, []);
+
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
+      ref={panel}
+      tabIndex={-1}
+      role="group"
+      aria-label="Looking back at a word you have already answered"
+      className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border outline-none"
       style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
     >
       <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
