@@ -15,6 +15,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { SuggestFix } from "@/components/SuggestFix";
 import { NO_VALUE } from "@/lib/copy/values";
 import { focusFrom } from "@/lib/course";
+import { moduleScopeFrom } from "@/lib/course/scope";
 import { WordLink } from "@/components/course/WordLink";
 
 export const dynamic = "force-dynamic";
@@ -104,12 +105,15 @@ export default async function CasePage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { caseKey } = await params;
-  const inModule = focusFrom(await searchParams) !== null;
+  const query = await searchParams;
+  const inModule = focusFrom(query) !== null;
+  // The words on the page are the module's own when it is opened from a step.
+  const scope = moduleScopeFrom(query);
   const ref = caseReference(caseKey.toUpperCase());
   if (!ref) notFound();
 
   const ownerId = await requireUserId();
-  const examples = await caseExamples(ownerId, ref.key, 6);
+  const examples = await caseExamples(ownerId, ref.key, 6, scope?.lemmas);
 
   const all = allCaseReferences();
   const index = all.findIndex((c) => c.key === ref.key);

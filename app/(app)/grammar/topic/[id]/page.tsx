@@ -13,6 +13,7 @@ import { DrillLink } from "@/components/DrillLink";
 import { VerbTable } from "./VerbTable";
 import { verbExamples } from "@/lib/progress/verbExamples";
 import { focusFrom } from "@/lib/course";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 /**
  * The grammar topics with a drill of their own.
@@ -37,10 +38,22 @@ const TOPIC_DRILL: Record<string, string> = {
 /** The topics with a table of real verbs, and which slots that table shows. */
 const VERB_TOPICS: Record<string, "present" | "negative" | "conditional" | "imperative"> = {
   "present-tense": "present",
+  /*
+    THE VERB TO BE SHOWS ITSELF. The page said it was the one verb you cannot
+    avoid and one of the few irregular ones, and then showed not one form of
+    it: a beginner read it on the fourth evening of the course and left
+    without `olen`, `oled` or `on`. Its present is stored per person because
+    no rule reaches `on`, so the table is the six the harvest holds, marked
+    as such, and it is the only verb on this page (`ONLY_VERB`).
+  */
+  olema: "present",
   negation: "negative",
   conditional: "conditional",
   imperative: "imperative",
 };
+
+/** A topic whose table is one verb: the page about `olema` shows `olema`. */
+const ONLY_VERB: Record<string, string> = { olema: "olema" };
 
 export const dynamic = "force-dynamic";
 
@@ -101,7 +114,10 @@ export default async function TopicPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
-  const inModule = focusFrom(await searchParams) !== null;
+  const query = await searchParams;
+  const inModule = focusFrom(query) !== null;
+  // The verbs on the page are the module's own when it is opened from a step.
+  const scope = moduleScopeFrom(query);
   const topic = grammarTopic(id);
   if (!topic) notFound();
 
@@ -124,7 +140,10 @@ export default async function TopicPage({
     dictionary. Each form says which. The other topics keep to English.
   */
   const shown = VERB_TOPICS[id];
-  const verbs = shown ? await verbExamples(ownerId, 4) : [];
+  const only = ONLY_VERB[id];
+  const verbs = shown
+    ? await verbExamples(ownerId, only ? 1 : 4, only ? [only] : scope?.lemmas)
+    : [];
 
   return (
     <Page
@@ -211,8 +230,8 @@ export default async function TopicPage({
 
         {shown && verbs.length > 0 && (
           <section>
-            <SectionTitle hint={verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
-              On real verbs
+            <SectionTitle hint={only ? "every person, as the dictionary holds it" : verbs.some((v) => v.inDeck) ? "verbs from your deck first" : "from the dictionary"}>
+              {only ? "The six persons" : "On real verbs"}
             </SectionTitle>
             <VerbTable verbs={verbs} show={shown} />
           </section>

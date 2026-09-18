@@ -101,9 +101,56 @@ function readingFor(name: string): Pick<DaySpec, "grammar" | "grammarCase"> {
  */
 export function readingPlan(unit: SyllabusUnit, level: string, readInPart: ReadonlySet<string>): string[] {
   const names = level === "A1"
-    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()))
+    ? unit.grammar.filter((name) => !CASE_KEYS.has(name.toUpperCase()) && !builtOnACase(name))
     : unit.grammar;
   return [...new Set(names.filter((name) => !readInPart.has(name)))];
+}
+
+/**
+ * WHAT A PAGE IS BUILT ON, WHICH IS THE ORDER THE LADDER MAY READ THEM IN.
+ *
+ * The reference's own dependencies and nothing finer: a page explains
+ * something out of what an earlier page explained, so the object rule is read
+ * after the genitive and the partitive, the perfect after the participles.
+ * `course.test.ts` walks the whole ladder against it, and any case page but
+ * the three principal ones needs the genitive, since every other ending is
+ * glued onto that stem.
+ *
+ * AND IT IS WHAT KEEPS A CASE-SHAPED PAGE OUT OF A1. The rule above that A1
+ * reads no case page had a hole the size of the pages *about* cases: the
+ * numerals page is "the counted noun is partitive singular", the time page is
+ * "days take -l and months take -s", and the adjective page is "the same
+ * ending as its noun, for ten of the fourteen". Seven A1 evenings read one of
+ * those, to somebody who by the operator's own rule has been shown no case at
+ * all, which is a page of endings nobody has taught wearing a topic's name. A
+ * page built on a case is read where the case is, from A2, and the same table
+ * says so in both places, since a list in the test and a list in the builder
+ * would be two answers to what a page needs.
+ */
+export const PAGE_NEEDS: Record<string, readonly string[]> = {
+  partitive: ["genitive"],
+  gradation: ["genitive"],
+  object: ["genitive", "partitive"],
+  government: ["genitive", "partitive"],
+  numerals: ["partitive"],
+  "adjective-agreement": ["genitive"],
+  "time-expressions": ["genitive", "adessive", "inessive"],
+  imperfect: ["present-tense"],
+  conditional: ["present-tense"],
+  imperative: ["present-tense"],
+  perfect: ["participles"],
+  pluperfect: ["participles"],
+  impersonal: ["participles"],
+  superlative: ["comparative"],
+  nominalisation: ["derivation"],
+  "relative-clause": ["subordination"],
+  concession: ["subordination"],
+  "reported-speech": ["quotative"],
+};
+
+/** A topic page that presupposes a case ending, which A1 never reads. */
+export function builtOnACase(name: string): boolean {
+  return (PAGE_NEEDS[name] ?? []).some((need) => CASE_KEYS.has(need.toUpperCase()));
 }
 
 /**

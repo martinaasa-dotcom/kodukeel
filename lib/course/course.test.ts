@@ -9,7 +9,7 @@ import {
   READ_MINUTES,
   PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
-  MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
+  MEET_STEP, REVIEW_STEP, NEEDS, PAGE_NEEDS, builtOnACase, supportedRounds, supportsRound, taughtFrom, grammarThrough, readingPlan,
   PICTURES_FOR_BOARD, WORDS_FOR_LETTERS, NO_TAUGHT, rounds,
 } from "./index";
 import { readFileSync } from "node:fs";
@@ -324,7 +324,17 @@ describe("what a day reads and where it goes", () => {
       expect(day.grammarCase, `${day.id} reads a case page`).toBeUndefined();
       if (day.grammar) expect(grammarTopic(day.grammar), day.id).toBeTruthy();
       expect(day.grammar, `${day.id} reads the B1 object rule`).not.toBe("object");
+      // Nor a page that is about case endings under a topic's name: the
+      // numerals page is the partitive, the time page is -l and -s.
+      if (day.grammar) expect(builtOnACase(day.grammar), `${day.id} reads ${day.grammar}, which is built on a case`).toBe(false);
     }
+    // And the first evening of the course reads nothing: five words said
+    // alone have no point behind them yet, and the politeness page, which is
+    // the plural as a polite you and the conditional, waits for the pronouns.
+    expect(DAYS[0]!.day.grammar ?? DAYS[0]!.day.grammarCase).toBeUndefined();
+    expect(DAYS.some(({ programme, day }) => programme.level === "A1" && day.grammar === "politeness")).toBe(true);
+    for (const name of ["numerals", "adjective-agreement", "time-expressions"]) expect(builtOnACase(name), name).toBe(true);
+    expect(builtOnACase("present-tense")).toBe(false);
     // And the pages are still read from A2, where the cases are drilled.
     expect(DAYS.some(({ programme, day }) => programme.level === "A2" && day.grammarCase)).toBe(true);
   });
@@ -373,9 +383,14 @@ describe("what a day reads and where it goes", () => {
     expect(moduleScopeFrom(undefined)).toBeNull();
     // A pictured noun is what the board needs, and the pronouns carry none.
     expect(scope!.lemmas.some((l) => emojiFor(l))).toBe(false);
-    // No case page has been read by then, and the topics are the ones read.
+    // No case page has been read by then, and the topics are the ones read:
+    // the first evening reads nothing and the politeness page waits for the
+    // pronouns, so it is on the scope from the greetings on and not before.
     expect(scope!.cases).toEqual([]);
-    expect(scope!.topics).toContain("politeness");
+    expect(scope!.topics).not.toContain("politeness");
+    const greetings = a1.days.find((d) => d.unitId === "tervitused" && d.grammar === "politeness")!;
+    const withGreetings = moduleScopeFrom({ module: `${a1.id}~${greetings.id}~do:match~3~5~0` });
+    expect(withGreetings!.topics).toContain("politeness");
 
     // Deep into A2, the cases read so far and not the ones ahead.
     const a2 = PROGRAMMES.find((p) => p.id === "a2.1")!;
@@ -423,23 +438,13 @@ describe("what a day reads and where it goes", () => {
   */
   it("reads a grammar page only after the pages it is built on, over the whole ladder", () => {
     const CASE_FREE = new Set(["NOMINATIVE", "GENITIVE", "PARTITIVE"]);
-    const NEEDS_FIRST: Record<string, readonly string[]> = {
-      partitive: ["genitive"],
-      gradation: ["genitive"],
-      object: ["genitive", "partitive"],
-      government: ["genitive", "partitive"],
-      imperfect: ["present-tense"],
-      conditional: ["present-tense"],
-      imperative: ["present-tense"],
-      perfect: ["participles"],
-      pluperfect: ["participles"],
-      impersonal: ["participles"],
-      superlative: ["comparative"],
-      nominalisation: ["derivation"],
-      "relative-clause": ["subordination"],
-      concession: ["subordination"],
-      "reported-speech": ["quotative"],
-    };
+    const NEEDS_FIRST = PAGE_NEEDS;
+    // The table names real pages, on both sides of it.
+    for (const [page, needs] of Object.entries(PAGE_NEEDS)) {
+      for (const name of [page, ...needs]) {
+        expect(grammarTopic(name) || CASES.some((c) => c.key === name.toUpperCase()), name).toBeTruthy();
+      }
+    }
     const read = new Set<string>();
     for (const { day } of DAYS) {
       const page = day.grammarCase ? day.grammarCase.toLowerCase() : day.grammar;
@@ -683,7 +688,7 @@ describe("what a day reads and where it goes", () => {
   */
   it("spends the same fixed minutes on a conversation as on a reading and two rounds", () => {
     const talk = DAYS.find(({ day }) => day.scene)!.day;
-    const ordinary = DAYS.find(({ day }) => !day.scene)!.day;
+    const ordinary = DAYS.find(({ day }) => !day.scene && day.steps.some((s) => s.kind === "read"))!.day;
     const fixed = (d: typeof talk) =>
       d.steps.filter((s) => s.id !== MEET_STEP).reduce((n, s) => n + s.minutes, 0);
     expect(fixed(talk)).toBe(fixed(ordinary));

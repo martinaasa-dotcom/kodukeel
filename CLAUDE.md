@@ -4535,6 +4535,47 @@ Listening are drawn from the taught words wherever those reach four (`decoysAmon
 evening's four options are the five words met an hour ago and not three glosses of words nobody
 has shown; outside the module the whole ranked pool stands, as before.
 
+
+**And the four options were the whole dictionary on the first evening of the course, under a
+paragraph saying they were not.** The rule above draws the wrong answers from the taught words
+wherever those reach four, and on the first evening five are taught and the round offered "like,
+as". `decoyOptions` keeps one option per meaning, which is right, since two entries glossed the same
+way are two right answers wearing different ids, and it filed each option under whichever entry
+Postgres returned first: `Tere!` and `tere` both read "hello" once the punctuation is off, so the
+phrase owned the gloss and the word did not, the five narrowed to three, and the round fell back to
+the pool. An option carries every entry behind it now and a word is taught if any of them is,
+which reaches the ladder's choice rung, the closing review, Target and Listening through the one
+function they share. Driven in a browser before and after on the real first evening, and asserted.
+
+**A1 read pages about case endings under a topic's name, and the first evening read one about the
+conditional.** The rule that A1 reads no case page had a hole the size of the pages *about* cases:
+the numerals page is "the counted noun is partitive singular", the time page is "days take -l and
+months take -s", and the adjective page is "the same ending as its noun, for ten of the fourteen".
+Seven A1 evenings read one of those, to somebody who by the operator's own rule has been shown no
+case at all. And the very first evening, five words said alone, read the politeness page, which is
+the plural as a polite you and the conditional, because `vastused` declared it; the greetings, where
+it belongs, then read nothing, since the part had already read it. `PAGE_NEEDS` in
+`lib/course/build.ts` is what a page is built on, the one table the ladder test walks and the
+builder reads, so a page built on a case is read from A2, where the case is: the first evening
+reads nothing, the greetings read politeness after the pronouns and the verb to be, and the numerals
+page moved to the restaurant unit, the first unit after the partitive where anybody is counting
+things. What A1 reads is the verb to be, the present tense, negation, the two infinitives, word
+order, the imperative and politeness, in that order, and every one of them is something a beginner
+can use that evening.
+
+**And the page a reading step opened showed the deck's words and the dictionary's rather than the
+module's, and the page about the verb to be showed no form of it.** Both reference pages hid their
+unit list and their drill inside a module, which is the half anybody notices, and then filled their
+tables off the whole deck and the dictionary's easiest words: the present-tense page on the fifth
+evening of A1 tabled `jääma` and `andma`, which arrive a part later, under a heading saying "verbs
+from your deck first". Each page hands `ModuleScope.lemmas` to its example reader now and the reader
+keeps the deck read and the top-up inside that list, so the rule is shown on words the learner has
+met and no others; the standalone reference passes nothing and is unchanged. And the `olema` page
+said it was the one verb you cannot avoid and one of the few irregular ones and then showed not one
+form of it, on the fourth evening of the course. Its present is stored per person because no rule
+reaches `on`, so the table is the six the harvest holds, marked as such, and it is the only verb on
+that page. Both asserted, on the call rather than on the import, since a page that reads the scope
+and then ignores it is the fault this file records Today having had.
 **And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
 module disagreeing with itself.** The closing review holds every level's gap cards to the taught
 spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung

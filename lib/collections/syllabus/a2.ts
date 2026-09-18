@@ -318,7 +318,14 @@ export const A2 = [
     module: "Igapäevane suhtlus",
     canDo: "Read a menu, order a full meal and ask what a dish contains.",
     blurb: "The osastav at its most useful: you order some of a thing, not the whole thing.",
-    grammar: ["partitive", "conditional"],
+    /*
+      The numerals page is read here rather than at A1, where the numbers are
+      taught as words: its whole point is that the counted noun is partitive
+      singular, which is a page about an ending, and this is the first unit
+      after the partitive where somebody is counting things, portions and
+      prices, with a bill at the end of it.
+    */
+    grammar: ["partitive", "numerals", "conditional"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["sook-ja-jook"],
     words: [

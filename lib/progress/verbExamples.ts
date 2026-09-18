@@ -48,7 +48,21 @@ interface Candidate {
   forms: { formType: string; value: string; morphCode: string | null }[];
 }
 
-export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExample[]> {
+/**
+ * INSIDE A MODULE, THE VERBS ARE THE MODULE'S. Opened from a step, the page
+ * hid the unit list and the drill and then filled its table off the whole
+ * deck and the dictionary's easiest verbs: the present-tense page on the
+ * fifth evening of A1 tabled `jääma` and `andma`, which arrive a part later,
+ * under a heading saying "verbs from your deck first". `within` is the
+ * lemmas the ladder has handed over (`ModuleScope.lemmas`), and with it both
+ * the deck read and the top-up stay inside that list, so the page shows the
+ * rule on the verbs somebody has actually met and nothing beyond them. The
+ * standalone reference passes nothing and is unchanged.
+ */
+export async function verbExamples(
+  ownerId: string, limit = 4, within?: readonly string[],
+): Promise<VerbExample[]> {
+  const scoped = within ? { lemma: { in: [...within] } } : {};
   const select = {
     id: true,
     lemma: true,
@@ -59,7 +73,7 @@ export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExam
   } as const;
 
   const deck = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "VERB" } },
+    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "VERB", ...scoped } },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
     take: CANDIDATES,
@@ -74,7 +88,7 @@ export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExam
     : [];
 
   const rest: Candidate[] = await prisma.lexeme.findMany({
-    where: { pos: "VERB", id: { notIn: owned.length ? owned : ["-"] } },
+    where: { pos: "VERB", id: { notIn: owned.length ? owned : ["-"] }, ...scoped },
     orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
     take: CANDIDATES,
     select,

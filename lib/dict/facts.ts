@@ -351,7 +351,22 @@ export async function lemmaCountsByLevel(): Promise<Map<string, number>> {
  * words a learner has been taught can keep the options to those. The module's
  * rounds do (`lib/course/scope.ts`); everybody else ignores the field.
  */
-export type DecoyOption = GlossOption & { readonly lemma: string };
+export type DecoyOption = GlossOption & {
+  /** The first entry glossed this way, in the dictionary's own order. */
+  readonly lemma: string;
+  /**
+   * Every entry glossed this way. One option per meaning is right for the
+   * screen, since two entries glossed the same way are two right answers
+   * wearing different ids; but the *lemma* the option was filed under was
+   * whichever row Postgres returned first, and `Tere!` and `tere` both read
+   * "hello" once the punctuation is off. `decoysAmong` narrowing a module's
+   * pool to its taught words then lost `tere` and `aitäh` to the phrases,
+   * fell under four, and handed the first evening of the course the whole
+   * dictionary: a learner holding five words was offered "like, as" as a
+   * meaning. A word is taught if any entry behind the option is.
+   */
+  readonly lemmas: readonly string[];
+};
 
 /**
  * The pool narrowed to some words, or the whole pool where those words could
@@ -365,7 +380,7 @@ export function decoysAmong(
 ): readonly DecoyOption[] {
   if (!lemmas) return pool;
   const wanted = new Set(lemmas);
-  const narrowed = pool.filter((o) => wanted.has(o.lemma));
+  const narrowed = pool.filter((o) => o.lemmas.some((l) => wanted.has(l)));
   return narrowed.length >= need ? narrowed : pool;
 }
 
@@ -374,15 +389,20 @@ export function decoyOptions(): Promise<DecoyOption[]> {
     const rows = await prisma.lexeme.findMany({
       select: { translation: true, pos: true, cefr: true, lemma: true },
     });
-    const seen = new Set<string>();
+    const seen = new Map<string, string[]>();
     const out: DecoyOption[] = [];
     for (const row of rows) {
       const text = plainPhrase(row.translation.trim());
       // One line per meaning. Two entries glossed the same way are one option,
-      // and offering both would be two right answers wearing different ids.
-      if (!text || seen.has(text)) continue;
-      seen.add(text);
+      // and offering both would be two right answers wearing different ids;
+      // the option remembers every entry behind it, see `DecoyOption.lemmas`.
+      if (!text) continue;
+      const behind = seen.get(text);
+      if (behind) { behind.push(row.lemma); continue; }
+      const lemmas = [row.lemma];
+      seen.set(text, lemmas);
       out.push({
+        lemmas,
         ...glossOption({
           text,
           pos: row.pos,

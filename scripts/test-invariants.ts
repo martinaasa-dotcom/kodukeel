@@ -17323,6 +17323,45 @@ check("every round a rotation can deal reads the module's scope off its address"
 });
 
 /*
+  AND SO DOES THE PAGE A READING STEP OPENS, AND THE WRONG ANSWERS A ROUND
+  OFFERS.
+
+  Both halves of this were found on the first evenings of the course. The
+  reference pages hid their unit list and their drill inside a module and then
+  filled their tables off the whole deck and the dictionary's easiest words,
+  so the present-tense page on the fifth evening of A1 tabled `jääma` and
+  `andma`, which arrive a part later, under a heading saying "verbs from your
+  deck first"; each page hands `ModuleScope.lemmas` to its example reader now,
+  and the reader keeps the deck read and the top-up inside that list. And the
+  decoy pool the rounds narrow to taught words filed each gloss under whichever
+  entry Postgres returned first, so `Tere!` owned "hello" and `tere` did not,
+  the first evening's five words narrowed to three, and the round fell back to
+  the whole dictionary: a learner holding five words was offered "like, as".
+  An option carries every entry behind it and a word is taught if any is.
+*/
+check("a reference page opened from a module shows the module's own words, and a decoy is taught if any entry behind it is", () => {
+  for (const [page, reader] of [
+    ["app/(app)/grammar/[caseKey]/page.tsx", "caseExamples"],
+    ["app/(app)/grammar/topic/[id]/page.tsx", "verbExamples"],
+  ] as const) {
+    const src = code(page);
+    assert.match(src, /moduleScopeFrom\(/, `${page} never asks what the module has taught`);
+    assert.match(src, new RegExp(`${reader}\\([^)]*scope\\?\\.lemmas`), `${page} reads its examples without handing over the module's words`);
+  }
+  for (const [file, fn] of [
+    ["lib/progress/caseExamples.ts", "caseExamplesFor"],
+    ["lib/progress/verbExamples.ts", "verbExamples"],
+  ] as const) {
+    const src = code(file);
+    assert.match(src, new RegExp(`function ${fn}\\([^)]*within\\?: readonly string\\[\\]`), `${fn} takes no list to stay inside`);
+    assert.equal((src.match(/\.\.\.scoped/g) ?? []).length, 2, `${fn} scopes the deck read or the top-up and not both`);
+  }
+  const facts = code("lib/dict/facts.ts");
+  assert.match(facts, /readonly lemmas: readonly string\[\]/, "a decoy option no longer carries every entry behind it");
+  assert.match(facts, /o\.lemmas\.some\(\(l\) => wanted\.has\(l\)\)/, "decoysAmong narrows on the first entry alone again");
+});
+
+/*
   The words go in the deck on a press and never on a render. `PrefetchLink`
   fetches a whole page once a pointer has settled on a link for 90ms, so a
   course screen that topped the deck up while rendering would build somebody
@@ -17953,7 +17992,7 @@ check("the module's reading step carries no drill and no way off the page", () =
   ]) {
     const src = code(page);
     assert.match(
-      src, /focusFrom\(await searchParams\)/,
+      src, /focusFrom\((await searchParams|query)\)/,
       `${page} does not ask whether it was opened from tonight's module`,
     );
     assert.match(

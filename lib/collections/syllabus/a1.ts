@@ -51,7 +51,15 @@ export const A1 = [
     module: "Esimesed sammud",
     canDo: "Say hello, say thank you, and answer yes or no.",
     blurb: "Five words, said alone. Nothing here is a sentence yet.",
-    grammar: ["politeness"],
+    /*
+      The dictionary form and nothing else: these are words said alone, and
+      the politeness page, which is the plural as a polite you and the
+      conditional, belongs to `tervitused`, which declares it. Declared here
+      as well, the first evening of the whole course read it to somebody
+      holding five words and no pronoun, and the greetings then read nothing
+      because the part had already read it.
+    */
+    grammar: ["nominative"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     words: [
       ["tere", "hello", "ADVERB"],
