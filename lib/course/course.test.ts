@@ -284,7 +284,8 @@ describe("what a day reads and where it goes", () => {
       if (taught.cases.size > 0 && !firstCase) firstCase = day.id;
       for (const key of day.practice) {
         if (caseRounds.has(key)) expect(taught.cases.size, `${day.id} deals ${key} with no case read`).toBeGreaterThan(0);
-        if (key === "picture" && programme.level !== "A1") expect(taught.cases.size, day.id).toBeGreaterThan(0);
+        if (key === "target") expect(taught.cases.size, `${day.id} deals Target with too few cases`).toBeGreaterThanOrEqual(4);
+        if (key === "describe") expect(taught.scene, `${day.id} deals Describe with no scene of taught words`).toBe(true);
         if (key === "dictation" || key === "sentences") expect(taught.readable, `${day.id} deals ${key}`).toBe(true);
         if (key === "government") expect(taught.topics.has("government"), `${day.id} deals government unread`).toBe(true);
       }
@@ -378,9 +379,18 @@ describe("what a day reads and where it goes", () => {
     expect(later.topics).toContain("imperative");
   });
 
-  it("conjugates a unit of verbs", () => {
+  it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {
     const verbDay = DAYS.find(({ day }) => day.unitId === "pohiverbid")!;
     expect(verbDay.day.practice).toContain("conjugation");
+    // `rektsioon` is mostly verbs and is about government; it declares no
+    // conjugation card, and above A1 the rotation carries no table, so it is
+    // never dealt one.
+    for (const { programme, day } of DAYS) {
+      if (programme.level === "A1") continue;
+      const declares = unitById(day.unitId)!.cardTypes.includes("CONJUGATION");
+      if (!declares) expect(day.practice, `${day.id} is pinned to the table`).not.toContain("conjugation");
+    }
+    expect(DAYS.some(({ day }) => day.unitId === "rektsioon" && !day.practice.includes("conjugation"))).toBe(true);
     // An A2 unit of nouns, because A1's own rotation carries the table once a
     // verb has been taught, so a noun evening there may honestly deal it.
     const nounDay = DAYS.find(({ day }) => day.unitId === "loodus")!;

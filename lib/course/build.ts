@@ -16,6 +16,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { grammarTopic } from "@/lib/estonian/grammar";
 import { naturalSentence, sentenceTiles } from "@/lib/estonian/cloze";
 import { emojiFor } from "@/lib/collections/emoji";
+import { SCENES } from "@/lib/collections/scenes";
 import { unitById, type SyllabusUnit } from "@/lib/collections/syllabus";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { PARTS, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, type PartSpec } from "./plan";
@@ -107,6 +108,8 @@ export interface Taught {
   topics: ReadonlySet<string>;
   /** Taught verbs the dictionary records a government for. */
   governed: number;
+  /** A picture scene (`lib/collections/scenes.ts`) whose three words have all been taught. */
+  scene: boolean;
   /**
    * Whether a sentence a lexicographer wrote exists that is made entirely of
    * taught words, three to nine of them, which is what dictation and word
@@ -116,13 +119,24 @@ export interface Taught {
 }
 
 export const NO_TAUGHT: Taught = {
-  verbs: false, pictured: false, cases: new Set(), topics: new Set(), governed: 0, readable: false,
+  verbs: false, pictured: false, cases: new Set(), topics: new Set(), governed: 0, scene: false,
+  readable: false,
 };
 
 const ALL_TAUGHT: Taught = {
   verbs: true, pictured: true, cases: new Set(CASES.map((c) => c.key)),
-  topics: new Set(["government", "conditional"]), governed: 99, readable: true,
+  topics: new Set(["government", "conditional"]), governed: 99, scene: true, readable: true,
 };
+
+/**
+ * How many case pages Target needs before it is dealt: it draws four forms of
+ * one word and needs four cases it may draw from, so one page read is a round
+ * that builds nothing.
+ */
+export const CASES_FOR_TARGET = 4;
+
+/** Describe wants a whole scene of taught words and a choice of case for it. */
+export const CASES_FOR_DESCRIBE = 2;
 
 /** How many governed verbs a government round needs before it is dealt. */
 export const GOVERNED_FOR_ROUND = 4;
@@ -138,13 +152,16 @@ export const GOVERNED_FOR_ROUND = 4;
  * is dealt off the dictionary by design and marked on the server from the
  * date, and there is no honest way to hold it to a taught list.
  */
-export function supportsRound(key: ActivityKey, taught: Taught, level = "A2"): boolean {
+export function supportsRound(key: ActivityKey, taught: Taught, _level = "A2"): boolean {
   const cases = taught.cases.size > 0;
   switch (key) {
     case "conjugation": return taught.verbs;
-    case "picture": return taught.pictured && (level === "A1" || cases);
-    case "sprint": case "target": case "write": return cases;
-    case "describe": return taught.pictured && cases;
+    // The board is the word until a case page has been read, on every level
+    // (`app/(app)/review/emoji/page.tsx`), so a pictured noun is all it needs.
+    case "picture": return taught.pictured;
+    case "sprint": case "write": return cases;
+    case "target": return taught.cases.size >= CASES_FOR_TARGET;
+    case "describe": return taught.scene && taught.cases.size >= CASES_FOR_DESCRIBE;
     case "dictation": case "sentences": return taught.readable;
     case "government": return taught.topics.has("government") && taught.governed >= GOVERNED_FOR_ROUND;
     case "sonad": return false;
@@ -198,7 +215,16 @@ export function rounds(level: string, at: number, verbHeavy: boolean, taught: Ta
   const drill = verbHeavy ? "conjugation" : other;
   return [game, drill].map((key) => {
     if (supportsRound(key, taught, level)) return key;
-    return STAND_IN[ACTIVITIES[key].kind === "game" ? "game" : "drill"];
+    /*
+      The stand-in is whatever of the same kind the ledger does support,
+      walked with the evening so it still alternates: early in A2 the games
+      the words can carry are Match and the board, and a stand-in fixed on
+      Match would deal Match six evenings running with the board sitting
+      there. Where nothing on the rotation is supported, Match and Listening.
+    */
+    const kind = ACTIVITIES[key].kind === "game" ? "game" : "drill";
+    const could = supportedRounds(level, taught).filter((k) => ACTIVITIES[k].kind === kind);
+    return could[at % could.length] ?? STAND_IN[kind];
   });
 }
 
@@ -217,15 +243,19 @@ export class Ledger {
   private readonly cases = new Set<string>();
   private readonly topics = new Set<string>();
   private pending: string[] = [];
+  private readonly lemmas = new Set<string>();
   private verbs = false;
   private pictured = false;
   private governed = 0;
+  private scene = false;
   private readable = false;
 
   /** A word handed over, with what the harvest holds for it. */
   teach(lemma: string, pos: string): void {
     if (pos === "VERB") this.verbs = true;
     if (pos === "NOUN" && emojiFor(lemma) !== undefined) this.pictured = true;
+    this.lemmas.add(lemma);
+    if (!this.scene) this.scene = SCENES.some((s) => s.lemmas.every((l) => this.lemmas.has(l)));
     const word = this.harvest.get(`${lemma}|${pos}`);
     this.spellings.add(lemma.toLowerCase());
     if (!word) return;
@@ -253,6 +283,7 @@ export class Ledger {
       cases: new Set(this.cases),
       topics: new Set(this.topics),
       governed: this.governed,
+      scene: this.scene,
       readable: this.readable,
     };
   }
@@ -262,8 +293,12 @@ const HARVEST_BY_KEY: ReadonlyMap<string, (typeof HARVESTED)[number]> = new Map(
   HARVESTED.map((w) => [`${w.lemma}|${w.pos}`, w]),
 );
 
-/** Three to nine tiles, every one a taught spelling, and a sentence at all. */
-export const DICTATION_TILES = { min: 3, max: 9 } as const;
+/**
+ * Four to nine tiles, every one a taught spelling, and a sentence at all.
+ * Four rather than three because word ordering refuses fewer than four tiles
+ * and dictation refuses more than nine, and one flag serves both.
+ */
+export const DICTATION_TILES = { min: 4, max: 9 } as const;
 
 export function readableSentence(sentence: string, spellings: ReadonlySet<string>): boolean {
   const tiles = sentenceTiles(sentence);
@@ -283,8 +318,15 @@ export function taughtFrom(
   return ledger.taught();
 }
 
+/**
+ * A unit takes the conjugation table where it is mostly verbs AND says so, by
+ * declaring the card. The share alone pinned nine B1 evenings in a row to the
+ * table, because the object, government and conditional units are grammar
+ * units that happen to be full of verbs and are about something else.
+ */
 const isVerbHeavy = (unit: SyllabusUnit): boolean =>
-  unit.vocabulary.filter((v) => v.pos === "VERB").length / Math.max(1, unit.vocabulary.length)
+  unit.cardTypes.includes("CONJUGATION")
+  && unit.vocabulary.filter((v) => v.pos === "VERB").length / Math.max(1, unit.vocabulary.length)
     >= VERB_HEAVY;
 
 /**

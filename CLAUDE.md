@@ -4474,9 +4474,17 @@ and every page a rotation can open holds to it, asserted by a sweep over `ACTIVI
 in the query, a case only through `caseWithin`, a sentence only through `sentenceWithin`, a deck
 card only through `cardWithin`, which is what keeps a starter deck's case cards and gap cards out of
 the closing round until the evening that reads the page or teaches the words. The conditional joins
-the module's conjugation table when its page has been read rather than at B1. `course.test.ts`
-rebuilds the ledger from the syllabus and the readings as a second opinion and walks all 273
-evenings against it.
+the module's conjugation table from B1 once its page has been read, and not at A2, where the
+request unit reads the same page to soften a request. Three of the gates are wider than "one page
+read", because the page would deal an empty round otherwise: Target draws four forms of one word
+and waits for four case pages; Describe wants a whole picture scene of taught words and a choice of
+case; and the sentence flag is four to nine tiles, since word ordering refuses fewer than four and
+dictation more than nine. The stand-in walks whatever the ledger does support rather than fixing on
+Match, so early A2 alternates the word board and Match rather than dealing Match six evenings
+running, and a unit is pinned to the table only where it is mostly verbs **and declares the card**,
+since the share alone pinned nine B1 evenings to a table on units about the object and government.
+`course.test.ts` rebuilds the ledger from the syllabus and the readings as a second opinion and walks
+all 289 evenings against it.
 
 **And the second pass over the same evenings found four more, which is the argument for walking
 them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the

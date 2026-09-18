@@ -115,7 +115,7 @@ export default async function EmojiPage({
     the word's own recognition card, and nothing on it that nobody has taught.
     The case board, which is what this round is for, opens with A2.
   */
-  if (level === "A1") return wordBoard(ownerId, scoped, level);
+  if (level === "A1" || (scope && scope.cases.length === 0)) return wordBoard(ownerId, scoped, level);
 
   const deckCards = await prisma.card.findMany({
       where: {
@@ -327,7 +327,7 @@ function NotEnough({ pairs }: { pairs: readonly EmojiPair[] }) {
 async function wordBoard(
   ownerId: string,
   scoped: ReturnType<typeof lemmaFilter>,
-  level: "A1",
+  level: Parameters<typeof bandsAround>[0],
 ) {
   const mine = await prisma.card.findMany({
     where: {
