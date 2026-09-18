@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Script from "next/script";
 import { Button } from "@/components/Button";
+import { Skeleton } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { ssoDomainFor } from "@/lib/auth/sso";
 import { GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
@@ -108,8 +109,17 @@ export function SignInForm({
   /** The address we mailed, which is also the flag that we mailed anything. */
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [email, setEmail] = useState("");
-  /** Whether Google's own button has taken over from the redirect one. */
-  const [googleButtonReady, setGoogleButtonReady] = useState(false);
+  /**
+   * `loading` while Google's script is still deciding, `gis` once its own
+   * button has drawn, `fallback` where there is no client ID to try, or the
+   * script never answered in time. Never a bare boolean: a boolean has to
+   * start somewhere, and starting at "show the old button" is what put it on
+   * screen for a beat before Google's replaced it, which read as one button
+   * flashing into another rather than as one screen settling once.
+   */
+  const [googleState, setGoogleState] = useState<"loading" | "gis" | "fallback">(
+    GOOGLE_CLIENT_ID ? "loading" : "fallback",
+  );
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
 
   const ssoPolicy = useMemo(() => ({ domains: [...ssoDomains] }), [ssoDomains]);
@@ -163,10 +173,10 @@ export function SignInForm({
 
   /**
    * Google's script answered: build the nonce, hand it a callback, and draw
-   * its button into our container. `googleButtonReady` starts false, which
-   * is the redirect door showing, so a script that never loads or a button
-   * that never draws simply leaves that door in place; the timeout below
-   * only stops the poll from running forever in that case.
+   * its button into our container. The screen shows a skeleton while this
+   * runs rather than the redirect button, so nothing has to be swapped out
+   * once Google's own button is ready; the timeout below is what falls back
+   * to the redirect door if the script never answers or never draws.
    */
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
@@ -174,6 +184,7 @@ export function SignInForm({
     const timeout = window.setTimeout(() => {
       cancelled = true;
       window.clearInterval(poll);
+      setGoogleState((state) => (state === "loading" ? "fallback" : state));
     }, GOOGLE_BUTTON_TIMEOUT_MS);
 
     async function draw() {
@@ -198,7 +209,7 @@ export function SignInForm({
         logo_alignment: "left",
         width: Math.min(container.clientWidth || 360, 400),
       });
-      setGoogleButtonReady(true);
+      setGoogleState("gis");
     }
 
     const poll = window.setInterval(() => {
@@ -307,17 +318,20 @@ export function SignInForm({
       )}
 
       {/*
-        Both are always in the tree; only one is ever visible. The GIS
-        container draws Google's own button once its script has answered, and
-        the redirect button underneath is what a learner sees until then, or
-        for ever on a deployment with no client ID configured.
+        Three states and only one is ever shown at once: a skeleton while
+        Google's script is still deciding, its own button once drawn, or the
+        redirect button where there is no client ID or the script never
+        answered. Not the redirect button first and the GIS one swapped in
+        over it, which is what put one button on screen for a beat before
+        Google's replaced it.
       */}
+      {googleState === "loading" && <Skeleton height={52} className="w-full" />}
       <div
         ref={googleButtonRef}
         className="flex w-full justify-center"
-        style={{ display: googleButtonReady ? "flex" : "none" }}
+        style={{ display: googleState === "gis" ? "flex" : "none" }}
       />
-      {!googleButtonReady && (
+      {googleState === "fallback" && (
         <Button
           variant="primary"
           size="lg"
