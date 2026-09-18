@@ -5129,6 +5129,26 @@ taking something back and is not a letter in any language. Only while the box is
 who has typed something keeps the field's own undo for their own typing. The button is not drawn at all on the first card of a session: a control that
 can only ever say "there is nothing behind you" is a control that teaches people to ignore that row.
 
+**And the panel takes the keyboard rather than asking fifteen rounds to hand it over.** The card a
+look back replaces is not on the screen, so its keys must not be either: the review session stood
+its own down and said in a comment why, and that comment was the whole of the rule, which is the
+wiring-per-round fault `useLookBack` exists to end. Two of the fifteen never learned it. Measured in
+a browser on the conjugation table, pressing the key the panel's own caption names stepped the round
+behind it on to the next verb while the panel stayed open, so the learner walked out of a word they
+were re-reading onto a card they had never answered, with nothing on screen saying why; the gap-fill
+round is the same shape with a grade attached, since that key calls its marker and writes an Again
+against a card nobody is looking at, which is the one thing `lib/ux/lookBack.ts` promises never
+happens. So `LookBackCard` listens in the **capture phase**, where a listener on `window` runs
+before every round's own, and `stopImmediatePropagation` is the half that matters, since preventing
+the default alone leaves the round's listener to run after it. The advance key walks forward, Escape
+is the way out, and any other bare character is swallowed rather than answered, which is what "the
+round is not on the screen" means for the digits that grade a card. Three kinds of key are left
+alone and each would break something a reader is owed: anything held with a modifier, which is the
+browser's; anything typed into a field; and anything aimed at a control inside the panel, or tabbing
+to "One more back" and pressing Enter would step forward instead of pressing the button under the
+caret. Tab and the arrows are not characters and pass through. The per-round stand-downs stay where
+they are, since they are what gates `b`, and they are no longer what makes this correct.
+
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)

@@ -18577,6 +18577,33 @@ check("looking back at the last word is one drawing, and it grades nothing", () 
   for (const door of ["gradeCard", "RATINGS", "SELF_GRADES", "StarWord", "SuggestFix"]) {
     assert.ok(!drawing.includes(door), `components/round/LookBack.tsx offers ${door}, which is a control over the round`);
   }
+
+  /*
+    AND THE PANEL TAKES THE KEYBOARD RATHER THAN ASKING EVERY ROUND TO.
+
+    Fifteen rounds listen on `window` and two of them never learned to stand
+    down while a look back is open, which measured in a browser as the round
+    behind the panel stepping on to the next card, and on the gap-fill round
+    as a grade written against a card nobody was looking at. A rule each
+    session has to remember is the wiring-per-round fault this module was
+    built to end, so the drawing owns it: a capture-phase listener runs
+    before every round's own, and only `stopImmediatePropagation` keeps the
+    round's from running after it.
+  */
+  assert.match(
+    drawing, /addEventListener\("keydown",[^)]*,\s*true\)/,
+    "components/round/LookBack.tsx no longer takes the keyboard in the capture phase, so every round's own "
+    + "listener answers over a card the learner is only re-reading",
+  );
+  assert.match(
+    drawing, /stopImmediatePropagation\(\)/,
+    "components/round/LookBack.tsx stops the default and lets the event carry on, which leaves the round "
+    + "underneath answering the key this card's own caption names",
+  );
+  assert.match(
+    drawing, /isAdvanceKey\(e\)[^}]*onForward\(\)/,
+    "components/round/LookBack.tsx names the advance key in its caption and does not walk forward on it",
+  );
 });
 
 console.log(

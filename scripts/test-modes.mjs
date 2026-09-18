@@ -35,8 +35,10 @@ page.on("console", (m) => {
 // asserted from the source: 54. One more for the key that opens it not being
 // a letter somebody was typing, which is how it shipped first: 55, and one
 // for the caret not being dropped on the way out: 56. Two more for undo,
-// which had the same fault and was there first: 58.
-const { check, absent, done } = suite("Practice modes", { floor: 58 });
+// which had the same fault and was there first: 58. And two for the round
+// behind the panel not answering the key the panel names, which two of the
+// fifteen rounds drawing it did: 60.
+const { check, absent, done } = suite("Practice modes", { floor: 60 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -352,6 +354,69 @@ if (typedCard) {
     before !== afterUndo, `${before?.trim()} -> ${afterUndo?.trim()}`);
 } else {
   absent(2, "a typed card, which this deck did not offer in eight tries");
+}
+
+/*
+  AND THE ROUND BEHIND THE PANEL DOES NOT ANSWER THE KEY THE PANEL NAMES.
+
+  The review session stands its own keys down while a look back is open and
+  says in a comment why; two of the fifteen rounds that draw the panel never
+  learned to, which is the wiring-per-round fault the hook exists to end.
+  Measured here rather than read off the source, because which listener sees
+  a keystroke first is a fact about the browser: on the conjugation table,
+  pressing the key this card's own caption names stepped the round behind it
+  on to the next verb while the panel stayed open, so the learner walked out
+  onto a word they had never answered. The gap-fill round is the same shape
+  with a grade attached.
+
+  The conjugation table is the one driven because it is the round that had
+  the fault: a window listener, no stand-down, and a counter on screen that
+  says plainly whether the round moved.
+*/
+await page.goto(`${B}/review/conjugation`, { waitUntil: "domcontentloaded" });
+await page.waitForSelector("main", { timeout: 15000 });
+await page.waitForTimeout(1200);
+
+const leftNow = async () => ((await page.locator("main").innerText()).match(/(\d+) left/) || [])[1] ?? null;
+const fillTable = async () => {
+  const boxes = page.locator("main input");
+  const n = await boxes.count();
+  for (let i = 0; i < n; i += 1) await boxes.nth(i).fill("x");
+  const mark = page.getByRole("button", { name: /^check/i }).first();
+  if (await mark.count()) { await mark.click(); await page.waitForTimeout(300); }
+  return n > 0;
+};
+
+let table = await fillTable();
+if (table) {
+  const onward = page.getByRole("button", { name: /^next/i }).first();
+  if (await onward.count()) { await onward.click(); await page.waitForTimeout(500); }
+  table = await fillTable();
+}
+
+const conjLook = () => page.locator("main").getByRole("button", { name: /See it again/i });
+if (table && (await conjLook().count()) > 0) {
+  const leftBefore = await leftNow();
+  await conjLook().first().click();
+  await page.waitForTimeout(400);
+  const panelUp = (await page.getByRole("group", { name: /looking back/i }).count()) > 0;
+
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(700);
+  const leftAfter = await leftNow();
+  check("the round behind a look back does not advance on the key the panel names",
+    panelUp && leftBefore !== null && leftBefore === leftAfter,
+    `panel up: ${panelUp}, ${leftBefore} left -> ${leftAfter} left`);
+  /*
+    And the key does what the caption says it does, which on the newest kept
+    showing is walking back out. A panel that swallows the key and sits there
+    is the other half of the same fault: the caption would be naming a key
+    that does nothing.
+  */
+  const stillLooking = (await page.getByRole("group", { name: /looking back/i }).count()) > 0;
+  check("and that key is the way back out of the panel", !stillLooking);
+} else {
+  absent(2, "two conjugation tables answered, which this deck could not supply");
 }
 
 /**

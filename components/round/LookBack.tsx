@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, History, Undo2 } from "lucide-react";
 import { Button } from "@/components/Button";
 import { Chip, KeyCap } from "@/components/ui";
 import { Speak } from "@/components/Speak";
-import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { earlier, later, openAt, remember, forgetLast, type SeenCard } from "@/lib/ux/lookBack";
 
 /**
@@ -214,6 +214,50 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
   */
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => { panel.current?.focus(); }, []);
+
+  /*
+    AND THE PANEL OWNS THE KEYBOARD WHILE IT STANDS IN THE ROUND'S PLACE.
+
+    The card this replaced is not on the screen, so its keys must not be
+    either. Every round listens on `window`, and asking each one to stand
+    down while a look back is open is the wiring-per-round fault `useLookBack`
+    exists to end: two of the fifteen never learned it, and the cost was not
+    theoretical. Measured in a browser on the conjugation table, pressing the
+    key this card's own caption names stepped the round behind the panel on
+    to the next verb, leaving the panel open over a card the learner had not
+    finished, so they walked out of it onto a different word with nothing on
+    screen saying why; the gap-fill round is the same shape with a grade
+    attached, since the same key calls its marker and writes an Again against
+    the card nobody is looking at. That is the one thing `lib/ux/lookBack.ts`
+    promises never happens.
+
+    So it is taken here, in the capture phase, where a listener on `window`
+    runs before every round's own: the advance key walks forward, Escape is
+    the way out, and any other bare character is swallowed rather than
+    answered, which is what "the round is not on the screen" means for the
+    digits that grade a card. `stopImmediatePropagation` is the half that
+    matters, since `preventDefault` alone leaves the round's listener to run.
+
+    THREE KINDS OF KEY ARE LEFT ALONE, each because taking it would break
+    something a reader is entitled to. Anything held with a modifier, which
+    is the browser's and never a round's. Anything typed into a field, though
+    this card has none today. And anything aimed at a control inside the
+    panel, or tabbing to "One more back" and pressing Enter would step
+    forward instead of pressing the button under the caret. Tab, the arrows
+    and the function keys are not characters and pass through untouched.
+  */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (inEditable(e.target)) return;
+      if (e.target instanceof Element && e.target.closest("button, a, input, textarea, select, [role='button']")) return;
+      if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); onClose(); return; }
+      if (isAdvanceKey(e)) { e.preventDefault(); e.stopImmediatePropagation(); onForward(); return; }
+      if (e.key.length === 1) { e.preventDefault(); e.stopImmediatePropagation(); }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [onForward, onClose]);
 
   return (
     <div
