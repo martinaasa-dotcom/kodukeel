@@ -163,12 +163,12 @@ export default async function ClassIndexPage() {
 
         <Note tone="neutral">
           A teacher sees effort and progress: reviews this week, streak, words known, the cases
-          the whole class keeps missing, and which case each student personally struggles with
-          most, as one percentage across all their reviews. Whoever runs a workplace group sees
-          less than that, not more: a name, whether somebody has been practicing, and one of four
-          bands for the paper the group works toward. Never a search, a deck, or a single answer,
-          and never a colleague&rsquo;s weak grammar. Both lines are built into the code itself,
-          not just a policy, see{" "}
+          the whole class keeps missing, and the one case each student struggles with most, as a
+          percentage across all their reviews. Whoever runs a workplace group sees less than
+          that, never more: a name, whether somebody has been practicing, and one of four bands
+          for the paper the group works toward. Never a search, a deck or a single answer, and
+          never a colleague&rsquo;s weak grammar. Both of those lines are drawn in the code
+          rather than only in a policy. See{" "}
           <code className="text-xs">lib/classroom/roster.ts</code>.
         </Note>
       </Stack>
