@@ -478,6 +478,22 @@ export function ReviewSession({
     is actually there.
   */
   const scheduled = useRef(new Map<string, ReviewCard["scheduling"]>());
+  /*
+    A right answer stays on the screen for `VERDICT_PAUSE_MS` and then grades
+    itself. The timer is held so that Enter or the button during the pause
+    grades the card once rather than twice: the timer's own closure carries
+    the card it was set on, so left running past an early press it would
+    grade that card again after the queue had moved on.
+  */
+  const autoNext = useRef<number | null>(null);
+  const clearAutoNext = useCallback(() => {
+    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
+  }, []);
+  const gradeAfterPause = useCallback((rating: RatingValue, grade: (r: RatingValue) => Promise<void>) => {
+    clearAutoNext();
+    autoNext.current = window.setTimeout(() => { autoNext.current = null; void grade(rating); }, VERDICT_PAUSE_MS);
+  }, [clearAutoNext]);
+  useEffect(() => clearAutoNext, [clearAutoNext]);
   /** Cards whose word has been met this session and which are now asked properly. */
   const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingOffline, setPendingOffline] = useState(0);
@@ -666,6 +682,16 @@ export function ReviewSession({
 
   const submit = useCallback(async (rating: RatingValue) => {
     if (!card || busy) return;
+    /*
+      Grading a card is the one event this timer exists to produce, so every
+      path that grades one clears it here rather than at each call site: the
+      keyboard handler can reach `submit` directly on a card the pause timer
+      is also about to grade (pressing Enter right after a correct typed
+      answer, before its own pause has run out), and without this the stale
+      timer fired a second `submit` later, against whatever card the first
+      one had already moved on to.
+    */
+    clearAutoNext();
     setBusy(true);
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
@@ -730,7 +756,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox]);
+  }, [card, busy, index, refreshOutbox, clearAutoNext]);
 
   /**
    * Puts the last graded card back.
@@ -741,6 +767,15 @@ export function ReviewSession({
   const undo = useCallback(async () => {
     const last = history[history.length - 1];
     if (!last || busy) return;
+    /*
+      The card on screen may be mid-pause on its own right answer, waiting to
+      grade itself against `index` and `queue` as they stood at that moment.
+      Undo is about to change both, so a timer left running would later submit
+      that grade with a stale index. Cancelling it is safe either way: the
+      answer is still on screen, revealed and marked, so Enter or the button
+      grades it same as ever, just not on its own any more.
+    */
+    clearAutoNext();
     setBusy(true);
     const result = await undoGrade(last.cardId, last.before);
     if (result.ok) {
@@ -761,7 +796,7 @@ export function ReviewSession({
       setIndex(last.index);
     }
     setBusy(false);
-  }, [history, busy, queue]);
+  }, [history, busy, queue, clearAutoNext]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
@@ -779,9 +814,9 @@ export function ReviewSession({
     // app. A miss keeps its screen: that is the one moment worth stopping at,
     // and the correction needs typing before anything moves.
     if (result.verdict === "correct") {
-      window.setTimeout(() => void submit(result.suggestedRating), VERDICT_PAUSE_MS);
+      gradeAfterPause(result.suggestedRating, submit);
     }
-  }, [card, typed, verdict, submit, cheer]);
+  }, [card, typed, verdict, submit, cheer, gradeAfterPause]);
 
   /** Whether the card is waiting for the miss to be typed again. */
   const needsRetype = ask === "type" && verdict !== null && verdict.verdict !== "correct" && !retypeOk;
@@ -794,11 +829,11 @@ export function ReviewSession({
       setRetypeOk(true);
       setRetypeNote(null);
       // The pause a right answer gets, then the grade the miss already earned.
-      window.setTimeout(() => void submit(verdict.suggestedRating), VERDICT_PAUSE_MS);
+      gradeAfterPause(verdict.suggestedRating, submit);
     } else {
       setRetypeNote("Not yet. Copy the answer above exactly, letter for letter.");
     }
-  }, [card, verdict, retyped, retypeOk, submit]);
+  }, [card, verdict, retyped, retypeOk, submit, gradeAfterPause]);
 
   const pickChoice = useCallback((choice: string) => {
     if (!card || chosen) return;
@@ -811,9 +846,9 @@ export function ReviewSession({
       // Right answers move on by themselves: multiple choice is the fast mode,
       // and a confirmation click on every correct card halves the throughput.
       // Not before the tile has been seen to turn, though (`VERDICT_PAUSE_MS`).
-      window.setTimeout(() => void submit(3), VERDICT_PAUSE_MS);
+      gradeAfterPause(3, submit);
     }
-  }, [card, chosen, submit, cheer]);
+  }, [card, chosen, submit, cheer, gradeAfterPause]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
