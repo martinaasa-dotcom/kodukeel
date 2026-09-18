@@ -49,6 +49,7 @@
     "measure:asr": "node scripts/measure-asr.mjs",
     "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
+    "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
     "replay:scene": "tsx scripts/replay-transcript.ts",

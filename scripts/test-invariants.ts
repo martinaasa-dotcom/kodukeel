@@ -640,6 +640,70 @@ check("every rate is the one clip stretched in one place, and every clip is prep
 });
 
 /*
+  A WORD IS ASKED FOR AS A FINISHED UTTERANCE, IN ONE PLACE, AND THE TWO CACHE
+  VERSIONS AGREE.
+
+  A learner reported single words sounding "incomplete", and the speed was the
+  suspect and is not the cause: a recognizer gets the same words right at the
+  recording's own pace as at 0.6 and 0.5 of it. What was wrong is the string.
+  TartuNLP reads sentences, and a bare headword with no stop on it is a
+  fragment to its front end: measured over twenty words in six voices, the loud
+  body of the word comes back 1.13 times as long with a full stop on it. So
+  `lib/audio/say.ts` finishes the text and the route asks through it.
+
+  Three things can rot. The route can stop asking through it, which is silent,
+  because a fragment plays perfectly well and merely sounds clipped. A second
+  copy of the rule can appear in the browser, which would key the client's
+  cache on one string and the store on another. And the two cache versions can
+  come apart: this file already records the pass whose whole diff here was a
+  comment line, where the worker went to v4 and the route's key stayed at v3,
+  so every phone threw its copy away and fetched the stale clip again. "Two
+  spellings of one version is one spelling too many" is the route's own words
+  and nothing had ever held them to it.
+*/
+check("a word is asked for finished, in one place, and the two clip versions agree", () => {
+  const route = code("app/api/tts/route.ts");
+  assert.match(
+    route,
+    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    "the speech route asks the service for the text as typed rather than as a finished utterance",
+  );
+  assert.match(
+    route,
+    /update\(`\$\{CLIP_SHAPE\}\|\$\{text\}\|\$\{speaker\}`\)/,
+    "the store is keyed on something other than the text that was spoken",
+  );
+
+  const say = code("lib/audio/say.ts");
+  assert.doesNotMatch(say, /import |window\.|prisma/, "the spoken-text rule stopped being pure");
+  assert.doesNotMatch(
+    say,
+    /toUpperCase|toLowerCase|normalize|toLocaleUpperCase/,
+    "the spoken-text rule started rewriting the word rather than finishing it (ADR-005)",
+  );
+
+  const callers = ALL
+    .filter((file) => !/\.(test|itest)\.tsx?$/.test(file))
+    .filter((file) => /from "(\.\/say|@\/lib\/audio\/say)"/.test(code(file)))
+    .sort();
+  assert.deepEqual(
+    callers,
+    ["app/api/tts/route.ts"],
+    "a second place decides what the speech service is asked to read",
+  );
+
+  const shape = /const CLIP_SHAPE = "v(\d+)"/.exec(route)?.[1];
+  const worker = /const VERSION = "kodukeel-v(\d+)"/.exec(read("public/sw.js"))?.[1];
+  assert.ok(shape && worker, "the clip shape or the worker version is no longer a number");
+  assert.equal(
+    shape,
+    worker,
+    `the route keeps clips at v${shape} and the worker at v${worker}: one of them was bumped and the other was not, `
+      + "so a phone keeps serving the clip the other half just replaced",
+  );
+});
+
+/*
   HOW FAST ESTONIAN IS READ ALOUD IS ONE ANSWER, PUBLISHED ONCE.
 
   The everyday play was 0.9 of the recording for everybody and was reported as

@@ -31,3 +31,6 @@ prisma/data/.cache/
 # The hosted-mode build scripts/test-signin.mjs makes for itself.
 .next-signin/
 .translate-cache/
+
+# Cached speech while measuring what the service does with a word (scripts/measure-speech.ts).
+.speech-cache/
