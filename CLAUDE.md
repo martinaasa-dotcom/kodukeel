@@ -4710,6 +4710,45 @@ its months in lower case and English does not. Folding case would delete the one
 cards teach. The sentence says "spelled" rather than "the same word" because it is not said the
 same, and the audio beside it is exactly the point.
 
+**And the case was folded one function upstream, so that lesson reached nobody.** `plainPhrase`
+drops a phrase's own capital and exclamation mark so a card teaches `tere hommikust` rather than
+shouting `Tere hommikust!`. Its header argued the lowering was safe "because no phrase in it opens
+on a proper noun", which is an argument about a `PHRASE` entry, and it was applied to the lemma and
+the gloss of every word the app teaches. So every screen that prints a word over its meaning handed
+`august` and `August` to `sameSpelling` as one string, and five shipped entries printed "Spelled
+the same in English." instead of their gloss. **A word's capital is the language's rather than the
+app shouting**, and dropping it is this app correcting English and Estonian it did not write: 166
+shipped entries and 30 of the course's own 1,514 words were taught with a capital that is theirs
+removed, `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as `midsummer Day`, `mina` as
+`i`, and `Eesti` as `eesti`, which is a different word, the language rather than the country. That
+is the fault `lib/estonian/answer.ts` has a comment about, fixed in the marker and never in the
+builder standing beside it.
+
+Three parts, and none of the three is enough alone. `pos` is **required**, for the reason
+`NounStems.illSgShort` is: a caller that has not thought about this quietly mis-teaches a word and
+it looks exactly like a gloss somebody wrote in lower case, and requiring it is what caught the two
+`answers.map(plainPhrase)` call sites that would have passed an array index as the part of speech.
+Every `/` separated part of a phrase is cleaned, because a gloss can be three phrases: `palun` is
+`Please / You're welcome / Here you are` and a learner met it on the ladder with one lowered and two
+still shouting, which reads as a rendering fault rather than as three ways of saying it, and
+`Sorry! / Excuse me!` was worse, since the mark it dropped was the one at the end and the one it
+kept was in the middle. And `ALWAYS_CAPITAL` holds back the English pronoun, because a phrase can
+open on it and `Ma ei saa aru` was dealt as `i don't understand`. **Never the comma**, since a sense
+past the first is not a new sentence: `vist` is `probably, I think` and `bemar` is `BMW, Beamer`.
+
+**And a deck already built keeps the text it was built with, which is the half a generator fix
+never reaches.** `repairCardSpelling` adopts the spelling the builder writes today wherever the
+card is holding the same answer, and **the same answer means differing only in case and a trailing
+`!`**: it can change a card's capitals and its mark and can never change which word it asks or
+which answers it takes. `lib/srs/cardSpelling.ts` is the judgment and `prisma/repair.ts` is the
+read, the guard and the write, which is what `caseBuild.ts` and `caseWalk.ts` are to each other and
+for the same reason. Not a tidy-up: driven over real card shapes the version that lived inside the
+Prisma file failed twice, once because a multi-part gloss matched nothing against whole-string
+candidates, and once because one pool of spellings let a recognition card's Estonian front adopt the
+English gloss's capital, which would have taught `August` as the Estonian word. Measured after:
+`npm run audit:questions` asks 84,790 questions over 6,153 entries, identical to the baseline
+section by section, so nothing about what the app asks moved.
+
 **A missing example is news; a phrase having none is not.** Ekilex records a usage against a
 *word*, to show it doing its job in a sentence, so it holds none for `Tere!`, `Aitäh!`,
 `Kuidas läheb?` or `Ma ei saa aru` and never will: those are already the sentence. All twenty
@@ -8848,7 +8887,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `readIdentity`, `boundedTransport`, `gapFrom`,
 `explainGap`, `ESTONIAN_WORD`, `formatDuration`, `alsoGoverned`, `teachingSentence`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
-`alsoRight`, `shownForms`,
+`alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,
