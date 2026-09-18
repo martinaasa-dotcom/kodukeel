@@ -34,7 +34,7 @@ import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { forgetLast, remember, type SeenCard } from "@/lib/ux/lookBack";
+import { type SeenCard } from "@/lib/ux/lookBack";
 
 export interface ReviewCard {
   id: string;
@@ -505,16 +505,9 @@ export function ReviewSession({
     what was drawn, kept in the session, dropped with it, and read only.
     `lib/ux/lookBack.ts` is the rule and says at length why it is not undo.
   */
-  const [seen, setSeen] = useState<SeenCard[]>([]);
-  const look = useLookBack(seen);
-  const { trigger: lookTrigger } = look;
-  /* One card can be shown twice in a session, so the key is the showing. */
-  const showings = useRef(0);
-  const recordSeen = useCallback((card: ReviewCard, met: boolean) => {
-    const entry = shownAs(card, met);
-    showings.current += 1;
-    setSeen((s) => remember(s, { ...entry, key: `${entry.of}#${showings.current}` }));
-  }, []);
+  const look = useLookBack();
+  const { record, forget } = look;
+  const recordSeen = useCallback((card: ReviewCard, met: boolean) => record(shownAs(card, met)), [record]);
   /*
     WHAT UNDO PUTS BACK IS WHAT THE SERVER LAST WROTE.
 
@@ -805,7 +798,7 @@ export function ReviewSession({
       setHistory((h) => h.slice(0, -1));
       // The card is in front of the learner again, so that showing has not
       // happened any more and the look back must not offer it as the past.
-      setSeen((s) => forgetLast(s, last.cardId));
+      forget(last.cardId);
       setDone((d) => Math.max(0, d - 1));
       if (last.rating >= 3) setCorrect((c) => Math.max(0, c - 1));
       // Taking an answer back is not a run continuing.
@@ -821,7 +814,7 @@ export function ReviewSession({
       setIndex(last.index);
     }
     setBusy(false);
-  }, [history, busy, queue]);
+  }, [history, busy, queue, forget]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
@@ -948,7 +941,7 @@ export function ReviewSession({
         Estonian: the flip, the choice and a first meeting. On a typed card
         the button in the footer is one press away and the letter is a letter.
       */
-      if (e.key.toLowerCase() === "b" && !typing && seen.length > 0) {
+      if (e.key.toLowerCase() === "b" && !typing && look.seen.length > 0) {
         e.preventDefault();
         look.open();
         return;
@@ -1000,7 +993,7 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look, seen.length]);
+  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look]);
 
   if (wasEmptyAtStart) {
     return (
@@ -1142,17 +1135,8 @@ export function ReviewSession({
       {/* A look back stands in the round's place rather than over it: the card
           underneath must not be answerable while somebody is reading an older
           one, and one screen at a time is what every other step here does. */}
-      {look.looking && look.card && look.at !== null ? (
-        <LookBackCard
-          card={look.card}
-          position={look.at}
-          newest={seen.length - 1}
-          hasEarlier={look.hasEarlier}
-          hasLater={look.hasLater}
-          onBack={look.back}
-          onForward={look.forward}
-          onClose={look.close}
-        />
+      {look.panel ? (
+        <LookBackCard {...look.panel} />
       ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
@@ -1535,13 +1519,7 @@ export function ReviewSession({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
-        <LookBackButton
-          ref={lookTrigger}
-          count={seen.length}
-          onOpen={look.open}
-          disabled={busy || look.looking}
-          keyHint={ask !== "type"}
-        />
+        <LookBackButton {...look.button} disabled={busy || look.looking} keyHint={ask !== "type"} />
         <button
           type="button"
           onClick={() => void undo()}

@@ -32,7 +32,7 @@ import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
-import { remember, type SeenCard } from "@/lib/ux/lookBack";
+import { type SeenCard } from "@/lib/ux/lookBack";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -193,10 +193,7 @@ export function LearnSession({
     round: `lib/ux/lookBack.ts` is the rule. Nothing is un-graded by it, which
     is what makes it safe on a screen whose every answer is already in the log.
   */
-  const [seen, setSeen] = useState<SeenCard[]>([]);
-  const look = useLookBack(seen);
-  const { trigger: lookTrigger } = look;
-  const showings = useRef(0);
+  const look = useLookBack();
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
@@ -295,8 +292,7 @@ export function LearnSession({
         answerLang: gap ? "et" : "en",
         speak: gap ? gap.answer : word.lemma,
       };
-      showings.current += 1;
-      setSeen((prev) => remember(prev, { ...entry, key: `${entry.of}#${showings.current}` }));
+      look.record(entry);
     }
     const rest = [...queue];
     const [head] = rest.splice(0, 1);
@@ -315,7 +311,7 @@ export function LearnSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
-  }, [queue, word, rung]);
+  }, [queue, word, rung, look]);
 
   /**
    * A word the learner has put aside, which is the mirror of the claim below.
@@ -504,7 +500,7 @@ export function LearnSession({
       // Safe as a letter here because this handler has already returned above
       // if focus is in a text box, which is where `b` is the first letter of
       // `buss`. The review screen had to be corrected for exactly that.
-      if (e.key.toLowerCase() === "b" && seen.length > 0) { e.preventDefault(); look.open(); return; }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (phase === "feedback") {
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
         return;
@@ -518,7 +514,7 @@ export function LearnSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, rung, word, met, pick, carryOn, look, seen.length]);
+  }, [phase, rung, word, met, pick, carryOn, look]);
 
   if (total === 0) {
     return (
@@ -665,17 +661,8 @@ export function LearnSession({
       {/* The look back stands in the ladder's place rather than over it: one
           screen at a time, and the rung underneath cannot be answered by
           accident while an older word is being read. */}
-      {look.looking && look.card && look.at !== null ? (
-        <LookBackCard
-          card={look.card}
-          position={look.at}
-          newest={seen.length - 1}
-          hasEarlier={look.hasEarlier}
-          hasLater={look.hasLater}
-          onBack={look.back}
-          onForward={look.forward}
-          onClose={look.close}
-        />
+      {look.panel ? (
+        <LookBackCard {...look.panel} />
       ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
@@ -1015,7 +1002,7 @@ export function LearnSession({
       {asideNote}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
-        <LookBackButton ref={lookTrigger} count={seen.length} onOpen={look.open} disabled={busy || look.looking} />
+        <LookBackButton {...look.button} disabled={busy || look.looking} />
       </div>
 
       <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>

@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { Chip, KeyCap } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
-import { earlier, later, openAt, type SeenCard } from "@/lib/ux/lookBack";
+import { earlier, later, openAt, remember, forgetLast, type SeenCard } from "@/lib/ux/lookBack";
 
 /**
  * SEEING THE LAST WORD AGAIN, DRAWN ONCE.
@@ -48,7 +48,27 @@ import { earlier, later, openAt, type SeenCard } from "@/lib/ux/lookBack";
  * the caret back on the control that opened it, which is also where the
  * reader was standing.
  */
-export function useLookBack(seen: readonly SeenCard[]) {
+export function useLookBack() {
+  /*
+    THE ROUND HANDS OVER WHAT IT DREW AND NOTHING ELSE.
+
+    The first two rounds to carry this each held the list, the counter that
+    keys a showing and the call to `remember` themselves, which is four lines
+    of identical wiring per round and four places for the nineteenth round to
+    get it subtly wrong. What a round actually knows is what was on its
+    screen, so that is all it says: `record` takes the card as it was drawn
+    and the rest lives here.
+  */
+  const [seen, setSeen] = useState<SeenCard[]>([]);
+  /* One card can be shown twice in a round, so the key is the showing. */
+  const showings = useRef(0);
+  const record = useCallback((entry: Omit<SeenCard, "key">) => {
+    showings.current += 1;
+    setSeen((s) => remember(s, { ...entry, key: `${entry.of}#${showings.current}` }));
+  }, []);
+  /** Takes back the newest showing of one card, which is what undo rewinds. */
+  const forget = useCallback((of: string) => setSeen((s) => forgetLast(s, of)), []);
+
   const [at, setAt] = useState<number | null>(null);
   /*
     Held through a callback rather than handed out as the ref object itself,
@@ -91,17 +111,37 @@ export function useLookBack(seen: readonly SeenCard[]) {
   }, [at]);
 
   const card = at === null ? null : seen[at] ?? null;
-  return {
-    at,
+
+  /*
+    The two drawings take a bundle each rather than eight props apiece. A
+    round spreads them, so a round that draws the panel cannot forget a
+    handler and quietly lose the way forward, which is the shape of mistake
+    that spreads across nineteen files rather than staying in one.
+  */
+  const panel = card === null || at === null ? null : {
     card,
-    trigger,
-    looking: card !== null,
-    hasEarlier: at !== null && earlier(at, seen) !== null,
-    hasLater: at !== null && later(at, seen) !== null,
+    position: at,
+    newest: seen.length - 1,
+    hasEarlier: earlier(at, seen) !== null,
+    hasLater: later(at, seen) !== null,
+    onBack: back,
+    onForward: forward,
+    onClose: leave,
+  };
+
+  return {
+    seen,
+    record,
+    forget,
     open,
     close: leave,
-    back,
+    /** Forward one, and past the newest that is the way back to the round. */
     forward,
+    looking: card !== null,
+    /** Spread onto `LookBackCard`, or null while the round is on screen. */
+    panel,
+    /** Spread onto `LookBackButton`. */
+    button: { count: seen.length, onOpen: open, ref: trigger },
   };
 }
 

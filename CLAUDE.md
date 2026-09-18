@@ -5085,6 +5085,23 @@ a question they were not asked. Undo is the one thing that reaches in: rewinding
 card back in front of them, so `forgetLast` takes that showing out again, the most recent showing of
 that card rather than every one of them, since a card answered twice was genuinely shown twice.
 
+**Every round that steps through words carries it, and what does not is exempt by name.** It began
+on the two that matter most, the review session and the learn ladder, and a way back that exists on
+two screens out of fifteen is a control a learner cannot rely on. So the sweep is the filesystem
+rather than a list: every `*Session.tsx` under `review/`, `quest/` and `learn/` either draws
+`LookBackCard` or carries a written reason, which is the shape `CAPTION_EXEMPT` and the star's own
+sweep take, and the reason is checked for staleness in both directions. It found the unit lesson and
+the level checkpoint, neither of which was on the list anybody would have written by hand. Three
+kinds are out and each is argued rather than skipped: a **timed** round (the sprint, the target, the
+daily quest), where stopping to re-read spends the one thing the round is made of and the finish
+screen lists what was asked; a **board** (match, the picture board), which puts several words up at
+once, so there is no last word and what was asked is still on the screen; and the **level
+checkpoint**, which withholds every answer until the end on purpose, so there is nothing to look
+back at and putting the question up again without its answer is a different feature. What a round
+hands over is what it drew and nothing else: `useLookBack` owns the list, the key per showing and
+the position, because four lines of identical wiring per round is four places for the nineteenth
+round to get it subtly wrong.
+
 **It stands in the round's place rather than over it, and the way back is also the way forward.**
 A panel over a card in a 360px round is the shape this file already has a rule against, and it
 would leave the round underneath answerable by a stray key; one screen at a time is what every

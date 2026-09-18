@@ -17,6 +17,7 @@ import { grammarTerm } from "@/lib/estonian/terms";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface ScenePrompt {
   sceneId: string;
@@ -97,6 +98,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
   const prompt = prompts[index];
   const finished = !prompt;
+  /* The way back to the picture before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
 
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;
@@ -160,6 +163,20 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   }
 
   function next() {
+    /* The situation, what was asked of it and the sentence the learner
+       wrote, which is theirs and is neither stored nor marked again. */
+    if (prompt) {
+      look.record({
+        of: `${prompt.sceneId}-${prompt.caseKey}`,
+        label: prompt.situation,
+        question: `${prompt.askLemma}, ${prompt.askTranslation} · ${prompt.caseEt}`,
+        answer: sentence.trim() || prompt.askLemma,
+        note: prompt.caseQuestion,
+        questionLang: "et",
+        answerLang: "et",
+        speak: null,
+      });
+    }
     setMarked(null);
     setSentence("");
     setError(null);
@@ -220,6 +237,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -308,6 +326,11 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             </Button>
           )}
         </div>
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
       </div>
 
       {!aiAvailable && (

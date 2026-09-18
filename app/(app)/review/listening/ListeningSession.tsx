@@ -14,6 +14,7 @@ import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -67,6 +68,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const [voiceStart] = useState(() => Math.floor(Math.random() * VOICES.length));
 
   const card = cards[index];
+  /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const voice = voiceFor(voiceStart, index);
   /*
     The room and the rate, decided per card from its own history and its
@@ -108,13 +111,34 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   }, [card, answered, busy]);
 
   const next = useCallback(() => {
+    /* The word that was played, which is the one thing this round never
+       shows until it has been answered, with what it means. */
+    if (card) {
+      look.record({
+        of: card.id,
+        label: "Listening",
+        question: card.lemma,
+        answer: card.correct,
+        note: null,
+        questionLang: "et",
+        answerLang: "en",
+        speak: card.lemma,
+      });
+    }
     if (!answered) return;
     setIndex((i) => i + 1);
-  }, [answered]);
+  }, [answered, card, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
+      /* The round's keys stand down while an older word is on the screen. */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) {
         if (isAdvanceKey(e)) { e.preventDefault(); next(); }
         return;
@@ -124,7 +148,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, card, pick, next]);
+  }, [finished, answered, card, pick, next, look]);
 
   if (wasEmptyAtStart) {
     return (
@@ -199,6 +223,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -295,6 +320,11 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
             </Button>
           </div>
         )}
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
   );

@@ -25,6 +25,8 @@ import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import type { SeenCard } from "@/lib/ux/lookBack";
 
 interface Answer {
   id: string;
@@ -32,6 +34,42 @@ interface Answer {
   kind: string;
   correct: boolean;
   durationMs: number;
+}
+
+/**
+ * What a step leaves behind for somebody who wants to see it again.
+ *
+ * A lesson is eleven shapes rather than one card, so this reads each for what
+ * was actually on the screen: a gap keeps its sentence, a case step keeps the
+ * form it wanted, and the two steps that ask nothing keep the word they
+ * introduced. `intro` and `recap` are the two with no word in them at all,
+ * and they are the null: there is nothing to look back at on a screen that
+ * was only ever a heading.
+ */
+function shownAs(step: LessonStep): Omit<SeenCard, "key"> | null {
+  const base = { questionLang: "et" as const, answerLang: "et" as const, note: null as string | null };
+  switch (step.kind) {
+    case "intro":
+    case "recap":
+      return null;
+    case "meet":
+      return { ...base, of: step.lemma, label: "New word", question: step.lemma, answer: step.gloss, answerLang: "en", speak: step.lemma };
+    case "choose":
+      return { ...base, of: step.lemma, label: "What it means", question: step.lemma, answer: step.options[step.answer] ?? "", answerLang: "en", speak: step.lemma };
+    case "produce":
+    case "listen":
+      return { ...base, of: step.lemma, label: step.kind === "listen" ? "Heard it" : "Say it", question: step.kind === "produce" ? step.gloss : step.lemma, answer: step.options[step.answer] ?? step.lemma, questionLang: step.kind === "produce" ? "en" : "et", speak: step.lemma };
+    case "type":
+      return { ...base, of: step.lemma, label: "Type it", question: step.gloss, answer: step.lemma, questionLang: "en", speak: step.lemma };
+    case "gap":
+      return { ...base, of: step.lemma, label: "Fill the gap", question: step.full, answer: step.answer, note: step.en, speak: step.full };
+    case "build":
+      return { ...base, of: step.lemma, label: "Word order", question: step.lemma, answer: step.sentence, note: step.en, speak: step.sentence };
+    case "case":
+      return { ...base, of: step.lemma, label: step.caseName, question: `${step.lemma}, ${step.gloss}`, answer: step.answer, note: step.question, speak: step.answer };
+    case "govern":
+      return { ...base, of: step.lemma, label: "Rektsioon", question: `${step.lemma}, ${step.gloss}`, answer: step.options[step.answer] ?? "", speak: step.lemma };
+  }
 }
 
 /**
@@ -85,6 +123,8 @@ export function LessonSession({
   const [aside, setAside] = useState<string | null>(null);
 
   const step = steps[at];
+  /* The way back to the step before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const total = useMemo(() => steps.filter(isAnswerable).length, [steps]);
   const answered = answers.length;
   const correct = answers.filter((a) => a.correct).length;
@@ -99,9 +139,13 @@ export function LessonSession({
   }, [startedAt]);
 
   const advance = useCallback(() => {
+    /* One choke point: every step leaves through here, so the record cannot
+       fall behind the lesson. Nothing is answered again by keeping it. */
+    const seenStep = step ? shownAs(step) : null;
+    if (seenStep) look.record(seenStep);
     setAt((i) => Math.min(i + 1, steps.length - 1));
     setStartedAt(Date.now());
-  }, [steps.length]);
+  }, [steps.length, step, look]);
 
   /**
    * A word the learner has put aside, mid-lesson.
@@ -165,6 +209,9 @@ export function LessonSession({
     >
       <div className="flex flex-col gap-5">
         <Meter pct={pct} label={`${answered} of ${total} questions answered`} />
+        {/* A look back stands in the step's place rather than over it, so the
+            step underneath cannot be answered while an older one is read. */}
+        {look.panel ? <LookBackCard {...look.panel} /> : (
         <StepCard
           key={step.id}
           step={step}
@@ -176,6 +223,10 @@ export function LessonSession({
           canTranslate={canTranslate}
           summary={{ correct, total: answered, saving, saved }}
         />
+        )}
+        <div className="flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        </div>
         {aside && (
           <p className="text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
             {aside}{" "}

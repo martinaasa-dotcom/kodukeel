@@ -14,6 +14,7 @@ import { SELF_GRADES, type RatingValue } from "@/lib/srs/scheduler";
 import { VERDICT_CLASS, verdictOfRating } from "@/lib/ux/verdict";
 import { Explain } from "@/components/Explain";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface SpeakingCard {
   cardId: string;
@@ -68,6 +69,8 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
   const shownAt = useRef(Date.now());
 
   const card = cards[index];
+  /* The way back to the line before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !card;
 
   useEffect(() => { rememberCard(card ? { id: card.cardId } : undefined); }, [rememberCard, card]);
@@ -86,9 +89,21 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
     } catch {
       // Speaking practice is not worth losing to a failed write.
     }
+    /* What was asked and the Estonian it wanted, which is the line a learner
+       most often wants to hear once more. */
+    look.record({
+      of: card.cardId,
+      label: "Speaking",
+      question: card.prompt,
+      answer: card.et,
+      note: null,
+      questionLang: "en",
+      answerLang: "et",
+      speak: card.et,
+    });
     setIndex((i) => i + 1);
     setBusy(false);
-  }, [card, busy]);
+  }, [card, busy, look]);
 
   if (cards.length === 0) {
     return (
@@ -162,6 +177,7 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -239,10 +255,12 @@ export function SpeakingSession({ cards: initialCards }: { cards: SpeakingCard[]
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {done} spoken
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{done} spoken</span>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
     </div>
   );
 }
