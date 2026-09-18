@@ -6,7 +6,7 @@ import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 import { ssoDomainFor } from "@/lib/auth/sso";
-import { GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
+import { GSI_LOCALE, GSI_SCRIPT_SRC, hashNonce, randomNonce } from "@/lib/auth/googleIdentity";
 
 /**
  * The one shape of Google Identity Services this file reads. There is no
@@ -29,6 +29,7 @@ interface GoogleAccountsId {
       shape?: "rectangular";
       text?: "continue_with";
       logo_alignment?: "left";
+      locale?: string;
       width?: number;
     },
   ): void;
@@ -49,7 +50,15 @@ const SETTLE_TIMEOUT_MS = 1500;
 /** How long a resize has to stop before the button is drawn again. */
 const REDRAW_SETTLE_MS = 150;
 
-/** The narrowest and widest button Google's own API will draw. */
+/**
+ * The narrowest and widest button Google's own API will draw.
+ *
+ * The floor is Google's rather than ours, so a column narrower than it
+ * cannot be asked for a button that fits: handed anything under 200 the
+ * script draws 200 anyway, which is a button wider than its own box and is
+ * the cut-off right edge this whole file is about. A column that narrow gets
+ * the redirect button instead, which is this app's own and reflows.
+ */
 const MIN_BUTTON_WIDTH = 200;
 const MAX_BUTTON_WIDTH = 400;
 
@@ -313,14 +322,28 @@ export function SignInForm({
       const laid = column.clientWidth;
       const rect = column.getBoundingClientRect().width;
       const measured = Math.floor(still ? Math.min(rect, laid) : laid);
-      return Math.max(MIN_BUTTON_WIDTH, Math.min(measured, MAX_BUTTON_WIDTH));
+      /* Nothing to draw a Google button in. The caller opens the other door. */
+      if (measured < MIN_BUTTON_WIDTH) return null;
+      return Math.min(measured, MAX_BUTTON_WIDTH);
     }
 
     /** Draw the button at the column's width, replacing whatever was there. */
     function paint(id: GoogleAccountsId, still: boolean) {
       const container = googleButtonRef.current;
+      if (!container) return;
       const width = widthNow(still);
-      if (!container || width === null) return;
+      /*
+        A column that cannot hold Google's own minimum gets this app's button,
+        which is a real one rather than a picture of one and fits whatever it
+        is put in. Reversible: the observer below watches the same column, so
+        a window widened again draws Google's back.
+      */
+      if (width === null) {
+        container.replaceChildren();
+        drawnWidth.current = null;
+        setGoogleState("fallback");
+        return;
+      }
       container.replaceChildren();
       id.renderButton(container, {
         type: "standard",
@@ -329,9 +352,11 @@ export function SignInForm({
         shape: "rectangular",
         text: "continue_with",
         logo_alignment: "left",
+        locale: GSI_LOCALE,
         width,
       });
       drawnWidth.current = width;
+      setGoogleState("gis");
     }
 
     async function draw() {
@@ -352,7 +377,6 @@ export function SignInForm({
       });
       paint(id, still);
       drawn = true;
-      setGoogleState("gis");
       /*
         Coalesced, because a window dragged across the clamp range fires the
         observer on every frame of the drag and each answer is a button torn
@@ -364,8 +388,14 @@ export function SignInForm({
         window.clearTimeout(redraw);
         redraw = window.setTimeout(() => {
           if (cancelled) return;
+          /*
+            `null` is a width like any other here: it means the column has
+            become too narrow for Google's own minimum, and that is exactly
+            the case the redraw has to act on. Filtered out as "no width",
+            a window narrowed past it kept a button wider than its column.
+          */
           const width = widthNow(true);
-          if (width !== null && width !== drawnWidth.current) paint(id, true);
+          if (width !== drawnWidth.current) paint(id, true);
         }, REDRAW_SETTLE_MS);
       });
       observer.observe(column);
@@ -464,8 +494,15 @@ export function SignInForm({
     );
   }
 
+  /*
+    `data-sign-in-column` on the column below is a hook for
+    `scripts/test-signin.mjs`, which has to measure that box with Google's
+    button in it and with it gone: read off the button's own ancestors it
+    could only be found while a button was there, which is the one state the
+    narrow case does not have.
+  */
   return (
-    <div ref={columnRef} className="flex flex-col gap-4">
+    <div ref={columnRef} data-sign-in-column className="flex flex-col gap-4">
       {/*
         `size="lg"` rather than a padding of its own. The ad-hoc `px-6 py-3`
         this carried put the button at 41px tall on a 360px phone, under the

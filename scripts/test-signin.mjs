@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 32 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 38 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -387,8 +387,12 @@ check("every control on it clears 44px", small.length === 0, small.join(", "));
   network, or an authorised origin.
 */
 const gsiCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
-await gsiCtx.route("https://accounts.google.com/gsi/client*", (route) =>
-  route.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
+/** Every address the page asked Google's script for, so the locale pin is readable. */
+const gsiRequests = [];
+await gsiCtx.route("https://accounts.google.com/gsi/client*", (route) => {
+  gsiRequests.push(route.request().url());
+  return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+});
 await gsiCtx.addInitScript(() => {
   const calls = [];
   window.__gsi = { calls };
@@ -401,6 +405,7 @@ await gsiCtx.addInitScript(() => {
           const rect = column.getBoundingClientRect();
           calls.push({
             width: options.width,
+            locale: options.locale,
             columnRect: rect.width,
             columnLayout: column.clientWidth,
           });
@@ -414,6 +419,22 @@ await gsiCtx.addInitScript(() => {
     },
   };
 });
+
+/*
+  A resize is answered on a frame, and a headless browser with nothing to draw
+  draws none: waited for as a plain condition, the redraw spent its whole
+  timeout and then arrived. Reading the layout is what asks for one, so this
+  asks repeatedly until the page agrees or the budget runs out.
+*/
+async function afterRedraw(page, condition, budgetMs = 6_000) {
+  const end = Date.now() + budgetMs;
+  for (;;) {
+    await page.evaluate(() => document.body.getBoundingClientRect().width);
+    if (await condition()) return true;
+    if (Date.now() > end) return false;
+    await page.waitForTimeout(150);
+  }
+}
 
 const gsiPage = await gsiCtx.newPage();
 gsiPage.on("pageerror", (e) => errors.push(e.message));
@@ -436,7 +457,7 @@ check("and the width it is handed is that column's own, never rounded up past it
 
 const fits = await gsiPage.evaluate(() => {
   const button = document.querySelector("[data-stub-button]");
-  const column = document.querySelector("[data-stub-button]")?.closest(".flex-col");
+  const column = document.querySelector("[data-sign-in-column]");
   if (!button || !column) return null;
   const b = button.getBoundingClientRect(), c = column.getBoundingClientRect();
   return { over: +(b.right - c.right).toFixed(2), under: +(b.x - c.x).toFixed(2) };
@@ -451,7 +472,7 @@ check("so the button's own edges are inside the column, which is what a cut-off 
   zoom are all that same change.
 */
 const column = () => gsiPage.evaluate(() =>
-  document.querySelector("[data-stub-button]")?.parentElement?.parentElement?.clientWidth ?? 0);
+  document.querySelector("[data-sign-in-column]")?.clientWidth ?? 0);
 const wide = await column();
 await gsiPage.setViewportSize({ width: 360, height: 900 });
 /*
@@ -460,20 +481,9 @@ await gsiPage.setViewportSize({ width: 360, height: 900 });
   headless browser does that when something asks. Waited for the redraw alone,
   this spent its whole timeout and then measured the observer arriving.
 */
-await gsiPage
-  .waitForFunction(
-    `(document.querySelector("[data-stub-button]")?.parentElement?.parentElement?.clientWidth ?? 0) !== ${wide}`,
-    { timeout: 5_000 })
-  .catch(() => {});
+await afterRedraw(gsiPage, async () => (await column()) !== wide);
 const narrow = await column();
-/*
-  A plain wait rather than a condition, because what is being waited for is a
-  browser deciding to lay the page out again: the observer, and then the
-  redraw's own settle, are both downstream of a frame this headless browser
-  has no other reason to draw. Waited for as a condition it spent its whole
-  timeout and then measured the observer arriving.
-*/
-await gsiPage.waitForTimeout(2_000);
+await afterRedraw(gsiPage, () => gsiPage.evaluate(() => window.__gsi.calls.length > 1));
 /*
   Stated rather than assumed: this asks nothing at a width where the column
   comes out the same, and the check that preceded it did exactly that. Resized
@@ -488,6 +498,43 @@ const last = after[after.length - 1];
 check("a column that changes width afterwards gets the button drawn again to match it",
   after.length > drawn.length && !!last && last.width === Math.floor(last.columnLayout),
   `${after.length} render(s), last asked ${last?.width} for a column laid out at ${last?.columnLayout}`);
+/*
+  THE LANGUAGE OF THE BUTTON IS THIS APP'S TO DECIDE, and it was pinned in one
+  of the two places Google reads it. The screenshot that started all of this
+  reads "Jätka Google'iga" on a page whose every other word is English, so the
+  script's own query string was not doing it alone.
+*/
+check("the script is asked for in the language the rest of the screen is in",
+  gsiRequests.length > 0 && gsiRequests.every((url) => url.includes("hl=en")),
+  gsiRequests[0] ?? "never requested");
+check("and the button is told the same language, which is the setting Google reads per button",
+  after.every((call) => call.locale === "en"),
+  `${after.map((c) => c.locale).join(", ")}`);
+
+/*
+  GOOGLE'S OWN FLOOR IS 200 PIXELS, so a column narrower than that cannot be
+  handed a width that fits it: asked for less, the script draws 200 anyway and
+  the right edge lands outside the box, which is the fault this whole file is
+  about arriving through the one door the clamp left open. Below it the
+  redirect button is drawn instead, which is this app's own and reflows.
+*/
+await gsiPage.setViewportSize({ width: 280, height: 900 });
+await afterRedraw(gsiPage, async () => (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 1);
+const tiny = await column();
+check("a column too narrow for Google's own minimum really is under it, or this asks nothing",
+  tiny > 0 && tiny < 200, `${tiny}px`);
+check("and it gets this app's own button rather than one wider than the column",
+  (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 1);
+const spilled = await gsiPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("so nothing spills sideways at a width Google will not draw for", spilled <= 0, `${spilled}px`);
+
+/* And it is a state rather than a verdict: widened again, Google's own comes back. */
+await gsiPage.setViewportSize({ width: 1280, height: 900 });
+await afterRedraw(gsiPage, async () => (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+check("a column widened past it gets Google's own button back",
+  (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+
 await gsiCtx.close();
 
 /*
