@@ -201,13 +201,24 @@ describe("grammar examples", () => {
     expect(pinned).toBeGreaterThanOrEqual(120);
   });
 
-  /* And two is the ask, so most of them carry two rather than one. */
-  it("mostly gives two", () => {
-    const lists = everyPoint()
-      .map((p) => examplesFor(p.kind, p.id, p.point))
-      .filter((l) => l.length > 0);
-    const pairs = lists.filter((l) => l.length >= 2).length;
-    expect(pairs * 2).toBeGreaterThan(lists.length);
+  /*
+    AND TWO IS THE ASK, so every answered point carries two.
+
+    This was "most of them" while fourteen still carried one, and a floor with
+    nothing under it is the parking space `senses.test.ts` records becoming
+    one: the fourteen would have stayed at one for as long as the majority
+    held. A point somebody has found one sentence for and not a second is a
+    point half answered, and the honest ways out are the second sentence or
+    the written reason the gap table is for.
+  */
+  it("gives every answered point two", () => {
+    const thin = everyPoint()
+      .filter((p) => {
+        const n = examplesFor(p.kind, p.id, p.point).length;
+        return n > 0 && n < 2;
+      })
+      .map((p) => `${p.kind}:${p.id} — ${p.point}`);
+    expect(thin).toEqual([]);
   });
 
   /*
@@ -269,6 +280,6 @@ describe("grammar examples", () => {
   */
   it("claims a slot wherever there is one to claim", () => {
     const claimed = allPins().filter(({ kind, pin }) => kind === "case" || pin.slot).length;
-    expect(claimed).toBeGreaterThanOrEqual(170);
+    expect(claimed).toBeGreaterThanOrEqual(185);
   });
 });

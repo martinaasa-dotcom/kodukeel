@@ -252,6 +252,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Describes a noun as having done something": [
       { lemma: "vihik", et: "Ilmunud vihik tegi luuletajale palju rõõmu.", form: "Ilmunud", slot: "VERB:PtsPtPs", reviewed: false },
+      { lemma: "kiirabi", et: "Kukkunud vanainimene vajas kiirabi.", form: "Kukkunud", reviewed: false },
     ],
     "Has an impersonal twin for things done to something": [
       { lemma: "kook", et: "Vanaema küpsetatud kook.", form: "küpsetatud", slot: "VERB:PtsPtPs", reviewed: false },
@@ -341,6 +342,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Strongly preferred in writing over two joined clauses": [
       { lemma: "pidur", et: "Peo edenedes pidurid kadusid.", form: "edenedes", reviewed: false },
+      { lemma: "otsustama", et: "Purustuste järgi otsustades võis tegu olla keeristormiga.", form: "otsustades", reviewed: false },
     ],
     "Its subject is understood to be the main clause's": [
       { lemma: "viibima", et: "Ta kuulis juhtunust puhkusel viibides.", form: "viibides", reviewed: false },
@@ -354,6 +356,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Can carry doubt, depending on delivery": [
       { lemma: "väitma", et: "Mees väidab end mitte teadvat, kuhu ta auto jättis.", form: "teadvat", reviewed: false },
+      { lemma: "sest", et: "Kohus andis hagi tagasi, sest see olevat puudulikult koostatud.", form: "olevat", reviewed: false },
     ],
   },
   numerals: {
@@ -373,6 +376,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   derivation: {
     "An action noun from any verb, entirely regular": [
       { lemma: "võõras", et: "Vabandamine on talle võõras.", form: "Vabandamine", reviewed: false },
+      { lemma: "harjumus", et: "Suitsetamine on kahjulik harjumus.", form: "Suitsetamine", reviewed: false },
     ],
     "Adjectives meaning like it, and meaning without it": [
       { lemma: "idee", et: "Toetan demokraatlikke ideid.", form: "demokraatlikke", slot: "CASE:PARTITIVE", reviewed: false },
@@ -476,6 +480,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Or the quotative, which needs no reporting verb": [
       { lemma: "tammetõru", et: "Tammetõrude rohkus ennustavat karmi talve.", form: "ennustavat", reviewed: false },
+      { lemma: "meel", et: "Hiinlased olevat tuntud oma praktilise meele poolest.", form: "olevat", reviewed: false },
     ],
   },
   concession: {
@@ -491,6 +496,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The quotative, which puts the claim on somebody else": [
       { lemma: "aus", et: "Aus ülestunnistus pidavat karistust kergendama.", form: "pidavat", reviewed: false },
+      { lemma: "näiteks", et: "Rooibos leevendavat mitmeid terviseprobleeme, näiteks unetust, pingeid ja peavalu.", form: "leevendavat", reviewed: false },
     ],
     "The conditional, which softens a claim as well as a request": [
       { lemma: "elukoht", et: "Hea, kui elukoht asuks töökoha lähedal.", form: "asuks", slot: "VERB:KndPrPs", reviewed: false },
@@ -526,6 +532,7 @@ export const TOPIC_EXAMPLES: Readonly<Record<string, PointPins>> = {
   subordination: {
     "Word order shifts inside the clause": [
       { lemma: "firma", et: "Töötan firmas, mis toodab autode varuosi.", form: "mis", slot: "CASE:NOMINATIVE", reviewed: false },
+      { lemma: "hoolima", et: "Sa oled väga tubli, et oma tervisest hoolid.", form: "hoolid", slot: "VERB:IndPrSg2", reviewed: false },
     ],
   },
   "relative-clause": {
@@ -587,6 +594,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "After any number above one": [
       { lemma: "kott", et: "Kolm kotti kartuleid.", form: "kotti", reviewed: false },
+      { lemma: "pere", et: "Nende peres on viis last.", form: "last", reviewed: false },
     ],
   },
   ILLATIVE: {
@@ -596,6 +604,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Going into a state or a stretch of time": [
       { lemma: "õnnetus", et: "Buss sattus õnnetusse.", form: "õnnetusse", reviewed: false },
+      { lemma: "vajuma", et: "Lapsuke vajus unne.", form: "unne", reviewed: false },
     ],
   },
   ADESSIVE: {
@@ -619,6 +628,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The person something is taken, bought or asked from": [
       { lemma: "paluma", et: "Pead vanematelt luba paluma.", form: "vanematelt", reviewed: false },
+      { lemma: "pärand", et: "Ta sai vanaemalt pärandiks korteri.", form: "vanaemalt", reviewed: false },
     ],
   },
   TRANSLATIVE: {
@@ -646,6 +656,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "Up to an amount": [
       { lemma: "arv", et: "Arvud ühest kümneni.", form: "kümneni", reviewed: false },
+      { lemma: "viisteist", et: "Päeval tõuseb temperatuur viieteist kraadini.", form: "kraadini", reviewed: false },
     ],
   },
   ESSIVE: {
@@ -655,6 +666,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "A role or a capacity you are in for now": [
       { lemma: "vallaline", et: "Marie suri vallalisena.", form: "vallalisena", reviewed: false },
+      { lemma: "terve", et: "Majaelanikud pääsesid põlengust tervena.", form: "tervena", reviewed: false },
     ],
   },
   ABESSIVE: {
@@ -698,6 +710,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "What something is made of": [
       { lemma: "oder", et: "Odrast saab karaskit.", form: "Odrast", reviewed: false },
+      { lemma: "kampsun", et: "Ta kannab villast kampsunit.", form: "villast", reviewed: false },
     ],
     "What a text or a conversation is about": [
       { lemma: "mõtlema", et: "Millest sa mõtled?", form: "Millest", reviewed: false },
@@ -711,6 +724,7 @@ export const CASE_EXAMPLES: Readonly<Record<string, PointPins>> = {
     ],
     "The person something is given, said or sent to": [
       { lemma: "vann", et: "Tegin lapsele vanni.", form: "lapsele", reviewed: false },
+      { lemma: "musu", et: "Tüdruk andis poisile musu.", form: "poisile", reviewed: false },
     ],
   },
 };
