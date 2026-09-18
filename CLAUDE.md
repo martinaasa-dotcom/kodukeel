@@ -7462,6 +7462,22 @@ every time, and with no conversation in front of it opened mid-scene beats with 
 is one sentence and two at most and the drafter's instruction says the conversation has already
 begun. Nobody has read any of it, at any band.
 
+**The other side talks like a person, and a person says `ma`, not `mina`.** A learner reported
+the composed lines as a robot's, and every one of them was correct Estonian: the word list hands
+over headwords, a pronoun's headword is its long form, and a model told to prefer the words it is
+given wrote `Mina läksin`. `Lexicon.spoken` is the list as it is spoken, the stored short
+nominative where the Institute's row carries one and the headword otherwise, and every caller that
+builds a `ComposeScene` reads it, asserted. The prompt asks for feelings with it, in proportion and
+in character, sympathy and "what happened?" before anything else for bad news and warmth for good,
+because that is the one thing the bank cannot supply. **And "tsau" is goodbye and "ciao" is too.**
+A scene ended that way was answered `Vabandust!` and the previous question again, since the close
+beat names the two farewells the course teaches. `lib/scenes/casual.ts` is what people say instead,
+the Estonian half vouched word by word by the forms list and the foreign half on the latitude the
+English list takes, read by `readTurn` alone and by nothing that says, banks or grades a line: a
+casual hello meets the greet beat ungraded and a casual goodbye meets the close beat as a
+substitution, in a turn of three words or fewer, so a question opening with `tsau` is still a
+question. `docs/21-situations.md` §73.
+
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a
 scene. `ComposeAsk` carries the scene, the place, the drawn persona and the learner's own role card,

@@ -426,7 +426,7 @@ async function play(sceneId: string) {
             avoid,
           }, {
             scene: scene.title, place: scene.place, level, persona: persona.who, situation: scene.role,
-            register: scene.register, words: [...context.lexicon.byLemma.keys()],
+            register: scene.register, words: context.lexicon.spoken,
           }, talk);
           },
         } : {}),

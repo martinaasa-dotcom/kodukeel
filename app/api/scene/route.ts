@@ -1022,7 +1022,7 @@ export async function POST(request: Request) {
       move: beat.move,
       they: stageFor(beat, card),
       register: askRegister,
-      words: [...context.lexicon.byLemma.keys()],
+      words: context.lexicon.spoken,
       /*
         The scene's own banked lines, for tone: a model shown six sentences
         this receptionist has said writes a seventh in the same register and

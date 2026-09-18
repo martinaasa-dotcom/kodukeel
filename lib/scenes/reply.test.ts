@@ -734,7 +734,7 @@ describe("a line off the card", () => {
     }],
   };
   const lexicon: Lexicon = {
-    forms: new Set(), byLemma: new Map(), byCase: new Map(),
+    forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(),
     caseForm: new Map([[caseKeyFor("teisipäev", "ADESSIVE"), "teisipäeval"]]),
     folded: new Map(), infinitives: new Map(), persons: new Map(),
   };
@@ -982,7 +982,7 @@ describe("the card after a curveball", () => {
 
   it("says a nominal in a named case off the case table, and withholds the line where it has none", () => {
     const lexicon = {
-      byLemma: new Map(), byCase: new Map(), forms: new Set<string>(), folded: new Set<string>(),
+      byLemma: new Map(), byCase: new Map(), forms: new Set<string>(), spoken: [], folded: new Set<string>(),
       persons: new Map(), infinitives: new Map(),
       caseForm: new Map([[caseKeyFor("euro", "PARTITIVE"), "eurot"]]),
     } as unknown as Lexicon;

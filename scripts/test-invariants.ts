@@ -6154,6 +6154,54 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   );
 });
 
+check("the other side talks like a person: short pronouns, feelings, and hello in any language", () => {
+  /*
+    Every composed line was correct Estonian and a learner still read the
+    other side as a robot: `Mina läksin` for `ma läksin`, because the word
+    list hands over headwords and a pronoun's headword is its long form, and
+    nothing ever reacted to news. And a scene ended with "ciao" was answered
+    "Vabandust!" and the previous question again, because the close beat
+    names the two farewells the course teaches and nothing else. Three rules
+    hold the repair: the list a model is handed is the list as spoken
+    (`Lexicon.spoken`), read at every call site rather than off the lemma
+    keys; the prompt says to talk like a person and to feel what was said;
+    and `readTurn` hears a casual hello and goodbye through
+    `lib/scenes/casual.ts`, which is read to accept and never to answer.
+  */
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(prompt, /short forms of[\s\S]{0,40}the pronouns/, "the prompt no longer asks for the everyday pronouns");
+  assert.match(prompt, /Have feelings and show them/, "the prompt no longer asks the other side to react to what was said");
+  for (const file of [
+    "app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+    "scripts/eval-thinking.ts", "scripts/measure-compose.ts",
+  ]) {
+    const src = code(file);
+    assert.match(src, /words: context\.lexicon\.spoken/, `${file} hands the model a list other than the spoken one`);
+    assert.doesNotMatch(
+      src, /words: \[\.\.\.context\.lexicon\.byLemma\.keys\(\)\]/,
+      `${file} hands the model the headwords again, which is how "mina" came back`,
+    );
+  }
+  assert.match(code("lib/scenes/lexicon.ts"), /spoken\.push\(spokenForm\(entry\)\)/, "buildLexicon stopped building the spoken list");
+  const turn = code("lib/scenes/turn.ts");
+  assert.match(turn, /casualHello\(spoken\) !== null/, "the greet beat no longer hears a casual hello");
+  assert.match(turn, /beat\.move === "close"[^\n]*casualBye\(spoken\)/, "the close beat no longer hears a casual goodbye");
+  /*
+    Accept only: nothing that says a line, banks one, grades one or builds a
+    card may reach the casual table, or "ciao" becomes a thing the other side
+    says and a spelling a learner is drilled on.
+  */
+  for (const file of [
+    "lib/scenes/reply.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts", "lib/scenes/grades.ts",
+    "lib/scenes/retrieval.ts", "lib/scenes/gate.ts", "lib/scenes/scripted.ts", "lib/scenes/aside.ts",
+  ]) {
+    assert.doesNotMatch(code(file), /from "\.\/casual"/, `${file} reads the casual greetings, which are accept-only`);
+  }
+  const casual = code("lib/scenes/casual.ts");
+  assert.match(casual, /export const CASUAL = \{/, "the casual table is gone");
+  assert.doesNotMatch(casual, /Head aega|Nägemist|"tere"/, "the casual table names a course phrase, which the scene already hears");
+});
+
 check("the other side talks at the run's band, and every composer says which band", () => {
   /*
     A scene carries no band of its own. It did, and the composed line never

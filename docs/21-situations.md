@@ -4900,3 +4900,48 @@ last user message, after the conversation, which is where its own text says it s
 transcript measures the shape the app has; a Groq link is unchanged. Anu and the grader run on
 Groq, which has no such entry, and were left as they are. What could still move is the word list
 itself, which is now two thirds of what the entry holds and costs a tenth of what it did.
+
+## §73 The other side sounds like a person, and hears hello and goodbye the way people say them
+
+Two reports from the same learner, both about a conversation that was correct and still read as
+a machine. The other side wrote `Mina läksin` where anybody says `ma läksin`, and a friend ended
+a scene with "ciao" and the app said `Vabandust!` and asked the previous question again.
+Reproduced keyless with `npm run replay:scene` on `poodi-piima`, ending on "ciao" and on "tsau":
+both got the repair word and the same question back.
+
+**The pronoun was the word list.** `composeSystem` hands the model the scene's lemmas under
+"prefer the words you are given", and a pronoun's lemma is its long form: `mina`, `sina`,
+`tema`, `meie`, `teie`, `nemad`. A model doing as it was told wrote the long one. The dictionary
+stores the short nominative beside the long one on the Institute's own row (`SgN: ma`,
+`PlN: te`), so `Lexicon.spoken` is the list as a person says it, the short form where an entry
+carries one and the headword otherwise, and every caller that builds a `ComposeScene` reads it
+rather than the lemma keys, asserted. Nothing about the gate moved: both spellings were always
+vouched, and no form is written anywhere.
+
+**The feelings were never asked for.** The rules told the model to react to what was said and
+make its move, and "react" was read as "acknowledge": told the heating had been off for a week,
+the landlord asked which floor. The prompt now says what a person does with news, sympathy and
+"what happened?" before anything else for something gone wrong, warmth or a laugh for something
+good, surprise for a surprise, in proportion and in the character's own voice, and says outright
+to talk the way people talk rather than the way a textbook writes. That is the one thing the bank
+cannot supply, so a keyless deployment is unchanged here.
+
+**And "tsau" is goodbye.** A close beat names the two farewells the course teaches and a plain
+thanks, and `Head aega!` is not what anybody says to a friend on the phone. `lib/scenes/casual.ts`
+is the short table of what people say instead, in two halves: the Estonian as it is spoken,
+`tsau`, `tšau`, `tsauki`, `hei`, `tervist`, `pakaa`, `hüvasti`, `nägemiseni`, every one a
+spelling the forms list vouches for and asserted so, and what a learner brings from another
+language, "ciao", "bye", "hi", "hello", "tschüss", "poka", on the latitude the marker's English
+list already takes. It is **accept only**, asserted: nothing that says a line, banks one, grades
+one or builds a card may read it. A casual hello meets the greet beat the way any vouched word
+does, ungraded; a casual goodbye meets the close beat as a substitution, so the scene ends, the
+other side says its farewell, and no row in the log claims the learner produced `Head aega!`.
+`tsau` is both, exactly as "ciao" is, so the beat decides: hello on the way in, goodbye anywhere
+else, and only in a turn of three words or fewer, because "tsau, kuhu ma pean minema?" is somebody
+asking rather than leaving. Read in `readTurn` rather than in `replay`, so a goodbye said
+mid-scene, which `replay` already reads through the close beat, walks out the same way.
+
+What this does not do is give the keyless deployment feelings. `REACTIONS.acknowledge` still
+says `Hästi.` to somebody whose hand hurts, because nothing without a model can read that a turn
+was sad; a beat could carry a reaction of its own the way it carries `they`, and that is the next
+thing here if the keyless voice is worth more work than the composed one.
