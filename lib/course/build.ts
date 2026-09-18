@@ -211,21 +211,25 @@ const STAND_IN: Record<"game" | "drill", ActivityKey> = { game: "match", drill: 
  * without ever running the same evening twice.
  *
  * A unit that is mostly verbs takes the conjugation table instead of the
- * drill, because a verb you cannot put in the third person is a verb you
- * cannot use, and it keeps the rotation's game so the evening still has one.
+ * drill on `table` evenings, because a verb you cannot put in the third
+ * person is a verb you cannot use, and it keeps the rotation's game so the
+ * evening still has one. The caller says which evenings: every other one of
+ * the unit's, since the first version pinned every evening and A2 opened on
+ * six tables running, which is a fortnight of one drill with a different
+ * name on the tin.
  *
  * A round whose material has not been taught yet is swapped for its stand-in.
  * Early in a level that is most evenings, and the pair repeats: a fact about
  * the words rather than a fault in the walk, and `course.test.ts` allows
  * exactly that case.
  */
-export function rounds(level: string, at: number, verbHeavy: boolean, taught: Taught = ALL_TAUGHT): ActivityKey[] {
+export function rounds(level: string, at: number, table: boolean, taught: Taught = ALL_TAUGHT): ActivityKey[] {
   const rotation = ROTATION[level] ?? ROTATION.A1!;
   const first = rotation[(at * 2) % rotation.length]!;
   const second = rotation[(at * 2 + 1) % rotation.length]!;
   const game = ACTIVITIES[first].kind === "game" ? first : second;
   const other = game === first ? second : first;
-  const drill = verbHeavy ? "conjugation" : other;
+  const drill = table ? "conjugation" : other;
   return [game, drill].map((key) => {
     if (supportsRound(key, taught, level)) return key;
     /*
@@ -405,7 +409,9 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
           level: spec.level,
           words: chunk,
           ...reading,
-          practice: rounds(spec.level, turn, verbs, ledger.taught()),
+          // The table on the unit's first evening and every other one after,
+          // so a unit of verbs is still conjugated and still has its other drill.
+          practice: rounds(spec.level, turn, verbs && n % 2 === 0, ledger.taught()),
           ...(last && scene ? { scene } : {}),
         },
         days.length + 1,

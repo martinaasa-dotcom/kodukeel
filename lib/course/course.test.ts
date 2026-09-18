@@ -7,7 +7,7 @@ import { modeAt } from "@/lib/ux/modes";
 import {
   ACTIVITIES, type ActivitySpec, DAY_MINUTES, DEFAULT_PROGRAMME, MAX_DAY_WORDS, MINUTES_PER_WORD,
   READ_MINUTES,
-  PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, dayStanding, ordinaryWords, programmeAfter,
+  PARTS, PROGRAMMES, ROTATION, SCENE_FOR_UNIT, VERB_HEAVY, dayStanding, ordinaryWords, programmeAfter,
   programmeStanding, programmeUnits, slice, wordsThrough, taughtThrough, activityTitle,
   MEET_STEP, REVIEW_STEP, NEEDS, supportedRounds, supportsRound, taughtFrom, grammarThrough,
   PICTURES_FOR_BOARD,
@@ -411,6 +411,113 @@ describe("what a day reads and where it goes", () => {
     expect(slotWithin(a2scope, "IndPrPs_")).toBe(true);
     expect(slotWithin(a2scope, "PtcPtPs")).toBe(false);
     expect(slotWithin(null, "IndIpfSg3")).toBe(true);
+  });
+
+  /*
+    A PAGE IS READ ONLY ONCE THE PAGE IT STANDS ON HAS BEEN. Every oblique case
+    is the genitive stem with an ending glued on, so a learner told `toas` is
+    `toa` plus `s` before being told what `toa` is has been handed a rule with
+    a hole under it; A2 read eight case pages before the genitive's. The table
+    is the reference's own dependencies and nothing finer: what a page
+    explains is built out of what an earlier page explained.
+  */
+  it("reads a grammar page only after the pages it is built on, over the whole ladder", () => {
+    const CASE_FREE = new Set(["NOMINATIVE", "GENITIVE", "PARTITIVE"]);
+    const NEEDS_FIRST: Record<string, readonly string[]> = {
+      partitive: ["genitive"],
+      gradation: ["genitive"],
+      object: ["genitive", "partitive"],
+      government: ["genitive", "partitive"],
+      imperfect: ["present-tense"],
+      conditional: ["present-tense"],
+      imperative: ["present-tense"],
+      perfect: ["participles"],
+      pluperfect: ["participles"],
+      impersonal: ["participles"],
+      superlative: ["comparative"],
+      nominalisation: ["derivation"],
+      "relative-clause": ["subordination"],
+      concession: ["subordination"],
+      "reported-speech": ["quotative"],
+    };
+    const read = new Set<string>();
+    for (const { day } of DAYS) {
+      const page = day.grammarCase ? day.grammarCase.toLowerCase() : day.grammar;
+      if (!page) continue;
+      const needs = day.grammarCase && !CASE_FREE.has(day.grammarCase)
+        ? ["genitive"]
+        : NEEDS_FIRST[page] ?? [];
+      for (const need of needs) {
+        expect(read.has(need), `${day.id} reads ${page} before ${need}`).toBe(true);
+      }
+      read.add(page);
+    }
+    // And the genitive is the first case page anybody reads.
+    const firstCase = DAYS.find(({ day }) => day.grammarCase)!;
+    expect(firstCase.day.grammarCase).toBe("GENITIVE");
+  });
+
+  it("does not read the B1 object rule at A2 either", () => {
+    for (const { programme, day } of DAYS) {
+      if (programme.level === "A2") expect(day.grammar, day.id).not.toBe("object");
+    }
+    expect(DAYS.some(({ programme, day }) => programme.level === "B1" && day.grammar === "object")).toBe(true);
+  });
+
+  it("alternates the table with the rotation's drill on a unit of verbs", () => {
+    // Six tables running opened A2. The first evening of a verb unit is the
+    // table and the second is not, wherever the unit has two.
+    const seen = new Map<string, string[][]>();
+    for (const { day } of DAYS) {
+      const rows = seen.get(day.unitId) ?? [];
+      rows.push([...day.practice]);
+      seen.set(day.unitId, rows);
+    }
+    let checked = 0;
+    for (const [unitId, rows] of seen) {
+      const unit = unitById(unitId)!;
+      if (!unit.cardTypes.includes("CONJUGATION") || rows.length < 2) continue;
+      if (!rows[0]!.includes("conjugation")) continue;
+      expect(rows[1], `${unitId} deals the table twice running`).not.toContain("conjugation");
+      checked += 1;
+    }
+    expect(checked).toBeGreaterThanOrEqual(6);
+  });
+
+  /*
+    THE SYLLABUS SAYS WHAT A UNIT NEEDS, AND THE LADDER HAS TO HONOR IT. Every
+    unit declares `requires`, which is its author saying what a learner has to
+    have met first, and A2 opened on the request unit whose own declaration
+    named the past tense, taught the fortnight after. Read off the ladder in
+    order, since the order a learner meets the units is the ladder's and not
+    the syllabus file's.
+  */
+  it("teaches every unit after the units it says it requires", () => {
+    const met = new Set<string>();
+    for (const part of PARTS) {
+      for (const id of part.units) {
+        for (const need of unitById(id)!.requires ?? []) {
+          expect(met.has(need), `${part.id} teaches ${id} before ${need}`).toBe(true);
+        }
+        met.add(id);
+      }
+    }
+  });
+
+  /*
+    AND A GRAMMAR UNIT IS FOLLOWED BY WORDS TO USE IT ON. B1 opened on four
+    units of verbs running and B2 on four, each pinned to a table or a
+    government round: a month of the same drill under four names. Never three
+    verb units in a row, anywhere on the ladder.
+  */
+  it("never runs three units of verbs together", () => {
+    const ladder = PARTS.flatMap((p) => p.units).map((id) => unitById(id)!);
+    const verbHeavy = (u: (typeof ladder)[number]) =>
+      u.vocabulary.filter((v) => v.pos === "VERB").length / Math.max(1, u.vocabulary.length) >= VERB_HEAVY;
+    for (let i = 2; i < ladder.length; i += 1) {
+      const run = [ladder[i - 2]!, ladder[i - 1]!, ladder[i]!];
+      expect(run.every(verbHeavy), `${run.map((u) => u.id).join(", ")} run together`).toBe(false);
+    }
   });
 
   it("conjugates a unit of verbs, and not a grammar unit that happens to hold verbs", () => {

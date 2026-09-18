@@ -4520,6 +4520,38 @@ without a gap, which is what the closing review already did with their cards. Th
 blockers is the work list at every level, and the sentences a native speaker writes through
 `docs/20-contributed-sentences.md` are what move it.
 
+**And A2 read eight case pages before the page every one of them stands on.** Every oblique
+case is the genitive stem with an ending glued on, which is the one sentence `/grammar` opens with,
+and the module told a learner `toas` is `toa` plus `s` on the eighth evening of A2 and what `toa`
+is on the twenty-ninth: inessive, elative, adessive, partitive, translative, illative, allative,
+ablative and terminative were all read before the genitive's page, because the only A2 unit that
+declared it was the seventh. Read off the walk rather than the syllabus, since the syllabus lists a
+unit's points and the walk is the order a learner meets them. So the first case unit at A2 reads the
+genitive first (`loodus` opens on it, and its gradation page is about that stem), the body unit
+leads on the partitive, and `course.test.ts` walks the whole ladder against the reference's own
+dependencies: an oblique case after the genitive, the object rule and government after the genitive
+and the partitive, a tense after the present, the perfect and the impersonal after the participles,
+the superlative after the comparative, nominalisation after derivation, and the first case page
+anybody reads is the genitive. The two A2 units that read the B1 object rule read the partitive and
+the imperative instead, which is the call the A1 food unit already took and for the page's own
+reason. **And a unit of verbs no longer deals the table six evenings running**: the pin fell on
+every evening of a verb unit, so A2 opened on six conjugation tables, which is a fortnight of one
+drill with a different name on the tin; it is the first evening and every other one, and the
+rotation's own drill, or its stand-in, takes the evenings between.
+
+**And B1 opened on four units of verbs running, and B2 on four more.** The object, government,
+the conditional and the participles were the first four units of B1, each mostly verbs and each
+pinned to the table or the government round, which is a month of one drill under four names, and
+B2.1 was the impersonal, the quotative, the converb and word-building the same way. The parts are
+dealt a grammar unit and then the words to use it on now: the object and then the people in your
+life, government and then work and money, the impersonal and then society, the quotative and then
+the economy. `course.test.ts` refuses three verb units running anywhere on the ladder, and holds
+every unit behind the units its own `requires` names, read off the ladder's order rather than the
+file's, which is how the request unit turned out to name the past tense as a prerequisite while
+being the unit every conversation needs first: asking needs the everyday verbs, and that is what it
+requires now. The three scenes whose units cross a part boundary are what fixed where the swaps
+could land, since a scene is opened only once every unit it declares has been taught.
+
 **And a verb inside the module was asked for its dictionary form and nothing else, at every
 level.** The flash round read every slot through `caseWithin`, which answers about cases, so a
 verb code like `IndPrSg3` was read as a case nobody had opened and refused. Wrong the safe way, and

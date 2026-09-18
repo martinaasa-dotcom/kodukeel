@@ -49,7 +49,7 @@ export const A2 = [
     module: "Ümbrus",
     canDo: "Describe a landscape and talk about animals and the seasons.",
     blurb: "Forest, sea and weather, half of Estonian small talk, and a pile of gradation.",
-    grammar: ["gradation", "inessive", "elative"],
+    grammar: ["genitive", "gradation", "inessive", "elative"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["ilm"],
     words: [
@@ -84,7 +84,7 @@ export const A2 = [
     module: "Ümbrus",
     canDo: "Describe a symptom to a doctor and understand the advice you are given.",
     blurb: "For the appointment you would rather not improvise. käsi : käe is worth the trip alone.",
-    grammar: ["gradation", "adessive", "partitive"],
+    grammar: ["partitive", "adessive", "gradation"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["loodus"],
     words: [
@@ -187,7 +187,7 @@ export const A2 = [
     module: "Igapäevane suhtlus",
     canDo: "Describe your routine at home and divide up chores with someone.",
     blurb: "Verbs you use every single day, and almost none of them appear in a textbook's first chapter.",
-    grammar: ["present-tense", "object"],
+    grammar: ["present-tense", "imperative"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION", "CLOZE"],
     requires: ["minevik"],
     words: [
@@ -318,7 +318,7 @@ export const A2 = [
     module: "Igapäevane suhtlus",
     canDo: "Read a menu, order a full meal and ask what a dish contains.",
     blurb: "The osastav at its most useful: you order some of a thing, not the whole thing.",
-    grammar: ["partitive", "object", "conditional"],
+    grammar: ["partitive", "conditional"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CASE_FORM", "CLOZE"],
     requires: ["sook-ja-jook"],
     words: [
@@ -352,7 +352,7 @@ export const A2 = [
     blurb: "The imperative, and the conditional that turns an order into a request.",
     grammar: ["imperative", "conditional", "politeness"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION", "CLOZE"],
-    requires: ["minevik"],
+    requires: ["iga-paev"],
     words: [
       ["aitama", "to help"],
       ["lubama", "to allow, to promise"],

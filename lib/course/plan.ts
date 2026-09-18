@@ -269,8 +269,9 @@ export const PARTS: readonly PartSpec[] = [
     title: "Palved ja eile", subtitle: "Asking for things, yesterday, the outdoors and the body",
     blurb:
       "A2 opens with the unit that makes a conversation possible, asking somebody for something "
-      + "without sounding like a machine, and then the past tense. At the end you can say what "
-      + "you did yesterday and what is wrong with you, and the first two conversations open.",
+      + "without sounding like a machine, and then the past tense. Then the first case pages, the "
+      + "stem first. At the end you can say what you did yesterday and what is wrong with you, and "
+      + "the first two conversations open.",
     units: ["korraldused", "minevik", "loodus", "keha-ja-tervis"],
   },
   {
@@ -293,52 +294,60 @@ export const PARTS: readonly PartSpec[] = [
 
   {
     id: "b1.1", level: "B1",
-    title: "Sihitis ja rektsioon", subtitle: "The object, verb government, would, and the participles",
+    title: "Sihitis ja rektsioon", subtitle: "The object, the people around you, verb government, money and would",
     blurb:
-      "The four things that separate somebody who has words from somebody who has Estonian. "
-      + "Hard, and short: four grammar units and the vocabulary of work and money.",
-    units: ["objekt", "rektsioon", "tingiv", "kesksonad", "too-ja-raha"],
+      "The two things that separate somebody who has words from somebody who has Estonian, the "
+      + "object and government, each followed by a unit of ordinary words to use it on: the people "
+      + "in your life, then work and money. Then the conditional. A grammar unit, a vocabulary "
+      + "unit, a grammar unit, so no fortnight is all tables.",
+    units: ["objekt", "inimsuhted", "rektsioon", "too-ja-raha", "tingiv"],
   },
   {
     id: "b1.2", level: "B1",
-    title: "Kodu, meedia ja keskkond", subtitle: "Housing, the news, technology and the environment",
+    title: "Kool, minevik ja kodu", subtitle: "School, the participles, housing, character and the news",
     blurb:
-      "The subjects a newspaper is about, and the impersonal that a newspaper is written in. "
-      + "At the end you can follow a news item and say what you think of it.",
-    units: ["eluase", "meedia", "tehnoloogia", "keskkond", "haridus"],
+      "School and a job interview first, then the participles and the two past tenses built on "
+      + "them, then the flat you rent, what people are like, and the news, which is written in the "
+      + "impersonal the participles make possible. At the end you can sit an interview, read a news "
+      + "item and ring a landlord.",
+    units: ["haridus", "kesksonad", "eluase", "iseloom", "meedia"],
   },
   {
     id: "b1.3", level: "B1",
-    title: "Inimesed ja arvamused", subtitle: "Relationships, character, opinions, and things going wrong",
+    title: "Arvamused ja probleemid", subtitle: "Technology, opinions, the environment, things going wrong, and the particle verbs",
     blurb:
-      "Describing a person, disagreeing with one, and dealing with the afternoon where "
-      + "something breaks. At the end you can argue your side without switching to English.",
-    units: ["inimsuhted", "iseloom", "arvamus", "probleemid", "liitverbid"],
+      "Disagreeing with somebody, the subjects a newspaper argues about, and dealing with the "
+      + "afternoon where something breaks; the particle verbs close B1, because they are the "
+      + "object rule met again. At the end you can argue your side without switching to English.",
+    units: ["tehnoloogia", "arvamus", "keskkond", "probleemid", "liitverbid"],
   },
 
   {
     id: "b2.1", level: "B2",
-    title: "Kes seda ütles", subtitle: "The impersonal, the reported, the converb and word-building",
+    title: "Kes seda ütles", subtitle: "The impersonal, society, the reported, money, and the converb",
     blurb:
-      "Four ways Estonian says something without saying who did it, and the machinery for "
-      + "building a word you have never met out of one you have.",
-    units: ["umbisikuline", "kaudne", "des-vorm", "sonamoodustus", "uhiskond"],
+      "Three ways Estonian says something without saying who did it, each followed by the "
+      + "vocabulary it is used on: the impersonal and then society, the quotative and then the "
+      + "economy, and the converb. At the end you can read a report that names nobody.",
+    units: ["umbisikuline", "uhiskond", "kaudne", "majandus", "des-vorm"],
   },
   {
     id: "b2.2", level: "B2",
-    title: "Ühiskond ja ajalugu", subtitle: "Politics, money, law, science, history and the arts",
+    title: "Ajalugu ja sõnamoodustus", subtitle: "History, word-building, politics, health and science",
     blurb:
-      "The vocabulary of a public argument. At the end you can read an opinion piece on any of "
-      + "six subjects without a dictionary open beside it.",
-    units: ["poliitika", "majandus", "oigus", "teadus", "ajalugu", "kunst"],
+      "The pluperfect on the history it is used for, then the machinery for building a word you "
+      + "have never met out of one you have, and three subjects to build them on. At the end you can "
+      + "read an opinion piece on any of them without a dictionary open beside it.",
+    units: ["ajalugu", "sonamoodustus", "poliitika", "tervishoid", "teadus"],
   },
   {
     id: "b2.3", level: "B2",
-    title: "Töö ja argument", subtitle: "Mind, health, working life, data, and making a case",
+    title: "Kunst, töö ja argument", subtitle: "The arts, law, the mind, working life, data, and making a case",
     blurb:
-      "The end of B2: describing behavior, navigating a health system, working in Estonian, "
-      + "and building an argument that concedes a point before it wins one.",
-    units: ["psuhholoogia", "tervishoid", "toomaailm", "statistika", "argumenteerimine"],
+      "The end of B2: the arts, a complaint made properly, describing behavior, working in "
+      + "Estonian, reading a table of figures, and building an argument that concedes a point "
+      + "before it wins one.",
+    units: ["kunst", "oigus", "psuhholoogia", "toomaailm", "statistika", "argumenteerimine"],
   },
 
   {
