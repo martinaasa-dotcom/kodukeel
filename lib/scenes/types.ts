@@ -135,6 +135,9 @@ export function leafNeeds(
  * spells it; a slot is printed as the value the card dealt, or, where a case
  * is named, as the dictionary's form of the drawn word in that case.
  */
+/** The kind of news a beat's answer is: bad for the learner, or good. */
+export type Feel = "sorry" | "glad";
+
 export type SaysPart =
   | { readonly lemma: string }
   /**
@@ -175,6 +178,20 @@ export interface BeatSpec {
    * the one language this file may write (ADR-005).
    */
   readonly they: string;
+  /**
+   * WHAT THE LEARNER'S ANSWER HERE IS TO THE PERSON HEARING IT.
+   *
+   * A landlord told the heating is broken says something before asking which
+   * floor; a neighbour told you have just moved in says something before
+   * asking where from. The keyless reply had one rotation for every beat,
+   * `hästi`, `aitäh`, `jah`, so a symptom, a broken window and a new
+   * neighbour were all met with "fine", which a learner read as a robot and
+   * was right to. This is the scene saying what kind of news the beat's
+   * answer is, so the keyless reply can feel it (`FEELINGS`) and the composer
+   * is told to (`ComposeAsk.feel`). Absent on a beat whose answer is neither,
+   * which is most of them: a ticket window hearing "Tartu" is not moved.
+   */
+  readonly feel?: Feel;
   readonly move: MoveKind;
   /**
    * What the other side's line is about, as lemmas.

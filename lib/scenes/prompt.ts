@@ -46,6 +46,7 @@ import { NEW_WORDS } from "./gate";
 import { MAX_COMPOSED_WORDS } from "./gate";
 import { pitchFor } from "./pitch";
 import type { Level } from "@/lib/collections/syllabus/types";
+import type { Feel } from "./types";
 
 /** What is the same on every turn of one run, and therefore what is worth caching. */
 export interface ComposeScene {
@@ -183,6 +184,13 @@ export interface ComposeAsk {
    * judgment about a person, which this module does not make.
    */
   readonly note?: string;
+  /**
+   * What kind of news the turn just taken was for this person, off the beat
+   * it answered (`BeatSpec.feel`, `feltAt`). The general rule says to feel
+   * what was said; this says what it was, so the composed voice and the
+   * keyless one react to the same turn the same way.
+   */
+  readonly feel?: Feel;
 }
 
 /*
@@ -231,6 +239,24 @@ const COMPOSE_RULES = [
   "the specific thing, or offer a real choice or example. Refer to what their last turn named",
   "where it fits; invent no detail they did not give, and force no callback where the topic has",
   "moved on.",
+  /*
+    AND A PERSON, NOT A TEXTBOOK. Every line the model wrote was correct and
+    a learner still read it as a robot, on two counts they named. `Mina
+    läksin` for `ma läksin`: the list hands over headwords and a pronoun's
+    headword is its long form, so the list says the short one now
+    (`Lexicon.spoken`) and this says why. And nothing was ever *felt*: told
+    the heating had broken and the tenant had been cold for a week, the
+    landlord asked which floor. What a person does with news is react to it
+    before they do anything else, and that reaction is the one thing the
+    bank cannot supply and the model can. In proportion and in character:
+    the brisk clerk has feelings too, and shows them in three words.
+  */
+  "Talk the way people talk, never the way a textbook writes: the everyday short forms of",
+  "the pronouns are the ones in your list, and the long form is only for emphasis or contrast.",
+  "Have feelings and show them, briefly and in proportion, as this person would: something",
+  "gone wrong, sad or worrying gets real sympathy and a word asking what happened before anything",
+  "else; something good or funny gets warmth or a laugh; a surprise gets surprise; a joke gets a",
+  "smile. One short natural remark, in your own character, never gushing and not on every turn.",
   /*
     AND WHAT THEY SAY IS THE FACT (ADR-025 amendment 3): a person behind a
     counter takes what they are told, and the card in play already carries the
@@ -440,5 +466,11 @@ export function composeLive(ask: ComposeAsk): string {
       lines above it are about the beat.
     */
     ask.note ?? "",
+    ask.feel === "sorry"
+      ? "What they just told you is bad news for them: take it in as a person would, in a few"
+        + " words, before your move."
+      : ask.feel === "glad"
+        ? "What they just told you is good news: be glad for them, in a few words, before your move."
+        : "",
   ].filter(Boolean).join("\n");
 }

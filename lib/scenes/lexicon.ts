@@ -118,6 +118,22 @@ export function formsOf(entry: DictEntry): string[] {
 export interface Lexicon {
   /** Every form of every word the scene may use. */
   readonly forms: ReadonlySet<string>;
+  /**
+   * THE LIST AS IT IS HANDED TO THE MODEL, WHICH IS THE LIST AS IT IS SPOKEN.
+   *
+   * `byLemma`'s keys are the dictionary's headwords, and a pronoun's headword
+   * is its long form: `mina`, `sina`, `tema`, `meie`, `teie`, `nemad`. A model
+   * told "prefer the words you are given" did exactly that and wrote `Mina
+   * läksin` and `Kas sina tuled?`, which a learner reported as the other side
+   * sounding like a robot, and they were right: the long form is for emphasis
+   * and contrast, and the everyday word is `ma`. The dictionary stores the
+   * short nominative beside the long one (`SgN: ma`, `PlN: te`), so where an
+   * entry carries one this list says it instead of the headword and the model
+   * reaches for what a person says. Every other lemma is the headword exactly
+   * as before, the gate still vouches every form of every entry, and no form
+   * is written here: the short spelling is read off the Institute's own row.
+   */
+  readonly spoken: readonly string[];
   /** Lemma to its own forms, so a beat can ask whether its word is present. */
   readonly byLemma: ReadonlyMap<string, ReadonlySet<string>>;
   /**
@@ -314,6 +330,25 @@ export function caseKeyFor(lemma: string, grammCase: string): string {
 }
 
 /** The closed list for one scene: the entries behind the lemmas it may use. */
+/**
+ * The word a person says for this entry: the stored short nominative of a
+ * pronoun where the dictionary records one, the headword otherwise.
+ *
+ * Shortest of the nominatives that differ from the headword, so `mina` gives
+ * `ma` and `nemad` gives `nad`; an entry storing no such form, which is every
+ * noun and verb, is its own headword. A pronoun only, because a noun's
+ * parallel nominative is a spelling variant and not a register.
+ */
+export function spokenForm(entry: DictEntry): string {
+  if (entry.pos !== "PRONOUN") return entry.lemma;
+  const short = (entry.extraForms ?? [])
+    .filter((f) => (f.code === "SgN" || f.code === "PlN") && f.value.toLowerCase() !== entry.lemma.toLowerCase())
+    .map((f) => f.value.toLowerCase())
+    .filter((v) => v.length < entry.lemma.length)
+    .sort((a, b) => a.length - b.length)[0];
+  return short ?? entry.lemma;
+}
+
 export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
   const forms = new Set<string>();
   const byLemma = new Map<string, Set<string>>();
@@ -322,7 +357,9 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
   const folded = new Map<string, string>();
   const infinitives = new Map<string, ReadonlySet<string>>();
   const persons = new Map<string, ReadonlyMap<DerivedVerbCode, string>>();
+  const spoken: string[] = [];
   for (const entry of entries) {
+    spoken.push(spokenForm(entry));
     const own = byLemma.get(entry.lemma) ?? new Set<string>();
     for (const form of formsOf(entry)) {
       forms.add(form);
@@ -369,7 +406,7 @@ export function buildLexicon(entries: readonly DictEntry[]): Lexicon {
       if (row.singular && !caseForm.has(key)) caseForm.set(key, row.singular);
     }
   }
-  return { forms, byLemma, byCase, caseForm, folded, infinitives, persons };
+  return { forms, spoken, byLemma, byCase, caseForm, folded, infinitives, persons };
 }
 
 /** The eleven derivable cases of one nominal, attested forms leading. */

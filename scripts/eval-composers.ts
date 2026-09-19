@@ -333,7 +333,7 @@ async function main() {
     const t0 = Date.now();
     for (const scene of scenes) {
       const { lexicon, gate } = keylessContext(scene);
-      const lemmas = [...lexicon.byLemma.keys()];
+      const lemmas = lexicon.spoken;
       for (const beat of scene.beats) {
         const { system, user } = promptFor(scene, beat, lemmas);
         for (let sample = 0; sample < SAMPLES; sample++) {

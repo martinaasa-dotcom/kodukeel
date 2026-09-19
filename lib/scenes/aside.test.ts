@@ -190,3 +190,32 @@ describe("sorry, what?", () => {
     expect(asksToHearAgain([], questions, lex)).toBe(false);
   });
 });
+
+describe("the list as it is spoken", () => {
+  it("says a pronoun by its stored short form and everything else by its headword", () => {
+    const lex = buildLexicon([
+      ...ENTRIES,
+      {
+        lemma: "mina", pos: "PRONOUN", cefr: "A1",
+        parts: { NOM_SG: "mina", GEN_SG: "minu", PART_SG: "mind" },
+        extraForms: [{ code: "SgN", value: "mina" }, { code: "SgN", value: "ma" }, { code: "SgG", value: "mu" }],
+        usages: [],
+      },
+      {
+        lemma: "nemad", pos: "PRONOUN", cefr: "A1", parts: {},
+        extraForms: [{ code: "PlN", value: "nemad" }, { code: "PlN", value: "nad" }],
+        usages: [],
+      },
+      { lemma: "see", pos: "PRONOUN", cefr: "A1", parts: { NOM_SG: "see", GEN_SG: "selle", PART_SG: "seda" }, usages: [] },
+    ]);
+    expect(lex.spoken).toContain("ma");
+    expect(lex.spoken).toContain("nad");
+    expect(lex.spoken).toContain("see");
+    expect(lex.spoken).not.toContain("mina");
+    expect(lex.spoken).not.toContain("nemad");
+    expect(lex.spoken).toHaveLength(ENTRIES.length + 3);
+    // The gate still vouches both spellings.
+    expect(lex.forms.has("mina")).toBe(true);
+    expect(lex.forms.has("ma")).toBe(true);
+  });
+});
