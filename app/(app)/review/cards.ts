@@ -162,8 +162,8 @@ function introFor(
   const equivalent = equivalentIn(c.lexeme, glossLanguage);
 
   return {
-    lemma: plainPhrase(c.lexeme.lemma),
-    gloss: plainPhrase(c.lexeme.translation),
+    lemma: plainPhrase(c.lexeme.lemma, c.lexeme.pos),
+    gloss: plainPhrase(c.lexeme.translation, c.lexeme.pos),
     lexemeId: c.lexemeId,
     equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
     sentence: found

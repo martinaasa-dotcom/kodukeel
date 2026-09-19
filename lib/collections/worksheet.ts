@@ -89,7 +89,7 @@ export function buildWorksheet(words: readonly WorksheetWord[], limits: Workshee
   const vocabulary: VocabularyItem[] = words
     .filter((w) => w.translation.trim().length > 0)
     .slice(0, max.vocabulary)
-    .map((w) => ({ lemma: plainPhrase(w.lemma), translation: plainPhrase(w.translation) }));
+    .map((w) => ({ lemma: plainPhrase(w.lemma, w.pos), translation: plainPhrase(w.translation, w.pos) }));
 
   const gaps: GapItem[] = [];
   for (const word of words) {

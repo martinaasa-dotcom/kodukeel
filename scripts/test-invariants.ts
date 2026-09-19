@@ -4295,6 +4295,158 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
   assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
 });
 
+check("the app drops a capital only where the capital is its own to drop", () => {
+  /*
+    `plainPhrase` exists so a card teaches `tere hommikust` rather than
+    shouting `Tere hommikust!`. Its own header argued that was safe "because
+    no phrase in it opens on a proper noun" — an argument about a PHRASE
+    entry — and it was then run over the lemma and the gloss of every word
+    the app teaches, reading the first character of whatever string it was
+    handed. Three faults came out of that and all three reached a screen.
+
+    A WORD'S CAPITAL IS THE LANGUAGE'S. 166 shipped entries and 30 of the
+    course's own 1,514 words were taught with a capital that is theirs
+    removed: `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as
+    `midsummer Day`, `mina` as `i`, and `Eesti` as `eesti`, which is a
+    different word — the language rather than the country, which is the very
+    fault `lib/estonian/answer.ts` has a comment about, fixed in the marker
+    and never in the builder standing beside it.
+
+    A STRING OF SEVERAL ANSWERS IS SEVERAL PHRASES. `palun` is glossed
+    `Please / You're welcome / Here you are` and a learner met it on the
+    ladder as `please / You're welcome / Here you are`, one lowered and two
+    still shouting, which reads as a rendering fault rather than as three ways
+    of saying it. It was reported off that screen. `prisma/repair.ts` had
+    worked this out for a card's back and kept the splitting to itself, which
+    is two answers to one question with the copy in the busier file being the
+    one that had not learned it.
+
+    AND A PHRASE CAN OPEN ON THE ONE ENGLISH WORD THAT IS ALWAYS CAPITAL, so
+    the part of speech is not enough by itself: `Ma ei saa aru` was dealt as
+    `i don't understand`.
+
+    Each arm is anchored on the shape that would bring the fault back rather
+    than on today's wording.
+  */
+  const values = code("lib/copy/values.ts");
+  assert.match(
+    values,
+    /export function plainPhrase\([^)]*pos[^)]*\)[\s\S]{0,120}?isPhrase\(pos\)/,
+    "plainPhrase lowers without asking whether the entry is a phrase",
+  );
+  assert.match(
+    values,
+    /export function plainPhrase[\s\S]{0,240}?\.split\(/,
+    "plainPhrase reads the whole string again, so a gloss of several phrases lowers only the first",
+  );
+  assert.match(
+    values,
+    /ALWAYS_CAPITAL[\s\S]{0,400}?toLocaleLowerCase/,
+    "nothing holds the English pronoun back from being lowered",
+  );
+
+  /*
+    And nobody may keep a copy of the splitting, or force the lowering with a
+    literal part of speech rather than reading the entry's. There is no
+    exemption: `prisma/repair.ts` needed one while it named `PHRASE` itself,
+    and asking `lib/srs/cardSpelling.ts` what a card should say took the
+    decision, and the carve-out, out of it.
+  */
+  const offenders: string[] = [];
+  for (const file of [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]) {
+    if (file.endsWith("test-invariants.ts") || file.endsWith(".test.ts") || file.endsWith(".itest.ts")) continue;
+    const body = code(file);
+    if (/\.split\(\s*["'`] \/ ["'`]\s*\)[\s\S]{0,40}?plainPhrase/.test(body)) {
+      offenders.push(`${file} splits the answers itself`);
+    }
+    if (/plainPhrase\([^)]*,\s*["'`]/.test(body)) {
+      offenders.push(`${file} forces a part of speech rather than reading the entry's`);
+    }
+  }
+  assert.deepEqual(offenders, [], "plainPhrase is the one place a card's spelling is decided");
+
+  /*
+    And the repair that puts an already-built card right asks that module
+    rather than working it out again. It is the same fault one layer up: the
+    judgment was inside the Prisma file, where no unit test could reach it,
+    and driving it over real shapes is what found a recognition card's
+    Estonian front adopting the English gloss's capital.
+  */
+  const repair = code("prisma/repair.ts");
+  assert.match(repair, /spellingFor\(/, "the repair decides a card's spelling for itself again");
+  assert.ok(
+    !/plainPhrase/.test(repair),
+    "the repair reaches past lib/srs/cardSpelling.ts to lower a card itself",
+  );
+
+  /*
+    AND IT ANSWERS FOR THE TWO CARD TYPES WHOSE FRONT IS A WORD, refusing the
+    rest itself rather than trusting the `where` clause in the file above.
+    Driven over the real shapes, a CLOZE card of a phrase entry came back as
+    `tere hommikust! Kuidas läheb?`: a sentence a lexicographer wrote with its
+    opening letter lowered, which is the fault this whole rule was reported
+    for. Nothing about the data made that unreachable on purpose. It is
+    `gradates(pos)` and a phrase carrying no recorded usage that leave the
+    combination absent today, and either could move without anybody here
+    noticing.
+
+    Both ends, because a guard in the judgment with a widened query above it
+    is the same silence pointed the other way.
+  */
+  const spelling = code("lib/srs/cardSpelling.ts");
+  assert.match(
+    spelling,
+    /const SIDES[\s\S]{0,200}?RECOGNITION[\s\S]{0,100}?PRODUCTION/,
+    "lib/srs/cardSpelling.ts no longer names the two card types it answers for",
+  );
+  assert.match(
+    spelling,
+    /export function spellingFor[\s\S]{0,200}?SIDES\[card\.cardType\][\s\S]{0,140}?return \{ front: card\.front, back: card\.back \}/,
+    "spellingFor reads a card type it was not written for as one it was",
+  );
+  assert.match(
+    repair,
+    /cardType:\s*\{\s*in:\s*\["RECOGNITION",\s*"PRODUCTION"\]/,
+    "the repair hands spellingFor a card whose front is a sentence",
+  );
+
+  /*
+    AND THERE IS ONE SEPARATOR. `lib/copy/values.ts` exports it and this reads
+    it, because the splitting is what makes `palun` three phrases rather than
+    one, and two constants a character apart would leave the repair matching
+    nothing and falling back to the whole string, which is the reported bug
+    with no way to see it.
+  */
+  assert.match(
+    spelling,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cardSpelling.ts keeps its own copy of the answer separator",
+  );
+  assert.ok(
+    !/^\s*const PARTS\b/m.test(spelling),
+    "lib/srs/cardSpelling.ts declares a separator beside the one it imports",
+  );
+
+  /*
+    And the builder writes the one the repair reads back, which is the same
+    fault standing in the busiest of the three files: `lib/srs/cards.ts`
+    joined a card's accepted answers with the characters typed out while both
+    halves of the rule split on the constant. The other two joins in it are
+    the same separator and go the same way, since the answer to how several
+    answers are held in one string may not be two answers in one file.
+  */
+  const builder = code("lib/srs/cards.ts");
+  assert.match(
+    builder,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cards.ts writes a separator of its own",
+  );
+  assert.ok(
+    !/\.join\(\s*["'`] \/ ["'`]\s*\)/.test(builder),
+    "lib/srs/cards.ts joins a card's answers with the characters rather than the constant",
+  );
+});
+
 check("the voice is one table, and everything that speaks reads from it", () => {
   /*
     THE RULE THAT KEEPS THE COPY SOUNDING LIKE A PERSON, AND THE WAY IT ROTS.

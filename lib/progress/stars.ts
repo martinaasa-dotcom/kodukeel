@@ -70,8 +70,8 @@ export async function favorites(ownerId: string): Promise<Favorite[]> {
 
   return rows.map((row) => ({
     lexemeId: row.lexemeId,
-    lemma: plainPhrase(row.lexeme.lemma),
-    translation: plainPhrase(row.lexeme.translation),
+    lemma: plainPhrase(row.lexeme.lemma, row.lexeme.pos),
+    translation: plainPhrase(row.lexeme.translation, row.lexeme.pos),
     pos: row.lexeme.pos,
     cefr: row.lexeme.cefr,
     starredAt: row.createdAt,

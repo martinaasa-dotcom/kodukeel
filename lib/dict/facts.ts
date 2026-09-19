@@ -354,7 +354,7 @@ export function decoyOptions(): Promise<GlossOption[]> {
     const seen = new Set<string>();
     const out: GlossOption[] = [];
     for (const row of rows) {
-      const text = plainPhrase(row.translation.trim());
+      const text = plainPhrase(row.translation.trim(), row.pos);
       // One line per meaning. Two entries glossed the same way are one option,
       // and offering both would be two right answers wearing different ids.
       if (!text || seen.has(text)) continue;
