@@ -62,9 +62,9 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   const [firstTry, setFirstTry] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [streak, setStreak] = useState(0);
-  const look = useLookBack();
 
   const word = words[index];
+  const look = useLookBack();
 
   const settled = useCallback((solved: boolean, misses: number) => {
     setAttempted((a) => a + 1);
@@ -83,6 +83,12 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
     again. The meaning is the question here and the word is the answer, which
     is the way round this round asks, and the label is the chip the board
     already wears. Nothing is graded by it (`lib/ux/lookBack.ts`).
+
+    AND NO KEY OPENS IT HERE, which is why the button below says none. The
+    review footer's cap stands down on a card being typed because `b` is the
+    first letter of `buss`; this board is answered by pressing the letters
+    themselves, so `b` is a tile on every word holding one and there is no
+    text box to excuse a shortcut swallowing it.
   */
   const next = useCallback(() => {
     if (word) {
@@ -165,13 +171,28 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
           {remaining} left
         </span>
       </div>
-      {look.panel
-        ? <LookBackCard {...look.panel} />
-        : <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />}
+      {look.panel && <LookBackCard {...look.panel} />}
+      {/*
+        HIDDEN RATHER THAN REPLACED, WHICH IS THIS ROUND AND NOT THE OTHERS.
 
-      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        <LookBackButton {...look.button} disabled={look.looking} />
+        Every other round keeps the answer it is part way through in the
+        session, above the subtree the panel stands in for, so unmounting that
+        subtree costs nothing. This one keeps it in the board: the tiles a
+        learner has placed are `Board`'s own state, keyed on the card, so a
+        look back that unmounted it would hand them back a scrambled word and
+        lose the half they had built. The board's keys cannot reach it either
+        way, because the panel takes the keyboard in the capture phase, which
+        is where `Backspace` had to be added: it is not a character and it is
+        what this round takes a tile back with.
+      */}
+      <div hidden={look.looking}>
+        <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />
       </div>
+      {look.seen.length > 0 && (
+        <div className="mt-4 flex justify-center">
+          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        </div>
+      )}
     </div>
   );
 }

@@ -6925,6 +6925,69 @@ both, a fill for a bar and an ink for its label, is the pairing this protects ra
 it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
 where a fixture happens to walk holds on about half the app.
 
+**And the first run of the browser suites in a while found three things, one of them a screen that
+throws.** `/review/emoji` is a server component and imported `boardLead` from its own session, which
+is `"use client"`. A type crosses that boundary for free and a component crosses it because
+rendering one is what the boundary is for; a plain function does not, since Next replaces every
+export of a client module with a reference the server cannot invoke. It threw on one branch, which
+is why it shipped: with a deck holding six nouns the dictionary has a picture for, the page renders
+the session and the client calls it, and the empty state under that called it on the server and
+rendered the error screen instead. The branch that works is the one a full deck takes and the one
+that does not is a beginner's. `lib/games/emojiBoard.ts` is the pair of things both sides need, in a
+module with no directive on it, and the invariant beside it reads both halves of the rule: the
+import has to be a value rather than a `type`, and the name has to be *called* rather than drawn.
+Made to fail on the real line.
+
+**And two of the three were the suites rather than the app, both misnaming their own cause.**
+`scripts/test-modes.mjs` filled every `main input` in the conjugation table and pressed Check, which
+is right for the typed shape and not for the matching one: at A1 and on a first meeting the round
+puts six forms up to place beside their pronouns, there is no input in it, and Check stays disabled
+until every slot is filled. The click waited out its own thirty seconds against a disabled button
+and the suite threw after 27 of at least 61 checks, naming a timeout. And `scripts/test-module.mjs`
+read the module marker off the reading step alone, so on an evening whose conversation replaces the
+reading it had none, built its offline address as `?module=`, which `readFocus` correctly refuses,
+and reported four failures about a step surviving the plug being pulled against a page that had no
+frame on it at all. Every step of the walk carries a marker and the first of them is as good as the
+reading's. **And the integration suite was time-bombed**: `lib/srs/replay.itest.ts` graded a card
+dated 2026-08-20 against `clampReviewedAt`, which floors a device timestamp at `MAX_BACKDATE_DAYS`
+before the moment the batch is applied. That date was a fortnight ago when it was typed and thirty
+days ago on 2026-09-19, so the clamp started moving it and the assertion read back `now` minus
+thirty days. A suite has no clock it does not control, and a fixture measured against a rolling
+window is written against the window rather than against a date.
+
+**CI was one browser job in a row, and the wall clock was the whole list.** Twenty-seven browser
+suites ran one after another, measured on 2026-09-19 at 177 seconds of setup, browser and build and
+then about 24 minutes of suites, of which `test-containment.mjs` alone was 231. The job was at its
+own thirty-minute ceiling, which is where the sign-in suite was moved out from and is not a number
+to raise again. Nothing about a suite needs the one before it: each opens a browser against a server
+on loopback and asks the app questions, and what they share is a database, so a shard that brings up
+its own Postgres, its own seed and its own fixture makes sharing a constraint inside a shard rather
+than across the list. Five shards, and the slowest is what CI takes. **The two orderings that were
+load-bearing are structural now rather than positional**: a suite that has to see an empty deck is in
+the shard's `before`, which runs in a step of its own above the fixture, so it cannot drift under one
+by somebody tidying the lines together, which is exactly how `test-assess.mjs` came to waive sixteen
+checks on every run it ever had; and `test-restore.mjs` empties the dictionary, so it is the last
+suite of its shard and that shard runs nothing against an empty deck. Both are asserted against the
+file and both were made to fail on the real edit. **And the check that says CI runs every suite reads
+the shard lists rather than the file**, because a suite named in one of the comments explaining the
+shards and in no list would have satisfied the old one, and because sharding brought a second way to
+be wrong: a suite in two shards runs twice, on two databases, and the second copy costs a runner and
+tells nobody anything.
+
+**And the cut-off Google button was this app's own stylesheet, three passes after it was reported.**
+Google Identity Services draws its button inside an iframe of its own and lays that frame out twenty
+pixels wider than the space it takes: handed 374 it writes `width: 394px; margin: -2px -10px`, so ten
+pixels of drop shadow hang past each side and the footprint in the flow is the 374 it was asked for.
+The rule that caps every replaced element at its container capped that frame too, so the frame showed
+a button laid out for 394 through a window twenty narrower and the painted right edge stopped ten
+pixels short of the email field under it. Measured on the live deployment: the wrapper Google draws
+is 374 and the button inside it is 363, and lifting the cap alone takes it to 372, which is the
+frame's own one-pixel inset on each side and is what every other Google button on the web looks like.
+Three passes went over the number this app hands Google and the number was right every time, because
+the suite's stub stands a plain `div` in for Google's button and a div is not a replaced element. The
+stub draws the frame's own shape now, and `.gsi-button iframe` is the one exemption, scoped to that
+container because the cap is right about every other frame in the app.
+
 **Where a screen lives and what a card is are still two questions, and the homework list was
 neither.** `/tasks`, `/week` and the placement ladder were cut in the eighteenth pass
 (`docs/13-mvp-status.md` §24): a to-do list and a calendar a class can set but a learner alone never

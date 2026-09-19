@@ -22,6 +22,8 @@ async function wipe() {
   await prisma.card.deleteMany({ where: { ownerId: { in: [OWNER, OTHER] } } });
 }
 
+const DAY = 86_400_000;
+
 /**
  * `createdAt` is set, and that is not tidiness.
  *
@@ -29,15 +31,37 @@ async function wipe() {
  * `writeGrade` floors it at, so a fixture that leaves the card created now and
  * then replays a grade from last month is asking for a review of something
  * that was not there. Every card here is created before anything grades it.
+ *
+ * AND EVERY ONE OF THESE IS RELATIVE TO NOW, BECAUSE THE RULES ARE.
+ *
+ * They were a calendar: born 2026-07-01, due 2026-08-01, graded 2026-08-20,
+ * which was a fortnight ago on the day somebody typed them and is thirty days
+ * ago on 2026-09-19. `clampReviewedAt` floors a device timestamp at
+ * `MAX_BACKDATE_DAYS` before the moment the batch is applied, so on that day
+ * the replay below asked for 09:00 and read back `now` minus thirty days, and
+ * the ordering test was one more day from clamping both of its grades onto the
+ * same instant, which is the whole of what it asserts. A suite has no clock it
+ * does not control: a fixture measured against a rolling window is written
+ * against that window rather than against a date.
  */
-const BORN = new Date("2026-07-01T00:00:00Z");
+const BORN = new Date(Date.now() - 90 * DAY);
+/**
+ * When a grade was taken, half the backdate window back.
+ *
+ * Off `MAX_BACKDATE_DAYS` rather than a date chosen to sit inside it, so the
+ * fixture follows the constant if that ever narrows rather than needing to be
+ * noticed again.
+ */
+const GRADED_AT = new Date(Date.now() - (MAX_BACKDATE_DAYS / 2) * DAY);
+/** When the card was due before anything graded it. */
+const DUE = new Date(Date.now() - 40 * DAY);
 
 async function makeCard(ownerId = OWNER, id = crypto.randomUUID()) {
   return prisma.card.create({
     data: {
       id, ownerId, cardType: "RECOGNITION",
       front: "tuba", back: "room", targetCase: "INESSIVE",
-      due: new Date("2026-08-01T00:00:00Z"), createdAt: BORN,
+      due: DUE, createdAt: BORN,
     },
   });
 }
@@ -105,7 +129,7 @@ describe("applyGradeBatch", () => {
 
   it("applies two grades of one card in time order, not array order", async () => {
     const card = await makeCard();
-    const t0 = Date.parse("2026-08-20T09:00:00Z");
+    const t0 = GRADED_AT.getTime();
 
     // Handed over newest-first, as a naive queue read might.
     await applyGradeBatch(OWNER, [
@@ -125,16 +149,7 @@ describe("applyGradeBatch", () => {
   it("reproduces exactly the schedule an online grade would have produced", async () => {
     // The whole promise of the offline path: a grade replayed later, with its
     // original timestamp, lands where it would have had the network held.
-    //
-    // Read off the clock rather than pinned, and off `MAX_BACKDATE_DAYS`
-    // rather than a date chosen to sit inside it. `clampReviewedAt` floors a
-    // timestamp at that many days back, so a literal here is a test that
-    // passes until the window walks past it and then fails every run for
-    // ever: `2026-08-20T09:00:00Z` was fine for a month and from the morning
-    // of 2026-09-19 came back as that morning's own time of day, which reads
-    // as the replay path having lost the timestamp it exists to keep. Half
-    // the window, so the test follows the constant if it ever narrows.
-    const when = new Date(Date.now() - (MAX_BACKDATE_DAYS / 2) * 86_400_000);
+    const when = GRADED_AT;
     const offlineCard = await makeCard();
     await applyGradeBatch(OWNER, [{
       id: "g1", cardId: offlineCard.id, rating: 3, durationMs: 2000, reviewedAt: when.getTime(),
@@ -143,7 +158,7 @@ describe("applyGradeBatch", () => {
 
     const expected = grade(
       {
-        due: new Date("2026-08-01T00:00:00Z"), stability: 0, difficulty: 0,
+        due: DUE, stability: 0, difficulty: 0,
         elapsedDays: 0, scheduledDays: 0, reps: 0, lapses: 0, state: 0,
         lastReview: null, learningSteps: 0,
       },

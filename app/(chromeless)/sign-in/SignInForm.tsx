@@ -524,9 +524,17 @@ export function SignInForm({
         Google's replaced it.
       */}
       {googleState === "loading" && <Skeleton height={52} className="w-full" />}
+      {/*
+        `gsi-button` is not styling: it is the one hook the stylesheet's
+        exemption for Google's own iframe is scoped to, and the reason is
+        written out beside that rule. Without it the frame Google draws is
+        capped at this container and the button inside it is painted ten
+        pixels short of its own right edge, which is the cut-off right side
+        this file has now been rewritten for three times.
+      */}
       <div
         ref={googleButtonRef}
-        className="flex w-full justify-center"
+        className="gsi-button flex w-full justify-center"
         style={{ display: googleState === "gis" ? "flex" : "none" }}
       />
       {googleState === "fallback" && (

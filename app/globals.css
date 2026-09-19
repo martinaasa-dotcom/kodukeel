@@ -377,6 +377,37 @@
   }
 
   /*
+    AND THE ONE REPLACED ELEMENT THAT IS WIDER THAN ITS BOX ON PURPOSE.
+
+    Google Identity Services draws its button inside an iframe of its own, and
+    the geometry it lays out is deliberately larger than the space it takes:
+    handed a width of 374 it writes `width: 394px; margin: -2px -10px`, so the
+    frame hangs ten pixels past each side and the ten pixels are the drop
+    shadow, while the footprint in the flow is the 374 it was asked for. The
+    rule above capped that frame at its container, which is the 374, and the
+    frame then showed a button laid out for 394 through a window 20 narrower:
+    what a learner saw was a Google button whose right edge stopped ten pixels
+    short of the email field under it.
+
+    It was reported three times and fixed three times in the wrong file. Every
+    one of those passes went looking at the number this app hands Google, and
+    measured on the live deployment the number was right the whole time: the
+    wrapper Google draws is exactly the width of the column, and the button
+    inside it is not, because this stylesheet had squeezed the frame. The
+    suite could not see it either, since its stub stands a plain `div` in for
+    Google's button and a div is not a replaced element; it draws the frame's
+    own shape now.
+
+    Scoped to that container rather than to iframes at large, because the cap
+    is right about every other frame in the app, and the overflow is invisible
+    where it lands: ten pixels of transparent shadow inside the card's own
+    padding.
+  */
+  .gsi-button iframe {
+    max-width: none;
+  }
+
+  /*
     A TABLE KEEPS ITS WORDS WHOLE, BECAUSE IT ALREADY HAS A WAY OUT.
 
     A table of forms is a column of Estonian and the reader's job is to

@@ -18,7 +18,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
  */
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -194,6 +194,74 @@ const CSS = read("app/globals.css");
 
 /** Files that run in the browser, by their own declaration. */
 const CLIENT = ALL.filter((f) => /^["']use client["']/m.test(read(f).trimStart()));
+
+/**
+ * A SERVER COMPONENT MAY NOT CALL A FUNCTION OUT OF A CLIENT MODULE.
+ *
+ * A type crosses that boundary for free, because it is gone by the time
+ * anything runs, and a component crosses it because rendering one is what the
+ * boundary is for. A plain function does not: Next replaces every export of a
+ * `"use client"` module with a reference the server cannot invoke, so calling
+ * one throws "Attempted to call x() from the server" at request time and the
+ * learner gets the error screen.
+ *
+ * It is a runtime fault rather than a type error, which is what makes it worth
+ * a check here. `/review/emoji` shipped with one: the page is a server
+ * component and imported `boardLead` from its own session, and it called it on
+ * exactly one branch, the empty state for a deck holding fewer than six nouns
+ * the dictionary has a picture for. With a full deck the page renders the
+ * session and the client calls it, so every screenshot and every suite that
+ * had ever opened that round was looking at the branch that works. The one
+ * that does not is a beginner's.
+ *
+ * Both halves of the rule are read: the import has to be a value rather than a
+ * `type`, and the name has to be *called* rather than rendered. A component
+ * imported and drawn as `<Thing />` is the ordinary and correct case and this
+ * says nothing about it.
+ */
+check("no server component calls a function it imported from a client module", () => {
+  const isClient = new Set(CLIENT.map((f) => f.replace(/\\/g, "/")));
+  /* `@/x` and `./x`, to the file on disk, trying the extensions Next resolves. */
+  const resolve = (from: string, spec: string): string | null => {
+    const base = spec.startsWith("@/")
+      ? spec.slice(2)
+      : spec.startsWith(".")
+        ? join(dirname(from), spec).replace(/\\/g, "/")
+        : null;
+    if (base === null) return null;
+    for (const ext of [".tsx", ".ts", "/index.tsx", "/index.ts"]) {
+      const candidate = `${base}${ext}`;
+      if (isClient.has(candidate)) return candidate;
+    }
+    return null;
+  };
+
+  const offenders: string[] = [];
+  for (const file of ALL) {
+    const source = code(file);
+    if (/^["']use client["']/m.test(source.trimStart())) continue;
+    for (const match of source.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']([^"']+)["']/g)) {
+      const target = resolve(file.replace(/\\/g, "/"), match[2]!);
+      if (!target) continue;
+      for (const raw of match[1]!.split(",")) {
+        const part = raw.trim();
+        if (!part || part.startsWith("type ")) continue;
+        const local = (part.split(/\s+as\s+/).pop() ?? part).trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(local)) continue;
+        /* Called, rather than rendered or passed. A component is `<Name`. */
+        if (new RegExp(`\\b${local}\\s*\\(`).test(source)) {
+          offenders.push(`${file.replace(/\\/g, "/")} calls ${local}() from ${target}`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(
+    offenders, [],
+    `${offenders.join("; ")}. Next replaces a client module's exports with a reference `
+    + "the server cannot invoke, so this throws at request time rather than at build time. "
+    + "Move the function to a module with no directive on it and let both sides read it",
+  );
+});
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
@@ -7945,8 +8013,29 @@ check("every browser suite that exists is a browser suite CI runs", () => {
   const workflow = read(join(".github", "workflows", "ci.yml"));
   const exempt = NOT_IN_CI as Record<string, string>;
 
+  /*
+    WHICH SUITES CI RUNS, RATHER THAN WHICH IT MENTIONS.
+    
+    This read the whole file for the filename, which was fine while every suite
+    was its own `- run:` line and is a hole now that most of them are entries in
+    a shard's list: a suite named in one of the comments explaining the shards,
+    and in no list, would have satisfied it. So the haystack is the shard lists
+    plus the `node scripts/x.mjs` lines outside them, which is what a runner
+    actually executes.
+    
+    It counts as well as collects, because sharding brought a second way to be
+    wrong: a suite in two shards runs twice, on two databases, and the second
+    copy costs a runner and tells nobody anything.
+  */
+  const run = [
+    ...browserShards().flatMap((sh) => [...sh.before, ...sh.suites]),
+    ...[...workflow.matchAll(/node (scripts\/[\w-]+\.mjs)/g)].map((m) => m[1]!),
+  ];
+  const twice = [...new Set(run.filter((f) => run.filter((o) => o === f).length > 1))];
+  assert.deepEqual(twice, [], `${twice.join(", ")} is run by CI more than once`);
+
   for (const file of declared) {
-    if (workflow.includes(`scripts/${file}`)) continue;
+    if (run.includes(`scripts/${file}`)) continue;
     const reason = exempt[file];
     assert.ok(reason, `scripts/${file} declares a suite that nothing in CI runs, and no reason is written down`);
     assert.ok(
@@ -7964,7 +8053,7 @@ check("every browser suite that exists is a browser suite CI runs", () => {
     );
     if (file === "load-test.mjs") continue;
     assert.ok(
-      !workflow.includes(`node scripts/${file}`),
+      !run.includes(`scripts/${file}`),
       `scripts/${file} is exempted from CI and CI runs it`,
     );
   }
@@ -8004,20 +8093,75 @@ check("every browser suite that exists is a browser suite CI runs", () => {
  * Asserted inside the browser job, because the sign-in suite is a separate job
  * with a database of its own and appears later in the same file.
  */
-check("the suite that empties the dictionary runs after every suite that reads it", () => {
+/**
+ * The browser job as text, and its shards as lists.
+ *
+ * The suites are sharded across five runners now, so the two rules below are
+ * about a shard rather than about the order of the whole list. There is no
+ * YAML parser in this tree and one is not worth a dependency for two checks:
+ * what these read is a folded block (`suites: >-`) followed by lines that are
+ * more indented than it, which is the one shape this file uses.
+ */
+function browserJob(): string {
   const workflow = read(join(".github", "workflows", "ci.yml"));
-  const start = workflow.indexOf("name: The browser suites");
-  assert.ok(start > 0, "ci.yml no longer has a job called The browser suites");
-  const next = workflow.indexOf("\n  signin:", start);
-  const job = workflow.slice(start, next > 0 ? next : undefined);
+  const start = workflow.indexOf("\n  browser:\n");
+  assert.ok(start > 0, "ci.yml no longer has a job called browser");
+  const next = workflow.indexOf("\n  signin:\n", start);
+  return workflow.slice(start, next > 0 ? next : undefined);
+}
 
-  const suites = [...job.matchAll(/node scripts\/([\w-]+)\.mjs/g)].map((m) => m[1]);
-  assert.ok(suites.includes("test-restore"), "the browser job does not run scripts/test-restore.mjs");
+interface BrowserShard {
+  name: string;
+  /** Suites run against a deck with nothing in it, above the fixture. */
+  before: string[];
+  /** Suites run after it, in the order the shard runs them. */
+  suites: string[];
+}
+
+function browserShards(): BrowserShard[] {
+  const job = browserJob();
+  const matrix = job.slice(job.indexOf("shard:"));
+  /* Everything from a shard's own `- name:` to the next one, or to the end. */
+  const blocks = matrix.split(/^\s*- name: /m).slice(1);
+  assert.ok(blocks.length >= 3, `only ${blocks.length} browser shards found, so this check is reading nothing`);
+
+  const listed = (block: string, field: "before" | "suites"): string[] => {
+    const at = block.indexOf(`${field}: >-`);
+    if (at < 0) return [];
+    const rest = block.slice(at).split("\n").slice(1);
+    const out: string[] = [];
+    for (const line of rest) {
+      const suite = line.trim();
+      if (!suite.startsWith("scripts/")) break;
+      out.push(suite);
+    }
+    return out;
+  };
+
+  return blocks.map((block) => ({
+    name: block.split("\n")[0]!.trim(),
+    before: listed(block, "before"),
+    suites: listed(block, "suites"),
+  }));
+}
+
+check("the suite that empties the dictionary runs after every suite that reads it", () => {
+  const shards = browserShards();
+  const holding = shards.filter((sh) => sh.suites.includes("scripts/test-restore.mjs"));
   assert.equal(
-    suites[suites.length - 1],
-    "test-restore",
-    `scripts/test-restore.mjs has to be the last browser suite: ${suites[suites.length - 1]} runs after it, ` +
-    "against a dictionary it has just rebuilt with no SEED row in it",
+    holding.length, 1,
+    `scripts/test-restore.mjs is in ${holding.length} shards; it empties the dictionary, so it belongs in exactly one`,
+  );
+  const shard = holding[0]!;
+  assert.equal(
+    shard.suites[shard.suites.length - 1],
+    "scripts/test-restore.mjs",
+    `scripts/test-restore.mjs has to be the last suite of its shard: ${shard.suites[shard.suites.length - 1]} `
+    + "runs after it, against a dictionary it has just rebuilt with no SEED row in it",
+  );
+  assert.deepEqual(
+    shard.before, [],
+    "the shard that empties the dictionary also runs a suite against an empty deck, which is two states in one job",
   );
 
   // And it is last because of what it does, not because somebody put it there.
@@ -8035,7 +8179,7 @@ check("the suite that empties the dictionary runs after every suite that reads i
  * right: a first-run wizard reappearing for an established learner is worse
  * than no wizard. It also means the demo fixture closes that door. CI built
  * the fixture before it started the server, so `test-assess.mjs` had never
- * once reached the walkthrough — sixteen of its forty-two checks waived on
+ * once reached the walkthrough: sixteen of its forty-two checks waived on
  * every run there has ever been, honestly reported, under the half that fails
  * a suite outright, and therefore silent. The screen a learner meets before
  * any other was verified by nothing at all. All nineteen of those checks pass;
@@ -8046,37 +8190,41 @@ check("the suite that empties the dictionary runs after every suite that reads i
  * every possible run is a hole wearing a waiver's clothes. The suite reaches
  * 43 checks before the fixture and 26 after it.
  *
- * Asserted on the order of the two lines rather than on either alone, because
- * both will still be present when somebody tidies them back together.
+ * ASSERTED ON THE SHAPE RATHER THAN ON THE ORDER OF TWO LINES, which is what
+ * the shards bought. `before` is a list of its own and runs in a step of its
+ * own above the fixture, so a suite that has to see an empty deck cannot slip
+ * under one by somebody tidying the lines together, which is exactly how it
+ * went wrong the first time.
  */
 check("first run is exercised, which means two suites run before the fixture", () => {
-  const workflow = read(join(".github", "workflows", "ci.yml"));
-  const fixture = workflow.indexOf("scripts/demo-data.ts");
-  const server = workflow.indexOf("Start the server");
-  assert.ok(fixture > 0, "CI does not build the demo fixture");
+  const shards = browserShards();
+  const empty = shards.filter((sh) => sh.before.length > 0);
+  assert.equal(
+    empty.length, 1,
+    `${empty.length} shards run a suite against an empty deck; the fixture is per shard, so one of them does`,
+  );
+  assert.deepEqual(
+    [...empty[0]!.before].sort(),
+    ["scripts/test-assess.mjs", "scripts/test-first-day.mjs"],
+    "the shard that runs against an empty deck no longer runs both suites that need one",
+  );
 
   /*
-    Two, and for the same reason. `test-assess.mjs` walks the first-run wizard,
-    which `/start` refuses to show anybody holding a card. `test-first-day.mjs`
-    walks every route in the app against a learner who has none, which is the
-    branch every panel computed from a review log takes and which no suite
-    rendered until it existed. Both are checks on a *state*, and the fixture is
-    what ends that state, so both belong above it.
+    And the step that runs them is above the one that builds the fixture, and
+    below the one that starts the server. Both are a fact about this file
+    rather than about either suite, so both are read off it.
   */
-  for (const name of ["test-first-day", "test-assess"]) {
-    const suite = workflow.indexOf(`node scripts/${name}.mjs`);
-    assert.ok(suite > 0, `CI does not run scripts/${name}.mjs at all`);
-    assert.ok(
-      suite < fixture,
-      `CI builds the demo deck before ${name}.mjs runs, so it measures a learner with `
-        + "two months of history rather than one on their first evening. It has to run "
-        + "against an empty deck.",
-    );
-    assert.ok(
-      server < suite,
-      `${name}.mjs is a browser suite and CI runs it before the server is up`,
-    );
-  }
+  const job = browserJob();
+  const gate = job.indexOf("if: matrix.shard.before != ''");
+  const fixture = job.indexOf("scripts/demo-data.ts");
+  const server = job.indexOf("Start the server");
+  assert.ok(gate > 0, "the browser job no longer has a step for the suites that need an empty deck");
+  assert.ok(fixture > 0, "CI does not build the demo fixture");
+  assert.ok(
+    server < gate && gate < fixture,
+    "the empty-deck suites have to run after the server is up and before the demo fixture, "
+    + "or they measure a learner with two months of history rather than one on their first evening",
+  );
 
   /*
     And the one that cannot tell says so rather than passing. `test-first-day`
@@ -8088,14 +8236,14 @@ check("first run is exercised, which means two suites run before the fixture", (
     read(join("scripts", "test-first-day.mjs")),
     /No cards yet/,
     "test-first-day.mjs stopped checking that the deck is actually empty, so it can "
-      + "pass having walked the app as an established learner sees it",
+    + "no longer tell a first evening from a fixture and would pass against either",
   );
 
   /*
-    And the suite still says what it needs, so the developer who takes the
-    other branch on their own seeded machine reads a precondition rather than
-    a number. `scripts/lib/prefs.mjs` makes the same argument about a stored
-    preference: a suite states its preconditions, it does not inherit them.
+    The other half of the same rule, on the suite that reports the waiver
+    rather than a number. `scripts/lib/prefs.mjs` makes the same argument about
+    a stored preference: a suite states its preconditions, it does not inherit
+    them.
   */
   const assess = read(join("scripts", "test-assess.mjs"));
   assert.match(

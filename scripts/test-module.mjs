@@ -173,6 +173,20 @@ try {
 
   const walked = [];
   let reading = null;
+  /*
+    THE MARKER, FROM WHICHEVER STEP CARRIED ONE FIRST.
+
+    It used to be read off the reading alone, and an evening whose conversation
+    replaces the reading has none: `marker` came back null, the offline block
+    below built its address as `?module=`, which `readFocus` correctly refuses,
+    and the four checks about a step surviving the plug being pulled measured a
+    page with no frame on it and failed every time that evening came round.
+    They were failing on CI for exactly that reason and the message named the
+    missing frame rather than the missing marker, which is a failure misnaming
+    its own cause. Every step of the walk is inside the module and says so in
+    its own address, so the first of them is as good a marker as the reading's.
+  */
+  let marker = null;
   for (let step = 0; step < 12; step += 1) {
     const here = decodeURIComponent(new URL(page.url()).pathname);
     walked.push(here);
@@ -186,6 +200,7 @@ try {
       );
     }
     if (/\/grammar\//.test(here)) reading = page.url();
+    marker ??= new URL(page.url()).searchParams.get("module");
 
     const was = page.url();
     await page.locator(".module-step").getByRole("button", { name: /Continue|Finish/ }).click();
@@ -303,10 +318,10 @@ try {
       a topic that does have one, which is the same address in the same shape
       with the same step behind it, and the page is asked there.
     */
-    const marker = new URL(reading).searchParams.get("module");
-    check("the reading's address carries a readable marker", Boolean(marker), String(marker));
+    const readingMarker = new URL(reading).searchParams.get("module");
+    check("the reading's address carries a readable marker", Boolean(readingMarker), String(readingMarker));
     for (const [what, path] of [["topic", "/grammar/topic/government"], ["ending", "/grammar/inessive"]]) {
-      await page.goto(`${B}${path}?module=${encodeURIComponent(marker)}`, { waitUntil: "domcontentloaded" });
+      await page.goto(`${B}${path}?module=${encodeURIComponent(readingMarker)}`, { waitUntil: "domcontentloaded" });
       await page.waitForSelector("main h1", { timeout: 20_000 });
       check(
         `the ${what} page with a drill does not offer it inside a module`,
@@ -351,9 +366,8 @@ try {
     `scripts/test-invariants.ts` asserts, because this file is `.mjs` and
     cannot import it: a list that drifts is the fifth door nobody counted.
   */
-  const marker = reading ? new URL(reading).searchParams.get("module") : null;
   if (!marker) {
-    absent(1, "a marker the app wrote: this evening had no reading to take one from");
+    absent(1, "a marker the app wrote: no step of this evening carried one");
   } else {
     const wayOut = [];
     for (const screen of MODULE_SCREENS) {
@@ -384,13 +398,21 @@ try {
     Driven rather than reasoned about, because none of it is visible in the
     source: what a rejection does to a React tree is a fact about the runtime.
   */
+  if (!marker) {
+    /* Four, counted off the block below: a waiver lowers the floor by exactly
+       as much as it skips. It cannot happen while the walk above is green,
+       since every step of it is asserted to carry a marker, and it is here
+       because the alternative is building an address out of the word "null"
+       and measuring the page that refuses it. */
+    absent(4, "a step address carrying the app's own marker, which the walk above did not produce");
+  } else {
   const dark = await browser.newContext({ viewport: { width: 1280, height: 900 } });
   const unplugged = await dark.newPage();
   try {
     await unplugged.goto(`${B}${MODULE_HOME}`, { waitUntil: "domcontentloaded" });
     await unplugged.evaluate(() => navigator.serviceWorker?.ready);
     await unplugged.waitForTimeout(1_000);
-    const step = reading ?? `${B}${MODULE_SCREENS[0]}?module=${encodeURIComponent(marker ?? "")}`;
+    const step = reading ?? `${B}${MODULE_SCREENS[0]}?module=${encodeURIComponent(marker)}`;
     await unplugged.goto(step, { waitUntil: "domcontentloaded" });
     await unplugged.waitForSelector("main h1", { timeout: 20_000 });
     await unplugged.waitForTimeout(800);
@@ -423,6 +445,7 @@ try {
   } finally {
     await dark.setOffline(false);
     await dark.close();
+  }
   }
 
   /*

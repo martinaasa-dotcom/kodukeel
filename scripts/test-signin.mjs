@@ -61,7 +61,7 @@ const OFF_PORT = PORT + 1;
 const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 38 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 39 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -146,7 +146,7 @@ if (built.status !== 0) {
     the whole suite, so `done()` will refuse to call that a pass: waiving more
     than half fails outright, which is exactly right here.
   */
-  absent(28, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
+  absent(29, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
   done();
 }
 
@@ -220,7 +220,7 @@ process.on("uncaughtException", (error) => {
 });
 
 if (!(await waitFor(B)) || !(await waitFor(OFF)) || !(await waitFor(GSI))) {
-  absent(28, `a server on ${PORT}, ${OFF_PORT} and ${GSI_PORT}, and they did not all come up`);
+  absent(29, `a server on ${PORT}, ${OFF_PORT} and ${GSI_PORT}, and they did not all come up`);
   stop();
   done();
 }
@@ -409,11 +409,33 @@ await gsiCtx.addInitScript(() => {
             columnRect: rect.width,
             columnLayout: column.clientWidth,
           });
-          const button = document.createElement("div");
-          button.dataset.stubButton = "1";
-          button.style.cssText =
-            `width:${options.width}px;height:40px;box-sizing:border-box;border:1px solid #747775`;
-          parent.appendChild(button);
+          /*
+            THE STUB DRAWS THE SHAPE GOOGLE DRAWS, NOT A RECTANGLE.
+
+            This stood a plain `div` at exactly the requested width in for
+            Google's button, which is the shape the script uses only where it
+            renders into the page. With a real Client ID it renders into an
+            iframe of its own and lays that out twenty pixels wider than the
+            space it takes: `width: <asked + 20>` with `margin: -2px -10px`,
+            so ten pixels of drop shadow hang past each side and the
+            footprint in the flow is the width it was asked for.
+
+            A div is not a replaced element, so this stub sailed past the
+            stylesheet's `max-width: 100%`, which on the live deployment was
+            squeezing that frame to the column and painting the button ten
+            pixels short of its own right edge. Three passes over the width
+            this app hands Google could not see it, because the width was
+            right. The frame is the thing to draw.
+          */
+          const wrapper = document.createElement("div");
+          wrapper.dataset.stubButton = "1";
+          wrapper.style.cssText = `position:relative;width:${options.width}px;height:40px`;
+          const frame = document.createElement("iframe");
+          frame.dataset.stubFrame = "1";
+          frame.style.cssText =
+            `display:block;height:44px;width:${options.width + 20}px;border:0;margin:-2px -10px`;
+          wrapper.appendChild(frame);
+          parent.appendChild(wrapper);
         },
       },
     },
@@ -464,6 +486,31 @@ const fits = await gsiPage.evaluate(() => {
 });
 check("so the button's own edges are inside the column, which is what a cut-off right side is not",
   !!fits && fits.over <= 0.5 && fits.under >= -0.5, JSON.stringify(fits));
+
+/*
+  AND THE FRAME INSIDE IT IS NOT SQUEEZED, WHICH IS THE OTHER HALF.
+
+  Google's own frame is laid out wider than its footprint on purpose, and this
+  app caps every replaced element at its container. Capped, the frame shows a
+  button laid out for twenty more pixels through a window twenty narrower, and
+  what reaches a learner is a right edge stopping ten pixels short of the
+  email field under it. That is a fault in this stylesheet rather than in the
+  number handed to Google, which is why it survived three passes over the
+  number. `.gsi-button iframe` is the exemption and this is what reads it.
+*/
+const frame = await gsiPage.evaluate(() => {
+  const f = document.querySelector("[data-stub-frame]");
+  const column = document.querySelector("[data-sign-in-column]");
+  if (!f || !column) return null;
+  return {
+    laid: Number.parseFloat(f.style.width),
+    painted: +f.getBoundingClientRect().width.toFixed(2),
+    column: +column.getBoundingClientRect().width.toFixed(2),
+  };
+});
+check("Google's own frame keeps the width it was laid out at, twenty past the column it sits in",
+  !!frame && Math.abs(frame.painted - frame.laid) < 0.5,
+  frame ? `laid out at ${frame.laid} and painted at ${frame.painted}, in a column of ${frame.column}` : "never drawn");
 
 /*
   A pixel width is right for one column and no other, so a column that changes

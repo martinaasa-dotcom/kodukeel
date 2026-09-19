@@ -98,7 +98,7 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     file: "app/(app)/review/letters/LettersSession.tsx",
     why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
       + " uncover: the ladder is the round's own two tries, the second of which places the first"
-      + " letter, and then the word itself",
+      + " letter, and then the word itself, and `ratingFor` charges for both the way a rung does",
   },
   {
     file: "components/scene/SceneSession.tsx",

@@ -44,9 +44,26 @@ export async function ensureLetterBar(browser, base, want = "on") {
   const ctx = await browser.newContext({ viewport: DESKTOP });
   const page = await ctx.newPage();
   try {
-    await page.goto(`${base}/settings`, { waitUntil: "networkidle" });
+    await page.goto(`${base}/settings`, { waitUntil: "domcontentloaded" });
     const choice = page.getByRole("radio", { name: label }).first();
-    if ((await choice.count()) === 0) {
+    /*
+      WAITED FOR RATHER THAN COUNTED, WHICH IS THE DIFFERENCE BETWEEN A
+      PRECONDITION AND A RACE.
+      `count()` does not retry: it answers about the page as it stands at the
+      instant it is asked. Paired with `networkidle` that reads as a stable
+      check and is not one, since this app installs a service worker on the
+      first load and `PrefetchLink` fetches whole pages on intent, so the
+      network goes quiet before and after the moment the settings form is
+      actually in the tree. It passed on every run until it did not: on CI,
+      16 seconds in, `Settings offers no letter-bar choice` about a page whose
+      control was rendering perfectly, before one of 1,290 containment checks
+      had been asked. The wait is the check's own condition, with the same
+      sentence kept for when the budget really does run out, because that is
+      the one thing a suite has to be able to say in words.
+    */
+    try {
+      await choice.waitFor({ state: "attached", timeout: 15_000 });
+    } catch {
       throw new Error(
         `Settings offers no letter-bar choice, so ${want} could not be set. ` +
         "Either the control moved or this context is not a desktop one.",
