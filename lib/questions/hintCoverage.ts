@@ -98,6 +98,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     file: "components/scene/SceneSession.tsx",
     why: "a conversation has its own way out, in character and out of it: `lib/scenes/coach.ts`, `choiceOf` and the beat's own offered word",
   },
+  {
+    file: "app/(app)/review/letters/LettersSession.tsx",
+    why: "the round is a hint ladder already and pays for it in the grade: a first miss shakes the row"
+      + " and places the first letter, a second shows the word, and `ratingFor` caps the second go at"
+      + " Hard and a shown word at Again, which is what `lib/questions/hints.ts` does one rung at a time",
+  },
 ];
 
 /** The rounds swept, as directories under the repository root. */

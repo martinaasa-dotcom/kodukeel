@@ -253,6 +253,16 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
       if (e.target instanceof Element && e.target.closest("button, a, input, textarea, select, [role='button']")) return;
       if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); onClose(); return; }
       if (isAdvanceKey(e)) { e.preventDefault(); e.stopImmediatePropagation(); onForward(); return; }
+      /*
+        Backspace is not a character and a round still answers to it: Tähed
+        takes a tile back off the row with it, and prints the cap for it in
+        its own footer. Left through, it reached a board the reader could not
+        see and quietly unbuilt the word they were part way through, which is
+        the conjugation table's fault in a key this rule had not covered.
+        There is no field on this panel and `inEditable` above already stands
+        aside for one anywhere else, so taking it costs nothing.
+      */
+      if (e.key === "Backspace") { e.preventDefault(); e.stopImmediatePropagation(); return; }
       if (e.key.length === 1) { e.preventDefault(); e.stopImmediatePropagation(); }
     };
     window.addEventListener("keydown", onKey, true);
@@ -312,7 +322,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           {card.speak && card.questionLang === "et" && <Speak text={card.speak} />}
         </div>
         {card.note && (
-          <p className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>{card.note}</p>
+          <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.note}</p>
         )}
         <div className="flex items-center gap-2">
           <p

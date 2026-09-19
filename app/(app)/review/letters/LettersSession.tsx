@@ -10,6 +10,7 @@ import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { lettersOf, ratingFor, tileForKey, type Tile } from "@/lib/games/letters";
@@ -63,6 +64,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   const [streak, setStreak] = useState(0);
 
   const word = words[index];
+  const look = useLookBack();
 
   const settled = useCallback((solved: boolean, misses: number) => {
     setAttempted((a) => a + 1);
@@ -75,7 +77,29 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
     }
   }, []);
 
-  const next = useCallback(() => setIndex((i) => i + 1), []);
+  /*
+    The word that just went is recorded on the way past, so it can be read
+    back. `keyHint` is false on the button below and no key opens the panel
+    here, for the reason the review footer's own cap stands down on a typed
+    card: this board is answered by typing the letters, so `b` is a tile on
+    every word holding one and a shortcut that swallowed it would be the
+    `buss` fault in a room with no text box to excuse it.
+  */
+  const next = useCallback(() => {
+    if (word) {
+      look.record({
+        of: word.cardId,
+        label: "Tähed",
+        question: word.meaning,
+        answer: word.lemma,
+        note: null,
+        questionLang: "en",
+        answerLang: "et",
+        speak: word.lemma,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [look, word]);
 
   if (wasEmptyAtStart) {
     return (
@@ -142,7 +166,26 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
           {remaining} left
         </span>
       </div>
-      <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />
+      {look.panel && <LookBackCard {...look.panel} />}
+      {/*
+        HIDDEN RATHER THAN REPLACED, WHICH IS THIS ROUND AND NOT THE OTHERS.
+
+        Every other round keeps the answer it is part way through in the
+        session, above the subtree the panel stands in for, so unmounting that
+        subtree costs nothing. This one keeps it in the board: the tiles a
+        learner has placed are `Board`'s own state, keyed on the card, so a
+        look back that unmounted it would hand them back a scrambled word and
+        lose the half they had built. The board's keys cannot reach it either
+        way, because the panel takes the keyboard in the capture phase.
+      */}
+      <div hidden={look.looking}>
+        <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />
+      </div>
+      {look.seen.length > 0 && (
+        <div className="mt-4 flex justify-center">
+          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        </div>
+      )}
     </div>
   );
 }

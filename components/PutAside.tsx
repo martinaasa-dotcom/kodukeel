@@ -67,7 +67,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                 date where there is not. Both are on the row, because the band
                 is the reason and the date is the promise. */}
             {word.untilLevel && <Chip tone="sky">{word.untilLevel}</Chip>}
-            <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>
+            <span className="text-xs" style={{ color: "var(--ink-3)" }}>
               {/* No zone handed in: this whole list is drawn in the browser, so
                   leaving it undefined is already the reader's own. */}
               back <DateText iso={word.untilIso} options={{ day: "numeric", month: "short" }} />

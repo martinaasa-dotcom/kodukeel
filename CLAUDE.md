@@ -6925,6 +6925,25 @@ both, a fill for a bar and an ink for its label, is the pairing this protects ra
 it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
 where a fixture happens to walk holds on about half the app.
 
+**CI was one browser job in a row, and the wall clock was the whole list.** Twenty-seven browser
+suites ran one after another, measured on 2026-09-19 at 177 seconds of setup, browser and build and
+then about 24 minutes of suites, of which `test-containment.mjs` alone was 231. The job was at its
+own thirty-minute ceiling, which is where the sign-in suite was moved out from and is not a number
+to raise again. Nothing about a suite needs the one before it: each opens a browser against a server
+on loopback and asks the app questions, and what they share is a database, so a shard that brings up
+its own Postgres, its own seed and its own fixture makes sharing a constraint inside a shard rather
+than across the list. Five shards, and the slowest is what CI takes. **The two orderings that were
+load-bearing are structural now rather than positional**: a suite that has to see an empty deck is in
+the shard's `before`, which runs in a step of its own above the fixture, so it cannot drift under one
+by somebody tidying the lines together, which is exactly how `test-assess.mjs` came to waive sixteen
+checks on every run it ever had; and `test-restore.mjs` empties the dictionary, so it is the last
+suite of its shard and that shard runs nothing against an empty deck. Both are asserted against the
+file and both were made to fail on the real edit. **And the check that says CI runs every suite reads
+the shard lists rather than the file**, because a suite named in one of the comments explaining the
+shards and in no list would have satisfied the old one, and because sharding brought a second way to
+be wrong: a suite in two shards runs twice, on two databases, and the second copy costs a runner and
+tells nobody anything.
+
 **And the cut-off Google button was this app's own stylesheet, three passes after it was reported.**
 Google Identity Services draws its button inside an iframe of its own and lays that frame out twenty
 pixels wider than the space it takes: handed 374 it writes `width: 394px; margin: -2px -10px`, so ten

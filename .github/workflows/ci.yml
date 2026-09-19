@@ -230,6 +230,21 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: "20", cache: npm }
       - run: npm ci
+      # THE ONE JOB THAT WRITES NEXT'S BUILD CACHE, and the others restore it.
+      #
+      # Five browser shards, this job, the load check and the credential scan
+      # all run `next build`, which without a warm `.next/cache` is eight cold
+      # builds of the same tree. Saving from one job rather than all of them
+      # is what stops eight of them racing to write the same key and logging a
+      # conflict apiece; the rest use `actions/cache/restore`.
+      - name: Next's build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            next-${{ runner.os }}-
       # The real deploy command: generate, push the schema, seed the
       # dictionary if it is empty, then build. Running the whole thing here is
       # what catches a migration that cannot be applied or a seed that cannot
@@ -243,15 +258,120 @@ jobs:
       # nothing of that person behind.
       - run: npm run test:db
 
-  mobile:
-    name: The browser suites
+  browser:
+    name: Browser suites · ${{ matrix.shard.name }}
     runs-on: ubuntu-latest
-    # Sixteen suites rather than eleven, and the five that were added are not
-    # the cheap ones: the restore round trip exports and re-imports the whole
-    # account. Measured at about seven and a half minutes of suites on top of
-    # the install, the browser download, the build and the seed, so the ceiling
-    # goes up rather than the list coming back down.
-    timeout-minutes: 30
+    # A shard rather than the whole list, so this is a ceiling on one of five
+    # rather than on all of them. The old single job ran to 27 minutes against
+    # a 30-minute limit, which is an intermittent red for everybody.
+    timeout-minutes: 20
+
+    # ONE RUNNER PER SHARD, BECAUSE THE WALL CLOCK WAS THE WHOLE LIST IN A ROW.
+    #
+    # Twenty-seven browser suites ran one after another in one job, and the
+    # measurement that ended that arrangement is worth writing down: on
+    # 2026-09-19 the setup, the browser download and the build were 177
+    # seconds, and the suites after them were about 24 minutes, of which
+    # `test-containment.mjs` alone was 231 seconds. The job was at its own
+    # ceiling, which is where the sign-in suite was moved out from and is not
+    # a number to raise again.
+    #
+    # Nothing about a suite makes it need the one before it: each of these
+    # opens a browser against a server on 127.0.0.1 and asks the app
+    # questions. What they share is a database, and a shard brings up its own
+    # Postgres, its own seed and its own fixture, so sharing stops being a
+    # constraint across shards and stays one inside them. Splitting the list
+    # five ways costs five builds and buys the wall clock back: the slowest
+    # shard is what CI now takes.
+    #
+    # The two ordering rules that were load-bearing are kept, and both are
+    # structural now rather than positional. A suite that has to see an empty
+    # deck goes in `before`, which runs in its own step above the fixture, so
+    # it cannot drift under it by somebody tidying the lines together. And
+    # `test-restore.mjs` empties the dictionary and rebuilds it with no SEED
+    # row, so it is last in its shard and nothing else is in that shard after
+    # it. `scripts/test-invariants.ts` asserts both against this file.
+    #
+    # `fail-fast: false`, because five shards reporting is five answers and
+    # the first failure cancelling the rest is one.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard:
+          # FIRST RUN, WHICH IS THE ONE STATE A FIXTURE ENDS.
+          #
+          # `/start` redirects anyone carrying `onboardedAt` or a single card,
+          # so the demo deck closes that door: sixteen of `test-assess.mjs`'s
+          # forty-two checks were waived on every run this ever had, honestly
+          # reported, under the half that fails a suite outright, and
+          # therefore silent. `test-first-day.mjs` is the same state from the
+          # other side, every route in the app against a learner with no
+          # history, which is the branch every panel derived from a review log
+          # takes and which nothing rendered until it existed.
+          - name: first run, then the phone
+            before: >-
+              scripts/test-first-day.mjs
+              scripts/test-assess.mjs
+            # Then the broadest walk, which is also the only one that opens the
+            # navigation and asks whether every place in it is reachable, the
+            # phone measured at four widths, the palette measured for contrast
+            # in both themes, and the security controls asked of the running
+            # server rather than read off the source.
+            suites: >-
+              scripts/smoke-new.mjs
+              scripts/test-mobile.mjs
+              scripts/test-design.mjs
+              scripts/test-security.mjs
+
+          # THE LONGEST SUITE THERE IS, WITH ROOM AROUND IT.
+          #
+          # `test-containment.mjs` opens every route at three widths and again
+          # in the dark, then does it all a second time with every run of text
+          # swapped for one of the same length that cannot break. It is four
+          # minutes on its own and there is no honest way to make it less
+          # without measuring less, so it gets a shard with one short suite
+          # beside it rather than being hurried.
+          - name: text inside its box
+            suites: >-
+              scripts/test-containment.mjs
+              scripts/test-polish.mjs
+
+          - name: the rounds
+            suites: >-
+              scripts/e2e.mjs
+              scripts/test-modes.mjs
+              scripts/test-teaching.mjs
+              scripts/a11y-check.mjs
+
+          # The paths that cross a process boundary: a photograph to a card, a
+          # paper sat and marked, a report accepted into the shared
+          # dictionary, a conversation played through, an evening of the
+          # module walked. Each is a loop no unit test can see the whole of.
+          - name: paper, papers and conversations
+            suites: >-
+              scripts/test-scan.mjs
+              scripts/test-flash.mjs
+              scripts/test-exam.mjs
+              scripts/test-suggestions.mjs
+              scripts/test-scene.mjs
+              scripts/test-module.mjs
+
+          # The suites that write, in the order they can be run in. The
+          # calendar and the deck shelves add rows and take them off again;
+          # the hint ladder and the offline outbox both grade, so they come
+          # after the ones that want the fixture as it was; and the backup is
+          # last, for the reason its own comment gives.
+          - name: what writes, and the backup last
+            suites: >-
+              scripts/test-calendar.mjs
+              scripts/test-decks.mjs
+              scripts/smoke-interact.mjs
+              scripts/test-edit.mjs
+              scripts/test-rename.mjs
+              scripts/test-hints.mjs
+              scripts/smoke-offline.mjs
+              scripts/test-error.mjs
+              scripts/test-restore.mjs
 
     services:
       postgres:
@@ -278,6 +398,18 @@ jobs:
         with: { node-version: "20", cache: npm }
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      # Next keeps its own build cache here, and five shards each building the
+      # same tree is five cold builds without it. Restore only: the `build`
+      # job is the one that writes it, so five jobs do not race to save the
+      # same key. A miss costs exactly what this always cost.
+      - name: Next's build cache, from the last run
+        uses: actions/cache/restore@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            next-${{ runner.os }}-
       - run: npm run build
       # A shell loop rather than a `wait-on` dependency: this is the only
       # place anything would wait for a port, and it is four lines.
@@ -295,184 +427,35 @@ jobs:
           done
           echo "::error::The server never came up."
           exit 1
-      # THE ONE SUITE THAT RUNS BEFORE THE FIXTURE, AND THE REASON THE FIXTURE
-      # MOVED DOWN HERE.
-      #
-      # `/start` redirects anyone who has `onboardedAt` *or a single card*, on
-      # the argument that a wizard reappearing for an established learner is
-      # worse than no wizard. The fixture below gives this learner ninety-odd
-      # cards, so with it in place first run correctly never opens, and the
-      # nineteen checks that walk it were waived on every run this suite has
-      # ever had: locally, and here. Sixteen of forty-two, honestly reported,
-      # under the half that fails a suite outright, and permanent. The screen
-      # a learner meets before any other was verified by nothing.
-      #
-      # So it goes first, against an empty deck, and the fixture is built
-      # afterwards. It reaches 43 checks in that state rather than 26. What it
-      # leaves behind is what any learner leaves behind: an onboarded flag, a
-      # name, a placement row and a few units of cards, and `demo-data.ts`
-      # clears the deck before rebuilding it.
-      #
-      # This ordering is load-bearing and `scripts/test-invariants.ts` asserts
-      # it, because an ordering that matters and is only written in a comment
-      # is an ordering that drifts. See the note above about `test-exam.mjs`
-      # sitting in `test:browser` unrun for two builds.
-      #
-      # AND A SECOND SUITE WANTS THE SAME STATE, FIRST. Every screen in this
-      # app has a branch for a learner with no cards and no history, and every
-      # browser suite runs after the fixture, so that branch was rendered by
-      # nothing: half of this app is a figure computed from a review log, and
-      # on an empty one every panel takes a path nobody had looked at. It walks
-      # every route the filesystem has, so a route added without an empty state
-      # fails here rather than being found by a learner on their first evening.
-      # It refuses to run against a deck with cards in it, because every check
-      # would pass while testing the wrong app.
-      - run: node scripts/test-first-day.mjs
-      - run: node scripts/test-assess.mjs
+      # AGAINST AN EMPTY DECK, AND ONLY EVER HERE. A step of its own rather
+      # than a position in the list below, so the rule survives somebody
+      # tidying the two together.
+      - name: The suites that need a deck with nothing in it
+        # Four of the five shards declare no `before` at all, and a missing key
+        # is `null` here rather than an error. GitHub casts both sides of a
+        # comparison to a number, and `null` and `""` are both 0, so this is
+        # false for them and the step is skipped.
+        if: matrix.shard.before != ''
+        run: |
+          for suite in ${{ matrix.shard.before }}; do
+            echo "::group::$suite"
+            node "$suite"
+            echo "::endgroup::"
+          done
       # A deck with something in it, so the review screen has cards and the
       # phone bar has a page under it to scroll.
       - run: npx tsx scripts/demo-data.ts
-      # Every check here is a fault that was measured on a device: a menu
-      # drawn off the top of the screen, a bar over the home indicator, a
-      # backdrop filter repainting the bottom of the window on every frame of
-      # every scroll, a target smaller than a thumb.
-      # One server and one browser, so each of these costs a command rather
-      # than a job. Every one declares a floor, so a suite that dies early or
-      # quietly stops running a block fails here rather than printing nothing
-      # and being read as a pass. See scripts/lib/checks.mjs.
-      # The broadest walk first, so a route that stopped rendering says so
-      # before fifteen narrower suites fail for the same reason. It is also the
-      # only one that opens the navigation and asks whether every place in it
-      # is actually reachable.
-      - run: node scripts/smoke-new.mjs
-      - run: node scripts/test-mobile.mjs
-      # Text and icons inside their boxes, which is the fault none of the
-      # page-shaped checks above can see: a word over a card's border, an icon
-      # squeezed into an oval by the label beside it, a file picker 58px wider
-      # than the card holding it. Then the same three questions with every run
-      # of text swapped for one of the same length with nothing in it to break
-      # on, because a row that fits today fits on the accident of where the
-      # spaces in a gloss fell.
-      - run: node scripts/test-containment.mjs
-      - run: node scripts/test-design.mjs
-      # The security controls, asked of the running server rather than read off
-      # the source. `test-invariants.ts` can tell you the middleware mentions
-      # `isSameOriginMutation`; only this can tell you a forged POST is actually
-      # refused, which depends on branch order, on which paths the matcher
-      # covers, and on what the platform does to a response on the way out. It
-      # found one: an `Origin` header that was present and unparseable was being
-      # read as no origin at all, which is the reading reserved for a caller
-      # that is not a browser. Not a penetration test, and `docs/27-security.md`
-      # is careful to say so.
-      - run: node scripts/test-security.mjs
-      - run: node scripts/e2e.mjs
-      - run: node scripts/test-modes.mjs
-      - run: node scripts/test-teaching.mjs
-      - run: node scripts/test-polish.mjs
-      # The learner's own week: a repeating class landing in the right columns,
-      # a reminder beside the homework a teacher set, and both coming off again.
-      # It adds rows and removes them, so it is runnable twice and leaves the
-      # database as it found it for everything after it.
-      - run: node scripts/test-calendar.mjs
-      # A learner's own shelves. Nothing drove these screens, which is how the
-      # dictionary's deck picker came to be gated on holding two decks: every
-      # unit test and every invariant was true, and a learner who named their
-      # first shelf was offered it nowhere. It creates decks, files words onto
-      # them and removes both, so it is runnable twice and leaves the database
-      # as it found it for everything after it, which matters more here than
-      # usual: a deck of this learner's own changes what the dictionary's add
-      # panel draws for every suite that follows.
-      - run: node scripts/test-decks.mjs
-      # The way out of being stuck. The invariants assert that every round draws
-      # the hint, reads its ceiling and holds its state in the one hook, and all
-      # three are true of a hint that never appears, one that appears before
-      # anybody has had a go, and a ladder whose rungs uncover nothing: the
-      # wiring is a fact about the source and the behaviour is not. This misses
-      # cards until a missed word comes back, then walks the rungs and checks
-      # each uncovers strictly more of the same spelling than the last. It
-      # grades, so it runs after the suites that need the fixture untouched.
-      - run: node scripts/test-hints.mjs
-      # Paper to deck, driven end to end with only the model stubbed: the
-      # picture leaving the device, the confirmation list, a ticked word
-      # becoming a card, and the review session asking about it.
-      - run: node scripts/test-scan.mjs
-      # The flash round, and the lists it moves. It grades, so it writes reviews
-      # and deletes the ones it wrote; the two faults it was written after were
-      # both about a whole round rather than one word, which is why no unit test
-      # could have seen either: seven questions out of ten asking for the same
-      # case, and a place name asked for the local case it does not take.
-      - run: node scripts/test-flash.mjs
-      # The mock paper. This list is written out rather than deferring to
-      # `npm run test:browser`, so a suite added to that script alone is a suite
-      # CI never runs: `test-exam.mjs` sat here unrun for its first two builds,
-      # floor and all, which is precisely the shape of failure `checks.mjs`
-      # exists to make visible.
-      - run: node scripts/test-exam.mjs
-      # The loop that starts at a dead end and ends in the shared dictionary:
-      # a report sent from a failed search, accepted in the review queue, and
-      # read back on the entry. Every part of it is in a different process, so
-      # nothing smaller than this can say the loop closes.
-      - run: node scripts/test-suggestions.mjs
-      # One conversation, played through. The pieces have tests and none of
-      # them can see the loop: a page, an action that draws and writes a run,
-      # a route that marks every turn and walks the ladder, a client that
-      # decides nothing, a second marking of the same transcript when it ends,
-      # and a debrief built out of that. Four faults were found by writing it
-      # and three of them looked exactly like an app with nothing in it.
-      #
-      # It runs keyless here and says so: the composed rung needs a provider
-      # key, so that one check is waived with the state that would lift it
-      # named, and every other rung and every screen is checked either way.
-      - run: node scripts/test-scene.mjs
-      # TONIGHT'S MODULE, WALKED.
-      #
-      # A step of the module is a room, and every claim in that sentence is one
-      # only a browser can settle: the rail is hidden by a selector reading an
-      # element drawn several components away, whether the reading still
-      # carries a drill depends on a prop reaching a branch, and whether
-      # pressing on ticks the step is a Server Action, a redirect and a
-      # re-render apart. All three are green in the source and provable only by
-      # opening it, which is how the fault this was written for reached a
-      # learner: they read the page, kept scrolling, and took a drill that was
-      # never part of that evening.
-      #
-      # It needs no key: every step it walks is the reading and the list.
-      - run: node scripts/test-module.mjs
-      - run: node scripts/a11y-check.mjs
-      # And the five this list had quietly lost. The comment above about
-      # `test-exam.mjs` sitting here unrun describes the drift in one
-      # direction; these are the same drift in the other, and nothing was
-      # counting. Every one of them was green when somebody finally ran them,
-      # which is the least useful moment to find that out.
-      #
-      # `test-restore.mjs` is last on purpose: it exports the whole account,
-      # wipes it and restores it, so anything after it would be looking at a
-      # deck that had just been rebuilt. It is also the one this list could
-      # least afford to be missing, since a backup that cannot be restored is
-      # the only failure in this app with nothing to recover from.
-      #
-      # `smoke-new.mjs` was the fifth and two branches added it at once, which
-      # a clean merge kept twice. It leads the list instead: it is the broadest
-      # walk of the routes, so a page that stopped rendering says so before
-      # fifteen narrower suites fail for the same reason.
-      - run: node scripts/smoke-interact.mjs
-      - run: node scripts/test-edit.mjs
-      - run: node scripts/test-rename.mjs
-      # CLAUDE.md calls this the one worth keeping green above all, and until
-      # now nothing ran it. It was red on main for an unknown length of time
-      # with a real fault behind it: the page cache is filled as a side effect
-      # of the worker serving a navigation, and the worker never serves the
-      # navigation that installs it, so a first visit had nothing to fall back
-      # on. A suite nobody runs cannot tell you that.
-      - run: node scripts/smoke-offline.mjs
-      # The error state, which is the one of the four that nothing ever put on a
-      # screen. It starts its own server on a spare port against a database that
-      # is not there, so it needs the build but not this job's database, and it
-      # leaves the one on 3000 alone. Before `test-restore.mjs` because that one
-      # wipes and rebuilds the account and anything after it reads a fresh deck.
-      - run: node scripts/test-error.mjs
-      - run: node scripts/test-restore.mjs
-
+      # Every suite declares a floor, so one that dies early or quietly stops
+      # running a block fails here rather than printing nothing and being read
+      # as a pass. See scripts/lib/checks.mjs. `-e` is the default shell here,
+      # so the first suite to fail ends the step and names itself.
+      - name: This shard's suites
+        run: |
+          for suite in ${{ matrix.shard.suites }}; do
+            echo "::group::$suite"
+            node "$suite"
+            echo "::endgroup::"
+          done
   signin:
     name: The sign-in screen
     runs-on: ubuntu-latest
@@ -487,15 +470,19 @@ jobs:
     # against a local-mode build, which is why the hosted sign-in screen had
     # no coverage at all.
     #
-    # It first ran as one more step inside "The browser suites", which was
-    # already the longest job at about fifteen minutes. Adding a full
+    # It first ran as one more step inside the browser suites, which were one
+    # job then and already the longest at about fifteen minutes. Adding a full
     # `next build` to the end of it, on a runner that is simultaneously
     # serving the app and driving Chromium, took that job past its
     # thirty-minute ceiling. A job permanently at its limit is an
     # intermittent red for everybody, and the fix is not a bigger number.
     #
     # Here the build runs beside the other jobs rather than after fifteen
-    # minutes of suites, so the wall clock of CI does not move.
+    # minutes of suites, so the wall clock of CI does not move. The browser
+    # suites are five shards now and this could be a sixth, and it is not:
+    # a shard restores the seed and builds in local mode, and this one has to
+    # build in hosted mode into a distDir of its own, which is a different
+    # job however it is spelled.
 
     services:
       postgres:
@@ -555,6 +542,14 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: "20", cache: npm }
       - run: npm ci
+      - name: Next's build cache, from the last run
+        uses: actions/cache/restore@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+            next-${{ runner.os }}-
       - run: npm run build
       # Progress is derived from the whole review log on every request
       # (ADR-014), so the only honest place to measure it is a log the size one
