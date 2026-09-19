@@ -460,6 +460,146 @@ how an Estonian counter actually works, in the shape `docs/20-contributed-senten
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
+**A letter is the app writing to somebody who is not looking at it, and the only thing that
+makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
+`lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. A closed list
+(`EMAIL_KINDS`) for the reason `CARD_SOURCES` is one: a learner switches a *kind* off, so a
+letter that is not on the list is a letter nobody has a way to stop. The way out is in every
+footer, it is an HMAC over the learner and the kind so it works with no session, and
+`List-Unsubscribe-Post` is what lets a mail client draw its own button beside the sender's name.
+A reader who can press that presses it instead of the spam button, and that difference is the
+whole of a sender's reputation, which the sign-in links share.
+
+**And the letter that asks somebody to leave is the one the purpose rests on.** A conversation
+outside the app is the number `docs/22-real-life.md` says this app is measured by, and it was
+collected on Today and acted on nowhere: somebody who does their fifteen minutes and closes the tab
+was never asked to leave. The errand letter is one thing to say to one person, off
+`lib/collections/errands.ts`, with the rehearsal as its button where the errand names a scene,
+because the errand happens somewhere this app cannot follow and the practice is the one press on
+offer. It says that being answered in English still counts, which is true of `isConversation` rather
+than a kindness invented for the copy, and is the sentence the whole letter is for: the moment
+everybody who freezes at a counter is frightened of is the one no other app will tell them is not a
+failure, because no other app is counting. The trigger is that the number is flat for this learner,
+and they are told none of that figure. It is refused to anybody `stageOf` calls `arriving` or
+`starting`, because "say one thing to a stranger today" thirty words in is the false confidence the
+readiness screen is built against arriving by post, and the stage comes from that module rather than
+a threshold of its own, which is its rule and an invariant.
+
+**And two of the letters report rather than ask, which is why they go first.** A milestone fires on
+the scheduler having graduated a level's words, never on evenings ticked: a card reaches Review
+state days after it was met and only by being recalled, so it is the one number in this app about
+somebody's memory rather than their attendance, and it is the only thing worth a letter in an app
+that withdrew its XP and its badges for being a second scoring system. That also makes the letter
+late, which it says rather than hides. The shield letter is a **notification and not a
+celebration**: this app banks a shield at seven, thirty and a hundred days and spends one silently
+to cover a missed day, and until now nothing told the learner that something they earned had been
+used on their behalf. It does not congratulate anybody, because they did not do anything yesterday
+and praise for a day off is seen through instantly, and it does not make the streak frightening,
+because the shield exists precisely so a missed day costs nothing. Both carry a high-water mark
+written **after the send and nowhere earlier**: a mark written when the letter was decided is a
+mark against news that never arrived, and there is no second chance at a level somebody passes once.
+
+**And the date somebody set is put back in front of them while the levers still work.** A letter
+saying a date will not be met is a letter people stop opening the app over, which is the reservation
+this one was proposed with and is about *when* it arrives rather than whether. `DEADLINE_WEEKS_MIN`
+and `DEADLINE_WEEKS_MAX` are both arguments: inside four weeks nobody changes a pace, so the letter
+degrades into a post-mortem, and past sixteen it is about something that has not started mattering.
+It leads with the lever rather than the verdict, and **moving the date is offered as plainly as the
+other two**, because an app whose only suggestion is "study more" thinks the learner's calendar is
+wrong. Every figure is `examCountdown`'s, `distanceLine`'s own sentence included, since an invariant
+already fails on a screen writing its own over `weeksWithFound` and a letter is not a softer surface
+than a screen. `ExamCountdown.fits` is the one field it added and is deliberately a boolean rather
+than the plan's verdict, because a caller holding six named cases writes a sentence per case; and
+`possible` is false, since that verdict means the date fits only on hours nobody has put in yet.
+
+**The one letter about other people carries nobody's name, which is stricter than the screen it is a
+copy of.** `/class` shows a teacher a name, a streak and the case one named student keeps missing,
+and `lib/classroom/cohort.ts` argues at length for where that line sits between a teacher's seat and
+a sponsor's. None of that argument is about mail. A screen is behind a sign-in, says who is looking
+and ends when the tab does; a letter is archived to a shared staffroom mailbox, forwarded to a head
+of department, read over a shoulder, and kept after the sender's access to the group has gone. What
+a learner agreed to on joining is a board, not a copy of their week leaving the app every Monday. So
+the register carries how many practised, how many answers, and then the one thing the group as a
+whole is worth saying: the cases the **class** is weakest at, which is next week's lesson and is a
+fact about nobody, or a workplace's band counts and the tier behind them, which reads no case at all
+because `workplaceRoster` never selects one. The names are on the board and the button goes there.
+The invariant has two halves, since either alone passes on the broken shape: the letter may not draw
+a member's field, and the branch that gathers its input may not reach a member's row. `weakestCases`
+is the aggregate and may leave; `weakestCase` is one student's and may not, and the word boundary
+between them is what the check is built on. It is checked **above** the coming-back branch, because
+a teacher a fortnight out of their own deck is still running a class that met on Tuesday.
+
+**And one letter asks for nothing, which is why it is the only one somebody has to switch on.**
+`wordday` is not part of the course: every other letter is a short note about an evening somebody
+chose, sent to the address they gave for it, and a daily message that is not about that is a daily
+message nobody asked for, whatever is in it. Who it is for is somebody who stopped the course and
+still likes the language, which is a real person this app had nothing to say to, since the
+coming-back letter goes once and then there is silence. It goes through that door precisely because
+it wants nothing, so it is checked **inside** the away branch rather than below it, and it **may not
+grow an ask**: no button, which is the one letter here without one, held by name in
+`render.test.ts` so a second letter cannot quietly lose its own. `DEFAULT_OFF` is the one place this
+app's usual reading of a missing row is inverted, and it needed a second stored row rather than an
+inversion of the first: `emailsOff` is a refusal and `emailsOn` is a request, and one list holding
+both would mean "present" reading one way for most kinds and the other way for that one, which is
+the rule that gets inverted by whoever next edits it. **Neither of those two spends the weekly
+ceiling** (`UNCAPPED`), because that ceiling is about the letters asking somebody to study, and a
+word a day counted against it would silence every reminder by Tuesday for exactly the people who
+went and asked for something.
+
+**Every figure in a letter is read back through the function the screen showing the same figure
+reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`
+for the gift. A screen that disagrees with itself is a bug somebody reports; a letter that
+disagrees with the screen it links to is a bug nobody can see from inside the app.
+
+**The psychology is the honest half, and the honest half is the half that works.** The evening
+letter leans on four things and every one is a fact this app already derives about that one
+person: an evening that is genuinely unfinished, with the ticks read off their own `CourseStep`
+rows; their own sentence from first run, quoted and never edited; the same fifteen minutes the
+course model holds true; and one word with the reason it is today's, which asks for nothing. What
+it may not do is written down beside what it does: no invented deadline, nobody falling behind,
+nobody compared to anybody else, and no number put at risk that is not, which the streak is not,
+because this app banks shields and its own rules say a day without study is never punished.
+`lib/email/letters/comeback.ts` is where that is argued hardest, since the guilt version of that
+letter works exactly once, on somebody who was coming back anyway, and costs the sender every
+later letter.
+
+**Being away is a state rather than a moment**, which the scheduler got wrong first. Written as
+one more branch, the coming-back letter went out and then, once its fortnight gap closed, fell
+through to the evening nudge: somebody three weeks gone got "Tonight is five new words" every
+evening, describing a course they had stepped out of. The branch returns either way now, so the
+answer after that one letter is silence. Found by driving `letterOwed` over a fortnight of made-up
+days, which is the argument for the decision being a pure function of an explicit `now`.
+
+**There is no image in a letter and no pixel counting who opened one.** `/privacy` says there are
+no third-party trackers and no analytics; a one-pixel image in an email is both, aimed at
+somebody reading their own mail, and it is the single most standard thing in this genre. It is
+banned, `EmailSend` may not grow an `openedAt`, and an invariant fails on either. The drawings
+are coloured table cells rather than SVG for a reason that happens to agree: Gmail strips `<svg>`
+and refuses a `data:` URI, images are off by default in a great many clients, and a letter built
+out of pictures is a letter read as a column of empty boxes. What carries the delight instead is
+what carries it in the app, the four letters an English keyboard has no key for and a real word
+doing a real thing. The tick is the one glyph, which is the one the voice table already names as
+allowed.
+
+**`EmailSend` is append-only and the row is written before the send.** It is the frequency cap,
+and a row written afterwards is a row that is missing exactly when the process died between the
+provider accepting and the write landing, which is the one case where sending twice is most
+likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
+tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
+is what people unsubscribe over.
+
+**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
+scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
+than theirs to be handed.
+
+**And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
+you learned this week" needs a row written when a card changes state, and nothing records one:
+`Review` holds ratings rather than transitions and `lastReview` is when a card was answered
+rather than when it was learned. Reporting it off `lastReview` would have printed a plausible
+figure wrong in the direction that flatters, since a week of reviewing long-known words would
+read as a week of learning them. The letter says what it can check, which is how many words the
+scheduler counts as theirs today.
+
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
 seeded principal parts; example sentences come from Ekilex `usages` and are only ever *hidden* or
 *reordered* to make an exercise (`lib/estonian/cloze.ts`). The model may translate into English and

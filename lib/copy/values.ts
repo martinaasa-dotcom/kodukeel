@@ -206,3 +206,23 @@ export function orderVariantNote(moved: string | null, writerPut: "earlier" | "l
   if (!moved || !writerPut) return "That works. The writer put it another way.";
   return `That works. The writer put ${moved} ${writerPut}.`;
 }
+
+/**
+ * The longest a line of small type may be before it stops being a caption.
+ *
+ * 110 characters is about a line and a half on a phone. Anything longer is a
+ * real explanation with two honest homes: `components/Explain.tsx`, which is a
+ * disclosure and takes no room until somebody asks, or body type, which
+ * usually means saying it shorter. What it does not cap is prose in the body
+ * of a screen, a grammar explanation or a policy page; a screen whose subject
+ * is an explanation is allowed to explain, at a size somebody can read.
+ *
+ * Out here rather than inside the sweep that applies it, because it is applied
+ * twice now. `readerCopy.test.ts` holds every literal `text-xs` element in the
+ * tree to it, and the invariant suite holds the email panel's descriptions to
+ * it as well: that panel interpolates its small print out of a table, which is
+ * the residual the sweep names and cannot read, and four of its lines shipped
+ * at up to 155 characters with the sweep green. Two copies of 110 is how the
+ * second one quietly becomes 140.
+ */
+export const CAPTION_MAX = 110;
