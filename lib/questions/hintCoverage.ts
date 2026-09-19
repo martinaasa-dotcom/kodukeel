@@ -83,7 +83,7 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   },
 
   /*
-    THE THREE THAT ALREADY HAVE A LADDER OF THEIR OWN, and a second one beside
+    THE FOUR THAT ALREADY HAVE A LADDER OF THEIR OWN, and a second one beside
     it would be two answers to how this app helps somebody who is stuck.
   */
   {
@@ -93,6 +93,12 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   {
     file: "app/(app)/crossword/CrosswordSession.tsx",
     why: "the crossing letters are the hint, which is what a criss-cross is for, and Check marks what is filled in",
+  },
+  {
+    file: "app/(app)/review/letters/LettersSession.tsx",
+    why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
+      + " uncover: the ladder is the round's own two tries, the second of which places the first"
+      + " letter, and then the word itself",
   },
   {
     file: "components/scene/SceneSession.tsx",
