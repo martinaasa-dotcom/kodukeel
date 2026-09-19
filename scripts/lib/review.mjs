@@ -29,7 +29,7 @@
  * there was no card to answer, so a caller can say which of those it got
  * rather than only that something happened.
  */
-export async function revealAnswer(page, { timeout = 3600 } = {}) {
+export async function revealAnswer(page, { timeout = 8600 } = {}) {
   const app = page.locator("main");
 
   /*
@@ -107,7 +107,7 @@ export async function revealAnswer(page, { timeout = 3600 } = {}) {
  *
  * Returns false when no retype was being asked for.
  */
-export async function retypeMiss(page, { settle = 3600 } = {}) {
+export async function retypeMiss(page, { settle = 8600 } = {}) {
   const box = page.locator("main").getByLabel(/Type the (answer|word) again/);
   if (!(await box.count())) return false;
   const answer = (await page.locator("main [data-answer]").first().textContent())?.trim();
