@@ -105,6 +105,9 @@ export default async function SprintPage({
     sentenceEn: c.front.includes(BLANK) && c.lexeme
       ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
       : null,
+    // Not drawn, and read: it is how `gapMeaning` knows which word of the
+    // English sentence is the one the gap is asking for.
+    hint: c.hint,
   }));
 
   // Through the store, not straight at the table: the keys live there, and so

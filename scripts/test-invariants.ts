@@ -1,3 +1,4 @@
+import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib/copy/gapCoverage";
 /**
  * The rules this repository says are not negotiable, asserted.
  *
@@ -18790,18 +18791,43 @@ check("the lesson carries a sentence's English rather than dropping it", () => {
 check("a sentence's English is never printed where it would be the answer", () => {
   /*
     Thirty entries in the dictionary are spelled the same in both languages, so
-    "I watched the film" over `Vaatasin ____` hands `filmi` over, and a
-    translation shown before an answer gives the meaning away on every other
-    card besides. Every round prints it on the reveal, which is where the
-    review card has always had it, and the sprint had it on the front for an
-    hour and was wrong for both reasons.
+    "I watched the film" over `Vaatasin ____` hands `filmi` over. That is the
+    whole of what this rule was ever about, and for a while it was enforced by
+    the blunter reading that no question may carry a translation at all, which
+    left `Kohtume kell ____.` asked over the single word `four` on every gap
+    screen in the app. A learner reported that. The sentence is on the question
+    now and the fault it was guarding against is guarded against by name, in
+    one place: `lib/copy/gapMeaning.ts` withholds the whole line where the
+    English carries the answer, and refuses the *mark* where the word it would
+    mark is the answer wearing an English ending, which `mentions` cannot see
+    (`film` is not `filmi`) and a bold run points at more plainly than printing
+    it would.
 
-    The learn ladder's gap question is the one screen in the app that shows a
-    sentence's English *before* an answer, because there the sentence is the
-    question. It withholds the line where the translation spells the answer and
-    carries the unwithheld one separately for the panel afterwards. That guard
-    used to be nearly unreachable, since no shipped sentence had an English
-    line at all; now every one of them does, so it is load-bearing.
+    Asserted on the module rather than on each screen, because six screens draw
+    this and a guard per screen is six guards and the one nobody is reading.
+  */
+  const meaning = code("lib/copy/gapMeaning.ts");
+  assert.match(
+    meaning, /mentions\(line, one\)/,
+    "lib/copy/gapMeaning.ts stopped withholding a line that carries the answer. Every shipped sentence " +
+    "has English now, so this fires on the thirty entries spelled alike in both languages",
+  );
+  assert.match(
+    meaning, /sameWord\(found, one\)/,
+    "lib/copy/gapMeaning.ts stopped refusing the mark on a word that is the answer wearing an English " +
+    "ending. `mentions` lets `film` through over a gap wanting `filmi`, and the mark points straight at it",
+  );
+  assert.match(
+    meaning, /eachAnswer/,
+    "lib/copy/gapMeaning.ts stopped reading a back that carries every accepted spelling. `tuppa / toasse` " +
+    "is one answer written twice and both have to be checked, or a line gives one of them away",
+  );
+
+  /*
+    The ladder keeps its own withholding as well, and that is not a second copy
+    of the rule: it decides which sentences a *card* is built with, upstream of
+    any screen, and its `fullEn` is the unwithheld line the reveal owes a
+    learner who has just got the form wrong.
   */
   const ladder = code("lib/progress/learn.ts");
   assert.match(
@@ -18815,14 +18841,164 @@ check("a sentence's English is never printed where it would be the answer", () =
     "form wrong is shown the sentence and still not told what it says",
   );
 
+  /*
+    AND WHAT MOVED IS WHAT IS DRAWN, NEVER WHAT IS ASKED FOR. A gap question
+    prints the English the dictionary already holds, which costs no call, no
+    wait and no daily allowance and works on a deployment with no model at all.
+    `SentenceTranslation` is what spends a call, and it stays where it was, on
+    the reveal: the sprint had it on the front for an hour and was wrong about
+    that for a reason that has not changed.
+  */
   const sprint = code("app/(app)/review/sprint/SprintSession.tsx");
   const revealAt = sprint.indexOf("{revealed && (");
   const translationAt = sprint.indexOf("<SentenceTranslation");
   assert.ok(
     revealAt >= 0 && translationAt > revealAt,
-    "the sprint prints its sentence's English before the answer again. It belongs inside the reveal, " +
-    "like every other round's",
+    "the sprint asks for its sentence's English before the answer again. Drawing what is already stored " +
+    "is free; asking belongs inside the reveal, like every other round's",
   );
+});
+
+
+/*
+  EVERY GAP QUESTION SAYS WHAT ITS SENTENCE MEANS, THROUGH ONE RULE AND ONE
+  DRAWING.
+
+  Six screens put an Estonian sentence with a word taken out in front of a
+  learner, and each of them used to answer "what does this line say" for
+  itself: the review card, the sprint and the daily quest printed the missing
+  word's bare gloss, the unit lesson and the flash round printed it as a
+  sentence of English prose, and the learn ladder had the whole line and drew it
+  flat, with nothing in it saying which word the hole wanted. That is the shape
+  this file keeps finding: one question, six answers, and the one nobody is
+  looking at drifts.
+
+  Anchored on the call and on the element rather than on the import, because a
+  screen that imports the rule and then writes its own paragraph of English
+  underneath satisfies any check that only greps for the import, which is the
+  trap `code()` exists for and which several checks here were made to fall into
+  once.
+*/
+check("every gap question says what its sentence means, one rule and one drawing", () => {
+  /*
+    A SWEEP AND NOT A LIST, WHICH IS THE DURABLE HALF OF THIS.
+
+    The first version of this check named the six screens the same pass had
+    just fixed, and this repository has recorded what a list costs four
+    separate times: it is a thing somebody has to remember to extend, and the
+    screen missing from it looks exactly like one that was considered. Made a
+    sweep, it immediately found a seventh, the exceptions round, which asks for
+    the forms no rule reaches and so has the hardest gap in the app and had the
+    least to go on under it. That round also shows why the haystack is what it
+    is: it draws a gap and never names `BLANK`, since its sentence arrives
+    pre-gapped, so a sweep anchored on the blank alone would have found five
+    screens and passed.
+
+    Read through `code()`, so a file that only mentions a mark in a comment is
+    not in the haystack at all. That is what keeps `BuildWalk.tsx`, whose prose
+    says "a sentence, rather than a blank", and the course page's note about an
+    evening that would have gapped an unreadable sentence, out of it.
+  */
+  const marks = GAP_MARKS.map((mark) => `\\b${mark}\\b`).join("|");
+  const marked = new RegExp(marks);
+  const drawn: string[] = [];
+  for (const file of [...sourceFiles("app"), ...sourceFiles("components")]) {
+    if (marked.test(code(file))) drawn.push(file);
+  }
+  assert.ok(
+    drawn.length >= 12,
+    `only ${drawn.length} files name a gap at all, so this sweep has stopped looking at the app`,
+  );
+
+  const exempt = new Set(Object.keys(GAP_WITHOUT_MEANING));
+  for (const file of drawn) {
+    if (exempt.has(file)) continue;
+    const source = code(file);
+    assert.match(
+      source, /gapMeaning\(\{/,
+      `${file} draws a gap and does not ask lib/copy/gapMeaning.ts what its sentence says. A gap-fill ` +
+      "is for producing a form because a sentence needs it, and a learner who cannot read the sentence " +
+      "is being asked for the form because a gloss was printed over a hole. Wire it, or put it in " +
+      "GAP_WITHOUT_MEANING with the reason it may not",
+    );
+    assert.match(
+      source, /<GapMeaning\b/,
+      `${file} works out what its sentence means and draws none of it, or draws it some way of its own. ` +
+      "components/GapMeaning.tsx is the one drawing, for the reason EstonianSentence gives about itself",
+    );
+  }
+
+  /*
+    AND A MARKED SENTENCE REPLACES THE GLOSS AND NEVER THE WORD.
+
+    `Card.hint` on a gap is usually two things, `${lemma}, ${translation}`, and
+    `lib/srs/cards.ts` says in as many words why: the card "asks for the right
+    *form*, not for the vocabulary, which the recognition card already tests".
+    The first version of this pass had two screens hide the whole cue the
+    moment the English line was marked, which took the Estonian headword off
+    the question with the gloss and asked for the vocabulary after all, on
+    3,760 of the 5,746 marked gap cards the shipped dictionary builds. So a
+    screen may not read `marked` to decide what its cue says: `gapCue` is that
+    decision, and it keeps the word wherever the cue carried one.
+
+    Anchored on reading the field rather than on any one screen's markup, since
+    the fault is a branch and every branch has to spell it.
+  */
+  for (const file of drawn) {
+    if (exempt.has(file)) continue;
+    const source = code(file);
+    if (!/\.marked\b/.test(source)) continue;
+    assert.match(
+      source, /gapCue\(\{/,
+      `${file} reads whether its line is marked and decides its own cue from it. A marked line is the ` +
+      "gloss printed in context and says nothing about the Estonian headword, so hiding the whole cue " +
+      "asks for the vocabulary as well as the form. Ask lib/copy/gapMeaning.ts through gapCue",
+    );
+  }
+
+  /*
+    AND A MEASUREMENT MAY NOT REACH IT, whether or not the sweep can see it.
+    The examination gaps its sentences in `lib/exam/paper.ts` and hands the
+    paper down already blanked, so it names none of the marks and is outside
+    the haystack entirely; the claim is worth making about it anyway, since it
+    is the screen where saying what a sentence means would hand over a mark.
+  */
+  for (const file of NEVER_SAYS_WHAT_IT_MEANS) {
+    assert.ok(
+      !code(file).includes("gapMeaning") && !code(file).includes("GapMeaning"),
+      `${file} is a measurement and has started printing what its sentence means. The sentence is the ` +
+      "question there and its English is the mark; see lib/copy/sentenceCoverage.ts",
+    );
+  }
+
+  /*
+    AND THE EXEMPTIONS ARE CHECKED BOTH WAYS. A file that has stopped drawing a
+    gap, and one that has since started saying what its sentence means, each
+    leave behind a line that reads as a standing decision and is not one. A
+    reason has to be an argument rather than a filename, which is the rule
+    `lib/legal/exportCoverage.ts` applies to a table left out of a backup.
+  */
+  for (const [file, why] of Object.entries(GAP_WITHOUT_MEANING)) {
+    assert.ok(
+      existsSync(file),
+      `lib/copy/gapCoverage.ts excuses ${file}, which is not a file any more`,
+    );
+    assert.ok(
+      drawn.includes(file),
+      `lib/copy/gapCoverage.ts excuses ${file} from saying what its sentence means, and it no longer ` +
+      "draws a gap at all. Take the line out rather than leaving a decision nobody is making",
+    );
+    assert.ok(
+      !code(file).includes("gapMeaning"),
+      `${file} is excused from saying what its sentence means and has started saying it. Take the line ` +
+      "out of lib/copy/gapCoverage.ts, or take the call out of the file",
+    );
+    assert.ok(
+      why.trim().length >= 80,
+      `lib/copy/gapCoverage.ts gives ${file} a reason too short to be an argument. A bare filename is ` +
+      "not a decision",
+    );
+  }
 });
 
 

@@ -14,6 +14,8 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -619,6 +621,22 @@ export function LearnSession({
     );
   }
 
+  /*
+    The English of this gap's own sentence, with the asked word marked in it,
+    and what the cue still has to say once that line has said it. Both are one
+    rule (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in context,
+    so the gloss goes and the Estonian headword stays, which is what keeps this
+    rung a question about the form rather than about the vocabulary.
+
+    `gap.en` is already withheld upstream where the English carries the answer,
+    and `gapMeaning` applies that same `mentions` guard again rather than
+    trusting the caller.
+  */
+  const gapLine = word?.gap
+    ? gapMeaning({ en: word.gap.en, answer: word.gap.answer, cue: word.gap.hint, lemma: word.lemma })
+    : null;
+  const gapMarked = gapLine?.marked ?? false;
+
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
 
   return (
@@ -768,13 +786,19 @@ export function LearnSession({
                     and nothing else. Writing `hint ?? lemma` to fill the space
                     would put the answer back on the screen for exactly those
                     cards.
+
+                    `gapCue` is the last rung of that same ladder rather than a
+                    second one: where the sentence below is marked, the mark is
+                    this gloss printed in context, so what is left to say is
+                    the headword alone. It can never print what the hint did
+                    not, and a hint with no headword in it leaves nothing.
                   */}
                   <div>
-                    {word.gap.hint ? (
+                    {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked }) ? (
                       <>
                         <p className="label-xs" style={{ color: "var(--ink-3)" }}>The word</p>
                         <p className="mt-1 text-2xl font-bold leading-tight" style={{ color: "var(--accent-deep)" }}>
-                          {word.gap.hint}
+                          {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked })}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                           Put it in the sentence, in the form it needs.
@@ -803,9 +827,22 @@ export function LearnSession({
                         </span>
                       ))}
                     </p>
-                    {word.gap.en && (
-                      <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>{word.gap.en}</p>
-                    )}
+                    {/*
+                      AND WHICH WORD OF IT THE GAP WANTS.
+
+                      This screen has had the line since it was written and
+                      drew it flat, so a learner read `Let's meet at four.`
+                      under a sentence with a hole in it and still had to work
+                      out which of its words the hole was. It is marked now,
+                      by the same rule and the same drawing as the five other
+                      gap screens (`lib/copy/gapMeaning.ts`).
+
+                      Resolved at the top of this component beside the cue,
+                      because the two are one decision: the mark is the gloss
+                      printed in context, so the cue above drops the gloss and
+                      keeps the word.
+                    */}
+                    {gapLine && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
                   </div>
                 </div>
               ) : (

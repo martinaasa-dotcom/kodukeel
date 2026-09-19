@@ -16,6 +16,8 @@ import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -533,6 +535,34 @@ export function ReviewSession({
     wrong the same way.
   */
   const answerShown = revealed || ask === "intro";
+
+  /*
+    WHAT THE SENTENCE AROUND THE GAP SAYS, ON THE QUESTION.
+
+    `Kohtume kell ____.` used to be asked over the one word `four`, which is
+    the missing word's meaning and says nothing about the line it is missing
+    from. A learner reported it: the gloss tells you which word and the
+    sentence tells you what you are saying, and a gap-fill is for producing a
+    form *because a sentence needs it*. The line reads `Let's meet at four.`
+    now, with `four` marked, which is the same gloss in the place it belongs.
+
+    ASKED FOR NOTHING AND ANSWERED FROM WHAT IS ALREADY HELD. `sentenceEn` is
+    the dictionary's own English, built once by `npm run translate:examples`
+    and shipped, so this costs no call, no wait and no daily allowance, and
+    works on a deployment with no model at all. Where the dictionary holds
+    none, the card is exactly what it was before this existed. The reveal
+    below is still where a translation is *asked* for, so a sentence nobody
+    had a line for arrives on the question the next time it comes round.
+  */
+  const meaning = card && isGap(card)
+    ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
+    : null;
+  /*
+    And what the cue still has to say once that line has said it, which on a
+    gap is the headword and never the gloss twice (`gapCue`). Every other card
+    keeps its cue whole, since there is no sentence to have taken its place.
+  */
+  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
 
   // Draining the queue is the provider's job, not this screen's — it has to keep
   // happening on pages that are not a review session. Here we only report it.
@@ -1107,8 +1137,23 @@ export function ReviewSession({
             </p>
           )}
 
-          {card.hint && !answerShown && (
-            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+          {meaning && !answerShown && <GapMeaning meaning={meaning} />}
+
+          {/*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE,
+            WHILE THE WORD STAYS EITHER WAY.
+
+            A marked line already says which word is wanted and says it in
+            context, so printing `four` under `Let's meet at four.` is the
+            same word twice. What it does not say is the Estonian headword,
+            and this cue is `lemma, meaning` on two gap cards in three, so
+            hiding the whole of it took `arst` off `Läksin ____ juurde.` and
+            asked for the vocabulary as well as the form. `gapCue` is that
+            rule: the gloss goes where the sentence took its place, the word
+            never does, and an unmarked line keeps both.
+          */}
+          {cue && !answerShown && (
+            <p className="text-xs" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 
           {ask === "type" && !verdict && (

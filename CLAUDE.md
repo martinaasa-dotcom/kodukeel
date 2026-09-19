@@ -3016,14 +3016,93 @@ Two invariants hold the file, that not one value carries an Estonian letter or e
 floor on how many sentences it covers, because it grows every time somebody runs the script and
 shrinking it is the change worth stopping.
 
-**And a translation shown before the answer is the answer.** Thirty entries in the dictionary are
-spelled the same in both languages, so "I watched the film" over `Vaatasin ____` hands `filmi` over,
-and a sentence's English shown on a gap card's front gives the meaning away on every other card too.
-Every round prints it on the reveal, which is where the review card has always had it; the learn
-ladder's gap question is the one screen that shows a sentence's English *before* an answer and it
-withholds the line where the translation spells the answer (`mentions`), with `gap.fullEn` carrying
-the unwithheld one for the panel afterwards. The sprint had it on the front for an hour and it was
-wrong for both reasons.
+**And a translation shown before the answer is the answer, which was true of one fault and read as
+true of everything.** Thirty entries in the dictionary are spelled the same in both languages, so
+"I watched the film" over `Vaatasin ____` hands `filmi` over. That is real and is the whole of what
+the rule was for. What it was read as was that no question anywhere may carry a translation, and the
+price of that reading was on screen: `Kohtume kell ____.` asked over the single word `four`, which
+is the missing word's meaning and says nothing whatever about the line it is missing from. A learner
+reported it. A gap-fill is for producing a form *because a sentence needs it*, and below about B1
+the sentence was unreadable, so the exercise was producing a form because a gloss had been printed
+over a hole. The English gloss was **already on the question**, so a sentence carrying that same
+gloss gives away nothing the card was not giving away before: the withholding bought a screen nobody
+could read rather than a question nobody could cheat.
+
+**So the line under a gap is the whole sentence with the asked word marked in it, and the fault the
+rule was for is guarded against by name.** `Let's meet at four.` with `four` in bold.
+`lib/copy/gapMeaning.ts` is the one rule and it refuses twice: the **line** where the English
+carries the answer as a whole word, which is `mentions` and is the learn ladder's own guard moved
+into one place, and the **mark** where the word it would mark is the answer wearing an English
+ending, which `mentions` cannot see, since `film` is not `filmi` and a bold run points at the answer
+more plainly than printing it would. Measured over every gap card the shipped dictionary builds:
+10,419 of 10,520 have an English line, 55.1% are marked, 44.7% draw the sentence unmarked and keep
+the card's own cue beside it, and **19 are withheld whole**, every one of them a word spelled alike
+in both languages (`risk`, `euro`, `just`, `reform`, `sauna`, `kama`). What stays unmarked is a
+translator's own choice of word, `ankle` for `jalg` and `phone` for `telephone`, and chasing those
+is how a rule starts guessing.
+
+**The gloss is replaced only where the sentence took its place.** A marked line already names the
+word and names it in context, so printing `four` under `Let's meet at four.` is the same word twice.
+An unmarked line is a sentence whose English happens not to carry the gloss as a whole word, and
+there the cue is the only thing saying which word is wanted, so both are drawn. Nothing is lost on
+any card: a gap with no stored English is exactly what it was before this existed.
+
+**And it replaces the gloss and never the word, which the first version of it got wrong.** The
+sentence above reasons about a gloss, and the cue on a gap-fill card is usually two things:
+`lib/srs/cards.ts` builds it as `lemma, translation` and says in as many words why, that the card
+asks for the right *form* rather than for the vocabulary, which the recognition card already tests.
+So a screen that hid the whole cue the moment the line was marked took the Estonian headword off
+the question along with the gloss. Measured over every gap card the shipped dictionary builds,
+3,760 of the 5,746 marked ones carry a lemma in the cue, so `Läksin ____ juurde.` was asked over
+"I went to the **doctor**." with `arst` nowhere on the screen, on two thirds of the marked cards on
+the daily path. `gapCue` is that decision in one place: the gloss goes where the sentence took its
+place, the word never does, and a round that withholds the headword on purpose passes none and gets
+none back. It can print nothing the cue did not, since the hint ladder already falls to the meaning
+alone wherever the gap wants the dictionary form. The invariant is drawn on a screen *reading*
+`marked` rather than on any one screen's markup, and it was made to fail on the two that shipped.
+
+**What moved is what is drawn, never what is asked for.** The question prints the English the
+dictionary already holds, built once by `npm run translate:examples` and shipped, so it costs no
+call, no wait and no daily allowance and works on a deployment with no model at all.
+`SentenceTranslation` is what spends a call and it stays on the reveal, which is where the review
+card has always had it and where the sprint was wrong to move it from; a sentence nobody had a line
+for arrives on the question the next time it comes round. **A derived spelling is looked for and
+never printed**, which is ADR-021's rule in a smaller room: the commonest reason a gloss could not
+be found in its own sentence was number, since the gap is plural in Estonian and a headword is
+singular, so the English plural is a *spelling to search for* inside a line a translator wrote. One
+nobody wrote matches nothing and costs a mark rather than a wrong word. English verb inflection is
+deliberately not tried, because that is where the irregulars are and a list long enough to be worth
+having would be this project writing an English grammar for one bold run.
+
+**Seven screens draw it, through one component, and the seventh is why the invariant is a sweep.**
+The review card, the sprint, the flash round, the daily quest, the learn ladder, the unit lesson and
+the exceptions round, through `components/GapMeaning.tsx`. The first version of the check named the
+six the same pass had fixed, which is the list this file records going stale four separate times;
+made a sweep over every file under `app/` and `components/` naming a mark a gap screen is made of,
+it found the seventh at once. That round is also why the haystack is not the blank alone: it draws a
+gap and never names `BLANK`, because its sentence arrives pre-gapped, so a narrower sweep would have
+found five screens and passed. Read through `code()`, so a file that only mentions a mark in a
+comment is not in the haystack at all. Anchored on the call **and** on the element, because a screen
+that imports the rule and writes its own paragraph underneath passes any check that only greps for
+the import.
+
+**`lib/copy/gapCoverage.ts` is the exception list and every entry carries an argument**, the shape
+`lib/copy/sentenceCoverage.ts` and `lib/legal/exportCoverage.ts` both take, checked for staleness in
+both directions so a file that has stopped drawing a gap and one that has since started saying what
+its sentence means each fail until somebody takes the line out. **And a measurement may not reach it
+whether or not the sweep can see it**: the mock examination gaps its sentences in `lib/exam/paper.ts`
+and is in no haystack drawn on those marks, so it is named separately, beside the level checkpoint
+and the placement check, where the sentence *is* the question and its English is the mark. The
+printable worksheet is out of the sweep's reach rather than excused by it, which is the same
+sentence `sentenceCoverage.ts` already writes about the same page: it prints the English it already
+had, it names the word wanted with the Estonian lemma in brackets beside the gap, so the answer is
+handed over by the cue long before a translation could hand it over, and it is paper, worked through
+with its own answer key on the same sheet.
+
+**And the Estonian half of a cue is never marked in an English sentence**: a gap card's cue is
+`lemma, meaning`, and `on` is the third person of `olema` and a word in half the English sentences
+there are, so the card for `olema` marked `The book is on the table.` on the wrong word, in the
+wrong language, in the wrong place.
 
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
