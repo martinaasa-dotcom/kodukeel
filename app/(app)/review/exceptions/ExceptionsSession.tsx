@@ -431,11 +431,11 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
 
   return (
     <div className="mt-6" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p>
           <strong className="font-semibold">{head}.</strong>
           {mark.note && <> {mark.note}</>}
         </p>

@@ -193,7 +193,7 @@ export function LessonSession({
 function Verdict({ ok, note }: { ok: boolean; note?: string }) {
   return (
     <div
-      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} flex items-start gap-2 rounded-[var(--r-sm)] p-3 text-sm`}
+      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} verdict-panel flex items-start gap-2`}
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
