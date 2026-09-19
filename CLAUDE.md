@@ -6925,6 +6925,36 @@ both, a fill for a bar and an ink for its label, is the pairing this protects ra
 it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
 where a fixture happens to walk holds on about half the app.
 
+**And the first run of the browser suites in a while found three things, one of them a screen that
+throws.** `/review/emoji` is a server component and imported `boardLead` from its own session, which
+is `"use client"`. A type crosses that boundary for free and a component crosses it because
+rendering one is what the boundary is for; a plain function does not, since Next replaces every
+export of a client module with a reference the server cannot invoke. It threw on one branch, which
+is why it shipped: with a deck holding six nouns the dictionary has a picture for, the page renders
+the session and the client calls it, and the empty state under that called it on the server and
+rendered the error screen instead. The branch that works is the one a full deck takes and the one
+that does not is a beginner's. `lib/games/emojiBoard.ts` is the pair of things both sides need, in a
+module with no directive on it, and the invariant beside it reads both halves of the rule: the
+import has to be a value rather than a `type`, and the name has to be *called* rather than drawn.
+Made to fail on the real line.
+
+**And two of the three were the suites rather than the app, both misnaming their own cause.**
+`scripts/test-modes.mjs` filled every `main input` in the conjugation table and pressed Check, which
+is right for the typed shape and not for the matching one: at A1 and on a first meeting the round
+puts six forms up to place beside their pronouns, there is no input in it, and Check stays disabled
+until every slot is filled. The click waited out its own thirty seconds against a disabled button
+and the suite threw after 27 of at least 61 checks, naming a timeout. And `scripts/test-module.mjs`
+read the module marker off the reading step alone, so on an evening whose conversation replaces the
+reading it had none, built its offline address as `?module=`, which `readFocus` correctly refuses,
+and reported four failures about a step surviving the plug being pulled against a page that had no
+frame on it at all. Every step of the walk carries a marker and the first of them is as good as the
+reading's. **And the integration suite was time-bombed**: `lib/srs/replay.itest.ts` graded a card
+dated 2026-08-20 against `clampReviewedAt`, which floors a device timestamp at `MAX_BACKDATE_DAYS`
+before the moment the batch is applied. That date was a fortnight ago when it was typed and thirty
+days ago on 2026-09-19, so the clamp started moving it and the assertion read back `now` minus
+thirty days. A suite has no clock it does not control, and a fixture measured against a rolling
+window is written against the window rather than against a date.
+
 **CI was one browser job in a row, and the wall clock was the whole list.** Twenty-seven browser
 suites ran one after another, measured on 2026-09-19 at 177 seconds of setup, browser and build and
 then about 24 minutes of suites, of which `test-containment.mjs` alone was 231. The job was at its

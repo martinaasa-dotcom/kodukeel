@@ -12,7 +12,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
-import { EmojiSession, boardLead, type EmojiPair } from "./EmojiSession";
+import { EmojiSession } from "./EmojiSession";
+import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Picture match" };

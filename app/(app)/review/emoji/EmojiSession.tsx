@@ -10,27 +10,9 @@ import { plainAsk } from "@/lib/estonian/plainAsk";
 import { shuffle } from "@/lib/random/shuffle";
 import { gradeCard } from "@/app/actions";
 import { OPTION_CLASS } from "@/lib/ux/verdict";
+import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { WayOut } from "@/components/round/RoundExit";
 
-export interface EmojiPair {
-  id: string;
-  /**
-   * The card this pair is evidence about, when the word is in the learner's
-   * deck. Null for a word drawn from the dictionary to fill the board, and
-   * nothing is graded for those: there is no card, so a row about one would be
-   * a row about something that does not exist.
-   */
-  cardId: string | null;
-  emoji: string;
-  lemma: string;
-  /** The case form the tile shows. */
-  form: string;
-  /** The question the case answers, which is how a class names it. */
-  question: string | null;
-  caseEt: string | null;
-  /** The case itself, for the plain-English key under the board. */
-  caseKey: string | null;
-}
 
 type Side = "picture" | "word";
 interface Tile { key: string; pairId: string; side: Side }
@@ -59,17 +41,6 @@ interface Tile { key: string; pairId: string; side: Side }
  * a beginner's deck cannot fill six pairs on its own. That is a gap in the
  * board rather than an exemption from the rule.
  */
-/**
- * The line over the board says what the Estonian side is. At A1 every tile is
- * the word itself, because a beginner is asked for no case (`page.tsx`), and
- * a lead promising an ending over a board that carries none is the app
- * describing a different round.
- */
-export function boardLead(pairs: readonly EmojiPair[]): string {
-  return pairs.some((p) => p.caseKey)
-    ? "Match the picture to the Estonian, ending and all."
-    : "Match the picture to the word.";
-}
 
 export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
   // Snapshotted once on mount, like every session here: a Server Action

@@ -18,7 +18,7 @@ import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib
  */
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { ACTIVITIES } from "@/lib/course/types";
 
 import { extractEstonianEntries, extractEstonianSenses } from "../lib/dict/wiktionary";
@@ -194,6 +194,74 @@ const CSS = read("app/globals.css");
 
 /** Files that run in the browser, by their own declaration. */
 const CLIENT = ALL.filter((f) => /^["']use client["']/m.test(read(f).trimStart()));
+
+/**
+ * A SERVER COMPONENT MAY NOT CALL A FUNCTION OUT OF A CLIENT MODULE.
+ *
+ * A type crosses that boundary for free, because it is gone by the time
+ * anything runs, and a component crosses it because rendering one is what the
+ * boundary is for. A plain function does not: Next replaces every export of a
+ * `"use client"` module with a reference the server cannot invoke, so calling
+ * one throws "Attempted to call x() from the server" at request time and the
+ * learner gets the error screen.
+ *
+ * It is a runtime fault rather than a type error, which is what makes it worth
+ * a check here. `/review/emoji` shipped with one: the page is a server
+ * component and imported `boardLead` from its own session, and it called it on
+ * exactly one branch, the empty state for a deck holding fewer than six nouns
+ * the dictionary has a picture for. With a full deck the page renders the
+ * session and the client calls it, so every screenshot and every suite that
+ * had ever opened that round was looking at the branch that works. The one
+ * that does not is a beginner's.
+ *
+ * Both halves of the rule are read: the import has to be a value rather than a
+ * `type`, and the name has to be *called* rather than rendered. A component
+ * imported and drawn as `<Thing />` is the ordinary and correct case and this
+ * says nothing about it.
+ */
+check("no server component calls a function it imported from a client module", () => {
+  const isClient = new Set(CLIENT.map((f) => f.replace(/\\/g, "/")));
+  /* `@/x` and `./x`, to the file on disk, trying the extensions Next resolves. */
+  const resolve = (from: string, spec: string): string | null => {
+    const base = spec.startsWith("@/")
+      ? spec.slice(2)
+      : spec.startsWith(".")
+        ? join(dirname(from), spec).replace(/\\/g, "/")
+        : null;
+    if (base === null) return null;
+    for (const ext of [".tsx", ".ts", "/index.tsx", "/index.ts"]) {
+      const candidate = `${base}${ext}`;
+      if (isClient.has(candidate)) return candidate;
+    }
+    return null;
+  };
+
+  const offenders: string[] = [];
+  for (const file of ALL) {
+    const source = code(file);
+    if (/^["']use client["']/m.test(source.trimStart())) continue;
+    for (const match of source.matchAll(/import\s*\{([^}]*)\}\s*from\s*["']([^"']+)["']/g)) {
+      const target = resolve(file.replace(/\\/g, "/"), match[2]!);
+      if (!target) continue;
+      for (const raw of match[1]!.split(",")) {
+        const part = raw.trim();
+        if (!part || part.startsWith("type ")) continue;
+        const local = (part.split(/\s+as\s+/).pop() ?? part).trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(local)) continue;
+        /* Called, rather than rendered or passed. A component is `<Name`. */
+        if (new RegExp(`\\b${local}\\s*\\(`).test(source)) {
+          offenders.push(`${file.replace(/\\/g, "/")} calls ${local}() from ${target}`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(
+    offenders, [],
+    `${offenders.join("; ")}. Next replaces a client module's exports with a reference `
+    + "the server cannot invoke, so this throws at request time rather than at build time. "
+    + "Move the function to a module with no directive on it and let both sides read it",
+  );
+});
 
 // ── Never ship a credential to the client ────────────────────────────────────
 
