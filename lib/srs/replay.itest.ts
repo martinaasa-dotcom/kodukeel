@@ -45,8 +45,14 @@ const DAY = 86_400_000;
  * against that window rather than against a date.
  */
 const BORN = new Date(Date.now() - 90 * DAY);
-/** Inside the backdate window with room to spare, and after the card existed. */
-const GRADED_AT = new Date(Date.now() - 2 * DAY);
+/**
+ * When a grade was taken, half the backdate window back.
+ *
+ * Off `MAX_BACKDATE_DAYS` rather than a date chosen to sit inside it, so the
+ * fixture follows the constant if that ever narrows rather than needing to be
+ * noticed again.
+ */
+const GRADED_AT = new Date(Date.now() - (MAX_BACKDATE_DAYS / 2) * DAY);
 /** When the card was due before anything graded it. */
 const DUE = new Date(Date.now() - 40 * DAY);
 

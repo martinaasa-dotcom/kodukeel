@@ -395,48 +395,50 @@ await page.waitForTimeout(1200);
 
 const leftNow = async () => ((await page.locator("main").innerText()).match(/(\d+) left/) || [])[1] ?? null;
 /*
-  THE TABLE COMES IN TWO SHAPES AND THIS DROVE ONE OF THEM.
+  THE TABLE IS PLACED AS WELL AS TYPED, AND THIS DRIVER ONLY TYPED.
 
-  `ConjugationSession` asks a verb either as five boxes to type into or, at A1
-  and on a first meeting, as six forms to place beside their pronouns
-  (`question.shape`). This filled every `main input` and then clicked Check,
-  which on the matching shape is a table with no input in it and a Check that
-  stays disabled until every slot is filled: `fill` had nothing to fill, the
-  click waited out its own thirty seconds against a disabled button, and the
-  suite threw after 27 of at least 61 checks. It had been red that way on main
-  for as long as the shape has existed, and the throw named a timeout rather
-  than the shape, which is the failure misnaming its own cause.
+  The round has two shapes (`question.shape === "match"`): a row of boxes,
+  and five empty slots with the five forms on tiles under them, tapped into
+  place. This filled `main input`, which on the placed shape counts nought,
+  so nothing was answered, "Check the table" stayed correctly disabled, and
+  the suite sat on it until Playwright gave up thirty seconds later. A driver
+  that knows one shape of a round stops testing anything the day the round
+  grows another, which is the fault `scripts/lib/review.mjs` exists for one
+  round over.
 
-  So the shape is read rather than assumed, and Check is pressed only once it
-  is enabled, which is the general half of the same fault: a disabled button
-  is an answer about the state of the round, not something to wait out.
+  The bank is asked for by the group its own markup labels, never by "a
+  button with a word in it": a placed slot carries the word too, so the
+  loose reading clicks the form back out again and leaves the table emptier
+  than it found it. Written that way first, it placed one tile of five,
+  never enabled Check, and reported the section clean, which is the shape of
+  pass this file's own rules call a check nobody can fail. A tile disables
+  as it is spent, so the enabled ones are what is left to place, and the
+  guard is a ceiling on a round that never runs out rather than a limit any
+  table reaches.
+
+  It answers rather than answers correctly: tapped in the order drawn, which
+  is shuffled, the table comes out mostly wrong. That is what the typed
+  version did with "x", and what this section wants is a table that has been
+  answered so the round can be stepped past.
 */
 const fillTable = async () => {
   const boxes = page.locator("main input");
   const typed = await boxes.count();
   for (let i = 0; i < typed; i += 1) await boxes.nth(i).fill("x");
 
+  const bank = page.locator('main [aria-labelledby="conjugation-bank"] button:not([disabled])');
   let placed = 0;
-  if (typed === 0) {
-    // Placing a form spends its own chip, so each is asked whether it is still
-    // there to press rather than counted once at the top.
-    const chips = page.locator('main [aria-labelledby="conjugation-bank"] button');
-    const all = await chips.count();
-    for (let i = 0; i < all; i += 1) {
-      const chip = chips.nth(i);
-      if (!(await chip.isEnabled())) continue;
-      await chip.click();
-      await page.waitForTimeout(80);
-      placed += 1;
-    }
+  while (await bank.count() && placed < 12) {
+    await bank.first().click();
+    placed += 1;
   }
+  if (typed === 0 && placed === 0) return false;
 
   const mark = page.getByRole("button", { name: /^check/i }).first();
-  if ((await mark.count()) && (await mark.isEnabled())) {
-    await mark.click();
-    await page.waitForTimeout(300);
-  }
-  return typed > 0 || placed > 0;
+  if (!await mark.count() || !await mark.isEnabled()) return false;
+  await mark.click();
+  await page.waitForTimeout(300);
+  return true;
 };
 
 let table = await fillTable();

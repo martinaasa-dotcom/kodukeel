@@ -9935,6 +9935,24 @@ is a check people learn to skip. Run it after every merge that touched files
 both sides own. It is the marker-grepping ritual below, done by a machine that
 does not have to remember which markers.
 
+**And a new invariant is a claim about every branch already open, not only about
+yours.** Six pull requests merged within one hour of each other on 2026-09-19,
+every one of them green on its own head, and main came out broken three ways: a
+type size written as a literal in three files, a round with no way back to the
+last word, and a `select` missing the one column another branch had started
+requiring, which took the build down with it. Not one of those is a conflict.
+Each branch was cut before the others landed, each merged clean, and what
+failed afterwards was the rule one side had added meeting the code another side
+had written. The one that hurt most is the shape worth naming: a **squash**
+merge of a branch that had removed a pattern, against a main that had since
+grown a new instance of it, puts the instance back with nothing marked, so the
+check that had just been added to refuse it fails on its first morning. **The
+invariant lands before the code it is about has stopped moving**, so after
+merging anything that adds one, build and run the whole thing against main
+rather than against the branch. `npm run audit:merge` reads the other side's
+added lines and cannot see this at all, since nothing was reverted: what says so
+is `npm run build` and `npm run test:invariants` on main itself.
+
 When somebody else's work overlaps yours, one of them has to go. Keep the one
 that is safer or more precise and **delete the other outright** rather than
 leaving both: their fixture entry reaches four lapses in twelve reviews and

@@ -28,7 +28,7 @@ export function GapMeaning({ meaning, className }: {
     <p
       lang="en"
       data-gap-meaning
-      className={className ?? "text-sm leading-snug"}
+      className={className ?? "text-base leading-snug"}
       style={{ color: "var(--ink-2)" }}
     >
       {meaning.runs.map((run, i) => (

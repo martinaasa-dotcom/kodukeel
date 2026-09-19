@@ -83,7 +83,7 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
   },
 
   /*
-    THE THREE THAT ALREADY HAVE A LADDER OF THEIR OWN, and a second one beside
+    THE FOUR THAT ALREADY HAVE A LADDER OF THEIR OWN, and a second one beside
     it would be two answers to how this app helps somebody who is stuck.
   */
   {
@@ -95,14 +95,14 @@ export const HINT_EXEMPT: readonly HintExemption[] = [
     why: "the crossing letters are the hint, which is what a criss-cross is for, and Check marks what is filled in",
   },
   {
-    file: "components/scene/SceneSession.tsx",
-    why: "a conversation has its own way out, in character and out of it: `lib/scenes/coach.ts`, `choiceOf` and the beat's own offered word",
+    file: "app/(app)/review/letters/LettersSession.tsx",
+    why: "every letter of the answer is already on the screen, scrambled, so there is nothing to"
+      + " uncover: the ladder is the round's own two tries, the second of which places the first"
+      + " letter, and then the word itself, and `ratingFor` charges for both the way a rung does",
   },
   {
-    file: "app/(app)/review/letters/LettersSession.tsx",
-    why: "the round is a hint ladder already and pays for it in the grade: a first miss shakes the row"
-      + " and places the first letter, a second shows the word, and `ratingFor` caps the second go at"
-      + " Hard and a shown word at Again, which is what `lib/questions/hints.ts` does one rung at a time",
+    file: "components/scene/SceneSession.tsx",
+    why: "a conversation has its own way out, in character and out of it: `lib/scenes/coach.ts`, `choiceOf` and the beat's own offered word",
   },
 ];
 

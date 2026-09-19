@@ -62,6 +62,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   const [firstTry, setFirstTry] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [streak, setStreak] = useState(0);
+  const look = useLookBack();
 
   const word = words[index];
   const look = useLookBack();
@@ -78,12 +79,17 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   }, []);
 
   /*
-    The word that just went is recorded on the way past, so it can be read
-    back. `keyHint` is false on the button below and no key opens the panel
-    here, for the reason the review footer's own cap stands down on a typed
-    card: this board is answered by typing the letters, so `b` is a tile on
-    every word holding one and a shortcut that swallowed it would be the
-    `buss` fault in a room with no text box to excuse it.
+    The word just gone goes into the look back on the way past it, solved or
+    not: a word the board had to show is the one somebody most wants to see
+    again. The meaning is the question here and the word is the answer, which
+    is the way round this round asks, and the label is the chip the board
+    already wears. Nothing is graded by it (`lib/ux/lookBack.ts`).
+
+    AND NO KEY OPENS IT HERE, which is why the button below says none. The
+    review footer's cap stands down on a card being typed because `b` is the
+    first letter of `buss`; this board is answered by pressing the letters
+    themselves, so `b` is a tile on every word holding one and there is no
+    text box to excuse a shortcut swallowing it.
   */
   const next = useCallback(() => {
     if (word) {
@@ -176,7 +182,9 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
         learner has placed are `Board`'s own state, keyed on the card, so a
         look back that unmounted it would hand them back a scrambled word and
         lose the half they had built. The board's keys cannot reach it either
-        way, because the panel takes the keyboard in the capture phase.
+        way, because the panel takes the keyboard in the capture phase, which
+        is where `Backspace` had to be added: it is not a character and it is
+        what this round takes a tile back with.
       */}
       <div hidden={look.looking}>
         <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />

@@ -228,8 +228,8 @@ export const PARTS: readonly PartSpec[] = [
     title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and who is in the room",
     blurb:
       "From nothing, in the order a sentence needs: five words on the first evening, the "
-      + "pronouns on the second, the verb to be and its six endings straight after. Then "
-      + "the greetings and the people around you. At the end you can say hello, say who you "
+      + "pronouns on the second, the verb to be and its six endings straight after. Then the "
+      + "greetings, and the people around you. At the end you can say hello, say who you "
       + "are, and say who is in your family.",
     units: ["vastused", "asesonad", "esimesed-verbid", "tervitused", "inimesed"],
   },
@@ -309,10 +309,10 @@ export const PARTS: readonly PartSpec[] = [
     id: "b1.1", level: "B1",
     title: "Sihitis ja rektsioon", subtitle: "The object, the people around you, verb government, money and would",
     blurb:
-      "The object and government are the two things that separate somebody who has words from "
-      + "somebody who has Estonian. Each is followed by a unit of ordinary words to use it on: the "
-      + "people in your life, then work and money. Then the conditional. A grammar unit, a vocabulary "
-      + "unit, a grammar unit, so no fortnight is all tables.",
+      "The two things that separate somebody who has words from somebody who has Estonian: the "
+      + "object, and government. Each is followed by a unit of ordinary words to use it on, the "
+      + "people in your life, then work and money. Then the conditional. A grammar unit, a "
+      + "vocabulary unit, a grammar unit, so no fortnight is all tables.",
     units: ["objekt", "inimsuhted", "rektsioon", "too-ja-raha", "tingiv"],
   },
   {
