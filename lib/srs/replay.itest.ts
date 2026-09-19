@@ -125,7 +125,16 @@ describe("applyGradeBatch", () => {
   it("reproduces exactly the schedule an online grade would have produced", async () => {
     // The whole promise of the offline path: a grade replayed later, with its
     // original timestamp, lands where it would have had the network held.
-    const when = new Date("2026-08-20T09:00:00Z");
+    //
+    // Read off the clock rather than pinned, and off `MAX_BACKDATE_DAYS`
+    // rather than a date chosen to sit inside it. `clampReviewedAt` floors a
+    // timestamp at that many days back, so a literal here is a test that
+    // passes until the window walks past it and then fails every run for
+    // ever: `2026-08-20T09:00:00Z` was fine for a month and from the morning
+    // of 2026-09-19 came back as that morning's own time of day, which reads
+    // as the replay path having lost the timestamp it exists to keep. Half
+    // the window, so the test follows the constant if it ever narrows.
+    const when = new Date(Date.now() - (MAX_BACKDATE_DAYS / 2) * 86_400_000);
     const offlineCard = await makeCard();
     await applyGradeBatch(OWNER, [{
       id: "g1", cardId: offlineCard.id, rating: 3, durationMs: 2000, reviewedAt: when.getTime(),
