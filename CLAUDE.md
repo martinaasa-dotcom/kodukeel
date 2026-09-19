@@ -5733,6 +5733,89 @@ so a word put aside can still turn up in dictation or in a game, exactly as a wo
 can. The deferral holds where the app chooses what to teach, which is review and the ladder, and
 that is the line rather than an omission.
 
+**The browser's back button leaves the whole round, so there is one inside it that does not.** A
+session is a single history entry, since a card is a state rather than an address, so somebody who
+wanted to see the word before this one again pressed back and lost their place finding out that it
+takes them out of the round entirely. It was reported in those words. `lib/ux/lookBack.ts` is the
+rule and `components/round/LookBack.tsx` is the one drawing of it, on the two screens that step
+through words a learner is learning: the review session and the learn ladder.
+
+**It is not undo, and that distinction is the whole of why it is safe.** `undoGrade` rewinds what
+the scheduler was told and puts a card back to be answered again, which is right for an answer
+somebody did not mean and far too much for "what was that word?". A look back writes nothing,
+grades nothing, reorders nothing and takes nothing out of the queue: what it holds is a record of
+what was *drawn*, made at the moment it was drawn, so a card since requeued, graded again or put
+aside still reads back exactly as it was shown. The invariant holds the module to being free of
+every door onto a grade and the drawing to offering no control over the round, because a rating, a
+star or a report button on a screen the learner is only passing through is a second place to answer
+a question they were not asked. Undo is the one thing that reaches in: rewinding a grade puts that
+card back in front of them, so `forgetLast` takes that showing out again, the most recent showing of
+that card rather than every one of them, since a card answered twice was genuinely shown twice.
+
+**Every round that steps through words carries it, and what does not is exempt by name.** It began
+on the two that matter most, the review session and the learn ladder, and a way back that exists on
+two screens out of fifteen is a control a learner cannot rely on. So the sweep is the filesystem
+rather than a list: every `*Session.tsx` under `review/`, `quest/` and `learn/` either draws
+`LookBackCard` or carries a written reason, which is the shape `CAPTION_EXEMPT` and the star's own
+sweep take, and the reason is checked for staleness in both directions. It found the unit lesson and
+the level checkpoint, neither of which was on the list anybody would have written by hand. Three
+kinds are out and each is argued rather than skipped: a **timed** round (the sprint, the target, the
+daily quest), where stopping to re-read spends the one thing the round is made of and the finish
+screen lists what was asked; a **board** (match, the picture board), which puts several words up at
+once, so there is no last word and what was asked is still on the screen; and the **level
+checkpoint**, which withholds every answer until the end on purpose, so there is nothing to look
+back at and putting the question up again without its answer is a different feature. What a round
+hands over is what it drew and nothing else: `useLookBack` owns the list, the key per showing and
+the position, because four lines of identical wiring per round is four places for the nineteenth
+round to get it subtly wrong.
+
+**It stands in the round's place rather than over it, and the way back is also the way forward.**
+A panel over a card in a 360px round is the shape this file already has a rule against, and it
+would leave the round underneath answerable by a stray key; one screen at a time is what every
+other step of a round does, it needs no scrim and no focus trap, and the buttons at the foot of it
+are the round's own buttons in the round's own place. The primary is always the forward one, "Next"
+while there is a newer card to see and "Back to the round" at the newest, which is the half that was
+asked for by name: somebody two words back walks home the way they came rather than hunting for a
+different button. `B` opens it wherever the keyboard is not typing
+Estonian, which is the flip, the choice and a first meeting, and it is on the shortcut sheet, which
+says every shortcut the app has. It was bound from inside the answer box first, on the argument undo
+made one line below, and that argument is wrong about which keystrokes are free: an empty box is
+where the *first* letter of an answer goes, 63 entries in the shipped dictionary begin with a `b`,
+and a learner answering `buss` had the panel opened and the letter swallowed. The cap on the button
+stands down with the key rather than promising one the card in front of you does not answer to.
+
+**And the same fault was already there under `U`, which is the one that undoes a grade.** 46 entries
+begin with a `u`, `uks`, `uus`, `uni`, `ujuma`, and typing any of them into an empty box rewound the
+card before it, lost the letter, and brought back a card the learner had finished. The reach it was
+written for is real and is kept: grading a typed card advances to the next one, whose box takes focus
+on mount, so the moment you notice you hit the wrong key is a moment with the caret already inside a
+field, and a shortcut that does nothing there is a shortcut nobody has in the mode this app opens in.
+What changed is the keystroke. A bare `u` is a letter wherever a field has focus and a shortcut
+everywhere else, and from inside the box undo is `⌘Z`, which is the gesture everybody already has for
+taking something back and is not a letter in any language. Only while the box is empty, so somebody
+who has typed something keeps the field's own undo for their own typing. The button is not drawn at all on the first card of a session: a control that
+can only ever say "there is nothing behind you" is a control that teaches people to ignore that row.
+
+**And the panel takes the keyboard rather than asking fifteen rounds to hand it over.** The card a
+look back replaces is not on the screen, so its keys must not be either: the review session stood
+its own down and said in a comment why, and that comment was the whole of the rule, which is the
+wiring-per-round fault `useLookBack` exists to end. Two of the fifteen never learned it. Measured in
+a browser on the conjugation table, pressing the key the panel's own caption names stepped the round
+behind it on to the next verb while the panel stayed open, so the learner walked out of a word they
+were re-reading onto a card they had never answered, with nothing on screen saying why; the gap-fill
+round is the same shape with a grade attached, since that key calls its marker and writes an Again
+against a card nobody is looking at, which is the one thing `lib/ux/lookBack.ts` promises never
+happens. So `LookBackCard` listens in the **capture phase**, where a listener on `window` runs
+before every round's own, and `stopImmediatePropagation` is the half that matters, since preventing
+the default alone leaves the round's listener to run after it. The advance key walks forward, Escape
+is the way out, and any other bare character is swallowed rather than answered, which is what "the
+round is not on the screen" means for the digits that grade a card. Three kinds of key are left
+alone and each would break something a reader is owed: anything held with a modifier, which is the
+browser's; anything typed into a field; and anything aimed at a control inside the panel, or tabbing
+to "One more back" and pressing Enter would step forward instead of pressing the button under the
+caret. Tab and the arrows are not characters and pass through. The per-round stand-downs stay where
+they are, since they are what gates `b`, and they are no longer what makes this correct.
+
 **Every mode grades through `gradeCard`.** Sprint, Listening and Match are not side games with their
 own scores. They write to the same review log, so the scheduler sees what was actually practised.
 An abandoned round writes nothing. (ADR-016.)
@@ -9661,7 +9744,9 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
 `CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
-`module-step`, `buildSlotIndex`, `readSlot`, `PointExamples`, `data-point-examples`.
+`module-step`, `useLookBack`,
+`LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
+`data-point-examples`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 

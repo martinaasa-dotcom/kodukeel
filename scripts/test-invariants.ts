@@ -19255,6 +19255,127 @@ check("the shipped translations are English, and there are enough of them to mat
 });
 
 /*
+  LOOKING BACK AT THE LAST WORD IS ONE DRAWING, AND IT IS NEVER A GRADE.
+
+  A round is one card at a time and the browser's back button leaves the whole
+  session, so the two screens that step through words a learner is learning,
+  the review session and the learn ladder, each carry a way back to the word
+  before this one. Two things are asserted and both are about what it must not
+  become.
+
+  ONE DRAWING. Two sessions writing their own would be two answers to what a
+  look back shows and what it does at the oldest card, and the one nobody was
+  watching would drift, which is the state this project's own rules describe
+  at length. Anchored on the component being used as an element rather than on
+  the import, because a session that imports it and then writes the markup
+  back satisfies any check that only greps for the import.
+
+  AND NOT UNDO. `undoGrade` rewinds what the scheduler was told; this reads
+  back what was on the screen and writes nothing at all. So the rule holds the
+  module to being free of every door onto a grade: the moment it can reach one,
+  a screen the learner is only passing through can change their history.
+*/
+check("looking back at the last word is one drawing, and it grades nothing", () => {
+  /*
+    Every round that steps through one word at a time, read off the filesystem
+    rather than kept as a list: a round added later with no way back looks
+    exactly like a round nobody has pressed it on, which is the silence this
+    file's own rules keep finding. What is exempt is exempt by name and by
+    argument, in the shape `CAPTION_EXEMPT` and the star's own sweep take.
+  */
+  const exempt: Record<string, string> = {
+    // A burst against a stopwatch: stopping to re-read spends the one thing
+    // the round is made of, and the finish screen lists what was asked.
+    "app/(app)/review/sprint/SprintSession.tsx": "timed",
+    "app/(app)/review/target/TargetSession.tsx": "timed",
+    "app/(app)/quest/QuestSession.tsx": "timed",
+    // A board puts several words up at once, so there is no last word: what
+    // was asked is still on the screen until the board is cleared.
+    "app/(app)/review/match/MatchSession.tsx": "a board",
+    "app/(app)/review/emoji/EmojiSession.tsx": "a board",
+    // A list of the cards you keep failing, with nothing stepping through.
+    "app/(app)/review/clinic/ClinicList.tsx": "a list rather than a round",
+    // A measurement that withholds every answer until the end, deliberately
+    // (`No feedback until the end`): there is nothing to look back *at*, and
+    // putting the question back up without its answer is a different feature.
+    "app/(app)/learn/checkpoint/[level]/CheckpointSession.tsx": "withholds its answers until the end",
+  };
+
+  const rounds = APP.filter((f) => /\/(review|quest|learn)\/.*[A-Z][A-Za-z]*(Session|List)\.tsx$/.test(f));
+  assert.ok(rounds.length >= 15, `only ${rounds.length} rounds found; the sweep is looking in the wrong place`);
+
+  const missing = rounds.filter((f) => !(f in exempt) && !/<LookBackCard\b/.test(code(f)));
+  assert.deepEqual(
+    missing, [],
+    `${missing.join(", ")} steps through words with no way back to the one before. `
+    + "Draw components/round/LookBack.tsx, or say in the exemption above why this round cannot",
+  );
+
+  // And an exemption is checked for staleness in the other direction, so a
+  // round that has since grown one cannot keep a line claiming it has not.
+  const stale = Object.keys(exempt).filter((f) => !rounds.includes(f) || /<LookBackCard\b/.test(code(f)));
+  assert.deepEqual(stale, [], `${stale.join(", ")} is exempt from the look back and does not need to be`);
+
+  const sessions = [
+    "app/(app)/review/ReviewSession.tsx",
+    "app/(app)/learn/new/LearnSession.tsx",
+  ];
+  for (const file of sessions) {
+    const body = code(file);
+    assert.match(body, /<LookBackCard\b/, `${file} no longer draws the one look back`);
+    assert.match(body, /<LookBackButton\b/, `${file} has no way to open a look back`);
+    assert.doesNotMatch(
+      body, /className="[^"]*"[^>]*>\s*One more back/,
+      `${file} draws its own way back rather than the one in components/round/LookBack.tsx`,
+    );
+  }
+
+  const rule = code("lib/ux/lookBack.ts");
+  for (const door of ["gradeCard", "undoGrade", "prisma", "enqueueGrade", "Review"]) {
+    assert.ok(
+      !rule.includes(door),
+      `lib/ux/lookBack.ts reaches ${door}. A look back is a reading of what was on the screen: `
+      + "the moment it can grade, a screen the learner is passing through can rewrite their history",
+    );
+  }
+
+  // And the drawing itself offers nothing that would answer the round: a
+  // rating on a card somebody is re-reading is a grade for a question they
+  // were not asked.
+  const drawing = code("components/round/LookBack.tsx");
+  for (const door of ["gradeCard", "RATINGS", "SELF_GRADES", "StarWord", "SuggestFix"]) {
+    assert.ok(!drawing.includes(door), `components/round/LookBack.tsx offers ${door}, which is a control over the round`);
+  }
+
+  /*
+    AND THE PANEL TAKES THE KEYBOARD RATHER THAN ASKING EVERY ROUND TO.
+
+    Fifteen rounds listen on `window` and two of them never learned to stand
+    down while a look back is open, which measured in a browser as the round
+    behind the panel stepping on to the next card, and on the gap-fill round
+    as a grade written against a card nobody was looking at. A rule each
+    session has to remember is the wiring-per-round fault this module was
+    built to end, so the drawing owns it: a capture-phase listener runs
+    before every round's own, and only `stopImmediatePropagation` keeps the
+    round's from running after it.
+  */
+  assert.match(
+    drawing, /addEventListener\("keydown",[^)]*,\s*true\)/,
+    "components/round/LookBack.tsx no longer takes the keyboard in the capture phase, so every round's own "
+    + "listener answers over a card the learner is only re-reading",
+  );
+  assert.match(
+    drawing, /stopImmediatePropagation\(\)/,
+    "components/round/LookBack.tsx stops the default and lets the event carry on, which leaves the round "
+    + "underneath answering the key this card's own caption names",
+  );
+  assert.match(
+    drawing, /isAdvanceKey\(e\)[^}]*onForward\(\)/,
+    "components/round/LookBack.tsx names the advance key in its caption and does not walk forward on it",
+  );
+});
+
+/*
   A DUPLICATE KEY IN THE PIN TABLE DELETES PINS AND NOTHING SAYS SO.
 
   `lib/estonian/grammarExamples.ts` is two nested object literals, and a second

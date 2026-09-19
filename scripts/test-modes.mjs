@@ -31,7 +31,15 @@ page.on("console", (m) => {
 // arrived on two branches at once, so the number is measured on the merged tree
 // rather than added from either side: 44. Three more for the columns on
 // Today ending level: 47.
-const { check, absent, done } = suite("Practice modes", { floor: 49 });
+// Five more for the way back to the last word, which is driven rather than
+// asserted from the source: 54. One more for the key that opens it not being
+// a letter somebody was typing, which is how it shipped first: 55, and one
+// for the caret not being dropped on the way out: 56. Two more for undo,
+// which had the same fault and was there first: 58. And two for the round
+// behind the panel not answering the key the panel names, which two of the
+// fifteen rounds drawing it did: 60, and one for the round's own undo standing
+// down beside the panel the way its key already did: 61.
+const { check, absent, done } = suite("Practice modes", { floor: 61 });
 
 /**
  * Brings the current card to the point where it is waiting on the learner,
@@ -213,12 +221,218 @@ if (rateable) {
   }
   await page.waitForTimeout(1200);
   const gradedBefore = await page.getByText(/\d+ graded/).textContent();
-  await page.keyboard.press("u");
+  /*
+    Whichever of the two keys reaches undo from where the caret actually is.
+    `u` is a letter while an answer box has focus, since 46 entries in the
+    shipped dictionary begin with one, so from there undo is the gesture that
+    is not a letter. Asking for the right key rather than one of them is what
+    keeps this a check about undo rather than about which card came up: the
+    card after a grade is whatever the queue had next.
+  */
+  const inABox = (await page.getByLabel("Type your answer").count()) > 0;
+  await page.keyboard.press(inABox ? "Control+z" : "u");
   await page.waitForTimeout(1500);
   const gradedAfter = await page.getByText(/\d+ graded/).textContent();
-  check("u undoes the last grade", gradedBefore !== gradedAfter, `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
+  check("the last grade can be taken back from the keyboard", gradedBefore !== gradedAfter,
+    `${inABox ? "Ctrl+z from the answer box" : "u"}: ${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
 } else {
   absent(1, "a card that reached the point of waiting on an answer, which none did here");
+}
+
+/*
+  5b — LOOKING BACK AT THE WORD BEFORE THIS ONE.
+
+  The browser's back button leaves the whole round, so the round carries its
+  own way back to the card that just went. Three things about it can only be
+  known by driving it: that it reads back an older card rather than the one on
+  screen, that walking forward lands back in the round, and that none of it
+  grades anything, which is the whole difference between this and undo.
+
+  Run here, after the undo section, because it needs cards to have gone past:
+  the button is deliberately not drawn on the first card of a session, where
+  there is nothing behind the learner.
+*/
+await page.goto(`${B}/review`, { waitUntil: "networkidle" });
+await page.waitForTimeout(600);
+
+const lookButton = () => page.locator("main").getByRole("button", { name: /See it again/i });
+check("no way back is offered on the first card of a session", (await lookButton().count()) === 0);
+
+let answered = 0;
+for (let i = 0; i < 6 && answered < 2; i += 1) {
+  if (await answerCurrentCard()) answered += 1;
+  await page.waitForTimeout(700);
+}
+
+if (answered >= 2 && (await lookButton().count()) > 0) {
+  const onScreen = (await page.locator("main").innerText()).slice(0, 400);
+  const gradedBefore = await page.getByText(/\d+ graded/).textContent();
+  await lookButton().first().click();
+  await page.waitForTimeout(400);
+
+  const looking = await page.locator("main").innerText();
+  check("the way back reads an older card rather than the one on screen",
+    /back to the round/i.test(looking) && looking.slice(0, 400) !== onScreen);
+  check("and says it is not a question being asked again",
+    /nothing here is graded/i.test(looking));
+
+  const forward = page.locator("main").locator("button").filter({ hasText: /^(Next|Back to the round)/ }).last();
+  await forward.click();
+  await page.waitForTimeout(700);
+  const after = await page.locator("main").innerText();
+  const gradedAfter = await page.getByText(/\d+ graded/).textContent();
+  check("walking forward lands back in the round", (await lookButton().count()) > 0 && /\d+ graded/.test(after));
+  /*
+    And the caret comes with it. The buttons inside the panel unmount when it
+    closes, so without somewhere to put focus a keyboard is left on the body,
+    which is the fault this app has a written rule about: the card's own
+    answer box takes it where there is one, the button that opened the panel
+    where there is not, and never nothing.
+  */
+  const caret = await page.evaluate(() => document.activeElement?.tagName ?? "NONE");
+  check("and the caret lands on a control rather than the body", caret !== "BODY" && caret !== "NONE", caret);
+  /*
+    And the round's own footer stands down with it. The panel replaces the
+    card and the footer stays under it, so undo was the one control over the
+    round still live beside a screen the learner is passing through: its key
+    had been refused there since the panel was built, and the button had not,
+    which is a control disagreeing with the shortcut on its own cap. What it
+    rewinds is the last grade rather than the card being read, so from inside
+    the panel it acts on something the reader cannot see.
+  */
+  await lookButton().first().click();
+  await page.waitForTimeout(400);
+  const undoLive = await page.locator("main").getByRole("button", { name: /^Undo/ }).isEnabled().catch(() => null);
+  check("and the round's undo stands down while a look back is open", undoLive === false, `enabled: ${undoLive}`);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(400);
+  check("and nothing about a look back is graded", gradedBefore === gradedAfter,
+    `${gradedBefore?.trim()} -> ${gradedAfter?.trim()}`);
+} else {
+  absent(4, "two cards answered in this session, which the deck here could not supply");
+}
+
+/*
+  AND THE KEY THAT OPENS IT IS NOT A LETTER SOMEBODY WAS TYPING.
+
+  `b` was bound from inside the answer box while that box was still empty, on
+  the argument undo makes about `u`. An empty box is exactly where the first
+  letter of an answer goes, and 63 entries in the shipped dictionary begin
+  with one: pressing `b` on a card asking for `buss` opened the panel and
+  swallowed the keystroke. Driven here rather than reasoned about, because
+  which key reaches which handler is a fact about the browser.
+*/
+let typedCard = false;
+for (let i = 0; i < 8 && !typedCard; i += 1) {
+  typedCard = (await page.getByLabel("Type your answer").count()) > 0;
+  if (!typedCard) { await answerCurrentCard(); await page.waitForTimeout(700); }
+}
+
+if (typedCard) {
+  const box = page.getByLabel("Type your answer");
+  await box.click();
+  await page.keyboard.type("b");
+  await page.waitForTimeout(300);
+  const opened = (await page.locator("main").getByRole("button", { name: /One more back/i }).count()) > 0;
+  const typedIn = (await page.getByLabel("Type your answer").count()) ? await box.inputValue() : "";
+  check("b in the answer box is a letter rather than a shortcut", !opened && typedIn === "b",
+    `opened: ${opened}, box holds: ${JSON.stringify(typedIn)}`);
+} else {
+  absent(1, "a typed card, which this deck did not offer in eight tries");
+}
+
+/*
+  AND NEITHER IS THE KEY THAT UNDOES A GRADE.
+
+  `u` had the same shape and was there first: bound from inside the answer box
+  while it was still empty, so `uks`, `uus` and `uni` rewound the card before
+  them and lost the letter. The reach is kept through a gesture that is not a
+  letter, so both halves are driven: the letter goes in, and the gesture takes
+  the grade back from the same box.
+*/
+if (typedCard) {
+  const box = page.getByLabel("Type your answer");
+  const before = await page.getByText(/\d+ graded/).textContent();
+  await box.click();
+  await box.fill("");
+  await page.keyboard.type("u");
+  await page.waitForTimeout(400);
+  const afterLetter = await page.getByText(/\d+ graded/).textContent();
+  const held = (await page.getByLabel("Type your answer").count()) ? await box.inputValue() : "";
+  check("u in the answer box is a letter rather than an undo",
+    held === "u" && before === afterLetter, `box holds ${JSON.stringify(held)}, ${before?.trim()} -> ${afterLetter?.trim()}`);
+
+  await box.fill("");
+  await page.keyboard.press("Control+z");
+  await page.waitForTimeout(1600);
+  const afterUndo = await page.getByText(/\d+ graded/).textContent();
+  check("and the gesture that is not a letter still takes a grade back from there",
+    before !== afterUndo, `${before?.trim()} -> ${afterUndo?.trim()}`);
+} else {
+  absent(2, "a typed card, which this deck did not offer in eight tries");
+}
+
+/*
+  AND THE ROUND BEHIND THE PANEL DOES NOT ANSWER THE KEY THE PANEL NAMES.
+
+  The review session stands its own keys down while a look back is open and
+  says in a comment why; two of the fifteen rounds that draw the panel never
+  learned to, which is the wiring-per-round fault the hook exists to end.
+  Measured here rather than read off the source, because which listener sees
+  a keystroke first is a fact about the browser: on the conjugation table,
+  pressing the key this card's own caption names stepped the round behind it
+  on to the next verb while the panel stayed open, so the learner walked out
+  onto a word they had never answered. The gap-fill round is the same shape
+  with a grade attached.
+
+  The conjugation table is the one driven because it is the round that had
+  the fault: a window listener, no stand-down, and a counter on screen that
+  says plainly whether the round moved.
+*/
+await page.goto(`${B}/review/conjugation`, { waitUntil: "domcontentloaded" });
+await page.waitForSelector("main", { timeout: 15000 });
+await page.waitForTimeout(1200);
+
+const leftNow = async () => ((await page.locator("main").innerText()).match(/(\d+) left/) || [])[1] ?? null;
+const fillTable = async () => {
+  const boxes = page.locator("main input");
+  const n = await boxes.count();
+  for (let i = 0; i < n; i += 1) await boxes.nth(i).fill("x");
+  const mark = page.getByRole("button", { name: /^check/i }).first();
+  if (await mark.count()) { await mark.click(); await page.waitForTimeout(300); }
+  return n > 0;
+};
+
+let table = await fillTable();
+if (table) {
+  const onward = page.getByRole("button", { name: /^next/i }).first();
+  if (await onward.count()) { await onward.click(); await page.waitForTimeout(500); }
+  table = await fillTable();
+}
+
+const conjLook = () => page.locator("main").getByRole("button", { name: /See it again/i });
+if (table && (await conjLook().count()) > 0) {
+  const leftBefore = await leftNow();
+  await conjLook().first().click();
+  await page.waitForTimeout(400);
+  const panelUp = (await page.getByRole("group", { name: /looking back/i }).count()) > 0;
+
+  await page.keyboard.press("Enter");
+  await page.waitForTimeout(700);
+  const leftAfter = await leftNow();
+  check("the round behind a look back does not advance on the key the panel names",
+    panelUp && leftBefore !== null && leftBefore === leftAfter,
+    `panel up: ${panelUp}, ${leftBefore} left -> ${leftAfter} left`);
+  /*
+    And the key does what the caption says it does, which on the newest kept
+    showing is walking back out. A panel that swallows the key and sits there
+    is the other half of the same fault: the caption would be naming a key
+    that does nothing.
+  */
+  const stillLooking = (await page.getByRole("group", { name: /looking back/i }).count()) > 0;
+  check("and that key is the way back out of the panel", !stillLooking);
+} else {
+  absent(2, "two conjugation tables answered, which this deck could not supply");
 }
 
 /**

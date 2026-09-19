@@ -13,6 +13,7 @@ import {
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -33,6 +34,8 @@ export function ClozeSession() {
   const startedAt = useRef(Date.now());
 
   const item = items[index];
+  /* The way back to the gap before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
 
   const build = useCallback(async () => {
     setBusy(true);
@@ -51,11 +54,26 @@ export function ClozeSession() {
   }, [text]);
 
   const next = useCallback(() => {
+    /* The sentence as it was drawn, with the word that filled the gap. A
+       passage the learner pasted is theirs, so this is read only like the
+       rest of it: nothing is stored and nothing is graded again. */
+    if (item) {
+      look.record({
+        of: item.cardId ?? `${item.lemma}-${index}`,
+        label: "Fill the gap",
+        question: item.sentence,
+        answer: item.answer,
+        note: `${item.lemma}, ${item.translation} · the ${item.formLabel}`,
+        questionLang: "et",
+        answerLang: "et",
+        speak: item.answer,
+      });
+    }
     setChecked(false);
     setAttempt("");
     if (index + 1 >= items.length) setPhase("done");
     else setIndex((i) => i + 1);
-  }, [index, items.length]);
+  }, [index, items.length, item, look]);
 
   const check = useCallback(() => {
     if (!item || checked || !attempt.trim()) return;
@@ -203,6 +221,7 @@ export function ClozeSession() {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -285,6 +304,11 @@ export function ClozeSession() {
             </Button>
           )}
         </div>
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
       </div>
     </div>
   );

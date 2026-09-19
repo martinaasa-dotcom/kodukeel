@@ -35,6 +35,8 @@ import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/adv
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { type SeenCard } from "@/lib/ux/lookBack";
 
 export interface ReviewCard {
   id: string;
@@ -155,6 +157,40 @@ function slotAsked(card: ReviewCard): string {
  * the answer instead, where it explains.
  */
 const isGap = (card: ReviewCard) => card.front.includes(BLANK);
+
+/**
+ * What a card leaves behind for somebody who wants to see it again.
+ *
+ * Built from the card as it was drawn rather than from the row, which is
+ * `lib/ux/lookBack.ts`'s own rule: `sizedBlank` is the question the learner
+ * actually read, gap and all, and the plain clause is the one this screen
+ * prints under it. A first meeting records the word and its meaning, since
+ * that is what was on the screen and there was no question to ask.
+ */
+function shownAs(card: ReviewCard, met: boolean): Omit<SeenCard, "key"> {
+  // A meeting is always the Estonian word over its English meaning, whatever
+  // side the card it came from would have called Estonian.
+  const word = card.intro?.lemma ?? card.lemma ?? card.front;
+  const speakable = met
+    ? spoken(word)
+    : estonianSide(card.cardType, "back")
+      ? spoken(card.back)
+      : estonianSide(card.cardType, "front") && !isGap(card)
+        ? spoken(card.lemma ?? card.front)
+        : null;
+  return {
+    of: card.id,
+    label: met
+      ? (card.intro?.isPhrase ? "New phrase" : "New word")
+      : TYPE_LABEL[card.cardType] ?? card.cardType,
+    question: met ? word : sizedBlank(card.front, card.back),
+    answer: met ? card.intro?.gloss ?? card.back : card.back,
+    note: met ? null : plainAsk(slotAsked(card)) ? plainAskLine(slotAsked(card)) : null,
+    questionLang: met ? "et" : estonianSide(card.cardType, "front") ? "et" : "en",
+    answerLang: met ? "en" : estonianSide(card.cardType, "back") ? "et" : "en",
+    speak: speakable,
+  };
+}
 
 /**
  * "Why?", at the only moment anyone asks it.
@@ -463,6 +499,18 @@ export function ReviewSession({
   const [busy, setBusy] = useState(false);
   const [history, setHistory] = useState<Done[]>([]);
   /*
+    WHAT HAS BEEN ON THIS SCREEN, SO IT CAN BE READ BACK.
+
+    The browser's back button leaves the whole session, because a round is one
+    history entry, so a learner who wanted to see the word before this one had
+    no way to do it that did not cost them their place. This is that record:
+    what was drawn, kept in the session, dropped with it, and read only.
+    `lib/ux/lookBack.ts` is the rule and says at length why it is not undo.
+  */
+  const look = useLookBack();
+  const { record, forget } = look;
+  const recordSeen = useCallback((card: ReviewCard, met: boolean) => record(shownAs(card, met)), [record]);
+  /*
     WHAT UNDO PUTS BACK IS WHAT THE SERVER LAST WROTE.
 
     `cards` is snapshotted on mount and its `scheduling` is deliberately never
@@ -644,6 +692,7 @@ export function ReviewSession({
    */
   const meetDone = useCallback(() => {
     if (!card || busy) return;
+    recordSeen(card, true);
     setMet((m) => new Set(m).add(wordKey(card)));
     setQueue((q) => {
       const next = [...q];
@@ -658,7 +707,7 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
-  }, [card, busy, index]);
+  }, [card, busy, index, recordSeen]);
 
   /**
    * A word the learner has just put aside.
@@ -763,6 +812,7 @@ export function ReviewSession({
     setDone((d) => d + 1);
     if (rating >= 3) setCorrect((c) => c + 1);
     setHistory((h) => [...h, { cardId: card.id, lexemeId: card.lexemeId, index, rating, before }]);
+    recordSeen(card, false);
 
     // "Again" means it is not learned — put it back near the end of this session.
     if (rating === 1) {
@@ -786,7 +836,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, clearAutoNext]);
+  }, [card, busy, index, refreshOutbox, recordSeen, clearAutoNext]);
 
   /**
    * Puts the last graded card back.
@@ -811,6 +861,9 @@ export function ReviewSession({
     if (result.ok) {
       scheduled.current.set(last.cardId, last.before);
       setHistory((h) => h.slice(0, -1));
+      // The card is in front of the learner again, so that showing has not
+      // happened any more and the look back must not offer it as the past.
+      forget(last.cardId);
       setDone((d) => Math.max(0, d - 1));
       if (last.rating >= 3) setCorrect((c) => Math.max(0, c - 1));
       // Taking an answer back is not a run continuing.
@@ -826,7 +879,7 @@ export function ReviewSession({
       setIndex(last.index);
     }
     setBusy(false);
-  }, [history, busy, queue, clearAutoNext]);
+  }, [history, busy, queue, forget, clearAutoNext]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
@@ -888,18 +941,78 @@ export function ReviewSession({
         : null;
       const typing = field !== null;
 
-      // `u` has to reach undo from inside the answer box, because that is where
-      // focus already is: grading a typed card advances to the next one, whose
-      // input takes focus on mount — and the moment just after a grade is
-      // exactly when you notice you hit the wrong key. Requiring focus to be
-      // outside the field meant the shortcut silently did nothing there, and
-      // quietly dropped a `u` into the next answer instead.
-      //
-      // Only while that box is still empty, though. Estonian is full of u —
-      // tuba, kuu, muusika — so once there is anything typed, u is a letter.
-      const startedAnswering = field !== null && field.value.length > 0;
+      /*
+        WHILE A LOOK BACK IS OPEN, THE ROUND IS NOT ON THE SCREEN.
 
-      if (e.key.toLowerCase() === "u" && !startedAnswering && history.length > 0) {
+        The card it replaced is not answerable and its keys must not be
+        either, or a stray Enter over a word somebody is re-reading grades a
+        card they are not looking at. Escape is the way out and the advance
+        key walks forward, which is what the buttons under it say.
+      */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !typing) { e.preventDefault(); look.forward(); return; }
+        return;
+      }
+
+      /*
+        UNDO IS REACHABLE FROM THE ANSWER BOX, AND NOT BY A LETTER.
+
+        The reach is worth keeping and the comment that used to sit here made
+        the case for it: grading a typed card advances to the next one, whose
+        box takes focus on mount, so the moment you notice you hit the wrong
+        key is a moment with the caret already inside a field. A shortcut that
+        silently does nothing there is a shortcut nobody has, and typing is
+        the mode this app opens in.
+
+        What that comment got wrong is which keystrokes are safe. It allowed
+        `u` while the box was still empty, on the argument that Estonian is
+        full of u once there is anything typed. An empty box is where the
+        *first* letter goes, and 46 entries in the shipped dictionary begin
+        with one: `uks`, `uus`, `uni`, `ujuma`, `unustama`. A learner
+        answering any of them undid the grade before it, lost the letter, and
+        watched a card they had finished come back.
+
+        So the reach is kept and the key is changed. A bare `u` is a letter
+        wherever a field has focus and a shortcut everywhere else, and from
+        inside the box undo is `Cmd`/`Ctrl` and `z`, which is the gesture
+        everybody already has for taking something back and is a letter in no
+        language. Only while the box is empty, so somebody who has typed
+        something keeps the field's own undo for their own typing.
+      */
+      const startedAnswering = field !== null && field.value.length > 0;
+      const takeItBack = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "z";
+
+      if (takeItBack && !startedAnswering && history.length > 0) {
+        e.preventDefault();
+        void undo();
+        return;
+      }
+
+      /*
+        `b` OPENS THE LOOK BACK, AND ONLY WHERE IT IS NOT A LETTER.
+
+        This was written to reach from inside the answer box while that box
+        was still empty, on the argument `u` makes above: the moment somebody
+        wants the last word back is the moment just after it went, with focus
+        already in the next card's box. That is where it costs most, because
+        an empty box is exactly where the *first* letter of an answer is
+        typed. Driven in a browser on a production card: pressing `b` opened
+        the panel and swallowed the keystroke. 63 entries in the shipped
+        dictionary begin with one, `buss`, `bussipilet`, `banaan`,
+        `bensiin`, and a learner answering any of them met it every time.
+
+        So it is a shortcut for the shapes where the keyboard is not typing
+        Estonian: the flip, the choice and a first meeting. On a typed card
+        the button in the footer is one press away and the letter is a letter.
+      */
+      if (e.key.toLowerCase() === "b" && !typing && look.seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
+
+      if (e.key.toLowerCase() === "u" && !typing && history.length > 0) {
         e.preventDefault();
         void undo();
         return;
@@ -945,7 +1058,7 @@ export function ReviewSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk]);
+  }, [answerShown, revealed, submit, finished, ask, verdict, checkTyped, chosen, card, pickChoice, meetDone, undo, history.length, needsRetype, retypeOk, look]);
 
   if (wasEmptyAtStart) {
     return (
@@ -1084,6 +1197,12 @@ export function ReviewSession({
         </span>
       </div>
 
+      {/* A look back stands in the round's place rather than over it: the card
+          underneath must not be answerable while somebody is reading an older
+          one, and one screen at a time is what every other step here does. */}
+      {look.panel ? (
+        <LookBackCard {...look.panel} />
+      ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -1475,18 +1594,35 @@ export function ReviewSession({
           )}
         </div>
       </div>
+      )}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
+        <LookBackButton {...look.button} disabled={busy || look.looking} keyHint={ask !== "type"} />
         <button
           type="button"
           onClick={() => void undo()}
-          disabled={history.length === 0 || busy}
+          /*
+            AND IT STANDS DOWN WHILE A LOOK BACK IS OPEN, LIKE ITS OWN KEY.
+
+            The keydown handler has refused `u` and `⌘Z` there since the panel
+            was built, so the button beside it staying live was the control
+            disagreeing with the shortcut printed on its own cap. What it
+            would do is worse than the inconsistency: undo rewinds the *last*
+            grade, which on a learner three cards back is not the card they
+            are reading, so the one thing they can see is the panel vanishing
+            under their hand. The round is not on the screen, so neither is
+            the way to change it: the way out is the button that says so.
+          */
+          disabled={history.length === 0 || busy || look.looking}
           className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
           style={{ color: "var(--ink-3)" }}
         >
-          <Undo2 size={12} aria-hidden /> Undo <KeyCap>U</KeyCap>
+          {/* The cap names the key that works on the card in front of you:
+              `u` is a letter while a box has focus, so a typed card carries
+              the gesture that is not one. Same rule as the hint beside it. */}
+          <Undo2 size={12} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
         </button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />

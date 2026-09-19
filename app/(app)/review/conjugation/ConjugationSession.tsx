@@ -17,6 +17,7 @@ import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export type Tense = "present" | "conditional";
 
@@ -78,6 +79,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const run = useRef(0);
 
   const question = questions[index];
+  /* The way back to the verb before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   /*
     Asked here too, mid-round, because a learner with shelves named who keeps a
     word from a drill has the same claim on choosing where it goes as one who
@@ -190,7 +193,23 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     }
   }, [question, verdicts, typed, sound]);
 
-  const next = useCallback(() => setIndex((i) => i + 1), []);
+  const next = useCallback(() => {
+    /* The whole table as it was filled in, which is what somebody looking
+       back at a verb wants rather than one cell of it. */
+    if (question) {
+      look.record({
+        of: question.cardId ?? question.lexemeId,
+        label: "Verb forms",
+        question: `${question.lemma}, ${question.translation}`,
+        answer: [question.given.value, ...question.blanks.map((b) => b.answer)].join(" · "),
+        note: [question.given.person, ...question.blanks.map((b) => b.person)].join(" · "),
+        questionLang: "et",
+        answerLang: "et",
+        speak: question.given.value,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [question, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -274,6 +293,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -460,11 +480,15 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
-        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
-        {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px]" style={{ color: "var(--ink-3)" }}>
+        <span>
+          {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
+          {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}
+        </span>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
     </div>
   );
 }

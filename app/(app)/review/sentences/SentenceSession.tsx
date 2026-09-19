@@ -15,6 +15,7 @@ import { ORDER_EXACT, orderVariantNote, ORDER_WRONG } from "@/lib/copy/values";
 import { OPTION_CLASS, VERDICT_CLASS } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
 
 export interface SentenceTask {
@@ -91,6 +92,8 @@ export function SentenceSession(
   const shownAt = useRef(Date.now());
 
   const task = tasks[index];
+  /* The way back to the sentence before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !task;
 
   useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
@@ -165,19 +168,41 @@ export function SentenceSession(
     setBusy(false);
   }, [task, busy, checked, answer]);
 
-  const next = () => setIndex((i) => i + 1);
+  const next = useCallback(() => {
+    /* The sentence the writer wrote, which is the answer this round is
+       about, with its English where the dictionary holds one. */
+    if (task) {
+      look.record({
+        of: task.cardId,
+        label: "Word order",
+        question: task.lemma,
+        answer: task.et,
+        note: task.en,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.et,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [task, look]);
 
   /* Once the sentence is marked, Enter or Space is "next", as on every other
      round. The tiles are buttons, so before the mark a Space on a focused tile
      is the browser pressing that tile and is left to it. */
   useEffect(() => {
-    if (!checked) return;
     const onKey = (e: KeyboardEvent) => {
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
+      if (!checked) return;
       if (isAdvanceKey(e)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [checked]);
+  }, [checked, look, next]);
 
   if (initialTasks.length === 0) {
     return (
@@ -263,6 +288,7 @@ export function SentenceSession(
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -397,10 +423,12 @@ export function SentenceSession(
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} of {attempts} first time
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{correct} of {attempts} first time</span>
+        <LookBackButton {...look.button} disabled={look.looking} />
+      </div>
     </div>
   );
 }
