@@ -252,6 +252,21 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
           const isMatched = matched.has(tile.cardId);
           const isSelected = selected?.key === tile.key;
           const isWrong = wrong?.includes(tile.key) ?? false;
+          /*
+            A single word has no space to wrap at, so the inherited
+            `overflow-wrap: anywhere` (app/globals.css) breaks it mid-letter,
+            "kakskümmen" / "d". That rule exists so a long word never overflows
+            its box; here the fix is to shrink the word to fit on one line
+            instead, which reads correctly rather than merely not overflowing.
+            A tile with a space in it (an English phrase, a short sentence)
+            still wraps normally at the space, which is the readable break.
+          */
+          const singleWord = !tile.text.includes(" ");
+          const sizeClass = singleWord && tile.text.length > 12
+            ? "text-xs"
+            : singleWord && tile.text.length > 8
+              ? "text-sm"
+              : tile.side === "et" ? "text-md font-semibold" : "text-base";
           return (
             <button
               key={tile.key}
@@ -260,18 +275,22 @@ export function MatchSession({ pairs: initialPairs, best }: { pairs: MatchPair[]
               disabled={isMatched}
               lang={tile.side === "et" ? "et" : "en"}
               aria-pressed={isSelected}
-              className={`${tile.side === "et" ? "text-md font-semibold " : "text-base "}${isMatched ? `pop-in ${OPTION_CLASS.right} ` : isWrong ? `shake ${OPTION_CLASS.wrong} ` : ""}press flex min-h-[84px] items-center justify-center rounded-[var(--r-lg)] px-3 py-3 text-center transition-ui hover:scale-[1.02] disabled:hover:scale-100`}
-              style={isMatched || isWrong ? {
-                opacity: isMatched ? 0.5 : 1,
-              } : {
-                background: isSelected
-                  ? "var(--accent-deep)"
-                  : tile.side === "et" ? "var(--accent-soft)" : "var(--surface)",
-                color: isSelected
-                  ? "var(--accent-ink)"
-                  : tile.side === "et" ? "var(--accent-deep)" : "var(--ink)",
-                boxShadow: isSelected ? "none" : "var(--shadow-sm)",
-                transform: isSelected ? "scale(0.97)" : undefined,
+              className={`${sizeClass} ${tile.side === "et" ? "font-semibold " : " "}${isMatched ? `pop-in ${OPTION_CLASS.right} ` : isWrong ? `shake ${OPTION_CLASS.wrong} ` : ""}press flex min-h-[84px] items-center justify-center rounded-[var(--r-lg)] px-3 py-3 text-center transition-ui hover:scale-[1.02] disabled:hover:scale-100`}
+              style={{
+                overflowWrap: singleWord ? "normal" : undefined,
+                wordBreak: singleWord ? "keep-all" : undefined,
+                ...(isMatched || isWrong ? {
+                  opacity: isMatched ? 0.5 : 1,
+                } : {
+                  background: isSelected
+                    ? "var(--accent-deep)"
+                    : tile.side === "et" ? "var(--accent-soft)" : "var(--surface)",
+                  color: isSelected
+                    ? "var(--accent-ink)"
+                    : tile.side === "et" ? "var(--accent-deep)" : "var(--ink)",
+                  boxShadow: isSelected ? "none" : "var(--shadow-sm)",
+                  transform: isSelected ? "scale(0.97)" : undefined,
+                }),
               }}
             >
               {tile.text}
