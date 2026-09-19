@@ -10,6 +10,10 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Et } from "@/components/Et";
 import { EstonianInput } from "@/components/EstonianInput";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
+import { caseByKey } from "@/lib/estonian/cases";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
@@ -217,6 +221,13 @@ export function LessonSession({
         <StepCard
           key={step.id}
           step={step}
+          /*
+            How often this lesson has already asked this word and been told no.
+            The card is remounted per step (`key`), so the hint hook cannot
+            count this for itself; the lesson already keeps every answer,
+            because it sends them in one call at the end.
+          */
+          missedBefore={answers.filter((a) => a.lemma === step.lemma && !a.correct).length}
           onAnswer={record}
           onNext={advance}
           onAside={putAside}
@@ -333,10 +344,12 @@ function Options({
 }
 
 function StepCard({
-  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate,
+  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate, missedBefore,
 }: {
   step: LessonStep;
   onAnswer: (lemma: string, kind: string, ok: boolean) => void;
+  /** Misses on this word earlier in the lesson. See the call site. */
+  missedBefore: number;
   onNext: () => void;
   /** Told what the deferral said, so the lesson can drop the word and say so. */
   onAside: (note: string) => void;
@@ -350,6 +363,43 @@ function StepCard({
   const [checked, setChecked] = useState<{ ok: boolean; note: string } | null>(null);
   const [built, setBuilt] = useState<number[]>([]);
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE THREE STEPS THAT ASK FOR A FORM.
+
+    `type`, `gap` and `case` each want one spelling the dictionary vouches for,
+    which is what `hintLadder` uncovers. The picked steps are left alone here:
+    a lesson walks a word up in one sitting rather than requeueing it, so its
+    options are met once and the crossing-out would be offered on a question
+    nobody has had a go at yet.
+
+    A lesson records a boolean rather than a rating, so the ceiling is read the
+    only way a boolean can carry it: a learner who uncovered the whole answer
+    did not produce it, and a narrowing hint leaves the answer standing as what
+    it was. That is the same line `hintCeiling` draws, at the resolution this
+    step can express.
+  */
+  const hintAnswer = step.kind === "type" ? step.lemma
+    : step.kind === "gap" || step.kind === "case" ? step.answer
+      : null;
+  const ladder = typeof hintAnswer === "string"
+    ? hintLadder({
+      answer: hintAnswer,
+      suffix: step.kind === "case" ? caseByKey(step.caseKey)?.suffix : null,
+    })
+    : [];
+  const hints = useHints({ word: step.lemma ?? step.id, question: step.id, ladder, missedBefore });
+  const hint = !checked && ladder.length > 0
+    ? (
+      <HintLadder
+        ladder={ladder}
+        taken={hints.taken}
+        onTake={hints.take}
+        open={hints.open}
+        label={step.lemma ?? "this one"}
+      />
+    )
+    : null;
+
   const choose = (i: number, answer: number, lemma: string, kind: string) => {
     if (chosen !== null) return;
     setChosen(i);
@@ -361,7 +411,8 @@ function StepCard({
     const result = checkAnswer(typed, expected, "et");
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
-    onAnswer(lemma, kind, ok);
+    // A hint is paid for: see the block above and `lib/questions/hints.ts`.
+    onAnswer(lemma, kind, ok && hints.ceiling > 1);
   };
 
   switch (step.kind) {
@@ -510,6 +561,7 @@ function StepCard({
             ariaLabel="Your answer in Estonian"
             onEnter={() => checkTyped(step.lemma, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
               Check
@@ -598,6 +650,7 @@ function StepCard({
             placeholder={sizedBlank(BLANK, step.answer)}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check
@@ -658,6 +711,7 @@ function StepCard({
             ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check

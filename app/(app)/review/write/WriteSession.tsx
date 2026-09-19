@@ -7,6 +7,10 @@ import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
+import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -27,6 +31,17 @@ export interface WritingPrompt {
   caseKey: string;
   caseEt: string;
   caseQuestion: string;
+  /**
+   * The form the sentence has to carry, which is what a hint uncovers.
+   *
+   * Sent down like every other round's answer: a review card carries its
+   * `back` and Sõnad sends the word of the day, because marking without a
+   * round trip is most of how a round plays and anybody who opens the network
+   * tab has spoiled their own practice. What is *not* sent down is the
+   * marking: `/api/write` still decides whether the form was used, so nothing
+   * a client could forge reaches the log.
+   */
+  targetForm: string;
   provenance: "ekilex" | "derived";
   weak: boolean;
   /** Whether this word is already one of the learner's favorites. */
@@ -79,6 +94,26 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const look = useLookBack();
   const finished = !prompt;
 
+  /*
+    THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
+
+    Not the sentence, which is the learner's own and which nothing here holds.
+    The **form**: this round is marked on whether the word turned up in the case
+    it asked for (`writeRating` reads the dictionary's check and nothing else),
+    so the one thing somebody can be stuck on is the ending, and that is what
+    the ladder uncovers. The suffix comes off the case's own table, so the
+    ending rung names the letters the case adds and the stem stays theirs to
+    remember.
+  */
+  const ladder = prompt
+    ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
+    : [];
+  const hints = useHints({
+    word: prompt?.lexemeId ?? null,
+    question: prompt ? `${prompt.lexemeId}:${prompt.caseKey}` : null,
+    ladder,
+  });
+
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;
     setBusy(true);
@@ -109,7 +144,12 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         the word is Again. Anu's opinion of the surrounding sentence never
         moves anybody's schedule.
       */
-      void gradeCard(prompt.cardId, writeRating(result.formCheck), Date.now() - startedAt.current)
+      if (!result.formCheck.used) hints.noteMiss();
+      // A hint is paid for: see `lib/questions/hints.ts`. Anu's opinion of the
+      // sentence still moves nothing, and neither does this: it can only lower
+      // what the dictionary's own check already decided.
+      const rating = Math.min(writeRating(result.formCheck), hints.ceiling) as 1 | 2 | 3 | 4;
+      void gradeCard(prompt.cardId, rating, Date.now() - startedAt.current)
         .catch(() => {});
     } catch {
       setError("Marking needs a connection. Your sentence is still here.");
@@ -279,6 +319,17 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!marked && <div className="under-field"><DiacriticBar /></div>}
+            {!marked && (
+              <div className="mt-4">
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={prompt.lemma}
+                />
+              </div>
+            )}
           </div>
 
           {error && (

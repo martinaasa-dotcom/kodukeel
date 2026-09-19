@@ -17,6 +17,9 @@ import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
+import { hintLadder } from "@/lib/questions/hints";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -86,12 +89,52 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   */
   const shape = task?.shape === "heard" && heardLost ? "inflect" : task?.shape;
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE ROUND THAT ASKS THE HARDEST QUESTIONS.
+
+    Every shape but `build` wants one form of one word, which is exactly what
+    `hintLadder` uncovers. `build` wants a sentence of the learner's own, so
+    there is nothing to uncover: the answer is not a string this round holds,
+    it is whatever they write, and a ladder over `value` would be handing them
+    a form to paste rather than a sentence to compose.
+
+    The suffix comes off the case's own table where this is a case, which is
+    what lets the ending be named on a round holding no principal parts. Keyed
+    on the word and the slot together, because this round asks one word in
+    several forms in a sitting and being stuck on the kaasaütlev is not being
+    stuck on the seesütlev.
+  */
+  const ladder = shape === "build" || !task
+    ? []
+    : hintLadder({
+      answer: task.value,
+      stems: [task.lemma],
+      suffix: caseByKey(task.slot)?.suffix,
+    });
+  const hints = useHints({
+    word: task?.lexemeId ?? null,
+    // The slot too: this round asks one word in several forms in a sitting, and
+    // being stuck on the kaasaütlev is not being stuck on the seesütlev.
+    question: task?.id ?? null,
+    ladder,
+  });
+
   const check = useCallback(async () => {
     if (!task || mark) return;
-    const result = markFlash(task, typed);
+    const marked = markFlash(task, typed);
+    /*
+      A hint is paid for: see `lib/questions/hints.ts`. `Math.min` rather than a
+      branch, so a hint can only lower what the answer earned, and the ceiling
+      is 4 until a rung is taken, so a round nobody asked for help on is graded
+      exactly as it was. The note the learner reads is the marker's own and is
+      untouched: what changed is what the scheduler is told, which is the whole
+      point of charging for it.
+    */
+    const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as FlashMark["rating"] };
     setMark(result);
     sound(result.right ? "right" : "wrong", result.right ? streak + 1 : 0);
     if (result.right) { setRight((n) => n + 1); setStreak((s) => s + 1); } else setStreak(0);
+    if (!result.right) hints.noteMiss();
 
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
@@ -129,7 +172,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, streak, refreshOutbox]);
+  }, [task, typed, mark, sound, streak, refreshOutbox, hints]);
 
   const next = useCallback(() => {
     /*
@@ -295,6 +338,17 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
               />
             )}
             {!mark && <div className="under-field"><DiacriticBar /></div>}
+            {!mark && (
+              <div className="mt-4">
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={task.lemma}
+                />
+              </div>
+            )}
           </div>
 
           {mark && <Feedback task={task} mark={mark} />}

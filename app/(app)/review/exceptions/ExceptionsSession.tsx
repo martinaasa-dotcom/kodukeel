@@ -8,6 +8,9 @@ import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { SpeakPair } from "@/components/Speak";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
@@ -67,10 +70,35 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const finished = !task;
   const meeting = task?.rung === "meet";
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE ROUND WHOSE WHOLE SUBJECT IS A FORM NO
+    RULE REACHES.
+
+    No stem and no suffix, deliberately, and this is the one round where that
+    is a decision rather than a shortage. Every word here is in the round
+    *because* the pattern does not reach it: `tuba` goes to `tuppa` and `minna`
+    to `läinud`, so naming an ending off a stem or off a case's suffix would be
+    the app asserting a rule about exactly the words it collected for breaking
+    one. The letters are uncovered from the front, which claims nothing.
+
+    The meet rung asks nothing, so it is offered nothing.
+  */
+  const ladder = task && task.rung !== "meet" && task.accepted[0]
+    ? hintLadder({ answer: task.accepted[0] })
+    : [];
+  const hints = useHints({
+    word: task?.lexemeId ?? null,
+    question: task?.id ?? null,
+    ladder,
+  });
+
   const check = useCallback(async () => {
     if (!task || mark || task.rung === "meet") return;
-    const result = markForm(task, typed);
+    const marked = markForm(task, typed);
+    // A hint is paid for: see `lib/questions/hints.ts`.
+    const result = { ...marked, rating: Math.min(marked.rating, hints.ceiling) as typeof marked.rating };
     setMark(result);
+    if (!result.right) hints.noteMiss();
     setAsked((n) => n + 1);
     sound(result.right ? "right" : "wrong", 0);
     if (result.right) setRight((n) => n + 1);
@@ -107,7 +135,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       });
       refreshOutbox();
     }
-  }, [task, typed, mark, sound, refreshOutbox]);
+  }, [task, typed, mark, sound, refreshOutbox, hints]);
 
   const next = useCallback(() => {
     /* The word, the form it turned out to take and what it departs from,
@@ -255,6 +283,19 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
               {!mark && <div className="under-field"><DiacriticBar /></div>}
+              {!mark && (
+                <div className="mt-4">
+                  <HintLadder
+                    ladder={ladder}
+                    taken={hints.taken}
+                    onTake={hints.take}
+                    open={hints.open}
+                    label={task.lemma}
+                    // No card, no schedule to move, so the note may not claim one.
+                    graded={task.cardId !== null}
+                  />
+                </div>
+              )}
             </div>
           )}
 
