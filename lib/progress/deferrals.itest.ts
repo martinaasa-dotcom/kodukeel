@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { deferWord, deferredFor, deferredWordIds, undoDeferral, wakeForLevel } from "./deferrals";
 import { addUnitsToDeck, planUnits } from "@/lib/srs/deck";
 import { SYLLABUS } from "@/lib/collections/syllabus";
-import { BAND_WEEKS, DEFER_WEEKS } from "@/lib/srs/defer";
+import { BAND_DAYS, DEFER_DAYS } from "@/lib/srs/defer";
 
 /**
  * Putting a word aside, against a database, because what it promises is about
@@ -56,8 +56,8 @@ describe("deferWord", () => {
     expect(done.ok).toBe(true);
 
     const rows = await prisma.card.findMany({ where: { ownerId: MINE }, orderBy: { due: "asc" } });
-    const weeks = (rows[0]!.due.getTime() - now.getTime()) / (7 * 24 * 3600 * 1000);
-    expect(Math.round(weeks)).toBe(DEFER_WEEKS);
+    const days = (rows[0]!.due.getTime() - now.getTime()) / (24 * 3600 * 1000);
+    expect(Math.round(days)).toBe(DEFER_DAYS);
     // The one already six months out is where the scheduler left it.
     expect(rows[1]!.due.toISOString()).toBe(LATER.toISOString());
   });
@@ -69,7 +69,7 @@ describe("deferWord", () => {
 
     const done = await deferWord(MINE, entry.id, "A1", "/review", now);
     expect(done.ok && done.deferral.untilLevel).toBe("B2");
-    expect(done.ok && done.deferral.weeks).toBe(BAND_WEEKS);
+    expect(done.ok && done.deferral.days).toBe(BAND_DAYS);
   });
 
   /* A second press is the same person saying it again: one row per learner per
@@ -165,7 +165,18 @@ describe("a card built after the word was put aside", () => {
     });
     expect(word).not.toBeNull();
 
-    const now = new Date("2026-09-14T10:00:00.000Z");
+    /*
+      THE REAL CLOCK, WHICH IS THE ONE `addUnitsToDeck` READS.
+      Every other test here hands its own `now` to every call it makes and is
+      hermetic for it. This one cannot: the builder is what is under test and
+      it asks `deferredDues` with a clock of its own, so a wait written against
+      a fixed date is a wait that has to outlast the distance between that date
+      and today. It was `2026-09-14`, and it passed only because the plain wait
+      was three weeks long; at three days the deferral had expired before the
+      builder ever looked, the card was correctly built for today, and the
+      failure read as the button not working.
+    */
+    const now = new Date();
     const put = await deferWord(OWNER, word!.id, "A1", "/learn/lesson", now);
     expect(put.ok).toBe(true);
 
@@ -201,7 +212,7 @@ describe("a card built after the word was put aside", () => {
  * sitting on the date the deferral wrote, which is what stops either of them
  * pulling forward a card the scheduler had honestly put further out. A second
  * press that wrote an *earlier* date would leave the cards standing on the old
- * one, matched by nothing, so the row would read three weeks while the word
+ * one, matched by nothing, so the row would read a few days while the word
  * stayed gone for a term and the way back would do nothing at all. It is
  * reachable: a wait for a band, then a level rise, then the same word on a
  * screen that was already open.
@@ -218,7 +229,7 @@ describe("a second press", () => {
     expect(first.reason).toBe("BAND");
 
     // Said again a day later, now standing at B2 themselves, which on its own
-    // would be the plain few weeks and therefore sooner.
+    // would be the plain few days and therefore sooner.
     const later = new Date(now.getTime() + 24 * 3600 * 1000);
     const again = await deferWord(MINE, entry.id, "B2", "/review", later);
     expect(again.ok).toBe(true);
@@ -256,13 +267,13 @@ describe("a second press", () => {
     await cards(entry.id, [now]);
 
     await deferWord(MINE, entry.id, "A1", "/review", now);
-    // A month on, the three weeks are up and the word has come back.
+    // A month on, the few days are long up and the word has come back.
     const month = new Date(now.getTime() + 30 * 24 * 3600 * 1000);
     await deferWord(MINE, entry.id, "A1", "/review", month);
 
     const row = await prisma.deferral.findFirstOrThrow({ where: { ownerId: MINE } });
-    const weeks = (row.untilAt.getTime() - month.getTime()) / (7 * 24 * 3600 * 1000);
-    expect(Math.round(weeks)).toBe(DEFER_WEEKS);
+    const days = (row.untilAt.getTime() - month.getTime()) / (24 * 3600 * 1000);
+    expect(Math.round(days)).toBe(DEFER_DAYS);
     const card = await prisma.card.findFirstOrThrow({ where: { ownerId: MINE } });
     expect(card.due.toISOString()).toBe(row.untilAt.toISOString());
   });

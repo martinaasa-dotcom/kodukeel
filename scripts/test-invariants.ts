@@ -4318,39 +4318,48 @@ check("the letter bar is a desktop thing, and a choice, and reversible", () => {
   );
 });
 
-check("nothing a person reads is smaller than the scale allows", () => {
+check("the smallest step on the scale is one a reader can actually see", () => {
   /*
-    THE FLOOR IS 10.5px, AND THAT NUMBER IS THIS APP'S TYPE SCALE RATHER THAN
-    A GENERAL RULE.
+    THE FLOOR IS A NUMBER IN ONE FILE, SO IT IS ASSERTED AGAINST THAT FILE.
 
-    Upside Lab's is 12px, and copying it here would have failed on 37 lines
-    across nearly every screen, because this app has a real 11.5px tertiary
-    tier that it uses consistently: a card's sub-line, a chip's hint, the
-    caption under a heatmap. That is a tier, not drift, and an assertion that
-    calls it a violation is one somebody deletes rather than acts on, which
-    leaves the rule with nothing behind it at all.
+    This used to be a floor on *literals*, at 10.5px, written when a size
+    could be typed into a className: it swept `app/` and `components/` for
+    `text-[9px]` and the like. Nothing can be typed in any more (the check
+    below), so that sweep could no longer fire on anything, and a check that
+    cannot fail is a check nobody reads. What is left worth guarding is the
+    scale itself, which is now the only place a size is decided.
 
-    What the floor is for is the genuinely unreadable end, and there were two:
-    the phone bar's labels at 9.5px under a 16px glyph, and a forecast axis at
-    9px. Both were fixed rather than exempted.
+    14px, and the number is about the reader rather than about the phone. The
+    old floor was argued for as the smallest an uppercase label can be at
+    arm's length in the evening, which is a claim about a screen; most people
+    learning Estonian in Estonia live here, which takes in everybody who
+    arrived decades ago, and the reader is as likely to be sixty and wearing
+    glasses as to be twenty-five. It was reported as small fonts that are
+    horrible to read.
 
-    `label-xs` is 10.5px uppercase with wide tracking and is read as a marker
-    rather than as a sentence, so it sets the floor rather than breaking it.
+    Ascending as well as floored, because the steps are named for their job:
+    a caption that came out larger than the body above it is a hierarchy
+    inverted everywhere at once, and the scale is now large enough for two
+    neighbouring steps to be a pixel apart, which is where that goes wrong.
   */
-  const FLOOR = 10.5;
-  const tiny = /text-\[(\d+(?:\.\d+)?)px\]/g;
-  const offenders: string[] = [];
-  for (const file of [...COMPONENTS, ...APP]) {
-    for (const [i, line] of read(file).split("\n").entries()) {
-      for (const match of line.matchAll(tiny)) {
-        const size = Number(match[1]);
-        if (size >= FLOOR) continue;
-        if (/label-xs|uppercase|tracking-|<kbd|KeyCap/.test(line)) continue;
-        offenders.push(`${file}:${i + 1}: ${size}px`);
-      }
-    }
-  }
-  assert.deepEqual(offenders, [], `text below the ${FLOOR}px floor`);
+  const FLOOR = 14;
+  const NAMES = [
+    "2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl",
+  ] as const;
+
+  const css = read("app/globals.css");
+  const sizes = NAMES.map((name) => {
+    const found = new RegExp(`--text-${name}:\\s*([0-9.]+)px`).exec(css);
+    assert.ok(found, `the scale declares no --text-${name}`);
+    return { name, px: Number(found![1]) };
+  });
+
+  assert.ok(
+    sizes[0]!.px >= FLOOR,
+    `the scale starts at ${sizes[0]!.px}px, under the ${FLOOR}px floor`,
+  );
+  const out = sizes.filter((step, i) => i > 0 && step.px <= sizes[i - 1]!.px);
+  assert.deepEqual(out.map((s) => s.name), [], "a step on the scale is not larger than the one below it");
 });
 
 check("an empty cell goes through NO_VALUE, never a literal", () => {
@@ -4926,45 +4935,83 @@ check("a suite that writes to the shared dictionary invents the word it writes",
   }
 });
 
-check("every type size in the tree is a step on the scale", () => {
+check("no type size is written as a literal", () => {
   /*
-    `test-design.mjs` measures what is rendered, and it can only measure the
-    sixteen pages it visits. Forty-four literal sizes were sitting in states
-    those pages do not reach, in modals, empty states and the review modes:
-    twenty-three of them 13px, half a pixel off the 13.5px step, which is the
-    exact fault the scale was introduced to end. The suite passed the whole
-    time, honestly, on its route list.
+    A SIZE THAT MATCHES THE SCALE IS NOT A SIZE THAT MOVES WITH IT, AND THAT
+    IS WHAT THIS RULE WAS MISSING FOR A YEAR.
 
-    So this one reads the source instead. A route list cannot go stale against
-    it and a state does not have to be reachable to be checked. The named step
-    is what the design system defines (docs/14-design-system.md §3), so a
-    literal that happens to land on a step is still worth turning into
-    `text-sm`; what fails here is a size that is not a step at all.
+    It used to read every `text-[Npx]` in the tree and pass any that landed on
+    a step, on the argument that what matters is the set of sizes a reader
+    meets. Its own comment conceded the rest ("a literal that happens to land
+    on a step is still worth turning into `text-sm`") and then waved 127 of
+    them through across 25 files: every review round, the lesson, the mastery
+    board, the readiness rows. They were all honest sizes. None of them was a
+    token, so when the scale was raised because the app was reported as
+    unreadably small, the app would have been raised everywhere except the
+    screens a learner spends the evening on, and nothing would have said so.
+
+    So the literal is the fault now, wherever it lands. There is exactly one
+    way to set a size, which is a step's name, and `app/globals.css` is
+    therefore the only file that decides how big anything is.
+
+    Both doors, because the class is only the obvious one: a `style` prop
+    carrying `fontSize` sets a size just as firmly and is invisible to a sweep
+    over classNames. An inline size has to read a `--text-` token or be named
+    below.
+
+    AN `em` IS NOT A LITERAL and is deliberately let through. `px` and `rem`
+    are both absolute: they say how big something is, and they go on saying it
+    after the scale moves. An `em` is a proportion of the step the text is
+    already sitting on, so it moves with the scale by construction, which is
+    the whole property this rule exists to protect. The one in the tree is the
+    0.92em on inline code in Anu's replies, which is an optical correction
+    rather than a size — a monospace face set at the same nominal size as the
+    sans around it reads larger — and it is still right at 14px and at 17px.
   */
-  // There is no exception any more. There was one, for a 92px step numeral set
-  // large enough to read as a shape behind a card on the landing page, and the
-  // rule it was granted under is unchanged (docs/14-design-system.md §3): an
-  // aria-hidden ornament may be off the scale because it is not type. That
-  // section of the page went when the landing page was shortened, so the
-  // exception went with it rather than staying behind as a size somebody could
-  // park a literal on. `data-ornament` in the markup is still what tells the
-  // contrast pass in test-design.mjs the same thing, and the next ornament that
-  // earns its place gets its exception back here, named and argued for.
-  const STEPS = new Set([
-    "12px", "13px", "13.5px", "15px", "17px", "19px",
-    "22px", "27px", "32px", "40px", "52px", "68px",
+  const EXEMPT = new Map([
+    /*
+      Two images rather than two screens. Satori renders these at 1200x630 for
+      a card in somebody else's feed, off a stylesheet this app does not ship
+      to it, so the scale has nothing to say about them and a reader's eyesight
+      is not what decides how big a share card's heading is.
+    */
+    ["app/opengraph-image.tsx", "an OG image, rendered by Satori without this app's stylesheet"],
+    ["app/api/share/route.tsx", "the same, for the shared progress card"],
+    /*
+      An emoji sized to the width of the card it is drawn on. It is a picture
+      rather than type, which is the exemption `data-ornament` carries for the
+      contrast pass one suite over.
+    */
+    ["app/(app)/review/describe/DescribeSession.tsx", "a picture scaled to the card, not type"],
+    /*
+      The root error boundary, which renders when `globals.css` may never have
+      loaded, so there is no token to read. It is exempt from the palette for
+      the same reason and its sizes are copied from the scale by hand.
+    */
+    ["app/global-error.tsx", "runs when the stylesheet may not have loaded; copies the scale by hand"],
   ]);
 
-  const offScale: string[] = [];
+  const literals: string[] = [];
+  const inline: string[] = [];
   for (const file of [...sourceFiles("app", /\.tsx$/), ...sourceFiles("components", /\.tsx$/)]) {
     const source = read(file);
-    for (const found of source.matchAll(/text-\[([0-9.]+px)\]/g)) {
-      const size = found[1] ?? "";
-      if (STEPS.has(size)) continue;
-      offScale.push(`${file} ${size}`);
+    for (const found of source.matchAll(/text-\[[0-9.]+(?:px|rem)\]/g)) {
+      literals.push(`${file} ${found[0]}`);
+    }
+    if (EXEMPT.has(file)) continue;
+    for (const found of source.matchAll(/fontSize:\s*("[^"]*"|`[^`]*`|[0-9.]+)/g)) {
+      const value = found[1] ?? "";
+      if (value.includes("--text-")) continue;
+      inline.push(`${file} fontSize: ${value}`);
     }
   }
-  assert.deepEqual(offScale, [], "type sizes that are not a step on the scale");
+  assert.deepEqual(literals, [], "type sizes written as a literal instead of a step on the scale");
+  assert.deepEqual(inline, [], "inline fontSize that does not read a --text- token");
+
+  // And an exemption that has stopped being needed is a parking space, so it
+  // has to still be doing something, exactly as `CAPTION_EXEMPT` is checked.
+  const stale = [...EXEMPT.keys()].filter((file) => !/fontSize:/.test(read(file)));
+  assert.deepEqual(stale, [], "files exempted from the size rule that no longer set a size");
 });
 
 // ── The phone, and the faults that were measured on it ───────────────────────

@@ -150,7 +150,7 @@ export function ClozeSession() {
             </Button>
           </WayOut>
 
-          <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
           </p>
         </div>
@@ -163,10 +163,10 @@ export function ClozeSession() {
     const accuracy = Math.round((correct / items.length) * 100);
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Passage complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Every answer there was a form a native writer chose, in a sentence they actually wrote.
           That is a better model than any exercise book.
         </p>
@@ -270,7 +270,7 @@ export function ClozeSession() {
                 {right
                   ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-                <p>
+                <p className="text-base">
                   {right
                     ? "Exactly the form the writer used."
                     : slip
@@ -280,7 +280,7 @@ export function ClozeSession() {
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <p lang="et" className="text-[15px]" style={{ color: "var(--ink-2)" }}>
+                <p lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>
                   {item.sentence}
                 </p>
                 {/* A gap-fill is answered by a word but learned as a

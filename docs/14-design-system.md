@@ -187,17 +187,52 @@ others. A reader does not see half a pixel; they see a page that will not settle
 
 | Step | px | Job |
 |---|---|---|
-| `text-2xs` | 12 | micro-label: uppercase, tracked, sparingly. **The floor** |
-| `text-xs` | 13 | captions, meta, provenance |
-| `text-sm` | 13.5 | secondary body, dense UI |
-| `text-base` | 15 | body |
-| `text-md` | 17 | lead paragraphs, card titles |
-| `text-lg` | 19 | section headings |
-| `text-xl` | 22 | card headline |
+| `text-2xs` | 14 | micro-label: uppercase, tracked, sparingly. **The floor** |
+| `text-xs` | 15 | captions, meta, provenance |
+| `text-sm` | 16 | secondary body, dense UI |
+| `text-base` | 17 | body |
+| `text-md` | 19 | lead paragraphs, card titles |
+| `text-lg` | 21 | section headings |
+| `text-xl` | 24 | card headline |
 | `text-2xl` | 27 | the number a screen is about |
 | `text-3xl` | 32 | page title |
 | `text-4xl` | 40 | display |
 | `text-5xl` / `6xl` / `7xl` | 52 / 68 / 88 | landing hero |
+
+**The floor is 14 and it was 12, because 12 was drawn for the wrong reader.** It was argued for as
+the smallest an uppercase label can be on a phone held at arm's length in the evening, which is a
+claim about a screen rather than about whoever is holding it. Most people learning Estonian in
+Estonia are learning it because they live here, which takes in everybody who arrived forty years
+ago: the reader is as likely to be sixty and wearing glasses as to be twenty-five. It was reported
+in those words, as small fonts that are horrible to read, off a review card whose caption line was
+13px grey.
+
+So the bottom four steps went 12/13/13.5/15 to 14/15/16/17, which is a body above the 16px most of
+the web settles on and a floor a pixel over what a browser will render comfortably at arm's length.
+They ramp a pixel at a time rather than keeping the old proportions, and that is the deliberate
+part: a caption has to read as quieter than the body above it, and once the floor is somewhere a
+reader can see, quieter is carried by colour and weight far more than by two more pixels off
+something already small. `--ink-3` against `--ink` is a bigger difference than 15px against 17px
+and always was.
+
+**The display steps did not move.** 32px was never the complaint, and growing the top of the scale
+costs containment on a phone for no legibility anybody asked for: `text-3xl` is the Estonian word
+on a review card, which is a long word in a 360px column. The hero is measured against the width
+and the height of the window it has to fit in, below, so moving it would break a fit that was
+measured rather than chosen.
+
+**A size is a step's name, never a number.** That is what makes the table above the only place the
+app's type size is decided, and it is asserted (`test-invariants.ts`, "no type size is written as a
+literal"). The rule used to be the weaker one, that a literal had to *land* on a step, and the cost
+of the difference was 127 elements across 25 files: `text-[13.5px]` is an honest size, it is not a
+token, and when the scale was raised every one of them would have stayed where it was. They were on
+the lesson, the mastery board, the readiness rows and every review round, which is to say on the
+screens a learner spends the evening in. Both doors are swept, since an inline `fontSize` sets a
+size as firmly as a class does; four files are exempt by name, two OG images Satori renders without
+this stylesheet, an emoji scaled to its card, and the root error boundary, which runs when
+`globals.css` may never have loaded. An `em` is not a literal and is allowed: it is a proportion of
+the step the text already sits on, so it moves with the scale, which is the property the rule
+exists to protect.
 
 **The twelfth is the landing hero and nothing else.** 68px was the top of the scale and it was
 too small for the job: filling the window with the hero and centering the
@@ -221,10 +256,10 @@ apart. `--section-gap` on `.landing` is the one distance now, 88px on a phone an
 `md`: `main` is a column with that gap, no section carries vertical padding, and the footer
 stands the same distance off the close. `test-design.mjs` measures every seam against it.
 
-12px is a floor, not a suggestion: below it an uppercase label stops being readable on a phone
-held at arm's length in the evening, which is when this app is actually used. `.label-xs` sits on
-that floor. The one thing off the scale is the step numeral behind the landing page's how-it-works
-cards. That is ornament, not type.
+`.label-xs` sits on the floor, uppercase and tracked, which is what a marker can afford to be and
+a sentence cannot. Nothing is off the scale: the one thing that used to be, the step numeral behind
+the landing page's how-it-works cards, went when that page was shortened, and the next ornament
+that earns an exception gets it named and argued for rather than parked on a literal.
 
 It is loaded with `latin-ext`, which is not optional: without it `õ ä ö ü š ž` fall back to a
 different face mid-word, which is the fault this rule exists to prevent. The font variable is

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import type { Level } from "@/lib/collections/syllabus/types";
 import { hardWords } from "@/lib/dict/facts";
-import { bandReached, deferralFor, deferralNote, inForce, offeredBand, weeksBetween, type Deferral } from "@/lib/srs/defer";
+import { bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, type Deferral } from "@/lib/srs/defer";
 
 /**
  * PUTTING A WORD ASIDE, AND GIVING IT BACK.
@@ -99,8 +99,16 @@ export async function deferWord(
       ? {
           untilAt: standing.untilAt,
           untilLevel: standing.untilLevel,
-          reason: standing.reason === "BAND" ? "BAND" : "WEEKS",
-          weeks: weeksBetween(now, standing.untilAt),
+          /*
+            Anything that is not a wait for a band is the plain one, which is
+            what reads a row written before this column's other value was
+            renamed: `"WEEKS"` was the name while the plain wait was three
+            weeks long, and it is three days now. Nothing else in the app
+            compares the stored string, so old rows normalise here rather than
+            needing a migration for a name.
+          */
+          reason: standing.reason === "BAND" ? "BAND" : "SOON",
+          days: daysBetween(now, standing.untilAt),
         }
       : fresh;
 

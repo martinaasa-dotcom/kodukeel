@@ -471,19 +471,25 @@ const CAPTION_EXEMPT = new Set([
 /**
  * Every run of small type that is a sentence, as a reader would see it.
  *
- * A caption is an element carrying `text-xs` or `text-2xs` (or a hand-rolled
- * size under 14px, which a few screens still have). What is measured is the
- * text between its tags with the markup taken out and every interpolation
- * standing in at two characters, the same way `propStrings` measures a lead:
- * the point is to catch a paragraph, not to argue about whether a count
- * renders as one digit or three.
+ * A caption is an element carrying `text-xs` or `text-2xs`, which are the two
+ * smallest steps on the scale whatever those steps are worth today: the cap
+ * is about small type rather than about a number of pixels, so it follows the
+ * scale up when the scale moves. It used to read a third pattern, a
+ * hand-rolled size under 14px, because a few screens set their own; none can
+ * any more (`test-invariants.ts`, "no type size is written as a literal") and
+ * the branch went with them rather than staying as a check that cannot fire.
+ *
+ * What is measured is the text between its tags with the markup taken out and
+ * every interpolation standing in at two characters, the same way
+ * `propStrings` measures a lead: the point is to catch a paragraph, not to
+ * argue about whether a count renders as one digit or three.
  */
 function captions(source: string): string[] {
   const out: string[] = [];
-  const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs|text-\[1[0-3](\.\d)?px\])\b[^>]*>([\s\S]*?)<\/\1>/g;
+  const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs)\b[^>]*>([\s\S]*?)<\/\1>/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(source))) {
-    const text = (m[4] ?? "")
+    const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")

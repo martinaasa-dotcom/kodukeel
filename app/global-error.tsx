@@ -7,6 +7,12 @@
  * This is the one file allowed a raw hex — the design-system invariant exempts
  * it by name for exactly that reason — and the values are copied from the light
  * palette so a reader who never sees this page twice does not notice the seam.
+ *
+ * The sizes are copied the same way and for the same reason: `--text-base` is
+ * 17px and `--text-xs` is 15px, so this page sets 1.0625rem and .95rem rather
+ * than the .95 and .8 it carried while the scale started at 15 and 13. A
+ * reader who cannot read the reference number cannot report the fault, which
+ * is the whole of what this screen is for.
  */
 export default function GlobalError({
   error,
@@ -37,7 +43,7 @@ export default function GlobalError({
           <button
             onClick={reset}
             style={{
-              marginTop: "1.5rem", padding: ".55rem 1rem", fontSize: ".95rem",
+              marginTop: "1.5rem", padding: ".55rem 1rem", fontSize: "1.0625rem",
               borderRadius: ".375rem", border: "1px solid #241f35",
               background: "#241f35", color: "#fbf9ff", cursor: "pointer",
             }}
@@ -45,7 +51,7 @@ export default function GlobalError({
             Try again
           </button>
           {error.digest && (
-            <p style={{ marginTop: "2rem", fontSize: ".8rem", color: "#5b5470" }}>
+            <p style={{ marginTop: "2rem", fontSize: ".95rem", color: "#5b5470" }}>
               Reference {error.digest}
             </p>
           )}

@@ -245,10 +245,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const accuracy = cells ? Math.round((cellsRight / cells) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
             ? "Every table clean. The endings are yours; what is left is the verbs whose first person you have not met yet."
             : "The endings never change. What trips people is the stem, and that is the one part worth looking up when a table goes wrong."}
@@ -316,8 +316,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             </p>
             <Speak text={question.lemma} />
           </div>
-          <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
-          <p className="mt-4 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
+          <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
             {question.shape === "match"
               ? "The first person is given. Put each of the other five beside its pronoun."
               : question.tense === "present"
@@ -482,7 +482,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
       </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px]" style={{ color: "var(--ink-3)" }}>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>
           {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
           {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}

@@ -123,10 +123,10 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
       style={{ borderColor: "var(--rule-soft)", background: "var(--surface)" }}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-        <span lang="et" className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
+        <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
           {word.lemma}
         </span>
-        <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
+        <span className="text-xs" style={{ color: "var(--ink-3)" }}>{word.translation}</span>
       </div>
 
       <div className="mt-2.5">

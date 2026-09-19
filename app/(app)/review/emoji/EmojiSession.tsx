@@ -321,7 +321,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
         on every tile: six tiles saying the same sentence is furniture.
       */}
       {askedOnBoard.length > 0 && (
-        <ul className="mt-5 flex flex-col gap-1 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+        <ul className="mt-5 flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
           {askedOnBoard.map(([question, clause]) => (
             <li key={question}>
               <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{question}</span>

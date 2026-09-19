@@ -51,7 +51,7 @@ export function Legal({ title, updated, children }: {
 export function S({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="text-[19px] font-semibold" style={{ color: "var(--ink)" }}>
+      <h2 className="text-lg font-semibold" style={{ color: "var(--ink)" }}>
         {title}
       </h2>
       <div className="mt-2.5 space-y-3">{children}</div>
