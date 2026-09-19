@@ -6925,6 +6925,20 @@ both, a fill for a bar and an ink for its label, is the pairing this protects ra
 it. `scripts/demo-data.ts` now sets the week and the goal for the same reason: a rule enforced only
 where a fixture happens to walk holds on about half the app.
 
+**And the cut-off Google button was this app's own stylesheet, three passes after it was reported.**
+Google Identity Services draws its button inside an iframe of its own and lays that frame out twenty
+pixels wider than the space it takes: handed 374 it writes `width: 394px; margin: -2px -10px`, so ten
+pixels of drop shadow hang past each side and the footprint in the flow is the 374 it was asked for.
+The rule that caps every replaced element at its container capped that frame too, so the frame showed
+a button laid out for 394 through a window twenty narrower and the painted right edge stopped ten
+pixels short of the email field under it. Measured on the live deployment: the wrapper Google draws
+is 374 and the button inside it is 363, and lifting the cap alone takes it to 372, which is the
+frame's own one-pixel inset on each side and is what every other Google button on the web looks like.
+Three passes went over the number this app hands Google and the number was right every time, because
+the suite's stub stands a plain `div` in for Google's button and a div is not a replaced element. The
+stub draws the frame's own shape now, and `.gsi-button iframe` is the one exemption, scoped to that
+container because the cap is right about every other frame in the app.
+
 **Where a screen lives and what a card is are still two questions, and the homework list was
 neither.** `/tasks`, `/week` and the placement ladder were cut in the eighteenth pass
 (`docs/13-mvp-status.md` §24): a to-do list and a calendar a class can set but a learner alone never
