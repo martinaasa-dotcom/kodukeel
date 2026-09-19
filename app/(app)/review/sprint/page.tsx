@@ -74,7 +74,7 @@ export default async function SprintPage({
       where: { ownerId, suspended: false, state: { not: 0 }, id: { notIn: [...seenIds] }, ...scoped },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: POOL_SIZE - cards.length,
-      include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
     });
     cards = [...cards, ...met];
   }

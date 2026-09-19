@@ -312,7 +312,7 @@ export function LookBackCard({ card, position, newest, hasEarlier, hasLater, onB
           {card.speak && card.questionLang === "et" && <Speak text={card.speak} />}
         </div>
         {card.note && (
-          <p className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>{card.note}</p>
+          <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.note}</p>
         )}
         <div className="flex items-center gap-2">
           <p
