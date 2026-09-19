@@ -48,7 +48,21 @@ interface Candidate {
   forms: { formType: string; value: string; morphCode: string | null }[];
 }
 
-export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExample[]> {
+/**
+ * INSIDE A MODULE, THE VERBS ARE THE MODULE'S. Opened from a step, the page
+ * hid the unit list and the drill and then filled its table off the whole
+ * deck and the dictionary's easiest verbs: the present-tense page on the
+ * fifth evening of A1 tabled `jääma` and `andma`, which arrive a part later,
+ * under a heading saying "verbs from your deck first". `within` is the
+ * lemmas the ladder has handed over (`ModuleScope.lemmas`), and with it both
+ * the deck read and the top-up stay inside that list, so the page shows the
+ * rule on the verbs somebody has actually met and nothing beyond them. The
+ * standalone reference passes nothing and is unchanged.
+ */
+export async function verbExamples(
+  ownerId: string, limit = 4, within?: readonly string[],
+): Promise<VerbExample[]> {
+  const scoped = within ? { lemma: { in: [...within] } } : {};
   const select = {
     id: true,
     lemma: true,
@@ -59,7 +73,7 @@ export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExam
   } as const;
 
   const deck = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "VERB" } },
+    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "VERB", ...scoped } },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
     take: CANDIDATES,
@@ -74,7 +88,7 @@ export async function verbExamples(ownerId: string, limit = 4): Promise<VerbExam
     : [];
 
   const rest: Candidate[] = await prisma.lexeme.findMany({
-    where: { pos: "VERB", id: { notIn: owned.length ? owned : ["-"] } },
+    where: { pos: "VERB", id: { notIn: owned.length ? owned : ["-"] }, ...scoped },
     orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
     take: CANDIDATES,
     select,
@@ -103,6 +117,15 @@ const CODES: readonly string[] = [
   "IndPrSg1", "IndPrSg2", "IndPrSg3", "IndPrPl1", "IndPrPl2", "IndPrPl3", "IndPrPs_",
   "KndPrSg1", "KndPrSg2", "KndPrPs", "KndPrPl1", "KndPrPl2", "KndPrPl3",
   "ImpPrSg2", "ImpPrPl2",
+  /*
+    The simple past, which is never derived: `tahtsin` goes to `tahtis` and
+    `võtsin` to `võttis` with the grade changing on the way. The first person
+    is a principal part and the third is stored by the harvest for the course
+    verbs, so the page about the past can show both on real verbs where the
+    dictionary holds them, and shows a gap where it does not. The drill reads
+    forms by code and asks for neither, so it is untouched.
+  */
+  "IndIpfSg1", "IndIpfSg3",
 ];
 
 /**
@@ -138,6 +161,11 @@ export function conjugatedForms(
   */
   const firstPersonIsPrincipal = !attested.has("IndPrSg1");
   if (firstPersonIsPrincipal) attested.set("IndPrSg1", pres1sg);
+  // The past first person is the same shape: a principal part under its own
+  // name, which the loop above cannot see.
+  const past1sg = forms.find((f) => f.formType === "PAST_1SG")?.value;
+  const pastIsPrincipal = !attested.has("IndIpfSg1") && Boolean(past1sg);
+  if (pastIsPrincipal) attested.set("IndIpfSg1", past1sg!);
   const derived = new Map<string, ReturnType<typeof derivedVerbForms>[number]>(
     derivedVerbForms({ lemma, pres1sg }).map((f) => [f.morphCode as string, f]),
   );
@@ -148,7 +176,7 @@ export function conjugatedForms(
     if (fromEkilex) {
       // The principal part is STORED wherever it comes from, so the provenance
       // a reader sees for `olen` is the one they see for `loen`.
-      const principal = code === "IndPrSg1" && firstPersonIsPrincipal;
+      const principal = (code === "IndPrSg1" && firstPersonIsPrincipal) || (code === "IndIpfSg1" && pastIsPrincipal);
       out.push({ code, value: fromEkilex, origin: principal ? "STORED" : "EKILEX" });
       continue;
     }

@@ -143,7 +143,7 @@ function promptFor(sceneId: string, beatId: string) {
   const beat = scene.beats.find((one) => one.id === beatId) ?? scene.beats[1]!;
   const system = composeSystem({
     scene: scene.title, place: scene.place, level: HARNESS_LEVEL, persona: PERSONAS[0]!.who, situation: scene.role,
-    register: scene.register, words: [...context.lexicon.byLemma.keys()],
+    register: scene.register, words: context.lexicon.spoken,
   });
   const live = composeLive({
     move: beat.move,

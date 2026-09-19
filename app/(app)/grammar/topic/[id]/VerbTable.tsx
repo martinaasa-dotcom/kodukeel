@@ -80,7 +80,7 @@ function From({ origin }: { origin: VerbExampleForm["origin"] }) {
 
 export function VerbTable({ verbs, show }: {
   verbs: readonly VerbExample[];
-  show: "present" | "negative" | "conditional" | "imperative";
+  show: "present" | "negative" | "conditional" | "imperative" | "past";
 }) {
   const prefix = show === "conditional" ? "KndPr" : "IndPr";
   const persons = show === "present" || show === "conditional";
@@ -89,7 +89,9 @@ export function VerbTable({ verbs, show }: {
     ? ["Verb", ...PERSONS.map((p) => p.label), "From"]
     : show === "negative"
       ? ["Verb", "olevik · ma", "eitus", "From"]
-      : ["Verb", "olevik · ma", "käskiv kõneviis · sa", "From"];
+      : show === "past"
+        ? ["Verb", "olevik · ma", "lihtminevik · ma", "lihtminevik · ta", "From"]
+        : ["Verb", "olevik · ma", "käskiv kõneviis · sa", "From"];
 
   return (
     <div
@@ -128,6 +130,26 @@ export function VerbTable({ verbs, show }: {
               );
             }
             const first = pick(verb, "IndPrSg1");
+            if (show === "past") {
+              /*
+                The past on the page about the past. Both cells are stored and
+                never worked out: the first person is a principal part and the
+                third is what the harvest holds, since `tahtsin` goes to
+                `tahtis` and nothing about the first predicts that. A verb the
+                dictionary holds no past for shows a gap, which is the truth.
+              */
+              const pastMa = pick(verb, "IndIpfSg1");
+              const pastTa = pick(verb, "IndIpfSg3");
+              return (
+                <tr key={verb.lexemeId} style={{ borderTop: "1px solid var(--rule-soft)" }}>
+                  <Head verb={verb} />
+                  <td className="px-3 py-2.5"><Form form={first} bold /></td>
+                  <td className="px-3 py-2.5"><Form form={pastMa} bold /></td>
+                  <td className="px-3 py-2.5"><Form form={pastTa} /></td>
+                  <From origin={rowOrigin([first, pastMa, pastTa])} />
+                </tr>
+              );
+            }
             const other = pick(verb, show === "negative" ? "IndPrPs_" : "ImpPrSg2");
             const shown: VerbExampleForm | undefined = other && show === "negative"
               ? { ...other, value: `ei ${other.value}` }

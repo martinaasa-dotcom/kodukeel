@@ -8,6 +8,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { describeRound } from "@/lib/progress/describe";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { DescribeSession, type ScenePrompt } from "./DescribeSession";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Say what you see" };
 
@@ -35,10 +36,15 @@ export const dynamic = "force-dynamic";
  * `lib/collections/scenes.ts` for why that is the answer rather than a
  * shortcut to one.
  */
-export default async function DescribePage() {
+export default async function DescribePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const level = await courseLevelFor(ownerId);
-  const round = await describeRound(ownerId, level);
+  // Opened from the module: scenes of taught words, asked in taught cases.
+  const round = await describeRound(ownerId, level, undefined, moduleScopeFrom(await searchParams));
 
   if (round.length === 0) {
     return (

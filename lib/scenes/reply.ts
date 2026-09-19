@@ -30,7 +30,8 @@
  *
  * Pure: no React, no Next, no Prisma, no network, no clock.
  */
-import { FALLBACK_PHRASE, REACTIONS } from "./catalogue";
+import { FALLBACK_PHRASE, FEELINGS, REACTIONS } from "./catalogue";
+import type { Feel } from "./types";
 import { CHOICE_WORD } from "./choice";
 import { coachFor, NUDGE_AFTER } from "./coach";
 import type { Check } from "./gate";
@@ -519,6 +520,7 @@ function opensWithReaction(line: SpokenLine | null): boolean {
   if (!first) return false;
   const said = new Set<string>([
     ...REACTIONS.acknowledge, ...REACTIONS.waiting, ...REACTIONS.missed, ...REACTIONS.letGo,
+    ...Object.values(FEELINGS).map((f) => f.word),
   ].map((word) => word.toLowerCase().replace(/[.!?]$/, "")));
   return said.has(first);
 }
@@ -962,8 +964,20 @@ export function replyFor(input: ReplyInput): SpokenLine[] {
       */
       out.push(reaction(REACTIONS.missed[0], "."));
     } else if (!aside && input.acknowledges && response === "answer" && !ownReaction(line)) {
-      const choices = acknowledgements(heard, input.said);
-      out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
+      /*
+        NEWS IS FELT BEFORE IT IS FILED. Where the beat says what kind of news
+        its answer is, the word is the feeling's rather than the rotation's:
+        "Tõesti?" to a broken window and "Tore!" to a new neighbour, which is
+        two words of the course doing what `Hästi.` could not. Only on a turn
+        that landed, because a feeling about an answer nobody gave is the
+        machine showing through the other way (`feltAt`).
+      */
+      const felt = feltAt(answered, response);
+      if (felt) out.push(reaction(FEELINGS[felt].word, FEELINGS[felt].mark));
+      else {
+        const choices = acknowledgements(heard, input.said);
+        out.push(reaction(choices[input.met % choices.length] ?? REACTIONS.acknowledge[0], "."));
+      }
     }
   }
 
@@ -1218,7 +1232,20 @@ export function stageFor(beat: BeatSpec, card: RoleCard | null): string {
  * move. The word is the dictionary's; the mark says whether it is said or
  * asked, which is the difference between "Jah." and "Jah?".
  */
-export function reaction(lemma: string, mark: "." | "?"): SpokenLine {
+/**
+ * What the other side feels about the turn just taken, or nothing.
+ *
+ * The beat's own `feel`, and only where the turn answered it: a feeling is
+ * about news, and a turn that missed brought none. One function rather than
+ * two readings, because the keyless reply and the composer's briefing have
+ * to feel the same thing about the same turn or the run changes character
+ * the day the allowance runs out.
+ */
+export function feltAt(answered: BeatSpec | null, response: Response | null): Feel | undefined {
+  return response === "answer" && answered?.feel ? answered.feel : undefined;
+}
+
+export function reaction(lemma: string, mark: "." | "?" | "!"): SpokenLine {
   /*
     A phrase carries its own mark. `Tere!` offered as a word came out
     `Tere!?`, which is nothing anybody writes: the course spells its phrases

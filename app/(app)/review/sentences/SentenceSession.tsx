@@ -377,16 +377,18 @@ export function SentenceSession(
           </div>
 
           {checked && (
-            <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
+            <div className={`${VERDICT_CLASS[checked]} verdict-panel pop-in text-center`}>
               {/*
-                `label-xs` uppercases, and this line names an Estonian word
-                now: `ette` would reach the screen as `ETTE`, which is the
-                fault `Chip`'s own `caseSensitive` exists for and the one that
-                put `-SSE` on a grammar card. The weight and the size are what
-                the line wants; the transform is what it never wanted, since
-                this is a sentence rather than a caption.
+                This was `label-xs` with the transform switched off, which was
+                half of a fix: the uppercase had to go because the line names
+                an Estonian word and `ette` reached the screen as `ETTE`, the
+                fault `Chip`'s own `caseSensitive` exists for. What stayed was
+                a 12px tracked micro-label carrying a whole sentence, which is
+                the caption it had just stopped being. The panel's own step is
+                what it wants, and the weight is what makes it the line rather
+                than the label.
               */}
-              <p className="label-xs" style={{ textTransform: "none" }}>
+              <p className="font-semibold">
                 {checked === "wrong" ? ORDER_WRONG
                   : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut)}</>}
               </p>

@@ -14,6 +14,8 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -211,6 +213,12 @@ export function LearnSession({
     pause moves on once rather than twice.
   */
   const autoNext = useRef<number | null>(null);
+  // A round left mid-pause — closing the tab, navigating away, the queue
+  // itself running out under the timer — must not let it fire `advance` on a
+  // component that is no longer there to hold the state it updates.
+  useEffect(() => {
+    return () => { if (autoNext.current !== null) window.clearTimeout(autoNext.current); };
+  }, []);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const run = useRef(0);
@@ -460,6 +468,33 @@ export function LearnSession({
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
 
+  /**
+   * The marker's note with the answer marked inside it, or nothing.
+   *
+   * `checkAnswer` writes a note that names the form on three of its four
+   * readings (`Not quite, it's "X".`, `So close, the word is "X".`, `That is
+   * another form of the word. This one wanted "X".`), and on the fourth it
+   * names the letters instead. The panel below prints the answer on its own
+   * line only where the note leaves it unsaid, so `splitOnForm` is asked the
+   * question rather than the panel guessing from the verdict: a note that
+   * grows or loses the form is answered correctly the day it changes.
+   *
+   * The gap rung only. The choice rung's answer is an English gloss and its
+   * note is `You chose X`, so the two are never the same claim, and marking a
+   * gloss `lang="et"` would tell a screen reader to say an English word with
+   * Estonian phonology.
+   */
+  const saidOnce = useMemo(() => {
+    if (!result || result.outcome === "right" || rung !== "gap" || !result.note) return null;
+    const parts = splitOnForm(result.note, result.expected);
+    if (!parts.some((part) => part.match)) return null;
+    return parts.map((part, i) => (
+      part.match
+        ? <span key={i} lang="et" data-answer className="font-semibold">{part.text}</span>
+        : <span key={i}>{part.text}</span>
+    ));
+  }, [result, rung]);
+
   const carryOn = useCallback(() => {
     if (!word || needsRetype) return;
     advance(rungs);
@@ -544,7 +579,7 @@ export function LearnSession({
     two copies of a sentence is how the wording of one of them rots.
   */
   const asideNote = aside ? (
-    <p className="mt-5 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+    <p className="mt-5 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
       {aside}{" "}
       <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
         Bring it back
@@ -638,6 +673,22 @@ export function LearnSession({
       </div>
     );
   }
+
+  /*
+    The English of this gap's own sentence, with the asked word marked in it,
+    and what the cue still has to say once that line has said it. Both are one
+    rule (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in context,
+    so the gloss goes and the Estonian headword stays, which is what keeps this
+    rung a question about the form rather than about the vocabulary.
+
+    `gap.en` is already withheld upstream where the English carries the answer,
+    and `gapMeaning` applies that same `mentions` guard again rather than
+    trusting the caller.
+  */
+  const gapLine = word?.gap
+    ? gapMeaning({ en: word.gap.en, answer: word.gap.answer, cue: word.gap.hint, lemma: word.lemma })
+    : null;
+  const gapMarked = gapLine?.marked ?? false;
 
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
 
@@ -794,13 +845,19 @@ export function LearnSession({
                     and nothing else. Writing `hint ?? lemma` to fill the space
                     would put the answer back on the screen for exactly those
                     cards.
+
+                    `gapCue` is the last rung of that same ladder rather than a
+                    second one: where the sentence below is marked, the mark is
+                    this gloss printed in context, so what is left to say is
+                    the headword alone. It can never print what the hint did
+                    not, and a hint with no headword in it leaves nothing.
                   */}
                   <div>
-                    {word.gap.hint ? (
+                    {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked }) ? (
                       <>
                         <p className="label-xs" style={{ color: "var(--ink-3)" }}>The word</p>
                         <p className="mt-1 text-2xl font-bold leading-tight" style={{ color: "var(--accent-deep)" }}>
-                          {word.gap.hint}
+                          {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked })}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                           Put it in the sentence, in the form it needs.
@@ -829,9 +886,22 @@ export function LearnSession({
                         </span>
                       ))}
                     </p>
-                    {word.gap.en && (
-                      <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>{word.gap.en}</p>
-                    )}
+                    {/*
+                      AND WHICH WORD OF IT THE GAP WANTS.
+
+                      This screen has had the line since it was written and
+                      drew it flat, so a learner read `Let's meet at four.`
+                      under a sentence with a hole in it and still had to work
+                      out which of its words the hole was. It is marked now,
+                      by the same rule and the same drawing as the five other
+                      gap screens (`lib/copy/gapMeaning.ts`).
+
+                      Resolved at the top of this component beside the cue,
+                      because the two are one decision: the mark is the gloss
+                      printed in context, so the cue above drops the gloss and
+                      keeps the word.
+                    */}
+                    {gapLine && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
                   </div>
                 </div>
               ) : (
@@ -874,17 +944,57 @@ export function LearnSession({
                time, so this is the one panel a learner most needs read back. */
             <div
               role="status"
-              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} mt-2 w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left`}
+              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} verdict-panel mt-2 w-full max-w-md text-left`}
             >
-              <p className="text-sm font-semibold">
+              {/*
+                THE ANSWER, SAID ONCE.
+
+                The panel used to open with the answer and then print the
+                marker's note under it, and the note names the answer itself:
+                a learner who typed `kalujust` read `The word is kuidas läheb?`
+                over `Not quite, it's "kuidas läheb?"`, which is the same
+                sentence twice in one box with a line break in the middle. The
+                near miss said it twice as well, in butter rather than peach:
+                `The word is toas` over `So close, the word is "toas"`.
+
+                So where the note already names the form, the note *is* the
+                line, and the form inside it carries the markup the headline
+                used to: `lang="et"` because it is Estonian inside an English
+                sentence, and `data-answer` because `scripts/lib/review.mjs`
+                reads the answer off the screen to type it into the box below.
+                Dropping the headline without moving those would have left the
+                retype driver with nothing to read and no check would have
+                said so.
+
+                The headline stays wherever the note does not name the form,
+                which is not a leftover branch: `Almost, it's õ, not o.` names
+                the letters and `Nothing typed.` names nothing at all, and on
+                both of those the answer is the only thing the learner is
+                waiting for.
+              */}
+              {/*
+                And the weight goes on the form rather than on the sentence.
+                Every other verdict panel in the app bolds the lead word and
+                leaves the note in the body weight (`Nearly.` then the note),
+                and this one used to carry a four-word headline, so the whole
+                paragraph being semibold was right. Merging the note into it
+                made that a whole sentence set bold, at `--text-md`, which is
+                the heaviest thing on the screen and is not what the learner
+                is reading for: the form is. So the merged line takes the
+                body weight and the form inside it is the bold part, which is
+                the same decision `FlashSession` makes one card over.
+              */}
+              <p className={saidOnce ? undefined : "font-semibold"}>
                 {result.outcome === "right"
                   ? uiText("Õige!", "Correct!")
-                  : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
+                  : saidOnce
+                    ? saidOnce
+                    : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
               </p>
-              {result.note && <p className="mt-1 text-sm">{result.note}</p>}
+              {result.note && !saidOnce && <p className="mt-1">{result.note}</p>}
               {rung === "gap" && word.gap && (
                 <>
-                  <p lang="et" className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                  <p lang="et" className="mt-2" style={{ color: "var(--ink-2)" }}>
                     {splitOnForm(word.gap.full, word.gap.answer).map((part, i) => (
                       part.match
                         ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--ink)" }}>{part.text}</mark>
@@ -913,7 +1023,7 @@ export function LearnSession({
                 there is nothing to explain.
               */}
               {rung === "gap" && word.gap?.explanation && (
-                <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
+                <p className="mt-1" style={{ color: "var(--ink-3)" }}>
                   {word.gap.explanation}
                 </p>
               )}
@@ -923,7 +1033,7 @@ export function LearnSession({
           {phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && (
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
-                <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
+                <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
                   {uiText("Õige!", "Correct!")} That is the one.
                 </p>
               ) : (

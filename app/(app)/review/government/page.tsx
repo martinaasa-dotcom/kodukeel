@@ -14,6 +14,7 @@ import { GovernmentSession, type GovernmentQuestion } from "./GovernmentSession"
 import type { CaseKey } from "@/lib/estonian/types";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Verb government" };
 
@@ -45,10 +46,18 @@ const MIN_VERBS = 40;
  * government is a property of the verb, and meeting a new one in a drill where
  * the answer is explained is a reasonable way to learn it.
  */
-export default async function GovernmentPage() {
+export default async function GovernmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
 
+  // Opened from the module, the verbs are the taught ones that carry a
+  // government, whatever their band, and the round is dealt only once the
+  // government page has been read and a few of them exist (lib/course/build.ts).
+  const scope = moduleScopeFrom(await searchParams);
   const level = await courseLevelFor(ownerId);
   const verbs = {
     select: { id: true, lemma: true, translation: true, government: true, cefr: true, examples: true },
@@ -73,7 +82,10 @@ export default async function GovernmentPage() {
       which is opening on the easier verb inside it.
     */
     prisma.lexeme.findMany({
-      where: { pos: "VERB", government: { not: null }, cefr: { in: [...bandsAround(level)] } },
+      where: {
+        pos: "VERB", government: { not: null },
+        ...(scope ? { lemma: { in: [...scope.lemmas] } } : { cefr: { in: [...bandsAround(level)] } }),
+      },
       ...verbs,
     }),
     prisma.card.findMany({
@@ -97,7 +109,7 @@ export default async function GovernmentPage() {
     this page did for everybody before it learned about levels, and it is the
     same widening the minimal pairs pool does one route over.
   */
-  const governed = banded.length >= MIN_VERBS
+  const governed = banded.length >= MIN_VERBS || scope
     ? banded
     : await prisma.lexeme.findMany({ where: { pos: "VERB", government: { not: null } }, ...verbs });
 

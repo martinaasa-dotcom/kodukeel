@@ -27,6 +27,7 @@
  */
 import { looksLikeSentence } from "@/lib/estonian/writing";
 import { ASK_ENGLISH, LOST } from "./catalogue";
+import { casualBye, casualHello } from "./casual";
 import { fold } from "@/lib/estonian/fold";
 import type { CaseKey } from "@/lib/estonian/types";
 import { words, type Lexicon } from "./lexicon";
@@ -514,10 +515,43 @@ export function readTurn(
     asked for the word. The lost reading is below, and it answers with `Tere!`,
     which is the whole of what they needed.
   */
-  if (beat.move === "greet" && missing.length > 0 && caughtSomething(marked) && !isLost(spoken, context)) {
+  /*
+    AND "HI" IS HELLO, IN WHICHEVER LANGUAGE IT ARRIVES. `caughtSomething`
+    asks whether the app can vouch for a word, and "ciao", "hi" and "hello"
+    are words in no Estonian list, so a learner who answered `Tere!` the way
+    they answer everybody was read as one unplaceable word and told "sorry?".
+    `casualHello` is the short list of what people actually say
+    (`lib/scenes/casual.ts`), read to accept and never to answer.
+  */
+  const casualGreeting = beat.move === "greet" && missing.length > 0 && !isLost(spoken, context)
+    && (caughtSomething(marked) || casualHello(spoken) !== null);
+  if (casualGreeting) {
     return {
       reading: "complete", met: beat.needs.map(() => true), missing: [],
       words: marked, matched: [], satisfiedBy: [], slips: [], asked, substituted: [], wantsEnglish, chose: [],
+    };
+  }
+  /*
+    AND "TSAU" IS GOODBYE. A close beat names the farewells its units teach,
+    which is two, and a learner leaving the way people leave, "tsau", "ciao",
+    "bye", was answered `Vabandust!` and asked the previous question again:
+    reproduced with `npm run replay:scene`, on the scene about a friend on the
+    phone, which is the one scene where nobody would say `Head aega!` at all.
+    Somebody who has said goodbye has left, whichever word they left with.
+
+    Met as a substitution: the beat ticks, the scene ends, and `gradesFor`
+    writes no row claiming they produced the course's farewell, which is the
+    greeting rule's own discipline one beat over. Only a short turn, because
+    the same word is hello on the way in (`CASUAL_BYE_WORDS`). Read here
+    rather than in `replay` so that a farewell said mid-scene, which `replay`
+    reads through this very beat, walks out the same way the course's does.
+  */
+  const leaving = beat.move === "close" && missing.length > 0 ? casualBye(spoken) : null;
+  if (leaving !== null) {
+    return {
+      reading: "complete", met: beat.needs.map(() => true), missing: [],
+      words: marked, matched: [], satisfiedBy: [leaving], slips: [], asked,
+      substituted: beat.needs.map((_, i) => i), wantsEnglish, chose: [],
     };
   }
 
@@ -1285,8 +1319,21 @@ function isEnglish(spoken: readonly string[], marked: readonly TurnWord[]): bool
 const ECHO_FLOOR = 2;
 function isEcho(spoken: readonly string[], previous: string): boolean {
   if (spoken.length < ECHO_FLOOR || !previous) return false;
-  const said = new Set(words(previous));
-  return spoken.every((word) => said.has(word));
+  const said = words(previous);
+  /*
+    AND REPEATING A YES-OR-NO QUESTION IS HOW ESTONIAN SAYS YES. Asked
+    `Kas küte on katki?`, a tenant who answers `Küte on katki` has said yes
+    in the ordinary way, since the language answers a polar question with
+    its verb rather than with a word for yes; read as parroting, the
+    landlord said "I did not understand" to somebody who had just confirmed
+    what he asked. A polar question opens with `kas`, which is the one-word
+    reading `acknowledgements` already makes, so a turn made of that
+    question's own words is an answer to it rather than the question handed
+    back.
+  */
+  if (said[0] === "kas") return false;
+  const heard = new Set(said);
+  return spoken.every((word) => heard.has(word));
 }
 
 /** Whether this reading lets the scene move to the next beat. */

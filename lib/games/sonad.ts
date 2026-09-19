@@ -191,13 +191,25 @@ export function cluesAt(guessed: number): Clues {
  */
 export function nextClue(guessed: number, hasCategory: boolean): string | null {
   const clues = cluesAt(guessed);
+  /*
+    A WHOLE SENTENCE, SAYING WHAT A CLUE IS BEFORE SAYING WHEN. "How many
+    vowels it has, in 6 tries" was reported as clunky and it was: it is a
+    noun phrase and a count with nothing joining them, and a learner on the
+    empty board cannot tell whether it is a rule, a hint, or a promise. So
+    the line says that a clue is coming, then what it will tell them, then
+    when, in the words a person would use across a table.
+  */
   if (!clues.category && hasCategory) {
     const away = CATEGORY_AFTER - guessed;
-    return `What kind of word it is, ${away === 1 ? "on your next try" : `in ${away} tries`}.`;
+    return away === 1
+      ? "After your next try you get a clue: what kind of word it is."
+      : `After ${away} more tries you get a clue: what kind of word it is.`;
   }
   if (!clues.vowels) {
     const away = SONAD_GUESSES - 1 - guessed;
-    return `How many vowels it has, ${away === 1 ? "on your last try" : `in ${away} tries`}.`;
+    return away === 1
+      ? "Before your last try you get a clue: how many of the letters are vowels."
+      : `After ${away} more tries you get a clue: how many of the letters are vowels.`;
   }
   return null;
 }

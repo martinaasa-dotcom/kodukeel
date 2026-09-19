@@ -121,9 +121,39 @@ describe("the course", () => {
 
   it("keeps every unit to a sitting", () => {
     for (const u of SYLLABUS) {
-      expect(u.words.length, u.id).toBeGreaterThanOrEqual(8);
+      // The first unit of the course is five words on purpose, so that the
+      // pronouns are the second evening of the module rather than the fourth:
+      // see the note on `vastused`. Every other unit keeps the floor.
+      expect(u.words.length, u.id).toBeGreaterThanOrEqual(u.id === "vastused" ? 5 : 8);
       expect(u.words.length, u.id).toBeLessThanOrEqual(24);
     }
+  });
+
+  /*
+    A1 IS VOCABULARY AND PHRASES, AND ASKS FOR NO CASE AND NO GAP.
+
+    The operator drew this line off a screenshot of the module's second
+    evening: `Ta ei kõlba ____.` for `õpetaja` in the closing review, a case
+    card cut from a sentence a beginner cannot read, before anybody had been
+    taught a pronoun. A case card at A1 was already held to a sentence; a gap
+    card at A1 was already mostly unreadable (`npm run audit:readable`). Both
+    go, so an A1 deck is what a word means and how it is said, plus the verb
+    table for the units of verbs, and the cases arrive with A2.
+  */
+  it("asks for no case and no gap anywhere in A1", () => {
+    for (const u of unitsAtLevel("A1")) {
+      expect(u.cardTypes, u.id).not.toContain("CASE_FORM");
+      expect(u.cardTypes, u.id).not.toContain("GRADATION");
+      expect(u.cardTypes, u.id).not.toContain("CLOZE");
+    }
+  });
+
+  it("teaches the pronouns second and the verb to be third", () => {
+    const ids = unitsAtLevel("A1").map((u) => u.id);
+    expect(ids.slice(0, 3)).toEqual(["vastused", "asesonad", "esimesed-verbid"]);
+    const be = unitById("esimesed-verbid")!;
+    expect(be.lemmas[0]).toBe("olema");
+    expect(be.cardTypes).toContain("CONJUGATION");
   });
 
   it("runs from easiest to hardest", () => {
@@ -179,7 +209,8 @@ describe("the course", () => {
   */
   it("drills the genitive wherever it asks a learner to produce a case", () => {
     const producing = SYLLABUS.filter((u) => u.cardTypes.includes("CASE_FORM"));
-    expect(producing.length).toBeGreaterThan(30);
+    // Twenty-eight, all of them from A2 up, since A1 asks for no case at all.
+    expect(producing.length).toBeGreaterThan(20);
     for (const unit of producing) {
       expect(unit.cardTypes, unit.id).toContain("GRADATION");
     }
