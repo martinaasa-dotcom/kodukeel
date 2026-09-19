@@ -6,5 +6,5 @@
       "claude/*": false
     }
   },
-  "crons": [{ "path": "/api/email/send", "schedule": "0 * * * *" }]
+  "crons": [{ "path": "/api/email/send", "schedule": "0 16 * * *" }]
 }
