@@ -64,7 +64,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
     <section>
       <SectionTitle>Deleting your data</SectionTitle>
       <Card>
-        <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
           You can remove everything this app holds about you: {counts.cards} cards,{" "}
           {counts.reviews} reviews, your tasks, your conversations with Anu, your scanned word
           lists, your level checks, every mock exam paper you sat and the writing in it, any
@@ -81,7 +81,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             className="mt-4 rounded-md px-3.5 py-3.5"
             style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}
           >
-            <p role="status" className="text-[13.5px]">{remaining}</p>
+            <p role="status" className="text-sm">{remaining}</p>
             <div className="mt-3">
               <Button
                 onClick={() => {
@@ -105,7 +105,7 @@ export function DangerZone({ counts }: { counts: { cards: number; reviews: numbe
             className="mt-4 rounded-md px-3.5 py-3.5"
             style={{ background: "var(--again-soft)", color: "var(--again-ink)" }}
           >
-            <p className="flex items-start gap-2 text-[13.5px]">
+            <p className="flex items-start gap-2 text-sm">
               <AlertTriangle size={15} className="mt-0.5 shrink-0" aria-hidden />
               <span>
                 This cannot be undone. Type <strong>delete</strong> to confirm.

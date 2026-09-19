@@ -17,7 +17,7 @@
  * `syllabus.test.ts` fails when the harvest did not honor it.
  */
 import { describe, expect, it } from "vitest";
-import { ASIDES, FALLBACK_PHRASE, REACTIONS, SCENES, sceneById } from "./catalogue";
+import { ASIDES, FALLBACK_PHRASE, FEELINGS, REACTIONS, SCENES, sceneById } from "./catalogue";
 import { HARVESTED } from "@/prisma/data/harvested";
 import { curveballById } from "./curveballs";
 import { LEFT_OUTCOME, QUESTION_SHAPE, leafNeeds } from "./types";
@@ -77,7 +77,7 @@ describe("the scene catalog", () => {
         of reaction was added it was said in every scene and checked in none,
         which is the fault this file's own header describes one layer out.
       */
-      const reactions = Object.values(REACTIONS).flat();
+      const reactions = [...Object.values(REACTIONS).flat(), ...Object.values(FEELINGS).map((f) => f.word)];
       // The word between two options, said in every scene that narrows a question.
       /*
         And the word a time is told with, which the gate reads to tell a count

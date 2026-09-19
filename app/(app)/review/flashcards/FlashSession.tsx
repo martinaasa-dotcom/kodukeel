@@ -13,6 +13,8 @@ import { useOffline } from "@/components/OfflineProvider";
 import { StarWord } from "@/components/StarWord";
 import { enqueueGrade } from "@/lib/offline/db";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
@@ -22,8 +24,9 @@ import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -69,6 +72,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
   const task = prompts[index];
   const finished = !task;
+  /*
+    The way back to the word before this one. `lib/ux/lookBack.ts` is the rule
+    and says why it is not undo: nothing here grades, reorders or requeues.
+  */
+  const look = useLookBack();
 
   /*
     A `heard` task with no sound is asked the plain way rather than abandoned.
@@ -167,12 +175,29 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   }, [task, typed, mark, sound, streak, refreshOutbox, hints]);
 
   const next = useCallback(() => {
+    /*
+      One choke point, so the record cannot fall behind the round. What is
+      kept is the question as it was drawn, which for a gap and a heard task
+      is the sentence rather than the lemma, and the form it turned out to be.
+    */
+    if (task) {
+      look.record({
+        of: task.id,
+        label: task.label,
+        question: task.gapped ?? task.sentence ?? task.lemma,
+        answer: task.shown.join(" / ") || task.value,
+        note: task.gapped || task.sentence ? `${task.lemma}, ${task.translation}` : task.translation,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.value,
+      });
+    }
     setMark(null);
     setTyped("");
     setHeardLost(false);
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
-  }, []);
+  }, [task, look]);
 
   /*
     Enter checks, and then Enter moves on. One key for the whole round, which
@@ -182,6 +207,18 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      /* While a look back is on screen the round is not, so its keys are not
+         either: a stray Enter over an older word would move the round on. */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
       if (mark) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       if (shape === "build" && !(e.metaKey || e.ctrlKey)) return;
@@ -190,16 +227,16 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, next, check, shape]);
+  }, [mark, next, check, shape, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Every answer counted toward the word it was about.
         </p>
         <div
@@ -246,6 +283,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -281,7 +319,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 autoFocus
                 onChange={(e) => setTyped(e.target.value)}
                 placeholder="Kirjuta oma lause siia…"
-                className="field-lg mt-2 w-full resize-none text-[17px] disabled:opacity-70"
+                className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
             ) : (
@@ -295,7 +333,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
                 spellCheck={false}
                 disabled={!!mark}
                 onChange={(e) => setTyped(e.target.value)}
-                className="field-lg mt-2 w-full text-[19px] disabled:opacity-70"
+                className="field-lg mt-2 w-full text-lg disabled:opacity-70"
                 style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
               />
             )}
@@ -333,6 +371,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           )}
         </div>
       </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
 
       <Standing task={task} />
     </div>
@@ -344,10 +387,10 @@ function Question({
   task, shape, onNoAudio,
 }: { task: FlashPrompt; shape: FlashTask["shape"]; onNoAudio: () => void }) {
   const meaning = (
-    <p className="text-[15px]" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
+    <p className="text-base" style={{ color: "var(--ink-2)" }}>{task.translation}</p>
   );
   const word = (
-    <p lang="et" className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+    <p lang="et" className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
       {task.lemma}
     </p>
   );
@@ -355,10 +398,10 @@ function Question({
   if (shape === "recall") {
     return (
       <div>
-        <p className="text-[32px] font-bold leading-tight" style={{ color: "var(--ink)" }}>
+        <p className="text-3xl font-bold leading-tight" style={{ color: "var(--ink)" }}>
           {task.translation}
         </p>
-        <p className="mt-2 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
           {task.pos.toLowerCase()}
         </p>
       </div>
@@ -368,19 +411,51 @@ function Question({
   if (shape === "gap") {
     return (
       <div>
-        <p lang="et" className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+        <p lang="et" className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
           {task.gapped}
         </p>
         {/*
-          The meaning rather than the lemma, which is what makes this harder
-          than the gap-fill card review already has: the sentence and the
-          meaning together are what say which form is wanted, and printing the
-          dictionary form beside a gap wanting the dictionary form hands the
-          answer over. That was 2,468 cards once.
+          WHAT THE MISSING WORD MEANS, AND WHERE THE DICTIONARY CAN, THE WHOLE
+          LINE WITH THAT MEANING MARKED INSIDE IT.
+
+          "The missing word means four" says what the word is and nothing about
+          the sentence it is missing from, which is the report this pass
+          started from one round over. Where the dictionary has the line, it is
+          the better sentence of the two and says the same thing: it names the
+          meaning and puts it where the gap is. Where it has none, the sentence
+          above stands, which is what every gap card said before this.
+          `lib/copy/gapMeaning.ts` is the one rule, including its two refusals.
         */}
-        <p className="mt-4 text-[15px]" style={{ color: "var(--ink-2)" }}>
-          The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-        </p>
+        {(() => {
+          const meaning = gapMeaning({
+            en: task.sentenceEn, answer: task.value, cue: task.translation,
+          });
+          /*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE.
+
+            One rule for both halves (`gapCue`): a marked line is this gloss
+            printed in context, so saying it again underneath is the same word
+            twice, and an unmarked line is a sentence whose English happens not
+            to carry the gloss as a whole word, where the cue is the only thing
+            naming it. This round passes no lemma, deliberately: the meaning
+            rather than the dictionary form is what makes it harder than the
+            gap-fill card review already has, since printing the dictionary
+            form beside a gap wanting the dictionary form hands the answer
+            over. That was 2,468 cards once.
+          */
+          const cue = gapCue({ hint: task.translation, lemma: null, marked: meaning?.marked ?? false });
+          if (!meaning && !cue) return null;
+          return (
+            <div className="mt-4">
+              {meaning && <GapMeaning meaning={meaning} />}
+              {cue && (
+                <p className="text-base" style={{ color: "var(--ink-2)" }}>
+                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                </p>
+              )}
+            </div>
+          );
+        })()}
         <SlotLine task={task} />
       </div>
     );
@@ -401,7 +476,7 @@ function Question({
             onUnavailable={onNoAudio}
             autoplay
           />
-          <span className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+          <span className="text-sm" style={{ color: "var(--ink-3)" }}>
             Play it, then type the form of {task.lemma} you hear.
           </span>
         </div>
@@ -416,7 +491,7 @@ function Question({
       {meaning}
       <SlotLine task={task} />
       {shape === "build" && !plainAskFor(task) && (
-        <p className="mt-4 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
           Write one sentence of your own with it in that form.
         </p>
       )}
@@ -449,10 +524,10 @@ function SlotLine({ task }: { task: FlashPrompt }) {
     <div className="mt-5">
       {plain ? (
         <>
-          <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+          <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plain}
           </p>
-          <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+          <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
             {task.label}
             {english && <span lang="en"> · the {english}</span>}
           </p>
@@ -463,7 +538,7 @@ function SlotLine({ task }: { task: FlashPrompt }) {
             {task.label}
           </p>
           {english && (
-            <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>the {english}</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>the {english}</p>
           )}
         </>
       )}
@@ -506,11 +581,11 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
   return (
     <div className="mt-6" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           <strong className="font-semibold">{head}.</strong>
           {mark.note && <> {mark.note}</>}
         </p>
@@ -529,12 +604,12 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         <p
           lang="et"
           data-flash-answer=""
-          className="text-[22px] font-semibold leading-tight"
+          className="text-xl font-semibold leading-tight"
           style={{ color: "var(--ink)" }}
         >
           {task.shown.join(" / ")}
         </p>
-        <p className="mt-1 text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
           <span lang="et" data-flash-slot="">{task.label}</span>
           {english && <> · the {english}</>}
         </p>
@@ -542,7 +617,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
       {task.sentence && (
         <>
-          <p lang="et" className="mt-4 text-[15px] leading-snug" style={{ color: "var(--ink-2)" }}>
+          <p lang="et" className="mt-4 text-base leading-snug" style={{ color: "var(--ink-2)" }}>
             {/* The spelling the sentence itself carries, which is not always the
                 one the slot leads with: `tuppa` and `toasse` are both the
                 illative and a lexicographer writes whichever the sentence
@@ -572,7 +647,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         </>
       )}
 
-      <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
         {task.provenance === "ekilex"
           ? "This form is the one the dictionary records."
           : "This form is worked out from the stem the dictionary records."}{" "}
@@ -606,7 +681,7 @@ function Standing({ task }: { task: FlashPrompt }) {
           short of the variety is the ordinary state of a word this round is
           about, and it is what the sentence has to say plainly.
         */}
-      <p className="mt-2 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
+      <p className="mt-2 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         <span lang="et">{task.lemma}</span>:{" "}
         {correct >= needCorrect
           ? `right ${correct} times`

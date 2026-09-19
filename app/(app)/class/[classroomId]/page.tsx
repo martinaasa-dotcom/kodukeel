@@ -6,12 +6,14 @@ import { requireUserId } from "@/lib/auth/session";
 import { classworkHistory } from "@/app/actions";
 import { PATH } from "@/lib/collections/syllabus";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
+import { emailPrefsFrom, wants } from "@/lib/email/prefs";
+import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { cohortKind } from "@/lib/classroom/cohort";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { WorkplaceView } from "./WorkplaceView";
 import { LocalDate } from "@/components/LocalDate";
 import { Card, Chip, Empty, Meter, Note, Page, SectionTitle, Stack, StatTile } from "@/components/ui";
-import { ArchiveClass, AssignHomework, AssignUnit, CopyCode, LeaveClass } from "../ClassForms";
+import { ArchiveClass, AssignHomework, AssignUnit, ClassDigest, CopyCode, LeaveClass } from "../ClassForms";
 import { counted } from "@/lib/copy/values";
 import { Explain } from "@/components/Explain";
 
@@ -64,11 +66,26 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
   const classroom = membership.classroom;
   const isTeacher = classroom.ownerId === ownerId;
   const workplace = cohortKind(classroom.kind) === "WORKPLACE";
-  const [roster, cohort, history] = await Promise.all([
+  const [roster, cohort, history, prefs] = await Promise.all([
     workplace ? Promise.resolve(null) : classRoster(classroomId),
     workplace ? workplaceRoster(classroomId, classroom.targetLevel as ExamLevel) : Promise.resolve(null),
     isTeacher ? classworkHistory(classroomId) : Promise.resolve([]),
+    /*
+      The Monday digest's switch, read only for whoever runs the group, since
+      it is the only person it can be drawn for. `wants` rather than the
+      off-set, because that is the one function that knows what a missing row
+      means for a given kind.
+    */
+    isTeacher
+      ? readSettings(ownerId, [SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn])
+      : Promise.resolve(null),
   ]);
+  const digest = prefs
+    ? wants(
+        emailPrefsFrom(prefs[SETTING_KEYS.emailsOff], prefs[SETTING_KEYS.emailsOn]),
+        "classroom",
+      )
+    : false;
 
   const leader = roster?.entries[0];
   const you = roster?.entries.find((e) => e.ownerId === ownerId);
@@ -310,6 +327,7 @@ export default async function ClassroomPage({ params }: { params: Promise<{ clas
 
         <div className="flex flex-wrap items-center gap-4 border-t pt-5" style={{ borderColor: "var(--rule-soft)" }}>
           {isTeacher ? <ArchiveClass classroomId={classroomId} /> : <LeaveClass classroomId={classroomId} />}
+          {isTeacher && <ClassDigest on={digest} />}
           <Chip>
             joined{" "}
             <LocalDate

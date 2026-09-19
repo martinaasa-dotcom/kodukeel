@@ -198,7 +198,7 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
                 what it means, for somebody who has not learned that yet. Kept
                 to one line, since this round is timed. */}
             {question.caseKey && plainAskLine(question.caseKey) && (
-              <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+              <p className="text-sm" style={{ color: "var(--ink-2)" }}>
                 {plainAskLine(question.caseKey)}
               </p>
             )}

@@ -21,6 +21,7 @@ import { grammarTerm } from "@/lib/estonian/terms";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface ScenePrompt {
   sceneId: string;
@@ -110,6 +111,8 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
 
   const prompt = prompts[index];
   const finished = !prompt;
+  /* The way back to the picture before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
 
   /*
     THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
@@ -194,6 +197,20 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
   }
 
   function next() {
+    /* The situation, what was asked of it and the sentence the learner
+       wrote, which is theirs and is neither stored nor marked again. */
+    if (prompt) {
+      look.record({
+        of: `${prompt.sceneId}-${prompt.caseKey}`,
+        label: prompt.situation,
+        question: `${prompt.askLemma}, ${prompt.askTranslation} · ${prompt.caseEt}`,
+        answer: sentence.trim() || prompt.askLemma,
+        note: prompt.caseQuestion,
+        questionLang: "et",
+        answerLang: "et",
+        speak: null,
+      });
+    }
     setMarked(null);
     setSentence("");
     setError(null);
@@ -204,10 +221,10 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Writing about something in front of you is the closest this app gets to speaking.
         </p>
         <div
@@ -254,6 +271,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -277,7 +295,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
             </span>
           </p>
 
-          <p className="mt-7 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-7 text-sm" style={{ color: "var(--ink-2)" }}>
             Write one sentence about this, with{" "}
             <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
               {prompt.askLemma}
@@ -290,7 +308,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           {/* What the question asks, rather than the Latin name, which was the
               only English on the line and is the one word here a learner
               cannot cash in. See `lib/estonian/cases.ts`. */}
-          <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
             <CaseQuestion question={prompt.caseQuestion} inline />
           </p>
 
@@ -311,7 +329,7 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
               }}
               placeholder="Kirjuta oma lause siia…"
-              className="field-lg mt-2 w-full resize-none text-[17px] disabled:opacity-70"
+              className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!marked && <div className="under-field"><DiacriticBar /></div>}
@@ -354,9 +372,14 @@ export function DescribeSession({ prompts: initialPrompts, aiAvailable }: {
           )}
         </div>
       </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the case is checked. That check is the reliable half.
         </p>
       )}
@@ -384,11 +407,11 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[mark.rightCase ? "right" : wrote ? "nearly" : "wrong"]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[mark.rightCase ? "right" : wrote ? "nearly" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
         {mark.rightCase
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           {mark.rightCase ? (
             <>That is the {prompt.caseEt}.</>
           ) : mark.written && wrote ? (
@@ -427,7 +450,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
         <p className="label-xs" style={{ color: "var(--ink-3)" }}>What was in the picture</p>
         <ul className="mt-2 flex flex-col gap-1.5">
           {reveal.words.map((word, i) => (
-            <li key={word.lemma} className="flex items-baseline gap-2 text-[15px]">
+            <li key={word.lemma} className="flex items-baseline gap-2 text-base">
               <span aria-hidden className="text-lg leading-none">{word.emoji}</span>
               <strong lang="et" style={{ color: "var(--ink)" }}>{word.lemma}</strong>
               <span style={{ color: "var(--ink-3)" }}>{word.translation}</span>
@@ -461,7 +484,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
                 ? `A recorded sentence with ${prompt.askLemma} in this case`
                 : `A recorded sentence with ${prompt.askLemma} in it`}
           </p>
-          <p lang="et" className="mt-1.5 text-[15px]" style={{ color: "var(--ink)" }}>
+          <p lang="et" className="mt-1.5 text-base" style={{ color: "var(--ink)" }}>
             {reveal.answer.et}
           </p>
           {reveal.answer.lexemeId && (
@@ -481,7 +504,7 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
               <>
                 Anu&rsquo;s note is hidden here. It used a word we couldn&rsquo;t confirm as
@@ -504,15 +527,15 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
+          <p className="mt-1.5 text-base" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
-            <p className="mt-2 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{graded.rule}</p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>{graded.rule}</p>
           )}
         </div>
       )}
 
       {quotaMessage && (
-        <p className="text-[13.5px]" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
+        <p className="text-sm" style={{ color: "var(--ink-3)" }}>{quotaMessage}</p>
       )}
     </div>
   );

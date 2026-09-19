@@ -149,6 +149,8 @@ describe("which day is current", () => {
     expect(reading.daysDone).toBe(1);
     expect(reading.current?.day.index).toBe(2);
     expect(reading.finishedToday).toBe(true);
+    /* And one evening ticked tonight is a run of one, read off the same rows. */
+    expect(reading.eveningsInARow).toBe(1);
   });
 
   it("does not count answers given before the evening's rounds", async () => {

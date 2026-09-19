@@ -35,6 +35,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { EM_DASH as EM, EMOJI, EN_DASH as EN, TELLS, findTells } from "./voice";
+import { CAPTION_MAX } from "./values";
 
 /**
  * Files allowed to break one of these rules, which rule, and why.
@@ -210,12 +211,66 @@ const FILES = ["app", "components", "lib", "prisma"].flatMap((dir) => sourceFile
  * which is what keeps the exemption list down to the one file that has to
  * *show* the copy rather than merely name it.
  */
+/**
+ * The two markers Next.js writes its own paragraph between.
+ *
+ * `next dev` upserts a managed block into `AGENTS.md` or `CLAUDE.md`
+ * whenever it sees an agent at work, and the paragraph inside it carries an
+ * em dash, which is the one character this file exists to keep out of
+ * `CLAUDE.md`. The failure names a line number in the middle of this
+ * project's own rules, so it reads as a copy fault rather than as a tool
+ * artifact, and it cost somebody an afternoon in the wrong file.
+ *
+ * Three answers were weighed and this is the third. Turning the writer off
+ * with `agentRules: false` works and throws away something worth having,
+ * since the Next in this repository is well past what most models were
+ * trained on and the block is the pointer to the version-matched docs beside
+ * it. Excusing the block inside `CLAUDE.md` works and leaves the one file
+ * that states this project's voice carrying a generated paragraph written in
+ * the voice it forbids, which is the thing that file warns about.
+ *
+ * So the block is hosted in `AGENTS.md`, which the writer prefers over
+ * `CLAUDE.md` whenever it exists and holds the block, and the marked run is
+ * taken out of the sweep wherever it is found. Not a file exemption: what is
+ * excused is text this project did not write and may not edit, in the shape
+ * `markdownProse` already treats a fenced block, so everything either file
+ * says in its own words is swept exactly as before. The two tests below hold
+ * it in both directions, so a run that puts the block back into `CLAUDE.md`
+ * says so rather than failing as a dash somebody typed.
+ */
+const MANAGED_START = "<!-- BEGIN:nextjs-agent-rules -->";
+const MANAGED_END = "<!-- END:nextjs-agent-rules -->";
+
+/** Whether a file hosts the block a tool writes and owns. */
+function hostsManagedBlock(file: string): boolean {
+  const text = readFileSync(file, "utf8");
+  const start = text.indexOf(MANAGED_START);
+  return start !== -1 && text.indexOf(MANAGED_END, start) !== -1;
+}
+
 function markdownProse(file: string): { line: number; text: string }[] {
   const out: { line: number; text: string }[] = [];
   let fenced = false;
+  let managed = false;
   readFileSync(file, "utf8")
     .split("\n")
     .forEach((raw, i) => {
+      const line = raw.trim();
+      /*
+        A whole line, and both ends, so a page naming the markers in prose is
+        swept like any other and a stray opener cannot swallow the rest of a
+        file. `markdownProse` strips inline code, so a marker inside backticks
+        never reaches here to begin with.
+      */
+      if (line === MANAGED_START) {
+        managed = true;
+        return;
+      }
+      if (line === MANAGED_END) {
+        managed = false;
+        return;
+      }
+      if (managed) return;
       if (/^\s*(```|~~~)/.test(raw)) {
         fenced = !fenced;
         return;
@@ -240,7 +295,7 @@ function markdownProse(file: string): { line: number; text: string }[] {
  * forms, in the four-states table and in the degradation table, each written as
  * a bare dash that a mechanical sweep would have turned into a comma.
  */
-const MARKDOWN = ["CLAUDE.md", "README.md", ...sourceFiles("docs", /\.md$/)];
+const MARKDOWN = ["CLAUDE.md", "README.md", "AGENTS.md", ...sourceFiles("docs", /\.md$/)];
 
 function offenders(character: string): string[] {
   return FILES.filter((f) => !excused(f, "dash")).flatMap((f) =>
@@ -274,8 +329,25 @@ describe("copy reads as a person wrote it", () => {
   it("finds the documentation it is supposed to be checking", () => {
     expect(MARKDOWN).toContain("README.md");
     expect(MARKDOWN).toContain("CLAUDE.md");
+    expect(MARKDOWN).toContain("AGENTS.md");
     expect(MARKDOWN).toContain("docs/03-architecture.md");
     expect(MARKDOWN.length).toBeGreaterThan(15);
+  });
+
+  /*
+    Both directions, because the strip above is only honest while the block it
+    strips is somewhere. An `AGENTS.md` that has lost the block is a file with
+    nothing to excuse and a `CLAUDE.md` that has grown one is the fault this
+    whole arrangement removes, arriving quietly: the sweep would pass, because
+    the strip would take it, and the next person would find a generated
+    paragraph in the middle of the rules and no test complaining.
+  */
+  it("keeps the block a tool writes in the file that is there to hold it", () => {
+    expect(hostsManagedBlock("AGENTS.md")).toBe(true);
+  });
+
+  it("and out of the one that states the voice", () => {
+    expect(hostsManagedBlock("CLAUDE.md")).toBe(false);
   });
 
   it("has no dash a reader could see in the README or the docs", () => {
@@ -352,17 +424,10 @@ const LEAD_MAX = 95;
  * where it was, so it costs the room and earns nothing. Settings alone had
  * twelve of them, one under each control.
  *
- * 110 characters is about a line and a half on a phone, which is what a
- * caption is. Anything longer is a real explanation and has two honest homes:
- * `components/Explain.tsx`, which is a disclosure and takes no room until
- * somebody wants it, or body type, which usually means saying it shorter.
- *
- * What this does NOT cap is the same list the two above leave alone: prose in
- * the body of a screen, a grammar explanation, a policy page. A screen whose
- * subject is an explanation is allowed to explain, at a size somebody can
- * read.
+ * Read from `lib/copy/values.ts`, which is where it lives now: the invariant
+ * suite applies the same cap to the email panel, whose small print is
+ * interpolated out of a table and so is invisible to the sweep below.
  */
-const CAPTION_MAX = 110;
 
 /**
  * The screens whose small type may run long, and why each one may.
@@ -406,19 +471,25 @@ const CAPTION_EXEMPT = new Set([
 /**
  * Every run of small type that is a sentence, as a reader would see it.
  *
- * A caption is an element carrying `text-xs` or `text-2xs` (or a hand-rolled
- * size under 14px, which a few screens still have). What is measured is the
- * text between its tags with the markup taken out and every interpolation
- * standing in at two characters, the same way `propStrings` measures a lead:
- * the point is to catch a paragraph, not to argue about whether a count
- * renders as one digit or three.
+ * A caption is an element carrying `text-xs` or `text-2xs`, which are the two
+ * smallest steps on the scale whatever those steps are worth today: the cap
+ * is about small type rather than about a number of pixels, so it follows the
+ * scale up when the scale moves. It used to read a third pattern, a
+ * hand-rolled size under 14px, because a few screens set their own; none can
+ * any more (`test-invariants.ts`, "no type size is written as a literal") and
+ * the branch went with them rather than staying as a check that cannot fire.
+ *
+ * What is measured is the text between its tags with the markup taken out and
+ * every interpolation standing in at two characters, the same way
+ * `propStrings` measures a lead: the point is to catch a paragraph, not to
+ * argue about whether a count renders as one digit or three.
  */
 function captions(source: string): string[] {
   const out: string[] = [];
-  const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs|text-\[1[0-3](\.\d)?px\])\b[^>]*>([\s\S]*?)<\/\1>/g;
+  const re = /<(p|span|div|figcaption|li)\b[^>]*className="[^"]*\b(text-2xs|text-xs)\b[^>]*>([\s\S]*?)<\/\1>/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(source))) {
-    const text = (m[4] ?? "")
+    const text = (m[3] ?? "")
       .replace(/<[^>]*>/g, " ")
       .replace(/\{[^{}]*\}/g, "xx")
       .replace(/&[a-z]+;/g, "'")

@@ -99,6 +99,23 @@ export interface ExamCountdown {
    * measured pace, so Today and `/assess` cannot give two timelines.
    */
   distance: string;
+  /**
+   * Whether the date survives on the pace they keep.
+   *
+   * Read off the plan's own verdict, and deliberately a boolean rather than
+   * the verdict itself: a caller holding six named cases will sooner or later
+   * write a sentence per case, which is the second timeline `distanceLine`
+   * exists to prevent and which an invariant already fails on. What a screen
+   * or a letter legitimately needs this for is a tone and whether to offer
+   * the levers, and both of those are yes-or-no questions.
+   *
+   * `possible` is false, which is the one that could be argued either way.
+   * That verdict means the date fits only if the learner commits to hours
+   * they are not currently putting in, so treating it as fitting would be the
+   * app telling somebody they are fine on the strength of study nobody has
+   * done yet.
+   */
+  fits: boolean;
 }
 
 /**
@@ -184,5 +201,6 @@ export async function examCountdown(
     chosen: chosen !== undefined,
     gap: readiness.gaps[0] ?? null,
     distance: distanceLine(plan),
+    fits: plan.verdict === "comfortable" || plan.verdict === "tight" || plan.verdict === "arrived",
   };
 }

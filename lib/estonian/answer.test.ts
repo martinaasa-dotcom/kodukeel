@@ -240,3 +240,47 @@ describe("checkAnswer — another form of the same word", () => {
     expect(checkAnswer("toast", "toas", "et").verdict).toBe("typo");
   });
 });
+
+/*
+  WHICH NOTES NAME THE FORM, WHICH IS WHAT LETS A PANEL SAY IT ONCE.
+
+  The learn ladder's feedback panel opened with the answer and printed the
+  note under it, and three of these four notes name the answer themselves, so
+  a learner who missed `kuidas läheb?` read the same sentence twice in one
+  box. The panel merges the two where the note already names the form, and it
+  asks `splitOnForm` rather than the verdict, so the merge follows the copy
+  wherever it goes.
+
+  What it cannot follow is a note that stops naming the form at all: that
+  would put the ladder back on the headline branch silently, and the whole
+  panel would go on working while quietly saying less. This is that fact,
+  written down where the notes are.
+*/
+describe("a note names the form, or names what it could not", () => {
+  it("names the answer on a plain miss", () => {
+    expect(checkAnswer("kalujust", "kuidas läheb?").note).toContain("kuidas läheb?");
+  });
+
+  it("names the answer on a near miss, which is the yellow box", () => {
+    const r = checkAnswer("tooas", "toas");
+    expect(r.verdict).toBe("typo");
+    expect(r.note).toContain("toas");
+  });
+
+  it("names the answer when another form of the same word was written", () => {
+    const r = checkAnswer("toast", "toas", "et", ["toast"]);
+    expect(r.verdict).toBe("wrong");
+    expect(r.note).toContain("toas");
+  });
+
+  it("names the letters rather than the word on a diacritic slip, so the answer is still owed", () => {
+    const r = checkAnswer("soidan", "sõidan");
+    expect(r.verdict).toBe("diacritics");
+    expect(r.note).not.toContain("sõidan");
+  });
+
+  it("names nothing at all on an empty answer, where the word is the whole of what is wanted", () => {
+    const r = checkAnswer("", "toas");
+    expect(r.note).toBe("Nothing typed.");
+  });
+});

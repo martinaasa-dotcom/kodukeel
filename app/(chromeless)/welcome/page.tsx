@@ -136,7 +136,27 @@ function Nav() {
         <Link href="/welcome" aria-label="Kodukeel, home">
           <Wordmark size={30} />
         </Link>
-        <div className="hidden items-center gap-7 text-sm font-medium md:flex" style={{ color: "var(--ink-2)" }}>
+        {/*
+          THE LINKS ARRIVE AT 1024, NOT 768, AND THE TYPE SCALE IS WHY.
+
+          This row is already progressively disclosed: below the breakpoint the
+          three anchors are simply not drawn, because the pill has the wordmark
+          and two controls in it and there is no room. Raising the scale's
+          floor moved where "no room" falls. At 768 the three labels, the
+          wordmark and the two controls came to more than the 696px inside the
+          pill, and flex answered the only way it can, by breaking "What you
+          get" over two lines and the button under it over two more: a 90px
+          pill with a nav folded in half inside it.
+
+          A label that wraps is not a nav that has adapted, so the answer is
+          the breakpoint rather than a smaller label or a tighter gap. Nothing
+          is lost at 768: these are anchors onto sections of the page under
+          them, which is the one kind of link a reader reaches by scrolling.
+          `whitespace-nowrap` is the backstop, so the next thing that runs this
+          row out of room overflows somewhere `test-containment.mjs` can see it
+          rather than quietly folding again.
+        */}
+        <div className="hidden items-center gap-7 whitespace-nowrap text-sm font-medium lg:flex" style={{ color: "var(--ink-2)" }}>
           <a href="#cases" className="transition-opacity hover:opacity-60">The cases</a>
           <a href="#features" className="transition-opacity hover:opacity-60">What you get</a>
           <a href="#faq" className="transition-opacity hover:opacity-60">Questions</a>
@@ -144,7 +164,7 @@ function Nav() {
         <div className="flex items-center gap-2">
           <Link
             href="/sign-in"
-            className="hidden rounded-full px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-60 sm:block"
+            className="hidden whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-opacity hover:opacity-60 sm:block"
             style={{ color: "var(--ink-2)" }}
           >
             Sign in

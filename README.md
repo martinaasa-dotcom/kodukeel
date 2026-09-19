@@ -65,7 +65,7 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
 - **Hearing the way people talk.** A word you know well comes back at speed, over café noise, down
   a phone line, from halfway through, in a different voice each time. The words never change; the
   delivery does, because nobody at a counter talks like a clean synthetic voice in a quiet room.
-- **A course.** 86 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
+- **A course.** 89 units across five CEFR levels, from *Tervitused* to *Nüansid*, each a
   sitting's worth of words, and the words between the words too: question words, pronouns, the
   postpositions, the months and the adverbs of time have units of their own. Adding a unit builds real flashcards, every form, audio, both
   directions, and a unit only reads as finished when the scheduler agrees the words are retained.
@@ -83,13 +83,14 @@ To stop it, press Ctrl-C in the terminal. To start again later, just `npm run de
   a typo and from a genuinely wrong word, and each verdict suggests a grade you can override. New
   words are introduced with their answer rather than guessed at, and multiple choice covers
   recognition. `u` undoes the last grade without touching the review log.
-- **22 ways to practice, over one deck.** Six rounds against the clock (a 60-second Case
+- **23 ways to practice, over one deck.** Six rounds against the clock (a 60-second Case
   Sprint, Match, Sentences, Listening, Dictation and Speaking), two passes over the words you are
   working on (flash cards over the whole deck, and the hundred commonest words of each kind,
-  counted over film and television subtitles rather than chosen by anybody), five games (a picture
-  board with no English on it, a picture to write one Estonian sentence about, Sõnad, a six-letter
-  word a day in six guesses, Ristsõna, a crossword with English clues and Estonian answers, and
-  Target for endings before the timer runs out), a two-minute daily quest aimed at whatever is going
+  counted over film and television subtitles rather than chosen by anybody), six games (a picture
+  board with no English on it, a picture to write one Estonian sentence about, Tähed, the letters
+  of a word you know put back in order, Sõnad, a six-letter word a day in six guesses, Ristsõna, a
+  crossword with English clues and Estonian answers, and Target for endings before the timer runs
+  out), a two-minute daily quest aimed at whatever is going
   worst, and eight drills that sit on the page naming the thing they drill: a sentence you write in
   a named case, verb government, long against short, your own pasted Estonian, the conjugation
   table, the words the endings cannot reach, the cards you keep failing, and the words you looked
@@ -536,6 +537,50 @@ address and mails nobody is worse than no form. The argument holds and the defau
 switch was one more thing to remember in a dashboard, and the one deployment this app has spent
 weeks offering Google as the only way in. Turn it off only for a copy whose mail really does not
 go out, and set up SMTP before anybody but you is asking for links.
+
+### Course reminders
+
+Separate from the sign-in links above, and off until four variables are set. With any of them
+missing the app sends nothing at all, which is the state this repository ships in: nothing warns
+about it, nothing degrades, and the course works exactly as it does now.
+
+```
+RESEND_API_KEY=re_...            # the same key the SMTP settings above use
+EMAIL_FROM="Kodukeel <hei@your-domain>"   # a verified sending address on your domain
+EMAIL_TOKEN_SECRET=...           # 32+ random bytes, signs the unsubscribe links
+CRON_SECRET=...                  # the scheduler's bearer token
+EMAIL_REPLY_TO=hei@your-domain   # optional, and worth setting: a letter nobody
+                                 # can answer is a letter from a machine
+RESEND_WEBHOOK_SECRET=whsec_...  # verifies what Resend sends back
+```
+
+Add a webhook in Resend's dashboard pointing at `https://your-domain/api/email/bounce`,
+subscribed to **`email.bounced`** and **`email.complained`** and nothing else. The signing secret
+it gives you is `RESEND_WEBHOOK_SECRET`. With none set the route answers 404 to everybody, which
+is the state this repository ships in.
+
+Subscribe to those two and no others on purpose. Resend will also send opens and clicks, and those
+are exactly what `/privacy` says this app does not keep; asking for them and dropping them would be
+a promise kept by nothing but a function. A permanent bounce stops writing to **that address**,
+not to that learner, so somebody who changes theirs is written to again. A spam complaint switches
+off every optional letter, and leaves the sign-in links alone, because those are not what anybody
+complains about.
+
+`SUPABASE_SERVICE_ROLE_KEY` has to be set too. Addresses live with the sign-in provider rather
+than in this app's database, which is what lets erasure promise it takes the address with it, so
+the run has to go and ask for them.
+
+`vercel.json` schedules `/api/email/send` hourly. The route answers 404 to anybody without the
+bearer token and 404 when `CRON_SECRET` is unset, so it fails closed rather than open. Hourly
+rather than daily because a letter has to arrive in the learner's own evening and this app's
+learners are not in one timezone; the run itself is idempotent, capped, and takes a lock across
+every instance, so firing it more often than necessary costs nothing but a few queries. **A
+Vercel Hobby plan runs cron once a day at most**, which makes the evening letter roughly useless
+on one: a Pro plan, or any scheduler that can POST to that URL with the bearer token, does the job.
+
+What goes out, to whom and how often is `lib/email/schedule.ts`, which is pure and unit tested.
+What each letter says is `lib/email/letters/`. Both are swept for the voice rules like every
+other string in `lib/`.
 
 The link is opened in the browser that asked for it, because that is where the verifier lives, and
 the sign-in screen says so. If you would rather it survived being forwarded to a phone, change the

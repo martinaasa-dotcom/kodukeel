@@ -34,10 +34,14 @@ export type Verdict = "right" | "nearly" | "wrong";
  * reported the same thing again: long enough to register the tint has
  * changed color is not long enough to read the word it changed on, and a
  * card met for the first time carries a gloss and a sentence worth a second
- * look. Three seconds and a bit is that reading time, not just the blink of
- * a color. Undo is still there for the moment somebody wanted longer still.
+ * look. Three seconds and a bit was that reading time, and the operator then
+ * asked for five seconds more on top of it, right answers included: the
+ * reveal is where the sentence, its English and the hint are all on the
+ * screen at once, and it was still going before anybody had looked them over.
+ * So the pause is a reading pause rather than a blink, and Enter or the
+ * button on the card moves on sooner for anybody who has finished reading.
  */
-export const VERDICT_PAUSE_MS = 3300;
+export const VERDICT_PAUSE_MS = 8300;
 
 /** The class a panel, a chip or a self-grade button wears for a verdict. */
 export const VERDICT_CLASS: Record<Verdict, string> = {

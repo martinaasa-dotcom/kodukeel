@@ -17,8 +17,8 @@ import type { Level } from "@/lib/collections/syllabus/types";
  * TWO OUTCOMES, AND THE WORD'S OWN BAND DECIDES WHICH.
  *
  * A word at or below the learner's level is one they are supposed to be
- * meeting, so it goes back a few weeks and comes round again: a bad evening
- * is a bad evening. A word *above* their level is not a scheduling problem at
+ * meeting, so it goes back a few days and comes round again: a bad evening is
+ * a bad evening. A word *above* their level is not a scheduling problem at
  * all, it is a word that arrived early, so it waits for the band it belongs
  * to. That is the difference between "not tonight" and "not yet", and the
  * screen says which one it did.
@@ -27,7 +27,7 @@ import type { Level } from "@/lib/collections/syllabus/types";
  * formally levels up must not lose a word for ever. The date is the backstop
  * and reaching the band is the mechanism (`wakeForLevel`), which is why the
  * backstop is deliberately shorter than a band actually takes: see
- * `BAND_WEEKS`.
+ * `BAND_DAYS`.
  *
  * WHAT THE SCHEDULER IS TOLD: nothing. A deferral moves `Card.due` and
  * touches no FSRS column, writes no `Review` row and reports no grade. A word
@@ -39,8 +39,33 @@ import type { Level } from "@/lib/collections/syllabus/types";
  * how long and why; `lib/progress/deferrals.ts` is what writes it down.
  */
 
-/** A word at or below the learner's band goes back this far. A bad evening. */
-export const DEFER_WEEKS = 3;
+/**
+ * A word at or below the learner's band goes back this far. Not tonight.
+ *
+ * THREE DAYS, AND IT WAS THREE WEEKS, which was the wrong reading of this
+ * button's own argument. The paragraph above says a bad evening is a bad
+ * evening, and then the app answered one bad evening by taking the word away
+ * for most of a month. A learner pressed it on `ma ei saa aru`, which is a
+ * phrase the first unit of the course teaches, and read that it would be back
+ * in about three weeks: three weeks is not "not tonight", it is a word out of
+ * the deck for six or eight sittings, and by the time it comes round the
+ * evening it was refused on has nothing to do with anything.
+ *
+ * What the button means is that the learner does not want this word *now*.
+ * The honest answer to that is the next study day but one: long enough that
+ * it is out of tonight's queue and is not the first thing back tomorrow
+ * either, short enough that nobody has lost the word. Three calendar days
+ * lands there on every schedule this app supports, which is why it is
+ * counted in days rather than in sittings: somebody studying daily skips two
+ * evenings, somebody studying three times a week gets it on their next study
+ * day, and somebody studying twice a week gets it on the one after.
+ *
+ * It is also what makes a second press mean something. At three weeks,
+ * pressing twice on one word was rare enough that `times` recorded almost
+ * nothing; at three days a learner who keeps refusing a word says so
+ * repeatedly, and that is the signal `tooHardForEveryone` is built out of.
+ */
+export const DEFER_DAYS = 3;
 
 /**
  * And a word that arrived early goes back a term.
@@ -59,14 +84,26 @@ export const DEFER_WEEKS = 3;
  * enough that the answer to "when do I see this again" is never "next year".
  * If it comes back and is still beyond them, the button is one press away and
  * the deployment-wide count is one press better informed.
+ *
+ * UNCHANGED WHEN THE OTHER ONE SHRANK, because the two answer different
+ * questions. "Not tonight" is about an evening and is now three days. "Not
+ * yet" is about a band, and shortening it would hand somebody the word they
+ * were not ready for again before anything about them had changed.
  */
-export const BAND_WEEKS = 12;
+export const BAND_DAYS = 84;
 
-const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const DAYS_PER_WEEK = 7;
+/** What a month is worth when a span is rounded into one. */
+const DAYS_PER_MONTH = 30.44;
+/** Past a fortnight a count of days is arithmetic rather than an answer. */
+const WEEKS_FROM_DAYS = 14;
+/** And past ten weeks the weeks are the arithmetic instead. */
+const MONTHS_FROM_DAYS = 70;
 
 export type DeferReason =
-  /** At or below their band: a few weeks, and it comes back on its own. */
-  | "WEEKS"
+  /** At or below their band: a few days, and it comes back on its own. */
+  | "SOON"
   /** Above their band: it waits for the band, with a date as the backstop. */
   | "BAND";
 
@@ -76,8 +113,8 @@ export interface Deferral {
   /** The band it is waiting for, where it is waiting for one. */
   untilLevel: string | null;
   reason: DeferReason;
-  /** How long that is, in whole weeks, for the sentence the learner reads. */
-  weeks: number;
+  /** How long that is, in whole days, for the sentence the learner reads. */
+  days: number;
 }
 
 /**
@@ -88,45 +125,68 @@ export interface Deferral {
  * it is now offered at rather than the one the dictionary recorded. An
  * untagged word carries no claim about its difficulty at all, which is most
  * of what somebody typed in or photographed off their own homework, so it
- * takes the plain few weeks: the app has no grounds to say it arrived early.
+ * takes the plain few days: the app has no grounds to say it arrived early.
  */
 export function deferralFor(input: { band: string | null; level: Level; now: Date }): Deferral {
   const { band, level, now } = input;
   const above = band !== null && rankBand(band) > rankBand(level);
-  const weeks = above ? BAND_WEEKS : DEFER_WEEKS;
+  const days = above ? BAND_DAYS : DEFER_DAYS;
 
   return {
-    untilAt: new Date(now.getTime() + weeks * WEEK_MS),
+    untilAt: new Date(now.getTime() + days * DAY_MS),
     untilLevel: above ? band : null,
-    reason: above ? "BAND" : "WEEKS",
-    weeks,
+    reason: above ? "BAND" : "SOON",
+    days,
   };
 }
 
 /**
- * How far off a date is, in whole weeks, for the sentence the learner reads.
+ * How far off a date is, in whole days, for the sentence the learner reads.
  *
  * Rounded rather than floored, and never below one: a wait already standing
- * with four days left on it is "about a week" rather than "about 0 weeks",
- * which is the same rule `lib/time/duration.ts` states one directory over
- * about a figure whose smaller end rounds to a zero it is not.
+ * with a few hours left on it is "1 day" rather than "0 days", which is the
+ * same rule `lib/time/duration.ts` states one directory over about a figure
+ * whose smaller end rounds to a zero it is not.
  */
-export function weeksBetween(from: Date, to: Date): number {
-  return Math.max(1, Math.round((to.getTime() - from.getTime()) / WEEK_MS));
+export function daysBetween(from: Date, to: Date): number {
+  return Math.max(1, Math.round((to.getTime() - from.getTime()) / DAY_MS));
+}
+
+/**
+ * A span of days, written in the unit that makes it an answer.
+ *
+ * The rule `lib/time/duration.ts` states about a stretch of study, applied to
+ * a stretch of calendar: the unit follows the size, because the same number
+ * of days is a count somebody can picture at three and arithmetic at eighty.
+ * "3 days" is a fact a learner plans around. "84 days" is a sum, and "about
+ * 12 weeks" is one they have to do in their head; "about 3 months" is the
+ * thing a person would actually say.
+ *
+ * Days carry no hedge and the two coarser units do, which is not decoration:
+ * three days from tonight is a date, and a span rounded into weeks or months
+ * is not the date the row holds. What the row holds is what `PutAside` prints,
+ * which is why that screen prints the date itself rather than any of this.
+ */
+export function awayIn(days: number): string {
+  const safe = Math.max(1, Math.round(days));
+  if (safe < WEEKS_FROM_DAYS) return safe === 1 ? "1 day" : `${safe} days`;
+  if (safe < MONTHS_FROM_DAYS) return `about ${Math.round(safe / DAYS_PER_WEEK)} weeks`;
+  const months = Math.round(safe / DAYS_PER_MONTH);
+  return months === 1 ? "about a month" : `about ${months} months`;
 }
 
 /**
  * What the learner is told, which is what happened rather than thank you.
  *
  * Both sentences name the word and say when it comes back, because a button
- * whose whole effect is invisible for three weeks has to describe itself or
- * it reads as having done nothing.
+ * whose whole effect is invisible for days has to describe itself or it reads
+ * as having done nothing.
  */
 export function deferralNote(deferral: Deferral, lemma: string): string {
   if (deferral.reason === "BAND") {
-    return `Put aside. ${lemma} is a ${deferral.untilLevel} word, so it waits until you get there, or about ${deferral.weeks} weeks.`;
+    return `Put aside. ${lemma} is a ${deferral.untilLevel} word, so it waits until you get there, or ${awayIn(deferral.days)}.`;
   }
-  return `Put aside. ${lemma} comes back in about ${deferral.weeks} weeks.`;
+  return `Put aside. ${lemma} comes back in ${awayIn(deferral.days)}.`;
 }
 
 /**

@@ -6,6 +6,8 @@ import { plainerFirst } from "@/lib/dict/plainness";
 import { naturalSentence } from "@/lib/estonian/cloze";
 import { starredAmong } from "@/lib/progress/stars";
 import { SpeakingSession, type SpeakingCard } from "./SpeakingSession";
+import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Speaking" };
 
@@ -23,11 +25,24 @@ const ROUND = 10;
  * harder skill than producing "kohv", and by this point in a session the
  * learner has usually earned it.
  */
-export default async function SpeakingPage() {
+export default async function SpeakingPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const now = new Date();
 
-  const base = { ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null } } as const;
+  // Opened from the module, taught words, and a sentence only where every
+  // word of it has been taught; otherwise the word alone, which this round
+  // already says. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(await searchParams);
+  const readable = sentenceWithin(scope, await moduleSpellings(scope));
+
+  const base = {
+    ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
+    ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
+  } as const;
   const include = {
     lexeme: { select: { lemma: true, translation: true, examples: true, cefr: true } },
   } as const;
@@ -82,7 +97,7 @@ export default async function SpeakingPage() {
     */
     const translated = usableExamples(
       parseExamples(card.lexeme?.examples), plainerFirst(card.lexeme?.cefr ?? null, reach),
-    ).find((e) => e.en && naturalSentence(e.et));
+    ).find((e) => e.en && naturalSentence(e.et) && readable(e.et));
     if (translated?.en) {
       return { cardId: card.id, et: translated.et, prompt: translated.en, lemma, isSentence: true, ...kept };
     }

@@ -14,6 +14,7 @@ import { oneEntryPerLemma } from "@/lib/dict/search";
 import { caseReviewsFor } from "@/lib/progress/cases";
 import { shuffle } from "@/lib/random/shuffle";
 import { caseAccuracy } from "@/lib/stats/history";
+import type { ModuleScope } from "@/lib/course/scope";
 
 /**
  * WHICH SCENES THIS LEARNER IS ASKED ABOUT, AND WHICH CASE EACH ONE ASKS FOR.
@@ -55,7 +56,7 @@ const ROUND = 5;
 const MIN_CASE_REVIEWS = 6;
 
 export async function describeRound(
-  ownerId: string, level: Level, size = ROUND,
+  ownerId: string, level: Level, size = ROUND, scope: ModuleScope | null = null,
 ): Promise<DescribePrompt[]> {
   /*
     One read of every word any scene names, which is 180 lemmas and one `IN`.
@@ -135,8 +136,17 @@ export async function describeRound(
     }
     if (words.length !== scene.lemmas.length) continue;
 
-    const band = sceneLevel(scene.lemmas.map((l) => (entry.get(l)?.cefr ?? null) as Level | null));
-    if (!band || !bands.has(band)) continue;
+    /*
+      INSIDE THE MODULE, A SCENE WHOSE THREE WORDS HAVE ALL BEEN TAUGHT, and
+      the band is then beside the point: the taught words are the band.
+      Outside it, the band as before.
+    */
+    if (scope) {
+      if (!scene.lemmas.every((l) => scope.lemmas.includes(l))) continue;
+    } else {
+      const band = sceneLevel(scene.lemmas.map((l) => (entry.get(l)?.cefr ?? null) as Level | null));
+      if (!band || !bands.has(band)) continue;
+    }
 
     /*
       The word to ask about is one the learner already has a card for wherever
@@ -166,7 +176,15 @@ export async function describeRound(
     case an entry could actually build. A learner still meets their worst case
     first, and meets four others in the same five minutes.
   */
-  const priority = [...weak, ...shuffle(ASKABLE_CASES.filter((c) => !weak.includes(c)))];
+  // And only a case whose page has been read, inside the module.
+  const readCases = scope
+    ? ASKABLE_CASES.filter((c) => scope.cases.includes(c))
+    : ASKABLE_CASES;
+  if (readCases.length === 0) return [];
+  const priority = [
+    ...weak.filter((c) => readCases.includes(c)),
+    ...shuffle(readCases.filter((c) => !weak.includes(c))),
+  ];
   const prompts: DescribePrompt[] = [];
   let cursor = 0;
 

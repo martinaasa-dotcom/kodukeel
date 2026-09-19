@@ -1,9 +1,11 @@
 /**
- * WHICH A1 WORDS THE COURSE CANNOT YET SHOW IN A SENTENCE ITS OWN LEARNER CAN READ.
+ * WHICH WORDS THE COURSE CANNOT YET SHOW IN A SENTENCE ITS OWN LEARNER CAN READ, BY LEVEL.
  *
  * A lesson at A1 builds a gap-fill only out of a sentence made of words the
- * course has already taught (rule 4 in `lib/collections/lesson.ts`), and most
- * of the time it cannot: an Ekilex usage is written to illustrate a headword
+ * course has already taught (rule 4 in `lib/collections/lesson.ts`), and the
+ * planned module's gap rung is held to the same rule at every level
+ * (`heldToTaughtWords` in `lib/collections/levels.ts`), and most of the time
+ * neither can: an Ekilex usage is written to illustrate a headword
  * rather than to be a beginner's first reading, so the words standing around
  * the one being taught come from wherever the lexicographer was.
  *
@@ -117,6 +119,7 @@ let readable = 0;
 const thin: string[] = [];
 
 for (const unit of SYLLABUS) {
+  // The lesson is held to the rule at A1 alone; the module's walk below is every level.
   for (const lemma of unit.lemmas) for (const spelling of spellingsOf(lemma)) taught.add(spelling);
   if (unit.level !== "A1") continue;
 
@@ -144,12 +147,12 @@ for (const unit of SYLLABUS) {
   truth is 49, and reported the supply as the reason for a fault in the walk.
 */
 const dayBlockers = new Map<string, number>();
-let dayWords = 0;
-let dayGappable = 0;
-let dayReadable = 0;
+interface Tally { words: number; gappable: number; readable: number }
+const byLevel = new Map<string, Tally>();
 
 for (const programme of PROGRAMMES) {
-  if (programme.level !== "A1") continue;
+  const tally = byLevel.get(programme.level) ?? { words: 0, gappable: 0, readable: 0 };
+  byLevel.set(programme.level, tally);
   for (const day of programme.days) {
     const given = new Set<string>();
     for (const lemma of taughtThrough(programme, day.index)) {
@@ -157,10 +160,10 @@ for (const programme of PROGRAMMES) {
     }
     for (const lemma of day.words) {
       if (!byLemma.has(lemma)) continue;
-      dayWords++;
+      tally.words++;
       const { any, ok } = readWord(lemma, given, dayBlockers);
-      if (any) dayGappable++;
-      if (ok) dayReadable++;
+      if (any) tally.gappable++;
+      if (ok) tally.readable++;
     }
   }
 }
@@ -168,9 +171,10 @@ for (const programme of PROGRAMMES) {
 console.log("THE UNIT LESSON, walking the syllabus.");
 console.log("  A1 words the dictionary can gap at all:", gappable, "of", words);
 console.log("  With a sentence made only of words taught by then:", readable);
-console.log("\nTHE PLANNED MODULE, walking its own evenings. This is the rule's own reading.");
-console.log("  A1 words the dictionary can gap at all:", dayGappable, "of", dayWords);
-console.log("  With a sentence made only of words given by then:", dayReadable);
+console.log("\nTHE PLANNED MODULE, walking its own evenings at every level. This is the rule's own reading.");
+for (const [level, t] of byLevel) {
+  console.log(`  ${level}: the dictionary can gap ${t.gappable} of ${t.words} words; ${t.readable} with a sentence made only of words given by then`);
+}
 
 console.log("\nWords with nothing readable, by unit:");
 console.log(thin.join("\n"));

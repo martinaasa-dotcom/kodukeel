@@ -16,6 +16,7 @@ import {
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /** A gap, plus the card it is practicing. */
 type Gap = ClozeItem & { cardId: string | null };
@@ -48,6 +49,8 @@ export function ClozeSession() {
   const ladder = item ? hintLadder({ answer: item.answer }) : [];
   // The learner's own passage, so one gap is one word and one question both.
   const hints = useHints({ word: item ? `${index}` : null, question: item ? `${index}` : null, ladder });
+  /* The way back to the gap before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
 
   const build = useCallback(async () => {
     setBusy(true);
@@ -66,11 +69,26 @@ export function ClozeSession() {
   }, [text]);
 
   const next = useCallback(() => {
+    /* The sentence as it was drawn, with the word that filled the gap. A
+       passage the learner pasted is theirs, so this is read only like the
+       rest of it: nothing is stored and nothing is graded again. */
+    if (item) {
+      look.record({
+        of: item.cardId ?? `${item.lemma}-${index}`,
+        label: "Fill the gap",
+        question: item.sentence,
+        answer: item.answer,
+        note: `${item.lemma}, ${item.translation} · the ${item.formLabel}`,
+        questionLang: "et",
+        answerLang: "et",
+        speak: item.answer,
+      });
+    }
     setChecked(false);
     setAttempt("");
     if (index + 1 >= items.length) setPhase("done");
     else setIndex((i) => i + 1);
-  }, [index, items.length]);
+  }, [index, items.length, item, look]);
 
   const check = useCallback(() => {
     if (!item || checked || !attempt.trim()) return;
@@ -149,7 +167,7 @@ export function ClozeSession() {
             </Button>
           </WayOut>
 
-          <p className="mt-4 text-[13px]" style={{ color: "var(--ink-3)" }}>
+          <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
             Your text isn&rsquo;t saved. It&rsquo;s just used to find your words, then thrown away.
           </p>
         </div>
@@ -162,10 +180,10 @@ export function ClozeSession() {
     const accuracy = Math.round((correct / items.length) * 100);
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Passage complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Every answer there was a form a native writer chose, in a sentence they actually wrote.
           That is a better model than any exercise book.
         </p>
@@ -220,6 +238,7 @@ export function ClozeSession() {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -277,11 +296,11 @@ export function ClozeSession() {
 
           {checked && (
             <div className="mt-5" aria-live="polite">
-              <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+              <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
                 {right
                   ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
                   : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-                <p className="text-[15px]">
+                <p className="text-base">
                   {right
                     ? "Exactly the form the writer used."
                     : slip
@@ -291,7 +310,7 @@ export function ClozeSession() {
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <p lang="et" className="text-[15px]" style={{ color: "var(--ink-2)" }}>
+                <p lang="et" className="text-base" style={{ color: "var(--ink-2)" }}>
                   {item.sentence}
                 </p>
                 {/* A gap-fill is answered by a word but learned as a
@@ -315,6 +334,11 @@ export function ClozeSession() {
             </Button>
           )}
         </div>
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
       </div>
     </div>
   );

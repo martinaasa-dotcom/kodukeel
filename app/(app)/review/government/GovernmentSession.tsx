@@ -17,6 +17,7 @@ import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import type { CaseKey } from "@/lib/estonian/types";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface GovernmentQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -81,6 +82,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   const startedAt = useRef(Date.now());
 
   const question = questions[index];
+  /* The way back to the verb before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   /*
     Asked here too, mid-round, because a learner with shelves named who keeps a
     word from a drill has the same claim on choosing where it goes as one who
@@ -129,14 +132,37 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
   }, [question, picked, hints]);
 
   const next = useCallback(() => {
+    /* The verb, the case it governs and the sentence that shows it, which is
+       the whole of what was on the screen once the answer was in. */
+    if (question) {
+      look.record({
+        of: question.cardId ?? question.lexemeId,
+        label: "Rektsioon",
+        question: `${question.lemma}, ${question.translation}`,
+        answer: question.answerEt,
+        note: question.example ?? question.answerQuestion,
+        questionLang: "et",
+        answerLang: "et",
+        speak: question.lemma,
+      });
+    }
     setPicked(null);
     setAdded(null);
     setIndex((i) => i + 1);
-  }, []);
+  }, [question, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
+      /* A look back stands in the round's place, so the round's keys stand
+         down with it: an answer key over an older word would pick an option
+         nobody is looking at. */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed) return;
       const n = Number(e.key);
@@ -145,17 +171,17 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next]);
+  }, [finished, question, revealed, choose, next, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     const accuracy = Math.round((correct / questions.length) * 100);
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           There&rsquo;s no rule for rektsioon, you just remember it verb by verb. A little often
           beats a lot at once.
         </p>
@@ -200,6 +226,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -222,15 +249,15 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
             </p>
             <Speak text={question.lemma} />
           </div>
-          <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
 
           {question.maskedExample && !revealed && (
-            <p lang="et" className="mt-5 text-[19px]" style={{ color: "var(--ink-2)" }}>
+            <p lang="et" className="mt-5 text-lg" style={{ color: "var(--ink-2)" }}>
               {question.maskedExample}
             </p>
           )}
 
-          <p className="mt-5 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="mt-5 text-sm" style={{ color: "var(--ink-2)" }}>
             Which question does it answer?
           </p>
         </div>
@@ -269,8 +296,8 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
                     {/* And what that is asking, because a list of question
                         words is a list of Estonian to somebody who has not met
                         them: see `lib/estonian/cases.ts`. */}
-                    <span className="block text-[13px]">{questionInEnglish(spec?.question)}</span>
-                    <span lang="et" className="block text-[13px]" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
+                    <span className="block text-xs">{questionInEnglish(spec?.question)}</span>
+                    <span lang="et" className="block text-xs" style={{ color: "var(--ink-3)" }}>{spec?.et}</span>
                   </span>
                   {revealed && isAnswer && <Check size={16} className="ml-auto shrink-0" aria-hidden />}
                 </button>
@@ -310,7 +337,7 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
               />
             )}
             {question.gloss && (
-              <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-2)" }}>{question.gloss}</p>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>{question.gloss}</p>
             )}
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
               {question.experiencer
@@ -360,10 +387,12 @@ export function GovernmentSession({ questions: initialQuestions }: { questions: 
           </div>
         )}
       </div>
+      )}
 
-      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
-        {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 4 to answer</span>
+        <LookBackButton {...look.button} disabled={look.looking} />
+      </div>
     </div>
   );
 }

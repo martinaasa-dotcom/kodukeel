@@ -59,6 +59,18 @@ interface Tile { key: string; pairId: string; side: Side }
  * a beginner's deck cannot fill six pairs on its own. That is a gap in the
  * board rather than an exemption from the rule.
  */
+/**
+ * The line over the board says what the Estonian side is. At A1 every tile is
+ * the word itself, because a beginner is asked for no case (`page.tsx`), and
+ * a lead promising an ending over a board that carries none is the app
+ * describing a different round.
+ */
+export function boardLead(pairs: readonly EmojiPair[]): string {
+  return pairs.some((p) => p.caseKey)
+    ? "Match the picture to the Estonian, ending and all."
+    : "Match the picture to the word.";
+}
+
 export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
   // Snapshotted once on mount, like every session here: a Server Action
   // refreshing this route must not swap the board mid-round.
@@ -144,7 +156,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
 
   if (phase === "ready") {
     return (
-      <Page title="Picture match" lead="Match the picture to the Estonian, ending and all.">
+      <Page title="Picture match" lead={boardLead(pairs)}>
         <div className="mx-auto flex max-w-md flex-col items-center gap-5 text-center">
           {/*
             An icon rather than three emoji. The voice sweep bans pictographic
@@ -202,7 +214,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
                 <span className="min-w-0 flex-1">
                   <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{p.form}</span>
                   <span className="text-sm" style={{ color: "var(--ink-3)" }}>
-                    {" "}from <span lang="et">{p.lemma}</span>
+                    {p.form !== p.lemma && <>{" "}from <span lang="et">{p.lemma}</span></>}
                     {p.caseEt && <>, <span lang="et">{p.caseEt}</span></>}
                     {p.caseKey && plainAsk(p.caseKey) && <>: the form you use {plainAsk(p.caseKey)}</>}
                   </span>
@@ -309,7 +321,7 @@ export function EmojiSession({ pairs: initialPairs }: { pairs: EmojiPair[] }) {
         on every tile: six tiles saying the same sentence is furniture.
       */}
       {askedOnBoard.length > 0 && (
-        <ul className="mt-5 flex flex-col gap-1 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+        <ul className="mt-5 flex flex-col gap-1 text-sm" style={{ color: "var(--ink-2)" }}>
           {askedOnBoard.map(([question, clause]) => (
             <li key={question}>
               <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{question}</span>

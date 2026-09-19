@@ -23,17 +23,38 @@
     same card, each one a decision made once and never compared with the others.
     A reader does not see 0.5px; they see a page that will not settle.
 
-    The steps are named for their job rather than their size, and the floor is
-    12px: below that an uppercase label stops being readable on a phone held
-    at arm's length in the evening, which is when this app is actually used.
+    The steps are named for their job rather than their size, which is what
+    makes the whole thing movable: every size in the tree is one of these
+    names (`test-invariants.ts`, "no type size is written as a literal"), so
+    the app is resized by editing this block and nothing else.
+
+    AND THE FLOOR MOVED, because 12px was drawn for the wrong reader. It was
+    argued for as the smallest an uppercase label can be on a phone held at
+    arm's length in the evening, and that is a claim about a phone rather than
+    about whoever is holding it. Most people learning Estonian in Estonia are
+    doing it because they live here, which takes in everybody who arrived
+    forty years ago: the reader this app is actually for is as likely to be
+    sixty and wearing glasses as to be twenty-five. It was reported that way,
+    as small fonts that are horrible to read, and the report was right.
+
+    So the floor is 14px and the body is 17px, where they were 12 and 15. The
+    bottom four steps ramp a pixel at a time (14, 15, 16, 17) rather than
+    holding the old proportions, which is deliberate: a caption has to read as
+    quieter than the body above it, and once the floor is somewhere a reader
+    can actually see, "quieter" is carried by colour and weight far more than
+    by another two pixels off something already small. The display steps did
+    not move at all. 32px was never the complaint, and the hero is measured
+    against the width and height of the window it has to fit in
+    (docs/14-design-system.md §3), so growing it would break a fit that was
+    measured rather than chosen.
   */
-  --text-2xs: 12px;     /* micro-label: uppercase, tracked, sparingly */
-  --text-xs: 13px;      /* captions, meta, provenance */
-  --text-sm: 13.5px;    /* secondary body, dense UI */
-  --text-base: 15px;    /* body */
-  --text-md: 17px;      /* lead paragraphs, card titles */
-  --text-lg: 19px;      /* section headings */
-  --text-xl: 22px;      /* card headline */
+  --text-2xs: 14px;     /* micro-label: uppercase, tracked, sparingly. The floor */
+  --text-xs: 15px;      /* captions, meta, provenance */
+  --text-sm: 16px;      /* secondary body, dense UI */
+  --text-base: 17px;    /* body */
+  --text-md: 19px;      /* lead paragraphs, card titles */
+  --text-lg: 21px;      /* section headings */
+  --text-xl: 24px;      /* card headline */
   --text-2xl: 27px;     /* the number a screen is about */
   --text-3xl: 32px;     /* page title */
   --text-4xl: 40px;     /* display */
@@ -1919,8 +1940,12 @@
 
     `--landing-nav` stays declared and measured, because the hero's top
     padding is the only thing between the pill and the headline and the pill
-    is 79px at every width this app is drawn at; `scripts/test-design.mjs`
-    reads the real nav against it. The padding is a `clamp` on `svh` for the
+    is 83px at every width this app is drawn at; `scripts/test-design.mjs`
+    reads the real nav against it. It was 79px until the type scale's floor
+    went up, which is exactly the drift the check exists for: a constant
+    standing in for something drawn on screen is wrong the day the thing on
+    screen changes, and what said so was the measurement rather than anybody
+    noticing. The padding is a `clamp` on `svh` for the
     reason the three gaps below give: a tall window has air to spend and a
     phone held sideways has none.
 
@@ -1932,7 +1957,7 @@
   .landing-flow { display: flex; flex-direction: column; gap: var(--section-gap); }
   .landing-foot { margin-top: var(--section-gap); }
   .hero-open {
-    --landing-nav: 79px;
+    --landing-nav: 83px;
     padding-top: clamp(2.5rem, 8svh, 5.5rem);
   }
 
@@ -2146,6 +2171,41 @@
   .verdict-right { background: var(--good-soft); color: var(--good-ink); }
   .verdict-nearly { background: var(--hard-soft); color: var(--hard-ink); }
   .verdict-wrong { background: var(--again-soft); color: var(--again-ink); }
+  /*
+    AND THE BOX IT IS SAID IN, ALSO PAINTED ONCE.
+
+    The three classes above settle the colour and settled nothing else, so the
+    geometry and the type were decided per screen: five rounds wrote
+    `rounded-md px-3.5 py-3` with a `text-[15px]` inside it, the daily path and
+    the ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, and the word
+    ordering round set a whole sentence in `label-xs`. Four sizes for one
+    object, three of them under the body step, and two of the four are off the
+    scale entirely. A learner reported the ladder's box as tiny and off-putting
+    beside a prompt set at 27px, which is what 13.5px on a panel does.
+
+    So the panel is `--text-md`, and everything inside it inherits that: a
+    verdict is the one line on the screen that says whether the last thirty
+    seconds went anywhere, and it is not a caption. It sat at `--text-base` for
+    a commit and was reported as still small, which is the reading to trust:
+    the body step is right for a paragraph a reader is already inside, and this
+    is one line under a prompt set at 27px, read in the half second before the
+    next card. The padding and the radius are the majority shape the five
+    rounds already had. A line inside that really is meta, the provenance under
+    a sentence, still asks for its own size.
+
+    It sits in `@layer utilities` beside the tints, after the generated
+    utilities, so a `text-sm` written on the same element loses to it silently
+    rather than shrinking the panel. That is the right way round for the fault
+    this was drawn against and it is worth knowing before wondering why a size
+    on a call site did nothing: the size belongs here, and the invariant in
+    `scripts/test-invariants.ts` refuses one written there.
+  */
+  .verdict-panel {
+    border-radius: var(--r-sm);
+    padding: 0.75rem 0.875rem;
+    font-size: var(--text-md);
+    line-height: 1.45;
+  }
   .option-right {
     --choice-bg: var(--good-soft);
     --choice-border: var(--good);

@@ -160,9 +160,14 @@ describe("the clue ladder", () => {
   });
 
   it("names what is coming, so a clue never arrives unannounced", () => {
-    expect(nextClue(2, true)).toBe("What kind of word it is, on your next try.");
-    expect(nextClue(1, true)).toBe("What kind of word it is, in 2 tries.");
-    expect(nextClue(SONAD_GUESSES - 2, true)).toBe("How many vowels it has, on your last try.");
+    // A whole sentence: that a clue is coming, what it says, and when. The
+    // old "How many vowels it has, in 6 tries" was reported as making no
+    // sense to somebody looking at an empty board.
+    expect(nextClue(2, true)).toBe("After your next try you get a clue: what kind of word it is.");
+    expect(nextClue(1, true)).toBe("After 2 more tries you get a clue: what kind of word it is.");
+    expect(nextClue(SONAD_GUESSES - 2, true))
+      .toBe("Before your last try you get a clue: how many of the letters are vowels.");
+    expect(nextClue(0, false)).toMatch(/^After \d more tries you get a clue: how many of the letters are vowels\.$/);
     expect(nextClue(SONAD_GUESSES - 1, true)).toBeNull();
   });
 

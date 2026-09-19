@@ -8,6 +8,8 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
@@ -103,6 +105,19 @@ export function QuestSession({
   const sound = useFeedbackSound();
 
   const card = cards.length > 0 ? cards[index % cards.length]! : null;
+  /*
+    The English of a gap's own sentence with the missing word marked inside it,
+    off what the dictionary already holds and withheld where that line carries
+    the answer (`lib/copy/gapMeaning.ts`). Null on anything that is not a gap.
+  */
+  const meaning = card && isGap(card.front)
+    ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
+    : null;
+  /*
+    And what the cue still has to say once that line has said it: the headword
+    where the cue carries one, never the gloss a second time (`gapCue`).
+  */
+  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
   const exhausted = cards.length > 0 && attempted >= cards.length;
 
   /*
@@ -364,8 +379,19 @@ export function QuestSession({
           <p lang="et" className="text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
             {card.front}
           </p>
-          {card.hint && !revealed && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+          {/*
+            WHAT THE SENTENCE AROUND THE GAP SAYS, AND THE CUE ONLY WHERE IT
+            DID NOT SAY IT.
+
+            The quest picks the cases a learner is worst at, so its cards are
+            the ones they have least to go on with, and the English under them
+            was the missing word's gloss alone. One drawing and one rule for
+            all six gap screens: `lib/copy/gapMeaning.ts`, off the English the
+            dictionary already holds, so this costs the quest no call.
+          */}
+          {meaning && !revealed && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
+          {cue && !revealed && (
+            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 
           {card.choices ? (

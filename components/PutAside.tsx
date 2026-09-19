@@ -55,10 +55,10 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
               className="tap-tint -mx-1 min-w-0 flex-1 rounded-[var(--r-sm)] px-1 py-1"
             >
               <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span lang="et" className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
+                <span lang="et" className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                   {word.lemma}
                 </span>
-                <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>
+                <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                   {word.translation}
                 </span>
               </span>
@@ -67,7 +67,7 @@ export function PutAside({ words }: { words: readonly DeferredWord[] }) {
                 date where there is not. Both are on the row, because the band
                 is the reason and the date is the promise. */}
             {word.untilLevel && <Chip tone="sky">{word.untilLevel}</Chip>}
-            <span className="text-2xs" style={{ color: "var(--ink-3)" }}>
+            <span className="text-[13px]" style={{ color: "var(--ink-3)" }}>
               {/* No zone handed in: this whole list is drawn in the browser, so
                   leaving it undefined is already the reader's own. */}
               back <DateText iso={word.untilIso} options={{ day: "numeric", month: "short" }} />

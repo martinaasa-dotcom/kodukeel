@@ -18,6 +18,7 @@ import { useHints } from "@/components/round/useHints";
 import { hintLadder } from "@/lib/questions/hints";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
 
 export interface SentenceTask {
@@ -94,6 +95,8 @@ export function SentenceSession(
   const shownAt = useRef(Date.now());
 
   const task = tasks[index];
+  /* The way back to the sentence before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !task;
 
   /*
@@ -183,19 +186,41 @@ export function SentenceSession(
     setBusy(false);
   }, [task, busy, checked, answer, hints]);
 
-  const next = () => setIndex((i) => i + 1);
+  const next = useCallback(() => {
+    /* The sentence the writer wrote, which is the answer this round is
+       about, with its English where the dictionary holds one. */
+    if (task) {
+      look.record({
+        of: task.cardId,
+        label: "Word order",
+        question: task.lemma,
+        answer: task.et,
+        note: task.en,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.et,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [task, look]);
 
   /* Once the sentence is marked, Enter or Space is "next", as on every other
      round. The tiles are buttons, so before the mark a Space on a focused tile
      is the browser pressing that tile and is left to it. */
   useEffect(() => {
-    if (!checked) return;
     const onKey = (e: KeyboardEvent) => {
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
+      if (!checked) return;
       if (isAdvanceKey(e)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [checked]);
+  }, [checked, look, next]);
 
   if (initialTasks.length === 0) {
     return (
@@ -281,6 +306,7 @@ export function SentenceSession(
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -369,16 +395,18 @@ export function SentenceSession(
           </div>
 
           {checked && (
-            <div className={`${VERDICT_CLASS[checked]} pop-in rounded-[var(--r)] px-4 py-3 text-center`}>
+            <div className={`${VERDICT_CLASS[checked]} verdict-panel pop-in text-center`}>
               {/*
-                `label-xs` uppercases, and this line names an Estonian word
-                now: `ette` would reach the screen as `ETTE`, which is the
-                fault `Chip`'s own `caseSensitive` exists for and the one that
-                put `-SSE` on a grammar card. The weight and the size are what
-                the line wants; the transform is what it never wanted, since
-                this is a sentence rather than a caption.
+                This was `label-xs` with the transform switched off, which was
+                half of a fix: the uppercase had to go because the line names
+                an Estonian word and `ette` reached the screen as `ETTE`, the
+                fault `Chip`'s own `caseSensitive` exists for. What stayed was
+                a 12px tracked micro-label carrying a whole sentence, which is
+                the caption it had just stopped being. The panel's own step is
+                what it wants, and the weight is what makes it the line rather
+                than the label.
               */}
-              <p className="label-xs" style={{ textTransform: "none" }}>
+              <p className="font-semibold">
                 {checked === "wrong" ? ORDER_WRONG
                   : <>{uiText("Õige!", "Correct!")} {variant === null ? ORDER_EXACT : orderVariantNote(variant.moved, variant.writerPut)}</>}
               </p>
@@ -422,10 +450,12 @@ export function SentenceSession(
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} of {attempts} first time
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{correct} of {attempts} first time</span>
+        <LookBackButton {...look.button} disabled={look.looking} />
+      </div>
     </div>
   );
 }

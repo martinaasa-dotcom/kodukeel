@@ -213,7 +213,33 @@ for (const url of ["/welcome"]) {
 // Floor: 13, measured in the state CI seeds. A thinner database reads as short.
 const { check, done } = suite("Design system", { floor: 15 });
 
-const SCALE = new Set(["12px", "13px", "13.5px", "15px", "17px", "19px", "22px", "27px", "32px", "40px", "52px", "68px", "88px"]);
+/*
+  THE SCALE IS READ OFF THE PAGE, BECAUSE IT WAS TYPED HERE AND WENT STALE.
+
+  This held its own copy of the thirteen steps, and it was right until the
+  scale moved: the floor went from 12px to 14px and the body from 15 to 17
+  because the app was reported as unreadably small, and the first thing that
+  happened was this suite calling the new scale off-scale on four pages. A
+  second list of what the type scale is, in a file that is not the type scale,
+  is the fault CLAUDE.md names over and over, and the version of it that costs
+  most is the one where the copy fails and the original is right.
+
+  `@theme` emits the steps onto `:root`, so the running page knows what they
+  are and this reads them from it. The floor below is the smallest of them for
+  the same reason: a number typed twice is a number about to disagree with
+  itself.
+*/
+const SCALE_STEPS = await p.evaluate(() => {
+  const cs = getComputedStyle(document.documentElement);
+  return ["2xs", "xs", "sm", "base", "md", "lg", "xl", "2xl", "3xl", "4xl", "5xl", "6xl", "7xl"]
+    .map((name) => cs.getPropertyValue(`--text-${name}`).trim())
+    .filter(Boolean);
+});
+if (SCALE_STEPS.length !== 13) {
+  throw new Error(`the page declares ${SCALE_STEPS.length} type steps, not 13: the scale moved or --text-* stopped reaching :root`);
+}
+const SCALE = new Set(SCALE_STEPS);
+const FLOOR = Math.min(...SCALE_STEPS.map((s) => parseFloat(s)));
 const offScale = [...sizes.keys()].filter((s) => !SCALE.has(s));
 
 /*
@@ -226,9 +252,9 @@ check("every text size is on the scale", offScale.length === 0,
   offScale.length
     ? offScale.map((size) => `${size} ${where.get(size) ?? ""}`).join(" | ")
     : `${sizes.size} steps in use`);
-check("nothing is set below the 12px floor",
-  [...sizes.keys()].every((s) => parseFloat(s) >= 12),
-  [...sizes.keys()].filter((s) => parseFloat(s) < 12).join(" "));
+check(`nothing is set below the ${FLOOR}px floor`,
+  [...sizes.keys()].every((s) => parseFloat(s) >= FLOOR),
+  [...sizes.keys()].filter((s) => parseFloat(s) < FLOOR).join(" "));
 check("every run of text clears WCAG AA on its background", contrast.length === 0,
   /*
     Name where, not just what, for the same reason the type-scale check above
