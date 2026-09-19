@@ -361,7 +361,12 @@ export default async function ExamResultPage({ params }: { params: Promise<{ id:
                   </span>
                   <span className="text-sm" style={{ color: "var(--ink-3)" }}>you wrote</span>
                   <span
-                    className={`${VERDICT_CLASS.wrong} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-sm`}
+                    /* The same step as the answer beside it. These two chips
+                       are one object said twice and were 17px and 13.5px, so
+                       the word the candidate got wrong was set smaller than
+                       the word they were after, on the screen they read to
+                       find out what went wrong. */
+                    className={`${VERDICT_CLASS.wrong} inline-flex items-center gap-1.5 rounded-[var(--r-sm)] px-2 py-1 text-md`}
                     lang={et && mark.given ? "et" : undefined}
                   >
                     <X size={14} aria-label="Your answer" />

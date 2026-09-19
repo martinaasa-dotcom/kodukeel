@@ -31,7 +31,7 @@ export function SituationRow({ reading, learnerLevel }: { reading: Reading; lear
             <span className="text-xs" style={{ color: "var(--ink-3)" }}>{EVIDENCE_LABEL[evidence]}</span>
           )}
         </span>
-        <span className="mt-2 block text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
+        <span className="mt-2 block text-base font-semibold" style={{ color: "var(--ink)" }}>
           {situation.claim}
         </span>
         <span className="mt-0.5 block text-xs" style={{ color: "var(--ink-3)" }}>

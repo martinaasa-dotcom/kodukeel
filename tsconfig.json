@@ -35,7 +35,8 @@
     ".next/types/**/*.ts",
     "next-env.d.ts",
     ".next-signin/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    ".next-signin/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

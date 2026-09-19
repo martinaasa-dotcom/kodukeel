@@ -14,6 +14,8 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { SuggestFix } from "@/components/SuggestFix";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useAudioPrefs, useFeedbackSound } from "@/components/AudioPrefs";
 import { useOffline } from "@/components/OfflineProvider";
 import { useResumeCard } from "@/components/useResumeCard";
@@ -28,9 +30,15 @@ import type { LearnScheduling, LearnWord } from "@/lib/progress/learn";
 import { grade, type RatingValue } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState } from "@/lib/ux/verdict";
+import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useUiText } from "@/components/UiLanguage";
 import { EndSession, FullEntry, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import { type SeenCard } from "@/lib/ux/lookBack";
 
 /**
  * THE LEARN LADDER, DRIVEN.
@@ -182,6 +190,16 @@ export function LearnSession({
   const [right, setRight] = useState(0);
   const [busy, setBusy] = useState(false);
   const [pendingOffline, setPendingOffline] = useState(0);
+  /*
+    WHAT HAS BEEN ON THIS SCREEN, SO IT CAN BE READ BACK.
+
+    The ladder asks one word at a time and the browser's back button leaves
+    the whole batch, so somebody who wanted the word before this one had to
+    lose their place to see it. Read only, written nowhere, dropped with the
+    round: `lib/ux/lookBack.ts` is the rule. Nothing is un-graded by it, which
+    is what makes it safe on a screen whose every answer is already in the log.
+  */
+  const look = useLookBack();
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
@@ -199,6 +217,12 @@ export function LearnSession({
     pause moves on once rather than twice.
   */
   const autoNext = useRef<number | null>(null);
+  // A round left mid-pause — closing the tab, navigating away, the queue
+  // itself running out under the timer — must not let it fire `advance` on a
+  // component that is no longer there to hold the state it updates.
+  useEffect(() => {
+    return () => { if (autoNext.current !== null) window.clearTimeout(autoNext.current); };
+  }, []);
   const shownAt = useRef(Date.now());
   const startedAt = useRef(Date.now());
   const run = useRef(0);
@@ -229,6 +253,60 @@ export function LearnSession({
   const finished = !word;
   const total = words.length;
   const left = queue.length;
+
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE TWO RUNGS THAT CAN BE STUCK ON.
+
+    `meet` asks nothing, so there is nothing to be helped with. `choice` puts
+    four meanings on the screen, where the help a teacher gives is crossing one
+    out; `gap` asks for a form, where it is uncovering the letters of the one
+    the dictionary holds. `lib/questions/hints.ts` builds both and prices both.
+
+    The stems handed over are every form of the word the session is holding,
+    nulls included: the module takes the longest that really is the front of the
+    answer and ignores the rest, so nothing here has to decide which of them is
+    "the stem". That is what stops twenty rounds each keeping their own opinion
+    about Estonian morphology.
+  */
+  const ladder = useMemo(() => {
+    if (!word) return [];
+    if (rung === "choice") return narrowLadder(word.choices ?? [], word.gloss);
+    if (rung !== "gap") return [];
+    const answer = word.gap ? word.gap.answer : word.lemma;
+    return hintLadder({ answer, stems: [word.gap?.stem, word.lemma] });
+  }, [word, rung]);
+  /*
+    Keyed on the card and the rung together, because the two rungs that can be
+    stuck on ask different questions about one word and hand over different
+    kinds of help. A word that fell from the gap back to the choice should be
+    offered the crossing-out from scratch rather than arriving with three of
+    four already struck by the letters somebody uncovered a lap ago.
+  */
+  const hints = useHints({
+    word: word?.cardId ?? null,
+    // The rung as well as the word, because the two rungs that can be stuck on
+    // ask different questions about it and hand over different kinds of help.
+    question: word ? `${word.cardId}:${rung}` : null,
+    ladder,
+    lapses: word?.scheduling.lapses ?? 0,
+  });
+  const struck = useMemo(
+    () => (rung === "choice" ? struckOptions(word?.choices ?? [], word?.gloss ?? "", hints.taken) : []),
+    [rung, word, hints.taken],
+  );
+
+  /*
+    The one screen in the round that says being unable to answer is ordinary.
+
+    Only on a first production: a word being asked for in writing for the first
+    time, by somebody who has not already missed it today and whose card carries
+    no lapses. A word carries this line once in its life, which is what keeps it
+    from becoming the small print under every box (`lib/copy/firstTry.ts`).
+  */
+  const firstTry = word !== undefined && rung === "gap" && isFirstProduction({
+    produced: hints.missed + word.scheduling.lapses,
+    typed: true,
+  });
 
   useEffect(() => { rememberWord(word ? { id: word.cardId } : undefined); }, [rememberWord, word]);
 
@@ -261,6 +339,27 @@ export function LearnSession({
    */
   const advance = useCallback((updated: Record<string, Rung>) => {
     if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
+    /*
+      One choke point, so the record cannot fall behind the ladder: every rung
+      leaves the seat through here, and what is kept is what was on the screen
+      at the rung it was asked at rather than the word's row.
+    */
+    if (word) {
+      const gap = rung === "gap" ? word.gap : null;
+      const entry: Omit<SeenCard, "key"> = {
+        of: word.cardId,
+        label: rung === "meet"
+          ? (word.isPhrase ? "New phrase" : "New word")
+          : gap ? "Fill the gap" : "What it means",
+        question: gap ? gap.text : word.lemma,
+        answer: gap ? gap.answer : word.gloss,
+        note: gap ? gap.fullEn : null,
+        questionLang: "et",
+        answerLang: gap ? "et" : "en",
+        speak: gap ? gap.answer : word.lemma,
+      };
+      look.record(entry);
+    }
     const rest = [...queue];
     const [head] = rest.splice(0, 1);
     const next = head && updated[head] !== "kept" ? requeue(rest, head, 0, LEARN_BATCH) : rest;
@@ -278,7 +377,7 @@ export function LearnSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
-  }, [queue]);
+  }, [queue, word, rung, look]);
 
   /**
    * A word the learner has put aside, which is the mirror of the claim below.
@@ -322,7 +421,21 @@ export function LearnSession({
   const send = useCallback(async (outcome: Outcome, shown: Result) => {
     if (!word || busy) return;
     setBusy(true);
-    const rating = ratingFor(outcome) as RatingValue;
+    if (outcome !== "right" && outcome !== "known") hints.noteMiss();
+    /*
+      A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
+
+      `hintCeiling` is 3 with nothing taken, which is no ceiling at all, so a
+      round nobody asked for help in grades exactly as it always did. Once a
+      rung has been taken the grade cannot rise above Hard, and once the answer
+      itself has been shown it cannot rise above Again. Written as a floor under
+      `Math.min` rather than as a branch, so a miss is still a miss: a hint can
+      only ever lower what the answer earned. The argument for charging at all
+      is in `lib/questions/hints.ts`, and it is the one `audit:decks` makes: a
+      question whose answer is on the screen is a question nobody can fail, and
+      the only thing that keeps this from being that is the log saying so.
+    */
+    const rating = Math.min(ratingFor(outcome), hints.ceiling) as RatingValue;
     const durationMs = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
     const before = scheduled.current.get(word.cardId) ?? word.scheduling;
@@ -391,7 +504,7 @@ export function LearnSession({
     } finally {
       setBusy(false);
     }
-  }, [word, busy, rungs, advance, refreshOutbox]);
+  }, [word, busy, rungs, advance, refreshOutbox, hints]);
 
   /** The meeting writes nothing. The word comes back a lap later as a question. */
   const met = useCallback(() => {
@@ -427,6 +540,33 @@ export function LearnSession({
   /** Whether the gap is waiting for the miss to be typed again. */
   const needsRetype = phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && !retypeOk;
 
+  /**
+   * The marker's note with the answer marked inside it, or nothing.
+   *
+   * `checkAnswer` writes a note that names the form on three of its four
+   * readings (`Not quite, it's "X".`, `So close, the word is "X".`, `That is
+   * another form of the word. This one wanted "X".`), and on the fourth it
+   * names the letters instead. The panel below prints the answer on its own
+   * line only where the note leaves it unsaid, so `splitOnForm` is asked the
+   * question rather than the panel guessing from the verdict: a note that
+   * grows or loses the form is answered correctly the day it changes.
+   *
+   * The gap rung only. The choice rung's answer is an English gloss and its
+   * note is `You chose X`, so the two are never the same claim, and marking a
+   * gloss `lang="et"` would tell a screen reader to say an English word with
+   * Estonian phonology.
+   */
+  const saidOnce = useMemo(() => {
+    if (!result || result.outcome === "right" || rung !== "gap" || !result.note) return null;
+    const parts = splitOnForm(result.note, result.expected);
+    if (!parts.some((part) => part.match)) return null;
+    return parts.map((part, i) => (
+      part.match
+        ? <span key={i} lang="et" data-answer className="font-semibold">{part.text}</span>
+        : <span key={i}>{part.text}</span>
+    ));
+  }, [result, rung]);
+
   const carryOn = useCallback(() => {
     if (!word || needsRetype) return;
     advance(rungs);
@@ -454,6 +594,20 @@ export function LearnSession({
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
+      /*
+        A look back stands in the ladder's place, so the rung underneath is not
+        answerable and its keys are not either: a stray Enter over an older
+        word would otherwise grade the one the learner cannot see.
+      */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      // Safe as a letter here because this handler has already returned above
+      // if focus is in a text box, which is where `b` is the first letter of
+      // `buss`. The review screen had to be corrected for exactly that.
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (phase === "feedback") {
         if (isAdvanceKey(e)) { e.preventDefault(); carryOn(); }
         return;
@@ -467,7 +621,7 @@ export function LearnSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, rung, word, met, pick, carryOn]);
+  }, [phase, rung, word, met, pick, carryOn, look]);
 
   if (total === 0) {
     return (
@@ -497,7 +651,7 @@ export function LearnSession({
     two copies of a sentence is how the wording of one of them rots.
   */
   const asideNote = aside ? (
-    <p className="mt-5 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+    <p className="mt-5 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
       {aside}{" "}
       <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
         Bring it back
@@ -592,6 +746,22 @@ export function LearnSession({
     );
   }
 
+  /*
+    The English of this gap's own sentence, with the asked word marked in it,
+    and what the cue still has to say once that line has said it. Both are one
+    rule (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in context,
+    so the gloss goes and the Estonian headword stays, which is what keeps this
+    rung a question about the form rather than about the vocabulary.
+
+    `gap.en` is already withheld upstream where the English carries the answer,
+    and `gapMeaning` applies that same `mentions` guard again rather than
+    trusting the caller.
+  */
+  const gapLine = word?.gap
+    ? gapMeaning({ en: word.gap.en, answer: word.gap.answer, cue: word.gap.hint, lemma: word.lemma })
+    : null;
+  const gapMarked = gapLine?.marked ?? false;
+
   const progress = total > 0 ? ((total - left) / total) * 100 : 0;
 
   return (
@@ -611,6 +781,12 @@ export function LearnSession({
         </span>
       </div>
 
+      {/* The look back stands in the ladder's place rather than over it: one
+          screen at a time, and the rung underneath cannot be answered by
+          accident while an older word is being read. */}
+      {look.panel ? (
+        <LookBackCard {...look.panel} />
+      ) : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -675,16 +851,33 @@ export function LearnSession({
                        chose, on a screen only ever reached by pressing the
                        wrong one. */
                     const state = marked ? optionState(isAnswer, option === chosen) : null;
+                    /*
+                      A HINT HERE CROSSES ONE OUT, WHICH IS WHAT A TEACHER DOES.
+
+                      Struck rather than removed: an option that vanishes takes
+                      the row under it up the screen while somebody is reading,
+                      and a learner who has just pressed for help should be able
+                      to see what the help ruled out. It is left pressable and
+                      graded exactly as it would have been, because refusing the
+                      press would be the app telling them they are wrong before
+                      they have answered. The ranking is `struckOptions`': the
+                      option nobody would confuse with the answer goes first, so
+                      the rivals worth telling apart are the ones left standing.
+                    */
+                    const out = !marked && struck.includes(option);
                     return (
                       <button
                         key={option}
                         type="button"
                         onClick={() => pick(option)}
                         disabled={busy || marked}
-                        className={`choice-btn ${state ? OPTION_CLASS[state] : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
+                        aria-describedby={out ? "hint-struck" : undefined}
+                        className={`choice-btn ${state ? OPTION_CLASS[state] : ""} ${out ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base`}
+                        style={out ? { color: "var(--ink-3)" } : undefined}
                       >
                         <KeyCap>{i + 1}</KeyCap>
                         <span className="min-w-0 flex-1">{option}</span>
+                        {out && <span className="sr-only"> (ruled out by a hint)</span>}
                         {state === "right" && <Check size={16} aria-label="Right" />}
                         {state === "wrong" && <X size={16} aria-label="Your pick" />}
                       </button>
@@ -697,6 +890,15 @@ export function LearnSession({
                    returns nothing rather than padding a question out with a
                    second right answer. */
                 <p className="text-sm" style={{ color: "var(--ink-2)" }}>{word.gloss}</p>
+              )}
+              {phase === "ask" && (
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={word.lemma}
+                />
               )}
             </>
           )}
@@ -741,13 +943,19 @@ export function LearnSession({
                     and nothing else. Writing `hint ?? lemma` to fill the space
                     would put the answer back on the screen for exactly those
                     cards.
+
+                    `gapCue` is the last rung of that same ladder rather than a
+                    second one: where the sentence below is marked, the mark is
+                    this gloss printed in context, so what is left to say is
+                    the headword alone. It can never print what the hint did
+                    not, and a hint with no headword in it leaves nothing.
                   */}
                   <div>
-                    {word.gap.hint ? (
+                    {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked }) ? (
                       <>
                         <p className="label-xs" style={{ color: "var(--ink-3)" }}>The word</p>
                         <p className="mt-1 text-2xl font-bold leading-tight" style={{ color: "var(--accent-deep)" }}>
-                          {word.gap.hint}
+                          {gapCue({ hint: word.gap.hint, lemma: word.lemma, marked: gapMarked })}
                         </p>
                         <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
                           Put it in the sentence, in the form it needs.
@@ -776,9 +984,22 @@ export function LearnSession({
                         </span>
                       ))}
                     </p>
-                    {word.gap.en && (
-                      <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>{word.gap.en}</p>
-                    )}
+                    {/*
+                      AND WHICH WORD OF IT THE GAP WANTS.
+
+                      This screen has had the line since it was written and
+                      drew it flat, so a learner read `Let's meet at four.`
+                      under a sentence with a hole in it and still had to work
+                      out which of its words the hole was. It is marked now,
+                      by the same rule and the same drawing as the five other
+                      gap screens (`lib/copy/gapMeaning.ts`).
+
+                      Resolved at the top of this component beside the cue,
+                      because the two are one decision: the mark is the gloss
+                      printed in context, so the cue above drops the gloss and
+                      keeps the word.
+                    */}
+                    {gapLine && <GapMeaning meaning={gapLine} className="mt-1.5 text-sm leading-snug" />}
                   </div>
                 </div>
               ) : (
@@ -786,6 +1007,19 @@ export function LearnSession({
                   <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
                   <p className="text-xs" style={{ color: "var(--ink-3)" }}>Write it in Estonian.</p>
                 </>
+              )}
+              {/*
+                THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.
+
+                Above the box rather than under it, because it is read while
+                somebody is deciding whether to type anything and a sentence
+                under the box is a sentence they meet after they have decided.
+                Only on a first production, so a word carries it once: see
+                `lib/copy/firstTry.ts` for why it is not the small print under
+                every box for ever.
+              */}
+              {firstTry && phase === "ask" && (
+                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{FIRST_TRY_NOTE}</p>
               )}
               <div className="w-full max-w-sm text-left">
                 <EstonianInput
@@ -798,6 +1032,15 @@ export function LearnSession({
                   large
                 />
               </div>
+              {phase === "ask" && (
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={word.lemma}
+                />
+              )}
               {/*
                 Not disabled on an empty box, which is the review screen's own
                 answer and is the way out of a word you cannot produce: an empty
@@ -821,17 +1064,57 @@ export function LearnSession({
                time, so this is the one panel a learner most needs read back. */
             <div
               role="status"
-              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} mt-2 w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left`}
+              className={`${result.outcome === "right" ? "pop-in" : ""} ${VERDICT_CLASS[result.outcome === "right" ? "right" : verdict && countsAsRecalled(verdict.verdict) ? "nearly" : "wrong"]} verdict-panel mt-2 w-full max-w-md text-left`}
             >
-              <p className="text-sm font-semibold">
+              {/*
+                THE ANSWER, SAID ONCE.
+
+                The panel used to open with the answer and then print the
+                marker's note under it, and the note names the answer itself:
+                a learner who typed `kalujust` read `The word is kuidas läheb?`
+                over `Not quite, it's "kuidas läheb?"`, which is the same
+                sentence twice in one box with a line break in the middle. The
+                near miss said it twice as well, in butter rather than peach:
+                `The word is toas` over `So close, the word is "toas"`.
+
+                So where the note already names the form, the note *is* the
+                line, and the form inside it carries the markup the headline
+                used to: `lang="et"` because it is Estonian inside an English
+                sentence, and `data-answer` because `scripts/lib/review.mjs`
+                reads the answer off the screen to type it into the box below.
+                Dropping the headline without moving those would have left the
+                retype driver with nothing to read and no check would have
+                said so.
+
+                The headline stays wherever the note does not name the form,
+                which is not a leftover branch: `Almost, it's õ, not o.` names
+                the letters and `Nothing typed.` names nothing at all, and on
+                both of those the answer is the only thing the learner is
+                waiting for.
+              */}
+              {/*
+                And the weight goes on the form rather than on the sentence.
+                Every other verdict panel in the app bolds the lead word and
+                leaves the note in the body weight (`Nearly.` then the note),
+                and this one used to carry a four-word headline, so the whole
+                paragraph being semibold was right. Merging the note into it
+                made that a whole sentence set bold, at `--text-md`, which is
+                the heaviest thing on the screen and is not what the learner
+                is reading for: the form is. So the merged line takes the
+                body weight and the form inside it is the bold part, which is
+                the same decision `FlashSession` makes one card over.
+              */}
+              <p className={saidOnce ? undefined : "font-semibold"}>
                 {result.outcome === "right"
                   ? uiText("Õige!", "Correct!")
-                  : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
+                  : saidOnce
+                    ? saidOnce
+                    : rung === "gap" ? <>The word is <span lang="et" data-answer>{result.expected}</span></> : result.expected}
               </p>
-              {result.note && <p className="mt-1 text-sm">{result.note}</p>}
+              {result.note && !saidOnce && <p className="mt-1">{result.note}</p>}
               {rung === "gap" && word.gap && (
                 <>
-                  <p lang="et" className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+                  <p lang="et" className="mt-2" style={{ color: "var(--ink-2)" }}>
                     {splitOnForm(word.gap.full, word.gap.answer).map((part, i) => (
                       part.match
                         ? <mark key={i} className="bg-transparent font-bold" style={{ color: "var(--ink)" }}>{part.text}</mark>
@@ -860,7 +1143,7 @@ export function LearnSession({
                 there is nothing to explain.
               */}
               {rung === "gap" && word.gap?.explanation && (
-                <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
+                <p className="mt-1" style={{ color: "var(--ink-3)" }}>
                   {word.gap.explanation}
                 </p>
               )}
@@ -870,7 +1153,7 @@ export function LearnSession({
           {phase === "feedback" && rung === "gap" && result?.outcome === "wrong" && (
             <div className="w-full max-w-sm text-left">
               {retypeOk ? (
-                <p className={`pop-in ${VERDICT_CLASS.right} rounded-md px-4 py-2.5 text-sm`}>
+                <p className={`pop-in ${VERDICT_CLASS.right} verdict-panel`}>
                   {uiText("Õige!", "Correct!")} That is the one.
                 </p>
               ) : (
@@ -944,10 +1227,15 @@ export function LearnSession({
           ) : null}
         </div>
       </div>
+      )}
 
       {asideNote}
 
-      <p className="mt-5 text-center text-xs" style={{ color: "var(--ink-3)" }}>
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={busy || look.looking} />
+      </div>
+
+      <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>
         {answered > 0
           ? `${right} of ${answered} right this round.`
           : `Meet each ${noun}, then answer it back. Nothing is written down until you answer.`}

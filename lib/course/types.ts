@@ -99,7 +99,7 @@ export interface ActivitySpec {
 export const ACTIVITIES = {
   match: {
     href: "/review/match", kind: "game",
-    why: "Eight pairs against the clock. The meanings settle before anything asks you to produce one.",
+    why: "Pairs against the clock, so the meanings settle before anything asks you to produce one.",
   },
   listening: {
     href: "/review/listening", kind: "drill",
@@ -107,7 +107,7 @@ export const ACTIVITIES = {
   },
   sprint: {
     href: "/review/sprint", kind: "game",
-    why: "Sixty seconds of endings. Speed turns a form you can work out into one you simply know.",
+    why: "Sixty seconds through what you have met, endings included once you have read one. Speed is what turns a form you can work out into one you have.",
   },
   sentences: {
     href: "/review/sentences", kind: "drill",
@@ -152,6 +152,10 @@ export const ACTIVITIES = {
   exceptions: {
     href: "/review/exceptions", kind: "drill",
     why: "The words where the ending rule breaks down. You meet them and then write them, instead of looking them up every time.",
+  },
+  letters: {
+    href: "/review/letters", kind: "game",
+    why: "A word you know, its letters shuffled. Put them back and õ, ä, ö and ü stop being a's and o's.",
   },
   flash: {
     href: "/review/flashcards", kind: "drill",
@@ -406,11 +410,21 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
   const steps: CourseStep[] = [];
   const perWord = MINUTES_PER_WORD[spec.level] ?? MINUTES_PER_WORD.A1!;
 
+  /*
+    WHAT THE LADDER ASKS IS SAID FOR THE LEVEL IT ASKS IT AT. At A1 the gap
+    rung is off (no case and no gap card anywhere in A1), so a line promising
+    a sentence typed back would be the first promise of the course and a
+    broken one. A word at A1 is heard, met and picked out of four; the
+    sentence arrives with A2.
+  */
+  const atA1 = spec.level === "A1";
   steps.push({
     id: MEET_STEP,
     kind: "meet",
     title: `Meet today's ${spec.words.length} words`,
-    why: "You meet each word, pick it out of four, then type it back into a sentence a native writer wrote.",
+    why: atA1
+      ? "Each one heard and met, then picked out of four a little later, so it is yours by the end of the round."
+      : "Each one met, then picked out of four, then typed back into a sentence a native writer wrote.",
     href: "/course/learn",
     minutes: Math.max(1, Math.round(spec.words.length * perWord)),
     derived: true,
@@ -433,8 +447,8 @@ export function day(spec: DaySpec, index: number, part = { n: 1, of: 1 }): Cours
     steps.push({
       id: READ_STEP,
       kind: "read",
-      title: "Read the grammar behind it",
-      why: "One page on what today's words all do. Read it now, while the forms still look strange.",
+      title: "Read the point behind it",
+      why: "One page on the thing today's words all do, and three taps at the foot of it to try the point on real words.",
       href: reads,
       minutes: READ_MINUTES,
       derived: false,

@@ -11,12 +11,31 @@
  */
 
 /**
- * The one script this flow needs, loaded once. `hl=en` pins the button's own
- * text to English rather than letting Google guess a locale off the
- * browser: left to itself it drew "Jätka Google'iga" on an Estonian browser,
- * on a page whose every other word is English.
+ * THE LANGUAGE OF GOOGLE'S OWN BUTTON, PINNED IN BOTH THE PLACES GOOGLE
+ * READS IT.
+ *
+ * Left to itself Google guesses off the browser, and on an Estonian browser
+ * it drew "Jätka Google'iga" on a page whose every other word is English.
+ * That is not a translation this app has: the rest of the screen, the mailed
+ * link beside it and the fallback button underneath all say it in English,
+ * so one button in Estonian reads as a rendering fault rather than as a
+ * courtesy.
+ *
+ * It was pinned once, on the script's own query string, and was still drawn
+ * in Estonian on the deployment. `hl` there is the library's hint and the
+ * button's own `locale` is the per-button setting, which Google documents as
+ * what decides that button's text; a script already loaded by something else
+ * on the page, or cached under a different query, leaves the query saying
+ * nothing at all. So both carry it and both read this constant, because two
+ * spellings of one language is where the two stop agreeing.
+ *
+ * Not the learner's own gloss language either. This is the door, before
+ * anybody has an account for a preference to live on.
  */
-export const GSI_SCRIPT_SRC = "https://accounts.google.com/gsi/client?hl=en";
+export const GSI_LOCALE = "en";
+
+/** The one script this flow needs, loaded once, in the language above. */
+export const GSI_SCRIPT_SRC = `https://accounts.google.com/gsi/client?hl=${GSI_LOCALE}`;
 
 /** A fresh nonce for one sign-in attempt. */
 export function randomNonce(): string {

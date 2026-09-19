@@ -63,6 +63,24 @@ export interface Milestone {
   parts: number;
 }
 
+/**
+ * How many of a stop's own words are still to come.
+ *
+ * Out here rather than at the caller, because the caller got it wrong: the
+ * weekly letter printed `total - known`, which is how far the *target* is,
+ * under a sentence saying how far the next stop is. On somebody at A1 aiming
+ * for B1 that put the distance to B1 beside the word A2. The fault was
+ * arithmetic, and arithmetic belongs where a test can hold it still.
+ *
+ * Floored at one, because a stop that has not been reached is a stop with
+ * something left in it, and "0 words away" from one reads as a bug. Rounded up
+ * for the same reason.
+ */
+export function wordsLeftAt(milestone: Pick<Milestone, "level" | "pct" | "state">): number {
+  if (milestone.state === "passed") return 0;
+  return Math.max(1, Math.ceil(ladderWordsAt(milestone.level) * (1 - milestone.pct / 100)));
+}
+
 export interface LadderProgress {
   target: Level;
   /** Words of the whole climb the scheduler has graduated. */

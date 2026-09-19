@@ -424,9 +424,9 @@ const wordCount = (text: string) => text.trim().split(/\s+/).length;
 function build(row: Candidate, occasion: Occasion | null, reach?: PlainReach): WordOfDay {
   return {
     lexemeId: row.id,
-    lemma: plainPhrase(row.lemma),
+    lemma: plainPhrase(row.lemma, row.pos),
     pos: row.pos,
-    translation: plainPhrase(row.translation),
+    translation: plainPhrase(row.translation, row.pos),
     cefr: row.cefr,
     gradationNote: row.gradationNote,
     example: firstExample(row, reach),

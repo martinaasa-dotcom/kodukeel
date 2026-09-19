@@ -57,9 +57,11 @@ import { suite } from "./lib/checks.mjs";
 */
 const PORT = Number(process.env.SIGNIN_SUITE_PORT ?? 3210);
 const OFF_PORT = PORT + 1;
+/** A third server, the only one that has a Google Client ID to draw with. */
+const GSI_PORT = PORT + 2;
 const DIST = ".next-signin";
 
-const { check, done, absent } = suite("The sign-in screen", { floor: 22 });
+const { check, done, absent } = suite("The sign-in screen", { floor: 38 });
 
 /*
   A project ref and a key shaped like the real thing, signed with nothing.
@@ -77,6 +79,14 @@ const SUPABASE_ANON_KEY =
 
 /** What a deployment that has named its operator sets, so the denial can name them. */
 const OPERATOR_EMAIL = "hello@example.test";
+
+/*
+  A Client ID shaped like Google's and belonging to nobody. Nothing here talks
+  to Google: the script is answered locally and the button is drawn by a stub,
+  because what this suite is measuring is the number this app hands over and
+  the box it hands it for, neither of which is Google's to get wrong.
+*/
+const GOOGLE_CLIENT_ID = "000000000000-notarealclient.apps.googleusercontent.com";
 
 /** Where this copy says it lives, for the one request that arrives elsewhere. */
 const SITE_URL = "https://kodukeel.example";
@@ -114,14 +124,14 @@ const hostedEnv = {
   So a port that already answers ends the run in seven milliseconds and in
   words, rather than thirty seconds and a locator.
 */
-for (const port of [PORT, OFF_PORT]) {
+for (const port of [PORT, OFF_PORT, GSI_PORT]) {
   const taken = await fetch(`http://127.0.0.1:${port}/welcome`)
     .then(() => true).catch(() => false);
   if (taken) {
     console.log(
       `FAIL  something is already listening on ${port}, so this suite would have\n` +
       "      measured it instead of its own build. Stop it, or set\n" +
-      "      SIGNIN_SUITE_PORT to a free pair.",
+      "      SIGNIN_SUITE_PORT to a free run of three.",
     );
     process.exit(1);
   }
@@ -136,7 +146,7 @@ if (built.status !== 0) {
     the whole suite, so `done()` will refuse to call that a pass: waiving more
     than half fails outright, which is exactly right here.
   */
-  absent(22, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
+  absent(28, `a hosted-mode build into ${DIST}, which did not complete on this machine`);
   done();
 }
 
@@ -153,12 +163,19 @@ if (built.status !== 0) {
   Detached makes the child a process group leader, so the group can be killed
   as a group and the server goes with it.
 */
-function serve(port, emailLink) {
+function serve(port, { emailLink = true, googleClientId = null } = {}) {
   const { EMAIL_SIGN_IN: _inherited, ...env } = hostedEnv;
+  if (!emailLink) env.EMAIL_SIGN_IN = "off";
+  /*
+    The Client ID is read on the server and handed to the form as a prop, so
+    this third state costs another process rather than another build. That is
+    the whole reason it is read there: inlined into the bundle it would be a
+    build-time fact, and the Google half of this screen would go on being the
+    one part of it nothing here can reach.
+  */
+  if (googleClientId) env.NEXT_PUBLIC_GOOGLE_CLIENT_ID = googleClientId;
   return spawn("npx", ["next", "start", "-p", String(port)], {
-    env: emailLink ? env : { ...env, EMAIL_SIGN_IN: "off" },
-    stdio: "ignore",
-    detached: true,
+    env, stdio: "ignore", detached: true,
   });
 }
 
@@ -180,25 +197,30 @@ async function waitFor(base) {
   return false;
 }
 
-const withMail = serve(PORT, true);
-const withoutMail = serve(OFF_PORT, false);
+const withMail = serve(PORT, { emailLink: true });
+const withoutMail = serve(OFF_PORT, { emailLink: false });
+const withGoogle = serve(GSI_PORT, { googleClientId: GOOGLE_CLIENT_ID });
 const B = `http://127.0.0.1:${PORT}`;
 const OFF = `http://127.0.0.1:${OFF_PORT}`;
+const GSI = `http://127.0.0.1:${GSI_PORT}`;
+
+/** `GOOGLE_BUTTON_TIMEOUT_MS` in the form, which this has to outwait to ask anything. */
+const GOOGLE_FALLBACK_MS = 4000;
 
 /*
   Killed however this ends, and not only on the happy path. The first version
   killed them at the bottom of the file, so a throw anywhere above left two
   servers running and poisoned every later run (see the port check above).
 */
-const stop = () => { halt(withMail); halt(withoutMail); };
+const stop = () => { halt(withMail); halt(withoutMail); halt(withGoogle); };
 process.on("exit", stop);
 process.on("uncaughtException", (error) => {
   stop();
   throw error;
 });
 
-if (!(await waitFor(B)) || !(await waitFor(OFF))) {
-  absent(22, `a server on ${PORT} and ${OFF_PORT}, and neither came up`);
+if (!(await waitFor(B)) || !(await waitFor(OFF)) || !(await waitFor(GSI))) {
+  absent(28, `a server on ${PORT}, ${OFF_PORT} and ${GSI_PORT}, and they did not all come up`);
   stop();
   done();
 }
@@ -343,6 +365,232 @@ const small = await page.evaluate(() =>
     .filter(({ r }) => r.width > 0 && (r.height < 44 || r.width < 44))
     .map(({ el, r }) => `${(el.textContent || "?").trim().slice(0, 20)} ${Math.round(r.width)}x${Math.round(r.height)}`));
 check("every control on it clears 44px", small.length === 0, small.join(", "));
+
+// ── Google's own button, and the width it is drawn at ───────────────────────
+/*
+  THE ONE NUMBER ON THIS SCREEN THAT IS A PIXEL COUNT.
+
+  Google Identity Services draws its own button and is handed a width in
+  pixels, which it then keeps: the button does not reflow, so the number has
+  to be the width of the column it sits in at the moment it is used, and stay
+  it. Twice it has not been, and both times what reached a learner was the
+  same thing, a button whose right edge stops before its own border. The first
+  reading was taken from a container that is `display: none` until the button
+  is inside it, so it read zero. The second was taken from the column while
+  the card was still arriving: `pop-in` scales it up from 0.9, and the layout
+  width a script reads then is not the width anything is painted at.
+
+  Google is not part of this. Its script is answered locally with nothing and
+  a stub stands in for `renderButton`, recording the number it was given and
+  the state of the column at the moment it was given it. That is the whole of
+  what this app decides, and it is measurable without a Google account, a
+  network, or an authorised origin.
+*/
+const gsiCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+/** Every address the page asked Google's script for, so the locale pin is readable. */
+const gsiRequests = [];
+await gsiCtx.route("https://accounts.google.com/gsi/client*", (route) => {
+  gsiRequests.push(route.request().url());
+  return route.fulfill({ status: 200, contentType: "text/javascript", body: "" });
+});
+await gsiCtx.addInitScript(() => {
+  const calls = [];
+  window.__gsi = { calls };
+  window.google = {
+    accounts: {
+      id: {
+        initialize() {},
+        renderButton(parent, options) {
+          const column = parent.parentElement;
+          const rect = column.getBoundingClientRect();
+          calls.push({
+            width: options.width,
+            locale: options.locale,
+            columnRect: rect.width,
+            columnLayout: column.clientWidth,
+          });
+          const button = document.createElement("div");
+          button.dataset.stubButton = "1";
+          button.style.cssText =
+            `width:${options.width}px;height:40px;box-sizing:border-box;border:1px solid #747775`;
+          parent.appendChild(button);
+        },
+      },
+    },
+  };
+});
+
+/*
+  A resize is answered on a frame, and a headless browser with nothing to draw
+  draws none: waited for as a plain condition, the redraw spent its whole
+  timeout and then arrived. Reading the layout is what asks for one, so this
+  asks repeatedly until the page agrees or the budget runs out.
+*/
+async function afterRedraw(page, condition, budgetMs = 6_000) {
+  const end = Date.now() + budgetMs;
+  for (;;) {
+    await page.evaluate(() => document.body.getBoundingClientRect().width);
+    if (await condition()) return true;
+    if (Date.now() > end) return false;
+    await page.waitForTimeout(150);
+  }
+}
+
+const gsiPage = await gsiCtx.newPage();
+gsiPage.on("pageerror", (e) => errors.push(e.message));
+await gsiPage.goto(`${GSI}/sign-in`, { waitUntil: "domcontentloaded" });
+await gsiPage.locator("[data-stub-button]").waitFor({ timeout: 10_000 }).catch(() => {});
+
+const drawn = await gsiPage.evaluate(() => window.__gsi?.calls ?? []);
+check("a deployment with a Client ID draws Google's own button rather than the redirect one",
+  drawn.length > 0, `${drawn.length} render(s)`);
+check("and the redirect button is not drawn underneath it",
+  (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+
+const first = drawn[0];
+check("the button is drawn into a column that has stopped moving, so nothing is mid-animation",
+  !!first && Math.abs(first.columnRect - first.columnLayout) < 0.5,
+  first ? `rect ${first.columnRect.toFixed(1)} against layout ${first.columnLayout}` : "never drawn");
+check("and the width it is handed is that column's own, never rounded up past it",
+  !!first && first.width === Math.floor(first.columnRect),
+  first ? `asked ${first.width} for ${first.columnRect.toFixed(1)}` : "never drawn");
+
+const fits = await gsiPage.evaluate(() => {
+  const button = document.querySelector("[data-stub-button]");
+  const column = document.querySelector("[data-sign-in-column]");
+  if (!button || !column) return null;
+  const b = button.getBoundingClientRect(), c = column.getBoundingClientRect();
+  return { over: +(b.right - c.right).toFixed(2), under: +(b.x - c.x).toFixed(2) };
+});
+check("so the button's own edges are inside the column, which is what a cut-off right side is not",
+  !!fits && fits.over <= 0.5 && fits.under >= -0.5, JSON.stringify(fits));
+
+/*
+  A pixel width is right for one column and no other, so a column that changes
+  size afterwards has to be drawn again. A phone turned on its side, a
+  scrollbar arriving once the page is long enough to want one, and a browser
+  zoom are all that same change.
+*/
+const column = () => gsiPage.evaluate(() =>
+  document.querySelector("[data-sign-in-column]")?.clientWidth ?? 0);
+const wide = await column();
+await gsiPage.setViewportSize({ width: 360, height: 900 });
+/*
+  The new width is waited for before the redraw is, because the observer has
+  nothing to answer about until the page has laid itself out again and a
+  headless browser does that when something asks. Waited for the redraw alone,
+  this spent its whole timeout and then measured the observer arriving.
+*/
+await afterRedraw(gsiPage, async () => (await column()) !== wide);
+const narrow = await column();
+await afterRedraw(gsiPage, () => gsiPage.evaluate(() => window.__gsi.calls.length > 1));
+/*
+  Stated rather than assumed: this asks nothing at a width where the column
+  comes out the same, and the check that preceded it did exactly that. Resized
+  to 420 the column is 374 at either end, and what made it pass was a reading
+  taken while the resize was still running, which is the mid-animation fault
+  this whole block is about, wearing a suite's clothes.
+*/
+check("the column really is a different width at a phone's, or the redraw asks nothing",
+  narrow > 0 && narrow !== wide, `${wide} then ${narrow}`);
+const after = await gsiPage.evaluate(() => window.__gsi?.calls ?? []);
+const last = after[after.length - 1];
+check("a column that changes width afterwards gets the button drawn again to match it",
+  after.length > drawn.length && !!last && last.width === Math.floor(last.columnLayout),
+  `${after.length} render(s), last asked ${last?.width} for a column laid out at ${last?.columnLayout}`);
+/*
+  THE LANGUAGE OF THE BUTTON IS THIS APP'S TO DECIDE, and it was pinned in one
+  of the two places Google reads it. The screenshot that started all of this
+  reads "Jätka Google'iga" on a page whose every other word is English, so the
+  script's own query string was not doing it alone.
+*/
+check("the script is asked for in the language the rest of the screen is in",
+  gsiRequests.length > 0 && gsiRequests.every((url) => url.includes("hl=en")),
+  gsiRequests[0] ?? "never requested");
+check("and the button is told the same language, which is the setting Google reads per button",
+  after.every((call) => call.locale === "en"),
+  `${after.map((c) => c.locale).join(", ")}`);
+
+/*
+  GOOGLE'S OWN FLOOR IS 200 PIXELS, so a column narrower than that cannot be
+  handed a width that fits it: asked for less, the script draws 200 anyway and
+  the right edge lands outside the box, which is the fault this whole file is
+  about arriving through the one door the clamp left open. Below it the
+  redirect button is drawn instead, which is this app's own and reflows.
+*/
+await gsiPage.setViewportSize({ width: 280, height: 900 });
+await afterRedraw(gsiPage, async () => (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 1);
+const tiny = await column();
+check("a column too narrow for Google's own minimum really is under it, or this asks nothing",
+  tiny > 0 && tiny < 200, `${tiny}px`);
+check("and it gets this app's own button rather than one wider than the column",
+  (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 1);
+const spilled = await gsiPage.evaluate(() =>
+  document.documentElement.scrollWidth - document.documentElement.clientWidth);
+check("so nothing spills sideways at a width Google will not draw for", spilled <= 0, `${spilled}px`);
+
+/* And it is a state rather than a verdict: widened again, Google's own comes back. */
+await gsiPage.setViewportSize({ width: 1280, height: 900 });
+await afterRedraw(gsiPage, async () => (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+check("a column widened past it gets Google's own button back",
+  (await gsiPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+
+await gsiCtx.close();
+
+/*
+  A TAB NOBODY IS LOOKING AT RUNS NO ANIMATION FRAMES, and the wait for the
+  column to stop moving is driven by them. Written to give up by reading the
+  clock inside a frame, it never gave up in a background tab at all: nothing
+  was drawn, the four-second fallback fired, and somebody who opened the sign-in
+  page in a second tab came back to the redirect door with Google's own button
+  never attempted.
+
+  `requestAnimationFrame` stubbed to answer nobody is that tab exactly, and it
+  is the one way to ask this deterministically: whether a headless browser
+  suspends frames for a page that is not in front is the browser's business
+  and changes between versions. What has to hold is that the deadline is a
+  timer, so the button still arrives and still fits.
+*/
+const hiddenCtx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+await hiddenCtx.route("https://accounts.google.com/gsi/client*", (route) =>
+  route.fulfill({ status: 200, contentType: "text/javascript", body: "" }));
+await hiddenCtx.addInitScript(() => {
+  window.requestAnimationFrame = () => 0;
+  const calls = [];
+  window.__gsi = { calls };
+  window.google = {
+    accounts: {
+      id: {
+        initialize() {},
+        renderButton(parent, options) {
+          const column = parent.parentElement;
+          calls.push({ width: options.width, columnLayout: column.clientWidth });
+          const button = document.createElement("div");
+          button.dataset.stubButton = "1";
+          button.style.cssText =
+            `width:${options.width}px;height:40px;box-sizing:border-box;border:1px solid #747775`;
+          parent.appendChild(button);
+        },
+      },
+    },
+  };
+});
+const hiddenPage = await hiddenCtx.newPage();
+hiddenPage.on("pageerror", (e) => errors.push(e.message));
+await hiddenPage.goto(`${GSI}/sign-in`, { waitUntil: "domcontentloaded" });
+await hiddenPage.locator("[data-stub-button]").waitFor({ timeout: 10_000 }).catch(() => {});
+const hidden = await hiddenPage.evaluate(() => window.__gsi?.calls ?? []);
+const only = hidden[0];
+check("a tab running no animation frames still gets Google's own button",
+  hidden.length > 0, `${hidden.length} render(s)`);
+check("and it is drawn at the width the column was laid out at, which no transform moves",
+  !!only && only.width === Math.floor(only.columnLayout),
+  only ? `asked ${only.width} for a column laid out at ${only.columnLayout}` : "never drawn");
+/* Past the fallback's own deadline, or this asks nothing: it fires at four seconds. */
+await hiddenPage.waitForTimeout(GOOGLE_FALLBACK_MS + 400);
+check("and the redirect door does not open over it once the fallback's own deadline has passed",
+  (await hiddenPage.getByRole("button", { name: /Continue with Google/ }).count()) === 0);
+await hiddenCtx.close();
 
 check("no page error on the way through", errors.length === 0, errors[0] ?? "");
 

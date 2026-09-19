@@ -9,11 +9,15 @@ import { Mascot } from "@/components/brand";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { OPTION_CLASS, optionState } from "@/lib/ux/verdict";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { VOICES } from "@/lib/audio/voice";
 import { conditionFor, describeHearing } from "@/lib/audio/conditions";
 import { useAudioPrefs } from "@/components/AudioPrefs";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /**
  * A different speaker for each word, the way the examination's listening part
@@ -67,6 +71,8 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const [voiceStart] = useState(() => Math.floor(Math.random() * VOICES.length));
 
   const card = cards[index];
+  /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const voice = voiceFor(voiceStart, index);
   /*
     The room and the rate, decided per card from its own history and its
@@ -86,6 +92,19 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
   const finished = !card;
   const answered = selected !== null;
 
+  /*
+    THE WAY OUT OF BEING STUCK, WHERE THE ANSWERS ARE ALREADY ON THE SCREEN.
+
+    Nothing to uncover, because every option is printed in full, so the help a
+    teacher gives is crossing one out. `struckOptions` strikes the meaning
+    furthest from the right one first, which leaves the pair worth telling
+    apart standing longest: the point of this round is hearing a word rather
+    than reading four, and a hint that removed the near rival would answer it.
+  */
+  const ladder = card ? narrowLadder(card.choices, card.correct) : [];
+  const hints = useHints({ word: card?.id ?? null, question: card?.id ?? null, ladder });
+  const struck = card ? struckOptions(card.choices, card.correct, hints.taken) : [];
+
   useEffect(() => {
     shownAt.current = Date.now();
     setSelected(null);
@@ -97,24 +116,47 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     const isCorrect = choice === card.correct;
     const duration = Date.now() - shownAt.current;
     setSelected(choice);
+    if (!isCorrect) hints.noteMiss();
     try {
-      await gradeCard(card.id, isCorrect ? 3 : 1, duration);
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      await gradeCard(card.id, Math.min(isCorrect ? 3 : 1, hints.ceiling) as 1 | 2 | 3, duration);
     } catch {
       // The grade did not reach the database; the round still shows feedback.
     }
     setAttempted((a) => a + 1);
     if (isCorrect) setCorrect((c) => c + 1);
     setBusy(false);
-  }, [card, answered, busy]);
+  }, [card, answered, busy, hints]);
 
   const next = useCallback(() => {
+    /* The word that was played, which is the one thing this round never
+       shows until it has been answered, with what it means. */
+    if (card) {
+      look.record({
+        of: card.id,
+        label: "Listening",
+        question: card.lemma,
+        answer: card.correct,
+        note: null,
+        questionLang: "et",
+        answerLang: "en",
+        speak: card.lemma,
+      });
+    }
     if (!answered) return;
     setIndex((i) => i + 1);
-  }, [answered]);
+  }, [answered, card, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished) return;
+      /* The round's keys stand down while an older word is on the screen. */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (answered) {
         if (isAdvanceKey(e)) { e.preventDefault(); next(); }
         return;
@@ -124,7 +166,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, answered, card, pick, next]);
+  }, [finished, answered, card, pick, next, look]);
 
   if (wasEmptyAtStart) {
     return (
@@ -199,6 +241,7 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -279,13 +322,26 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
                     At 60% this read 2.46 to 4.16 depending on which of the
                     four tones the option was wearing. */}
                 <KeyCap>{i + 1}</KeyCap>
-                <span className="flex-1">{choice}</span>
+                <span className={`flex-1 ${!answered && struck.includes(choice) ? "line-through" : ""}`}>{choice}</span>
+                {!answered && struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
                 {answered && isCorrectChoice && <Check size={15} aria-hidden />}
                 {answered && isPicked && !isCorrectChoice && <X size={15} aria-hidden />}
               </button>
             );
           })}
         </div>
+
+        {!answered && (
+          <div className="border-t px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+            <HintLadder
+              ladder={ladder}
+              taken={hints.taken}
+              onTake={hints.take}
+              open={hints.open}
+              label="this word"
+            />
+          </div>
+        )}
 
         {answered && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }}>
@@ -295,6 +351,11 @@ export function ListeningSession({ cards: initialCards }: { cards: ListeningCard
             </Button>
           </div>
         )}
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
               </div>
 
               <div className="mt-3 flex flex-wrap items-baseline gap-2">
-                <p lang="et" className="text-[22px] font-semibold" style={{ color: "var(--ink)" }}>
+                <p lang="et" className="text-xl font-semibold" style={{ color: "var(--ink)" }}>
                   {leech.front}
                 </p>
                 <ArrowRight size={14} aria-hidden style={{ color: "var(--ink-3)" }} />
@@ -66,7 +66,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
 
               <Timeline history={leech.history} />
 
-              <p className="mt-3 text-[13.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
+              <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                 This card {leech.pattern}.
                 {leech.confusable.length > 0 && (
                   <> Similar words already in your deck:{" "}
@@ -116,7 +116,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
 
       <div className="mt-8">
         <SectionTitle>Why this exists</SectionTitle>
-        <p className="max-w-[62ch] text-[13.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
+        <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
           Most review apps quietly bury a card like this once you have got it wrong enough times.
           That clears your queue, but you never learn the word. Here you can see how each one is
           going wrong: steadily, or after a good run, or back and forth. That is usually enough to

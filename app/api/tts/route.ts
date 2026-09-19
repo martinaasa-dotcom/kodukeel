@@ -8,6 +8,7 @@ import { singleFlightTagged } from "@/lib/cache/singleFlight";
 import { recordUsage, authoriseCall, releaseReservation } from "@/lib/usage/ledger";
 import { DEFAULT_VOICE, voiceFrom, VOICES } from "@/lib/audio/voice";
 import { prepareClip, WavError } from "@/lib/audio/wav";
+import { spokenText } from "@/lib/audio/say";
 import { reportError } from "@/lib/observability/report";
 
 const TARTU_NLP = "https://api.tartunlp.ai/text-to-speech/v2";
@@ -72,13 +73,21 @@ const SPEECH_PER_MINUTE = 120;
  * throw away its local copy and fetch the stale one again. Two spellings of
  * one version is one spelling too many.
  *
- * v5 is the pass that made the lead a guarantee rather than a ceiling: a clip
- * now carries exactly `LEAD_MS` of silence in front of its first sound instead
- * of up to that much of whatever the recording happened to have, which measured
- * anywhere from 40 ms to 370 ms across thirty words. A clip written under v4
- * keeps the lead it was given, so this moves with the worker's cache version.
+ * v5 was the pass that made the lead a guarantee rather than a ceiling: a clip
+ * carries exactly `LEAD_MS` of silence in front of its first sound instead of
+ * up to that much of whatever the recording happened to have, which measured
+ * anywhere from 40 ms to 370 ms across thirty words.
+ *
+ * v6 is the pass that stopped asking the service for a fragment. A word is sent
+ * with a full stop on it now (lib/audio/say.ts), which is a different request
+ * and so a different clip: measured over twenty words in six voices, the loud
+ * body of the word comes back 1.13 times as long. Every clip stored under v5
+ * was asked for the old way. The browser's own copy is keyed on the request
+ * body rather than on this, and the client still sends the bare word, so
+ * `public/sw.js` has to move with it or a phone goes on serving the fragment it
+ * already holds.
  */
-const CLIP_SHAPE = "v5";
+const CLIP_SHAPE = "v6";
 
 export async function POST(request: Request) {
   const ownerId = await requireUserId().catch(() => null);
@@ -108,7 +117,15 @@ export async function POST(request: Request) {
     if (typeof body.text !== "string" || !body.text.trim()) {
       return NextResponse.json({ error: "Nothing to say." }, { status: 400 });
     }
-    text = body.text.trim().slice(0, MAX_CHARS);
+    /*
+      Finished, rather than as typed. TartuNLP reads sentences, and a bare
+      headword with no stop on it is a fragment to its front end, which renders
+      it as one: measured, the word itself comes back an eighth shorter, which
+      is the "the word is incomplete" a learner reported. `spokenText` moves
+      punctuation and never a letter, and the store is keyed on what comes out
+      of it, so the cache and the request cannot come apart.
+    */
+    text = spokenText(body.text.trim().slice(0, MAX_CHARS));
     /*
       The learner's chosen voice, checked against the allowlist rather than
       passed to a third party as typed. A value that is not one of ours is

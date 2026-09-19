@@ -15,6 +15,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { ExceptionsSession } from "./ExceptionsSession";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Exceptions" };
 
@@ -48,11 +49,14 @@ export const dynamic = "force-dynamic";
 export default async function ExceptionsRoundPage({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string }>;
+  searchParams: Promise<{ kind?: string; module?: string }>;
 }) {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
-  const { kind } = await searchParams;
+  const params = await searchParams;
+  const { kind } = params;
+  // Opened from the module, the words are the taught ones. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(params);
   const wanted = kind && (EXCEPTION_KINDS as readonly string[]).includes(kind.toUpperCase())
     ? kind.toUpperCase()
     : null;
@@ -60,7 +64,7 @@ export default async function ExceptionsRoundPage({
   const level = await courseLevelFor(ownerId);
   const index = await exceptionIndex();
   const near = index.filter(
-    (row) => isAround(row.cefr, level)
+    (row) => (scope ? scope.lemmas.includes(row.lemma) : isAround(row.cefr, level))
       && (!wanted || row.exceptions.some((e) => e.kind === wanted)),
   );
 

@@ -72,6 +72,18 @@ export function AnuPanel({
       role="dialog"
       aria-modal="true"
       aria-label="Ask Anu"
+      // The review, lesson and ladder sessions bind Enter, the digits and u
+      // straight onto window, so a question typed in here still reached
+      // them: `u` as the first character of an empty question was read as
+      // undo on whatever card was behind the panel. Bubble phase, on this
+      // wrapper rather than on `EstonianInput` itself, which several other
+      // fields share and which deliberately lets `u` bubble from a review
+      // card's own empty answer box so undo still reaches it from there —
+      // by the time a key reaches this section it has already done
+      // whatever it was going to inside the panel (the input's own Enter,
+      // a button's native activation), so this only stops it from also
+      // being read by whatever the panel happens to be floating over.
+      onKeyDown={(e) => e.stopPropagation()}
       /*
         A CHAT PANEL OPENS AT THE SIZE IT WILL BE USED AT.
 

@@ -24,7 +24,7 @@
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:licences": "node scripts/check-licences.mjs",
     "test:db": "vitest run --config vitest.integration.config.mts",
-    "test:browser": "node scripts/test-first-day.mjs && node scripts/smoke-new.mjs && node scripts/smoke-interact.mjs && node scripts/smoke-offline.mjs && node scripts/test-assess.mjs && node scripts/test-scan.mjs && node scripts/test-flash.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-decks.mjs && node scripts/test-scene.mjs && node scripts/test-module.mjs && node scripts/test-error.mjs && node scripts/test-signin.mjs && node scripts/test-containment.mjs && node scripts/test-security.mjs && node scripts/a11y-check.mjs",
+    "test:browser": "node scripts/test-first-day.mjs && node scripts/smoke-new.mjs && node scripts/smoke-interact.mjs && node scripts/smoke-offline.mjs && node scripts/test-assess.mjs && node scripts/test-scan.mjs && node scripts/test-flash.mjs && node scripts/test-exam.mjs && node scripts/test-suggestions.mjs && node scripts/test-decks.mjs && node scripts/test-hints.mjs && node scripts/test-scene.mjs && node scripts/test-module.mjs && node scripts/test-error.mjs && node scripts/test-signin.mjs && node scripts/test-containment.mjs && node scripts/test-security.mjs && node scripts/a11y-check.mjs",
     "test:invariants": "tsx scripts/test-invariants.ts",
     "audit:merge": "node scripts/audit-merge.mjs",
     "audit:glosses": "tsx scripts/audit-glosses.ts",
@@ -49,6 +49,7 @@
     "measure:asr": "node scripts/measure-asr.mjs",
     "measure:compose": "tsx scripts/measure-compose.ts",
     "measure:scenes": "tsx scripts/measure-scenes.ts",
+    "measure:speech": "tsx scripts/measure-speech.ts",
     "measure:placement": "tsx scripts/measure-placement.ts",
     "play:scenes": "tsx scripts/play-scene.ts",
     "replay:scene": "tsx scripts/replay-transcript.ts",
@@ -66,7 +67,8 @@
     "audit:decks": "tsx scripts/audit-decks.ts",
     "translate:examples": "tsx scripts/translate-examples.ts",
     "audit:plainness": "tsx scripts/audit-plainness.ts",
-    "audit:readable": "tsx scripts/audit-readable.ts"
+    "audit:readable": "tsx scripts/audit-readable.ts",
+    "audit:pins": "tsx scripts/audit-grammar-pins.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

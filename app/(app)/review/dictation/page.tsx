@@ -9,6 +9,8 @@ import { starredAmong } from "@/lib/progress/stars";
 import { DictationSession, type DictationTask } from "./DictationSession";
 import { shuffle } from "@/lib/random/shuffle";
 import { resolveProvider } from "@/lib/tutor/provider";
+import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Dictation" };
 
@@ -33,9 +35,24 @@ const MAX_CHARS = 80;
  * mode does — grading refreshes this Server Component, and a conditional empty
  * state here would swap itself in mid-round.
  */
-export default async function DictationPage() {
+export default async function DictationPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const canTranslate = resolveProvider() !== null;
+
+  /*
+    OPENED FROM THE MODULE, ONLY A SENTENCE MADE OF TAUGHT WORDS IS DICTATED.
+    A usage is written to illustrate a headword to somebody who already reads
+    Estonian, so most of them carry a word from further up the course; inside
+    the module a sentence is dictated only where every spelling in it is one
+    the ladder has handed over, and the builder deals this round only once
+    such a sentence exists (`lib/course/build.ts`).
+  */
+  const scope = moduleScopeFrom(await searchParams);
+  const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   const [cards, reach] = await Promise.all([
     prisma.card.findMany({
@@ -47,7 +64,10 @@ export default async function DictationPage() {
         any mode, is what this round means by "already studying", the same rule
         sprint, speaking, listening and Match already apply to their own pools.
       */
-      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      where: {
+        ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 },
+        ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
+      },
       orderBy: [{ due: "asc" }],
       take: 300,
       select: {
@@ -104,6 +124,7 @@ export default async function DictationPage() {
     const opener = nominalOpener(entry.pos, [entry.lemma]);
     for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
+      if (!readable(example.et)) continue;
       const count = dictationWords(example.et).length;
       if (count < MIN_WORDS || count > MAX_WORDS) continue;
       if (example.et.length > MAX_CHARS) continue;

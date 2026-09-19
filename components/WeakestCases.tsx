@@ -98,7 +98,7 @@ export function WeakestCases({ cases, empty }: {
               <span className="flex w-24 shrink flex-col leading-tight">
                 <span lang="et" style={{ color: "var(--ink-2)" }}>{name}</span>
                 {spec && (
-                  <span lang="et" className="text-[12px]" style={{ color: "var(--ink-3)" }}>
+                  <span lang="et" className="text-2xs" style={{ color: "var(--ink-3)" }}>
                     {[spec.asksThing, spec.asksWhere].filter(Boolean).join(" ")}
                   </span>
                 )}

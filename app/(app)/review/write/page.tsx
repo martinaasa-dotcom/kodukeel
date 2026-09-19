@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { WriteSession, type WritingPrompt } from "./WriteSession";
 import { shuffle } from "@/lib/random/shuffle";
+import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Writing" };
 
@@ -22,8 +23,15 @@ const ROUND = 6;
  * actually been getting wrong — the point is to practice producing, not to meet
  * new vocabulary, so everything here is a word they have already met.
  */
-export default async function WritePage() {
+export default async function WritePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
+
+  // Opened from the module, taught words in taught cases. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(await searchParams);
 
   const cards = await prisma.card.findMany({
     /*
@@ -36,7 +44,10 @@ export default async function WritePage() {
       never shown. The same rule sprint, speaking, listening and Match already
       apply to their own pools.
     */
-    where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+    where: {
+      ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 },
+      ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
+    },
     select: { id: true, lexemeId: true, lapses: true, cardType: true },
     orderBy: { lapses: "desc" },
     take: 200,
@@ -81,6 +92,7 @@ export default async function WritePage() {
     for (const task of writingTasksFor(lexeme)) {
       const cardId = cardFor.get(lexeme.id);
       if (!cardId) continue;
+      if (!caseWithin(scope, task.caseKey)) continue;
       pool.push({
         cardId,
         lexemeId: lexeme.id,
@@ -89,6 +101,7 @@ export default async function WritePage() {
         caseKey: task.caseKey,
         caseEt: task.caseEt,
         caseQuestion: task.caseQuestion,
+        targetForm: task.targetForm,
         provenance: task.provenance,
         weak: weakCases.has(task.caseKey),
       });

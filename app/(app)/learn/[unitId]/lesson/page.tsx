@@ -128,8 +128,8 @@ export default async function LessonPage({
 
   const toWord = (row: (typeof rows)[number]): LessonWord => ({
     lexemeId: row.id,
-    lemma: plainPhrase(row.lemma),
-    gloss: plainPhrase(row.translation),
+    lemma: plainPhrase(row.lemma, row.pos),
+    gloss: plainPhrase(row.translation, row.pos),
     equivalent: equivalentIn(row, glossLanguage)
       ? { text: equivalentIn(row, glossLanguage)!, lang: glossLanguage }
       : null,
@@ -202,7 +202,7 @@ export default async function LessonPage({
     taughtWords: taught,
     distractors: pool.map((p) => ({
       lexemeId: p.id,
-      lemma: plainPhrase(p.lemma), gloss: plainPhrase(p.translation), pos: p.pos, semanticTypes: p.semanticTypes,
+      lemma: plainPhrase(p.lemma, p.pos), gloss: plainPhrase(p.translation, p.pos), pos: p.pos, semanticTypes: p.semanticTypes,
       examples: [], parts: {}, government: null,
     })),
     // Stable for this unit and part, so re-entering a lesson gives the same one

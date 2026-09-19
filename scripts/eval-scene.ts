@@ -100,7 +100,7 @@ function suspect(tokens: readonly string[]): boolean {
 }
 
 const EMPTY_LEXICON: Lexicon = {
-  forms: new Set(), byLemma: new Map(), byCase: new Map(), caseForm: new Map(),
+  forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(), caseForm: new Map(),
   folded: new Map(), infinitives: new Map(), persons: new Map(),
 };
 

@@ -54,7 +54,7 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
       <section>
         <SectionTitle>Diagnosis</SectionTitle>
         <Card>
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {needed > 0
               ? <>Not enough case reviews yet to say anything useful. About {needed} more and this
                   will start telling you which stems are actually costing you.</>
@@ -75,10 +75,10 @@ export async function Diagnosis({ ownerId }: { ownerId: string }) {
             <div className="flex items-start gap-3">
               <Microscope size={17} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent)" }} />
               <div className="min-w-0 flex-1">
-                <p className="text-[15px] font-semibold" style={{ color: "var(--ink)" }}>
+                <p className="text-base font-semibold" style={{ color: "var(--ink)" }}>
                   {finding.headline}
                 </p>
-                <p className="mt-1 text-[13.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>
+                <p className="mt-1 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {finding.detail}
                 </p>
 

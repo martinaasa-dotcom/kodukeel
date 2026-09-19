@@ -7,6 +7,9 @@ import { KeepWordChoice, useKeepWord } from "@/components/KeepWord";
 import { Button, ButtonLink } from "@/components/Button";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { EstonianInput } from "@/components/EstonianInput";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
 import { DiacriticBar } from "@/components/DiacriticBar";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
@@ -17,8 +20,22 @@ import { VERB_GROUP_LABELS } from "@/lib/estonian/morph";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfCheck } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export type Tense = "present" | "conditional";
+
+/**
+ * What the learner does with a row.
+ *
+ * `type` is the table as a class runs it: the first person given, five to
+ * write. `match` is the step before that, for somebody who has just met the
+ * pronouns and the endings: the six forms are on the screen and each is put
+ * beside its pronoun. It was asked for off the module's second evening, where
+ * a beginner who had never been shown `sina` was handed five empty boxes. The
+ * marking is the same, the card graded is the same, and the page decides
+ * which by level (`page.tsx`): A1 matches, everybody else types.
+ */
+export type Shape = "type" | "match";
 
 export interface ConjugationQuestion {
   /** The card this question practices, when the verb is already in the deck. */
@@ -30,6 +47,7 @@ export interface ConjugationQuestion {
   inDeck: boolean;
   /** Whether this verb is already one of the learner's favorites. */
   starred: boolean;
+  shape: Shape;
   tense: Tense;
   /** The first person, shown: the principal part the rest hang off. */
   given: { person: string; value: string };
@@ -64,6 +82,8 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const run = useRef(0);
 
   const question = questions[index];
+  /* The way back to the verb before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   /*
     Asked here too, mid-round, because a learner with shelves named who keeps a
     word from a drill has the same claim on choosing where it goes as one who
@@ -80,6 +100,28 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
   const revealed = verdicts !== null;
 
   // One ref per blank, remade per question, so Enter can walk down the table.
+  /*
+    The forms to put beside the pronouns, in a fixed shuffle per question, so a
+    re-render never reorders the chips under a finger. Shuffled here rather
+    than sent, since the answers are already on the question.
+  */
+  /*
+    The forms to put beside the pronouns, in a fixed shuffle per question, so a
+    re-render never reorders the chips under a finger. KEYED BY SLOT RATHER
+    THAN BY SPELLING, because a table can hold one spelling twice: `olema` is
+    `on` for `ta` and `on` for `nad`, and a bank keyed on the word had one
+    chip for two rows and a duplicate React key. Each chip knows which row it
+    came from, and a chip is spent when that row's form has been placed.
+  */
+  const bank = useMemo<{ slot: number; form: string }[]>(() => {
+    if (!question || question.shape !== "match") return [];
+    const seed = [...question.lexemeId].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) >>> 0, 7);
+    return question.blanks
+      .map((b, slot) => ({ slot, form: b.answer, key: ((seed * (slot + 1) * 2654435761) >>> 0) }))
+      .sort((a, b) => a.key - b.key || a.slot - b.slot)
+      .map(({ slot, form }) => ({ slot, form }));
+  }, [question]);
+
   const inputs = useMemo<RefObject<HTMLInputElement | null>[]>(
     () => (question ? question.blanks.map(() => createRef<HTMLInputElement>()) : []),
     [question],
@@ -89,10 +131,76 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     setTyped(question ? question.blanks.map(() => "") : []);
     setVerdicts(null);
     setAdded(null);
-    // Focus the first blank once the row has drawn.
+    // Focus the first blank once the row has drawn. A matched table has no
+    // box to focus; its chips are buttons and the first one takes the caret
+    // by being first in the order.
+    if (question?.shape === "match") return;
     const t = window.setTimeout(() => inputs[0]?.current?.focus(), 30);
     return () => window.clearTimeout(t);
   }, [index, question, inputs]);
+
+  /*
+    THE WAY OUT OF BEING STUCK, ON A TABLE OF FIVE.
+
+    The ladder is over the **first** cell rather than whichever one has focus.
+    A table is answered top to bottom, so the first empty cell is where
+    somebody stuck is standing, and reading the focused one would mean a ladder
+    that resets itself every time the caret moves, on the one round where the
+    caret moves five times a question.
+
+    The stem handed over is the shared opening of the first person and the form
+    asked for, which is `sharedStart`, the same rule the ending chip beside the
+    answer already uses. So the ending rung names exactly the letters that chip
+    lights up.
+  */
+  const first = question?.blanks[0];
+  const ladder = question && first
+    ? hintLadder({
+      answer: first.answer,
+      stems: [first.answer.slice(0, sharedStart(question.given.value, first.answer))],
+    })
+    : [];
+  const hints = useHints({
+    word: question?.lemma ?? null,
+    question: question ? `${question.lemma}:${question.tense}` : null,
+    ladder,
+  });
+
+  /*
+    MATCHING: A CHIP FILLS THE FIRST EMPTY ROW, AND A FILLED ROW HANDS ITS
+    CHIP BACK. One gesture each way, so a wrong placement costs one tap to
+    undo, and the same `typed` array the typed shape marks: the marker cannot
+    tell the two shapes apart, which is the point.
+  */
+  /*
+    Which chips are spent: as many chips of a spelling as there are rows
+    holding it, so placing one `on` leaves the other on offer.
+  */
+  const spent = useMemo(() => {
+    const used = new Set<number>();
+    const counts = new Map<string, number>();
+    for (const v of typed) if (v) counts.set(v, (counts.get(v) ?? 0) + 1);
+    for (const chip of bank) {
+      const left = counts.get(chip.form) ?? 0;
+      if (left > 0) {
+        used.add(chip.slot);
+        counts.set(chip.form, left - 1);
+      }
+    }
+    return used;
+  }, [typed, bank]);
+  const place = useCallback((form: string) => {
+    if (verdicts) return;
+    setTyped((t) => {
+      const at = t.findIndex((v) => v === "");
+      if (at < 0) return t;
+      return t.map((v, j) => (j === at ? form : v));
+    });
+  }, [verdicts]);
+  const unplace = useCallback((row: number) => {
+    if (verdicts) return;
+    setTyped((t) => t.map((v, j) => (j === row ? "" : v)));
+  }, [verdicts]);
 
   const check = useCallback(() => {
     if (!question || verdicts) return;
@@ -110,12 +218,32 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     sound(clean ? "right" : "wrong", run.current);
     // ADR-016: the same review log as every other mode. Four of five is the
     // table known; less is a lapse worth seeing again.
+    if (!clean) hints.noteMiss();
     if (question.cardId) {
-      void gradeCard(question.cardId, right >= marks.length - 1 ? 3 : 1, Date.now() - startedAt.current).catch(() => {});
+      // A hint is paid for: see `lib/questions/hints.ts`. The ceiling is 4 with
+      // nothing taken, so a table nobody asked for help on grades as it did.
+      const earned = right >= marks.length - 1 ? 3 : 1;
+      void gradeCard(question.cardId, Math.min(earned, hints.ceiling) as 1 | 2 | 3, Date.now() - startedAt.current).catch(() => {});
     }
-  }, [question, verdicts, typed, sound]);
+  }, [question, verdicts, typed, sound, hints]);
 
-  const next = useCallback(() => setIndex((i) => i + 1), []);
+  const next = useCallback(() => {
+    /* The whole table as it was filled in, which is what somebody looking
+       back at a verb wants rather than one cell of it. */
+    if (question) {
+      look.record({
+        of: question.cardId ?? question.lexemeId,
+        label: "Verb forms",
+        question: `${question.lemma}, ${question.translation}`,
+        answer: [question.given.value, ...question.blanks.map((b) => b.answer)].join(" · "),
+        note: [question.given.person, ...question.blanks.map((b) => b.person)].join(" · "),
+        questionLang: "et",
+        answerLang: "et",
+        speak: question.given.value,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [question, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -129,14 +257,21 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         to the field. The same guard ReviewSession carries, for the same event.
       */
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      // A chip is a button, and either advance key on a focused button
+      // presses it: the button's own click is the answer, and reading the key
+      // here as well would place a form and check the table in one press.
+      if (e.target instanceof HTMLButtonElement) return;
       if (revealed && isAdvanceKey(e)) {
         e.preventDefault();
         next();
+      } else if (!revealed && question.shape === "match" && isAdvanceKey(e) && typed.every(Boolean)) {
+        e.preventDefault();
+        check();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, next]);
+  }, [finished, question, revealed, next, typed, check]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -144,10 +279,10 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
     const accuracy = cells ? Math.round((cellsRight / cells) * 100) : 0;
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
             ? "Every table clean. You have the endings. What is left is the verbs whose first person you have not met yet."
             : "The endings never change. What trips people is the stem, and that is the one part worth looking up when a table goes wrong."}
@@ -192,6 +327,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -214,11 +350,13 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             </p>
             <Speak text={question.lemma} />
           </div>
-          <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
-          <p className="mt-4 text-[13.5px]" style={{ color: "var(--ink-2)" }}>
-            {question.tense === "present"
-              ? "The first person is given. Type the other five."
-              : "The conditional, from the same stem. Type the other five."}
+          <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>{question.translation}</p>
+          <p className="mt-4 text-sm" style={{ color: "var(--ink-2)" }}>
+            {question.shape === "match"
+              ? "The first person is given. Put each of the other five beside its pronoun."
+              : question.tense === "present"
+                ? "The first person is given. Type the other five."
+                : "The conditional, from the same stem. Type the other five."}
           </p>
         </div>
 
@@ -246,7 +384,21 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                       {blank.person}
                     </td>
                     <td className="py-2">
-                      {!mark ? (
+                      {!mark && question.shape === "match" ? (
+                        <button
+                          type="button"
+                          lang={typed[i] ? "et" : undefined}
+                          className="choice-btn field w-full text-left text-lg"
+                          aria-label={typed[i]
+                            ? `${blank.person}: ${typed[i]}. Press to put it back.`
+                            : `${blank.person}: nothing yet`}
+                          onClick={() => (typed[i] ? unplace(i) : undefined)}
+                        >
+                          {typed[i] ? <Ending stem={question.given.value} form={typed[i]!} /> : (
+                            <span aria-hidden style={{ color: "var(--ink-3)" }}>…</span>
+                          )}
+                        </button>
+                      ) : !mark ? (
                         <EstonianInput
                           compact
                           bar={false}
@@ -275,7 +427,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
                             <span className="text-xs" style={{ color: "var(--ink-3)" }}>
                               {typed[i]?.trim()
                                 ? <>You typed <span lang="et">{typed[i]?.trim()}</span>. {mark.verdict === "wrong" ? "" : mark.note}</>
-                                : "Nothing typed."}
+                                : question.shape === "match" ? "Nothing chosen." : "Nothing typed."}
                             </span>
                           )}
                         </div>
@@ -292,16 +444,47 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
             shared bar types into whichever field has focus, and falls back to
             the first while nothing does.
           */}
-          {!revealed && (
+          {!revealed && question.shape === "type" && (
             <div className="under-field pl-16">
               <DiacriticBar standalone={false} fallbackRef={inputs[0]} />
+            </div>
+          )}
+          {!revealed && question.shape === "type" && (
+            <div className="mt-4">
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open}
+                label={question.lemma}
+              />
+            </div>
+          )}
+          {!revealed && question.shape === "match" && (
+            <div className="under-field pl-16">
+              <p className="sr-only" id="conjugation-bank">The forms to place</p>
+              <div className="flex flex-wrap gap-2" role="group" aria-labelledby="conjugation-bank">
+                {bank.map(({ slot, form }) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    lang="et"
+                    className="choice-btn rounded-full px-3 py-1.5 text-base"
+                    disabled={spent.has(slot)}
+                    aria-label={spent.has(slot) ? `${form}, placed` : form}
+                    onClick={() => place(form)}
+                  >
+                    {form}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
           {!revealed ? (
-            <Button variant="primary" onClick={check}>
+            <Button variant="primary" onClick={check} disabled={question.shape === "match" && !typed.every(Boolean)}>
               Check the table <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : (
@@ -342,10 +525,15 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
-        {tablesRight}/{index + (revealed ? 1 : 0)} tables clean · {ADVANCE_KEY_LABEL} moves down the table
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>
+          {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
+          {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}
+        </span>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
     </div>
   );
 }
@@ -356,9 +544,22 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
  * Read off the two strings rather than off the rule, so a stored irregular
  * form (`olen`, `on`) is shown honestly with whatever it does not share.
  */
-function Ending({ stem, form }: { stem: string; form: string }) {
+/**
+ * How much of a form the person ending has not touched.
+ *
+ * Pulled out of `Ending` below because the hint ladder asks the same question:
+ * which letters of `loeb` are the stem `loen` was built on. Two copies of it
+ * would be two answers to what counts as the ending of a verb in one file, and
+ * the one nobody was watching would be the hint.
+ */
+function sharedStart(stem: string, form: string): number {
   let shared = 0;
   while (shared < stem.length && shared < form.length && stem[shared] === form[shared]) shared += 1;
+  return shared;
+}
+
+function Ending({ stem, form }: { stem: string; form: string }) {
+  const shared = sharedStart(stem, form);
   // A form that shares nothing, or everything, has no ending worth lighting.
   if (shared === 0 || shared === form.length) return <>{form}</>;
   return (

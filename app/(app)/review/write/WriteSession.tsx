@@ -7,6 +7,10 @@ import { Check, CircleAlert, Loader2, PenLine } from "lucide-react";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
+import { caseByKey } from "@/lib/estonian/cases";
 import { Chip, KeyCap, Stat } from "@/components/ui";
 import { StarWord } from "@/components/StarWord";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
@@ -16,6 +20,7 @@ import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface WritingPrompt {
   /** The card this exercise practices, so the round feeds the scheduler. */
@@ -26,6 +31,17 @@ export interface WritingPrompt {
   caseKey: string;
   caseEt: string;
   caseQuestion: string;
+  /**
+   * The form the sentence has to carry, which is what a hint uncovers.
+   *
+   * Sent down like every other round's answer: a review card carries its
+   * `back` and Sõnad sends the word of the day, because marking without a
+   * round trip is most of how a round plays and anybody who opens the network
+   * tab has spoiled their own practice. What is *not* sent down is the
+   * marking: `/api/write` still decides whether the form was used, so nothing
+   * a client could forge reaches the log.
+   */
+  targetForm: string;
   provenance: "ekilex" | "derived";
   weak: boolean;
   /** Whether this word is already one of the learner's favorites. */
@@ -74,7 +90,29 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const startedAt = useRef(Date.now());
 
   const prompt = prompts[index];
+  /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !prompt;
+
+  /*
+    THE WAY OUT OF BEING STUCK, AND WHAT IT IS ABOUT.
+
+    Not the sentence, which is the learner's own and which nothing here holds.
+    The **form**: this round is marked on whether the word turned up in the case
+    it asked for (`writeRating` reads the dictionary's check and nothing else),
+    so the one thing somebody can be stuck on is the ending, and that is what
+    the ladder uncovers. The suffix comes off the case's own table, so the
+    ending rung names the letters the case adds and the stem stays theirs to
+    remember.
+  */
+  const ladder = prompt
+    ? hintLadder({ answer: prompt.targetForm, suffix: caseByKey(prompt.caseKey)?.suffix })
+    : [];
+  const hints = useHints({
+    word: prompt?.lexemeId ?? null,
+    question: prompt ? `${prompt.lexemeId}:${prompt.caseKey}` : null,
+    ladder,
+  });
 
   async function submit() {
     if (!prompt || busy || sentence.trim().length === 0) return;
@@ -106,7 +144,12 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         the word is Again. Anu's opinion of the surrounding sentence never
         moves anybody's schedule.
       */
-      void gradeCard(prompt.cardId, writeRating(result.formCheck), Date.now() - startedAt.current)
+      if (!result.formCheck.used) hints.noteMiss();
+      // A hint is paid for: see `lib/questions/hints.ts`. Anu's opinion of the
+      // sentence still moves nothing, and neither does this: it can only lower
+      // what the dictionary's own check already decided.
+      const rating = Math.min(writeRating(result.formCheck), hints.ceiling) as 1 | 2 | 3 | 4;
+      void gradeCard(prompt.cardId, rating, Date.now() - startedAt.current)
         .catch(() => {});
     } catch {
       setError("Marking needs a connection. Your sentence is still here.");
@@ -116,6 +159,20 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   }
 
   function next() {
+    /* What was asked and what the learner wrote, which is the one round where
+       the sentence is theirs. Nothing about it is stored or re-marked. */
+    if (prompt) {
+      look.record({
+        of: prompt.cardId,
+        label: "Write a sentence",
+        question: `${prompt.lemma}, ${prompt.translation} · ${prompt.caseEt}`,
+        answer: sentence.trim() || prompt.lemma,
+        note: prompt.caseQuestion,
+        questionLang: "et",
+        answerLang: "et",
+        speak: null,
+      });
+    }
     setMarked(null);
     setSentence("");
     setError(null);
@@ -126,10 +183,10 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           Tubli töö. Writing your own sentences takes longer, but it&rsquo;s what really helps with
           speaking.
         </p>
@@ -178,6 +235,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -193,7 +251,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         </div>
 
         <div className="px-6 py-8">
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             Use{" "}
             <strong lang="et" className="text-lg" style={{ color: "var(--ink)" }}>
               {prompt.lemma}
@@ -211,14 +269,14 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           */}
           {plainAsk(prompt.caseKey) ? (
             <>
-              <p className="mt-2 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <p className="mt-2 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 {plainAskLine(prompt.caseKey)}
               </p>
               {/* The Estonian name carries the line's `lang`, since it is the
                   part a screen reader has to pronounce as Estonian and the part
                   `smoke-interact.mjs` reads the task off; the English name is
                   marked back as English inside it. */}
-              <p lang="et" className="mt-1.5 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+              <p lang="et" className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
                 {prompt.caseEt} · {prompt.caseQuestion}
                 {/* What the question is asking rather than the Latin name,
                     which was the only English on this line and the one word
@@ -234,7 +292,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
               <p lang="et" className="mt-1 text-2xl font-semibold" style={{ color: "var(--accent-deep)" }}>
                 {prompt.caseEt}
               </p>
-              <p className="mt-1 text-[13.5px]" style={{ color: "var(--ink-3)" }}>
+              <p className="mt-1 text-sm" style={{ color: "var(--ink-3)" }}>
                 <CaseQuestion question={prompt.caseQuestion} inline />
               </p>
             </>
@@ -257,10 +315,21 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
                 if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); void submit(); }
               }}
               placeholder="Kirjuta oma lause siia…"
-              className="field-lg mt-2 w-full resize-none text-[17px] disabled:opacity-70"
+              className="field-lg mt-2 w-full resize-none text-md disabled:opacity-70"
               style={{ borderColor: "var(--rule)", background: "var(--raised)", color: "var(--ink)" }}
             />
             {!marked && <div className="under-field"><DiacriticBar /></div>}
+            {!marked && (
+              <div className="mt-4">
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={prompt.lemma}
+                />
+              </div>
+            )}
           </div>
 
           {error && (
@@ -289,9 +358,14 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           )}
         </div>
       </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
 
       {!aiAvailable && (
-        <p className="mt-4 text-center text-[13px]" style={{ color: "var(--ink-3)" }}>
+        <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
           Anu isn&rsquo;t available here, so only the form is checked. That check is the reliable half.
         </p>
       )}
@@ -314,11 +388,11 @@ function Feedback({ marked }: { marked: Marked }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdictOfRating(writeRating(formCheck))]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdictOfRating(writeRating(formCheck))]} verdict-panel flex items-start gap-2.5`}>
         {formCheck.used
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p className="text-base">
           {formCheck.used
             ? "That is the right form."
             : formCheck.usedAnotherForm
@@ -332,7 +406,7 @@ function Feedback({ marked }: { marked: Marked }) {
           className="rounded-md border px-3.5 py-3"
           style={{ borderColor: "var(--rule)", background: "var(--raised)" }}
         >
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>
             {withheldReason === "unvouched-word" ? (
               <>
                 Anu&rsquo;s note is hidden here. It used a word we couldn&rsquo;t confirm as Estonian,
@@ -360,7 +434,7 @@ function Feedback({ marked }: { marked: Marked }) {
               {graded.verdict === "correct" ? "reads well" : graded.verdict === "almost" ? "almost" : "not yet"}
             </Chip>
           </div>
-          <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
+          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{graded.comment}</p>
           {graded.rule && (
             <p className="mt-1.5 text-sm" style={{ color: "var(--ink-3)" }}>
               Rule: {graded.rule}

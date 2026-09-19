@@ -467,7 +467,11 @@ export default async function TodayPage() {
   ) : courseNow?.finishedToday ? (
     <Card tone="mint" className="flex flex-col gap-5 lg:flex-row lg:items-center lg:gap-8">
       <div className="min-w-0 flex-1">
-        <SectionTitle hint={`${courseNow.daysDone} of ${programme!.days.length} done`}>
+        <SectionTitle
+          hint={courseNow.eveningsInARow >= 2
+            ? `${courseNow.daysDone} of ${programme!.days.length} done, ${courseNow.eveningsInARow} evenings in a row`
+            : `${courseNow.daysDone} of ${programme!.days.length} done`}
+        >
           Today&rsquo;s module
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--ink)" }}>

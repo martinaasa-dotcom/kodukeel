@@ -8,11 +8,16 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Chip, Empty, KeyCap, Page, StatTile } from "@/components/ui";
 import { Speak } from "@/components/Speak";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
 import { BLANK } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
@@ -100,7 +105,49 @@ export function QuestSession({
   const sound = useFeedbackSound();
 
   const card = cards.length > 0 ? cards[index % cards.length]! : null;
+  /*
+    The English of a gap's own sentence with the missing word marked inside it,
+    off what the dictionary already holds and withheld where that line carries
+    the answer (`lib/copy/gapMeaning.ts`). Null on anything that is not a gap.
+  */
+  const meaning = card && isGap(card.front)
+    ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
+    : null;
+  /*
+    And what the cue still has to say once that line has said it: the headword
+    where the cue carries one, never the gloss a second time (`gapCue`).
+  */
+  const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
   const exhausted = cards.length > 0 && attempted >= cards.length;
+
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE ROUND BUILT OUT OF WHAT SOMEBODY IS
+    WORST AT.
+
+    This is the round with the strongest claim on one: it picks the learner's
+    weakest cases by name and then asks them, so everybody here is by
+    construction at the thing they keep getting wrong. Crossing an option out
+    rather than uncovering letters, because the four options are four forms of
+    the word and every letter is already on the screen.
+
+    The clock is not an argument against it. A round that runs to two minutes
+    already moves somebody on from a question they cannot answer, and a hint
+    they press costs them seconds they control (`lib/ux/roundClock.ts` is
+    adjustable up to ten times the standard). What it buys is that the pass,
+    when it comes, is graded as the helped one it was.
+  */
+  const options = card?.choices?.map((c) => c.text) ?? [];
+  const answerText = card
+    ? options.find((text) => acceptedAnswers(card.back, "et")
+      .some((f) => f.toLocaleLowerCase("et") === text.toLocaleLowerCase("et"))) ?? card.back
+    : "";
+  const ladder = card?.choices ? narrowLadder(options, answerText) : [];
+  const hints = useHints({
+    word: card?.lemma ?? card?.id ?? null,
+    question: card?.id ?? null,
+    ladder,
+  });
+  const struck = card?.choices ? struckOptions(options, answerText, hints.taken) : [];
 
   useEffect(() => {
     if (phase !== "running") return;
@@ -132,8 +179,11 @@ export function QuestSession({
       cannot file "asked what it meant, got a case" as a confusion between two
       cases.
     */
+    if (!got) hints.noteMiss();
     await gradeCard(
-      card.id, got ? 3 : 1, Date.now() - shownAt.current, undefined,
+      // A hint is paid for: see `lib/questions/hints.ts`.
+      card.id, Math.min(got ? 3 : 1, hints.ceiling) as 1 | 2 | 3,
+      Date.now() - shownAt.current, undefined,
       card.targetCase ?? undefined, reached ?? undefined,
     );
     setPicked(null);
@@ -141,7 +191,7 @@ export function QuestSession({
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
     setBusy(false);
-  }, [card, busy, sound]);
+  }, [card, busy, sound, hints]);
 
   /*
     A pick marks itself. The option carries what it would mean, so a wrong one
@@ -329,8 +379,19 @@ export function QuestSession({
           <p lang="et" className="text-3xl font-bold leading-tight md:text-4xl" style={{ color: "var(--ink)" }}>
             {card.front}
           </p>
-          {card.hint && !revealed && (
-            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+          {/*
+            WHAT THE SENTENCE AROUND THE GAP SAYS, AND THE CUE ONLY WHERE IT
+            DID NOT SAY IT.
+
+            The quest picks the cases a learner is worst at, so its cards are
+            the ones they have least to go on with, and the English under them
+            was the missing word's gloss alone. One drawing and one rule for
+            all six gap screens: `lib/copy/gapMeaning.ts`, off the English the
+            dictionary already holds, so this costs the quest no call.
+          */}
+          {meaning && !revealed && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
+          {cue && !revealed && (
+            <p className="text-sm" style={{ color: "var(--ink-3)" }}>{cue}</p>
           )}
 
           {card.choices ? (
@@ -358,7 +419,12 @@ export function QuestSession({
                     disabled={busy || picked !== null}
                     className={`choice-btn ${state} flex items-center justify-between gap-2 rounded-[var(--r)] border px-4 py-3 text-left text-lg font-semibold`}
                   >
-                    <span>{option.text}</span>
+                    <span className={!revealed && struck.includes(option.text) ? "line-through" : ""}>
+                      {option.text}
+                      {!revealed && struck.includes(option.text) && (
+                        <span className="sr-only"> (ruled out by a hint)</span>
+                      )}
+                    </span>
                     {revealed && isAnswer
                       ? <span className="text-xs font-semibold uppercase tracking-wide">Right</span>
                       : (
@@ -378,6 +444,15 @@ export function QuestSession({
                     ? "Right."
                     : `Not this time. The answer is ${card.back}.`}
                 </p>
+              )}
+              {!revealed && (
+                <HintLadder
+                  ladder={ladder}
+                  taken={hints.taken}
+                  onTake={hints.take}
+                  open={hints.open}
+                  label={card.lemma ?? card.front}
+                />
               )}
             </div>
           ) : revealed ? (

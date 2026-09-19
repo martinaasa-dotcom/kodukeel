@@ -12,6 +12,7 @@ import { VOICES } from "@/lib/audio/voice";
 import { OPTION_CLASS, VERDICT_INK, optionState } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface PairQuestion {
   /** The form that is actually played. */
@@ -58,6 +59,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
   const startedAt = useRef(Date.now());
 
   const question = questions[index];
+  /* The way back to the pair before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !question;
   const revealed = picked !== null;
 
@@ -132,13 +135,34 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
   }, [question, picked]);
 
   const next = useCallback(() => {
+    /* Which of the two was actually played, which is the one thing a learner
+       wants back on a round they cannot re-read: the panel plays it again. */
+    if (question) {
+      const heard = question.options.find((o) => o.value === question.heard);
+      look.record({
+        of: question.cardId ?? question.heard,
+        label: "Minimal pairs",
+        question: question.options.map((o) => o.value).join("  ·  "),
+        answer: question.heard,
+        note: heard ? `${heard.lemma}, ${heard.translation}` : null,
+        questionLang: "et",
+        answerLang: "et",
+        speak: question.heard,
+      });
+    }
     setPicked(null);
     setIndex((i) => i + 1);
-  }, []);
+  }, [question, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (finished || !question) return;
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && look.seen.length > 0) { e.preventDefault(); look.open(); return; }
       if (e.key === "r" || e.key === "R") { e.preventDefault(); void play(question.heard); return; }
       if (revealed && isAdvanceKey(e)) { e.preventDefault(); next(); return; }
       if (revealed) return;
@@ -147,7 +171,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [finished, question, revealed, choose, next, play]);
+  }, [finished, question, revealed, choose, next, play, look]);
 
   if (audioFailed) {
     return (
@@ -171,10 +195,10 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
     return (
       <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
-        <h1 className="text-[32px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
           Round complete
         </h1>
-        <p className="mt-2 text-[15px]" style={{ color: "var(--ink-2)" }}>
+        <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           In Estonian, length changes the word: <span lang="et">maja</span> and{" "}
           <span lang="et">majja</span> are different words, not the same word said twice. Ears take
           longer than eyes.
@@ -219,6 +243,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -286,8 +311,8 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
                       3.85 once the tone above it was corrected. */}
                   <KeyCap>{i + 1}</KeyCap>
                   <span className="min-w-0">
-                    <span lang="et" className="block text-[19px] font-semibold">{option.value}</span>
-                    <span className="block text-[13px]">
+                    <span lang="et" className="block text-lg font-semibold">{option.value}</span>
+                    <span className="block text-xs">
                       {option.formLabel} of {option.lemma} · {option.translation}
                     </span>
                   </span>
@@ -300,7 +325,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
 
         {revealed && (
           <div className="border-t px-6 py-4" style={{ borderColor: "var(--rule-soft)" }} aria-live="polite">
-            <p className="text-[13.5px]" style={{ color: "var(--ink-2)" }}>
+            <p className="text-sm" style={{ color: "var(--ink-2)" }}>
               {question.letter
                 ? <>The two only differ in how long the <strong lang="et">{question.letter}</strong> sounds.
                     The doubled spelling, <strong lang="et">{question.longer}</strong>, is the longer one.</>
@@ -310,7 +335,7 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
             <div className="mt-3 flex flex-wrap items-center gap-3">
               {question.options.map((o) => (
                 <span key={o.value} className="flex items-center gap-1.5">
-                  <span lang="et" className="text-[15px]" style={{ color: "var(--ink)" }}>{o.value}</span>
+                  <span lang="et" className="text-base" style={{ color: "var(--ink)" }}>{o.value}</span>
                   <Speak text={o.value} voice={voice} />
                 </span>
               ))}
@@ -323,10 +348,12 @@ export function PairsSession({ questions: initialQuestions }: { questions: PairQ
           </div>
         )}
       </div>
+      )}
 
-      <p className="mt-4 text-center text-[12px]" style={{ color: "var(--ink-3)" }}>
-        {correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{correct}/{index + (revealed ? 1 : 0)} right · keys 1 to 2 to answer</span>
+        <LookBackButton {...look.button} disabled={look.looking} />
+      </div>
     </div>
   );
 }

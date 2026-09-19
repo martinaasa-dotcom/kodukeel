@@ -17,7 +17,7 @@ const B = baseUrl();
 // Floor: 79, measured in the state CI seeds, which is the 58 this suite had
 // before `/grammar/build-a-word` and the twenty-three checks that screen added.
 // A thinner database reads as short.
-const { check, absent, done } = suite("Teaching layer", { floor: 81 });
+const { check, absent, done } = suite("Teaching layer", { floor: 86 });
 
 const browser = await launchChromium();
 const page = await (await browser.newContext({ viewport: { width: 1280, height: 1100 } })).newPage();
@@ -122,6 +122,59 @@ check("every form on it says where it came from", labelled === rowCount, `${labe
 
 check("the drill for this case is one click away",
   (await page.locator('a[href="/review?case=INESSIVE"]').count()) > 0);
+
+/*
+  AND EVERY CLAIM THE REFERENCE MAKES SHIPS WITH SOMEBODY SAYING IT.
+
+  The politeness page is where this was reported: three boxes reading "the
+  plural as a polite singular with strangers", "the conditional to soften a
+  request" and "directness is less rude here than English speakers expect",
+  and not one of them showed anybody doing it. A reference that only asserts
+  is a reference nobody can act on.
+
+  Driven here rather than asserted from the source, because everything a unit
+  test can say about a pin is about the table: that the sentence is attested,
+  that the marked word is in it, that it really is the slot claimed. Whether
+  any of it reaches the screen is a different question, and it is the one the
+  report was about. The hook is `data-point-examples` on the list itself, not a
+  count of hops through the markup, for the reason `scripts/test-scene.mjs`
+  learned the hard way.
+*/
+await page.goto(`${B}/grammar/topic/politeness`, { waitUntil: "networkidle" });
+const politenessPoints = page.locator("main li:has-text('polite singular')");
+check("the page a learner reported shows its claims rather than only stating them",
+  (await page.locator("[data-point-examples]").count()) >= 3,
+  `${await page.locator("[data-point-examples]").count()} points with examples`);
+check("and the claim that was reported is one of them",
+  (await politenessPoints.first().locator("[data-point-examples]").count()) > 0,
+  "the polite plural is still asserted and never shown");
+
+const firstExample = page.locator("[data-point-examples] li").first();
+check("the sentence under a claim is Estonian and marked where the point is",
+  (await firstExample.locator('[lang="et"]').count()) > 0
+  && (await firstExample.locator("mark").count()) > 0,
+  "no marked Estonian under the first claim");
+/*
+  And the English ships with it, which is what makes the line readable on a
+  deployment with no model key. `prisma/data/example-english.json` is where it
+  comes from and the seed is what joins it, so a page drawing the Estonian and
+  nothing under it is the state every attested sentence in this app was in
+  before that file existed.
+*/
+const politenessBody = (await page.textContent("main")) ?? "";
+check("and it says what it means, so a beginner can get into it",
+  politenessBody.includes("Kas te soovite teed või kohvi?")
+  && politenessBody.includes("Would you like tea or coffee?"),
+  "the polite plural's sentence arrives with no English under it");
+
+/*
+  A case page carries them too, under the uses rather than in the table of
+  forms below, which lists words rather than uses.
+*/
+await page.goto(`${B}/grammar/inessive`, { waitUntil: "networkidle" });
+check("an ending's page shows its uses being used",
+  (await page.locator("[data-point-examples]").count()) > 0,
+  "the inessive's uses are asserted and never shown");
 
 // The dictionary's case table is the other way in.
 await page.goto(`${B}/dictionary?q=tuba`, { waitUntil: "networkidle" });

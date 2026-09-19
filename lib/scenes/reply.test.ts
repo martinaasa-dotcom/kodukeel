@@ -4,7 +4,7 @@ import { propBySlot } from "./props";
 import { NUDGE_AFTER } from "./coach";
 import { fallbackLine, type SpokenLine } from "./line";
 import {
-  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, replyFor,
+  cardAfterHurdles, cardChosen, cardInPlay, composeNote, counterBeat, datumLine, factsFor, partsLine, feltAt, replyFor,
   reaction, stageFor, wantsAsideFor, wantsFreshLine,
   type ReplyInput,
 } from "./reply";
@@ -49,6 +49,22 @@ describe("the opening line", () => {
 });
 
 describe("a turn that landed", () => {
+  it("is felt before it is filed, where the beat says what kind of news it is", () => {
+    const bad = replyFor(input({ answered: { ...ASK, feel: "sorry" }, beat: OFFER, line: FRESH }));
+    expect(bad[0]?.text).toBe("Tõesti?");
+    expect(bad[0]?.reaction).toBe(true);
+    const good = replyFor(input({ answered: { ...ASK, feel: "glad" }, beat: OFFER, line: FRESH }));
+    expect(good[0]?.text).toBe("Tore!");
+    // A feeling is about news, and a turn that missed brought none.
+    expect(feltAt({ ...ASK, feel: "sorry" }, "narrow")).toBeUndefined();
+    expect(feltAt(ASK, "answer")).toBeUndefined();
+    // And a composed line has already felt it, so nothing is bolted on in front.
+    const composed = replyFor(input({
+      answered: { ...ASK, feel: "sorry" }, beat: OFFER, line: { ...FRESH, provenance: "composed" },
+    }));
+    expect(composed.map((l) => l.text)).not.toContain("Tõesti?");
+  });
+
   it("is acknowledged, and then they move on", () => {
     const lines = replyFor(input({ answered: ASK, beat: OFFER, line: FRESH }));
     expect(lines).toHaveLength(2);
@@ -734,7 +750,7 @@ describe("a line off the card", () => {
     }],
   };
   const lexicon: Lexicon = {
-    forms: new Set(), byLemma: new Map(), byCase: new Map(),
+    forms: new Set(), spoken: [], byLemma: new Map(), byCase: new Map(),
     caseForm: new Map([[caseKeyFor("teisipäev", "ADESSIVE"), "teisipäeval"]]),
     folded: new Map(), infinitives: new Map(), persons: new Map(),
   };
@@ -982,7 +998,7 @@ describe("the card after a curveball", () => {
 
   it("says a nominal in a named case off the case table, and withholds the line where it has none", () => {
     const lexicon = {
-      byLemma: new Map(), byCase: new Map(), forms: new Set<string>(), folded: new Set<string>(),
+      byLemma: new Map(), byCase: new Map(), forms: new Set<string>(), spoken: [], folded: new Set<string>(),
       persons: new Map(), infinitives: new Map(),
       caseForm: new Map([[caseKeyFor("euro", "PARTITIVE"), "eurot"]]),
     } as unknown as Lexicon;

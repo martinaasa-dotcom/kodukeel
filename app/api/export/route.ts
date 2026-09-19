@@ -116,7 +116,7 @@ export async function GET() {
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps,
+    decks, deckWords, deferrals, courseSteps, emailSends,
   ] = await Promise.all([
     prisma.lexeme.findMany({ where: { id: { in: [...mine] } }, include: { forms: true } }),
     prisma.card.findMany({ where: { ownerId } }),
@@ -171,6 +171,12 @@ export async function GET() {
     // of every day's steps are read off the review log and are deliberately
     // not in here, and these are the ones that are not.
     prisma.courseStep.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
+    // Which letters we sent them and when. A record of contact rather than of
+    // work, and theirs for that reason: it is the only place that says this
+    // deployment wrote to them, and it holds nothing about whether they opened
+    // one, because there is no tracking pixel here and there is not going to
+    // be one.
+    prisma.emailSend.findMany({ where: { ownerId }, orderBy: { sentAt: "asc" } }),
   ]);
 
   const payload = {
@@ -188,11 +194,12 @@ export async function GET() {
       decks: decks.length, deckWords: deckWords.length,
       deferrals: deferrals.length,
       courseSteps: courseSteps.length,
+      emailSends: emailSends.length,
     },
     lexemes, cards, reviews, tasks, studyEvents, scans,
     settings, messages, assessments, stars, achievements,
     examAttempts, classrooms, classroomMembers, suggestions, sceneRuns, sceneGaps, encounters,
-    decks, deckWords, deferrals, courseSteps,
+    decks, deckWords, deferrals, courseSteps, emailSends,
   };
 
   const date = new Date().toISOString().slice(0, 10);

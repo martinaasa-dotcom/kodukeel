@@ -1,30 +1,30 @@
 import { describe, expect, it } from "vitest";
 import {
-  BAND_WEEKS, DEFER_WEEKS, HARD_LEARNERS,
-  bandReached, deferralFor, deferralNote, inForce, offeredBand, tooHardForEveryone, weeksBetween,
+  BAND_DAYS, DEFER_DAYS, HARD_LEARNERS,
+  awayIn, bandReached, daysBetween, deferralFor, deferralNote, inForce, offeredBand, tooHardForEveryone,
 } from "./defer";
 import { raiseBand } from "@/lib/collections/levels";
 
 const NOW = new Date("2026-09-14T10:00:00.000Z");
-const weeksFrom = (until: Date) => Math.round((until.getTime() - NOW.getTime()) / (7 * 24 * 3600 * 1000));
+const daysFrom = (until: Date) => Math.round((until.getTime() - NOW.getTime()) / (24 * 3600 * 1000));
 
 /**
  * The two outcomes and the line between them, which is the whole of what this
  * button decides. A word somebody is supposed to be meeting goes back a few
- * weeks; a word that arrived early waits for the band it belongs to. Getting
+ * days; a word that arrived early waits for the band it belongs to. Getting
  * the line wrong in one direction loses a word for months, and in the other it
  * hands it straight back to somebody who has just said it was beyond them.
  */
 describe("how long a word goes away for", () => {
-  it("gives a word at the learner's own level a few weeks and no band to wait for", () => {
+  it("gives a word at the learner's own level a few days and no band to wait for", () => {
     const put = deferralFor({ band: "B1", level: "B1", now: NOW });
-    expect(put.reason).toBe("WEEKS");
+    expect(put.reason).toBe("SOON");
     expect(put.untilLevel).toBeNull();
-    expect(weeksFrom(put.untilAt)).toBe(DEFER_WEEKS);
+    expect(daysFrom(put.untilAt)).toBe(DEFER_DAYS);
   });
 
   it("treats a word below the learner the same way", () => {
-    expect(deferralFor({ band: "A1", level: "B1", now: NOW }).reason).toBe("WEEKS");
+    expect(deferralFor({ band: "A1", level: "B1", now: NOW }).reason).toBe("SOON");
   });
 
   it("makes a word above the learner wait for its own band", () => {
@@ -41,7 +41,7 @@ describe("how long a word goes away for", () => {
   */
   it("gives an untagged word the plain few weeks", () => {
     const put = deferralFor({ band: null, level: "A1", now: NOW });
-    expect(put.reason).toBe("WEEKS");
+    expect(put.reason).toBe("SOON");
     expect(put.untilLevel).toBeNull();
   });
 
@@ -50,14 +50,28 @@ describe("how long a word goes away for", () => {
     early comes back sooner than a word the learner was supposed to have.
   */
   it("waits longer for a word that arrived early than for a bad evening", () => {
-    expect(BAND_WEEKS).toBeGreaterThan(DEFER_WEEKS);
+    expect(BAND_DAYS).toBeGreaterThan(DEFER_DAYS);
     for (const level of ["A1", "A2", "B1", "B2", "C1"] as const) {
       for (const band of ["A1", "A2", "B1", "B2", "C1", "C2"]) {
         const put = deferralFor({ band, level, now: NOW });
-        expect(put.weeks).toBe(put.reason === "BAND" ? BAND_WEEKS : DEFER_WEEKS);
-        expect(weeksFrom(put.untilAt)).toBe(put.weeks);
+        expect(put.days).toBe(put.reason === "BAND" ? BAND_DAYS : DEFER_DAYS);
+        expect(daysFrom(put.untilAt)).toBe(put.days);
       }
     }
+  });
+
+  /*
+    A BAD EVENING IS AN EVENING, which is the whole of why this number is what
+    it is. Three weeks took a word out of the deck for six or eight sittings
+    over one press, so the floor here is not "shorter than the band backstop",
+    it is "inside the week": whatever anybody retunes this to, a learner who
+    said not tonight has to meet the word again within a week of saying so.
+  */
+  it("brings a word at their own level back inside the week", () => {
+    expect(DEFER_DAYS).toBeLessThanOrEqual(7);
+    const put = deferralFor({ band: "A1", level: "A1", now: NOW });
+    expect(daysFrom(put.untilAt)).toBeLessThanOrEqual(7);
+    expect(deferralNote(put, "kohv")).toContain("3 days");
   });
 
   it("says which word and when, because nothing else on the screen will", () => {
@@ -135,30 +149,59 @@ describe("when enough people have said it", () => {
  *
  * `deferWord` keeps a wait that is already standing where it reaches further
  * than tonight's would, and then has to say how long that one has left. A
- * remainder floored would read "about 0 weeks" over a word that is gone for
- * four more days, which is the fault `lib/time/duration.ts` states one
- * directory over about a figure whose smaller end rounds to a zero it is not.
+ * remainder floored would read "0 days" over a word that is gone until
+ * tomorrow, which is the fault `lib/time/duration.ts` states one directory
+ * over about a figure whose smaller end rounds to a zero it is not.
  */
 describe("how far off a standing wait is, in words", () => {
   const days = (n: number) => new Date(NOW.getTime() + n * 24 * 3600 * 1000);
 
-  it("reads a three week wait as three weeks", () => {
-    expect(weeksBetween(NOW, days(21))).toBe(3);
+  it("counts whole days", () => {
+    expect(daysBetween(NOW, days(3))).toBe(3);
+    expect(daysBetween(NOW, days(21))).toBe(21);
   });
 
-  it("never says a wait still running is no weeks at all", () => {
-    expect(weeksBetween(NOW, days(4))).toBe(1);
-    expect(weeksBetween(NOW, days(1))).toBe(1);
+  it("never says a wait still running is no time at all", () => {
+    expect(daysBetween(NOW, new Date(NOW.getTime() + 3600 * 1000))).toBe(1);
+    expect(daysBetween(NOW, days(1))).toBe(1);
   });
 
-  it("rounds rather than floors, so eleven days is two weeks", () => {
-    expect(weeksBetween(NOW, days(11))).toBe(2);
+  it("rounds rather than floors", () => {
+    expect(daysBetween(NOW, new Date(NOW.getTime() + 2.6 * 24 * 3600 * 1000))).toBe(3);
   });
 
   it("agrees with what a fresh deferral says about itself", () => {
     const put = deferralFor({ band: "C1", level: "A1", now: NOW });
-    expect(weeksBetween(NOW, put.untilAt)).toBe(put.weeks);
-    expect(put.weeks).toBe(BAND_WEEKS);
+    expect(daysBetween(NOW, put.untilAt)).toBe(put.days);
+    expect(put.days).toBe(BAND_DAYS);
+  });
+});
+
+/**
+ * And the unit follows the size, because the number alone is not the answer.
+ *
+ * `lib/time/duration.ts` makes this argument about a stretch of study and it
+ * is the same one here: "3 days" is a date somebody can picture and "84 days"
+ * is a sum. What is checked is the seam at each step rather than a spread of
+ * examples, since a threshold is the only place this can be wrong.
+ */
+describe("a span of days, in the unit that makes it an answer", () => {
+  it("counts days up to a fortnight", () => {
+    expect(awayIn(1)).toBe("1 day");
+    expect(awayIn(DEFER_DAYS)).toBe("3 days");
+    expect(awayIn(13)).toBe("13 days");
+  });
+
+  it("turns into weeks at a fortnight and months at ten", () => {
+    expect(awayIn(14)).toBe("about 2 weeks");
+    expect(awayIn(69)).toBe("about 10 weeks");
+    expect(awayIn(70)).toBe("about 2 months");
+    expect(awayIn(BAND_DAYS)).toBe("about 3 months");
+  });
+
+  it("never counts a wait still running as nothing", () => {
+    expect(awayIn(0)).toBe("1 day");
+    expect(awayIn(-5)).toBe("1 day");
   });
 });
 
@@ -173,8 +216,8 @@ describe("how far off a standing wait is, in words", () => {
 describe("the bands", () => {
   it("climbs, so a word above the learner waits and a word at their level does not", () => {
     expect(deferralFor({ band: "C1", level: "B1", now: NOW }).reason).toBe("BAND");
-    expect(deferralFor({ band: "A1", level: "B1", now: NOW }).reason).toBe("WEEKS");
-    expect(deferralFor({ band: "B1", level: "B1", now: NOW }).reason).toBe("WEEKS");
+    expect(deferralFor({ band: "A1", level: "B1", now: NOW }).reason).toBe("SOON");
+    expect(deferralFor({ band: "B1", level: "B1", now: NOW }).reason).toBe("SOON");
   });
 
   it("raises by one step and stops at the top", () => {

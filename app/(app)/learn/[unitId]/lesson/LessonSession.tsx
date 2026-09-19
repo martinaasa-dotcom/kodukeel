@@ -10,11 +10,17 @@ import { Button, ButtonLink } from "@/components/Button";
 import { Confetti } from "@/components/Confetti";
 import { Et } from "@/components/Et";
 import { EstonianInput } from "@/components/EstonianInput";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
+import { hintLadder } from "@/lib/questions/hints";
+import { caseByKey } from "@/lib/estonian/cases";
 import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
@@ -25,6 +31,8 @@ import { isAnswerable, type LessonStep } from "@/lib/collections/lesson";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
+import type { SeenCard } from "@/lib/ux/lookBack";
 
 interface Answer {
   id: string;
@@ -32,6 +40,42 @@ interface Answer {
   kind: string;
   correct: boolean;
   durationMs: number;
+}
+
+/**
+ * What a step leaves behind for somebody who wants to see it again.
+ *
+ * A lesson is eleven shapes rather than one card, so this reads each for what
+ * was actually on the screen: a gap keeps its sentence, a case step keeps the
+ * form it wanted, and the two steps that ask nothing keep the word they
+ * introduced. `intro` and `recap` are the two with no word in them at all,
+ * and they are the null: there is nothing to look back at on a screen that
+ * was only ever a heading.
+ */
+function shownAs(step: LessonStep): Omit<SeenCard, "key"> | null {
+  const base = { questionLang: "et" as const, answerLang: "et" as const, note: null as string | null };
+  switch (step.kind) {
+    case "intro":
+    case "recap":
+      return null;
+    case "meet":
+      return { ...base, of: step.lemma, label: "New word", question: step.lemma, answer: step.gloss, answerLang: "en", speak: step.lemma };
+    case "choose":
+      return { ...base, of: step.lemma, label: "What it means", question: step.lemma, answer: step.options[step.answer] ?? "", answerLang: "en", speak: step.lemma };
+    case "produce":
+    case "listen":
+      return { ...base, of: step.lemma, label: step.kind === "listen" ? "Heard it" : "Say it", question: step.kind === "produce" ? step.gloss : step.lemma, answer: step.options[step.answer] ?? step.lemma, questionLang: step.kind === "produce" ? "en" : "et", speak: step.lemma };
+    case "type":
+      return { ...base, of: step.lemma, label: "Type it", question: step.gloss, answer: step.lemma, questionLang: "en", speak: step.lemma };
+    case "gap":
+      return { ...base, of: step.lemma, label: "Fill the gap", question: step.full, answer: step.answer, note: step.en, speak: step.full };
+    case "build":
+      return { ...base, of: step.lemma, label: "Word order", question: step.lemma, answer: step.sentence, note: step.en, speak: step.sentence };
+    case "case":
+      return { ...base, of: step.lemma, label: step.caseName, question: `${step.lemma}, ${step.gloss}`, answer: step.answer, note: step.question, speak: step.answer };
+    case "govern":
+      return { ...base, of: step.lemma, label: "Rektsioon", question: `${step.lemma}, ${step.gloss}`, answer: step.options[step.answer] ?? "", speak: step.lemma };
+  }
 }
 
 /**
@@ -85,6 +129,8 @@ export function LessonSession({
   const [aside, setAside] = useState<string | null>(null);
 
   const step = steps[at];
+  /* The way back to the step before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const total = useMemo(() => steps.filter(isAnswerable).length, [steps]);
   const answered = answers.length;
   const correct = answers.filter((a) => a.correct).length;
@@ -99,9 +145,13 @@ export function LessonSession({
   }, [startedAt]);
 
   const advance = useCallback(() => {
+    /* One choke point: every step leaves through here, so the record cannot
+       fall behind the lesson. Nothing is answered again by keeping it. */
+    const seenStep = step ? shownAs(step) : null;
+    if (seenStep) look.record(seenStep);
     setAt((i) => Math.min(i + 1, steps.length - 1));
     setStartedAt(Date.now());
-  }, [steps.length]);
+  }, [steps.length, step, look]);
 
   /**
    * A word the learner has put aside, mid-lesson.
@@ -165,9 +215,19 @@ export function LessonSession({
     >
       <div className="flex flex-col gap-5">
         <Meter pct={pct} label={`${answered} of ${total} questions answered`} />
+        {/* A look back stands in the step's place rather than over it, so the
+            step underneath cannot be answered while an older one is read. */}
+        {look.panel ? <LookBackCard {...look.panel} /> : (
         <StepCard
           key={step.id}
           step={step}
+          /*
+            How often this lesson has already asked this word and been told no.
+            The card is remounted per step (`key`), so the hint hook cannot
+            count this for itself; the lesson already keeps every answer,
+            because it sends them in one call at the end.
+          */
+          missedBefore={answers.filter((a) => a.lemma === step.lemma && !a.correct).length}
           onAnswer={record}
           onNext={advance}
           onAside={putAside}
@@ -176,8 +236,12 @@ export function LessonSession({
           canTranslate={canTranslate}
           summary={{ correct, total: answered, saving, saved }}
         />
+        )}
+        <div className="flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        </div>
         {aside && (
-          <p className="text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+          <p className="text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
             {aside}{" "}
             <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
               Bring it back
@@ -193,7 +257,7 @@ export function LessonSession({
 function Verdict({ ok, note }: { ok: boolean; note?: string }) {
   return (
     <div
-      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} flex items-start gap-2 rounded-[var(--r-sm)] p-3 text-sm`}
+      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} verdict-panel flex items-start gap-2`}
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
@@ -280,10 +344,12 @@ function Options({
 }
 
 function StepCard({
-  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate,
+  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate, missedBefore,
 }: {
   step: LessonStep;
   onAnswer: (lemma: string, kind: string, ok: boolean) => void;
+  /** Misses on this word earlier in the lesson. See the call site. */
+  missedBefore: number;
   onNext: () => void;
   /** Told what the deferral said, so the lesson can drop the word and say so. */
   onAside: (note: string) => void;
@@ -297,6 +363,43 @@ function StepCard({
   const [checked, setChecked] = useState<{ ok: boolean; note: string } | null>(null);
   const [built, setBuilt] = useState<number[]>([]);
 
+  /*
+    THE WAY OUT OF BEING STUCK, ON THE THREE STEPS THAT ASK FOR A FORM.
+
+    `type`, `gap` and `case` each want one spelling the dictionary vouches for,
+    which is what `hintLadder` uncovers. The picked steps are left alone here:
+    a lesson walks a word up in one sitting rather than requeueing it, so its
+    options are met once and the crossing-out would be offered on a question
+    nobody has had a go at yet.
+
+    A lesson records a boolean rather than a rating, so the ceiling is read the
+    only way a boolean can carry it: a learner who uncovered the whole answer
+    did not produce it, and a narrowing hint leaves the answer standing as what
+    it was. That is the same line `hintCeiling` draws, at the resolution this
+    step can express.
+  */
+  const hintAnswer = step.kind === "type" ? step.lemma
+    : step.kind === "gap" || step.kind === "case" ? step.answer
+      : null;
+  const ladder = typeof hintAnswer === "string"
+    ? hintLadder({
+      answer: hintAnswer,
+      suffix: step.kind === "case" ? caseByKey(step.caseKey)?.suffix : null,
+    })
+    : [];
+  const hints = useHints({ word: step.lemma ?? step.id, question: step.id, ladder, missedBefore });
+  const hint = !checked && ladder.length > 0
+    ? (
+      <HintLadder
+        ladder={ladder}
+        taken={hints.taken}
+        onTake={hints.take}
+        open={hints.open}
+        label={step.lemma ?? "this one"}
+      />
+    )
+    : null;
+
   const choose = (i: number, answer: number, lemma: string, kind: string) => {
     if (chosen !== null) return;
     setChosen(i);
@@ -308,7 +411,8 @@ function StepCard({
     const result = checkAnswer(typed, expected, "et");
     const ok = countsAsRecalled(result.verdict);
     setChecked({ ok, note: result.note || (ok ? "Correct." : `It is “${result.expected}”.`) });
-    onAnswer(lemma, kind, ok);
+    // A hint is paid for: see the block above and `lib/questions/hints.ts`.
+    onAnswer(lemma, kind, ok && hints.ceiling > 1);
   };
 
   switch (step.kind) {
@@ -457,6 +561,7 @@ function StepCard({
             ariaLabel="Your answer in Estonian"
             onEnter={() => checkTyped(step.lemma, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.lemma, step.lemma, step.kind)} className="self-start">
               Check
@@ -467,7 +572,22 @@ function StepCard({
         </Card>
       );
 
-    case "gap":
+    case "gap": {
+      /*
+        The English of this gap's own sentence with the asked word marked, and
+        what the cue still has to say once that line has said it. One rule for
+        both (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in
+        context, so a marked line takes the gloss and never the word, and the
+        step's own `cue` ladder still decides whether there was a gloss to show
+        at all.
+      */
+      const meaning = gapMeaning({
+        en: step.en,
+        answer: step.answer,
+        cue: step.cue === "none" ? null : step.gloss,
+        lemma: step.lemma,
+      });
+      const gloss = gapCue({ hint: step.gloss, lemma: null, marked: meaning?.marked ?? false });
       return (
         <Card className="flex flex-col gap-4">
           {/* THE WORD, THEN WHAT TO DO WITH IT, THEN THE SENTENCE CLOSEST TO
@@ -486,20 +606,20 @@ function StepCard({
               can carry a gap at all. */}
           {step.cue === "word-and-meaning" ? (
             <div>
-              <Et className="block text-[32px] font-bold leading-tight">{step.lemma}</Et>
-              <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
-              <p className="mt-4 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <Et className="block text-3xl font-bold leading-tight">{step.lemma}</Et>
+              {gloss && <p className="mt-1 text-base" style={{ color: "var(--ink-2)" }}>{gloss}</p>}
+              <p className="mt-4 text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Write it in the form this sentence needs.
               </p>
             </div>
           ) : (
             <div>
-              <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+              <p className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Which word goes in the gap?
               </p>
-              {step.cue === "meaning" && (
-                <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>
-                  It means <strong style={{ color: "var(--ink)" }}>{step.gloss}</strong>.
+              {step.cue === "meaning" && gloss && (
+                <p className="mt-1.5 text-base" style={{ color: "var(--ink-2)" }}>
+                  It means <strong style={{ color: "var(--ink)" }}>{gloss}</strong>.
                 </p>
               )}
             </div>
@@ -507,12 +627,30 @@ function StepCard({
           <p className="text-xl">
             <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
+          {/*
+            AND WHAT THE LINE SAYS, CLOSEST TO THE SENTENCE IT IS ABOUT.
+
+            The card above says which word and this says what the sentence is
+            doing with it, which is the pair a gap-fill is for: a learner
+            producing a form because a sentence needs it rather than because a
+            gloss was printed over a hole. Marked with the same rule every
+            other gap screen uses and withheld by it where the English carries
+            the answer (`lib/copy/gapMeaning.ts`).
+
+            The cue goes in only where the step is already allowed to show it:
+            `step.cue` reads "none" for a word whose own meaning spells the
+            answer, and marking that meaning inside the English would put back
+            exactly what that ladder took off the screen. Resolved at the top
+            of this branch beside the gloss, because the two are one decision.
+          */}
+          {meaning && !checked && <GapMeaning meaning={meaning} />}
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
             placeholder={sizedBlank(BLANK, step.answer)}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check
@@ -540,6 +678,7 @@ function StepCard({
           )}
         </Card>
       );
+    }
 
     case "case":
       return (
@@ -556,10 +695,10 @@ function StepCard({
               `--ink-2` above the word, so what the learner was being asked to
               produce was fainter than the word they were producing it from. */}
           <div className="flex flex-wrap items-center gap-3">
-            <Et className="text-[32px] font-bold leading-tight">{step.lemma}</Et>
+            <Et className="text-3xl font-bold leading-tight">{step.lemma}</Et>
             <span style={{ color: "var(--ink-2)" }}>{step.gloss}</span>
           </div>
-          <span className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
+          <span className="text-xl font-semibold leading-snug" style={{ color: "var(--ink)" }}>
             {plainAskLine(step.caseKey) ?? `Put it in the ${step.caseName}`}
           </span>
           <span className="text-xs" style={{ color: "var(--ink-3)" }}>
@@ -572,6 +711,7 @@ function StepCard({
             ariaLabel={`${step.lemma}, ${plainAskLine(step.caseKey) ?? step.caseName}`}
             onEnter={() => checkTyped(step.answer, step.lemma, step.kind)}
           />
+          {hint}
           {!checked && (
             <Button variant="primary" onClick={() => checkTyped(step.answer, step.lemma, step.kind)} className="self-start">
               Check

@@ -3,7 +3,8 @@ import { CASES } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor } from "@/lib/estonian/caseQuestion";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { grammarTerm } from "@/lib/estonian/terms";
-import { decoyOptions } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong } from "@/lib/dict/facts";
+import { caseWithin, lemmaFilter, type ModuleScope } from "@/lib/course/scope";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import {
   bandOf, differentMeaning, differentText, formNearness, glossNearness, glossOption,
@@ -76,7 +77,7 @@ export interface TargetQuestion {
   answer: number;
 }
 
-export async function targetRound(ownerId: string): Promise<TargetQuestion[]> {
+export async function targetRound(ownerId: string, scope: ModuleScope | null = null): Promise<TargetQuestion[]> {
   /*
     The learner's own deck, most-lapsed first, which is the round's own version
     of "words you consistently get wrong appear more frequently": the pool is
@@ -88,7 +89,9 @@ export async function targetRound(ownerId: string): Promise<TargetQuestion[]> {
     `lapses` nor `due` is unique.
   */
   const cards = await prisma.card.findMany({
-    where: { ownerId, suspended: false, state: { not: 0 } },
+    // Inside the module, the learner's taught words and nothing else, and a
+    // case only once its page has been read (`caseQuestion` below).
+    where: { ownerId, suspended: false, state: { not: 0 }, ...(scope ? { lexeme: lemmaFilter(scope) } : {}) },
     orderBy: [{ lapses: "desc" }, { due: "asc" }, { id: "asc" }],
     take: POOL,
     include: {
@@ -109,13 +112,13 @@ export async function targetRound(ownerId: string): Promise<TargetQuestion[]> {
   for (const card of shuffle(cards)) {
     if (questions.filter((q) => q.kind === "case").length >= wantCases) break;
     if (!card.lexeme || card.lexeme.pos !== "NOUN") continue;
-    const built = caseQuestion(card.lexeme, card.id);
+    const built = caseQuestion(card.lexeme, card.id, scope);
     if (built) questions.push(built);
   }
 
   // Meanings fill the rest, ranked by the one table of what a wrong answer is
   // worth so an option cannot be crossed out on part of speech or band.
-  const pool = await decoyOptions();
+  const pool = decoysAmong(await decoyOptions(), scope?.lemmas, OPTIONS);
   const usedLemmas = new Set(questions.map((q) => q.lemma));
   for (const card of shuffle(cards)) {
     if (questions.length >= TARGET_QUESTIONS) break;
@@ -172,6 +175,7 @@ export function caseQuestion(
     forms: readonly { formType: string | null; morphCode: string | null; value: string }[];
   },
   cardId: string,
+  scope: ModuleScope | null = null,
 ): TargetQuestion | null {
   const stems = stemsFrom(lexeme.forms);
   const subject = {
@@ -208,6 +212,8 @@ export function caseQuestion(
     // question about the half of the language a horse is not in. See
     // lib/estonian/caseQuestion.ts.
     if (!caseFits(spec.key, subject)) continue;
+    // And, inside the module, not a case whose page nobody has read yet.
+    if (!caseWithin(scope, spec.key)) continue;
     const answer = caseAnswer(stems, spec.key);
     if (!answer) continue;
     if (answer.value.trim().toLocaleLowerCase("et") === spelt) continue;

@@ -3,7 +3,7 @@ import type { Evidence, Readiness } from "@/lib/exam/readiness";
 import { CLOSE_PCT, LIKELY_PCT } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import {
-  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, summariseCohort, type CohortInput,
+  MIN_EVIDENCE_TO_BAND, bandFor, cohortKind, summariseCohort, withoutMember, type CohortInput,
 } from "./cohort";
 
 /** A readiness object carrying one confidence at one level, which is all this reads. */
@@ -152,5 +152,67 @@ describe("summariseCohort", () => {
       member({ ownerId: "a", displayName: "Kadri" }),
     ], level);
     expect(summary.members.map((m) => m.ownerId)).toEqual(["a", "b"]);
+  });
+});
+
+describe("the group with its owner taken out", () => {
+  /*
+    `createClassroom` gives the owner a `ClassroomMember` row of their own, so
+    every figure either roster returns counts them. On a board that is right,
+    since a list you are in is a list with your row in it. In a weekly note
+    about the people somebody is paying for it is the sponsor counted among
+    them, and an HR reader who has never opened a deck arrives in the group's
+    own figures as one more "too early to say".
+  */
+  const summary = summariseCohort(
+    [
+      // Never reviewed, so `unknown` at any level and `thin` evidence.
+      member({ ownerId: "hr" }),
+      member({ ownerId: "a", readiness: readinessAt("B1", LIKELY_PCT + 5, "good"), daysSinceLastReview: 1 }),
+      member({ ownerId: "b", readiness: readinessAt("B1", LIKELY_PCT + 5, "good"), daysSinceLastReview: 1 }),
+    ],
+    "B1",
+  );
+
+  it("drops the member from the list and from the counts", () => {
+    expect(summary.counts.unknown).toBe(1);
+    const rest = withoutMember(summary, "hr");
+    expect(rest.members.map((m) => m.ownerId)).toEqual(["a", "b"]);
+    expect(rest.counts.unknown).toBe(0);
+    expect(rest.counts.likely).toBe(2);
+  });
+
+  it("recomputes the evidence rather than keeping the weakest member's", () => {
+    /*
+      The group's tier is its weakest member's, so taking the weakest one out
+      has to raise it, and there is no arithmetic that reads that off the old
+      figure. Subtracting would have left a cohort of two long-standing
+      colleagues reporting the tier of the manager who never studies.
+    */
+    expect(summary.evidence).toBe("thin");
+    expect(withoutMember(summary, "hr").evidence).toBe("good");
+  });
+
+  it("recounts who is active rather than subtracting one", () => {
+    /*
+      Asked about the member who is NOT active, which is the whole of what
+      makes this falsifiable: taking out somebody who studied is one fewer
+      either way, so a fixture built on them passes on `active - 1` and asks
+      nothing. `hr` has never reviewed, so the count may not move.
+    */
+    expect(summary.active).toBe(2);
+    expect(withoutMember(summary, "hr").active).toBe(2);
+  });
+
+  it("is the same object where the member is not in it", () => {
+    // A group somebody does not belong to is not a group with a hole in it.
+    expect(withoutMember(summary, "nobody")).toBe(summary);
+  });
+
+  it("says thin of a group with nobody left, rather than good", () => {
+    const one = summariseCohort([member({ ownerId: "hr" })], "B1");
+    const none = withoutMember(one, "hr");
+    expect(none.members).toEqual([]);
+    expect(none.evidence).toBe("thin");
   });
 });

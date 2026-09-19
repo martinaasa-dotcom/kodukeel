@@ -7,7 +7,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -19,6 +19,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { readableFor } from "@/lib/collections/levels";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { stemsFrom } from "@/lib/estonian/derive";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
   LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
@@ -175,6 +176,18 @@ export interface LearnWord {
      * pattern.
      */
     explanation: string | null;
+    /**
+     * The stored form the answer's ending went on, where there is one.
+     *
+     * Read off `stemsFrom`, which is the one reader of the principal parts,
+     * rather than worked out on the screen: the only thing that consumes it is
+     * the hint ladder, and a ladder that decided for itself which of a word's
+     * forms was "the stem" would be a second opinion about Estonian morphology
+     * living in a component. Null is ordinary and costs nothing, since
+     * `hintLadder` uncovers from the front where no form it was offered turns
+     * out to be the front of the answer.
+     */
+    stem: string | null;
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
@@ -320,6 +333,7 @@ function sentenceAndGap(
         gap: {
           text: cloze.text, answer: cloze.answer, full: cloze.full,
           en, fullEn: example.en ?? null, hint: cue, explanation,
+          stem: stemsFrom(lexeme.forms).genSg ?? null,
         },
       };
     }
@@ -394,21 +408,22 @@ export async function learnBatch(
      * The gap rung cuts a sentence a lexicographer wrote, and a usage is
      * written to illustrate a headword rather than to be a beginner's first
      * reading, so at A1 most of them carry words from further up the course.
-     * `readableFor` decides; `undefined` is standalone Learn, which a learner
-     * reached by choosing to, and is unchanged.
+     * `readableFor` decides, at every level inside the module; `undefined` is
+     * standalone Learn, which a learner reached by choosing to, and is unchanged.
      */
     taughtWords?: ReadonlySet<string> | null;
   } = {},
 ): Promise<LearnWord[]> {
   const { kind = "word", now = new Date(), only, taughtWords } = opts;
   /*
-    Undefined is "no caller asked", which is standalone Learn and every band
-    above A1; `null` is "the module asked and the course could not say", which
-    fails closed. `readableFor` is the one definition and this is one of its
-    two readers, the unit lesson being the other; the deck's cards are outside
-    the rule by decision, which that module's header sets out.
+    Undefined is "no caller asked", which is standalone Learn; `null` is "the
+    module asked and the course could not say", which fails closed. Inside the
+    module the rule holds at every level, since the module chose the screen
+    (`heldToTaughtWords`). `readableFor` is the one definition and this is one
+    of its two readers, the unit lesson being the other; the deck's cards are
+    outside the rule by decision, which that module's header sets out.
   */
-  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords);
+  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords, "module");
   const scope = only
     ? { lexeme: { lemma: { in: [...only] } } }
     : { lexeme: { pos: posFilter(kind) } };
@@ -487,11 +502,20 @@ export async function learnBatch(
         because the batch is assembled here and a second read would be a second
         answer.
   */
-  const [pool, reach, starred] = await Promise.all([
+  const [wholePool, reach, starred] = await Promise.all([
     decoyOptions(),
     sentenceReach(),
     starredAmong(ownerId, rows.map((row) => row.lexeme!.id)),
   ]);
+
+  /*
+    THE FOUR OPTIONS ARE TAUGHT WORDS WHERE THE MODULE SAID WHAT IT HAS TAUGHT.
+    A beginner picking `tere` out of "hello, thank you, yes, no" is choosing
+    among words they met an hour ago; picking it out of the ranked dictionary
+    is reading three glosses of words nobody has shown. Standalone Learn passes
+    nothing and keeps the whole pool, as with the sentence rule above.
+  */
+  const pool = decoysAmong(wholePool, taughtWords ? [...taughtWords] : null, CHOICES);
 
   const words = rows.map((row) => {
     const lexeme = row.lexeme!;
@@ -507,7 +531,7 @@ export async function learnBatch(
     const picked = pool.length >= CHOICES
       ? pickOptions({
           answer: glossOption({
-            text: plainPhrase(lexeme.translation),
+            text: plainPhrase(lexeme.translation, lexeme.pos),
             pos: lexeme.pos,
             band: bandOf(lexeme.cefr),
             theme: unitIntroducing(lexeme.lemma, lexeme.pos),
@@ -522,8 +546,8 @@ export async function learnBatch(
     return {
       cardId: row.id,
       lexemeId: lexeme.id,
-      lemma: plainPhrase(lexeme.lemma),
-      gloss: plainPhrase(lexeme.translation),
+      lemma: plainPhrase(lexeme.lemma, lexeme.pos),
+      gloss: plainPhrase(lexeme.translation, lexeme.pos),
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,

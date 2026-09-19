@@ -136,6 +136,14 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
       "house rather than maja. Six pairs against the clock.",
   },
   {
+    href: "/review/letters", title: "Tähed", subtitle: "Letters, shuffled", icon: "Blocks", tone: "accent",
+    group: "targeted", note: "Eight words",
+    within: "/practice",
+    blurb:
+      "A word you know, its letters in the wrong order. Hear it, then put them back: the one " +
+      "game a beginner's first five words can carry, and where õ and ä stop being o and a.",
+  },
+  {
     href: "/sonad", title: "Sõnad", subtitle: "One word a day",
     icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
     within: "/practice",
@@ -255,10 +263,10 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/review/conjugation", title: "Conjugation", subtitle: "Fill the table", icon: "Repeat",
-    tone: "accent", group: "targeted", note: "Typed, six persons", within: "/grammar/topic/present-tense",
+    tone: "accent", group: "targeted", note: "Six persons", within: "/grammar/topic/present-tense",
     blurb:
-      "One verb, the first person given, the other five to type. Every form is checked against " +
-      "the dictionary, and the conditional joins in from B1.",
+      "One verb, the first person given, the other five to put in place at A1 and to type from A2. " +
+      "Every form is checked against the dictionary, and the conditional joins in from B1.",
   },
   {
     /*
