@@ -71,8 +71,8 @@ export default async function CoursePage({
     const opening = openingPart(level);
     return (
       <Page
-        title="A course, decided in advance"
-        lead={`${evenings} evenings from nothing to C1, with the choosing already done.`}
+        title="A course planned for you"
+        lead={`${evenings} evenings from your first word to C1, each one already planned.`}
       >
         <Stack>
           {opening ? (
@@ -90,15 +90,15 @@ export default async function CoursePage({
               </div>
               <p className="mt-3 text-sm" style={{ color: "var(--ink-3)" }}>
                 {chosen
-                  ? "You said you would rather choose your own evening. Nothing in the rest of the app changed, and nothing will if you start this."
-                  : `Starting at ${opening.level} because that is where you stand. It is a suggestion, not a track: everything you already use stays where it is.`}
+                  ? "You chose to plan your own evenings. Nothing else in the app changed, and nothing will change if you start this."
+                  : `It starts at ${opening.level}, which is where you stand. It is a suggestion, not a track, and everything you already use stays where it is.`}
               </p>
             </Card>
           ) : (
             <Card>
               <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                The ladder stops at C1 and you are past it. There is nothing here to lead you
-                through that you have not met.
+                The course stops at C1 and you are past it, so there is nothing here you have
+                not already met.
               </p>
             </Card>
           )}
@@ -134,7 +134,7 @@ export default async function CoursePage({
       <Page
         eyebrow={<span>{programme.id.toUpperCase()}</span>}
         title={`${uiText(level, programme.title, programme.subtitle)} is finished`}
-        lead={`All ${total} modules, and every word in them is in the schedule now.`}
+        lead={`All ${total} modules done, and every word in them is now in your review queue.`}
       >
         <Stack>
           <Card tone={verdict.kind === "hold" ? "butter" : "mint"}>
@@ -144,8 +144,8 @@ export default async function CoursePage({
                   Not ready for {after!.id.toUpperCase()} yet
                 </SectionTitle>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                  {holdReason(verdict)} Kodukeel would keep you on what you have for a few more
-                  days before the next part rather than stack a harder one on top of it.
+                  {holdReason(verdict)} We would give what you have a few more days to settle
+                  before starting the next part on top of it.
                 </p>
                 <p className="mt-2 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {holdAdvice(verdict)}
@@ -173,13 +173,12 @@ export default async function CoursePage({
                 <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {after
                     ? <>Next is {after.id.toUpperCase()}, {after.subtitle.toLowerCase()}. It picks
-                        up where this left off and nothing in it needs anything you have not met.</>
-                    : <>That is the end of the ladder. What keeps these words is the review queue,
-                        which has every one of them and goes on asking at the moment you are about
-                        to forget.</>}
+                        up where this one left off, and it needs nothing you have not met.</>
+                    : <>That is the end of the course. Your review queue holds every one of these
+                        words, and it keeps asking just as you are about to forget them.</>}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <ButtonLink href="/progress/readiness">See what you could do out there</ButtonLink>
+                  <ButtonLink href="/progress/readiness">See what you can do out there</ButtonLink>
                   {after
                     ? <NextPart programmeId={after.id} label={`Start ${after.id.toUpperCase()}`} />
                     : (
@@ -261,12 +260,12 @@ export default async function CoursePage({
                 */}
                 <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
                   {justDone && justDone.unitId === day.unitId
-                    ? <>Tomorrow carries on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
+                    ? <>Tomorrow you carry on with {uiText(level, day.title, day.subtitle)}, part {day.part.n} of {day.part.of}.</>
                     : uiWantsEnglish(level)
                       ? <>Come back tomorrow for {day.subtitle}.</>
                       : <>Come back tomorrow for {day.title}, {day.subtitle.toLowerCase()}.</>}
-                  {" "}Sleep is half of what makes today stick, so stopping here is the course
-                  working rather than you giving up.
+                  {" "}Sleep is half of what makes today stick, so stopping now is the course
+                  working, not you giving up.
                 </p>
               </div>
             </div>
@@ -339,7 +338,7 @@ export default async function CoursePage({
       <Stack>
         <Card tone="accent">
           <SectionTitle hint={`Day ${day.index} of ${total}`}>
-            {day.part.of > 1 ? `Part ${day.part.n} of ${day.part.of} toward` : "When you finish this"}
+            {day.part.of > 1 ? "By the end of this unit" : "By the end of tonight"}
           </SectionTitle>
           {/*
             THE UNIT'S OWN CLAIM, AND WHICH PART OF IT TONIGHT IS.
@@ -361,7 +360,7 @@ export default async function CoursePage({
               label="Left tonight"
               tone="sky"
             />
-            <StatTile value={`${standing.pct}%`} label="Through it" tone="butter" />
+            <StatTile value={`${standing.pct}%`} label="Done tonight" tone="butter" />
           </div>
         </Card>
 
@@ -386,13 +385,13 @@ export default async function CoursePage({
           </ul>
           {missing.length > 0 && missing.length < day.words.length && (
             <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-              The plain ones are not in your deck yet. The first step puts them there.
+              The unmarked ones are not in your deck yet. The first step adds them.
             </p>
           )}
         </div>
 
         <div>
-          <SectionTitle hint={`${day.minutes} min`}>What tonight is</SectionTitle>
+          <SectionTitle hint={`${day.minutes} min`}>What you do tonight</SectionTitle>
           <div className="mt-2">
             <StepList
               programmeId={programme.id}
@@ -412,9 +411,9 @@ export default async function CoursePage({
           `components/Explain.tsx` exists for.
         */}
         <Explain label="How a step gets ticked">
-          Two of these are read off your own answers rather than ticked: meeting the words, and the
-          closing review. The rest are yours to tick, because a review row does not record which
-          round wrote it and the app would rather say so than pretend it watched.
+          Two steps tick themselves from your answers: meeting the words, and the closing
+          review. You tick the rest yourself. The app cannot tell which round an answer came
+          from, and it would rather say so than pretend it was watching.
         </Explain>
 
         <Card>

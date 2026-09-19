@@ -37,7 +37,7 @@ export default async function CommonRoundsPage() {
   return (
     <Page
       title="Most common words"
-      lead="Counted over film and television subtitles, which is the spoken language."
+      lead="Counted over film and television subtitles, so this is the language people speak."
     >
       {found === 0 ? (
         /*

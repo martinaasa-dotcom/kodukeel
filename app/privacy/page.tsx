@@ -151,9 +151,9 @@ export default function PrivacyPage() {
         </P>
         <P>
           <strong>Your workplace group, if an employer sponsors you.</strong> A group set up by
-          an employer is the same membership row and shows them less than a teacher sees, not
-          more: your name, whether you have been reviewing and when you last did, and one of
-          four bands for the examination the group works toward. Not a percentage, not which
+          an employer is the same membership row, and it shows them less than a teacher sees
+          rather than more. They get your name, whether you have been reviewing and when you
+          last did, and one of four bands for the examination the group works toward. Not a percentage, not which
           grammar you personally find hard, and never a deck, a search or an answer. The band
           is withheld entirely until there is enough history behind it to mean something.
           Leaving stops all of it at once and takes nothing from your own deck.
@@ -208,7 +208,7 @@ export default function PrivacyPage() {
           described above, how many people come back after a day, a week and a month. It is
           worked out from what is already there rather than collected separately, which is why
           there is still no tracker on this site. Only totals ever leave that page: no name, no
-          address, no word you looked up, and a group of fewer than five people is reported as a
+          address, no word you looked up. A group of fewer than five people is reported as a
           size with no percentage, because &ldquo;one of two people came back&rdquo; is a fact
           about a person rather than a statistic.
         </P>
@@ -313,8 +313,8 @@ export default function PrivacyPage() {
         )}
         <P>
           None of it is sold, and we never use it to train a model ourselves. What a provider
-          does with what we send them is governed by their own terms, and that is a real
-          limit on this promise, not just a formality: some free tiers are free because the
+          does with what we send them is governed by their own terms. That is a real limit on
+          this promise rather than a formality: some free tiers are free because the
           provider keeps the right to look at what goes through them.
         </P>
       </S>
@@ -430,7 +430,7 @@ export default function PrivacyPage() {
           A school running this for a class is the controller of its pupils&rsquo; data and
           answers for that agreement. What a teacher can see is deliberately narrow: how much
           work each pupil did, which grammar the class as a whole is weakest at, and which
-          grammar each pupil personally is weakest at as a rolled-up percentage, never an
+          grammar each pupil personally is weakest at as a rolled-up percentage. Never an
           individual&rsquo;s deck, their searches or a specific answer.
         </P>
         <P>

@@ -650,8 +650,8 @@ await page.emulateMedia({ media: "screen" });
 // ─── The retention reading ────────────────────────────────────────────────────
 
 await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
-check("progress reports true retention, not just raw accuracy",
-  (await page.getByText("True retention").count()) > 0);
+check("progress reports what is actually sticking, not just raw accuracy",
+  (await page.getByText("How much is actually sticking").count()) > 0);
 /*
   THE COPY MOVED AND THE LOCATOR DID NOT. `lib/stats/history.ts` and this panel
   called these "mature reviews" until the pass that took the borrowed scheduler

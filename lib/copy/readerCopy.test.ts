@@ -30,7 +30,8 @@
   written out with worked examples in `docs/18-voice.md`, because no regex
   tells kind from cold. What is here is the half a machine can hold.
 */
-import { readFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -469,6 +470,142 @@ const CAPTION_EXEMPT = new Set([
 ]);
 
 /**
+ * HOW LONG ONE SENTENCE MAY RUN, WHICH IS THE HALF THE THREE CAPS ABOVE MISS.
+ *
+ * They are character caps on three surfaces, and a screen can clear all three
+ * while every sentence on it takes two readings. That is what this file was
+ * asked to hold after a learner reported the module card on Today: the copy
+ * had drifted into a shape no rule here could see, a clause stacked on a
+ * clause on an appositive tail, and the worst of it ran to 59 words.
+ *
+ * Measured over `app/`, `components/`, `lib/` and `prisma/` once that pass was
+ * done: 911 sentences outside the documents below, one at 31 words and the
+ * rest under it. So 36 is the same kind of ceiling the three above describe
+ * themselves as, generous rather than tight, and it is not a cap anybody has
+ * to write around. What it catches is the paragraph coming back.
+ *
+ * WHAT IT CANNOT SEE is the other half of what that pass fixed: "Learned, and
+ * that is the evening" is six words and was the line somebody reported. A
+ * headline that is a fragment reads as clever rather than clear, and no count
+ * tells that from "Where you are", which is a fragment and is right. That one
+ * is a review standard with worked examples in `docs/18-voice.md`, exactly as
+ * the note above says about warmth.
+ */
+const SENTENCE_MAX = 36;
+
+/**
+ * The documents whose subject is an explanation, and may take a sentence to
+ * give one.
+ *
+ * The same line the three caps above draw, in the same words: a page whose
+ * subject is an explanation is allowed to explain, and what is capped is the
+ * furniture around the thing a reader came for. None of these is a screen.
+ * Each is a document somebody opened on purpose.
+ *
+ * SIX ENTRIES, AND THE LIST IS SHORT BECAUSE EVERY ONE OF THEM IS EARNED.
+ * It started at fourteen. The other eight named the course's own teaching
+ * notes, the two grammar modules and the model prompts, all of which sounded
+ * like fair exemptions and none of which the extractor below can see: their
+ * prose is a bare string in a table under a key it does not read. An
+ * exemption for something that was never going to be flagged is a line that
+ * reads as a standing decision and is not one, so the staleness test below
+ * deleted them, which is what it is for.
+ *
+ * WHAT THAT LEAVES UNSWEPT is therefore worth saying rather than implying:
+ * prose typed as a bare string under a key this does not name, and the
+ * prompts, which no reader reads. Widen `keys` below before adding a line
+ * here.
+ */
+const SENTENCE_EXEMPT = [
+  // The five public pages. A privacy notice, a licence and a cost model are
+  // read by somebody who came to read them, and a clause split out of one of
+  // those sentences is a clause that stops qualifying what it qualified.
+  "app/privacy/",
+  "app/terms/",
+  "app/funding/",
+  "app/accessibility/",
+  "app/trust/",
+  // The research export describes its own dataset to a stranger who will
+  // publish off it, which is the one audience here that needs the caveat in
+  // the same sentence as the figure.
+  "lib/research/sections.ts",
+];
+
+/**
+ * Prose a reader sees, as sentences, out of the places prose is written.
+ *
+ * Takes the file rather than its text, because it has to read the version
+ * with the comments gone: a block comment sitting inside a JSX element is
+ * part of no sentence, and left in it reads as a 49-word one.
+ */
+function sentences(file: string): string[] {
+  const source = readerFacingLines(file).map((l) => l.text).join("\n");
+  const runs: string[] = [];
+  /*
+    A `div` is deliberately not on this list. It is a container, so it matches
+    from its own opening tag to its own closing one and swallows a heading and
+    the paragraph under it as one run, which reads as a 31-word sentence that
+    nobody wrote.
+  */
+  for (const m of source.matchAll(
+    /<(p|li|span|figcaption)\b[^>]*className="[^"]*"[^>]*>([\s\S]{15,900}?)<\/\1>/g,
+  )) runs.push(m[2] ?? "");
+  /*
+    And the components whose whole content is prose, which carry no className
+    because they are the style. `P` is the five public pages, `Note` is the
+    line under a control and `Explain` is what opens behind a press. Between
+    them they are most of the app's explaining, and none of it was reachable
+    through the rule above: it asks for a `className`, and these have none.
+  */
+  for (const m of source.matchAll(/<(P|Note|Explain)\b[^>]*>([\s\S]{15,1800}?)<\/\1>/g)) {
+    runs.push(m[2] ?? "");
+  }
+  /*
+    And the props and table keys that carry a paragraph. `blurb` is the
+    practice menu, `why` is a step of tonight's module, `advice` and `headline`
+    are what the retention reading says: all of them reach a screen, and none
+    of them is an `Empty` body or a page `lead`, so none is measured above.
+  */
+  const keys = "body|lead|blurb|why|advice|headline|detail|what|arrival|note|canDo";
+  for (const m of source.matchAll(new RegExp(`\\b(?:${keys})[:=]\\s*"([^"\\\\\\n]{20,})"`, "g"))) {
+    runs.push(m[1] ?? "");
+  }
+  // The same, typed as joined fragments, which is how the long ones are typed.
+  for (const m of source.matchAll(
+    new RegExp(`\\b(?:${keys})[:=]\\s*\\n?\\s*("(?:[^"\\\\\\n]|\\\\.)*"(?:\\s*\\+\\s*\\n?\\s*"(?:[^"\\\\\\n]|\\\\.)*")+)`, "g"),
+  )) {
+    runs.push((m[1] ?? "").split(/"\s*\+\s*\n?\s*"/).join("").replace(/^"|"$/g, ""));
+  }
+
+  const out: string[] = [];
+  for (const run of runs) {
+    const text = run
+      .replace(/\{" "\}/g, " ")
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\{[^{}]*\}/g, "xx")
+      .replace(/&[a-z]+;/g, "'")
+      .replace(/\s+/g, " ")
+      .trim();
+    if (!/[a-z]{3}/.test(text)) continue;
+    /*
+      And a run that still carries code is not prose. `{...}` is replaced
+      above, but only where it does not nest, so a `{words.map((word) => {`
+      survives it: real copy has no arrow, no brace and no style token in it.
+    */
+    if (/[{}]|=>|className|var\(--/.test(text)) continue;
+    for (const piece of text.split(/(?<=[.!?])\s+/)) {
+      const sentence = piece.trim();
+      // A label, a figure or a fragment is not a sentence. A sentence opens
+      // on a capital and closes on a stop.
+      if (!/^[A-Z(]/.test(sentence) || !/[.!?]$/.test(sentence)) continue;
+      if (sentence.split(/\s+/).length < 5) continue;
+      out.push(sentence);
+    }
+  }
+  return out;
+}
+
+/**
  * Every run of small type that is a sentence, as a reader would see it.
  *
  * A caption is an element carrying `text-xs` or `text-2xs`, which are the two
@@ -644,6 +781,76 @@ describe("there is not too much of it", () => {
         .map((text) => `${f}: ${text.length} chars: ${text.slice(0, 70)}`),
     );
     expect(over).toEqual([]);
+  });
+
+  /*
+    The same argument every sweep in this file makes about itself: an
+    extractor that has stopped finding prose passes everything, silently, on
+    the day somebody renames a prop or wraps a paragraph in a new component.
+  */
+  it("finds the sentences it is supposed to be measuring", () => {
+    const all = FILES.flatMap((f) => sentences(f));
+    expect(all.length).toBeGreaterThan(1400);
+  });
+
+  /*
+    AND EACH RULE SEPARATELY, BECAUSE THE TOTAL CANNOT SEE ONE OF THEM DIE.
+    The first version of the floor above was 700 against a real 1,730, so
+    deleting the two element rules outright left it passing: the props alone
+    still cleared it. A floor that survives losing a rule is a floor that is
+    not holding the rule. One named file per rule, each of which would have to
+    stop carrying prose entirely for this to go quiet.
+  */
+  it("reaches every place prose is written, not just the commonest one", () => {
+    // `<P>`, which is the five public pages and carries no className.
+    expect(sentences("app/privacy/page.tsx").length).toBeGreaterThan(20);
+    // A `<p className=...>` on an ordinary screen.
+    expect(sentences("app/(app)/settings/page.tsx").length).toBeGreaterThan(20);
+    // A prop typed as joined fragments, which is how the long ones are typed.
+    expect(sentences("lib/ux/modes.ts").length).toBeGreaterThan(20);
+    // A bare string under a prose key in a table.
+    expect(sentences("lib/research/sections.ts").length).toBeGreaterThan(5);
+  });
+
+  it("reads a paragraph as its sentences, not as one run", () => {
+    const write = (body: string) => {
+      const f = join(tmpdir(), `readercopy-${Math.random().toString(36).slice(2)}.tsx`);
+      writeFileSync(f, body);
+      return f;
+    };
+    expect(sentences(write('<p className="x">One two three four five. Six seven eight nine ten.</p>')))
+      .toEqual(["One two three four five.", "Six seven eight nine ten."]);
+    // A heading and the paragraph under it are two elements, not one sentence.
+    expect(sentences(write(
+      '<div className="x"><h2>A heading here</h2><p className="y">One two three four five.</p></div>',
+    ))).toEqual(["One two three four five."]);
+    // A block comment inside an element is part of no sentence.
+    expect(sentences(write('<p className="x">\n/* a note to whoever maintains this */\nOne two three four five.</p>')))
+      .toEqual(["One two three four five."]);
+  });
+
+  it("keeps one sentence to something a reader gets through once", () => {
+    const over = FILES
+      .filter((f) => !SENTENCE_EXEMPT.some((prefix) => f.startsWith(prefix)))
+      .flatMap((f) =>
+        sentences(f)
+          .filter((sentence) => sentence.split(/\s+/).length > SENTENCE_MAX)
+          .map((sentence) => `${f}: ${sentence.split(/\s+/).length} words: ${sentence.slice(0, 70)}`),
+      );
+    expect(over).toEqual([]);
+  });
+
+  it("holds every sentence exemption to still being one", () => {
+    // A path that no longer matches a file, or a document that no longer has a
+    // long sentence in it, keeps a line here that reads as a standing decision
+    // and is not one. The same rule the caption exemptions are held to.
+    const stale = SENTENCE_EXEMPT.filter((prefix) => {
+      const covered = FILES.filter((f) => f.startsWith(prefix));
+      if (covered.length === 0) return true;
+      return !covered.some((f) =>
+        sentences(f).some((t) => t.split(/\s+/).length > SENTENCE_MAX));
+    });
+    expect(stale).toEqual([]);
   });
 
   it("holds every exemption to still being one", () => {

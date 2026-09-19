@@ -184,7 +184,7 @@ export default async function PracticePage() {
             tone="blush"
             title="Situations"
             subtitle="Somebody behind a desk"
-            body="A receptionist, a landlord, a counter. Get done what you came for, in Estonian, with things going wrong on purpose."
+            body="A receptionist, a landlord, a counter. Get what you came for, in Estonian, with things going wrong on purpose."
             meta="five to eight minutes"
           />
 
@@ -411,7 +411,7 @@ function CommonWordsCard() {
       </div>
 
       <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-        {"These are the ones you will hear most, so let's get them down."}
+        {"These are the words you will hear most often, so they are worth having."}
       </p>
 
       <div className="grid gap-2 sm:grid-cols-2">

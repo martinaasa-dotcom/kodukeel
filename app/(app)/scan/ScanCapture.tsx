@@ -318,9 +318,9 @@ export function ScanCapture() {
     <div className="flex flex-col gap-4">
       <Card>
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
-          Photograph a vocabulary list, a page from your textbook, or last night&apos;s homework. We
-          match the words against the dictionary, so anything it recognizes comes with its real
-          forms, and an inflected form on a worksheet gets traced back to the word it belongs to.
+          Photograph a vocabulary list, a page from your textbook, or last night&apos;s homework.
+          Every word is matched against the dictionary, so anything it knows arrives with its real
+          forms. An inflected form on a worksheet is traced back to the word it belongs to.
         </p>
 
         {phase === "reading" ? (

@@ -109,9 +109,9 @@ export function TargetSession({ questions: initialQuestions }: { questions: Targ
             <Crosshair size={34} aria-hidden />
           </span>
           <p className="max-w-[44ch] text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-            Most of these are endings rather than meanings: four forms of one word,
-            and only the question word tells you which. Every hit takes a quarter
-            of a second off the next shot.
+            This is about endings, not meanings. Four forms of one word, and only
+            the question word tells you which to hit. Every hit takes a quarter of
+            a second off the next shot.
           </p>
           <Button variant="primary" size="lg"
             onClick={() => { setPhase("running"); setLeft(START_S); shownAt.current = Date.now(); }}>

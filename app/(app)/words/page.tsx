@@ -90,7 +90,7 @@ export default async function WordsPage() {
         <Stack>
           <Card>
             <SectionTitle hint="how the deck is settling">Where your cards are</SectionTitle>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <StatTile value={rows.length} label="Cards" tone="accent" />
               <StatTile value={byState[0] ?? 0} label="New" tone="sky" />
               <StatTile value={(byState[1] ?? 0) + (byState[3] ?? 0)} label="Learning" tone="butter" />

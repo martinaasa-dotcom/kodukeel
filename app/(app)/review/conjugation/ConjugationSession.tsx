@@ -284,7 +284,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
         </h1>
         <p className="mt-2 text-base" style={{ color: "var(--ink-2)" }}>
           {tablesRight === questions.length
-            ? "Every table clean. The endings are yours; what is left is the verbs whose first person you have not met yet."
+            ? "Every table clean. You have the endings. What is left is the verbs whose first person you have not met yet."
             : "The endings never change. What trips people is the stem, and that is the one part worth looking up when a table goes wrong."}
         </p>
         <div

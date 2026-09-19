@@ -283,7 +283,7 @@ function ModuleBar({ focus }: { focus: ModuleFocus }) {
         */}
         {focus.derived && (
           <p className="text-sm" style={{ color: "var(--ink-3)" }}>
-            This one ticks itself off your answers rather than off this button.
+            This step ticks itself from your answers, not from this button.
           </p>
         )}
         {failed && (

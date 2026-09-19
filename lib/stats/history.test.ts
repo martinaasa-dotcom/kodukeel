@@ -178,7 +178,7 @@ describe("retentionReading", () => {
   it("says there is room for more new words when recall runs high", () => {
     const reading = retentionReading(mature(100, 98));
     expect(reading.verdict).toBe("above");
-    expect(reading.headline).toMatch(/more than the schedule/i);
+    expect(reading.headline).toMatch(/more than expected/i);
     expect(reading.advice).toMatch(/daily goal/i);
   });
 

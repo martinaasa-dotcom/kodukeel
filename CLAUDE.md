@@ -2965,6 +2965,23 @@ The sweep reads every `text-xs` and `text-2xs` element in the tree whose content
 what is **not** capped is the list the other two leave alone: prose in the body of a screen, a
 grammar explanation, a policy page.
 
+**And the three caps are character counts on three surfaces, which a screen can clear while every
+sentence on it takes two readings.** That is the fault a learner reported off the module card on
+Today: "Learned, and that is the evening" over a card whose heading already said `Today's module`,
+and, one screen over, a 59-word sentence on the accessibility statement. Neither breaks a rule
+above, because both are about the shape of a sentence rather than its vocabulary or its length in
+characters. `SENTENCE_MAX` is the fourth cap and the only part of that a machine can hold: 36 words
+in one sentence, measured over the prose in `app/`, `components/`, `lib/` and `prisma/`, against a
+measured worst of 31 once the pass was done. Six documents are exempt and each is earned: the five
+public pages and the research export's description of its own dataset, all of them read by somebody
+who came to read them. The list started at fourteen, and the staleness test deleted the eight that
+named something the extractor cannot see, which is what stops an exemption list becoming a parking
+space. **Every rule in it has its own floor**, because the first version's single total was 700
+against a real 1,730 and survived deleting two whole rules. What no count reaches is the other half,
+the fragment standing in for a sentence and the appositive tail doing a clause's work, since
+"Learned, and that is the evening" is six words and "Where you are" is four and right:
+`docs/18-voice.md` §3a is the worked examples, and it says so.
+
 **`components/Explain.tsx` is where an explanation goes**, and it is a `details`, which is the
 browser's own disclosure: keyboard-reachable, announced as one, open on a printed page, no state
 and no effect, so it works in the server components most of this copy lives in. Its trigger is one

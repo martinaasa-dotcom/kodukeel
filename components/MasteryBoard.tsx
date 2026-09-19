@@ -61,7 +61,7 @@ export function MasteryBoard({
     <>
       <Card>
         <SectionTitle hint="counted in words, not cards">Where your words stand</SectionTitle>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {MASTERY_ORDER.map((tier) => (
             <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone={TONES[tier]} />
           ))}
@@ -138,10 +138,18 @@ function Row({ word, tier }: { word: MasteredWord; tier: Mastery }) {
         />
       </div>
 
+      {/*
+        "4 of 3 different forms" is what a bare fraction prints the moment the
+        variety bar is met and passed, which is most of the words in the two
+        tiers that are not about variety at all. A learner reads that as a
+        counting fault. Where the bar is met the fraction has nothing left to
+        say, so it says the count instead.
+      */}
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
         <span className="tnum">{correct}</span> right of <span className="tnum">{total}</span>,
-        in <span className="tnum">{slots}</span> of <span className="tnum">{slotsNeeded}</span>{" "}
-        {slotsNeeded === 1 ? "form" : "different forms"}
+        in <span className="tnum">{slots}</span>
+        {slots < slotsNeeded ? <> of <span className="tnum">{slotsNeeded}</span></> : null}{" "}
+        {slots === 1 ? "form" : "different forms"}
       </p>
 
       {filled.length > 0 && (

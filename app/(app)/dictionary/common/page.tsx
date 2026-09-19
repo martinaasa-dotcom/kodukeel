@@ -35,7 +35,7 @@ export default async function CommonWordsPage() {
   return (
     <Page
       title="The words you will hear most"
-      lead="Counted over film and television subtitles, which is the spoken language."
+      lead="Counted over film and television subtitles, so this is the language people speak."
     >
       {found === 0 ? (
         <div className="flex flex-col gap-4">

@@ -313,9 +313,9 @@ export default async function ExamPage() {
         </p>
         <ul className="mt-2 grid gap-1.5 text-sm leading-relaxed" style={{ color: "var(--sky-ink)" }}>
           <li>
-            The structure is real: the parts, the timing, the points, the sixty percent to pass, and
-            a zero on any part failing you, just like the real exam. Sit one of these and
-            you&apos;ll know what the real exam feels like.
+            The structure is real. The parts, the timing, the points, the sixty percent you need to
+            pass, and a zero on any part failing you outright. Sit one of these and you&apos;ll know
+            what the real exam feels like.
           </li>
           <li>
             The questions themselves aren&apos;t the real ones, but every word in them is real Estonian,

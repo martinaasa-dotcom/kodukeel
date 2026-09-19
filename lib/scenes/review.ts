@@ -362,12 +362,12 @@ function lead(n: {
   */
   if (n.landed === 0) {
     const seen = n.read === n.turns
-      ? "Your Estonian was read every time. None of it was what was being asked for. "
+      ? "Your Estonian was understood every time. None of it answered what was being asked. "
       : n.read > 0
-        ? `${n.read} of your ${n.turns} turns were read as Estonian, and none of them was what was asked for. `
+        ? `${n.read} of your ${n.turns} turns were understood as Estonian, and none of them answered the question. `
         : "";
-    return `${seen}Nothing landed this time. The word button hands you one of the beat's own words, `
-      + "and telling them you have not followed gets it handed over too.";
+    return `${seen}Nothing landed this time. The word button gives you one of the words they are `
+      + "waiting for, and telling them you have not followed gets you one too.";
   }
 
   const all = n.landed === n.turns;
@@ -438,7 +438,7 @@ function reachedNote(state: SceneState): ReviewNote[] {
     said: row.slip.said,
     form: row.slip.form,
     what: "the word you were reaching for",
-    body: "You knew what you wanted to say and not yet how to say it, which is the shortest list "
+    body: "You knew what you wanted to say and not yet how to say it. That is the shortest list "
       + "there is of what to learn next.",
     at: row.at,
   }));
