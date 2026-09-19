@@ -460,6 +460,146 @@ how an Estonian counter actually works, in the shape `docs/20-contributed-senten
 describes, and a B1 tier that still does not exist: holding the line when they switch, asking a
 follow-up, explaining why you were late.
 
+**A letter is the app writing to somebody who is not looking at it, and the only thing that
+makes that acceptable is that it is easy to stop.** `lib/email/` is the letters and is pure;
+`lib/mailer/` posts them; `lib/progress/mailout.ts` gathers what one says. A closed list
+(`EMAIL_KINDS`) for the reason `CARD_SOURCES` is one: a learner switches a *kind* off, so a
+letter that is not on the list is a letter nobody has a way to stop. The way out is in every
+footer, it is an HMAC over the learner and the kind so it works with no session, and
+`List-Unsubscribe-Post` is what lets a mail client draw its own button beside the sender's name.
+A reader who can press that presses it instead of the spam button, and that difference is the
+whole of a sender's reputation, which the sign-in links share.
+
+**And the letter that asks somebody to leave is the one the purpose rests on.** A conversation
+outside the app is the number `docs/22-real-life.md` says this app is measured by, and it was
+collected on Today and acted on nowhere: somebody who does their fifteen minutes and closes the tab
+was never asked to leave. The errand letter is one thing to say to one person, off
+`lib/collections/errands.ts`, with the rehearsal as its button where the errand names a scene,
+because the errand happens somewhere this app cannot follow and the practice is the one press on
+offer. It says that being answered in English still counts, which is true of `isConversation` rather
+than a kindness invented for the copy, and is the sentence the whole letter is for: the moment
+everybody who freezes at a counter is frightened of is the one no other app will tell them is not a
+failure, because no other app is counting. The trigger is that the number is flat for this learner,
+and they are told none of that figure. It is refused to anybody `stageOf` calls `arriving` or
+`starting`, because "say one thing to a stranger today" thirty words in is the false confidence the
+readiness screen is built against arriving by post, and the stage comes from that module rather than
+a threshold of its own, which is its rule and an invariant.
+
+**And two of the letters report rather than ask, which is why they go first.** A milestone fires on
+the scheduler having graduated a level's words, never on evenings ticked: a card reaches Review
+state days after it was met and only by being recalled, so it is the one number in this app about
+somebody's memory rather than their attendance, and it is the only thing worth a letter in an app
+that withdrew its XP and its badges for being a second scoring system. That also makes the letter
+late, which it says rather than hides. The shield letter is a **notification and not a
+celebration**: this app banks a shield at seven, thirty and a hundred days and spends one silently
+to cover a missed day, and until now nothing told the learner that something they earned had been
+used on their behalf. It does not congratulate anybody, because they did not do anything yesterday
+and praise for a day off is seen through instantly, and it does not make the streak frightening,
+because the shield exists precisely so a missed day costs nothing. Both carry a high-water mark
+written **after the send and nowhere earlier**: a mark written when the letter was decided is a
+mark against news that never arrived, and there is no second chance at a level somebody passes once.
+
+**And the date somebody set is put back in front of them while the levers still work.** A letter
+saying a date will not be met is a letter people stop opening the app over, which is the reservation
+this one was proposed with and is about *when* it arrives rather than whether. `DEADLINE_WEEKS_MIN`
+and `DEADLINE_WEEKS_MAX` are both arguments: inside four weeks nobody changes a pace, so the letter
+degrades into a post-mortem, and past sixteen it is about something that has not started mattering.
+It leads with the lever rather than the verdict, and **moving the date is offered as plainly as the
+other two**, because an app whose only suggestion is "study more" thinks the learner's calendar is
+wrong. Every figure is `examCountdown`'s, `distanceLine`'s own sentence included, since an invariant
+already fails on a screen writing its own over `weeksWithFound` and a letter is not a softer surface
+than a screen. `ExamCountdown.fits` is the one field it added and is deliberately a boolean rather
+than the plan's verdict, because a caller holding six named cases writes a sentence per case; and
+`possible` is false, since that verdict means the date fits only on hours nobody has put in yet.
+
+**The one letter about other people carries nobody's name, which is stricter than the screen it is a
+copy of.** `/class` shows a teacher a name, a streak and the case one named student keeps missing,
+and `lib/classroom/cohort.ts` argues at length for where that line sits between a teacher's seat and
+a sponsor's. None of that argument is about mail. A screen is behind a sign-in, says who is looking
+and ends when the tab does; a letter is archived to a shared staffroom mailbox, forwarded to a head
+of department, read over a shoulder, and kept after the sender's access to the group has gone. What
+a learner agreed to on joining is a board, not a copy of their week leaving the app every Monday. So
+the register carries how many practised, how many answers, and then the one thing the group as a
+whole is worth saying: the cases the **class** is weakest at, which is next week's lesson and is a
+fact about nobody, or a workplace's band counts and the tier behind them, which reads no case at all
+because `workplaceRoster` never selects one. The names are on the board and the button goes there.
+The invariant has two halves, since either alone passes on the broken shape: the letter may not draw
+a member's field, and the branch that gathers its input may not reach a member's row. `weakestCases`
+is the aggregate and may leave; `weakestCase` is one student's and may not, and the word boundary
+between them is what the check is built on. It is checked **above** the coming-back branch, because
+a teacher a fortnight out of their own deck is still running a class that met on Tuesday.
+
+**And one letter asks for nothing, which is why it is the only one somebody has to switch on.**
+`wordday` is not part of the course: every other letter is a short note about an evening somebody
+chose, sent to the address they gave for it, and a daily message that is not about that is a daily
+message nobody asked for, whatever is in it. Who it is for is somebody who stopped the course and
+still likes the language, which is a real person this app had nothing to say to, since the
+coming-back letter goes once and then there is silence. It goes through that door precisely because
+it wants nothing, so it is checked **inside** the away branch rather than below it, and it **may not
+grow an ask**: no button, which is the one letter here without one, held by name in
+`render.test.ts` so a second letter cannot quietly lose its own. `DEFAULT_OFF` is the one place this
+app's usual reading of a missing row is inverted, and it needed a second stored row rather than an
+inversion of the first: `emailsOff` is a refusal and `emailsOn` is a request, and one list holding
+both would mean "present" reading one way for most kinds and the other way for that one, which is
+the rule that gets inverted by whoever next edits it. **Neither of those two spends the weekly
+ceiling** (`UNCAPPED`), because that ceiling is about the letters asking somebody to study, and a
+word a day counted against it would silence every reminder by Tuesday for exactly the people who
+went and asked for something.
+
+**Every figure in a letter is read back through the function the screen showing the same figure
+reads it through.** `courseReading` for the evening, `ladderPosition` for the climb, `wordOfDay`
+for the gift. A screen that disagrees with itself is a bug somebody reports; a letter that
+disagrees with the screen it links to is a bug nobody can see from inside the app.
+
+**The psychology is the honest half, and the honest half is the half that works.** The evening
+letter leans on four things and every one is a fact this app already derives about that one
+person: an evening that is genuinely unfinished, with the ticks read off their own `CourseStep`
+rows; their own sentence from first run, quoted and never edited; the same fifteen minutes the
+course model holds true; and one word with the reason it is today's, which asks for nothing. What
+it may not do is written down beside what it does: no invented deadline, nobody falling behind,
+nobody compared to anybody else, and no number put at risk that is not, which the streak is not,
+because this app banks shields and its own rules say a day without study is never punished.
+`lib/email/letters/comeback.ts` is where that is argued hardest, since the guilt version of that
+letter works exactly once, on somebody who was coming back anyway, and costs the sender every
+later letter.
+
+**Being away is a state rather than a moment**, which the scheduler got wrong first. Written as
+one more branch, the coming-back letter went out and then, once its fortnight gap closed, fell
+through to the evening nudge: somebody three weeks gone got "Tonight is five new words" every
+evening, describing a course they had stepped out of. The branch returns either way now, so the
+answer after that one letter is silence. Found by driving `letterOwed` over a fortnight of made-up
+days, which is the argument for the decision being a pure function of an explicit `now`.
+
+**There is no image in a letter and no pixel counting who opened one.** `/privacy` says there are
+no third-party trackers and no analytics; a one-pixel image in an email is both, aimed at
+somebody reading their own mail, and it is the single most standard thing in this genre. It is
+banned, `EmailSend` may not grow an `openedAt`, and an invariant fails on either. The drawings
+are coloured table cells rather than SVG for a reason that happens to agree: Gmail strips `<svg>`
+and refuses a `data:` URI, images are off by default in a great many clients, and a letter built
+out of pictures is a letter read as a column of empty boxes. What carries the delight instead is
+what carries it in the app, the four letters an English keyboard has no key for and a real word
+doing a real thing. The tick is the one glyph, which is the one the voice table already names as
+allowed.
+
+**`EmailSend` is append-only and the row is written before the send.** It is the frequency cap,
+and a row written afterwards is a row that is missing exactly when the process died between the
+provider accepting and the write landing, which is the one case where sending twice is most
+likely. A failed send therefore spends the slot: somebody misses one evening's letter and gets
+tomorrow's, which is the right way round, because a missed reminder is a reminder and a duplicate
+is what people unsubscribe over.
+
+**A letter says how long is left, not how many days were missed.** `daysAway` is read by the
+scheduler and printed by nothing: the figure is the guilt, and it is ours to decide with rather
+than theirs to be handed.
+
+**And one number the weekly letter wanted is not in this schema, so it is not claimed.** "Words
+you learned this week" needs a row written when a card changes state, and nothing records one:
+`Review` holds ratings rather than transitions and `lastReview` is when a card was answered
+rather than when it was learned. Reporting it off `lastReview` would have printed a plausible
+figure wrong in the direction that flatters, since a week of reviewing long-known words would
+read as a week of learning them. The letter says what it can check, which is how many words the
+scheduler counts as theirs today.
+
 **Never write Estonian.** Not morphology, not example sentences. Forms come from Ekilex or the
 seeded principal parts; example sentences come from Ekilex `usages` and are only ever *hidden* or
 *reordered* to make an exercise (`lib/estonian/cloze.ts`). The model may translate into English and
@@ -2991,14 +3131,93 @@ Two invariants hold the file, that not one value carries an Estonian letter or e
 floor on how many sentences it covers, because it grows every time somebody runs the script and
 shrinking it is the change worth stopping.
 
-**And a translation shown before the answer is the answer.** Thirty entries in the dictionary are
-spelled the same in both languages, so "I watched the film" over `Vaatasin ____` hands `filmi` over,
-and a sentence's English shown on a gap card's front gives the meaning away on every other card too.
-Every round prints it on the reveal, which is where the review card has always had it; the learn
-ladder's gap question is the one screen that shows a sentence's English *before* an answer and it
-withholds the line where the translation spells the answer (`mentions`), with `gap.fullEn` carrying
-the unwithheld one for the panel afterwards. The sprint had it on the front for an hour and it was
-wrong for both reasons.
+**And a translation shown before the answer is the answer, which was true of one fault and read as
+true of everything.** Thirty entries in the dictionary are spelled the same in both languages, so
+"I watched the film" over `Vaatasin ____` hands `filmi` over. That is real and is the whole of what
+the rule was for. What it was read as was that no question anywhere may carry a translation, and the
+price of that reading was on screen: `Kohtume kell ____.` asked over the single word `four`, which
+is the missing word's meaning and says nothing whatever about the line it is missing from. A learner
+reported it. A gap-fill is for producing a form *because a sentence needs it*, and below about B1
+the sentence was unreadable, so the exercise was producing a form because a gloss had been printed
+over a hole. The English gloss was **already on the question**, so a sentence carrying that same
+gloss gives away nothing the card was not giving away before: the withholding bought a screen nobody
+could read rather than a question nobody could cheat.
+
+**So the line under a gap is the whole sentence with the asked word marked in it, and the fault the
+rule was for is guarded against by name.** `Let's meet at four.` with `four` in bold.
+`lib/copy/gapMeaning.ts` is the one rule and it refuses twice: the **line** where the English
+carries the answer as a whole word, which is `mentions` and is the learn ladder's own guard moved
+into one place, and the **mark** where the word it would mark is the answer wearing an English
+ending, which `mentions` cannot see, since `film` is not `filmi` and a bold run points at the answer
+more plainly than printing it would. Measured over every gap card the shipped dictionary builds:
+10,419 of 10,520 have an English line, 55.1% are marked, 44.7% draw the sentence unmarked and keep
+the card's own cue beside it, and **19 are withheld whole**, every one of them a word spelled alike
+in both languages (`risk`, `euro`, `just`, `reform`, `sauna`, `kama`). What stays unmarked is a
+translator's own choice of word, `ankle` for `jalg` and `phone` for `telephone`, and chasing those
+is how a rule starts guessing.
+
+**The gloss is replaced only where the sentence took its place.** A marked line already names the
+word and names it in context, so printing `four` under `Let's meet at four.` is the same word twice.
+An unmarked line is a sentence whose English happens not to carry the gloss as a whole word, and
+there the cue is the only thing saying which word is wanted, so both are drawn. Nothing is lost on
+any card: a gap with no stored English is exactly what it was before this existed.
+
+**And it replaces the gloss and never the word, which the first version of it got wrong.** The
+sentence above reasons about a gloss, and the cue on a gap-fill card is usually two things:
+`lib/srs/cards.ts` builds it as `lemma, translation` and says in as many words why, that the card
+asks for the right *form* rather than for the vocabulary, which the recognition card already tests.
+So a screen that hid the whole cue the moment the line was marked took the Estonian headword off
+the question along with the gloss. Measured over every gap card the shipped dictionary builds,
+3,760 of the 5,746 marked ones carry a lemma in the cue, so `Läksin ____ juurde.` was asked over
+"I went to the **doctor**." with `arst` nowhere on the screen, on two thirds of the marked cards on
+the daily path. `gapCue` is that decision in one place: the gloss goes where the sentence took its
+place, the word never does, and a round that withholds the headword on purpose passes none and gets
+none back. It can print nothing the cue did not, since the hint ladder already falls to the meaning
+alone wherever the gap wants the dictionary form. The invariant is drawn on a screen *reading*
+`marked` rather than on any one screen's markup, and it was made to fail on the two that shipped.
+
+**What moved is what is drawn, never what is asked for.** The question prints the English the
+dictionary already holds, built once by `npm run translate:examples` and shipped, so it costs no
+call, no wait and no daily allowance and works on a deployment with no model at all.
+`SentenceTranslation` is what spends a call and it stays on the reveal, which is where the review
+card has always had it and where the sprint was wrong to move it from; a sentence nobody had a line
+for arrives on the question the next time it comes round. **A derived spelling is looked for and
+never printed**, which is ADR-021's rule in a smaller room: the commonest reason a gloss could not
+be found in its own sentence was number, since the gap is plural in Estonian and a headword is
+singular, so the English plural is a *spelling to search for* inside a line a translator wrote. One
+nobody wrote matches nothing and costs a mark rather than a wrong word. English verb inflection is
+deliberately not tried, because that is where the irregulars are and a list long enough to be worth
+having would be this project writing an English grammar for one bold run.
+
+**Seven screens draw it, through one component, and the seventh is why the invariant is a sweep.**
+The review card, the sprint, the flash round, the daily quest, the learn ladder, the unit lesson and
+the exceptions round, through `components/GapMeaning.tsx`. The first version of the check named the
+six the same pass had fixed, which is the list this file records going stale four separate times;
+made a sweep over every file under `app/` and `components/` naming a mark a gap screen is made of,
+it found the seventh at once. That round is also why the haystack is not the blank alone: it draws a
+gap and never names `BLANK`, because its sentence arrives pre-gapped, so a narrower sweep would have
+found five screens and passed. Read through `code()`, so a file that only mentions a mark in a
+comment is not in the haystack at all. Anchored on the call **and** on the element, because a screen
+that imports the rule and writes its own paragraph underneath passes any check that only greps for
+the import.
+
+**`lib/copy/gapCoverage.ts` is the exception list and every entry carries an argument**, the shape
+`lib/copy/sentenceCoverage.ts` and `lib/legal/exportCoverage.ts` both take, checked for staleness in
+both directions so a file that has stopped drawing a gap and one that has since started saying what
+its sentence means each fail until somebody takes the line out. **And a measurement may not reach it
+whether or not the sweep can see it**: the mock examination gaps its sentences in `lib/exam/paper.ts`
+and is in no haystack drawn on those marks, so it is named separately, beside the level checkpoint
+and the placement check, where the sentence *is* the question and its English is the mark. The
+printable worksheet is out of the sweep's reach rather than excused by it, which is the same
+sentence `sentenceCoverage.ts` already writes about the same page: it prints the English it already
+had, it names the word wanted with the Estonian lemma in brackets beside the gap, so the answer is
+handed over by the cue long before a translation could hand it over, and it is paper, worked through
+with its own answer key on the same sheet.
+
+**And the Estonian half of a cue is never marked in an English sentence**: a gap card's cue is
+`lemma, meaning`, and `on` is the third person of `olema` and a word in half the English sentences
+there are, so the card for `olema` marked `The book is on the table.` on the wrong word, in the
+wrong language, in the wrong place.
 
 **Which words are worth learning first is a question about the language, not about the syllabus, so
 it is answered by counting.** The course teaches in themes and the dictionary holds six thousand
@@ -4429,7 +4648,7 @@ start on rather than leaving it to be inferred, because the fallback would silen
 measured up to B1 in March the part they had not worked up to.
 
 **Deciding what to do tonight is the expensive part of an evening, and it was left to the one
-person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+person least able to do it.** Everything this app can do is on a menu somewhere: 89 units, twenty
 rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
 choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
 choice made in advance. A day names its words and the order it does things in, the learner presses
@@ -4443,7 +4662,7 @@ not want to choose no longer has to, and the work they do the other way still co
 
 **Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
 of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
-words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+words in all 89 units is in exactly one evening of exactly one part, which is a stronger claim than
 a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
 one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
 are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
@@ -4532,6 +4751,269 @@ catch it because a suite clicks. Asserted, like the frequency rounds.
 every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**A1 is vocabulary and phrases, in the order a sentence needs, and a round the module deals is
+played on the words the module has taught.** The second evening of the planned module was measured
+at forty minutes against a promise of sixteen, and the reason was not the words. Everything round
+them assumed grammar nobody had shown: a conjugation table dealt to somebody who had never been
+shown `sina` or `-d`, filled from the dictionary at the band above (`tekkima`, `jätma`); a case
+card in the closing review (`Ta ei kõlba ____.` for `õpetaja`) cut from a sentence a beginner
+cannot read; and Sõnad dealing an A2 verb to somebody holding eleven words. The operator's call, and
+this paragraph is where it is written down so it is not re-litigated: **no case and no gap card
+anywhere in A1**, asserted in `syllabus.test.ts`, so an A1 deck is what a word means and how it is
+said plus the verb table for the units of verbs, and the cases arrive with A2. The A1 units are in
+the order a sentence needs: five words on the first evening (`vastused` is five on purpose, the one
+unit under the floor), the six persons on the second (`asesonad`, cut to the personal pronouns and
+two pointers; the indefinite ones are `umbmaarased`, late in A1), the verb to be and the six endings
+on the third and fourth (`esimesed-verbid`), and only then the greetings and the people. The eight
+"how sure you are" particles that used to open the course are `kindlus`, late in A1. A1 is six
+parts now, held under four weeks each.
+
+Three things follow and each is asserted. **The A1 rotation was four rounds**, Match, Listening, the
+picture board and the conjugation table, because every other round either deals a word off the
+dictionary, asks for a case, or puts a whole attested sentence in front of a beginner (it is six now,
+with Tähed and the flash round, two paragraphs down); and
+`rounds()` deals a round only once the words behind it exist, the table after a verb and the board
+after a pictured noun, standing Match and Listening in before that, which is why the first two
+evenings are honestly the same pair and `course.test.ts` allows exactly that case. **A round opened
+from the module reads what the module has taught off the step's own address** (`lib/course/scope.ts`,
+the same marker `focus.ts` writes) and narrows its query to it: Match, Listening, the board, the
+table and the closing review's new-card window, so first run's starter deck cannot meet a beginner
+with unit four on the first evening. Nothing in the marker is trusted and nothing needs to be, since
+the worst a forged one can do is narrow a round to a different slice of the course. **And at A1 the
+board is the word and the table is matched**: the picture against the lemma rather than a case of
+it, graded on the recognition card, and the six forms on the screen to be put beside their pronouns
+(`Shape` in `ConjugationSession.tsx`) before anybody is asked to type one. `BANDS_AROUND.A1` is A1
+alone with it, so the standalone rounds, the suggestion row and Sõnad stop reaching into A2 for a
+beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
+sentence now: that a clue is coming, what it says, and when.
+
+**And then A1 was still the same evening every night, which is where people give up.** Four rounds
+held to the taught words was honest and it was thin: the board waits for six pictured nouns, which
+arrive in the twelfth evening, and the table waits for a verb and then alternates, so most of A1
+was Match and Listening with the closing review behind them, both asking the words back as meanings.
+What a beginner has at A1 is a few dozen words and the alphabet they are spelled in, and the alphabet
+is the thing an English keyboard makes strange: õ, ä, ö and ü are not letters somebody has, they are
+letters somebody has to notice. So `/review/letters` is Tähed, the letters of a taught word
+scrambled onto tiles and put back in order, the meaning shown and the word heard, marked by string
+comparison against the lemma and graded on the word's production card through `gradeCard` like every
+other mode (ADR-016). A first miss shakes the row and places the first letter for them, since a
+beginner who has the letters has usually lost the shape; a second shows the word. `lib/games/letters.ts`
+is the rules and holds no Estonian: the tiles are the code points of a dictionary lemma, shuffled with
+the app's one shuffle and never handed back in the word's own order, and `spellable` is what may be
+played, one word of three letters or more with an order to find, so `ei` and `Tere hommikust!` are
+never dealt. It is dealt once four such words have been taught (`WORDS_FOR_LETTERS`), which is the
+second evening, and the flash round is the drill beside it, held inside the module to the taught
+words and the taught verb pages by `slotWithin`, so at A1 it is the word typed from its meaning and,
+once the present tense has been read, a person of a verb. Three pairs rather than one, walked two an
+evening.
+
+**The stand-in walks from the round it stands in for, and passes over last night.** Indexed on the
+evening, two unsupported rounds on consecutive evenings landed on the same stand-in and the sixth
+evening of A1 was the fifth again; walked forward from the unsupported round to the next supported
+one of its kind, two different rounds still met at the board on the two table evenings of A2's
+opening. So `rounds` takes what the evening before dealt and passes over it on the first walk,
+preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
+verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
+carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
+pair repeats where the words allow another stands over all 289 evenings unchanged.
+
+**And then the same rule was asked of every evening of every level, because a beginner is not the
+only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
+before any case page had been read, B1's first evening a conjugation table with the conditional in
+it two units before the conditional's own page, and Sõnad on every rotation dealt a word off the
+dictionary at whatever band. So the builder keeps a **ledger** (`Ledger` in `lib/course/build.ts`)
+of what every evening has handed over, walked in order over the whole ladder so what a1.6 taught is
+what a2.1 is dealt against: the words and their spellings off the harvest, the case pages and the
+topic pages read, the taught verbs that carry a government, and whether a sentence a lexicographer
+wrote yet exists made entirely of taught words. `supportsRound` is the one place that says what each
+round needs: a case page read for the sprint, Target, Write, Describe and the case board; that
+sentence for dictation and word ordering; the government page and four governed verbs for
+government; a verb for the table and a pictured noun for the board. A round whose material is not
+there yet is stood in for by Match or Listening, and the pair repeating on consecutive evenings is
+allowed exactly where the ledger leaves nothing else. **Sõnad is on no rotation**, since
+`recordSonad` rebuilds the day's puzzle from the date and the level on the server to mark it, so a
+board held to a taught list would be marked against a different word; it stays the game of the day.
+The scope a round reads off its address carries the same ledger (`ModuleScope.cases`, `.topics`),
+and every page a rotation can open holds to it, asserted by a sweep over `ACTIVITIES`: taught words
+in the query, a case only through `caseWithin`, a sentence only through `sentenceWithin`, a deck
+card only through `cardWithin`, which is what keeps a starter deck's case cards and gap cards out of
+the closing round until the evening that reads the page or teaches the words. The conditional joins
+the module's conjugation table from B1 once its page has been read, and not at A2, where the
+request unit reads the same page to soften a request. Three of the gates are wider than "one page
+read", because the page would deal an empty round otherwise: Target draws four forms of one word
+and waits for four case pages; Describe wants a whole picture scene of taught words and a choice of
+case; and the sentence flag is four to nine tiles, since word ordering refuses fewer than four and
+dictation more than nine. The stand-in walks whatever the ledger does support rather than fixing on
+Match, so early A2 alternates the word board and Match rather than dealing Match six evenings
+running, and a unit is pinned to the table only where it is mostly verbs **and declares the card**,
+since the share alone pinned nine B1 evenings to a table on units about the object and government.
+The board waits for six pictured nouns, the board's own size, since inside
+the module its top-up is the taught words and five of them is the empty state; the first board falls
+on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
+nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
+syllabus and the readings as a second opinion and walks all 289 evenings against it.
+
+**And the second pass over the same evenings found four more, which is the argument for walking
+them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
+case names at A1, so the pronoun evenings read nothing and the verb evenings read the verb to be
+and the present tense, and an evening with nothing to read is two minutes shorter rather than two
+minutes of something invented, which the fifteen-minute test allows for exactly that case. The food
+unit read the object rule, whose own page says it is what separates B1 from A2; it reads the
+partitive alone. Listening filled itself from what was due and what had lapsed and a beginner has
+neither, so the module's first evening sent them to its empty state: it tops up from any met word,
+as Match always did. And a table can hold one spelling twice, `olema` is `on` for `ta` and for
+`nad`, so the matching chips are keyed by slot rather than by word and a chip is spent when its
+row's form is placed. The wrong answers on the ladder's choice rung, the closing review and
+Listening are drawn from the taught words wherever those reach four (`decoysAmong`), so the first
+evening's four options are the five words met an hour ago and not three glosses of words nobody
+has shown; outside the module the whole ranked pool stands, as before.
+
+
+**And the four options were the whole dictionary on the first evening of the course, under a
+paragraph saying they were not.** The rule above draws the wrong answers from the taught words
+wherever those reach four, and on the first evening five are taught and the round offered "like,
+as". `decoyOptions` keeps one option per meaning, which is right, since two entries glossed the same
+way are two right answers wearing different ids, and it filed each option under whichever entry
+Postgres returned first: `Tere!` and `tere` both read "hello" once the punctuation is off, so the
+phrase owned the gloss and the word did not, the five narrowed to three, and the round fell back to
+the pool. An option carries every entry behind it now and a word is taught if any of them is,
+which reaches the ladder's choice rung, the closing review, Target and Listening through the one
+function they share. Driven in a browser before and after on the real first evening, and asserted.
+
+**A1 read pages about case endings under a topic's name, and the first evening read one about the
+conditional.** The rule that A1 reads no case page had a hole the size of the pages *about* cases:
+the numerals page is "the counted noun is partitive singular", the time page is "days take -l and
+months take -s", and the adjective page is "the same ending as its noun, for ten of the fourteen".
+Seven A1 evenings read one of those, to somebody who by the operator's own rule has been shown no
+case at all. And the very first evening, five words said alone, read the politeness page, which is
+the plural as a polite you and the conditional, because `vastused` declared it; the greetings, where
+it belongs, then read nothing, since the part had already read it. `PAGE_NEEDS` in
+`lib/course/build.ts` is what a page is built on, the one table the ladder test walks and the
+builder reads, so a page built on a case is read from A2, where the case is: the first evening
+reads nothing, the greetings read politeness after the pronouns and the verb to be, and the numerals
+page moved to the restaurant unit, the first unit after the partitive where anybody is counting
+things. What A1 reads is the verb to be, the present tense, negation, the two infinitives, word
+order, the imperative and politeness, in that order, and every one of them is something a beginner
+can use that evening.
+
+**And the page a reading step opened showed the deck's words and the dictionary's rather than the
+module's, and the page about the verb to be showed no form of it.** Both reference pages hid their
+unit list and their drill inside a module, which is the half anybody notices, and then filled their
+tables off the whole deck and the dictionary's easiest words: the present-tense page on the fifth
+evening of A1 tabled `jääma` and `andma`, which arrive a part later, under a heading saying "verbs
+from your deck first". Each page hands `ModuleScope.lemmas` to its example reader now and the reader
+keeps the deck read and the top-up inside that list, so the rule is shown on words the learner has
+met and no others; the standalone reference passes nothing and is unchanged. And the `olema` page
+said it was the one verb you cannot avoid and one of the few irregular ones and then showed not one
+form of it, on the fourth evening of the course. Its present is stored per person because no rule
+reaches `on`, so the table is the six the harvest holds, marked as such, and it is the only verb on
+that page. The page about the past had the same hole one part later: it said what the third person
+does to the stem is learned per verb and showed no verb, so it tables the past first person, which
+is a principal part, beside the third the harvest stores, both marked as memorized and never worked
+out, on the module's own verbs inside a module; a verb the dictionary holds no past for shows a gap.
+Both asserted, on the call rather than on the import, since a page that reads the scope and then
+ignores it is the fault this file records Today having had.
+**And the reading asks back, on the table it just showed, and grades nothing.** A reading step
+was a page of prose with a table under it, and a beginner reads a table once and presses
+Continue with nothing to show for it. Both reference pages end in three taps now
+(`components/course/TryIt.tsx`, cut by `lib/course/tryIt.ts` from the very rows the table drew):
+which one is *we* with `olema`, which of these words says *not*, which of the six words on the
+case page is this one with the ending on. Worded as a person would ask it, since the point of the
+reading is that a form means something, and the table stays on the screen above, so looking up is
+doing the thing the page is for. **It grades nothing and may not**: every answer is printed two
+inches up, so a row in the log would tell the scheduler somebody recalled a form they were looking
+at, which is the fault `audit:questions` exists to catch and the reason the build-a-word walk's
+last act writes nothing either. The component reaches no Server Action and no outbox, the builder
+holds no Estonian, and both are asserted, anchored on the element rather than the import. Driven
+on the `olema` page inside the fourth evening: "Which one is I, with olema, to be?" over the six
+persons, a wrong tap marked in words and in the palette's own classes, the form heard on a press.
+
+**And an evening ends on the words, out loud, and on the run of evenings.** The finished screen
+said the evening was over and offered tomorrow, and what a learner holds at that moment is five
+words met an hour ago: they are listed with a speaker apiece, the Estonian alone since the closing
+round just asked for the meaning, because hearing them once more is the cheapest repetition there
+is and the one moment somebody is glad to. The lead says "2 evenings in a row" from two upward,
+which is warmer than any adjective because it is about the learner and required us to have been
+looking; `eveningsInARow` is `computeStreak` over the step log, the same midnight the review streak
+breaks at, and is stored nowhere (ADR-014). Today's finished card carries the same figure.
+
+**And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
+module disagreeing with itself.** The closing review holds every level's gap cards to the taught
+spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung
+held A1's alone, on the argument that a B1 learner meeting an unfamiliar word inside a sentence is
+how reading grows. That argument is right about a screen somebody walked to and wrong about one
+the module dealt them: inside the module a gap cut from a sentence of untaught words is exactly
+"this is new, I was never told", whatever the band. So `readableFor` takes its reader by name,
+`heldToTaughtWords` holds the module at every level and the unit lesson at A1, and standalone Learn
+is untouched. What it costs is measured rather than guessed, by `npm run audit:readable` walking
+every level's evenings now rather than A1's: of the words the dictionary can gap at all, a
+sentence made only of words given by then exists for 52 of 464 at A1, 36 of 220 at A2, 24 of 194
+at B1, 19 of 211 at B2 and 19 of 235 at C1. The rest are met and chosen and go on to Practice
+without a gap, which is what the closing review already did with their cards. The ranked list of
+blockers is the work list at every level, and the sentences a native speaker writes through
+`docs/20-contributed-sentences.md` are what move it.
+
+**And A2 read eight case pages before the page every one of them stands on.** Every oblique
+case is the genitive stem with an ending glued on, which is the one sentence `/grammar` opens with,
+and the module told a learner `toas` is `toa` plus `s` on the eighth evening of A2 and what `toa`
+is on the twenty-ninth: inessive, elative, adessive, partitive, translative, illative, allative,
+ablative and terminative were all read before the genitive's page, because the only A2 unit that
+declared it was the seventh. Read off the walk rather than the syllabus, since the syllabus lists a
+unit's points and the walk is the order a learner meets them. So the first case unit at A2 reads the
+genitive first (`loodus` opens on it, and its gradation page is about that stem), the body unit
+leads on the partitive, and `course.test.ts` walks the whole ladder against the reference's own
+dependencies: an oblique case after the genitive, the object rule and government after the genitive
+and the partitive, a tense after the present, the perfect and the impersonal after the participles,
+the superlative after the comparative, nominalisation after derivation, and the first case page
+anybody reads is the genitive. The two A2 units that read the B1 object rule read the partitive and
+the imperative instead, which is the call the A1 food unit already took and for the page's own
+reason. **And a unit of verbs no longer deals the table six evenings running**: the pin fell on
+every evening of a verb unit, so A2 opened on six conjugation tables, which is a fortnight of one
+drill with a different name on the tin; it is the first evening and every other one, and the
+rotation's own drill, or its stand-in, takes the evenings between.
+
+**And B1 opened on four units of verbs running, and B2 on four more.** The object, government,
+the conditional and the participles were the first four units of B1, each mostly verbs and each
+pinned to the table or the government round, which is a month of one drill under four names, and
+B2.1 was the impersonal, the quotative, the converb and word-building the same way. The parts are
+dealt a grammar unit and then the words to use it on now: the object and then the people in your
+life, government and then work and money, the impersonal and then society, the quotative and then
+the economy. `course.test.ts` refuses three verb units running anywhere on the ladder, and holds
+every unit behind the units its own `requires` names, read off the ladder's order rather than the
+file's, which is how the request unit turned out to name the past tense as a prerequisite while
+being the unit every conversation needs first: asking needs the everyday verbs, and that is what it
+requires now. The three scenes whose units cross a part boundary are what fixed where the swaps
+could land, since a scene is opened only once every unit it declares has been taught.
+
+**And a page was read four evenings running, and the impersonal nineteen times.** `reads()` walked a
+unit's grammar list round and round, one page an evening, so the greetings read the politeness page
+on four consecutive evenings, the numbers read the numerals page on five, and between B1 and C1 the
+impersonal was read nineteen times by nine units: a reading the learner did last night, put in front
+of them again as tonight's step, is the step they skip past and then stop trusting. `readingPlan` is
+one page an evening, each page a unit declares once in the unit and in the order its author wrote
+them, none that an earlier unit of the same part has already read; an evening past the end of the
+list reads nothing, which the fifteen-minute test allows
+at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
+the conversation replaces the reading (`day()`): the first version handed it one, counted it read
+in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
+been shown. One page is lost to that, the terminative on the travel unit, whose four pages meet
+four evenings and a scene on the last, and it is named in the test rather than waived. Fresh pages
+first was tried and reverted: it put the conditional in front of the imperative on the request unit
+because the imperative had been met at A1, and a unit's list is a lesson plan whose revision at the
+front is the revision its author wanted first. **And a verb
+card in the closing review is held to the page teaching its part**, through `slotWithin` like the
+flash round, since a card built for a verb met on A2's first evening carries the past three
+evenings before its page and the conditional a level before the table asks it.
+
+**And a verb inside the module was asked for its dictionary form and nothing else, at every
+level.** The flash round read every slot through `caseWithin`, which answers about cases, so a
+verb code like `IndPrSg3` was read as a case nobody had opened and refused. Wrong the safe way, and
+still a B1 evening on a unit of verbs with no verb asked in any person. `slotWithin` is the one
+answer for a slot: a case once its page has been read, a part of a verb once the page teaching it
+has, the present and the negative behind the present tense and negation pages, the past behind
+the imperfect, the conditional and the imperative behind their own, and a morph code nobody has
+listed fails closed, which is `isFiniteVerbCode`'s discipline one module over.
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the
@@ -4824,6 +5306,76 @@ over a recognition card and finding the question is the same thing one step late
 its months in lower case and English does not. Folding case would delete the one thing those five
 cards teach. The sentence says "spelled" rather than "the same word" because it is not said the
 same, and the audio beside it is exactly the point.
+
+**And the case was folded one function upstream, so that lesson reached nobody.** `plainPhrase`
+drops a phrase's own capital and exclamation mark so a card teaches `tere hommikust` rather than
+shouting `Tere hommikust!`. Its header argued the lowering was safe "because no phrase in it opens
+on a proper noun", which is an argument about a `PHRASE` entry, and it was applied to the lemma and
+the gloss of every word the app teaches. So every screen that prints a word over its meaning handed
+`august` and `August` to `sameSpelling` as one string, and five shipped entries printed "Spelled
+the same in English." instead of their gloss. **A word's capital is the language's rather than the
+app shouting**, and dropping it is this app correcting English and Estonian it did not write: 166
+shipped entries and 30 of the course's own 1,514 words were taught with a capital that is theirs
+removed, `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as `midsummer Day`, `mina` as
+`i`, and `Eesti` as `eesti`, which is a different word, the language rather than the country. That
+is the fault `lib/estonian/answer.ts` has a comment about, fixed in the marker and never in the
+builder standing beside it.
+
+Three parts, and none of the three is enough alone. `pos` is **required**, for the reason
+`NounStems.illSgShort` is: a caller that has not thought about this quietly mis-teaches a word and
+it looks exactly like a gloss somebody wrote in lower case, and requiring it is what caught the two
+`answers.map(plainPhrase)` call sites that would have passed an array index as the part of speech.
+Every `/` separated part of a phrase is cleaned, because a gloss can be three phrases: `palun` is
+`Please / You're welcome / Here you are` and a learner met it on the ladder with one lowered and two
+still shouting, which reads as a rendering fault rather than as three ways of saying it, and
+`Sorry! / Excuse me!` was worse, since the mark it dropped was the one at the end and the one it
+kept was in the middle. And `ALWAYS_CAPITAL` holds back the English pronoun, because a phrase can
+open on it and `Ma ei saa aru` was dealt as `i don't understand`. **Never the comma**, since a sense
+past the first is not a new sentence: `vist` is `probably, I think` and `bemar` is `BMW, Beamer`.
+
+**And a deck already built keeps the text it was built with, which is the half a generator fix
+never reaches.** `repairCardSpelling` adopts the spelling the builder writes today wherever the
+card is holding the same answer, and **the same answer means differing only in case and a trailing
+`!`**: it can change a card's capitals and its mark and can never change which word it asks or
+which answers it takes. `lib/srs/cardSpelling.ts` is the judgment and `prisma/repair.ts` is the
+read, the guard and the write, which is what `caseBuild.ts` and `caseWalk.ts` are to each other and
+for the same reason. Not a tidy-up: driven over real card shapes the version that lived inside the
+Prisma file failed twice, once because a multi-part gloss matched nothing against whole-string
+candidates, and once because one pool of spellings let a recognition card's Estonian front adopt the
+English gloss's capital, which would have taught `August` as the Estonian word. Measured after:
+`npm run audit:questions` asks 84,790 questions over 6,153 entries, identical to the baseline
+section by section, so nothing about what the app asks moved.
+
+**And "it may only change the case" was not the whole of why that is safe.** The sentence above is
+true and says nothing about a card whose front is a sentence, where a case change *is* the reported
+fault rather than a correction of it. The restriction to the two card types whose front is a word
+lived in a `where` clause in `prisma/repair.ts`, one file away from the judgment, with nothing
+tying the two together: handed a CLOZE card of a phrase entry, `spellingFor` answered
+`tere hommikust! Kuidas läheb?`, a sentence a lexicographer wrote with its opening letter lowered.
+Nothing in the data made that unreachable on purpose, either. It is `gradates(pos)` refusing a
+phrase and a phrase carrying no recorded usage that leave the combination absent today, which is an
+accident rather than a property, and both could move without anybody here noticing. `SIDES` names
+the two and says which side of each holds the Estonian, a card type it does not answer for keeps
+exactly the text it had, and both ends are asserted, since a guard in the judgment with a widened
+query above it is the same silence pointed the other way.
+
+**And the separator is one constant, because the splitting is the fix.** `PARTS` was declared in
+`lib/copy/values.ts` and again in `lib/srs/cardSpelling.ts`, which is two readings of where an
+answer ends: a character apart, the repair matches nothing, falls back to the whole string, and
+writes the reported bug back with no way to see it. It is exported and read. **It is narrower than
+the marker's split and that is a decision**: `acceptedForms` splits on a slash, a comma, a
+semicolon or the word `or` with the surrounding spaces optional, so `favorite/favourite` reaches
+the marker as two answers and both are let through. Right for deciding what to accept, which can
+afford to over-reach, and wrong for deciding what to print, which cannot, since lowering the half
+after that slash edits a word rather than opens a sentence. The comment here used to say the spaces
+were what kept the marker from splitting it, which is not what the marker does, and a comment
+stating a false fact about the module next door is the fault this file keeps finding in its own
+prose.
+And the builder writes the one the repair reads back: `lib/srs/cards.ts` joined a card's accepted
+answers with the characters typed out while both halves of the rule split on the constant, which is
+the same two readings standing in the busiest of the three files. Its other two joins went the same
+way, since the answer to how several answers are held in one string may not be two answers in one
+file.
 
 **A missing example is news; a phrase having none is not.** Ekilex records a usage against a
 *word*, to show it doing its job in a sentence, so it holds none for `Tere!`, `Aitäh!`,
@@ -5452,6 +6004,34 @@ frames the floor called silence, what is added is zeros, and the ramp at each se
 *outside* the speech rather than on its first six milliseconds, or this would cause the fault it
 exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
 exactly as long as they are, so a slow play keeps the same head start.
+
+**And a word is asked for as a finished sentence, because the speed was never the fault.** A
+learner reported single words sounding "like the word is incomplete", and named one: `õde` in a
+deep voice, heard as "öd". The speed was the suspect and it is not the cause. Measured through the
+app's own pipeline, twelve words in four voices transcribed at five rates, the same words come back
+right at the recording's own pace as at 0.6 and 0.5 of it: 19, 22, 19, 20 and 20 of 48 at 1, 0.85,
+0.72, 0.6 and 0.5, and the words that come back wrong come back wrong at every rate. The stretch is
+exonerated by its own numbers too, holding the spectral envelope at 0.99, the level inside 0.6 dB
+and the pitch where it was. What is wrong is the string. TartuNLP reads sentences, and a bare
+headword with no stop on it is a fragment to its front end, which renders it as one: over twenty
+words in six voices, sending the same word with a full stop makes the speech 1.14 times as long and
+the loud body of the word itself 1.13 times as long, `isa` going from 271 ms to 561 and `pea` from
+321 to 762. Put to the stronger of the two recognizers this project has measured, a bare word is
+heard correctly 41 times in 80 and the same word with a stop 61 times in 80. `lib/audio/say.ts` is
+that one stop, and the other half of the same rule, which is that a mark that cannot finish an
+utterance is taken off rather than written after: `Tere,` was coming out as `Tere,.`, which is
+punctuation nobody writes, and `Ta ütles:` was on the list of things that already end a sentence,
+which is the definition of the fragment this exists to stop. It moves punctuation and never a
+letter, asserted over every lemma and all 12,172 attested sentences the app can speak, of which 48
+gain a stop and none loses a character. ADR-005 is untouched because a stop is punctuation rather
+than a form: it reaches the speech service and is never stored, never shown and never a card
+answer. **A capital at the front was the obvious other half and does nothing**, which
+is why it is not done: over the same 120 word and voice pairs `Õde` is exactly the length of
+`õde`, on every one of them, and its vowel is no further from the vowel of `öde` than the bare
+word's is, 0.897 against 0.906 over six words in eight voices, which is a coin toss. The route's
+`CLIP_SHAPE` and the worker's `VERSION` move together for it, and an invariant holds them to the
+same number at last, because this file already records the pass where the worker went to v4 and
+the key stayed at v3 and every phone threw its copy away to fetch the stale one again.
 
 **And one function faded both ends, which planted a notch wherever it was asked for one.**
 `fadeEdges(samples, from, to)` ramped up at `from` and down before `to`, which is right for the two
@@ -7577,6 +8157,27 @@ every time, and with no conversation in front of it opened mid-scene beats with 
 is one sentence and two at most and the drafter's instruction says the conversation has already
 begun. Nobody has read any of it, at any band.
 
+**The other side talks like a person, and a person says `ma`, not `mina`.** A learner reported
+the composed lines as a robot's, and every one of them was correct Estonian: the word list hands
+over headwords, a pronoun's headword is its long form, and a model told to prefer the words it is
+given wrote `Mina läksin`. `Lexicon.spoken` is the list as it is spoken, the stored short
+nominative where the Institute's row carries one and the headword otherwise, and every caller that
+builds a `ComposeScene` reads it, asserted. The prompt asks for feelings with it, in proportion and
+in character, sympathy and "what happened?" before anything else for bad news and warmth for good,
+because that is the one thing the bank cannot supply. **And "tsau" is goodbye and "ciao" is too.**
+A scene ended that way was answered `Vabandust!` and the previous question again, since the close
+beat names the two farewells the course teaches. `lib/scenes/casual.ts` is what people say instead,
+the Estonian half vouched word by word by the forms list and the foreign half on the latitude the
+English list takes, read by `readTurn` alone and by nothing that says, banks or grades a line: a
+casual hello meets the greet beat ungraded and a casual goodbye meets the close beat as a
+substitution, in a turn of three words or fewer, so a question opening with `tsau` is still a
+question. `docs/21-situations.md` §73. **And the news is felt keyless too**: a beat says what kind of news its
+answer is (`BeatSpec.feel`) and the reply says the course's word for it, `Tõesti?` or `Tore!`,
+through `feltAt`, the one reader the composer's briefing shares, so both voices feel the same thing
+about the same turn; `oi` and `kahju` are what a native says and no unit teaches either, so they
+are not written. And a yes-or-no question answered in its own words is a yes, not an echo, since
+Estonian answers `kas` with the verb.
+
 **The model is told who it is before it is asked for a line.** It used to be handed a move, one
 sentence about what to do and a word list, which is a translation exercise rather than a part in a
 scene. `ComposeAsk` carries the scene, the place, the drawn persona and the learner's own role card,
@@ -7697,6 +8298,35 @@ the top of its own file, and the selections on the examination paper, which are 
 tick is a choice and mint is what a marked answer wears. The sprint's clock in its last ten
 seconds is peach by the hue's name rather than by the grade's, because it is overdue rather than
 wrong, which is the same colour meaning a different thing and is written down as such.
+
+**And the box that verdict is said in was four sizes, three of them under the body step.** The
+colour was settled and the geometry was not, so each round decided for itself: five wrote
+`rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the ladder wrote `text-sm`,
+the lesson wrote `p-3 text-sm`, the word ordering round set a whole sentence in `label-xs`, which
+is 12px and uppercase, the dictation round set its own verdict sentence the same way, and the
+examination's result printed the answer at 17px beside the candidate's own at 13.5px. A learner
+reported the ladder's box as tiny and off-putting under a prompt set at 27px, which is what 13.5px
+on a panel reads as. `.verdict-panel` is the box and `--text-md` is the step, raised from
+`--text-base` because one commit at the body step was reported as still small, and the rule over
+everything else is that a verdict is never set below the body step: it is the one line on the screen saying
+whether the last half minute went anywhere, and it is not a caption. A caption genuinely inside a
+panel, the provenance under a sentence or the "you typed" line under a marked word, still takes its
+own step, so the invariant is drawn on the element wearing the tint rather than on everything under
+it, and on the element carrying `VERDICT_INK` for the verdict that has no box at all.
+
+**And the answer was printed twice in the same box, which is what was reported.** `checkAnswer`
+names the form inside its own note on three of its four readings, so the ladder's panel, which
+opened with the answer and put the note under it, said the same sentence twice with a line break in
+the middle: `The word is kuidas läheb?` over `Not quite, it's "kuidas läheb?"`, and in butter as
+readily as in peach. Where the note already names the form the note *is* the line, decided by
+`splitOnForm` rather than by the verdict so that the merge follows the copy, and the form inside it
+carries the `lang="et"` and the `data-answer` the headline used to: `scripts/lib/review.mjs` reads
+that attribute to type the answer into the retype box, so a merge that dropped it would have left
+the retype unanswerable in silence. The headline stays on the two readings that name no form,
+`Almost, it's õ, not o.` and `Nothing typed.`, where the answer is the whole of what is owed. The
+conjugation table is deliberately **not** merged the same way: its note is the only thing telling a
+near miss from a miss in words, since the form itself is already drawn beside it, so dropping the
+note there would leave the hue carrying that distinction alone.
 
 **And the feedback box was painting a hue's ink on that hue's own fill.** The same round drew its
 verdict on `background: var(--butter)` with `color: var(--butter-ink)`, which is two halves of one
@@ -7940,6 +8570,23 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   parking space. Replacing a dash between two independent clauses with a comma
   makes a splice and reads worse than the dash did: use a full stop. A separator in a label takes
   the middot the app already uses.
+- **A paragraph a tool writes lives in `AGENTS.md`, and that is what keeps this file its own.**
+  `next dev` upserts a managed block between two HTML comment markers whenever it sees an agent at
+  work, and the paragraph inside it carries an em dash, so `npm test` failed on `CLAUDE.md` for
+  anybody who had run the dev server: a line number in the middle of these rules, reading as a copy
+  fault rather than as a tool artifact. Three answers were weighed. `agentRules: false` in
+  `next.config.ts` switches the writer off and throws away something worth having, since the Next
+  here is well past what most models were trained on and the block is the pointer to the
+  version-matched docs bundled beside it. Excusing the block inside this file leaves the one page
+  that states the voice carrying a generated paragraph written in the voice it forbids, which is the
+  thing this section warns about. So `AGENTS.md` exists and holds it: the writer prefers that file
+  over this one whenever it is there, so nothing rewrites `CLAUDE.md` again, and `AGENTS.md` says in
+  its own first line that the rules are here. What is excused in the sweep is **the marked run
+  rather than the file**, in the shape a fenced block already takes, so everything either page says
+  in its own words is swept exactly as before, and it is held in both directions: `AGENTS.md` has to
+  still hold the block and this file has to still not, or the arrangement has quietly come apart.
+  The same runs write a `distDir` type glob into `tsconfig.json`, and those are committed rather
+  than reverted, which is what the three entries already there were doing.
 - **A character a reader cannot see is written down by name, and that is a rule about the file
   rather than about the string.** `lib/research/corpus.ts` joined a cell's key parts on a NUL, which
   is the right separator, since it cannot occur inside a dimension value and so two keys collide only
@@ -8963,7 +9610,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `FOUND_HOURS_PER_WEEK`, `appHoursPerWeek`, `readIdentity`, `boundedTransport`, `gapFrom`,
 `explainGap`, `ESTONIAN_WORD`, `formatDuration`, `alsoGoverned`, `teachingSentence`,
 `splitOnForm`, `inTeachingOrder`, `SELF_GRADES`, `DrillLink`, `lockDeck`, `caseReviewsFor`,
-`alsoRight`, `shownForms`,
+`alsoRight`, `shownForms`, `spellingFor`, `repairCardSpelling`, `ALWAYS_CAPITAL`, `SIDES`,
+`PARTS`,
 `PrefetchLink`, `lemmasByCardLexeme`, `dictionaryLemmas`, `decoyGlosses`, `forgetSettings`,
 `staleTimes`, `BadgeCheck`, `letterVars`, `leanFor`, `LetterTile`, `letter-key`, `derivedVerbForms`,
 `conjugatedForms`, `pres1sgFrom`, `useAudioPrefs`, `fetchClip`, `playFeedback`, `VOICES`,

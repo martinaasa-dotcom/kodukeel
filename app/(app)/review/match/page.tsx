@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 import { MatchSession, type MatchPair } from "./MatchSession";
 
 export const metadata = { title: "Match" };
@@ -22,14 +23,27 @@ const MIN_PAIRS = 4;
  * Duplicate translations are dropped: two tiles reading "book" would make a
  * pair unmatchable through no fault of the player.
  */
-export default async function MatchPage() {
+export default async function MatchPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const now = new Date();
 
+  /*
+    OPENED FROM THE MODULE, THE BOARD IS THE MODULE'S OWN WORDS. A learner who
+    walked here from Practice plays their whole deck; one the module sent
+    plays what the module has taught through tonight, read off the step's own
+    address (`lib/course/scope.ts`), so a beginner's first board is the five
+    words they met an hour ago and never a word from further up the course.
+  */
+  const scope = moduleScopeFrom(await searchParams);
   const base = {
     ownerId, suspended: false, cardType: "RECOGNITION", lexemeId: { not: null },
+    ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
   } as const;
-  const include = { lexeme: { select: { lemma: true } } } as const;
+  const include = { lexeme: { select: { lemma: true, pos: true } } } as const;
 
   /*
     The best score is one settings row and has nothing to do with which cards
@@ -70,7 +84,7 @@ export default async function MatchPage() {
   const pairs: MatchPair[] = [];
   for (const card of pool) {
     const english = card.back.trim();
-    const estonian = plainPhrase(card.lexeme?.lemma ?? card.front);
+    const estonian = plainPhrase(card.lexeme?.lemma ?? card.front, card.lexeme?.pos);
     const key = english.toLowerCase();
     if (seenAnswers.has(key)) continue;
     seenAnswers.add(key);

@@ -15,6 +15,8 @@ import { StarWord } from "@/components/StarWord";
 import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { EstonianSentence } from "@/components/EstonianSentence";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { Card, Empty, KeyCap, Meter, Page } from "@/components/ui";
 import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
@@ -177,7 +179,7 @@ export function LessonSession({
           summary={{ correct, total: answered, saving, saved }}
         />
         {aside && (
-          <p className="text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+          <p className="text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
             {aside}{" "}
             <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
               Bring it back
@@ -193,7 +195,7 @@ export function LessonSession({
 function Verdict({ ok, note }: { ok: boolean; note?: string }) {
   return (
     <div
-      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} flex items-start gap-2 rounded-[var(--r-sm)] p-3 text-sm`}
+      className={`${VERDICT_CLASS[ok ? "right" : "wrong"]} verdict-panel flex items-start gap-2`}
       role="status"
     >
       {ok ? <Check size={18} aria-hidden /> : <X size={18} aria-hidden />}
@@ -467,7 +469,22 @@ function StepCard({
         </Card>
       );
 
-    case "gap":
+    case "gap": {
+      /*
+        The English of this gap's own sentence with the asked word marked, and
+        what the cue still has to say once that line has said it. One rule for
+        both (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in
+        context, so a marked line takes the gloss and never the word, and the
+        step's own `cue` ladder still decides whether there was a gloss to show
+        at all.
+      */
+      const meaning = gapMeaning({
+        en: step.en,
+        answer: step.answer,
+        cue: step.cue === "none" ? null : step.gloss,
+        lemma: step.lemma,
+      });
+      const gloss = gapCue({ hint: step.gloss, lemma: null, marked: meaning?.marked ?? false });
       return (
         <Card className="flex flex-col gap-4">
           {/* THE WORD, THEN WHAT TO DO WITH IT, THEN THE SENTENCE CLOSEST TO
@@ -487,7 +504,7 @@ function StepCard({
           {step.cue === "word-and-meaning" ? (
             <div>
               <Et className="block text-[32px] font-bold leading-tight">{step.lemma}</Et>
-              <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{step.gloss}</p>
+              {gloss && <p className="mt-1 text-[15px]" style={{ color: "var(--ink-2)" }}>{gloss}</p>}
               <p className="mt-4 text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Write it in the form this sentence needs.
               </p>
@@ -497,9 +514,9 @@ function StepCard({
               <p className="text-[22px] font-semibold leading-snug" style={{ color: "var(--ink)" }}>
                 Which word goes in the gap?
               </p>
-              {step.cue === "meaning" && (
+              {step.cue === "meaning" && gloss && (
                 <p className="mt-1.5 text-[15px]" style={{ color: "var(--ink-2)" }}>
-                  It means <strong style={{ color: "var(--ink)" }}>{step.gloss}</strong>.
+                  It means <strong style={{ color: "var(--ink)" }}>{gloss}</strong>.
                 </p>
               )}
             </div>
@@ -507,6 +524,23 @@ function StepCard({
           <p className="text-xl">
             <Et>{sizedBlank(step.text, step.answer)}</Et>
           </p>
+          {/*
+            AND WHAT THE LINE SAYS, CLOSEST TO THE SENTENCE IT IS ABOUT.
+
+            The card above says which word and this says what the sentence is
+            doing with it, which is the pair a gap-fill is for: a learner
+            producing a form because a sentence needs it rather than because a
+            gloss was printed over a hole. Marked with the same rule every
+            other gap screen uses and withheld by it where the English carries
+            the answer (`lib/copy/gapMeaning.ts`).
+
+            The cue goes in only where the step is already allowed to show it:
+            `step.cue` reads "none" for a word whose own meaning spells the
+            answer, and marking that meaning inside the English would put back
+            exactly what that ladder took off the screen. Resolved at the top
+            of this branch beside the gloss, because the two are one decision.
+          */}
+          {meaning && !checked && <GapMeaning meaning={meaning} />}
           <EstonianInput
             value={typed} onChange={setTyped} large autoFocus
             ariaLabel="The missing form"
@@ -540,6 +574,7 @@ function StepCard({
           )}
         </Card>
       );
+    }
 
     case "case":
       return (

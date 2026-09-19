@@ -93,8 +93,9 @@ export async function caseExamples(
   ownerId: string,
   key: CaseKey,
   limit = 6,
+  within?: readonly string[],
 ): Promise<CaseExample[]> {
-  return (await caseExamplesFor(ownerId, [key], limit)).get(key) ?? [];
+  return (await caseExamplesFor(ownerId, [key], limit, within)).get(key) ?? [];
 }
 
 /**
@@ -112,7 +113,16 @@ export async function caseExamplesFor(
   ownerId: string,
   keys: readonly CaseKey[],
   limit = 6,
+  /**
+   * The lemmas a module has taught, off the step's own address. With it the
+   * deck read and the dictionary top-up both stay inside the list, so a case
+   * page opened from an evening shows the ending on words the learner has
+   * met rather than on whatever the deck or the dictionary lists first. See
+   * `verbExamples`, which had the same hole and the same fix.
+   */
+  within?: readonly string[],
 ): Promise<Map<CaseKey, CaseExample[]>> {
+  const scoped = within ? { lemma: { in: [...within] } } : {};
   const select = {
     id: true,
     lemma: true,
@@ -155,7 +165,7 @@ export async function caseExamplesFor(
     easiest-first is the right answer and there is no better order to preserve.
   */
   const deckIds = await prisma.card.findMany({
-    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "NOUN" } },
+    where: { ownerId, suspended: false, lexemeId: { not: null }, lexeme: { pos: "NOUN", ...scoped } },
     distinct: ["lexemeId"],
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
     take: CANDIDATES,
@@ -173,7 +183,7 @@ export async function caseExamplesFor(
   // gets a page worth reading on day one.
   const [rest, reach] = await Promise.all([
     prisma.lexeme.findMany({
-      where: { pos: "NOUN", id: { notIn: owned.length ? owned : ["-"] } },
+      where: { pos: "NOUN", id: { notIn: owned.length ? owned : ["-"] }, ...scoped },
       orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
       take: CANDIDATES,
       select,

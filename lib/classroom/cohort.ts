@@ -194,3 +194,44 @@ export function summariseCohort(input: CohortInput[], level: ExamLevel): CohortS
     evidence,
   };
 }
+
+/**
+ * The same cohort with one member taken out, recomputed rather than
+ * subtracted.
+ *
+ * WHO CREATED A GROUP IS A MEMBER OF IT, WHICH IS RIGHT ON A BOARD AND WRONG
+ * IN A COUNT ABOUT OTHER PEOPLE. `createClassroom` writes the owner a
+ * `ClassroomMember` row with role TEACHER, so every figure either roster
+ * returns includes them. On `/class` that is correct and expected: the list is
+ * a list, and seeing your own row in it is the ordinary thing. In a weekly
+ * note saying "four on track of nine" it is the sponsor counted among the
+ * people they are paying for, and an HR reader who has never opened a deck
+ * arrives in the group's own figures as one more "too early to say".
+ *
+ * Those are two different questions rather than two answers to one, which is
+ * why this is a function here rather than a change to `workplaceRoster`: the
+ * board keeps the member it has always had.
+ *
+ * RECOMPUTED, because `counts` and `evidence` are not subtractable. The
+ * evidence is the weakest member's, so dropping the weakest one raises it, and
+ * there is no arithmetic that reads that off the old figure.
+ */
+export function withoutMember(summary: CohortSummary, ownerId: string): CohortSummary {
+  const members = summary.members.filter((m) => m.ownerId !== ownerId);
+  if (members.length === summary.members.length) return summary;
+
+  const counts: Record<ReadinessBand, number> = { likely: 0, close: 0, far: 0, unknown: 0 };
+  for (const member of members) counts[member.band]++;
+
+  return {
+    ...summary,
+    members,
+    counts,
+    active: summary.members
+      .filter((m) => m.ownerId !== ownerId)
+      .filter((m) => m.daysSinceLastReview !== null && m.daysSinceLastReview <= QUIET_DAYS).length,
+    evidence: members.reduce<Evidence>((worst, member) => (
+      EVIDENCE_RANK[member.evidence] < EVIDENCE_RANK[worst] ? member.evidence : worst
+    ), members.length > 0 ? "good" : "thin"),
+  };
+}

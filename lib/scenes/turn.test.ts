@@ -995,3 +995,49 @@ describe("a word the learner negated", () => {
     expect(readTurn("ma ei taha valu", asks, ctx).reading).toBe("complete");
   });
 });
+
+describe("hello and goodbye the way people say them", () => {
+  const greet = () => beat({
+    move: "greet", topic: ["Tere!"], needs: [{ kind: "lemma", oneOf: ["Tere!"] }], shape: "word",
+  });
+  const close = () => beat({
+    move: "close", topic: ["Head aega!"], needs: [{ kind: "lemma", oneOf: ["Head aega!"] }], shape: "word",
+  });
+
+  it("takes a casual hello the scene cannot vouch for as the greeting, ungraded", () => {
+    for (const said of ["ciao", "Hi!", "Tsau", "hei"]) {
+      const seen = readTurn(said, greet(), context());
+      expect(seen.reading, said).toBe("complete");
+      expect(seen.satisfiedBy).toEqual([]);
+    }
+    // Still not anything at all: an unplaceable word is not a greeting.
+    expect(readTurn("qqqq", greet(), context()).reading).not.toBe("complete");
+  });
+
+  it("takes a casual goodbye on the close beat as a substitution", () => {
+    for (const said of ["ciao", "tsau", "ok bye", "Tšau!"]) {
+      const seen = readTurn(said, close(), context());
+      expect(seen.reading, said).toBe("complete");
+      expect(seen.substituted).toEqual([0]);
+      expect(seen.satisfiedBy).toHaveLength(1);
+    }
+  });
+
+  it("does not read a question that opens with tsau as a goodbye", () => {
+    const seen = readTurn("tsau, kuhu ma pean minema", close(), context());
+    expect(seen.reading).not.toBe("complete");
+  });
+
+  it("does not end a scene on a casual word said at another beat", () => {
+    expect(readTurn("ciao", beat(), context()).reading).not.toBe("complete");
+  });
+});
+
+describe("answering a yes-or-no question in its own words", () => {
+  it("is an answer, never an echo", () => {
+    const seen = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["valu"] }], shape: "word" }), context({ previous: "Kas valu on?" }));
+    expect(seen.reading).toBe("complete");
+    const still = readTurn("valu on", beat({ needs: [{ kind: "lemma", oneOf: ["palavik"] }] }), context({ previous: "Valu on." }));
+    expect(still.reading).toBe("echo");
+  });
+});

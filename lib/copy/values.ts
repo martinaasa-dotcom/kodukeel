@@ -1,3 +1,5 @@
+import { isPhrase } from "@/lib/dict/pos";
+
 /**
  * What a cell says when there is no value to put in it.
  *
@@ -49,6 +51,45 @@ export function sameSpelling(estonian: string, english: string): boolean {
 export const SAME_SPELLING = "Spelled the same in English.";
 
 /**
+ * How several answers are held in one string, everywhere in this app.
+ *
+ * `lib/srs/cards.ts` joins a card's accepted answers with it, every screen
+ * that prints a pair prints it this way, and `lib/srs/cardSpelling.ts` reads
+ * it back to put an already-built card right. One constant, because two
+ * copies of a separator are two readings of where an answer ends.
+ *
+ * IT IS NARROWER THAN THE MARKER'S SPLIT, and that is a decision rather than
+ * an oversight. `acceptedForms` in `lib/estonian/answer.ts` splits on a
+ * slash, a comma, a semicolon or the word `or`, with the surrounding spaces
+ * optional, so `favorite/favourite` reaches the marker as two answers and
+ * both are let through. That is right for deciding what to accept, which can
+ * afford to over-reach, and wrong for deciding what to print, which cannot:
+ * `favorite/favourite` is one answer spelled two ways, and lowering the half
+ * after the slash would edit a word rather than open a sentence. The comma is
+ * left alone for the same reason, since a sense past the first is not a new
+ * sentence: `vist` is `probably, I think` and `bemar` is `BMW, Beamer`.
+ */
+export const PARTS = " / ";
+
+/**
+ * The one English word that is capital wherever it stands.
+ *
+ * A short certain list, in the shape `DA_ONLY_VERBS` and the a/an rule in
+ * `lib/estonian/caseReading.ts` take, and safe for their reason: this one is
+ * never the other way, and English spelling does not change under us.
+ *
+ * Holding a phrase to its part of speech is not enough on its own, because a
+ * phrase can open on it: `Ma ei saa aru` was taught as `i don't understand`
+ * and `Ma õpin eesti keelt` as `i am learning Estonian`, on two of the first
+ * twenty cards anybody meets. The lookahead is what keeps it to the pronoun,
+ * so `Ice cream` is still lowered and `I'm` and `I` are not.
+ *
+ * It is asked of the Estonian side too, which costs nothing and is worth
+ * saying: no Estonian word is spelled `I`, so the guard cannot fire there.
+ */
+const ALWAYS_CAPITAL = /^I(?=$|[\s'’])/;
+
+/**
  * A phrase's own capital letter and exclamation mark, dropped for word
  * learning.
  *
@@ -62,14 +103,50 @@ export const SAME_SPELLING = "Spelled the same in English.";
  * shouting the greeting rather than teaching it.
  *
  * Trailing `!` only, and only where the text actually ends on one, so a
- * question a phrase genuinely asks (`Kuidas läheb?`) keeps its mark. The
- * first letter is lowered the way a lemma already is everywhere else in the
- * dictionary, which is safe here because no phrase in it opens on a proper
- * noun.
+ * question a phrase genuinely asks (`Kuidas läheb?`) keeps its mark.
+ *
+ * ONLY A PHRASE, WHICH IS WHAT THE ARGUMENT ABOVE WAS ALWAYS ABOUT. It said
+ * lowering was safe "because no phrase in it opens on a proper noun", and
+ * then it was applied to the lemma and the gloss of every word the app
+ * teaches. A word's capital is the language's rather than the app shouting,
+ * so dropping it is this app correcting English and Estonian it did not
+ * write: measured over the shipped dictionary, 166 entries and 30 of the
+ * course's own 1,514 words were taught with a capital that is theirs removed.
+ * `aprill` was taught as `april`, `esmaspäev` as `monday`, `jaanipäev` as
+ * `midsummer Day`, `mina` as `i`, and `Eesti` came out as `eesti`, which is a
+ * different word: the language rather than the country, which is the very
+ * fault `lib/estonian/answer.ts` has a comment about, fixed in the marker and
+ * never in the builder standing beside it. `pos` is required rather than
+ * optional for the reason `NounStems.illSgShort` is: a caller that has not
+ * thought about this quietly mis-teaches a word, and it looks exactly like a
+ * word whose gloss was written in lower case.
+ *
+ * AND A STRING HOLDING SEVERAL ANSWERS IS SEVERAL PHRASES. This read the
+ * first character of the whole string and the mark at the very end of it, so
+ * a gloss that is three phrases came out with one of them lowered and the
+ * other two shouting: `palun` is glossed `Please / You're welcome / Here you
+ * are` and a learner met it on the ladder as `please / You're welcome / Here
+ * you are`, which reads as a rendering fault rather than as three ways of
+ * saying it. `Sorry! / Excuse me!` was worse, since the mark it dropped was
+ * the one at the end and the one it kept was in the middle. Each part is a
+ * phrase and each is cleaned as one. `prisma/repair.ts` had worked this out
+ * for a card's back and kept the splitting to itself, which is two answers to
+ * one question with the copy in the busier file being the one that had not
+ * learned; it reads this now.
+ *
+ * NEVER THE COMMA. A comma separates the senses of one gloss, and a sense past
+ * the first is not a new sentence: `vist` is `probably, I think` and `bemar`
+ * is `BMW, Beamer`. There is nothing there to lower even on a phrase.
  */
-export function plainPhrase(text: string): string {
+export function plainPhrase(text: string, pos: string | null | undefined): string {
+  if (!isPhrase(pos)) return text;
+  return text.split(PARTS).map(onePhrase).join(PARTS);
+}
+
+function onePhrase(text: string): string {
   const trimmed = text.replace(/!+\s*$/, "").trimEnd();
-  return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1) : trimmed;
+  if (trimmed.length === 0 || ALWAYS_CAPITAL.test(trimmed)) return trimmed;
+  return trimmed[0]!.toLocaleLowerCase("et") + trimmed.slice(1);
 }
 
 /**
@@ -206,3 +283,23 @@ export function orderVariantNote(moved: string | null, writerPut: "earlier" | "l
   if (!moved || !writerPut) return "That works. The writer put it another way.";
   return `That works. The writer put ${moved} ${writerPut}.`;
 }
+
+/**
+ * The longest a line of small type may be before it stops being a caption.
+ *
+ * 110 characters is about a line and a half on a phone. Anything longer is a
+ * real explanation with two honest homes: `components/Explain.tsx`, which is a
+ * disclosure and takes no room until somebody asks, or body type, which
+ * usually means saying it shorter. What it does not cap is prose in the body
+ * of a screen, a grammar explanation or a policy page; a screen whose subject
+ * is an explanation is allowed to explain, at a size somebody can read.
+ *
+ * Out here rather than inside the sweep that applies it, because it is applied
+ * twice now. `readerCopy.test.ts` holds every literal `text-xs` element in the
+ * tree to it, and the invariant suite holds the email panel's descriptions to
+ * it as well: that panel interpolates its small print out of a table, which is
+ * the residual the sweep names and cannot read, and four of its lines shipped
+ * at up to 155 characters with the sweep green. Two copies of 110 is how the
+ * second one quietly becomes 140.
+ */
+export const CAPTION_MAX = 110;

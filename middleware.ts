@@ -141,6 +141,33 @@ export async function middleware(request: NextRequest) {
     // count, no identifier and nothing about anybody, and a health check
     // behind a session is one no monitor can make.
     path.startsWith("/api/health") ||
+    /*
+      THE WAY OUT OF AN EMAIL, WHICH HAS TO WORK WITH NO SESSION AT ALL.
+
+      Somebody unsubscribing is reading their mail, not this app, and may not
+      be signed in on that device or in that browser at all. An unsubscribe
+      behind a sign-in is one a mail client will not honour and one an annoyed
+      reader replaces with the spam button, which costs this deployment the
+      inbox for its sign-in links too. The link is not unprotected for being
+      public: it carries an HMAC over the learner and the kind, verified in
+      `lib/email/unsubscribe.ts`, so it authorises exactly one thing for
+      exactly one person.
+
+      The route that *sends* is deliberately not here. It is gated on a secret
+      of its own and answers 404 to everybody else.
+    */
+    path.startsWith("/api/email/unsubscribe") ||
+    /*
+      AND WHAT THE SENDING PROVIDER TELLS US AFTERWARDS, WHICH ARRIVES FROM
+      THEIR SERVERS AND NOT FROM A BROWSER.
+
+      There is no session on a webhook and there never will be. It is not
+      unprotected for being public: every delivery carries an HMAC over its own
+      id, timestamp and body, verified in `lib/email/webhook.ts` before the
+      body is parsed at all, and a deployment with no signing secret answers
+      404 to everybody.
+    */
+    path.startsWith("/api/email/bounce") ||
     // The offline fallback holds no data and has to render from the service
     // worker's cache, where there is no session to check.
     path.startsWith("/offline") ||

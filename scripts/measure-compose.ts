@@ -105,7 +105,7 @@ for (const scene of SCENES) {
     persona: "",
     situation: scene.role,
     register: scene.register,
-    words: [...context.lexicon.byLemma.keys()],
+    words: context.lexicon.spoken,
   }).length;
   for (const beat of scene.beats) {
     liveChars += composeLive({

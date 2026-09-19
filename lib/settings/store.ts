@@ -177,6 +177,82 @@ export const SETTING_KEYS = {
    */
   researchOptOut: "researchOptOut",
   /**
+   * Which letters this learner has switched off, or `all`.
+   *
+   * A missing row is every letter on, which is the one default in this file
+   * that is not simply "what everybody already had": email is new, so nobody
+   * is in any state yet, and the argument for it is written out in
+   * `lib/email/prefs.ts` rather than repeated here. The value is read by the
+   * scheduled run and written from Settings and from the one-click link at the
+   * bottom of every message.
+   */
+  emailsOff: "emailsOff",
+  /**
+   * Which letters this learner has switched **on** that are off by default.
+   *
+   * A second row rather than an inversion of the one above, because the two
+   * answer different questions and a single list cannot hold both: `emailsOff`
+   * is a refusal of something we would otherwise send, and this is a request
+   * for something we otherwise would not. Folding them together would mean a
+   * missing entry had to be read one way for one kind and the other way for
+   * another, decided by a table somewhere else, which is exactly the shape of
+   * thing that comes apart when a kind is added.
+   *
+   * `DEFAULT_OFF` in `lib/email/prefs.ts` is what says which kinds this is
+   * consulted for, and it is one: a daily word is not part of the course
+   * somebody signed up for, so it waits to be asked for.
+   */
+  emailsOn: "emailsOn",
+  /**
+   * The highest level a milestone letter has already congratulated them on.
+   *
+   * A high-water mark, the shape `streakShieldsAwarded` takes and for its
+   * reason: the levels are a ladder, so one comparison says whether there is
+   * anything new to say, even to somebody whose whole A1 arrived at once in a
+   * restore. Without it the letter either fires on every run for ever or needs
+   * a row per level, and the first of those is the one that happens.
+   *
+   * Written after the letter has actually gone, never when it is decided: a
+   * mark written on a send that then failed is a milestone nobody is ever told
+   * about, and there is no second chance at a level somebody passes once.
+   */
+  milestoneToldFor: "milestoneToldFor",
+  /**
+   * The last day a shield covered that the learner has been told about.
+   *
+   * A shield is spent silently by `resolveStreakFor` on whichever render or
+   * run happens to resolve the streak first, so "did we tell them" cannot be
+   * read off whether this run spent it. The day key is the mark, and a day key
+   * sorts lexically, which is what makes "newer than the last one we mentioned"
+   * a string comparison rather than a parse.
+   */
+  shieldToldFor: "shieldToldFor",
+  /**
+   * Set once the sending provider has refused this address outright.
+   *
+   * Not a preference and never shown as one: it is a fact about the address
+   * rather than about the person, and the person may well not know. Carrying
+   * on mailing a dead address is what a mailbox provider reads as a sender who
+   * is not paying attention, and the cost of that reputation lands on the
+   * sign-in links, which are the messages somebody actually needs. Cleared by
+   * nothing automatic, because an address that starts working again is an
+   * address somebody changed, and changing it clears this with it.
+   */
+  emailUndeliverable: "emailUndeliverable",
+  /**
+   * The hour they want to be reminded at, as "HH:MM" on their own clock.
+   *
+   * There are two things that remind somebody to study here and until this
+   * there was no one answer to when: the calendar file took an hour off a
+   * query string and stored nothing, and the evening letter had nowhere to
+   * read one from. So an app that offered a reminder at 08:00 would have
+   * mailed the same learner at six in the evening.
+   *
+   * A missing row is early evening, which is what the calendar file has always
+   * defaulted to, and `parseReminderTime` is the one reader of the format.
+   */
+  reminderAt: "reminderAt",
+  /**
    * The order the cards on Today are dealt in, as slot ids space separated.
    *
    * A missing row is the shipped order, which is an argument about what to do

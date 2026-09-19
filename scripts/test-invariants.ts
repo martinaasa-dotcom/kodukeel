@@ -1,3 +1,4 @@
+import { GAP_MARKS, GAP_WITHOUT_MEANING, NEVER_SAYS_WHAT_IT_MEANS } from "../lib/copy/gapCoverage";
 /**
  * The rules this repository says are not negotiable, asserted.
  *
@@ -64,6 +65,9 @@ import {
 } from "../lib/research/corpus";
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
+import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
+import { UNCAPPED } from "../lib/email/schedule";
+import { CAPTION_MAX } from "../lib/copy/values";
 // @ts-expect-error - plain JS, shared with the .mjs browser suites it describes.
 import { DECLARES_SUITE, NOT_IN_CI } from "./lib/suites.mjs";
 
@@ -637,6 +641,82 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   assert.deepEqual(importers, ["lib/audio/clip.ts"], "a second file decides how a clip is stretched");
   const stretcher = code("lib/audio/stretch.ts");
   assert.doesNotMatch(stretcher, /AudioContext|window\.|document\.|import /, "the stretch stopped being pure");
+});
+
+/*
+  A WORD IS ASKED FOR AS A FINISHED UTTERANCE, IN ONE PLACE, AND THE TWO CACHE
+  VERSIONS AGREE.
+
+  A learner reported single words sounding "incomplete", and the speed was the
+  suspect and is not the cause: a recognizer gets the same words right at the
+  recording's own pace as at 0.6 and 0.5 of it. What was wrong is the string.
+  TartuNLP reads sentences, and a bare headword with no stop on it is a
+  fragment to its front end: measured over twenty words in six voices, the loud
+  body of the word comes back 1.13 times as long with a full stop on it. So
+  `lib/audio/say.ts` finishes the text and the route asks through it.
+
+  Three things can rot. The route can stop asking through it, which is silent,
+  because a fragment plays perfectly well and merely sounds clipped. A second
+  copy of the rule can appear in the browser, which would key the client's
+  cache on one string and the store on another. And the two cache versions can
+  come apart: this file already records the pass whose whole diff here was a
+  comment line, where the worker went to v4 and the route's key stayed at v3,
+  so every phone threw its copy away and fetched the stale clip again. "Two
+  spellings of one version is one spelling too many" is the route's own words
+  and nothing had ever held them to it.
+*/
+check("a word is asked for finished, in one place, and the two clip versions agree", () => {
+  const route = code("app/api/tts/route.ts");
+  assert.match(
+    route,
+    /text = spokenText\(body\.text\.trim\(\)\.slice\(0, MAX_CHARS\)\)/,
+    "the speech route asks the service for the text as typed rather than as a finished utterance",
+  );
+  assert.match(
+    route,
+    /update\(`\$\{CLIP_SHAPE\}\|\$\{text\}\|\$\{speaker\}`\)/,
+    "the store is keyed on something other than the text that was spoken",
+  );
+  /*
+    And the finished text is what actually goes out. The three links are the
+    request body, the key the clip is stored under and the body sent upstream,
+    and only the last of them is what a learner hears: a route that finished
+    the text, keyed the store on it and then posted `body.text` would pass
+    every check above while shipping the fault back.
+  */
+  assert.match(
+    route,
+    /body: JSON\.stringify\(\{ text, speaker \}\)/,
+    "the speech service is sent something other than the text the route finished and keyed on",
+  );
+
+  const say = code("lib/audio/say.ts");
+  assert.doesNotMatch(say, /import |window\.|prisma/, "the spoken-text rule stopped being pure");
+  assert.doesNotMatch(
+    say,
+    /toUpperCase|toLowerCase|normalize|toLocaleUpperCase/,
+    "the spoken-text rule started rewriting the word rather than finishing it (ADR-005)",
+  );
+
+  const callers = ALL
+    .filter((file) => !/\.(test|itest)\.tsx?$/.test(file))
+    .filter((file) => /from "(\.\/say|@\/lib\/audio\/say)"/.test(code(file)))
+    .sort();
+  assert.deepEqual(
+    callers,
+    ["app/api/tts/route.ts"],
+    "a second place decides what the speech service is asked to read",
+  );
+
+  const shape = /const CLIP_SHAPE = "v(\d+)"/.exec(route)?.[1];
+  const worker = /const VERSION = "kodukeel-v(\d+)"/.exec(read("public/sw.js"))?.[1];
+  assert.ok(shape && worker, "the clip shape or the worker version is no longer a number");
+  assert.equal(
+    shape,
+    worker,
+    `the route keeps clips at v${shape} and the worker at v${worker}: one of them was bumped and the other was not, `
+      + "so a phone keeps serving the clip the other half just replaced",
+  );
 });
 
 /*
@@ -1605,7 +1685,7 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
-    /readableFor\(level, taughtWords\)/,
+    /readableFor\(level, taughtWords, "module"\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
   );
 
@@ -1627,11 +1707,11 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   */
   const READS_READABLE_FOR: Record<string, string> = {
     "lib/collections/lesson.ts": "the unit lesson's build and gap steps, which the module schedules",
-    "lib/progress/learn.ts": "the Learn ladder's gap rung, gated only where the module hands in what it taught",
+    "lib/progress/learn.ts": "the Learn ladder's gap rung, held at every level where the module hands in what it taught",
   };
   const RULE_HOME = "lib/collections/levels.ts";
   const readsRule = ALL
-    .filter((f) => f !== RULE_HOME)
+    .filter((f) => f !== RULE_HOME && !f.endsWith(".test.ts"))
     .filter((f) => /\breadableFor\(/.test(code(f)));
   assert.deepEqual(
     readsRule.slice().sort(),
@@ -4060,7 +4140,7 @@ check("the pure modules stay free of React, Next and Prisma", () => {
     while the module under it can be imported without a framework.
   */
   const pure = [
-    "assessment", "collections", "copy", "estonian", "exam", "funding", "games",
+    "assessment", "collections", "copy", "email", "estonian", "exam", "funding", "games",
     "learn", "offline", "random", "research", "scan", "security", "stats", "time", "ux",
   ];
   for (const file of LIB) {
@@ -4297,6 +4377,158 @@ check("an empty cell goes through NO_VALUE, never a literal", () => {
     }
   }
   assert.deepEqual(offenders, [], "a placeholder is typed in rather than read from NO_VALUE");
+});
+
+check("the app drops a capital only where the capital is its own to drop", () => {
+  /*
+    `plainPhrase` exists so a card teaches `tere hommikust` rather than
+    shouting `Tere hommikust!`. Its own header argued that was safe "because
+    no phrase in it opens on a proper noun" — an argument about a PHRASE
+    entry — and it was then run over the lemma and the gloss of every word
+    the app teaches, reading the first character of whatever string it was
+    handed. Three faults came out of that and all three reached a screen.
+
+    A WORD'S CAPITAL IS THE LANGUAGE'S. 166 shipped entries and 30 of the
+    course's own 1,514 words were taught with a capital that is theirs
+    removed: `aprill` as `april`, `esmaspäev` as `monday`, `jaanipäev` as
+    `midsummer Day`, `mina` as `i`, and `Eesti` as `eesti`, which is a
+    different word — the language rather than the country, which is the very
+    fault `lib/estonian/answer.ts` has a comment about, fixed in the marker
+    and never in the builder standing beside it.
+
+    A STRING OF SEVERAL ANSWERS IS SEVERAL PHRASES. `palun` is glossed
+    `Please / You're welcome / Here you are` and a learner met it on the
+    ladder as `please / You're welcome / Here you are`, one lowered and two
+    still shouting, which reads as a rendering fault rather than as three ways
+    of saying it. It was reported off that screen. `prisma/repair.ts` had
+    worked this out for a card's back and kept the splitting to itself, which
+    is two answers to one question with the copy in the busier file being the
+    one that had not learned it.
+
+    AND A PHRASE CAN OPEN ON THE ONE ENGLISH WORD THAT IS ALWAYS CAPITAL, so
+    the part of speech is not enough by itself: `Ma ei saa aru` was dealt as
+    `i don't understand`.
+
+    Each arm is anchored on the shape that would bring the fault back rather
+    than on today's wording.
+  */
+  const values = code("lib/copy/values.ts");
+  assert.match(
+    values,
+    /export function plainPhrase\([^)]*pos[^)]*\)[\s\S]{0,120}?isPhrase\(pos\)/,
+    "plainPhrase lowers without asking whether the entry is a phrase",
+  );
+  assert.match(
+    values,
+    /export function plainPhrase[\s\S]{0,240}?\.split\(/,
+    "plainPhrase reads the whole string again, so a gloss of several phrases lowers only the first",
+  );
+  assert.match(
+    values,
+    /ALWAYS_CAPITAL[\s\S]{0,400}?toLocaleLowerCase/,
+    "nothing holds the English pronoun back from being lowered",
+  );
+
+  /*
+    And nobody may keep a copy of the splitting, or force the lowering with a
+    literal part of speech rather than reading the entry's. There is no
+    exemption: `prisma/repair.ts` needed one while it named `PHRASE` itself,
+    and asking `lib/srs/cardSpelling.ts` what a card should say took the
+    decision, and the carve-out, out of it.
+  */
+  const offenders: string[] = [];
+  for (const file of [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]) {
+    if (file.endsWith("test-invariants.ts") || file.endsWith(".test.ts") || file.endsWith(".itest.ts")) continue;
+    const body = code(file);
+    if (/\.split\(\s*["'`] \/ ["'`]\s*\)[\s\S]{0,40}?plainPhrase/.test(body)) {
+      offenders.push(`${file} splits the answers itself`);
+    }
+    if (/plainPhrase\([^)]*,\s*["'`]/.test(body)) {
+      offenders.push(`${file} forces a part of speech rather than reading the entry's`);
+    }
+  }
+  assert.deepEqual(offenders, [], "plainPhrase is the one place a card's spelling is decided");
+
+  /*
+    And the repair that puts an already-built card right asks that module
+    rather than working it out again. It is the same fault one layer up: the
+    judgment was inside the Prisma file, where no unit test could reach it,
+    and driving it over real shapes is what found a recognition card's
+    Estonian front adopting the English gloss's capital.
+  */
+  const repair = code("prisma/repair.ts");
+  assert.match(repair, /spellingFor\(/, "the repair decides a card's spelling for itself again");
+  assert.ok(
+    !/plainPhrase/.test(repair),
+    "the repair reaches past lib/srs/cardSpelling.ts to lower a card itself",
+  );
+
+  /*
+    AND IT ANSWERS FOR THE TWO CARD TYPES WHOSE FRONT IS A WORD, refusing the
+    rest itself rather than trusting the `where` clause in the file above.
+    Driven over the real shapes, a CLOZE card of a phrase entry came back as
+    `tere hommikust! Kuidas läheb?`: a sentence a lexicographer wrote with its
+    opening letter lowered, which is the fault this whole rule was reported
+    for. Nothing about the data made that unreachable on purpose. It is
+    `gradates(pos)` and a phrase carrying no recorded usage that leave the
+    combination absent today, and either could move without anybody here
+    noticing.
+
+    Both ends, because a guard in the judgment with a widened query above it
+    is the same silence pointed the other way.
+  */
+  const spelling = code("lib/srs/cardSpelling.ts");
+  assert.match(
+    spelling,
+    /const SIDES[\s\S]{0,200}?RECOGNITION[\s\S]{0,100}?PRODUCTION/,
+    "lib/srs/cardSpelling.ts no longer names the two card types it answers for",
+  );
+  assert.match(
+    spelling,
+    /export function spellingFor[\s\S]{0,200}?SIDES\[card\.cardType\][\s\S]{0,140}?return \{ front: card\.front, back: card\.back \}/,
+    "spellingFor reads a card type it was not written for as one it was",
+  );
+  assert.match(
+    repair,
+    /cardType:\s*\{\s*in:\s*\["RECOGNITION",\s*"PRODUCTION"\]/,
+    "the repair hands spellingFor a card whose front is a sentence",
+  );
+
+  /*
+    AND THERE IS ONE SEPARATOR. `lib/copy/values.ts` exports it and this reads
+    it, because the splitting is what makes `palun` three phrases rather than
+    one, and two constants a character apart would leave the repair matching
+    nothing and falling back to the whole string, which is the reported bug
+    with no way to see it.
+  */
+  assert.match(
+    spelling,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cardSpelling.ts keeps its own copy of the answer separator",
+  );
+  assert.ok(
+    !/^\s*const PARTS\b/m.test(spelling),
+    "lib/srs/cardSpelling.ts declares a separator beside the one it imports",
+  );
+
+  /*
+    And the builder writes the one the repair reads back, which is the same
+    fault standing in the busiest of the three files: `lib/srs/cards.ts`
+    joined a card's accepted answers with the characters typed out while both
+    halves of the rule split on the constant. The other two joins in it are
+    the same separator and go the same way, since the answer to how several
+    answers are held in one string may not be two answers in one file.
+  */
+  const builder = code("lib/srs/cards.ts");
+  assert.match(
+    builder,
+    /import \{[^}]*\bPARTS\b[^}]*\} from "@\/lib\/copy\/values"/,
+    "lib/srs/cards.ts writes a separator of its own",
+  );
+  assert.ok(
+    !/\.join\(\s*["'`] \/ ["'`]\s*\)/.test(builder),
+    "lib/srs/cards.ts joins a card's answers with the characters rather than the constant",
+  );
 });
 
 check("the voice is one table, and everything that speaks reads from it", () => {
@@ -6161,6 +6393,67 @@ check("the scene's word list is cached, and a run keeps one voice", () => {
   );
 });
 
+check("the other side talks like a person: short pronouns, feelings, and hello in any language", () => {
+  /*
+    Every composed line was correct Estonian and a learner still read the
+    other side as a robot: `Mina läksin` for `ma läksin`, because the word
+    list hands over headwords and a pronoun's headword is its long form, and
+    nothing ever reacted to news. And a scene ended with "ciao" was answered
+    "Vabandust!" and the previous question again, because the close beat
+    names the two farewells the course teaches and nothing else. Three rules
+    hold the repair: the list a model is handed is the list as spoken
+    (`Lexicon.spoken`), read at every call site rather than off the lemma
+    keys; the prompt says to talk like a person and to feel what was said;
+    and `readTurn` hears a casual hello and goodbye through
+    `lib/scenes/casual.ts`, which is read to accept and never to answer.
+  */
+  const prompt = code("lib/scenes/prompt.ts");
+  assert.match(prompt, /short forms of[\s\S]{0,40}the pronouns/, "the prompt no longer asks for the everyday pronouns");
+  assert.match(prompt, /Have feelings and show them/, "the prompt no longer asks the other side to react to what was said");
+  for (const file of [
+    "app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts",
+    "scripts/eval-thinking.ts", "scripts/measure-compose.ts",
+  ]) {
+    const src = code(file);
+    assert.match(src, /words: context\.lexicon\.spoken/, `${file} hands the model a list other than the spoken one`);
+    assert.doesNotMatch(
+      src, /words: \[\.\.\.context\.lexicon\.byLemma\.keys\(\)\]/,
+      `${file} hands the model the headwords again, which is how "mina" came back`,
+    );
+  }
+  assert.match(code("lib/scenes/lexicon.ts"), /spoken\.push\(spokenForm\(entry\)\)/, "buildLexicon stopped building the spoken list");
+  const turn = code("lib/scenes/turn.ts");
+  assert.match(turn, /casualHello\(spoken\) !== null/, "the greet beat no longer hears a casual hello");
+  assert.match(turn, /beat\.move === "close"[^\n]*casualBye\(spoken\)/, "the close beat no longer hears a casual goodbye");
+  /*
+    Accept only: nothing that says a line, banks one, grades one or builds a
+    card may reach the casual table, or "ciao" becomes a thing the other side
+    says and a spelling a learner is drilled on.
+  */
+  for (const file of [
+    "lib/scenes/reply.ts", "lib/scenes/line.ts", "lib/scenes/bank.ts", "lib/scenes/grades.ts",
+    "lib/scenes/retrieval.ts", "lib/scenes/gate.ts", "lib/scenes/scripted.ts", "lib/scenes/aside.ts",
+  ]) {
+    assert.doesNotMatch(code(file), /from "\.\/casual"/, `${file} reads the casual greetings, which are accept-only`);
+  }
+  /*
+    And the news is felt by both voices off one reading: a beat says what
+    kind of news its answer is (`BeatSpec.feel`), `feltAt` is the one reader,
+    the keyless reply says the course's word for it (`FEELINGS`) and the
+    composer is told the same thing on the same turn, on the route and in the
+    two harnesses that print transcripts, or a run changes character the day
+    the allowance runs out.
+  */
+  assert.match(code("lib/scenes/reply.ts"), /const felt = feltAt\(answered, response\)/, "the keyless reply no longer feels the beat's news");
+  for (const file of ["app/api/scene/route.ts", "scripts/play-scene.ts", "scripts/replay-transcript.ts"]) {
+    assert.match(code(file), /feel: feltAt\(answered,/, `${file} composes without telling the model what the turn was to this person`);
+  }
+  assert.match(prompt, /ask\.feel === "sorry"/, "the prompt no longer reads the beat's feeling");
+  const casual = code("lib/scenes/casual.ts");
+  assert.match(casual, /export const CASUAL = \{/, "the casual table is gone");
+  assert.doesNotMatch(casual, /Head aega|Nägemist|"tere"/, "the casual table names a course phrase, which the scene already hears");
+});
+
 check("the other side talks at the run's band, and every composer says which band", () => {
   /*
     A scene carries no band of its own. It did, and the composed line never
@@ -6747,7 +7040,7 @@ check("a card never answers the card before it", () => {
     rather than a retrieval.
   */
   const review = code("app/(app)/review/page.tsx");
-  assert.match(review, /spaceSiblings\(due,/, "the review queue no longer spaces a word's cards apart");
+  assert.match(review, /spaceSiblings\(dueWithin,/, "the review queue no longer spaces a word's cards apart");
   assert.match(review, /inTeachingOrder\(fresh\)/, "new cards no longer arrive in teaching order");
 
   const queue = code("lib/srs/queue.ts");
@@ -8708,8 +9001,18 @@ check("a route that spends something is throttled", () => {
              requests share one bucket by design (`lib/security/rateLimit.ts`),
              which would have every monitor in the world spending one
              allowance and answering 429 about an application that is up.
+
+    send     is the mail run, and is the same shape as `research` twice over: it
+             carries its own bearer secret, 404s to everybody when none is
+             configured, and its caller is a scheduler rather than a person. A
+             per-owner bucket is the wrong instrument for the same reason it is
+             wrong there, since there is no owner to resolve. What actually
+             bounds it is written into the run: one advisory lock across every
+             instance, so two invocations cannot both work, a ceiling on how
+             many letters one run sends, and a per-learner gap in `EmailSend`
+             that a second run reads before it sends anything.
   */
-  const exempt = new Set(["metrics", "reminder", "research", "health"]);
+  const exempt = new Set(["metrics", "reminder", "research", "health", "send"]);
 
   for (const file of routes) {
     const name = file.split(/[\\/]/).slice(-2, -1)[0] ?? file;
@@ -15609,6 +15912,136 @@ check("a verdict is painted once, in the tint and the ink", () => {
 });
 
 /*
+  AND A VERDICT IS ONE SIZE, WHICH IS THE BODY STEP.
+
+  The check above settles the colour of a marked answer and says nothing about
+  the box or the type, so those were decided per screen: five rounds wrote
+  `rounded-md px-3.5 py-3` around a `text-[15px]`, the daily path and the
+  ladder wrote `text-sm`, the lesson wrote `p-3 text-sm`, the word ordering
+  round set a whole sentence in `label-xs`, and the examination's result put
+  the answer at 17px beside the candidate's own at 13.5px. Four sizes for one
+  object, three of them under the body step and two off the scale entirely. A
+  learner reported the ladder's box as tiny and off-putting under a prompt set
+  at 27px, which is what 13.5px on a panel reads as.
+
+  `.verdict-panel` is the box, painted in `app/globals.css` beside the tints,
+  and the rule over everything else is that a verdict is never set below the
+  body step: it is the one line on the screen that says whether the last half
+  minute went anywhere, and it is not a caption. A caption *inside* one still
+  asks for its own size, so this is drawn on the element wearing the tint
+  rather than on everything under it.
+*/
+check("a verdict is one size, and never below the body step", () => {
+  const panel = CSS.match(/\.verdict-panel\s*\{([^}]*)\}/);
+  assert.ok(panel, ".verdict-panel is worn by the marking screens and painted nowhere in app/globals.css");
+  assert.match(
+    panel![1]!, /font-size:\s*var\(--text-md\)/,
+    ".verdict-panel stopped setting its own step, so every panel is back to whatever it inherits",
+  );
+
+  const wearing = [...APP, ...COMPONENTS].filter((file) => /\bverdict-panel\b/.test(code(file)));
+  assert.ok(
+    wearing.length >= 8,
+    `only ${wearing.length} screens wear .verdict-panel; the panels have gone back to painting their own box`,
+  );
+
+  /*
+    Anchored on the class name inside a className rather than on a list of
+    screens: what is being refused is a verdict painted small, wherever it is
+    written. `text-md` and up are fine, and so is a bracket size at or above
+    the body step, which is what the five rounds had before this.
+  */
+  const small = /\btext-(?:2xs|xs|sm)\b|\blabel-xs\b|\btext-\[(?:[0-9]|1[0-4])(?:\.\d+)?px\]/;
+  for (const file of [...APP, ...COMPONENTS]) {
+    const body = code(file);
+    if (!/VERDICT_CLASS/.test(body)) continue;
+    for (const literal of body.match(/`[^`]*`/g) ?? []) {
+      if (!/VERDICT_CLASS/.test(literal)) continue;
+      assert.doesNotMatch(
+        literal, small,
+        `${file} sets a verdict below the body step: ${literal.replace(/\s+/g, " ").slice(0, 90)}`,
+      );
+    }
+  }
+
+  /*
+    The other shape a verdict takes is a run of text with nothing behind it,
+    written in `VERDICT_INK` (`lib/ux/verdict.ts` names the dictation headline
+    as the example), and the sweep above cannot see it because there is no
+    tint class on the element. That headline was `label-xs`, which is 12px,
+    tracked and uppercase, so "Every word heard, one is missing its Estonian
+    letters." was shouted in the smallest type the system has.
+
+    Read per opening tag rather than by proximity, so the summary tiles and
+    the 13px tick that carry the same ink are left alone: what is refused is a
+    caption class on the element the ink is written on.
+  */
+  for (const file of [...APP, ...COMPONENTS]) {
+    const body = code(file);
+    if (!/VERDICT_INK/.test(body)) continue;
+    for (const tag of body.match(/<[A-Za-z][^<]*?(?<!=)>/gs) ?? []) {
+      if (!/VERDICT_INK/.test(tag)) continue;
+      const classes = tag.match(/className=(?:"([^"]*)"|\{`([^`]*)`\})/);
+      const names = classes?.[1] ?? classes?.[2] ?? "";
+      assert.doesNotMatch(
+        names, small,
+        `${file} writes a verdict in the verdict ink and sets it below the body step: ${names}`,
+      );
+    }
+  }
+});
+
+/*
+  THE ANSWER IS SAID ONCE, AND THE RETYPE CAN STILL READ IT.
+
+  `checkAnswer` names the form inside its own note on three of its four
+  readings, so the ladder's panel, which opened with the answer and printed
+  the note under it, said the same sentence twice: `The word is kuidas läheb?`
+  over `Not quite, it's "kuidas läheb?"`, and in butter rather than peach for
+  a near miss. The merge is the note with the form marked inside it, which is
+  worth an invariant for one reason: `scripts/lib/review.mjs` types a miss
+  again by reading `data-answer` off the screen, so a merge that dropped the
+  headline without moving that hook would leave the driver with nothing to
+  read, the retype unanswerable, and no check anywhere would have said so.
+*/
+check("the ladder says the answer once, and still marks it", () => {
+  const ladder = code("app/(app)/learn/new/LearnSession.tsx");
+  assert.match(
+    ladder, /const saidOnce = useMemo\(/,
+    "the ladder no longer works out whether its note already names the answer",
+  );
+  assert.match(
+    ladder, /splitOnForm\(result\.note, result\.expected\)/,
+    "the merge stopped asking splitOnForm and is guessing from the verdict instead",
+  );
+  assert.match(
+    ladder, /result\.note && !saidOnce/,
+    "the ladder prints the note under a line that already says it, which is the redundancy this removed",
+  );
+  const marked = ladder.match(/data-answer/g) ?? [];
+  assert.ok(
+    marked.length >= 2,
+    "the merged line lost data-answer, so scripts/lib/review.mjs cannot read the answer to type it again",
+  );
+  const memo = ladder.slice(ladder.indexOf("const saidOnce = useMemo("), ladder.indexOf("const saidOnce = useMemo(") + 700);
+  assert.match(
+    memo, /rung !== "gap"/,
+    "the merge reaches a rung whose answer is an English gloss, which would mark it lang=\"et\"",
+  );
+  // And the weight is on the form rather than on the whole sentence. Every
+  // other panel bolds its lead word and leaves the note in the body weight,
+  // so a merged note set semibold end to end is one screen out of step.
+  assert.match(
+    memo, /data-answer className="font-semibold"/,
+    "the merged line stopped bolding the form, so the answer no longer leads the sentence it sits in",
+  );
+  assert.match(
+    ladder, /className=\{saidOnce \? undefined : "font-semibold"\}/,
+    "the ladder sets a whole merged sentence in semibold, which no other verdict panel does",
+  );
+});
+
+/*
   THE EXCEPTION AREA IS A READING OF THE DICTIONARY, NOT A LIST SOMEBODY TYPED.
 
   `/grammar/exceptions` says which words the ending rule does not reach, and the
@@ -17310,6 +17743,77 @@ check("a planned course day names words rather than writing any", () => {
 });
 
 /*
+  A ROUND THE MODULE CAN DEAL READS WHAT THE MODULE HAS TAUGHT.
+
+  Every step of a planned evening opens a screen a learner can also reach from
+  Practice, and that screen fills itself from the deck or the dictionary at
+  the learner's band. Opened from the module it has to narrow itself to the
+  words and the case pages the ladder has handed over (`lib/course/scope.ts`),
+  or the module's second evening deals an A2 verb table to somebody holding
+  eleven words, which is how this was found. The list is `ACTIVITIES`, read
+  off the table rather than typed, so a round added to a rotation without the
+  scope fails here. Sõnad is the one exemption and is on no rotation: its word
+  is marked on the server from the date, so it cannot be held to a list.
+*/
+check("every round a rotation can deal reads the module's scope off its address", () => {
+  const exempt = new Set(["/sonad"]);
+  const rotated = new Set(Object.values(ROTATION).flat());
+  let reads = 0;
+  for (const [key, spec] of Object.entries(ACTIVITIES)) {
+    if (exempt.has(spec.href)) {
+      assert.ok(!rotated.has(key as never), `${spec.href} is exempt from the module's scope and is on a rotation`);
+      continue;
+    }
+    const page = code(`app/(app)${spec.href}/page.tsx`);
+    assert.match(page, /moduleScopeFrom\(/, `${spec.href} is a round the module can deal and never asks what the module has taught`);
+    reads += 1;
+  }
+  assert.ok(reads >= 12, `only ${reads} round pages read the scope; the table has more rounds than that`);
+  // And the closing review reads it too, since it is the last step of every evening.
+  assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
+  assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+});
+
+/*
+  AND SO DOES THE PAGE A READING STEP OPENS, AND THE WRONG ANSWERS A ROUND
+  OFFERS.
+
+  Both halves of this were found on the first evenings of the course. The
+  reference pages hid their unit list and their drill inside a module and then
+  filled their tables off the whole deck and the dictionary's easiest words,
+  so the present-tense page on the fifth evening of A1 tabled `jääma` and
+  `andma`, which arrive a part later, under a heading saying "verbs from your
+  deck first"; each page hands `ModuleScope.lemmas` to its example reader now,
+  and the reader keeps the deck read and the top-up inside that list. And the
+  decoy pool the rounds narrow to taught words filed each gloss under whichever
+  entry Postgres returned first, so `Tere!` owned "hello" and `tere` did not,
+  the first evening's five words narrowed to three, and the round fell back to
+  the whole dictionary: a learner holding five words was offered "like, as".
+  An option carries every entry behind it and a word is taught if any is.
+*/
+check("a reference page opened from a module shows the module's own words, and a decoy is taught if any entry behind it is", () => {
+  for (const [page, reader] of [
+    ["app/(app)/grammar/[caseKey]/page.tsx", "caseExamples"],
+    ["app/(app)/grammar/topic/[id]/page.tsx", "verbExamples"],
+  ] as const) {
+    const src = code(page);
+    assert.match(src, /moduleScopeFrom\(/, `${page} never asks what the module has taught`);
+    assert.match(src, new RegExp(`${reader}\\([^)]*scope\\?\\.lemmas`), `${page} reads its examples without handing over the module's words`);
+  }
+  for (const [file, fn] of [
+    ["lib/progress/caseExamples.ts", "caseExamplesFor"],
+    ["lib/progress/verbExamples.ts", "verbExamples"],
+  ] as const) {
+    const src = code(file);
+    assert.match(src, new RegExp(`function ${fn}\\([^)]*within\\?: readonly string\\[\\]`), `${fn} takes no list to stay inside`);
+    assert.equal((src.match(/\.\.\.scoped/g) ?? []).length, 2, `${fn} scopes the deck read or the top-up and not both`);
+  }
+  const facts = code("lib/dict/facts.ts");
+  assert.match(facts, /readonly lemmas: readonly string\[\]/, "a decoy option no longer carries every entry behind it");
+  assert.match(facts, /o\.lemmas\.some\(\(l\) => wanted\.has\(l\)\)/, "decoysAmong narrows on the first entry alone again");
+});
+
+/*
   The words go in the deck on a press and never on a render. `PrefetchLink`
   fetches a whole page once a pointer has settled on a link for 90ms, so a
   course screen that topped the deck up while rendering would build somebody
@@ -17940,7 +18444,7 @@ check("the module's reading step carries no drill and no way off the page", () =
   ]) {
     const src = code(page);
     assert.match(
-      src, /focusFrom\(await searchParams\)/,
+      src, /focusFrom\((await searchParams|query)\)/,
       `${page} does not ask whether it was opened from tonight's module`,
     );
     assert.match(
@@ -17970,6 +18474,60 @@ check("the module's reading step carries no drill and no way off the page", () =
   reads), refuses to write a row for a step the review log proves, and works
   out where to go from the day's own order.
 */
+/*
+  THE READING ASKS BACK, AND GRADES NOTHING.
+
+  A reading step was a page of prose with a table under it, read once and
+  pressed past. Both reference pages end in three taps on the table they just
+  drew now (`components/course/TryIt.tsx`, off `lib/course/tryIt.ts`), which is
+  the reading being used a moment after it was read. Every answer is printed
+  on the page above, so a row in the review log would tell the scheduler
+  somebody recalled a form they were looking at, which is the fault
+  `audit:questions` exists to catch: the component may reach no Server Action
+  and no outbox, and the builder writes no Estonian of its own.
+
+  Anchored on the element rather than on the import, because a page that
+  imports the check and then forgets to draw it is the `DangerZone.tsx` fault
+  in a smaller room.
+*/
+check("the reading's Try it is drawn on both reference pages and grades nothing", () => {
+  const component = code("components/course/TryIt.tsx");
+  assert.ok(
+    !/gradeCard|enqueueGrade|from "@\/app\/actions"|lib\/offline/.test(component),
+    "components/course/TryIt.tsx can reach a grade. The answer is on the page above it; it may write nothing",
+  );
+  assert.match(component, /role="status" aria-live="polite"/, "the Try it verdict is a tint alone; a live region says it in words");
+  assert.match(component, /OPTION_CLASS\[state\]/, "the Try it options stopped wearing the app's own marking classes");
+
+  const builder = code("lib/course/tryIt.ts");
+  assert.ok(!/[õäöüšž]/.test(builder), "lib/course/tryIt.ts writes Estonian. It cuts questions from the rows it is handed (ADR-005)");
+  assert.ok(!/from "@\/lib\/db"/.test(builder), "lib/course/tryIt.ts imports Prisma. lib/course is pure");
+
+  const topic = code("app/(app)/grammar/topic/[id]/page.tsx");
+  assert.match(topic, /<TryIt asks=\{verbAsks\(verbs, shown\)\}/, "the verb page stopped drawing Try it off the rows its table drew");
+  const casePage = code("app/(app)/grammar/[caseKey]/page.tsx");
+  assert.match(casePage, /<TryIt asks=\{caseAsks\(examples, /, "the case page stopped drawing Try it off the rows its table drew");
+});
+
+/*
+  AN EVENING ENDS ON THE WORDS, OUT LOUD, AND ON THE RUN OF EVENINGS.
+
+  The finished screen said the evening was over and offered tomorrow; what a
+  learner has at that moment is five words they met an hour ago, and hearing
+  them once more is the cheapest repetition there is. The run of evenings is
+  read off the step log through `computeStreak` (the same midnight the review
+  streak breaks at) and stored nowhere, which is ADR-014.
+*/
+check("the finished module plays tonight's words back and counts evenings off the log", () => {
+  const page = code("app/(app)/course/page.tsx");
+  assert.match(page, /data-recap-words/, "the finished module screen stopped listing tonight's words");
+  assert.match(page, /<Speak text=\{word\}/, "tonight's words on the finished screen carry no speaker");
+  assert.match(page, /reading\.eveningsInARow >= 2/, "the finished module screen stopped saying the run of evenings");
+  const reading = code("lib/progress/course.ts");
+  assert.match(reading, /computeStreak\(ticks\.at, now, clock\)/, "the run of evenings is no longer read off the step log through computeStreak");
+  assert.ok(!/eveningsInARow[^\n]*prisma\.(setting|courseStep)\.(upsert|update|create)/.test(reading), "the run of evenings is being written down (ADR-014)");
+});
+
 check("the module's way on is resolved on the server and ticks nothing it may not", () => {
   const actions = code("app/actions.ts");
   const fn = actions.slice(actions.indexOf("export async function advanceCourseStep"));
@@ -18313,18 +18871,43 @@ check("the lesson carries a sentence's English rather than dropping it", () => {
 check("a sentence's English is never printed where it would be the answer", () => {
   /*
     Thirty entries in the dictionary are spelled the same in both languages, so
-    "I watched the film" over `Vaatasin ____` hands `filmi` over, and a
-    translation shown before an answer gives the meaning away on every other
-    card besides. Every round prints it on the reveal, which is where the
-    review card has always had it, and the sprint had it on the front for an
-    hour and was wrong for both reasons.
+    "I watched the film" over `Vaatasin ____` hands `filmi` over. That is the
+    whole of what this rule was ever about, and for a while it was enforced by
+    the blunter reading that no question may carry a translation at all, which
+    left `Kohtume kell ____.` asked over the single word `four` on every gap
+    screen in the app. A learner reported that. The sentence is on the question
+    now and the fault it was guarding against is guarded against by name, in
+    one place: `lib/copy/gapMeaning.ts` withholds the whole line where the
+    English carries the answer, and refuses the *mark* where the word it would
+    mark is the answer wearing an English ending, which `mentions` cannot see
+    (`film` is not `filmi`) and a bold run points at more plainly than printing
+    it would.
 
-    The learn ladder's gap question is the one screen in the app that shows a
-    sentence's English *before* an answer, because there the sentence is the
-    question. It withholds the line where the translation spells the answer and
-    carries the unwithheld one separately for the panel afterwards. That guard
-    used to be nearly unreachable, since no shipped sentence had an English
-    line at all; now every one of them does, so it is load-bearing.
+    Asserted on the module rather than on each screen, because six screens draw
+    this and a guard per screen is six guards and the one nobody is reading.
+  */
+  const meaning = code("lib/copy/gapMeaning.ts");
+  assert.match(
+    meaning, /mentions\(line, one\)/,
+    "lib/copy/gapMeaning.ts stopped withholding a line that carries the answer. Every shipped sentence " +
+    "has English now, so this fires on the thirty entries spelled alike in both languages",
+  );
+  assert.match(
+    meaning, /sameWord\(found, one\)/,
+    "lib/copy/gapMeaning.ts stopped refusing the mark on a word that is the answer wearing an English " +
+    "ending. `mentions` lets `film` through over a gap wanting `filmi`, and the mark points straight at it",
+  );
+  assert.match(
+    meaning, /eachAnswer/,
+    "lib/copy/gapMeaning.ts stopped reading a back that carries every accepted spelling. `tuppa / toasse` " +
+    "is one answer written twice and both have to be checked, or a line gives one of them away",
+  );
+
+  /*
+    The ladder keeps its own withholding as well, and that is not a second copy
+    of the rule: it decides which sentences a *card* is built with, upstream of
+    any screen, and its `fullEn` is the unwithheld line the reveal owes a
+    learner who has just got the form wrong.
   */
   const ladder = code("lib/progress/learn.ts");
   assert.match(
@@ -18338,14 +18921,164 @@ check("a sentence's English is never printed where it would be the answer", () =
     "form wrong is shown the sentence and still not told what it says",
   );
 
+  /*
+    AND WHAT MOVED IS WHAT IS DRAWN, NEVER WHAT IS ASKED FOR. A gap question
+    prints the English the dictionary already holds, which costs no call, no
+    wait and no daily allowance and works on a deployment with no model at all.
+    `SentenceTranslation` is what spends a call, and it stays where it was, on
+    the reveal: the sprint had it on the front for an hour and was wrong about
+    that for a reason that has not changed.
+  */
   const sprint = code("app/(app)/review/sprint/SprintSession.tsx");
   const revealAt = sprint.indexOf("{revealed && (");
   const translationAt = sprint.indexOf("<SentenceTranslation");
   assert.ok(
     revealAt >= 0 && translationAt > revealAt,
-    "the sprint prints its sentence's English before the answer again. It belongs inside the reveal, " +
-    "like every other round's",
+    "the sprint asks for its sentence's English before the answer again. Drawing what is already stored " +
+    "is free; asking belongs inside the reveal, like every other round's",
   );
+});
+
+
+/*
+  EVERY GAP QUESTION SAYS WHAT ITS SENTENCE MEANS, THROUGH ONE RULE AND ONE
+  DRAWING.
+
+  Six screens put an Estonian sentence with a word taken out in front of a
+  learner, and each of them used to answer "what does this line say" for
+  itself: the review card, the sprint and the daily quest printed the missing
+  word's bare gloss, the unit lesson and the flash round printed it as a
+  sentence of English prose, and the learn ladder had the whole line and drew it
+  flat, with nothing in it saying which word the hole wanted. That is the shape
+  this file keeps finding: one question, six answers, and the one nobody is
+  looking at drifts.
+
+  Anchored on the call and on the element rather than on the import, because a
+  screen that imports the rule and then writes its own paragraph of English
+  underneath satisfies any check that only greps for the import, which is the
+  trap `code()` exists for and which several checks here were made to fall into
+  once.
+*/
+check("every gap question says what its sentence means, one rule and one drawing", () => {
+  /*
+    A SWEEP AND NOT A LIST, WHICH IS THE DURABLE HALF OF THIS.
+
+    The first version of this check named the six screens the same pass had
+    just fixed, and this repository has recorded what a list costs four
+    separate times: it is a thing somebody has to remember to extend, and the
+    screen missing from it looks exactly like one that was considered. Made a
+    sweep, it immediately found a seventh, the exceptions round, which asks for
+    the forms no rule reaches and so has the hardest gap in the app and had the
+    least to go on under it. That round also shows why the haystack is what it
+    is: it draws a gap and never names `BLANK`, since its sentence arrives
+    pre-gapped, so a sweep anchored on the blank alone would have found five
+    screens and passed.
+
+    Read through `code()`, so a file that only mentions a mark in a comment is
+    not in the haystack at all. That is what keeps `BuildWalk.tsx`, whose prose
+    says "a sentence, rather than a blank", and the course page's note about an
+    evening that would have gapped an unreadable sentence, out of it.
+  */
+  const marks = GAP_MARKS.map((mark) => `\\b${mark}\\b`).join("|");
+  const marked = new RegExp(marks);
+  const drawn: string[] = [];
+  for (const file of [...sourceFiles("app"), ...sourceFiles("components")]) {
+    if (marked.test(code(file))) drawn.push(file);
+  }
+  assert.ok(
+    drawn.length >= 12,
+    `only ${drawn.length} files name a gap at all, so this sweep has stopped looking at the app`,
+  );
+
+  const exempt = new Set(Object.keys(GAP_WITHOUT_MEANING));
+  for (const file of drawn) {
+    if (exempt.has(file)) continue;
+    const source = code(file);
+    assert.match(
+      source, /gapMeaning\(\{/,
+      `${file} draws a gap and does not ask lib/copy/gapMeaning.ts what its sentence says. A gap-fill ` +
+      "is for producing a form because a sentence needs it, and a learner who cannot read the sentence " +
+      "is being asked for the form because a gloss was printed over a hole. Wire it, or put it in " +
+      "GAP_WITHOUT_MEANING with the reason it may not",
+    );
+    assert.match(
+      source, /<GapMeaning\b/,
+      `${file} works out what its sentence means and draws none of it, or draws it some way of its own. ` +
+      "components/GapMeaning.tsx is the one drawing, for the reason EstonianSentence gives about itself",
+    );
+  }
+
+  /*
+    AND A MARKED SENTENCE REPLACES THE GLOSS AND NEVER THE WORD.
+
+    `Card.hint` on a gap is usually two things, `${lemma}, ${translation}`, and
+    `lib/srs/cards.ts` says in as many words why: the card "asks for the right
+    *form*, not for the vocabulary, which the recognition card already tests".
+    The first version of this pass had two screens hide the whole cue the
+    moment the English line was marked, which took the Estonian headword off
+    the question with the gloss and asked for the vocabulary after all, on
+    3,760 of the 5,746 marked gap cards the shipped dictionary builds. So a
+    screen may not read `marked` to decide what its cue says: `gapCue` is that
+    decision, and it keeps the word wherever the cue carried one.
+
+    Anchored on reading the field rather than on any one screen's markup, since
+    the fault is a branch and every branch has to spell it.
+  */
+  for (const file of drawn) {
+    if (exempt.has(file)) continue;
+    const source = code(file);
+    if (!/\.marked\b/.test(source)) continue;
+    assert.match(
+      source, /gapCue\(\{/,
+      `${file} reads whether its line is marked and decides its own cue from it. A marked line is the ` +
+      "gloss printed in context and says nothing about the Estonian headword, so hiding the whole cue " +
+      "asks for the vocabulary as well as the form. Ask lib/copy/gapMeaning.ts through gapCue",
+    );
+  }
+
+  /*
+    AND A MEASUREMENT MAY NOT REACH IT, whether or not the sweep can see it.
+    The examination gaps its sentences in `lib/exam/paper.ts` and hands the
+    paper down already blanked, so it names none of the marks and is outside
+    the haystack entirely; the claim is worth making about it anyway, since it
+    is the screen where saying what a sentence means would hand over a mark.
+  */
+  for (const file of NEVER_SAYS_WHAT_IT_MEANS) {
+    assert.ok(
+      !code(file).includes("gapMeaning") && !code(file).includes("GapMeaning"),
+      `${file} is a measurement and has started printing what its sentence means. The sentence is the ` +
+      "question there and its English is the mark; see lib/copy/sentenceCoverage.ts",
+    );
+  }
+
+  /*
+    AND THE EXEMPTIONS ARE CHECKED BOTH WAYS. A file that has stopped drawing a
+    gap, and one that has since started saying what its sentence means, each
+    leave behind a line that reads as a standing decision and is not one. A
+    reason has to be an argument rather than a filename, which is the rule
+    `lib/legal/exportCoverage.ts` applies to a table left out of a backup.
+  */
+  for (const [file, why] of Object.entries(GAP_WITHOUT_MEANING)) {
+    assert.ok(
+      existsSync(file),
+      `lib/copy/gapCoverage.ts excuses ${file}, which is not a file any more`,
+    );
+    assert.ok(
+      drawn.includes(file),
+      `lib/copy/gapCoverage.ts excuses ${file} from saying what its sentence means, and it no longer ` +
+      "draws a gap at all. Take the line out rather than leaving a decision nobody is making",
+    );
+    assert.ok(
+      !code(file).includes("gapMeaning"),
+      `${file} is excused from saying what its sentence means and has started saying it. Take the line ` +
+      "out of lib/copy/gapCoverage.ts, or take the call out of the file",
+    );
+    assert.ok(
+      why.trim().length >= 80,
+      `lib/copy/gapCoverage.ts gives ${file} a reason too short to be an argument. A bare filename is ` +
+      "not a decision",
+    );
+  }
 });
 
 
@@ -18609,6 +19342,522 @@ check("the grammar examples carry the hook the browser suite finds them by", () 
   assert.ok(
     /data-point-examples/.test(read("scripts/test-teaching.mjs")),
     "the teaching suite no longer checks that a claim is shown rather than stated",
+  );
+});
+
+check("every letter this app can send has a way out of it", () => {
+  /*
+    THE RULE THE WHOLE FEATURE STANDS OR FALLS ON.
+
+    A message with no visible way to stop it is the definition of the thing a
+    spam button exists for, and once somebody presses that, every other message
+    this deployment sends is worth less: the sign-in links go to the same
+    folder. So the way out is not a courtesy and it is not a footer decoration,
+    it is the thing that keeps the rest of the mail working.
+
+    Four arms, because each of them alone passes on a broken feature.
+  */
+  const letter = code("lib/email/letter.ts");
+  const render = code("lib/email/render.ts");
+  const unsub = code("lib/email/unsubscribe.ts");
+
+  /*
+    The kinds are a closed list, which is what makes "every kind can be
+    switched off" a checkable sentence rather than a promise. A letter added
+    as a free string is a letter the settings screen cannot show and the
+    unsubscribe route will not act on.
+  */
+  assert.match(letter, /EMAIL_KINDS\s*=\s*\[/, "lib/email/letter.ts no longer holds a closed list of kinds");
+  assert.match(
+    letter,
+    /OPTIONAL_KINDS/,
+    "nothing separates the letters a learner may switch off from the ones they may not",
+  );
+
+  /*
+    And the renderer *requires* one, rather than drawing a footer when it
+    happens to be handed a link. `Chrome.unsubscribeUrl` being optional is the
+    one change that would let a caller send a letter with no way out and have
+    every other check here still pass.
+  */
+  assert.match(
+    render,
+    /readonly unsubscribeUrl:\s*string;/,
+    "lib/email/render.ts no longer requires a way out on every letter it draws",
+  );
+  assert.ok(
+    render.includes("chrome.unsubscribeUrl") && render.split("chrome.unsubscribeUrl").length >= 3,
+    "the way out no longer reaches both the HTML and the plain text part",
+  );
+
+  /*
+    The one-click endpoint, which is what lets a mail client draw its own
+    unsubscribe button. A reader who can press that presses it instead of the
+    spam button, and the large mailbox providers require it of anybody sending
+    at volume.
+  */
+  assert.match(
+    code("lib/mailer/transport.ts"),
+    /List-Unsubscribe-Post/,
+    "a letter goes out without the header that gives a mail client its own unsubscribe button",
+  );
+
+  /*
+    And it works signed out. Somebody unsubscribing is reading their mail
+    rather than this app and may not have a session on that device at all, so
+    an unsubscribe behind the sign-in gate is one the mail client will not
+    honour. The token is what makes that safe, and it is signed.
+  */
+  assert.match(
+    code("middleware.ts"),
+    /api\/email\/unsubscribe/,
+    "the unsubscribe route fell behind the sign-in gate, where a mail client cannot reach it",
+  );
+  assert.match(unsub, /createHmac/, "an unsubscribe link is no longer signed, so it stops anybody's mail");
+  assert.match(
+    unsub,
+    /timingSafeEqual/,
+    "an unsubscribe token is compared in a way that leaks how much of it was right",
+  );
+});
+
+check("the email panel's small print stays a caption", () => {
+  /*
+    THE CAP THE SWEEP CANNOT REACH.
+
+    `readerCopy.test.ts` holds every `text-xs` element in the tree to
+    `CAPTION_MAX`, because small type does not make a paragraph less intrusive,
+    it makes it harder to read and leaves it where it was. It reads literal JSX
+    text, and this panel's small print is interpolated out of a table, so four
+    of these shipped at 118, 121, 148 and 155 characters with the sweep green.
+    That is the interpolation residual that file already names, met in the one
+    place it actually cost something.
+
+    Read off the table rather than off the rendered markup, which is the only
+    thing a source check can do here and is enough: the table is where the copy
+    is written and where somebody lengthening it would type.
+  */
+  const panel = code("app/(app)/settings/EmailPanel.tsx");
+  const details = [...panel.matchAll(/detail:\s*\n?\s*"([^"]+)"/g)].map((m) => m[1] ?? "");
+  assert.ok(details.length >= 4, `only found ${details.length} letter descriptions, so this stopped looking`);
+
+  const long = details.filter((d) => d.length > CAPTION_MAX).map((d) => `${d.length}: ${d.slice(0, 50)}`);
+  assert.deepEqual(
+    long,
+    [],
+    `a letter's description is longer than a caption (${CAPTION_MAX}). Small type does not make a ` +
+      "paragraph less intrusive. Say it in a line, or say less.",
+  );
+});
+
+check("every optional letter is on the settings screen, or is named as absent", () => {
+  /*
+    THE LIST THAT FALLS BEHIND, CAUGHT BEFORE IT DOES.
+
+    `EMAIL_KINDS` is the closed list and four other places read it. The
+    settings panel does not: it draws a row per letter with a sentence about
+    when that one arrives, which cannot be generated, so it is a hand-written
+    list of kinds and therefore the one that goes stale. A letter missing from
+    it is a letter a learner can only stop from a footer, which is a switch
+    they have to receive the letter to find.
+
+    Adding the errand letter walked straight into the neighbouring version of
+    this: the settings page passed `new Set(["tonight", "comeback", "weekly"])`
+    as "everything off", a fifth copy of the kinds written as a literal, which
+    would have shown a new letter as *on* to somebody who had switched every
+    letter off. That is fixed by reading `OPTIONAL_KINDS`, and this is what
+    stops the panel's own list going the same way.
+
+    `welcome` is deliberately absent and says so in the file: it arrives once
+    in the first two days, so by the time anybody is on that screen it has
+    either come or never will, and a switch for it is a control that does
+    nothing. An absence with a reason beside it is a decision; a bare absence
+    is the bug.
+  */
+  const panel = code("app/(app)/settings/EmailPanel.tsx");
+  const page = code("app/(app)/settings/page.tsx");
+
+  for (const kind of OPTIONAL_KINDS) {
+    const why = NOT_IN_SETTINGS[kind];
+    if (why !== undefined) {
+      // A bare name is not a decision. The reason has to be long enough to be
+      // an argument, which is `exportCoverage.ts`'s rule about the same shape.
+      assert.ok(
+        why.length >= 80,
+        `${kind} is exempted from the settings screen with a reason too short to be one`,
+      );
+      continue;
+    }
+    assert.ok(
+      new RegExp(`kind:\\s*"${kind}"`).test(panel),
+      `${kind} is a letter a learner can be sent, is not on the settings screen, and is not ` +
+        "named in NOT_IN_SETTINGS with a reason. The only way to stop it is then a link in a " +
+        "letter they have to receive first.",
+    );
+  }
+
+  /*
+    And the exemptions are checked for staleness the other way, so a kind that
+    has since grown a row on the screen cannot keep a line that reads as a
+    standing decision.
+  */
+  for (const kind of Object.keys(NOT_IN_SETTINGS)) {
+    assert.equal(
+      new RegExp(`kind:\\s*"${kind}"`).test(panel),
+      false,
+      `${kind} is on the settings screen and still named in NOT_IN_SETTINGS`,
+    );
+  }
+
+  /*
+    And the page hands the panel `wants` asked of every kind rather than a list
+    of the ones that existed when it was written.
+
+    It used to hand over the off-set and let the panel invert it, which was
+    true while every kind was on by default and became false the day one was
+    not: the daily word is absent from both stored rows until somebody asks
+    for it, so "not switched off" and "switched on" are different answers about
+    it. `kindStates` is `wants` asked of each, which is the one function that
+    knows what a missing row means for a given kind, and it covers what
+    `OPTIONAL_KINDS` used to cover here because it walks the closed list
+    itself.
+  */
+  assert.match(
+    page,
+    /kindStates\(/,
+    "the settings page decides which letters are on without asking `wants`, so a kind that is " +
+      "off by default reads as on to everybody who never asked for it",
+  );
+});
+
+check("the letter about other people carries nobody's name", () => {
+  /*
+    THE ONE LETTER THIS APP SENDS ABOUT SOMEBODY ELSE, AND THE RULE IS
+    STRICTER THAN THE SCREEN'S.
+
+    `/class` shows a teacher a name, a streak and the case one named student
+    keeps missing, and `lib/classroom/cohort.ts` argues at length for where
+    that line sits between a teacher's seat and a sponsor's. None of that
+    argument is about mail. A screen is behind a sign-in, says who is looking,
+    and ends when the tab does; a letter is a copy, archived to a shared
+    mailbox, forwarded to a head of department, and kept after the sender's
+    access to the group has gone. What a learner agreed to when they joined is
+    a board, not a copy of their week leaving the app every Monday.
+
+    So the letter carries the group's shape and never a person's, which is one
+    claim in two halves: the letter cannot draw a member, and the gathering
+    cannot hand it one. Either half alone passes on the broken shape, since a
+    field that is passed and not printed is still a field in an inbox the day
+    somebody adds a line that prints it.
+  */
+  const letter = code("lib/email/letters/classroom.ts");
+  const gathering = code("lib/progress/mailout.ts");
+
+  for (const field of ["displayName", "weakestCase", "streak", "ownerId", "band"]) {
+    assert.equal(
+      new RegExp(`\\b${field}\\b`).test(letter),
+      false,
+      `the classroom letter reads ${field}, which is a fact about one person in the group`,
+    );
+  }
+
+  /*
+    And the half that matters more, because it is upstream: the branch that
+    builds the letter's input may not reach a member's row at all. Anchored on
+    the two rosters' own per-person fields rather than on a shape in the
+    markup, since what is being protected is what crosses into the letter.
+  */
+  const branch = gathering.slice(gathering.indexOf('if (kind === "classroom")'));
+  const upTo = branch.slice(0, branch.indexOf('if (kind === "errand")'));
+  assert.ok(upTo.length > 400, "the classroom branch moved, so this check is reading nothing");
+  /*
+    `weakestCases`, the plural, is the class-wide aggregate and is the one
+    piece of answer data allowed out: it is gated at ten reviews across
+    everybody and is a fact about the class rather than about anybody in it,
+    which is what `classRoster` itself calls a lesson plan. The singular is a
+    named student's own rolled-up percentage and is exactly what may not leave.
+    The word boundary is what keeps those two apart, and it is why this reads
+    regexes rather than substrings.
+  */
+  for (const field of ["displayName", "weakestCase", "streak", "wordsKnown"]) {
+    assert.equal(
+      new RegExp(`\\b${field}\\b`).test(upTo),
+      false,
+      `the classroom letter's gathering reads ${field}, so a person's row is on its way into an inbox`,
+    );
+  }
+  for (const field of ["entries[", ".members["]) {
+    assert.equal(
+      upTo.includes(field),
+      false,
+      `the classroom letter's gathering indexes a member out of ${field}`,
+    );
+  }
+
+  /*
+    AND ITS THREE FIGURES COME FROM ONE POPULATION AND ONE WINDOW.
+
+    Both rosters answer for a screen, where the owner is a member like any
+    other and the week is a rolling 168 hours. The register is a count about
+    other people over the seven whole days the strip beside it draws, so a
+    figure borrowed from either read the teacher into their own class and
+    described a different week from the drawing under the sentence.
+
+    Named rather than counted, because the natural edit here is to reach back
+    for `roster.totalReviewsThisWeek` as a tidy-up: it is one field where the
+    derivation is three lines, it is obviously about the right thing, and it is
+    wrong twice over.
+  */
+  for (const borrowed of ["entries.length", "activeThisWeek", "totalReviewsThisWeek", "cohort.active"]) {
+    assert.equal(
+      upTo.includes(borrowed),
+      false,
+      `the register reads ${borrowed}, which counts the owner among their own group and over a ` +
+        "different week from the strip it prints beside it",
+    );
+  }
+  assert.match(
+    upTo,
+    /const headline = \{/,
+    "the register no longer derives its own figures, so the sentence and the strip under it can " +
+      "describe two different groups again",
+  );
+});
+
+check("the weekly ceiling counts the letters it is about", () => {
+  /*
+    A COUNT THAT INCLUDED THE UNCAPPED KINDS WOULD SILENCE EVERYTHING ELSE.
+
+    `MAX_PER_WEEK` stops the letters that ask somebody to study from adding up
+    into a course nagging them. Two kinds are outside it and say why: the word
+    of the day asks for nothing and had to be switched on, and the register is
+    about a group rather than about the reader's own evenings.
+
+    A word a day is seven rows a week on its own. Counted, it would spend the
+    whole ceiling by Tuesday, so somebody who went and switched a letter on
+    would stop receiving the ones they never had to ask for, which is the
+    opposite of what they said. The exclusion lives in the query rather than in
+    the decision, and this is what holds the two together.
+  */
+  const gathering = code("lib/progress/mailout.ts");
+  assert.match(
+    gathering,
+    /emailSend\.count\(\{[\s\S]{0,240}?kind:\s*\{\s*notIn:\s*\[\.\.\.UNCAPPED\]/,
+    "the week's count reads every kind, so a letter that is exempt from the weekly ceiling still " +
+      "spends it",
+  );
+  assert.ok(
+    UNCAPPED.length > 0 &&
+      UNCAPPED.every((kind) => (OPTIONAL_KINDS as readonly string[]).includes(kind)),
+    "UNCAPPED names a kind that is not an optional letter",
+  );
+});
+
+check("every week strip is named by the one function that names a day", () => {
+  /*
+    THREE LETTERS DRAW A WEEK NOW, AND THE THIRD ONE WROTE ITS OWN.
+
+    `dayLabel` was pulled out of the weekly letter with a comment saying, in as
+    many words, that two copies of a date format is where one of them comes to
+    say Mon and the other M. The shield letter kept its inline copy through
+    that extraction and through the register's arrival after it, so the helper's
+    own justification was a claim about a file that had two.
+
+    Nothing was visibly wrong, because the two spellings are the same bytes
+    today. That is exactly what makes it worth a check rather than a reading:
+    the strips are drawn by one component and read by one reader, so a letter
+    whose labels drift from its neighbour's is a difference nobody sees until
+    somebody holds two Mondays' mail side by side. The locale and the zone are
+    both load-bearing and both easy to leave out of a copy, since the key is
+    already the learner's own day and naming it on the server's locale is the
+    fault `components/LocalDate.tsx` exists for.
+
+    Anchored on the formatter rather than on the word `label`, because what may
+    not be duplicated is the formatting, and made to fail by putting the shield
+    letter's own inline copy back.
+  */
+  const gathering = code("lib/progress/mailout.ts");
+  const formatters = gathering.match(/toLocaleDateString\(/g) ?? [];
+  assert.equal(
+    formatters.length,
+    1,
+    `lib/progress/mailout.ts formats a date in ${formatters.length} places. dayLabel is the one ` +
+      "that names a day of a week strip: a second copy is a strip that can come to say Mon where " +
+      "its neighbour says M, in the same reader's mail.",
+  );
+  const strips = gathering.match(/label: dayLabel\(/g) ?? [];
+  assert.ok(
+    strips.length >= 3,
+    `only ${strips.length} week strips read dayLabel, so this check has stopped covering the ` +
+      "letters it was written for",
+  );
+});
+
+check("a letter holds no picture, and nothing counts who opened one", () => {
+  /*
+    TWO CLAIMS ON /privacy, ENFORCED RATHER THAN PROMISED.
+
+    That page says there are no third-party trackers and no analytics. A
+    one-pixel image in an email is both, aimed at somebody reading their own
+    mail, and it is the single most standard thing in this whole genre: every
+    mail tool offers it and most turn it on by default. It is banned here and
+    the ban is worth a check, because the sentence on the privacy page is the
+    only thing a reader has to go on.
+
+    The second half is about the drawings. Images are off by default in a great
+    many clients and nearly always off for a first message from an unknown
+    sender, so a letter built out of them is a letter read as a column of empty
+    boxes. `lib/email/art.ts` makes its drawings out of coloured table cells for
+    that reason, and there is nothing to fetch.
+  */
+  const letters = LIB.filter(
+    (f) =>
+      (f.startsWith("lib/email/") || f.startsWith("lib/mailer/")) &&
+      // A suite is not a letter, and the one that asserts this very rule has
+      // to name the thing it bans in order to look for it. The oldest
+      // recurring mistake in this repository's own checks, made once more.
+      !/\.(test|itest)\.ts$/.test(f),
+  );
+  assert.ok(letters.length >= 6, `only found ${letters.length} letter files, so this check stopped looking`);
+  for (const file of letters) {
+    const source = code(file);
+    assert.doesNotMatch(
+      source,
+      /<img\b|background-image|\btracking(Pixel|_pixel)\b/i,
+      `${file} puts an image in a letter. Nothing is fetched from a Kodukeel email: a pixel would ` +
+        "be the tracker /privacy says this app does not have, and a picture would be the hole " +
+        "where a picture was for everybody who reads mail with images off.",
+    );
+  }
+
+  /*
+    And the record of a send holds the fact and not the message. A column for
+    the subject or the body would be a copy of somebody's letter sitting in a
+    table, and an `openedAt` would be the pixel arriving through the schema.
+  */
+  const model = read("prisma/schema.prisma").slice(read("prisma/schema.prisma").indexOf("model EmailSend"));
+  const fields = model.slice(0, model.indexOf("\n}"));
+  for (const banned of ["subject", "body", "html", "openedAt", "clickedAt"]) {
+    assert.ok(
+      !new RegExp(`^\\s+${banned}\\b`, "m").test(fields),
+      `EmailSend has grown a \`${banned}\` column. It records that a letter went, not what it said ` +
+        "and not what anybody did with it.",
+    );
+  }
+});
+
+check("what the provider sends back is verified before it is read", () => {
+  /*
+    A PUBLIC ENDPOINT THAT DECIDES WHETHER THIS APP WILL WRITE TO SOMEBODY.
+
+    Forging one is worth doing in both directions: stopping a stranger's mail,
+    or finding a way into the settings table. The signature is the whole
+    control, so the ways it can be quietly weakened are what this holds.
+  */
+  const route = code("app/api/email/bounce/route.ts");
+  const webhook = code("lib/email/webhook.ts");
+
+  /*
+    VERIFIED BEFORE PARSED, WHICH IS THE ORDER THIS IS USUALLY BROKEN IN. The
+    signature is over the bytes the provider sent, so a route that parses first
+    and verifies a re-serialised body verifies something else. It fails in the
+    direction that looks like the provider's fault, which is why it survives.
+  */
+  const readsRaw = route.indexOf("request.text()");
+  const verifies = route.indexOf("verifyDelivery(");
+  const parses = route.indexOf("JSON.parse(");
+  assert.ok(readsRaw !== -1 && verifies !== -1 && parses !== -1, "the bounce route stopped verifying");
+  assert.ok(readsRaw < verifies, "the bounce route verifies something other than the bytes it was sent");
+  assert.ok(
+    verifies < parses,
+    "the bounce route parses the body before checking the signature, so it reads a forgery before " +
+      "deciding whether it is one",
+  );
+
+  /* No secret, no webhook. A control that fails open is not a control. */
+  assert.match(
+    route,
+    /if \(!secret\) return new Response\("Not found", \{ status: 404 \}\)/,
+    "the bounce route accepts deliveries when no signing secret is configured",
+  );
+
+  /*
+    And the pieces the verification is made of. Each of these removed leaves a
+    check that still looks like one: a comparison that leaks how much of a
+    forged signature was right, and a signature that is valid for ever so that
+    anybody who captured one delivery can replay it whenever they like.
+  */
+  assert.match(webhook, /timingSafeEqual/, "a webhook signature is compared in variable time");
+  assert.match(webhook, /TOLERANCE_SECONDS/, "a webhook signature no longer expires, so a captured one replays for ever");
+
+  /*
+    IT IS ITS OWN SECRET. `EMAIL_TOKEN_SECRET` signs the unsubscribe links this
+    app hands out and this one verifies what somebody else sends in: different
+    blast radius, different rotation, and a shared key makes a leaked
+    unsubscribe link a way to forge a bounce.
+  */
+  assert.match(webhook, /RESEND_WEBHOOK_SECRET/, "the webhook reads some other secret");
+  assert.doesNotMatch(webhook, /EMAIL_TOKEN_SECRET/, "the webhook shares a key with the unsubscribe links");
+
+  /*
+    And it is reachable. A webhook behind the sign-in gate is one the provider
+    cannot deliver to, which looks exactly like a provider that never sends
+    anything.
+  */
+  assert.match(
+    code("middleware.ts"),
+    /api\/email\/bounce/,
+    "the bounce webhook fell behind the sign-in gate, where the provider cannot reach it",
+  );
+});
+
+check("the scheduled run is the only thing that sends, and it is gated", () => {
+  /*
+    An endpoint that mails every learner on the deployment is a way for a
+    stranger to make this app send mail on demand, which is a spam incident and
+    a way to burn the sending reputation the sign-in links depend on. So it is
+    a secret in a header, compared in constant time, and with no secret set it
+    refuses rather than allowing: a cap that fails open is not a cap, which is
+    the rule `lib/usage` states about spending and which is worth more here.
+  */
+  const route = code("app/api/email/send/route.ts");
+  assert.match(route, /CRON_SECRET/, "the mail run no longer checks a secret");
+  assert.match(route, /if \(!secret\) return false/, "the mail run allows everybody when no secret is set");
+  assert.match(route, /404/, "the mail run says what it is to a caller who is not the scheduler");
+
+  /*
+    And the run is the one caller of the transport. A second sender is a second
+    answer to the frequency cap, the preference and the unsubscribe, and the
+    one nobody is watching is the one that mails somebody who asked it not to.
+  */
+  const senders = [...LIB, ...APP].filter((file) => {
+    if (file.includes("lib/mailer/transport")) return false;
+    const source = code(file);
+    /*
+      Asks for the importer of `send` rather than of the module, because
+      `mailerConfig` is the honest other export: the settings screen reads it
+      to find out whether this installation can send at all, and that is a
+      question rather than an act.
+    */
+    const imports = /import\s*\{([^}]*)\}\s*from\s*["'][^"']*mailer\/transport["']/.exec(source);
+    return Boolean(imports?.[1] && /\bsend\b/.test(imports[1]));
+  });
+  assert.deepEqual(
+    senders.filter((f) => f !== "lib/mailer/run.ts"),
+    [],
+    "something other than the mail run reaches the transport, so a letter can go out without " +
+      "the preference, the frequency cap or the send log being consulted",
+  );
+
+  /*
+    And the schedule points at the route that exists. A cron path with a typo
+    in it is a feature that silently never runs, which looks exactly like a
+    feature nobody is using.
+  */
+  const vercel = JSON.parse(read("vercel.json")) as { crons?: { path: string }[] };
+  assert.ok(
+    vercel.crons?.some((c) => c.path === "/api/email/send"),
+    "vercel.json no longer schedules the mail run, so nothing fires it",
   );
 });
 

@@ -1,18 +1,25 @@
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "./syllabus";
-import { aroundFirst, bandsAround, challengeFirst, challengeRank, isAround } from "./levels";
+import { aroundFirst, bandsAround, challengeFirst, challengeRank, heldToTaughtWords, isAround, readableFor } from "./levels";
 
 describe("the level window", () => {
   it("covers every level the course has", () => {
     for (const level of LEVELS) {
-      expect(bandsAround(level).length).toBeGreaterThan(1);
+      expect(bandsAround(level).length).toBeGreaterThan(0);
       expect(bandsAround(level)).toContain(level);
     }
   });
 
-  it("reaches one band up, so a learner meets what is next", () => {
-    expect(bandsAround("A1")).toContain("A2");
+  it("reaches one band up from A2, so a learner meets what is next", () => {
+    expect(bandsAround("A2")).toContain("B1");
     expect(bandsAround("B1")).toContain("B2");
+  });
+
+  it("keeps a beginner inside A1, because eleven words have no next band", () => {
+    // Measured on the module's second evening: an A2 verb from Sõnad and an
+    // A2 conjugation table dealt to somebody who had met eleven words.
+    expect(bandsAround("A1")).toEqual(["A1"]);
+    expect(isAround("A2", "A1")).toBe(false);
   });
 
   it("leaves out what is two bands away in either direction", () => {
@@ -97,5 +104,27 @@ describe("challengeFirst", () => {
       if (below) expect(challengeRank(below, level)).toBe(3);
       expect(challengeRank(level, level)).toBe(0);
     }
+  });
+});
+
+describe("readableFor", () => {
+  const taught = new Set(["ma", "olen", "kodus"]);
+  it("holds the module at every level and the lesson at A1", () => {
+    for (const level of LEVELS) {
+      expect(heldToTaughtWords(level, "module")).toBe(true);
+      expect(heldToTaughtWords(level, "lesson")).toBe(level === "A1");
+    }
+  });
+  it("lets a sentence of taught words through and refuses one word past them", () => {
+    const inModule = readableFor("B1", taught, "module");
+    expect(inModule("Ma olen kodus.")).toBe(true);
+    expect(inModule("Ma olen tööl.")).toBe(false);
+    const inLesson = readableFor("B1", taught, "lesson");
+    expect(inLesson("Ma olen tööl.")).toBe(true);
+    expect(readableFor("A1", taught, "lesson")("Ma olen tööl.")).toBe(false);
+  });
+  it("fails closed where the course could not say", () => {
+    expect(readableFor("C1", null, "module")("Ma olen kodus.")).toBe(false);
+    expect(readableFor("B2", null, "lesson")("Ma olen kodus.")).toBe(true);
   });
 });

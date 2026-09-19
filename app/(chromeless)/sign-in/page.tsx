@@ -68,6 +68,17 @@ export default async function SignInPage({ searchParams }: {
     for it would be a variable that has to be public to work at all.
   */
   const ssoDomains = readSsoPolicy().domains;
+  /*
+    GOOGLE'S OWN BUTTON IS READ HERE TOO, FOR THE REASON THE SWITCH ABOVE IS.
+
+    `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is public, and it is still the server's to
+    read: a client component reaching for it has it inlined at build time, so
+    one build can only ever serve one of the two states. That is what kept the
+    whole Google door outside `scripts/test-signin.mjs`, which makes one build
+    and starts it twice with different environments. The CSP reads the same
+    variable, on the server, in `lib/security/headers.ts`.
+  */
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() || undefined;
   const denied = params.denied !== undefined;
   const failed = params.error !== undefined;
   /*
@@ -157,7 +168,7 @@ export default async function SignInPage({ searchParams }: {
 
           <div className="mt-7">
             {configured ? (
-              <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} />
+              <SignInForm emailLink={emailLink} ssoDomains={ssoDomains} googleClientId={googleClientId} />
             ) : (
               <div className="rounded-[var(--r-lg)] p-5 text-left" style={{ background: "var(--raised)" }}>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>

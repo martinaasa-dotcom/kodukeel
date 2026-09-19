@@ -339,11 +339,11 @@ function Feedback({ marked, prompt }: { marked: Marked; prompt: ScenePrompt }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[mark.rightCase ? "right" : wrote ? "nearly" : "wrong"]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[mark.rightCase ? "right" : wrote ? "nearly" : "wrong"]} verdict-panel flex items-start gap-2.5`}>
         {mark.rightCase
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}
-        <p className="text-[15px]">
+        <p>
           {mark.rightCase ? (
             <>That is the {prompt.caseEt}.</>
           ) : mark.written && wrote ? (

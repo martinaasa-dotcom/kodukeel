@@ -76,6 +76,18 @@ export function Shortcuts() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // While the sheet is open, nothing behind it should react. The review,
+      // lesson and ladder sessions all bind their own shortcuts (Enter to
+      // reveal or grade, 1 to 4 to pick or rate, u to undo) straight onto
+      // window, with no notion of a dialog sitting on top, so without this a
+      // number pressed to read a shortcut still graded whatever card was
+      // open underneath it. Capturing here, ahead of those bubble-phase
+      // listeners, and stopPropagation rather than preventDefault is what
+      // blocks that while leaving Tab and this sheet's own scrolling
+      // untouched: those are tied to the key reaching its target, not to
+      // whether some other listener elsewhere also got to run.
+      if (open) e.stopPropagation();
+
       if (e.key === "Escape") { setOpen(false); return; }
       // `?` is a real character: while someone is typing an answer it belongs in
       // the answer, not in a dialog over the top of it.
@@ -91,13 +103,13 @@ export function Shortcuts() {
     };
     const onAsked = () => setOpen(true);
 
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
     window.addEventListener(SHORTCUTS_EVENT, onAsked);
     return () => {
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
       window.removeEventListener(SHORTCUTS_EVENT, onAsked);
     };
-  }, []);
+  }, [open]);
 
   if (!open) return null;
 

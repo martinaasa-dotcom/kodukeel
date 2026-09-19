@@ -186,8 +186,8 @@ export async function masteryFor(ownerId: string): Promise<MasteredWord[]> {
     }
     merged.set(key, {
       lexemeId: l.id,
-      lemma: plainPhrase(l.lemma),
-      translation: plainPhrase(l.translation),
+      lemma: plainPhrase(l.lemma, l.pos),
+      translation: plainPhrase(l.translation, l.pos),
       pos: l.pos,
       cefr: l.cefr,
       // Filled below, once every entry sharing this key has contributed.

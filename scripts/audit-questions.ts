@@ -208,8 +208,13 @@ const REACHES: Record<string, number> = {
     of the head, the lesson asked 1,254 and the run that introduced this
     section failed its own floor. That is `exam` all over again, two hundred
     lines up, and it is the check working.
+
+    Then 855, measured in CI, once no A1 unit declared a case or a gap card:
+    a lesson asks only what its unit says it teaches, and thirty units of
+    A1 stopped asking either. The generator shrank on purpose and the floor
+    follows the measurement, not the other way round.
   */
-  lesson: 1_254, checkpoint: 120,
+  lesson: 855, checkpoint: 120,
 };
 
 /*
