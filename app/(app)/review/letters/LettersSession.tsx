@@ -62,7 +62,6 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   const [firstTry, setFirstTry] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [streak, setStreak] = useState(0);
-  const look = useLookBack();
 
   const word = words[index];
   const look = useLookBack();
