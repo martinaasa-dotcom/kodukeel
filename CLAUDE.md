@@ -5811,6 +5811,34 @@ frames the floor called silence, what is added is zeros, and the ramp at each se
 exists to prevent. `lib/audio/stretch.ts` marks the lead and the trail as padding and leaves them
 exactly as long as they are, so a slow play keeps the same head start.
 
+**And a word is asked for as a finished sentence, because the speed was never the fault.** A
+learner reported single words sounding "like the word is incomplete", and named one: `õde` in a
+deep voice, heard as "öd". The speed was the suspect and it is not the cause. Measured through the
+app's own pipeline, twelve words in four voices transcribed at five rates, the same words come back
+right at the recording's own pace as at 0.6 and 0.5 of it: 19, 22, 19, 20 and 20 of 48 at 1, 0.85,
+0.72, 0.6 and 0.5, and the words that come back wrong come back wrong at every rate. The stretch is
+exonerated by its own numbers too, holding the spectral envelope at 0.99, the level inside 0.6 dB
+and the pitch where it was. What is wrong is the string. TartuNLP reads sentences, and a bare
+headword with no stop on it is a fragment to its front end, which renders it as one: over twenty
+words in six voices, sending the same word with a full stop makes the speech 1.14 times as long and
+the loud body of the word itself 1.13 times as long, `isa` going from 271 ms to 561 and `pea` from
+321 to 762. Put to the stronger of the two recognizers this project has measured, a bare word is
+heard correctly 41 times in 80 and the same word with a stop 61 times in 80. `lib/audio/say.ts` is
+that one stop, and the other half of the same rule, which is that a mark that cannot finish an
+utterance is taken off rather than written after: `Tere,` was coming out as `Tere,.`, which is
+punctuation nobody writes, and `Ta ütles:` was on the list of things that already end a sentence,
+which is the definition of the fragment this exists to stop. It moves punctuation and never a
+letter, asserted over every lemma and all 12,172 attested sentences the app can speak, of which 48
+gain a stop and none loses a character. ADR-005 is untouched because a stop is punctuation rather
+than a form: it reaches the speech service and is never stored, never shown and never a card
+answer. **A capital at the front was the obvious other half and does nothing**, which
+is why it is not done: over the same 120 word and voice pairs `Õde` is exactly the length of
+`õde`, on every one of them, and its vowel is no further from the vowel of `öde` than the bare
+word's is, 0.897 against 0.906 over six words in eight voices, which is a coin toss. The route's
+`CLIP_SHAPE` and the worker's `VERSION` move together for it, and an invariant holds them to the
+same number at last, because this file already records the pass where the worker went to v4 and
+the key stayed at v3 and every phone threw its copy away to fetch the stale one again.
+
 **And one function faded both ends, which planted a notch wherever it was asked for one.**
 `fadeEdges(samples, from, to)` ramped up at `from` and down before `to`, which is right for the two
 ends of a whole clip and wrong for anything else: `capPauses` called it on the first twelve
