@@ -70,7 +70,7 @@ export default async function ExceptionsRoundPage({
 
   if (near.length === 0) {
     return (
-      <Page title="Exceptions" lead="The forms the endings do not reach.">
+      <Page title="Exceptions" lead="The forms the ending rules do not reach.">
         <Empty
           title="Nothing to drill here yet"
           body="The dictionary has no graded words near your level with this kind of exception."

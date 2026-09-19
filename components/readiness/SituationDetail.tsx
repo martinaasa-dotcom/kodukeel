@@ -63,7 +63,7 @@ export function SituationDetail({
         )}
         {reading.uncapped !== rung && (
           <p className="mt-1 text-sm" style={{ color: "var(--ink-2)" }}>
-            The answers so far would say {RUNG_LABEL[reading.uncapped].toLowerCase()}. It is held here until there are more of them.
+            Your answers so far would say {RUNG_LABEL[reading.uncapped].toLowerCase()}. It stays here until there are more of them.
           </p>
         )}
       </Card>
@@ -74,17 +74,17 @@ export function SituationDetail({
           <ul className="flex flex-col gap-4">
             <Bar
               label="Follow it" ink={RUNG_INK.follow} n={at.follow} total={total} pct={pct(at.follow)}
-              what="Words you know when you see them. The rung a vocabulary percentage measures, and the lowest."
+              what="Words you recognise when you see them. This is the lowest rung, and the one a vocabulary score measures."
             />
             <Bar
               label="Take part" ink={RUNG_INK.takePart} n={at.takePart} total={total} pct={pct(at.takePart)}
-              what="Words you have produced right more than once, and the last time. Answering is producing."
+              what="Words you have written correctly more than once, including the last time you tried."
             />
             <Bar
               label="Lead it" ink={RUNG_INK.lead} n={at.lead} total={total} pct={pct(at.lead)}
               what={situation.live
-                ? "Solid in more than one form, at pace, with the endings and the numbers it runs on, and some evidence you can follow speech."
-                : "Solid in more than one form, with the endings it turns on."}
+                ? "Solid in more than one form and quick with it. You also need the endings and the numbers this runs on, and some sign that you can follow speech."
+                : "Solid in more than one form, and with the endings this turns on."}
             />
           </ul>
         </Card>

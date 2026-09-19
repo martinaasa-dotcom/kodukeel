@@ -108,7 +108,7 @@ export default async function LookupsRoundPage() {
     return (
       <Page
         title="Words you looked up"
-        lead="The ones that were your idea rather than the course's."
+        lead="The words you chose yourself, not the ones the course gave you."
       >
         <Empty
           title="Nothing here yet"

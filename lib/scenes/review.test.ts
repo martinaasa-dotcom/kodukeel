@@ -74,12 +74,12 @@ describe("the review of a conversation", () => {
     const off = turn({ reading: "offtarget", met: [false] });
     const lead = reviewOf(SCENE, state([off, turn({ reading: "unrecognised", met: [false] })], [])).lead;
     expect(lead).not.toMatch(/every time/);
-    expect(lead).toContain("1 of your 2 turns were read as Estonian");
+    expect(lead).toContain("1 of your 2 turns were understood as Estonian");
   });
 
-  it("still says their Estonian was read, where it was", () => {
+  it("still says their Estonian was understood, where it was", () => {
     const review = reviewOf(SCENE, state([turn({ reading: "offtarget", met: [false] })], []));
-    expect(review.lead).toMatch(/read every time/);
+    expect(review.lead).toMatch(/understood every time/);
   });
 
   /*

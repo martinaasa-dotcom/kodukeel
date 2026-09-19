@@ -36,7 +36,7 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
   return (
     <Page
       title="Leech clinic"
-      lead="The cards you keep failing, and what their history says."
+      lead="The cards you keep getting wrong, and what their history says."
     >
       <div className="flex flex-col gap-4">
         {items.map((leech) => {
@@ -117,11 +117,11 @@ export function ClinicList({ items, aiAvailable }: { items: ClinicItem[]; aiAvai
       <div className="mt-8">
         <SectionTitle>Why this exists</SectionTitle>
         <p className="max-w-[62ch] text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-          A normal spaced-repetition app deals with a card like this by quietly burying it after too
-          many lapses. That clears your queue, but you never actually learn the word. The review log
-          already shows how each one here is failing, steadily, after a good run, or back and forth,
-          and that&rsquo;s usually enough to know what to do about it. Deleting a card never touches
-          its review history: nothing in that log is ever deleted or changed.
+          Most review apps quietly bury a card like this once you have got it wrong enough times.
+          That clears your queue, but you never learn the word. Here you can see how each one is
+          going wrong: steadily, or after a good run, or back and forth. That is usually enough to
+          know what to do about it. Deleting a card never touches its history, and nothing in that
+          log is ever changed or removed.
         </p>
       </div>
     </Page>

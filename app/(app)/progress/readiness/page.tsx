@@ -39,7 +39,7 @@ export default async function ReadinessPage() {
       <Page
         eyebrow="Readiness"
         title="In real life"
-        lead="Which situations you could follow, take part in or lead, read off your own answers."
+        lead="Which situations you could follow, take part in or lead, based on your own answers."
       >
         <Empty
           title="Nothing answered yet"
@@ -57,7 +57,7 @@ export default async function ReadinessPage() {
     <Page
       eyebrow="Readiness"
       title="In real life"
-      lead="Which situations you could follow, take part in or lead, read off your own answers."
+      lead="Which situations you could follow, take part in or lead, based on your own answers."
       actions={
         <Link href="/progress" className="flex items-center gap-1.5 text-sm" style={{ color: "var(--accent-deep)" }}>
           <ArrowLeft size={14} aria-hidden /> Back to progress

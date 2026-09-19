@@ -267,7 +267,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       id: "unmet",
       title: unmet === total ? "None of these words has come up yet" : `${unmet} of the ${total} words have not come up yet`,
       detail: unmet === total
-        ? "The log has nothing on this situation, which is a fact about the course, not about you."
+        ? "There is nothing recorded for this situation yet. That is about the course, not about you."
         : "A word you have never met is the one the other person will use.",
       blocks: at.met === 0 ? "follow" : share(at.follow) >= FOLLOW_SHARE ? "takePart" : "follow",
       href: `/learn/${situation.id}`,
@@ -324,7 +324,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
       struggles.push({
         id: "untimed",
         title: "Nothing here says how fast these words come to you",
-        detail: "Pace is read off typed answers, and there are not enough of those yet to say. Knowing a word and reaching it in two seconds are different things.",
+        detail: "Pace comes from typed answers, and there are not enough of those yet. Knowing a word and reaching it in two seconds are different things.",
         blocks: "lead",
         href: "/review/flashcards",
         cta: "Answer some, typed",
@@ -387,7 +387,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: "ear",
           title: "Nothing here has tested your ear",
-          detail: "Every answer above was typed or read. Spoken Estonian arrives faster than a card and once, and the level check is the one thing in this app that measures whether you can follow it.",
+          detail: "Every answer above was typed or read. Spoken Estonian comes at you faster than a card, and only once. The level check is the one thing here that measures whether you can follow it.",
           blocks: "lead",
           href: "/assess",
           cta: "Take the level check",
@@ -397,7 +397,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
         struggles.push({
           id: "ear",
           title: `The level check put your listening at ${placed}, and this is ${situation.level}`,
-          detail: "You may well have the words. Following them when somebody else says them, at their pace, is what that check measured, and it is the half of a conversation you do not control.",
+          detail: "You may well have the words. What that check measured is whether you can follow them when somebody else says them, at their pace. That is the half of a conversation you do not control.",
           blocks: "lead",
           href: "/review/dictation",
           cta: "Take a dictation",
@@ -440,7 +440,7 @@ export function readSituation(situation: Situation, ctx: Context): Reading {
     struggles.unshift({
       id: "evidence",
       title: `Only ${answers} answers behind this, so it is held at "${RUNG_LABEL[rung].toLowerCase()}"`,
-      detail: "The evidence would say more and the app will not, because a claim on a dozen answers is a guess wearing a verdict. Another week of review here and it can say what it sees.",
+      detail: "There is not enough here to say more. A claim built on a dozen answers is a guess dressed up as a verdict. Another week of review and this can tell you what it sees.",
       blocks: RUNG_ORDER[rungRank(rung) + 1] ?? "lead",
       href: `/learn/${situation.id}`,
       cta: "Open the unit",

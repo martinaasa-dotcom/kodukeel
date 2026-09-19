@@ -19,6 +19,7 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
 import { readableFor } from "@/lib/collections/levels";
 import { gapForms } from "@/lib/estonian/gapForms";
+import { stemsFrom } from "@/lib/estonian/derive";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
 import {
   LADDER_CARD_TYPE, LEARN_BATCH, orderByRung, rungOf, type Rung,
@@ -175,6 +176,18 @@ export interface LearnWord {
      * pattern.
      */
     explanation: string | null;
+    /**
+     * The stored form the answer's ending went on, where there is one.
+     *
+     * Read off `stemsFrom`, which is the one reader of the principal parts,
+     * rather than worked out on the screen: the only thing that consumes it is
+     * the hint ladder, and a ladder that decided for itself which of a word's
+     * forms was "the stem" would be a second opinion about Estonian morphology
+     * living in a component. Null is ordinary and costs nothing, since
+     * `hintLadder` uncovers from the front where no form it was offered turns
+     * out to be the front of the answer.
+     */
+    stem: string | null;
   } | null;
   /** Four glosses, one of them right, ranked rather than shuffled. */
   choices: string[] | null;
@@ -320,6 +333,7 @@ function sentenceAndGap(
         gap: {
           text: cloze.text, answer: cloze.answer, full: cloze.full,
           en, fullEn: example.en ?? null, hint: cue, explanation,
+          stem: stemsFrom(lexeme.forms).genSg ?? null,
         },
       };
     }

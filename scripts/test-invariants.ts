@@ -65,6 +65,7 @@ import {
 } from "../lib/research/corpus";
 import { CORRECT_FROM_RATING, MATURE_STATE } from "../lib/research/sections";
 import { REVIEW_STATE } from "../lib/stats/history";
+import { HINT_EXEMPT, HINT_SWEPT_DIRS } from "../lib/questions/hintCoverage";
 import { NOT_IN_SETTINGS, OPTIONAL_KINDS } from "../lib/email/letter";
 import { UNCAPPED } from "../lib/email/schedule";
 import { CAPTION_MAX } from "../lib/copy/values";
@@ -5084,6 +5085,48 @@ check("nobody opts back out of the wrapping default", () => {
       `${file} asks for a word to be kept whole, which is the same opt-out by another name`,
     );
   }
+});
+
+check("an icon is sized by its own size prop, never by a class", () => {
+  /*
+    A lucide icon writes `width` and `height` onto the svg from its `size`
+    prop, so `<Lightbulb className="h-3.5 w-3.5" />` ships an element that
+    declares 24 and is drawn at 14. Nothing about that is visible in the
+    source, and `test-containment.mjs` reads it as a deformed icon, which is
+    what it is: the one that shipped was caught on a single route at a single
+    width, because the hint it sits on is only drawn after a miss and only one
+    route in the sweep happened to reach that state. A browser check that fires
+    where a fixture happens to walk is a browser check that rots, so the rule
+    is asked of the source as well.
+
+    Anchored on the names each file imports from lucide rather than on any
+    capitalised tag, because a component of ours may legitimately take a width
+    class: what may not is the svg that carries its size in an attribute.
+  */
+  const FROM_LUCIDE = /import\s*\{([^}]+)\}\s*from\s*"lucide-react"/;
+  const SIZED_BY_CLASS = /\b(?:h|w)-(?:\d|\[)/;
+  let seen = 0;
+  for (const file of [...APP, ...COMPONENTS]) {
+    if (/\.(test|itest)\.tsx?$/.test(file)) continue;
+    const source = code(file);
+    const imported = FROM_LUCIDE.exec(source);
+    if (!imported?.[1]) continue;
+    const names = imported[1]
+      .split(",")
+      .map((one) => one.split(" as ").pop()!.trim())
+      .filter((one) => /^[A-Z][A-Za-z0-9]*$/.test(one));
+    for (const name of names) {
+      for (const found of source.matchAll(new RegExp(`<${name}\\b[^>]*>`, "g"))) {
+        seen += 1;
+        assert.equal(
+          SIZED_BY_CLASS.test(found[0]),
+          false,
+          `${file} sizes a lucide icon with a class rather than its size prop: ${found[0].slice(0, 80)}`,
+        );
+      }
+    }
+  }
+  assert.ok(seen > 200, `expected to read a few hundred icon tags, read ${seen}`);
 });
 
 check("no icon is given a flex of its own", () => {
@@ -19299,6 +19342,144 @@ check("the shipped translations are English, and there are enough of them to mat
   // noticing: a key with a stray space matches nothing and costs a line.
   const known = Object.keys(table)[0];
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
+});
+
+
+/*
+  THE WAY OUT OF BEING STUCK, EVERYWHERE SOMEBODY CAN BE STUCK.
+
+  Four arms, and the shape of them is the one this file keeps arriving at: a
+  sweep with a written exemption beside it rather than a list of the files
+  somebody got round to wiring, because a list is a thing that falls behind and
+  the fault it produces is a screen with no way out, which looks exactly like a
+  screen nobody has pressed the hint on.
+*/
+check("every round offers a hint, or says in writing why it does not", () => {
+  const rounds = HINT_SWEPT_DIRS
+    .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
+    .map((f) => f.replace(/\\/g, "/"))
+    .sort();
+  assert.ok(rounds.length >= 20, `only ${rounds.length} round components found; the sweep is looking in the wrong place`);
+
+  const exempt = new Map(HINT_EXEMPT.map((e) => [e.file, e.why]));
+  /*
+    The element rather than the import, which is the trap `code()` exists for
+    one directory over: a session that imported the hint and drew nothing would
+    satisfy any check that only greps for the module's name, and would look on
+    screen exactly like a round nobody had needed help on.
+  */
+  const draws = (file: string) => /<HintLadder\b/.test(code(file));
+
+  const silent = rounds.filter((f) => !draws(f) && !exempt.has(f));
+  assert.deepEqual(silent, [], `these rounds offer no hint and are not exempt: ${silent.join(", ")}`);
+
+  // And in the other direction, so an exemption cannot outlive its reason.
+  const stale = [...exempt.keys()].filter((f) => !rounds.includes(f) || draws(f));
+  assert.deepEqual(stale, [], `these exemptions are stale: ${stale.join(", ")}`);
+
+  // A bare filename is not a decision.
+  const unexplained = HINT_EXEMPT.filter((e) => e.why.trim().split(/\s+/).length < 6);
+  assert.deepEqual(unexplained, [], "every hint exemption states its reason in a sentence");
+});
+
+check("a round that draws a hint pays for it in the grade it sends", () => {
+  /*
+    THE HALF THAT MAKES THE HINT SAFE.
+
+    `npm run audit:decks` exists because a card whose answer is printed in its
+    own question is a card nobody can fail: the learner reads it off the screen,
+    the log records a recall, and the slot is spent for ever. A hint is that
+    made deliberate, and the only thing that stops it being the same fault is
+    that the grade says so. So a round drawing `HintLadder` has to read the
+    ceiling, and it is asserted on the member access rather than on the word,
+    because a comment about paying for hints satisfies neither.
+  */
+  const drawing = HINT_SWEPT_DIRS
+    .flatMap((dir) => sourceFiles(dir, /Session\.tsx$/))
+    .filter((f) => /<HintLadder\b/.test(code(f)));
+  const free = drawing.filter((f) => !/\.ceiling\b/.test(code(f)));
+  assert.deepEqual(
+    free.map((f) => f.replace(/\\/g, "/")), [],
+    "these rounds draw a hint and never read its ceiling, so a helped answer is logged as an unaided one",
+  );
+});
+
+check("the hint's state is one hook rather than a copy per round", () => {
+  /*
+    A ladder has to be reset when the question changes and not before, and every
+    round changes question in its own way: some advance an index, some splice
+    the answered card out and leave the index alone, some requeue a miss several
+    places on. A copy per round is twenty chances to reset on the wrong thing,
+    and what that produces is the next word opening with the last word's hints
+    counted against it, so a learner is graded Again on a card they answered
+    cleanly and nothing on the screen says why.
+  */
+  const drawing = [...HINT_SWEPT_DIRS, "app/(app)"]
+    .flatMap((dir) => sourceFiles(dir, /\.tsx$/))
+    .filter((f) => /<HintLadder\b/.test(code(f)));
+  const rolled = drawing.filter((f) => !/\buseHints\(/.test(code(f)));
+  assert.deepEqual(
+    [...new Set(rolled.map((f) => f.replace(/\\/g, "/")))], [],
+    "these rounds hold the hint's state themselves rather than through `useHints`",
+  );
+
+  /*
+    AND THE HOOK KEEPS ITS TWO KEYS APART.
+
+    The misses follow the *word* and the ladder follows the *question*, and
+    collapsing them is not a tidy-up, it is the fault the hook's own header
+    records: a deck holds several cards of one word, so keyed on the word alone
+    a learner who took two rungs on `tuba`'s recognition card met its case card
+    with two rungs already spent, half the answer uncovered and the grade capped
+    before they pressed anything. Anchored on the reset reading `question`,
+    because that is the half that would silently go.
+  */
+  const hook = code("components/round/useHints.tsx");
+  assert.ok(/word[,:]/.test(hook) && /question[,:]/.test(hook),
+    "useHints has stopped taking a word and a question as two different things");
+  assert.match(
+    hook, /question !== asked[\s\S]{0,120}setTaken\(0\)/,
+    "useHints no longer resets the ladder on the question, so rungs spent on one ask carry to the next",
+  );
+  const collapsed = drawing.filter((f) => {
+    const call = code(f).match(/useHints\(\{[\s\S]{0,400}?\}\)/);
+    return call ? !/\bword:/.test(call[0]) || !/\bquestion:/.test(call[0]) : true;
+  });
+  assert.deepEqual(
+    [...new Set(collapsed.map((f) => f.replace(/\\/g, "/")))], [],
+    "these rounds do not tell `useHints` what the word is and what the question is",
+  );
+});
+
+check("nothing but the hint ladder decides what a hint gives away", () => {
+  /*
+    One module writes the covered spellings and one component draws them. A
+    screen that built its own `_`-masked form would be a second answer to how
+    much a hint uncovers and what it costs, and the one nobody was watching
+    would be the one that handed the answer over free.
+  */
+  const HOME = /lib[\\/]questions[\\/]hints(\.test)?\.ts$/;
+  const readers = ALL
+    .filter((f) => !HOME.test(f))
+    .filter((f) => /\bCOVER\b|\bhintLadder\(|\bnarrowLadder\(/.test(code(f)));
+  /*
+    `code` rather than `read`, which this check was made to fall into once
+    before it was believed: every one of these files carries a comment saying
+    "see `lib/questions/hints.ts`" beside the grade it caps, so with the import
+    deleted and the call left standing the raw text still matched and the check
+    passed on the broken file. Prose about a rule is not compliance with it,
+    which is the oldest recurring mistake in this repository's own checks.
+  */
+  const strays = readers.filter((f) => !/lib\/questions\/hints/.test(code(f)));
+  assert.deepEqual(strays, [], "these files build a hint without reading lib/questions/hints.ts");
+
+  // And the encouragement is one sentence, from one table, for the same reason
+  // a second copy of any line of copy in this app is a second copy: they drift.
+  const notes = ALL.filter((f) => /It is fine not to know this one yet/.test(read(f)));
+  assert.deepEqual(
+    notes.map((f) => f.replace(/\\/g, "/")), ["lib/copy/firstTry.ts"],
+    "the first-try line is written out somewhere other than the one table that holds it",
+  );
 });
 
 /*

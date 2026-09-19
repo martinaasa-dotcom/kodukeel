@@ -47,7 +47,7 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
   return (
     <Card>
       <SectionTitle hint={`${known} of ${total} words`}>
-        {arrived ? `You have arrived at ${target}` : `On the way to ${target}`}
+        {arrived ? `You have reached ${target}` : `On the way to ${target}`}
       </SectionTitle>
 
       {/*
@@ -141,11 +141,11 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
 
       <p className="mt-4 text-sm" style={{ color: "var(--ink-3)" }}>
         {arrived
-          ? "Every word the ladder asks for at this band is one the scheduler has stopped treating as new."
+          ? "You know every word this level asks for. None of them count as new any more."
           : here
             ? <>
-                {pct}% of the way. What moves this is a word sticking rather than an evening
-                finished, so it follows the review queue rather than the checklist
+                {pct}% of the way. This moves when a word sticks, not when an evening is
+                ticked, so it follows your review queue
                 {partLabel ? <>, and you are on {partLabel}</> : null}.
               </>
             : "Pick a target in Settings and this becomes the one number worth watching."}

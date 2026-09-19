@@ -52,7 +52,7 @@ export function MasteryLists({
     <Card>
       <SectionTitle hint="counted in words, not cards">How well each word is sticking</SectionTitle>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {MASTERY_ORDER.map((tier) => (
           <StatTile key={tier} value={counts[tier]} label={MASTERY_LABEL[tier]} tone={TONES[tier]} />
         ))}

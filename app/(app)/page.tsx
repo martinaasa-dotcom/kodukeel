@@ -326,8 +326,8 @@ export default async function TodayPage() {
   */
   const caughtUpNote = (
     <Note tone="good">
-      Caught up. Reviewing early does not help memory, so this is a good moment for
-      something new.
+      You are caught up. Reviewing early does not help you remember more, so now is a
+      good time to learn something new.
     </Note>
   );
   const actions = learnFirst ? (
@@ -382,8 +382,8 @@ export default async function TodayPage() {
     </p>
   ) : (
     <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
-      Type or pick where you can, and where a card just asks, say honestly whether you
-      knew it. The scheduler works out when to ask again from that.
+      Type or pick the answer where you can. Where a card just asks, say honestly whether
+      you knew it. That is what decides when you see it again.
     </p>
   );
 
@@ -475,21 +475,21 @@ export default async function TodayPage() {
           Today&rsquo;s module
         </SectionTitle>
         <p className="mt-1 text-xl font-semibold" style={{ color: "var(--ink)" }}>
-          Learned, and that is the evening
+          All done for today
         </p>
         <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
           {courseDay
             ? courseDay.day.part.n > 1
-              ? <>Tomorrow carries on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
+              ? <>Tomorrow you carry on with {uiText(placement, courseDay.day.title, courseDay.day.subtitle)}, part {courseDay.day.part.n} of {courseDay.day.part.of}.</>
               : uiWantsEnglish(placement)
                 ? <>Come back tomorrow for {courseDay.day.subtitle}.</>
                 : <>Come back tomorrow for {courseDay.day.title}, {courseDay.day.subtitle.toLowerCase()}.</>
-            : <>That was the last one. The review queue keeps every word of it.</>}
+            : <>That was the last one. Every word of it stays in your review queue.</>}
         </p>
       </div>
       <div className="flex flex-col gap-3 lg:w-[19rem] lg:shrink-0">
         <ButtonLink href="/course" variant="secondary" className="w-full justify-center">
-          See what tomorrow holds <ArrowRight size={16} aria-hidden />
+          See what is next <ArrowRight size={16} aria-hidden />
         </ButtonLink>
       </div>
     </Card>
@@ -499,7 +499,7 @@ export default async function TodayPage() {
     <Card>
       <Empty
         title="Your deck is empty"
-        body="A unit becomes real cards, with every form and its audio."
+        body="Open a unit and it turns into cards, with every form and its audio."
         action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
       />
     </Card>
@@ -1008,7 +1008,7 @@ function courseLead(toReview: number, finishedToday: boolean): string {
   }
   return toReview === 0
     ? "Nothing else is due. Tonight's module is the whole evening."
-    : `${cards} due as well, and the module ends by reviewing them.`;
+    : `${cards} due as well. The module ends by reviewing them.`;
 }
 
 function lead(
@@ -1021,8 +1021,8 @@ function lead(
   // Nothing due is only "a good moment for something new" while there is
   // something new. A deck whose words are all learned needs a unit, and saying
   // otherwise sends somebody to a screen with nothing on it.
-  if (toReview === 0 && toLearn > 0) return "Nothing due right now. A good moment to meet some new words.";
-  if (toReview === 0) return "Nothing due, and no new words waiting. A good moment to open a unit.";
+  if (toReview === 0 && toLearn > 0) return "Nothing due right now. A good time to meet some new words.";
+  if (toReview === 0) return "Nothing due, and no new words waiting. A good time to open a unit.";
   /*
     At the learner's own rate where the log has one, and at the one default
     the plan uses otherwise. This divided by six while the plan divided by

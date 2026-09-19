@@ -377,9 +377,9 @@ export default function FundingPage() {
         <P>
           The question a grant is scored on, and the one a cost page usually leaves out.
           The figures below are the same bill as above with things switched off, in the
-          order somebody would actually switch them off: the tooling that writes the
-          software first, because a reader opening the app tomorrow does not notice it,
-          and the server and the database last, because without those there is nothing.
+          order somebody would actually switch them off. The tooling that writes the
+          software goes first, because a reader opening the app tomorrow does not notice
+          it. The server and the database go last, because without those there is nothing.
         </P>
         {ladder.map((step) => (
           <P key={step.stage.id}>
@@ -421,10 +421,10 @@ export default function FundingPage() {
         <P>
           Which is the answer to the question under the question. A funder is not really
           asking whether the lights stay on. They are asking whether the money buys
-          something that outlives the project, and for a language this size the thing worth
+          something that outlives the project. For a language this size, the thing worth
           buying is a corrected dictionary, a course built out of attested sources, and the
-          code to run both, all of it published under a licence that lets somebody else
-          pick it up.
+          code to run both, all published under a licence that lets somebody else pick it
+          up.
         </P>
       </S>
 

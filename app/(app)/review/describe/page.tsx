@@ -72,6 +72,8 @@ export default async function DescribePage({
       askLemma: asked.lemma,
       askTranslation: asked.translation,
       caseKey: task.caseKey,
+      // What a hint uncovers. The marking stays on the route: see the field.
+      targetForm: task.accepted[0] ?? null,
       // The Estonian name leads and the English is the cross-reference, which
       // is the rule every screen in this app that names a case follows.
       caseEt: grammarTerm(spec.key)?.et ?? spec.et,

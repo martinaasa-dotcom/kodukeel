@@ -158,9 +158,9 @@ export default function AccessibilityPage() {
         </ul>
         <P>
           Alongside those, the app is built out of real buttons and links with a visible focus
-          ring, animation is turned off for anybody whose system asks for reduced motion, no
-          part of it uses a dragging movement, and colour is never the only thing carrying a
-          distinction: a correct answer says so in words as well as in green.
+          ring. Animation is turned off for anybody whose system asks for reduced motion, and no
+          part of it needs a dragging movement. Colour is never the only thing carrying a
+          distinction, so a correct answer says so in words as well as in green.
         </P>
         <P>
           <strong>The two timed practice rounds can be set to run longer</strong> (WCAG 2.2.1,

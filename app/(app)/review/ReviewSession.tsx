@@ -31,6 +31,10 @@ import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
 import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
+import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
+import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
+import { HintLadder } from "@/components/round/HintLadder";
+import { useHints } from "@/components/round/useHints";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { useResumeCard } from "@/components/useResumeCard";
 import { useUiText } from "@/components/UiLanguage";
@@ -601,6 +605,63 @@ export function ReviewSession({
   const answerShown = revealed || ask === "intro";
 
   /*
+    THE WAY OUT OF BEING STUCK, ON THE DAILY PATH.
+
+    Drawn only once the learner has already been told no about this word in
+    this sitting, or the card arrived carrying enough lapses that the clinic
+    already calls it one they keep failing (`hintsOpen`). A typed card gets the
+    letters of the answer uncovered a few at a time; a card asked as four
+    options gets them crossed out, worst rival first. A flip and a first
+    meeting get nothing, because neither is a question: one has its answer
+    behind a press the learner controls already, and the other has it printed.
+
+    `rivals` is every other form of this word the page fetched, so it is
+    exactly the list `hintLadder` wants for working out which letters are the
+    ending and which are the stem it went on. Nothing here decides that: see
+    `lib/questions/hints.ts` on why the caller hands over what it has rather
+    than picking.
+  */
+  const ladder = !card
+    ? []
+    : ask === "choice"
+      ? narrowLadder(card.choices ?? [], card.back)
+      : ask === "type"
+        ? hintLadder({
+          answer: card.back,
+          stems: [...card.rivals, card.lemma],
+          suffix: card.targetCase ? caseByKey(card.targetCase)?.suffix : null,
+        })
+        : [];
+  /*
+    Keyed on the word rather than on the card, which is what `met` above is
+    keyed on and for the same reason: a deck holds several cards of one word,
+    and being stuck on `toas` is being stuck on `tuba`. A miss requeues the card
+    several places on, so the two goes at it are not next to each other, which
+    is exactly the shape `hintsOpen` is about.
+  */
+  const hints = useHints({
+    word: card ? wordKey(card) : null,
+    // The card rather than the word: a deck holds several cards of one word,
+    // and two letters of `toas` are not two letters of `toale`.
+    question: card?.id ?? null,
+    ladder,
+    lapses: card?.scheduling.lapses ?? 0,
+  });
+  const struck = ask === "choice" && card
+    ? struckOptions(card.choices ?? [], card.back, hints.taken)
+    : [];
+  /*
+    The line that says being unable to answer is the ordinary state, on a word
+    being asked for in writing for the first time. `isNew` is the card's own
+    flag and the lapses are the card's own count, so a word that has already
+    been round the houses does not get told it is fine not to know it.
+  */
+  const firstTry = card !== undefined && ask === "type" && isFirstProduction({
+    produced: hints.missed + card.scheduling.reps + card.scheduling.lapses,
+    typed: true,
+  });
+
+  /*
     WHAT THE SENTENCE AROUND THE GAP SAYS, ON THE QUESTION.
 
     `Kohtume kell ____.` used to be asked over the one word `four`, which is
@@ -759,7 +820,7 @@ export function ReviewSession({
     shownAt.current = Date.now();
   }, [card, queue, index]);
 
-  const submit = useCallback(async (rating: RatingValue) => {
+  const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
     /*
       Grading a card is the one event this timer exists to produce, so every
@@ -772,6 +833,20 @@ export function ReviewSession({
     */
     clearAutoNext();
     setBusy(true);
+    /*
+      A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
+
+      `hintCeiling` is 4 with nothing taken, so a card nobody asked for help on
+      grades exactly as it always did and Easy is still Easy on a flip. Once a
+      rung has been taken the grade cannot rise above Hard, and once the answer
+      itself has been shown it cannot rise above Again. `Math.min` rather than a
+      branch, so a hint can only ever lower what the answer earned: a miss is
+      still a miss. The argument is `lib/questions/hints.ts`'s and it is the one
+      `audit:decks` makes, that a question whose answer is on the screen is a
+      question nobody can fail.
+    */
+    const rating = Math.min(asked, hints.ceiling) as RatingValue;
+    if (rating === 1) hints.noteMiss();
     const duration = Date.now() - shownAt.current;
     const answeredAt = new Date().toISOString();
     const before = scheduled.current.get(card.id) ?? card.scheduling;
@@ -836,7 +911,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, recordSeen, clearAutoNext]);
+  }, [card, busy, index, refreshOutbox, hints, recordSeen, clearAutoNext]);
 
   /**
    * Puts the last graded card back.
@@ -1311,20 +1386,39 @@ export function ReviewSession({
           )}
 
           {ask === "type" && !verdict && (
-            <div className="mt-2 w-full max-w-sm text-left">
-              <label htmlFor="answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
-                Type the answer
-              </label>
-              <EstonianInput
-                id="answer"
-                value={typed}
-                onChange={setTyped}
-                onEnter={checkTyped}
-                ariaLabel="Type your answer"
-                autoFocus
-                large
+            <>
+              {/*
+                The one line that says being unable to answer is ordinary, on a
+                word being asked for in writing for the first time. Above the
+                box, because it is read while somebody is deciding whether to
+                type anything at all. Once in a word's life: see
+                `lib/copy/firstTry.ts` for why it is not under every box.
+              */}
+              {firstTry && (
+                <p className="max-w-sm text-sm" style={{ color: "var(--ink-2)" }}>{FIRST_TRY_NOTE}</p>
+              )}
+              <div className="mt-2 w-full max-w-sm text-left">
+                <label htmlFor="answer" className="label-xs mb-2 block" style={{ color: "var(--ink-3)" }}>
+                  Type the answer
+                </label>
+                <EstonianInput
+                  id="answer"
+                  value={typed}
+                  onChange={setTyped}
+                  onEnter={checkTyped}
+                  ariaLabel="Type your answer"
+                  autoFocus
+                  large
+                />
+              </div>
+              <HintLadder
+                ladder={ladder}
+                taken={hints.taken}
+                onTake={hints.take}
+                open={hints.open && ask === "type"}
+                label={card.lemma ?? card.front}
               />
-            </div>
+            </>
           )}
 
           {ask === "type" && verdict && (
@@ -1409,19 +1503,36 @@ export function ReviewSession({
                   key={choice}
                   type="button"
                   onClick={() => pickChoice(choice)}
-                  className="choice-btn flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium"
+                  className={`choice-btn ${struck.includes(choice) ? "line-through" : ""} flex items-center gap-3 rounded-[var(--r)] border px-4 py-3.5 text-left text-base font-medium`}
                   style={{
                     "--choice-bg": "var(--accent-soft)",
                     "--choice-border": "transparent",
-                    color: "var(--accent-deep)",
+                    color: struck.includes(choice) ? "var(--ink-3)" : "var(--accent-deep)",
                     boxShadow: "var(--shadow-sm)",
                   } as CSSProperties}
                 >
                   <KeyCap>{i + 1}</KeyCap>
                   {choice}
+                  {/*
+                    Struck rather than removed, and still pressable. An option
+                    that vanishes takes the rows under it up the screen while
+                    somebody is reading them, and refusing the press would be
+                    the app saying they are wrong before they have answered.
+                  */}
+                  {struck.includes(choice) && <span className="sr-only"> (ruled out by a hint)</span>}
                 </button>
               ))}
             </div>
+          )}
+
+          {ask === "choice" && !chosen && (
+            <HintLadder
+              ladder={ladder}
+              taken={hints.taken}
+              onTake={hints.take}
+              open={hints.open}
+              label={card.lemma ?? card.front}
+            />
           )}
 
           {ask === "choice" && chosen && (

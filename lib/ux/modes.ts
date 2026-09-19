@@ -89,9 +89,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Layers", tone: "accent", group: "targeted", note: "Typed, varied",
     within: "/practice", headline: true,
     blurb:
-      "The words review has already introduced, asked in ways it does not: hear a sentence and " +
-      "type the form you heard, fill a gap from the meaning alone, or write a sentence of your " +
-      "own around a named form. A word leaves once it is right five times across three of them.",
+      "Words review has already taught you, asked in ways it never does. Hear a sentence and " +
+      "type the form you heard, fill a gap from the meaning alone, or write your own sentence " +
+      "around a form we name. A word leaves once you get it right five times, three ways.",
   },
   {
     /*
@@ -108,9 +108,9 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "TrendingUp", tone: "sky", group: "targeted", note: "Four lists",
     within: "/practice", headline: true,
     blurb:
-      "The hundred commonest small words, verbs, nouns and describing words, counted over film " +
-      "and television subtitles rather than chosen by anybody. Asked in a different form each " +
-      "time, the way Flash cards asks the rest of your deck.",
+      "The hundred commonest small words, verbs, nouns and describing words. They were counted " +
+      "over film and television subtitles, not picked by hand. Each one comes up in a different " +
+      "form every time, the way Flash cards asks the rest of your deck.",
   },
   {
     /*
@@ -145,12 +145,12 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
   },
   {
     href: "/sonad", title: "Sõnad", subtitle: "One word a day",
-    icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, six guesses",
+    icon: "CircleDot", tone: "sky", group: "targeted", note: "Six letters, seven guesses",
     within: "/practice",
     blurb:
-      "Six circles and an Estonian word behind them, at your level, and a new one every " +
-      "morning. Wrong letters go gray, right ones in the wrong place go amber. Where the " +
-      "word is already in your deck, finishing the round counts toward it.",
+      "Six circles and an Estonian word behind them, at your level, with a new one every " +
+      "morning. Each letter you guess is marked in place, in the word somewhere, or not in it " +
+      "at all. If the word is already in your deck, finishing counts toward it.",
   },
   {
     /*
@@ -164,10 +164,10 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "Eye", tone: "blush", group: "targeted", note: "Five pictures",
     within: "/practice",
     blurb:
-      "Three things and a situation, and one sentence of your own about them. One of the words " +
-      "is named and has to carry a case you are asked for; the other two are pictures, and " +
-      "using them is worth credit. The ending is checked against the dictionary, so if you " +
-      "reach for the wrong one it tells you which one you reached for.",
+      "Three things and a situation, and one sentence of your own about them. One word is " +
+      "named and has to be in the case we ask for. The other two are pictures, and using them " +
+      "earns credit. The ending is checked against the dictionary, so if you pick the wrong " +
+      "case it tells you which one you used.",
   },
   {
     /*
@@ -189,8 +189,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     within: "/practice",
     blurb:
       "Seven words at your level crossing each other, clued in English. That is the direction " +
-      "that teaches: you know what you mean and you are looking for the word, which is where " +
-      "you are every time you open your mouth.",
+      "that teaches. You know what you mean and you are hunting for the word, which is exactly " +
+      "where you are every time you open your mouth.",
   },
   {
     href: "/review/target", title: "Target", subtitle: "Fast, mostly endings",
@@ -234,8 +234,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/write", title: "Writing", subtitle: "Your own sentence", icon: "PenLine", tone: "mint",
     group: "targeted", note: "You write it",
     blurb:
-      "Use a word in a named case. The form is checked against the dictionary before Anu ever " +
-      "sees it, so the verdict is certain even when the AI is off.",
+      "Use a word in the case we name. The form is checked against the dictionary before Anu " +
+      "sees it, so the mark is certain even with the AI switched off.",
     within: "/grammar/[case]",
   },
   {
@@ -250,15 +250,15 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/pairs", title: "Minimal pairs", subtitle: "Long or short", icon: "Ear", tone: "sky",
     group: "targeted", note: "Needs audio", within: "/grammar/topic/gradation",
     blurb:
-      "Maja or majja? The length distinction Estonian spelling only half records, and the one " +
-      "thing reading practice can never teach you.",
+      "Maja or majja? Estonian spelling only half records this difference in length, and " +
+      "reading practice can never teach it to you.",
   },
   {
     href: "/review/cloze", title: "From your reading", subtitle: "Paste real Estonian",
     icon: "ScissorsLineDashed", tone: "butter", group: "targeted", note: "Your own text",
     blurb:
-      "Bring an article or your homework. Words already in your deck get blanked out, and the " +
-      "answer is the form a native writer actually chose.",
+      "Bring an article or your homework. Words already in your deck are blanked out, and the " +
+      "answer is the form the writer actually used.",
     within: "/dictionary",
   },
   {
@@ -279,8 +279,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     icon: "TriangleAlert", tone: "butter", group: "targeted", note: "Typed, three rungs",
     within: "/grammar/exceptions",
     blurb:
-      "Tuppa, not toasse. The words where the ending rule stops holding, met, then produced, " +
-      "then put back in a sentence a native writer wrote.",
+      "Tuppa, not toasse. The words where the ending rule breaks down. You meet them, write " +
+      "them, then put them back into a sentence a native writer wrote.",
   },
   {
     /*
@@ -297,7 +297,7 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/lookups", title: "Words you looked up", subtitle: "Yours, not the course's",
     icon: "BookmarkCheck", tone: "sky", group: "targeted", note: "From your own adds",
     blurb:
-      "Every word you added from an entry, a photograph, a pasted list or Anu, asked in a " +
+      "Every word you added yourself, from an entry, a photo, a pasted list or Anu. Asked in a " +
       "different form each time, instead of waiting its turn behind the course.",
     within: "/words",
   },
@@ -305,8 +305,8 @@ export const PRACTICE_MODES: readonly PracticeMode[] = [
     href: "/review/clinic", title: "Leech clinic", subtitle: "What keeps failing", icon: "Stethoscope",
     tone: "blush", group: "targeted", note: "From your log",
     blurb:
-      "The handful of cards you keep getting wrong, with what their history says about how they " +
-      "are failing, instead of quietly burying them.",
+      "The handful of cards you keep getting wrong, and what their history says about why. " +
+      "They are worked on here instead of being quietly buried.",
     within: "/progress",
   },
 ];

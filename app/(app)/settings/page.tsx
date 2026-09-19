@@ -242,9 +242,9 @@ export default async function SettingsPage() {
                 </h3>
                 <SpeechPacePanel current={speechPace} fromLevel={levelPace} level={courseLevel} />
                 <Explain label="How the slow speed is made">
-                  Every speed is the one recording, slowed in your browser with the voice and the pitch
-                  left alone, so the consonants stay as sharp as they were. The slow button beside a
-                  word is always slower again than whatever you pick here.
+                  Every speed uses the same recording, slowed down in your browser. The voice and the
+                  pitch stay as they were, so the consonants stay sharp. The slow button beside a word
+                  is always slower again than whatever you pick here.
                 </Explain>
               </div>
               <div>
@@ -385,9 +385,9 @@ export default async function SettingsPage() {
             </SectionTitle>
             <Card>
               <p className="mb-4 text-sm leading-relaxed" style={{ color: "var(--ink-2)" }}>
-                These answers shape the timeline on the level check screen: how many hours the level
-                you want usually takes, how many of them your daily goal covers, and what is left to
-                find elsewhere. Change them whenever the answer changes.
+                These answers build the timeline on the level check screen. It says how many hours
+                the level you want usually takes, how many your daily goal covers, and how many are
+                left to find elsewhere. Change them whenever the answer changes.
               </p>
               <GoalsPanel current={goals} />
               <p className="mt-5 text-sm" style={{ color: "var(--ink-3)" }}>
@@ -459,9 +459,9 @@ export default async function SettingsPage() {
                 <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule-soft)" }}>
                   <p className="mb-3 text-sm" style={{ color: "var(--ink-2)" }}>
                     There is no live dictionary lookup set up here yet, so search stops at the {words}{" "}
-                    built-in words: nothing outside that set can be looked up, and dictation, the
-                    sentence builder and the mock exam&rsquo;s reading and listening parts stay thin or
-                    empty, because the built-in set has almost no real example sentences.
+                    built-in words, and nothing outside that set can be looked up. The built-in set has
+                    almost no real example sentences either, so dictation, the sentence builder and the
+                    mock exam&rsquo;s reading and listening parts stay thin or empty.
                   </p>
                   <EkilexSetupGuide />
                 </div>
@@ -585,9 +585,8 @@ export default async function SettingsPage() {
             <SectionTitle hint={letters === "on" ? "shown" : "hidden"}>Typing Estonian</SectionTitle>
             <LetterBarPanel current={letters} />
             <Explain label="Why only on a computer">
-              Only ever shows up on a computer. A phone keyboard already has these letters, on a
-              long press or a keyboard switched to Estonian, so there is nothing to show on a phone
-              either way.
+              These only ever show up on a computer. A phone keyboard already has these letters,
+              on a long press or with the keyboard switched to Estonian.
             </Explain>
           </section>
 
@@ -653,9 +652,9 @@ export default async function SettingsPage() {
                     keeps working without a connection.
                   </p>
                   <Explain label="What happens to an answer with no connection">
-                    Anything you grade offline is saved on the device and sent as soon as you are back
-                    online, with the time you actually answered, so an offline session still counts
-                    toward the right day&rsquo;s streak.
+                    Anything you grade offline is saved on the device and sent the moment you are
+                    back online. It goes with the time you actually answered, so an offline session
+                    still counts toward the right day.
                   </Explain>
                   <InstallPanel />
                 </div>
