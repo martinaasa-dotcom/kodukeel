@@ -64,11 +64,19 @@ export function Sidebar() {
   // corner is a sheet somebody taps around the edges of.
   useEffect(() => {
     if (!moreOpen) return;
+    // The review, lesson and ladder sessions bind Enter, the digits and u
+    // straight onto window, so any of those pressed with a Bluetooth
+    // keyboard while this sheet is open used to still reach whatever card
+    // was open behind it. Capturing here, ahead of those bubble-phase
+    // listeners, and stopPropagation rather than preventDefault is what
+    // blocks that while leaving native link and button activation, and the
+    // sheet's own scrolling, untouched.
     const onKey = (event: KeyboardEvent) => {
+      event.stopPropagation();
       if (event.key === "Escape") setMoreOpen(false);
     };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [moreOpen]);
 
   const measure = useCallback((node: HTMLElement | null) => setBar(node), []);

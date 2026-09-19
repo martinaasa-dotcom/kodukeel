@@ -192,7 +192,7 @@ async function answerOneCard(depth = 0) {
     await page.keyboard.press("1");
     // A right pick stays on screen for `VERDICT_PAUSE_MS` before it grades
     // itself, so the wait here has to outlast it.
-    await page.waitForTimeout(3600);
+    await page.waitForTimeout(8600);
   } else {
     const input = page.locator("main input[type='text'], main input:not([type])").first();
     if (await input.count()) {

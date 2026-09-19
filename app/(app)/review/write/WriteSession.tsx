@@ -16,6 +16,7 @@ import type { WithholdReason } from "@/lib/tutor/verify";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 export interface WritingPrompt {
   /** The card this exercise practices, so the round feeds the scheduler. */
@@ -74,6 +75,8 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   const startedAt = useRef(Date.now());
 
   const prompt = prompts[index];
+  /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !prompt;
 
   async function submit() {
@@ -116,6 +119,20 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
   }
 
   function next() {
+    /* What was asked and what the learner wrote, which is the one round where
+       the sentence is theirs. Nothing about it is stored or re-marked. */
+    if (prompt) {
+      look.record({
+        of: prompt.cardId,
+        label: "Write a sentence",
+        question: `${prompt.lemma}, ${prompt.translation} · ${prompt.caseEt}`,
+        answer: sentence.trim() || prompt.lemma,
+        note: prompt.caseQuestion,
+        questionLang: "et",
+        answerLang: "et",
+        speak: null,
+      });
+    }
     setMarked(null);
     setSentence("");
     setError(null);
@@ -178,6 +195,7 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -289,6 +307,11 @@ export function WriteSession({ prompts: initialPrompts, aiAvailable }: {
           )}
         </div>
       </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
 
       {!aiAvailable && (
         <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-3)" }}>
@@ -314,7 +337,7 @@ function Feedback({ marked }: { marked: Marked }) {
 
   return (
     <div className="mt-6 flex flex-col gap-3" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdictOfRating(writeRating(formCheck))]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdictOfRating(writeRating(formCheck))]} verdict-panel flex items-start gap-2.5`}>
         {formCheck.used
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}

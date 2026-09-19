@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { CalendarClock } from "lucide-react";
+import { Button } from "@/components/Button";
 import { putWordAside } from "@/app/actions";
 
 /**
@@ -13,6 +14,16 @@ import { putWordAside } from "@/app/actions";
  * no honest answer among them: pressing Again brings it straight back and
  * tells the scheduler they nearly had it, which is how a word that arrived
  * early gets drilled hardest.
+ *
+ * IT ASKS FIRST. The button used to act the instant it was pressed and say
+ * what it had done in text small enough to miss, which is how a learner reads
+ * a word vanishing from their deck as a bug rather than as something they
+ * asked for. A confirmation dialog says what is about to happen (the word
+ * comes back on its own in a few weeks, or once the learner reaches the band
+ * it belongs to, and it can be brought back sooner from My words at any time)
+ * before anything is written, and the outcome sentence afterward is the
+ * confirmation of what actually happened rather than the only explanation of
+ * what a press does.
  *
  * ONE DRAWING, for the reason `StarWord` is one. This sits on a review card,
  * on the learn ladder and on a unit lesson, and a copy per session is three
@@ -34,7 +45,7 @@ export function TooComplicated({
   lexemeId, label, context, onDone,
 }: {
   lexemeId: string;
-  /** The word, so the button says which one is going away. */
+  /** The word, so the button and the dialog say which one is going away. */
   label: string;
   /** Where they were standing. Stored with the row, for whoever reads the queue. */
   context: string;
@@ -43,31 +54,96 @@ export function TooComplicated({
 }) {
   const [pending, start] = useTransition();
   const [failed, setFailed] = useState(false);
+  const [asking, setAsking] = useState(false);
+
+  useEffect(() => {
+    if (!asking) return;
+    // The review, lesson and ladder sessions each bind Enter, the digits and
+    // `u` straight onto `window` with no notion of a dialog sitting on top,
+    // so without this every one of those kept grading, revealing or undoing
+    // the card underneath while somebody was deciding whether to put a
+    // different word aside. Capturing on `window` runs before those
+    // bubble-phase listeners ever see the key, and `stopPropagation` alone
+    // (never `preventDefault`) is what keeps that from also breaking Tab and
+    // Enter/Space on whichever of the dialog's own two buttons has focus:
+    // those are native behaviors tied to the key reaching its target, not to
+    // whether some other listener elsewhere also got to run.
+    const onKey = (e: KeyboardEvent) => {
+      e.stopPropagation();
+      if (e.key === "Escape" && !pending) setAsking(false);
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [asking, pending]);
+
+  const confirm = () => {
+    setFailed(false);
+    start(async () => {
+      const result = await putWordAside(lexemeId, context).catch(() => null);
+      if (result?.ok) {
+        setAsking(false);
+        onDone(result.note);
+      } else {
+        setFailed(true);
+      }
+    });
+  };
 
   return (
     <span className="flex items-center gap-2">
-      {failed && (
-        <span className="text-2xs" style={{ color: "var(--hard-ink)" }} role="status">
-          Not saved. Try again.
-        </span>
-      )}
       <button
         type="button"
         disabled={pending}
-        aria-label={`Put ${label} aside, it is too complicated for now`}
-        className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-1 text-xs font-semibold disabled:opacity-40"
+        aria-label={`Ask about putting ${label} aside for now`}
+        className="tap-tint flex items-center gap-1.5 rounded-md px-1.5 py-1 text-sm font-semibold disabled:opacity-40"
         style={{ color: "var(--ink-3)" }}
         onClick={() => {
           setFailed(false);
-          start(async () => {
-            const result = await putWordAside(lexemeId, context).catch(() => null);
-            if (result?.ok) onDone(result.note);
-            else setFailed(true);
-          });
+          setAsking(true);
         }}
       >
         <CalendarClock size={13} aria-hidden /> Too complicated
       </button>
+
+      {asking && (
+        <div
+          className="fixed inset-0 z-[130] flex items-center justify-center px-4"
+          style={{ background: "rgb(0 0 0 / 0.35)" }}
+          onClick={() => !pending && setAsking(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`too-complicated-${lexemeId}`}
+        >
+          <div
+            className="pop-in w-full max-w-sm rounded-[var(--r-xl)] border p-5"
+            style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p id={`too-complicated-${lexemeId}`} className="text-base font-bold" style={{ color: "var(--ink)" }}>
+              Put <span lang="et">{label}</span> aside?
+            </p>
+            <p className="mt-2 text-sm" style={{ color: "var(--ink-2)" }}>
+              It leaves your review queue for now, so it stops turning up on cards.
+              It comes back on its own in a few weeks, or once you reach the level it
+              belongs to, whichever fits. You can bring it back sooner any time from
+              My words.
+            </p>
+            {failed && (
+              <p className="mt-3 text-sm" role="status" style={{ color: "var(--hard-ink)" }}>
+                Not saved. Try again.
+              </p>
+            )}
+            <div className="mt-5 flex justify-end gap-2">
+              <Button variant="secondary" onClick={() => setAsking(false)} disabled={pending}>
+                Cancel
+              </Button>
+              <Button variant="primary" onClick={confirm} disabled={pending}>
+                Put it aside
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </span>
   );
 }

@@ -15,6 +15,8 @@ import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
 import { BLANK } from "@/lib/estonian/cloze";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapMeaning } from "@/lib/copy/gapMeaning";
 import { WayOut } from "@/components/round/RoundExit";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
@@ -30,6 +32,15 @@ export interface SprintCard {
   cardType: string;
   /** What this card's sentence means, where the dictionary already holds it. */
   sentenceEn: string | null;
+  /**
+   * The card's own cue, which is which word the gap wants without saying which
+   * spelling: the lemma and the meaning, then the meaning alone, then nothing.
+   *
+   * Carried here only so `gapMeaning` can find that meaning inside the English
+   * sentence and mark it. Sprint has never printed the cue on its own and
+   * still does not.
+   */
+  hint: string | null;
 }
 
 const estonianSide = (type: string, side: "front" | "back") =>
@@ -65,6 +76,15 @@ export function SprintSession({
   const shownAt = useRef(Date.now());
 
   const card = cards.length > 0 ? cards[index % cards.length]! : null;
+  /*
+    The English of a gap's own sentence, from what the dictionary already
+    holds, with the missing word marked inside it (`lib/copy/gapMeaning.ts`).
+    Null on every card whose front is not a gap, and on every gap the shipped
+    table has no line for.
+  */
+  const meaning = card?.front.includes(BLANK)
+    ? gapMeaning({ en: card.sentenceEn, answer: card.back, cue: card.hint, lemma: card.lemma })
+    : null;
   const exhausted = cards.length > 0 && attempted >= cards.length;
 
   useEffect(() => {
@@ -270,6 +290,22 @@ export function SprintSession({
             </p>
             {estonianSide(card.cardType, "front") && <Speak text={card.lemma ?? card.front} />}
           </div>
+
+          {/*
+            WHAT THE LINE SAYS, ON THE QUESTION, WHERE THE FRONT IS A SENTENCE
+            WITH A WORD TAKEN OUT.
+
+            The note below on the reveal argues that a translation shown before
+            the answer is the answer, and it was written when what would have
+            been shown was the whole line unmarked and asked for on the spot.
+            Both halves of that are answered rather than argued with:
+            `gapMeaning` withholds the line where the English carries the
+            answer, which is the fault the note names, and this draws only what
+            the dictionary already holds, so a forty-card minute is still forty
+            cards and no calls. What is left is the context, and a sprint is
+            the round with the least time to work it out from nothing.
+          */}
+          {!revealed && meaning && <GapMeaning meaning={meaning} className="text-sm leading-snug" />}
 
           {revealed && (
             <>

@@ -287,7 +287,7 @@ export function SonadSession({ puzzle, day, guessable }: {
             )}
             {coming && (
               <span style={{ color: "var(--ink-3)" }}>
-                {clue.category && puzzle.category ? " Next: " : ""}{coming}
+                {clue.category && puzzle.category ? " " : ""}{coming}
               </span>
             )}
           </p>

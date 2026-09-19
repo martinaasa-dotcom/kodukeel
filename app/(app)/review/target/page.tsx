@@ -3,6 +3,7 @@ import { targetRound } from "@/lib/progress/target";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { TargetSession } from "./TargetSession";
+import { moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Target" };
 
@@ -22,9 +23,14 @@ export const dynamic = "force-dynamic";
  *
  * Grades through `gradeCard` like every other mode (ADR-016).
  */
-export default async function TargetPage() {
+export default async function TargetPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
-  const questions = await targetRound(ownerId);
+  // Opened from the module, the targets are taught words in taught cases.
+  const questions = await targetRound(ownerId, moduleScopeFrom(await searchParams));
 
   if (questions.length === 0) {
     return (

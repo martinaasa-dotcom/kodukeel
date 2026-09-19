@@ -152,8 +152,21 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
     expect: "An answer, and the same question turned back on you.",
   },
   asesonad: {
-    live: false, needs: [], cases: ["GENITIVE", "PARTITIVE", "ALLATIVE", "ADESSIVE"],
-    tryThis: "Write about your day using only pronouns for the people in it, each in the right case.",
+    live: false, needs: [], cases: [],
+    tryThis: "Point at three people and say who each one is with a pronoun: I, you, he.",
+  },
+  "esimesed-verbid": {
+    live: false, needs: ["pronouns"], cases: [],
+    tryThis: "Say where you live and where you work, then say the same about somebody else.",
+  },
+  umbmaarased: {
+    live: false, needs: ["pronouns"], cases: ["GENITIVE", "PARTITIVE"],
+    tryThis: "Write about your day using somebody, something and everybody, each in the right case.",
+  },
+  kindlus: {
+    live: true, needs: ["replies"], cases: [],
+    tryThis: "Answer a yes or no question with how sure you are: definitely, probably, maybe.",
+    expect: "A second question, because a hedged answer invites one.",
   },
   millal: {
     live: true, needs: ["time"], cases: ["ADESSIVE"],
@@ -180,8 +193,8 @@ export const SITUATION_FACTS: Record<string, SituationFacts> = {
   },
   vastused: {
     live: true, needs: [], cases: [],
-    tryThis: "Answer a yes or no question in Estonian with more than yes or no.",
-    expect: "A second question, because a full answer invites one.",
+    tryThis: "Say hello and thank you to the first person you deal with today.",
+    expect: "A hello back, and often a question you can answer with yes or no.",
   },
   maaramine: {
     live: false, needs: [], cases: ["PARTITIVE"],

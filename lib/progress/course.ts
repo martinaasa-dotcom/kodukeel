@@ -6,6 +6,7 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/syllabus";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
+import { computeStreak } from "@/lib/stats/streak";
 import {
   DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayReached, ladderProgress,
   ladderVerdict, levelsTo, programmeById, programmeStanding, type CourseDay,
@@ -123,6 +124,8 @@ interface Ticks {
    * finished day stays finished.
    */
   lastAt: Map<string, Date>;
+  /** When every tick was written, oldest first, for the run of evenings. */
+  at: Date[];
 }
 
 /**
@@ -144,6 +147,7 @@ const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ti
   });
   const byDay = new Map<string, Set<string>>();
   const lastAt = new Map<string, Date>();
+  const at = rows.map((row) => row.createdAt);
   for (const row of rows) {
     const set = byDay.get(row.dayId) ?? new Set<string>();
     set.add(row.stepId);
@@ -151,7 +155,7 @@ const ticksFor = cache(async (ownerId: string, programme: Programme): Promise<Ti
     // The rows arrive oldest first, so the last one written wins.
     lastAt.set(row.dayId, row.createdAt);
   }
-  return { byDay, lastAt };
+  return { byDay, lastAt, at };
 });
 
 /**
@@ -246,6 +250,13 @@ async function closingGraded(ownerId: string, ticks: Ticks, dayId: string): Prom
 export interface CourseReading extends ProgrammeStanding {
   /** True where the current day's last step was finished today. */
   finishedToday: boolean;
+  /**
+   * How many evenings in a row this programme has been worked on, counting
+   * today where today has a tick and yesterday where it does not, which is
+   * `computeStreak`'s own rule and the same midnight the review streak breaks
+   * at. Derived from the step log on every read (ADR-014).
+   */
+  eveningsInARow: number;
 }
 
 /**
@@ -323,7 +334,16 @@ export async function courseReading(
   const lastTick = justFinished ? ticks.lastAt.get(justFinished) : undefined;
   const finishedToday = Boolean(lastTick && lastTick >= clock.startOfDay(now));
 
-  return { ...standing, finishedToday };
+  /*
+    THE RUN OF EVENINGS, off the same rows. A tick is a fact about an evening
+    the way a review row is a fact about a sitting, so the evenings are the
+    distinct days carrying one. Every tick rather than each day's last, since
+    an evening spent on a day that finished the next night is still an
+    evening somebody turned up for.
+  */
+  const eveningsInARow = computeStreak(ticks.at, now, clock);
+
+  return { ...standing, finishedToday, eveningsInARow };
 }
 
 /**

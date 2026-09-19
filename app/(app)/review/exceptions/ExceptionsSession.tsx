@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, TriangleAlert } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { gradeCard } from "@/app/actions";
 import { Button, ButtonLink } from "@/components/Button";
 import { DiacriticBar } from "@/components/DiacriticBar";
@@ -19,8 +21,9 @@ import { grammarTopic } from "@/lib/estonian/grammar";
 import { AlsoRight } from "@/components/WordExceptions";
 import { plainAskLine } from "@/lib/estonian/plainAsk";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { useModuleFocus } from "@/components/course/moduleFocus";
 
 /**
@@ -59,6 +62,8 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   const { refresh: refreshOutbox } = useOffline();
 
   const task = tasks[index];
+  /* The way back to the word before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
   const finished = !task;
   const meeting = task?.rung === "meet";
 
@@ -105,14 +110,38 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
   }, [task, typed, mark, sound, refreshOutbox]);
 
   const next = useCallback(() => {
+    /* The word, the form it turned out to take and what it departs from,
+       which is the whole of what this round is about. */
+    if (task) {
+      look.record({
+        of: task.id,
+        label: task.label,
+        question: task.gapped ?? task.lemma,
+        answer: task.accepted[0] ?? task.lemma,
+        note: task.note ?? task.translation,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.accepted[0] ?? task.lemma,
+      });
+    }
     setMark(null);
     setTyped("");
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
-  }, []);
+  }, [task, look]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
       if (mark || meeting) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       e.preventDefault();
@@ -120,7 +149,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, meeting, next, check]);
+  }, [mark, meeting, next, check, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -176,6 +205,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -251,6 +281,11 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
             </Button>
           )}
         </div>
+      </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
       </div>
     </div>
   );
@@ -377,13 +412,45 @@ function Asking({ task }: { task: ExceptionTask }) {
           {task.gapped}
         </p>
         {/*
-          The meaning rather than the dictionary form, which is the rule the
-          gap-fill card learned: printing the lemma beside a gap that wants the
-          lemma hands the answer over, and this gap wants a form built on it.
+          WHAT THE LINE SAYS, WITH THE MISSING WORD MARKED IN IT, AND THE BARE
+          MEANING ONLY WHERE THE SENTENCE DID NOT SAY IT.
+
+          This round asks for the forms no rule reaches, so its `use` rung is
+          the hardest gap in the app and was also the one with the least to go
+          on: one word of English over a sentence a learner could not read.
+          One rule and one drawing for every gap screen there is
+          (`lib/copy/gapMeaning.ts`), including both of its refusals, and the
+          fallback is the line this replaced.
         */}
-        <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
-          The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-        </p>
+        {(() => {
+          const meaning = gapMeaning({
+            en: task.sentenceEn,
+            answer: task.gapForm ?? task.accepted[0] ?? "",
+            cue: task.translation,
+            lemma: task.lemma,
+          });
+          /*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE
+            (`gapCue`): a marked line is that gloss printed in context and an
+            unmarked one is a sentence whose English happens not to carry it,
+            where the cue is the only thing naming the word. No lemma is
+            passed, which is the rule the gap-fill card learned: printing the
+            dictionary form beside a gap that wants a form built on it hands
+            the answer over.
+          */
+          const cue = gapCue({ hint: task.translation, lemma: null, marked: meaning?.marked ?? false });
+          if (!meaning && !cue) return null;
+          return (
+            <div className="mt-4">
+              {meaning && <GapMeaning meaning={meaning} />}
+              {cue && (
+                <p className="text-base" style={{ color: "var(--ink-2)" }}>
+                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                </p>
+              )}
+            </div>
+          );
+        })()}
       </div>
     );
   }
@@ -431,7 +498,7 @@ function Feedback({ task, mark }: { task: ExceptionTask; mark: FlashMark }) {
 
   return (
     <div className="mt-6" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}

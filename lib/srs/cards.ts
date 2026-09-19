@@ -1,4 +1,4 @@
-import { plainPhrase } from "@/lib/copy/values";
+import { PARTS, plainPhrase } from "@/lib/copy/values";
 import { caseByKey } from "@/lib/estonian/cases";
 import { caseFits, caseQuestionFor, localCasesFor } from "@/lib/estonian/caseQuestion";
 import { BLANK, buildCloze, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
@@ -343,7 +343,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
     switch (type) {
       case "RECOGNITION":
         out.push({
-          cardType: type, front: plainPhrase(lex.lemma), back: plainPhrase(lex.translation),
+          cardType: type, front: plainPhrase(lex.lemma, lex.pos), back: plainPhrase(lex.translation, lex.pos),
           hint: null, targetCase: null, slot: null,
         });
         break;
@@ -367,8 +367,8 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
         const answers = [lex.lemma, ...(lex.alsoAccepted ?? []).filter((w) => w !== lex.lemma)];
         out.push({
           cardType: type,
-          front: plainPhrase(lex.translation),
-          back: answers.map(plainPhrase).join(" / "),
+          front: plainPhrase(lex.translation, lex.pos),
+          back: answers.map((answer) => plainPhrase(answer, lex.pos)).join(PARTS),
           hint: lex.pos.toLowerCase(),
           targetCase: null,
           slot: null,
@@ -480,7 +480,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
             out.push({
               cardType: type,
               front: cloze.text,
-              back: [cloze.answer, ...also].join(" / "),
+              back: [cloze.answer, ...also].join(PARTS),
               hint,
               targetCase: key,
               slot: null,
@@ -631,7 +631,7 @@ export function generateCards(lex: LexemeForCards, types: readonly CardType[]): 
             out.push({
               cardType: type,
               front,
-              back: [answer, ...also].join(" / "),
+              back: [answer, ...also].join(PARTS),
               hint,
               targetCase: null,
               slot: slot.code,

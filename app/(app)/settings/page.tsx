@@ -1,6 +1,6 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import type { ReactNode } from "react";
-import { Bell, Download, Keyboard, Smartphone } from "lucide-react";
+import { Download, Keyboard, Smartphone } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { currentLearner, requireUserId } from "@/lib/auth/session";
 import { supabaseConfigured } from "@/lib/auth/mode";
@@ -11,6 +11,8 @@ import { letterBarFrom } from "@/lib/ux/letterBar";
 import { wordGlossFrom } from "@/lib/ux/wordGloss";
 import { caseGlossFrom, caseGlossDefaultFor } from "@/lib/estonian/caseGloss";
 import { participationFrom, researchExportConfigured } from "@/lib/research/participation";
+import { emailPrefsFrom, kindStates } from "@/lib/email/prefs";
+import { mailerConfig } from "@/lib/mailer/transport";
 import { goalsFor, latestFor } from "@/lib/progress/assessment";
 import { levelLabel } from "@/components/assessment/PlanPanel";
 import { courseLevelFor } from "@/lib/progress/level";
@@ -28,6 +30,7 @@ import { GoalsPanel } from "./GoalsPanel";
 import { ImportPanel } from "./ImportPanel";
 import { InstallPanel } from "./InstallPanel";
 import { CaseGlossPanel, ClassNamePanel, LetterBarPanel, ResearchPanel, ReviewModePanel, WordGlossPanel } from "./PreferencesPanel";
+import { EmailPanel } from "./EmailPanel";
 import { AutoplayPanel, CurrentPaceSample, CurrentVoiceSample, FeedbackSoundsPanel, HearingPanel, SpeechPacePanel, SupportPanel, VoicePanel } from "./AudioPanel";
 import { hearingFrom, supportFrom } from "@/lib/audio/conditions";
 import { GlossLanguagePanel } from "./GlossLanguagePanel";
@@ -119,6 +122,7 @@ export default async function SettingsPage() {
       SETTING_KEYS.todayOrder,
       SETTING_KEYS.roundPace,
       SETTING_KEYS.caseQuestionGloss,
+      SETTING_KEYS.emailsOff, SETTING_KEYS.emailsOn, SETTING_KEYS.reminderAt,
     ]),
     currentLearner(),
     goalsFor(ownerId),
@@ -136,6 +140,14 @@ export default async function SettingsPage() {
   const mode = reviewModeFrom(settings[SETTING_KEYS.reviewMode]);
   const letters = letterBarFrom(settings[SETTING_KEYS.letterBar]);
   const participation = participationFrom(settings[SETTING_KEYS.researchOptOut]);
+  const emailPrefs = emailPrefsFrom(settings[SETTING_KEYS.emailsOff], settings[SETTING_KEYS.emailsOn]);
+  /*
+    Whether this installation can send at all, read here and handed down as a
+    boolean. `lib/funding/` takes the same shape about the environment for the
+    same reason: a page that reads a variable is a page that can print one, and
+    several of these are keys.
+  */
+  const canSend = mailerConfig() !== null;
 
   /*
     Whether the learner is being led, and how far in. Read here rather than
@@ -603,35 +615,29 @@ export default async function SettingsPage() {
             </Card>
           </section>
 
-          <section>
-            <SectionTitle hint="a calendar event, not a notification">Daily reminder</SectionTitle>
+          <section id="email">
+            <SectionTitle hint="you choose which, and the hour">Emails and reminders</SectionTitle>
             <Card>
-              <div className="flex items-start gap-3">
-                <Bell size={18} aria-hidden className="mt-0.5 shrink-0" style={{ color: "var(--accent-deep)" }} />
-                <div>
-                  <p className="text-sm" style={{ color: "var(--ink-2)" }}>
-                    Add a repeating reminder to the calendar you already use. It fires on your phone
-                    whether or not this app is open, needs no account and no permission from us, and
-                    you can delete it like any other event.
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {["08:00", "12:30", "18:00", "20:30"].map((time) => (
-                      <a
-                        key={time}
-                        href={`/api/reminder?at=${time}`}
-                        className="rounded-md border px-3 py-1.5 text-sm"
-                        style={{ borderColor: "var(--rule)", color: "var(--ink-2)", background: "var(--surface)" }}
-                      >
-                        {time}
-                      </a>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-                    The time is read on your own clock, wherever you are, and stays put when the
-                    clocks change.
-                  </p>
-                </div>
-              </div>
+              <EmailPanel
+                on={
+                  /*
+                    WHAT IS ON, RATHER THAN WHAT IS OFF, WHICH IS NOT THE SAME
+                    QUESTION ANY MORE.
+
+                    It used to hand over the off-set and let the panel invert
+                    it, which was true while every kind was on by default. The
+                    daily word is not: it is absent from both rows until
+                    somebody asks for it, so "not switched off" and "switched
+                    on" are different answers about it and only `wants` knows
+                    which. `kindStates` is that function asked of every kind at
+                    once, which also retires the `all-off` special case this
+                    prop used to carry.
+                  */
+                  new Set(kindStates(emailPrefs).filter((s) => s.on).map((s) => s.kind))
+                }
+                reminderAt={settings[SETTING_KEYS.reminderAt] ?? null}
+                sending={canSend}
+              />
             </Card>
           </section>
 

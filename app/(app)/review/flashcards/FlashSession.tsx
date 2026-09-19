@@ -13,14 +13,17 @@ import { useOffline } from "@/components/OfflineProvider";
 import { StarWord } from "@/components/StarWord";
 import { enqueueGrade } from "@/lib/offline/db";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
+import { GapMeaning } from "@/components/GapMeaning";
+import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
 import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { MAX_SENTENCE_CHARS } from "@/lib/estonian/writing";
 import { asksInEnglish } from "@/lib/games/flash";
 import { caseByKey } from "@/lib/estonian/cases";
 import { VERDICT_CLASS, VERDICT_INK, verdictOfRating } from "@/lib/ux/verdict";
-import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
+import { ADVANCE_KEY_GLYPH, inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 
 /** A task, plus where the word stands, which is the thing the round is moving. */
 export interface FlashPrompt extends FlashTask {
@@ -66,6 +69,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
 
   const task = prompts[index];
   const finished = !task;
+  /*
+    The way back to the word before this one. `lib/ux/lookBack.ts` is the rule
+    and says why it is not undo: nothing here grades, reorders or requeues.
+  */
+  const look = useLookBack();
 
   /*
     A `heard` task with no sound is asked the plain way rather than abandoned.
@@ -124,12 +132,29 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   }, [task, typed, mark, sound, streak, refreshOutbox]);
 
   const next = useCallback(() => {
+    /*
+      One choke point, so the record cannot fall behind the round. What is
+      kept is the question as it was drawn, which for a gap and a heard task
+      is the sentence rather than the lemma, and the form it turned out to be.
+    */
+    if (task) {
+      look.record({
+        of: task.id,
+        label: task.label,
+        question: task.gapped ?? task.sentence ?? task.lemma,
+        answer: task.shown.join(" / ") || task.value,
+        note: task.gapped || task.sentence ? `${task.lemma}, ${task.translation}` : task.translation,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.value,
+      });
+    }
     setMark(null);
     setTyped("");
     setHeardLost(false);
     setIndex((i) => i + 1);
     shownAt.current = Date.now();
-  }, []);
+  }, [task, look]);
 
   /*
     Enter checks, and then Enter moves on. One key for the whole round, which
@@ -139,6 +164,18 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
   */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      /* While a look back is on screen the round is not, so its keys are not
+         either: a stray Enter over an older word would move the round on. */
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
       if (mark) { if (isAdvanceKey(e)) { e.preventDefault(); next(); } return; }
       if (e.key !== "Enter") return;
       if (shape === "build" && !(e.metaKey || e.ctrlKey)) return;
@@ -147,7 +184,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mark, next, check, shape]);
+  }, [mark, next, check, shape, look]);
 
   if (finished) {
     const minutes = Math.max(1, Math.round((Date.now() - startedAt.current) / 60000));
@@ -203,6 +240,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="rounded-xl border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow)" }}
@@ -279,6 +317,11 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
           )}
         </div>
       </div>
+      )}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
 
       <Standing task={task} />
     </div>
@@ -318,15 +361,47 @@ function Question({
           {task.gapped}
         </p>
         {/*
-          The meaning rather than the lemma, which is what makes this harder
-          than the gap-fill card review already has: the sentence and the
-          meaning together are what say which form is wanted, and printing the
-          dictionary form beside a gap wanting the dictionary form hands the
-          answer over. That was 2,468 cards once.
+          WHAT THE MISSING WORD MEANS, AND WHERE THE DICTIONARY CAN, THE WHOLE
+          LINE WITH THAT MEANING MARKED INSIDE IT.
+
+          "The missing word means four" says what the word is and nothing about
+          the sentence it is missing from, which is the report this pass
+          started from one round over. Where the dictionary has the line, it is
+          the better sentence of the two and says the same thing: it names the
+          meaning and puts it where the gap is. Where it has none, the sentence
+          above stands, which is what every gap card said before this.
+          `lib/copy/gapMeaning.ts` is the one rule, including its two refusals.
         */}
-        <p className="mt-4 text-base" style={{ color: "var(--ink-2)" }}>
-          The missing word means <strong style={{ color: "var(--ink)" }}>{task.translation}</strong>.
-        </p>
+        {(() => {
+          const meaning = gapMeaning({
+            en: task.sentenceEn, answer: task.value, cue: task.translation,
+          });
+          /*
+            AND THE GLOSS STAYS WHEREVER THE SENTENCE DID NOT TAKE ITS PLACE.
+
+            One rule for both halves (`gapCue`): a marked line is this gloss
+            printed in context, so saying it again underneath is the same word
+            twice, and an unmarked line is a sentence whose English happens not
+            to carry the gloss as a whole word, where the cue is the only thing
+            naming it. This round passes no lemma, deliberately: the meaning
+            rather than the dictionary form is what makes it harder than the
+            gap-fill card review already has, since printing the dictionary
+            form beside a gap wanting the dictionary form hands the answer
+            over. That was 2,468 cards once.
+          */
+          const cue = gapCue({ hint: task.translation, lemma: null, marked: meaning?.marked ?? false });
+          if (!meaning && !cue) return null;
+          return (
+            <div className="mt-4">
+              {meaning && <GapMeaning meaning={meaning} />}
+              {cue && (
+                <p className="text-base" style={{ color: "var(--ink-2)" }}>
+                  The missing word means <strong style={{ color: "var(--ink)" }}>{cue}</strong>.
+                </p>
+              )}
+            </div>
+          );
+        })()}
         <SlotLine task={task} />
       </div>
     );
@@ -452,7 +527,7 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
 
   return (
     <div className="mt-6" aria-live="polite">
-      <div className={`${VERDICT_CLASS[verdict]} flex items-start gap-2.5 rounded-md px-3.5 py-3`}>
+      <div className={`${VERDICT_CLASS[verdict]} verdict-panel flex items-start gap-2.5`}>
         {mark.right
           ? <Check size={16} className="mt-0.5 shrink-0" aria-hidden />
           : <CircleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />}

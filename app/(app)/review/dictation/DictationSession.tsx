@@ -17,8 +17,9 @@ import { checkDictation, wordNote, type DictationResult, type WordStatus } from 
 import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
-import { isAdvanceKey } from "@/lib/ux/advanceKey";
+import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { WordLink } from "@/components/course/WordLink";
 
 export interface DictationTask {
@@ -103,6 +104,8 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
   const task = round[index];
   const finished = !task;
+  /* The way back to the sentence before this one. See `lib/ux/lookBack.ts`. */
+  const look = useLookBack();
 
   useEffect(() => { rememberTask(task ? { id: task.cardId } : undefined); }, [rememberTask, task]);
   /*
@@ -146,19 +149,45 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
     setBusy(false);
   }, [task, busy, result, typed]);
 
-  const next = () => setIndex((i) => i + 1);
+  const next = useCallback(() => {
+    /* What was on the screen: the sentence, and its English where the
+       dictionary holds one. Nothing is graded by keeping it. */
+    if (task) {
+      look.record({
+        of: task.cardId,
+        label: "Dictation",
+        question: task.lemma,
+        answer: task.et,
+        note: task.en,
+        questionLang: "et",
+        answerLang: "et",
+        speak: task.et,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [task, look]);
 
   /* Once the sentence is marked, Enter or Space is "next", the same two keys
      every other round takes for moving on. Before the mark the field owns
      Enter through `onEnter`, and a space is a letter in the sentence. */
   useEffect(() => {
-    if (!result) return;
     const onKey = (e: KeyboardEvent) => {
+      if (look.looking) {
+        if (e.key === "Escape") { e.preventDefault(); look.close(); return; }
+        if (isAdvanceKey(e) && !inEditable(e.target)) { e.preventDefault(); look.forward(); }
+        return;
+      }
+      if (e.key.toLowerCase() === "b" && !inEditable(e.target) && look.seen.length > 0) {
+        e.preventDefault();
+        look.open();
+        return;
+      }
+      if (!result) return;
       if (isAdvanceKey(e)) { e.preventDefault(); next(); }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [result]);
+  }, [result, look, next]);
 
   if (round.length === 0) {
     return (
@@ -236,6 +265,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
         </span>
       </div>
 
+      {look.panel ? <LookBackCard {...look.panel} /> : (
       <div
         className="flex flex-col overflow-hidden rounded-[var(--r-xl)] border"
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
@@ -363,10 +393,12 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
           )}
         </div>
       </div>
+      )}
 
-      <p className="mt-4 text-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        {correct} word-perfect of {done} · graded word by word
-      </p>
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
+        <span>{correct} word-perfect of {done} · graded word by word</span>
+        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+      </div>
     </div>
   );
 }
@@ -381,7 +413,17 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 function Marked({ result }: { result: DictationResult }) {
   return (
     <div className="flex flex-col gap-3">
-      <p className="label-xs text-center" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
+      {/*
+        The round's verdict, and it is a sentence rather than a caption.
+        `label-xs` is 12px, tracked and uppercase, so "Every word heard, one
+        is missing its Estonian letters." was shouted in the smallest type the
+        system has, as the headline over the thing the learner came back to
+        read. It takes the step every other verdict takes, and the weight
+        rather than the transform is what makes it the headline; the ink is
+        unchanged, so the hue still says which of the three it was and the
+        sentence still says it in words.
+      */}
+      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
         {result.note}
       </p>
       <div className="pop-in flex flex-wrap justify-center gap-1.5">

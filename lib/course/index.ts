@@ -200,7 +200,7 @@ export function wordsThrough(programme: Programme, index: number): string[] {
 /**
  * Every word the *ladder* has taught by a day, which is not the same question.
  *
- * A `Programme` is one part of seventeen, so `wordsThrough` answers about a
+ * A `Programme` is one part of eighteen, so `wordsThrough` answers about a
  * fortnight: on the first evening of a1.5 it returns that evening's eight
  * words and says nothing about the 386 the four parts before it handed over.
  * That is the right answer for a bar counting a part's own progress and the
@@ -234,4 +234,32 @@ export function taughtThrough(programme: Programme, index: number): string[] {
   }
   for (const w of wordsThrough(programme, index)) if (!words.includes(w)) words.push(w);
   return words;
+}
+
+/** The pages the ladder has read through a day: cases by key, topics by id. */
+export interface GrammarTaught {
+  cases: string[];
+  topics: string[];
+}
+
+/**
+ * Every grammar page the ladder has opened through a day, across the parts
+ * before this one and this one's own evenings, in the order they were read.
+ *
+ * The other half of `taughtThrough`: a case is asked only after its page has
+ * been read, so a round opened from the module needs to know which pages
+ * those are, and the builder's ledger is not on the day. The day's own
+ * reading counts, since it comes before the rounds.
+ */
+export function grammarThrough(programme: Programme, index: number): GrammarTaught {
+  const at = PROGRAMMES.findIndex((p) => p.id === programme.id);
+  const cases: string[] = [];
+  const topics: string[] = [];
+  const take = (d: CourseDay) => {
+    if (d.grammarCase && !cases.includes(d.grammarCase)) cases.push(d.grammarCase);
+    if (d.grammar && !topics.includes(d.grammar)) topics.push(d.grammar);
+  };
+  if (at > 0) for (const before of PROGRAMMES.slice(0, at)) for (const d of before.days) take(d);
+  for (const d of programme.days) if (d.index <= index) take(d);
+  return { cases, topics };
 }
