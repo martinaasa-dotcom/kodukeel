@@ -10,6 +10,7 @@ import { Speak } from "@/components/Speak";
 import { StarWord } from "@/components/StarWord";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
+import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
 import { VERDICT_CLASS, type Verdict } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { lettersOf, ratingFor, tileForKey, type Tile } from "@/lib/games/letters";
@@ -61,6 +62,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
   const [firstTry, setFirstTry] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [streak, setStreak] = useState(0);
+  const look = useLookBack();
 
   const word = words[index];
 
@@ -75,7 +77,28 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
     }
   }, []);
 
-  const next = useCallback(() => setIndex((i) => i + 1), []);
+  /*
+    The word just gone goes into the look back on the way past it, solved or
+    not: a word the board had to show is the one somebody most wants to see
+    again. The meaning is the question here and the word is the answer, which
+    is the way round this round asks, and the label is the chip the board
+    already wears. Nothing is graded by it (`lib/ux/lookBack.ts`).
+  */
+  const next = useCallback(() => {
+    if (word) {
+      look.record({
+        of: word.cardId,
+        label: "Tähed",
+        question: word.meaning,
+        answer: word.lemma,
+        note: null,
+        questionLang: "en",
+        answerLang: "et",
+        speak: word.lemma,
+      });
+    }
+    setIndex((i) => i + 1);
+  }, [look, word]);
 
   if (wasEmptyAtStart) {
     return (
@@ -142,7 +165,13 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
           {remaining} left
         </span>
       </div>
-      <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />
+      {look.panel
+        ? <LookBackCard {...look.panel} />
+        : <Board key={word.cardId} word={word} streak={streak} correct={correct} onSettled={settled} onNext={next} />}
+
+      <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
+        <LookBackButton {...look.button} disabled={look.looking} />
+      </div>
     </div>
   );
 }

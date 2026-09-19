@@ -394,13 +394,51 @@ await page.waitForSelector("main", { timeout: 15000 });
 await page.waitForTimeout(1200);
 
 const leftNow = async () => ((await page.locator("main").innerText()).match(/(\d+) left/) || [])[1] ?? null;
+/*
+  THE TABLE IS PLACED AS WELL AS TYPED, AND THIS DRIVER ONLY TYPED.
+
+  The round has two shapes (`question.shape === "match"`): a row of boxes,
+  and five empty slots with the five forms on tiles under them, tapped into
+  place. This filled `main input`, which on the placed shape counts nought,
+  so nothing was answered, "Check the table" stayed correctly disabled, and
+  the suite sat on it until Playwright gave up thirty seconds later. A driver
+  that knows one shape of a round stops testing anything the day the round
+  grows another, which is the fault `scripts/lib/review.mjs` exists for one
+  round over.
+
+  The bank is asked for by the group its own markup labels, never by "a
+  button with a word in it": a placed slot carries the word too, so the
+  loose reading clicks the form back out again and leaves the table emptier
+  than it found it. Written that way first, it placed one tile of five,
+  never enabled Check, and reported the section clean, which is the shape of
+  pass this file's own rules call a check nobody can fail. A tile disables
+  as it is spent, so the enabled ones are what is left to place, and the
+  guard is a ceiling on a round that never runs out rather than a limit any
+  table reaches.
+
+  It answers rather than answers correctly: tapped in the order drawn, which
+  is shuffled, the table comes out mostly wrong. That is what the typed
+  version did with "x", and what this section wants is a table that has been
+  answered so the round can be stepped past.
+*/
 const fillTable = async () => {
   const boxes = page.locator("main input");
-  const n = await boxes.count();
-  for (let i = 0; i < n; i += 1) await boxes.nth(i).fill("x");
+  const typed = await boxes.count();
+  for (let i = 0; i < typed; i += 1) await boxes.nth(i).fill("x");
+
+  const bank = page.locator('main [aria-labelledby="conjugation-bank"] button:not([disabled])');
+  let placed = 0;
+  while (await bank.count() && placed < 12) {
+    await bank.first().click();
+    placed += 1;
+  }
+  if (typed === 0 && placed === 0) return false;
+
   const mark = page.getByRole("button", { name: /^check/i }).first();
-  if (await mark.count()) { await mark.click(); await page.waitForTimeout(300); }
-  return n > 0;
+  if (!await mark.count() || !await mark.isEnabled()) return false;
+  await mark.click();
+  await page.waitForTimeout(300);
+  return true;
 };
 
 let table = await fillTable();
