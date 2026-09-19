@@ -177,7 +177,7 @@ export function LessonSession({
           summary={{ correct, total: answered, saving, saved }}
         />
         {aside && (
-          <p className="text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+          <p className="text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
             {aside}{" "}
             <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
               Bring it back

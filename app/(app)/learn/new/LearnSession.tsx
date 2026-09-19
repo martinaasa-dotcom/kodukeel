@@ -497,7 +497,7 @@ export function LearnSession({
     two copies of a sentence is how the wording of one of them rots.
   */
   const asideNote = aside ? (
-    <p className="mt-5 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+    <p className="mt-5 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
       {aside}{" "}
       <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
         Bring it back

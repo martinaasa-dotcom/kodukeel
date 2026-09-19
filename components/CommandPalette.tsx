@@ -106,6 +106,7 @@ export function CommandPalette() {
   const [active, setActive] = useState(0);
   const [units, setUnits] = useState<Command[] | null>(unitCommands);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -123,6 +124,34 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (open) requestAnimationFrame(() => inputRef.current?.focus());
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    // Tab is the one way focus can leave the palette: nothing inside it
+    // after the input is tabbable (the result rows carry tabIndex={-1}), so
+    // a stray Tab moves focus straight onto whatever page is behind the
+    // backdrop, and every key typed there afterward would bubble to window
+    // uncaught, since the input's own onKeyDown never sees an event whose
+    // target isn't itself. This is the backstop for exactly that: capture,
+    // ahead of every bubble-phase listener, and it only swallows a key
+    // whose target has already escaped this dialog's own DOM — anything
+    // still inside it is left alone here, since the input's own handler
+    // already deals with those and needs the event to actually reach it.
+    const onKey = (e: KeyboardEvent) => {
+      // Escape and Cmd/Ctrl-K are the palette's own open/close keys, read by
+      // the plain listener above regardless of where focus is. Swallowing
+      // those here too, on top of a target that has already escaped the
+      // dialog, would leave somebody stuck unable to close it with the
+      // keyboard at all once focus had wandered past it.
+      const closesIt = e.key === "Escape" || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k");
+      if (closesIt) return;
+      if (!(e.target instanceof Node) || !dialogRef.current?.contains(e.target)) {
+        e.stopPropagation();
+      }
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, [open]);
 
   // Fetched once, the first time the box actually opens, and kept in the
@@ -201,6 +230,7 @@ export function CommandPalette() {
 
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[120] flex items-start justify-center px-4 pt-[12vh]"
       style={{ background: "rgb(0 0 0 / 0.35)" }}
       onClick={() => setOpen(false)}
@@ -220,6 +250,22 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => { setQuery(e.target.value); setActive(0); }}
             onKeyDown={(e) => {
+              // Modal: nothing behind the palette should react. The review,
+              // lesson and ladder sessions bind Enter, the digits and u
+              // straight onto window, so a letter typed here, or Escape, or
+              // Cmd/Ctrl-K to close it again, used to still reach whatever
+              // card those sessions had open behind it. stopPropagation
+              // keeps every key inside the palette; never preventDefault
+              // beyond what each branch already claimed, so anything not
+              // handled here (a plain letter, building the query) still
+              // reaches the input normally.
+              e.stopPropagation();
+              if (e.key === "Escape") { setOpen(false); return; }
+              if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+                e.preventDefault();
+                setOpen(false);
+                return;
+              }
               if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => Math.min(a + 1, results.length - 1)); }
               if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)); }
               if (e.key === "Enter") {
@@ -243,6 +289,13 @@ export function CommandPalette() {
               )}
               <button
                 type="button"
+                // Keyboard focus never leaves the input: arrow keys move
+                // `active` and Enter selects it, the same combobox pattern
+                // the ARIA guide describes. Without this, Tab could land
+                // real DOM focus on a row that has no keydown handling of
+                // its own, and every key pressed there would bubble past
+                // this dialog uncaught.
+                tabIndex={-1}
                 onMouseEnter={() => setActive(i)}
                 onClick={() => go(c)}
                 className="flex w-full items-baseline gap-3 px-4 py-2.5 text-left"

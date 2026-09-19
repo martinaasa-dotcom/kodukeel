@@ -933,7 +933,7 @@ export function ReviewSession({
     than two copies, because the second copy is the one whose wording rots.
   */
   const asideNote = aside ? (
-    <p className="mt-4 text-center text-xs" role="status" style={{ color: "var(--ink-2)" }}>
+    <p className="mt-4 text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
       {aside}{" "}
       <Link href="/words/mastery" className="underline" style={{ color: "var(--accent-deep)" }}>
         Bring it back
