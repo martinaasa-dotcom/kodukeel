@@ -7965,6 +7965,23 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   parking space. Replacing a dash between two independent clauses with a comma
   makes a splice and reads worse than the dash did: use a full stop. A separator in a label takes
   the middot the app already uses.
+- **A paragraph a tool writes lives in `AGENTS.md`, and that is what keeps this file its own.**
+  `next dev` upserts a managed block between two HTML comment markers whenever it sees an agent at
+  work, and the paragraph inside it carries an em dash, so `npm test` failed on `CLAUDE.md` for
+  anybody who had run the dev server: a line number in the middle of these rules, reading as a copy
+  fault rather than as a tool artifact. Three answers were weighed. `agentRules: false` in
+  `next.config.ts` switches the writer off and throws away something worth having, since the Next
+  here is well past what most models were trained on and the block is the pointer to the
+  version-matched docs bundled beside it. Excusing the block inside this file leaves the one page
+  that states the voice carrying a generated paragraph written in the voice it forbids, which is the
+  thing this section warns about. So `AGENTS.md` exists and holds it: the writer prefers that file
+  over this one whenever it is there, so nothing rewrites `CLAUDE.md` again, and `AGENTS.md` says in
+  its own first line that the rules are here. What is excused in the sweep is **the marked run
+  rather than the file**, in the shape a fenced block already takes, so everything either page says
+  in its own words is swept exactly as before, and it is held in both directions: `AGENTS.md` has to
+  still hold the block and this file has to still not, or the arrangement has quietly come apart.
+  The same runs write a `distDir` type glob into `tsconfig.json`, and those are committed rather
+  than reverted, which is what the three entries already there were doing.
 - **A character a reader cannot see is written down by name, and that is a rule about the file
   rather than about the string.** `lib/research/corpus.ts` joined a cell's key parts on a NUL, which
   is the right separator, since it cannot occur inside a dimension value and so two keys collide only
