@@ -67,7 +67,8 @@
     "audit:decks": "tsx scripts/audit-decks.ts",
     "translate:examples": "tsx scripts/translate-examples.ts",
     "audit:plainness": "tsx scripts/audit-plainness.ts",
-    "audit:readable": "tsx scripts/audit-readable.ts"
+    "audit:readable": "tsx scripts/audit-readable.ts",
+    "audit:pins": "tsx scripts/audit-grammar-pins.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

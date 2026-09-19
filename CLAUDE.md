@@ -927,6 +927,121 @@ form the sentence actually holds, exactly one case is spelled that way or nothin
 the walk prefers a sentence that passes it. `/grammar/[caseKey]` reads the same examples and ignores
 the field, so nothing about that page moved.
 
+**A reference that only asserts is a reference nobody can act on, so every claim on one ships with
+somebody saying it.** The politeness page headed three boxes "The plural as a polite singular with
+strangers", "The conditional to soften a request" and "Directness is less rude here than English
+speakers expect", and showed none of them. It was reported from exactly there, with the ask in one
+line: each of these needs a very specific example, two would be better, and the same goes for every
+module with text like it. The topic page's own header had argued the other way, that there is no
+safe way to illustrate the quotative because "picking sentences whose words end in the right letters
+would be the app asserting a grammatical analysis it has not verified, which is the same failure as
+generating a form, wearing a different hat". That is right about a **suffix** and wrong about a
+**slot**. `Tahaksin` is the conditional first person of `tahtma` because the dictionary derives it
+from a stored first person that `npm run audit:verbs` checked against Ekilex for all 797 verbs it
+holds, and `Peske` is the polite imperative of `pesema` because the Institute recorded it. Naming a
+sentence a lexicographer wrote and a form the dictionary vouches for is choosing rather than
+writing, which is the standing `BeatSpec.lines` already has one module over (ADR-005).
+
+**`lib/estonian/grammar.ts` still holds no Estonian at all**, and the pins live next door in
+`lib/estonian/grammarExamples.ts`, keyed by the point's own text rather than by its index: an index
+follows a reorder and a point does not, so moving one line of `points` would hand its examples to
+its neighbour, which is the one failure nothing on screen would show. A pin is a sentence, the entry
+it is recorded under, and the word in it that carries the point, and all four things about it are
+checked rather than trusted: the sentence is in the shipped dictionary character for character, it
+carries a shipped English line so a keyless deployment never draws it bare, it passes
+`naturalSentence` so a usage that trails off cannot stand in for a sentence, and the marked word is
+in it. The lemma is there because `Lexeme.examples` is a JSON column rather than a table, so a
+lookup by text would read the whole dictionary; the test asserts the sentence really is one of that
+entry's usages, which caught 28 lemmas guessed wrong on the way in.
+
+**Every one of the 168 points is answered, 125 with sentences and 43 with a written reason, and
+every one of the 125 carries two**, and
+the check is that none is answered with neither. A floor on how many are pinned would let a point
+arrive with no example, no reason and nothing to say so, which is the state this replaced: the
+screen draws nothing either way, so an unpinned point and a point nobody has thought about look
+identical. Two rather than one is the ask, and it is asserted flat rather than as a majority: it was
+"most of them" while fourteen points carried one, and a floor with nothing under it is the parking
+space `senses.test.ts` records becoming one, so those fourteen would have stayed at one for as long
+as the majority held. The 43 are one shape three times over and it is worth naming, because it is the argument
+for not stretching: **a point claiming a contrast, a frequency, or a fact about the system cannot be
+shown by one sentence.** "New information tends to go last" needs the same sentence in two orders;
+"Officialese, which is its own much-mocked style" needs the plain version beside it; "Which words
+gradate is a property of the word" is what the exceptions area lists word by word; and
+"Quotation marks are shaped differently from English ones" is about a glyph a sentence carries
+without teaching anybody to reach for it. Where the reason is really "nobody has looked" it is not a
+reason, so a gap is at least six words and is checked in both directions, because a gap beside a pin
+is somebody who stopped reading.
+
+**The screen reads `Example.en` like every other screen.** `lib/dict/exampleEnglish.ts` has a closed
+list of four readers and every one of them is a writer, the two halves of the seed, the repair and
+the live Ekilex mapper, so a page reaching past the column would be a fifth answer to what a
+sentence means and the copy nobody is watching is the one that goes stale.
+`lib/progress/grammarExamples.ts` is the read: one query per page whatever it holds, the lemmas of
+every pin on it in a single `findMany`, and a pin the live dictionary no longer holds is dropped
+rather than drawn from the text in the table. `matchPins` is that join kept pure, because the query
+is three lines and the join is where a sentence is actually found or lost, and it is driven over
+every pin in the app against rows built the way the seed writes them.
+
+**A duplicate key in that table deletes pins and nothing says so.** It happened twice while the
+table was being filled: `future` and `object` were each written once and then again, and a second
+`object: { ... }` in an object literal does not merge with the first, it replaces it. Nothing could
+catch it from the outside. The unit test reads the table after JavaScript has already collapsed the
+duplicate, so it sees a consistent table with two points missing and correctly reports them as
+unpinned; `tsc` allows it; and the page draws nothing, which is what an unpinned point draws anyway.
+So it is asked of the **source**, which is the only place the second key still exists, at both
+depths, since two point texts colliding is the same fault one level down.
+
+**And the thing that made the pins trustworthy was a scratch script, which is the same fault one
+room over.** Every mechanical check on a pin was about the *sentence*: that the shipped dictionary
+holds it character for character, that it carries a shipped English line, that it is a sentence,
+that the marked word is in it. None of those can tell a conditional from an indicative, which is the
+whole of what a pin on the conditional page claims, and for the first pass that was checked by an
+index built for the afternoon and then deleted. The pins were right and what made them right was
+nowhere, so a later edit could swap in a sentence whose "conditional" is an indicative and every
+test would pass. `scripts/lib/slotIndex.ts` is that index shipped: one pass over the files the seed
+loads, through the app's own derivation rather than any reading of endings, so a case comes off
+`buildCaseTable` and a verb form off `derivedVerbForms` beside the parts the harvest stored.
+**A case page needs no claim**, since the page's own case is the claim and `CASE_EXAMPLES` is keyed
+on it; a topic page's points are moods and tenses and nothing in the file says which, so a pin there
+carries `slot`. The verdict has four values rather than two and only `wrong` fails, which is
+`readCase`'s discipline: `jooksid` is the simple past of `jooksma` and the conditional of `jooma`,
+the sentence decides which, and that is a parse this file cannot make. 162 of the 250 pins verify,
+`shared` is Estonian's own syncretism and `unknown` is a slot the dictionary does not store, which
+is every converb and every quotative. `npm run audit:pins` is where all of it is read rather than
+counted, for the reason `eval:scene` prints a ranked list, and it was the reading that found the
+faults below.
+
+**Nobody who speaks Estonian has read any of them, and the table says so rather than implying
+otherwise.** `PinnedExample.reviewed` is false on all 250, which is the standing `lib/scenes/bank.ts`
+already has about its own lines and is the honest state: the checks above are about attestation and
+about slots, and whether a sentence *illustrates* the claim it is filed under is a person. Nothing
+on screen reads the field, because a learner is shown an attested sentence either way and a chip
+saying nobody has checked this would be the app doubting itself in front of the person it is
+teaching. The audit prints the count, so the number a reviewer has moved is one command away.
+
+**Three faults the reading found, and the first was a gap that was not one.** The superlative's
+one-word form was written down as impossible, "the corpus holds no short superlative in a sentence a
+beginner could read", and the corpus holds `Tallinn on Eesti suurim linn.` and `Kaisa on minu parim
+sõbranna.` A gap that is really "I did not find one" wearing the clothes of "one cannot exist" is
+the shape this file warns about, so it is pinned and the reason is gone. The comparative page led
+its "built on the genitive stem" point with `parem`, which is the irregular one it names two points
+below, and led both points with the same sentence. And three sentences were doing duty **twice on
+one page**, which is the reuse worth fixing: across pages `Käisin meres ujumas.` is the imperfect on
+one and the inessive on another and nobody reads both in a sitting, where twice on one screen reads
+as a dictionary with nothing else in it. The pluperfect's minimal pair is the one deliberate repeat
+and it stays, since the same participle under `oli` and under `on` is the point. The audit reports
+both kinds apart, and same-page reuse is nought.
+
+**And whether any of it reaches a screen is a different claim from the table being right.**
+`scripts/test-teaching.mjs` opens the page the report came from and asks it there: that a claim
+carries examples at all, that the one reported is among them, that what is under it is Estonian with
+the point marked in it, and that the English ships beside it. The hook is `data-point-examples` on
+the list itself rather than a count of hops through the markup, which is what went blind on the
+scene suite the day a sentence grew the dictionary under it, and the pairing is asserted in both
+directions. The other half of the same pass was invalid markup nothing could see: the case page put
+the list inside the `span` carrying the use text, and a `ul` in phrasing content is a tree the
+browser rebuilds however it likes.
+
 **Knowing a word exists is a different job from teaching it, and thirty-two requests buys the
 first.** The dictionary ships 5,363 entries and every other Estonian word came back as "nothing
 found", which is the same blank a learner gets for a misspelling and for an English word. That was
@@ -9546,7 +9661,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `readSentenceTranslation`, `withEnglish`, `fillExampleEnglish`, `CLEAR_TRANSLATION`, `Explain`,
 `CAPTION_MAX`, `CAPTION_EXEMPT`, `captions`, `MODULE_PARAM`, `readFocus`, `focusedSteps`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
-`module-step`.
+`module-step`, `buildSlotIndex`, `readSlot`, `PointExamples`, `data-point-examples`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.
 
@@ -9568,6 +9683,7 @@ npm run audit:senses     # re-check every course gloss against the sense Ekilex 
 npm run audit:sense      # does every question make sense for the word it is about
 npm run audit:exceptions # which words do not follow the pattern, ranked by kind (--list for the words)
 npm run audit:readable   # which A1 words have no sentence a beginner can read, and what blocks them
+npm run audit:pins       # every grammar example: what vouches for it, what nothing can check, what repeats
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:order      # every alternative word order the sentence builder accepts; read the list
 npm run audit:merge      # after merging: what the other side added that is no longer here

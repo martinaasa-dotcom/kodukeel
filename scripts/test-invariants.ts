@@ -1420,6 +1420,13 @@ check("a beginner's word is taught with its plainest sentence, and every picker 
     // card already carries (`translationOf`, an exact match on the sentence a
     // gap was cut from). The card's front decided which sentence that is, when
     // it was built, and a rank here would be ranking a list of one.
+    // The grammar reference's pins name one sentence each, by its text, and
+    // look it up to read back its English and its row id. There is no list to
+    // order: a rank here would be ranking a list of one, and which sentence
+    // teaches a point is a judgement a person made in
+    // `lib/estonian/grammarExamples.ts` rather than one a beginner's reading
+    // level decides.
+    "lib/progress/grammarExamples.ts": "looks one named sentence up to read its English back, picks none",
     "app/(app)/review/sprint/page.tsx": "reads back the English of the card's own sentence, picks none",
     "lib/progress/quest.ts": "reads back the English of the card's own sentence, picks none",
   };
@@ -7525,6 +7532,18 @@ check("no screen writes a case's Latin name into a sentence", () => {
     */
     "lib/estonian/grammar.ts": "holds no Estonian letter, so the Latin name is the only name it has",
     "lib/estonian/exceptions.ts": "the same, for the notes on each kind of exception",
+    /*
+      AND THE PIN TABLE QUOTES `grammar.ts` RATHER THAN WRITING COPY OF ITS OWN.
+
+      Its keys are the points exactly as `grammar.ts` words them, because a key
+      that is the prose cannot be handed to the wrong point by a reorder, which
+      is the one failure nothing on screen would show. So the Latin names in it
+      are the exempt module's own sentences quoted back, and none of them
+      reaches a reader: the screen prints `grammar.ts`'s value and the key is
+      only ever looked up with. `grammarExamples.test.ts` fails on a key that
+      matches no point, so a reworded point cannot leave a stale sentence here.
+    */
+    "lib/estonian/grammarExamples.ts": "its keys are grammar.ts's own points, quoted to look them up and never drawn",
     // A search index rather than copy: a learner typing "partitive" into the
     // palette is looking for the cases page and should find it.
     "lib/ux/nav.ts": "search keywords, which take every spelling somebody might type",
@@ -19094,7 +19113,24 @@ check("the English of a shipped sentence is built once and read in one place", (
     .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
   assert.deepEqual(
     readers.sort(),
-    ["lib/ekilex/mapper.ts", "prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts"].sort(),
+    [
+      "lib/ekilex/mapper.ts", "prisma/expanded.ts", "prisma/repair.ts", "prisma/seed.ts",
+      /*
+        And the check over the grammar pins, which is neither a screen nor a
+        writer: it asserts that every sentence a reference page names ships
+        with an English line, so that a keyless deployment never draws one of
+        them bare. It reads the table to check it rather than to show it.
+      */
+      "lib/estonian/grammarExamples.test.ts",
+      /*
+        And the check over the join, which builds the rows a seeded deployment
+        would hold in order to drive the resolver without a database. It joins
+        the English on exactly as `prisma/seed.ts` does, which is the point:
+        a resolver tested against rows the seed would not write is a resolver
+        tested against nothing.
+      */
+      "lib/progress/grammarExamples.test.ts",
+    ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +
     "reaches a database seeded before the table existed, and the mapper that builds a row out of a " +
@@ -19216,6 +19252,97 @@ check("the shipped translations are English, and there are enough of them to mat
   // noticing: a key with a stray space matches nothing and costs a line.
   const known = Object.keys(table)[0];
   assert.ok(known && englishFor(known), "lib/dict/exampleEnglish.ts cannot read its own table back");
+});
+
+/*
+  A DUPLICATE KEY IN THE PIN TABLE DELETES PINS AND NOTHING SAYS SO.
+
+  `lib/estonian/grammarExamples.ts` is two nested object literals, and a second
+  `object: { ... }` in one of them does not merge with the first, it replaces
+  it. That happened while the table was being filled: `future` and `object`
+  were each written twice, and the earlier block's points went silently, which
+  on screen is a point that has examples everywhere except where it does not.
+  Nothing else could catch it. The unit test reads the table after JavaScript
+  has already collapsed the duplicate, so it sees a consistent table with two
+  points missing and correctly reports them as unpinned; `tsc` allows it; and
+  the page draws nothing, which is what an unpinned point draws anyway.
+
+  So it is asked of the source, which is the only place the second key still
+  exists. Top level only: the inner keys are the point texts, and two of those
+  colliding is the same fault one level down, so both are read.
+*/
+check("the grammar pin table has no key written twice", () => {
+  const source = code("lib/estonian/grammarExamples.ts");
+  for (const table of ["TOPIC_EXAMPLES", "CASE_EXAMPLES", "EXAMPLE_GAPS"]) {
+    const at = source.indexOf(`export const ${table}`);
+    assert.ok(at >= 0, `${table} is gone from lib/estonian/grammarExamples.ts`);
+    const body = source.slice(at, source.indexOf("\n};", at));
+    // An id at one indent, a point at two. Both are object keys and both are
+    // a silent overwrite when repeated.
+    for (const [depth, pattern] of [[1, /^ {2}("[^"]+"|[A-Za-z_][\w-]*):/gm], [2, /^ {4}"([^"]+)":/gm]] as const) {
+      const seen = new Set<string>();
+      for (const hit of body.matchAll(pattern)) {
+        const key = hit[1]!.replace(/^"|"$/g, "");
+        assert.ok(!seen.has(key), `${table} names "${key}" twice at depth ${depth}, so the first one is dead`);
+        seen.add(key);
+      }
+    }
+  }
+});
+
+/*
+  AND THE THING THAT MAKES THE PINS TRUSTWORTHY IS IN THE REPOSITORY.
+
+  A pin claims a sentence shows a slot, and for one pass that claim was checked
+  by a script written for the afternoon and then deleted: the pins were right
+  and the thing that made them right was nowhere, so the next editor could file
+  a sentence whose "conditional" is an indicative and every test would pass,
+  because the sentence is attested and the word is in it.
+
+  Three things have to hold together and any one of them alone is silence. The
+  index has to exist, the unit test CI runs has to ask it, and the audit
+  somebody reads has to be reachable by name. A check that only read the first
+  would pass on a module nothing imports, which is the `DangerZone.tsx` fault
+  in a smaller room.
+*/
+check("what vouches for a grammar pin is shipped, read and runnable", () => {
+  const index = code("scripts/lib/slotIndex.ts");
+  assert.ok(/export function buildSlotIndex/.test(index), "the slot index is gone");
+  assert.ok(/export function readSlot/.test(index), "nothing reads the slot index back");
+
+  const test = code("lib/estonian/grammarExamples.test.ts");
+  assert.ok(
+    /readSlot\(/.test(test),
+    "the pin test no longer asks whether a marked word is the slot it claims",
+  );
+
+  const pkg = JSON.parse(read("package.json")) as { scripts: Record<string, string> };
+  assert.ok(
+    Object.values(pkg.scripts).some((s) => s.includes("audit-grammar-pins")),
+    "the pin audit is not reachable by name",
+  );
+});
+
+/*
+  And what a browser looks for is a hook the component writes.
+
+  `test-teaching.mjs` is where the claim that a reference shows its claims is
+  actually driven, and a suite that found the list by counting hops through the
+  markup would go blind the day a sentence grew the dictionary under it, which
+  is what happened to the scene suite's provenance check. So the component
+  writes `data-point-examples` and the suite reads exactly that, asserted in
+  both directions: a hook nobody renders and a suite that stopped reading it
+  are the same silence one file apart.
+*/
+check("the grammar examples carry the hook the browser suite finds them by", () => {
+  assert.ok(
+    /data-point-examples=/.test(code("components/grammar/PointExamples.tsx")),
+    "PointExamples no longer marks itself for the suite that drives it",
+  );
+  assert.ok(
+    /data-point-examples/.test(read("scripts/test-teaching.mjs")),
+    "the teaching suite no longer checks that a claim is shown rather than stated",
+  );
 });
 
 check("every letter this app can send has a way out of it", () => {
