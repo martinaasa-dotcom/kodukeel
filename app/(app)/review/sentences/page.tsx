@@ -10,6 +10,8 @@ import { orderContextFor } from "@/lib/dict/wordOrder";
 import { alsoRightOrders } from "@/lib/estonian/wordOrder";
 import { courseLevelFor } from "@/lib/progress/level";
 import { BUILD_FROM, maySortWords } from "@/lib/collections/levels";
+import { lemmaFilter, moduleScopeFrom, sentenceWithin } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Sentences" };
 
@@ -30,8 +32,17 @@ const ROUND = 8;
  * every other mode (see app/review/sprint/page.tsx): grading refreshes this
  * Server Component, and a conditional empty state here would swap in mid-round.
  */
-export default async function SentencesPage() {
+export default async function SentencesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
+
+  // Opened from the module, only a sentence made of taught words is set as
+  // tiles, for the reason dictation gives. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(await searchParams);
+  const readable = sentenceWithin(scope, await moduleSpellings(scope));
 
   /*
     WORD ORDERING IS A2 AND ABOVE, HERE AS WELL AS IN A LESSON.
@@ -61,7 +72,10 @@ export default async function SentencesPage() {
         word itself was ever taught. The same rule sprint, speaking, listening
         and Match already apply to their own pools.
       */
-      where: { ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 } },
+      where: {
+        ownerId, suspended: false, lexemeId: { not: null }, state: { not: 0 },
+        ...(scope ? { lexeme: lemmaFilter(scope) } : {}),
+      },
       orderBy: [{ due: "asc" }],
       take: 300,
       select: {
@@ -107,6 +121,7 @@ export default async function SentencesPage() {
     const opener = nominalOpener(entry.pos, [entry.lemma]);
     for (const example of usableExamples(parseExamples(entry.examples), plainerFirst(entry.cefr, reach))) {
       if (!naturalSentence(example.et, opener)) continue;
+      if (!readable(example.et)) continue;
       if (!isBuildable(example.et)) continue;
       tasks.push({
         cardId: entry.cardId,

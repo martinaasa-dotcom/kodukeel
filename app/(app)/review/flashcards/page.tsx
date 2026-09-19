@@ -11,6 +11,8 @@ import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
 import { starredAmong } from "@/lib/progress/stars";
 import { FlashSession, type FlashPrompt } from "./FlashSession";
+import { moduleScopeFrom, sentenceWithin, slotWithin, type ModuleScope } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Flash cards" };
 
@@ -50,11 +52,21 @@ const ROUND = 10;
  * `Review.slot` the log would record the answer as being about a meaning and
  * the variety half of mastery would never move. See `lib/srs/slots.ts`.
  */
-export default async function FlashcardsPage() {
+export default async function FlashcardsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
 
+  // Opened from the module: taught words, taught cases, and a sentence shape
+  // only over a sentence of taught words. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(await searchParams);
+  const readable = sentenceWithin(scope, await moduleSpellings(scope));
+
   const words = await masteryFor(ownerId);
-  const unfinished = words.filter((w) => w.verdict.mastery !== "mastered");
+  const unfinished = words.filter((w) => w.verdict.mastery !== "mastered")
+    .filter((w) => !scope || scope.lemmas.includes(w.lemma));
 
   if (unfinished.length === 0) {
     return (
@@ -145,7 +157,7 @@ export default async function FlashcardsPage() {
     if (prompts.length >= ROUND) break;
     const prompt = promptFor(
       word, byLexeme.get(word.lexemeId), cardsFor.get(word.lexemeId) ?? [], prompts.length,
-      borrowed.get(word.lexemeId) ?? [], reach,
+      borrowed.get(word.lexemeId) ?? [], reach, scope, readable,
     );
     if (prompt) prompts.push({ ...prompt, starred: starred.has(word.lexemeId) });
   }
@@ -188,6 +200,8 @@ function promptFor(
   borrowed: readonly Example[] = [],
   /** What the dictionary vouches for at each band, for ranking a beginner's own. */
   reach?: PlainReach,
+  scope: ModuleScope | null = null,
+  readable: (sentence: string) => boolean = () => true,
 ): Omit<FlashPrompt, "starred"> | null {
   if (!lexeme || cards.length === 0) return null;
 
@@ -203,7 +217,7 @@ function promptFor(
     examples: [
       ...usableExamples(parseExamples(lexeme.examples), reach && plainerFirst(lexeme.cefr, reach)),
       ...borrowed,
-    ],
+    ].filter((e) => readable(e.et)),
   };
 
   /*
@@ -215,7 +229,9 @@ function promptFor(
     not mastered, which is the count half being short, the first slot is asked
     again: that is the honest thing to do rather than dropping the word.
   */
-  const askable = askableSlots(source);
+  // Inside the module, a case once its page has been read and a part of a
+  // verb once the page teaching it has (`slotWithin`).
+  const askable = askableSlots(source).filter((s) => slotWithin(scope, s.slot));
   if (askable.length === 0) return null;
   const filled = new Set(word.verdict.filled);
   const open = askable.filter((s) => !filled.has(s.slot));

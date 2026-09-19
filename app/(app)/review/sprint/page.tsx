@@ -9,6 +9,8 @@ import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
 import { roundPaceFrom, secondsFor } from "@/lib/ux/roundClock";
+import { cardWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { moduleSpellings } from "@/lib/progress/moduleScope";
 
 export const metadata = { title: "Case Sprint" };
 
@@ -32,12 +34,22 @@ const BASE_DURATION_S = 60;
  * re-evaluating as the pool is graded away — and swap to Empty right as the
  * final card is graded, right before the session summary would show.
  */
-export default async function SprintPage() {
+export default async function SprintPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
   const now = new Date();
 
+  // Opened from the module, the sprint is the module's own words, and a case
+  // card only once its page has been read. See lib/course/scope.ts.
+  const scope = moduleScopeFrom(await searchParams);
+  const scoped = scope ? { lexeme: lemmaFilter(scope) } : {};
+  const spellings = await moduleSpellings(scope);
+
   const due = await prisma.card.findMany({
-    where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 } },
+    where: { ownerId, suspended: false, due: { lte: now }, state: { not: 0 }, ...scoped },
     orderBy: { due: "asc" },
     take: POOL_SIZE,
     include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
@@ -47,16 +59,28 @@ export default async function SprintPage() {
   if (cards.length < POOL_SIZE) {
     const seenIds = new Set(cards.map((c) => c.id));
     const weak = await prisma.card.findMany({
-      where: { ownerId, suspended: false, lapses: { gt: 0 }, id: { notIn: [...seenIds] } },
+      where: { ownerId, suspended: false, lapses: { gt: 0 }, id: { notIn: [...seenIds] }, ...scoped },
       orderBy: { lapses: "desc" },
       take: POOL_SIZE - cards.length,
       include: { lexeme: { select: { lemma: true, translation: true, examples: true, pos: true } } },
     });
     cards = [...cards, ...weak];
   }
+  if (cards.length < POOL_SIZE) {
+    // And then any met word, as Match and Listening already do: on an evening
+    // where nothing is due and nothing has lapsed the sprint had no cards.
+    const seenIds = new Set(cards.map((c) => c.id));
+    const met = await prisma.card.findMany({
+      where: { ownerId, suspended: false, state: { not: 0 }, id: { notIn: [...seenIds] }, ...scoped },
+      orderBy: [{ due: "asc" }, { id: "asc" }],
+      take: POOL_SIZE - cards.length,
+      include: { lexeme: { select: { lemma: true, translation: true, examples: true } } },
+    });
+    cards = [...cards, ...met];
+  }
 
   // Shuffled so the same session doesn't always open on the same word.
-  const shuffled = shuffle(cards);
+  const shuffled = shuffle(cards.filter((c) => cardWithin(scope, c, spellings)));
   // Which of the pool are already favorites, in one read rather than one per
   // card, so the star in the corner is drawn in the state it is actually in.
   const starred = await starredAmong(

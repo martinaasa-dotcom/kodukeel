@@ -426,7 +426,7 @@ function rulesFor(
     // rung asks the same question of the same learner and two copies of it is
     // two answers. The deck's cards are deliberately outside it, and that
     // module's own header is where the closed list of readers lives.
-    readable: readableFor(unit.level, taught),
+    readable: readableFor(unit.level, taught, "lesson"),
     wordOrder,
   };
 }

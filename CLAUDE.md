@@ -4454,7 +4454,7 @@ start on rather than leaving it to be inferred, because the fallback would silen
 measured up to B1 in March the part they had not worked up to.
 
 **Deciding what to do tonight is the expensive part of an evening, and it was left to the one
-person least able to do it.** Everything this app can do is on a menu somewhere: 82 units, twenty
+person least able to do it.** Everything this app can do is on a menu somewhere: 89 units, twenty
 rounds, fourteen conversations, two puzzles, a dictionary and a tutor. A beginner opening it has to
 choose before they can start, and they do not yet know what they are missing. `lib/course/` is that
 choice made in advance. A day names its words and the order it does things in, the learner presses
@@ -4468,7 +4468,7 @@ not want to choose no longer has to, and the work they do the other way still co
 
 **Seventeen parts, 182 evenings, every word of the syllabus.** A1.1 to C1.3, split where a change
 of subject falls rather than by arithmetic, ten to thirteen evenings each. Every one of the 1,363
-words in all 82 units is in exactly one evening of exactly one part, which is a stronger claim than
+words in all 89 units is in exactly one evening of exactly one part, which is a stronger claim than
 a hand-picked hundred: nothing in the course is unreachable to somebody who only ever presses the
 one button. An evening carries eight words at A1 and twelve at C1, because a beginner's eight words
 are eight new sounds and eight shapes they cannot guess, and a C1 learner meeting `hoolimata` has
@@ -4557,6 +4557,269 @@ catch it because a suite clicks. Asserted, like the frequency rounds.
 every one is a lemma its own unit teaches, asserted word by word; the unit is itself a request the
 Ekilex harvest either honors or reports. `lib/course/` may not reach Prisma or a provider, and
 `plan.ts` may not grow a word list of its own: a part names units, and the units name the words.
+
+**A1 is vocabulary and phrases, in the order a sentence needs, and a round the module deals is
+played on the words the module has taught.** The second evening of the planned module was measured
+at forty minutes against a promise of sixteen, and the reason was not the words. Everything round
+them assumed grammar nobody had shown: a conjugation table dealt to somebody who had never been
+shown `sina` or `-d`, filled from the dictionary at the band above (`tekkima`, `jätma`); a case
+card in the closing review (`Ta ei kõlba ____.` for `õpetaja`) cut from a sentence a beginner
+cannot read; and Sõnad dealing an A2 verb to somebody holding eleven words. The operator's call, and
+this paragraph is where it is written down so it is not re-litigated: **no case and no gap card
+anywhere in A1**, asserted in `syllabus.test.ts`, so an A1 deck is what a word means and how it is
+said plus the verb table for the units of verbs, and the cases arrive with A2. The A1 units are in
+the order a sentence needs: five words on the first evening (`vastused` is five on purpose, the one
+unit under the floor), the six persons on the second (`asesonad`, cut to the personal pronouns and
+two pointers; the indefinite ones are `umbmaarased`, late in A1), the verb to be and the six endings
+on the third and fourth (`esimesed-verbid`), and only then the greetings and the people. The eight
+"how sure you are" particles that used to open the course are `kindlus`, late in A1. A1 is six
+parts now, held under four weeks each.
+
+Three things follow and each is asserted. **The A1 rotation was four rounds**, Match, Listening, the
+picture board and the conjugation table, because every other round either deals a word off the
+dictionary, asks for a case, or puts a whole attested sentence in front of a beginner (it is six now,
+with Tähed and the flash round, two paragraphs down); and
+`rounds()` deals a round only once the words behind it exist, the table after a verb and the board
+after a pictured noun, standing Match and Listening in before that, which is why the first two
+evenings are honestly the same pair and `course.test.ts` allows exactly that case. **A round opened
+from the module reads what the module has taught off the step's own address** (`lib/course/scope.ts`,
+the same marker `focus.ts` writes) and narrows its query to it: Match, Listening, the board, the
+table and the closing review's new-card window, so first run's starter deck cannot meet a beginner
+with unit four on the first evening. Nothing in the marker is trusted and nothing needs to be, since
+the worst a forged one can do is narrow a round to a different slice of the course. **And at A1 the
+board is the word and the table is matched**: the picture against the lemma rather than a case of
+it, graded on the recognition card, and the six forms on the screen to be put beside their pronouns
+(`Shape` in `ConjugationSession.tsx`) before anybody is asked to type one. `BANDS_AROUND.A1` is A1
+alone with it, so the standalone rounds, the suggestion row and Sõnad stop reaching into A2 for a
+beginner; from A2 the window is unchanged. Sõnad's clue line, reported as clunky, is a whole
+sentence now: that a clue is coming, what it says, and when.
+
+**And then A1 was still the same evening every night, which is where people give up.** Four rounds
+held to the taught words was honest and it was thin: the board waits for six pictured nouns, which
+arrive in the twelfth evening, and the table waits for a verb and then alternates, so most of A1
+was Match and Listening with the closing review behind them, both asking the words back as meanings.
+What a beginner has at A1 is a few dozen words and the alphabet they are spelled in, and the alphabet
+is the thing an English keyboard makes strange: õ, ä, ö and ü are not letters somebody has, they are
+letters somebody has to notice. So `/review/letters` is Tähed, the letters of a taught word
+scrambled onto tiles and put back in order, the meaning shown and the word heard, marked by string
+comparison against the lemma and graded on the word's production card through `gradeCard` like every
+other mode (ADR-016). A first miss shakes the row and places the first letter for them, since a
+beginner who has the letters has usually lost the shape; a second shows the word. `lib/games/letters.ts`
+is the rules and holds no Estonian: the tiles are the code points of a dictionary lemma, shuffled with
+the app's one shuffle and never handed back in the word's own order, and `spellable` is what may be
+played, one word of three letters or more with an order to find, so `ei` and `Tere hommikust!` are
+never dealt. It is dealt once four such words have been taught (`WORDS_FOR_LETTERS`), which is the
+second evening, and the flash round is the drill beside it, held inside the module to the taught
+words and the taught verb pages by `slotWithin`, so at A1 it is the word typed from its meaning and,
+once the present tense has been read, a person of a verb. Three pairs rather than one, walked two an
+evening.
+
+**The stand-in walks from the round it stands in for, and passes over last night.** Indexed on the
+evening, two unsupported rounds on consecutive evenings landed on the same stand-in and the sixth
+evening of A1 was the fifth again; walked forward from the unsupported round to the next supported
+one of its kind, two different rounds still met at the board on the two table evenings of A2's
+opening. So `rounds` takes what the evening before dealt and passes over it on the first walk,
+preferred rather than refused, since early in a level the supported rounds may be one. And a unit of
+verbs that pins the table on one evening does not meet it on the rotation the next, now that A1
+carries the table on its rotation: the drill after it stands in. Both asserted, and the rule that no
+pair repeats where the words allow another stands over all 289 evenings unchanged.
+
+**And then the same rule was asked of every evening of every level, because a beginner is not the
+only person who can be handed something nobody told them.** A2's first evening dealt a case sprint
+before any case page had been read, B1's first evening a conjugation table with the conditional in
+it two units before the conditional's own page, and Sõnad on every rotation dealt a word off the
+dictionary at whatever band. So the builder keeps a **ledger** (`Ledger` in `lib/course/build.ts`)
+of what every evening has handed over, walked in order over the whole ladder so what a1.6 taught is
+what a2.1 is dealt against: the words and their spellings off the harvest, the case pages and the
+topic pages read, the taught verbs that carry a government, and whether a sentence a lexicographer
+wrote yet exists made entirely of taught words. `supportsRound` is the one place that says what each
+round needs: a case page read for the sprint, Target, Write, Describe and the case board; that
+sentence for dictation and word ordering; the government page and four governed verbs for
+government; a verb for the table and a pictured noun for the board. A round whose material is not
+there yet is stood in for by Match or Listening, and the pair repeating on consecutive evenings is
+allowed exactly where the ledger leaves nothing else. **Sõnad is on no rotation**, since
+`recordSonad` rebuilds the day's puzzle from the date and the level on the server to mark it, so a
+board held to a taught list would be marked against a different word; it stays the game of the day.
+The scope a round reads off its address carries the same ledger (`ModuleScope.cases`, `.topics`),
+and every page a rotation can open holds to it, asserted by a sweep over `ACTIVITIES`: taught words
+in the query, a case only through `caseWithin`, a sentence only through `sentenceWithin`, a deck
+card only through `cardWithin`, which is what keeps a starter deck's case cards and gap cards out of
+the closing round until the evening that reads the page or teaches the words. The conditional joins
+the module's conjugation table from B1 once its page has been read, and not at A2, where the
+request unit reads the same page to soften a request. Three of the gates are wider than "one page
+read", because the page would deal an empty round otherwise: Target draws four forms of one word
+and waits for four case pages; Describe wants a whole picture scene of taught words and a choice of
+case; and the sentence flag is four to nine tiles, since word ordering refuses fewer than four and
+dictation more than nine. The stand-in walks whatever the ledger does support rather than fixing on
+Match, so early A2 alternates the word board and Match rather than dealing Match six evenings
+running, and a unit is pinned to the table only where it is mostly verbs **and declares the card**,
+since the share alone pinned nine B1 evenings to a table on units about the object and government.
+The board waits for six pictured nouns, the board's own size, since inside
+the module its top-up is the taught words and five of them is the empty state; the first board falls
+on `kodu`. The sprint tops up from any met word, as Match and Listening do, so an evening with
+nothing due and nothing lapsed is not an empty sprint. `course.test.ts` rebuilds the ledger from the
+syllabus and the readings as a second opinion and walks all 289 evenings against it.
+
+**And the second pass over the same evenings found four more, which is the argument for walking
+them rather than trusting the first pass.** An A1 evening reads no case page: `reads()` drops the
+case names at A1, so the pronoun evenings read nothing and the verb evenings read the verb to be
+and the present tense, and an evening with nothing to read is two minutes shorter rather than two
+minutes of something invented, which the fifteen-minute test allows for exactly that case. The food
+unit read the object rule, whose own page says it is what separates B1 from A2; it reads the
+partitive alone. Listening filled itself from what was due and what had lapsed and a beginner has
+neither, so the module's first evening sent them to its empty state: it tops up from any met word,
+as Match always did. And a table can hold one spelling twice, `olema` is `on` for `ta` and for
+`nad`, so the matching chips are keyed by slot rather than by word and a chip is spent when its
+row's form is placed. The wrong answers on the ladder's choice rung, the closing review and
+Listening are drawn from the taught words wherever those reach four (`decoysAmong`), so the first
+evening's four options are the five words met an hour ago and not three glosses of words nobody
+has shown; outside the module the whole ranked pool stands, as before.
+
+
+**And the four options were the whole dictionary on the first evening of the course, under a
+paragraph saying they were not.** The rule above draws the wrong answers from the taught words
+wherever those reach four, and on the first evening five are taught and the round offered "like,
+as". `decoyOptions` keeps one option per meaning, which is right, since two entries glossed the same
+way are two right answers wearing different ids, and it filed each option under whichever entry
+Postgres returned first: `Tere!` and `tere` both read "hello" once the punctuation is off, so the
+phrase owned the gloss and the word did not, the five narrowed to three, and the round fell back to
+the pool. An option carries every entry behind it now and a word is taught if any of them is,
+which reaches the ladder's choice rung, the closing review, Target and Listening through the one
+function they share. Driven in a browser before and after on the real first evening, and asserted.
+
+**A1 read pages about case endings under a topic's name, and the first evening read one about the
+conditional.** The rule that A1 reads no case page had a hole the size of the pages *about* cases:
+the numerals page is "the counted noun is partitive singular", the time page is "days take -l and
+months take -s", and the adjective page is "the same ending as its noun, for ten of the fourteen".
+Seven A1 evenings read one of those, to somebody who by the operator's own rule has been shown no
+case at all. And the very first evening, five words said alone, read the politeness page, which is
+the plural as a polite you and the conditional, because `vastused` declared it; the greetings, where
+it belongs, then read nothing, since the part had already read it. `PAGE_NEEDS` in
+`lib/course/build.ts` is what a page is built on, the one table the ladder test walks and the
+builder reads, so a page built on a case is read from A2, where the case is: the first evening
+reads nothing, the greetings read politeness after the pronouns and the verb to be, and the numerals
+page moved to the restaurant unit, the first unit after the partitive where anybody is counting
+things. What A1 reads is the verb to be, the present tense, negation, the two infinitives, word
+order, the imperative and politeness, in that order, and every one of them is something a beginner
+can use that evening.
+
+**And the page a reading step opened showed the deck's words and the dictionary's rather than the
+module's, and the page about the verb to be showed no form of it.** Both reference pages hid their
+unit list and their drill inside a module, which is the half anybody notices, and then filled their
+tables off the whole deck and the dictionary's easiest words: the present-tense page on the fifth
+evening of A1 tabled `jääma` and `andma`, which arrive a part later, under a heading saying "verbs
+from your deck first". Each page hands `ModuleScope.lemmas` to its example reader now and the reader
+keeps the deck read and the top-up inside that list, so the rule is shown on words the learner has
+met and no others; the standalone reference passes nothing and is unchanged. And the `olema` page
+said it was the one verb you cannot avoid and one of the few irregular ones and then showed not one
+form of it, on the fourth evening of the course. Its present is stored per person because no rule
+reaches `on`, so the table is the six the harvest holds, marked as such, and it is the only verb on
+that page. The page about the past had the same hole one part later: it said what the third person
+does to the stem is learned per verb and showed no verb, so it tables the past first person, which
+is a principal part, beside the third the harvest stores, both marked as memorized and never worked
+out, on the module's own verbs inside a module; a verb the dictionary holds no past for shows a gap.
+Both asserted, on the call rather than on the import, since a page that reads the scope and then
+ignores it is the fault this file records Today having had.
+**And the reading asks back, on the table it just showed, and grades nothing.** A reading step
+was a page of prose with a table under it, and a beginner reads a table once and presses
+Continue with nothing to show for it. Both reference pages end in three taps now
+(`components/course/TryIt.tsx`, cut by `lib/course/tryIt.ts` from the very rows the table drew):
+which one is *we* with `olema`, which of these words says *not*, which of the six words on the
+case page is this one with the ending on. Worded as a person would ask it, since the point of the
+reading is that a form means something, and the table stays on the screen above, so looking up is
+doing the thing the page is for. **It grades nothing and may not**: every answer is printed two
+inches up, so a row in the log would tell the scheduler somebody recalled a form they were looking
+at, which is the fault `audit:questions` exists to catch and the reason the build-a-word walk's
+last act writes nothing either. The component reaches no Server Action and no outbox, the builder
+holds no Estonian, and both are asserted, anchored on the element rather than the import. Driven
+on the `olema` page inside the fourth evening: "Which one is I, with olema, to be?" over the six
+persons, a wrong tap marked in words and in the palette's own classes, the form heard on a press.
+
+**And an evening ends on the words, out loud, and on the run of evenings.** The finished screen
+said the evening was over and offered tomorrow, and what a learner holds at that moment is five
+words met an hour ago: they are listed with a speaker apiece, the Estonian alone since the closing
+round just asked for the meaning, because hearing them once more is the cheapest repetition there
+is and the one moment somebody is glad to. The lead says "2 evenings in a row" from two upward,
+which is warmer than any adjective because it is about the learner and required us to have been
+looking; `eveningsInARow` is `computeStreak` over the step log, the same midnight the review streak
+breaks at, and is stored nowhere (ADR-014). Today's finished card carries the same figure.
+
+**And then the gap rung was held to the same rule at every level, because "A1 alone" had left the
+module disagreeing with itself.** The closing review holds every level's gap cards to the taught
+spellings through `cardWithin`, and two steps earlier on the same evening the ladder's gap rung
+held A1's alone, on the argument that a B1 learner meeting an unfamiliar word inside a sentence is
+how reading grows. That argument is right about a screen somebody walked to and wrong about one
+the module dealt them: inside the module a gap cut from a sentence of untaught words is exactly
+"this is new, I was never told", whatever the band. So `readableFor` takes its reader by name,
+`heldToTaughtWords` holds the module at every level and the unit lesson at A1, and standalone Learn
+is untouched. What it costs is measured rather than guessed, by `npm run audit:readable` walking
+every level's evenings now rather than A1's: of the words the dictionary can gap at all, a
+sentence made only of words given by then exists for 52 of 464 at A1, 36 of 220 at A2, 24 of 194
+at B1, 19 of 211 at B2 and 19 of 235 at C1. The rest are met and chosen and go on to Practice
+without a gap, which is what the closing review already did with their cards. The ranked list of
+blockers is the work list at every level, and the sentences a native speaker writes through
+`docs/20-contributed-sentences.md` are what move it.
+
+**And A2 read eight case pages before the page every one of them stands on.** Every oblique
+case is the genitive stem with an ending glued on, which is the one sentence `/grammar` opens with,
+and the module told a learner `toas` is `toa` plus `s` on the eighth evening of A2 and what `toa`
+is on the twenty-ninth: inessive, elative, adessive, partitive, translative, illative, allative,
+ablative and terminative were all read before the genitive's page, because the only A2 unit that
+declared it was the seventh. Read off the walk rather than the syllabus, since the syllabus lists a
+unit's points and the walk is the order a learner meets them. So the first case unit at A2 reads the
+genitive first (`loodus` opens on it, and its gradation page is about that stem), the body unit
+leads on the partitive, and `course.test.ts` walks the whole ladder against the reference's own
+dependencies: an oblique case after the genitive, the object rule and government after the genitive
+and the partitive, a tense after the present, the perfect and the impersonal after the participles,
+the superlative after the comparative, nominalisation after derivation, and the first case page
+anybody reads is the genitive. The two A2 units that read the B1 object rule read the partitive and
+the imperative instead, which is the call the A1 food unit already took and for the page's own
+reason. **And a unit of verbs no longer deals the table six evenings running**: the pin fell on
+every evening of a verb unit, so A2 opened on six conjugation tables, which is a fortnight of one
+drill with a different name on the tin; it is the first evening and every other one, and the
+rotation's own drill, or its stand-in, takes the evenings between.
+
+**And B1 opened on four units of verbs running, and B2 on four more.** The object, government,
+the conditional and the participles were the first four units of B1, each mostly verbs and each
+pinned to the table or the government round, which is a month of one drill under four names, and
+B2.1 was the impersonal, the quotative, the converb and word-building the same way. The parts are
+dealt a grammar unit and then the words to use it on now: the object and then the people in your
+life, government and then work and money, the impersonal and then society, the quotative and then
+the economy. `course.test.ts` refuses three verb units running anywhere on the ladder, and holds
+every unit behind the units its own `requires` names, read off the ladder's order rather than the
+file's, which is how the request unit turned out to name the past tense as a prerequisite while
+being the unit every conversation needs first: asking needs the everyday verbs, and that is what it
+requires now. The three scenes whose units cross a part boundary are what fixed where the swaps
+could land, since a scene is opened only once every unit it declares has been taught.
+
+**And a page was read four evenings running, and the impersonal nineteen times.** `reads()` walked a
+unit's grammar list round and round, one page an evening, so the greetings read the politeness page
+on four consecutive evenings, the numbers read the numerals page on five, and between B1 and C1 the
+impersonal was read nineteen times by nine units: a reading the learner did last night, put in front
+of them again as tonight's step, is the step they skip past and then stop trusting. `readingPlan` is
+one page an evening, each page a unit declares once in the unit and in the order its author wrote
+them, none that an earlier unit of the same part has already read; an evening past the end of the
+list reads nothing, which the fifteen-minute test allows
+at every level now rather than at A1 alone. The scene evening takes no page off the plan, since
+the conversation replaces the reading (`day()`): the first version handed it one, counted it read
+in the ledger, and showed it to nobody, so a round on the evening after was dealt a case nobody had
+been shown. One page is lost to that, the terminative on the travel unit, whose four pages meet
+four evenings and a scene on the last, and it is named in the test rather than waived. Fresh pages
+first was tried and reverted: it put the conditional in front of the imperative on the request unit
+because the imperative had been met at A1, and a unit's list is a lesson plan whose revision at the
+front is the revision its author wanted first. **And a verb
+card in the closing review is held to the page teaching its part**, through `slotWithin` like the
+flash round, since a card built for a verb met on A2's first evening carries the past three
+evenings before its page and the conditional a level before the table asks it.
+
+**And a verb inside the module was asked for its dictionary form and nothing else, at every
+level.** The flash round read every slot through `caseWithin`, which answers about cases, so a
+verb code like `IndPrSg3` was read as a case nobody had opened and refused. Wrong the safe way, and
+still a B1 evening on a unit of verbs with no verb asked in any person. `slotWithin` is the one
+answer for a slot: a case once its page has been read, a part of a verb once the page teaching it
+has, the present and the negative behind the present tense and negation pages, the past behind
+the imperfect, the conditional and the imperative behind their own, and a morph code nobody has
+listed fails closed, which is `isFiniteVerbCode`'s discipline one module over.
 
 **A step of tonight's module is a room, and the way out of it is forward.** The module screen is one
 decision made in advance and it was handing the learner straight back to the ordinary website the

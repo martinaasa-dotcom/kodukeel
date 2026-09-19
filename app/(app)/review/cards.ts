@@ -9,7 +9,7 @@ import { isPhrase } from "@/lib/dict/pos";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -431,6 +431,8 @@ async function formsForCases(rows: CardRow[]): Promise<Map<string, HeldForms>> {
  */
 export async function withChoices(
   rows: CardRow[], glossLanguage: GlossLanguage, ownerId: string,
+  /** The module's taught words, so the options stay among them; null elsewhere. */
+  only: readonly string[] | null = null,
 ): Promise<ReviewCard[]> {
   /*
     WHICH OF THESE WORDS ARE ALREADY FAVORITES, AND THE GLOSSED SENTENCE.
@@ -515,7 +517,7 @@ export async function withChoices(
     off the render path of the screen this app exists to get people to.
     See lib/dict/facts.ts.
   */
-  const pool = await decoyOptions();
+  const pool = decoysAmong(await decoyOptions(), only, CHOICES);
   if (pool.length < CHOICES) return withForms;
 
   return withForms.map((card, i) => {

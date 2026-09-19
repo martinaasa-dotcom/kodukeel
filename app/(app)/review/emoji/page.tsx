@@ -12,7 +12,8 @@ import { courseLevelFor } from "@/lib/progress/level";
 import { bandsAround } from "@/lib/collections/levels";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
-import { EmojiSession, type EmojiPair } from "./EmojiSession";
+import { EmojiSession, boardLead, type EmojiPair } from "./EmojiSession";
+import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
 
 export const metadata = { title: "Picture match" };
 
@@ -68,8 +69,21 @@ const POOL = 120;
  * The emoji are characters rather than artwork, drawn by the reader's own font,
  * so nothing is shipped and no license is carried.
  */
-export default async function EmojiPage() {
+export default async function EmojiPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const ownerId = await requireUserId();
+
+  /*
+    OPENED FROM THE MODULE, THE BOARD IS THE MODULE'S OWN WORDS, off the step's
+    address (`lib/course/scope.ts`): the deck read and the dictionary top-up
+    below both narrow to what the ladder has taught through tonight, so the
+    picture of a bus arrives on the evening `buss` did and not before.
+  */
+  const scope = moduleScopeFrom(await searchParams);
+  const scoped = scope ? lemmaFilter(scope) : {};
 
   /*
     THE LEARNER'S OWN CARDS FIRST, AND THAT IS WHAT MAKES THIS A PRACTICE MODE.
@@ -92,9 +106,18 @@ export default async function EmojiPage() {
     On the deployment's own pooler each `await` is a round trip, so a page that
     lines them up is a round trip longer than it has to be for nothing.
   */
-  const [level, deckCards] = await Promise.all([
-    courseLevelFor(ownerId),
-    prisma.card.findMany({
+  const level = await courseLevelFor(ownerId);
+
+  /*
+    AT A1 THE TILE IS THE WORD, NOT A CASE OF IT. A beginner is asked for no
+    case anywhere in A1 (`lib/collections/syllabus/a1.ts`), so the board they
+    meet is the picture against the word: the same board, the same grading on
+    the word's own recognition card, and nothing on it that nobody has taught.
+    The case board, which is what this round is for, opens with A2.
+  */
+  if (level === "A1" || (scope && scope.cases.length === 0)) return wordBoard(ownerId, scoped, level);
+
+  const deckCards = await prisma.card.findMany({
       where: {
         /*
           state: { not: 0 } because a learner matching a picture to a case
@@ -104,7 +127,7 @@ export default async function EmojiPage() {
           first, asked before it was ever taught.
         */
         ownerId, suspended: false, cardType: "CASE_FORM", targetCase: { not: null },
-        lexeme: { pos: "NOUN" }, state: { not: 0 },
+        lexeme: { pos: "NOUN", ...scoped }, state: { not: 0 },
       },
       orderBy: [{ due: "asc" }, { id: "asc" }],
       take: POOL,
@@ -120,8 +143,7 @@ export default async function EmojiPage() {
           },
         },
       },
-    }),
-  ]);
+    });
 
   const pairs: EmojiPair[] = [];
   const usedLemmas = new Set<string>();
@@ -149,6 +171,8 @@ export default async function EmojiPage() {
 
     const spec = CASES.find((c) => c.key === card.targetCase);
     if (!spec) continue;
+    // Inside the module, a case only once its page has been read.
+    if (!caseWithin(scope, spec.key)) continue;
 
     /*
       AND NOT A CARD WHOSE ANSWER SPELLS THE WORD. `lib/srs/cards.ts` stopped
@@ -200,7 +224,7 @@ export default async function EmojiPage() {
       where: {
         pos: "NOUN",
         cefr: { in: [...bandsAround(level)] },
-        lemma: { in: wanted },
+        lemma: { in: scope ? wanted.filter((l) => scope.lemmas.includes(l)) : wanted },
       },
       orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
       include: { forms: { select: { formType: true, morphCode: true, value: true } } },
@@ -221,7 +245,7 @@ export default async function EmojiPage() {
       stored rather than derived and the nominative is the lemma, so a tile
       reading `mis? maja` beside 🏠 would be asking nothing.
     */
-    const askable = CASES.filter((c) => !c.principal);
+    const askable = CASES.filter((c) => !c.principal && caseWithin(scope, c.key));
 
     for (const row of shuffle(rows)) {
       if (pairs.length === PAIRS) break;
@@ -274,17 +298,82 @@ export default async function EmojiPage() {
     }
   }
 
-  if (pairs.length < PAIRS) {
-    return (
-      <Page title="Picture match" lead="Match the picture to the Estonian, ending and all.">
-        <Empty
-          title="Not enough words with a picture yet"
-          body="This round needs nouns the dictionary can build case forms for."
-          action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
-        />
-      </Page>
-    );
+  if (pairs.length < PAIRS) return <NotEnough pairs={pairs} />;
+
+  return <EmojiSession pairs={pairs} />;
+}
+
+function NotEnough({ pairs }: { pairs: readonly EmojiPair[] }) {
+  return (
+    <Page title="Picture match" lead={boardLead(pairs)}>
+      <Empty
+        title="Not enough words with a picture yet"
+        body="This round needs nouns the dictionary has a picture for."
+        action={<ButtonLink href="/practice" variant="primary">Back to practice</ButtonLink>}
+      />
+    </Page>
+  );
+}
+
+/**
+ * The A1 board: the picture against the word itself.
+ *
+ * The learner's own met words first, graded on the recognition card the
+ * match is evidence about, then the dictionary's pictured nouns at A1 to fill
+ * the six, ungraded because there is no card. Inside the module both reads
+ * are narrowed to what the ladder has taught, and a board the taught words
+ * cannot fill is a round the builder never deals (`lib/course/build.ts`).
+ */
+async function wordBoard(
+  ownerId: string,
+  scoped: ReturnType<typeof lemmaFilter>,
+  level: Parameters<typeof bandsAround>[0],
+) {
+  const mine = await prisma.card.findMany({
+    where: {
+      ownerId, suspended: false, cardType: "RECOGNITION", state: { not: 0 },
+      lexeme: { pos: "NOUN", lemma: { in: [...EMOJI_LEMMAS] }, ...scoped },
+    },
+    orderBy: [{ due: "asc" }, { id: "asc" }],
+    take: POOL,
+    select: { id: true, lexeme: { select: { id: true, lemma: true } } },
+  });
+
+  const pairs: EmojiPair[] = [];
+  const usedLemmas = new Set<string>();
+  const usedEmoji = new Set<string>();
+  const plain = (lemma: string, emoji: string, id: string, cardId: string | null): EmojiPair => ({
+    id, cardId, emoji, lemma, form: lemma, question: null, caseEt: null, caseKey: null,
+  });
+
+  for (const card of shuffle(mine)) {
+    if (pairs.length === PAIRS) break;
+    const lemma = card.lexeme?.lemma;
+    const emoji = lemma ? emojiFor(lemma) : undefined;
+    if (!lemma || !emoji || usedLemmas.has(lemma) || usedEmoji.has(emoji)) continue;
+    usedLemmas.add(lemma);
+    usedEmoji.add(emoji);
+    pairs.push(plain(lemma, emoji, `card-${card.id}`, card.id));
   }
 
+  if (pairs.length < PAIRS) {
+    const wanted = EMOJI_LEMMAS.filter((l) => !usedLemmas.has(l));
+    const scopedWanted = "lemma" in scoped ? wanted.filter((l) => scoped.lemma.in.includes(l)) : wanted;
+    const found = await prisma.lexeme.findMany({
+      where: { pos: "NOUN", cefr: { in: [...bandsAround(level)] }, lemma: { in: scopedWanted } },
+      orderBy: [{ cefr: "asc" }, { lemma: "asc" }, { id: "asc" }],
+      select: { id: true, lemma: true, provenance: true, pos: true, forms: { select: { formType: true, value: true } } },
+    });
+    for (const row of shuffle(oneEntryPerLemma(found, scopedWanted))) {
+      if (pairs.length === PAIRS) break;
+      const emoji = emojiFor(row.lemma)!;
+      if (usedLemmas.has(row.lemma) || usedEmoji.has(emoji)) continue;
+      usedLemmas.add(row.lemma);
+      usedEmoji.add(emoji);
+      pairs.push(plain(row.lemma, emoji, `dict-${row.id}`, null));
+    }
+  }
+
+  if (pairs.length < PAIRS) return <NotEnough pairs={pairs} />;
   return <EmojiSession pairs={pairs} />;
 }

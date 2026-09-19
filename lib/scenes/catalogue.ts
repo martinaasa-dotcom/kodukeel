@@ -49,8 +49,8 @@ import type { SaysPart, SceneSpec } from "./types";
   of these scenes asks where something is before it asks anything else.
 */
 const COMMON = [
-  "tervitused", "kusisonad", "asesonad", "aeg", "arvud", "korraldused", "pohiverbid",
-  "sidesonad", "vastused", "maaramine", "millal", "kohasonad", "kus-ja-kuhu",
+  "tervitused", "kusisonad", "asesonad", "umbmaarased", "aeg", "arvud", "korraldused", "pohiverbid",
+  "esimesed-verbid", "sidesonad", "vastused", "kindlus", "maaramine", "millal", "kohasonad", "kus-ja-kuhu",
   /*
     Two more once the curveballs were played rather than drawn. `ilm` is the
     weather, which is what small talk is about in every scene; `iga-paev`
