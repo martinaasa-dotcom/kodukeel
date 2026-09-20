@@ -167,6 +167,9 @@ export async function candidatesFor(words: string[]): Promise<Candidate[]> {
     select: {
       id: true, lemma: true, translation: true, pos: true,
       cefr: true, gradationNote: true, provenance: true,
+      // Read by `formReading`, which asks whether the word is a person
+      // before it says what one of its endings means in English.
+      semanticTypes: true,
       forms: { select: { formType: true, value: true, morphCode: true, morphName: true } },
     },
   });

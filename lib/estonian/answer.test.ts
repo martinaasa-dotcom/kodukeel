@@ -78,6 +78,38 @@ describe("checkAnswer — Estonian", () => {
     expect(checkAnswer("kes", "kas").verdict).toBe("wrong");
   });
 
+  it("does not read a wrong pronoun as a typo of the right one", () => {
+    // `mina` (I) and `sina` (you) are one swapped first letter apart and
+    // both are real four-letter words. This was marked "typo" and graded
+    // Hard, which told a learner who named the wrong person that they had
+    // nearly named the right one.
+    const r = checkAnswer("sina", "mina");
+    expect(r.verdict).toBe("wrong");
+    expect(r.note).toContain("mina");
+    expect(r.suggestedRating).toBe(1);
+    expect(countsAsRecalled(r.verdict)).toBe(false);
+  });
+
+  it("does not read one real word as a typo of another past the pronouns either", () => {
+    // "istuma" (to sit) and "astuma" (to step) are one swapped first letter
+    // apart, both real six-letter verbs a learner meets early on.
+    expect(checkAnswer("astuma", "istuma").verdict).toBe("wrong");
+    // "ehitama" (to build) and "esitama" (to present) are the same shape at
+    // seven letters, which is still inside the measured danger range.
+    expect(checkAnswer("esitama", "ehitama").verdict).toBe("wrong");
+  });
+
+  it("still forgives a same-length substitution once the word is long enough", () => {
+    // "kasjtama" for "kasutama" is a genuine slip of the hand at exactly the
+    // floor, eight letters, where a coincidental second word stops being
+    // the common case.
+    expect(checkAnswer("kasjtama", "kasutama").verdict).toBe("typo");
+  });
+
+  it("still forgives an inserted letter on a short word", () => {
+    expect(checkAnswer("tooas", "toas").verdict).toBe("typo");
+  });
+
   it("marks a genuinely different word wrong, and says what was wanted", () => {
     const r = checkAnswer("arvutis", "toas");
     expect(r.verdict).toBe("wrong");

@@ -173,6 +173,39 @@ export function LearnSession({
   /* What the "too complicated" button did, printed under the round: its whole
      effect is a word that stops arriving, which is invisible tonight. */
   const [aside, setAside] = useState<string | null>(null);
+  /*
+    TWO SCREENS RATHER THAN A FOOTER NOTE, SAID ONCE EACH PER ROUND.
+
+    The rule of what happens next used to be one line under every card while
+    a word was still being met: easy to miss under the word itself, and still
+    there for the fifth word after it had already been read four times. And
+    the ladder changes what it is asking partway through a round, from "what
+    does this mean" to "use it", with nothing on screen marking the change:
+    the first choice question just arrived, unannounced.
+
+    So the rule is said once, on its own screen, at the moment it is true.
+    `showMeetIntro` is that screen before the first word; `showAnswerIntro` is
+    the second one, shown once a word comes back asking to be answered rather
+    than met, which is this round's own "the objective changed". Both are
+    per round rather than remembered across rounds, because the operator
+    asked for a screen that prepares somebody for what is coming every time
+    they open this, not a one-off explainer.
+
+    NEITHER IS UNCONDITIONAL, THOUGH. `learnBatch` reads every word's rung
+    live off its own scheduling, so a reload mid-round, or a batch resumed
+    after a detour, can seat somebody on a word already past "meet". Opening
+    on "First, just meet them" over a word that is about to ask a question is
+    the wrong screen, worse than none: it promises something that is not
+    about to happen. So the meet screen only shows where the seat it opens on
+    really is "meet", read straight off the word's own rung rather than the
+    remapped one below, since the remapping only ever moves "choice" to
+    "gap" and never touches "meet". A round that opens past it goes straight
+    to the answer screen instead, which is the true state of things.
+  */
+  const [showMeetIntro, setShowMeetIntro] = useState(
+    () => (initial[initialIndex] ?? initial[0])?.rung === "meet",
+  );
+  const [showAnswerIntro, setShowAnswerIntro] = useState(true);
   const [phase, setPhase] = useState<Phase>("ask");
   const [result, setResult] = useState<Result | null>(null);
   const [typed, setTyped] = useState("");
@@ -595,6 +628,18 @@ export function LearnSession({
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
       /*
+        Neither screen below is the round: nothing on it grades, so a stray
+        digit must not reach the card underneath. The advance key still
+        dismisses it, exactly as it advances every other single-button screen
+        in this ladder, so a keyboard user is not made to reach for the mouse
+        just because the button says "Show me" rather than "Got it".
+      */
+      if (showMeetIntro) { if (isAdvanceKey(e)) { e.preventDefault(); setShowMeetIntro(false); } return; }
+      if (showAnswerIntro && rung !== "meet") {
+        if (isAdvanceKey(e)) { e.preventDefault(); setShowAnswerIntro(false); }
+        return;
+      }
+      /*
         A look back stands in the ladder's place, so the rung underneath is not
         answerable and its keys are not either: a stray Enter over an older
         word would otherwise grade the one the learner cannot see.
@@ -621,7 +666,7 @@ export function LearnSession({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, rung, word, met, pick, carryOn, look]);
+  }, [phase, rung, word, met, pick, carryOn, look, showMeetIntro, showAnswerIntro]);
 
   if (total === 0) {
     return (
@@ -642,6 +687,28 @@ export function LearnSession({
           }
         />
       </Page>
+    );
+  }
+
+  if (showMeetIntro) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
+        <div className="pop-in text-center">
+          <Mascot size={72} className="mx-auto" />
+          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+            First, just meet them
+          </h1>
+          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
+            You&rsquo;ll see {total} {total === 1 ? noun : nouns} in this round, one at a time.
+            Nothing is written down until you answer them back.
+          </p>
+        </div>
+        <div className="mt-8 flex justify-center">
+          <Button variant="primary" size="lg" onClick={() => setShowMeetIntro(false)}>
+            Show me <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
+        </div>
+      </div>
     );
   }
 
@@ -747,6 +814,38 @@ export function LearnSession({
   }
 
   /*
+    THE OBJECTIVE CHANGING, SAID ONCE.
+
+    Every word in a fresh batch starts on the meet rung, so the first lap is
+    silent about what comes next; the moment any word comes back on `choice`
+    or `gap` is the first time this round is asking to be answered rather than
+    looked at, and that is the one screen worth stopping the round for.
+    `rung !== "meet"` is read off the seat that is about to be drawn, so this
+    fires exactly once, on the turn where the question actually changes.
+  */
+  if (showAnswerIntro && rung !== "meet") {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-16 md:px-10">
+        <div className="pop-in text-center">
+          <Mascot size={72} className="mx-auto" />
+          <h1 className="mt-5 text-3xl font-bold tracking-tight" style={{ color: "var(--ink)" }}>
+            Now answer them back
+          </h1>
+          <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
+            Same {nouns}. Now you&rsquo;ll be asked to say what one means, or use it in the
+            sentence it came from.
+          </p>
+        </div>
+        <div className="mt-8 flex justify-center">
+          <Button variant="primary" size="lg" onClick={() => setShowAnswerIntro(false)}>
+            Ready <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  /*
     The English of this gap's own sentence, with the asked word marked in it,
     and what the cue still has to say once that line has said it. Both are one
     rule (`lib/copy/gapMeaning.ts`): the mark is the gloss printed in context,
@@ -824,6 +923,7 @@ export function LearnSession({
               key={word.cardId}
               lemma={word.lemma}
               gloss={word.gloss}
+              alsoSaid={word.alsoSaid}
               equivalent={word.equivalent}
               sentence={word.sentence}
               tokens={word.tokens}
@@ -1003,10 +1103,7 @@ export function LearnSession({
                   </div>
                 </div>
               ) : (
-                <>
-                  <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
-                  <p className="text-xs" style={{ color: "var(--ink-3)" }}>Write it in Estonian.</p>
-                </>
+                <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
               )}
               {/*
                 THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.
@@ -1235,11 +1332,17 @@ export function LearnSession({
         <LookBackButton {...look.button} disabled={busy || look.looking} />
       </div>
 
-      <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>
-        {answered > 0
-          ? `${right} of ${answered} right this round.`
-          : `Meet each ${noun}, then answer it back. Nothing is written down until you answer.`}
-      </p>
+      {/*
+        Only the running score now: the rule of what happens next is said once,
+        on its own screen, before the round starts and again when it changes
+        (`showMeetIntro`, `showAnswerIntro` above), rather than repeated here
+        under every card until it stops being read.
+      */}
+      {answered > 0 && (
+        <p className="mt-3 text-center text-xs" style={{ color: "var(--ink-3)" }}>
+          {right} of {answered} right this round.
+        </p>
+      )}
     </div>
   );
 }

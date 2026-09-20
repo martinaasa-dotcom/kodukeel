@@ -2000,6 +2000,59 @@ check("the module that writes about Estonian holds no Estonian", () => {
  * the Institute says the word is and what the gloss says it means, both live
  * in the module that builds the row.
  */
+/*
+  WHAT A LEARNER TAPPED, IN ENGLISH, RATHER THAN THE CODE IT IS FILED UNDER.
+
+  A learner tapped `Ta` in `Ta armastab mind` and read `tema · SgN · he, she`:
+  the internal code, because `prisma/seed.ts` writes every retrieved form under
+  `formType` as `EKILEX:<code>` with no `morphCode`, and every name in
+  `lib/estonian/morph.ts` is keyed on the code. Three things had to be true for
+  that panel to be worth opening and none of them can be seen from one file.
+*/
+check("the word a learner taps is named and read rather than coded", () => {
+  /*
+    The naming table reads both shapes a row is in. Anchored on the call, since
+    the names were all there and nothing was reaching them: a check on the
+    table's contents passed the whole time the bug shipped.
+  */
+  assert.match(
+    code("lib/estonian/morph.ts"),
+    /const code = morphCodeOf\(form\);/,
+    "a form named from `morphCode` alone, which every seeded row leaves empty",
+  );
+  /*
+    And the panel is handed what the spelling *means* rather than only what it
+    is called: `readForm` for the phrase and for `plainAsk`'s clause where a
+    case is deliberately given no phrase, and `twinsOf`
+    for the pair `mina` and `ma`, which is the one thing about a pronoun a
+    beginner is never told.
+  */
+  const glossed = code("lib/dict/glossed.ts");
+  for (const [call, why] of [
+    ["readForm(", "the panel is back to printing the headword's whole gloss"],
+    ["twinsOf(", "the everyday spelling of a pronoun is unsaid again"],
+  ] as const) {
+    assert.ok(glossed.includes(call), why);
+  }
+  /*
+    Drawn, rather than composed and printed to nobody, which is
+    `DangerZone.tsx`'s fault in a smaller room. Anchored on the fields the
+    panel draws and on the spelling leading it, because the report was as much
+    about what was missing from the screen as about what was wrong on it: the
+    word that had been pressed was nowhere on the panel.
+  */
+  const panel = code("components/GlossedSentence.tsx");
+  for (const [drawn, why] of [
+    ["{spelling}", "the panel no longer shows the word that was pressed"],
+    ["{meaning}", "the panel no longer says what the spelling means here"],
+    ["entry.reading ?? entry.gloss", "the meaning drawn is no longer the reading"],
+    ["entry.alsoSaid && (", "the panel no longer teaches the pair"],
+    ["People usually say ", "the pair is drawn with nothing saying which is which"],
+  ] as const) {
+    assert.ok(panel.includes(drawn), why);
+  }
+});
+
 check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
   const table = "lib/estonian/caseReading.ts";
   assert.ok(existsSync(table), "the case readings have gone");
@@ -2020,9 +2073,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     "the frame table decides for itself which words are people",
   );
   /*
-    One reader, and it is the module that builds the row. A screen composing
-    its own would be a second answer to what an ending means in English, drawn
-    beside the first.
+    A CLOSED LIST OF READERS WITH A REASON APIECE, which is the shape
+    `CaseSpec.en` takes one module over. Two, and neither is a screen:
+    `caseBuild` builds the row `/grammar/build-a-word` draws, and `formReading`
+    is the same question asked about a spelling somebody tapped in a sentence
+    rather than one they just built. A third fails until somebody decides which
+    side of the line it is on, and a screen composing its own would be a second
+    answer to what an ending means in English, drawn beside the first.
   */
   const readers = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
@@ -2030,8 +2087,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     .filter((file) => /caseReading\(/.test(code(file)));
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts"],
+    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts"],
     "a second module composes what a word in a case means in English",
+  );
+  assert.deepEqual(
+    readers.filter((file) => !file.startsWith("lib/estonian/")),
+    [],
+    "a screen works out for itself what an ending means in English",
   );
   /*
     And the screen draws it, on the act that builds the word and on the act
@@ -7096,6 +7158,22 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
     assert.doesNotMatch(
       between.slice(between.indexOf("\n")), /SETTING_KEYS\.wordGloss/,
       "what the composer is told the learner said is now decided by a preference about underlines",
+    );
+
+    /*
+      AND WHAT IT IS TOLD IS WHAT THE SPELLING MEANS, NOT WHAT THE HEADWORD
+      MEANS.
+
+      The reading that goes to the judge and the composer was the first sense
+      of the entry's gloss, so `mind` was handed over as "I", which is the
+      wrong half of the word and is the fault `formReading` was written to fix
+      one screen over. The token already carries the reading, so this is the
+      same call and usually fewer tokens; what it costs if it goes back is a
+      model answering a turn it has been told the opposite of.
+    */
+    assert.match(
+      route.slice(reading), /entry\.reading \?\?/,
+      "the scene route is telling the model the headword's gloss again rather than what this form means",
     );
   }
 
@@ -16065,6 +16143,49 @@ check("a conversation is counted by the one rule, never by counting rows", () =>
   writing a unit's name against a conversation with a neighbor would put it
   on a row no unit earned.
 */
+/*
+  THE CARD CONGRATULATES BEFORE IT MARKS, AND ASKS HOW IT WENT OFF ONE LIST.
+
+  Speaking Estonian to a stranger is the hard part and the card used to go
+  straight past it to a row of answers that asked whether anything was said
+  and how it went at the same time. The learner who spoke and ran out of words
+  had nowhere honest to put that: claim they were understood, claim the other
+  person switched, or answer "not yesterday", which deletes the conversation
+  from the one count this app says it is measured by (ADR-027 amendment 2).
+
+  Two halves, because either alone passes on the broken shape. The answers to
+  "how did it go" come off `HOW_IT_WENT`, which is `isConversation` over the
+  outcome list, so a further answer that is a conversation reaches the card by
+  existing rather than by somebody remembering two files; and nothing is
+  written on the first press, since reading a bare yes as `UNDERSTOOD` would
+  count an abandoned half-answer as a conversation nobody switched out of,
+  which biases the switch rate in the direction that flatters. Anchored on the
+  call rather than on today's markup, and read through `code()`, because the
+  comment above each of them names what it is for.
+*/
+check("the out-there card asks how it went off one list, and writes nothing until it is answered", () => {
+  const source = code("components/SayItToday.tsx");
+  assert.match(
+    source, /HOW_IT_WENT\.map\(/,
+    "components/SayItToday.tsx types its own list of how a conversation went, so a fourth answer never reaches Today",
+  );
+  const errands = code("lib/collections/errands.ts");
+  assert.match(
+    errands, /HOW_IT_WENT[^=]*=\s*OUTCOMES\.filter\(isConversation\)/,
+    "lib/collections/errands.ts writes out which answers are a conversation instead of asking isConversation",
+  );
+  /*
+    The only outcomes the card may record are the ones a learner pressed a
+    labelled answer for. A bare "yes" that recorded UNDERSTOOD would satisfy
+    every other check here and quietly overstate the thing being measured.
+  */
+  const recorded = [...source.matchAll(/report\("([A-Z]+)"\)/g)].map((m) => m[1]);
+  assert.deepEqual(
+    recorded, ["BAILED"],
+    `components/SayItToday.tsx records ${recorded.join(", ")} without asking; only the no is answered in one press`,
+  );
+});
+
 check("Today's report names no errand, and the research table files a conversation under no unit", () => {
   assert.match(
     code("components/SayItToday.tsx"), /recordEncounter\(\s*null\s*,/,
@@ -20355,6 +20476,160 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
   assert.ok(
     vercel.crons?.some((c) => c.path === "/api/email/send"),
     "vercel.json no longer schedules the mail run, so nothing fires it",
+  );
+});
+
+/*
+  A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
+
+  `lib/dict/refused.ts` is where a person's judgement about an attested
+  sentence is kept, and it is worth exactly as much as the number of doors it
+  is asked at. Four of them, and each is a different way the sentence gets
+  back in front of a learner: the column every screen reads, a list built
+  fresh from a live Ekilex lookup, the seed that fills a new install, and the
+  harvest that rewrites the generated file. A refusal holding on three of the
+  four is the state this replaced.
+*/
+check("a refused sentence is refused at every door it could come back through", () => {
+  const examples = code("lib/dict/examples.ts");
+  assert.match(
+    examples,
+    /parseExamples[\s\S]{0,900}?\bisRefusedSentence\(/,
+    "lib/dict/examples.ts no longer refuses a refused sentence in parseExamples, which is the one "
+      + "reader of Lexeme.examples: the case walk, the grammar pages, the quest, the worksheet and "
+      + "the sprint all go through it and none of them through usableExamples",
+  );
+  assert.match(
+    examples,
+    /export function usableExamples[\s\S]{0,1200}?\bisRefusedSentence\(/,
+    "usableExamples no longer refuses one, so a list mapped straight out of a live Ekilex lookup "
+      + "never meets the refusal: lib/ekilex/mapper.ts builds fresh examples and never reads the column",
+  );
+  assert.match(
+    code("prisma/seed.ts"),
+    /\bisRefusedSentence\(/,
+    "the seed writes a refused sentence into a fresh install's database, so the dictionary entry "
+      + "prints it and every builder can borrow it before any gate is asked",
+  );
+  assert.match(
+    code("scripts/harvest-ekilex.ts"),
+    /\bisRefusedSentence\(/,
+    "the harvest writes a refused usage back into prisma/data/harvested.ts, so the next run of it "
+      + "hands the sentence back in the one file nobody re-reads",
+  );
+  assert.match(
+    code("scripts/lib/dictionary.ts"),
+    /\bisRefusedSentence\(/,
+    "the shipped-dictionary adapter still counts a refused usage, so every audit reports on a "
+      + "dictionary nobody has and translate:examples pays to translate a line no screen may draw",
+  );
+
+  /*
+    And the judgement stays a person's. A refusal is a sentence somebody read,
+    so the list may not grow a rule: a predicate over the corpus here would be
+    this app deciding what Estonian is, at a false-positive rate nothing has
+    measured, which is the fault the whole module argues against.
+  */
+  const refused = code("lib/dict/refused.ts");
+  assert.ok(
+    !/\bRegExp\b|\.test\(|\.match\(/.test(refused),
+    "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
+      + "made, not a filter over the corpus: a rule here withholds correct Estonian",
+  );
+});
+
+/*
+  AND AN ENGLISH LINE A REVIEWER TOOK OFF STAYS OFF.
+
+  `CLEAR_TRANSLATION` sets `en` back to null, and null alone cannot say which
+  of two facts it is: nobody has answered yet, and somebody answered and was
+  wrong, read identically. So the next seed refilled the line off the shipped
+  table and the next render asked a model for it again, and the reviewer's
+  decision was undone within a deploy across the whole deployment.
+*/
+check("a translation a reviewer refused is never filled in again", () => {
+  assert.match(
+    code("lib/suggestions/apply.ts"),
+    /CLEAR_TRANSLATION[\s\S]{0,1400}?enRefused: true/,
+    "CLEAR_TRANSLATION clears the line without writing down that it was refused, so the blank it "
+      + "leaves reads as one nobody has filled in yet",
+  );
+  assert.match(
+    code("lib/dict/examples.ts"),
+    /serialiseExamples[\s\S]{0,400}?enRefused/,
+    "serialiseExamples drops enRefused, so the reviewer's decision lives until the row is next written",
+  );
+  assert.match(
+    code("prisma/repair.ts"),
+    /fillExampleEnglish[\s\S]{0,900}?mayFillEnglish/,
+    "fillExampleEnglish reads the blank rather than asking mayFillEnglish, so the next seed puts the "
+      + "shipped line back over a translation somebody read and refused",
+  );
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1600}?enRefused/,
+    "translateExample asks a model to fill a blank a reviewer made, at the deployment's expense, "
+      + "with the same kind of answer they had just refused",
+  );
+
+  /*
+    AND THE LEARNER IS NOT TOLD ABOUT IT. `SentenceTranslation` asks on
+    arrival, so a refusal returned as an ordinary error draws a line about a
+    reviewer's decision under somebody's card, mid-round, about a thing they
+    had no part in and can do nothing about. Both halves, because either alone
+    passes on the broken shape: the action has to say so, and the screen has
+    to read it and draw nothing, which is what it already does where the
+    deployment has no model at all.
+  */
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1800}?refused: true/,
+    "translateExample returns a refused line as an ordinary error, so the reviewer's sentence is "
+      + "printed under a learner's card",
+  );
+  const translation = code("components/SentenceTranslation.tsx");
+  assert.match(
+    translation,
+    /"refused" in result/,
+    "SentenceTranslation reads a refusal as an error, so it draws one under the sentence",
+  );
+  assert.match(
+    translation,
+    /\|\| refused\) return null/,
+    "SentenceTranslation goes on offering the button for a line a reviewer took off, so the learner "
+      + "presses it and is told about a decision that is not theirs",
+  );
+});
+
+/*
+  AND THE RUN THAT BUYS THE ENGLISH DOES NOT BUY A LINE NOBODY MAY READ.
+
+  `npm run translate:examples` reads `prisma/data/harvested.ts` and the
+  expansion off disk rather than through `scripts/lib/dictionary.ts`, so the
+  refusal did not reach it: a run paid a model for a refused sentence and
+  wrote the answer back into `prisma/data/example-english.json`, which is the
+  one file the refusal had just been taken out of. The unit suite catches the
+  result, after the call is bought and the file rewritten, which is the wrong
+  end to find it from.
+*/
+check("nothing pays a model to translate a sentence nobody may be shown", () => {
+  assert.match(
+    code("scripts/translate-examples.ts"),
+    /\bisRefusedSentence\(/,
+    "translate:examples builds its worklist without asking lib/dict/refused.ts, so a run pays for a "
+      + "refused sentence and writes the English back into the file it was taken out of",
+  );
+  /*
+    And the reason somebody wrote reaches a reader. `RefusedSentence.why` is
+    the whole argument for the list being entries rather than strings, and it
+    was stored and read by nothing: the audit printed the rule's own line,
+    which is the same sentence for every card the rule names.
+  */
+  assert.match(
+    code("scripts/audit-decks.ts"),
+    /\brefusalFor\(/,
+    "audit:decks names a card cut from a refused sentence without printing why it was refused, so "
+      + "the reason somebody wrote reaches nobody and refusalFor is a function nothing calls",
   );
 });
 

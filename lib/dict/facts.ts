@@ -18,6 +18,7 @@ import { borrowSentences } from "@/lib/dict/borrow";
 import { plainReach, type PlainReach } from "@/lib/dict/plainness";
 import { parseExamples, type Example } from "@/lib/dict/examples";
 import { formsOfLength } from "@/lib/dict/forms";
+import { twinsOf } from "@/lib/estonian/pronouns";
 
 /**
  * FACTS ABOUT THE SHARED DICTIONARY, READ ONCE RATHER THAN ONCE PER LEARNER.
@@ -287,6 +288,40 @@ export async function courseFormsByLemma(): Promise<ReadonlyMap<string, Readonly
     for (const row of rows) {
       const lemma = byId.get(row.lexemeId)?.lemma;
       if (lemma !== undefined) add(lemma, row.value);
+    }
+    return out;
+  });
+}
+
+/**
+ * THE EVERYDAY SPELLING OF A PRONOUN, WHICH IS THE OTHER HALF OF THE WORD.
+ *
+ * `mina` and `ma` are one word twice: the course teaches the headword, the
+ * card says `mina`, and every attested sentence the app then draws says `ma`.
+ * A learner was never told the two were connected, and reported the app as
+ * making no sense the first time a sentence used the one they had not met.
+ *
+ * A fact about the shared dictionary rather than about the learner, so it is
+ * cached here with the rest: 21 pronouns and their forms, read once a minute
+ * per instance rather than joined onto every first meeting on three screens.
+ * Nothing is written and nothing is chosen: `twinsOf` reads the pair off the
+ * entry's own stored forms and answers for a pronoun only, for the reason
+ * `spokenForm` gives about itself.
+ */
+export async function everydaySpellings(): Promise<ReadonlyMap<string, string>> {
+  return remember("everyday-pronouns", FACTS_TTL_MS, async () => {
+    const rows = await prisma.lexeme.findMany({
+      where: { pos: "PRONOUN" },
+      select: {
+        lemma: true,
+        pos: true,
+        forms: { select: { formType: true, value: true, morphCode: true } },
+      },
+    });
+    const out = new Map<string, string>();
+    for (const row of rows) {
+      const everyday = twinsOf(row.pos, row.forms, row.lemma).shorter;
+      if (everyday) out.set(row.lemma, everyday);
     }
     return out;
   });

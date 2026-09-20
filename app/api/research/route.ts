@@ -178,8 +178,18 @@ interface GroupedRow {
  * be. What a pilot is measured on (`docs/22-real-life.md` §6) is the number
  * of conversations reported and the share in which the other person switched
  * to English, at the start of a term against the end, and the month is the
- * dimension that reads. "correct" is understood; a day answered "not
- * yesterday" is not a conversation and is not a row (`isConversation`).
+ * dimension that reads. A day answered "not yesterday" is not a conversation
+ * and is not a row (`isConversation`).
+ *
+ * "CORRECT" IS DEFINED BY THE FIGURE THE FILE CLAIMS TO CARRY, WHICH IS NOT
+ * THE SAME AS ONE OUTCOME. It was `= 'UNDERSTOOD'`, and the published note
+ * told a reader that one minus the rate is the share in which the other
+ * person switched to English. That was true while the only other conversation
+ * outcome was `SWITCHED` and stopped being true the day `STUCK` was added, in
+ * the direction that overstates the problem: a learner who spoke and ran out
+ * of words would have been counted into a switch figure nobody switched out
+ * of. It is `<> 'SWITCHED'`, so the note's own sentence is what the query
+ * measures and a further answer that is not a switch cannot quietly join it.
  *
  * The month is read in UTC rather than in each learner's zone, because a
  * deployment-wide bucket has no one zone to read, and a report made in the
@@ -193,7 +203,7 @@ async function tallyEncounters(excluded: readonly string[]): Promise<Contributio
     SELECT TO_CHAR(e."createdAt" AT TIME ZONE 'UTC', 'YYYY-MM') AS "month",
            e."ownerId" AS "learner",
            COUNT(*)::int AS "reviews",
-           COUNT(*) FILTER (WHERE e."outcome" = 'UNDERSTOOD')::int AS "correct"
+           COUNT(*) FILTER (WHERE e."outcome" <> 'SWITCHED')::int AS "correct"
     FROM "Encounter" e
     WHERE e."outcome" IN (${conversations})
     ${not}

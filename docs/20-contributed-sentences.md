@@ -120,3 +120,36 @@ stored: this is a data file in a repository, not a user record.
 **An id is a key, not a word.** A contributed sentence attaches to
 `Scene.id`, so renaming a scene orphans somebody's work. Add scenes freely;
 rename one only by adding the new id and importing again.
+
+## And the other direction: refusing a sentence somebody else wrote
+
+The whole of this document is about Estonian a native speaker adds. The
+opposite favour is worth as much and takes one line: reading a sentence the app
+already ships and saying it may not be shown.
+
+Every Estonian sentence in the dictionary is one a lexicographer recorded,
+which is what keeps this app from writing the language. It is not the same
+claim as the sentence being one anybody uses. Ekilex records a usage to
+illustrate a *sense*, to a reader who already knows Estonian, so a handful of
+them are not the language as it is spoken, and `Ega ma temaks ole.` was the
+first to be reported: not a sentence anybody would use, and the English built
+for it read "I am not him", which is what `Ma ei ole tema` means. That second
+half is the pattern to watch for. A model asked to translate a sentence nobody
+would write puts down the sentence that was plainly meant, so the English comes
+back fluent and the fault is hidden rather than shown.
+
+`lib/dict/refused.ts` is where a refusal is kept. One entry is the sentence and
+the reason in the reader's own words, and `parseExamples` is what makes that one
+line reach every screen at once: the dictionary entry, every card the deck
+builder makes, the borrowed pool, the printed worksheet, the grammar reference,
+the examination pool and the placement check. The seed, the harvest and the
+shipped-dictionary adapter refuse it too, so a fresh install never stores it and
+no re-run puts it back. `npm run audit:decks` names and removes the cards
+already cut from one.
+
+No rule catches these, and the near version of one would refuse correct
+Estonian, which is worse than anything it would prevent. So the list only ever
+grows by somebody reading a sentence and saying so. On a screen, the report
+button under any example sends the same judgement to the review queue, and
+`WRONG_TRANSLATION` is the narrower door where the Estonian is fine and only the
+English is wrong.

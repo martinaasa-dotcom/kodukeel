@@ -54,10 +54,12 @@ export const SECTIONS: readonly SectionSpec[] = [
     groupBy: 0,
     note:
       "Today asks each morning whether the learner spoke any Estonian to anybody yesterday, " +
-      "and the answer is one of three words: yes and they understood, they switched to " +
-      "English, not yesterday. This table counts the first two, which are the conversations, " +
-      "by the month the report was made in; a day answered \"not yesterday\" is not a row. " +
-      "\"Correct\" means understood, so one minus the rate is the share of conversations in " +
+      "and where the answer is yes it asks how it went, in one of three words: they " +
+      "understood me, I got stuck partway, they switched to English. This table counts those " +
+      "three, which are the conversations, by the month the report was made in; a day " +
+      "answered \"not yesterday\" is not a row. " +
+      "\"Correct\" means the other person did not switch, so one minus the rate is the share " +
+      "of conversations in " +
       "which the other person switched to English, which is the figure a pilot watches from " +
       "the start of a term to the end. It is self-reported and it is the only figure in this " +
       "file about anything that happened away from a screen. " +

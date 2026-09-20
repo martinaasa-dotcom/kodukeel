@@ -20,9 +20,18 @@ import {
 import { matchPins } from "./grammarExamples";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
 
+/*
+  Read once rather than once per pin. `dictionaryRows` assembles six files into
+  six thousand entries and sixteen thousand sentences on every call, and this
+  file asks it for every one of 250 pins: a quarter of a minute of rebuilding
+  the same dictionary, which is what put this suite within a few milliseconds
+  of its own timeout and over it the first time anything downstream grew.
+*/
+const SHIPPED = dictionaryRows();
+
 /** The `Lexeme` rows a seeded deployment holds, for the lemmas a pin names. */
 function rowsFor(lemmas: Set<string>) {
-  return dictionaryRows()
+  return SHIPPED
     .filter((r) => lemmas.has(r.lemma))
     .map((r, i) => ({
       id: `lex-${i}`,

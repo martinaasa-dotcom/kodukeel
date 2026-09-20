@@ -105,6 +105,14 @@ export const A1 = [
     canDo: "Say I, you, he, we, you and they, about yourself and about anybody else.",
     blurb: "The six persons, in one evening. Every verb ending you meet next is an ending for one of them.",
     grammar: ["nominative"],
+    /*
+      The glosses carry both English roles where English has two words for one
+      pronoun ("I, me", "we, us", "they, them"), because that is the sense the
+      course was missing rather than a second entry: `mind` is "me" and no rule
+      over "I" reaches it. Which of the two a form takes is
+      `lib/estonian/pronouns.ts`, and the everyday spelling beside the headword
+      (`mina` and `ma`) is read off the dictionary on the meeting step itself.
+    */
     // No case cards from the seed alone: a pronoun's everyday case forms are
     // the short ones (`mulle`, `mul`), which no rule over the genitive reaches,
     // and a card answering `minule` would mark the form everybody says wrong.
@@ -112,12 +120,12 @@ export const A1 = [
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["vastused"],
     words: [
-      ["mina", "I", "PRONOUN"],
+      ["mina", "I, me", "PRONOUN"],
       ["sina", "you (one person)", "PRONOUN"],
       ["tema", "he, she", "PRONOUN"],
-      ["meie", "we", "PRONOUN"],
+      ["meie", "we, us", "PRONOUN"],
       ["teie", "you (several people, or one politely)", "PRONOUN"],
-      ["nemad", "they", "PRONOUN"],
+      ["nemad", "they, them", "PRONOUN"],
     ],
     // One evening, said out loud rather than left to `Math.ceil(6 / 5)`, which
     // is two. See the note at the top of the unit.

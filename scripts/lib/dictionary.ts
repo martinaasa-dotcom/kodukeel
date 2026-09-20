@@ -12,6 +12,13 @@
  * Read-only and offline. No database, no network, no key. It is deliberately
  * not the seed's own code: the seed writes rows and computes gradation on the
  * way, and this only has to say what is in the files.
+ *
+ * WITH ONE EXCEPTION, WHICH IS FAITHFUL RATHER THAN A FILTER. A usage in
+ * `lib/dict/refused.ts` is one somebody has read and refused, the seed does
+ * not write it, and `parseExamples` would not hand it back if it did, so a
+ * fresh install genuinely does not have it. An audit that counted it would be
+ * reporting on a dictionary nobody has, and `npm run translate:examples`
+ * would go on paying to translate a sentence no screen may draw.
  */
 import { NOUNS } from "../../prisma/data/nouns";
 import { VERBS } from "../../prisma/data/verbs";
@@ -21,6 +28,7 @@ import { HARVESTED } from "../../prisma/data/harvested";
 import expandedRaw from "../../prisma/data/expanded.json";
 import { classifyGradation, classifyVerbGradation, gradates } from "../../lib/estonian/gradation";
 import { courseWords } from "../../lib/collections/syllabus/index";
+import { isRefusedSentence } from "../../lib/dict/refused";
 
 export interface ShippedEntry {
   readonly lemma: string;
@@ -162,7 +170,7 @@ export function shippedDictionary(): ShippedEntry[] {
     rows.push({
       lemma: h.lemma, pos: h.pos, cefr: h.cefr, gloss: h.gloss,
       parts: h.parts, extraForms: h.extraForms, government: h.government,
-      usages: h.usages, note: h.note, ekilexPos: h.ekilexPos, source: "HARVEST",
+      usages: h.usages.filter((et) => !isRefusedSentence(et)), note: h.note, ekilexPos: h.ekilexPos, source: "HARVEST",
       semanticTypes: h.semanticTypes.length > 0 ? h.semanticTypes.join(" ") : null,
       gradation: null,
     });
@@ -186,7 +194,7 @@ export function shippedDictionary(): ShippedEntry[] {
     }
     rows.push({
       lemma: e.lemma, pos: e.pos, cefr: e.cefr, gloss: e.translation, parts,
-      usages: (e.examples ?? []).map((x) => x.et),
+      usages: (e.examples ?? []).map((x) => x.et).filter((et) => !isRefusedSentence(et)),
       /*
         Deliberately not `e.notes`. The expansion's notes column holds an
         English sense note from Wiktionary, not an Ekilex definition, and nine

@@ -1138,6 +1138,11 @@ async function askedForStates(ctx, at) {
     }
     const met = page.getByRole("button", { name: /^Got it$/ });
     if (await met.count()) await met.first().click().catch(() => {});
+    // The round opens behind two one-off screens now, "First, just meet
+    // them" and "Now answer them back" (see LearnSession.tsx): neither is
+    // the round itself, so the walk presses past both on the way in.
+    const intro = page.getByRole("button", { name: /^(Show me|Ready)$/ });
+    if (await intro.count()) await intro.first().click().catch(() => {});
     await page.waitForTimeout(500);
   }
   if (opened) {

@@ -42,6 +42,7 @@ import { unreachableSlots } from "../lib/estonian/conjugate";
 import { unreachableCaseForms } from "../lib/estonian/derive";
 import { planHarvestWrite, readAnswer, rowKey } from "../lib/ekilex/harvestGuard";
 import { HARVESTED } from "../prisma/data/harvested";
+import { isRefusedSentence } from "../lib/dict/refused";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CACHE = path.join(ROOT, ".ekilex-cache");
@@ -302,6 +303,15 @@ function extractLexemeData(detail: RawDetails | null) {
       if (u.lang !== "est" || u.public === false) continue;
       const value = (u.value ?? "").trim();
       if (!value || value.length > MAX_USAGE_CHARS) continue;
+      /*
+        And a usage somebody has read and refused is not written down again.
+        `lib/dict/refused.ts` is where that judgement lives and the gate at
+        `parseExamples` is what makes it hold on a file this run has not
+        touched; dropping it here is what stops the generated file carrying
+        it at all, so the next reader of a diff is not looking at a sentence
+        no screen may draw.
+      */
+      if (isRefusedSentence(value)) continue;
       if (!usages.includes(value)) usages.push(value);
     }
     /*

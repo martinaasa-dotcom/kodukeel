@@ -112,6 +112,14 @@ export interface ReviewCard {
      * `lib/dict/glossed.ts`.
      */
     tokens: GlossedToken[] | null;
+    /**
+     * The everyday spelling of a pronoun, where the word has one.
+     *
+     * `mina` and `ma` are one word twice: the card teaches the headword and
+     * every sentence under it says the other one. Read off the entry's own
+     * stored forms, never written (see `lib/estonian/pronouns.ts`).
+     */
+    alsoSaid: string | null;
     /** Whether this deployment has a model that could translate the whole line. */
     canTranslate: boolean;
     /**
@@ -276,6 +284,7 @@ function MeetWord({ card }: { card: ReviewCard }) {
       key={card.id}
       lemma={lemma}
       gloss={gloss}
+      alsoSaid={card.intro?.alsoSaid ?? null}
       equivalent={card.intro?.equivalent ?? null}
       sentence={card.intro?.sentence ?? null}
       tokens={card.intro?.tokens ?? null}
@@ -1710,9 +1719,11 @@ export function ReviewSession({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
-        <LookBackButton {...look.button} disabled={busy || look.looking} keyHint={ask !== "type"} />
-        <button
+        <LookBackButton {...look.button} disabled={busy || look.looking} />
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={() => void undo()}
           /*
             AND IT STANDS DOWN WHILE A LOOK BACK IS OPEN, LIKE ITS OWN KEY.
@@ -1725,16 +1736,19 @@ export function ReviewSession({
             are reading, so the one thing they can see is the panel vanishing
             under their hand. The round is not on the screen, so neither is
             the way to change it: the way out is the button that says so.
+
+            DRAWN THE SAME WAY AS "SEE IT AGAIN" BESIDE IT, for the reason
+            that button now is: two controls doing the same quiet job in one
+            footer row should not read as one real button next to a bare
+            line of tinted text.
           */
           disabled={history.length === 0 || busy || look.looking}
-          className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
-          style={{ color: "var(--ink-3)" }}
         >
           {/* The cap names the key that works on the card in front of you:
               `u` is a letter while a box has focus, so a typed card carries
               the gesture that is not one. Same rule as the hint beside it. */}
-          <Undo2 size={12} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
-        </button>
+          <Undo2 size={13} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
+        </Button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />
           {/* Mirrors the footer button's own branches, so the hint cannot promise a

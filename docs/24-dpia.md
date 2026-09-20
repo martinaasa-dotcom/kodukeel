@@ -137,7 +137,7 @@ are deleted on erasure.
 | `Scan` | The word list a person confirmed off a photograph. **Never the photograph** | Until the account is deleted | Yes | Yes |
 | `SceneRun` | A finished conversation: persona, role card, every turn. Fiction about a card, not facts about the learner | Until the account is deleted | Yes | Yes |
 | `SceneGap` | Words a conversation needed and they did not have | Until the account is deleted | Yes | Yes |
-| `Encounter` | One of three words about whether they spoke Estonian to anybody yesterday, and the errand if there was one. Not where, not to whom, not what was said | Until the account is deleted | Yes | Yes |
+| `Encounter` | One of four words about whether they spoke Estonian to anybody yesterday and how it went, and the errand if there was one. Not where, not to whom, not what was said | Until the account is deleted | Yes | Yes |
 | `Suggestion` | A report of something wrong: category, screen, what the app said, their proposal, their note, and a reviewer's decision | Until the account is deleted | Yes | Yes |
 | `Classroom` | A class or workplace group they run: name, join code | Until archived or deleted, or with the owner's account | Yes | Yes |
 | `ClassroomMember` | Which group they joined, when, and the display name they chose for it | Until they leave, or with the account | Yes | Yes |
@@ -205,8 +205,9 @@ person looked at and ticked (ADR-021).
 
 **The transcript is fiction.** §1.4.
 
-**The report on a conversation held outside the app is three words.** `Encounter` records
-understood, switched or did not manage it. Not where, not who, not what was said.
+**The report on a conversation held outside the app is one word.** `Encounter` records understood,
+got stuck, switched to English, or that there was none yesterday. Not where, not who, not what was
+said.
 
 **Speech is never scored and never uploaded.** Speaking practice compares a recording against a
 native rendering in the browser and the learner judges it. Nothing recorded leaves the device, and
