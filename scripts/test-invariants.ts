@@ -1754,8 +1754,25 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
-    /readableFor\(level, taughtWords, "module"\)/,
+    /readableFor\(level, taughtWords, sentenceReader\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+  /*
+    AND WHICH READER IT IS COMES FROM THE CALLER, because two screens render
+    this one ladder and they are held differently. `/course/learn` is the
+    module choosing the evening, so it is held at every level; `/learn/new` is
+    the daily row somebody pressed, so it keeps the boundary the unit lesson
+    keeps and is held at A1 alone. The default is the module, since that was
+    the only caller handing words in when the option arrived, and a caller that
+    says nothing is therefore held more rather than less.
+  */
+  assert.match(
+    learn, /sentenceReader = "module"/,
+    "a caller that does not say who chose the screen is no longer held to the module's stricter rule",
+  );
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /sentenceReader: "lesson"/,
+    "standalone Learn claims the module's reader, which holds a B1 learner to A1's sentences",
   );
 
   /*
@@ -7323,14 +7340,47 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   const sources = code("lib/srs/sources.ts");
   assert.match(sources, /export const CARD_SOURCES/, "the closed list of card sources has gone");
   assert.match(sources, /export const YOUR_OWN_SOURCES/, "nothing says which sources are the learner's own");
+  /*
+    READ INSIDE THE DECLARATION RATHER THAN FROM ITS NAME ONWARDS. Written as
+    "`YOUR_OWN_SOURCES`, then anything, then `"SCENE"`, then the end of a list",
+    this ran past the end of its own array and matched the *next* list in the
+    file: `APP_CHOSE` names SCENE on purpose, and the check failed on a line
+    that was saying the opposite of what it was accused of. A list is bounded
+    by its own brackets.
+  */
+  const listOf = (name: string): string => {
+    const found = sources.match(new RegExp(`export const ${name} = \\[([\\s\\S]*?)\\] as const`));
+    assert.ok(found, `${name} is not a list this check can read`);
+    return found![1]!;
+  };
+  const own = listOf("YOUR_OWN_SOURCES");
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"DICTIONARY"[\s\S]*?\] as const satisfies/,
+    own, /"DICTIONARY"/,
     "DICTIONARY is claimed as a lookup, which files every existing deck's course words in that round",
   );
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"SCENE"[\s\S]*?\] as const satisfies/,
+    own, /"SCENE"/,
     "a scene's words are the course's, and a scene names unit ids rather than words",
   );
+  /*
+    AND THE OTHER READING OF THE SAME COLUMN CLAIMS LESS IN THE OTHER
+    DIRECTION. `APP_CHOSE` is what the module's gate on the daily review
+    withholds, so a source it names is a word never introduced until the course
+    reaches it: `DICTIONARY` cannot say whose idea a word was, and guessing
+    wrong there costs somebody the word they went and looked up. The two lists
+    may not overlap, or one column would answer two ways about one card.
+  */
+  const chosen = listOf("APP_CHOSE");
+  assert.doesNotMatch(
+    chosen, /"DICTIONARY"/,
+    "APP_CHOSE claims DICTIONARY, so the daily review withholds words a learner may well have gone and got",
+  );
+  for (const value of [...own.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!)) {
+    assert.doesNotMatch(
+      chosen, new RegExp(`"${value}"`),
+      `${value} is on both lists, so one column answers two ways about one card`,
+    );
+  }
 
   /*
     Every source literal in the tree is one the table names, and the table is
@@ -18131,6 +18181,216 @@ check("every round a rotation can deal reads the module's scope off its address"
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
   assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+});
+
+/*
+  AND THE DAILY REVIEW IS HELD TO THE MODULE TOO, WITHOUT BEING OPENED BY IT.
+
+  The check above is about a screen the module *opened*, which is all an
+  address can say. `/review` is reached from Today, from the rail and from a
+  card reading "6 due", and it teaches: the trickle of unseen cards beside what
+  is due is the app choosing the next thing somebody meets. Held to nothing, it
+  chose `Olen ______ nõus.` for a learner on the second evening of A1, a gap
+  whose sentence holds two words the course had not reached, on a word whose
+  own unit refuses gap-fills outright. It was reported from exactly there.
+
+  Three arms, because each alone passes on the broken shape. The page has to
+  read the learner's own standing (`learnerModuleScope`) and not only the
+  address; the new-card window has to be narrowed by whatever that returns
+  rather than by the module-opened scope; and the cards it is about to
+  introduce have to go through `cardWithin` against it, which is the half that
+  catches a gap whose sentence is untaught on a word that is.
+
+  WHAT IS DUE IS NOT ON THIS LIST AND MAY NOT JOIN IT. A card already answered
+  has a schedule and FSRS decides when it comes back; holding one out because
+  the module has not caught up would be this app overwriting a schedule it
+  presents as the scheduler's (ADR-014, ADR-016). Only a new card is the app
+  teaching something.
+*/
+check("the daily review introduces nothing the module has not taught", () => {
+  const page = code("app/(app)/review/page.tsx");
+  assert.match(
+    page, /learnerModuleScope\(/,
+    "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
+  );
+  assert.match(
+    page, /scope \? Promise\.resolve\(scope\) : learnerModuleScope\(/,
+    "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
+  );
+  /*
+    And it is in flight beside the due read rather than awaited in front of
+    it: resolving the standing is two reads deep, and this is the page whose
+    daily job is to open fast.
+  */
+  assert.match(
+    page, /const \[taught, due,/,
+    "the module standing is resolved before the due list rather than beside it, which costs the daily path two round trips",
+  );
+  assert.match(
+    page, /taught\?\.lemmas|taught\.lemmas/,
+    "the new-card window stopped being narrowed to what the module has taught",
+  );
+  assert.match(
+    page, /cardWithin\(taught,/,
+    "a card about to be introduced is no longer asked whether the module has taught what it is made of",
+  );
+  // And the due list is still the scheduler's: gated on the module-opened
+  // scope alone, never on the standing.
+  assert.match(
+    page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
+    "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+  );
+});
+
+/*
+  AND THE OTHER DAILY DOOR IS HELD THE SAME WAY.
+
+  The rail's daily row opens Learn, and the ladder answered "teach me
+  something next" off the whole deck: first run builds a starter deck of three
+  units, so a learner on the second evening of A1 could be handed a word from
+  the third. It is the review queue's fault one screen over, and the fix is the
+  same shape — the module's taught list, with the learner's own words beside
+  it, narrowing the *unseen* read alone.
+
+  THE STARTED READ MAY NEVER BE NARROWED, and that is the arm worth keeping: a
+  word part way up the ladder comes back whatever taught it, or Learn becomes a
+  place words go in and never come out of, which is the promise `learnBatch`'s
+  own header makes. `learnWithin` therefore reaches `introducible`, which only
+  the `state: 0` read spreads.
+
+  And the count on the button that opens the round reads the same narrowing,
+  because a card promising twelve words waiting over a round that then serves
+  none reads as a counting fault rather than as a rule.
+*/
+check("the Learn ladder introduces nothing the module has not taught", () => {
+  const learn = code("lib/progress/learn.ts");
+  assert.match(learn, /function learnWithin\(/, "the ladder has no one narrowing for what it may introduce");
+  assert.match(
+    learn, /const introducible = !only && within \? learnWithin\(within\) : \{\}/,
+    "the ladder's narrowing is gone, or now applies where a caller already named an exact list",
+  );
+  /*
+    The started read takes `scope` and not `introducible`. Anchored on the two
+    reads rather than on a count, because adding it to the started one is the
+    silent regression: the learner keeps meeting words and never finishes one.
+  */
+  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  assert.doesNotMatch(
+    started.slice(0, 200), /introducible/,
+    "a word part way up the ladder is being held back by the module, which strands it mid-word",
+  );
+  for (const page of ["app/(app)/learn/new/page.tsx", "app/(app)/learn/page.tsx"]) {
+    assert.match(
+      code(page), /learnerModuleScope\(/,
+      `${page} offers the ladder without asking where the module has taken the learner`,
+    );
+  }
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /within,/,
+    "the Learn round reads the module standing and does not narrow itself by it",
+  );
+  assert.match(
+    code("app/(app)/learn/page.tsx"), /learnCounts\(ownerId, undefined, taught\?\.lemmas/,
+    "the count on the button that opens the round is wider than the round itself",
+  );
+});
+
+/*
+  AND NO DOOR BUILDS A CARD TYPE THE COURSE REFUSED.
+
+  A unit's `cardTypes` is its author saying what a word is worth drilling, and
+  it is a decision as often as a default: `asesonad` asks for no case because a
+  pronoun's everyday case forms are the short ones, and no A1 unit asks for a
+  gap at all because at A1 the sentence around the gap is one the learner
+  cannot read (`syllabus.test.ts`). Every builder honors it by being handed the
+  unit's own list. `backfillClozeCards` is the one door with no unit in its
+  hands: it adds a gap-fill to a word already in the deck once Ekilex has sent
+  sentences, on a dictionary page *render*, and it decided for itself that a
+  word with sentences wants one.
+
+  Read through `code()`, because the header above that function quotes the
+  rule it exists to keep and a check that matched the prose would pass with
+  the guard deleted, which is this repository's oldest recurring mistake in
+  its own checks.
+*/
+/*
+  A `where` MAY NOT SPREAD TWO `OR`s, BECAUSE THE SECOND DELETES THE FIRST.
+
+  `pastTheLadder` and `notOnLadder` both return a bare `{ OR: [...] }`, which
+  is how a caller says "this word is past the Learn ladder" in one spread.
+  Spread a second `{ OR }` into the same object literal and the later key wins,
+  silently: the guard goes, and with it the promise that a word's case card is
+  never somebody's first sight of it — `neljaks` before `neli` had been shown.
+
+  It happened here the day the module's gate was added to the review queue, in
+  two reads, and every check in the repository stayed green: the shape it
+  breaks needs a deck holding an unseen card of a word still on the ladder, and
+  no fixture has one at the moment those queries run. So it is asked of the
+  source, which is the only place the collision is visible at all.
+
+  The enclosing object is walked by its own braces rather than by a line count,
+  and `AND: [pastTheLadder(...), { OR: ... }]` is the shape that passes, since
+  there the two are separate objects.
+*/
+check("no query spreads a second OR over the Learn-ladder guard", () => {
+  const helpers = /\.\.\.(pastTheLadder|notOnLadder)\(/g;
+  let looked = 0;
+  for (const file of [...sourceFiles("app"), ...sourceFiles("lib")]) {
+    const src = code(file);
+    for (const hit of [...src.matchAll(helpers)]) {
+      looked += 1;
+      // Walk back to the `{` that opens the object this spread is in, then
+      // forward to its `}`, counting depth so nested objects are skipped.
+      let depth = 0;
+      let open = hit.index!;
+      while (open > 0) {
+        const ch = src[open]!;
+        if (ch === "}") depth += 1;
+        else if (ch === "{") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        open -= 1;
+      }
+      depth = 0;
+      let close = open + 1;
+      while (close < src.length) {
+        const ch = src[close]!;
+        if (ch === "{") depth += 1;
+        else if (ch === "}") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        close += 1;
+      }
+      // Every key at this object's own depth, which is where a clash lives.
+      depth = 0;
+      let ownLevel = "";
+      for (let i = open + 1; i < close; i += 1) {
+        const ch = src[i]!;
+        if (ch === "{" || ch === "[") depth += 1;
+        else if (ch === "}" || ch === "]") depth -= 1;
+        else if (depth === 0) ownLevel += ch;
+      }
+      assert.doesNotMatch(
+        ownLevel, /(^|[\s,])OR\s*:/,
+        `${file} spreads the Learn-ladder guard beside its own OR, which deletes the guard; put both under AND`,
+      );
+    }
+  }
+  assert.ok(looked >= 4, `only ${looked} uses of the ladder guard were found; the sweep is not reading the tree`);
+});
+
+check("the gap-fill backfill asks whether the course wanted one", () => {
+  const src = code("lib/srs/backfill.ts");
+  assert.match(
+    src, /courseAsksFor\(/,
+    "backfillClozeCards writes a gap-fill without asking whether the word's own unit asked for one",
+  );
+  assert.match(
+    src, /if \(!courseAsksFor\([^)]*"CLOZE"\)\) return 0;/,
+    "the backfill reads the rule and does not act on it",
+  );
 });
 
 /*

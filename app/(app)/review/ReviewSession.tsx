@@ -438,7 +438,8 @@ interface Done {
 }
 
 export function ReviewSession({
-  cards: initialCards, drillCase, drillUnit, drillScan, totalCards, mode, nextDue, title = "Review",
+  cards: initialCards, drillCase, drillUnit, drillScan, totalCards, mode, nextDue,
+  waitingOnCourse = false, title = "Review",
 }: {
   cards: ReviewCard[];
   drillCase?: string;
@@ -463,6 +464,17 @@ export function ReviewSession({
    * learner's own zone lives, and only on the path where it is shown.
    */
   nextDue?: string | null;
+  /**
+   * Whether the deck holds unseen words the planned module has not reached.
+   *
+   * The caught-up screen answers "when does the next card come back", which is
+   * the scheduler's question. This one is a different state wearing the same
+   * empty queue: the words are there, the course has not opened them yet, and
+   * the way to the next few is tonight's evening rather than a date. Sending
+   * somebody to Learn there would hand them a round held back for the same
+   * reason.
+   */
+  waitingOnCourse?: boolean;
   mode: ReviewMode;
 }) {
   // Snapshotted once on mount, and never updated from later props. gradeCard()
@@ -1174,13 +1186,21 @@ export function ReviewSession({
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
         ) : (
-          <Empty
-            title="Nothing due, you're caught up"
-            body={nextDue ?? (totalCards === 1
-              ? "Your one card is scheduled for later."
-              : `All ${totalCards} cards are scheduled for later.`)}
-            action={<ButtonLink href="/learn/new" variant="primary">Learn new words instead</ButtonLink>}
-          />
+          waitingOnCourse ? (
+            <Empty
+              title="Nothing due, you're caught up"
+              body="The next new words come with tonight's evening."
+              action={<ButtonLink href="/course" variant="primary">{"Open tonight's module"}</ButtonLink>}
+            />
+          ) : (
+            <Empty
+              title="Nothing due, you're caught up"
+              body={nextDue ?? (totalCards === 1
+                ? "Your one card is scheduled for later."
+                : `All ${totalCards} cards are scheduled for later.`)}
+              action={<ButtonLink href="/learn/new" variant="primary">Learn new words instead</ButtonLink>}
+            />
+          )
         )}
       </Page>
     );

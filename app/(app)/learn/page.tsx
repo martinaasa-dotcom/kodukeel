@@ -12,6 +12,7 @@ import { ButtonLink } from "@/components/Button";
 import { icon } from "@/components/icons";
 import { Chip, Meter, Page, Ring, SectionTitle } from "@/components/ui";
 import { learnCounts } from "@/lib/progress/learn";
+import { learnerModuleScope } from "@/lib/progress/moduleScope";
 import { LEARN_BATCH } from "@/lib/learn/ladder";
 import { Sparkles } from "lucide-react";
 import { Explain } from "@/components/Explain";
@@ -34,11 +35,18 @@ export const dynamic = "force-dynamic";
  */
 export default async function LearnPage() {
   const ownerId = await requireUserId();
-  const [snapshot, placement, counts] = await Promise.all([
+  /*
+    The counts are the ones on the button that opens the round, so they are
+    read through the same narrowing the round applies (`learnWithin`): a card
+    promising twelve words waiting, over a round the module then holds back,
+    reads as a counting fault rather than as a rule.
+  */
+  const [snapshot, placement, taught] = await Promise.all([
     deckSnapshot(ownerId),
     courseLevelFor(ownerId),
-    learnCounts(ownerId),
+    learnerModuleScope(ownerId),
   ]);
+  const counts = await learnCounts(ownerId, undefined, taught?.lemmas ?? null);
   const units = await pathWithProgress(ownerId, snapshot);
 
   const doneIds = new Set(units.filter((u) => u.state === "done").map((u) => u.unit.id));
