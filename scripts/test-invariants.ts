@@ -1754,8 +1754,25 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
-    /readableFor\(level, taughtWords, "module"\)/,
+    /readableFor\(level, taughtWords, sentenceReader\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+  /*
+    AND WHICH READER IT IS COMES FROM THE CALLER, because two screens render
+    this one ladder and they are held differently. `/course/learn` is the
+    module choosing the evening, so it is held at every level; `/learn/new` is
+    the daily row somebody pressed, so it keeps the boundary the unit lesson
+    keeps and is held at A1 alone. The default is the module, since that was
+    the only caller handing words in when the option arrived, and a caller that
+    says nothing is therefore held more rather than less.
+  */
+  assert.match(
+    learn, /sentenceReader = "module"/,
+    "a caller that does not say who chose the screen is no longer held to the module's stricter rule",
+  );
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /sentenceReader: "lesson"/,
+    "standalone Learn claims the module's reader, which holds a B1 learner to A1's sentences",
   );
 
   /*
@@ -18101,6 +18118,59 @@ check("the daily review introduces nothing the module has not taught", () => {
   assert.match(
     page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
     "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+  );
+});
+
+/*
+  AND THE OTHER DAILY DOOR IS HELD THE SAME WAY.
+
+  The rail's daily row opens Learn, and the ladder answered "teach me
+  something next" off the whole deck: first run builds a starter deck of three
+  units, so a learner on the second evening of A1 could be handed a word from
+  the third. It is the review queue's fault one screen over, and the fix is the
+  same shape — the module's taught list, with the learner's own words beside
+  it, narrowing the *unseen* read alone.
+
+  THE STARTED READ MAY NEVER BE NARROWED, and that is the arm worth keeping: a
+  word part way up the ladder comes back whatever taught it, or Learn becomes a
+  place words go in and never come out of, which is the promise `learnBatch`'s
+  own header makes. `learnWithin` therefore reaches `introducible`, which only
+  the `state: 0` read spreads.
+
+  And the count on the button that opens the round reads the same narrowing,
+  because a card promising twelve words waiting over a round that then serves
+  none reads as a counting fault rather than as a rule.
+*/
+check("the Learn ladder introduces nothing the module has not taught", () => {
+  const learn = code("lib/progress/learn.ts");
+  assert.match(learn, /function learnWithin\(/, "the ladder has no one narrowing for what it may introduce");
+  assert.match(
+    learn, /const introducible = !only && within \? learnWithin\(within\) : \{\}/,
+    "the ladder's narrowing is gone, or now applies where a caller already named an exact list",
+  );
+  /*
+    The started read takes `scope` and not `introducible`. Anchored on the two
+    reads rather than on a count, because adding it to the started one is the
+    silent regression: the learner keeps meeting words and never finishes one.
+  */
+  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  assert.doesNotMatch(
+    started.slice(0, 200), /introducible/,
+    "a word part way up the ladder is being held back by the module, which strands it mid-word",
+  );
+  for (const page of ["app/(app)/learn/new/page.tsx", "app/(app)/learn/page.tsx"]) {
+    assert.match(
+      code(page), /learnerModuleScope\(/,
+      `${page} offers the ladder without asking where the module has taken the learner`,
+    );
+  }
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /within,/,
+    "the Learn round reads the module standing and does not narrow itself by it",
+  );
+  assert.match(
+    code("app/(app)/learn/page.tsx"), /learnCounts\(ownerId, undefined, taught\?\.lemmas/,
+    "the count on the button that opens the round is wider than the round itself",
   );
 });
 

@@ -378,7 +378,18 @@ export default async function ReviewPage({
     would answer a question nobody is asking.
   */
   const caughtUp = cards.length === 0 && totalCards > 0;
-  const [next, clock] = caughtUp
+  /*
+    AND WHY THERE IS NOTHING, WHICH IS NOT ALWAYS THE CLOCK.
+
+    "Nothing due, you're caught up" over a date is the right answer when the
+    scheduler is what is holding everything, and the wrong one the moment the
+    module is: a learner whose deck holds unseen words the course has not
+    reached is not caught up, they are ahead of tonight's evening, and sending
+    them to Learn instead would hand them a round that is held back for the
+    same reason. One count, on the caught-up path alone, beside the two reads
+    that were already there.
+  */
+  const [next, clock, unseenAnywhere] = caughtUp
     ? await Promise.all([
         prisma.card.findFirst({
           where: { ownerId, suspended: false, due: { gt: now } },
@@ -386,8 +397,16 @@ export default async function ReviewPage({
           select: { due: true },
         }),
         learnerDayClock(ownerId),
+        taught
+          ? prisma.card.count({
+              where: {
+                ownerId, suspended: false, state: 0, due: { lte: now },
+                ...pastTheLadder(ownerId),
+              },
+            })
+          : Promise.resolve(0),
       ])
-    : [null, null];
+    : [null, null, 0];
 
   return (
     <ReviewSession
@@ -395,6 +414,7 @@ export default async function ReviewPage({
       totalCards={totalCards}
       mode={mode}
       nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
+      waitingOnCourse={unseenAnywhere > 0}
     />
   );
 }
