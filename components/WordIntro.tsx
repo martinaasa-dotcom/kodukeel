@@ -34,11 +34,28 @@ import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
  * be the one that stopped saying where its sentence came from.
  */
 export function WordIntro({
-  lemma, gloss, equivalent, sentence, tokens, lexemeId, canTranslate = false,
+  lemma, gloss, alsoSaid, equivalent, sentence, tokens, lexemeId, canTranslate = false,
   isPhrase, autoplay = true, children,
 }: {
   lemma: string;
   gloss: string;
+  /**
+   * THE EVERYDAY SPELLING OF THE SAME WORD, WHERE IT HAS ONE.
+   *
+   * `mina` and `ma` are one word twice, and so are `sina` and `sa`, `meie`
+   * and `me`, `nemad` and `nad`. The course teaches the headword, because
+   * that is what the dictionary is headed by, and then every attested
+   * sentence this screen puts underneath says the other one: a learner met
+   * `Ta armastab mind` an hour after being taught `tema` with nothing
+   * anywhere saying the two were connected.
+   *
+   * Required rather than optional, for the reason `illSgShort` is required on
+   * `NounStems`: a screen that has not thought about this teaches half a word
+   * and looks exactly like a screen where the word has no other half. Null is
+   * the answer for every noun and verb there is. Read off the entry's own
+   * stored forms by `twinsOf`; nothing here is written (ADR-005).
+   */
+  alsoSaid: string | null;
   /** The Institute's own equivalent in the learner's chosen language, or null. */
   equivalent: { text: string; lang: string } | null;
   /** An attested sentence, and which form of the word it carries. */
@@ -74,6 +91,12 @@ export function WordIntro({
       {gloss && (
         <p className="text-base" style={{ color: "var(--ink-2)" }}>
           {sameSpelling(lemma, gloss) ? SAME_SPELLING : gloss}
+        </p>
+      )}
+      {alsoSaid && (
+        <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+          People usually say{" "}
+          <span lang="et" className="font-semibold" style={{ color: "var(--ink)" }}>{alsoSaid}</span>.
         </p>
       )}
       {equivalent && (

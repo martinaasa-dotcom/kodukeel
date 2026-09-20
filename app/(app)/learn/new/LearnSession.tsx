@@ -923,6 +923,7 @@ export function LearnSession({
               key={word.cardId}
               lemma={word.lemma}
               gloss={word.gloss}
+              alsoSaid={word.alsoSaid}
               equivalent={word.equivalent}
               sentence={word.sentence}
               tokens={word.tokens}

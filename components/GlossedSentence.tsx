@@ -143,8 +143,13 @@ export function GlossedSentence({ tokens, sentence, speak }: {
 
       <div id={panelId}>
         {chosen?.entry && (
+          /* Keyed on the spelling as well as the entry, because a sentence can
+             hold two forms of one word and the panel for the second is a
+             different panel: sharing the first one's state would leave "Added
+             2 cards." standing under a word nobody had pressed anything on. */
           <WordPanel
-            key={chosen.entry.lexemeId}
+            key={`${chosen.entry.lexemeId}:${chosen.text}`}
+            spelling={chosen.text}
             entry={chosen.entry}
             onClose={() => setOpen(null)}
             onTurnOff={() => setDismissed(true)}
@@ -159,12 +164,23 @@ export function GlossedSentence({ tokens, sentence, speak }: {
  * One word out of the sentence, in English, with the thing somebody who did
  * not have it wants next.
  *
- * `matchedAs` is the whole reason this beats a gloss on its own: the sentence
- * says `kohvi` and the dictionary says `kohv`, and a learner who is not told
- * those are one word learns that they are two. It is only printed where the
- * spelling in front of them is not the headword.
+ * THE WORD THEY TAPPED LEADS, AND WHAT IT MEANS *HERE* COMES UNDER IT. The
+ * panel used to open with the headword and the headword's whole gloss, which
+ * is two answers to a question with one: a learner tapped `Ta` in `Ta armastab
+ * mind` and read `tema · SgN · he, she`, and the spelling they had actually
+ * pressed was nowhere on the screen. It is the shape `/grammar/build-a-word`
+ * already uses and was reported against this one: the thing in front of you,
+ * then what it means, then where it came from. `lib/estonian/formReading.ts`
+ * is the reading and this component decides none of it.
+ *
+ * The headword is still the link to its entry, wherever it lands, rather than
+ * a second button reading "Full entry": the card already has one of those for
+ * the word being taught, and two links with one name going to two places is a
+ * reader being told the same thing twice.
  */
-function WordPanel({ entry, onClose, onTurnOff }: {
+function WordPanel({ spelling, entry, onClose, onTurnOff }: {
+  /** The word as the sentence spells it, which is what was pressed. */
+  spelling: string;
   entry: NonNullable<GlossedToken["entry"]>;
   onClose: () => void;
   /** Draw the sentence plain, now, while the answer is on its way to the server. */
@@ -209,6 +225,12 @@ function WordPanel({ entry, onClose, onTurnOff }: {
     setResult(r.added === 0 ? `Already in your deck.${where}` : `Added ${r.added} cards.${where}`);
   });
 
+  /* The spelling in the sentence and the headword are the same word often
+     enough that repeating it would be the panel stuttering: `Ma joon kohvi`
+     opens `joon` as an inflected form and `kohvi` as its own headword. */
+  const inflected = spelling.trim().toLocaleLowerCase("et") !== entry.lemma.toLocaleLowerCase("et");
+  const meaning = entry.reading ?? entry.gloss;
+
   return (
     <div
       className="mt-2.5 rounded-[var(--r)] border px-3 py-2.5 text-left"
@@ -216,25 +238,47 @@ function WordPanel({ entry, onClose, onTurnOff }: {
     >
       <div className="flex items-start gap-2">
         <div className="min-w-0 flex-1">
-          <p className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            {/* The headword is the link to its entry rather than a second
-                button reading "Full entry": the card already has one of those
-                for the word being taught, and two links with one name going to
-                two places is a reader being told the same thing twice. */}
-            <Link
-              href={`/dictionary?q=${encodeURIComponent(entry.lemma)}`}
-              lang="et"
-              className="inline-flex items-baseline gap-1 text-base font-bold underline underline-offset-4"
-              style={{ color: "var(--ink)", textDecorationColor: "var(--accent)" }}
-            >
-              {entry.lemma}
-              <BookOpen size={12} aria-hidden />
-            </Link>
-            {entry.matchedAs && (
-              <span className="text-2xs" style={{ color: "var(--ink-3)" }}>{entry.matchedAs}</span>
-            )}
+          {inflected ? (
+            <p lang="et" className="text-base font-bold" style={{ color: "var(--ink)" }}>
+              {spelling}
+            </p>
+          ) : (
+            <p><HeadwordLink lemma={entry.lemma} /></p>
+          )}
+          {/* What it means here, which is the reading where there is one and
+              the entry's own gloss where there is not. */}
+          <p className="text-sm" style={{ color: "var(--ink-2)" }} data-word-meaning={meaning}>
+            {meaning}
           </p>
-          <p className="text-sm" style={{ color: "var(--ink-2)" }}>{entry.gloss}</p>
+          {/* Where it came from, and what this form of it is called. The
+              headword's own gloss rides along only where the line above it is
+              a reading rather than that gloss, or the panel says one thing
+              twice: `Ta` reads "he, she" and so does `tema`, and printing both
+              is the fault the reading was added to fix, one line down. */}
+          {inflected && (
+            <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
+              <HeadwordLink lemma={entry.lemma} small />
+              {entry.reading && entry.reading !== entry.gloss && `, ${entry.gloss}`}
+              {entry.matchedAs && ` · ${entry.matchedAs}`}
+            </p>
+          )}
+          {/* The clause a flash card prints over the box, for a form no phrase
+              reads: the osastav is given no reading on purpose, and this is
+              what it is given instead. */}
+          {!entry.reading && entry.clause && (
+            <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
+              Used {entry.clause}.
+            </p>
+          )}
+          {/* THE PAIR, WHICH IS THE ONE THING A BEGINNER IS NEVER TOLD.
+              `mina` and `ma` are one word twice: the course teaches the
+              headword and every sentence the app draws says the other one. */}
+          {entry.alsoSaid && (
+            <p className="mt-0.5 text-xs" style={{ color: "var(--ink-3)" }}>
+              {entry.alsoSaid.everyday ? "People usually say " : "The full form is "}
+              <span lang="et" className="font-semibold">{entry.alsoSaid.spelling}</span>.
+            </p>
+          )}
         </div>
         <button
           type="button"
@@ -293,5 +337,28 @@ function WordPanel({ entry, onClose, onTurnOff }: {
       </div>
       <span className="sr-only" role="status">{result ? `${entry.lemma}: ${result}` : ""}</span>
     </div>
+  );
+}
+
+/**
+ * The headword, as the way into its entry.
+ *
+ * One drawing rather than two, because it lands in two places on this panel
+ * depending on whether the sentence spelled the word as its headword, and two
+ * copies would be two answers to what a dictionary link looks like.
+ */
+function HeadwordLink({ lemma, small = false }: { lemma: string; small?: boolean }) {
+  return (
+    <Link
+      href={`/dictionary?q=${encodeURIComponent(lemma)}`}
+      lang="et"
+      className={`inline-flex items-baseline gap-1 underline underline-offset-4 ${
+        small ? "font-semibold" : "text-base font-bold"
+      }`}
+      style={{ color: small ? "var(--ink-2)" : "var(--ink)", textDecorationColor: "var(--accent)" }}
+    >
+      {lemma}
+      <BookOpen size={small ? 11 : 12} aria-hidden />
+    </Link>
   );
 }

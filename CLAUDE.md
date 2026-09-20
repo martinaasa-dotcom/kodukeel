@@ -3171,6 +3171,103 @@ opened it and a toggle would shut the panel of the word the pointer is sitting o
 two lines above. **The word buttons carry no `hover:` class**, because an inline style beats a class
 `:hover` and the hover state here *is* the open state.
 
+**And the panel led with the headword's name for the form, which for half the dictionary was its
+internal code.** A learner tapped `Ta` in `Ta armastab mind` and read `tema · SgN · he, she`. Three
+things were wrong in one line and the code was only the loudest. `prisma/seed.ts` writes every
+retrieved form under `formType` as `EKILEX:<code>` with no `morphCode` at all, and every name in
+`lib/estonian/morph.ts` is keyed on the code, so `formName` fell past the code branch, past the
+stored table, past `morphName` and out of `formLabel`'s last line as the bare slot: the names were
+all there and nothing was reading them, on the 1,765 forms the harvest stores because no rule
+reaches them. `morphCodeOf` is the one reading of both shapes a row is in and `formName` asks it.
+And the word that had been *pressed* was nowhere on the panel, which is the half a reader notices
+first: the spelling leads now, then what it means here, then the headword it came from with the
+form's name beside it, which is the order `/grammar/build-a-word` already uses.
+
+**What a form means is `lib/estonian/formReading.ts`, and it composes nothing of its own.** The
+pronouns are `lib/estonian/pronouns.ts`, the cases are `caseReading`, which is the build-a-word
+phrase itself, and where neither has a phrase the sentence under the name is `plainAsk`'s, which is
+what a flash card prints over the box. Three tables, one answer, so the panel and the walkthrough
+cannot disagree about what `toas` means. **English inflects its pronouns where it inflects nothing
+else**, which is why the six are a table rather than a frame over a gloss: `mind` is "me" and
+`minu` is "my" and no rule over "I, me" gets there, `mul` is the have-construction written out
+whole per person because "he, she have it" is not a sentence, and the inside trio is left empty
+because `räägib minust` is "about me" and `minust sai õpetaja` is "I became" and a panel printing
+one over the other teaches something the rest of the app would have to unteach. `see`, `kes` and
+`mis` are deliberately not in it: "this" is "this" in every role English has, so a frame over that
+gloss can only ever produce "in the this".
+
+**And which case a spelling is gets `readCase`'s strict rule rather than the row the match came
+back with.** `kohvi` is stored as the omastav of `kohv` and is also its osastav, so a reading keyed
+on the matched row read `Ma joon kohvi` as "of the coffee", which is the wrong half of a word the
+learner is looking straight at. Exactly one case spells it that way or nothing is said, which is the
+same discipline that decides whether a gap may be cut for a case at all; a spelling the index does
+not hold falls back to the matched form, and that is what carries the parallel short forms, since
+`ma` is a second nominative and the index holds only the principal one. A **plural** gets no frame
+either, because the frame drops one English noun into "in the %" and the gloss it is given is the
+headword's, which is singular. And the **headword itself gets none**: "the man" is narrower than
+"man, husband" and buys an article nobody asked for, and the dictionary already wrote the answer.
+
+**`mina` and `ma` are one word twice, and nothing anywhere said so.** The course teaches the
+headword, because that is what the dictionary is headed by, and then every attested sentence the app
+draws says the other one: somebody met `Ta armastab mind` an hour after being taught `tema`.
+`twinsOf` reads the pair off the entry's own stored forms, which Ekilex records under one code
+(`SgN` is `mina` and `ma`, `SgAd` is `minul` and `mul`), so **nothing here writes an Estonian
+form**; it answers for a **pronoun only**, which is `spokenForm`'s own rule and its reason, since a
+noun's parallel form is a spelling variant rather than a register. The panel says it about the
+spelling in front of the reader, and the first meeting says it about the word being taught, on all
+three screens that introduce one: `alsoSaid` is **required** on `WordIntro` and on `LessonWord` for
+the reason `illSgShort` is required on `NounStems`, a caller that has not thought about it teaches
+half a word and that looks exactly like a word with no other half. `everydaySpellings` in
+`lib/dict/facts.ts` is the read, because it is a fact about the shared dictionary rather than about
+the learner waiting, and it is its own pass rather than a line inside `withGlosses`: that one
+returns early for somebody who turned the underlines off, and the pair is part of what the word is.
+
+**And a gloss one character long reads as a rendering fault.** `mina` was glossed "I", which under a
+36px headword is a vertical bar somebody reported as an error line. It is "I, me" now, and `meie`
+and `nemad` carry their object forms with it, which is the sense the course was missing rather than
+a fix for the typography: those three are the personal pronouns whose two English roles are two
+different words. The syllabus and `prisma/data/harvested.ts` are edited together, which is what a
+re-harvest would produce and what `syllabus.test.ts` already fails on.
+
+**And `sina` and `teie` are both "you" and are not the same word.** The table above says English
+inflects its pronouns where it inflects nothing else, and the thing English lost is the one this
+course needs most: every scene in this app is answered in `teie`, so it is the pronoun the panel is
+tapped on most, and "to you" over `teile` beside "to you" over `sulle` teaches a learner that the
+choice does not matter. `PronounEnglish.qualifier` is the note and **both members carry one**, "one
+person you know" and "polite, or more than one", because the contrast is the lesson and a bare "you"
+beside a qualified one reads as the default rather than as the informal one. It rides on the end of
+the frame rather than inside it, so it reads the same after a bare pronoun, a preposition and the
+have-construction, and `PronounRole` is the four words a frame may reach for so the note can never
+be substituted as one of them.
+
+**And the pronoun was said twice on half the verbs, which is the fix the other table already
+had.** `formName`'s note says the English half names the category and never the person, because the
+person is an Estonian pronoun standing inside a gloss that exists for somebody reading an English
+reference grammar, and it was true of the slots a rule derives and false of the principal parts the
+harvest stores. One screen draws both: `armastab` came back "olevik ta (present)" off its code and
+`elan` "olevik ma (present ma)" off its stored first person. `STORED_NAMES` had a comment claiming
+the two were worded alike while they were not, which is the shape this file keeps finding in its own
+prose. Found by rendering the panel over a seeded dictionary rather than by reading either table,
+because two tables that disagree read correctly one at a time.
+
+**And a plural is a plural whichever table names it.** Ekilex writes the number as a prefix (`PlIn`)
+and the seed's principal parts write it as a suffix (`PART_PL`), and `numberFromMorphCode` knew only
+the first. That is nothing to the callers holding `f.morphCode`, which is null on a principal part
+anyway, and it was a hole under `readForm`, which asks through `morphCodeOf` and so does see
+`GEN_PL`: a plural reported as unknown is a plural a singular frame can be printed over, which is
+"in the room" under `tubades` and is the one way a reading goes wrong that a learner cannot catch.
+Nothing reachable produced one, because `caseFromMorphCode` names no case for those codes either,
+which is two tables agreeing by accident rather than a rule. Both shapes are read now, and the test
+is on the arrangement where the guard is load-bearing, a plural whose spelling the *singular* index
+settles, made to fail on the real line.
+
+**And what the model is told the learner said is what the spelling means.** `readingOf` in the scene
+route builds a word-by-word English reading for the judge and the composer, and it took the first
+sense of the headword's gloss, so `mind` was handed over as "I": the fault the panel's own reading
+was written to fix, one screen over, reaching a model instead of a reader. It reads `entry.reading`
+where there is one, which is the same call, is usually fewer tokens, and is asserted, because what
+it costs if it goes back is a model answering a turn it has been told the opposite of.
+
 **A word kept from a sentence is a press and it says where it came from.** `SENTENCE` is a card
 source of its own beside `SCAN` and `ALMANAC`: somebody reading a line and hitting a word they do
 not have is a different thing from looking one up, and `Card.source` is a closed list for the reason

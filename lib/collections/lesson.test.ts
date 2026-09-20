@@ -52,6 +52,7 @@ const noun = (lemma: string, gloss: string, extra: Partial<LessonWord> = {}): Le
   parts: { NOM_SG: lemma, GEN_SG: `${lemma}i`, PART_SG: `${lemma}it` },
   government: null,
   semanticTypes: null,
+  alsoSaid: null,
   ...extra,
 });
 
@@ -223,7 +224,7 @@ describe("what a step is built from", () => {
     const surely: LessonWord = {
       lexemeId: "lex-kindlasti", lemma: "kindlasti", gloss: "definitely", pos: "ADVERB",
       examples: [{ et: "Koosolek toimub kindlasti.", en: null }], parts: { NOM_SG: "kindlasti" },
-      government: null, semanticTypes: null,
+      government: null, semanticTypes: null, alsoSaid: null,
     };
     const steps = planLesson({
       unit, words: [surely], distractors: DISTRACTORS, taughtWords: TAUGHT, seed: 5, wordOrder,
@@ -257,7 +258,7 @@ describe("what a step is built from", () => {
     const dear: LessonWord = {
       lexemeId: "lex-kallis", lemma: "kallis", gloss: "dear, expensive", pos: "ADJECTIVE",
       examples: [], parts: { NOM_SG: "kallis", GEN_SG: "kalli", PART_SG: "kallist" },
-      government: null, semanticTypes: null,
+      government: null, semanticTypes: null, alsoSaid: null,
     };
     // Every seed from 1 to 30, because which case the step draws is a roll:
     // with these distractors 17 and 30 are the two that reach the seesütlev,
@@ -313,12 +314,12 @@ describe("what a step is built from", () => {
     // options should be other phrases, not the noun distractors sitting
     // right beside them.
     const greeting: LessonWord = {
-      lexemeId: "lex-tere", lemma: "tere", gloss: "Hello!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null,
+      lexemeId: "lex-tere", lemma: "tere", gloss: "Hello!", pos: "PHRASE", semanticTypes: null, alsoSaid: null, examples: [], parts: {}, government: null,
     };
     const otherPhrases: LessonWord[] = [
-      { lexemeId: "lex-aitäh", lemma: "aitäh", gloss: "Thank you!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null },
-      { lexemeId: "lex-palun", lemma: "palun", gloss: "Please!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null },
-      { lexemeId: "lex-vabandust", lemma: "vabandust", gloss: "Sorry!", pos: "PHRASE", semanticTypes: null, examples: [], parts: {}, government: null },
+      { lexemeId: "lex-aitäh", lemma: "aitäh", gloss: "Thank you!", pos: "PHRASE", semanticTypes: null, alsoSaid: null, examples: [], parts: {}, government: null },
+      { lexemeId: "lex-palun", lemma: "palun", gloss: "Please!", pos: "PHRASE", semanticTypes: null, alsoSaid: null, examples: [], parts: {}, government: null },
+      { lexemeId: "lex-vabandust", lemma: "vabandust", gloss: "Sorry!", pos: "PHRASE", semanticTypes: null, alsoSaid: null, examples: [], parts: {}, government: null },
     ];
     const steps = planLesson({
       unit, words: [greeting], distractors: [...otherPhrases, ...DISTRACTORS],
@@ -425,8 +426,8 @@ describe("what a step is built from", () => {
 
   it("asks about government only where Ekilex recorded one", () => {
     const verbs: LessonWord[] = [
-      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda" },
-      { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
+      { lexemeId: "lex-aitama", lemma: "aitama", gloss: "to help", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "aitama", GEN_SG: "" }, government: "keda" },
+      { lexemeId: "lex-jooksma", lemma: "jooksma", gloss: "to run", pos: "VERB", semanticTypes: null, alsoSaid: null, examples: [], parts: { INF_MA: "jooksma" }, government: null },
     ];
     const steps = planLesson({
       unit: { ...unit, cardTypes: [...unit.cardTypes, "GOVERNMENT"] },
@@ -463,7 +464,7 @@ describe("the build step carries the orders Estonian allows", () => {
     lemma: "tulema",
     gloss: "to come",
     pos: "VERB",
-    semanticTypes: null,
+    semanticTypes: null, alsoSaid: null,
     examples: [{ et: reported, en: null }],
     /*
       No stored first person, so no gap can be cut and the practice lane falls
