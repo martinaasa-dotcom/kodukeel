@@ -90,10 +90,27 @@ export function morphCodeFor(key: CaseKey, plural = false): string | null {
 
 export type MorphNumber = "SINGULAR" | "PLURAL" | null;
 
+/**
+ * Singular or plural, off either shape a form's code is written in.
+ *
+ * Ekilex's own codes carry it as a prefix (`SgIn`, `PlIn`) and the seed's
+ * principal parts carry it as a suffix (`GEN_SG`, `PART_PL`), and this read
+ * only knew the first. That is fine for the callers holding `f.morphCode`,
+ * which is null on a principal part anyway, and it was a hole under
+ * `readForm`, which asks through `morphCodeOf` and so does see `GEN_PL`: the
+ * plural was reported as unknown, and unknown is what lets a singular frame
+ * ("in the room") be printed over a plural. Nothing reachable produced one,
+ * because `caseFromMorphCode` happens to name no case for those codes either,
+ * which is two tables agreeing by accident rather than a rule. Both shapes are
+ * read here instead, so the number is a fact about the code rather than about
+ * which table looked at it first.
+ */
 export function numberFromMorphCode(code: string | null | undefined): MorphNumber {
   if (!code) return null;
   if (code.startsWith("Sg")) return "SINGULAR";
   if (code.startsWith("Pl")) return "PLURAL";
+  if (code.endsWith("_SG")) return "SINGULAR";
+  if (code.endsWith("_PL")) return "PLURAL";
   return null;
 }
 
@@ -189,7 +206,9 @@ export interface FormName {
    * the case is actually asking, off the one table in `lib/estonian/cases.ts`,
    * so the note on a search result and the Answers column on the entry under
    * it say the same thing. A verb slot keeps its own English name, which is
-   * already plain: "present ma", "simple past ma".
+   * already plain: "present", "simple past". It names the category and never
+   * the person, because the person is an Estonian pronoun and it is standing
+   * in the half that leads: see the note on the derived slots below.
    */
   readonly en: string;
 }
@@ -208,11 +227,22 @@ const STORED_NAMES: Record<string, FormName> = {
   GEN_PL: { et: "mitmuse omastav", en: `${asks("GENITIVE")}, plural` },
   INF_MA: { et: "ma-tegevusnimi", en: "ma-infinitive" },
   INF_DA: { et: "da-tegevusnimi", en: "da-infinitive" },
-  // Worded exactly as the derived verb-slot names below, so that one word
-  // resolving from a stored principal part and another from an Ekilex morph
-  // code do not read as two different grammatical categories.
-  PRES_1SG: { et: "olevik ma", en: "present ma" },
-  PAST_1SG: { et: "lihtminevik ma", en: "simple past ma" },
+  /*
+    Worded exactly as the derived verb-slot names below, so that one word
+    resolving from a stored principal part and another from an Ekilex morph
+    code do not read as two different grammatical categories.
+
+    THE ENGLISH NAMES THE CATEGORY AND NOT THE PERSON, which the derived table
+    was corrected to and this one was not, so the two read differently on the
+    one screen that draws both: `armastab` came back "olevik ta (present)" off
+    its code and `elan` "olevik ma (present ma)" off its principal part, with
+    the pronoun said twice and the second one an Estonian word standing inside
+    an English gloss that exists for somebody reading an English reference
+    grammar. The comment above claimed the two were worded alike while they
+    were not, which is the shape this file keeps finding in its own prose.
+  */
+  PRES_1SG: { et: "olevik ma", en: "present" },
+  PAST_1SG: { et: "lihtminevik ma", en: "simple past" },
   PART_TUD: { et: "tud-kesksõna", en: "tud-participle" },
 };
 

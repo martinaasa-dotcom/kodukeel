@@ -607,9 +607,17 @@ export async function learnBatch(
     underlines under a sentence, and the pair is part of what the word *is*.
     `everydaySpellings` is a fact about the shared dictionary, so on a warm
     instance this costs no query at all (see `lib/dict/facts.ts`).
+
+    Skipped outright where there is nothing to fill, which is the guard
+    `withEveryday` takes on the review path. Deliberately not narrowed to the
+    pronouns: which word class has a pair is `twinsOf`'s to decide and a test
+    of it at each of the three call sites is three copies of that rule, of
+    which the copies are what fall behind.
   */
-  const everyday = await everydaySpellings();
-  for (const word of words) word.alsoSaid = everyday.get(word.lemma) ?? null;
+  if (words.length > 0) {
+    const everyday = await everydaySpellings();
+    for (const word of words) word.alsoSaid = everyday.get(word.lemma) ?? null;
+  }
 
   return orderByRung(words, (word) => word.rung);
 }

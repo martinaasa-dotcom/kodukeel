@@ -3195,6 +3195,45 @@ a fix for the typography: those three are the personal pronouns whose two Englis
 different words. The syllabus and `prisma/data/harvested.ts` are edited together, which is what a
 re-harvest would produce and what `syllabus.test.ts` already fails on.
 
+**And `sina` and `teie` are both "you" and are not the same word.** The table above says English
+inflects its pronouns where it inflects nothing else, and the thing English lost is the one this
+course needs most: every scene in this app is answered in `teie`, so it is the pronoun the panel is
+tapped on most, and "to you" over `teile` beside "to you" over `sulle` teaches a learner that the
+choice does not matter. `PronounEnglish.qualifier` is the note and **both members carry one**, "one
+person you know" and "polite, or more than one", because the contrast is the lesson and a bare "you"
+beside a qualified one reads as the default rather than as the informal one. It rides on the end of
+the frame rather than inside it, so it reads the same after a bare pronoun, a preposition and the
+have-construction, and `PronounRole` is the four words a frame may reach for so the note can never
+be substituted as one of them.
+
+**And the pronoun was said twice on half the verbs, which is the fix the other table already
+had.** `formName`'s note says the English half names the category and never the person, because the
+person is an Estonian pronoun standing inside a gloss that exists for somebody reading an English
+reference grammar, and it was true of the slots a rule derives and false of the principal parts the
+harvest stores. One screen draws both: `armastab` came back "olevik ta (present)" off its code and
+`elan` "olevik ma (present ma)" off its stored first person. `STORED_NAMES` had a comment claiming
+the two were worded alike while they were not, which is the shape this file keeps finding in its own
+prose. Found by rendering the panel over a seeded dictionary rather than by reading either table,
+because two tables that disagree read correctly one at a time.
+
+**And a plural is a plural whichever table names it.** Ekilex writes the number as a prefix (`PlIn`)
+and the seed's principal parts write it as a suffix (`PART_PL`), and `numberFromMorphCode` knew only
+the first. That is nothing to the callers holding `f.morphCode`, which is null on a principal part
+anyway, and it was a hole under `readForm`, which asks through `morphCodeOf` and so does see
+`GEN_PL`: a plural reported as unknown is a plural a singular frame can be printed over, which is
+"in the room" under `tubades` and is the one way a reading goes wrong that a learner cannot catch.
+Nothing reachable produced one, because `caseFromMorphCode` names no case for those codes either,
+which is two tables agreeing by accident rather than a rule. Both shapes are read now, and the test
+is on the arrangement where the guard is load-bearing, a plural whose spelling the *singular* index
+settles, made to fail on the real line.
+
+**And what the model is told the learner said is what the spelling means.** `readingOf` in the scene
+route builds a word-by-word English reading for the judge and the composer, and it took the first
+sense of the headword's gloss, so `mind` was handed over as "I": the fault the panel's own reading
+was written to fix, one screen over, reaching a model instead of a reader. It reads `entry.reading`
+where there is one, which is the same call, is usually fewer tokens, and is asserted, because what
+it costs if it goes back is a model answering a turn it has been told the opposite of.
+
 **A word kept from a sentence is a press and it says where it came from.** `SENTENCE` is a card
 source of its own beside `SCAN` and `ALMANAC`: somebody reading a line and hitting a word they do
 not have is a different thing from looking one up, and `Card.source` is a closed list for the reason

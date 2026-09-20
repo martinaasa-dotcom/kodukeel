@@ -1,5 +1,5 @@
 import { caseReading } from "./caseReading";
-import { stemsFrom } from "./derive";
+import { stemsFrom, type NounStems } from "./derive";
 import { caseFromMorphCode, morphCodeOf, numberFromMorphCode } from "./morph";
 import { plainAsk } from "./plainAsk";
 import { isPersonalPronoun, pronounReading } from "./pronouns";
@@ -84,8 +84,8 @@ const NOTHING: FormText = { reading: null, clause: null };
  * came back with, which is what carries the parallel short forms: `ma` is a
  * second nominative of `mina` and the index holds only the principal one.
  */
-function caseOf(form: FormSeen, word: WordSeen, spelling: string): CaseKey | null {
-  const verdict = readCase(caseIndex(stemsFrom(word.forms)), spelling);
+function caseOf(stems: NounStems, form: FormSeen, spelling: string): CaseKey | null {
+  const verdict = readCase(caseIndex(stems), spelling);
   if (verdict.kind === "one") return verdict.key;
   if (verdict.kind === "shared") return null;
   return caseFromMorphCode(morphCodeOf(form));
@@ -119,8 +119,15 @@ export function readForm(form: FormSeen, word: WordSeen, spelling: string): Form
   if (spelling.trim().toLocaleLowerCase("et") === word.lemma.toLocaleLowerCase("et")) {
     return NOTHING;
   }
+  /*
+    Read once and read here, because the two questions below are both about
+    this one table: which case the spelling is, and what the word's own
+    nominative singular is. `stemsFrom` is the one reading of a form list and
+    finding `NOM_SG` a second way beside it is how two answers start.
+  */
+  const stems = stemsFrom(word.forms);
   const code = morphCodeOf(form);
-  const key = caseOf(form, word, spelling);
+  const key = caseOf(stems, form, spelling);
 
   /*
     A pronoun is the table's or it is nothing. `see` is "this, it" in every
@@ -143,7 +150,7 @@ export function readForm(form: FormSeen, word: WordSeen, spelling: string): Form
       // The stored principal part, which is what `CaseSubject` asks for: a
       // headword that is its own plural (`prillid`) has none, and that is the
       // fact the field carries.
-      nomSg: word.forms.find((f) => f.formType === "NOM_SG")?.value ?? null,
+      nomSg: stems.nomSg ?? null,
     })
     : null;
   return reading ? { reading, clause: null } : { reading: null, clause: clauseFor(key, code) };

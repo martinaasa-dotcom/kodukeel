@@ -19,8 +19,8 @@ import type { CaseKey } from "./types";
  * short one is what anybody says, and until this the app taught the headword
  * and then put the short form in front of the learner in every sentence it
  * showed them without ever saying the two were connected. **Nothing here
- * writes one**: `shorterTwin` and `longerTwin` read the pair off the entry's
- * own stored forms, which Ekilex records for every pronoun that has them, the
+ * writes one**: `twinsOf` reads the pair off the entry's own stored forms,
+ * which Ekilex records for every pronoun that has them, the
  * way `spokenForm` reads the one it says out loud (`lib/scenes/lexicon.ts`).
  *
  * DELIBERATELY PARTIAL, like `lib/estonian/terms.ts` and `plainAsk` and for
@@ -46,6 +46,20 @@ interface PronounEnglish {
   /** Whose it is: "my", "his, her". */
   readonly possessive: string;
   /**
+   * The one thing English lost, where the pronoun is one of the two that had
+   * it, and null on the four where there is nothing to say.
+   *
+   * `sina` and `teie` are both "you" and are not the same word: one is a
+   * person you know and the other is a room full of them or a stranger at a
+   * counter. Every scene in this app is answered in `teie`, so it is the
+   * pronoun this panel is tapped on most, and "to you" over `teile` with "to
+   * you" over `sulle` teaches a learner that the choice does not matter. Both
+   * members are marked rather than only the second, because the contrast is
+   * the lesson and a bare "you" beside a qualified one reads as the unmarked
+   * default rather than as the informal one.
+   */
+  readonly qualifier?: string;
+  /**
    * The have-construction, written out whole.
    *
    * Estonian has no verb for have: the owner takes the alalütlev and the thing
@@ -61,10 +75,16 @@ interface PronounEnglish {
 
 const PRONOUNS: Record<string, PronounEnglish> = {
   mina: { subject: "I", object: "me", possessive: "my", has: "I have it" },
-  sina: { subject: "you", object: "you", possessive: "your", has: "you have it" },
+  sina: {
+    subject: "you", object: "you", possessive: "your", has: "you have it",
+    qualifier: "one person you know",
+  },
   tema: { subject: "he, she", object: "him, her", possessive: "his, her", has: "he has it, she has it" },
   meie: { subject: "we", object: "us", possessive: "our", has: "we have it" },
-  teie: { subject: "you", object: "you", possessive: "your", has: "you have it" },
+  teie: {
+    subject: "you", object: "you", possessive: "your", has: "you have it",
+    qualifier: "polite, or more than one",
+  },
   nemad: { subject: "they", object: "them", possessive: "their", has: "they have it" },
 };
 
@@ -76,9 +96,12 @@ export function isPersonalPronoun(lemma: string): boolean {
   return Object.hasOwn(PRONOUNS, lemma.trim().toLocaleLowerCase("et"));
 }
 
+/** The four fields a frame may reach for: the words, never the register note. */
+type PronounRole = "subject" | "object" | "possessive" | "has";
+
 /** Which of the four English words a case reaches for, and what goes round it. */
 interface PronounFrame {
-  readonly role: keyof PronounEnglish;
+  readonly role: PronounRole;
   /** `%` is where the English pronoun goes. */
   readonly shape: string;
 }
@@ -135,7 +158,10 @@ export function pronounReading(lemma: string, key: CaseKey): string | null {
   if (!english) return null;
   const frame = FRAMES[key];
   if (!frame) return null;
-  return frame.shape.replace("%", english[frame.role]);
+  const said = frame.shape.replace("%", english[frame.role]);
+  // The register rides on the end rather than inside the frame, so it reads
+  // the same after a bare pronoun, a preposition and the have-construction.
+  return english.qualifier ? `${said} (${english.qualifier})` : said;
 }
 
 /** One stored form, as every caller of this app already holds one. */
@@ -188,7 +214,16 @@ export function twinsOf(pos: string, forms: readonly StoredForm[], spelling: str
     .filter((f) => codes.has(morphCodeOf(f)))
     .map((f) => f.value)
     .filter((v) => v.toLocaleLowerCase("et") !== wanted);
-  const shortest = (from: string[]) => from.sort((a, b) => a.length - b.length)[0] ?? null;
+  /*
+    Shortest first, and then the spelling itself, because a comparator that
+    returns 0 hands the answer to whatever order the rows arrived in, which is
+    the query plan rather than a fact about Estonian. No pronoun the dictionary
+    holds has two parallel spellings of one length today; the tie-break is what
+    stops that being load-bearing.
+  */
+  const shortest = (from: string[]) => (
+    from.sort((a, b) => a.length - b.length || a.localeCompare(b, "et"))[0] ?? null
+  );
   return {
     shorter: shortest(parallel.filter((v) => v.length < wanted.length)),
     longer: shortest(parallel.filter((v) => v.length > wanted.length)),

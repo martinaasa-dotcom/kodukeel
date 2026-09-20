@@ -98,6 +98,36 @@ describe("readForm", () => {
   });
 
   /*
+    AND A PLURAL THE SEED NAMED ITS OWN WAY IS STILL A PLURAL.
+
+    A principal part carries its number as a suffix (`PART_PL`) where the
+    retrieved table carries it as a prefix (`PlP`), and the guard above read
+    only the prefix. What saved it was `caseFromMorphCode` naming no case for
+    those codes either, so a spelling the *index* settles is where it would
+    have shown: `toad` is claimed as a plural by its row and by nothing in the
+    singular table. `numberFromMorphCode` reads both shapes now, so the guard
+    holds whichever table looks at the row first.
+  */
+  it("reads the seed's own plural names as plural too", () => {
+    /*
+      Spelled so nobody could mistake it for Estonian, because the collision is
+      what is under test rather than any word: a plural stored under the seed's
+      own name whose spelling the singular index also settles. `xurras` is read
+      as the seesütlev of `xurr` by the index and is a partitive plural by its
+      row, which is the one arrangement where the guard is load-bearing.
+    */
+    const forms = [
+      { formType: "NOM_SG", value: "xurr", morphCode: null },
+      { formType: "GEN_SG", value: "xurra", morphCode: null },
+      { formType: "PART_SG", value: "xurra", morphCode: null },
+      { formType: "PART_PL", value: "xurras", morphCode: null },
+    ];
+    const made = word({ lemma: "xurr", gloss: "widget", forms });
+    expect(readForm({ formType: "EKILEX:SgIn" }, made, "xurras").reading).toBe("in the widget");
+    expect(readForm({ formType: "PART_PL" }, made, "xurras").reading).toBeNull();
+  });
+
+  /*
     `caseIsUnsaidFor`'s rule, asked here so that a panel cannot say a sentence
     the rest of the app refuses to build a card out of.
   */

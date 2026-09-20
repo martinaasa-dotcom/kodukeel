@@ -56,6 +56,35 @@ describe("pronounReading", () => {
   it("says nothing about a pronoun it was not written for", () => {
     expect(pronounReading("see", "PARTITIVE")).toBeNull();
   });
+
+  /*
+    THE ONE THING ENGLISH LOST. `sulle` and `teile` are both "to you" and are
+    not the same sentence: every scene in this app is answered in `teie`, so
+    this is the pronoun the panel is tapped on most, and two readings that are
+    identical teach a learner that the choice does not matter. Both members
+    carry the note rather than only the polite one, because the contrast is
+    what is being taught and a bare "you" beside a qualified one reads as the
+    default rather than as the informal one.
+  */
+  it("tells the two you's apart, in both directions", () => {
+    expect(pronounReading("sina", "NOMINATIVE")).toBe("you (one person you know)");
+    expect(pronounReading("teie", "NOMINATIVE")).toBe("you (polite, or more than one)");
+    expect(pronounReading("sina", "ALLATIVE")).toBe("to you (one person you know)");
+    expect(pronounReading("teie", "ALLATIVE")).toBe("to you (polite, or more than one)");
+  });
+
+  /* The note rides on the end, so it reads after a preposition and after the
+     have-construction alike rather than landing inside either. */
+  it("keeps the note outside the frame", () => {
+    expect(pronounReading("teie", "ADESSIVE")).toBe("you have it (polite, or more than one)");
+    expect(pronounReading("teie", "GENITIVE")).toBe("your (polite, or more than one)");
+  });
+
+  it("marks nobody else, because nobody else is a choice", () => {
+    for (const key of ["mina", "tema", "meie", "nemad"] as const) {
+      expect(pronounReading(key, "NOMINATIVE")).not.toMatch(/\(/);
+    }
+  });
 });
 
 describe("twinsOf", () => {
@@ -73,6 +102,23 @@ describe("twinsOf", () => {
 
   it("has no opinion about a form with only one spelling", () => {
     expect(twinsOf("PRONOUN", formsOf("mina"), "mind")).toEqual({ shorter: null, longer: null });
+  });
+
+  /*
+    A comparator that returns 0 hands the answer to whatever order the rows
+    arrived in, which is the query plan rather than a fact about Estonian. No
+    pronoun the dictionary holds has two parallel spellings of one length; the
+    tie-break is what stops that being load-bearing.
+  */
+  it("settles two spellings of one length rather than taking the row order", () => {
+    const forms = [
+      { formType: "EKILEX:SgN", value: "xxxx" },
+      { formType: "EKILEX:SgN", value: "bbb" },
+      { formType: "EKILEX:SgN", value: "aaa" },
+    ];
+    const reversed = [...forms].reverse();
+    expect(twinsOf("PRONOUN", forms, "xxxx").shorter).toBe("aaa");
+    expect(twinsOf("PRONOUN", reversed, "xxxx").shorter).toBe("aaa");
   });
 
   /*

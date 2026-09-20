@@ -7159,6 +7159,22 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
       between.slice(between.indexOf("\n")), /SETTING_KEYS\.wordGloss/,
       "what the composer is told the learner said is now decided by a preference about underlines",
     );
+
+    /*
+      AND WHAT IT IS TOLD IS WHAT THE SPELLING MEANS, NOT WHAT THE HEADWORD
+      MEANS.
+
+      The reading that goes to the judge and the composer was the first sense
+      of the entry's gloss, so `mind` was handed over as "I", which is the
+      wrong half of the word and is the fault `formReading` was written to fix
+      one screen over. The token already carries the reading, so this is the
+      same call and usually fewer tokens; what it costs if it goes back is a
+      model answering a turn it has been told the opposite of.
+    */
+    assert.match(
+      route.slice(reading), /entry\.reading \?\?/,
+      "the scene route is telling the model the headword's gloss again rather than what this form means",
+    );
   }
 
   /*
