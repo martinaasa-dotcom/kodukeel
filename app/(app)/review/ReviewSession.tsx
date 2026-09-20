@@ -30,7 +30,7 @@ import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
-import { OPTION_CLASS, VERDICT_CLASS, VERDICT_PAUSE_MS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
 import { HintLadder } from "@/components/round/HintLadder";
@@ -554,26 +554,50 @@ export function ReviewSession({
   */
   const scheduled = useRef(new Map<string, ReviewCard["scheduling"]>());
   /*
-    A right answer stays on the screen for `VERDICT_PAUSE_MS` and then grades
-    itself. The timer is held so that Enter or the button during the pause
-    grades the card once rather than twice: the timer's own closure carries
-    the card it was set on, so left running past an early press it would
-    grade that card again after the queue had moved on.
+    A right answer used to grade itself off a timer, a moment after the
+    verdict appeared: the card said "Correct!" and then moved on whether
+    or not anybody had finished reading it. Somebody who wants a moment to
+    look at the form again was hurried past it, and somebody who is done in
+    half a second waited out the rest of the pause anyway. Neither is what a
+    learner asked for.
+
+    So the verdict is shown and nothing times out: a button says what
+    happens next and the card waits for it to be pressed, exactly as a miss
+    already did. `submit` is called from that button (or from the advance
+    key, which is the same gesture) and from nowhere else.
   */
-  const autoNext = useRef<number | null>(null);
-  const clearAutoNext = useCallback(() => {
-    if (autoNext.current !== null) { window.clearTimeout(autoNext.current); autoNext.current = null; }
-  }, []);
-  const gradeAfterPause = useCallback((rating: RatingValue, grade: (r: RatingValue) => Promise<void>) => {
-    clearAutoNext();
-    autoNext.current = window.setTimeout(() => { autoNext.current = null; void grade(rating); }, VERDICT_PAUSE_MS);
-  }, [clearAutoNext]);
-  useEffect(() => clearAutoNext, [clearAutoNext]);
   /** Cards whose word has been met this session and which are now asked properly. */
   const [met, setMet] = useState<ReadonlySet<string>>(() => new Set());
   const [pendingOffline, setPendingOffline] = useState(0);
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const shownAt = useRef(Date.now());
+  /*
+    WHEN THE ANSWER WAS ACTUALLY GIVEN, WHICH IS NOT WHEN THE CARD IS FINALLY
+    GRADED.
+
+    `Review.durationMs` is read elsewhere as the time a recall took
+    (`lib/stats/answerTime.ts`: "its clock stops at the answer"), and now
+    that a right answer waits on a button instead of a timer, `submit` can
+    run an arbitrary time after the answer was produced — a learner reading
+    the confirmation for ten seconds must not have those ten seconds counted
+    as ten seconds of retrieval. So the clock is stopped the moment there is
+    nothing left to produce: a pick, right or wrong, since it cannot be
+    changed once made; a typed answer, once it is right; a retyped miss,
+    once *that* is right. A typed miss still working towards that retype is
+    the one case this leaves running, because the retype is still the
+    learner doing the thing being timed. Null means "still working it out
+    or nothing to stop for", so `submit` falls back to `shownAt`: the one
+    shape that never sets this is the flip card, where the duration is
+    meant to run until the rating is given (`lib/stats/answerTime.ts` again,
+    on why a self-graded card's clock includes reading the answer).
+
+    Named `producedAt` rather than `answeredAt`, because `submit` already
+    has a local `answeredAt` — the ISO timestamp the grade is recorded
+    under, which is a different question and correctly stays the moment of
+    the press: `Review` is append-only and a row is dated when it is
+    written, not backdated to when the learner stopped typing.
+  */
+  const producedAt = useRef<number | null>(null);
   const startedAt = useRef(Date.now());
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
@@ -732,6 +756,7 @@ export function ReviewSession({
 
   useEffect(() => {
     shownAt.current = Date.now();
+    producedAt.current = null;
     setRevealed(false);
     setTyped("");
     setVerdict(null);
@@ -789,6 +814,7 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
+    producedAt.current = null;
   }, [card, busy, index, recordSeen]);
 
   /**
@@ -839,20 +865,11 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
+    producedAt.current = null;
   }, [card, queue, index]);
 
   const submit = useCallback(async (asked: RatingValue) => {
     if (!card || busy) return;
-    /*
-      Grading a card is the one event this timer exists to produce, so every
-      path that grades one clears it here rather than at each call site: the
-      keyboard handler can reach `submit` directly on a card the pause timer
-      is also about to grade (pressing Enter right after a correct typed
-      answer, before its own pause has run out), and without this the stale
-      timer fired a second `submit` later, against whatever card the first
-      one had already moved on to.
-    */
-    clearAutoNext();
     setBusy(true);
     /*
       A HINT IS PAID FOR, AND THIS IS WHERE IT IS PAID.
@@ -868,7 +885,8 @@ export function ReviewSession({
     */
     const rating = Math.min(asked, hints.ceiling) as RatingValue;
     if (rating === 1) hints.noteMiss();
-    const duration = Date.now() - shownAt.current;
+    const duration = (producedAt.current ?? Date.now()) - shownAt.current;
+    producedAt.current = null;
     const answeredAt = new Date().toISOString();
     const before = scheduled.current.get(card.id) ?? card.scheduling;
 
@@ -932,7 +950,7 @@ export function ReviewSession({
     } finally {
       setBusy(false);
     }
-  }, [card, busy, index, refreshOutbox, hints, recordSeen, clearAutoNext]);
+  }, [card, busy, index, refreshOutbox, hints, recordSeen]);
 
   /**
    * Puts the last graded card back.
@@ -943,15 +961,6 @@ export function ReviewSession({
   const undo = useCallback(async () => {
     const last = history[history.length - 1];
     if (!last || busy) return;
-    /*
-      The card on screen may be mid-pause on its own right answer, waiting to
-      grade itself against `index` and `queue` as they stood at that moment.
-      Undo is about to change both, so a timer left running would later submit
-      that grade with a stale index. Cancelling it is safe either way: the
-      answer is still on screen, revealed and marked, so Enter or the button
-      grades it same as ever, just not on its own any more.
-    */
-    clearAutoNext();
     setBusy(true);
     const result = await undoGrade(last.cardId, last.before);
     if (result.ok) {
@@ -975,7 +984,7 @@ export function ReviewSession({
       setIndex(last.index);
     }
     setBusy(false);
-  }, [history, busy, queue, forget, clearAutoNext]);
+  }, [history, busy, queue, forget]);
 
   const checkTyped = useCallback(() => {
     if (!card || verdict) return;
@@ -987,15 +996,14 @@ export function ReviewSession({
     if (result.verdict === "wrong" && typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate?.(60);
     }
-    // Right answers move on by themselves, the way a picked choice already
-    // does. Typing the word correctly and then being asked to confirm that you
-    // typed the word correctly is a click on the most common outcome in the
-    // app. A miss keeps its screen: that is the one moment worth stopping at,
-    // and the correction needs typing before anything moves.
-    if (result.verdict === "correct") {
-      gradeAfterPause(result.suggestedRating, submit);
-    }
-  }, [card, typed, verdict, submit, cheer, gradeAfterPause]);
+    // A right answer waits for its own button now, exactly like a miss: see
+    // the note beside `scheduled` on why nothing here times out any more.
+    // Anything short of an outright hit (`diacritics`, `typo`, `wrong`) still
+    // asks for a retype, which is the learner still doing the thing being
+    // timed, so the clock keeps running for those — only a clean hit stops it
+    // here, matching `needsRetype`'s own reading of `verdict.verdict`.
+    if (result.verdict === "correct") producedAt.current = Date.now();
+  }, [card, typed, verdict, cheer]);
 
   /** Whether the card is waiting for the miss to be typed again. */
   const needsRetype = ask === "type" && verdict !== null && verdict.verdict !== "correct" && !retypeOk;
@@ -1007,12 +1015,13 @@ export function ReviewSession({
     if (again.verdict === "correct") {
       setRetypeOk(true);
       setRetypeNote(null);
-      // The pause a right answer gets, then the grade the miss already earned.
-      gradeAfterPause(verdict.suggestedRating, submit);
+      // The button under the card takes it from here: see the note beside
+      // `scheduled` on why the retype no longer grades itself on a timer.
+      producedAt.current = Date.now();
     } else {
       setRetypeNote("Not yet. Copy the answer above exactly, letter for letter.");
     }
-  }, [card, verdict, retyped, retypeOk, submit, gradeAfterPause]);
+  }, [card, verdict, retyped, retypeOk]);
 
   const pickChoice = useCallback((choice: string) => {
     if (!card || chosen) return;
@@ -1021,13 +1030,12 @@ export function ReviewSession({
     const right = choice === card.back;
     cheer(right);
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
-    if (right) {
-      // Right answers move on by themselves: multiple choice is the fast mode,
-      // and a confirmation click on every correct card halves the throughput.
-      // Not before the tile has been seen to turn, though (`VERDICT_PAUSE_MS`).
-      gradeAfterPause(3, submit);
-    }
-  }, [card, chosen, submit, cheer, gradeAfterPause]);
+    // Nothing grades itself here any more: the tile turns and a button
+    // beneath it says what happens next, same as a wrong pick already had.
+    // A pick is final the instant it is made, right or wrong, so this stops
+    // the clock here rather than at whenever the button is finally pressed.
+    producedAt.current = Date.now();
+  }, [card, chosen, cheer]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -1124,10 +1132,12 @@ export function ReviewSession({
         e.preventDefault();
         if (ask === "intro") { meetDone(); return; }
         if (ask === "type" && !verdict) { checkTyped(); return; }
-        // A miss waits for its retype, which the answer box handles itself.
-        if (ask === "type" && verdict) { if (!needsRetype && !retypeOk) void submit(verdict.suggestedRating); return; }
-        // A right pick grades itself on a timer; a wrong one waits here.
-        if (ask === "choice") { if (chosen && chosen !== card?.back) void submit(1); return; }
+        // A miss waits for its retype, which the answer box handles itself;
+        // once it is either right first time or put right on the retype, the
+        // advance key is the button under the card.
+        if (ask === "type" && verdict) { if (!needsRetype) void submit(verdict.suggestedRating); return; }
+        // Both a right and a wrong pick wait for the same button now.
+        if (ask === "choice") { if (chosen) void submit(chosen === card?.back ? 3 : 1); return; }
         if (!revealed) setRevealed(true);
         else void submit(3);
         return;
@@ -1675,17 +1685,16 @@ export function ReviewSession({
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
             </Button>
           ) : ask === "type" && verdict ? (
-            /* Marked already. A clean hit takes itself away (see `checkTyped`),
-               so what reaches here is a miss, and a miss is the one moment in a
-               review worth slowing down for: the correction is on screen, the
-               form has to be typed once more, and this button checks that
-               rather than grading anything. */
+            /* Marked already, right or wrong. Nothing grades itself: the
+               verdict sits on screen until this is pressed, whether it is
+               confirming a hit, checking a retype, or moving on once the
+               retype is right. */
             <Button
               variant="primary"
               size="lg"
               className="w-full"
               onClick={needsRetype ? checkRetype : () => void submit(verdict.suggestedRating)}
-              disabled={busy || retypeOk}
+              disabled={busy}
             >
               {needsRetype ? "Check it again" : "Got it, next"}
               <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
@@ -1695,7 +1704,12 @@ export function ReviewSession({
               Pick the meaning · keys 1 to {card.choices?.length ?? 4}
             </p>
           ) : ask === "choice" && chosen === card.back ? (
-            <p className="text-center text-sm font-semibold" style={{ color: "var(--good-ink)" }}>{uiText("Õige!", "Correct!")}</p>
+            /* Right, and waiting: the tile has already turned mint, so the
+               button only has to say what happens next. */
+            <Button variant="primary" size="lg" className="w-full" onClick={() => void submit(3)} disabled={busy}>
+              {uiText("Õige!", "Correct!")}
+              <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
+            </Button>
           ) : ask === "choice" ? (
             /* Picked the wrong one. Nothing to grade: the right answer is on
                the screen and the card comes back later in this session. */

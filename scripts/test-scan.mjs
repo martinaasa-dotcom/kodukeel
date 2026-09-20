@@ -254,15 +254,18 @@ await page.waitForURL(/\/review\?scan=/, { timeout: 20_000 });
   review session and can be answered there, rather than some path of its own.
   It used to say that by counting four rating buttons, which stopped being what
   the ordinary session looks like: the app marks what it can mark now, so a
-  typed answer and a pick grade themselves, a miss and a first meeting offer one
-  way on, and only a flip card asks the learner, in two options rather than
-  four. Counting buttons was always a proxy; what it stands for is that the
-  session got to the point of taking an answer for this card.
+  typed answer and a pick each wait on a button that says what happened, a
+  miss and a first meeting offer one way on, and only a flip card asks the
+  learner, in two options rather than four. Counting buttons was always a
+  proxy; what it stands for is that the session got to the point of taking an
+  answer for this card.
 */
 // Unanchored at the end on purpose: these buttons carry their keyboard hint
 // inside them, so the accessible name of the one that says "Got it, next" is
-// "Got it, next Enter" and a `$` matches none of them.
-const ratings = page.getByRole("button", { name: /^(got it|not yet|check it again)/i });
+// "Got it, next Enter" and a `$` matches none of them. A right pick or a
+// right typed answer wait on the verdict itself ("Correct!"/"Õige!") rather
+// than "Got it", since nothing here grades on its own any more.
+const ratings = page.getByRole("button", { name: /^(got it|not yet|check it again|correct|õige)/i });
 const reveal = page.getByRole("button", { name: /show answer/i });
 const pick = page.getByText(/Pick the meaning/);
 const typed = page.locator("main input[type='text'], main input:not([type])").first();

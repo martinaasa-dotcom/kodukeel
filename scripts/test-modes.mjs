@@ -49,10 +49,11 @@ const { check, absent, done } = suite("Practice modes", { floor: 61 });
  * on it, so a driver that assumes one shape silently types "3" into the answer
  * box instead of grading. A typed card and a flip card get there
  * deterministically, with a deliberately wrong answer or Space; a
- * multiple-choice card cannot, because any pick reveals but a *correct* one
- * grades itself and moves on, so it is answered and skipped rather than relied
- * on. A first meeting has nothing to reveal: it is already showing everything
- * it has.
+ * multiple-choice card cannot, because which option is "1" is not known in
+ * advance and a correct pick reveals a button of its own rather than a
+ * held-open one, so it is answered and skipped rather than relied on. A
+ * first meeting has nothing to reveal: it is already showing everything it
+ * has.
  */
 async function revealCurrentCard() {
   const box = page.getByLabel("Type your answer");
@@ -78,11 +79,11 @@ async function waitingOnMe() {
 /**
  * Answers whatever card is on screen and moves past it.
  *
- * The app marks what it can mark now, so most of these move on by themselves
- * and there is nothing to press: a correct typed answer and a correct pick both
- * grade themselves on a timer. What is left is one button on a miss and on a
- * first meeting, and the two self-grade buttons on a flip card, which is the
- * one shape with nothing to compare against.
+ * The app marks what it can mark now, so nothing here is a guess about a
+ * grade: a right or wrong typed answer, and a right or wrong pick, all wait
+ * on a button that says which happened, and Enter presses it. What is left
+ * is the two self-grade buttons on a flip card, which is the one shape with
+ * nothing to compare against.
  */
 async function answerCurrentCard() {
   const box = page.getByLabel("Type your answer");
@@ -94,16 +95,17 @@ async function answerCurrentCard() {
     if (await retypeMiss(page)) return true;
   } else if (await page.getByText(/Pick the meaning/).count()) {
     await page.keyboard.press("1");
-    // A right pick stays on screen for `VERDICT_PAUSE_MS` before it grades
-    // itself, so the wait here has to outlast it with room to spare.
-    await page.waitForTimeout(8600);
+    await page.waitForTimeout(300);
   } else if (await page.getByRole("button", { name: /Show answer/ }).count()) {
     await page.keyboard.press("Space");
     await page.waitForTimeout(300);
   }
 
-  // "Got it" on a miss or a first meeting, both of which answer to Enter.
-  if (await page.getByRole("button", { name: /Got it/ }).count()) {
+  // "Got it" on a miss or a first meeting, and the verdict itself
+  // ("Correct!"/"Õige!") on a right pick or a right typed answer: neither
+  // grades itself any more, so both wait on the button under the card and
+  // both answer to Enter.
+  if (await page.getByRole("button", { name: /Got it|Correct|Õige/ }).count()) {
     await page.keyboard.press("Enter");
     await page.waitForTimeout(1400);
     return true;
@@ -114,7 +116,7 @@ async function answerCurrentCard() {
     await page.waitForTimeout(1400);
     return true;
   }
-  // Marked correct, so it graded itself and moved on.
+  // Nothing left on screen to press: whatever was there has already gone.
   await page.waitForTimeout(600);
   return true;
 }
