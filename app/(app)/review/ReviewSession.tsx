@@ -122,6 +122,10 @@ export interface ReviewCard {
      * the app had let them down on twenty of the first cards it ever shows.
      */
     isPhrase: boolean;
+    /** The word's own band, so `WordIntro` can decide whether to show a sentence at all. */
+    cefr: string | null;
+    /** Whether this is the very first word this learner has ever met, anywhere in the app. */
+    firstCardEver: boolean;
   } | null;
   /** Four options including the right one, when this card can be asked as multiple choice. */
   choices: string[] | null;
@@ -282,6 +286,8 @@ function MeetWord({ card }: { card: ReviewCard }) {
       lexemeId={card.intro?.lexemeId ?? null}
       canTranslate={card.intro?.canTranslate ?? false}
       isPhrase={card.intro?.isPhrase ?? false}
+      cefr={card.intro?.cefr ?? null}
+      firstCardEver={card.intro?.firstCardEver ?? false}
     >
       {/* What this particular card will want back, once it starts asking. On a
           recognition card that is the word and its meaning, which is the whole

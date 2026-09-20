@@ -114,6 +114,10 @@ export interface LearnWord {
   isPhrase: boolean;
   /** An attested sentence, and which form of the word it carries. */
   sentence: { et: string; en: string | null; form: string | null } | null;
+  /** The word's own band, so `WordIntro` can decide whether to show that sentence at all. */
+  cefr: string | null;
+  /** Whether this is the very first word the learner has ever met, anywhere in the app. */
+  firstCardEver: boolean;
   /**
    * That sentence with the dictionary under every word it will vouch for.
    *
@@ -551,6 +555,9 @@ export async function learnBatch(
       equivalent: equivalent ? { text: equivalent, lang: glossLanguage } : null,
       isPhrase: isPhrase(lexeme.pos),
       sentence,
+      cefr: lexeme.cefr,
+      // Filled below, once for the whole batch.
+      firstCardEver: false as boolean,
       // Filled below, in one read for the whole batch rather than one a word.
       tokens: null as GlossedToken[] | null,
       canTranslate: resolveProvider() !== null,
@@ -561,6 +568,19 @@ export async function learnBatch(
       scheduling: schedulingOf(row),
     } satisfies LearnWord;
   });
+
+  /*
+    WHETHER THIS IS THE VERY FIRST WORD THIS LEARNER HAS EVER MET, so
+    `WordIntro` can say so once rather than never. A beginner shown a full
+    Estonian sentence with no run-up read it as a test rather than as
+    context, on exactly this rung. Asked only where a `meet` card is in the
+    batch, since it is the one extra round trip a returning learner's
+    session does not need.
+  */
+  if (words.some((word) => word.rung === "meet")) {
+    const firstCardEver = (await prisma.review.count({ where: { ownerId } })) === 0;
+    words.forEach((word) => { word.firstCardEver = firstCardEver; });
+  }
 
   /*
     THE DICTIONARY UNDER EVERY SENTENCE IN THE BATCH, IN ONE READ.

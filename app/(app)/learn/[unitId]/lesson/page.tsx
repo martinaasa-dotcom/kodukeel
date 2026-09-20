@@ -250,6 +250,7 @@ export default async function LessonPage({
     <LessonSession
       unitId={unit.id}
       unitTitle={uiText(placement, unit.title, unit.subtitle)}
+      unitLevel={unit.level}
       initialSteps={steps}
       tokens={tokens}
       canTranslate={resolveProvider() !== null}

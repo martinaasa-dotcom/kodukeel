@@ -384,21 +384,41 @@ export function rankCandidates(candidates: Candidate[], query: string, limit = 4
   }));
 }
 
+/**
+ * Lemmas that only reach a query by folding away a diacritic the query never
+ * had, where the plainer spelling belongs to an inflected form of a far
+ * commoner word nobody typing it plainly could have meant. `õli` (oil) folds
+ * to the same string as `oli`, the third person simple past of `olema`, one
+ * of the commonest words in the language; the two scored 90 and 88, so a
+ * sentence like "Seda oli kuulda" glossed its "oli" as oil. There is no
+ * frequency table fine enough to settle this in general — `lib/collections/
+ * frequency.ts` is a top-400 list of lemmas, not counts over the corpus —
+ * so this is a short, named list of collisions actually reported rather than
+ * a general re-ranking. Widen it only against a real one.
+ *
+ * A candidate on this list still wins at 100 for the exact, undiacriticked
+ * spelling: typing `õli` still finds oil. What it may not do is win by
+ * folding, or by having a stored form that happens to fold the same way,
+ * which is why the guard below spans both tiers rather than just the first.
+ */
+const FOLD_COLLISION_LOSES = new Set(["õli"]);
+
 function rank(c: Candidate, raw: string, folded: string): { score: number; matchedAs?: string } {
   const l = fold(c.lemma);
   const t = c.translation.toLowerCase();
   const r = raw.toLowerCase();
+  const foldCollision = FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase());
 
   // An exact Estonian match, diacritics and all, is unambiguous — it wins.
   if (c.lemma.toLowerCase() === r) return { score: 100 };
   // An exact English match beats a merely diacritic-folded Estonian one: typing
   // "room" almost always means the English word, not rõõm (joy).
   if (t === r) return { score: 95 };
-  if (l === folded) return { score: 90 };
+  if (l === folded && !foldCollision) return { score: 90 };
 
   // A stored principal part: `loen` should find `lugema`.
   const stored = c.forms.find((f) => fold(f.value) === folded);
-  if (stored) return { score: 88, matchedAs: `${formLabel(stored)} of ${c.lemma}` };
+  if (stored && !foldCollision) return { score: 88, matchedAs: `${formLabel(stored)} of ${c.lemma}` };
 
   // A person of the present, the conditional, the negative or the imperative,
   // worked out from the stored first person: `helistab` is `helistan` with the

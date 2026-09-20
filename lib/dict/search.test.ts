@@ -65,6 +65,19 @@ const DICT: Candidate[] = [
   lexeme("rõõm", "joy", "NOUN", [
     ["NOM_SG", "rõõm"], ["GEN_SG", "rõõmu"], ["PART_SG", "rõõmu"],
   ]),
+  /*
+    `oli` is the third person simple past of `olema`, one of the commonest
+    words in the language. Folded, it collides with `õli` (oil): both used to
+    score 90/88 for the same query, so "Seda oli kuulda" glossed its `oli` as
+    oil. See FOLD_COLLISION_LOSES in search.ts.
+  */
+  lexeme("olema", "to be", "VERB", [
+    ["INF_MA", "olema"], ["INF_DA", "olla"],
+    ["PRES_1SG", "olen"], ["PAST_1SG", "olin"], ["PAST_3SG", "oli"],
+  ]),
+  lexeme("õli", "oil", "NOUN", [
+    ["NOM_SG", "õli"], ["GEN_SG", "õli"], ["PART_SG", "õli"],
+  ]),
 ];
 
 function top(query: string) {
@@ -84,6 +97,15 @@ describe("rankCandidates — inflected forms", () => {
   ])("finds %s as a form of %s", (query, lemma, why) => {
     expect(top(query)?.lemma).toBe(lemma);
     expect(top(query)?.matchedAs).toMatch(why);
+  });
+
+  it("resolves oli (was) to olema rather than õli (oil)", () => {
+    expect(top("oli")?.lemma).toBe("olema");
+    expect(top("oli")?.matchedAs).toMatch(/olema/);
+  });
+
+  it("still finds õli (oil) when the diacritic is actually typed", () => {
+    expect(top("õli")?.lemma).toBe("õli");
   });
 
   it("does not vouch for a plural built by adding d to the genitive", () => {

@@ -830,6 +830,8 @@ export function LearnSession({
               lexemeId={word.lexemeId}
               canTranslate={word.canTranslate}
               isPhrase={word.isPhrase}
+              cefr={word.cefr}
+              firstCardEver={word.firstCardEver}
             />
           )}
 
