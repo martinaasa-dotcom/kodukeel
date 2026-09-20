@@ -29,7 +29,9 @@ import { deferWord } from "./deferrals";
  */
 
 const MINE = "itest-owner-learn";
-const LEMMAS = ["zzlearnword", "zzlearnwordb", "zzlearnphrase", "zzlearnphraseb"];
+const LEMMAS = [
+  "zzlearnword", "zzlearnwordb", "zzlearnphrase", "zzlearnphraseb", "zzlearngapword",
+];
 
 async function wipe() {
   await prisma.card.deleteMany({ where: { ownerId: MINE } });
@@ -239,5 +241,49 @@ describe("the count and the round agree", () => {
     expect(phrases.length).toBe(counts.phrases.started);
     expect(words.map((x) => x.lemma)).toEqual(["zzlearnwordb"]);
     expect(phrases.map((x) => x.lemma)).toEqual(["zzlearnphraseb"]);
+  });
+});
+
+/**
+ * THE MEET RUNG HIDES AN A1 WORD'S SENTENCE; THE GAP RUNG, TWO SCREENS LATER,
+ * BUILDS A CARD OUT OF THE SAME SENTENCE ANYWAY, UNLESS THIS IS GATED TOO.
+ *
+ * `sentenceAndGap` shares one sentence between both rungs by design, and
+ * `WordIntro`'s own `cefr` prop only ever reaches the meet screen. Without a
+ * matching gate here, a beginner shown nothing at meet would be handed a full
+ * Estonian sentence with a blank in it at gap, never having read it.
+ */
+describe("learnBatch — an A1 word carries no gap", () => {
+  async function gapWord(cefr: string) {
+    return prisma.lexeme.create({
+      data: {
+        lemma: "zzlearngapword", pos: "NOUN", translation: "zzlearngapword in English", cefr,
+        examples: JSON.stringify([
+          { et: "Ma olen zzlearngapwordas.", en: "I am in the zzlearngapword.", source: "SEED" },
+        ]),
+        forms: { create: [
+          { formType: "NOM_SG", value: "zzlearngapword" },
+          { formType: "GEN_SG", value: "zzlearngapworda" },
+        ] },
+      },
+    });
+  }
+
+  it("builds no gap for an A1 word, though it still builds the sentence", async () => {
+    const w = await gapWord("A1");
+    await ladderCard(w.id, 0, NOW);
+
+    const [word] = await learnBatch(MINE, "A1", "en", 5, { kind: "word", now: NOW });
+    expect(word?.sentence?.et).toBe("Ma olen zzlearngapwordas.");
+    expect(word?.gap).toBeNull();
+  });
+
+  it("builds a gap for the same word and sentence from A2 up", async () => {
+    const w = await gapWord("A2");
+    await ladderCard(w.id, 0, NOW);
+
+    const [word] = await learnBatch(MINE, "A2", "en", 5, { kind: "word", now: NOW });
+    expect(word?.sentence?.et).toBe("Ma olen zzlearngapwordas.");
+    expect(word?.gap?.answer).toBe("zzlearngapwordas");
   });
 });

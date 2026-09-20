@@ -480,9 +480,14 @@ export async function withChoices(
     actually holds an unseen card, since it is the one extra round trip on a
     page most requests do not need, and started alongside the other two
     reads rather than in front of them.
+
+    `findFirst` rather than `count`: the caller only wants a boolean, and a
+    learner deep into this app has tens of thousands of rows under their own
+    id, which `count` scans in full even off an index while `findFirst`
+    stops at the first one. This is the hottest read in the app.
   */
   const firstEvering = rows.some((r) => r.state === 0)
-    ? prisma.review.count({ where: { ownerId } }).then((n) => n === 0)
+    ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
     : Promise.resolve(false);
   const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
   const glossed = await withGlosses(

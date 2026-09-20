@@ -81,6 +81,11 @@ export function WordIntro({
   // A phrase has no sentence to hide in the first place (`isPhrase` already
   // says so below), so the A1 gate only ever applies to a genuine word.
   const showSentence = sentence !== null && cefr !== "A1";
+  // A sentence exists and is deliberately not shown: an A1 word is met on
+  // its own. "No example sentence for this one yet" would be untrue here,
+  // since the dictionary has one, so this is drawn apart from the real
+  // absence case below rather than sharing its copy.
+  const hiddenForA1 = !showSentence && cefr === "A1" && sentence !== null && !isPhrase;
   return (
     <>
       <div className="flex items-center gap-2">
@@ -140,13 +145,7 @@ export function WordIntro({
             already reading.
           */}
         </div>
-      ) : cefr === "A1" && sentence && !isPhrase ? (
-        /* A sentence exists and is deliberately not shown: an A1 word is met
-           on its own. "No example sentence for this one yet" would be untrue
-           here, since the dictionary has one, so this says what is actually
-           happening rather than reusing the absence copy below for it. */
-        null
-      ) : (
+      ) : hiddenForA1 ? null : (
         /* No sentence, said plainly. The dictionary carries examples for most
            words and not for all of them, and a screen that quietly shows a word
            on its own looks exactly like one that had nothing to say about it.

@@ -136,6 +136,23 @@ export function LearnSession({
   */
   const [words] = useState(initial);
   /*
+    WHICH WORD, IF ANY, GETS THE FIRST-EVER NOTE, DECIDED ONCE FOR THE WHOLE
+    SESSION.
+
+    The server stamps `firstCardEver` on every word of the batch alike,
+    because it is one fact about the learner rather than about any one word.
+    A batch is five words and `orderByRung` sorts every `meet`-rung one to
+    the front, so a first-time learner's first session shows all five of
+    them before anything is graded (meeting writes nothing): reading the
+    server's flag straight off each word would print the note five times
+    running, which is the exact thing `lib/copy/firstMeeting.ts` says it
+    must not do. So the session itself picks the one word that gets it, once,
+    on mount, and every other word's copy of the same flag is ignored.
+  */
+  const [firstMeetingCardId] = useState(
+    () => initial.find((w) => w.firstCardEver && w.rung === "meet")?.cardId ?? null,
+  );
+  /*
     Which word to reopen the seat on after a detour to its dictionary entry,
     rather than the batch's own first word. See components/useResumeCard.ts.
   */
@@ -831,7 +848,7 @@ export function LearnSession({
               canTranslate={word.canTranslate}
               isPhrase={word.isPhrase}
               cefr={word.cefr}
-              firstCardEver={word.firstCardEver}
+              firstCardEver={word.firstCardEver && word.cardId === firstMeetingCardId}
             />
           )}
 

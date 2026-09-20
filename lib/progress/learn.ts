@@ -309,7 +309,25 @@ function sentenceAndGap(
   */
   const hideable = gapForms({ lemma: lexeme.lemma, pos: lexeme.pos, forms: lexeme.forms });
 
-  if (taught?.form && readable(taught.example.et) && hideable.has(taught.form.trim().toLowerCase())) {
+  /*
+    AND NEVER AT A1, WHATEVER `readable` SAYS.
+
+    `readable` answers one question, whether this sentence is made of words
+    the course has already taught; it says nothing about the word's own
+    band, and standalone Learn hands in `() => true` because a learner who
+    came here chose their own difficulty. The meet rung hides an A1 word's
+    sentence entirely now (`WordIntro`'s `cefr` gate), and this is the same
+    word's gap rung two screens later: without this, a beginner who was
+    shown nothing at meet would be handed a full sentence with a blank in it
+    at gap, never having read it, which is the inconsistency this rung's own
+    header argues against ("one sentence for both rungs"). `sentence` below
+    is untouched, since the meet rung still needs it to decide there is
+    nothing to show; only the gap this same sentence would have built is
+    withheld.
+  */
+  const gappable = lexeme.cefr !== "A1";
+
+  if (gappable && taught?.form && readable(taught.example.et) && hideable.has(taught.form.trim().toLowerCase())) {
     const example = taught.example;
     const cloze = buildCloze(example.et, [taught.form]);
     if (cloze) {
@@ -576,9 +594,15 @@ export async function learnBatch(
     context, on exactly this rung. Asked only where a `meet` card is in the
     batch, since it is the one extra round trip a returning learner's
     session does not need.
+
+    `findFirst` rather than `count`: the caller only wants a boolean, and a
+    learner well into the course has a large `Review` history, which `count`
+    scans in full even off an index while `findFirst` stops at the first row.
   */
   if (words.some((word) => word.rung === "meet")) {
-    const firstCardEver = (await prisma.review.count({ where: { ownerId } })) === 0;
+    const firstCardEver = (await prisma.review.findFirst({
+      where: { ownerId }, select: { id: true },
+    })) === null;
     words.forEach((word) => { word.firstCardEver = firstCardEver; });
   }
 
