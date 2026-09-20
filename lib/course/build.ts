@@ -51,17 +51,23 @@ export function slice<T>(items: readonly T[], n: number): T[][] {
 /**
  * A unit's evenings: the ones it declared, or the even slice.
  *
- * THE SLICE IS ARITHMETIC AND SOME UNITS ARE NOT. Six words at A1 is a budget
- * of five and a ceiling of eight, so `Math.ceil(6 / 5)` is two evenings and
- * the six persons of the Estonian verb came out as three and three, under a
- * heading promising all six. A unit whose words are one thing says where its
- * own evenings break (`UnitSpec.evenings`) and this reads it.
+ * THE SLICE IS ARITHMETIC AND SOME UNITS ARE NOT. `asesonad` held the six
+ * persons of the Estonian verb and the two pointers, and eight words against
+ * a five-word A1 budget is two evenings of four, so a learner met `mina,
+ * sina, tema, meie` under a heading promising all six. Trimming the unit to
+ * the six does not fix it either, since `Math.ceil(6 / 5)` is still two
+ * evenings and the paradigm comes out three and three. A unit whose words
+ * are one thing says where its own evenings break (`UnitSpec.evenings`) and
+ * this reads it.
  *
  * Declared groups are intersected with the words still to teach rather than
  * trusted, since a lemma an earlier unit of the part already taught is
- * dropped before this is reached, and an empty group goes with it. So a
- * declaration degrades to the even slice rather than to a blank evening, and
- * it can never put a word on a screen twice.
+ * dropped before this is reached, and an empty group goes with it. What is
+ * kept has to be exactly the words left, each once: `syllabus.test.ts` holds
+ * the declaration to a partition, and this holds the *result* to one as
+ * well, so the guarantee that no word reaches two evenings is the function's
+ * own rather than a property borrowed from a test one directory away.
+ * Anything else degrades to the even slice rather than to a blank evening.
  */
 export function evenings(
   unit: SyllabusUnit, words: readonly string[], perDay: number,
@@ -71,7 +77,11 @@ export function evenings(
     const groups = unit.evenings
       .map((group) => group.filter((lemma) => left.has(lemma)))
       .filter((group) => group.length > 0);
-    if (groups.flat().length === words.length) return groups;
+    const kept = groups.flat();
+    /* Every word left, each on exactly one evening. Length alone is not that:
+       a declaration naming one word twice and another not at all counts the
+       same and would teach one word twice and drop the other in silence. */
+    if (kept.length === words.length && new Set(kept).size === kept.length) return groups;
   }
   return slice(words, Math.max(1, Math.ceil(words.length / perDay)));
 }

@@ -165,6 +165,21 @@ describe("the programme is a request against the course, never a copy of it", ()
       }
     });
 
+    it("falls back rather than teaching a word twice on a repeated declaration", () => {
+      /* Length alone would accept this: two groups naming `see` and none
+         naming `too` is still ten words. The result has to be a partition. */
+      const repeated = {
+        ...verbs,
+        evenings: [
+          ["olema", "see"], ["see", "too", "elama", "õppima"],
+          ["rääkima", "töötama", "tahtma", "minema", "tulema"],
+        ],
+      } as typeof verbs;
+      const got = evenings(repeated, verbs.lemmas, 5);
+      expect(got.flat()).toEqual(verbs.lemmas);
+      expect(got.map((g) => g.length), "the even slice, not the declaration").toEqual([5, 5]);
+    });
+
     it("falls back to the even slice for a unit that declares nothing", () => {
       const plain = unitById("inimesed")!;
       expect(plain.evenings).toBeUndefined();
