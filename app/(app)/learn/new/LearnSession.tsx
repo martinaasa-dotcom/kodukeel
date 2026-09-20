@@ -190,8 +190,21 @@ export function LearnSession({
     per round rather than remembered across rounds, because the operator
     asked for a screen that prepares somebody for what is coming every time
     they open this, not a one-off explainer.
+
+    NEITHER IS UNCONDITIONAL, THOUGH. `learnBatch` reads every word's rung
+    live off its own scheduling, so a reload mid-round, or a batch resumed
+    after a detour, can seat somebody on a word already past "meet". Opening
+    on "First, just meet them" over a word that is about to ask a question is
+    the wrong screen, worse than none: it promises something that is not
+    about to happen. So the meet screen only shows where the seat it opens on
+    really is "meet", read straight off the word's own rung rather than the
+    remapped one below, since the remapping only ever moves "choice" to
+    "gap" and never touches "meet". A round that opens past it goes straight
+    to the answer screen instead, which is the true state of things.
   */
-  const [showMeetIntro, setShowMeetIntro] = useState(true);
+  const [showMeetIntro, setShowMeetIntro] = useState(
+    () => (initial[initialIndex] ?? initial[0])?.rung === "meet",
+  );
   const [showAnswerIntro, setShowAnswerIntro] = useState(true);
   const [phase, setPhase] = useState<Phase>("ask");
   const [result, setResult] = useState<Result | null>(null);
@@ -614,9 +627,18 @@ export function LearnSession({
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
       if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA")) return;
-      // Neither screen below is the round: nothing on it grades, so a stray
-      // digit or Enter while one is up must not reach the card underneath.
-      if (showMeetIntro || (showAnswerIntro && rung !== "meet")) return;
+      /*
+        Neither screen below is the round: nothing on it grades, so a stray
+        digit must not reach the card underneath. The advance key still
+        dismisses it, exactly as it advances every other single-button screen
+        in this ladder, so a keyboard user is not made to reach for the mouse
+        just because the button says "Show me" rather than "Got it".
+      */
+      if (showMeetIntro) { if (isAdvanceKey(e)) { e.preventDefault(); setShowMeetIntro(false); } return; }
+      if (showAnswerIntro && rung !== "meet") {
+        if (isAdvanceKey(e)) { e.preventDefault(); setShowAnswerIntro(false); }
+        return;
+      }
       /*
         A look back stands in the ladder's place, so the rung underneath is not
         answerable and its keys are not either: a stray Enter over an older
@@ -677,13 +699,13 @@ export function LearnSession({
             First, just meet them
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            You&rsquo;ll see {total} new {total === 1 ? noun : nouns}, one at a time. Nothing is
-            written down until you answer them back.
+            You&rsquo;ll see {total} {total === 1 ? noun : nouns} in this round, one at a time.
+            Nothing is written down until you answer them back.
           </p>
         </div>
         <div className="mt-8 flex justify-center">
           <Button variant="primary" size="lg" onClick={() => setShowMeetIntro(false)}>
-            Show me
+            Show me <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>
       </div>
@@ -810,12 +832,13 @@ export function LearnSession({
             Now answer them back
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
-            Same {nouns}. This time you say what they mean, then use them in the sentence they came from.
+            Same {nouns}. Now you&rsquo;ll be asked to say what one means, or use it in the
+            sentence it came from.
           </p>
         </div>
         <div className="mt-8 flex justify-center">
           <Button variant="primary" size="lg" onClick={() => setShowAnswerIntro(false)}>
-            Ready
+            Ready <KeyCap className="ml-1">{ADVANCE_KEY_GLYPH}</KeyCap>
           </Button>
         </div>
       </div>
