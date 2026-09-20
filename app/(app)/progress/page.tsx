@@ -385,9 +385,20 @@ export default async function ProgressPage() {
                     back as a fortnight of conversations. lib/collections/errands.ts
                     is where that is decided, for this panel and Today alike.
                   */}
-                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  {/*
+                    Three columns rather than four, because there are five
+                    figures now: `STUCK` is the answer a learner gives when
+                    they spoke and ran out of words, and folding it into the
+                    others would hide the commonest thing that happens out
+                    there. Widening the grid to five was the other way and is
+                    the one that puts "switched to English" through a column
+                    a fifth narrower at the width `test-containment.mjs`
+                    measures.
+                  */}
+                  <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                     <Stat value={outside.total} label="conversations" tone="var(--accent-deep)" icon={<Footprints size={14} aria-hidden />} />
                     <Stat value={outside.byOutcome.UNDERSTOOD} label="understood you" tone="var(--good-ink)" />
+                    <Stat value={outside.byOutcome.STUCK} label="you got stuck" tone="var(--hard-ink)" />
                     <Stat value={outside.byOutcome.SWITCHED} label="switched to English" tone="var(--hard-ink)" />
                     <Stat value={outside.byOutcome.BAILED} label="days with none" tone="var(--ink-3)" />
                   </div>

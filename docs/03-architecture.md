@@ -905,3 +905,22 @@ decided, and both readings of the table count only the two answers that are one,
 honest noes would come back on Progress as a fortnight of real conversations. What is unchanged is
 everything the rejections above hold: no note, no place, no name, no counter, and no streak that
 punishes a day without one.
+
+**ADR-027 amendment 2: it is two questions, and getting stuck is one of the answers.**
+*Context:* one row of answers asked whether anything was said and how it went at the same time, and
+the reply that followed a yes went straight to a box asking for "a word you did not have", which a
+learner cannot answer: nobody can list what they missed. *Decision:* Today asks whether any
+Estonian was spoken yesterday, says that speaking at all was the thing, and then asks how it went,
+in three answers rather than two. `STUCK` is the third, because running out of words partway is the
+commonest thing that happens to anybody holding a conversation in a language they are learning and
+the first three answers had no room for it: the learner who froze had to claim they were
+understood, claim the other person switched, or answer "not yesterday", which deletes the
+conversation from the count this ADR says the app is measured by. It is a conversation, because
+they spoke. Nothing is written until the second press, since reading a bare yes as `UNDERSTOOD`
+would count an abandoned half-answer as a conversation nobody switched out of, which biases the one
+figure a pilot watches in the direction that flatters. The research export's "correct" is therefore
+defined as not having been switched out of rather than as one outcome, so its published sentence
+about the switch rate stays true of any further answer that is not a switch. *Rejected:* storing
+what was said or how it felt in free text, which is the diary the decision above already refuses; a
+fourth tier of praise, since the reply names what happened rather than grading it; and offering the
+errand on a day that held a conversation, which amendment 1 settles.

@@ -3630,7 +3630,7 @@ export async function setProgramme(value: string) {
 // ───────────────────────────── Scanned pages ──────────────────────────────
 
 /**
- * Whether any Estonian was spoken to anybody yesterday, in one of three words.
+ * Whether any Estonian was spoken to anybody yesterday, in one of four words.
  *
  * The learner's own report of something that happened outside the app, which
  * no log can reconstruct and is therefore stored rather than derived
@@ -3649,7 +3649,7 @@ export async function recordEncounter(errandId: string | null, outcome: string) 
   const named = errandId === null || errandId === undefined ? null : errandById(text(errandId));
   const result = outcomeFrom(outcome);
   if (named === undefined || !result) {
-    return { ok: false as const, error: "That is not one of the three answers." };
+    return { ok: false as const, error: "That is not one of the answers." };
   }
   await prisma.encounter.create({ data: { ownerId, errandId: named?.id ?? null, outcome: result } });
   revalidatePath("/");
