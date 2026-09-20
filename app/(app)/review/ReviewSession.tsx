@@ -1711,8 +1711,10 @@ export function ReviewSession({
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
         <LookBackButton {...look.button} disabled={busy || look.looking} />
-        <button
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={() => void undo()}
           /*
             AND IT STANDS DOWN WHILE A LOOK BACK IS OPEN, LIKE ITS OWN KEY.
@@ -1725,16 +1727,19 @@ export function ReviewSession({
             are reading, so the one thing they can see is the panel vanishing
             under their hand. The round is not on the screen, so neither is
             the way to change it: the way out is the button that says so.
+
+            DRAWN THE SAME WAY AS "SEE IT AGAIN" BESIDE IT, for the reason
+            that button now is: two controls doing the same quiet job in one
+            footer row should not read as one real button next to a bare
+            line of tinted text.
           */
           disabled={history.length === 0 || busy || look.looking}
-          className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
-          style={{ color: "var(--ink-3)" }}
         >
           {/* The cap names the key that works on the card in front of you:
               `u` is a letter while a box has focus, so a typed card carries
               the gesture that is not one. Same rule as the hint beside it. */}
-          <Undo2 size={12} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
-        </button>
+          <Undo2 size={13} aria-hidden /> Undo <KeyCap>{ask === "type" ? "⌘Z" : "U"}</KeyCap>
+        </Button>
         <span className="hidden items-center gap-1 md:flex">
           <Keyboard size={12} aria-hidden />
           {/* Mirrors the footer button's own branches, so the hint cannot promise a
