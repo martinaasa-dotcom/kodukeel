@@ -78,13 +78,30 @@ const pool = candidates.filter((c) =>
   && c.lemma.toLowerCase() !== c.translation.toLowerCase()
   && c.translation.trim().length >= 3);
 
-if (pool.length < 2) {
-  absent(5, "two dictionary words with no recorded example sentence");
+/*
+  FIVE ROWS, NOT TWO, OR THE FIRST NEW WORD OF SOMEBODY ELSE'S DECK GETS IN
+  FRONT OF THESE.
+
+  `learnBatch` fills the rest of its five-word room with unseen words once
+  the state-1 ("started") cards run out, and "unseen" sorts *ahead* of "gap"
+  (`RUNGS`, `orderByRung`): the local demo deck happened to already hold five
+  state-1 cards, so this never surfaced here, and CI's own fresh one did not,
+  so the first screen was "meet these five new words" rather than either
+  fixture card. LEARN_BATCH is 5 (`lib/learn/ladder.ts`), unreachable from a
+  `.mjs` script, so it is asserted rather than imported: three filler cards,
+  each state 1 so they count as "started" too, pad the count to five on their
+  own regardless of what a shared deck already holds. Their own rung and due
+  date do not matter, since nothing here ever asks for them; only the count
+  does.
+*/
+const LEARN_BATCH = 5;
+if (pool.length < LEARN_BATCH) {
+  absent(5, `${LEARN_BATCH} dictionary words with no recorded example sentence`);
   await prisma.$disconnect();
   done();
 }
 
-const [wordA, wordB] = pool.slice(0, 2);
+const [wordA, wordB, ...fillers] = pool.slice(0, LEARN_BATCH);
 const EPOCH = new Date(0);
 
 const created = await prisma.$transaction([
@@ -102,6 +119,13 @@ const created = await prisma.$transaction([
       state: 1, learningSteps: 1, due: EPOCH,
     },
   }),
+  ...fillers.map((f) => prisma.card.create({
+    data: {
+      ownerId: OWNER, lexemeId: f.id, cardType: "RECOGNITION",
+      front: f.lemma, back: f.translation, source: "DICTIONARY",
+      state: 1, learningSteps: 1, due: new Date(1),
+    },
+  })),
 ]);
 const cardIds = created.map((c) => c.id);
 
