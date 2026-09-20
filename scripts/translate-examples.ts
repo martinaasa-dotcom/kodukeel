@@ -58,6 +58,7 @@ import { HARVESTED } from "../prisma/data/harvested";
 import { readSentenceTranslation, sentenceInstruction } from "../lib/tutor/translate";
 import { openWithFallback, resolveProviders } from "../lib/tutor/provider";
 import { readExpanded } from "./lib/expandedFile";
+import { isRefusedSentence } from "../lib/dict/refused";
 
 /**
  * The expansion's own shape for a sentence, which is not the database's.
@@ -125,14 +126,30 @@ const limit = limitAt >= 0 ? Number(args[limitAt + 1]) : Infinity;
  */
 const CONCURRENCY = Number(args[args.indexOf("--concurrency") + 1]) || 8;
 
-/** Every distinct sentence the seed will write, in the order a reader meets them. */
+/**
+ * Every distinct sentence the seed will write, in the order a reader meets them.
+ *
+ * AND NOT ONE A PERSON HAS REFUSED, which is the door this run is. The
+ * refusals in `lib/dict/refused.ts` reach the column, the seed, the harvest
+ * and every audit, and this script reads `HARVESTED` and the expansion
+ * straight off disk rather than through `scripts/lib/dictionary.ts`, so it
+ * was outside all of that: a run would have paid a model for a line no screen
+ * may draw and written it back into `prisma/data/example-english.json`, which
+ * is the one file the refusal had just been taken out of. The unit suite
+ * catches the result and only after the call is bought and the file rewritten,
+ * which is the wrong end to find it from.
+ */
 function shippedSentences(): string[] {
   const seen = new Set<string>();
   // The course first: these are the sentences a lesson and the learn ladder
   // put in front of somebody in their first fortnight.
-  for (const word of HARVESTED) for (const et of word.usages) seen.add(et);
+  for (const word of HARVESTED) {
+    for (const et of word.usages) if (!isRefusedSentence(et)) seen.add(et);
+  }
   for (const row of readExpanded<ExpandedRow>()) {
-    for (const example of row.examples ?? []) if (example.et) seen.add(example.et);
+    for (const example of row.examples ?? []) {
+      if (example.et && !isRefusedSentence(example.et)) seen.add(example.et);
+    }
   }
   return [...seen];
 }

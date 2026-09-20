@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 import { lockDeck } from "@/lib/srs/deck";
+import { courseAsksFor } from "@/lib/collections/syllabus";
 import { emptyScheduling } from "@/lib/srs/scheduler";
 
 /**
@@ -15,6 +16,13 @@ import { emptyScheduling } from "@/lib/srs/scheduler";
  * Deliberately narrow:
  * - only for a word the learner already has cards for — it never grows the deck
  *   behind their back;
+ * - only for a gap-fill the course would have asked for. A unit's `cardTypes`
+ *   is its author saying what the word is worth drilling, and no A1 unit asks
+ *   for a gap at all, so without this a dictionary *render* wrote an exercise
+ *   into a beginner's deck that every other door in the app had refused. See
+ *   `courseAsksFor`, which is also why a word the course does not teach is let
+ *   through: that one is the learner's own and the gap-fill is what the
+ *   dictionary's own button would have given them;
  * - only when they have no gap-fill card for it yet, so re-reading an entry
  *   cannot pile them up, which is a promise the read and the write have to be
  *   under one lock to keep: this is "is it already there" followed by an
@@ -31,6 +39,11 @@ export async function backfillClozeCards(ownerId: string, lexemeId: string): Pro
   });
   if (!lexeme || lexeme.cards.length === 0) return 0;
   if (lexeme.cards.some((c) => c.cardType === "CLOZE")) return 0;
+  /* AND THE COURSE HAS TO HAVE ASKED FOR ONE. Checked before the cards are
+     generated rather than after, because the question is about the word rather
+     than about what the dictionary can build from it: a word whose unit wants
+     no gap wants none however many sentences arrive. */
+  if (!courseAsksFor(lexeme.lemma, "CLOZE")) return 0;
 
   const generated = generateCards(lexeme as LexemeForCards, ["CLOZE"]);
   if (generated.length === 0) return 0;

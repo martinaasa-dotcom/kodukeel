@@ -1,4 +1,6 @@
 import { tokenise } from "@/lib/news/headlines";
+import { readForm } from "@/lib/estonian/formReading";
+import { twinsOf } from "@/lib/estonian/pronouns";
 import { candidatesFor } from "./resolveScan";
 import { matchEstonianForm, type Candidate } from "./search";
 import { splitOnForm } from "./examples";
@@ -53,6 +55,33 @@ export interface GlossedToken {
     gloss: string;
     /** Which form it recognized, when the sentence's spelling is not the headword. */
     matchedAs: string | null;
+    /**
+     * WHAT THIS SPELLING MEANS, RATHER THAN WHAT THE HEADWORD MEANS.
+     *
+     * The panel used to print the headword's whole gloss whatever form the
+     * sentence held, so tapping `mind` in `Ta armastab mind` answered "I, me",
+     * which is both answers and no way of telling which one this is. It is
+     * "me", and `lib/estonian/formReading.ts` is the one place that is worked
+     * out, off the same frames `/grammar/build-a-word` reads. Null where
+     * nothing short is certain, and then the gloss leads exactly as it did.
+     */
+    reading: string | null;
+    /**
+     * The sentence under the name, for a form no phrase reads.
+     *
+     * `plainAsk`'s clause, which is what a flash card prints over the box: the
+     * osastav gets no reading on purpose and this is what it gets instead.
+     */
+    clause: string | null;
+    /**
+     * The pronoun's other spelling of this same form, where it has one.
+     *
+     * `mina` and `ma` are one word twice and the app taught the headword and
+     * then put the other one in front of the learner in every sentence it drew
+     * without once saying they were the same. Read off the entry's own forms
+     * by `twinsOf`; nothing is written.
+     */
+    alsoSaid: { spelling: string; everyday: boolean } | null;
   } | null;
 }
 
@@ -153,6 +182,20 @@ export async function glossSentences(
 function entryFor(candidates: Candidate[], word: string): GlossedToken["entry"] {
   const match = matchEstonianForm(candidates, word);
   if (!match) return null;
+  const forms = match.forms ?? [];
+  /*
+    Read off the spelling as the sentence holds it rather than off the row the
+    match came back with: `kohvi` is stored as the omastav of `kohv` and is
+    also its osastav, and `readForm` is where that is refused.
+  */
+  const said = readForm(match.form ?? {}, {
+    lemma: match.lemma,
+    pos: match.pos,
+    gloss: match.translation,
+    semanticTypes: match.semanticTypes ?? null,
+    forms,
+  }, word);
+  const twins = twinsOf(match.pos, forms, word);
   return {
     lexemeId: match.id,
     lemma: match.lemma,
@@ -160,6 +203,17 @@ function entryFor(candidates: Candidate[], word: string): GlossedToken["entry"] 
     // `matchedAs` is absent when the sentence's spelling *is* the headword, and
     // the screen has nothing to say in that case.
     matchedAs: withoutLemma(match.matchedAs, match.lemma),
+    reading: said.reading,
+    clause: said.clause,
+    /*
+      The everyday spelling leads where there is one, because that is the half
+      a learner is missing: they have met `mina` on a card and every sentence
+      since has said `ma`. Where the spelling in front of them is already the
+      short one, the long one is what they have not met.
+    */
+    alsoSaid: twins.shorter
+      ? { spelling: twins.shorter, everyday: true }
+      : twins.longer ? { spelling: twins.longer, everyday: false } : null,
   };
 }
 

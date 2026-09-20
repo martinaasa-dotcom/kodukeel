@@ -3,6 +3,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { courseLevelFor } from "@/lib/progress/level";
 import { learnBatch, learnCounts, type LearnKind } from "@/lib/progress/learn";
 import { readSettings, SETTING_KEYS } from "@/lib/settings/store";
+import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
 import { LearnSession } from "./LearnSession";
 
 export const dynamic = "force-dynamic";
@@ -48,14 +49,43 @@ export default async function LearnNewPage({
     the counts rather than in front of them: none of the four needs another's
     answer, and on a hosted database each `await` in a row is a round trip.
   */
-  const [settings, level, counts] = await Promise.all([
+  /*
+    AND THE DAILY ROW IN THE RAIL IS THIS SCREEN, so it is held to the module
+    the same way the review queue's trickle is.
+
+    This round answers "teach me something next" off the whole deck, and first
+    run builds a starter deck of three units, so a learner on the second
+    evening of A1 could be handed a word from the third. `learnerModuleScope`
+    is where the module has actually taken them; null is somebody not following
+    one, and then nothing here binds and the round is exactly what it was.
+
+    THE SENTENCE IS HELD AS THE UNIT LESSON HOLDS IT, not as the module does.
+    A learner pressed this, so `heldToTaughtWords` reads it as a screen they
+    walked to: the gap rung is held at A1, where a lexicographer's sentence is
+    one a beginner cannot read through, and above A1 nothing changes, since
+    meeting an unfamiliar word inside a sentence is how reading grows.
+  */
+  const [settings, level, taught] = await Promise.all([
     readSettings(ownerId, [SETTING_KEYS.glossLanguage]),
     courseLevelFor(ownerId),
-    learnCounts(ownerId),
+    learnerModuleScope(ownerId),
+  ]);
+  const within = taught?.lemmas ?? null;
+  const [counts, spellings] = await Promise.all([
+    learnCounts(ownerId, undefined, within),
+    moduleSpellings(taught),
   ]);
 
   const words = await learnBatch(
-    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined, { kind },
+    ownerId, level, glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]), undefined,
+    {
+      kind,
+      within,
+      // Only where the module has said something: `readableFor` fails closed on
+      // a null set, so handing it one for a learner who follows no module would
+      // take every gap off the A1 ladder.
+      ...(taught ? { taughtWords: spellings, sentenceReader: "lesson" as const } : {}),
+    },
   );
 
   const { waiting, started } = kind === "phrase" ? counts.phrases : counts;

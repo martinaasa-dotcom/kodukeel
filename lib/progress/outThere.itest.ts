@@ -56,7 +56,7 @@ describe("what happened outside the app", () => {
 
     const reading = await outThere(OWNER, CLOCK, NOW);
     expect(reading.total).toBe(2);
-    expect(reading.byOutcome).toEqual({ UNDERSTOOD: 1, SWITCHED: 1, BAILED: 2 });
+    expect(reading.byOutcome).toEqual({ UNDERSTOOD: 1, SWITCHED: 1, STUCK: 0, BAILED: 2 });
   });
 
   it("breaks the run on a day with nothing in it, not on a day with no answer", async () => {
@@ -90,7 +90,7 @@ describe("what happened outside the app", () => {
     // And the panel counts one answer for the day, not both.
     const reading = await outThere(OWNER, CLOCK, NOW);
     expect(reading.total).toBe(1);
-    expect(reading.byOutcome).toEqual({ UNDERSTOOD: 1, SWITCHED: 0, BAILED: 0 });
+    expect(reading.byOutcome).toEqual({ UNDERSTOOD: 1, SWITCHED: 0, STUCK: 0, BAILED: 0 });
   });
 
   it("reads the run before this morning's question is answered", async () => {

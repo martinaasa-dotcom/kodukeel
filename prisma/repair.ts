@@ -43,7 +43,7 @@ import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/
 import { borrowSentences } from "../lib/dict/borrow";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import {
-  mergeExamples, parseExamples, serialiseExamples, teachingSentence, type Example,
+  mergeExamples, parseExamples, serialiseExamples, teachingSentence, mayFillEnglish, type Example,
 } from "../lib/dict/examples";
 import { HARVESTED } from "./data/harvested";
 import { readExpanded } from "./expanded";
@@ -342,7 +342,9 @@ export async function fillExampleEnglish(prisma: PrismaClient): Promise<number> 
 
     let filled = false;
     const merged: Example[] = existing.map((e) => {
-      if (e.en) return e;
+      // `mayFillEnglish` rather than `!e.en`, or a line a reviewer took off as
+      // wrong is put straight back by the next seed. See `Example.enRefused`.
+      if (!mayFillEnglish(e)) return e;
       const en = englishFor(e.et);
       if (!en) return e;
       filled = true;

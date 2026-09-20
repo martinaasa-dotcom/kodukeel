@@ -65,6 +65,17 @@ const DICT: Candidate[] = [
   lexeme("rõõm", "joy", "NOUN", [
     ["NOM_SG", "rõõm"], ["GEN_SG", "rõõmu"], ["PART_SG", "rõõmu"],
   ]),
+  /*
+    A pronoun as the seed writes one: the retrieved table under `EKILEX:<code>`
+    with no `morphCode` on the row at all, and two spellings of one form. Both
+    are what the panel under a sentence reads, and both are what the naming
+    table fell past for as long as it existed.
+  */
+  lexeme("tema", "he, she", "PRONOUN", [
+    ["NOM_SG", "tema"], ["GEN_SG", "tema"], ["PART_SG", "teda"],
+    ["EKILEX:SgN", "tema"], ["EKILEX:SgN", "ta"],
+    ["EKILEX:SgP", "teda"], ["EKILEX:SgAd", "temal"], ["EKILEX:SgAd", "tal"],
+  ]),
 ];
 
 function top(query: string) {
@@ -312,6 +323,31 @@ describe("matchEstonianForm", () => {
 
   it("has nothing to say about an empty string", () => {
     expect(matchEstonianForm(DICT, "   ")).toBeNull();
+  });
+
+  /*
+    THE FORM AS WELL AS ITS NAME, which is what the panel under a sentence
+    reads. `ta` was answered with `SgN`, the internal code, because the seed
+    writes a retrieved form on `formType` and every name in the table is keyed
+    on the code: see `lib/estonian/morph.ts`. What a caller gets now is the
+    row itself, so it can say what the form *means* rather than only what it
+    is called.
+  */
+  it("names a seeded retrieved form rather than handing back its code", () => {
+    const match = matchEstonianForm(DICT, "ta");
+    expect(match?.lemma).toBe("tema");
+    expect(match?.matchedAs).not.toContain("SgN");
+    expect(match?.matchedAs).toContain("nimetav");
+  });
+
+  it("hands over which form it was, and the entry's own forms behind it", () => {
+    const match = matchEstonianForm(DICT, "tal");
+    expect(match?.form).toEqual({ formType: "EKILEX:SgAd", morphCode: null });
+    expect(match?.forms?.map((f) => f.value)).toContain("temal");
+  });
+
+  it("names the code a case worked out from the stem, not only its label", () => {
+    expect(matchEstonianForm(DICT, "toas")?.form).toEqual({ formType: null, morphCode: "SgIn" });
   });
 
   /*

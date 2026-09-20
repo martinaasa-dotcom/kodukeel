@@ -323,6 +323,135 @@ than that they have a better one, and null is the honest "not yet" every sentenc
 table was built, from which a deployment with a model asks again and one without shows the
 word-by-word gloss.
 
+**And null was two facts wearing one shape, so the reviewer's decision lasted until the next seed.**
+`CLEAR_TRANSLATION` sets `en` back to null and nothing else records that anybody looked, so "nobody
+has answered yet" and "somebody answered and was wrong" read identically. `fillExampleEnglish`
+tests the blank, `translateExample` tests the blank, and both are right about the first fact and
+backwards about the second: the shipped line went straight back on the next `npm run db:seed`, and
+until then the next learner to open the entry paid for a model to write the same kind of answer the
+reviewer had just refused. `Example.enRefused` is the second stored fact, which is the shape
+`emailsOff` and `emailsOn` take one module over and for their reason: one field holding both would
+mean absence reading one way for most sentences and the other way for these, which is the rule
+whoever next edits it gets backwards. `mayFillEnglish` is the one reader, so the shipped table, the
+seed's repair and the runtime ask cannot disagree about whose line it is, and absence is still
+"not yet".
+
+**And it is a silent no rather than an error, which is the half a learner meets.**
+`SentenceTranslation` asks on arrival, so a refusal returned as an ordinary failure draws a
+sentence about a reviewer's decision under somebody's card, in the middle of a round, about a
+thing they had no part in and can do nothing about. The action says `refused` and the screen draws
+nothing, which is what it already does where the deployment has no model configured: offered
+nothing rather than promised something. The sentence itself is untouched and still on screen; what
+is gone is the offer to explain it. Both halves are asserted, because either alone passes on the
+broken shape. What is deliberately **not** threaded is the fact itself: fifteen call sites across
+two components hand `en` down from as many data paths, and a new required prop through all of them
+is a large change for a handful of sentences a deployment, where what is left is one early return
+on a server action that books no call and reads one indexed row.
+
+**And a sentence nobody would ever say is attested and is still not teachable, so a person's
+refusal is data.** Every Estonian sentence here is one a lexicographer recorded, which is what keeps
+this app from writing the language, and it is not the same claim as the sentence being one anybody
+uses. Ekilex records a usage to illustrate a *sense* to somebody who already reads Estonian.
+`Ega ma temaks ole.` was reported off the gap card built from it by somebody who speaks the
+language: not a sentence anybody would use, and the English shipped beside it read "I am not him",
+which is what `Ma ei ole tema` means and not what that says. The second half is the more useful
+finding. Asked to translate a sentence nobody would write, the model wrote down the sentence that
+was plainly meant, so the English came back fluent and the fault was hidden rather than shown, and
+there is nothing downstream of that: the answer looks exactly like a good one.
+
+**No rule here could have caught it, and the near version of one would refuse correct Estonian.**
+`naturalSentence` refuses a fragment, an ellipsis, a slash and the label pattern, and every one of
+those is a shape a machine can see. This is a sentence in ordinary shape that a native speaker
+reads once and refuses. A check that could see it would be a parser this app does not have and
+should not pretend to, and the reachable version of it fires on honest data, which is the check
+this file says to waive and then nobody reads. So `lib/dict/refused.ts` is where the judgement is
+kept instead, one entry per sentence with the reason in the words of whoever refused it, and an
+invariant fails on a pattern appearing in that file: it is a list of things somebody read, never a
+filter over the corpus.
+
+**One gate, so one line reaches every surface, and it is `parseExamples` rather than
+`usableExamples`.** That is the single reader of `Lexeme.examples` and about fifty callers come
+through it, of which a dozen never reach `usableExamples` at all: the case walk, the grammar pages,
+the daily quest, the printed worksheet, the sprint and both repairs in `prisma/repair.ts`. A
+refusal there is a refusal on the dictionary entry, on every card the builder makes, on the
+borrowed pool, on the examination pool and on the placement check at once. Three more doors carry
+it because each is a way the sentence comes back: `usableExamples`, since a list mapped straight
+out of a live Ekilex lookup has never been near the column; the seed, so a fresh install never
+stores it; and the harvest, so the generated file stops carrying it. `scripts/lib/dictionary.ts`
+refuses it too, which is faithful rather than a filter, since a fresh install genuinely does not
+have it and an audit counting it reports on a dictionary nobody has. Each of the six was made to
+fail on its own line.
+
+**And the sixth is the one that costs money and undoes the other five.** `npm run
+translate:examples` builds its worklist by reading `prisma/data/harvested.ts` and the expansion
+off disk rather than through `scripts/lib/dictionary.ts`, so the filter there did not reach it:
+a run would have paid a model for a line no screen may draw and written the answer back into
+`prisma/data/example-english.json`, which is the one file the refusal had just been taken out of.
+`refused.test.ts` catches the result, and only after the call is bought and the file rewritten,
+which is the wrong end to find it from. A door a check describes and does not assert is a door.
+
+**It is a list rather than a deletion, and that is the durable half.**
+`prisma/data/harvested.ts` is generated and rewritten whole by every run of `npm run harvest`, so a
+refusal recorded by deleting the line is a refusal the next harvest undoes, silently, in the file
+nobody re-reads. It is also **the one exemption list here with no staleness check**, which is the
+opposite of the rule everywhere else and is deliberate: the harvest drops a refused usage on the
+way out, so a run of it makes every entry unreachable, and a check that then required them to be
+deleted would hand the sentence back the moment Ekilex was asked again. A refusal is permanent.
+What is asserted instead is that no refused sentence ships an English line, since a line nobody may
+read is a line nobody is checking.
+
+**The reason somebody wrote is what makes it a list of entries rather than a list of strings, so
+it reaches a reader.** `RefusedSentence.why` was stored and printed nowhere: `npm run audit:decks`
+named a condemned card with the rule's own line, which is the same sentence for every card the rule
+names, and `refusalFor` was a function only its own test called. The audit prints the refusal under
+the card it condemns, on a line of its own because a reason runs to a sentence and a column of them
+pushes the card off the terminal. It is also why the rule's own query stopped re-reading every case
+card: those are already in hand from the first rule, and what this one asks for is the two other
+types the builder cuts out of a sentence, plus the case card with no lexeme that the first query
+excludes.
+
+**A guard in front of a refusal may only ever be sound, and the first pair rested on an argument
+that is false.** `isRefusedSentence` is on the hottest read in the app, so a length floor and a
+first-letter set stand in front of the locale fold, which is an ICU call at 1.5 microseconds a
+sentence and six seconds across a run of the audits. Both were built off the key alone under the
+claim that folding can only shrink a string: `toLocaleLowerCase` turns `İ` into `i` plus a
+combining dot, so a string can key longer than it arrived and one character can become two.
+Nothing in Estonian spells that way and the sentence refused today holds no such character, so
+both guards were correct about the data rather than about the operation, which is a guard that
+holds until somebody adds the entry that breaks it, and the worse of its two failures is silent:
+a refusal whose own sentence starts with such a character never matches itself. Each is built
+from both spellings now, and `refusalMatcher` takes the entries rather than reading the one list,
+because asked of `REFUSED_SENTENCES` the guards are right today whether or not the argument
+behind them is, which is a test that cannot fail. Driven over an entry written to break them, it
+fails on the real line.
+
+**And it matches one spelling and claims nothing about any other**, which is stated rather than
+left to be rediscovered. A sentence is refused where it keys onto a refusal exactly, after the
+trim, the collapse and the case fold `usableExamples` already compares two examples through; the
+same sentence with the stop dropped or a word moved is a different string and reaches every
+screen. What would cover that is a judgement about how near two Estonian sentences are, which is
+the parser this module refuses to pretend to and whose near version withholds correct Estonian.
+The harvest holds one spelling per usage, so a variant arrives only if Ekilex changes what it
+records, and the answer to that is a second line in the file.
+
+**And a deck already built keeps the sentence it was cut from, which is the half a gate cannot
+reach.** A `Card` row carries its own front, so the gap comes back due for ever and the learner is
+asked to complete a line nothing else in the app will draw. `refusedSentenceCards` in
+`lib/srs/retire.ts` is the fourth fault `npm run audit:decks` reports and removes, and the test is
+the sentence put back together: the front holds the blank and the back holds the answer, which is
+what the review card and the quest already do to find a gap card's English, and both spellings of a
+back like `tuppa / toasse` are tried. Three card types rather than one, `CASE_FORM`, `CLOZE` and
+`CONJUGATION`, because a rule reading only the first would leave standing the gap-fill card on the
+daily path that the fault was reported from.
+
+**What this does not claim is that the corpus has been read.** Nobody has read the 15,125 sentences
+the dictionary ships or the 16,036 English lines built for them, and this is not a quality filter
+over either. A list built by guessing would withhold correct Estonian far more often than it
+withheld anything worth withholding, which is the measured argument the gloss audit already makes
+about a mechanical second opinion. An entry goes in when somebody who speaks the language has read
+that sentence and said so, and the report button on every screen that draws one is the door a
+learner reaches it through.
+
 **The scene prompt was cut by a fifth and then held on Google's side, which is the saving the
 endpoint could not give.** The rules block was 594 tokens for twenty rules and is 498 saying the
 same twenty; the pitch voices and the per-turn boilerplate went the same way, and the whole prompt
@@ -397,7 +526,7 @@ is: it would be this app writing Estonian and the scheduler drilling it.
 
 **A conversation outside the app is the number the app is measured by, and it is a fact the learner
 reports.** `lib/collections/errands.ts` names one errand a day by unit id, never by word, the way
-the seasonal row does, and `recordEncounter` stores one of three words. `Encounter` is append-only
+the seasonal row does, and `recordEncounter` stores one of four words. `Encounter` is append-only
 and the fourth exception to "progress is derived" (ADR-027). Progress leads with it, beside the
 readiness reading of the course's own "you can do this" claims (ADR-026). The research export
 publishes the errands under the same gate as everything else and labelled as self-reported.
@@ -423,6 +552,40 @@ was answered is not a day that held a conversation**: `isConversation` is the on
 decided, both readings in `lib/progress/outThere.ts` ask it, and counting rows instead would report
 a fortnight of honest noes back as a fortnight of real conversations and a run of fourteen days, on
 the panel whose own heading says it matters more than any chart on the page.
+
+**And it is two questions, because the first one is the achievement.** One row of answers asked
+whether anything was said and how it went at the same time, and what followed a yes was a box
+labelled "A word you did not have?", which was reported as a question nobody can answer: a learner
+cannot list what they missed. That reading is right about the wording rather than about the thing,
+since everybody who has run out of words mid-sentence remembers the one they wanted, so the box is
+asked as that memory and its label says what it will do with it. What was wrong underneath it is
+that the app went straight past the hard part to mark the result. So Today asks whether any
+Estonian was spoken, says that speaking at all was the thing, and then asks how it went
+(ADR-027 amendment 2).
+
+**`STUCK` is the answer the first three could not give.** Running out of words partway is the
+commonest thing that happens to anybody holding a conversation in a language they are learning, and
+it is the moment `lib/email/letters/errand.ts` argues at length that no other app will tell somebody
+is not a failure. With three answers the learner who froze had to claim they were understood, claim
+the other person switched, or answer "not yesterday", which deletes the conversation from the one
+count this app says it is measured by. It **is** a conversation, because they spoke, and
+`HOW_IT_WENT` is `isConversation` over the outcome list rather than a second list typed into the
+card, so a further answer reaches Today by existing. **Nothing is written until the second press**:
+reading a bare yes as `UNDERSTOOD` and letting the follow-up refine it would count an abandoned
+half-answer as a conversation nobody switched out of, which biases the one figure a pilot watches in
+the direction that flatters. Both halves are asserted, because either alone passes on the broken
+shape, and each was made to fail on the real line. **And the research export's "correct" is defined
+by the figure the file claims to carry**, which is that the other person did not switch, rather than
+by one outcome: it was `= 'UNDERSTOOD'` under a published note saying one minus the rate is the
+switch share, and that sentence stopped being true the day a third conversation answer existed.
+
+**And what the card offers after a conversation is a rehearsal rather than an errand.** A day that
+held one is not a day to be handed homework, which is amendment 1's own rule, and a scene is the
+opposite of homework: the same encounter played on somebody with an agenda of their own, where
+getting it wrong costs nothing. It is offered on the two answers that have something to practise, a
+conversation the learner got stuck in and one the other person switched out of, and on neither the
+good day nor the empty one, since the first needs nothing from us and the second already has the
+errand.
 
 **And a report was filed under the day it was made, which is the day after the one it is about.**
 A row written on Tuesday morning is a fact about Monday, and both readings keyed it on Tuesday, so
@@ -3137,6 +3300,103 @@ opened it and a toggle would shut the panel of the word the pointer is sitting o
 two lines above. **The word buttons carry no `hover:` class**, because an inline style beats a class
 `:hover` and the hover state here *is* the open state.
 
+**And the panel led with the headword's name for the form, which for half the dictionary was its
+internal code.** A learner tapped `Ta` in `Ta armastab mind` and read `tema · SgN · he, she`. Three
+things were wrong in one line and the code was only the loudest. `prisma/seed.ts` writes every
+retrieved form under `formType` as `EKILEX:<code>` with no `morphCode` at all, and every name in
+`lib/estonian/morph.ts` is keyed on the code, so `formName` fell past the code branch, past the
+stored table, past `morphName` and out of `formLabel`'s last line as the bare slot: the names were
+all there and nothing was reading them, on the 1,765 forms the harvest stores because no rule
+reaches them. `morphCodeOf` is the one reading of both shapes a row is in and `formName` asks it.
+And the word that had been *pressed* was nowhere on the panel, which is the half a reader notices
+first: the spelling leads now, then what it means here, then the headword it came from with the
+form's name beside it, which is the order `/grammar/build-a-word` already uses.
+
+**What a form means is `lib/estonian/formReading.ts`, and it composes nothing of its own.** The
+pronouns are `lib/estonian/pronouns.ts`, the cases are `caseReading`, which is the build-a-word
+phrase itself, and where neither has a phrase the sentence under the name is `plainAsk`'s, which is
+what a flash card prints over the box. Three tables, one answer, so the panel and the walkthrough
+cannot disagree about what `toas` means. **English inflects its pronouns where it inflects nothing
+else**, which is why the six are a table rather than a frame over a gloss: `mind` is "me" and
+`minu` is "my" and no rule over "I, me" gets there, `mul` is the have-construction written out
+whole per person because "he, she have it" is not a sentence, and the inside trio is left empty
+because `räägib minust` is "about me" and `minust sai õpetaja` is "I became" and a panel printing
+one over the other teaches something the rest of the app would have to unteach. `see`, `kes` and
+`mis` are deliberately not in it: "this" is "this" in every role English has, so a frame over that
+gloss can only ever produce "in the this".
+
+**And which case a spelling is gets `readCase`'s strict rule rather than the row the match came
+back with.** `kohvi` is stored as the omastav of `kohv` and is also its osastav, so a reading keyed
+on the matched row read `Ma joon kohvi` as "of the coffee", which is the wrong half of a word the
+learner is looking straight at. Exactly one case spells it that way or nothing is said, which is the
+same discipline that decides whether a gap may be cut for a case at all; a spelling the index does
+not hold falls back to the matched form, and that is what carries the parallel short forms, since
+`ma` is a second nominative and the index holds only the principal one. A **plural** gets no frame
+either, because the frame drops one English noun into "in the %" and the gloss it is given is the
+headword's, which is singular. And the **headword itself gets none**: "the man" is narrower than
+"man, husband" and buys an article nobody asked for, and the dictionary already wrote the answer.
+
+**`mina` and `ma` are one word twice, and nothing anywhere said so.** The course teaches the
+headword, because that is what the dictionary is headed by, and then every attested sentence the app
+draws says the other one: somebody met `Ta armastab mind` an hour after being taught `tema`.
+`twinsOf` reads the pair off the entry's own stored forms, which Ekilex records under one code
+(`SgN` is `mina` and `ma`, `SgAd` is `minul` and `mul`), so **nothing here writes an Estonian
+form**; it answers for a **pronoun only**, which is `spokenForm`'s own rule and its reason, since a
+noun's parallel form is a spelling variant rather than a register. The panel says it about the
+spelling in front of the reader, and the first meeting says it about the word being taught, on all
+three screens that introduce one: `alsoSaid` is **required** on `WordIntro` and on `LessonWord` for
+the reason `illSgShort` is required on `NounStems`, a caller that has not thought about it teaches
+half a word and that looks exactly like a word with no other half. `everydaySpellings` in
+`lib/dict/facts.ts` is the read, because it is a fact about the shared dictionary rather than about
+the learner waiting, and it is its own pass rather than a line inside `withGlosses`: that one
+returns early for somebody who turned the underlines off, and the pair is part of what the word is.
+
+**And a gloss one character long reads as a rendering fault.** `mina` was glossed "I", which under a
+36px headword is a vertical bar somebody reported as an error line. It is "I, me" now, and `meie`
+and `nemad` carry their object forms with it, which is the sense the course was missing rather than
+a fix for the typography: those three are the personal pronouns whose two English roles are two
+different words. The syllabus and `prisma/data/harvested.ts` are edited together, which is what a
+re-harvest would produce and what `syllabus.test.ts` already fails on.
+
+**And `sina` and `teie` are both "you" and are not the same word.** The table above says English
+inflects its pronouns where it inflects nothing else, and the thing English lost is the one this
+course needs most: every scene in this app is answered in `teie`, so it is the pronoun the panel is
+tapped on most, and "to you" over `teile` beside "to you" over `sulle` teaches a learner that the
+choice does not matter. `PronounEnglish.qualifier` is the note and **both members carry one**, "one
+person you know" and "polite, or more than one", because the contrast is the lesson and a bare "you"
+beside a qualified one reads as the default rather than as the informal one. It rides on the end of
+the frame rather than inside it, so it reads the same after a bare pronoun, a preposition and the
+have-construction, and `PronounRole` is the four words a frame may reach for so the note can never
+be substituted as one of them.
+
+**And the pronoun was said twice on half the verbs, which is the fix the other table already
+had.** `formName`'s note says the English half names the category and never the person, because the
+person is an Estonian pronoun standing inside a gloss that exists for somebody reading an English
+reference grammar, and it was true of the slots a rule derives and false of the principal parts the
+harvest stores. One screen draws both: `armastab` came back "olevik ta (present)" off its code and
+`elan` "olevik ma (present ma)" off its stored first person. `STORED_NAMES` had a comment claiming
+the two were worded alike while they were not, which is the shape this file keeps finding in its own
+prose. Found by rendering the panel over a seeded dictionary rather than by reading either table,
+because two tables that disagree read correctly one at a time.
+
+**And a plural is a plural whichever table names it.** Ekilex writes the number as a prefix (`PlIn`)
+and the seed's principal parts write it as a suffix (`PART_PL`), and `numberFromMorphCode` knew only
+the first. That is nothing to the callers holding `f.morphCode`, which is null on a principal part
+anyway, and it was a hole under `readForm`, which asks through `morphCodeOf` and so does see
+`GEN_PL`: a plural reported as unknown is a plural a singular frame can be printed over, which is
+"in the room" under `tubades` and is the one way a reading goes wrong that a learner cannot catch.
+Nothing reachable produced one, because `caseFromMorphCode` names no case for those codes either,
+which is two tables agreeing by accident rather than a rule. Both shapes are read now, and the test
+is on the arrangement where the guard is load-bearing, a plural whose spelling the *singular* index
+settles, made to fail on the real line.
+
+**And what the model is told the learner said is what the spelling means.** `readingOf` in the scene
+route builds a word-by-word English reading for the judge and the composer, and it took the first
+sense of the headword's gloss, so `mind` was handed over as "I": the fault the panel's own reading
+was written to fix, one screen over, reaching a model instead of a reader. It reads `entry.reading`
+where there is one, which is the same call, is usually fewer tokens, and is asserted, because what
+it costs if it goes back is a model answering a turn it has been told the opposite of.
+
 **A word kept from a sentence is a press and it says where it came from.** `SENTENCE` is a card
 source of its own beside `SCAN` and `ALMANAC`: somebody reading a line and hitting a word they do
 not have is a different thing from looking one up, and `Card.source` is a closed list for the reason
@@ -3648,6 +3908,25 @@ reached for instead, which `lib/estonian/whichCase.ts` can do with certainty, an
 question **before** `checkAnswer`'s typo rule rather than after: `toas` and `toast` are one
 keystroke apart and so are `toale` and `toalt`, so the ordinary reading would have told a learner
 who chose the seestütlev that they had mistyped the seesütlev, and marked the answer as recalled.
+
+**And the typo rule itself could mark a completely different, correctly spelled word as a slip,
+whenever the two happened to be one letter apart.** It forgave any one-letter difference once the
+answer was four characters or longer, and never asked whether the changed letter had landed on
+somebody else's word rather than on a slip of the hand. `mina` (I) and `sina` (you) are one swapped
+first letter apart and both real, so typing `sina` for I was marked "That is it. So close, the word
+is mina.", graded Hard, and logged in the append-only review history as a recall of the wrong
+pronoun. It was reported off exactly that card.
+
+`npm run measure:typo-collisions` is the reading now, over the same corpus `answer.test.ts` already
+reads: every pair of accepted answers of one length that are one substitution apart. Four letters
+holds the worst of it by an order of magnitude, 2,295 such pairs, and five, six and seven letters
+stay in the same range as each other, 187, 149, 136, `istuma` and `astuma`, `hammas` and `lammas`,
+`ehitama` and `esitama`. Eight letters is where the count first drops by more than three times, to
+43, so a same-length substitution needs eight letters before it is read as a slip rather than as the
+wrong word; a letter inserted or dropped keeps the old floor of four, because it does not spell a
+coincidental second word the way a swapped one does. Eight is safer rather than safe: `valutama`
+and `valetama` are both real Estonian verbs at exactly that length, and a length floor can only push
+the risk down to where it stops being the common case, not remove it.
 
 **Two faults in it were invisible to every unit test and turned up in the first rounds anybody
 drove**, which is the argument for `scripts/test-flash.mjs` rather than for more unit tests. The
@@ -10106,6 +10385,8 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
 `module-step`, `useLookBack`,
 `LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
+`isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
+`mayFillEnglish`,
 `data-point-examples`.
 Most of them now
 have an invariant behind them; that list is what to check when adding one.

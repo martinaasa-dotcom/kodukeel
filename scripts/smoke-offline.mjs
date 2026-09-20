@@ -155,8 +155,8 @@ async function press(locator) {
  *   - a first meeting, which teaches rather than asks and offers one button;
  *   - a flip card, the one shape the app cannot mark, which reveals and then
  *     asks the learner;
- *   - a multiple choice, where a right pick grades itself on a timer and a
- *     wrong one waits on a button;
+ *   - a multiple choice, where both a right and a wrong pick wait on a
+ *     button;
  *   - a typed answer, the same, checked against the dictionary.
  */
 async function answerOneCard(depth = 0) {
@@ -190,9 +190,12 @@ async function answerOneCard(depth = 0) {
     // The keyboard rather than a click on the option, because it is what the
     // app itself offers and what test-modes.mjs drives.
     await page.keyboard.press("1");
-    // A right pick stays on screen for `VERDICT_PAUSE_MS` before it grades
-    // itself, so the wait here has to outlast it.
-    await page.waitForTimeout(8600);
+    await page.waitForTimeout(300);
+    // Neither a right nor a wrong pick grades itself any more: both wait for
+    // the button underneath, "Got it, next" on a miss and the verdict itself
+    // ("Correct!"/"Õige!") on a hit.
+    const pickNext = app.getByRole("button", { name: /Got it, next|Correct|Õige/ });
+    if (await pickNext.count()) await press(pickNext);
   } else {
     const input = page.locator("main input[type='text'], main input:not([type])").first();
     if (await input.count()) {

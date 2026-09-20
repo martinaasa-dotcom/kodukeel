@@ -65,9 +65,10 @@ export async function missCard(page, { settle = 1200 } = {}) {
   if (await options.count()) {
     await options.first().click();
     await page.waitForTimeout(settle);
-    // A wrong pick leaves this button and grades Again; a right one goes by
-    // itself after the verdict pause.
-    const next = app.getByRole("button", { name: /^Got it, next/ });
+    // Neither a wrong pick nor a right one grades itself: both wait on the
+    // button underneath, "Got it, next" on a miss and the verdict itself
+    // ("Correct!"/"Õige!") on a hit.
+    const next = app.getByRole("button", { name: /Got it, next|Correct|Õige/ });
     if (await next.count()) await next.first().click();
     await page.waitForTimeout(settle);
     return "choice";

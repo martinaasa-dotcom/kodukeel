@@ -123,6 +123,17 @@ export interface LessonWord {
    * read it.
    */
   equivalent?: { text: string; lang: string } | null;
+  /**
+   * The everyday spelling of a pronoun, where the word has one.
+   *
+   * `mina` and `ma` are one word twice, and the lesson teaches the headword
+   * while every sentence under it says the other one. Required rather than
+   * optional, for the reason `illSgShort` is required on `NounStems`: a caller
+   * that has not thought about it teaches half a word, and that looks exactly
+   * like a word with no other half. Null for every noun and verb there is.
+   * Read off the dictionary by `twinsOf`; nothing here is written (ADR-005).
+   */
+  alsoSaid: string | null;
   pos: string;
   /**
    * The Institute's semantic type codes, which decide which of the two sets of
@@ -170,6 +181,8 @@ export interface MeetStep extends StepBase {
   gloss: string;
   /** The meaning in the learner's own language, where Ekilex recorded one. */
   equivalent?: { text: string; lang: string } | null;
+  /** The everyday spelling of a pronoun, where the word has one. */
+  alsoSaid: string | null;
   pos: string;
   /**
    * One attested sentence, when the word has one, purely to see it in use:
@@ -917,6 +930,7 @@ export function planLesson(input: LessonInput): LessonStep[] {
   const meetLane = (block: readonly LessonWord[]) => block.map((word): LessonStep => ({
     id: nextId("meet"), kind: "meet", lexemeId: word.lexemeId, lemma: word.lemma, gloss: word.gloss,
     equivalent: word.equivalent ?? null,
+    alsoSaid: word.alsoSaid,
     pos: word.pos, isPhrase: isPhrase(word.pos),
     /*
       Which sentence, and which form of the word it carries, is

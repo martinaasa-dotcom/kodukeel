@@ -2,7 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { CASES } from "@/lib/estonian/cases";
 import { derivedVerbForms, possibleFirstPersons } from "@/lib/estonian/conjugate";
-import { formLabel } from "@/lib/estonian/morph";
+import { formLabel, morphCodeFor } from "@/lib/estonian/morph";
 import { fold, FOLD_FROM, FOLD_TO } from "@/lib/estonian/fold";
 
 
@@ -30,7 +30,10 @@ const NOM = CASES.find((c) => c.key === "NOMINATIVE")!;
  */
 const CASE_SUFFIXES = CASES
   .filter((c) => c.suffix)
-  .map((c) => ({ suffix: c.suffix, en: c.asksEn, et: c.et }))
+  // `key` rides along so a suffix match can name its own form the way a stored
+  // one does: what the panel under a sentence reads is the code rather than
+  // the label, and working it back out of the label would be a second answer.
+  .map((c) => ({ suffix: c.suffix, en: c.asksEn, et: c.et, key: c.key }))
   .sort((a, b) => b.suffix.length - a.suffix.length);
 
 /**
@@ -41,6 +44,17 @@ const CASE_SUFFIXES = CASES
 export interface Candidate {
   id: string; lemma: string; translation: string; pos: string;
   cefr: string | null; gradationNote: string | null;
+  /**
+   * Ekilex's own semantic type codes, where the caller selected them.
+   *
+   * Optional because the ranking has no use for them and every fixture in the
+   * suite predates them: what reads them is `formReading`, which asks whether
+   * the word is a person before it says `toale` is "onto the teacher". A
+   * caller that does not select the column gets the unclassified reading,
+   * which is what `caseIsUnsaidFor` calls the safe end and is the answer the
+   * app gave before this existed.
+   */
+  semanticTypes?: string | null;
   /** SEED | EKILEX | AI | USER, as `prisma/schema.prisma` defines it. */
   provenance: string;
   forms: { formType: string; value: string; morphCode: string | null; morphName: string | null }[];
@@ -202,6 +216,9 @@ export async function searchLexemes(query: string, limit = 40): Promise<SearchHi
     select: {
       id: true, lemma: true, translation: true, pos: true,
       cefr: true, gradationNote: true, provenance: true,
+      // Read by `formReading`, which asks whether the word is a person
+      // before it says what one of its endings means in English.
+      semanticTypes: true,
       forms: { select: { formType: true, value: true, morphCode: true, morphName: true } },
     },
   });
@@ -384,7 +401,23 @@ export function rankCandidates(candidates: Candidate[], query: string, limit = 4
   }));
 }
 
-function rank(c: Candidate, raw: string, folded: string): { score: number; matchedAs?: string } {
+/**
+ * Which form a match landed on, for a caller that wants to say more about it
+ * than its name.
+ *
+ * The two shapes one row can be in, exactly as `formName` takes them: a stored
+ * principal part hands its own row over, and a form worked out from a stem or
+ * a first person names the code it built. See `lib/estonian/formReading.ts`
+ * for what reads it.
+ */
+export interface MatchedForm {
+  formType: string | null;
+  morphCode: string | null;
+}
+
+function rank(
+  c: Candidate, raw: string, folded: string,
+): { score: number; matchedAs?: string; form?: MatchedForm } {
   const l = fold(c.lemma);
   const t = c.translation.toLowerCase();
   const r = raw.toLowerCase();
@@ -398,7 +431,13 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
 
   // A stored principal part: `loen` should find `lugema`.
   const stored = c.forms.find((f) => fold(f.value) === folded);
-  if (stored) return { score: 88, matchedAs: `${formLabel(stored)} of ${c.lemma}` };
+  if (stored) {
+    return {
+      score: 88,
+      matchedAs: `${formLabel(stored)} of ${c.lemma}`,
+      form: { formType: stored.formType, morphCode: stored.morphCode },
+    };
+  }
 
   // A person of the present, the conditional, the negative or the imperative,
   // worked out from the stored first person: `helistab` is `helistan` with the
@@ -410,7 +449,11 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
     const person = derivedVerbForms({ lemma: c.lemma, pres1sg })
       .find((form) => fold(form.value) === folded);
     if (person) {
-      return { score: 85, matchedAs: `${formLabel({ morphCode: person.morphCode })} of ${c.lemma}` };
+      return {
+        score: 85,
+        matchedAs: `${formLabel({ morphCode: person.morphCode })} of ${c.lemma}`,
+        form: { formType: null, morphCode: person.morphCode },
+      };
     }
   }
 
@@ -420,14 +463,18 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
     const stem = c.forms.find((f) => f.formType === formType)?.value;
     if (!stem) continue;
     const stemFolded = fold(stem);
-    for (const { suffix, en, et } of CASE_SUFFIXES) {
+    for (const { suffix, en, et, key } of CASE_SUFFIXES) {
       if (!folded.endsWith(suffix)) continue;
       if (folded.slice(0, folded.length - suffix.length) === stemFolded) {
         // Named the way a class names it. Estonian puts its word for the
         // plural in front of the case name rather than after it, so the two
         // halves cannot be concatenated the way the English pair can.
         const name = plural ? `mitmuse ${et} (${en}, plural)` : `${et} (${en})`;
-        return { score: 85, matchedAs: `${name} of ${c.lemma}` };
+        return {
+          score: 85,
+          matchedAs: `${name} of ${c.lemma}`,
+          form: { formType: null, morphCode: morphCodeFor(key, plural) },
+        };
       }
     }
   }
@@ -463,6 +510,7 @@ function rank(c: Candidate, raw: string, folded: string): { score: number; match
       // dropped every Latin name, and `toad` came back named in a grammar
       // this language does not use.
       matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
+      form: { formType: "NOM_PL", morphCode: null },
     };
   }
 
@@ -503,6 +551,12 @@ export interface FormMatch {
   cefr: string | null;
   /** Set when the word given was an inflected form rather than the headword. */
   matchedAs?: string;
+  /** Which form that was, for a caller that wants to read it rather than print it. */
+  form?: MatchedForm;
+  /** Ekilex's semantic type codes, where the caller selected the column. */
+  semanticTypes?: string | null;
+  /** Every form the winning entry holds, which is what a pair of spellings is read off. */
+  forms?: Candidate["forms"];
 }
 
 /**
@@ -549,7 +603,7 @@ export function matchEstonianForm(candidates: Candidate[], word: string): FormMa
   const folded = fold(raw);
   const lower = raw.toLowerCase();
 
-  let best: { hit: Candidate; score: number; matchedAs?: string } | null = null;
+  let best: { hit: Candidate; score: number; matchedAs?: string; form?: MatchedForm } | null = null;
   for (const candidate of candidates) {
     if (!vouchable(candidate)) continue;
     const scored = rank(candidate, raw, folded);
@@ -578,6 +632,9 @@ export function matchEstonianForm(candidates: Candidate[], word: string): FormMa
     translation: best.hit.translation,
     pos: best.hit.pos,
     cefr: best.hit.cefr,
+    semanticTypes: best.hit.semanticTypes ?? null,
+    forms: best.hit.forms,
     ...(best.matchedAs ? { matchedAs: best.matchedAs } : {}),
+    ...(best.form ? { form: best.form } : {}),
   };
 }

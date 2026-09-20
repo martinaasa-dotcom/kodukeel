@@ -13,7 +13,7 @@ import { taughtSpellings } from "@/lib/progress/lessonWords";
 import { courseFormsByLemma } from "@/lib/dict/facts";
 import { parseExamples, teachableSentences } from "@/lib/dict/examples";
 import { nominalOpener } from "@/lib/estonian/cloze";
-import { sentenceReach } from "@/lib/dict/facts";
+import { everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst } from "@/lib/dict/plainness";
 import { isPrincipalFormType } from "@/lib/estonian/types";
 import { LessonSession } from "./LessonSession";
@@ -97,7 +97,7 @@ export default async function LessonPage({
     which of them each question uses is the per-part seed's job, below.
   */
   const poolSeed = hash(unit.id);
-  const [rows, atLevel, settings, reach, courseSpellings] = await Promise.all([
+  const [rows, atLevel, settings, reach, courseSpellings, everyday] = await Promise.all([
     prisma.lexeme.findMany({ where: { lemma: { in: [...unit.lemmas] } }, select }),
     prisma.lexeme.count({ where: { cefr: unit.level } }),
     // Which language the meeting step gives a meaning in. Memoised per render,
@@ -116,6 +116,12 @@ export default async function LessonPage({
       split into lessons.
     */
     courseFormsByLemma(),
+    /*
+      And the everyday spelling of a pronoun, which rides in this batch for the
+      same reason and is cached for the whole deployment: `mina` and `ma` are
+      one word twice, and the meeting step is where a learner is owed the pair.
+    */
+    everydaySpellings(),
   ]);
   const glossLanguage = glossLanguageFrom(settings[SETTING_KEYS.glossLanguage]);
   const pool = await prisma.lexeme.findMany({
@@ -133,6 +139,13 @@ export default async function LessonPage({
     equivalent: equivalentIn(row, glossLanguage)
       ? { text: equivalentIn(row, glossLanguage)!, lang: glossLanguage }
       : null,
+    /*
+      `mina` and `ma` are one word twice, and this lesson teaches the headword
+      while every sentence it draws underneath says the other one. A fact about
+      the shared dictionary, so it is read once for the deployment rather than
+      joined onto the unit's rows (see `lib/dict/facts.ts`).
+    */
+    alsoSaid: everyday.get(row.lemma) ?? null,
     pos: row.pos,
     semanticTypes: row.semanticTypes,
     /*
@@ -203,6 +216,8 @@ export default async function LessonPage({
     distractors: pool.map((p) => ({
       lexemeId: p.id,
       lemma: plainPhrase(p.lemma, p.pos), gloss: plainPhrase(p.translation, p.pos), pos: p.pos, semanticTypes: p.semanticTypes,
+      // A wrong answer is never met, only read, so it has no other half to teach.
+      alsoSaid: null,
       examples: [], parts: {}, government: null,
     })),
     // Stable for this unit and part, so re-entering a lesson gives the same one

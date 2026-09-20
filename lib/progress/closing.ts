@@ -126,6 +126,10 @@ const reachable = cache(async (
 
   const within = (card: { cardType: string; targetCase: string | null; front: string; slot: string | null }) =>
     cardWithin(scope, card, spellings);
+  /* The round asks the same question of a card about to be introduced, against
+     what the module has taught. Inside a module that is this same scope, which
+     is the only place this count is ever made, so one predicate answers both
+     halves here where the round needs two. */
   const dueWithin = due.filter(within).length;
   const room = roomFor(dueWithin);
   const freshWithin = fresh.filter((c) => within(c) && isAround(c.lexeme?.cefr, level)).length;

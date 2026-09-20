@@ -185,10 +185,10 @@ check("diacritic bar inserts õ",
 // 3 — Keyboard-only review.
 // Review asks in four shapes — type it, pick it, flip it, or meet a word you
 // have never seen (app/(app)/review/ReviewSession.tsx) — and which keys carry
-// you through depends on the one in front of you. Two of them do not wait for a
-// grade at all: a correct typed answer and a correct pick are marked against
-// the dictionary and move on by themselves, because a confirmation keystroke on
-// the most common outcome in the app halves its throughput.
+// you through depends on the one in front of you. None of them grades on a
+// timer any more: a correct typed answer, a correct pick, a corrected retype
+// and a miss all wait on a button that says what happened, and Enter is that
+// button wherever the keyboard is not typing Estonian.
 //
 // So the claim under test is "the keyboard alone gets from a question to a
 // graded card", not "a particular button appears". Asserting the button made
@@ -229,15 +229,15 @@ if (shape === "type") {
 }
 // `intro` presses nothing, deliberately: the answer and the ratings are both
 // already on screen, and this is the one shape where the rating keys were
-// unreachable. A right pick or a right typed answer stays on screen for
-// `VERDICT_PAUSE_MS` before it grades itself, so the wait outlasts that.
-await page.waitForTimeout(8600);
+// unreachable. Everything else waits on a button now, so a short settle is
+// enough for the verdict to land.
+await page.waitForTimeout(600);
 
-// What is on screen now is one of three things: nothing to do because the
-// answer was marked correct and the card has gone; one button, on a miss or on
-// a word being met for the first time, which Enter takes; or the two self-grade
-// buttons of a flip card, where 2 is "Got it".
-const carryOn = (await page.getByRole("button", { name: /Got it|Check it again/ }).count()) > 0;
+// What is on screen now is a button: "Got it" on a miss or a first meeting,
+// "Check it again" on a miss waiting for its retype, the verdict itself
+// ("Correct!"/"Õige!") on a right pick, or the two self-grade buttons of a
+// flip card, where 2 is "Got it".
+const carryOn = (await page.getByRole("button", { name: /Got it|Check it again|Correct|Õige/ }).count()) > 0;
 const selfGrade = (await page.getByRole("button", { name: /^Got it$/ }).count()) > 0;
 const alreadyGraded = (await graded()) > gradedBefore;
 check("the answer is reachable from the keyboard", carryOn || selfGrade || alreadyGraded,

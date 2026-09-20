@@ -151,35 +151,26 @@ export function useLookBack() {
  * Not drawn at all where nothing has been seen yet, which is the first card
  * of a session: a control that can only ever say "there is nothing behind
  * you" is a control that teaches people to ignore that row.
+ *
+ * DRAWN AS A REAL BUTTON, LIKE EVERY OTHER CONTROL IN A ROUND. It used to be
+ * a bare tinted line of text with a key cap on it, and both read as
+ * furniture rather than as something to press: reported plainly, and the key
+ * cap doubly so, since `B` promises a shortcut most people are never going
+ * to reach for over a mouse. Each round still answers to the key where it
+ * wired one up; nothing here says so out loud.
  */
-export function LookBackButton({ count, onOpen, disabled = false, keyHint = true, ref }: {
+export function LookBackButton({ count, onOpen, disabled = false, ref }: {
   count: number;
   onOpen: () => void;
   disabled?: boolean;
-  /**
-   * Whether to name the key, which is false on a card being typed.
-   *
-   * `b` is the first letter of `buss`, so the shortcut stands down while an
-   * answer box has focus, and a cap promising a key the card in front of you
-   * does not answer to is the fault the review footer's own hint was
-   * corrected for.
-   */
-  keyHint?: boolean;
   /** So closing the panel can put the caret back where it was opened from. */
   ref?: React.Ref<HTMLButtonElement>;
 }) {
   if (count === 0) return null;
   return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onOpen}
-      disabled={disabled}
-      className="tap-tint flex items-center gap-1 rounded-md px-1.5 py-0.5 disabled:opacity-40"
-      style={{ color: "var(--ink-3)" }}
-    >
-      <History size={12} aria-hidden /> See it again {keyHint && <KeyCap>B</KeyCap>}
-    </button>
+    <Button ref={ref} type="button" variant="secondary" size="sm" onClick={onOpen} disabled={disabled}>
+      <History size={13} aria-hidden /> See it again
+    </Button>
   );
 }
 

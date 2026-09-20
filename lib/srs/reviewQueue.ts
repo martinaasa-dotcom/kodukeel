@@ -23,6 +23,7 @@
 import type { Prisma } from "@prisma/client";
 
 import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
+import { APP_CHOSE } from "@/lib/srs/sources";
 
 /**
  * WHICH UNSEEN CARDS OF A WORD MAY BE SERVED, WHICH IS THE ONES LEARN HAS
@@ -122,20 +123,44 @@ export function dueWhere(ownerId: string, now: Date): Prisma.CardWhereInput {
 }
 
 /**
- * The unseen window, narrowed to the module's own taught words where there is
- * a module.
+ * The unseen window, narrowed to what the module has taught where anything
+ * has.
  *
  * `due` on an unseen card is the moment it was written, so the date filter
  * changes nothing for anybody until they press "too complicated": that is what
  * a deferral moves, and without it a word put aside would be introduced again
  * on the next session (`lib/srs/defer.ts`).
+ *
+ * `theirOwnToo` is the daily path, where the gate is over this app's own
+ * material alone: a word somebody looked up, photographed or pasted in is
+ * theirs and is taught whatever the module has reached. Inside the module it
+ * is false, because there the round is the module's own choosing.
+ *
+ * UNDER `AND`, BECAUSE `pastTheLadder` IS ITSELF AN `OR` AND A SECOND ONE
+ * SPREAD BESIDE IT DELETES THE FIRST. Two `...` of `{ OR }` into one object
+ * literal is the later key winning, silently, and what it would silently drop
+ * here is the guard that keeps a word's case card off the screen until its own
+ * recognition card has graduated.
  */
 export function unseenWhere(
-  ownerId: string, now: Date, only: readonly string[] | null = null,
+  ownerId: string,
+  now: Date,
+  only: readonly string[] | null = null,
+  theirOwnToo = false,
 ): Prisma.CardWhereInput {
   return {
-    ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId),
-    ...(only ? { lexeme: { lemma: { in: [...only] } } } : {}),
+    ownerId, suspended: false, state: 0, due: { lte: now },
+    AND: [
+      pastTheLadder(ownerId),
+      ...(only
+        ? [{
+            OR: [
+              ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+              { lexeme: { lemma: { in: [...only] } } },
+            ],
+          }]
+        : []),
+    ],
   };
 }
 

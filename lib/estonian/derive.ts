@@ -1,4 +1,5 @@
 import { CASES, type CaseSpec } from "./cases";
+import { morphCodeOf } from "./morph";
 import type { CaseKey } from "./types";
 
 /**
@@ -379,15 +380,17 @@ export function stemsFrom(
   /*
     The code is on `morphCode` for a live Ekilex fetch and on `formType` as
     `EKILEX:SgIn` for a row the seed wrote, and different callers hold
-    different mixtures of the two. Reading both here is what stops a third
-    reader inventing a third answer, which is how the illative got lost.
+    different mixtures of the two. `morphCodeOf` is that reading, in the module
+    that owns the codes, which is what stops a third reader inventing a third
+    answer: this file had its own copy of it and `formName` had none at all, so
+    a seeded row was named by its internal code for as long as the seed has
+    written one. A `formType` that is not a retrieved code comes back as it is
+    and misses the table below, exactly as this copy's `null` did.
   */
-  const codeOf = (f: { formType?: string | null; morphCode?: string | null }) =>
-    f.morphCode ?? (f.formType?.startsWith("EKILEX:") ? f.formType.slice(7) : null);
 
   const retrieved: Partial<Record<CaseKey, string[]>> = {};
   for (const f of forms) {
-    const code = codeOf(f);
+    const code = morphCodeOf(f);
     const key = MORPH_TO_CASE[code ?? ""];
     if (!key) continue;
     // Every one, in the order the dictionary holds them: see the field's note.
@@ -400,8 +403,8 @@ export function stemsFrom(
     partSg: byType("PART_SG"),
     partPl: byType("PART_PL"),
     genPl: byType("GEN_PL"),
-    illSgShort: byType("ILL_SG_SHORT") ?? forms.find((f) => codeOf(f) === "SgAdt")?.value ?? null,
-    nomPl: byType("NOM_PL") ?? forms.find((f) => codeOf(f) === "PlN")?.value ?? null,
+    illSgShort: byType("ILL_SG_SHORT") ?? forms.find((f) => morphCodeOf(f) === "SgAdt")?.value ?? null,
+    nomPl: byType("NOM_PL") ?? forms.find((f) => morphCodeOf(f) === "PlN")?.value ?? null,
     retrieved,
   };
 }

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   CHECKPOINTS, LEVELS, SYLLABUS, checkpointFor, courseWords, isUnitOpen, levelIndex,
-  nextUnit, unitById, unitProgress, unitsAtLevel, wordsAtLevel, type Level, type SyllabusUnit,
+  courseAsksFor, nextUnit, unitById, unitProgress, unitsAtLevel, wordsAtLevel,
+  type Level, type SyllabusUnit,
 } from "./index";
 import { HARVESTED, type HarvestedWord } from "@/prisma/data/harvested";
 import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
@@ -146,6 +147,51 @@ describe("the course", () => {
       expect(u.cardTypes, u.id).not.toContain("GRADATION");
       expect(u.cardTypes, u.id).not.toContain("CLOZE");
     }
+  });
+
+  /*
+    AND THE RULE ABOVE IS ASKED OF A WORD RATHER THAN OF A UNIT, because the
+    one door that builds cards with no unit in its hands needs it that way.
+
+    `backfillClozeCards` adds a gap-fill to a word already in the deck once
+    Ekilex has sent sentences for it, on a dictionary page render. It had no
+    idea what the course had asked for, so opening the entry for `sina` on the
+    second evening of A1 wrote `Olen ______ nõus.` into a beginner's deck: a
+    word the course teaches, in an exercise every unit teaching it refuses,
+    inside a sentence holding two words nobody had shown her.
+
+    A word the course does not teach is the learner's own and is not refused:
+    they looked it up, photographed it or pasted it in, and the gap-fill is
+    what the dictionary's own button would have offered them.
+  */
+  it("says which cards the course ever asks for about a word", () => {
+    // A pronoun: taught at A1, and no unit teaching it wants a gap or a case.
+    expect(courseAsksFor("sina", "CLOZE")).toBe(false);
+    expect(courseAsksFor("sina", "CASE_FORM")).toBe(false);
+    expect(courseAsksFor("sina", "PRODUCTION")).toBe(true);
+
+    // Every A1 word, since no A1 unit asks for either. A word an A2 unit also
+    // teaches is excluded: the union is the point, and it is tested below.
+    const laterToo = new Set(
+      SYLLABUS.filter((u) => u.level !== "A1").flatMap((u) => [...u.lemmas]),
+    );
+    const a1Only = unitsAtLevel("A1")
+      .flatMap((u) => [...u.lemmas])
+      .filter((l) => !laterToo.has(l));
+    expect(a1Only.length).toBeGreaterThan(200);
+    for (const lemma of a1Only) {
+      expect(courseAsksFor(lemma, "CLOZE"), lemma).toBe(false);
+      expect(courseAsksFor(lemma, "CASE_FORM"), lemma).toBe(false);
+    }
+
+    // THE UNION, NOT THE FIRST UNIT. A word an A1 unit introduces and a later
+    // unit drills was asked for twice, and `unitIntroducing` would answer for
+    // the first of them alone.
+    const gapped = SYLLABUS.find((u) => u.cardTypes.includes("CLOZE"))!;
+    for (const lemma of gapped.lemmas) expect(courseAsksFor(lemma, "CLOZE"), lemma).toBe(true);
+
+    // A word the course does not teach at all is the learner's own.
+    expect(courseAsksFor("kodukeel-ei-ole-sona", "CLOZE")).toBe(true);
   });
 
   it("teaches the pronouns second and the verb to be third", () => {

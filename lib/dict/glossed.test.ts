@@ -11,7 +11,7 @@ import { glossTokens, type GlossedToken } from "./glossed";
  */
 
 const entry = (lemma: string, gloss: string): GlossedToken["entry"] =>
-  ({ lexemeId: `id-${lemma}`, lemma, gloss, matchedAs: null });
+  ({ lexemeId: `id-${lemma}`, lemma, gloss, matchedAs: null, reading: null, clause: null, alsoSaid: null });
 
 const dictionary = (known: Record<string, string>) => (word: string) => {
   const gloss = known[word.toLocaleLowerCase("et")];

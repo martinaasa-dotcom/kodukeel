@@ -190,7 +190,7 @@ export function LettersSession({ words: initial }: { words: LettersWord[] }) {
       </div>
       {look.seen.length > 0 && (
         <div className="mt-4 flex justify-center">
-          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+          <LookBackButton {...look.button} disabled={look.looking} />
         </div>
       )}
     </div>
