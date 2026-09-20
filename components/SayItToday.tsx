@@ -81,18 +81,6 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     });
   };
 
-  /*
-    The count sentence is built above the markup rather than inside it,
-    because the caption cap in `lib/copy/readerCopy.test.ts` measures the run
-    of text an element holds and a two-armed conditional written inline is one
-    long run of it. It reads better here too: the two arms are one sentence
-    with two shapes rather than a paragraph with an expression in the middle.
-  */
-  const held = conversations + 1;
-  const tally = held === 1
-    ? `Your first in the last ${days} days.`
-    : `That is ${held} in the last ${days} days.`;
-
   const mishap = failed && (
     <p className="mt-2 text-xs" role="status" style={{ color: "var(--hard-ink)" }}>
       That did not save. Try again when you are back online.
@@ -237,6 +225,36 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
     );
   }
 
+  /*
+    THE COUNT INCLUDES THE ANSWER THAT WAS JUST GIVEN, AND EXACTLY ONCE.
+
+    `conversations` is counted on the server and this reply renders straight
+    away, so a learner reporting their first ever conversation would read
+    "They understood you. That is the whole point of all of this." over "0 in
+    the last 30 days" until `router.refresh()` landed: a zero directly under a
+    confirmation of one, on the panel this app says it is measured by. So one
+    is added for the answer the server has not seen yet.
+
+    ADDED ONLY WHILE THE SERVER HAS NOT SEEN IT. `answered` is the prop and
+    `answer` is the local state, and the two disagree exactly during the
+    window the added one is for: before the press they are both null, and once
+    `router.refresh()` lands the prop carries today's answer and the count
+    behind it. Added unconditionally, the tally read one too many from that
+    moment on, and a learner who opened Today after reporting yesterday
+    evening was told they had held one more conversation than they had, which
+    is the direction this card may not be wrong in.
+
+    The sentence is built above the markup rather than inside it, because the
+    caption cap in `lib/copy/readerCopy.test.ts` measures the run of text an
+    element holds and a two-armed conditional written inline is one long run
+    of it.
+  */
+  const held = conversations + (answered === null ? 1 : 0);
+  const tally = held === 1
+    ? `Your first in the last ${days} days.`
+    : `That is ${held} in the last ${days} days.`;
+  const next = NEXT[answer];
+
   return (
     <Card>
       <SectionTitle hint="yesterday">Out there</SectionTitle>
@@ -244,19 +262,6 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
         <Footprints size={16} aria-hidden className="mt-1" /> {REPLY[answer]}
       </p>
       <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-        {/*
-          THE COUNT INCLUDES THE ANSWER THAT WAS JUST GIVEN.
-
-          `conversations` was counted on the server before this answer existed
-          and the reply renders straight away, so a learner reporting their
-          first ever conversation read "They understood you. That is the whole
-          point of all of this." over "0 in the last 30 days" until
-          `router.refresh()` landed: a zero directly under a confirmation of
-          one, on the panel this app says it is measured by. Counted the way
-          the server counts it, so a report that is a conversation adds one and
-          an honest no adds nothing, and the refresh then agrees rather than
-          correcting it.
-        */}
         {tally} <Link href="/progress" className="underline">Progress keeps the count</Link>.
       </p>
       {/*
@@ -268,9 +273,9 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
         offered, so it reads as an answer to what just happened rather than as
         a standing advertisement for another screen.
       */}
-      {NEXT[answer] && (
+      {next && (
         <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-          {NEXT[answer]}{" "}
+          {next}{" "}
           <Link href={rehearsal(errand)} className="underline">Rehearse one now</Link>.
         </p>
       )}
@@ -342,10 +347,20 @@ const REPLY: Record<Conversation, string> = {
   What to offer after each, or nothing. A conversation that went well needs no
   follow-up from us: the count is the answer and the card stops talking, which
   is the difference between a reply and a screen that always wants one more
-  press.
+  press. `null` rather than an empty string, so the one answer with nothing to
+  say says so in the type rather than in a falsy value a reader has to test
+  for.
+
+  NEITHER LINE CLAIMS TO REPLAY YESTERDAY. The rehearsal offered is today's
+  errand's scene, which is a conversation of its own and not the one the
+  learner just had: this card never learns what that was. `STUCK` used to be
+  answered with "The same conversation, where running out of words costs
+  nothing", which is a promise the link cannot keep, and a learner who follows
+  it into a different situation has caught the app being loose about the one
+  thing it is claiming to help with.
 */
-const NEXT: Record<Conversation, string> = {
-  UNDERSTOOD: "",
-  STUCK: "The same conversation, where running out of words costs nothing.",
-  SWITCHED: "Every conversation here has a moment where they switch, so you can practise holding the line.",
+const NEXT: Record<Conversation, string | null> = {
+  UNDERSTOOD: null,
+  STUCK: "Running out of words costs nothing in a rehearsal, and somebody there is waiting for you to find them.",
+  SWITCHED: "They can switch to English in there too, so you can practise coming back.",
 };

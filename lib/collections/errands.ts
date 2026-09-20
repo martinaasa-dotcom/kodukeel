@@ -146,8 +146,15 @@ export const ERRANDS: readonly Errand[] = [
  * claim they were understood, claim the other person switched, or answer "not
  * yesterday", which deletes the conversation from the one count this app says
  * it is measured by. It is a conversation, because they spoke.
+ *
+ * THE ORDER IS THE ONE THE ANSWERS ARE OFFERED IN, because `HOW_IT_WENT`
+ * reads it rather than keeping a second list. It runs from the conversation
+ * that needed nothing to the one the other person ended, which is how far the
+ * learner got rather than a ranking of them: `STUCK` sits in the middle
+ * because that is where it happened, and putting it last would read as the
+ * worst of the three when it is the one this app exists to say counts.
  */
-export const OUTCOMES = ["UNDERSTOOD", "SWITCHED", "STUCK", "BAILED"] as const;
+export const OUTCOMES = ["UNDERSTOOD", "STUCK", "SWITCHED", "BAILED"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
 export function outcomeFrom(value: unknown): Outcome | null {

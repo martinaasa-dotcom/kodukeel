@@ -33,12 +33,14 @@
   on. Offering the rehearsal before the door is the difference between a dare
   and a task.
 
-  SWITCHING TO ENGLISH STILL COUNTS, and saying so is the most useful sentence
-  in the letter. `isConversation` counts `SWITCHED` as a conversation that
-  happened, because it did: the learner opened their mouth and the other person
-  answered in English, which is a fact about the other person. Nearly everybody
-  who freezes at a counter is frightened of exactly that moment, and no other
-  app will tell them it is not a failure, because no other app is counting.
+  SWITCHING TO ENGLISH STILL COUNTS, AND SO DOES GETTING STUCK, and saying so
+  is the most useful sentence in the letter. `isConversation` counts both
+  `SWITCHED` and `STUCK` as a conversation that happened, because it did: the
+  learner opened their mouth, and whether the other person answered in English
+  or the words ran out partway is a fact about the moment rather than about
+  whether they spoke. Nearly everybody who freezes at a counter is frightened
+  of exactly those two, and no other app will tell them either one is not a
+  failure, because no other app is counting.
 
   AND IT IS ASKED FOR, NEVER REPORTED ON. The letter does not say how many
   conversations they have had, or have not. That figure decides whether this is
@@ -136,15 +138,19 @@ export function errandLetter(input: ErrandInput): Letter {
     Under a rule, on its own, because it is the one thing here somebody might
     read twice. It is true of the data model rather than a kindness invented
     for the copy: `isConversation` counts a conversation the other person
-    switched out of, so a learner who says their line and gets English back has
-    added one to the number this app is measured by.
+    switched out of and one the learner got stuck in, so somebody who says
+    their line and gets English back, and somebody whose words run out
+    halfway, have each added one to the number this app is measured by. Both
+    are named, because the second is the commoner fear and was the one answer
+    the card could not take until `STUCK` existed.
   */
   blocks.push({ t: "rule" });
   blocks.push({
     t: "text",
     text:
-      "If they answer in English, that still counts here. You said it, and what they did next is " +
-      "about them. The only thing that does not count is not opening your mouth.",
+      "If they answer in English, that still counts here. So does running out of words halfway. " +
+      "You said it, and what happened after that is about the moment rather than about you. " +
+      "The only thing that does not count is not opening your mouth.",
   });
   blocks.push({
     t: "quiet",
