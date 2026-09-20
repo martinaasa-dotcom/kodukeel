@@ -83,6 +83,25 @@ export interface UnitSpec {
   /** Card types added when the whole unit goes into the deck. */
   cardTypes: readonly CardType[];
   words: readonly WordSpec[];
+  /**
+   * WHERE THE EVENINGS BREAK, WHERE ARITHMETIC WOULD BREAK THEM WRONG.
+   *
+   * `lib/course/build.ts` slices a unit evenly, which is right for a unit of
+   * twenty nouns and wrong for a unit whose words are one thing. `asesonad`
+   * is the six persons of the Estonian verb, and sliced by the five-word
+   * budget it came out as four and four: the module's second evening taught
+   * `mina, sina, tema, meie` under a heading promising I, you, he, we, you
+   * and they, so the screen named two pronouns the evening did not teach and
+   * a learner reported it. A paradigm is met whole or it is not met.
+   *
+   * So a unit may name its own evenings, as groups of its own lemmas in its
+   * own order. It is deliberately a partition rather than a hint: every word
+   * of the unit is in exactly one group, in the order the unit wrote them,
+   * and `syllabus.test.ts` fails on a group holding a word the unit does not
+   * teach, on a word left out, and on a group above `MAX_DAY_WORDS`. A unit
+   * that says nothing is sliced as before, which is nearly all of them.
+   */
+  evenings?: readonly (readonly string[])[];
   /** Unit ids that should be finished first. Empty means it opens immediately. */
   requires?: readonly string[];
 }

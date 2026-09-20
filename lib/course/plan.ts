@@ -228,7 +228,7 @@ export const PARTS: readonly PartSpec[] = [
     title: "Esimesed sõnad", subtitle: "Hello, I and you, to be, and who is in the room",
     blurb:
       "From nothing, in the order a sentence needs: five words on the first evening, the "
-      + "pronouns on the second, the verb to be and its six endings straight after. Then the "
+      + "six pronouns on the second, the verb to be and its six endings straight after. Then the "
       + "greetings, and the people around you. At the end you can say hello, say who you "
       + "are, and say who is in your family.",
     units: ["vastused", "asesonad", "esimesed-verbid", "tervitused", "inimesed"],
