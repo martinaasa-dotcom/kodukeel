@@ -131,7 +131,13 @@ export async function applyPatch(patch: Patch | null, reviewerId: string): Promi
       const next = examples.map((e) => {
         if (e.et.trim() !== patch.sentence.trim() || !e.en) return e;
         cleared = true;
-        return { ...e, en: null };
+        /*
+          And the decision is written down beside the blank. Null alone reads
+          as "nobody has answered yet", which is what the next seed and the
+          next render both act on, so the line came straight back from the
+          shipped table. `enRefused` is what tells the two apart.
+        */
+        return { ...e, en: null, enRefused: true };
       });
       if (!cleared) {
         return { ok: false, error: "That sentence has no English on it any more, so there is nothing to take off." };

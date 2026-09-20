@@ -75,7 +75,7 @@
  */
 import { prisma } from "../lib/db";
 import { acceptedAnswers } from "../lib/estonian/answer";
-import { retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
+import { refusedSentenceCards, retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
 import { borrowSentences } from "../lib/dict/borrow";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { parseExamples } from "../lib/dict/examples";
@@ -83,8 +83,9 @@ import { parseExamples } from "../lib/dict/examples";
 const write = process.argv.includes("--write");
 
 /** What the report prints for each fault, so a reader knows which they have. */
-const WHY: Record<Retirement["why"] | "prints-its-answer", string> = {
+const WHY: Record<Retirement["why"] | "prints-its-answer" | "refused-sentence", string> = {
   "prints-its-answer": "the answer is the word in the question",
+  "refused-sentence": "cut from a sentence somebody has read and refused",
   "wrong-local-set": "a being, asked for an inside case nobody says",
   "no-singular": "the word has no singular, so that form is another word's",
   "no-sentence": "a bare ask, and no recorded sentence uses the word in that case",
@@ -197,9 +198,41 @@ async function main() {
     owners.add(gone.ownerId);
   }
 
-  console.log(`Read ${cards.length} case cards.`);
+  /*
+    THE FOURTH RULE, AND THE ONLY ONE THAT IS NOT ABOUT A CASE.
+
+    A sentence in `lib/dict/refused.ts` is one somebody who speaks Estonian
+    has read and refused, and the gate at `parseExamples` keeps it off every
+    screen from the moment the line lands. It cannot reach a card already
+    built, which holds the front it was cut with, so the learner goes on being
+    asked to complete a line nothing else in the app will draw.
+
+    Its own query, because the three rules above are about `CASE_FORM` alone
+    and the card this was reported from is a gap-fill on the daily path. See
+    `refusedSentenceCards`.
+  */
+  const sentenceCards = await prisma.card.findMany({
+    where: { cardType: { in: ["CASE_FORM", "CLOZE", "CONJUGATION"] } },
+    select: {
+      id: true, ownerId: true, front: true, back: true, targetCase: true,
+      lexeme: { select: { lemma: true } },
+    },
+    orderBy: { id: "asc" },
+  });
+  for (const gone of refusedSentenceCards(sentenceCards)) {
+    condemn({
+      id: gone.id,
+      lemma: gone.lemma || gone.sentence,
+      back: gone.back,
+      targetCase: gone.targetCase,
+      why: "refused-sentence",
+    });
+    owners.add(gone.ownerId);
+  }
+
+  console.log(`Read ${cards.length} case cards and ${sentenceCards.length} cards cut from a sentence.`);
   if (doomed.length === 0) {
-    console.log("Every one of them asks a question its word can answer.");
+    console.log("Every one of them asks a question its word can answer, out of a sentence nobody has refused.");
     return;
   }
 

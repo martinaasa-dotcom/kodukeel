@@ -554,6 +554,16 @@ export async function translateExample(lexemeId: string, sentence: string) {
   const target = examples.find((e) => e.et === sentence);
   if (!target) return { ok: false as const, error: "That sentence is not on this word." };
   if (target.en) return { ok: true as const, en: target.en };
+  /*
+    And a line a reviewer took off as wrong is not asked for again. Without
+    this the blank they left is refilled by the next learner who opens the
+    entry, at the deployment's own expense, with the same kind of answer they
+    had just refused. `Example.enRefused` is the fact that tells the blank a
+    reviewer made apart from the blank nobody has filled yet.
+  */
+  if (target.enRefused) {
+    return { ok: false as const, error: "Somebody took the English off this one, so it is not asked again." };
+  }
 
   /*
     A paid call, so it is metered like every other one. The allowance can

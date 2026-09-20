@@ -20358,6 +20358,100 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
   );
 });
 
+/*
+  A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
+
+  `lib/dict/refused.ts` is where a person's judgement about an attested
+  sentence is kept, and it is worth exactly as much as the number of doors it
+  is asked at. Four of them, and each is a different way the sentence gets
+  back in front of a learner: the column every screen reads, a list built
+  fresh from a live Ekilex lookup, the seed that fills a new install, and the
+  harvest that rewrites the generated file. A refusal holding on three of the
+  four is the state this replaced.
+*/
+check("a refused sentence is refused at every door it could come back through", () => {
+  const examples = code("lib/dict/examples.ts");
+  assert.match(
+    examples,
+    /parseExamples[\s\S]{0,900}?\bisRefusedSentence\(/,
+    "lib/dict/examples.ts no longer refuses a refused sentence in parseExamples, which is the one "
+      + "reader of Lexeme.examples: the case walk, the grammar pages, the quest, the worksheet and "
+      + "the sprint all go through it and none of them through usableExamples",
+  );
+  assert.match(
+    examples,
+    /export function usableExamples[\s\S]{0,1200}?\bisRefusedSentence\(/,
+    "usableExamples no longer refuses one, so a list mapped straight out of a live Ekilex lookup "
+      + "never meets the refusal: lib/ekilex/mapper.ts builds fresh examples and never reads the column",
+  );
+  assert.match(
+    code("prisma/seed.ts"),
+    /\bisRefusedSentence\(/,
+    "the seed writes a refused sentence into a fresh install's database, so the dictionary entry "
+      + "prints it and every builder can borrow it before any gate is asked",
+  );
+  assert.match(
+    code("scripts/harvest-ekilex.ts"),
+    /\bisRefusedSentence\(/,
+    "the harvest writes a refused usage back into prisma/data/harvested.ts, so the next run of it "
+      + "hands the sentence back in the one file nobody re-reads",
+  );
+  assert.match(
+    code("scripts/lib/dictionary.ts"),
+    /\bisRefusedSentence\(/,
+    "the shipped-dictionary adapter still counts a refused usage, so every audit reports on a "
+      + "dictionary nobody has and translate:examples pays to translate a line no screen may draw",
+  );
+
+  /*
+    And the judgement stays a person's. A refusal is a sentence somebody read,
+    so the list may not grow a rule: a predicate over the corpus here would be
+    this app deciding what Estonian is, at a false-positive rate nothing has
+    measured, which is the fault the whole module argues against.
+  */
+  const refused = code("lib/dict/refused.ts");
+  assert.ok(
+    !/\bRegExp\b|\.test\(|\bmatch\(/.test(refused),
+    "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
+      + "made, not a filter over the corpus: a rule here withholds correct Estonian",
+  );
+});
+
+/*
+  AND AN ENGLISH LINE A REVIEWER TOOK OFF STAYS OFF.
+
+  `CLEAR_TRANSLATION` sets `en` back to null, and null alone cannot say which
+  of two facts it is: nobody has answered yet, and somebody answered and was
+  wrong, read identically. So the next seed refilled the line off the shipped
+  table and the next render asked a model for it again, and the reviewer's
+  decision was undone within a deploy across the whole deployment.
+*/
+check("a translation a reviewer refused is never filled in again", () => {
+  assert.match(
+    code("lib/suggestions/apply.ts"),
+    /CLEAR_TRANSLATION[\s\S]{0,1400}?enRefused: true/,
+    "CLEAR_TRANSLATION clears the line without writing down that it was refused, so the blank it "
+      + "leaves reads as one nobody has filled in yet",
+  );
+  assert.match(
+    code("lib/dict/examples.ts"),
+    /serialiseExamples[\s\S]{0,400}?enRefused/,
+    "serialiseExamples drops enRefused, so the reviewer's decision lives until the row is next written",
+  );
+  assert.match(
+    code("prisma/repair.ts"),
+    /fillExampleEnglish[\s\S]{0,900}?mayFillEnglish/,
+    "fillExampleEnglish reads the blank rather than asking mayFillEnglish, so the next seed puts the "
+      + "shipped line back over a translation somebody read and refused",
+  );
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1600}?enRefused/,
+    "translateExample asks a model to fill a blank a reviewer made, at the deployment's expense, "
+      + "with the same kind of answer they had just refused",
+  );
+});
+
 console.log(
   failures === 0
     ? `\nAll ${checks} invariants hold.`
