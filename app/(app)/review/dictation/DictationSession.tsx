@@ -425,7 +425,7 @@ export function DictationSession({ tasks: initialTasks }: { tasks: DictationTask
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span>{correct} word-perfect of {done} · graded word by word</span>
-        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
   );

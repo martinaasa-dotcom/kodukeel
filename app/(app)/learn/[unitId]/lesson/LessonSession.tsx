@@ -238,7 +238,7 @@ export function LessonSession({
         />
         )}
         <div className="flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
-          <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+          <LookBackButton {...look.button} disabled={look.looking} />
         </div>
         {aside && (
           <p className="text-center text-sm" role="status" style={{ color: "var(--ink-2)" }}>
