@@ -20,6 +20,14 @@ import { FOLD, fold } from "@/lib/estonian/fold";
 
 export type Verdict = "correct" | "diacritics" | "typo" | "wrong";
 
+/**
+ * How long a same-length, one-letter-substituted answer has to be before it
+ * is read as a slip of the hand rather than a different word. See the
+ * comment on the typo check itself for why a substitution needs a stricter
+ * floor than an insertion or a deletion does.
+ */
+const SUBSTITUTION_FLOOR = 6;
+
 export interface AnswerCheck {
   verdict: Verdict;
   /** The alternative the answer came closest to — what the UI should show. */
@@ -240,10 +248,27 @@ export function checkAnswer(
     }
   }
 
-  // A single slipped keystroke. Short words are excluded: at three letters,
-  // one edit is usually a different word rather than a mistyped one.
+  /*
+    A single slipped keystroke. Short words are excluded, and a substitution
+    is held to a stricter floor than an insertion or a deletion.
+
+    An inserted or dropped letter is a slip of the hand on any word long
+    enough to have one: "raamtu" for "raamatu", "tooas" for "toas". A
+    substituted one on a short word is often a different word entirely, and
+    Estonian's short grammatical words cluster tightly: "mina" (I) and "sina"
+    (you) are one swapped first letter apart and both are real, four-letter
+    words. Typing "sina" for "mina" was marked "So close, the word is mina."
+    and graded Hard, telling a learner who named the wrong person that they
+    had nearly named the right one. A same-length one-letter difference needs
+    SUBSTITUTION_FLOOR letters before it is read as a slip rather than as the
+    wrong word; a different-length one keeps the old floor, because an
+    inserted or dropped letter does not spell a coincidental second word the
+    way a swapped one does.
+  */
   for (const answer of answers) {
-    if (answer.compared.length >= 4 && editDistance(given, answer.compared, 1) <= 1) {
+    const sameLength = given.length === answer.compared.length;
+    const floor = sameLength ? SUBSTITUTION_FLOOR : 4;
+    if (answer.compared.length >= floor && editDistance(given, answer.compared, 1) <= 1) {
       return {
         verdict: "typo",
         expected: answer.shown,

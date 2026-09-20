@@ -78,6 +78,27 @@ describe("checkAnswer — Estonian", () => {
     expect(checkAnswer("kes", "kas").verdict).toBe("wrong");
   });
 
+  it("does not read a wrong pronoun as a typo of the right one", () => {
+    // `mina` (I) and `sina` (you) are one swapped first letter apart and
+    // both are real four-letter words. This was marked "typo" and graded
+    // Hard, which told a learner who named the wrong person that they had
+    // nearly named the right one.
+    const r = checkAnswer("sina", "mina");
+    expect(r.verdict).toBe("wrong");
+    expect(r.note).toContain("mina");
+    expect(r.suggestedRating).toBe(1);
+    expect(countsAsRecalled(r.verdict)).toBe(false);
+  });
+
+  it("still forgives a same-length substitution once the word is long enough", () => {
+    // "roamat" for "raamat" is a genuine slip of the hand on a longer word.
+    expect(checkAnswer("roamat", "raamat").verdict).toBe("typo");
+  });
+
+  it("still forgives an inserted letter on a short word", () => {
+    expect(checkAnswer("tooas", "toas").verdict).toBe("typo");
+  });
+
   it("marks a genuinely different word wrong, and says what was wanted", () => {
     const r = checkAnswer("arvutis", "toas");
     expect(r.verdict).toBe("wrong");
