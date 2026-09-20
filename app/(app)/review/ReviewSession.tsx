@@ -112,6 +112,14 @@ export interface ReviewCard {
      * `lib/dict/glossed.ts`.
      */
     tokens: GlossedToken[] | null;
+    /**
+     * The everyday spelling of a pronoun, where the word has one.
+     *
+     * `mina` and `ma` are one word twice: the card teaches the headword and
+     * every sentence under it says the other one. Read off the entry's own
+     * stored forms, never written (see `lib/estonian/pronouns.ts`).
+     */
+    alsoSaid: string | null;
     /** Whether this deployment has a model that could translate the whole line. */
     canTranslate: boolean;
     /**
@@ -276,6 +284,7 @@ function MeetWord({ card }: { card: ReviewCard }) {
       key={card.id}
       lemma={lemma}
       gloss={gloss}
+      alsoSaid={card.intro?.alsoSaid ?? null}
       equivalent={card.intro?.equivalent ?? null}
       sentence={card.intro?.sentence ?? null}
       tokens={card.intro?.tokens ?? null}

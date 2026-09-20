@@ -38,6 +38,56 @@ export function caseFromMorphCode(code: string | null | undefined): CaseKey | nu
   return CASE_BY_MORPH[code] ?? null;
 }
 
+/**
+ * The code off a form, whichever of the two shapes the row is in.
+ *
+ * A live Ekilex fetch puts it on `morphCode`; the seed writes the retrieved
+ * table under `formType` as `EKILEX:SgN`, with no `morphCode` at all
+ * (`prisma/seed.ts`). Every reader of a form list has had to know that, and
+ * `stemsFrom` says in its own comment why: different callers hold different
+ * mixtures of the two, and a reader that knows about one of them silently
+ * answers for half the dictionary. This is that reading, in the module that
+ * owns the codes.
+ *
+ * A `formType` that is not a retrieved code comes back as it is, so
+ * `GEN_SG` stays `GEN_SG` for the table below rather than being decoded into
+ * something it is not.
+ */
+export function morphCodeOf(form: {
+  formType?: string | null;
+  morphCode?: string | null;
+}): string | null {
+  if (form.morphCode) return form.morphCode;
+  const type = form.formType;
+  if (!type) return null;
+  return type.startsWith("EKILEX:") ? type.slice("EKILEX:".length) : type;
+}
+
+/**
+ * Ekilex's own code for a case, for a caller holding the case rather than the
+ * code: the search's suffix branch works out that `toas` is the seesütlev of
+ * `tuba` from the ending, and the panel under a sentence then needs the same
+ * form named. Read backwards off the table above rather than typed a second
+ * time, so the two halves cannot disagree about what `SgIn` is.
+ */
+const MORPH_BY_CASE: Record<string, { singular: string; plural: string }> = (() => {
+  const out: Record<string, { singular: string; plural: string }> = {};
+  for (const [code, key] of Object.entries(CASE_BY_MORPH)) {
+    // `SgAdt` is the short illative, which is a form of its own rather than
+    // the plain one: the first `Sg` code for a case is the plain one.
+    const slot = out[key] ?? (out[key] = { singular: "", plural: "" });
+    if (code.startsWith("Sg") && !slot.singular) slot.singular = code;
+    if (code.startsWith("Pl") && !slot.plural) slot.plural = code;
+  }
+  return out;
+})();
+
+export function morphCodeFor(key: CaseKey, plural = false): string | null {
+  const slot = MORPH_BY_CASE[key];
+  if (!slot) return null;
+  return (plural ? slot.plural : slot.singular) || null;
+}
+
 export type MorphNumber = "SINGULAR" | "PLURAL" | null;
 
 export function numberFromMorphCode(code: string | null | undefined): MorphNumber {
@@ -200,7 +250,18 @@ export function formName(form: {
   morphCode?: string | null;
   morphName?: string | null;
 }): FormName | null {
-  const code = form.morphCode;
+  /*
+    `morphCodeOf` rather than `form.morphCode`, and that is the whole of what
+    was wrong with this for as long as it has existed. The seed writes the
+    retrieved table under `formType` as `EKILEX:SgN` and no `morphCode`, so on
+    a seeded deployment — which is every deployment, for the 1,765 forms the
+    harvest stores because no rule reaches them — this fell past the code
+    branch, past the stored table, past `morphName`, and out of `formLabel`'s
+    last line as the bare code. A learner tapped `Ta` in a sentence and was
+    told it was the `SgN` of `tema`. The names were all here; nothing was
+    reading them.
+  */
+  const code = morphCodeOf(form);
   if (code) {
     const nonFinite = NON_FINITE_NAMES[code];
     if (nonFinite) return nonFinite;

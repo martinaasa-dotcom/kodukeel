@@ -2000,6 +2000,59 @@ check("the module that writes about Estonian holds no Estonian", () => {
  * the Institute says the word is and what the gloss says it means, both live
  * in the module that builds the row.
  */
+/*
+  WHAT A LEARNER TAPPED, IN ENGLISH, RATHER THAN THE CODE IT IS FILED UNDER.
+
+  A learner tapped `Ta` in `Ta armastab mind` and read `tema · SgN · he, she`:
+  the internal code, because `prisma/seed.ts` writes every retrieved form under
+  `formType` as `EKILEX:<code>` with no `morphCode`, and every name in
+  `lib/estonian/morph.ts` is keyed on the code. Three things had to be true for
+  that panel to be worth opening and none of them can be seen from one file.
+*/
+check("the word a learner taps is named and read rather than coded", () => {
+  /*
+    The naming table reads both shapes a row is in. Anchored on the call, since
+    the names were all there and nothing was reaching them: a check on the
+    table's contents passed the whole time the bug shipped.
+  */
+  assert.match(
+    code("lib/estonian/morph.ts"),
+    /const code = morphCodeOf\(form\);/,
+    "a form named from `morphCode` alone, which every seeded row leaves empty",
+  );
+  /*
+    And the panel is handed what the spelling *means* rather than only what it
+    is called: `readForm` for the phrase and for `plainAsk`'s clause where a
+    case is deliberately given no phrase, and `twinsOf`
+    for the pair `mina` and `ma`, which is the one thing about a pronoun a
+    beginner is never told.
+  */
+  const glossed = code("lib/dict/glossed.ts");
+  for (const [call, why] of [
+    ["readForm(", "the panel is back to printing the headword's whole gloss"],
+    ["twinsOf(", "the everyday spelling of a pronoun is unsaid again"],
+  ] as const) {
+    assert.ok(glossed.includes(call), why);
+  }
+  /*
+    Drawn, rather than composed and printed to nobody, which is
+    `DangerZone.tsx`'s fault in a smaller room. Anchored on the fields the
+    panel draws and on the spelling leading it, because the report was as much
+    about what was missing from the screen as about what was wrong on it: the
+    word that had been pressed was nowhere on the panel.
+  */
+  const panel = code("components/GlossedSentence.tsx");
+  for (const [drawn, why] of [
+    ["{spelling}", "the panel no longer shows the word that was pressed"],
+    ["{meaning}", "the panel no longer says what the spelling means here"],
+    ["entry.reading ?? entry.gloss", "the meaning drawn is no longer the reading"],
+    ["entry.alsoSaid && (", "the panel no longer teaches the pair"],
+    ["People usually say ", "the pair is drawn with nothing saying which is which"],
+  ] as const) {
+    assert.ok(panel.includes(drawn), why);
+  }
+});
+
 check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
   const table = "lib/estonian/caseReading.ts";
   assert.ok(existsSync(table), "the case readings have gone");
@@ -2020,9 +2073,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     "the frame table decides for itself which words are people",
   );
   /*
-    One reader, and it is the module that builds the row. A screen composing
-    its own would be a second answer to what an ending means in English, drawn
-    beside the first.
+    A CLOSED LIST OF READERS WITH A REASON APIECE, which is the shape
+    `CaseSpec.en` takes one module over. Two, and neither is a screen:
+    `caseBuild` builds the row `/grammar/build-a-word` draws, and `formReading`
+    is the same question asked about a spelling somebody tapped in a sentence
+    rather than one they just built. A third fails until somebody decides which
+    side of the line it is on, and a screen composing its own would be a second
+    answer to what an ending means in English, drawn beside the first.
   */
   const readers = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
@@ -2030,8 +2087,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     .filter((file) => /caseReading\(/.test(code(file)));
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts"],
+    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts"],
     "a second module composes what a word in a case means in English",
+  );
+  assert.deepEqual(
+    readers.filter((file) => !file.startsWith("lib/estonian/")),
+    [],
+    "a screen works out for itself what an ending means in English",
   );
   /*
     And the screen draws it, on the act that builds the word and on the act

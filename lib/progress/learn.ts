@@ -7,7 +7,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -123,6 +123,14 @@ export interface LearnWord {
    * `lib/dict/glossed.ts`.
    */
   tokens: GlossedToken[] | null;
+  /**
+   * The everyday spelling of a pronoun, where the word has one.
+   *
+   * `mina` and `ma` are one word twice: the ladder teaches the headword and
+   * every sentence under it says the other one. Read off the entry's own
+   * stored forms by `twinsOf`, never written (ADR-005).
+   */
+  alsoSaid: string | null;
   /** Whether this deployment has a model to ask for the whole line in English. */
   canTranslate: boolean;
   /**
@@ -553,6 +561,7 @@ export async function learnBatch(
       sentence,
       // Filled below, in one read for the whole batch rather than one a word.
       tokens: null as GlossedToken[] | null,
+      alsoSaid: null as string | null,
       canTranslate: resolveProvider() !== null,
       gap,
       choices: picked ? picked.options : null,
@@ -590,6 +599,17 @@ export async function learnBatch(
       if (word) word.tokens = glossed[i] ?? null;
     });
   }
+
+  /*
+    AND THE OTHER HALF OF A PRONOUN, WHICH IS NOT THE SAME QUESTION.
+
+    Outside the branch above on purpose: that one is the learner's answer about
+    underlines under a sentence, and the pair is part of what the word *is*.
+    `everydaySpellings` is a fact about the shared dictionary, so on a warm
+    instance this costs no query at all (see `lib/dict/facts.ts`).
+  */
+  const everyday = await everydaySpellings();
+  for (const word of words) word.alsoSaid = everyday.get(word.lemma) ?? null;
 
   return orderByRung(words, (word) => word.rung);
 }

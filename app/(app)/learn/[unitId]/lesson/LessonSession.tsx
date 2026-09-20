@@ -495,6 +495,7 @@ function StepCard({
           <WordIntro
             lemma={step.lemma}
             gloss={step.gloss}
+            alsoSaid={step.alsoSaid}
             equivalent={step.equivalent ?? null}
             sentence={step.example}
             tokens={tokens[step.id] ?? null}

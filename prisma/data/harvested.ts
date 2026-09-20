@@ -8084,7 +8084,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["метод"], ukr: ["метод"],
   },
   {
-    lemma: "meie", gloss: "we", pos: "PRONOUN", cefr: "A1",
+    lemma: "meie", gloss: "we, us", pos: "PRONOUN", cefr: "A1",
     ekilexWordId: 201604,
     ekilexPos: ["pron"],
     parts: {  },
@@ -8216,7 +8216,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["какой", "который"], ukr: ["який"],
   },
   {
-    lemma: "mina", gloss: "I", pos: "PRONOUN", cefr: "A1",
+    lemma: "mina", gloss: "I, me", pos: "PRONOUN", cefr: "A1",
     ekilexWordId: 1348787,
     ekilexPos: ["pron"],
     parts: { NOM_SG: "mina", GEN_SG: "minu", PART_SG: "mind", GEN_PL: "meie" },
@@ -9248,7 +9248,7 @@ export const HARVESTED: readonly HarvestedWord[] = [
     rus: ["четвёртый"], ukr: ["четвертий"],
   },
   {
-    lemma: "nemad", gloss: "they", pos: "PRONOUN", cefr: "A1",
+    lemma: "nemad", gloss: "they, them", pos: "PRONOUN", cefr: "A1",
     ekilexWordId: 207891,
     ekilexPos: ["pron"],
     parts: {  },
