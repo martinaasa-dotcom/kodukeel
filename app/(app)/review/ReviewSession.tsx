@@ -1710,7 +1710,7 @@ export function ReviewSession({
       <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-2xs" style={{ color: "var(--ink-3)" }}>
         <span className="flex items-center gap-1"><Check size={12} aria-hidden style={{ color: "var(--good-ink)" }} /> {correct} recalled</span>
         <span className="flex items-center gap-1"><RotateCcw size={12} aria-hidden /> {done} graded</span>
-        <LookBackButton {...look.button} disabled={busy || look.looking} keyHint={ask !== "type"} />
+        <LookBackButton {...look.button} disabled={busy || look.looking} />
         <button
           type="button"
           onClick={() => void undo()}

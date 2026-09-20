@@ -532,7 +532,7 @@ export function ConjugationSession({ questions: initialQuestions }: { questions:
           {tablesRight}/{index + (revealed ? 1 : 0)} tables clean
           {question.shape === "type" ? <> · {ADVANCE_KEY_LABEL} moves down the table</> : <> · tap a form to place it</>}
         </span>
-        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
   );
