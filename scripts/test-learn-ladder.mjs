@@ -147,23 +147,39 @@ const reportButton = () => page.locator("main").getByRole("button", { name: /I t
  * gap rung's plain-word screen names the meaning and never the lemma, so the
  * gloss is the only thing here that identifies the card without giving its
  * own answer away.
+ *
+ * BOTH FIXTURE WORDS ARE PUT AT THE FRONT OF THE QUEUE, NOT GUARANTEED TO BE
+ * THE ONLY THING IN IT. `learnBatch` tops its five-word room up with unseen
+ * ("meet" rung) words once state-1 ("started") cards run out, and this suite
+ * pads its own started count to five for exactly that reason. If a shared
+ * deck's own count still lets one in ahead of these two, whatever it is
+ * writes nothing on a first meeting (`met()` in `LearnSession.tsx`), so
+ * walking past it costs nothing to grade and nothing to restore. Bounded by
+ * the size of the whole batch, so a screen this does not recognise still
+ * fails rather than looping.
  */
 async function currentWord() {
-  // `eventually` polls a predicate for truthiness and hands back only a
-  // boolean, so the word itself is read again once it is known to be there
-  // rather than smuggled out of the predicate's return value.
-  const arrived = await eventually(async () => {
-    const text = await page.locator("main").innerText();
-    return text.includes(wordA.translation) || text.includes(wordB.translation);
-  }, { timeoutMs: 15_000 });
-  if (!arrived) {
-    throw new Error(
-      `neither fixture word ("${wordA.translation}" nor "${wordB.translation}") appeared on screen:\n` +
-      (await page.locator("main").innerText()).slice(0, 800),
-    );
+  for (let step = 0; step < LEARN_BATCH + 2; step += 1) {
+    // `eventually` polls a predicate for truthiness and hands back only a
+    // boolean, so the word itself is read again once it is known to be
+    // there rather than smuggled out of the predicate's return value.
+    const arrived = await eventually(async () => {
+      const text = await page.locator("main").innerText();
+      return text.includes(wordA.translation) || text.includes(wordB.translation);
+    }, { timeoutMs: 5_000 });
+    if (arrived) {
+      const text = await page.locator("main").innerText();
+      return text.includes(wordA.translation) ? wordA : wordB;
+    }
+    const advance = page.locator("main").getByRole("button", { name: /^(Got it|Ready|Continue)$/ });
+    if ((await advance.count()) === 0) break;
+    await advance.first().click();
+    await page.waitForTimeout(300);
   }
-  const text = await page.locator("main").innerText();
-  return text.includes(wordA.translation) ? wordA : wordB;
+  throw new Error(
+    `neither fixture word ("${wordA.translation}" nor "${wordB.translation}") appeared on screen at ${page.url()}:\n` +
+    (await page.locator("main").innerText()),
+  );
 }
 
 await page.goto(`${B}/learn/new`, { waitUntil: "load" });
