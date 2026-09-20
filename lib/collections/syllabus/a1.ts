@@ -129,8 +129,16 @@ export const A1 = [
       THE ENDINGS, ON THE THIRD AND FOURTH EVENINGS, WITH THE PRONOUNS STILL
       WARM. `olema` first because it is the verb every sentence in A1 is built
       on and the one the rule does not reach (`olen, oled, on`), then seven
-      regular verbs whose whole table is the six endings on a stem: `-n, -d,
-      -b, -me, -te, -vad`. Eight verbs is two evenings, and both are the
+      more whose table is the same six endings every time: `-n, -d, -b, -me,
+      -te, -vad`. What is not the same every time is the stem they go on, and
+      four of the seven do not hand it over: `õppima : õpin`, `rääkima :
+      räägin` and `tahtma : tahan` gradate on the way to it, and `minema :
+      lähen` is not the same word twice. That is the lesson rather than an
+      exception to it, and it is why the dictionary stores a verb's first
+      person and `lib/estonian/conjugate.ts` derives the other five off that
+      rather than off the infinitive. The blurb says so, because a learner who
+      reads "six endings on one stem" and reasons from the infinitive writes
+      `rääkin`. Eight verbs is two evenings, and both are the
       conjugation drill in its matching shape, where the six forms are on the
       screen and the learner puts each beside its pronoun, before anybody is
       asked to type one.
@@ -145,9 +153,8 @@ export const A1 = [
       anyway, and that is the argument rather than the excuse: `see` and `too`
       are useless without a verb, and `See on raamat` is the first sentence
       anybody says in this language. So the first evening is the verb to be
-      and the two things you point at with it, and the second is the five
-      regular verbs, declared rather than sliced so the three cannot come
-      apart again.
+      and the two things you point at with it, and the second is the other
+      five, declared rather than sliced so the three cannot come apart again.
     */
     id: "esimesed-verbid",
     title: "Esimesed verbid",
@@ -156,7 +163,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Say I am, you are and this is, and put a simple verb with each of the six pronouns.",
-    blurb: "The verb to be, the two words you point with, and seven verbs whose whole table is six endings on one stem.",
+    blurb: "The verb to be, the two words you point with, and seven more. The six endings never change; which stem they go on is what you learn per verb.",
     grammar: ["olema", "present-tense"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
     requires: ["asesonad"],

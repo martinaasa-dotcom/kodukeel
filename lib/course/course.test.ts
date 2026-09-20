@@ -14,6 +14,7 @@ import {
 } from "./index";
 import { readFileSync } from "node:fs";
 import { cardWithin, moduleScopeFrom, slotWithin } from "./scope";
+import { evenings } from "./build";
 import { emojiFor } from "@/lib/collections/emoji";
 
 /**
@@ -65,6 +66,57 @@ describe("the programme is a request against the course, never a copy of it", ()
         }
       }
     }
+  });
+
+  /*
+    THE DEGRADATION BRANCH, WHICH NO SHIPPED UNIT REACHES.
+
+    `evenings()` intersects a declared group with the words still to teach,
+    because a lemma an earlier unit of the part already taught is dropped
+    before the builder gets here. Nothing in the course exercises that today:
+    the two units that declare their evenings own every word they name. So
+    it is the branch that rots, and it is the one where getting it wrong puts
+    a word on a screen twice or leaves an evening blank. Driven directly, on
+    a real unit, rather than waited for.
+  */
+  describe("a unit's declared evenings, against the words still to teach", () => {
+    const pronouns = unitById("asesonad")!;
+    const verbs = unitById("esimesed-verbid")!;
+
+    it("uses the declaration when every word is still to teach", () => {
+      expect(evenings(verbs, verbs.lemmas, 5)).toEqual([
+        ["olema", "see", "too", "elama", "õppima"],
+        ["rääkima", "töötama", "tahtma", "minema", "tulema"],
+      ]);
+    });
+
+    it("drops a word an earlier unit already taught, and the group with it", () => {
+      const left = verbs.lemmas.filter((l) => l !== "see" && l !== "too");
+      expect(evenings(verbs, left, 5)).toEqual([
+        ["olema", "elama", "õppima"],
+        ["rääkima", "töötama", "tahtma", "minema", "tulema"],
+      ]);
+      const only = evenings(verbs, ["rääkima", "töötama"], 5);
+      expect(only, "an emptied group is dropped rather than drawn blank")
+        .toEqual([["rääkima", "töötama"]]);
+    });
+
+    it("never puts a word on two evenings, whatever it is handed", () => {
+      for (const words of [verbs.lemmas, verbs.lemmas.slice(3), pronouns.lemmas]) {
+        const unit = words === pronouns.lemmas ? pronouns : verbs;
+        const flat = evenings(unit, words, 5).flat();
+        expect(new Set(flat).size).toBe(flat.length);
+        expect([...flat].sort()).toEqual([...words].sort());
+      }
+    });
+
+    it("falls back to the even slice for a unit that declares nothing", () => {
+      const plain = unitById("inimesed")!;
+      expect(plain.evenings).toBeUndefined();
+      const got = evenings(plain, plain.lemmas, 5);
+      expect(got.flat()).toEqual(plain.lemmas);
+      for (const group of got) expect(group.length).toBeLessThanOrEqual(5);
+    });
   });
 
   /*
