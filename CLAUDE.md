@@ -3649,6 +3649,25 @@ question **before** `checkAnswer`'s typo rule rather than after: `toas` and `toa
 keystroke apart and so are `toale` and `toalt`, so the ordinary reading would have told a learner
 who chose the seestütlev that they had mistyped the seesütlev, and marked the answer as recalled.
 
+**And the typo rule itself could mark a completely different, correctly spelled word as a slip,
+whenever the two happened to be one letter apart.** It forgave any one-letter difference once the
+answer was four characters or longer, and never asked whether the changed letter had landed on
+somebody else's word rather than on a slip of the hand. `mina` (I) and `sina` (you) are one swapped
+first letter apart and both real, so typing `sina` for I was marked "That is it. So close, the word
+is mina.", graded Hard, and logged in the append-only review history as a recall of the wrong
+pronoun. It was reported off exactly that card.
+
+`npm run measure:typo-collisions` is the reading now, over the same corpus `answer.test.ts` already
+reads: every pair of accepted answers of one length that are one substitution apart. Four letters
+holds the worst of it by an order of magnitude, 2,295 such pairs, and five, six and seven letters
+stay in the same range as each other, 187, 149, 136, `istuma` and `astuma`, `hammas` and `lammas`,
+`ehitama` and `esitama`. Eight letters is where the count first drops by more than three times, to
+43, so a same-length substitution needs eight letters before it is read as a slip rather than as the
+wrong word; a letter inserted or dropped keeps the old floor of four, because it does not spell a
+coincidental second word the way a swapped one does. Eight is safer rather than safe: `valutama`
+and `valetama` are both real Estonian verbs at exactly that length, and a length floor can only push
+the risk down to where it stops being the common case, not remove it.
+
 **Two faults in it were invisible to every unit test and turned up in the first rounds anybody
 drove**, which is the argument for `scripts/test-flash.mjs` rather than for more unit tests. The
 page took the first open slot and `CASES` is in the traditional order, so the first real round

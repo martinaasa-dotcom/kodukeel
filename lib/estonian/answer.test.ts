@@ -90,9 +90,20 @@ describe("checkAnswer — Estonian", () => {
     expect(countsAsRecalled(r.verdict)).toBe(false);
   });
 
+  it("does not read one real word as a typo of another past the pronouns either", () => {
+    // "istuma" (to sit) and "astuma" (to step) are one swapped first letter
+    // apart, both real six-letter verbs a learner meets early on.
+    expect(checkAnswer("astuma", "istuma").verdict).toBe("wrong");
+    // "ehitama" (to build) and "esitama" (to present) are the same shape at
+    // seven letters, which is still inside the measured danger range.
+    expect(checkAnswer("esitama", "ehitama").verdict).toBe("wrong");
+  });
+
   it("still forgives a same-length substitution once the word is long enough", () => {
-    // "roamat" for "raamat" is a genuine slip of the hand on a longer word.
-    expect(checkAnswer("roamat", "raamat").verdict).toBe("typo");
+    // "kasjtama" for "kasutama" is a genuine slip of the hand at exactly the
+    // floor, eight letters, where a coincidental second word stops being
+    // the common case.
+    expect(checkAnswer("kasjtama", "kasutama").verdict).toBe("typo");
   });
 
   it("still forgives an inserted letter on a short word", () => {
