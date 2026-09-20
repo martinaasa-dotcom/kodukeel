@@ -1754,8 +1754,25 @@ check("a lesson at A1 asks only about words the course has taught", () => {
   const learn = code("lib/progress/learn.ts");
   assert.match(
     learn,
-    /readableFor\(level, taughtWords, "module"\)/,
+    /readableFor\(level, taughtWords, sentenceReader\)/,
     "the ladder's gap rung stopped asking which sentences the learner can read",
+  );
+  /*
+    AND WHICH READER IT IS COMES FROM THE CALLER, because two screens render
+    this one ladder and they are held differently. `/course/learn` is the
+    module choosing the evening, so it is held at every level; `/learn/new` is
+    the daily row somebody pressed, so it keeps the boundary the unit lesson
+    keeps and is held at A1 alone. The default is the module, since that was
+    the only caller handing words in when the option arrived, and a caller that
+    says nothing is therefore held more rather than less.
+  */
+  assert.match(
+    learn, /sentenceReader = "module"/,
+    "a caller that does not say who chose the screen is no longer held to the module's stricter rule",
+  );
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /sentenceReader: "lesson"/,
+    "standalone Learn claims the module's reader, which holds a B1 learner to A1's sentences",
   );
 
   /*
@@ -2000,6 +2017,59 @@ check("the module that writes about Estonian holds no Estonian", () => {
  * the Institute says the word is and what the gloss says it means, both live
  * in the module that builds the row.
  */
+/*
+  WHAT A LEARNER TAPPED, IN ENGLISH, RATHER THAN THE CODE IT IS FILED UNDER.
+
+  A learner tapped `Ta` in `Ta armastab mind` and read `tema · SgN · he, she`:
+  the internal code, because `prisma/seed.ts` writes every retrieved form under
+  `formType` as `EKILEX:<code>` with no `morphCode`, and every name in
+  `lib/estonian/morph.ts` is keyed on the code. Three things had to be true for
+  that panel to be worth opening and none of them can be seen from one file.
+*/
+check("the word a learner taps is named and read rather than coded", () => {
+  /*
+    The naming table reads both shapes a row is in. Anchored on the call, since
+    the names were all there and nothing was reaching them: a check on the
+    table's contents passed the whole time the bug shipped.
+  */
+  assert.match(
+    code("lib/estonian/morph.ts"),
+    /const code = morphCodeOf\(form\);/,
+    "a form named from `morphCode` alone, which every seeded row leaves empty",
+  );
+  /*
+    And the panel is handed what the spelling *means* rather than only what it
+    is called: `readForm` for the phrase and for `plainAsk`'s clause where a
+    case is deliberately given no phrase, and `twinsOf`
+    for the pair `mina` and `ma`, which is the one thing about a pronoun a
+    beginner is never told.
+  */
+  const glossed = code("lib/dict/glossed.ts");
+  for (const [call, why] of [
+    ["readForm(", "the panel is back to printing the headword's whole gloss"],
+    ["twinsOf(", "the everyday spelling of a pronoun is unsaid again"],
+  ] as const) {
+    assert.ok(glossed.includes(call), why);
+  }
+  /*
+    Drawn, rather than composed and printed to nobody, which is
+    `DangerZone.tsx`'s fault in a smaller room. Anchored on the fields the
+    panel draws and on the spelling leading it, because the report was as much
+    about what was missing from the screen as about what was wrong on it: the
+    word that had been pressed was nowhere on the panel.
+  */
+  const panel = code("components/GlossedSentence.tsx");
+  for (const [drawn, why] of [
+    ["{spelling}", "the panel no longer shows the word that was pressed"],
+    ["{meaning}", "the panel no longer says what the spelling means here"],
+    ["entry.reading ?? entry.gloss", "the meaning drawn is no longer the reading"],
+    ["entry.alsoSaid && (", "the panel no longer teaches the pair"],
+    ["People usually say ", "the pair is drawn with nothing saying which is which"],
+  ] as const) {
+    assert.ok(panel.includes(drawn), why);
+  }
+});
+
 check("a case reading is one table, holds no Estonian, and reaches the screen made", () => {
   const table = "lib/estonian/caseReading.ts";
   assert.ok(existsSync(table), "the case readings have gone");
@@ -2020,9 +2090,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     "the frame table decides for itself which words are people",
   );
   /*
-    One reader, and it is the module that builds the row. A screen composing
-    its own would be a second answer to what an ending means in English, drawn
-    beside the first.
+    A CLOSED LIST OF READERS WITH A REASON APIECE, which is the shape
+    `CaseSpec.en` takes one module over. Two, and neither is a screen:
+    `caseBuild` builds the row `/grammar/build-a-word` draws, and `formReading`
+    is the same question asked about a spelling somebody tapped in a sentence
+    rather than one they just built. A third fails until somebody decides which
+    side of the line it is on, and a screen composing its own would be a second
+    answer to what an ending means in English, drawn beside the first.
   */
   const readers = ["app", "lib", "components"]
     .flatMap((dir) => sourceFiles(dir))
@@ -2030,8 +2104,13 @@ check("a case reading is one table, holds no Estonian, and reaches the screen ma
     .filter((file) => /caseReading\(/.test(code(file)));
   assert.deepEqual(
     readers,
-    ["lib/estonian/caseBuild.ts"],
+    ["lib/estonian/caseBuild.ts", "lib/estonian/formReading.ts"],
     "a second module composes what a word in a case means in English",
+  );
+  assert.deepEqual(
+    readers.filter((file) => !file.startsWith("lib/estonian/")),
+    [],
+    "a screen works out for itself what an ending means in English",
   );
   /*
     And the screen draws it, on the act that builds the word and on the act
@@ -7097,6 +7176,22 @@ check("the dictionary under a sentence is the learner's to refuse", () => {
       between.slice(between.indexOf("\n")), /SETTING_KEYS\.wordGloss/,
       "what the composer is told the learner said is now decided by a preference about underlines",
     );
+
+    /*
+      AND WHAT IT IS TOLD IS WHAT THE SPELLING MEANS, NOT WHAT THE HEADWORD
+      MEANS.
+
+      The reading that goes to the judge and the composer was the first sense
+      of the entry's gloss, so `mind` was handed over as "I", which is the
+      wrong half of the word and is the fault `formReading` was written to fix
+      one screen over. The token already carries the reading, so this is the
+      same call and usually fewer tokens; what it costs if it goes back is a
+      model answering a turn it has been told the opposite of.
+    */
+    assert.match(
+      route.slice(reading), /entry\.reading \?\?/,
+      "the scene route is telling the model the headword's gloss again rather than what this form means",
+    );
   }
 
   /*
@@ -7245,14 +7340,47 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   const sources = code("lib/srs/sources.ts");
   assert.match(sources, /export const CARD_SOURCES/, "the closed list of card sources has gone");
   assert.match(sources, /export const YOUR_OWN_SOURCES/, "nothing says which sources are the learner's own");
+  /*
+    READ INSIDE THE DECLARATION RATHER THAN FROM ITS NAME ONWARDS. Written as
+    "`YOUR_OWN_SOURCES`, then anything, then `"SCENE"`, then the end of a list",
+    this ran past the end of its own array and matched the *next* list in the
+    file: `APP_CHOSE` names SCENE on purpose, and the check failed on a line
+    that was saying the opposite of what it was accused of. A list is bounded
+    by its own brackets.
+  */
+  const listOf = (name: string): string => {
+    const found = sources.match(new RegExp(`export const ${name} = \\[([\\s\\S]*?)\\] as const`));
+    assert.ok(found, `${name} is not a list this check can read`);
+    return found![1]!;
+  };
+  const own = listOf("YOUR_OWN_SOURCES");
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"DICTIONARY"[\s\S]*?\] as const satisfies/,
+    own, /"DICTIONARY"/,
     "DICTIONARY is claimed as a lookup, which files every existing deck's course words in that round",
   );
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"SCENE"[\s\S]*?\] as const satisfies/,
+    own, /"SCENE"/,
     "a scene's words are the course's, and a scene names unit ids rather than words",
   );
+  /*
+    AND THE OTHER READING OF THE SAME COLUMN CLAIMS LESS IN THE OTHER
+    DIRECTION. `APP_CHOSE` is what the module's gate on the daily review
+    withholds, so a source it names is a word never introduced until the course
+    reaches it: `DICTIONARY` cannot say whose idea a word was, and guessing
+    wrong there costs somebody the word they went and looked up. The two lists
+    may not overlap, or one column would answer two ways about one card.
+  */
+  const chosen = listOf("APP_CHOSE");
+  assert.doesNotMatch(
+    chosen, /"DICTIONARY"/,
+    "APP_CHOSE claims DICTIONARY, so the daily review withholds words a learner may well have gone and got",
+  );
+  for (const value of [...own.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!)) {
+    assert.doesNotMatch(
+      chosen, new RegExp(`"${value}"`),
+      `${value} is on both lists, so one column answers two ways about one card`,
+    );
+  }
 
   /*
     Every source literal in the tree is one the table names, and the table is
@@ -16065,6 +16193,49 @@ check("a conversation is counted by the one rule, never by counting rows", () =>
   writing a unit's name against a conversation with a neighbor would put it
   on a row no unit earned.
 */
+/*
+  THE CARD CONGRATULATES BEFORE IT MARKS, AND ASKS HOW IT WENT OFF ONE LIST.
+
+  Speaking Estonian to a stranger is the hard part and the card used to go
+  straight past it to a row of answers that asked whether anything was said
+  and how it went at the same time. The learner who spoke and ran out of words
+  had nowhere honest to put that: claim they were understood, claim the other
+  person switched, or answer "not yesterday", which deletes the conversation
+  from the one count this app says it is measured by (ADR-027 amendment 2).
+
+  Two halves, because either alone passes on the broken shape. The answers to
+  "how did it go" come off `HOW_IT_WENT`, which is `isConversation` over the
+  outcome list, so a further answer that is a conversation reaches the card by
+  existing rather than by somebody remembering two files; and nothing is
+  written on the first press, since reading a bare yes as `UNDERSTOOD` would
+  count an abandoned half-answer as a conversation nobody switched out of,
+  which biases the switch rate in the direction that flatters. Anchored on the
+  call rather than on today's markup, and read through `code()`, because the
+  comment above each of them names what it is for.
+*/
+check("the out-there card asks how it went off one list, and writes nothing until it is answered", () => {
+  const source = code("components/SayItToday.tsx");
+  assert.match(
+    source, /HOW_IT_WENT\.map\(/,
+    "components/SayItToday.tsx types its own list of how a conversation went, so a fourth answer never reaches Today",
+  );
+  const errands = code("lib/collections/errands.ts");
+  assert.match(
+    errands, /HOW_IT_WENT[^=]*=\s*OUTCOMES\.filter\(isConversation\)/,
+    "lib/collections/errands.ts writes out which answers are a conversation instead of asking isConversation",
+  );
+  /*
+    The only outcomes the card may record are the ones a learner pressed a
+    labelled answer for. A bare "yes" that recorded UNDERSTOOD would satisfy
+    every other check here and quietly overstate the thing being measured.
+  */
+  const recorded = [...source.matchAll(/report\("([A-Z]+)"\)/g)].map((m) => m[1]);
+  assert.deepEqual(
+    recorded, ["BAILED"],
+    `components/SayItToday.tsx records ${recorded.join(", ")} without asking; only the no is answered in one press`,
+  );
+});
+
 check("Today's report names no errand, and the research table files a conversation under no unit", () => {
   assert.match(
     code("components/SayItToday.tsx"), /recordEncounter\(\s*null\s*,/,
@@ -18010,6 +18181,216 @@ check("every round a rotation can deal reads the module's scope off its address"
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
   assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+});
+
+/*
+  AND THE DAILY REVIEW IS HELD TO THE MODULE TOO, WITHOUT BEING OPENED BY IT.
+
+  The check above is about a screen the module *opened*, which is all an
+  address can say. `/review` is reached from Today, from the rail and from a
+  card reading "6 due", and it teaches: the trickle of unseen cards beside what
+  is due is the app choosing the next thing somebody meets. Held to nothing, it
+  chose `Olen ______ nõus.` for a learner on the second evening of A1, a gap
+  whose sentence holds two words the course had not reached, on a word whose
+  own unit refuses gap-fills outright. It was reported from exactly there.
+
+  Three arms, because each alone passes on the broken shape. The page has to
+  read the learner's own standing (`learnerModuleScope`) and not only the
+  address; the new-card window has to be narrowed by whatever that returns
+  rather than by the module-opened scope; and the cards it is about to
+  introduce have to go through `cardWithin` against it, which is the half that
+  catches a gap whose sentence is untaught on a word that is.
+
+  WHAT IS DUE IS NOT ON THIS LIST AND MAY NOT JOIN IT. A card already answered
+  has a schedule and FSRS decides when it comes back; holding one out because
+  the module has not caught up would be this app overwriting a schedule it
+  presents as the scheduler's (ADR-014, ADR-016). Only a new card is the app
+  teaching something.
+*/
+check("the daily review introduces nothing the module has not taught", () => {
+  const page = code("app/(app)/review/page.tsx");
+  assert.match(
+    page, /learnerModuleScope\(/,
+    "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
+  );
+  assert.match(
+    page, /scope \? Promise\.resolve\(scope\) : learnerModuleScope\(/,
+    "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
+  );
+  /*
+    And it is in flight beside the due read rather than awaited in front of
+    it: resolving the standing is two reads deep, and this is the page whose
+    daily job is to open fast.
+  */
+  assert.match(
+    page, /const \[taught, due,/,
+    "the module standing is resolved before the due list rather than beside it, which costs the daily path two round trips",
+  );
+  assert.match(
+    page, /taught\?\.lemmas|taught\.lemmas/,
+    "the new-card window stopped being narrowed to what the module has taught",
+  );
+  assert.match(
+    page, /cardWithin\(taught,/,
+    "a card about to be introduced is no longer asked whether the module has taught what it is made of",
+  );
+  // And the due list is still the scheduler's: gated on the module-opened
+  // scope alone, never on the standing.
+  assert.match(
+    page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
+    "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+  );
+});
+
+/*
+  AND THE OTHER DAILY DOOR IS HELD THE SAME WAY.
+
+  The rail's daily row opens Learn, and the ladder answered "teach me
+  something next" off the whole deck: first run builds a starter deck of three
+  units, so a learner on the second evening of A1 could be handed a word from
+  the third. It is the review queue's fault one screen over, and the fix is the
+  same shape — the module's taught list, with the learner's own words beside
+  it, narrowing the *unseen* read alone.
+
+  THE STARTED READ MAY NEVER BE NARROWED, and that is the arm worth keeping: a
+  word part way up the ladder comes back whatever taught it, or Learn becomes a
+  place words go in and never come out of, which is the promise `learnBatch`'s
+  own header makes. `learnWithin` therefore reaches `introducible`, which only
+  the `state: 0` read spreads.
+
+  And the count on the button that opens the round reads the same narrowing,
+  because a card promising twelve words waiting over a round that then serves
+  none reads as a counting fault rather than as a rule.
+*/
+check("the Learn ladder introduces nothing the module has not taught", () => {
+  const learn = code("lib/progress/learn.ts");
+  assert.match(learn, /function learnWithin\(/, "the ladder has no one narrowing for what it may introduce");
+  assert.match(
+    learn, /const introducible = !only && within \? learnWithin\(within\) : \{\}/,
+    "the ladder's narrowing is gone, or now applies where a caller already named an exact list",
+  );
+  /*
+    The started read takes `scope` and not `introducible`. Anchored on the two
+    reads rather than on a count, because adding it to the started one is the
+    silent regression: the learner keeps meeting words and never finishes one.
+  */
+  const started = learn.slice(learn.indexOf("cardType: LADDER_CARD_TYPE, state: 1"));
+  assert.doesNotMatch(
+    started.slice(0, 200), /introducible/,
+    "a word part way up the ladder is being held back by the module, which strands it mid-word",
+  );
+  for (const page of ["app/(app)/learn/new/page.tsx", "app/(app)/learn/page.tsx"]) {
+    assert.match(
+      code(page), /learnerModuleScope\(/,
+      `${page} offers the ladder without asking where the module has taken the learner`,
+    );
+  }
+  assert.match(
+    code("app/(app)/learn/new/page.tsx"), /within,/,
+    "the Learn round reads the module standing and does not narrow itself by it",
+  );
+  assert.match(
+    code("app/(app)/learn/page.tsx"), /learnCounts\(ownerId, undefined, taught\?\.lemmas/,
+    "the count on the button that opens the round is wider than the round itself",
+  );
+});
+
+/*
+  AND NO DOOR BUILDS A CARD TYPE THE COURSE REFUSED.
+
+  A unit's `cardTypes` is its author saying what a word is worth drilling, and
+  it is a decision as often as a default: `asesonad` asks for no case because a
+  pronoun's everyday case forms are the short ones, and no A1 unit asks for a
+  gap at all because at A1 the sentence around the gap is one the learner
+  cannot read (`syllabus.test.ts`). Every builder honors it by being handed the
+  unit's own list. `backfillClozeCards` is the one door with no unit in its
+  hands: it adds a gap-fill to a word already in the deck once Ekilex has sent
+  sentences, on a dictionary page *render*, and it decided for itself that a
+  word with sentences wants one.
+
+  Read through `code()`, because the header above that function quotes the
+  rule it exists to keep and a check that matched the prose would pass with
+  the guard deleted, which is this repository's oldest recurring mistake in
+  its own checks.
+*/
+/*
+  A `where` MAY NOT SPREAD TWO `OR`s, BECAUSE THE SECOND DELETES THE FIRST.
+
+  `pastTheLadder` and `notOnLadder` both return a bare `{ OR: [...] }`, which
+  is how a caller says "this word is past the Learn ladder" in one spread.
+  Spread a second `{ OR }` into the same object literal and the later key wins,
+  silently: the guard goes, and with it the promise that a word's case card is
+  never somebody's first sight of it — `neljaks` before `neli` had been shown.
+
+  It happened here the day the module's gate was added to the review queue, in
+  two reads, and every check in the repository stayed green: the shape it
+  breaks needs a deck holding an unseen card of a word still on the ladder, and
+  no fixture has one at the moment those queries run. So it is asked of the
+  source, which is the only place the collision is visible at all.
+
+  The enclosing object is walked by its own braces rather than by a line count,
+  and `AND: [pastTheLadder(...), { OR: ... }]` is the shape that passes, since
+  there the two are separate objects.
+*/
+check("no query spreads a second OR over the Learn-ladder guard", () => {
+  const helpers = /\.\.\.(pastTheLadder|notOnLadder)\(/g;
+  let looked = 0;
+  for (const file of [...sourceFiles("app"), ...sourceFiles("lib")]) {
+    const src = code(file);
+    for (const hit of [...src.matchAll(helpers)]) {
+      looked += 1;
+      // Walk back to the `{` that opens the object this spread is in, then
+      // forward to its `}`, counting depth so nested objects are skipped.
+      let depth = 0;
+      let open = hit.index!;
+      while (open > 0) {
+        const ch = src[open]!;
+        if (ch === "}") depth += 1;
+        else if (ch === "{") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        open -= 1;
+      }
+      depth = 0;
+      let close = open + 1;
+      while (close < src.length) {
+        const ch = src[close]!;
+        if (ch === "{") depth += 1;
+        else if (ch === "}") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        close += 1;
+      }
+      // Every key at this object's own depth, which is where a clash lives.
+      depth = 0;
+      let ownLevel = "";
+      for (let i = open + 1; i < close; i += 1) {
+        const ch = src[i]!;
+        if (ch === "{" || ch === "[") depth += 1;
+        else if (ch === "}" || ch === "]") depth -= 1;
+        else if (depth === 0) ownLevel += ch;
+      }
+      assert.doesNotMatch(
+        ownLevel, /(^|[\s,])OR\s*:/,
+        `${file} spreads the Learn-ladder guard beside its own OR, which deletes the guard; put both under AND`,
+      );
+    }
+  }
+  assert.ok(looked >= 4, `only ${looked} uses of the ladder guard were found; the sweep is not reading the tree`);
+});
+
+check("the gap-fill backfill asks whether the course wanted one", () => {
+  const src = code("lib/srs/backfill.ts");
+  assert.match(
+    src, /courseAsksFor\(/,
+    "backfillClozeCards writes a gap-fill without asking whether the word's own unit asked for one",
+  );
+  assert.match(
+    src, /if \(!courseAsksFor\([^)]*"CLOZE"\)\) return 0;/,
+    "the backfill reads the rule and does not act on it",
+  );
 });
 
 /*
@@ -20355,6 +20736,160 @@ check("the scheduled run is the only thing that sends, and it is gated", () => {
   assert.ok(
     vercel.crons?.some((c) => c.path === "/api/email/send"),
     "vercel.json no longer schedules the mail run, so nothing fires it",
+  );
+});
+
+/*
+  A SENTENCE SOMEBODY HAS REFUSED REACHES NO SCREEN, AND NO RUN PUTS IT BACK.
+
+  `lib/dict/refused.ts` is where a person's judgement about an attested
+  sentence is kept, and it is worth exactly as much as the number of doors it
+  is asked at. Four of them, and each is a different way the sentence gets
+  back in front of a learner: the column every screen reads, a list built
+  fresh from a live Ekilex lookup, the seed that fills a new install, and the
+  harvest that rewrites the generated file. A refusal holding on three of the
+  four is the state this replaced.
+*/
+check("a refused sentence is refused at every door it could come back through", () => {
+  const examples = code("lib/dict/examples.ts");
+  assert.match(
+    examples,
+    /parseExamples[\s\S]{0,900}?\bisRefusedSentence\(/,
+    "lib/dict/examples.ts no longer refuses a refused sentence in parseExamples, which is the one "
+      + "reader of Lexeme.examples: the case walk, the grammar pages, the quest, the worksheet and "
+      + "the sprint all go through it and none of them through usableExamples",
+  );
+  assert.match(
+    examples,
+    /export function usableExamples[\s\S]{0,1200}?\bisRefusedSentence\(/,
+    "usableExamples no longer refuses one, so a list mapped straight out of a live Ekilex lookup "
+      + "never meets the refusal: lib/ekilex/mapper.ts builds fresh examples and never reads the column",
+  );
+  assert.match(
+    code("prisma/seed.ts"),
+    /\bisRefusedSentence\(/,
+    "the seed writes a refused sentence into a fresh install's database, so the dictionary entry "
+      + "prints it and every builder can borrow it before any gate is asked",
+  );
+  assert.match(
+    code("scripts/harvest-ekilex.ts"),
+    /\bisRefusedSentence\(/,
+    "the harvest writes a refused usage back into prisma/data/harvested.ts, so the next run of it "
+      + "hands the sentence back in the one file nobody re-reads",
+  );
+  assert.match(
+    code("scripts/lib/dictionary.ts"),
+    /\bisRefusedSentence\(/,
+    "the shipped-dictionary adapter still counts a refused usage, so every audit reports on a "
+      + "dictionary nobody has and translate:examples pays to translate a line no screen may draw",
+  );
+
+  /*
+    And the judgement stays a person's. A refusal is a sentence somebody read,
+    so the list may not grow a rule: a predicate over the corpus here would be
+    this app deciding what Estonian is, at a false-positive rate nothing has
+    measured, which is the fault the whole module argues against.
+  */
+  const refused = code("lib/dict/refused.ts");
+  assert.ok(
+    !/\bRegExp\b|\.test\(|\.match\(/.test(refused),
+    "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
+      + "made, not a filter over the corpus: a rule here withholds correct Estonian",
+  );
+});
+
+/*
+  AND AN ENGLISH LINE A REVIEWER TOOK OFF STAYS OFF.
+
+  `CLEAR_TRANSLATION` sets `en` back to null, and null alone cannot say which
+  of two facts it is: nobody has answered yet, and somebody answered and was
+  wrong, read identically. So the next seed refilled the line off the shipped
+  table and the next render asked a model for it again, and the reviewer's
+  decision was undone within a deploy across the whole deployment.
+*/
+check("a translation a reviewer refused is never filled in again", () => {
+  assert.match(
+    code("lib/suggestions/apply.ts"),
+    /CLEAR_TRANSLATION[\s\S]{0,1400}?enRefused: true/,
+    "CLEAR_TRANSLATION clears the line without writing down that it was refused, so the blank it "
+      + "leaves reads as one nobody has filled in yet",
+  );
+  assert.match(
+    code("lib/dict/examples.ts"),
+    /serialiseExamples[\s\S]{0,400}?enRefused/,
+    "serialiseExamples drops enRefused, so the reviewer's decision lives until the row is next written",
+  );
+  assert.match(
+    code("prisma/repair.ts"),
+    /fillExampleEnglish[\s\S]{0,900}?mayFillEnglish/,
+    "fillExampleEnglish reads the blank rather than asking mayFillEnglish, so the next seed puts the "
+      + "shipped line back over a translation somebody read and refused",
+  );
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1600}?enRefused/,
+    "translateExample asks a model to fill a blank a reviewer made, at the deployment's expense, "
+      + "with the same kind of answer they had just refused",
+  );
+
+  /*
+    AND THE LEARNER IS NOT TOLD ABOUT IT. `SentenceTranslation` asks on
+    arrival, so a refusal returned as an ordinary error draws a line about a
+    reviewer's decision under somebody's card, mid-round, about a thing they
+    had no part in and can do nothing about. Both halves, because either alone
+    passes on the broken shape: the action has to say so, and the screen has
+    to read it and draw nothing, which is what it already does where the
+    deployment has no model at all.
+  */
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1800}?refused: true/,
+    "translateExample returns a refused line as an ordinary error, so the reviewer's sentence is "
+      + "printed under a learner's card",
+  );
+  const translation = code("components/SentenceTranslation.tsx");
+  assert.match(
+    translation,
+    /"refused" in result/,
+    "SentenceTranslation reads a refusal as an error, so it draws one under the sentence",
+  );
+  assert.match(
+    translation,
+    /\|\| refused\) return null/,
+    "SentenceTranslation goes on offering the button for a line a reviewer took off, so the learner "
+      + "presses it and is told about a decision that is not theirs",
+  );
+});
+
+/*
+  AND THE RUN THAT BUYS THE ENGLISH DOES NOT BUY A LINE NOBODY MAY READ.
+
+  `npm run translate:examples` reads `prisma/data/harvested.ts` and the
+  expansion off disk rather than through `scripts/lib/dictionary.ts`, so the
+  refusal did not reach it: a run paid a model for a refused sentence and
+  wrote the answer back into `prisma/data/example-english.json`, which is the
+  one file the refusal had just been taken out of. The unit suite catches the
+  result, after the call is bought and the file rewritten, which is the wrong
+  end to find it from.
+*/
+check("nothing pays a model to translate a sentence nobody may be shown", () => {
+  assert.match(
+    code("scripts/translate-examples.ts"),
+    /\bisRefusedSentence\(/,
+    "translate:examples builds its worklist without asking lib/dict/refused.ts, so a run pays for a "
+      + "refused sentence and writes the English back into the file it was taken out of",
+  );
+  /*
+    And the reason somebody wrote reaches a reader. `RefusedSentence.why` is
+    the whole argument for the list being entries rather than strings, and it
+    was stored and read by nothing: the audit printed the rule's own line,
+    which is the same sentence for every card the rule names.
+  */
+  assert.match(
+    code("scripts/audit-decks.ts"),
+    /\brefusalFor\(/,
+    "audit:decks names a card cut from a refused sentence without printing why it was refused, so "
+      + "the reason somebody wrote reaches nobody and refusalFor is a function nothing calls",
   );
 });
 

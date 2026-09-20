@@ -17,7 +17,8 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
 import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
+import { APP_CHOSE, isAppsChoice } from "@/lib/srs/sources";
 import {
   include, notOnLadder, pastTheLadder, withChoices, type CardRow,
 } from "./cards";
@@ -62,6 +63,44 @@ export default async function ReviewPage({
     the words the ladder has taught, and what is due is due whatever taught it.
   */
   const scope = moduleScopeFrom(params);
+  /*
+    AND THE DAILY PATH IS HELD TO THE MODULE TOO, WHICH IS WHAT NOBODY HAD
+    WRITTEN DOWN.
+
+    The rule above is about a screen the module opened, which the address can
+    say. This screen is opened from Today, from the rail and from a card
+    reading "6 due", and it teaches: the trickle of unseen cards beside what is
+    due is the app choosing the next thing somebody meets. Held to nothing, it
+    chose `Olen ______ nõus.` for a learner on the second evening of A1 — a gap
+    whose sentence holds two words the course had not reached, on a word whose
+    own unit had refused gap-fills outright. It was reported from exactly
+    there, and the operator's call is written down here so it is not
+    re-litigated: the planned module is the record of what somebody has been
+    taught, and nothing is introduced on the daily path ahead of it.
+
+    WHAT IS DUE IS STILL DUE WHATEVER TAUGHT IT. A card already answered has a
+    schedule, FSRS decides when it comes back, and holding one out because the
+    module has not caught up would be this app overwriting a schedule it
+    presents as the scheduler's. Only the new cards are gated, because only a
+    new card is the app teaching something.
+
+    And only over the app's own material. A word somebody looked up,
+    photographed or pasted in is theirs, and refusing to teach a word they went
+    and got would be the gate deciding something nobody asked it to. `APP_CHOSE`
+    rather than the complement of `YOUR_OWN_SOURCES`, for the reason written
+    beside it: `DICTIONARY` is a column that cannot say whose idea a word was,
+    and the cost of guessing wrong here is a word never taught.
+  */
+  /*
+    STARTED HERE AND AWAITED BELOW, because resolving it is two reads deep and
+    the biggest query on this page does not depend on it. `moduleReached` asks
+    the settings row and the level, and only then the ticks, so awaiting it
+    outright put two sequential round trips in front of the due list on the one
+    page whose daily job is to open fast. In flight beside the due read it
+    costs the page one round trip rather than two.
+  */
+  const taughtPromise = scope ? Promise.resolve(scope) : learnerModuleScope(ownerId);
+  const theirOwnToo = scope === null;
   const now = new Date();
 
   // Started here and awaited where it is read, so the one settings row rides
@@ -184,7 +223,8 @@ export default async function ReviewPage({
     either. The level read is the fourth because `atLevelFirst` needs it and
     neither of the queries does.
   */
-  const [due, freshPool, totalCards, level, mode] = await Promise.all([
+  const [taught, due, totalCards, level, mode] = await Promise.all([
+    taughtPromise,
     prisma.card.findMany({
       where: {
         ownerId, suspended: false, due: { lte: now }, state: { not: 0 },
@@ -217,33 +257,66 @@ export default async function ReviewPage({
       take: MAX_SESSION,
       include,
     }),
-    // Ordered by lexeme as well as by date so a word's cards stay together:
-    // they share one `createdAt`, so date alone leaves them tied and the take
-    // can interleave two words. `inTeachingOrder` then settles the order
-    // *within* a word, which is what stops a conjugation card being somebody's
-    // first sight of a verb.
-    prisma.card.findMany({
-      /*
-        `due` on an unseen card is the moment it was written, so this filter
-        changes nothing for anybody until they press "too complicated": that
-        is what a deferral moves, and without it a word put aside would be
-        introduced again on the next session (`lib/srs/defer.ts`).
-      */
-      where: {
-        ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId),
-        // Inside the module, only a word the module has taught: see above.
-        ...(scope ? { lexeme: { lemma: { in: [...scope.lemmas] } } } : {}),
-      },
-      // And the id here too: a word's cards tie on both of these, which is the
-      // very thing the comment above says they do.
-      orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
-      take: NEW_CANDIDATES,
-      include,
-    }),
     prisma.card.count({ where: { ownerId } }),
     courseLevelFor(ownerId),
     modeChosen(),
   ]);
+
+  /*
+    AND THE UNSEEN WINDOW AFTER THEM, because it is the one read on this page
+    that needs the module's answer: which words may be introduced is what it is
+    narrowed by. It used to ride beside the due read, and that round trip is
+    the price of the gate rather than an oversight. Everything else still goes
+    in one round, and the due list — which is most of a session — no longer
+    waits on the standing at all.
+  */
+  // Ordered by lexeme as well as by date so a word's cards stay together:
+  // they share one `createdAt`, so date alone leaves them tied and the take
+  // can interleave two words. `inTeachingOrder` then settles the order
+  // *within* a word, which is what stops a conjugation card being somebody's
+  // first sight of a verb.
+  const freshPool = await prisma.card.findMany({
+    /*
+      `due` on an unseen card is the moment it was written, so this filter
+      changes nothing for anybody until they press "too complicated": that
+      is what a deferral moves, and without it a word put aside would be
+      introduced again on the next session (`lib/srs/defer.ts`).
+    */
+    where: {
+      ownerId, suspended: false, state: 0, due: { lte: now },
+      /*
+        UNDER `AND`, BECAUSE `pastTheLadder` IS ITSELF AN `OR` AND A SECOND
+        ONE SPREAD BESIDE IT DELETES THE FIRST.
+
+        Two `...` of `{ OR }` into one object literal is the later key
+        winning, silently, and what it silently dropped here is the guard
+        that keeps a word's case card off the screen until its own
+        recognition card has graduated: `neljaks` before the learner had
+        ever been shown `neli`. Every check in the repository stayed green,
+        because the shape it breaks needs a deck holding an unseen card of a
+        word still on the ladder.
+      */
+      AND: [
+        pastTheLadder(ownerId),
+        // Only a word the module has taught: see above. Inside the module
+        // that is the whole of it; on the daily path the learner's own words
+        // are theirs and stand beside it.
+        ...(taught
+          ? [{
+              OR: [
+                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+                { lexeme: { lemma: { in: [...taught.lemmas] } } },
+              ],
+            }]
+          : []),
+      ],
+    },
+    // And the id here too: a word's cards tie on both of these, which is the
+    // very thing the comment above says they do.
+    orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
+    take: NEW_CANDIDATES,
+    include,
+  });
 
   /*
     A CARD NEVER ANSWERS THE CARD BEFORE IT.
@@ -269,14 +342,24 @@ export default async function ReviewPage({
     left in the queue for standalone review and the module's own round asks
     what the module has taught (`cardWithin`).
   */
-  const spellings = await moduleSpellings(scope);
+  const spellings = await moduleSpellings(taught);
   const within = (card: CardRow) => cardWithin(scope, card, spellings);
+  /*
+    The same question asked of a card about to be introduced. `within` is the
+    module's own round and reaches the due list as well; this one reaches the
+    new cards alone and is what the daily path is held to.
+  */
+  const introducible = (card: CardRow) =>
+    (theirOwnToo && !isAppsChoice(card.source)) || cardWithin(taught, card, spellings);
   const dueWithin = due.filter(within);
   const spaced = spaceSiblings(dueWithin, (card) => card.lexemeId);
 
   const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
-  const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
-  const fresh = atLevelFirst(unseen.filter(within), level, raised).slice(0, room);
+  const [unseen, raised] = await Promise.all([
+    inBandPool(ownerId, freshPool, level, room, taught?.lemmas ?? null, theirOwnToo),
+    hardWords(),
+  ]);
+  const fresh = atLevelFirst(unseen.filter(introducible), level, raised).slice(0, room);
   const gloss = await glossChosen();
   const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId, scope?.lemmas ?? null);
 
@@ -295,7 +378,18 @@ export default async function ReviewPage({
     would answer a question nobody is asking.
   */
   const caughtUp = cards.length === 0 && totalCards > 0;
-  const [next, clock] = caughtUp
+  /*
+    AND WHY THERE IS NOTHING, WHICH IS NOT ALWAYS THE CLOCK.
+
+    "Nothing due, you're caught up" over a date is the right answer when the
+    scheduler is what is holding everything, and the wrong one the moment the
+    module is: a learner whose deck holds unseen words the course has not
+    reached is not caught up, they are ahead of tonight's evening, and sending
+    them to Learn instead would hand them a round that is held back for the
+    same reason. One count, on the caught-up path alone, beside the two reads
+    that were already there.
+  */
+  const [next, clock, unseenAnywhere] = caughtUp
     ? await Promise.all([
         prisma.card.findFirst({
           where: { ownerId, suspended: false, due: { gt: now } },
@@ -303,8 +397,16 @@ export default async function ReviewPage({
           select: { due: true },
         }),
         learnerDayClock(ownerId),
+        taught
+          ? prisma.card.count({
+              where: {
+                ownerId, suspended: false, state: 0, due: { lte: now },
+                ...pastTheLadder(ownerId),
+              },
+            })
+          : Promise.resolve(0),
       ])
-    : [null, null];
+    : [null, null, 0];
 
   return (
     <ReviewSession
@@ -312,6 +414,7 @@ export default async function ReviewPage({
       totalCards={totalCards}
       mode={mode}
       nextDue={next && clock ? nextCardLine(next.due, now, clock) : null}
+      waitingOnCourse={unseenAnywhere > 0}
     />
   );
 }
@@ -346,6 +449,8 @@ async function inBandPool(
   ownerId: string, window: CardRow[], level: Level, room: number,
   /** The module's own taught list, so the wider read stays inside it too. */
   only: readonly string[] | null = null,
+  /** And the learner's own words beside it, on the daily path. See above. */
+  theirOwnToo = false,
 ): Promise<CardRow[]> {
   if (room === 0) return window;
   if (window.some((c) => isAround(c.lexeme?.cefr, level))) return window;
@@ -353,8 +458,19 @@ async function inBandPool(
   const inBand = await prisma.card.findMany({
     where: {
       ownerId, suspended: false, state: 0, due: { lte: new Date() },
-      ...pastTheLadder(ownerId),
-      lexeme: { cefr: { in: [...bandsAround(level)] }, ...(only ? { lemma: { in: [...only] } } : {}) },
+      lexeme: { cefr: { in: [...bandsAround(level)] } },
+      // `AND`, for the reason the new-card read above gives at length.
+      AND: [
+        pastTheLadder(ownerId),
+        ...(only
+          ? [{
+              OR: [
+                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+                { lexeme: { lemma: { in: [...only] } } },
+              ],
+            }]
+          : []),
+      ],
     },
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
     take: NEW_CANDIDATES,

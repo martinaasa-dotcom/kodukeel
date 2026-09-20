@@ -44,6 +44,8 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const asked = useRef(false);
+  /** A reviewer took this line off as wrong, so there is nothing on offer. */
+  const [refused, setRefused] = useState(false);
 
   const translate = () => {
     if (!lexemeId) return;
@@ -53,6 +55,15 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
       if (result.ok) {
         setGot(result.en);
         onTranslated?.(result.en);
+      } else if ("refused" in result && result.refused) {
+        /*
+          Somebody read this sentence's English and said it was wrong, so
+          there is nothing to offer and nothing to say about it: the button
+          goes, exactly as it does where the deployment has no model at all.
+          An error here would put a reviewer's decision under a learner's card
+          mid-round, about something they can do nothing about.
+        */
+        setRefused(true);
       } else setError(result.error);
     });
   };
@@ -80,7 +91,7 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
     );
   }
 
-  if (!canTranslate || !lexemeId) return null;
+  if (!canTranslate || !lexemeId || refused) return null;
 
   return (
     <>

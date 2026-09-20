@@ -2,6 +2,9 @@ import { caseFits, caseIsUnsaidFor, type CaseSubject } from "@/lib/estonian/case
 import { CASES } from "@/lib/estonian/cases";
 import type { CaseKey } from "@/lib/estonian/types";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "@/lib/srs/cards";
+import { BLANK } from "@/lib/estonian/cloze";
+import { PARTS } from "@/lib/copy/values";
+import { isRefusedSentence } from "@/lib/dict/refused";
 
 /**
  * THE CASE CARDS A DECK KEPT THAT ARE WRONG ABOUT ESTONIAN.
@@ -227,6 +230,71 @@ export function unsentencedCaseCards(cards: readonly BareCaseCard[]): Retirement
     if (cases.has(key)) continue;
 
     out.push({ id: card.id, ownerId: card.ownerId, lemma: card.lexeme.lemma, grammCase: key, why: "no-sentence" });
+  }
+  return out;
+}
+
+/**
+ * THE CARDS CUT OUT OF A SENTENCE SOMEBODY HAS SINCE REFUSED.
+ *
+ * `lib/dict/refused.ts` is where a person's judgement about an attested
+ * sentence is kept, and `parseExamples` is what makes one line there reach
+ * every screen at once. What it cannot reach is a card already in a deck: a
+ * `Card` row carries the front it was built with, so a gap cut from the
+ * sentence before the refusal comes back due for ever, and the learner is
+ * asked to complete a line no screen may draw. That is the same half-fix the
+ * three rules above this one exist for.
+ *
+ * THE TEST IS THE SENTENCE PUT BACK TOGETHER, which is what the review card
+ * and the daily quest already do to find a gap card's English: the front holds
+ * `BLANK` and the back holds the answer, so filling one with the other gives
+ * the line a lexicographer wrote. The back can hold two spellings, `tuppa /
+ * toasse`, and either may be the one the sentence carried, so both are tried.
+ *
+ * A card whose front holds no gap is left alone, because there is no sentence
+ * in it to reconstruct and the bare ask is the third rule's to name.
+ *
+ * THREE CARD TYPES, not one. `CASE_FORM`, `CLOZE` and `CONJUGATION` are the
+ * three the builder cuts out of a recorded sentence, and a rule that read only
+ * the first would leave the gap-fill card on the daily path standing, which is
+ * the card the fault was reported from.
+ */
+export interface SentenceFrontCard {
+  readonly id: string;
+  readonly ownerId: string;
+  readonly front: string;
+  readonly back: string;
+  readonly targetCase: string | null;
+  readonly lexeme: { readonly lemma: string } | null;
+}
+
+export interface RefusedCard {
+  readonly id: string;
+  readonly ownerId: string;
+  readonly lemma: string;
+  readonly targetCase: string | null;
+  readonly back: string;
+  /** The line the card was cut from, so the report names it. */
+  readonly sentence: string;
+}
+
+export function refusedSentenceCards(cards: readonly SentenceFrontCard[]): RefusedCard[] {
+  const out: RefusedCard[] = [];
+  for (const card of cards) {
+    if (!card.front.includes(BLANK)) continue;
+    for (const answer of card.back.split(PARTS)) {
+      const filled = card.front.replace(BLANK, answer.trim());
+      if (!isRefusedSentence(filled)) continue;
+      out.push({
+        id: card.id,
+        ownerId: card.ownerId,
+        lemma: card.lexeme?.lemma ?? "",
+        targetCase: card.targetCase,
+        back: card.back,
+        sentence: filled,
+      });
+      break;
+    }
   }
   return out;
 }

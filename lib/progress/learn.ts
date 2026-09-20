@@ -7,7 +7,7 @@ import { deferredWordIds } from "@/lib/progress/deferrals";
 import { offeredBand } from "@/lib/srs/defer";
 import type { Level } from "@/lib/collections/syllabus";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import { starredAmong } from "@/lib/progress/stars";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
@@ -17,7 +17,8 @@ import { glossSentences, type GlossedToken } from "@/lib/dict/glossed";
 import { isPhrase } from "@/lib/dict/pos";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { buildCloze, mentions, nominalOpener } from "@/lib/estonian/cloze";
-import { readableFor } from "@/lib/collections/levels";
+import { readableFor, type SentenceReader } from "@/lib/collections/levels";
+import { APP_CHOSE } from "@/lib/srs/sources";
 import { gapForms } from "@/lib/estonian/gapForms";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { explainForm, type WordRow } from "@/lib/assessment/items";
@@ -127,6 +128,14 @@ export interface LearnWord {
    * `lib/dict/glossed.ts`.
    */
   tokens: GlossedToken[] | null;
+  /**
+   * The everyday spelling of a pronoun, where the word has one.
+   *
+   * `mina` and `ma` are one word twice: the ladder teaches the headword and
+   * every sentence under it says the other one. Read off the entry's own
+   * stored forms by `twinsOf`, never written (ADR-005).
+   */
+  alsoSaid: string | null;
   /** Whether this deployment has a model to ask for the whole line in English. */
   canTranslate: boolean;
   /**
@@ -382,6 +391,31 @@ function sentenceAndGap(
  */
 export type LearnKind = "word" | "phrase";
 
+/**
+ * THE ONE NARROWING FOR "A WORD THE MODULE HAS TAUGHT, OR ONE THEY WENT AND
+ * GOT THEMSELVES".
+ *
+ * Written once because two things read it and they have to agree: the ladder's
+ * unseen read, and the count on the card that offers a session. A number on
+ * Today that the session then refuses to fill reads as a counting fault rather
+ * than as a rule, which is the argument `learnCounts` already makes about the
+ * two guards it copies.
+ *
+ * Under `AND` rather than spread as a bare `OR`, because a `where` that grows a
+ * second `OR` beside this one would delete it silently — the fault the review
+ * queue's own new-card read shipped with for a day.
+ */
+function learnWithin(within: readonly string[]) {
+  return {
+    AND: [{
+      OR: [
+        { source: { notIn: [...APP_CHOSE] } },
+        { lexeme: { lemma: { in: [...within] } } },
+      ],
+    }],
+  };
+}
+
 function posFilter(kind: LearnKind) {
   return kind === "phrase" ? "PHRASE" : { not: "PHRASE" };
 }
@@ -434,9 +468,41 @@ export async function learnBatch(
      * standalone Learn, which a learner reached by choosing to, and is unchanged.
      */
     taughtWords?: ReadonlySet<string> | null;
+    /**
+     * Who chose this screen, which is what decides whether `taughtWords` binds
+     * above A1 (`heldToTaughtWords`). The module chose for the learner and is
+     * held at every level; standalone Learn is a screen somebody walked to and
+     * keeps the boundary the unit lesson keeps, so it is held at A1 and not
+     * above it. Defaults to the module, because that was the only caller that
+     * handed words in when this was written.
+     */
+    sentenceReader?: SentenceReader;
+    /**
+     * WHICH WORDS MAY BE INTRODUCED, where the module has taken this learner
+     * somewhere and the caller has not named a day's list outright.
+     *
+     * `only` is the planned day saying "teach these eight". This is the daily
+     * row in the rail saying "teach me something next", and until now it
+     * answered off the whole deck: first run builds a starter deck of three
+     * units, so a learner on the second evening of A1 could be handed a word
+     * from the third. It narrows the *unseen* read and never the started one,
+     * for the reason the header above gives: a word part way up the ladder
+     * comes back whatever taught it, or Learn is a place words go in and never
+     * come out of.
+     *
+     * A word the learner went and got themselves stands beside the taught
+     * list, exactly as it does in the review queue's own trickle: `APP_CHOSE`
+     * is the narrow reading of `Card.source`, and refusing to teach a word
+     * somebody looked up would be the gate deciding something nobody asked it
+     * to.
+     */
+    within?: readonly string[] | null;
   } = {},
 ): Promise<LearnWord[]> {
-  const { kind = "word", now = new Date(), only, taughtWords } = opts;
+  const {
+    kind = "word", now = new Date(), only, taughtWords,
+    sentenceReader = "module", within,
+  } = opts;
   /*
     Undefined is "no caller asked", which is standalone Learn; `null` is "the
     module asked and the course could not say", which fails closed. Inside the
@@ -445,10 +511,20 @@ export async function learnBatch(
     of its two readers, the unit lesson being the other; the deck's cards are
     outside the rule by decision, which that module's header sets out.
   */
-  const readable = taughtWords === undefined ? () => true : readableFor(level, taughtWords, "module");
+  const readable = taughtWords === undefined
+    ? () => true
+    : readableFor(level, taughtWords, sentenceReader);
   const scope = only
     ? { lexeme: { lemma: { in: [...only] } } }
     : { lexeme: { pos: posFilter(kind) } };
+  /*
+    ON THE UNSEEN READ ALONE. A word already part way up the ladder is served
+    whatever taught it, which is the promise the paragraph above makes about
+    `started`, so narrowing `scope` itself would strand somebody mid-word the
+    day the module fell behind their deck. `only` already names an exact list
+    and needs nothing.
+  */
+  const introducible = !only && within ? learnWithin(within) : {};
   /*
     A WORD PART WAY UP THE LADDER IS SERVED WHATEVER ITS DATE, WHICH IS WHY
     THIS ONE HAS TO ASK.
@@ -489,6 +565,7 @@ export async function learnBatch(
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
         ...scope,
+        ...introducible,
         due: { lte: now },
       },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -578,6 +655,7 @@ export async function learnBatch(
       firstCardEver: false as boolean,
       // Filled below, in one read for the whole batch rather than one a word.
       tokens: null as GlossedToken[] | null,
+      alsoSaid: null as string | null,
       canTranslate: resolveProvider() !== null,
       gap,
       choices: picked ? picked.options : null,
@@ -635,6 +713,25 @@ export async function learnBatch(
     });
   }
 
+  /*
+    AND THE OTHER HALF OF A PRONOUN, WHICH IS NOT THE SAME QUESTION.
+
+    Outside the branch above on purpose: that one is the learner's answer about
+    underlines under a sentence, and the pair is part of what the word *is*.
+    `everydaySpellings` is a fact about the shared dictionary, so on a warm
+    instance this costs no query at all (see `lib/dict/facts.ts`).
+
+    Skipped outright where there is nothing to fill, which is the guard
+    `withEveryday` takes on the review path. Deliberately not narrowed to the
+    pronouns: which word class has a pair is `twinsOf`'s to decide and a test
+    of it at each of the three call sites is three copies of that rule, of
+    which the copies are what fall behind.
+  */
+  if (words.length > 0) {
+    const everyday = await everydaySpellings();
+    for (const word of words) word.alsoSaid = everyday.get(word.lemma) ?? null;
+  }
+
   return orderByRung(words, (word) => word.rung);
 }
 
@@ -648,7 +745,12 @@ export interface LearnCounts {
   phrases: { waiting: number; started: number };
 }
 
-export async function learnCounts(ownerId: string, now = new Date()): Promise<LearnCounts> {
+export async function learnCounts(
+  ownerId: string, now = new Date(),
+  /** What the session may introduce, so the number and the round agree. */
+  within?: readonly string[] | null,
+): Promise<LearnCounts> {
+  const introducible = within ? learnWithin(within) : {};
   /*
     The same two guards `learnBatch` applies, because a number on Today that
     the session then refuses to fill reads as a counting fault rather than as
@@ -660,6 +762,7 @@ export async function learnCounts(ownerId: string, now = new Date()): Promise<Le
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
         lexeme: { pos: posFilter("word") },
+        ...introducible,
         due: { lte: now },
       },
     }),
@@ -673,6 +776,7 @@ export async function learnCounts(ownerId: string, now = new Date()): Promise<Le
       where: {
         ownerId, suspended: false, cardType: LADDER_CARD_TYPE, state: 0,
         lexeme: { pos: posFilter("phrase") },
+        ...introducible,
         due: { lte: now },
       },
     }),

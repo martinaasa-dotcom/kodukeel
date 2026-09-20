@@ -765,6 +765,9 @@ function lessonWord(lemma: string, pos: string): LessonWord | null {
   return {
     lexemeId: e.lemma, lemma: e.lemma, gloss: e.translation, pos: e.pos,
     semanticTypes: e.semanticTypes ?? null,
+    // The everyday spelling of a pronoun is drawn beside the word and asked
+    // about by nothing, so it cannot print an answer this audit is looking for.
+    alsoSaid: null,
     examples: (e.examples ?? []).map((x) => ({ et: x.et, en: x.en ?? null })),
     parts: partsOf(e), government: e.government ?? null,
   };

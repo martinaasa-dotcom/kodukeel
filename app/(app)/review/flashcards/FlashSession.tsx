@@ -16,7 +16,7 @@ import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { splitOnForm } from "@/lib/dict/examples";
-import { askLine, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
+import { askLine, isForm, markFlash, plainAskFor, type FlashMark, type FlashTask } from "@/lib/games/flash";
 import { hintLadder } from "@/lib/questions/hints";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -374,7 +374,7 @@ export function FlashSession({ prompts: initialPrompts }: { prompts: FlashPrompt
       )}
 
       <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
 
       <Standing task={task} />
@@ -609,10 +609,20 @@ function Feedback({ task, mark }: { task: FlashPrompt; mark: FlashMark }) {
         >
           {task.shown.join(" / ")}
         </p>
-        <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
-          <span lang="et" data-flash-slot="">{task.label}</span>
-          {english && <> · the {english}</>}
-        </p>
+        {/*
+          Only where the slot names a form. `task.label` for PRODUCTION is
+          "saying it", the English word for the whole round rather than a
+          cross-reference to anything, so it read as a caption that answers
+          nothing: `plainAskFor` already draws this line for the recall shape
+          (a clause under it would ask the question twice), and this panel is
+          the same question one screen later.
+        */}
+        {isForm(task.slot) && (
+          <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
+            <span lang="et" data-flash-slot="">{task.label}</span>
+            {english && <> · the {english}</>}
+          </p>
+        )}
       </div>
 
       {task.sentence && (

@@ -326,7 +326,7 @@ export function ExceptionsSession({ tasks: initialTasks }: { tasks: ExceptionTas
       )}
 
       <div className="mt-4 flex justify-center text-2xs" style={{ color: "var(--ink-3)" }}>
-        <LookBackButton {...look.button} disabled={look.looking} keyHint={false} />
+        <LookBackButton {...look.button} disabled={look.looking} />
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ import { isPhrase } from "@/lib/dict/pos";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, decoysAmong, sentenceReach } from "@/lib/dict/facts";
+import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -177,6 +177,12 @@ function introFor(
     */
     tokens: null,
     /*
+      The everyday spelling of a pronoun, filled in by `withEveryday` for the
+      same reason `tokens` is: it is one read for the whole session and a fact
+      about the shared dictionary rather than about this card.
+    */
+    alsoSaid: null,
+    /*
       Whether this deployment has a model to ask for the sentence in English.
       Read here rather than threaded down through two sessions as a prop: it is
       a fact about the deployment, and it belongs beside the sentence it is
@@ -238,6 +244,28 @@ async function withGlosses(cards: ReviewCard[], ownerId: string): Promise<Review
     if (!tokens || !card.intro) return card;
     return { ...card, intro: { ...card.intro, tokens } };
   });
+}
+
+/**
+ * THE OTHER HALF OF A PRONOUN, ON THE SCREEN THAT INTRODUCES IT.
+ *
+ * `mina` and `ma` are one word twice: this card says `mina`, and every
+ * sentence under it says `ma`. A learner met the second one having been taught
+ * the first and nothing anywhere said they were connected.
+ *
+ * Its own pass rather than a line inside `withGlosses`, because that one
+ * returns early for a learner who has turned the underlines off and this is a
+ * different feature: the pair is part of what the word *is*. `twinsOf` reads
+ * it off the entry's own stored forms and `everydaySpellings` caches the
+ * answer for the whole deployment, so on a warm instance this is no query at
+ * all (see `lib/dict/facts.ts`).
+ */
+async function withEveryday(cards: ReviewCard[]): Promise<ReviewCard[]> {
+  if (!cards.some((c) => c.intro)) return cards;
+  const everyday = await everydaySpellings();
+  return cards.map((card) => (
+    card.intro ? { ...card, intro: { ...card.intro, alsoSaid: everyday.get(card.intro.lemma) ?? null } } : card
+  ));
 }
 
 /**
@@ -492,7 +520,7 @@ export async function withChoices(
   const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
   const glossed = await withGlosses(
     rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
-  );
+  ).then(withEveryday);
   const cards = glossed.map(
     (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),
   );

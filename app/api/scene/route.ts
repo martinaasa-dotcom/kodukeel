@@ -850,7 +850,21 @@ export async function POST(request: Request) {
     const [tokens] = await glossSentences([{ et: text, form: null }]);
     const seen = (tokens ?? [])
       .filter((token) => token.word && token.entry)
-      .map((token) => `${token.text}: ${token.entry!.gloss.split(/[,;]/)[0]!.trim()}`);
+      /*
+        WHAT THIS SPELLING MEANS, RATHER THAN WHAT THE HEADWORD MEANS.
+
+        The reading the panel prints, where there is one, and the first sense
+        of the gloss where there is not. `mind` is "me" and the headword is
+        "I, me", so the first sense alone told the judge and the composer "I",
+        which is the wrong half of the word and is the fault that reading was
+        written to fix one screen over. It is the same call either way, since
+        the token already carries it, and it is usually shorter.
+      */
+      .map((token) => {
+        const entry = token.entry!;
+        const said = entry.reading ?? entry.gloss.split(/[,;]/)[0]!.trim();
+        return `${token.text}: ${said}`;
+      });
     return seen.join("; ");
   }
 

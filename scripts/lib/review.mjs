@@ -21,6 +21,7 @@
  * measuring the revealed layout must leave the deck exactly as it found it for
  * everything that runs after it.
  */
+import { eventually } from "./browser.mjs";
 
 /**
  * Reveals the answer on whatever review card is on screen.
@@ -61,23 +62,13 @@ export async function revealAnswer(page, { timeout = 8600 } = {}) {
   */
   if (await page.getByText(/Pick the meaning/).count()) {
     await page.keyboard.press("1");
-    await page.waitForTimeout(timeout);
     /*
-      A right pick now grades itself after `VERDICT_PAUSE_MS`, which this
-      helper promises not to do, so the default wait here has to outlast it
-      rather than name it, since a suite reading this file should not have to
-      know the exact figure to trust the margin. One guess in four lands on
-      the answer and there is no way to know which before picking, so when it
-      does the grade is taken straight back through the app's own undo. Undo
-      is disabled until something has been graded in this page's session, and
-      a first meeting writes nothing, so an enabled button here means exactly
-      one thing.
+      A pick waits on a button now, right or wrong, so this leaves the tile
+      revealed and the button unpressed, which is what "reveals and never
+      grades" means for this shape. Nothing here can grade the card by
+      accident any more, so there is nothing to undo.
     */
-    const undo = page.locator("main").getByRole("button", { name: /Undo/ });
-    if ((await undo.count()) && (await undo.first().isEnabled())) {
-      await undo.first().click();
-      await page.waitForTimeout(300);
-    }
+    await page.waitForTimeout(300);
     return "choice";
   }
 
@@ -99,20 +90,29 @@ export async function revealAnswer(page, { timeout = 8600 } = {}) {
  * A typed card marked wrong keeps its screen and asks for the form once more,
  * against the answer printed above it, and only a correct retype lets the
  * card go: "Got it, next" is not offered until then. The answer is read off
- * the screen (`data-answer`), typed into the second box, and the card then
- * grades the miss it already had and moves on by itself after the verdict
- * pause. So this *does* let a grade happen, and is deliberately not called
- * by `revealAnswer`: a caller that wants the card graded calls it, and the
- * containment suite, which must leave the deck as it found it, never does.
+ * the screen (`data-answer`) and typed into the second box, which checks it
+ * and clears it for the "Got it, next" button underneath — that button no
+ * longer grades itself on a timer, so this presses it (or the advance key,
+ * which is the same gesture), same as a learner would. So this *does* let a
+ * grade happen, and is deliberately not called by `revealAnswer`: a caller
+ * that wants the card graded calls it, and the containment suite, which must
+ * leave the deck as it found it, never does.
  *
  * Returns false when no retype was being asked for.
  */
-export async function retypeMiss(page, { settle = 8600 } = {}) {
+export async function retypeMiss(page, { settle = 400 } = {}) {
   const box = page.locator("main").getByLabel(/Type the (answer|word) again/);
   if (!(await box.count())) return false;
   const answer = (await page.locator("main [data-answer]").first().textContent())?.trim();
   if (!answer) return false;
   await box.first().fill(answer);
+  await page.keyboard.press("Enter");
+  // The box is gone once the retype is right, replaced by the "Got it, next"
+  // button underneath, so wait for that rather than guessing how long the
+  // re-render takes.
+  await eventually(async () => (await box.count()) === 0);
+  // Focus has moved off the field along with it, so this Enter reaches the
+  // round's own keyboard handler rather than a text box.
   await page.keyboard.press("Enter");
   await page.waitForTimeout(settle);
   return true;
