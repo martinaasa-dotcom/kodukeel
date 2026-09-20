@@ -1187,7 +1187,7 @@ export function LearnSession({
               >
                 {needsRetype ? "Check it again" : result?.outcome === "right" ? uiText("Õige!", "Correct!") : "Got it"}
               </Button>
-              {rung === "gap" && (
+              {rung === "gap" && result?.outcome !== "right" && (
                 <SuggestFix
                   category="MARKED_WRONG"
                   categories={["MARKED_WRONG", "WRONG_FORM", "WRONG_EXAMPLE"]}
