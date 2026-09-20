@@ -104,6 +104,19 @@ describe("the cards already cut from one", () => {
     lexeme: { lemma: "tema" },
   });
 
+  /*
+    And the sentence it names resolves to the reason somebody wrote, which is
+    the call `npm run audit:decks` makes to print it under the card. The
+    invariant can see that the audit asks; only this can see that asking
+    answers, since the reconstruction is what is handed over rather than the
+    entry's own spelling.
+  */
+  it("carries a reason the audit can print under the card", () => {
+    const named = refusedSentenceCards([card(`Ega ma ${BLANK} ole.`, "temaks")]);
+    expect(named).toHaveLength(1);
+    expect(refusalFor(named[0]!.sentence)?.why).toBe(REFUSED_SENTENCES[0]?.why);
+  });
+
   it("is named by the sentence put back together", () => {
     const named = refusedSentenceCards([card(`Ega ma ${BLANK} ole.`, "temaks")]);
     expect(named.map((r) => r.sentence)).toEqual(["Ega ma temaks ole."]);
