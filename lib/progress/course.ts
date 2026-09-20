@@ -200,6 +200,38 @@ const closingOpensAt = (ticks: Ticks, dayId: string): Date | undefined =>
  * A day already reached is allowed, which is what makes a second press of a
  * button on a day that has just finished a no-op rather than an error.
  */
+/**
+ * HOW FAR THE MODULE HAS ACTUALLY TAKEN THIS LEARNER, OR NOTHING AT ALL.
+ *
+ * `dayIsInPlay` below asks a permission question and `courseReading` builds a
+ * whole screen. This is the one fact a round outside the module needs: which
+ * evening the learner has walked as far as, so the daily path can be held to
+ * what that evening has handed over.
+ *
+ * NOTHING TICKED IS NOTHING TO GO ON, and that is the whole of what keeps this
+ * from over-reaching. `programmeFor` answers for everybody: a learner who has
+ * never opened the module, and every learner who used this app before
+ * programmes existed, gets `openingPart` read off their level, which is an
+ * offer rather than a record. Reading that as a standing would hold somebody
+ * who has never touched the course to the first evening of it, which is the
+ * app taking a deck away over a screen nobody opened. A tick is the learner
+ * saying they are following the module, and `dayReached` is the pointer it
+ * makes; with none there is no module to be held to and every round behaves
+ * exactly as it did.
+ *
+ * Memoised for the render, like `ticksFor` underneath it, because Today and
+ * the round it links to both ask.
+ */
+export const moduleReached = cache(async (
+  ownerId: string,
+): Promise<{ programme: Programme; day: CourseDay } | null> => {
+  const programme = await programmeFor(ownerId);
+  if (!programme) return null;
+  const ticks = await ticksFor(ownerId, programme);
+  if (ticks.byDay.size === 0) return null;
+  return { programme, day: dayReached(programme, new Set(ticks.byDay.keys())) };
+});
+
 export async function dayIsInPlay(
   ownerId: string, programme: Programme, day: CourseDay,
 ): Promise<boolean> {

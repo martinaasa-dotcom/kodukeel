@@ -7245,14 +7245,47 @@ check("a word the learner went and got is reachable, and the commonest lead", ()
   const sources = code("lib/srs/sources.ts");
   assert.match(sources, /export const CARD_SOURCES/, "the closed list of card sources has gone");
   assert.match(sources, /export const YOUR_OWN_SOURCES/, "nothing says which sources are the learner's own");
+  /*
+    READ INSIDE THE DECLARATION RATHER THAN FROM ITS NAME ONWARDS. Written as
+    "`YOUR_OWN_SOURCES`, then anything, then `"SCENE"`, then the end of a list",
+    this ran past the end of its own array and matched the *next* list in the
+    file: `APP_CHOSE` names SCENE on purpose, and the check failed on a line
+    that was saying the opposite of what it was accused of. A list is bounded
+    by its own brackets.
+  */
+  const listOf = (name: string): string => {
+    const found = sources.match(new RegExp(`export const ${name} = \\[([\\s\\S]*?)\\] as const`));
+    assert.ok(found, `${name} is not a list this check can read`);
+    return found![1]!;
+  };
+  const own = listOf("YOUR_OWN_SOURCES");
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"DICTIONARY"[\s\S]*?\] as const satisfies/,
+    own, /"DICTIONARY"/,
     "DICTIONARY is claimed as a lookup, which files every existing deck's course words in that round",
   );
   assert.doesNotMatch(
-    sources, /YOUR_OWN_SOURCES[\s\S]*?"SCENE"[\s\S]*?\] as const satisfies/,
+    own, /"SCENE"/,
     "a scene's words are the course's, and a scene names unit ids rather than words",
   );
+  /*
+    AND THE OTHER READING OF THE SAME COLUMN CLAIMS LESS IN THE OTHER
+    DIRECTION. `APP_CHOSE` is what the module's gate on the daily review
+    withholds, so a source it names is a word never introduced until the course
+    reaches it: `DICTIONARY` cannot say whose idea a word was, and guessing
+    wrong there costs somebody the word they went and looked up. The two lists
+    may not overlap, or one column would answer two ways about one card.
+  */
+  const chosen = listOf("APP_CHOSE");
+  assert.doesNotMatch(
+    chosen, /"DICTIONARY"/,
+    "APP_CHOSE claims DICTIONARY, so the daily review withholds words a learner may well have gone and got",
+  );
+  for (const value of [...own.matchAll(/"([A-Z_]+)"/g)].map((m) => m[1]!)) {
+    assert.doesNotMatch(
+      chosen, new RegExp(`"${value}"`),
+      `${value} is on both lists, so one column answers two ways about one card`,
+    );
+  }
 
   /*
     Every source literal in the tree is one the table names, and the table is
@@ -18010,6 +18043,86 @@ check("every round a rotation can deal reads the module's scope off its address"
   // And the closing review reads it too, since it is the last step of every evening.
   assert.match(code("app/(app)/review/page.tsx"), /moduleScopeFrom\(/, "the closing review stopped asking what the module has taught");
   assert.match(code("app/(app)/review/page.tsx"), /cardWithin\(/, "the closing review stopped holding a case card to the case pages read");
+});
+
+/*
+  AND THE DAILY REVIEW IS HELD TO THE MODULE TOO, WITHOUT BEING OPENED BY IT.
+
+  The check above is about a screen the module *opened*, which is all an
+  address can say. `/review` is reached from Today, from the rail and from a
+  card reading "6 due", and it teaches: the trickle of unseen cards beside what
+  is due is the app choosing the next thing somebody meets. Held to nothing, it
+  chose `Olen ______ nõus.` for a learner on the second evening of A1, a gap
+  whose sentence holds two words the course had not reached, on a word whose
+  own unit refuses gap-fills outright. It was reported from exactly there.
+
+  Three arms, because each alone passes on the broken shape. The page has to
+  read the learner's own standing (`learnerModuleScope`) and not only the
+  address; the new-card window has to be narrowed by whatever that returns
+  rather than by the module-opened scope; and the cards it is about to
+  introduce have to go through `cardWithin` against it, which is the half that
+  catches a gap whose sentence is untaught on a word that is.
+
+  WHAT IS DUE IS NOT ON THIS LIST AND MAY NOT JOIN IT. A card already answered
+  has a schedule and FSRS decides when it comes back; holding one out because
+  the module has not caught up would be this app overwriting a schedule it
+  presents as the scheduler's (ADR-014, ADR-016). Only a new card is the app
+  teaching something.
+*/
+check("the daily review introduces nothing the module has not taught", () => {
+  const page = code("app/(app)/review/page.tsx");
+  assert.match(
+    page, /learnerModuleScope\(/,
+    "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
+  );
+  assert.match(
+    page, /const taught = scope \?\? await learnerModuleScope\(/,
+    "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
+  );
+  assert.match(
+    page, /taught\?\.lemmas|taught\.lemmas/,
+    "the new-card window stopped being narrowed to what the module has taught",
+  );
+  assert.match(
+    page, /cardWithin\(taught,/,
+    "a card about to be introduced is no longer asked whether the module has taught what it is made of",
+  );
+  // And the due list is still the scheduler's: gated on the module-opened
+  // scope alone, never on the standing.
+  assert.match(
+    page, /const within = \(card: CardRow\) => cardWithin\(scope,/,
+    "the due list is being held to the learner's module standing, which is the scheduler's decision to make",
+  );
+});
+
+/*
+  AND NO DOOR BUILDS A CARD TYPE THE COURSE REFUSED.
+
+  A unit's `cardTypes` is its author saying what a word is worth drilling, and
+  it is a decision as often as a default: `asesonad` asks for no case because a
+  pronoun's everyday case forms are the short ones, and no A1 unit asks for a
+  gap at all because at A1 the sentence around the gap is one the learner
+  cannot read (`syllabus.test.ts`). Every builder honors it by being handed the
+  unit's own list. `backfillClozeCards` is the one door with no unit in its
+  hands: it adds a gap-fill to a word already in the deck once Ekilex has sent
+  sentences, on a dictionary page *render*, and it decided for itself that a
+  word with sentences wants one.
+
+  Read through `code()`, because the header above that function quotes the
+  rule it exists to keep and a check that matched the prose would pass with
+  the guard deleted, which is this repository's oldest recurring mistake in
+  its own checks.
+*/
+check("the gap-fill backfill asks whether the course wanted one", () => {
+  const src = code("lib/srs/backfill.ts");
+  assert.match(
+    src, /courseAsksFor\(/,
+    "backfillClozeCards writes a gap-fill without asking whether the word's own unit asked for one",
+  );
+  assert.match(
+    src, /if \(!courseAsksFor\([^)]*"CLOZE"\)\) return 0;/,
+    "the backfill reads the rule and does not act on it",
+  );
 });
 
 /*

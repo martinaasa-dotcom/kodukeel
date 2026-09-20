@@ -213,6 +213,70 @@ export function unitIntroducing(lemma: string, pos?: string): string | null {
   return (pos ? INTRODUCING.get(`${key}|${pos}`) : undefined) ?? INTRODUCING.get(key) ?? null;
 }
 
+/**
+ * Every unit that teaches a word, rather than the one that introduces it.
+ *
+ * `unitIntroducing` answers "whose topic is this", which is the first unit and
+ * is the right answer for a distractor pool. This answers "what did the course
+ * ask for about this word", and a word taught twice was asked for twice: the
+ * object unit drills A1 verbs, so `andma` is named by a unit that wants a
+ * conjugation card and by one that wants a gap. `planUnits` already unions the
+ * card types across the units a learner adds, and this is the same union asked
+ * of the course rather than of a deck.
+ */
+const TEACHING: ReadonlyMap<string, readonly string[]> = (() => {
+  const byLemma = new Map<string, string[]>();
+  for (const unit of SYLLABUS) {
+    for (const lemma of unit.lemmas) {
+      const key = lemma.trim().toLowerCase();
+      const held = byLemma.get(key);
+      if (held) held.push(unit.id);
+      else byLemma.set(key, [unit.id]);
+    }
+  }
+  return byLemma;
+})();
+
+/**
+ * WHETHER THE COURSE EVER ASKS FOR THIS KIND OF CARD ABOUT THIS WORD.
+ *
+ * A unit's `cardTypes` is its author saying what the word is worth drilling,
+ * and it is a decision as often as it is a default: `asesonad` asks for the
+ * meaning and the spelling and no case, because a pronoun's everyday case
+ * forms are the short ones and a card answering `minule` marks the form
+ * everybody says wrong; no A1 unit at all asks for a gap, because at A1 the
+ * sentence around the gap is one the learner cannot read
+ * (`syllabus.test.ts`, `npm run audit:readable`).
+ *
+ * Every builder honors that, because every builder is handed the unit's own
+ * list. `backfillClozeCards` is not: it adds a gap-fill to a word already in
+ * the deck once Ekilex has sent sentences for it, and it decided for itself
+ * that a word with sentences wants one. So opening the dictionary entry for
+ * `sina` on the second evening of A1 wrote `Olen ______ nõus.` into a
+ * beginner's deck, which the daily review then offered as a new card: a word
+ * the course had taught, in an exercise the course had refused, inside a
+ * sentence holding two words nobody had shown her. It was reported from
+ * exactly there.
+ *
+ * A WORD THE COURSE DOES NOT TEACH IS THE LEARNER'S OWN and is not refused.
+ * They looked it up, photographed it or pasted it in, and the gap-fill is the
+ * exercise the dictionary's own button would have offered them. The rule is
+ * about the app overriding a decision the course made, not about narrowing
+ * what somebody may ask for themselves.
+ *
+ * Pure, and read by the one door that has no unit in its hands. Every other
+ * door already carries the unit's list and may not ask this instead: a caller
+ * holding `cardTypes` has the stronger answer.
+ */
+export function courseAsksFor(lemma: string, cardType: string): boolean {
+  const units = TEACHING.get(lemma.trim().toLowerCase());
+  if (!units || units.length === 0) return true;
+  return units.some((id) => {
+    const unit = unitById(id);
+    return unit ? (unit.cardTypes as readonly string[]).includes(cardType) : false;
+  });
+}
+
 export function wordsAtLevel(level: Level): readonly CourseWord[] {
   return WORDS.filter((w) => w.level === level);
 }

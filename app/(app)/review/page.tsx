@@ -17,7 +17,8 @@ import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
 import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
-import { moduleSpellings } from "@/lib/progress/moduleScope";
+import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
+import { APP_CHOSE, isAppsChoice } from "@/lib/srs/sources";
 import {
   include, notOnLadder, pastTheLadder, withChoices, type CardRow,
 } from "./cards";
@@ -62,6 +63,36 @@ export default async function ReviewPage({
     the words the ladder has taught, and what is due is due whatever taught it.
   */
   const scope = moduleScopeFrom(params);
+  /*
+    AND THE DAILY PATH IS HELD TO THE MODULE TOO, WHICH IS WHAT NOBODY HAD
+    WRITTEN DOWN.
+
+    The rule above is about a screen the module opened, which the address can
+    say. This screen is opened from Today, from the rail and from a card
+    reading "6 due", and it teaches: the trickle of unseen cards beside what is
+    due is the app choosing the next thing somebody meets. Held to nothing, it
+    chose `Olen ______ nõus.` for a learner on the second evening of A1 — a gap
+    whose sentence holds two words the course had not reached, on a word whose
+    own unit had refused gap-fills outright. It was reported from exactly
+    there, and the operator's call is written down here so it is not
+    re-litigated: the planned module is the record of what somebody has been
+    taught, and nothing is introduced on the daily path ahead of it.
+
+    WHAT IS DUE IS STILL DUE WHATEVER TAUGHT IT. A card already answered has a
+    schedule, FSRS decides when it comes back, and holding one out because the
+    module has not caught up would be this app overwriting a schedule it
+    presents as the scheduler's. Only the new cards are gated, because only a
+    new card is the app teaching something.
+
+    And only over the app's own material. A word somebody looked up,
+    photographed or pasted in is theirs, and refusing to teach a word they went
+    and got would be the gate deciding something nobody asked it to. `APP_CHOSE`
+    rather than the complement of `YOUR_OWN_SOURCES`, for the reason written
+    beside it: `DICTIONARY` is a column that cannot say whose idea a word was,
+    and the cost of guessing wrong here is a word never taught.
+  */
+  const taught = scope ?? await learnerModuleScope(ownerId);
+  const theirOwnToo = scope === null;
   const now = new Date();
 
   // Started here and awaited where it is read, so the one settings row rides
@@ -231,8 +262,17 @@ export default async function ReviewPage({
       */
       where: {
         ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId),
-        // Inside the module, only a word the module has taught: see above.
-        ...(scope ? { lexeme: { lemma: { in: [...scope.lemmas] } } } : {}),
+        // Only a word the module has taught: see above. Inside the module that
+        // is the whole of it; on the daily path the learner's own words are
+        // theirs and stand beside it.
+        ...(taught
+          ? {
+              OR: [
+                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+                { lexeme: { lemma: { in: [...taught.lemmas] } } },
+              ],
+            }
+          : {}),
       },
       // And the id here too: a word's cards tie on both of these, which is the
       // very thing the comment above says they do.
@@ -269,14 +309,24 @@ export default async function ReviewPage({
     left in the queue for standalone review and the module's own round asks
     what the module has taught (`cardWithin`).
   */
-  const spellings = await moduleSpellings(scope);
+  const spellings = await moduleSpellings(taught);
   const within = (card: CardRow) => cardWithin(scope, card, spellings);
+  /*
+    The same question asked of a card about to be introduced. `within` is the
+    module's own round and reaches the due list as well; this one reaches the
+    new cards alone and is what the daily path is held to.
+  */
+  const introducible = (card: CardRow) =>
+    (theirOwnToo && !isAppsChoice(card.source)) || cardWithin(taught, card, spellings);
   const dueWithin = due.filter(within);
   const spaced = spaceSiblings(dueWithin, (card) => card.lexemeId);
 
   const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
-  const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
-  const fresh = atLevelFirst(unseen.filter(within), level, raised).slice(0, room);
+  const [unseen, raised] = await Promise.all([
+    inBandPool(ownerId, freshPool, level, room, taught?.lemmas ?? null, theirOwnToo),
+    hardWords(),
+  ]);
+  const fresh = atLevelFirst(unseen.filter(introducible), level, raised).slice(0, room);
   const gloss = await glossChosen();
   const cards = await withChoices([...spaced, ...inTeachingOrder(fresh)], gloss, ownerId, scope?.lemmas ?? null);
 
@@ -346,6 +396,8 @@ async function inBandPool(
   ownerId: string, window: CardRow[], level: Level, room: number,
   /** The module's own taught list, so the wider read stays inside it too. */
   only: readonly string[] | null = null,
+  /** And the learner's own words beside it, on the daily path. See above. */
+  theirOwnToo = false,
 ): Promise<CardRow[]> {
   if (room === 0) return window;
   if (window.some((c) => isAround(c.lexeme?.cefr, level))) return window;
@@ -354,7 +406,15 @@ async function inBandPool(
     where: {
       ownerId, suspended: false, state: 0, due: { lte: new Date() },
       ...pastTheLadder(ownerId),
-      lexeme: { cefr: { in: [...bandsAround(level)] }, ...(only ? { lemma: { in: [...only] } } : {}) },
+      lexeme: { cefr: { in: [...bandsAround(level)] } },
+      ...(only
+        ? {
+            OR: [
+              ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+              { lexeme: { lemma: { in: [...only] } } },
+            ],
+          }
+        : {}),
     },
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
     take: NEW_CANDIDATES,

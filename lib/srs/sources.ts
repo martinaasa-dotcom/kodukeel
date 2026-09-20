@@ -87,8 +87,29 @@ export const YOUR_OWN_SOURCES = [
   "LOOKUP", "MANUAL", "TUTOR", "IMPORT", "SCAN", "ALMANAC", "SENTENCE",
 ] as const satisfies readonly CardSource[];
 
+/**
+ * The sources that mean "this app chose this word", which is the other side of
+ * the list above and is deliberately not its complement.
+ *
+ * `YOUR_OWN_SOURCES` answers "should this word be in the round for the ones
+ * they went and got", where `DICTIONARY` is absent because a card written
+ * before the column was split really could be either and claiming it would
+ * fill that round with course words. This answers "may the module hold this
+ * word back until it has taught it", and there the same silence points the
+ * other way: withholding a word somebody looked up, because a column written
+ * years ago cannot say whose idea it was, is the gate deciding something
+ * nobody asked it to. So the three this app demonstrably chose are named, and
+ * everything else, `DICTIONARY` included, is the learner's until it says
+ * otherwise.
+ *
+ * Claim less, in the direction that costs least. There it was a round left
+ * thinner; here it is a word never taught.
+ */
+export const APP_CHOSE = ["COURSE", "FREQUENCY", "SCENE"] as const satisfies readonly CardSource[];
+
 const KNOWN = new Set<string>(CARD_SOURCES);
 const OWN = new Set<string>(YOUR_OWN_SOURCES);
+const CHOSEN = new Set<string>(APP_CHOSE);
 
 export function isCardSource(value: unknown): value is CardSource {
   return typeof value === "string" && KNOWN.has(value);
@@ -97,4 +118,9 @@ export function isCardSource(value: unknown): value is CardSource {
 /** Whether a card is one of the learner's own, by the reading above. */
 export function isYourOwn(source: string): boolean {
   return OWN.has(source);
+}
+
+/** Whether this app chose the word, by the narrower reading of `APP_CHOSE`. */
+export function isAppsChoice(source: string): boolean {
+  return CHOSEN.has(source);
 }
