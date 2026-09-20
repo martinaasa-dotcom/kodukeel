@@ -102,7 +102,7 @@ export const B2 = [
     level: "B2",
     module: "Hääl ja kõneviis",
     canDo: "Recognize an unfamiliar word by its suffix and guess what it must mean.",
-    blurb: "-mine, -us, -lik, -tu. Learn six suffixes and thousands of words become readable.",
+    blurb: "-us, -lik, -tu, -ne. Four suffixes, and thousands of words you have never met become readable.",
     grammar: ["derivation", "nominalisation"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CLOZE"],
     requires: ["des-vorm"],

@@ -88,7 +88,7 @@ export const C1 = [
     level: "C1",
     module: "Teadmine",
     canDo: "Write an academic paragraph with a claim, support and a qualification.",
-    blurb: "Verbs and nouns for writing an essay or holding a position: väitma, tuginema, veenev.",
+    blurb: "Verbs and nouns for writing an essay or holding a position: tuginema, käsitlema, veenev.",
     grammar: ["hedging", "government", "nominalisation"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "GOVERNMENT", "CLOZE"],
     requires: ["lauseloome"],

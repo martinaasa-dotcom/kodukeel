@@ -415,6 +415,34 @@ export interface MatchedForm {
   morphCode: string | null;
 }
 
+/**
+ * Lemmas that only reach a query by folding away a diacritic the query never
+ * had, where the plainer spelling belongs to an inflected form of a far
+ * commoner word nobody typing it plainly could have meant. `õli` (oil) folds
+ * to the same string as `oli`, the third person simple past of `olema`, one
+ * of the commonest words in the language; the two scored 90 and 88, so a
+ * sentence like "Seda oli kuulda" glossed its "oli" as oil. There is no
+ * frequency table fine enough to settle this in general — `lib/collections/
+ * frequency.ts` is a top-400 list of lemmas, not counts over the corpus —
+ * so this is a short, named list of collisions actually reported rather than
+ * a general re-ranking. Widen it only against a real one.
+ *
+ * A candidate on this list still wins at 100 for the exact, undiacriticked
+ * lemma, and still wins at 88 for one of its own stored forms typed with its
+ * real diacritics: `õli` and `õlid` both still find oil. What it may not do
+ * is win any of that by *folding* — by a bare lemma match, a derived person,
+ * a case built on its genitive stem, or a stored form read with its
+ * diacritics stripped, which is every tier that vouches for a word by less
+ * than its own exact spelling. So the folded ladder from 90 down to 85 is
+ * skipped for the whole candidate rather than guarded tier by tier, and an
+ * exact (unfolded) stored-form check stands in its place: `õli`'s own
+ * nominative plural, `õlid`, folds to `olid` the same way `õli` folds to
+ * `oli`, so a guard on the 90 and 88 tiers alone would have left that one
+ * standing, and folding the *query* for the exact check too would bring the
+ * whole fault straight back.
+ */
+const FOLD_COLLISION_LOSES = new Set(["õli"]);
+
 function rank(
   c: Candidate, raw: string, folded: string,
 ): { score: number; matchedAs?: string; form?: MatchedForm } {
@@ -427,91 +455,116 @@ function rank(
   // An exact English match beats a merely diacritic-folded Estonian one: typing
   // "room" almost always means the English word, not rõõm (joy).
   if (t === r) return { score: 95 };
-  if (l === folded) return { score: 90 };
 
-  // A stored principal part: `loen` should find `lugema`.
-  const stored = c.forms.find((f) => fold(f.value) === folded);
-  if (stored) {
-    return {
-      score: 88,
-      matchedAs: `${formLabel(stored)} of ${c.lemma}`,
-      form: { formType: stored.formType, morphCode: stored.morphCode },
-    };
-  }
+  if (!FOLD_COLLISION_LOSES.has(c.lemma.toLowerCase())) {
+    if (l === folded) return { score: 90 };
 
-  // A person of the present, the conditional, the negative or the imperative,
-  // worked out from the stored first person: `helistab` is `helistan` with the
-  // `n` off and a `b` on. The forms come from `derivedVerbForms` rather than
-  // from a second copy of the endings, so what the search finds and what the
-  // entry prints are the same rule, exceptions included.
-  const pres1sg = c.forms.find((f) => f.formType === "PRES_1SG")?.value;
-  if (pres1sg) {
-    const person = derivedVerbForms({ lemma: c.lemma, pres1sg })
-      .find((form) => fold(form.value) === folded);
-    if (person) {
+    // A stored principal part: `loen` should find `lugema`.
+    const stored = c.forms.find((f) => fold(f.value) === folded);
+    if (stored) {
       return {
-        score: 85,
-        matchedAs: `${formLabel({ morphCode: person.morphCode })} of ${c.lemma}`,
-        form: { formType: null, morphCode: person.morphCode },
+        score: 88,
+        matchedAs: `${formLabel(stored)} of ${c.lemma}`,
+        form: { formType: stored.formType, morphCode: stored.morphCode },
       };
     }
-  }
 
-  // A regular case form built on a genitive stem: `toas` → `toa` + -s, and
-  // `tubadega` → `tubade` + -ga on the plural stem.
-  for (const [formType, plural] of [["GEN_SG", false], ["GEN_PL", true]] as const) {
-    const stem = c.forms.find((f) => f.formType === formType)?.value;
-    if (!stem) continue;
-    const stemFolded = fold(stem);
-    for (const { suffix, en, et, key } of CASE_SUFFIXES) {
-      if (!folded.endsWith(suffix)) continue;
-      if (folded.slice(0, folded.length - suffix.length) === stemFolded) {
-        // Named the way a class names it. Estonian puts its word for the
-        // plural in front of the case name rather than after it, so the two
-        // halves cannot be concatenated the way the English pair can.
-        const name = plural ? `mitmuse ${et} (${en}, plural)` : `${et} (${en})`;
+    // A person of the present, the conditional, the negative or the imperative,
+    // worked out from the stored first person: `helistab` is `helistan` with the
+    // `n` off and a `b` on. The forms come from `derivedVerbForms` rather than
+    // from a second copy of the endings, so what the search finds and what the
+    // entry prints are the same rule, exceptions included.
+    const pres1sg = c.forms.find((f) => f.formType === "PRES_1SG")?.value;
+    if (pres1sg) {
+      const person = derivedVerbForms({ lemma: c.lemma, pres1sg })
+        .find((form) => fold(form.value) === folded);
+      if (person) {
         return {
           score: 85,
-          matchedAs: `${name} of ${c.lemma}`,
-          form: { formType: null, morphCode: morphCodeFor(key, plural) },
+          matchedAs: `${formLabel({ morphCode: person.morphCode })} of ${c.lemma}`,
+          form: { formType: null, morphCode: person.morphCode },
         };
       }
     }
-  }
 
-  /*
-    THE NOMINATIVE PLURAL IS ATTESTED OR NOTHING, WHICH IS THE RULE ONE FILE
-    OVER AND WAS NOT THE RULE HERE.
+    // A regular case form built on a genitive stem: `toas` → `toa` + -s, and
+    // `tubadega` → `tubade` + -ga on the plural stem.
+    for (const [formType, plural] of [["GEN_SG", false], ["GEN_PL", true]] as const) {
+      const stem = c.forms.find((f) => f.formType === formType)?.value;
+      if (!stem) continue;
+      const stemFolded = fold(stem);
+      for (const { suffix, en, et, key } of CASE_SUFFIXES) {
+        if (!folded.endsWith(suffix)) continue;
+        if (folded.slice(0, folded.length - suffix.length) === stemFolded) {
+          // Named the way a class names it. Estonian puts its word for the
+          // plural in front of the case name rather than after it, so the two
+          // halves cannot be concatenated the way the English pair can.
+          const name = plural ? `mitmuse ${et} (${en}, plural)` : `${et} (${en})`;
+          return {
+            score: 85,
+            matchedAs: `${name} of ${c.lemma}`,
+            form: { formType: null, morphCode: morphCodeFor(key, plural) },
+          };
+        }
+      }
+    }
 
-    This derived it as the genitive singular plus `d`, which `lib/estonian/
-    derive.ts` deleted and says why: it is wrong for every pronoun and invents
-    a plural for words that have none. `see` gives `selled` where the word is
-    `need`, `too` gives `tolled` for `nood`, and `kes`, `mis`, `kõik` and `ise`
-    do not change at all. Six of the course's own words, and the first ones
-    anybody learns.
+    /*
+      THE NOMINATIVE PLURAL IS ATTESTED OR NOTHING, WHICH IS THE RULE ONE FILE
+      OVER AND WAS NOT THE RULE HERE.
 
-    Being here rather than in `derive.ts` made it worse in two ways. The score
-    is `VOUCHED_SCORE`, so `matchEstonianForm` vouched for `selled` on a
-    photographed page, in a headline, in the chat guard and in the scene
-    importer, all of which exist to refuse anything the dictionary cannot
-    attest; and the branch fired even where the entry stores the real plural,
-    so a derivation overruled an attested form, which is the reverse of
-    `caseAnswer`'s whole ordering. The invariant that forbids joining a case
-    suffix to a stem could not see it, because it is anchored on `.suffix`.
+      This derived it as the genitive singular plus `d`, which `lib/estonian/
+      derive.ts` deleted and says why: it is wrong for every pronoun and invents
+      a plural for words that have none. `see` gives `selled` where the word is
+      `need`, `too` gives `tolled` for `nood`, and `kes`, `mis`, `kõik` and `ise`
+      do not change at all. Six of the course's own words, and the first ones
+      anybody learns.
 
-    A stored `NOM_PL` is matched instead, like any other stored form.
-  */
-  const nomPl = c.forms.find((f) => f.formType === "NOM_PL")?.value;
-  if (nomPl && folded === fold(nomPl)) {
-    return {
-      score: 85,
-      // Read off the table for the reason `CASE_SUFFIXES` is: this branch is
-      // outside that loop, so it kept "nominative plural" after the loop had
-      // dropped every Latin name, and `toad` came back named in a grammar
-      // this language does not use.
-      matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
-      form: { formType: "NOM_PL", morphCode: null },
-    };
+      Being here rather than in `derive.ts` made it worse in two ways. The score
+      is `VOUCHED_SCORE`, so `matchEstonianForm` vouched for `selled` on a
+      photographed page, in a headline, in the chat guard and in the scene
+      importer, all of which exist to refuse anything the dictionary cannot
+      attest; and the branch fired even where the entry stores the real plural,
+      so a derivation overruled an attested form, which is the reverse of
+      `caseAnswer`'s whole ordering. The invariant that forbids joining a case
+      suffix to a stem could not see it, because it is anchored on `.suffix`.
+
+      A stored `NOM_PL` is matched instead, like any other stored form.
+    */
+    const nomPl = c.forms.find((f) => f.formType === "NOM_PL")?.value;
+    if (nomPl && folded === fold(nomPl)) {
+      return {
+        score: 85,
+        // Read off the table for the reason `CASE_SUFFIXES` is: this branch is
+        // outside that loop, so it kept "nominative plural" after the loop had
+        // dropped every Latin name, and `toad` came back named in a grammar
+        // this language does not use.
+        matchedAs: `mitmuse ${NOM.et} (${NOM.asksEn}, plural) of ${c.lemma}`,
+        form: { formType: "NOM_PL", morphCode: null },
+      };
+    }
+  } else {
+    /*
+      A COLLISION LEMMA IS STILL FOUND BY ITS OWN EXACT SPELLING.
+
+      The ladder above is skipped for `õli` so `oli` cannot fold its way to
+      it, and that would also have refused `õlid`, typed with the real
+      diacritic, for the same reason: the whole ladder folds every
+      comparison. What is ambiguous is a query with the diacritic stripped;
+      one that still carries it is not, so a stored form is matched here
+      against the raw query rather than the folded one, diacritics and all.
+      This is narrower than the ladder above (no derived person, no case
+      built on a stem), which is the right trade for a lemma rare enough to
+      be on this list at all.
+    */
+    const exact = c.forms.find((f) => f.value.toLowerCase() === r);
+    if (exact) {
+      return {
+        score: 88,
+        matchedAs: `${formLabel(exact)} of ${c.lemma}`,
+        form: { formType: exact.formType, morphCode: exact.morphCode },
+      };
+    }
   }
 
   if (l.startsWith(folded)) return { score: 70 };

@@ -83,6 +83,18 @@ export const A1 = [
       The indefinite pronouns that used to sit in this unit (`keegi`, `miski`,
       `kõik`) are `umbmaarased` now, late in A1: they are pronouns too and they
       are not the reason anybody learns the word `pronoun`.
+
+      AND THE SIX ARE ONE EVENING, BECAUSE HALF A PARADIGM IS NOT A LESSON.
+      This unit used to carry the two pointers as well, eight words, which the
+      five-word budget sliced into four and four: the module's second evening
+      taught `mina, sina, tema, meie` under a heading promising I, you, he,
+      we, you and they, so the screen named two pronouns the evening did not
+      teach and a learner reported exactly that. Six is one word over the
+      budget and three under the ceiling, and it is fifteen minutes to the
+      minute, so the paradigm is met whole. `see` and `too` are in
+      `esimesed-verbid` now, on the evening of `olema`, which is the verb a
+      pointer needs: `See on raamat` is the first sentence anybody says, and
+      it cannot be said on an evening that teaches the pointer and no verb.
     */
     id: "asesonad",
     title: "Asesõnad",
@@ -90,8 +102,8 @@ export const A1 = [
     icon: "Users",
     level: "A1",
     module: "Esimesed sammud",
-    canDo: "Say I, you, he, we and they, and point at this and that.",
-    blurb: "Six persons and two pointers. Every verb ending you meet next is an ending for one of these.",
+    canDo: "Say I, you, he, we, you and they, about yourself and about anybody else.",
+    blurb: "The six persons, in one evening. Every verb ending you meet next is an ending for one of them.",
     grammar: ["nominative"],
     /*
       The glosses carry both English roles where English has two words for one
@@ -114,9 +126,10 @@ export const A1 = [
       ["meie", "we, us", "PRONOUN"],
       ["teie", "you (several people, or one politely)", "PRONOUN"],
       ["nemad", "they, them", "PRONOUN"],
-      ["see", "this, it", "PRONOUN"],
-      ["too", "that (one over there)", "PRONOUN"],
     ],
+    // One evening, said out loud rather than left to `Math.ceil(6 / 5)`, which
+    // is two. See the note at the top of the unit.
+    evenings: [["mina", "sina", "tema", "meie", "teie", "nemad"]],
   }),
 
   unit({
@@ -124,8 +137,16 @@ export const A1 = [
       THE ENDINGS, ON THE THIRD AND FOURTH EVENINGS, WITH THE PRONOUNS STILL
       WARM. `olema` first because it is the verb every sentence in A1 is built
       on and the one the rule does not reach (`olen, oled, on`), then seven
-      regular verbs whose whole table is the six endings on a stem: `-n, -d,
-      -b, -me, -te, -vad`. Eight verbs is two evenings, and both are the
+      more whose table is the same six endings every time: `-n, -d, -b, -me,
+      -te, -vad`. What is not the same every time is the stem they go on, and
+      four of the seven do not hand it over: `õppima : õpin`, `rääkima :
+      räägin` and `tahtma : tahan` gradate on the way to it, and `minema :
+      lähen` is not the same word twice. That is the lesson rather than an
+      exception to it, and it is why the dictionary stores a verb's first
+      person and `lib/estonian/conjugate.ts` derives the other five off that
+      rather than off the infinitive. The blurb says so, because a learner who
+      reads "six endings on one stem" and reasons from the infinitive writes
+      `rääkin`. Eight verbs is two evenings, and both are the
       conjugation drill in its matching shape, where the six forms are on the
       screen and the learner puts each beside its pronoun, before anybody is
       asked to type one.
@@ -133,20 +154,31 @@ export const A1 = [
       `olema`, `minema` and `tulema` came out of `pohiverbid` and the five
       regular ones out of `iga-paev`, so a word is still introduced exactly
       once; those two units are eleven and thirteen words now.
+
+      AND THE TWO POINTERS ARE HERE, ON THE EVENING OF `olema`. They were in
+      `asesonad`, where they were the two words that made the six persons into
+      eight and got the paradigm sliced in half. They are better off here
+      anyway, and that is the argument rather than the excuse: `see` and `too`
+      are useless without a verb, and `See on raamat` is the first sentence
+      anybody says in this language. So the first evening is the verb to be
+      and the two things you point at with it, and the second is the other
+      five, declared rather than sliced so the three cannot come apart again.
     */
     id: "esimesed-verbid",
     title: "Esimesed verbid",
-    subtitle: "To be, and the six endings",
+    subtitle: "To be, this and that, and the six endings",
     icon: "Zap",
     level: "A1",
     module: "Esimesed sammud",
-    canDo: "Say I am, you are, and put a simple verb with each of the six pronouns.",
-    blurb: "The verb to be, and seven verbs whose whole table is six endings on one stem.",
+    canDo: "Say I am, you are and this is, and put a simple verb with each of the six pronouns.",
+    blurb: "The verb to be, the two words you point with, and seven more. The six endings never change; which stem they go on is what you learn per verb.",
     grammar: ["olema", "present-tense"],
     cardTypes: ["RECOGNITION", "PRODUCTION", "CONJUGATION"],
     requires: ["asesonad"],
     words: [
       ["olema", "to be"],
+      ["see", "this, it", "PRONOUN"],
+      ["too", "that (one over there)", "PRONOUN"],
       ["elama", "to live"],
       ["õppima", "to learn, to study"],
       ["rääkima", "to speak"],
@@ -154,6 +186,10 @@ export const A1 = [
       ["tahtma", "to want"],
       ["minema", "to go"],
       ["tulema", "to come"],
+    ],
+    evenings: [
+      ["olema", "see", "too", "elama", "õppima"],
+      ["rääkima", "töötama", "tahtma", "minema", "tulema"],
     ],
   }),
 
@@ -267,7 +303,7 @@ export const A1 = [
     level: "A1",
     module: "Esimesed sammud",
     canDo: "Count, give your phone number, say a price and tell someone your age.",
-    blurb: "Counting is where the osastav first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and the ordinals put -s on the omastav, which is how you say which floor you live on.",
+    blurb: "Counting is where the osastav first bites: kaks raamatut, not kaks raamat. The teens end in -teist and the tens in -kümmend, and from the third on an ordinal is -s on the omastav, which is how you say which floor you live on. Esimene and teine are their own words.",
     grammar: ["numerals", "partitive"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["inimesed"],
@@ -561,7 +597,7 @@ export const A1 = [
     level: "A1",
     module: "Kirjeldamine",
     canDo: "Name colors and describe what something looks like.",
-    blurb: "Short, concrete, and every one of them declines like an ordinary adjective.",
+    blurb: "The word for color itself, and eleven adjectives that decline like any other.",
     grammar: ["adjective-agreement"],
     cardTypes: ["RECOGNITION", "PRODUCTION"],
     requires: ["omadussonad"],

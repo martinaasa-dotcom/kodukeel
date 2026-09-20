@@ -66,6 +66,22 @@ const DICT: Candidate[] = [
     ["NOM_SG", "rõõm"], ["GEN_SG", "rõõmu"], ["PART_SG", "rõõmu"],
   ]),
   /*
+    `oli` is the third person simple past of `olema`, one of the commonest
+    words in the language. Folded, it collides with `õli` (oil): both used to
+    score 90/88 for the same query, so "Seda oli kuulda" glossed its `oli` as
+    oil. `õli`'s own nominative plural, `õlid`, folds to `olid` the same way,
+    which is why the guard blocks the whole ladder for a collision lemma
+    rather than the one tier the first report was about. See
+    FOLD_COLLISION_LOSES in search.ts.
+  */
+  lexeme("olema", "to be", "VERB", [
+    ["INF_MA", "olema"], ["INF_DA", "olla"],
+    ["PRES_1SG", "olen"], ["PAST_1SG", "olin"], ["PAST_3SG", "oli"],
+  ]),
+  lexeme("õli", "oil", "NOUN", [
+    ["NOM_SG", "õli"], ["GEN_SG", "õli"], ["PART_SG", "õli"], ["NOM_PL", "õlid"],
+  ]),
+  /*
     A pronoun as the seed writes one: the retrieved table under `EKILEX:<code>`
     with no `morphCode` on the row at all, and two spellings of one form. Both
     are what the panel under a sentence reads, and both are what the naming
@@ -95,6 +111,27 @@ describe("rankCandidates — inflected forms", () => {
   ])("finds %s as a form of %s", (query, lemma, why) => {
     expect(top(query)?.lemma).toBe(lemma);
     expect(top(query)?.matchedAs).toMatch(why);
+  });
+
+  it("resolves oli (was) to olema rather than õli (oil)", () => {
+    expect(top("oli")?.lemma).toBe("olema");
+    expect(top("oli")?.matchedAs).toMatch(/olema/);
+  });
+
+  it("still finds õli (oil) when the diacritic is actually typed", () => {
+    expect(top("õli")?.lemma).toBe("õli");
+  });
+
+  it("does not vouch for õli's plural on a query with no diacritic", () => {
+    // õli's nominative plural is õlid, which folds to olid, the same
+    // collision one form over from the one this fix was reported on. Nobody
+    // typing "olid" plainly means oil.
+    expect(top("olid")?.lemma).not.toBe("õli");
+  });
+
+  it("still finds õlid (oils) when the diacritic is actually typed", () => {
+    expect(top("õlid")?.lemma).toBe("õli");
+    expect(top("õlid")?.matchedAs).toMatch(/õli/);
   });
 
   it("does not vouch for a plural built by adding d to the genitive", () => {

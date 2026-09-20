@@ -91,7 +91,7 @@ export type CardRow = Awaited<ReturnType<typeof prisma.card.findMany>>[number] &
  * nothing is derived (ADR-005).
  */
 function introFor(
-  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null,
+  c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null, firstCardEver: boolean,
 ): ReviewCard["intro"] {
   if (!c.lexeme) return null;
 
@@ -144,6 +144,8 @@ function introFor(
     */
     canTranslate: resolveProvider() !== null,
     isPhrase: isPhrase(c.lexeme.pos),
+    cefr: c.lexeme.cefr,
+    firstCardEver,
   };
 }
 
@@ -245,6 +247,7 @@ function clozeSentenceEn(c: CardRow): string | null {
 
 function toReviewCard(
   c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
+  firstCardEver = false,
 ): ReviewCard {
   return {
     id: c.id,
@@ -266,7 +269,7 @@ function toReviewCard(
     isNew: c.state === 0,
     // Only on a card that has never been seen. Every other card in the session
     // would carry a sentence nothing renders.
-    intro: c.state === 0 ? introFor(c, glossLanguage, reach) : null,
+    intro: c.state === 0 ? introFor(c, glossLanguage, reach, firstCardEver) : null,
     sentenceEn: clozeSentenceEn(c),
     canTranslate: resolveProvider() !== null,
     choices: null,
@@ -440,20 +443,37 @@ export async function withChoices(
     the hottest read in the app: a `Promise.all` of the three would serialise
     the glossing behind it and turn one round trip into two on every request.
 
-    So all three are *started* here and only the cheap one is waited on.
-    `sentenceReach` is cached for a minute, so on all but the first request per
-    instance it is already resolved and this costs nothing; on that first one
-    the stars overlap it rather than queueing behind.
+    So all three are *started* here and resolved together, rather than one
+    behind another. `sentenceReach` is cached for a minute, so on all but the
+    first request per instance it is already resolved and this costs
+    nothing; on that first one the stars and the first-ever check overlap it
+    rather than queueing behind.
   */
   const reaching = sentenceReach();
   const starring = starredAmong(
     ownerId, rows.map((r) => r.lexemeId).filter((id): id is string => !!id),
   );
-  const reach = await reaching;
-  const [glossed, starred] = await Promise.all([
-    withGlosses(rows.map((c) => toReviewCard(c, glossLanguage, reach)), ownerId).then(withEveryday),
-    starring,
-  ]);
+  /*
+    WHETHER THIS IS THE VERY FIRST WORD THIS LEARNER HAS EVER MET, so
+    `WordIntro` can say so once rather than never: a beginner shown a full
+    Estonian sentence with no run-up read it as a test rather than as
+    context, and asked what the point of it was. Asked only when the batch
+    actually holds an unseen card, since it is the one extra round trip on a
+    page most requests do not need, and started alongside the other two
+    reads rather than in front of them.
+
+    `findFirst` rather than `count`: the caller only wants a boolean, and a
+    learner deep into this app has tens of thousands of rows under their own
+    id, which `count` scans in full even off an index while `findFirst`
+    stops at the first one. This is the hottest read in the app.
+  */
+  const firstEvering = rows.some((r) => r.state === 0)
+    ? prisma.review.findFirst({ where: { ownerId }, select: { id: true } }).then((row) => row === null)
+    : Promise.resolve(false);
+  const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
+  const glossed = await withGlosses(
+    rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
+  ).then(withEveryday);
   const cards = glossed.map(
     (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),
   );

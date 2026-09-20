@@ -10412,6 +10412,7 @@ npm run audit:readable   # which A1 words have no sentence a beginner can read, 
 npm run audit:pins       # every grammar example: what vouches for it, what nothing can check, what repeats
 npm run audit:homonyms   # does each gloss describe the word whose forms sit beside it (--write applies the pins)
 npm run audit:order      # every alternative word order the sentence builder accepts; read the list
+npm run course:ids       # agree a new shape for the day ids, after weighing what a shift costs
 npm run audit:merge      # after merging: what the other side added that is no longer here
 npm run check:secrets    # fails if a credential reached the client bundle
 npm run db:seed          # reload the built-in dictionary
