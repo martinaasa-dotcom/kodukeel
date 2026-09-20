@@ -337,7 +337,22 @@ export default async function CoursePage({
     >
       <Stack>
         <Card tone="accent">
-          <SectionTitle hint={`Day ${day.index} of ${total}`}>
+          {/*
+            AND WHICH EVENING OF THE UNIT THIS IS, BESIDE WHICH DAY OF THE PART.
+
+            The heading already says the claim under it is the unit's rather
+            than tonight's, and that is not the same as saying which slice
+            tonight is: a learner read "Say I, you, he, we and they" over an
+            evening teaching four of the six and reported it, correctly, as
+            the screen promising words it was not going to teach. The count
+            is the one honest answer the screen has, since the claim itself
+            is a person's sentence and a third of it is not a sentence.
+          */}
+          <SectionTitle
+            hint={day.part.of > 1
+              ? `Day ${day.index} of ${total} · part ${day.part.n} of ${day.part.of}`
+              : `Day ${day.index} of ${total}`}
+          >
             {day.part.of > 1 ? "By the end of this unit" : "By the end of tonight"}
           </SectionTitle>
           {/*

@@ -69,10 +69,10 @@ const QUESTION_UNIT = "kusisonad";
 /**
  * The negator, and the pronoun each register expects.
  *
- * Named as lemmas rather than as units, because `vastused` teaches thirteen
- * words and only one of them is the negator, and `asesonad` teaches sixteen
- * pronouns of which exactly one is the register in question. A unit would make
- * "did they say no" true of `jah`.
+ * Named as lemmas rather than as units, because `vastused` teaches five words
+ * and only one of them is the negator, and `asesonad` teaches the six persons
+ * of which exactly one is the register in question. A unit would make "did
+ * they say no" true of `jah`.
  */
 const NEGATOR = "ei";
 const REGISTER_PRONOUN = { teie: "teie", sina: "sina" } as const;

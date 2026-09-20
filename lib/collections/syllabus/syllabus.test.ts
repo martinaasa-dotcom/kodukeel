@@ -4,6 +4,7 @@ import {
   nextUnit, unitById, unitProgress, unitsAtLevel, wordsAtLevel, type Level, type SyllabusUnit,
 } from "./index";
 import { HARVESTED, type HarvestedWord } from "@/prisma/data/harvested";
+import { MAX_DAY_WORDS } from "@/lib/course/types";
 import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 
 /** A harvested word in the shape the card builder reads, exactly as the seed lays it down. */
@@ -119,14 +120,61 @@ describe("the course", () => {
     }
   });
 
+  /*
+    TWO UNITS ARE UNDER THE FLOOR AND BOTH ARE ARGUED FOR BY NAME, because an
+    exemption with no reason beside it is the parking space this repository
+    keeps recording a list becoming. `vastused` is five so that the pronouns
+    are the second evening of the module rather than the fourth, and
+    `asesonad` is six because six is the whole of the Estonian verb's persons
+    and a seventh word would be one it does not teach. Every other unit keeps
+    the floor.
+  */
+  const SHORT_UNITS: Record<string, number> = { vastused: 5, asesonad: 6 };
+
   it("keeps every unit to a sitting", () => {
     for (const u of SYLLABUS) {
-      // The first unit of the course is five words on purpose, so that the
-      // pronouns are the second evening of the module rather than the fourth:
-      // see the note on `vastused`. Every other unit keeps the floor.
-      expect(u.words.length, u.id).toBeGreaterThanOrEqual(u.id === "vastused" ? 5 : 8);
+      expect(u.words.length, u.id).toBeGreaterThanOrEqual(SHORT_UNITS[u.id] ?? 8);
       expect(u.words.length, u.id).toBeLessThanOrEqual(24);
     }
+  });
+
+  /*
+    A DECLARED SPLIT IS A PARTITION OF THE UNIT, NOT A HINT.
+
+    `UnitSpec.evenings` exists because the even slice broke a paradigm in
+    half: six persons at a five-word budget came out four and four, and the
+    module's second evening taught `mina, sina, tema, meie` under a heading
+    promising all six. A unit that names its own evenings has to name all of
+    its words and no others, in its own order, or the builder falls back to
+    the slice and the declaration is a decision that quietly stopped
+    happening. Both directions, since either alone passes on the broken
+    shape.
+  */
+  it("declares evenings that are a partition of the unit, in its own order", () => {
+    for (const u of SYLLABUS) {
+      if (!u.evenings) continue;
+      const flat = u.evenings.flat();
+      expect(flat, `${u.id} declares evenings that are not its own words in order`)
+        .toEqual(u.lemmas);
+      for (const group of u.evenings) {
+        expect(group.length, `${u.id} declares an evening of ${group.length} words`)
+          .toBeGreaterThan(0);
+        expect(group.length, `${u.id} declares an evening of ${group.length} words`)
+          .toBeLessThanOrEqual(MAX_DAY_WORDS);
+      }
+    }
+  });
+
+  /*
+    THE SIX PERSONS ARE ONE EVENING, which is the fault that produced the
+    declaration and the one thing no general rule above would catch: a
+    partition of four and four passes every check on this page.
+  */
+  it("teaches the six persons of the verb on one evening", () => {
+    const pronouns = unitById("asesonad")!;
+    expect(pronouns.lemmas).toEqual(["mina", "sina", "tema", "meie", "teie", "nemad"]);
+    expect(pronouns.evenings, "the six are one evening or the budget splits them")
+      .toEqual([["mina", "sina", "tema", "meie", "teie", "nemad"]]);
   });
 
   /*

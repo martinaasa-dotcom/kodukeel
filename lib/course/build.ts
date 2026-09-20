@@ -49,6 +49,34 @@ export function slice<T>(items: readonly T[], n: number): T[][] {
 }
 
 /**
+ * A unit's evenings: the ones it declared, or the even slice.
+ *
+ * THE SLICE IS ARITHMETIC AND SOME UNITS ARE NOT. Six words at A1 is a budget
+ * of five and a ceiling of eight, so `Math.ceil(6 / 5)` is two evenings and
+ * the six persons of the Estonian verb came out as three and three, under a
+ * heading promising all six. A unit whose words are one thing says where its
+ * own evenings break (`UnitSpec.evenings`) and this reads it.
+ *
+ * Declared groups are intersected with the words still to teach rather than
+ * trusted, since a lemma an earlier unit of the part already taught is
+ * dropped before this is reached, and an empty group goes with it. So a
+ * declaration degrades to the even slice rather than to a blank evening, and
+ * it can never put a word on a screen twice.
+ */
+export function evenings(
+  unit: SyllabusUnit, words: readonly string[], perDay: number,
+): string[][] {
+  if (unit.evenings) {
+    const left = new Set(words);
+    const groups = unit.evenings
+      .map((group) => group.filter((lemma) => left.has(lemma)))
+      .filter((group) => group.length > 0);
+    if (groups.flat().length === words.length) return groups;
+  }
+  return slice(words, Math.max(1, Math.ceil(words.length / perDay)));
+}
+
+/**
  * What an evening reads, from the unit's own list of what it teaches.
  *
  * A unit names its grammar in its own order and an evening takes the next one
@@ -506,7 +534,7 @@ export function buildPart(spec: PartSpec, ledger: Ledger = ledgerBefore(spec)): 
     const verbs = isVerbHeavy(unit);
     const scene = SCENE_FOR_UNIT[unitId];
 
-    const chunks = slice(words, Math.max(1, Math.ceil(words.length / perDay)));
+    const chunks = evenings(unit, words, perDay);
     const plan = readingPlan(unit, spec.level, readInPart);
     /* The conversation replaces the reading (`day()` in types.ts), so a scene
        evening takes no page off the plan: the first version handed it one,

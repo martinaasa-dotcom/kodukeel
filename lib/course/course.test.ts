@@ -67,11 +67,25 @@ describe("the programme is a request against the course, never a copy of it", ()
     }
   });
 
+  /*
+    THE BUDGET IS WHAT THE ARITHMETIC MAY SPEND; THE CEILING IS WHAT ANYBODY
+    MAY. A sliced unit is held to the level's own word count, which is the
+    whole of how a fifteen-minute evening stays fifteen minutes. A unit that
+    declares its own evenings (`UnitSpec.evenings`) may go one or two past it,
+    because the alternative is what it was written for: six pronouns at a
+    five-word budget sliced into four and four, half a paradigm an evening.
+    It is held to `MAX_DAY_WORDS` like everything else, and the clock is held
+    by the fifteen-minute test below rather than by this one, which is where
+    a declared evening that really is too long fails.
+  */
   it("keeps a day inside one evening, at that level's own size", () => {
     for (const { programme, day } of DAYS) {
+      const declared = unitById(day.unitId)?.evenings !== undefined;
       expect(day.words.length, day.id).toBeGreaterThan(0);
       expect(day.words.length, day.id).toBeLessThanOrEqual(MAX_DAY_WORDS);
-      expect(day.words.length, day.id).toBeLessThanOrEqual(ordinaryWords(programme.level));
+      if (!declared) {
+        expect(day.words.length, day.id).toBeLessThanOrEqual(ordinaryWords(programme.level));
+      }
     }
   });
 
