@@ -254,12 +254,18 @@ describe("the count and the round agree", () => {
  * Estonian sentence with a blank in it at gap, never having read it.
  */
 describe("learnBatch — an A1 word carries no gap", () => {
+  /*
+    `sentenceAndGap` looks for the bare lemma in the sentence, not any other
+    form of it (`teachingSentence(examples, [lexeme.lemma], ...)`), so the
+    fixture's sentence has to contain the lemma itself as a whole word for a
+    gap to be buildable at all.
+  */
   async function gapWord(cefr: string) {
     return prisma.lexeme.create({
       data: {
         lemma: "zzlearngapword", pos: "NOUN", translation: "zzlearngapword in English", cefr,
         examples: JSON.stringify([
-          { et: "Ma olen zzlearngapwordas.", en: "I am in the zzlearngapword.", source: "SEED" },
+          { et: "See on minu zzlearngapword.", en: "This is my zzlearngapword.", source: "SEED" },
         ]),
         forms: { create: [
           { formType: "NOM_SG", value: "zzlearngapword" },
@@ -274,7 +280,7 @@ describe("learnBatch — an A1 word carries no gap", () => {
     await ladderCard(w.id, 0, NOW);
 
     const [word] = await learnBatch(MINE, "A1", "en", 5, { kind: "word", now: NOW });
-    expect(word?.sentence?.et).toBe("Ma olen zzlearngapwordas.");
+    expect(word?.sentence?.et).toBe("See on minu zzlearngapword.");
     expect(word?.gap).toBeNull();
   });
 
@@ -283,7 +289,7 @@ describe("learnBatch — an A1 word carries no gap", () => {
     await ladderCard(w.id, 0, NOW);
 
     const [word] = await learnBatch(MINE, "A2", "en", 5, { kind: "word", now: NOW });
-    expect(word?.sentence?.et).toBe("Ma olen zzlearngapwordas.");
-    expect(word?.gap?.answer).toBe("zzlearngapwordas");
+    expect(word?.sentence?.et).toBe("See on minu zzlearngapword.");
+    expect(word?.gap?.answer).toBe("zzlearngapword");
   });
 });
