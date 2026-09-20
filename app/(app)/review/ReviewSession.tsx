@@ -550,6 +550,33 @@ export function ReviewSession({
   const [pendingOffline, setPendingOffline] = useState(0);
   const { pending: outboxPending, refresh: refreshOutbox } = useOffline();
   const shownAt = useRef(Date.now());
+  /*
+    WHEN THE ANSWER WAS ACTUALLY GIVEN, WHICH IS NOT WHEN THE CARD IS FINALLY
+    GRADED.
+
+    `Review.durationMs` is read elsewhere as the time a recall took
+    (`lib/stats/answerTime.ts`: "its clock stops at the answer"), and now
+    that a right answer waits on a button instead of a timer, `submit` can
+    run an arbitrary time after the answer was produced — a learner reading
+    the confirmation for ten seconds must not have those ten seconds counted
+    as ten seconds of retrieval. So the clock is stopped the moment there is
+    nothing left to produce: a pick, right or wrong, since it cannot be
+    changed once made; a typed answer, once it is right; a retyped miss,
+    once *that* is right. A typed miss still working towards that retype is
+    the one case this leaves running, because the retype is still the
+    learner doing the thing being timed. Null means "still working it out
+    or nothing to stop for", so `submit` falls back to `shownAt`: the one
+    shape that never sets this is the flip card, where the duration is
+    meant to run until the rating is given (`lib/stats/answerTime.ts` again,
+    on why a self-graded card's clock includes reading the answer).
+
+    Named `producedAt` rather than `answeredAt`, because `submit` already
+    has a local `answeredAt` — the ISO timestamp the grade is recorded
+    under, which is a different question and correctly stays the moment of
+    the press: `Review` is append-only and a row is dated when it is
+    written, not backdated to when the learner stopped typing.
+  */
+  const producedAt = useRef<number | null>(null);
   const startedAt = useRef(Date.now());
   const { voice, pace } = useAudioPrefs();
   const sound = useFeedbackSound();
@@ -708,6 +735,7 @@ export function ReviewSession({
 
   useEffect(() => {
     shownAt.current = Date.now();
+    producedAt.current = null;
     setRevealed(false);
     setTyped("");
     setVerdict(null);
@@ -765,6 +793,7 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
+    producedAt.current = null;
   }, [card, busy, index, recordSeen]);
 
   /**
@@ -815,6 +844,7 @@ export function ReviewSession({
     setRetypeOk(false);
     setRetypeNote(null);
     shownAt.current = Date.now();
+    producedAt.current = null;
   }, [card, queue, index]);
 
   const submit = useCallback(async (asked: RatingValue) => {
@@ -834,7 +864,8 @@ export function ReviewSession({
     */
     const rating = Math.min(asked, hints.ceiling) as RatingValue;
     if (rating === 1) hints.noteMiss();
-    const duration = Date.now() - shownAt.current;
+    const duration = (producedAt.current ?? Date.now()) - shownAt.current;
+    producedAt.current = null;
     const answeredAt = new Date().toISOString();
     const before = scheduled.current.get(card.id) ?? card.scheduling;
 
@@ -946,6 +977,11 @@ export function ReviewSession({
     }
     // A right answer waits for its own button now, exactly like a miss: see
     // the note beside `scheduled` on why nothing here times out any more.
+    // Anything short of an outright hit (`diacritics`, `typo`, `wrong`) still
+    // asks for a retype, which is the learner still doing the thing being
+    // timed, so the clock keeps running for those — only a clean hit stops it
+    // here, matching `needsRetype`'s own reading of `verdict.verdict`.
+    if (result.verdict === "correct") producedAt.current = Date.now();
   }, [card, typed, verdict, cheer]);
 
   /** Whether the card is waiting for the miss to be typed again. */
@@ -960,6 +996,7 @@ export function ReviewSession({
       setRetypeNote(null);
       // The button under the card takes it from here: see the note beside
       // `scheduled` on why the retype no longer grades itself on a timer.
+      producedAt.current = Date.now();
     } else {
       setRetypeNote("Not yet. Copy the answer above exactly, letter for letter.");
     }
@@ -974,6 +1011,9 @@ export function ReviewSession({
     if (!right && typeof navigator !== "undefined" && "vibrate" in navigator) navigator.vibrate?.(60);
     // Nothing grades itself here any more: the tile turns and a button
     // beneath it says what happens next, same as a wrong pick already had.
+    // A pick is final the instant it is made, right or wrong, so this stops
+    // the clock here rather than at whenever the button is finally pressed.
+    producedAt.current = Date.now();
   }, [card, chosen, cheer]);
 
   useEffect(() => {
