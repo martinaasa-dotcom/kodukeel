@@ -167,7 +167,7 @@ async function answer(typed) {
     to track the question across a reload, and it is not reading it off the
     screen any more, so it is named here instead.
   */
-  if (!slot && /say it in estonian/i.test(text)) slot = "saying it";
+  if (!slot && ASK_LINES[0].test(text)) slot = "saying it";
   return {
     right: /That is it/.test(text),
     told: form && slot ? `${slot}: ${form}` : "",
