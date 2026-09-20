@@ -54,6 +54,19 @@ export function moduleScopeFrom(searchParams: SearchParams): ModuleScope | null 
   const programme = programmeById(focus.programmeId);
   const day = programme ? dayById(programme, focus.dayId) : undefined;
   if (!programme || !day) return null;
+  return scopeFor(programme, day);
+}
+
+/**
+ * The same scope for a caller that already holds the day.
+ *
+ * The course reading needs it: whether the closing step is finished turns on
+ * how much the closing round still has to ask, and that is a question about
+ * this scope rather than about any address. One constructor, so the round a
+ * learner opens and the count the module keeps of it cannot disagree about
+ * what the evening has taught.
+ */
+export function scopeFor(programme: Programme, day: CourseDay): ModuleScope {
   const grammar = grammarThrough(programme, day.index);
   return { programme, day, lemmas: taughtThrough(programme, day.index), ...grammar };
 }

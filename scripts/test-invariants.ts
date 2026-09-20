@@ -15641,25 +15641,36 @@ check("learn teaches a word and practice drills it, never both at once", () => {
     read excludes every card of a word the ladder still has hold of, which needs
     the word rather than the row and so is a `none` on the entry's own cards.
   */
-  const review = code("app/(app)/review/page.tsx");
+  /*
+    THE TWO CLAUSES LIVE IN `lib/srs/reviewQueue.ts` NOW, because the module's
+    closing step has to know how many cards this queue is going to offer and a
+    count computed beside the queue rather than out of it is the reading that
+    silently disagrees with the screen. Both halves are checked: the clauses
+    say what they always said, and the page is still the caller that spreads
+    them rather than having quietly written its own.
+  */
+  const queue = code("lib/srs/reviewQueue.ts");
   assert.match(
-    review, /NOT:\s*\{\s*cardType:\s*LADDER_CARD_TYPE/,
+    queue, /NOT:\s*\{\s*cardType:\s*LADDER_CARD_TYPE/,
     "the review queue serves a card the Learn ladder is still walking",
   );
   assert.match(
-    review, /pastTheLadder\(ownerId\)/,
+    queue, /pastTheLadder\(ownerId\)/,
     "the review queue introduces unseen cards of a word Learn has not finished with",
   );
-
-  /*
-    `pastTheLadder` and `notOnLadder` live in cards.ts now, shared with the
-    other routes that can hand out an unseen card, so their own definition is
-    checked there rather than in page.tsx.
-  */
-  const cardsModule = code("app/(app)/review/cards.ts");
   assert.match(
-    cardsModule, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
+    queue, /state:\s*\{\s*in:\s*\[\.\.\.LADDER_STATES\]/,
     "pastTheLadder names the ladder's states itself rather than reading the table",
+  );
+
+  const review = code("app/(app)/review/page.tsx");
+  assert.match(
+    review, /where: dueWhere\(ownerId, now\)/,
+    "the review queue reads its own due clause rather than the shared one",
+  );
+  assert.match(
+    review, /where: unseenWhere\(ownerId, now,/,
+    "the review queue reads its own unseen clause rather than the shared one",
   );
 
   /*
@@ -17703,7 +17714,7 @@ check("a read that ignores the schedule asks which words were put aside", () => 
   // And the reads that do go by the date say so, or a word put aside is
   // introduced as new on the next session.
   assert.match(
-    code("app/(app)/review/page.tsx"), /state: 0, due: \{ lte: now \}/,
+    code("lib/srs/reviewQueue.ts"), /state: 0, due: \{ lte: now \}/,
     "the new-card queue stopped reading `due`, so a word put aside is introduced again",
   );
 });
@@ -17837,6 +17848,67 @@ check("the words put aside are listed, and one button puts them there", () => {
   about, and the temptation to add one arrives the first time somebody wants
   "skip this day".
 */
+/**
+ * A STEP NOBODY CAN PRESS HAS TO BE ONE THE APP CAN STILL FINISH.
+ *
+ * Two of every evening's steps are derived: nothing a learner presses ticks
+ * them, they are read off the log. That is right, and it means the evidence
+ * they ask for has to be evidence the app can actually supply. It was not.
+ * The closing step asked for five answers and the round behind it is narrowed
+ * to what the evening has taught, so a learner reached "1 of 5 answers in"
+ * over a round saying nothing was due and the module stopped at three
+ * quarters for good, with no press anywhere on the screen that could move it.
+ * Reported off a real module.
+ *
+ * So the ask is capped by what the round can give, and the count is read off
+ * the very clauses the round draws with rather than beside them: two readings
+ * of one queue is how a number on a list and the screen it points at come
+ * apart, and here that costs the learner the evening rather than a figure.
+ *
+ * Four arms, and the last two are the ones that rot. Made to fail on the code
+ * that shipped.
+ */
+check("a derived step asks for no more evidence than the app can supply", () => {
+  const reading = code("lib/progress/course.ts");
+  assert.match(
+    reading, /closingLeft\(/,
+    "the closing step is finished by five answers whatever the round has left to ask, "
+    + "so an evening whose queue is empty can never be finished",
+  );
+
+  /* And the count is the queue's own clauses rather than a second copy. */
+  const counting = code("lib/progress/closing.ts");
+  for (const fragment of ["dueWhere(", "unseenWhere(", "roomFor(", "cardWithin("]) {
+    assert.ok(
+      counting.includes(fragment),
+      `lib/progress/closing.ts counts the closing round without ${fragment}), so what the `
+      + "module thinks is left and what the round shows can disagree",
+    );
+  }
+
+  /*
+    ROOM IS MEASURED AGAINST WHAT A SITTING SHOWS, not against what it read.
+    Inside a module the two differ by every card `cardWithin` refuses, and read
+    the old way a deck with sixty cards due, none of them askable tonight, left
+    no room for a single new word.
+  */
+  assert.match(
+    code("app/(app)/review/page.tsx"), /roomFor\(spaced\.length\)/,
+    "the review queue measures room against the cards it read rather than the cards it shows",
+  );
+
+  /*
+    AND MEETING THE WORDS HAS THE SAME SHAPE OF WAY OUT. A dictionary holding
+    none of a day's words builds no card, so the count the step reads stays at
+    nought and the evening cannot be finished by any press either.
+  */
+  assert.match(
+    reading, /prisma\.lexeme\.count/,
+    "the meet step cannot be finished on a deployment whose dictionary holds none of the "
+    + "day's words, and nothing a learner presses can tick it",
+  );
+});
+
 check("the planned course derives its day and stores only the steps a log cannot prove", () => {
   const schema = read("prisma/schema.prisma");
   const model = schema.slice(schema.indexOf("model CourseStep {"));

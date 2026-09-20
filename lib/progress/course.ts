@@ -7,8 +7,10 @@ import { LEVELS, LEVEL_INFO, levelIndex, type Level } from "@/lib/collections/sy
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import type { DayClock } from "@/lib/time/day";
 import { computeStreak } from "@/lib/stats/streak";
+import { closingLeft } from "@/lib/progress/closing";
+import { scopeFor } from "@/lib/course/scope";
 import {
-  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayReached, ladderProgress,
+  DEFAULT_PROGRAMME, MEET_STEP, PROGRAMMES, REVIEW_STEP, dayById, dayReached, ladderProgress,
   ladderVerdict, levelsTo, programmeById, programmeStanding, type CourseDay,
   type LadderProgress, type LadderVerdict, type Programme, type ProgrammeStanding,
 } from "@/lib/course";
@@ -233,7 +235,25 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
     },
     select: { state: true },
   });
-  return cards.length > 0 && cards.every((c) => c.state !== 0);
+  if (cards.length > 0) return cards.every((c) => c.state !== 0);
+  /*
+    AND A DAY WHOSE WORDS THIS DEPLOYMENT'S DICTIONARY HOLDS NONE OF IS MET.
+
+    `cards.length > 0` is what stops the step ticking before anybody has
+    pressed Start, and on a dictionary that cannot supply a single one of the
+    day's words it was also what stopped it ticking ever: the ladder builds
+    nothing, so no card arrives, so the count stays nought and the evening
+    cannot be finished by any press on any screen. `course.test.ts` holds
+    every day's words to lemmas its own unit teaches, so this is a deployment
+    seeded before those units rather than a programme naming a word that does
+    not exist, and the honest answer to "meet these five words" when the
+    dictionary has none of them is that there is nothing to meet.
+
+    One query, and only on the path that would otherwise be stuck: a deck that
+    holds any card at all for the day never reaches it.
+  */
+  const known = await prisma.lexeme.count({ where: { lemma: { in: [...words] } } });
+  return known === 0;
 }
 
 /** Answers graded since a moment, which is what the closing round counts. */
@@ -245,6 +265,35 @@ async function gradedSince(ownerId: string, since: Date): Promise<number> {
 async function closingGraded(ownerId: string, ticks: Ticks, dayId: string): Promise<number> {
   const opened = closingOpensAt(ticks, dayId);
   return opened ? gradedSince(ownerId, opened) : 0;
+}
+
+/**
+ * HOW MANY ANSWERS THIS EVENING'S CLOSING ROUND IS OWED, which is five or
+ * whatever the round can actually supply.
+ *
+ * `CLOSING_REVIEW` is the standing ask and it was also the only ask, so a
+ * closing round with nothing left to offer left the evening at three quarters
+ * for good: the step is derived, so no press on any screen can tick it, and
+ * the round it points at said there was nothing due. Reported off a real
+ * module. A step is finished by the evidence it asks for or by there being no
+ * more evidence to be had, and `closingLeft` is the second half of that
+ * sentence, read off the very queue the round would draw.
+ *
+ * Counted only where it could change the answer. A learner already past five
+ * is finished whatever the deck holds, and asking the deck about it would be
+ * two queries on Today to confirm something already true.
+ */
+async function closingNeeded(
+  ownerId: string, programme: Programme, day: CourseDay, graded: number, now: Date,
+): Promise<number> {
+  if (graded >= CLOSING_REVIEW) return CLOSING_REVIEW;
+  const left = await closingLeft(ownerId, scopeFor(programme, day), CLOSING_REVIEW - graded, now);
+  return Math.min(CLOSING_REVIEW, graded + left);
+}
+
+/** Whether the closing round is the one step of the evening still outstanding. */
+function onlyClosingLeft(day: CourseDay, done: ReadonlySet<string>): boolean {
+  return day.steps.every((step) => step.id === REVIEW_STEP || done.has(step.id));
 }
 
 export interface CourseReading extends ProgrammeStanding {
@@ -310,7 +359,26 @@ export async function courseReading(
 
     const withDerived = new Set(ticked);
     if (met) withDerived.add(MEET_STEP);
+    /*
+      FIVE ANSWERS, OR EVERY ANSWER THE ROUND HAS LEFT TO GIVE.
+
+      The first is the standing ask and used to be the only one, which is what
+      left an evening whose closing round had nothing to offer stuck at three
+      quarters for ever: the step is derived, so nothing a learner can press
+      ticks it, and the round behind it said nothing was due. See
+      `closingNeeded`.
+
+      Asked only where it is the last thing standing, which is both the honest
+      reading and the cheap one. Until then there is an evening's worth of
+      steps in front of it and the question is not yet "can this be finished",
+      it is "what is next"; and Today would be paying two queries a render to
+      answer something nobody was asking.
+    */
     if (graded >= CLOSING_REVIEW) withDerived.add(REVIEW_STEP);
+    else if (onlyClosingLeft(day, withDerived)
+      && graded >= await closingNeeded(ownerId, programme, day, graded, now)) {
+      withDerived.add(REVIEW_STEP);
+    }
     done.set(day.id, withDerived);
     standing = programmeStanding(programme, done);
 
@@ -353,13 +421,17 @@ export async function courseReading(
  * it and the reading above is on Today.
  */
 export async function closingProgress(
-  ownerId: string, programme: Programme, dayId: string,
+  ownerId: string, programme: Programme, dayId: string, now = new Date(),
 ): Promise<{ graded: number; needed: number }> {
   const ticks = await ticksFor(ownerId, programme);
-  return {
-    graded: Math.min(CLOSING_REVIEW, await closingGraded(ownerId, ticks, dayId)),
-    needed: CLOSING_REVIEW,
-  };
+  const day = dayById(programme, dayId);
+  const graded = await closingGraded(ownerId, ticks, dayId);
+  /* The same number the step itself is finished against, or the list would
+     promise five answers while the reading behind it settles for two. */
+  const needed = day && ticks.byDay.has(dayId)
+    ? await closingNeeded(ownerId, programme, day, graded, now)
+    : CLOSING_REVIEW;
+  return { graded: Math.min(needed, graded), needed };
 }
 
 /** Which of a day's words the deck does not hold yet, for the screen to say so. */

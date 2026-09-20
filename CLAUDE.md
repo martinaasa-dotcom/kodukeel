@@ -4856,6 +4856,38 @@ same card are one row. Those are ticked by the learner, `CourseStep` is append-o
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
 implying the app watched.
 
+**And a step nobody can press has to be one the app can still finish.** The two derived steps ask
+for evidence, and the closing one asked for five answers whatever the round behind it had left to
+give. Inside a module that round is narrowed to what the evening has taught, so a learner reached
+"1 of 5 answers in" over a screen saying nothing was due, and the module stopped at three quarters
+with no press anywhere on it that could move it: the step is derived, so `markCourseStep` and
+`advanceCourseStep` both refuse it a row, correctly. Reported off a real module. A derived step is
+finished by the evidence it asks for **or by there being no more evidence to be had**, so the ask
+is `min(CLOSING_REVIEW, graded + what is left)` and a closing round with nothing to ask is a
+closing round done. Nothing is stored for it (ADR-014): what is left is read off the deck on each
+render like every other figure here.
+
+**And it is read off the queue's own clauses rather than beside them.** A count computed near the
+review page and not out of it is two readings of one question, and the one that is wrong is the one
+nobody is looking at: too low and the step ticks before anybody reviewed, too high and the learner
+is back pressing a button that goes nowhere. `lib/srs/reviewQueue.ts` is what the queue asks for,
+`app/(app)/review/page.tsx` spreads it into the query that draws the cards and
+`lib/progress/closing.ts` spreads the same clauses into a four-column one that only counts. Moving
+them there turned up the fault underneath: **room for new words was measured against what the query
+read rather than against what the sitting shows**, and inside a module the two differ by every card
+`cardWithin` refuses, so a deck with sixty cards due and none of them askable tonight left no room
+for a single new word and produced the empty round in the first place. `roomFor` takes the shown
+count.
+
+**Meeting the words has the same shape of way out**, which is worth naming because it is the same
+sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
+Start, and on a deployment whose dictionary holds none of the day's words it was also what stopped
+it ticking ever. A day whose words this dictionary cannot supply is met, since there is nothing to
+meet, asked with one query and only on the path that would otherwise be stuck. And inside a module
+an empty review says **which** empty it is: "you're caught up, all 312 cards are scheduled for
+later" is the wrong cause on a round that is narrowed, and it sends somebody off to check a deck
+that is fine.
+
 **Two faults in it were invisible to every unit test and turned up in the first two evenings
 anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
 tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn

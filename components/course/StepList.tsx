@@ -165,7 +165,7 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                   )}
                   {isNext && step.id === "review" && (
                     <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-                      {closing.graded} of {closing.needed} answers in. Keep going and this ticks itself.
+                      {closing.graded} of {closing.needed} {closing.needed === 1 ? "answer" : "answers"} in. Keep going and this ticks itself.
                     </p>
                   )}
 
