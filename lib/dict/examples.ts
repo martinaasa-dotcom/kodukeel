@@ -14,6 +14,7 @@
  */
 
 import { naturalSentence } from "@/lib/estonian/cloze";
+import { isRefusedSentence } from "@/lib/dict/refused";
 
 export type ExampleSource = "EKILEX" | "SEED" | "USER" | "AI";
 
@@ -22,6 +23,24 @@ export interface Example {
   et: string;
   /** An English translation, when one exists. Ekilex has none on a reader key. */
   en?: string | null;
+  /**
+   * A REVIEWER HAS READ THIS SENTENCE'S ENGLISH AND SAID IT WAS WRONG.
+   *
+   * `CLEAR_TRANSLATION` sets `en` back to null, which is the honest "not yet"
+   * every sentence was in before the shipped table existed, and null is the
+   * one thing that cannot say which of two facts it is. Nobody has answered
+   * yet and somebody has answered and was wrong read identically, so the next
+   * seed refilled the line from `prisma/data/example-english.json` and every
+   * later render asked a model for it again: the reviewer's decision was
+   * undone within a deploy, silently, across the whole deployment.
+   *
+   * A second stored fact rather than an inversion of the first, which is the
+   * shape `emailsOff` and `emailsOn` take in `lib/settings` and for their
+   * reason: one field holding both would mean "absent" reading one way for
+   * most sentences and the other way for these, which is the rule whoever
+   * next edits it gets backwards. Absent is still "not yet".
+   */
+  enRefused?: boolean;
   source: ExampleSource;
 }
 
@@ -35,7 +54,18 @@ export function parseExamples(json: string | null | undefined): Example[] {
   try {
     const parsed: unknown = JSON.parse(json);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(isExample);
+    /*
+      A SENTENCE SOMEBODY HAS REFUSED NEVER COMES OUT OF THE COLUMN.
+
+      This is the one reader of `Lexeme.examples` and about fifty callers come
+      through it, several of which never reach `usableExamples`: the case
+      walk, the grammar pages, the daily quest, the worksheet, the sprint and
+      the two repairs in `prisma/repair.ts` among them. Refusing here is what
+      makes one line in `lib/dict/refused.ts` reach every screen rather than
+      most of them, and it covers a deployment that was seeded before the
+      refusal was written, whose rows still hold the sentence.
+    */
+    return parsed.filter(isExample).filter((e) => !isRefusedSentence(e.et));
   } catch {
     return [];
   }
@@ -47,10 +77,23 @@ function isExample(value: unknown): value is Example {
   return typeof v.et === "string" && v.et.trim().length > 0;
 }
 
+/**
+ * May anything fill in what this sentence means?
+ *
+ * The one reader of `enRefused`, so the shipped table, the seed's repair and
+ * the runtime ask cannot disagree about whose line it is. False where a line
+ * is already held, because there is nothing to fill.
+ */
+export function mayFillEnglish(example: Example): boolean {
+  return !example.en && !example.enRefused;
+}
+
 export function serialiseExamples(examples: Example[]): string {
   return JSON.stringify(examples.map((e) => ({
     et: e.et.trim(),
     ...(e.en ? { en: e.en.trim() } : {}),
+    // Kept, or the reviewer's decision lives exactly as long as the row does.
+    ...(e.enRefused ? { enRefused: true } : {}),
     source: e.source,
   })));
 }
@@ -104,6 +147,13 @@ export function usableExamples(examples: Example[], plainest?: Rank): Example[] 
     const key = et.toLowerCase();
     if (et.length < MIN_CHARS || et.length > MAX_CHARS) continue;
     if (sentenceWords(et).length < 2) continue;
+    /*
+      And again here rather than only in `parseExamples`, because a list
+      mapped straight out of a live Ekilex lookup has never been near the
+      column: `lib/ekilex/mapper.ts` builds fresh `Example`s and hands them
+      to `mergeExamples`, which is this function. Two doors, two refusals.
+    */
+    if (isRefusedSentence(et)) continue;
     if (!naturalSentence(et)) continue;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -162,7 +212,15 @@ export function mergeExamples(existing: Example[], incoming: Example[]): Example
   for (const example of incoming) {
     const key = example.et.trim().toLowerCase();
     const held = byText.get(key);
-    byText.set(key, held?.en ? { ...example, en: held.en } : example);
+    /*
+      And a refusal survives a refetch for the reason the translation does:
+      Ekilex answering again is not somebody saying the English was right.
+    */
+    byText.set(key, {
+      ...example,
+      ...(held?.en ? { en: held.en } : {}),
+      ...(held?.enRefused ? { enRefused: true } : {}),
+    });
   }
   return usableExamples([...byText.values()]);
 }

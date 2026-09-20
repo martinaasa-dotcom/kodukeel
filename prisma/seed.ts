@@ -16,6 +16,7 @@ import { ensureSearchIndexes } from "./indexes";
 import { classifyGradation, classifyVerbGradation, gradates } from "../lib/estonian/gradation";
 import { courseWords } from "../lib/collections/syllabus/index";
 import { englishFor } from "../lib/dict/exampleEnglish";
+import { isRefusedSentence } from "../lib/dict/refused";
 
 const prisma = newPrismaClient();
 
@@ -238,8 +239,17 @@ async function main() {
         a learner met in a lesson carried a sentence with no way to read it.
         `lib/dict/exampleEnglish.ts` is the one place that answer lives.
       */
+      /*
+        And a sentence somebody has read and refused is never written down.
+        `parseExamples` refuses it on the way out for a deployment seeded
+        before the refusal existed; this is what keeps it out of a fresh
+        install's database altogether, so nothing can borrow it, print it,
+        or build a card from it in the first place.
+      */
       examples: JSON.stringify(
-        word.usages.map((et) => ({ et, en: englishFor(et), source: "EKILEX" })),
+        word.usages
+          .filter((et) => !isRefusedSentence(et))
+          .map((et) => ({ et, en: englishFor(et), source: "EKILEX" })),
       ),
       /*
         The principal parts, and beside them the whole forms no rule of this

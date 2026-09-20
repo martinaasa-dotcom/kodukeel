@@ -75,7 +75,8 @@
  */
 import { prisma } from "../lib/db";
 import { acceptedAnswers } from "../lib/estonian/answer";
-import { retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
+import { refusedSentenceCards, retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
+import { refusalFor } from "../lib/dict/refused";
 import { borrowSentences } from "../lib/dict/borrow";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { parseExamples } from "../lib/dict/examples";
@@ -83,8 +84,9 @@ import { parseExamples } from "../lib/dict/examples";
 const write = process.argv.includes("--write");
 
 /** What the report prints for each fault, so a reader knows which they have. */
-const WHY: Record<Retirement["why"] | "prints-its-answer", string> = {
+const WHY: Record<Retirement["why"] | "prints-its-answer" | "refused-sentence", string> = {
   "prints-its-answer": "the answer is the word in the question",
+  "refused-sentence": "cut from a sentence somebody has read and refused",
   "wrong-local-set": "a being, asked for an inside case nobody says",
   "no-singular": "the word has no singular, so that form is another word's",
   "no-sentence": "a bare ask, and no recorded sentence uses the word in that case",
@@ -112,6 +114,15 @@ async function main() {
   type Doomed = {
     id: string; lemma: string; back: string; targetCase: string | null;
     why: keyof typeof WHY;
+    /*
+      What a person said about this card, where one did. `WHY` says which rule
+      fired, which is the same line for every card the rule names; this is the
+      sentence whoever refused it wrote, and it is the whole reason
+      `RefusedSentence.why` is stored rather than the refusal being a bare
+      list. Absent on the three rules that are derivations rather than
+      somebody's judgement.
+    */
+    note?: string;
   };
   const doomed: Doomed[] = [];
   const seen = new Set<string>();
@@ -197,9 +208,55 @@ async function main() {
     owners.add(gone.ownerId);
   }
 
-  console.log(`Read ${cards.length} case cards.`);
+  /*
+    THE FOURTH RULE, AND THE ONLY ONE THAT IS NOT ABOUT A CASE.
+
+    A sentence in `lib/dict/refused.ts` is one somebody who speaks Estonian
+    has read and refused, and the gate at `parseExamples` keeps it off every
+    screen from the moment the line lands. It cannot reach a card already
+    built, which holds the front it was cut with, so the learner goes on being
+    asked to complete a line nothing else in the app will draw.
+
+    Its own query, because the three rules above are about `CASE_FORM` alone
+    and the card this was reported from is a gap-fill on the daily path. See
+    `refusedSentenceCards`.
+  */
+  const sentenceCards = await prisma.card.findMany({
+    /*
+      The case cards are already in hand from the first query, so this asks
+      for what that one did not: the two other types the builder cuts out of a
+      recorded sentence, and the case card with no lexeme behind it, which
+      that query excludes. Reading every `CASE_FORM` row a second time would
+      be a second full scan for rows sitting in a variable.
+    */
+    where: {
+      OR: [
+        { cardType: { in: ["CLOZE", "CONJUGATION"] } },
+        { cardType: "CASE_FORM", lexemeId: null },
+      ],
+    },
+    select: {
+      id: true, ownerId: true, front: true, back: true, targetCase: true,
+      lexeme: { select: { lemma: true } },
+    },
+    orderBy: { id: "asc" },
+  });
+  for (const gone of refusedSentenceCards([...cards, ...sentenceCards])) {
+    condemn({
+      id: gone.id,
+      lemma: gone.lemma || gone.sentence,
+      back: gone.back,
+      targetCase: gone.targetCase,
+      why: "refused-sentence",
+      // The words of whoever read that sentence and refused it.
+      note: refusalFor(gone.sentence)?.why,
+    });
+    owners.add(gone.ownerId);
+  }
+
+  console.log(`Read ${cards.length} case cards and ${sentenceCards.length} more cut from a sentence.`);
   if (doomed.length === 0) {
-    console.log("Every one of them asks a question its word can answer.");
+    console.log("Every one of them asks a question its word can answer, out of a sentence nobody has refused.");
     return;
   }
 
@@ -208,6 +265,9 @@ async function main() {
   console.log(`${cardsWord} be answered, in ${decksWord}:`);
   for (const d of doomed.slice(0, 40)) {
     console.log(`  ${d.lemma} → ${d.targetCase ?? "?"}  back: ${d.back}  (${WHY[d.why]})`);
+    // On its own line, because a reason somebody wrote runs to a sentence and
+    // a column of them would push the card off the right of the terminal.
+    if (d.note) console.log(`      ${d.note}`);
   }
   if (doomed.length > 40) console.log(`  ... and ${doomed.length - 40} more`);
 
