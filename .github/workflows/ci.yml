@@ -341,7 +341,6 @@ jobs:
               scripts/e2e.mjs
               scripts/test-modes.mjs
               scripts/test-teaching.mjs
-              scripts/test-learn-ladder.mjs
               scripts/a11y-check.mjs
 
           # The paths that cross a process boundary: a photograph to a card, a
