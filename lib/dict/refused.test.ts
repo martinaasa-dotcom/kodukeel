@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { HARVESTED } from "@/prisma/data/harvested";
 import ENGLISH from "@/prisma/data/example-english.json";
 import { parseExamples, serialiseExamples, usableExamples, mayFillEnglish } from "./examples";
-import { REFUSED_SENTENCES, isRefusedSentence, refusalFor } from "./refused";
+import { REFUSED_SENTENCES, isRefusedSentence, refusalFor, refusalMatcher } from "./refused";
 import { refusedSentenceCards } from "@/lib/srs/retire";
 import { BLANK } from "@/lib/estonian/cloze";
 
@@ -50,6 +50,40 @@ describe("a sentence somebody has refused", () => {
     for (const entry of REFUSED_SENTENCES) {
       expect(table[entry.et]).toBeUndefined();
     }
+  });
+
+  /*
+    THE TWO CHEAP GUARDS IN FRONT OF THE SET MAY NEVER REFUSE TO FIRE.
+
+    `isRefusedSentence` skips a candidate shorter than the shortest refusal
+    and one whose first letter no refusal starts with, so that the locale fold
+    is not paid for sixteen thousand sentences a run. Both are built from the
+    raw sentence as well as from its key, because the fold can lengthen a
+    string and can turn one character into two. The failure they would
+    otherwise have is silent: a refusal that does not match its own sentence
+    looks exactly like a sentence nobody refused.
+  */
+  it("matches its own sentence whatever the guards in front of the set do", () => {
+    for (const entry of REFUSED_SENTENCES) {
+      expect(isRefusedSentence(entry.et)).toBe(true);
+      expect(isRefusedSentence(` ${entry.et.toLocaleUpperCase("et")} `)).toBe(true);
+    }
+  });
+
+  /*
+    And the same asked of the entry that breaks the argument, since the list
+    today holds nothing that folds oddly and so cannot fail either version.
+    `İ` lowercases to two characters, so a floor read off the key alone sits
+    one above the sentence's own length and a first-letter set read off the
+    key alone holds `i` where the sentence offers `i` plus a combining dot.
+    Both refuse the refusal's own sentence.
+  */
+  it("holds for a sentence the case fold lengthens", () => {
+    const odd = { et: "İ ega ma temaks ole.", why: "Written to drive the guards, six words at least." };
+    const match = refusalMatcher([odd]);
+    expect(match(odd.et)).toEqual(odd);
+    expect(match(`  ${odd.et}  `)).toEqual(odd);
+    expect(match("Tema oskab kõike.")).toBeNull();
   });
 
   it("is the reason the harvested file is not edited by hand", () => {

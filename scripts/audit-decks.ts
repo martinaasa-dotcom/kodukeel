@@ -76,6 +76,7 @@
 import { prisma } from "../lib/db";
 import { acceptedAnswers } from "../lib/estonian/answer";
 import { refusedSentenceCards, retirableCaseCards, unsentencedCaseCards, type Retirement } from "../lib/srs/retire";
+import { refusalFor } from "../lib/dict/refused";
 import { borrowSentences } from "../lib/dict/borrow";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import { parseExamples } from "../lib/dict/examples";
@@ -113,6 +114,15 @@ async function main() {
   type Doomed = {
     id: string; lemma: string; back: string; targetCase: string | null;
     why: keyof typeof WHY;
+    /*
+      What a person said about this card, where one did. `WHY` says which rule
+      fired, which is the same line for every card the rule names; this is the
+      sentence whoever refused it wrote, and it is the whole reason
+      `RefusedSentence.why` is stored rather than the refusal being a bare
+      list. Absent on the three rules that are derivations rather than
+      somebody's judgement.
+    */
+    note?: string;
   };
   const doomed: Doomed[] = [];
   const seen = new Set<string>();
@@ -212,25 +222,39 @@ async function main() {
     `refusedSentenceCards`.
   */
   const sentenceCards = await prisma.card.findMany({
-    where: { cardType: { in: ["CASE_FORM", "CLOZE", "CONJUGATION"] } },
+    /*
+      The case cards are already in hand from the first query, so this asks
+      for what that one did not: the two other types the builder cuts out of a
+      recorded sentence, and the case card with no lexeme behind it, which
+      that query excludes. Reading every `CASE_FORM` row a second time would
+      be a second full scan for rows sitting in a variable.
+    */
+    where: {
+      OR: [
+        { cardType: { in: ["CLOZE", "CONJUGATION"] } },
+        { cardType: "CASE_FORM", lexemeId: null },
+      ],
+    },
     select: {
       id: true, ownerId: true, front: true, back: true, targetCase: true,
       lexeme: { select: { lemma: true } },
     },
     orderBy: { id: "asc" },
   });
-  for (const gone of refusedSentenceCards(sentenceCards)) {
+  for (const gone of refusedSentenceCards([...cards, ...sentenceCards])) {
     condemn({
       id: gone.id,
       lemma: gone.lemma || gone.sentence,
       back: gone.back,
       targetCase: gone.targetCase,
       why: "refused-sentence",
+      // The words of whoever read that sentence and refused it.
+      note: refusalFor(gone.sentence)?.why,
     });
     owners.add(gone.ownerId);
   }
 
-  console.log(`Read ${cards.length} case cards and ${sentenceCards.length} cards cut from a sentence.`);
+  console.log(`Read ${cards.length} case cards and ${sentenceCards.length} more cut from a sentence.`);
   if (doomed.length === 0) {
     console.log("Every one of them asks a question its word can answer, out of a sentence nobody has refused.");
     return;
@@ -241,6 +265,9 @@ async function main() {
   console.log(`${cardsWord} be answered, in ${decksWord}:`);
   for (const d of doomed.slice(0, 40)) {
     console.log(`  ${d.lemma} → ${d.targetCase ?? "?"}  back: ${d.back}  (${WHY[d.why]})`);
+    // On its own line, because a reason somebody wrote runs to a sentence and
+    // a column of them would push the card off the right of the terminal.
+    if (d.note) console.log(`      ${d.note}`);
   }
   if (doomed.length > 40) console.log(`  ... and ${doomed.length - 40} more`);
 

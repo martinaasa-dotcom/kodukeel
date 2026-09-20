@@ -52,6 +52,18 @@
  * argument `lib/dict/exampleEnglish.ts` already makes about which file an
  * English line belongs in.
  *
+ * IT MATCHES ONE SPELLING AND MAKES NO CLAIM ABOUT ANY OTHER. A sentence is
+ * refused where it keys onto a refusal exactly, after the trim, the collapse
+ * and the case fold `usableExamples` already compares two examples through.
+ * A variant is not covered: the same sentence with the stop dropped, an
+ * ellipsis in place of the full stop, or a word reordered is a different
+ * string and reaches every screen. That is deliberate rather than a gap
+ * somebody forgot. What would cover it is a judgement about how near two
+ * Estonian sentences are, which is the parser this file's own header refuses
+ * to pretend to, and the near version of it withholds correct Estonian. The
+ * harvest holds one spelling per usage, so a variant only arrives if Ekilex
+ * changes what it records, and the answer to that is a second line here.
+ *
  * THERE IS NO STALENESS CHECK ON IT, and that is the one exemption list here
  * without one. Everywhere else in this repository an entry naming something
  * the tree no longer holds has to go, because an exemption nobody can reach is
@@ -110,7 +122,10 @@ function key(sentence: string): string {
   return sentence.trim().replace(/\s+/g, " ").toLocaleLowerCase("et");
 }
 
-const REFUSED = new Set(REFUSED_SENTENCES.map((entry) => key(entry.et)));
+function firstLetterOf(sentence: string): string {
+  const trimmed = sentence.trimStart();
+  return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") : "";
+}
 
 /*
   THE CHEAP HALF OF THE ANSWER, BECAUSE THIS IS ON THE HOTTEST READ IN THE APP.
@@ -122,31 +137,58 @@ const REFUSED = new Set(REFUSED_SENTENCES.map((entry) => key(entry.et)));
   page and six seconds across a run of the audits, and it took the grammar pin
   suite past its own timeout the first time this landed.
 
-  Both guards are sound rather than nearly sound, which is the only kind worth
-  having in front of a refusal. `key` only ever shrinks a string, so a
-  sentence shorter than the shortest refusal cannot be one; and it changes no
-  character but case, so the first letter of the key is the first letter of
-  the sentence, folded. Nothing false is let through by either.
-*/
-const REFUSED_KEYS = [...REFUSED];
-const SHORTEST = Math.min(...REFUSED_KEYS.map((k) => k.length), Infinity);
-const FIRST_LETTERS = new Set(REFUSED_KEYS.map((k) => k[0]));
+  A GUARD IN FRONT OF A REFUSAL MAY ONLY EVER BE SOUND, and the first version
+  of these two rested on an argument that is false. It said `key` can only
+  shrink a string, which is true of the trim and the collapse and not of the
+  fold: `toLocaleLowerCase` lengthens `İ` to `i` plus a combining dot, so a
+  string can key longer than it arrived, and one character can become two.
+  Nothing in Estonian spells that way and the sentence refused today holds no
+  such character, so both guards were correct about the data rather than
+  about the operation, which is a guard that holds until somebody adds the
+  entry that breaks it.
 
-function firstLetterOf(sentence: string): string {
-  const trimmed = sentence.trimStart();
-  return trimmed.length > 0 ? trimmed[0]!.toLocaleLowerCase("et") : "";
+  So each is built from both spellings. The floor is the shorter of a
+  refusal's two lengths, so no candidate that could key onto one is ever under
+  it; and a refusal contributes the first letter of its raw sentence as well
+  as of its key, which is what stops the worse of the two failures, a refusal
+  whose own sentence starts with such a character and which therefore never
+  matches itself, silently and for ever.
+
+  IT IS A FUNCTION OF THE ENTRIES RATHER THAN OF THE ONE LIST, so that the
+  soundness can be driven. Asked of `REFUSED_SENTENCES` the guards are correct
+  today whether or not the argument behind them is, which is a test that
+  cannot fail; asked of an entry written to break them, it can.
+*/
+export function refusalMatcher(
+  entries: readonly RefusedSentence[],
+): (sentence: string) => RefusedSentence | null {
+  const byKey = new Map(entries.map((entry) => [key(entry.et), entry] as const));
+  const shortest = Math.min(
+    ...entries.map((entry) => Math.min(entry.et.length, key(entry.et).length)),
+    Infinity,
+  );
+  const firstLetters = new Set(
+    entries
+      .flatMap((entry) => [key(entry.et)[0], firstLetterOf(entry.et)])
+      .filter((letter): letter is string => letter !== undefined && letter !== ""),
+  );
+
+  return (sentence: string) => {
+    if (byKey.size === 0) return null;
+    if (sentence.length < shortest) return null;
+    if (!firstLetters.has(firstLetterOf(sentence))) return null;
+    return byKey.get(key(sentence)) ?? null;
+  };
 }
+
+const matchRefusal = refusalMatcher(REFUSED_SENTENCES);
 
 /** Has somebody read this sentence and said it may not be shown? */
 export function isRefusedSentence(sentence: string): boolean {
-  if (REFUSED.size === 0) return false;
-  if (sentence.length < SHORTEST) return false;
-  if (!FIRST_LETTERS.has(firstLetterOf(sentence))) return false;
-  return REFUSED.has(key(sentence));
+  return matchRefusal(sentence) !== null;
 }
 
 /** The reason one sentence was refused, for a report that prints it. */
 export function refusalFor(sentence: string): RefusedSentence | null {
-  const wanted = key(sentence);
-  return REFUSED_SENTENCES.find((entry) => key(entry.et) === wanted) ?? null;
+  return matchRefusal(sentence);
 }

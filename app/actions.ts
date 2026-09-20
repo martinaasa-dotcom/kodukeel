@@ -560,9 +560,18 @@ export async function translateExample(lexemeId: string, sentence: string) {
     entry, at the deployment's own expense, with the same kind of answer they
     had just refused. `Example.enRefused` is the fact that tells the blank a
     reviewer made apart from the blank nobody has filled yet.
+
+    IT IS A SILENT NO RATHER THAN AN ERROR, and that is the half a learner
+    meets. `SentenceTranslation` asks on arrival, so an error here is a line
+    about a reviewer's decision drawn under somebody's card, in a round they
+    are in the middle of, about a thing they had no part in and can do nothing
+    about. `refused` is what the screen reads to draw nothing at all, which is
+    what it already does for a deployment with no model configured: offered
+    nothing rather than promised something. The sentence itself is untouched
+    and still on screen; what is gone is the offer to explain it.
   */
   if (target.enRefused) {
-    return { ok: false as const, error: "Somebody took the English off this one, so it is not asked again." };
+    return { ok: false as const, refused: true as const, error: "" };
   }
 
   /*

@@ -336,6 +336,18 @@ whoever next edits it gets backwards. `mayFillEnglish` is the one reader, so the
 seed's repair and the runtime ask cannot disagree about whose line it is, and absence is still
 "not yet".
 
+**And it is a silent no rather than an error, which is the half a learner meets.**
+`SentenceTranslation` asks on arrival, so a refusal returned as an ordinary failure draws a
+sentence about a reviewer's decision under somebody's card, in the middle of a round, about a
+thing they had no part in and can do nothing about. The action says `refused` and the screen draws
+nothing, which is what it already does where the deployment has no model configured: offered
+nothing rather than promised something. The sentence itself is untouched and still on screen; what
+is gone is the offer to explain it. Both halves are asserted, because either alone passes on the
+broken shape. What is deliberately **not** threaded is the fact itself: fifteen call sites across
+two components hand `en` down from as many data paths, and a new required prop through all of them
+is a large change for a handful of sentences a deployment, where what is left is one early return
+on a server action that books no call and reads one indexed row.
+
 **And a sentence nobody would ever say is attested and is still not teachable, so a person's
 refusal is data.** Every Estonian sentence here is one a lexicographer recorded, which is what keeps
 this app from writing the language, and it is not the same claim as the sentence being one anybody
@@ -367,8 +379,16 @@ it because each is a way the sentence comes back: `usableExamples`, since a list
 out of a live Ekilex lookup has never been near the column; the seed, so a fresh install never
 stores it; and the harvest, so the generated file stops carrying it. `scripts/lib/dictionary.ts`
 refuses it too, which is faithful rather than a filter, since a fresh install genuinely does not
-have it and an audit counting it reports on a dictionary nobody has. Each of the five was made to
+have it and an audit counting it reports on a dictionary nobody has. Each of the six was made to
 fail on its own line.
+
+**And the sixth is the one that costs money and undoes the other five.** `npm run
+translate:examples` builds its worklist by reading `prisma/data/harvested.ts` and the expansion
+off disk rather than through `scripts/lib/dictionary.ts`, so the filter there did not reach it:
+a run would have paid a model for a line no screen may draw and written the answer back into
+`prisma/data/example-english.json`, which is the one file the refusal had just been taken out of.
+`refused.test.ts` catches the result, and only after the call is bought and the file rewritten,
+which is the wrong end to find it from. A door a check describes and does not assert is a door.
 
 **It is a list rather than a deletion, and that is the durable half.**
 `prisma/data/harvested.ts` is generated and rewritten whole by every run of `npm run harvest`, so a
@@ -379,6 +399,40 @@ way out, so a run of it makes every entry unreachable, and a check that then req
 deleted would hand the sentence back the moment Ekilex was asked again. A refusal is permanent.
 What is asserted instead is that no refused sentence ships an English line, since a line nobody may
 read is a line nobody is checking.
+
+**The reason somebody wrote is what makes it a list of entries rather than a list of strings, so
+it reaches a reader.** `RefusedSentence.why` was stored and printed nowhere: `npm run audit:decks`
+named a condemned card with the rule's own line, which is the same sentence for every card the rule
+names, and `refusalFor` was a function only its own test called. The audit prints the refusal under
+the card it condemns, on a line of its own because a reason runs to a sentence and a column of them
+pushes the card off the terminal. It is also why the rule's own query stopped re-reading every case
+card: those are already in hand from the first rule, and what this one asks for is the two other
+types the builder cuts out of a sentence, plus the case card with no lexeme that the first query
+excludes.
+
+**A guard in front of a refusal may only ever be sound, and the first pair rested on an argument
+that is false.** `isRefusedSentence` is on the hottest read in the app, so a length floor and a
+first-letter set stand in front of the locale fold, which is an ICU call at 1.5 microseconds a
+sentence and six seconds across a run of the audits. Both were built off the key alone under the
+claim that folding can only shrink a string: `toLocaleLowerCase` turns `İ` into `i` plus a
+combining dot, so a string can key longer than it arrived and one character can become two.
+Nothing in Estonian spells that way and the sentence refused today holds no such character, so
+both guards were correct about the data rather than about the operation, which is a guard that
+holds until somebody adds the entry that breaks it, and the worse of its two failures is silent:
+a refusal whose own sentence starts with such a character never matches itself. Each is built
+from both spellings now, and `refusalMatcher` takes the entries rather than reading the one list,
+because asked of `REFUSED_SENTENCES` the guards are right today whether or not the argument
+behind them is, which is a test that cannot fail. Driven over an entry written to break them, it
+fails on the real line.
+
+**And it matches one spelling and claims nothing about any other**, which is stated rather than
+left to be rediscovered. A sentence is refused where it keys onto a refusal exactly, after the
+trim, the collapse and the case fold `usableExamples` already compares two examples through; the
+same sentence with the stop dropped or a word moved is a different string and reaches every
+screen. What would cover that is a judgement about how near two Estonian sentences are, which is
+the parser this module refuses to pretend to and whose near version withholds correct Estonian.
+The harvest holds one spelling per usage, so a variant arrives only if Ekilex changes what it
+records, and the answer to that is a second line in the file.
 
 **And a deck already built keeps the sentence it was cut from, which is the half a gate cannot
 reach.** A `Card` row carries its own front, so the gap comes back due for ever and the learner is
@@ -10121,7 +10175,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `continueHref`, `ModuleScope`, `useModuleFocus`, `advanceCourseStep`, `EndSession`, `WayOut`,
 `module-step`, `useLookBack`,
 `LookBackCard`, `forgetLast`, `shownAs`, `buildSlotIndex`, `readSlot`, `PointExamples`,
-`isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusedSentenceCards`, `enRefused`,
+`isRefusedSentence`, `REFUSED_SENTENCES`, `refusalFor`, `refusalMatcher`, `refusedSentenceCards`, `enRefused`,
 `mayFillEnglish`,
 `data-point-examples`.
 Most of them now

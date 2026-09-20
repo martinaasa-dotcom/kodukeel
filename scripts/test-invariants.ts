@@ -20411,7 +20411,7 @@ check("a refused sentence is refused at every door it could come back through", 
   */
   const refused = code("lib/dict/refused.ts");
   assert.ok(
-    !/\bRegExp\b|\.test\(|\bmatch\(/.test(refused),
+    !/\bRegExp\b|\.test\(|\.match\(/.test(refused),
     "lib/dict/refused.ts has grown a pattern over sentences. It is a list of judgements somebody "
       + "made, not a filter over the corpus: a rule here withholds correct Estonian",
   );
@@ -20449,6 +20449,66 @@ check("a translation a reviewer refused is never filled in again", () => {
     /translateExample[\s\S]{0,1600}?enRefused/,
     "translateExample asks a model to fill a blank a reviewer made, at the deployment's expense, "
       + "with the same kind of answer they had just refused",
+  );
+
+  /*
+    AND THE LEARNER IS NOT TOLD ABOUT IT. `SentenceTranslation` asks on
+    arrival, so a refusal returned as an ordinary error draws a line about a
+    reviewer's decision under somebody's card, mid-round, about a thing they
+    had no part in and can do nothing about. Both halves, because either alone
+    passes on the broken shape: the action has to say so, and the screen has
+    to read it and draw nothing, which is what it already does where the
+    deployment has no model at all.
+  */
+  assert.match(
+    code("app/actions.ts"),
+    /translateExample[\s\S]{0,1800}?refused: true/,
+    "translateExample returns a refused line as an ordinary error, so the reviewer's sentence is "
+      + "printed under a learner's card",
+  );
+  const translation = code("components/SentenceTranslation.tsx");
+  assert.match(
+    translation,
+    /"refused" in result/,
+    "SentenceTranslation reads a refusal as an error, so it draws one under the sentence",
+  );
+  assert.match(
+    translation,
+    /\|\| refused\) return null/,
+    "SentenceTranslation goes on offering the button for a line a reviewer took off, so the learner "
+      + "presses it and is told about a decision that is not theirs",
+  );
+});
+
+/*
+  AND THE RUN THAT BUYS THE ENGLISH DOES NOT BUY A LINE NOBODY MAY READ.
+
+  `npm run translate:examples` reads `prisma/data/harvested.ts` and the
+  expansion off disk rather than through `scripts/lib/dictionary.ts`, so the
+  refusal did not reach it: a run paid a model for a refused sentence and
+  wrote the answer back into `prisma/data/example-english.json`, which is the
+  one file the refusal had just been taken out of. The unit suite catches the
+  result, after the call is bought and the file rewritten, which is the wrong
+  end to find it from.
+*/
+check("nothing pays a model to translate a sentence nobody may be shown", () => {
+  assert.match(
+    code("scripts/translate-examples.ts"),
+    /\bisRefusedSentence\(/,
+    "translate:examples builds its worklist without asking lib/dict/refused.ts, so a run pays for a "
+      + "refused sentence and writes the English back into the file it was taken out of",
+  );
+  /*
+    And the reason somebody wrote reaches a reader. `RefusedSentence.why` is
+    the whole argument for the list being entries rather than strings, and it
+    was stored and read by nothing: the audit printed the rule's own line,
+    which is the same sentence for every card the rule names.
+  */
+  assert.match(
+    code("scripts/audit-decks.ts"),
+    /\brefusalFor\(/,
+    "audit:decks names a card cut from a refused sentence without printing why it was refused, so "
+      + "the reason somebody wrote reaches nobody and refusalFor is a function nothing calls",
   );
 });
 
