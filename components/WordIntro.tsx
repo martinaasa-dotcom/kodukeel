@@ -4,6 +4,7 @@ import { Speak } from "@/components/Speak";
 import { EstonianSentence } from "@/components/EstonianSentence";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
+import { firstMeetingNote } from "@/lib/copy/firstMeeting";
 
 /**
  * A WORD'S FIRST OUTING: WHAT IT MEANS, AND IT DOING ITS JOB IN A SENTENCE
@@ -32,10 +33,22 @@ import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
  * had this drawing and Learn needs the same one: two copies would be two
  * answers to how a word is introduced, and the one nobody was looking at would
  * be the one that stopped saying where its sentence came from.
+ *
+ * A1 SHOWS NO SENTENCE AT ALL. A beginner three weeks in, or three minutes
+ * in, does not yet have anywhere to hang a whole line of Estonian: a
+ * sentence is context for somebody who already has some words to place it
+ * against, and the first fifty of them are not that yet. It was reported off
+ * exactly that screen, a learner's own first card, where a full sentence and
+ * a glossed word inside it read as more than the moment could carry. So a
+ * word banded A1 is met on its own, the word, its meaning, nothing else, and
+ * a sentence arrives once the word's own band says the learner has enough
+ * around it to make one worth reading (A2 and up). A word with no band at
+ * all (added by hand, off a photograph, or from outside the course) keeps
+ * the sentence, since there is no claim here that it is a beginner's word.
  */
 export function WordIntro({
   lemma, gloss, alsoSaid, equivalent, sentence, tokens, lexemeId, canTranslate = false,
-  isPhrase, autoplay = true, children,
+  isPhrase, autoplay = true, cefr = null, firstCardEver = false, children,
 }: {
   lemma: string;
   gloss: string;
@@ -75,9 +88,21 @@ export function WordIntro({
   /** A whole utterance rather than a word, which is why it has no example. */
   isPhrase: boolean;
   autoplay?: boolean;
+  /** The word's own band. A1 hides the sentence; everything else keeps it. */
+  cefr?: string | null;
+  /** Whether this is the very first word the learner has ever met, anywhere. */
+  firstCardEver?: boolean;
   /** Anything the screen wants under the sentence, such as what comes next. */
   children?: React.ReactNode;
 }) {
+  // A phrase has no sentence to hide in the first place (`isPhrase` already
+  // says so below), so the A1 gate only ever applies to a genuine word.
+  const showSentence = sentence !== null && cefr !== "A1";
+  // A sentence exists and is deliberately not shown: an A1 word is met on
+  // its own. "No example sentence for this one yet" would be untrue here,
+  // since the dictionary has one, so this is drawn apart from the real
+  // absence case below rather than sharing its copy.
+  const hiddenForA1 = !showSentence && cefr === "A1" && sentence !== null && !isPhrase;
   return (
     <>
       <div className="flex items-center gap-2">
@@ -107,7 +132,13 @@ export function WordIntro({
 
       <div className="my-1 h-1 w-14 rounded-full" style={{ background: "var(--accent-soft)" }} />
 
-      {sentence ? (
+      {firstCardEver && (
+        <p className="max-w-md text-sm" style={{ color: "var(--ink-2)" }}>
+          {firstMeetingNote(showSentence)}
+        </p>
+      )}
+
+      {showSentence && sentence ? (
         <div className="w-full max-w-md rounded-[var(--r)] px-4 py-3.5 text-left" style={{ background: "var(--raised)" }}>
           {/*
             One drawing of an attested sentence, here and on every other screen
@@ -137,7 +168,7 @@ export function WordIntro({
             already reading.
           */}
         </div>
-      ) : (
+      ) : hiddenForA1 ? null : (
         /* No sentence, said plainly. The dictionary carries examples for most
            words and not for all of them, and a screen that quietly shows a word
            on its own looks exactly like one that had nothing to say about it.

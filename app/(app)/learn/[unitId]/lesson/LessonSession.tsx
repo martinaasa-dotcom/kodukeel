@@ -95,10 +95,12 @@ function shownAs(step: LessonStep): Omit<SeenCard, "key"> | null {
  * carries an id generated once, here.
  */
 export function LessonSession({
-  unitId, unitTitle, initialSteps, part, parts, starred, tokens, canTranslate,
+  unitId, unitTitle, unitLevel, initialSteps, part, parts, starred, tokens, canTranslate,
 }: {
   unitId: string;
   unitTitle: string;
+  /** The unit's own band. Every word a lesson teaches is taught at it. */
+  unitLevel: string;
   initialSteps: LessonStep[];
   part: number;
   parts: number;
@@ -234,6 +236,7 @@ export function LessonSession({
           starred={starred}
           tokens={tokens}
           canTranslate={canTranslate}
+          unitLevel={unitLevel}
           summary={{ correct, total: answered, saving, saved }}
         />
         )}
@@ -344,7 +347,7 @@ function Options({
 }
 
 function StepCard({
-  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate, missedBefore,
+  step, onAnswer, onNext, onAside, starred, summary, tokens, canTranslate, missedBefore, unitLevel,
 }: {
   step: LessonStep;
   onAnswer: (lemma: string, kind: string, ok: boolean) => void;
@@ -357,6 +360,8 @@ function StepCard({
   summary: { correct: number; total: number; saving: boolean; saved: { ok: boolean; error?: string } | null };
   tokens: Readonly<Record<string, GlossedToken[]>>;
   canTranslate: boolean;
+  /** The unit's own band, so a first meeting can decide whether to show a sentence. */
+  unitLevel: string;
 }) {
   const [chosen, setChosen] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
@@ -502,6 +507,7 @@ function StepCard({
             lexemeId={step.lexemeId}
             canTranslate={canTranslate}
             isPhrase={step.isPhrase}
+            cefr={unitLevel}
           />
           <Continue onNext={onNext} label="Got it" />
         </Card>

@@ -130,6 +130,10 @@ export interface ReviewCard {
      * the app had let them down on twenty of the first cards it ever shows.
      */
     isPhrase: boolean;
+    /** The word's own band, so `WordIntro` can decide whether to show a sentence at all. */
+    cefr: string | null;
+    /** Whether this is the very first word this learner has ever met, anywhere in the app. */
+    firstCardEver: boolean;
   } | null;
   /** Four options including the right one, when this card can be asked as multiple choice. */
   choices: string[] | null;
@@ -275,7 +279,7 @@ function WhyRow({ card }: { card: ReviewCard }) {
  * the form the card is about to ask for marked in it, and nothing here is
  * written or derived (ADR-005).
  */
-function MeetWord({ card }: { card: ReviewCard }) {
+function MeetWord({ card, firstMeetingCardId }: { card: ReviewCard; firstMeetingCardId: string | null }) {
   const lemma = card.intro?.lemma ?? card.lemma ?? card.front;
   const gloss = card.intro?.gloss ?? (card.cardType === "RECOGNITION" ? card.back : "");
 
@@ -291,6 +295,8 @@ function MeetWord({ card }: { card: ReviewCard }) {
       lexemeId={card.intro?.lexemeId ?? null}
       canTranslate={card.intro?.canTranslate ?? false}
       isPhrase={card.intro?.isPhrase ?? false}
+      cefr={card.intro?.cefr ?? null}
+      firstCardEver={!!card.intro?.firstCardEver && card.id === firstMeetingCardId}
     >
       {/* What this particular card will want back, once it starts asking. On a
           recognition card that is the word and its meaning, which is the whole
@@ -486,6 +492,21 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
+  /*
+    WHICH CARD, IF ANY, GETS THE FIRST-EVER NOTE, DECIDED ONCE FOR THE WHOLE
+    SESSION.
+
+    `card.intro.firstCardEver` is one fact about the learner stamped onto
+    every unseen card in the batch alike, and a first-time learner with an
+    empty deck can meet up to `NEW_PER_SESSION` new words in one sitting
+    before grading anything (meeting writes nothing). Reading the server's
+    flag straight off each card would print the note on all of them, which
+    is exactly what `lib/copy/firstMeeting.ts` says it must not do: shown
+    once, on the one card this session picks on mount, never on the rest.
+  */
+  const [firstMeetingCardId] = useState(
+    () => initialCards.find((c) => c.intro?.firstCardEver)?.id ?? null,
+  );
   // Which card to reopen on if this mount is a resume after a dictionary
   // detour, rather than a fresh start. See `components/useResumeCard.ts`.
   const { initialIndex, remember: rememberCard } = useResumeCard(initialCards);
@@ -1360,7 +1381,7 @@ export function ReviewSession({
           className="pop-in flex min-h-[280px] flex-col items-center justify-center gap-4 px-6 py-11 text-center md:min-h-[320px]"
           aria-live="polite"
         >
-          {ask === "intro" && <MeetWord card={card} />}
+          {ask === "intro" && <MeetWord card={card} firstMeetingCardId={firstMeetingCardId} />}
 
           {ask !== "intro" && (
           <div className="flex items-center gap-2">
