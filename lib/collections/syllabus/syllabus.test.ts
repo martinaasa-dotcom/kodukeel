@@ -4,7 +4,6 @@ import {
   nextUnit, unitById, unitProgress, unitsAtLevel, wordsAtLevel, type Level, type SyllabusUnit,
 } from "./index";
 import { HARVESTED, type HarvestedWord } from "@/prisma/data/harvested";
-import { MAX_DAY_WORDS } from "@/lib/course/types";
 import { generateCards, type LexemeForCards } from "@/lib/srs/cards";
 
 /** A harvested word in the shape the card builder reads, exactly as the seed lays it down. */
@@ -157,11 +156,11 @@ describe("the course", () => {
       expect(flat, `${u.id} declares evenings that are not its own words in order`)
         .toEqual(u.lemmas);
       for (const group of u.evenings) {
-        expect(group.length, `${u.id} declares an evening of ${group.length} words`)
-          .toBeGreaterThan(0);
-        expect(group.length, `${u.id} declares an evening of ${group.length} words`)
-          .toBeLessThanOrEqual(MAX_DAY_WORDS);
+        expect(group.length, `${u.id} declares an empty evening`).toBeGreaterThan(0);
       }
+      /* How long a declared evening may be is the course builder's ceiling
+         rather than the syllabus's, so `course.test.ts` holds it beside
+         `MAX_DAY_WORDS` and the fifteen-minute clock. */
     }
   });
 

@@ -167,7 +167,29 @@ export type ActivityKey = keyof typeof ACTIVITIES;
 
 /** A day, as a person writes one. `day()` turns it into the thing screens read. */
 export interface DaySpec {
-  /** Stable for the life of the programme: a finished-step row names it. */
+  /**
+   * WHAT A `CourseStep` ROW NAMES, WHICH IS WHY IT IS NOT A LABEL.
+   *
+   * `CourseStep` is `@@unique([ownerId, programmeId, dayId, stepId])` and
+   * `dayReached` is the furthest id carrying a tick, so this is a foreign key
+   * into a person's place in the course. It used to say it was stable for the
+   * life of the programme, and it cannot be: it is assigned positionally
+   * (`${spec.id}-${n}`), so adding, removing or re-splitting a unit renumbers
+   * every evening after it and moves everybody mid-part onto a different one.
+   * Taking A1.1 from thirteen evenings to twelve did exactly that, and
+   * `a1.1-05` went from the second half of the verbs to the first quarter of
+   * the greetings.
+   *
+   * So the guarantee is the weaker true one: an id is stable while the part's
+   * units and their evenings are, and a shift is a decision rather than an
+   * accident. `course.test.ts` compares every id against
+   * `lib/course/day-ids.json`, the snapshot of what each last named, and
+   * fails listing the days that moved; `scripts/write-day-ids.ts` is how that
+   * is agreed to, after somebody has weighed it. Nothing is destroyed when it
+   * happens, since `CourseStep` is append-only and the deck, the reviews and
+   * the scheduling are all keyed on words rather than on evenings: a learner
+   * mid-part re-walks the evenings of that part and no further.
+   */
   id: string;
   /** Estonian. This is a course in Estonian and its days should be too. */
   title: string;

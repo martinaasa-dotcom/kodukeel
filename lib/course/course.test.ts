@@ -69,6 +69,61 @@ describe("the programme is a request against the course, never a copy of it", ()
   });
 
   /*
+    A DECLARED EVENING IS HELD TO THE SAME CEILING AS A SLICED ONE. The
+    budget is what the arithmetic may spend and a person may go past it, but
+    nobody may go past `MAX_DAY_WORDS`: that is what a fifteen-minute evening
+    can carry at all. Asked of the declaration itself rather than of the days
+    it builds, so a unit whose words are all taught earlier is still checked.
+  */
+  it("keeps a declared evening under the ceiling a day has", () => {
+    for (const u of SYLLABUS) {
+      for (const group of u.evenings ?? []) {
+        expect(group.length, `${u.id} declares an evening of ${group.length} words`)
+          .toBeLessThanOrEqual(MAX_DAY_WORDS);
+      }
+    }
+  });
+
+  /*
+    WHAT A DAY ID NAMES, PINNED, BECAUSE A LEARNER'S ROW STORES ONE.
+
+    `CourseStep` is `@@unique([ownerId, programmeId, dayId, stepId])` and
+    `dayReached` is the furthest id carrying a tick, so a day id is not a
+    label, it is a foreign key into a person's place in the course. It is
+    assigned positionally (`${spec.id}-${n}`), which means any syllabus edit
+    that adds, removes or re-splits a unit renumbers every evening after it
+    and quietly moves everybody mid-part onto a different one. That is not
+    hypothetical: this very change took A1.1 from thirteen evenings to
+    twelve, and `a1.1-05` went from the second half of the verbs to the
+    first quarter of the greetings.
+
+    A positional id cannot be made stable, so what is asserted instead is
+    that a shift is *deliberate*. The snapshot is what each id named when it
+    was last agreed; a build that disagrees fails here, naming the days that
+    moved, and whoever made the edit decides whether the shift is worth its
+    cost before running `npx tsx scripts/write-day-ids.ts`. Read off the file
+    rather than a literal, since 288 lines in a test is a test nobody reads.
+  */
+  it("names the same evening by the same id as the agreed snapshot", () => {
+    const pinned = JSON.parse(
+      readFileSync(new URL("./day-ids.json", import.meta.url), "utf8"),
+    ) as Record<string, string>;
+    const built: Record<string, string> = {};
+    for (const p of PROGRAMMES) {
+      for (const d of p.days) built[d.id] = `${d.unitId} ${d.part.n}/${d.part.of}`;
+    }
+
+    const moved = Object.keys({ ...pinned, ...built })
+      .filter((id) => pinned[id] !== built[id])
+      .map((id) => `${id}: was ${pinned[id] ?? "no evening"}, is ${built[id] ?? "no evening"}`);
+    expect(
+      moved,
+      "a day id now names a different evening, so every learner mid-part moves with it. "
+      + "Decide whether that is worth it, then run `npx tsx scripts/write-day-ids.ts`",
+    ).toEqual([]);
+  });
+
+  /*
     THE DEGRADATION BRANCH, WHICH NO SHIPPED UNIT REACHES.
 
     `evenings()` intersects a declared group with the words still to teach,
