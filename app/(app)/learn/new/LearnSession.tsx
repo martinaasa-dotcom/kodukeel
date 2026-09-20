@@ -1003,10 +1003,7 @@ export function LearnSession({
                   </div>
                 </div>
               ) : (
-                <>
-                  <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
-                  <p className="text-xs" style={{ color: "var(--ink-3)" }}>Write it in Estonian.</p>
-                </>
+                <p className="text-2xl font-semibold" style={{ color: "var(--ink)" }}>{word.gloss}</p>
               )}
               {/*
                 THE ONE LINE THAT SAYS NOT KNOWING IT IS THE ORDINARY STATE.
