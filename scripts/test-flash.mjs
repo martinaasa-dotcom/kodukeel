@@ -157,7 +157,17 @@ async function answer(typed) {
     joined here into the shape the rest of this file already reads.
   */
   const form = (await page.locator("[data-flash-answer]").first().innerText().catch(() => "")).trim();
-  const slot = (await page.locator("[data-flash-slot]").first().innerText().catch(() => "")).trim();
+  let slot = (await page.locator("[data-flash-slot]").first().innerText().catch(() => "")).trim();
+  /*
+    THE PRODUCTION SLOT PRINTS NO CAPTION, ON PURPOSE.
+    The panel used to say "saying it" under the answer on a "Say it in
+    Estonian" card, which named nothing a reader did not already know: there
+    is no case or verb form to cross-reference, so the line was deleted
+    rather than kept for this suite's convenience. This still needs one word
+    to track the question across a reload, and it is not reading it off the
+    screen any more, so it is named here instead.
+  */
+  if (!slot && ASK_LINES[0].test(text)) slot = "saying it";
   return {
     right: /That is it/.test(text),
     told: form && slot ? `${slot}: ${form}` : "",
