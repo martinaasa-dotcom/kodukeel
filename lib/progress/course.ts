@@ -249,6 +249,14 @@ async function metWords(ownerId: string, words: readonly string[]): Promise<bool
     not exist, and the honest answer to "meet these five words" when the
     dictionary has none of them is that there is nothing to meet.
 
+    ALL OR NOTHING, WHICH IS NARROWER THAN THE STATE IT SITS IN. A dictionary
+    holding three of the day's five words is the commoner shape, and there the
+    step ticks on those three the moment they are met while the other two are
+    never taught. That is the reading this has always had and is not what this
+    branch is about; `missingWords` is what puts the gap on the screen, so the
+    learner is told rather than left to notice. Only the case where there is
+    nothing whatever to meet is answered here.
+
     One query, and only on the path that would otherwise be stuck: a deck that
     holds any card at all for the day never reaches it.
   */

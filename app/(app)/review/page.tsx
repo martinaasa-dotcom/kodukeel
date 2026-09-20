@@ -246,8 +246,14 @@ export default async function ReviewPage({
     and read the old way a deck with sixty cards due, all of them about a case
     tonight has not read, left no room for a single new word and handed the
     learner an empty closing round they could never finish. See `roomFor`.
+
+    `dueWithin` rather than `spaced`, which is the same number: `spaceSiblings`
+    moves a card and never drops one. It is written as the filtered list so
+    that this line and `lib/progress/closing.ts`, which counts what this round
+    will show before anybody opens it, are the same expression rather than two
+    that happen to agree.
   */
-  const room = roomFor(spaced.length);
+  const room = roomFor(dueWithin.length);
   const [unseen, raised] = await Promise.all([inBandPool(ownerId, freshPool, level, room, scope?.lemmas ?? null), hardWords()]);
   const fresh = atLevelFirst(unseen.filter(within), level, raised).slice(0, room);
   const gloss = await glossChosen();

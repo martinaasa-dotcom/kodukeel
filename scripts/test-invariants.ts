@@ -17890,11 +17890,53 @@ check("a derived step asks for no more evidence than the app can supply", () => 
     ROOM IS MEASURED AGAINST WHAT A SITTING SHOWS, not against what it read.
     Inside a module the two differ by every card `cardWithin` refuses, and read
     the old way a deck with sixty cards due, none of them askable tonight, left
-    no room for a single new word.
+    no room for a single new word. The same expression on both sides, so the
+    count and the round are not two readings that happen to agree.
   */
   assert.match(
-    code("app/(app)/review/page.tsx"), /roomFor\(spaced\.length\)/,
+    code("app/(app)/review/page.tsx"), /roomFor\(dueWithin\.length\)/,
     "the review queue measures room against the cards it read rather than the cards it shows",
+  );
+  assert.match(
+    counting, /roomFor\(dueWithin\)/,
+    "the closing count measures room differently from the round it is counting",
+  );
+
+  /*
+    AND THE COUNT MAY ONLY EVER READ LOW. The round replaces its unseen window
+    with a wider read when nothing in the first sixty rows is near the
+    learner's band (`inBandPool`), so the rows it ends up showing are neither a
+    subset nor a superset of the ones counted here. Counting every unseen row
+    can therefore exceed what the round will show, which asks for evidence
+    nobody can give and is the hang this whole module exists to end; counting
+    the in-band ones alone is at or under it in every case.
+  */
+  assert.match(
+    counting, /isAround\(/,
+    "the closing count counts unseen cards the round may never show, so the step can ask "
+    + "for more answers than the round has and the evening cannot be finished",
+  );
+
+  /*
+    MEMOISED, AND ON ONE INSTANT. Two readings want this number on the module
+    screen, `courseReading` to decide whether the day is finished and
+    `closingProgress` to say how far off it is, and each reads two pages of the
+    deck. Keyed on the instant, so a page handing them two `new Date()`s would
+    both double the queries and let the two disagree across a card's due time.
+  */
+  assert.match(
+    counting, /cache\(async \(/,
+    "the closing count is read twice per render of the module screen and memoised for "
+    + "neither, which is four page-reads of the deck where two will do",
+  );
+  const coursePage = code("app/(app)/course/page.tsx");
+  assert.match(
+    coursePage, /courseReading\(ownerId, programme, clock, now\)/,
+    "the module screen reads the day at one instant and the step's own line at another",
+  );
+  assert.match(
+    coursePage, /closingProgress\(ownerId, programme, day\.id, now\)/,
+    "the module screen reads the day at one instant and the step's own line at another",
   );
 
   /*

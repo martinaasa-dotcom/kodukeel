@@ -110,7 +110,15 @@ export default async function CoursePage({
   }
 
   const clock = await learnerDayClock(ownerId);
-  const reading = await courseReading(ownerId, programme, clock);
+  /* One instant for the whole render. The reading decides whether the closing
+     step is finished and the line under it says how far off that is, and both
+     answers are read off the deck at a moment: two `new Date()`s a few
+     milliseconds apart can straddle a card's due time and print "0 of 0
+     answers in" under a step the reading has already ticked. It is also what
+     lets the count behind them be memoised, since the cache is keyed on the
+     instant (`lib/progress/closing.ts`). */
+  const now = new Date();
+  const reading = await courseReading(ownerId, programme, clock, now);
   const total = programme.days.length;
 
   if (reading.finished) {
@@ -318,7 +326,7 @@ export default async function CoursePage({
   }
 
   const [closing, missing] = await Promise.all([
-    closingProgress(ownerId, programme, day.id),
+    closingProgress(ownerId, programme, day.id, now),
     missingWords(ownerId, day),
   ]);
   const unit = unitOf(day);

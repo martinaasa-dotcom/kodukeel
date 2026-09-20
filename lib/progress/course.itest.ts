@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay } from "@/lib/progress/course";
+import { recordCourseLevel } from "@/lib/progress/level";
 import { dayClock } from "@/lib/time/day";
 
 /**
@@ -44,6 +45,7 @@ const NOW = new Date("2026-05-13T18:00:00Z");
 const EVENING = new Date(NOW.getTime() - 60 * 60_000);
 
 async function wipe() {
+  await prisma.setting.deleteMany({ where: { ownerId: OWNER } });
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
@@ -113,6 +115,28 @@ async function reviewable(n: number): Promise<string[]> {
     ids.push(card.id);
   }
   return ids;
+}
+
+/**
+ * An unseen card on a word the evening teaches, which is what the closing
+ * round's other half draws on.
+ *
+ * `PRODUCTION` rather than the recognition card `deck` builds, so the Learn
+ * ladder has no claim on it and the only thing that can keep it out of the
+ * count is the learner's own band.
+ */
+async function unseenTaught(words: readonly string[]): Promise<void> {
+  const lexeme = await prisma.lexeme.findFirst({
+    where: { lemma: { in: [...new Set(words)] } }, select: { id: true },
+  });
+  await prisma.card.create({
+    data: {
+      ownerId: OWNER, lexemeId: lexeme!.id, cardType: "PRODUCTION",
+      front: "u0", back: "y", state: 0,
+      due: new Date(NOW.getTime() - 60_000), stability: 0, difficulty: 0, elapsedDays: 0,
+      scheduledDays: 0, reps: 0, lapses: 0, learningSteps: 0,
+    },
+  });
 }
 
 /** A card answered and scheduled away, which is what grading one does. */
@@ -394,6 +418,35 @@ describe("the closing round's own counter", () => {
     const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
     expect(reading.current?.day.index).toBe(1);
     expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+
+  /*
+    AND AN UNSEEN WORD THE ROUND WOULD NOT REACH FOR IS NOT COUNTED.
+
+    The round replaces its unseen window with a wider read when nothing in the
+    first sixty rows is near the learner's band, and the widening *replaces*
+    that window rather than adding to it, so the rows it ends up showing are
+    neither a subset nor a superset of the ones counted here. Counting every
+    unseen row could therefore ask for an answer the round will never offer,
+    which is the hang this whole module exists to end. Counted in band only,
+    which is at or under what the round shows in every case.
+
+    A C1 learner walking the first part of A1 is the state that reaches it:
+    every word the evening teaches is two bands under them, so none of it is
+    around their level and the closing round's unseen half is empty.
+  */
+  it("counts no unseen word the round would pass over", async () => {
+    const one = PROGRAMME.days[0]!;
+    /* Graduated rather than still on the ladder, or `pastTheLadder` keeps the
+       word's other cards out of the unseen window and there is nothing to
+       count either way. */
+    await deck(one.words, 2);
+    await unseenTaught(one.words);
+    await recordCourseLevel(OWNER, "C1", NOW);
+    await tick(one.id, ticked(one), EVENING);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 0 });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
   });
 
   /* Two cards left is two answers, and then the evening is over. */

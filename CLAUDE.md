@@ -4888,6 +4888,34 @@ an empty review says **which** empty it is: "you're caught up, all 312 cards are
 later" is the wrong cause on a round that is narrowed, and it sends somebody off to check a deck
 that is fine.
 
+**And a count standing in for a screen may only ever read low, which is not what it did first.**
+The two directions are not the same fault. Reading low ticks a step with a card or two still
+answerable, and the learner can simply answer them; reading high asks for evidence the round will
+not produce, which is the hang this whole thing exists to end. The unseen half was reading high:
+the round swaps its window for a wider read when nothing in the first sixty rows is near the
+learner's band (`inBandPool`), and that widening **replaces** the window rather than adding to it,
+so the rows it ends up showing are neither a subset nor a superset of the ones counted. A C1
+learner walking the first part of A1 reaches it, since every word the evening teaches is two bands
+under them. The count takes the in-band rows alone, which is at or under what the round shows in
+every one of those cases. What is left is written down rather than guarded: the due window is the
+whole deck's first sixty by due date, exactly as the round reads it, so a learner with a long
+backlog whose taught words sit past row sixty closes the evening having answered nothing, which is
+the round agreeing with itself rather than a miscount; and the ask is recomputed per render, so a
+card answered wrongly is counted again and the line can read "1 of 3" having read "0 of 2", which
+is a missed card really being another answer still to give.
+
+**And the number is read twice per render, so it is memoised and read at one instant.** The module
+screen asks `courseReading` whether the day is finished and `closingProgress` what the step's own
+line should say, and each read is two pages of the deck: four where two will do, on the screen a
+learner opens every evening, which is the rule this file already states about a fact wanted twice
+in one render. Keyed on the learner, the day and the instant rather than on the scope object, since
+`scopeFor` builds a fresh one per call and an identity key would never hit. **One instant matters
+on its own**, since two `new Date()`s a few milliseconds apart can straddle a card's due time and
+print "0 of 0 answers in" under a step the reading has already ticked; the line stands down at
+nought either way, because a stale render is not something to say. Measured on a built server with
+the deployment's own statement log on, and with a probe on each side of the memo: two call sites,
+one read.
+
 **Two faults in it were invisible to every unit test and turned up in the first two evenings
 anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
 tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn
