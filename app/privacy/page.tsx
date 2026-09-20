@@ -132,8 +132,9 @@ export default function PrivacyPage() {
         </P>
         <P>
           <strong>What you said happened out there.</strong> Today asks each morning whether you spoke
-          any Estonian to somebody yesterday, and you answer in one of three words: yes and they
-          understood, they switched to English, not yesterday. That word and the day are kept, and
+          any Estonian to somebody yesterday. Where the answer is no, that is the whole of it; where
+          it is yes, it asks how it went, in one of three words: they understood me, I got stuck
+          partway, they switched to English. That word and the day are kept, and
           nothing else: not where you were, not who you spoke to, not what was said. The errand it
           offers on a day with none is not stored at all.
         </P>

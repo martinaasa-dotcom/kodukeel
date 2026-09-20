@@ -16065,6 +16065,49 @@ check("a conversation is counted by the one rule, never by counting rows", () =>
   writing a unit's name against a conversation with a neighbor would put it
   on a row no unit earned.
 */
+/*
+  THE CARD CONGRATULATES BEFORE IT MARKS, AND ASKS HOW IT WENT OFF ONE LIST.
+
+  Speaking Estonian to a stranger is the hard part and the card used to go
+  straight past it to a row of answers that asked whether anything was said
+  and how it went at the same time. The learner who spoke and ran out of words
+  had nowhere honest to put that: claim they were understood, claim the other
+  person switched, or answer "not yesterday", which deletes the conversation
+  from the one count this app says it is measured by (ADR-027 amendment 2).
+
+  Two halves, because either alone passes on the broken shape. The answers to
+  "how did it go" come off `HOW_IT_WENT`, which is `isConversation` over the
+  outcome list, so a further answer that is a conversation reaches the card by
+  existing rather than by somebody remembering two files; and nothing is
+  written on the first press, since reading a bare yes as `UNDERSTOOD` would
+  count an abandoned half-answer as a conversation nobody switched out of,
+  which biases the switch rate in the direction that flatters. Anchored on the
+  call rather than on today's markup, and read through `code()`, because the
+  comment above each of them names what it is for.
+*/
+check("the out-there card asks how it went off one list, and writes nothing until it is answered", () => {
+  const source = code("components/SayItToday.tsx");
+  assert.match(
+    source, /HOW_IT_WENT\.map\(/,
+    "components/SayItToday.tsx types its own list of how a conversation went, so a fourth answer never reaches Today",
+  );
+  const errands = code("lib/collections/errands.ts");
+  assert.match(
+    errands, /HOW_IT_WENT[^=]*=\s*OUTCOMES\.filter\(isConversation\)/,
+    "lib/collections/errands.ts writes out which answers are a conversation instead of asking isConversation",
+  );
+  /*
+    The only outcomes the card may record are the ones a learner pressed a
+    labelled answer for. A bare "yes" that recorded UNDERSTOOD would satisfy
+    every other check here and quietly overstate the thing being measured.
+  */
+  const recorded = [...source.matchAll(/report\("([A-Z]+)"\)/g)].map((m) => m[1]);
+  assert.deepEqual(
+    recorded, ["BAILED"],
+    `components/SayItToday.tsx records ${recorded.join(", ")} without asking; only the no is answered in one press`,
+  );
+});
+
 check("Today's report names no errand, and the research table files a conversation under no unit", () => {
   assert.match(
     code("components/SayItToday.tsx"), /recordEncounter\(\s*null\s*,/,

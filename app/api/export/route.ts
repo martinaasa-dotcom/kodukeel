@@ -155,7 +155,7 @@ export async function GET() {
     prisma.sceneRun.findMany({ where: { ownerId }, orderBy: { startedAt: "asc" } }),
     // The words those conversations needed and they did not have.
     prisma.sceneGap.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
-    // Every real conversation they reported having, in one of three words.
+    // Every real conversation they reported having, in one of four words.
     prisma.encounter.findMany({ where: { ownerId }, orderBy: { createdAt: "asc" } }),
     // Their own named shelves, and which words sit on each. A label over the
     // one review pool rather than a second one of it, and theirs either way.

@@ -18,7 +18,7 @@
  * that is decided and both figures here read it.
  */
 import { prisma } from "@/lib/db";
-import { isConversation, outcomeFrom, type Outcome } from "@/lib/collections/errands";
+import { isConversation, outcomeFrom, OUTCOMES, type Outcome } from "@/lib/collections/errands";
 import type { DayClock } from "@/lib/time/day";
 
 export const OUT_THERE_DAYS = 30;
@@ -84,7 +84,7 @@ async function reports(ownerId: string, clock: DayClock, now: Date): Promise<Rep
 export async function outThere(ownerId: string, clock: DayClock, now = new Date()): Promise<OutThere> {
   const all = await reports(ownerId, clock, now);
   const recent = new Set(clock.recentDayKeys(OUT_THERE_DAYS, now));
-  const byOutcome = { UNDERSTOOD: 0, SWITCHED: 0, BAILED: 0 } as Record<Outcome, number>;
+  const byOutcome = Object.fromEntries(OUTCOMES.map((o) => [o, 0])) as Record<Outcome, number>;
   const days = new Set<string>();
   const reported = new Set<string>();
   let total = 0;

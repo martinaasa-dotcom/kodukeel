@@ -130,43 +130,72 @@ export const ERRANDS: readonly Errand[] = [
 ];
 
 /**
- * What the learner said happened. The three words on the card.
+ * What the learner said happened. The four words on the card.
  *
- * The stored values are unchanged, and that is deliberate rather than lazy:
+ * The stored values are unchanged and that is deliberate rather than lazy:
  * the question moved from "how did the errand go" to "did you speak any
  * Estonian yesterday", and every row written under the first question reads
  * correctly under the second. `BAILED` was "I went and did not manage it" and
  * is now "there was none yesterday", which is the same fact about the day.
+ *
+ * `STUCK` IS THE ANSWER THE FIRST THREE COULD NOT GIVE. Getting partway and
+ * running out of words is the commonest thing that happens to anybody holding
+ * a conversation in a language they are learning, and it is the moment
+ * `lib/email/letters/errand.ts` argues at length that no other app will tell
+ * somebody is not a failure. With three answers the learner who froze had to
+ * claim they were understood, claim the other person switched, or answer "not
+ * yesterday", which deletes the conversation from the one count this app says
+ * it is measured by. It is a conversation, because they spoke.
  */
-export const OUTCOMES = ["UNDERSTOOD", "SWITCHED", "BAILED"] as const;
+export const OUTCOMES = ["UNDERSTOOD", "SWITCHED", "STUCK", "BAILED"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
 export function outcomeFrom(value: unknown): Outcome | null {
   return OUTCOMES.find((o) => o === value) ?? null;
 }
 
+/**
+ * Each answer in the learner's own words.
+ *
+ * The three that are a conversation answer "how did it go", which is asked
+ * after the card has said that speaking at all was the thing; `BAILED`
+ * answers the question before that one, which is whether anything was said.
+ */
 export const OUTCOME_LABEL: Readonly<Record<Outcome, string>> = {
-  UNDERSTOOD: "Yes, and they understood",
+  UNDERSTOOD: "They understood me",
   SWITCHED: "They switched to English",
+  STUCK: "I got stuck partway",
   BAILED: "Not yesterday",
 };
 
+/** The other half of the first question, which `BAILED` is the no to. */
+export const SPOKE_LABEL = "Yes, I did";
+
 /**
- * WHICH OF THE THREE IS A CONVERSATION, DECIDED ONCE.
+ * WHICH OF THE FOUR IS A CONVERSATION, DECIDED ONCE.
  *
  * Progress prints a count of conversations and a run of days with one in
  * them, and both counted every row, including the days somebody said there
  * had been nothing. That was already loose when the third answer meant "I
  * tried and could not"; with the question asked the way it is asked now it
  * would be a plain untruth, since answering "not yesterday" every day for a
- * fortnight would build a fortnight's run of real conversations. Two readers
- * ask this and they may not disagree about it.
+ * fortnight would build a fortnight's run of real conversations. Every reader
+ * asks this and they may not disagree about it.
  */
-export type Conversation = Extract<Outcome, "UNDERSTOOD" | "SWITCHED">;
+export type Conversation = Exclude<Outcome, "BAILED">;
 
 export function isConversation(outcome: Outcome): outcome is Conversation {
-  return outcome === "UNDERSTOOD" || outcome === "SWITCHED";
+  return outcome !== "BAILED";
 }
+
+/**
+ * The answers to "how did it go", in the order they are offered.
+ *
+ * Read off `isConversation` rather than typed, so a fifth answer that is a
+ * conversation reaches the card by existing rather than by somebody
+ * remembering two files.
+ */
+export const HOW_IT_WENT: readonly Conversation[] = OUTCOMES.filter(isConversation);
 
 /** The errand for a day, over the units the learner has started. */
 export function errandForDay(dayKey: string, startedUnits: ReadonlySet<string>): Errand {

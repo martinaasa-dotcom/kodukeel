@@ -397,7 +397,7 @@ is: it would be this app writing Estonian and the scheduler drilling it.
 
 **A conversation outside the app is the number the app is measured by, and it is a fact the learner
 reports.** `lib/collections/errands.ts` names one errand a day by unit id, never by word, the way
-the seasonal row does, and `recordEncounter` stores one of three words. `Encounter` is append-only
+the seasonal row does, and `recordEncounter` stores one of four words. `Encounter` is append-only
 and the fourth exception to "progress is derived" (ADR-027). Progress leads with it, beside the
 readiness reading of the course's own "you can do this" claims (ADR-026). The research export
 publishes the errands under the same gate as everything else and labelled as self-reported.
@@ -423,6 +423,40 @@ was answered is not a day that held a conversation**: `isConversation` is the on
 decided, both readings in `lib/progress/outThere.ts` ask it, and counting rows instead would report
 a fortnight of honest noes back as a fortnight of real conversations and a run of fourteen days, on
 the panel whose own heading says it matters more than any chart on the page.
+
+**And it is two questions, because the first one is the achievement.** One row of answers asked
+whether anything was said and how it went at the same time, and what followed a yes was a box
+labelled "A word you did not have?", which was reported as a question nobody can answer: a learner
+cannot list what they missed. That reading is right about the wording rather than about the thing,
+since everybody who has run out of words mid-sentence remembers the one they wanted, so the box is
+asked as that memory and its label says what it will do with it. What was wrong underneath it is
+that the app went straight past the hard part to mark the result. So Today asks whether any
+Estonian was spoken, says that speaking at all was the thing, and then asks how it went
+(ADR-027 amendment 2).
+
+**`STUCK` is the answer the first three could not give.** Running out of words partway is the
+commonest thing that happens to anybody holding a conversation in a language they are learning, and
+it is the moment `lib/email/letters/errand.ts` argues at length that no other app will tell somebody
+is not a failure. With three answers the learner who froze had to claim they were understood, claim
+the other person switched, or answer "not yesterday", which deletes the conversation from the one
+count this app says it is measured by. It **is** a conversation, because they spoke, and
+`HOW_IT_WENT` is `isConversation` over the outcome list rather than a second list typed into the
+card, so a further answer reaches Today by existing. **Nothing is written until the second press**:
+reading a bare yes as `UNDERSTOOD` and letting the follow-up refine it would count an abandoned
+half-answer as a conversation nobody switched out of, which biases the one figure a pilot watches in
+the direction that flatters. Both halves are asserted, because either alone passes on the broken
+shape, and each was made to fail on the real line. **And the research export's "correct" is defined
+by the figure the file claims to carry**, which is that the other person did not switch, rather than
+by one outcome: it was `= 'UNDERSTOOD'` under a published note saying one minus the rate is the
+switch share, and that sentence stopped being true the day a third conversation answer existed.
+
+**And what the card offers after a conversation is a rehearsal rather than an errand.** A day that
+held one is not a day to be handed homework, which is amendment 1's own rule, and a scene is the
+opposite of homework: the same encounter played on somebody with an agenda of their own, where
+getting it wrong costs nothing. It is offered on the two answers that have something to practise, a
+conversation the learner got stuck in and one the other person switched out of, and on neither the
+good day nor the empty one, since the first needs nothing from us and the second already has the
+errand.
 
 **And a report was filed under the day it was made, which is the day after the one it is about.**
 A row written on Tuesday morning is a fact about Monday, and both readings keyed it on Tuesday, so
