@@ -18076,8 +18076,17 @@ check("the daily review introduces nothing the module has not taught", () => {
     "the daily review reads the module only off its address, so nothing holds it on the path a learner actually opens",
   );
   assert.match(
-    page, /const taught = scope \?\? await learnerModuleScope\(/,
+    page, /scope \? Promise\.resolve\(scope\) : learnerModuleScope\(/,
     "the daily review no longer falls back to the learner's own standing when it was not opened from the module",
+  );
+  /*
+    And it is in flight beside the due read rather than awaited in front of
+    it: resolving the standing is two reads deep, and this is the page whose
+    daily job is to open fast.
+  */
+  assert.match(
+    page, /const \[taught, due,/,
+    "the module standing is resolved before the due list rather than beside it, which costs the daily path two round trips",
   );
   assert.match(
     page, /taught\?\.lemmas|taught\.lemmas/,
@@ -18113,6 +18122,74 @@ check("the daily review introduces nothing the module has not taught", () => {
   the guard deleted, which is this repository's oldest recurring mistake in
   its own checks.
 */
+/*
+  A `where` MAY NOT SPREAD TWO `OR`s, BECAUSE THE SECOND DELETES THE FIRST.
+
+  `pastTheLadder` and `notOnLadder` both return a bare `{ OR: [...] }`, which
+  is how a caller says "this word is past the Learn ladder" in one spread.
+  Spread a second `{ OR }` into the same object literal and the later key wins,
+  silently: the guard goes, and with it the promise that a word's case card is
+  never somebody's first sight of it — `neljaks` before `neli` had been shown.
+
+  It happened here the day the module's gate was added to the review queue, in
+  two reads, and every check in the repository stayed green: the shape it
+  breaks needs a deck holding an unseen card of a word still on the ladder, and
+  no fixture has one at the moment those queries run. So it is asked of the
+  source, which is the only place the collision is visible at all.
+
+  The enclosing object is walked by its own braces rather than by a line count,
+  and `AND: [pastTheLadder(...), { OR: ... }]` is the shape that passes, since
+  there the two are separate objects.
+*/
+check("no query spreads a second OR over the Learn-ladder guard", () => {
+  const helpers = /\.\.\.(pastTheLadder|notOnLadder)\(/g;
+  let looked = 0;
+  for (const file of [...sourceFiles("app"), ...sourceFiles("lib")]) {
+    const src = code(file);
+    for (const hit of [...src.matchAll(helpers)]) {
+      looked += 1;
+      // Walk back to the `{` that opens the object this spread is in, then
+      // forward to its `}`, counting depth so nested objects are skipped.
+      let depth = 0;
+      let open = hit.index!;
+      while (open > 0) {
+        const ch = src[open]!;
+        if (ch === "}") depth += 1;
+        else if (ch === "{") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        open -= 1;
+      }
+      depth = 0;
+      let close = open + 1;
+      while (close < src.length) {
+        const ch = src[close]!;
+        if (ch === "{") depth += 1;
+        else if (ch === "}") {
+          if (depth === 0) break;
+          depth -= 1;
+        }
+        close += 1;
+      }
+      // Every key at this object's own depth, which is where a clash lives.
+      depth = 0;
+      let ownLevel = "";
+      for (let i = open + 1; i < close; i += 1) {
+        const ch = src[i]!;
+        if (ch === "{" || ch === "[") depth += 1;
+        else if (ch === "}" || ch === "]") depth -= 1;
+        else if (depth === 0) ownLevel += ch;
+      }
+      assert.doesNotMatch(
+        ownLevel, /(^|[\s,])OR\s*:/,
+        `${file} spreads the Learn-ladder guard beside its own OR, which deletes the guard; put both under AND`,
+      );
+    }
+  }
+  assert.ok(looked >= 4, `only ${looked} uses of the ladder guard were found; the sweep is not reading the tree`);
+});
+
 check("the gap-fill backfill asks whether the course wanted one", () => {
   const src = code("lib/srs/backfill.ts");
   assert.match(

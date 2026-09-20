@@ -91,7 +91,15 @@ export default async function ReviewPage({
     beside it: `DICTIONARY` is a column that cannot say whose idea a word was,
     and the cost of guessing wrong here is a word never taught.
   */
-  const taught = scope ?? await learnerModuleScope(ownerId);
+  /*
+    STARTED HERE AND AWAITED BELOW, because resolving it is two reads deep and
+    the biggest query on this page does not depend on it. `moduleReached` asks
+    the settings row and the level, and only then the ticks, so awaiting it
+    outright put two sequential round trips in front of the due list on the one
+    page whose daily job is to open fast. In flight beside the due read it
+    costs the page one round trip rather than two.
+  */
+  const taughtPromise = scope ? Promise.resolve(scope) : learnerModuleScope(ownerId);
   const theirOwnToo = scope === null;
   const now = new Date();
 
@@ -215,7 +223,8 @@ export default async function ReviewPage({
     either. The level read is the fourth because `atLevelFirst` needs it and
     neither of the queries does.
   */
-  const [due, freshPool, totalCards, level, mode] = await Promise.all([
+  const [taught, due, totalCards, level, mode] = await Promise.all([
+    taughtPromise,
     prisma.card.findMany({
       where: {
         ownerId, suspended: false, due: { lte: now }, state: { not: 0 },
@@ -248,42 +257,66 @@ export default async function ReviewPage({
       take: MAX_SESSION,
       include,
     }),
-    // Ordered by lexeme as well as by date so a word's cards stay together:
-    // they share one `createdAt`, so date alone leaves them tied and the take
-    // can interleave two words. `inTeachingOrder` then settles the order
-    // *within* a word, which is what stops a conjugation card being somebody's
-    // first sight of a verb.
-    prisma.card.findMany({
-      /*
-        `due` on an unseen card is the moment it was written, so this filter
-        changes nothing for anybody until they press "too complicated": that
-        is what a deferral moves, and without it a word put aside would be
-        introduced again on the next session (`lib/srs/defer.ts`).
-      */
-      where: {
-        ownerId, suspended: false, state: 0, due: { lte: now }, ...pastTheLadder(ownerId),
-        // Only a word the module has taught: see above. Inside the module that
-        // is the whole of it; on the daily path the learner's own words are
-        // theirs and stand beside it.
-        ...(taught
-          ? {
-              OR: [
-                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
-                { lexeme: { lemma: { in: [...taught.lemmas] } } },
-              ],
-            }
-          : {}),
-      },
-      // And the id here too: a word's cards tie on both of these, which is the
-      // very thing the comment above says they do.
-      orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
-      take: NEW_CANDIDATES,
-      include,
-    }),
     prisma.card.count({ where: { ownerId } }),
     courseLevelFor(ownerId),
     modeChosen(),
   ]);
+
+  /*
+    AND THE UNSEEN WINDOW AFTER THEM, because it is the one read on this page
+    that needs the module's answer: which words may be introduced is what it is
+    narrowed by. It used to ride beside the due read, and that round trip is
+    the price of the gate rather than an oversight. Everything else still goes
+    in one round, and the due list — which is most of a session — no longer
+    waits on the standing at all.
+  */
+  // Ordered by lexeme as well as by date so a word's cards stay together:
+  // they share one `createdAt`, so date alone leaves them tied and the take
+  // can interleave two words. `inTeachingOrder` then settles the order
+  // *within* a word, which is what stops a conjugation card being somebody's
+  // first sight of a verb.
+  const freshPool = await prisma.card.findMany({
+    /*
+      `due` on an unseen card is the moment it was written, so this filter
+      changes nothing for anybody until they press "too complicated": that
+      is what a deferral moves, and without it a word put aside would be
+      introduced again on the next session (`lib/srs/defer.ts`).
+    */
+    where: {
+      ownerId, suspended: false, state: 0, due: { lte: now },
+      /*
+        UNDER `AND`, BECAUSE `pastTheLadder` IS ITSELF AN `OR` AND A SECOND
+        ONE SPREAD BESIDE IT DELETES THE FIRST.
+
+        Two `...` of `{ OR }` into one object literal is the later key
+        winning, silently, and what it silently dropped here is the guard
+        that keeps a word's case card off the screen until its own
+        recognition card has graduated: `neljaks` before the learner had
+        ever been shown `neli`. Every check in the repository stayed green,
+        because the shape it breaks needs a deck holding an unseen card of a
+        word still on the ladder.
+      */
+      AND: [
+        pastTheLadder(ownerId),
+        // Only a word the module has taught: see above. Inside the module
+        // that is the whole of it; on the daily path the learner's own words
+        // are theirs and stand beside it.
+        ...(taught
+          ? [{
+              OR: [
+                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+                { lexeme: { lemma: { in: [...taught.lemmas] } } },
+              ],
+            }]
+          : []),
+      ],
+    },
+    // And the id here too: a word's cards tie on both of these, which is the
+    // very thing the comment above says they do.
+    orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
+    take: NEW_CANDIDATES,
+    include,
+  });
 
   /*
     A CARD NEVER ANSWERS THE CARD BEFORE IT.
@@ -405,16 +438,19 @@ async function inBandPool(
   const inBand = await prisma.card.findMany({
     where: {
       ownerId, suspended: false, state: 0, due: { lte: new Date() },
-      ...pastTheLadder(ownerId),
       lexeme: { cefr: { in: [...bandsAround(level)] } },
-      ...(only
-        ? {
-            OR: [
-              ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
-              { lexeme: { lemma: { in: [...only] } } },
-            ],
-          }
-        : {}),
+      // `AND`, for the reason the new-card read above gives at length.
+      AND: [
+        pastTheLadder(ownerId),
+        ...(only
+          ? [{
+              OR: [
+                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
+                { lexeme: { lemma: { in: [...only] } } },
+              ],
+            }]
+          : []),
+      ],
     },
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
     take: NEW_CANDIDATES,
