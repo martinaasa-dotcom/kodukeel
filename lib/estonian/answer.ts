@@ -20,6 +20,33 @@ import { FOLD, fold } from "@/lib/estonian/fold";
 
 export type Verdict = "correct" | "diacritics" | "typo" | "wrong";
 
+/**
+ * How long a same-length, one-letter-substituted answer has to be before it
+ * is read as a slip of the hand rather than a different word.
+ *
+ * Measured rather than guessed, over every accepted answer the shipped
+ * dictionary can produce (`prisma/data/expanded.json` and `harvested.ts`,
+ * the same corpus `answer.test.ts` already reads): counting every pair of
+ * accepted answers of one length that are exactly one substitution apart.
+ * Four letters is where the danger is worst by an order of magnitude, 2,295
+ * such pairs, `buss/nuss`, `film/silm`, and the `mina/sina` pair that
+ * prompted this. Five, six and seven letters stay in the same range as each
+ * other (187, 149, 136): `aasta/aasia`, `istuma/astuma`, `hammas/lammas`,
+ * `ehitama/esitama`. It is only at eight letters that the count drops by
+ * more than three times, to 43, and it keeps falling from there (28 at
+ * nine, 6 at ten). Eight letters is the floor for that reason: it is the
+ * first length where a same-length substitution is meaningfully less likely
+ * to have landed on somebody else's word than to be a genuine slip. Nothing
+ * below it is safe, only safer, since `valutama/valetama` and
+ * `valutama/vajutama` are both real eight-letter pairs among the 43 — a
+ * length floor cannot remove the risk, only push it down to where it stops
+ * being the common case. See the comment on the typo check itself for why a
+ * substitution needs a stricter floor than an insertion or a deletion does
+ * at all. Re-run `npm run measure:typo-collisions` before moving this
+ * number; the count is what should move it, not a feeling.
+ */
+const TYPO_SUBSTITUTION_FLOOR = 8;
+
 export interface AnswerCheck {
   verdict: Verdict;
   /** The alternative the answer came closest to — what the UI should show. */
@@ -240,10 +267,28 @@ export function checkAnswer(
     }
   }
 
-  // A single slipped keystroke. Short words are excluded: at three letters,
-  // one edit is usually a different word rather than a mistyped one.
+  /*
+    A single slipped keystroke. Short words are excluded, and a substitution
+    is held to a stricter floor than an insertion or a deletion.
+
+    An inserted or dropped letter is a slip of the hand on any word long
+    enough to have one: "raamtu" for "raamatu", "tooas" for "toas". A
+    substituted one is often a different word entirely, and Estonian clusters
+    tightly even among ordinary vocabulary, not only its short grammatical
+    words: "mina" (I) and "sina" (you) are one swapped first letter apart and
+    both are real, and so, at six letters, are "istuma" (to sit) and
+    "astuma" (to step). Typing "sina" for "mina" was marked "So close, the
+    word is mina." and graded Hard, telling a learner who named the wrong
+    person that they had nearly named the right one. A same-length
+    one-letter difference needs TYPO_SUBSTITUTION_FLOOR letters before it is
+    read as a slip rather than as the wrong word; a different-length one
+    keeps the old floor, because an inserted or dropped letter does not
+    spell a coincidental second word the way a swapped one does.
+  */
   for (const answer of answers) {
-    if (answer.compared.length >= 4 && editDistance(given, answer.compared, 1) <= 1) {
+    const sameLength = given.length === answer.compared.length;
+    const floor = sameLength ? TYPO_SUBSTITUTION_FLOOR : 4;
+    if (answer.compared.length >= floor && editDistance(given, answer.compared, 1) <= 1) {
       return {
         verdict: "typo",
         expected: answer.shown,
