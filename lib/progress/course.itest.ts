@@ -2,6 +2,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { PROGRAMMES, MEET_STEP, REVIEW_STEP } from "@/lib/course";
 import { CLOSING_REVIEW, closingProgress, courseReading, dayIsInPlay } from "@/lib/progress/course";
+import { recordCourseLevel } from "@/lib/progress/level";
 import { dayClock } from "@/lib/time/day";
 
 /**
@@ -44,6 +45,7 @@ const NOW = new Date("2026-05-13T18:00:00Z");
 const EVENING = new Date(NOW.getTime() - 60 * 60_000);
 
 async function wipe() {
+  await prisma.setting.deleteMany({ where: { ownerId: OWNER } });
   await prisma.courseStep.deleteMany({ where: { ownerId: OWNER } });
   await prisma.review.deleteMany({ where: { ownerId: OWNER } });
   await prisma.card.deleteMany({ where: { ownerId: OWNER } });
@@ -83,6 +85,66 @@ async function deck(words: readonly string[], state: number) {
     });
   }
   return lexemes.length;
+}
+
+/**
+ * Cards the closing round can actually ask, which is not the same as a deck.
+ *
+ * The recognition cards `deck` builds are the Learn ladder's own and the
+ * review queue refuses them while they are on it, so a fixture holding those
+ * alone has nothing to review. That is a real state and it is the one the bug
+ * below was reported in; it is not the state the tests about the *counter*
+ * mean to be in, so those say so by calling this.
+ *
+ * `PRODUCTION` at the scheduler's Review state and due: nothing about a module
+ * refuses it, so the closing round has five things to ask.
+ */
+async function reviewable(n: number): Promise<string[]> {
+  const lexeme = await prisma.lexeme.findFirst({ select: { id: true } });
+  const ids: string[] = [];
+  for (let i = 0; i < n; i += 1) {
+    const card = await prisma.card.create({
+      data: {
+        ownerId: OWNER, lexemeId: lexeme!.id, cardType: "PRODUCTION",
+        front: `p${i}`, back: "y", state: 2,
+        due: new Date(NOW.getTime() - 60_000), stability: 1, difficulty: 1, elapsedDays: 1,
+        scheduledDays: 1, reps: 1, lapses: 0, learningSteps: 0,
+      },
+      select: { id: true },
+    });
+    ids.push(card.id);
+  }
+  return ids;
+}
+
+/**
+ * An unseen card on a word the evening teaches, which is what the closing
+ * round's other half draws on.
+ *
+ * `PRODUCTION` rather than the recognition card `deck` builds, so the Learn
+ * ladder has no claim on it and the only thing that can keep it out of the
+ * count is the learner's own band.
+ */
+async function unseenTaught(words: readonly string[]): Promise<void> {
+  const lexeme = await prisma.lexeme.findFirst({
+    where: { lemma: { in: [...new Set(words)] } }, select: { id: true },
+  });
+  await prisma.card.create({
+    data: {
+      ownerId: OWNER, lexemeId: lexeme!.id, cardType: "PRODUCTION",
+      front: "u0", back: "y", state: 0,
+      due: new Date(NOW.getTime() - 60_000), stability: 0, difficulty: 0, elapsedDays: 0,
+      scheduledDays: 0, reps: 0, lapses: 0, learningSteps: 0,
+    },
+  });
+}
+
+/** A card answered and scheduled away, which is what grading one does. */
+async function scheduleAway(ids: readonly string[]) {
+  await prisma.card.updateMany({
+    where: { ownerId: OWNER, id: { in: [...ids] } },
+    data: { due: new Date(NOW.getTime() + 24 * 3600_000) },
+  });
 }
 
 /** The steps of a day that a learner ticks, in order, with real timestamps. */
@@ -156,6 +218,7 @@ describe("which day is current", () => {
   it("does not count answers given before the evening's rounds", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
     const at = EVENING;
     await review(CLOSING_REVIEW, new Date(at.getTime() - 60_000));
     await tick(one.id, ticked(one), at);
@@ -306,14 +369,100 @@ describe("the closing round's own counter", () => {
   it("counts up to what the day needs and no further", async () => {
     const one = PROGRAMME.days[0]!;
     await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW);
     const at = EVENING;
     await tick(one.id, ticked(one), at);
 
-    expect(await closingProgress(OWNER, PROGRAMME, one.id))
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
       .toEqual({ graded: 0, needed: CLOSING_REVIEW });
 
     await review(CLOSING_REVIEW + 7, new Date(at.getTime() + 60_000));
-    expect(await closingProgress(OWNER, PROGRAMME, one.id))
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
       .toEqual({ graded: CLOSING_REVIEW, needed: CLOSING_REVIEW });
+  });
+
+  /*
+    AND IT ASKS FOR NO MORE THAN THE ROUND CAN GIVE.
+
+    Reported off a real module: the evening read three quarters done, the last
+    step said "1 of 5 answers in", and the round behind it said nothing was
+    due. The step is derived, so no press on any screen could tick it and the
+    day could never be finished. `deck` alone is exactly that state, since the
+    review queue refuses a word the Learn ladder is still walking.
+  */
+  it("asks for what the round can give, so an evening can always be finished", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 0, needed: 0 });
+
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.daysDone).toBe(1);
+    expect(reading.current?.day.index).toBe(2);
+    /* And nothing was written for it: the step is still derived (ADR-014). */
+    expect(await prisma.courseStep.count({ where: { ownerId: OWNER, stepId: REVIEW_STEP } })).toBe(0);
+  });
+
+  it("still asks for all five where the round has five to give", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    await reviewable(CLOSING_REVIEW + 3);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW))
+      .toEqual({ graded: 0, needed: CLOSING_REVIEW });
+    const reading = await courseReading(OWNER, PROGRAMME, CLOCK, NOW);
+    expect(reading.current?.day.index).toBe(1);
+    expect(reading.current?.next?.id).toBe(REVIEW_STEP);
+  });
+
+  /*
+    AND AN UNSEEN WORD THE ROUND WOULD NOT REACH FOR IS NOT COUNTED.
+
+    The round replaces its unseen window with a wider read when nothing in the
+    first sixty rows is near the learner's band, and the widening *replaces*
+    that window rather than adding to it, so the rows it ends up showing are
+    neither a subset nor a superset of the ones counted here. Counting every
+    unseen row could therefore ask for an answer the round will never offer,
+    which is the hang this whole module exists to end. Counted in band only,
+    which is at or under what the round shows in every case.
+
+    A C1 learner walking the first part of A1 is the state that reaches it:
+    every word the evening teaches is two bands under them, so none of it is
+    around their level and the closing round's unseen half is empty.
+  */
+  it("counts no unseen word the round would pass over", async () => {
+    const one = PROGRAMME.days[0]!;
+    /* Graduated rather than still on the ladder, or `pastTheLadder` keeps the
+       word's other cards out of the unseen window and there is nothing to
+       count either way. */
+    await deck(one.words, 2);
+    await unseenTaught(one.words);
+    await recordCourseLevel(OWNER, "C1", NOW);
+    await tick(one.id, ticked(one), EVENING);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 0 });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
+  });
+
+  /* Two cards left is two answers, and then the evening is over. */
+  it("settles for what is there when the round is nearly empty", async () => {
+    const one = PROGRAMME.days[0]!;
+    await deck(one.words, 1);
+    const two = await reviewable(2);
+    const at = EVENING;
+    await tick(one.id, ticked(one), at);
+
+    expect(await closingProgress(OWNER, PROGRAMME, one.id, NOW)).toEqual({ graded: 0, needed: 2 });
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(1);
+
+    /* Answered, and scheduled away by the answer, which is what grading does. */
+    await review(2, new Date(at.getTime() + 60_000));
+    await scheduleAway(two);
+    expect((await courseReading(OWNER, PROGRAMME, CLOCK, NOW)).current?.day.index).toBe(2);
   });
 });

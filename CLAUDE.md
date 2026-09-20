@@ -5135,6 +5135,66 @@ same card are one row. Those are ticked by the learner, `CourseStep` is append-o
 key so a second press is a no-op, and **the screen says which kind each one is** rather than
 implying the app watched.
 
+**And a step nobody can press has to be one the app can still finish.** The two derived steps ask
+for evidence, and the closing one asked for five answers whatever the round behind it had left to
+give. Inside a module that round is narrowed to what the evening has taught, so a learner reached
+"1 of 5 answers in" over a screen saying nothing was due, and the module stopped at three quarters
+with no press anywhere on it that could move it: the step is derived, so `markCourseStep` and
+`advanceCourseStep` both refuse it a row, correctly. Reported off a real module. A derived step is
+finished by the evidence it asks for **or by there being no more evidence to be had**, so the ask
+is `min(CLOSING_REVIEW, graded + what is left)` and a closing round with nothing to ask is a
+closing round done. Nothing is stored for it (ADR-014): what is left is read off the deck on each
+render like every other figure here.
+
+**And it is read off the queue's own clauses rather than beside them.** A count computed near the
+review page and not out of it is two readings of one question, and the one that is wrong is the one
+nobody is looking at: too low and the step ticks before anybody reviewed, too high and the learner
+is back pressing a button that goes nowhere. `lib/srs/reviewQueue.ts` is what the queue asks for,
+`app/(app)/review/page.tsx` spreads it into the query that draws the cards and
+`lib/progress/closing.ts` spreads the same clauses into a four-column one that only counts. Moving
+them there turned up the fault underneath: **room for new words was measured against what the query
+read rather than against what the sitting shows**, and inside a module the two differ by every card
+`cardWithin` refuses, so a deck with sixty cards due and none of them askable tonight left no room
+for a single new word and produced the empty round in the first place. `roomFor` takes the shown
+count.
+
+**Meeting the words has the same shape of way out**, which is worth naming because it is the same
+sentence one step up: `cards.length > 0` is what stops that step ticking before anybody presses
+Start, and on a deployment whose dictionary holds none of the day's words it was also what stopped
+it ticking ever. A day whose words this dictionary cannot supply is met, since there is nothing to
+meet, asked with one query and only on the path that would otherwise be stuck. And inside a module
+an empty review says **which** empty it is: "you're caught up, all 312 cards are scheduled for
+later" is the wrong cause on a round that is narrowed, and it sends somebody off to check a deck
+that is fine.
+
+**And a count standing in for a screen may only ever read low, which is not what it did first.**
+The two directions are not the same fault. Reading low ticks a step with a card or two still
+answerable, and the learner can simply answer them; reading high asks for evidence the round will
+not produce, which is the hang this whole thing exists to end. The unseen half was reading high:
+the round swaps its window for a wider read when nothing in the first sixty rows is near the
+learner's band (`inBandPool`), and that widening **replaces** the window rather than adding to it,
+so the rows it ends up showing are neither a subset nor a superset of the ones counted. A C1
+learner walking the first part of A1 reaches it, since every word the evening teaches is two bands
+under them. The count takes the in-band rows alone, which is at or under what the round shows in
+every one of those cases. What is left is written down rather than guarded: the due window is the
+whole deck's first sixty by due date, exactly as the round reads it, so a learner with a long
+backlog whose taught words sit past row sixty closes the evening having answered nothing, which is
+the round agreeing with itself rather than a miscount; and the ask is recomputed per render, so a
+card answered wrongly is counted again and the line can read "1 of 3" having read "0 of 2", which
+is a missed card really being another answer still to give.
+
+**And the number is read twice per render, so it is memoised and read at one instant.** The module
+screen asks `courseReading` whether the day is finished and `closingProgress` what the step's own
+line should say, and each read is two pages of the deck: four where two will do, on the screen a
+learner opens every evening, which is the rule this file already states about a fact wanted twice
+in one render. Keyed on the learner, the day and the instant rather than on the scope object, since
+`scopeFor` builds a fresh one per call and an identity key would never hit. **One instant matters
+on its own**, since two `new Date()`s a few milliseconds apart can straddle a card's due time and
+print "0 of 0 answers in" under a step the reading has already ticked; the line stands down at
+nought either way, because a stale render is not something to say. Measured on a built server with
+the deployment's own statement log on, and with a probe on each side of the memo: two call sites,
+one read.
+
 **Two faults in it were invisible to every unit test and turned up in the first two evenings
 anybody drove**, which is the argument for `lib/progress/course.itest.ts` rather than for more unit
 tests. Resolving the current day's derived steps can *finish* it, and the day after was then drawn

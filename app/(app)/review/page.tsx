@@ -12,38 +12,28 @@ import { unitById, type Level } from "@/lib/collections/syllabus";
 import { MAX_ITEMS as MAX_SCAN_ITEMS } from "@/lib/scan/extract";
 import { parseItems } from "@/lib/scan/items";
 import { inTeachingOrder } from "@/lib/srs/cards";
-import { LADDER_CARD_TYPE } from "@/lib/learn/ladder";
 import { spaceSiblings } from "@/lib/srs/queue";
 import { readSettings, reviewModeFrom, SETTING_KEYS } from "@/lib/settings/store";
 import { ReviewSession } from "./ReviewSession";
 import { cardWithin, moduleScopeFrom } from "@/lib/course/scope";
 import { learnerModuleScope, moduleSpellings } from "@/lib/progress/moduleScope";
-import { APP_CHOSE, isAppsChoice } from "@/lib/srs/sources";
+import { isAppsChoice } from "@/lib/srs/sources";
 import {
-  include, notOnLadder, pastTheLadder, withChoices, type CardRow,
-} from "./cards";
+  MAX_SESSION, NEW_CANDIDATES, dueWhere, notOnLadder, pastTheLadder, roomFor,
+  unseenWhere,
+} from "@/lib/srs/reviewQueue";
+import { include, withChoices, type CardRow } from "./cards";
 
 export const metadata = { title: "Review" };
 
 export const dynamic = "force-dynamic";
 
-const NEW_PER_SESSION = 10;
-/**
- * How many unstarted cards are read before ten of them are chosen.
- *
- * The queue used to ask for exactly ten and show them, so which words a
- * learner met next was decided entirely by the order they were added in. That
- * is right for a deck built one unit at a time and wrong the moment anything
- * else fills it: adding a whole level, importing a class handout or
- * photographing a page puts hundreds of cards in at one `createdAt`, spanning
- * every band the dictionary has, and the ten off the front of that are whatever
- * the insert happened to order first.
- *
- * Sixty is a wide enough window for the level to have something to choose
- * between and still one query of one page of rows.
- */
-const NEW_CANDIDATES = 60;
-const MAX_SESSION = 60;
+/*
+  THE SHAPE OF A SITTING IS `lib/srs/reviewQueue.ts`'s, because the planned
+  module's closing step has to know how many cards this screen is going to
+  offer before anybody opens it. See that file's header for what two readings
+  of one number cost.
+*/
 
 export default async function ReviewPage({
   searchParams,
@@ -226,25 +216,9 @@ export default async function ReviewPage({
   const [taught, due, totalCards, level, mode] = await Promise.all([
     taughtPromise,
     prisma.card.findMany({
-      where: {
-        ownerId, suspended: false, due: { lte: now }, state: { not: 0 },
-        /*
-          A WORD STILL ON THE LEARN LADDER IS NOT DUE HERE.
-
-          Learn walks a new word up three rungs on its recognition card, and
-          the scheduler puts that card ten minutes out between them, so within
-          one evening it comes back due. Serving it here as well would have
-          both screens teaching one word and, worse, would ask for it cold on
-          the screen that does not teach: the ladder is what holds the sentence
-          and the four options. Once the card graduates it is ordinary review
-          like everything else, which is what "moves to practice" means.
-
-          A plain predicate on the row rather than a subquery over the word,
-          because this is the hottest read in the app and the overlap is
-          exactly this one shape.
-        */
-        NOT: { cardType: LADDER_CARD_TYPE, state: 1 },
-      },
+      // What is due, and the one thing that is due and may not be asked here:
+      // see `dueWhere`, which the module's own closing count reads too.
+      where: dueWhere(ownerId, now),
       /*
         The id settles a tie, which `lib/progress/learn.ts` already does on the
         same table for the reason given there: a word's cards are written in
@@ -276,41 +250,11 @@ export default async function ReviewPage({
   // *within* a word, which is what stops a conjugation card being somebody's
   // first sight of a verb.
   const freshPool = await prisma.card.findMany({
-    /*
-      `due` on an unseen card is the moment it was written, so this filter
-      changes nothing for anybody until they press "too complicated": that
-      is what a deferral moves, and without it a word put aside would be
-      introduced again on the next session (`lib/srs/defer.ts`).
-    */
-    where: {
-      ownerId, suspended: false, state: 0, due: { lte: now },
-      /*
-        UNDER `AND`, BECAUSE `pastTheLadder` IS ITSELF AN `OR` AND A SECOND
-        ONE SPREAD BESIDE IT DELETES THE FIRST.
-
-        Two `...` of `{ OR }` into one object literal is the later key
-        winning, silently, and what it silently dropped here is the guard
-        that keeps a word's case card off the screen until its own
-        recognition card has graduated: `neljaks` before the learner had
-        ever been shown `neli`. Every check in the repository stayed green,
-        because the shape it breaks needs a deck holding an unseen card of a
-        word still on the ladder.
-      */
-      AND: [
-        pastTheLadder(ownerId),
-        // Only a word the module has taught: see above. Inside the module
-        // that is the whole of it; on the daily path the learner's own words
-        // are theirs and stand beside it.
-        ...(taught
-          ? [{
-              OR: [
-                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
-                { lexeme: { lemma: { in: [...taught.lemmas] } } },
-              ],
-            }]
-          : []),
-      ],
-    },
+    // Only a word the module has taught, and on the daily path the learner's
+    // own words beside it: see `unseenWhere`, which the module's own closing
+    // count reads too, and which keeps `pastTheLadder` under `AND` so a
+    // second `OR` spread beside it cannot delete the first.
+    where: unseenWhere(ownerId, now, taught?.lemmas ?? null, theirOwnToo),
     // And the id here too: a word's cards tie on both of these, which is the
     // very thing the comment above says they do.
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }, { id: "asc" }],
@@ -354,7 +298,20 @@ export default async function ReviewPage({
   const dueWithin = due.filter(within);
   const spaced = spaceSiblings(dueWithin, (card) => card.lexemeId);
 
-  const room = Math.max(0, Math.min(NEW_PER_SESSION, MAX_SESSION - due.length));
+  /*
+    ROOM IS MEASURED AGAINST WHAT THE SITTING WILL SHOW, not against what was
+    read. Inside a module the two differ by every card `cardWithin` refuses,
+    and read the old way a deck with sixty cards due, all of them about a case
+    tonight has not read, left no room for a single new word and handed the
+    learner an empty closing round they could never finish. See `roomFor`.
+
+    `dueWithin` rather than `spaced`, which is the same number: `spaceSiblings`
+    moves a card and never drops one. It is written as the filtered list so
+    that this line and `lib/progress/closing.ts`, which counts what this round
+    will show before anybody opens it, are the same expression rather than two
+    that happen to agree.
+  */
+  const room = roomFor(dueWithin.length);
   const [unseen, raised] = await Promise.all([
     inBandPool(ownerId, freshPool, level, room, taught?.lemmas ?? null, theirOwnToo),
     hardWords(),
@@ -457,20 +414,11 @@ async function inBandPool(
 
   const inBand = await prisma.card.findMany({
     where: {
-      ownerId, suspended: false, state: 0, due: { lte: new Date() },
+      // The same window the read above asks for, and the band on top of it.
+      // `unseenWhere` keeps the lemma filter under `AND`, so the `lexeme` key
+      // here is free to carry the band without deleting it.
+      ...unseenWhere(ownerId, new Date(), only, theirOwnToo),
       lexeme: { cefr: { in: [...bandsAround(level)] } },
-      // `AND`, for the reason the new-card read above gives at length.
-      AND: [
-        pastTheLadder(ownerId),
-        ...(only
-          ? [{
-              OR: [
-                ...(theirOwnToo ? [{ source: { notIn: [...APP_CHOSE] } }] : []),
-                { lexeme: { lemma: { in: [...only] } } },
-              ],
-            }]
-          : []),
-      ],
     },
     orderBy: [{ createdAt: "asc" }, { lexemeId: "asc" }],
     take: NEW_CANDIDATES,

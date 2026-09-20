@@ -30,6 +30,7 @@ import { useOffline } from "@/components/OfflineProvider";
 import type { ReviewMode } from "@/lib/settings/store";
 import { SELF_GRADES, type RatingValue, type SchedulingState } from "@/lib/srs/scheduler";
 import { requeue } from "@/lib/srs/queue";
+import { useModuleFocus } from "@/components/course/moduleFocus";
 import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCheck, verdictOfRating } from "@/lib/ux/verdict";
 import { hintLadder, narrowLadder, struckOptions } from "@/lib/questions/hints";
 import { FIRST_TRY_NOTE, isFirstProduction } from "@/lib/copy/firstTry";
@@ -492,6 +493,9 @@ export function ReviewSession({
   // very first load is the only one this session should ever know about.
   const [queue, setQueue] = useState(initialCards);
   const [wasEmptyAtStart] = useState(initialCards.length === 0);
+  /* Whether this round was opened as a step of tonight's module, which decides
+     what an empty queue means and therefore what the screen may say about it. */
+  const inModule = useModuleFocus() !== null;
   /*
     WHICH CARD, IF ANY, GETS THE FIRST-EVER NOTE, DECIDED ONCE FOR THE WHOLE
     SESSION.
@@ -1209,6 +1213,23 @@ export function ReviewSession({
             action={
               <ButtonLink href={`/scan/${drillScan.id}`} variant="primary">Open the page</ButtonLink>
             }
+          />
+        ) : inModule ? (
+          /*
+            INSIDE THE EVENING, "you're caught up" IS THE WRONG CAUSE.
+
+            The closing round is narrowed to what the module has taught, so a
+            deck can have plenty due and this round still have nothing to ask,
+            and a screen saying every card is scheduled for later sends the
+            learner off to check a deck that is fine. What is true is that
+            tonight's review is finished, and the way on is the module's own
+            bar underneath rather than an action here, which is why `Empty`
+            withholds one inside a step. Before the two branches below, since
+            both of them answer for somebody who walked here themselves.
+          */
+          <Empty
+            title="Nothing left for tonight"
+            body="You have answered everything this evening had to ask. The step is done."
           />
         ) : totalCards === 0 ? (
           <Empty

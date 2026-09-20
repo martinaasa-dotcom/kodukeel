@@ -163,9 +163,16 @@ export function StepList({ programmeId, dayId, steps, done, closing }: {
                       {step.why}
                     </p>
                   )}
-                  {isNext && step.id === "review" && (
+                  {/*
+                    The ask is whatever the round still has to give, so it is
+                    one on an evening with one card left and nought on an
+                    evening with none: "0 of 0 answers in" under a step the
+                    reading has already ticked is a stale render rather than
+                    something to say, so nothing is said.
+                  */}
+                  {isNext && step.id === "review" && closing.needed > 0 && (
                     <p className="mt-2 text-sm" style={{ color: "var(--ink-3)" }}>
-                      {closing.graded} of {closing.needed} answers in. Keep going and this ticks itself.
+                      {closing.graded} of {closing.needed} {closing.needed === 1 ? "answer" : "answers"} in. Keep going and this ticks itself.
                     </p>
                   )}
 
