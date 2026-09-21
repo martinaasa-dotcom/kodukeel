@@ -19,7 +19,7 @@ import { VOICES } from "@/lib/audio/voice";
 import { checkDictation, wordNote, type DictationResult, type WordStatus } from "@/lib/estonian/dictation";
 import type { RatingValue } from "@/lib/srs/scheduler";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
-import { VERDICT_CLASS, VERDICT_INK } from "@/lib/ux/verdict";
+import { VERDICT_CLASS, VERDICT_INK, verdictOfDictation } from "@/lib/ux/verdict";
 import { inEditable, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { EndSession, WayOut } from "@/components/round/RoundExit";
 import { LookBackButton, LookBackCard, useLookBack } from "@/components/round/LookBack";
@@ -456,7 +456,7 @@ function Marked({ result }: { result: DictationResult }) {
         unchanged, so the hue still says which of the three it was and the
         sentence still says it in words.
       */}
-      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[result.verdict === "correct" ? "right" : result.verdict === "wrong" ? "wrong" : "nearly"] }}>
+      <p className="text-center text-md font-semibold" style={{ color: VERDICT_INK[verdictOfDictation(result.verdict)] }}>
         {result.note}
       </p>
       <div className="pop-in flex flex-wrap justify-center gap-1.5">

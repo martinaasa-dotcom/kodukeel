@@ -461,8 +461,9 @@ function VocabRow({ word }: { word: { et: string; en: string } }) {
   const keeper = useKeepWord(null, async (deckIds) => {
     const created = await createLexeme({
       // The provenance carries "a model suggested this and nobody has checked
-      // it", which is what `AI · verify` is drawn from. It used to be a
-      // sentence in `notes`, where nothing read it.
+      // it", which is what `vouchable` reads to refuse the word as a scanned
+      // page's answer, a headline's headword or the chat guard's own evidence.
+      // It used to be a sentence in `notes`, where nothing read it.
       lemma: word.et, translation: word.en, pos: "OTHER",
     });
     if (!created.ok) return;

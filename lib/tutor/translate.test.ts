@@ -4,8 +4,9 @@ import { looksLikeEcho } from "@/lib/tutor/translate";
 /**
  * `looksLikeEcho` is the one thing standing between a learner and the exact
  * fault reported live: a card showing "Kell on üks öösel." twice, the second
- * copy under an "AI · verify" badge, because the model answered a translation
- * request with the Estonian sentence it was asked to translate.
+ * copy marked as a model's, because the model answered a translation request
+ * with the Estonian sentence it was asked to translate. The badge that marked
+ * it has since come off every screen; what stops the echo is this function.
  */
 describe("looksLikeEcho", () => {
   it("catches the sentence handed back exactly as it was given", () => {

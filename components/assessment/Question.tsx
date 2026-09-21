@@ -12,7 +12,7 @@ import { splitOnForm } from "@/lib/dict/examples";
 import { gradeChoice, gradeDictation, gradeWrite } from "@/lib/assessment/score";
 import type { ChoiceItem, DictationItem, SpeakItem, WriteItem } from "@/lib/assessment/types";
 import { wordNote, type WordStatus } from "@/lib/estonian/dictation";
-import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit } from "@/lib/ux/verdict";
+import { OPTION_CLASS, VERDICT_CLASS, optionState, verdictOfCredit, verdictOfDictation } from "@/lib/ux/verdict";
 
 /**
  * One question, and its answer.
@@ -340,14 +340,13 @@ export function DictationQuestion({ item, onAnswer, onNoAudio }: {
       ) : (
         <div className="pop-in mt-6" role="status">
           {/* The panel rather than a chip, for the reason `WriteQuestion` gives
-              below: a chip uppercases, and these notes are sentences. */}
-          <div
-            className={`${
-              VERDICT_CLASS[
-                mark.result.verdict === "correct" ? "right" : mark.result.verdict === "wrong" ? "wrong" : "nearly"
-              ]
-            } verdict-panel`}
-          >
+              below: a chip uppercases, and these notes are sentences. And the
+              verdict through `verdictOfDictation` rather than the same
+              three-way ternary written out here and again in the dictation
+              round, which is the mapping `lib/ux/verdict.ts` exists to be the
+              one of: how a mark looks is one decision, wherever the reading it
+              was made from came from. */}
+          <div className={`${VERDICT_CLASS[verdictOfDictation(mark.result.verdict)]} verdict-panel`}>
             {mark.result.note}
           </div>
           {/*

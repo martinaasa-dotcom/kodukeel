@@ -717,12 +717,14 @@ export async function createLexeme(input: {
         The one caller is Anu's vocabulary bridge, where a learner presses a
         button on a word the model offered. It was written down as `USER` with
         the sentence "Suggested by Anu, forms unverified" in `notes`, and that
-        sentence was the only record of either fact: `AI · verify` is keyed on
-        the provenance, so the chip never appeared on the entry or on the card
-        whose answer had never been checked, which is the one place ADR-005
-        cares about. And `enrichFromEkilex` refuses to touch a `USER` word,
-        "hers, not ours to overwrite", so the word could never be upgraded to
-        real Ekilex forms either. Both of those turn round with the label.
+        sentence was the only record of either fact. Everything that refuses
+        to vouch for such a row is keyed on the provenance, so none of it
+        fired: `vouchable` cleared the word for the scanner, the headlines and
+        the chat guard alike, and it cleared the card whose answer had never
+        been checked, which is the one place ADR-005 cares about. And
+        `enrichFromEkilex` refuses to touch a `USER` word, "hers, not ours to
+        overwrite", so the word could never be upgraded to real Ekilex forms
+        either. Both of those turn round with the label.
 
         `notes` is the English further senses and nothing else now, which is
         what lets the entry give it a heading; a provenance sentence sitting in
