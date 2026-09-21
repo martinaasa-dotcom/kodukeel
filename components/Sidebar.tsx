@@ -196,16 +196,21 @@ export function Sidebar() {
             The gap between sections is doing the work the headings only label.
             Four groups two rows apart read as one list with words in it; four
             groups with air around them read as four, which is the whole point of
-            grouping them. It is the largest space in the column on purpose.
+            grouping them. It is the largest space in the column on purpose, and
+            it is wider than the row rhythm inside a group by a clear margin
+            rather than by one notch, or the eye cannot tell "new group" from
+            "next row" at a glance.
           */}
           {PLACES.map((section) => (
-            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-7">
-              <h2 id={`rail-${section.id}`} className="label-xs px-3 pb-2.5" style={{ color: "var(--ink-3)" }}>
+            <section key={section.id} aria-labelledby={`rail-${section.id}`} className="mb-9">
+              <h2 id={`rail-${section.id}`} className="label-xs px-3 pb-3" style={{ color: "var(--ink-3)" }}>
                 {section.title}
               </h2>
-              {section.items.map((item) => (
-                <RailLink key={item.href} item={item} active={active(item.href)} />
-              ))}
+              <div className="flex flex-col gap-0.5">
+                {section.items.map((item) => (
+                  <RailLink key={item.href} item={item} active={active(item.href)} />
+                ))}
+              </div>
             </section>
           ))}
 
@@ -440,6 +445,12 @@ export function Sidebar() {
  * left half the controls in this app dead under a pointer. A custom property
  * is how a caller passes a tone *through* one, and `app/nav.css` spends it
  * when the pointer's pane arrives underneath.
+ *
+ * `text-sm` rather than `text-base`: a rail is read down a column at a
+ * glance, not read line by line the way a paragraph is, so it takes the
+ * "dense UI" step the scale names for exactly this rather than the body
+ * step. That is still 16px, above the 14px floor `--text-2xs` sets for the
+ * whole app; nothing here goes near it.
  */
 function RailLink({ item, active }: { item: Destination; active: boolean }) {
   const Icon = icon(item.icon);
@@ -451,20 +462,20 @@ function RailLink({ item, active }: { item: Destination; active: boolean }) {
       data-nav-on={active ? "" : undefined}
       aria-current={active ? "page" : undefined}
       title={item.blurb}
-      className="nav-cell flex items-center gap-3 rounded-full px-3 py-1.5 text-base"
+      className="nav-cell flex items-center gap-3 rounded-full px-3 py-2 text-sm"
       style={{
         color: active ? "var(--ink)" : "var(--nav-ink, var(--ink-2))",
         fontWeight: active ? 700 : 500,
       }}
     >
       <span
-        className="nav-glyph flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors"
+        className="nav-glyph flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-colors"
         style={{
           background: active ? `var(--${item.tone})` : "var(--raised)",
           color: active ? "var(--surface)" : "var(--ink-3)",
         }}
       >
-        <Icon size={15} strokeWidth={2.2} aria-hidden />
+        <Icon size={14} strokeWidth={2.2} aria-hidden />
       </span>
       {item.label}
     </Link>
