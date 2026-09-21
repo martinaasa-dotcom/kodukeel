@@ -9458,7 +9458,23 @@ shape that breaks this and it is the natural thing to write, so the invariant re
   up saying "you can still open it" at 2.63:1, on every locked row of a 73-unit course; the badge
   shelf that has since been withdrawn and the grammar reference had the same shape. A state that means "not yet" has a border, an
   icon and a sentence to say so with. Where a fade genuinely helps, it goes on the icon.
-- **And the sweep is axe, not a hand-rolled one.** `scripts/a11y-check.mjs` spent its life saying it
+- **And a page that never started is one failure rather than three, and the design suite used to
+report it as the app.** `scripts/test-design.mjs` measures two things that exist only once an
+effect has run, the panes behind the navigation and the four letters tucked over the landing
+card's edges, and against a server whose client never boots both are simply absent: it reported
+that the rail drew no hover state in either theme and that all four ornaments had come loose at
+768, which sends whoever reads it into two files that are working perfectly. A failure may not
+misname its cause, and that one had three ways to. Hydration is asked once now, off React's own
+keys on the document, and the checks that rest on it are waived naming that answer rather than
+each reporting a fault of its own. **It fails rather than waiving**, because a waiver would be
+right about a broken dev server and would be a hole exactly the shape of the worst thing this app
+could ship: a build whose client never starts renders every screen, answers nothing, and would
+wave half this suite through in silence. Measured both ways on one commit: against `next dev` in
+a sandbox where nothing hydrated, one failure naming it and six checks behind it; against `next
+start` on the same code, sixteen checks, none waived. And the hover check no longer passes when
+it cannot find the rail, which was the `A || !A` shape one check over.
+
+**And the sweep is axe, not a hand-rolled one.** `scripts/a11y-check.mjs` spent its life saying it
   was "not a substitute for axe", which was true and was also why five real failures sat unseen. The
   contrast pass it replaced scoped to `main`, so the navigation rail on every signed-in screen was
   outside it, and it read a colour's own alpha but not an `opacity` inherited from a parent. axe
