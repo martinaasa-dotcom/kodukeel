@@ -17,6 +17,7 @@ import { TooComplicated } from "@/components/TooComplicated";
 import { WordIntro } from "@/components/WordIntro";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
+import { readableHint } from "@/lib/copy/caseHint";
 import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
@@ -1711,7 +1712,12 @@ export function ReviewSession({
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>{SAME_SPELLING}</p>
               )}
 
-              {card.hint && <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>}
+              {/* The same reading the cue above goes through: a hint stored
+                  before the sentence rule names its case in Latin as well, and
+                  that name is the only English on the reveal. */}
+              {readableHint(card.hint) && (
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{readableHint(card.hint)}</p>
+              )}
             </>
           )}
 

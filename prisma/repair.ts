@@ -41,6 +41,7 @@ import { spellingFor } from "../lib/srs/cardSpelling";
 import { alsoAcceptedByLemma, sharedPrompts } from "../lib/collections/senses";
 import { generateCards, isBareCaseFront, type LexemeForCards } from "../lib/srs/cards";
 import { borrowSentences } from "../lib/dict/borrow";
+import { readableGovernment } from "../lib/estonian/government";
 import { plainerFirst, plainReach } from "../lib/dict/plainness";
 import {
   mergeExamples, parseExamples, serialiseExamples, teachingSentence, mayFillEnglish, type Example,
@@ -210,6 +211,58 @@ export async function repairCaseFronts(prisma: PrismaClient): Promise<number> {
       WHERE c.id = v.id
         AND c."cardType" = 'CASE_FORM'
         AND c.front = v.from_front
+    `;
+  }
+  return rewritten;
+}
+
+/**
+ * TAKING THE LATIN CASE NAME OFF THE ANSWER OF A GOVERNMENT CARD.
+ *
+ * Ekilex records a government as the question word a verb answers with the
+ * case that question signals in brackets after it, `millega (comitative)`, and
+ * `lib/srs/cards.ts` put that column on the back of a card untouched. So the
+ * one fact about an Estonian verb nobody can reason their way to was answered
+ * with a word out of somebody else's grammar, and it was the only English on
+ * the card. The dictionary entry has read the same column through
+ * `readableGovernment` since that was written, and the builder does now, which
+ * reaches every card built since and not one built before, because a `Card`
+ * row carries its own back and nothing rewrote it.
+ *
+ * WHAT IT MAY TOUCH. `back`, and nothing else: never the front, never
+ * `targetCase` or `slot`, which are null on this card anyway, and no
+ * scheduling column. A government card is not in `TYPEABLE` and is never
+ * marked against its back, so this changes what is read and not what counts as
+ * right. `Lexeme.government` itself is untouched, exactly as it is by the
+ * function this borrows.
+ *
+ * The guard is the value it read: `readableGovernment` leaves a string it
+ * cannot read byte for byte as it was, so a card already right produces no row
+ * and a second run matches nothing, and the `UPDATE` compares the back it read
+ * against the back it is replacing so a card rewritten in between is left as
+ * it is.
+ */
+export async function repairGovernmentBacks(prisma: PrismaClient): Promise<number> {
+  const cards = await prisma.card.findMany({
+    where: { cardType: "GOVERNMENT" },
+    select: { id: true, back: true },
+    orderBy: { id: "asc" },
+  });
+  const rows = cards
+    .map((card) => ({ id: card.id, from: card.back, to: readableGovernment(card.back) }))
+    .filter((row) => row.to !== row.from);
+  if (rows.length === 0) return 0;
+
+  let rewritten = 0;
+  for (const batch of chunk(rows, CHUNK)) {
+    const values = batch.map((r) => Prisma.sql`(${r.id}, ${r.from}, ${r.to})`);
+    rewritten += await prisma.$executeRaw`
+      UPDATE "Card" AS c
+      SET back = v.to_back
+      FROM (VALUES ${Prisma.join(values)}) AS v(id, from_back, to_back)
+      WHERE c.id = v.id
+        AND c."cardType" = 'GOVERNMENT'
+        AND c.back = v.from_back
     `;
   }
   return rewritten;

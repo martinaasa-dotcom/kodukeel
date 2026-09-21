@@ -891,6 +891,31 @@ are gone, and with the demo row and the exam option's dead `en` the list is four
 nine: the stored government string, the mapper that writes it, Anu's own table, and a slug. **None
 of them is a screen.**
 
+**And two stored columns still said it, which no sweep over the source can see.** Every check above
+is about what this app *writes*, and a learner reported "the comitative" off a review card months
+after the last of them landed. A `Card` row carries its own hint and nothing in the app rewrites
+one, so a `CASE_FORM` card built before the sentence rule still says `kaasaütlev · the comitative`
+under its answer, in every deck assembled back then, which is the naming rule as it stood and is
+two names and no instruction. `lib/copy/caseHint.ts` is `readableGovernment`'s own shape one column
+over: the part that is exactly a case's Latin name, with or without its article, becomes the
+question the case answers off `cases.ts`'s own table, `kaasaütlev · with whom? with what?`, and a
+hint naming no case comes back byte for byte as it was stored, which is the `GRADATION` card's
+"consonant gradation" and the `GOVERNMENT` card's "verb government". **Display only**, so `Card.hint`
+is untouched and `repairCaseFronts` still rebuilds such a card the day the seed is run. Two readers,
+because a hint reaches a screen twice, as the cue under the question through `gapCue` and on the
+reveal of a card that is not a gap, and a third fails until somebody decides which side of the line
+it is on. The second column is `Lexeme.government`, `millega (comitative)`, which the dictionary
+entry has read through `readableGovernment` since that was written and which two other places
+printed raw: the unit page, under every governed word of every unit in the course, and **the answer
+on a government card**, which is that column copied onto a `Card` row by the builder. The card is
+the one that costs most, since the bracket was the only English on the one fact about an Estonian
+verb nobody can reason their way to. The builder reads it the same way now and
+`repairGovernmentBacks` carries the reading onto the cards built before, beside the other three
+repairs and before the `--only-if-empty` early return for their reason; it may touch the answer and
+no scheduling column, a government card is not in `TYPEABLE` so nothing that was right stops being
+right, and a string the function cannot read comes back unchanged, so a second run matches nothing.
+All of it is asserted and every arm was made to fail on the real line.
+
 **And the check that guards the add-a-word boxes could not see two of the twelve.** Its key pattern
 was `[A-Z_]+`, which does not match `PRES_1SG` or `PAST_1SG`, so the two verb boxes whose examples
 are `loen` and `lugesin` had been outside the sweep for as long as it existed and the floor of ten

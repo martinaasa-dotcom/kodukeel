@@ -1,3 +1,4 @@
+import { readableHint } from "@/lib/copy/caseHint";
 import { sensesOf } from "@/lib/dict/synonyms";
 import { mentions, whereWhole } from "@/lib/estonian/cloze";
 import { fold } from "@/lib/estonian/fold";
@@ -287,7 +288,10 @@ export function gapMeaning(
 export function gapCue(
   { hint, lemma, marked }: { hint: string | null; lemma: string | null; marked: boolean },
 ): string | null {
-  const cue = hint?.trim();
+  // A hint written before the sentence rule names its case twice, once the way
+  // a class says it and once in Latin. `readableHint` turns the second into the
+  // question the case answers; every other hint comes back untouched.
+  const cue = readableHint(hint)?.trim();
   if (!cue) return null;
   if (!marked) return cue;
   const word = lemma?.trim();

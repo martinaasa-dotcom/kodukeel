@@ -9,6 +9,7 @@ import { uiText, uiWantsEnglish } from "@/lib/copy/uiLanguage";
 import { deckSnapshot } from "@/lib/progress/summary";
 import { unitProgress } from "@/lib/collections/syllabus";
 import { splitIntoLessons } from "@/lib/collections/lesson";
+import { readableGovernment } from "@/lib/estonian/government";
 import { grammarPoint } from "@/lib/estonian/grammar";
 import { ButtonLink } from "@/components/Button";
 import { icon } from "@/components/icons";
@@ -236,8 +237,15 @@ export default async function UnitPage({ params }: { params: Promise<{ unitId: s
                     <span className="block truncate text-xs" style={{ color: "var(--ink-2)" }}>
                       {l.translation}
                     </span>
+                    {/* The stored string annotates each question word with a
+                        case name, and the dictionary entry has printed it
+                        through `readableGovernment` since that name stopped
+                        being something to put in front of a learner. This
+                        printed the column raw. */}
                     {l.government && (
-                      <span className="block text-2xs" style={{ color: "var(--accent-deep)" }}>{l.government}</span>
+                      <span className="block text-2xs" style={{ color: "var(--accent-deep)" }}>
+                        {readableGovernment(l.government)}
+                      </span>
                     )}
                   </span>
                   {l.gradationNote && <Chip tone="hard" caseSensitive>{l.gradationNote}</Chip>}
