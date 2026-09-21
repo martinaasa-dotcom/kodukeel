@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { plainPhrase } from "@/lib/copy/values";
-import { parseExamples, teachingSentence, translationOf } from "@/lib/dict/examples";
-import { BLANK } from "@/lib/estonian/cloze";
+import { parseExamples, sentenceEnglish, teachingSentence } from "@/lib/dict/examples";
+import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { glossSentences } from "@/lib/dict/glossed";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { isPhrase } from "@/lib/dict/pos";
@@ -235,14 +235,18 @@ async function withEveryday(cards: ReviewCard[]): Promise<ReviewCard[]> {
  *
  * So this reads any front that carries `BLANK`, whatever the card type. The
  * front and back are the sentence with the answer taken out, reconstructed by
- * putting it back, and matched against the lexeme's own examples by exact
- * spelling: the same sentence, if Ekilex or a learner's own request already
- * put an English line on it.
+ * `filledSentence`, which puts back the one form the card leads with rather
+ * than every spelling the marker accepts, and read through `sentenceEnglish`,
+ * which asks this entry first and the shipped table behind it. That second
+ * half is what covers a sentence the card borrowed from another headword:
+ * `Olen Rootsis käinud vaid ühe korra.` is filed under `kord`, so a card for
+ * `üks` found nothing on its own entry and the screen went and asked a model
+ * for a line the dictionary already held.
  */
 function clozeSentenceEn(c: CardRow): string | null {
   if (!c.front.includes(BLANK) || !c.lexeme) return null;
-  const whole = c.front.replace(BLANK, c.back);
-  return translationOf(parseExamples(c.lexeme.examples), whole);
+  const whole = filledSentence(c.front, c.back);
+  return sentenceEnglish(parseExamples(c.lexeme.examples), whole);
 }
 
 function toReviewCard(

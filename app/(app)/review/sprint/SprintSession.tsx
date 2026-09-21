@@ -13,7 +13,7 @@ import { VERDICT_CLASS } from "@/lib/ux/verdict";
 import { ADVANCE_KEY_GLYPH, ADVANCE_KEY_LABEL, isAdvanceKey } from "@/lib/ux/advanceKey";
 import { roundLength } from "@/lib/ux/roundClock";
 import { counted } from "@/lib/copy/values";
-import { BLANK } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { SentenceTranslation } from "@/components/SentenceTranslation";
 import { GapMeaning } from "@/components/GapMeaning";
 import { gapMeaning } from "@/lib/copy/gapMeaning";
@@ -342,10 +342,10 @@ export function SprintSession({
                 <SentenceTranslation
                   key={card.front}
                   lexemeId={card.lexemeId}
-                  et={card.front.replace(BLANK, card.back)}
+                  et={filledSentence(card.front, card.back)}
                   en={card.sentenceEn}
                   canTranslate={canTranslate}
-                  ask="onRequest"
+                  ask="never"
                 />
               )}
             </>

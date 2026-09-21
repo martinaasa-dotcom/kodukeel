@@ -120,18 +120,18 @@ function ExampleRow({ lexemeId, example, tutorReady, onTranslated }: {
       {/*
         The same drawing every other screen gives an attested sentence, rather
         than this file's own: it had a full second copy of `SentenceTranslation`
-        inside it, button, spinner, error line and all, which is two answers to
-        what "say this in English" looks like and two places for one of them to
-        stop working. Asked on request here and nowhere else in the app,
-        because an entry is a shelf of sentences and asking on arrival would
-        spend a call on each of the seven nobody stopped at.
+        inside it, which is two answers to what "say this in English" looks
+        like and two places for one of them to stop working. No call is spent
+        here, because an entry is a shelf of sentences and asking on arrival
+        would spend one on each of the seven nobody stopped at; what the
+        dictionary already holds is printed, which is nearly all of them.
       */}
       <EstonianSentence
         et={example.et}
         en={example.en ?? null}
         lexemeId={lexemeId}
         canTranslate={tutorReady}
-        ask="onRequest"
+        ask="never"
         speakLabel={`Hear "${example.et}"`}
         className="flex-1 text-base leading-snug"
         onTranslated={onTranslated}

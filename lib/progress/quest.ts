@@ -5,8 +5,8 @@ import { acceptedAnswers } from "@/lib/estonian/answer";
 import { stemsFrom } from "@/lib/estonian/derive";
 import { caseIndex, readCase } from "@/lib/estonian/whichCase";
 import { caseFormChoices, verbFormChoices, verbFormSlots } from "@/lib/questions/caseChoices";
-import { parseExamples, translationOf } from "@/lib/dict/examples";
-import { BLANK } from "@/lib/estonian/cloze";
+import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
+import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { resolveProvider } from "@/lib/tutor/provider";
 
 /**
@@ -147,7 +147,7 @@ export async function questFor(ownerId: string): Promise<Quest> {
       targetCase: c.targetCase,
       lexemeId: c.lexemeId,
       sentenceEn: c.front.includes(BLANK) && c.lexeme
-        ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
+        ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
         : null,
       canTranslate: resolveProvider() !== null,
       targetsWeakCase: Boolean(c.targetCase && weakKeys.includes(c.targetCase)),

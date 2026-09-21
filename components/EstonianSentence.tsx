@@ -75,7 +75,7 @@ export function EstonianSentence({
   speakLabel?: string;
   className?: string;
   /** When the translation call is spent. See `SentenceTranslation`. */
-  ask?: "onArrival" | "onRequest";
+  ask?: "onArrival" | "never";
   /** Told what came back, for a caller keeping its own copy of the sentence. */
   onTranslated?: (en: string) => void;
 }) {

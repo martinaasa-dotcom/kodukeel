@@ -23,7 +23,7 @@ import type { GlossedToken } from "@/lib/dict/glossed";
 import { caseByKey } from "@/lib/estonian/cases";
 import { plainAsk, plainAskLine } from "@/lib/estonian/plainAsk";
 import { conjugationSlotFromFront, slotLabel } from "@/lib/srs/slots";
-import { BLANK, sizedBlank } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence, primaryAnswer, sizedBlank } from "@/lib/estonian/cloze";
 import { checkAnswer, countsAsRecalled, type AnswerCheck } from "@/lib/estonian/answer";
 import { SAME_SPELLING, sameSpelling } from "@/lib/copy/values";
 import { enqueueGrade, readStashedSession, stashSession } from "@/lib/offline/db";
@@ -332,7 +332,7 @@ const TYPE_LABEL: Record<string, string> = {
  * speech service handed that string reads the slash. The first is the one the
  * dictionary leads with, which is the one worth hearing.
  */
-const spoken = (side: string) => side.split(" / ")[0]!.trim();
+const spoken = (side: string) => primaryAnswer(side);
 
 /** Cards whose front or back is Estonian and therefore worth hearing. */
 const estonianSide = (type: string, side: "front" | "back") =>
@@ -1680,16 +1680,34 @@ export function ReviewSession({
                    and a learner who cannot read that sentence has no context
                    for the answer, only its isolated gloss. */
                 <div className="flex flex-col items-center gap-2">
-                  <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
-                    {card.front.split(BLANK)[0]}
-                    <span data-answer style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
-                    {card.front.split(BLANK)[1]}
-                  </p>
-                  <Speak text={card.front.replace(BLANK, card.back)} label="Hear the whole sentence" autoplay />
+                  {/*
+                    The speaker sits beside the sentence rather than under it,
+                    in the row `EstonianSentence` and `GlossedSentence` have
+                    always drawn: a line of its own reads as a second thing on
+                    the card, and what goes under a sentence is what it means.
+                    `lang="et"` is on the sentence rather than on the row, or
+                    the button's own English label sits inside an Estonian
+                    subtree and is read out with Estonian phonology.
+                  */}
+                  <div className="flex w-full items-start justify-center gap-2">
+                    <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
+                      {card.front.split(BLANK)[0]}
+                      <span data-answer style={{ color: "var(--accent-deep)", fontWeight: 600 }}>
+                        {primaryAnswer(card.back)}
+                      </span>
+                      {card.front.split(BLANK)[1]}
+                    </p>
+                    <Speak
+                      text={filledSentence(card.front, card.back)}
+                      label="Hear the whole sentence"
+                      autoplay
+                      className="press inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
+                    />
+                  </div>
                   <SentenceTranslation
                     key={card.front}
                     lexemeId={card.lexemeId}
-                    et={card.front.replace(BLANK, card.back)}
+                    et={filledSentence(card.front, card.back)}
                     en={card.sentenceEn}
                     canTranslate={card.canTranslate}
                   />
@@ -1718,7 +1736,15 @@ export function ReviewSession({
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>{SAME_SPELLING}</p>
               )}
 
-              {revealedHint && (
+              {/* And not on a gap reveal, where the sentence and its English
+                  have just said the whole of it. `üks, one` under
+                  `Olen Rootsis käinud vaid ühe korra.` is the cue from the
+                  question printed again under the answer it was a cue for,
+                  which was reported off exactly that card. Every other card
+                  keeps it: there the hint is the form's own name, which is
+                  the naming rule rather than a repeat, and `revealedHint` is
+                  that name with the Latin one off it. */}
+              {revealedHint && !isGap(card) && (
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>{revealedHint}</p>
               )}
             </>

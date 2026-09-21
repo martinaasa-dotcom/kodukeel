@@ -5,6 +5,7 @@ import {
 } from "./lesson";
 import { orderContextFrom } from "@/lib/estonian/wordOrder";
 import { dictionaryRows } from "../../scripts/lib/dictionary";
+import { PARTS } from "@/lib/copy/values";
 
 /*
   A lesson built with no dictionary behind it: every sentence keeps the one
@@ -270,7 +271,7 @@ describe("what a step is built from", () => {
       });
       for (const step of steps) {
         if (step.kind !== "case") continue;
-        for (const form of step.answer.split(" / ")) {
+        for (const form of step.answer.split(PARTS)) {
           expect(form.trim().toLowerCase(), `${seed}`).not.toBe("kallis");
         }
       }

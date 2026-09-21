@@ -1,7 +1,8 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  mergeExamples, parseExamples, sentenceContaining, sentenceWords, serialiseExamples, splitOnForm,
-  teachingSentence, usableExamples,
+  mergeExamples, parseExamples, sentenceContaining, sentenceEnglish, sentenceWords,
+  serialiseExamples, splitOnForm, teachingSentence, usableExamples,
   type Example,
 } from "./examples";
 
@@ -402,5 +403,52 @@ describe("the whole shipped dictionary's example sentences", () => {
       const direct = sentenceContaining(examples, word.lemma);
       if (direct) expect(naturalSentence(direct.et), `${word.lemma}: "${direct.et}"`).toBe(true);
     }
+  });
+});
+
+/*
+  AN ENGLISH LINE IS A FACT ABOUT THE SENTENCE, NOT ABOUT THE ENTRY IT HANGS
+  OFF.
+
+  `lib/dict/borrow.ts` lends a sentence recorded under one headword to a card
+  built for another, so a borrowed one matched nothing on the card's own entry:
+  a learner read `Olen Rootsis käinud vaid ühe korra.` on a card for `üks`
+  with nothing under it, since the sentence is filed under `kord`, and then an
+  error saying it was not on this word.
+*/
+describe("sentenceEnglish", () => {
+  const own = (et: string, en: string | null, enRefused = false): Example => ({
+    et, en, enRefused, source: "EKILEX",
+  });
+
+  it("reads the entry's own line where it holds one", () => {
+    expect(sentenceEnglish([own("Ma lähen poodi.", "I am going to the shop.")], "Ma lähen poodi."))
+      .toBe("I am going to the shop.");
+  });
+
+  it("reads the shipped table for a sentence this entry does not hold", () => {
+    // Borrowed: the card is for one word and the sentence is filed under
+    // another, so the entry cannot answer and the table can.
+    const shipped = Object.keys(
+      (JSON.parse(readFileSync("prisma/data/example-english.json", "utf8")) as Record<string, string>),
+    )[0]!;
+    expect(sentenceEnglish([], shipped)).not.toBeNull();
+  });
+
+  it("says nothing about a sentence nothing has a line for", () => {
+    expect(sentenceEnglish([], "Zzz qqq wwwx.")).toBeNull();
+  });
+
+  it("respects a refusal on the entry that holds the sentence", () => {
+    /*
+      A reviewer read this line's English and said it was wrong, so the entry
+      answers null and the shipped table is never asked. Without this the
+      refused line comes straight back on the next render, which is the fault
+      `mayFillEnglish` exists for one door over.
+    */
+    const shipped = Object.entries(
+      (JSON.parse(readFileSync("prisma/data/example-english.json", "utf8")) as Record<string, string>),
+    )[0]!;
+    expect(sentenceEnglish([own(shipped[0], null, true)], shipped[0])).toBeNull();
   });
 });
