@@ -27,9 +27,11 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { extractEstonianSenses } from "../lib/dict/wiktionary";
+import { readGlossCorrections } from "../prisma/expanded";
 import type { ExpandedEntry } from "./expand-seed";
 import { EXPANDED_PATH, writeExpanded } from "./lib/expandedFile";
 
+const CORRECTIONS = "prisma/data/gloss-corrections.json";
 const CACHE = "prisma/data/.cache/audit-pages.json";
 const UA = "Kodukeel/0.1 (Estonian learning tool; gloss audit)";
 /** The query API takes fifty titles at a time; `action=parse` takes one. */
@@ -139,7 +141,13 @@ async function main() {
     }
   }
 
-  const corrected: { entry: ExpandedEntry; from: string; to: string }[] = [];
+  const corrected: {
+    entry: ExpandedEntry;
+    from: string;
+    to: string;
+    notesFrom: string | null;
+    notesTo: string | null;
+  }[] = [];
   const dropped: ExpandedEntry[] = [];
   let unchecked = 0;
 
@@ -168,9 +176,11 @@ async function main() {
       continue;
     }
     if (usable !== entry.translation) {
-      corrected.push({ entry, from: entry.translation, to: usable });
+      const notesFrom = entry.notes;
+      const notesTo = senses.length > 1 ? senses.slice(1, 4).join("; ") : null;
+      corrected.push({ entry, from: entry.translation, to: usable, notesFrom, notesTo });
       entry.translation = usable;
-      entry.notes = senses.length > 1 ? senses.slice(1, 4).join("; ") : null;
+      entry.notes = notesTo;
     }
   }
 
@@ -228,7 +238,38 @@ async function main() {
   const remove = new Set(dropped.map((d) => d.lemma));
   const next = entries.filter((e) => !remove.has(e.lemma));
   writeExpanded(next);
+
+  /*
+    Recorded as well as applied, the way `audit-pos.ts` records a relabelling.
+    `expanded.json` loads with ON CONFLICT DO NOTHING, so a corrected gloss
+    reaches a fresh deployment and nobody seeded before the fix: `prisma/expanded.ts`
+    reads this file and repoints the row that is already there instead.
+    Appended rather than replaced, so a database that skipped a build still
+    finds the hop it missed; deduplicated on the full before-and-after so a
+    correction that has since been corrected again is not silently dropped.
+  */
+  const seen = new Set(
+    readGlossCorrections().map((c) => `${c.lemma}|${c.pos}|${c.translationFrom}|${c.translationTo}`),
+  );
+  const ledger = [
+    ...readGlossCorrections(),
+    ...corrected
+      .map((c) => ({
+        lemma: c.entry.lemma,
+        pos: c.entry.pos,
+        translationFrom: c.from,
+        translationTo: c.to,
+        notesFrom: c.notesFrom,
+        notesTo: c.notesTo,
+      }))
+      .filter((c) => !seen.has(`${c.lemma}|${c.pos}|${c.translationFrom}|${c.translationTo}`)),
+  ];
+  if (ledger.length) writeFileSync(CORRECTIONS, `${JSON.stringify(ledger, null, 0)}\n`);
+
   console.log(`\nWrote ${next.length} entries to ${EXPANDED_PATH} (${corrected.length} corrected, ${dropped.length} dropped).`);
+  if (corrected.length) {
+    console.log(`Recorded ${ledger.length} correction${ledger.length === 1 ? "" : "s"} in ${CORRECTIONS}.`);
+  }
 }
 
 void main();

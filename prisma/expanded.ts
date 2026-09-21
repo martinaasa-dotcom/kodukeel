@@ -123,6 +123,93 @@ export function readPosCorrections(): PosCorrection[] {
   }
 }
 
+const GLOSS_CORRECTIONS = "prisma/data/gloss-corrections.json";
+
+/**
+ * A gloss the Wiktionary audit corrected, written down by `scripts/audit-glosses.ts`.
+ *
+ * `pos` is not part of what moved, unlike a part-of-speech correction, so
+ * there is no conflict key to repoint onto: this is a plain column update.
+ * Both the translation and the note travel together, because
+ * `audit-glosses.ts` only rewrites `notes` in the same step it rewrites
+ * `translation` — reading the two apart would let one drift from what the
+ * source page actually said.
+ */
+interface GlossCorrection {
+  lemma: string;
+  pos: string;
+  translationFrom: string;
+  translationTo: string;
+  notesFrom: string | null;
+  notesTo: string | null;
+}
+
+export function readGlossCorrections(): GlossCorrection[] {
+  if (!existsSync(GLOSS_CORRECTIONS)) return [];
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(GLOSS_CORRECTIONS, "utf8"));
+    if (!Array.isArray(parsed)) return [];
+    return (parsed as GlossCorrection[]).filter(
+      (c) => c?.lemma && c.pos && c.translationFrom && c.translationTo && c.translationFrom !== c.translationTo,
+    );
+  } catch {
+    console.warn(`  ${GLOSS_CORRECTIONS} could not be read; leaving existing glosses alone.`);
+    return [];
+  }
+}
+
+/**
+ * Moves an already-seeded row's gloss onto the one this build corrected.
+ *
+ * `expanded.json` is loaded with `ON CONFLICT DO NOTHING`, which is right for
+ * everything it inserts and wrong for a mistake in what it inserted the first
+ * time: a corrected `translation` in a fresh build reaches nobody who was
+ * seeded before the fix, silently, because the row is already there and the
+ * loader never updates one. `mustikas` shipped as "blueberry" rather than
+ * "bilberry, European blueberry" for three weeks before `npm run
+ * audit:glosses` caught it, and a deployment seeded in that window would have
+ * kept teaching the wrong berry for ever.
+ *
+ * The two guards are `applyPosCorrections`'s own, read the same way.
+ * `editedBy IS NULL` is the shared-dictionary rule: a learner's own
+ * correction, or one accepted through the report queue, outranks this file.
+ * And the update only fires where the row still reads the *old* gloss —
+ * `translation = c.from_translation` — because a row that has already moved
+ * (by a previous run of this function, or by a hand edit that happens to
+ * agree) is not this correction's to touch a second time.
+ *
+ * `notes` is matched with `IS NOT DISTINCT FROM`, which is null-safe
+ * equality: most corrections carry a null note on both sides, and `= NULL`
+ * is never true in SQL, which would have silently refused every one of them.
+ *
+ * Idempotent for the reason `applyPosCorrections` is: once a row matches
+ * `to_translation`, the `from_translation` guard no longer matches it.
+ */
+export async function applyGlossCorrections(prisma: PrismaClient): Promise<number> {
+  const corrections = readGlossCorrections();
+  if (corrections.length === 0) return 0;
+
+  let moved = 0;
+  for (const batch of chunk(corrections, 500)) {
+    const rows = batch.map(
+      (c) =>
+        Prisma.sql`(${c.lemma}, ${c.pos}, ${c.translationFrom}, ${c.translationTo}, ${c.notesFrom}::text, ${c.notesTo}::text)`,
+    );
+    moved += await prisma.$executeRaw`
+      UPDATE "Lexeme" AS l
+      SET translation = c.to_translation, notes = c.to_notes, "updatedAt" = NOW()
+      FROM (VALUES ${Prisma.join(rows)})
+        AS c(lemma, pos, from_translation, to_translation, from_notes, to_notes)
+      WHERE l.lemma = c.lemma
+        AND l.pos = c.pos
+        AND l.translation = c.from_translation
+        AND l.notes IS NOT DISTINCT FROM c.from_notes
+        AND l."editedBy" IS NULL
+    `;
+  }
+  return moved;
+}
+
 /**
  * Moves an already-seeded row onto the label this build corrected.
  *
