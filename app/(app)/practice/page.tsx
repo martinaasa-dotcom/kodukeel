@@ -1,10 +1,11 @@
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { ClipboardCheck, TrendingUp } from "lucide-react";
+import { ClipboardCheck, Layers, Play, TrendingUp } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { requireUserId } from "@/lib/auth/session";
 import { deckSnapshot } from "@/lib/progress/summary";
 import { caseAccuracy } from "@/lib/stats/history";
 import { caseReviewsFor } from "@/lib/progress/cases";
+import { listDecks } from "@/lib/progress/decks";
 import { masteryCounts, masteryFor } from "@/lib/progress/mastery";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { isBuildable } from "@/lib/estonian/cloze";
@@ -29,7 +30,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function PracticePage() {
   const ownerId = await requireUserId();
-  const [snapshot, settings, caseReviews, sentenceReady, words] = await Promise.all([
+  const [snapshot, settings, caseReviews, sentenceReady, words, decks] = await Promise.all([
     deckSnapshot(ownerId),
     readSettings(ownerId, [SETTING_KEYS.sprintBest, SETTING_KEYS.matchBest]),
     // The one reader, so Practice and Progress cannot disagree about which case
@@ -60,6 +61,9 @@ export default async function PracticePage() {
     // Where every met word stands. The same read the Flash cards round makes,
     // so the count on its tile and the round behind it are one answer.
     masteryFor(ownerId),
+    // The learner's own named shelves, so a deck built anywhere in the app is
+    // reachable as a round right here rather than only from `/words/decks`.
+    listDecks(ownerId),
   ]);
 
   const sprintBest = numberSetting(settings[SETTING_KEYS.sprintBest], 0);
@@ -215,6 +219,18 @@ export default async function PracticePage() {
             the next twenty out.
           */}
           <CommonWordsCard />
+
+          {/*
+            AND A SHELF THE LEARNER NAMED THEMSELVES.
+
+            `Deck` is a label over the one review pool (`lib/progress/decks.ts`),
+            so practicing one is the same round as Flash cards pointed at a
+            smaller set of words, the way the frequency lists above already
+            are. Before this, a deck a learner built to make some words stick
+            right away had nowhere to be practiced but `/words/decks` and a
+            checkbox list.
+          */}
+          {decks.length > 0 && <DecksCard decks={decks} />}
 
           {/*
             AND WHERE THOSE WORDS STAND, BESIDE THE ROUNDS THAT MOVE THEM.
@@ -430,6 +446,73 @@ function CommonWordsCard() {
             />
             <span className="min-w-0 text-sm font-semibold" style={{ color: "var(--ink)" }}>
               {group.title}
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * ONE ROW PER SHELF THE LEARNER HAS NAMED, EACH A DOOR STRAIGHT INTO A ROUND.
+ *
+ * Shaped like `CommonWordsCard` above and for the same reason: several
+ * buttons on one card rather than several tiles, because the decision is
+ * which shelf, not whether to practice at all. A deck with nothing on it is
+ * left off the list, since its button would open on an empty round; the
+ * count is what makes that a fact and not a filter nobody can see.
+ */
+function DecksCard({ decks }: { decks: { id: string; name: string; wordCount: number }[] }) {
+  const stocked = decks.filter((d) => d.wordCount > 0);
+  if (stocked.length === 0) return null;
+
+  return (
+    <section
+      className="flex flex-col gap-3 rounded-[var(--r-lg)] border p-5"
+      style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-sm)" }}
+    >
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
+          style={{ background: "var(--sky)", color: "var(--surface)" }}
+        >
+          <Layers size={19} aria-hidden />
+        </span>
+        <span className="min-w-0">
+          <Link
+            href="/words/decks"
+            className="block text-lg font-bold underline-offset-4 hover:underline"
+            style={{ color: "var(--ink)" }}
+          >
+            Your decks
+          </Link>
+          <span className="block text-xs" style={{ color: "var(--ink-3)" }}>The shelves you named</span>
+        </span>
+        <span className="ml-auto">
+          <Chip tone="neutral">{stocked.length === 1 ? "1 deck" : `${stocked.length} decks`}</Chip>
+        </span>
+      </div>
+
+      <p className="text-sm" style={{ color: "var(--ink-2)" }}>
+        {"Words you filed together, asked the same way Flash cards asks the rest of your deck."}
+      </p>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {stocked.map((deck) => (
+          <Link
+            key={deck.id}
+            href={`/review/deck/${deck.id}`}
+            aria-label={`Practice ${deck.name}`}
+            className="tap-tint flex min-h-11 items-center gap-2.5 rounded-[var(--r)] border px-3 py-2"
+            style={{ borderColor: "var(--rule-soft)", background: "var(--raised)" }}
+          >
+            <Play size={14} aria-hidden className="shrink-0" style={{ color: "var(--sky-ink)" }} />
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold" style={{ color: "var(--ink)" }}>
+              {deck.name}
+            </span>
+            <span className="shrink-0 text-xs" style={{ color: "var(--ink-3)" }}>
+              {deck.wordCount === 1 ? "1 word" : `${deck.wordCount} words`}
             </span>
           </Link>
         ))}

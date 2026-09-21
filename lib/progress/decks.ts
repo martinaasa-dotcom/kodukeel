@@ -102,6 +102,26 @@ export async function decksForWord(ownerId: string, lexemeId: string): Promise<s
   return rows.map((r) => r.deckId);
 }
 
+/** One deck's name, for a screen naming it, or null where it is not this learner's. */
+export async function deckName(ownerId: string, deckId: string): Promise<string | null> {
+  const deck = await prisma.deck.findFirst({ where: { id: deckId, ownerId }, select: { name: true } });
+  return deck?.name ?? null;
+}
+
+/**
+ * The lexemes filed on one shelf, for a round asked about that shelf alone.
+ *
+ * Returns nothing for a deck that is not this learner's, the same guard
+ * `wordsInDeck` takes, so a round cannot be pointed at a stranger's shelf by
+ * guessing an id.
+ */
+export async function deckLexemeIds(ownerId: string, deckId: string): Promise<string[]> {
+  const owns = await prisma.deck.count({ where: { id: deckId, ownerId } });
+  if (owns === 0) return [];
+  const rows = await prisma.deckWord.findMany({ where: { ownerId, deckId }, select: { lexemeId: true } });
+  return rows.map((r) => r.lexemeId);
+}
+
 export interface DeckWordRow {
   lexemeId: string;
   lemma: string;

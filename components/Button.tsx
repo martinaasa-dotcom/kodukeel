@@ -28,7 +28,40 @@ const STYLES: Record<Variant, CSSProperties & { className?: string }> = {
 const SIZES: Record<Size, string> = {
   sm: "px-3 py-1.5 text-xs",
   md: "px-4 py-2.5 text-sm",
-  lg: "px-6 py-3.5 text-base",
+  /*
+    `lg` is a hero action — the one loud button on a screen like Today's
+    module card — and it was one fixed size for every window: px-6/py-3.5 at
+    text-base (17px), about 56px tall, whatever the viewport. That is the
+    right size for a phone held at arm's length and too much on an ordinary
+    laptop tab, where it read as oversized next to everything around it.
+
+    So it steps up with the window rather than sitting at one size: compact
+    by default, the same size as `md` in effect, and only reaches its full
+    size at `2xl` (1536px), which is roughly where a maximized window on a
+    larger laptop display sits rather than a 13-inch one. A narrower window —
+    most laptops, most of the time — gets the smaller, calmer button; a wide
+    one gets the size the hero card was designed at.
+
+    THE FLOOR IS NOT A `min-h-*` UTILITY HERE, AND THAT WAS TRIED TWICE
+    BEFORE THIS COMMENT EXISTED. `app/globals.css` already carries a
+    coarse-pointer rule, `button:not(.inline-edit) { min-height: 2.75rem }`,
+    and that selector (a type selector plus a `:not()` class) outranks a
+    bare `.min-h-*` utility class in CSS specificity. So a `min-h-11`
+    (44px) and then a `min-h-12` (48px) added here each measured *exactly*
+    the same real height in `scripts/test-signin.mjs` as a plain browser —
+    the global rule was silently winning and clamping this button straight
+    back to 44px both times, landing a hair under it in real sub-pixel
+    layout (which `Math.round` was displaying as a clean, misleading "44"
+    in the failure log) rather than at whatever this component asked for.
+
+    So the floor here is padding, not a competing min-height: `py-3.5` is
+    the same vertical padding the original 56px button used, kept exactly
+    as it was rather than shrunk, with only the horizontal padding and text
+    size stepping down at the compact size. That is comfortably clear of
+    44px on its own, with no min-height utility in the running to lose a
+    specificity fight it cannot win.
+  */
+  lg: "px-5 py-3.5 text-sm 2xl:px-6 2xl:text-base",
 };
 
 const base =
