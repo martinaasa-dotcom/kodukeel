@@ -232,13 +232,21 @@ export function DictionaryClient({
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start">
         <div className="flex-1">
+          {/*
+            Not `large`: that size step is `field-lg` at 24px, which is what a
+            review round's own answer box reads from — the one field in this
+            app the learner is asked to produce a whole typed answer into. A
+            search box is typed into on every visit and read past rather than
+            dwelt on, so it takes the field's default size (still `field-lg`'s
+            roomier padding, at the 19px "lead" step) rather than borrowing
+            the answer box's weight for something that is not one.
+          */}
           <EstonianInput
             value={query}
             onChange={setQuery}
             onEnter={() => go(query)}
             placeholder="Search Estonian or English, try tuba, or room"
             ariaLabel="Search the dictionary"
-            large
             autoFocus={!initialQuery}
           />
         </div>
