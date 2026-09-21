@@ -16333,6 +16333,30 @@ check("a verdict is painted once, in the tint and the ink", () => {
   for (const file of Object.keys(exempt)) {
     assert.ok(marking.includes(file), `${file} is exempted and no longer marks anything`);
   }
+
+  /*
+    AND A READING THE VOCABULARY ALREADY ANSWERS FOR IS NOT MAPPED AGAIN.
+
+    `lib/ux/verdict.ts` holds four mappings and its own header says why: how a
+    mark looks is one decision, wherever the reading it was made from came
+    from. Two screens went on writing one of them out as a three-way ternary,
+    the placement check's dictation question and the dictation round, over a
+    five-member union neither of them owns, so a fifth reading added to
+    `DictationResult` would have been two screens to remember and nothing would
+    have said so. That is the shape to catch and it is narrow on purpose: a
+    round deriving a verdict from a rating, an accuracy threshold or a pair of
+    its own booleans is answering a question the vocabulary does not, and a
+    rule that fired on those is a rule people learn to waive. What cannot be
+    honest is going from `checkAnswer`'s or a dictation's own `"correct"` to
+    the verdict named `"right"`, because that is `verdictOfCheck` and
+    `verdictOfDictation` rewritten by hand.
+  */
+  for (const file of [...APP, ...COMPONENTS].filter((f) => f.endsWith(".tsx"))) {
+    assert.doesNotMatch(
+      code(file), /===\s*"correct"\s*\?\s*"right"/,
+      `${file} maps a reading to a verdict by hand; call verdictOfCheck or verdictOfDictation`,
+    );
+  }
 });
 
 /*

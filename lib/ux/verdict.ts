@@ -119,6 +119,29 @@ export function verdictOfCheck(check: "correct" | "diacritics" | "typo" | "wrong
  * a mark *looks* is one decision, wherever the number it is made from came
  * from.
  */
+/**
+ * A dictation's five readings as three verdicts.
+ *
+ * NOT `verdictOfCheck`, WHICH ANSWERS ABOUT A DIFFERENT UNION. `checkAnswer`
+ * has four readings and a dictation has five: `spacing` is a sentence written
+ * as one word or split in the wrong place, and `close` is a word or two out of
+ * a whole sentence, and neither exists on a single-form answer. Both are the
+ * middle, for the reason the other two middles are: the learner had it, nearly.
+ *
+ * It is here rather than written out on each of the two screens that draws it,
+ * which is what they were doing, a three-way ternary apiece over a union
+ * neither of them owns: the placement check's dictation question and the
+ * dictation round. A fifth reading added to `DictationResult` is then one
+ * decision about how it looks rather than two screens to remember.
+ */
+export function verdictOfDictation(
+  verdict: "correct" | "diacritics" | "spacing" | "close" | "wrong",
+): Verdict {
+  if (verdict === "correct") return "right";
+  if (verdict === "wrong") return "wrong";
+  return "nearly";
+}
+
 export function verdictOfCredit(credit: number): Verdict {
   if (credit >= 1) return "right";
   if (credit > 0) return "nearly";

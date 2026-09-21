@@ -1450,12 +1450,12 @@ guarded, since a parameter nobody passes is not a feature, it is the bug's only 
 **And a word Anu suggested is marked as a model's, which it was not.** `createLexeme` is reached
 only from her vocabulary bridge, where a learner presses a button on a word she offered, and it
 wrote the row down as `USER` with the sentence "Suggested by Anu, forms unverified" in `notes`. That
-sentence was the only record of either fact. `AI · verify` is keyed on the provenance, so the chip
-never appeared, not on the entry and not on the card whose answer had never been checked, which is
-the one place ADR-005 cares about; and `enrichFromEkilex` refuses to touch a `USER` word, "hers, not
-ours to overwrite", so the word could never be upgraded to real Ekilex forms either. Both turn round
-with the label, and the tag goes away by itself the moment Ekilex answers, which is what "verify"
-was asking for.
+sentence was the only record of either fact. Everything that refuses to vouch for such a row is
+keyed on the provenance, so none of it fired: `vouchable` cleared the word for the scanner, the
+headlines and the chat guard alike, on a card whose answer had never been checked, which is the one
+place ADR-005 cares about; and `enrichFromEkilex` refuses to touch a `USER` word, "hers, not ours to
+overwrite", so the word could never be upgraded to real Ekilex forms either. Both turn round with
+the label, and it stops applying by itself the moment Ekilex answers.
 
 **And 1,359 Estonian definitions had been fetched and thrown away.** The harvest asks Ekilex for the
 explanation of every course word and writes it into `prisma/data/harvested.ts`, and the seed wrote
@@ -10108,11 +10108,22 @@ and the invariants above are what make it true, and they are all still here. The
 line rather than being left to reach nobody, which is the fault this file records seven `caseEn`
 fields having had.
 
-**What may not go is a mark on output nobody has checked.** A disclaimer under attested Estonian is
-a claim about the app; the `AI · verify` chip on a form a model suggested is a claim about *that
-word*, and it is the one thing standing between a learner and drilling a form nothing vouched for
-(ADR-005). Removing the first does not license removing the second, and the two read alike only from
-a distance.
+**What may not go is the refusal to vouch for output nobody has checked.** A disclaimer under
+attested Estonian is a claim about the app and is worth making once; what `createLexeme` writes
+about a word Anu suggested is a claim about *that word*, and it is the one thing standing between a
+learner and drilling a form nothing vouched for (ADR-005). Removing the first does not license
+touching the second, and the two read alike only from a distance.
+
+**And the mark that carried it is a chip this app no longer draws, so the guard is `vouchable` and
+nothing else.** `AI · verify` was taken off every screen, and four comments and this file went on
+naming it as the thing holding ADR-005 up on that path: a sentence stating a false fact about the
+module next door, which is the fault this file keeps finding in its own prose, made once more by the
+pass that took the disclaimers off. What actually holds it is `vouchable` in `lib/dict/search.ts`,
+which refuses `provenance: "AI"` outright, so such a row is never a scanned page's answer, never a
+headline's headword, never the word of the day, never lent a sentence and never what the chat guard
+clears its own Estonian against. It is behaviour rather than copy, so it cannot be removed by a copy
+pass, and it goes away by itself the moment Ekilex answers. **A claim in prose about a mark on a
+screen is checked against the screen**, or the next pass reasons from it.
 
 **And the average is the level, because the minimum was reporting a stranger three bands under
 themselves.** The rule was the weakest measured skill, on the argument that a CEFR level is a claim

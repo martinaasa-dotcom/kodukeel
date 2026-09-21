@@ -132,7 +132,27 @@ describe("buildClinicQuestion", () => {
     const q = buildClinicQuestion(leech, ["tuli", "tulu"]);
     expect(q).toMatch(/interfering/);
     expect(q).toContain("tuli, tulu");
-    expect(q).toContain("INESSIVE".toLowerCase());
+    expect(q).toContain("seesütlev");
+  });
+
+  it("names the case the way a class names it, and never the Latin one", () => {
+    // Anu's own brief says to give the Estonian name and the reading rather
+    // than the Latin term, and this prompt was handing her "the inessive":
+    // the one name in this app that helps nobody, put to the tutor by the app
+    // that forbids it on every screen. Both directions, because dropping the
+    // Latin name and saying nothing in its place would pass the first half.
+    const q = buildClinicQuestion(leech, []);
+    expect(q).toContain("It asks for the seesütlev (milles? kus?).");
+    expect(q).not.toMatch(/inessive/i);
+  });
+
+  it("says nothing about a case key the table does not hold", () => {
+    // Falling back to the key would print `WHATEVER` at Anu, which is worse
+    // than leaving the line out: she would take it for a term.
+    const q = buildClinicQuestion(
+      toLeech(candidate({ history: history("oooooofff"), targetCase: "WHATEVER" })), [],
+    );
+    expect(q).not.toMatch(/It asks for/);
   });
 
   it("asks a regressed card which neighbor is interfering", () => {

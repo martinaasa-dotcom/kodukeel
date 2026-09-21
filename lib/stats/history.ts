@@ -275,7 +275,12 @@ export function retentionReading(
       reviews: count, recalled, retention, target,
       verdict: "below",
       headline: "You are forgetting more than expected",
-      advice: "Usually too many new cards at once. Ease off new words for a week, and read up on whichever case the list below keeps flagging.",
+      // Both causes, because they take different answers: too many at once is
+      // answered by easing off, and a word met before the grammar under it is
+      // answered by reading the case up. The copy pass that took the figures
+      // out of these strings took the second cause with them, on the one
+      // branch where a learner most needs to be told there is more than one.
+      advice: "Usually too many new cards at once, or words met before the grammar under them made sense. Ease off new words for a week, and read up on whichever case the list below keeps flagging.",
     };
   }
 

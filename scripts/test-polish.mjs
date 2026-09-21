@@ -73,8 +73,16 @@ const href = await drillLink.getAttribute("href");
   class does now, so the check reads the name off the panel it clicked, which
   also makes it a better question: does the drill name the case the learner
   actually pressed.
+
+  AND IT READS THE ELEMENT RATHER THAN THE FIRST WORD OF THE ROW. The first
+  version split `innerText` on whitespace and took token nought, guarded only
+  by a length of three, so a row that grew a label in front of the name would
+  quietly start asserting that word instead, and "The" or "Drill" appears
+  somewhere on any drill screen: a check that cannot fail, which is the shape
+  this repository keeps finding in its own suites. The name is the first
+  `lang="et"` span in the row, which is what the row is built out of.
 */
-const drillName = ((await drillLink.innerText()) ?? "").trim().split(/\s+/)[0] ?? "";
+const drillName = ((await drillLink.locator('[lang="et"]').first().innerText()) ?? "").trim();
 await drillLink.click();
 await page.waitForURL(/\/review\?case=/, { timeout: 10000 });
 await page.waitForSelector("text=Full entry", { timeout: 10000 });
