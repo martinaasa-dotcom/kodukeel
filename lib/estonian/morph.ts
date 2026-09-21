@@ -88,6 +88,46 @@ export function morphCodeFor(key: CaseKey, plural = false): string | null {
   return (plural ? slot.plural : slot.singular) || null;
 }
 
+/**
+ * The Ekilex code for a form, whichever way the row spells its slot.
+ *
+ * `morphCodeOf` answers "what code is on this row", and for a principal part
+ * the honest answer is that there is none: the seed writes those under
+ * `formType` as `GEN_PL`, `INF_DA`, `PRES_1SG`. Every reader that then asks a
+ * table keyed on Ekilex's codes gets nothing, silently, and looks exactly like
+ * a reader whose word has no such form. That is what made the placement
+ * check's plain-English clause dead on every seeded verb: `lib/estonian/plainAsk.ts`
+ * is keyed on `IndPrSg1` and was being asked about `PRES_1SG`.
+ *
+ * So this is the other question, "which slot is this", answered as the one
+ * code that names it. A row already carrying a code is unchanged; a principal
+ * part is translated through the table below; anything else falls through as
+ * itself rather than being guessed at.
+ *
+ * The table is not a second naming of anything: `morph_test` drives every pair
+ * through `formName` and fails where the two spellings of one slot do not name
+ * the same form, so a wrong pair here cannot sit quietly.
+ */
+const CODE_BY_FORM_TYPE: Record<string, string> = {
+  NOM_SG: "SgN", GEN_SG: "SgG", PART_SG: "SgP", ILL_SG_SHORT: "SgAdt",
+  NOM_PL: "PlN", GEN_PL: "PlG", PART_PL: "PlP",
+  INF_MA: "Sup", INF_DA: "Inf",
+  PRES_1SG: "IndPrSg1", PAST_1SG: "IndIpfSg1", PART_TUD: "PtsPtIps",
+};
+
+/** Every principal part this translates, for the check that it names one slot. */
+export const FORM_TYPE_CODES: readonly (readonly [string, string])[] =
+  Object.entries(CODE_BY_FORM_TYPE);
+
+export function slotCodeOf(form: {
+  formType?: string | null;
+  morphCode?: string | null;
+}): string | null {
+  const code = morphCodeOf(form);
+  if (!code) return null;
+  return CODE_BY_FORM_TYPE[code] ?? code;
+}
+
 export type MorphNumber = "SINGULAR" | "PLURAL" | null;
 
 /**

@@ -9950,6 +9950,38 @@ screen names no case at all: the grammar reference, the dictionary entry and eve
 from the same function, so the two shapes of one task cannot say different things, and the learn
 ladder keeps `explainForm` alone because it has already drawn the sentence and its English itself.
 
+**And two of the three things that clause could say were about a form the learner was not looking
+at.** The rule above is right and the reading under it was wrong twice, in a way no screenshot
+shows, because a wrong clause reads exactly like a right one. `plainAsk` is keyed on the case
+names for a nominal and on Ekilex's own codes for a verb, and the placement check kept a private
+table translating the seed's principal parts into the first of those and nothing at all into the
+second. So **the number was thrown away**: `NOM_PL`, `GEN_PL` and `PART_PL` were mapped onto the
+singular keys, and 828 of the 3,392 gaps the shipped dictionary builds described a plural with the
+singular's clause, `sõbrad` reading "the form you use as the plain dictionary word" about a word
+whose dictionary form is `sõber` and is printed three words earlier in the same sentence. And
+**every seeded verb fell through**, because a principal part carries no Ekilex code and
+`PRES_1SG` is not `IndPrSg1`: the clause was null on all 249 verb gaps, so the one part of speech
+where the ending is hardest to reason out was the one part of speech the screen said nothing
+about. `slotCodeOf` in `lib/estonian/morph.ts` is the one reading of which slot a row is in,
+whichever way the row spells it, and the pairs in it are checked by driving both spellings through
+`formName`: a wrong pair names two different forms, which is the only way a table like that fails
+and the only way it fails loudly. The clauses the verbs needed are the infinitive and the two
+participles, which is 210 of the 249, because a sentence a lexicographer wrote is far likelier to
+hold one of those than a first person. **The plural is said before the clause and instead of it
+once**, on the nominative, where every other clause stays true of a plural and "as the plain
+dictionary word" is a claim about that exact spelling that a plural makes false.
+
+**And every audit was reading a dictionary whose every sentence was bare.** `scripts/lib/dictionary.ts`
+is the adapter the audits assemble the shipped dictionary through, and it built each entry's
+sentences as `({ et, en: null })` under a comment that was true about the wrong thing: no *entry*
+file carries an English column, because a translation is a fact about the sentence and lives in
+`prisma/data/example-english.json` keyed on it, which the seed joins on both of its paths. So any
+measurement of what a learner reads beside a sentence was a measurement of a deployment nobody
+has, and the first run of one here reported that no gap in the level check carries an English line
+where 3,363 of 3,392 do. The closed reader list on `lib/dict/exampleEnglish.ts` swept `app/`,
+`lib/`, `components/` and `prisma/`, which is where a *screen* lives and is not where this is; it
+sweeps `scripts/` too, so the fifth answer to what a sentence means cannot appear unwatched.
+
 **Speaking is asked, not recorded.** The check played a native rendering, recorded the learner, and
 asked them to rate the comparison. Nothing scored it (ADR-018), so what the microphone bought was a
 permission prompt and a clip in exchange for a rating that was going to be the learner's own
@@ -10364,7 +10396,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `answerTimeReading`, `confusions`, `formatAnswerTime`, `NotAutomatic`, `scriptedFor`, `scriptable`,
 `TODAY_CARDS`, `weakestCase`, `roundCard`, `orderTodayCards`, `todayOrderFrom`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
-`conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
+`conjugationSlotFromFront`, `slotCodeOf`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
 `addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `composeNote`, `wantsFreshLine`, `gateFor`,
 `switchesRegisterAt`, `switchesRegister`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,

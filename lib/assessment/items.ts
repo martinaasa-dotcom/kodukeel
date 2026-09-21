@@ -2,7 +2,7 @@ import { CASES } from "@/lib/estonian/cases";
 import { buildCloze, ESTONIAN_WORD, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { dictationWords } from "@/lib/estonian/dictation";
-import { caseFromMorphCode, morphCodeOf } from "@/lib/estonian/morph";
+import { caseFromMorphCode, numberFromMorphCode, slotCodeOf } from "@/lib/estonian/morph";
 import { plainAsk } from "@/lib/estonian/plainAsk";
 import type { CaseKey } from "@/lib/estonian/types";
 import { unitIntroducing } from "@/lib/collections/syllabus";
@@ -352,41 +352,78 @@ export function gapFrom(word: WordRow): Gap | null {
  * is the one honest explanation available for a form the dictionary cannot
  * place.
  */
-function clauseFor(word: WordRow, value: string): string | null {
+interface Placed {
+  /** The plain-English clause for the slot the spelling is in. */
+  clause: string;
+  /** Whether the dictionary says the spelling is a plural. */
+  plural: boolean;
+}
+
+function clauseFor(word: WordRow, value: string): Placed | null {
   const lower = value.toLowerCase();
   const stored = word.forms.filter((f) => f.value.toLowerCase() === lower);
 
   const claimed = new Set<CaseKey>();
+  const numbers = new Set<"SINGULAR" | "PLURAL">();
   for (const form of stored) {
-    // The principal parts name their own slot; a retrieved form carries
-    // Ekilex's code, which `caseFromMorphCode` reads. Both, because a plural
-    // oblique is stored and is reached by neither of the other two.
-    const key = CASE_BY_FORM_TYPE[form.formType] ?? caseFromMorphCode(morphCodeOf(form));
-    if (key) claimed.add(key);
+    /*
+      `slotCodeOf` rather than `morphCodeOf`, and that is the whole of what
+      was wrong with the first version of this. A principal part carries no
+      Ekilex code, so a private table here translated `GEN_SG` into a case and
+      **threw the number away**: `NOM_PL`, `GEN_PL` and `PART_PL` were mapped
+      onto the singular keys, so 828 of the gaps the shipped dictionary builds
+      described a plural with the singular's clause and `sõbrad` was explained
+      as "the form you use as the plain dictionary word", which is false about
+      the word in front of the learner. One reading of "which slot is this",
+      in the module that owns the codes, and the number comes off the same
+      answer as the case.
+    */
+    const code = slotCodeOf(form);
+    const key = caseFromMorphCode(code);
+    if (!key) continue;
+    claimed.add(key);
+    const number = numberFromMorphCode(code);
+    if (number) numbers.add(number);
   }
+  /*
+    And a derived case is always singular: `caseAnswer` builds the eleven
+    obliques off the genitive stem, which is the singular table, and a plural
+    oblique is stored because no rule reaches it.
+  */
   const stems = stemsFrom(word.forms);
   for (const spec of CASES) {
     const answer = caseAnswer(stems, spec.key);
-    if (answer?.accepted.some((f) => f.toLowerCase() === lower)) claimed.add(spec.key);
+    if (answer?.accepted.some((f) => f.toLowerCase() === lower)) {
+      claimed.add(spec.key);
+      numbers.add("SINGULAR");
+    }
   }
-  if (claimed.size > 0) return claimed.size === 1 ? plainAsk([...claimed][0]!) : null;
+  if (claimed.size > 0) {
+    // Two cases is the syncretism below; two numbers is the same ambiguity
+    // about a different axis and gets the same silence, since a sentence
+    // claiming one of them would be right half the time.
+    if (claimed.size !== 1 || numbers.size !== 1) return null;
+    const clause = plainAsk([...claimed][0]!);
+    return clause ? { clause, plural: [...numbers][0] === "PLURAL" } : null;
+  }
 
   /*
     Not a case at all, so a verb form: `aidata` is the da-tegevusnimi and
     nothing else, and a verb slot cannot be syncretic with a case. Two stored
     codes on one spelling is the same ambiguity as two cases and gets the same
     silence.
-  */
-  const codes = new Set(stored.map(morphCodeOf).filter((c): c is string => !!c));
-  return codes.size === 1 ? plainAsk([...codes][0]!) : null;
-}
 
-/** The stored slots that are a case, so the case's own note can explain them. */
-const CASE_BY_FORM_TYPE: Record<string, CaseKey | undefined> = {
-  NOM_SG: "NOMINATIVE", GEN_SG: "GENITIVE", PART_SG: "PARTITIVE",
-  NOM_PL: "NOMINATIVE", GEN_PL: "GENITIVE", PART_PL: "PARTITIVE",
-  ILL_SG_SHORT: "ILLATIVE",
-};
+    Read through `slotCodeOf` for the reason above, and this branch is where
+    that was doing the most damage: `plainAsk` is keyed on Ekilex's codes and
+    every seeded verb carries `INF_DA`, `PART_TUD`, `PRES_1SG` or `PAST_1SG`,
+    so the clause was null on every one of the 249 verb gaps in the shipped
+    dictionary and the explanation stopped at "The gap takes X rather than Y."
+  */
+  const codes = new Set(stored.map(slotCodeOf).filter((c): c is string => !!c));
+  if (codes.size !== 1) return null;
+  const clause = plainAsk([...codes][0]!);
+  return clause ? { clause, plural: false } : null;
+}
 
 /**
  * Why that word and not one of the others.
@@ -410,13 +447,39 @@ const CASE_BY_FORM_TYPE: Record<string, CaseKey | undefined> = {
  */
 export function explainForm(word: WordRow, answer: string): string {
   if (answer.toLowerCase() === word.lemma.toLowerCase()) {
-    // The clause here would be "as the plain dictionary word", which is the
-    // sentence above it again.
+    /*
+      The clause here would be "as the plain dictionary word", which is the
+      sentence above it again.
+
+      Measured unreachable from both callers, and kept rather than deleted for
+      that reason rather than in spite of it. `gapFrom` refuses a gap whose
+      answer is spelled out in the cue and the cue holds the lemma, and the
+      learn ladder tests the same thing itself and passes null; so this fires
+      on none of the gaps the shipped dictionary builds. What is on the other
+      side of deleting it is "The gap takes tuba rather than tuba.", which is
+      a sentence no third caller should be able to reach by not knowing about
+      this, and one line is a cheap guard against it.
+    */
     return `The gap takes ${word.lemma} exactly as the dictionary spells it.`;
   }
   const takes = `The gap takes ${answer} rather than ${word.lemma}.`;
-  const clause = clauseFor(word, answer);
-  return clause ? `${takes} That is the form you use ${clause}.` : takes;
+  const placed = clauseFor(word, answer);
+  if (!placed) return takes;
+  /*
+    The plural is said before the clause and instead of it in one case, which
+    is the nominative: every other clause stays true of a plural, since a
+    plural allative is still the form something goes to, and "as the plain
+    dictionary word" is a claim about this exact spelling that a plural makes
+    false. Saying "that is the plural" and stopping is the whole of what a
+    learner needs there, because the dictionary word is printed in the
+    sentence above it.
+  */
+  if (placed.plural) {
+    return placed.clause === plainAsk("NOMINATIVE")
+      ? `${takes} That is the plural.`
+      : `${takes} That is the plural, and the form you use ${placed.clause}.`;
+  }
+  return `${takes} That is the form you use ${placed.clause}.`;
 }
 
 export function explainGap(word: WordRow, gap: Gap): string {
