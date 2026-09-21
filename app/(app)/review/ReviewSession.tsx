@@ -1196,7 +1196,8 @@ export function ReviewSession({
       <Page title="Review" lead="Spaced repetition, timed to when you are about to forget.">
         {drillCase ? (
           <Empty
-            title={`No ${drillCase.toLowerCase()} cards yet`}
+            // The Estonian name, like every other screen that names a case.
+            title={`No ${caseByKey(drillCase)?.et ?? drillCase.toLowerCase()} cards yet`}
             body="Tick 'Case form' when you add a word, or start a noun unit on the path."
             action={<ButtonLink href="/learn" variant="primary">Open the learning path</ButtonLink>}
           />
@@ -1287,7 +1288,7 @@ export function ReviewSession({
           </h1>
           <p className="mx-auto mt-2 max-w-[46ch] text-base" style={{ color: "var(--ink-2)" }}>
             {drillCase
-              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the {drillCase.toLowerCase()} drill done. These cards still follow their normal schedule.</>
+              ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span> drill done. These cards still follow their normal schedule.</>
               : drillUnit
                 ? <>{uiText("Tubli töö.", "Good work.")} That&rsquo;s this unit drilled. Its cards still follow their normal schedule.</>
                 : drillScan
@@ -1364,7 +1365,17 @@ export function ReviewSession({
       {(drillCase || drillScan) && (
         <p className="-mt-4 mb-7 text-sm" style={{ color: "var(--ink-3)" }}>
           {drillCase
-            ? <>Drilling the <span lang="et">{drillCase.toLowerCase()}</span>.</>
+            /*
+              AND THE CASE IS NAMED THE WAY A CLASS NAMES IT.
+
+              `drillCase` is the `CaseKey` off the URL, so `.toLowerCase()` on
+              it is `inessive`: the Latin name, on the daily path, which is the
+              one thing CLAUDE.md says no screen may print. It survived because
+              the sweep that enforces that rule reads string literals and
+              brace-free JSX text, and this is a value interpolated into a run
+              of text, which is the residual that rule names in writing.
+            */
+            ? <>Drilling the <span lang="et">{caseByKey(drillCase)?.et ?? drillCase.toLowerCase()}</span>.</>
             : <>From {drillScan!.title}.</>}
         </p>
       )}

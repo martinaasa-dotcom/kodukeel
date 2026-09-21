@@ -62,6 +62,19 @@ await page.goto(`${B}/progress`, { waitUntil: "networkidle" });
 const drillLink = page.locator('a[href^="/review?case="]').first();
 check("weak cases link to a drill", (await drillLink.count()) > 0);
 const href = await drillLink.getAttribute("href");
+/*
+  THE NAME THE PANEL USED, NOT THE ONE IN THE URL.
+
+  This read the case off the query string and looked for that word on the
+  drill screen, which is `inessive`: the Latin name, which no screen in this
+  app may print. It passed because the review session was printing it, in a
+  chip and in its finish line, which the sweep that enforces that rule cannot
+  see through an interpolated value. Both screens name the case the way a
+  class does now, so the check reads the name off the panel it clicked, which
+  also makes it a better question: does the drill name the case the learner
+  actually pressed.
+*/
+const drillName = ((await drillLink.innerText()) ?? "").trim().split(/\s+/)[0] ?? "";
 await drillLink.click();
 await page.waitForURL(/\/review\?case=/, { timeout: 10000 });
 await page.waitForSelector("text=Full entry", { timeout: 10000 });
@@ -70,9 +83,8 @@ check("the drill opens and says what it is",
 // Derived from the link rather than hard-coded: which case is weakest depends
 // on the review history, so pinning one name here makes the test fail on data
 // rather than on behavior.
+// Only for the failure message now; what is checked is the name above.
 const drilledCase = new URL(href, B).searchParams.get("case")?.toLowerCase() ?? "";
-// The drill's own heading names the case in both languages, so the English
-// name read off the link is still the way to check the drill was filtered.
 // What the *front* says has changed twice. ADR-023 made it the question a
 // class asks (`tuba → milles?`) rather than the Latin name. Then a learner
 // reported `ravim → millesse? kuhu?` as pointless, and they were right: a case
@@ -81,7 +93,8 @@ const drilledCase = new URL(href, B).searchParams.get("case")?.toLowerCase() ?? 
 // because `sisseütlev` printed beside the word is the answer in two pieces.
 const drillBody = (await page.textContent("body")) ?? "";
 check("the drill only contains that case's cards",
-  new RegExp(`\\b${drilledCase}\\b`, "i").test(drillBody), drilledCase);
+  drillName.length > 2 && drillBody.toLowerCase().includes(drillName.toLowerCase()),
+  `${drilledCase} as ${drillName}`);
 const cardFront = (await page.locator("main").textContent()) ?? "";
 check("and asks for it in a sentence with a gap, never by its Latin name",
   cardFront.includes("____") && !new RegExp(`→ ${drilledCase}`, "i").test(cardFront),
