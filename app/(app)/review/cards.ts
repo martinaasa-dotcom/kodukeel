@@ -8,7 +8,7 @@ import { isPhrase } from "@/lib/dict/pos";
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { isStillLearning } from "@/lib/srs/scheduler";
 import { unitIntroducing } from "@/lib/collections/syllabus";
-import { decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
+import { borrowedSentences, decoyOptions, decoysAmong, everydaySpellings, sentenceReach } from "@/lib/dict/facts";
 import { plainerFirst, type PlainReach } from "@/lib/dict/plainness";
 import {
   bandOf, differentMeaning, glossNearness, glossOption, pickOptions,
@@ -245,6 +245,36 @@ function clozeSentenceEn(c: CardRow): string | null {
   return translationOf(parseExamples(c.lexeme.examples), whole);
 }
 
+/**
+ * AND A BORROWED SENTENCE CARRIES ITS OWN ENGLISH TOO.
+ *
+ * `clozeSentenceEn` matches the card's reconstructed sentence against its own
+ * entry's examples, which is every sentence a card was cut from until
+ * `lib/dict/borrow.ts` existed: a word may now be drilled in a sentence
+ * recorded under another headword, and for those the match found nothing. The
+ * screen then had no line to print and asked for one, and `translateExample`
+ * correctly refused, because the sentence really is not on that word. What a
+ * learner read was `Olen Rootsis käinud vaid ühe korra.` with nothing under it
+ * on a card for `üks`, since the sentence is filed under `kord`.
+ *
+ * The English is a fact about the *sentence* rather than about the entry it
+ * hangs off, which is why `prisma/data/example-english.json` is keyed on the
+ * sentence: the line is already in the dictionary, one entry over, and reading
+ * the borrowed pool is what finds it. No call, no write.
+ *
+ * Asked only where a gap card came back without one, since the map is the
+ * whole dictionary's and most cards are cut from a word's own sentences.
+ */
+async function withBorrowedEnglish(cards: ReviewCard[]): Promise<ReviewCard[]> {
+  if (!cards.some((c) => c.lexemeId && c.sentenceEn === null && c.front.includes(BLANK))) return cards;
+  const borrowed = await borrowedSentences();
+  return cards.map((card) => {
+    if (!card.lexemeId || card.sentenceEn !== null || !card.front.includes(BLANK)) return card;
+    const en = translationOf(borrowed.get(card.lexemeId) ?? [], card.front.replace(BLANK, card.back));
+    return en ? { ...card, sentenceEn: en } : card;
+  });
+}
+
 function toReviewCard(
   c: CardRow, glossLanguage: GlossLanguage, reach: PlainReach | null = null,
   firstCardEver = false,
@@ -473,7 +503,7 @@ export async function withChoices(
   const [reach, starred, firstCardEver] = await Promise.all([reaching, starring, firstEvering]);
   const glossed = await withGlosses(
     rows.map((c) => toReviewCard(c, glossLanguage, reach, firstCardEver)), ownerId,
-  ).then(withEveryday);
+  ).then(withEveryday).then(withBorrowedEnglish);
   const cards = glossed.map(
     (card) => (card.lexemeId && starred.has(card.lexemeId) ? { ...card, starred: true } : card),
   );

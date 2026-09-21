@@ -469,12 +469,16 @@ export function QuestSession({
                    word underneath it and nothing to say the two belong
                    together. The sentence is what the answer is an answer to. */
                 <div className="flex flex-col items-center gap-2" role="status">
-                  <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
-                    {card.front.split(BLANK)[0]}
-                    <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
-                    {card.front.split(BLANK)[1]}
+                  {/* Speaker at the end of the line rather than under it, the
+                      same rule every other sentence in the app follows. */}
+                  <p lang="et" className="flex flex-wrap items-center justify-center gap-2 text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
+                    <span>
+                      {card.front.split(BLANK)[0]}
+                      <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
+                      {card.front.split(BLANK)[1]}
+                    </span>
+                    <Speak text={card.front.replace(BLANK, card.back)} autoplay />
                   </p>
-                  <Speak text={card.front.replace(BLANK, card.back)} autoplay />
                   {/* And what the whole line says. The review card has done
                       this since a gap card became a sentence; this round drew
                       the sentence and left a beginner to work it out. */}

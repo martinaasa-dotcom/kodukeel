@@ -21186,31 +21186,34 @@ check("a translation a reviewer refused is never filled in again", () => {
   );
 
   /*
-    AND THE LEARNER IS NOT TOLD ABOUT IT. `SentenceTranslation` asks on
-    arrival, so a refusal returned as an ordinary error draws a line about a
-    reviewer's decision under somebody's card, mid-round, about a thing they
-    had no part in and can do nothing about. Both halves, because either alone
-    passes on the broken shape: the action has to say so, and the screen has
-    to read it and draw nothing, which is what it already does where the
-    deployment has no model at all.
+    AND THE LEARNER IS NOT TOLD ABOUT IT, WHICH IS NOW TRUE OF EVERY WAY THIS
+    CAN FAIL RATHER THAN OF THE REFUSAL ALONE. `SentenceTranslation` asks on
+    arrival and draws one thing: the English, once there is one. A refusal, a
+    sentence the entry does not hold, a spent allowance and a provider having
+    a bad minute are none of them news a learner can act on, and the second of
+    those was reported off a gap reveal as "That sentence is not on this
+    word.", which is a sentence about this app's own storage printed under
+    somebody's card. So the action still says `refused` for the reason above,
+    and the component may draw no failure at all.
   */
   assert.match(
     code("app/actions.ts"),
     /translateExample[\s\S]{0,1800}?refused: true/,
-    "translateExample returns a refused line as an ordinary error, so the reviewer's sentence is "
-      + "printed under a learner's card",
+    "translateExample returns a refused line as an ordinary error, so a caller that does draw one "
+      + "prints the reviewer's decision under a learner's card",
   );
   const translation = code("components/SentenceTranslation.tsx");
   assert.match(
     translation,
-    /"refused" in result/,
-    "SentenceTranslation reads a refusal as an error, so it draws one under the sentence",
+    /if \(!result\.ok\) return;/,
+    "SentenceTranslation reads a failed translation as something to say, so a reviewer's decision or "
+      + "a sentence borrowed from another entry is drawn as an error under somebody's card",
   );
-  assert.match(
+  assert.doesNotMatch(
     translation,
-    /\|\| refused\) return null/,
-    "SentenceTranslation goes on offering the button for a line a reviewer took off, so the learner "
-      + "presses it and is told about a decision that is not theirs",
+    /role="alert"|<button/,
+    "SentenceTranslation draws a control or an error again. It is a line and never either: the button "
+      + "asked a learner to press for the one thing that makes the sentence above it readable",
   );
 });
 

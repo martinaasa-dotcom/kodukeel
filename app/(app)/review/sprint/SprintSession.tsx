@@ -345,7 +345,7 @@ export function SprintSession({
                   et={card.front.replace(BLANK, card.back)}
                   en={card.sentenceEn}
                   canTranslate={canTranslate}
-                  ask="onRequest"
+                  ask="never"
                 />
               )}
             </>

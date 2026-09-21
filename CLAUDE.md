@@ -3490,8 +3490,36 @@ out, and `en` and `canTranslate` are **required** props for the reason `illSgSho
 than "no", and `translateExample` is what turns one into the other, once per sentence per
 deployment, stored on the lexeme so the next learner reads it free. `ask` is the one thing a caller
 decides and has two honest answers: on arrival for a screen showing one sentence, which is every
-round and every first meeting, and on request for the dictionary entry, where eight sentences would
-be eight calls against the deployment's own cap spent on the seven nobody stopped at.
+round and every first meeting, and never for the dictionary entry and the sprint, where eight
+sentences would be eight calls against the deployment's own cap spent on the seven nobody stopped
+at. Both print the line the dictionary already holds, which is nearly every sentence in the app.
+
+**And the English is a line, never a control, and never a failure.** It drew a button reading "Say
+the whole thing in English", a spinner and an error under it, and all three were reported off one
+gap reveal. The button asks a learner to press for the one thing that makes the sentence above it
+readable, which most of them will not do and none of them should have to; and the error under it
+read "That sentence is not on this word.", which is a sentence about this app's own storage drawn
+under somebody's card, mid-round, naming a cause the learner does not have. A failure may not
+misname its cause. So there is one outcome on screen, the English once there is one, and a call
+that comes back with nothing leaves the screen as it was, which is what it already did for a
+deployment with no model and for a line a reviewer took off.
+
+**And the error was true, which is the half worth fixing rather than hiding.** A card may be cut
+from a sentence recorded under another headword (`lib/dict/borrow.ts`), and `clozeSentenceEn`
+matched the reconstructed sentence against the card's own entry alone, so a borrowed one came back
+with no English, the screen asked for one, and `translateExample` correctly refused: the sentence
+really is filed under `kord` rather than under `üks`. The English is a fact about the **sentence**
+rather than about the entry it hangs off, which is why `prisma/data/example-english.json` is keyed
+on the sentence, so the line was already in the dictionary one entry over. The review queue and the
+sprint read the borrowed pool behind the word's own, which costs no call and no write.
+
+**And a gap reveal is the sentence, the speaker and what it says, and nothing else.** The cue from
+the question was printed again under the answer it was a cue for, `üks, one` under
+`Olen Rootsis käinud vaid ühe korra.`, which is the word twice on a card that has just answered
+itself. Every other card keeps its hint on the reveal, where it is the form's own name rather than
+a repeat. **And the speaker goes at the end of the sentence, never under it**, which is where
+`EstonianSentence` and `GlossedSentence` have always put it: a line of its own reads as a second
+thing on the card, and what belongs under a sentence is what it means.
 
 **The fault under the report was a `.et` two files away from the screen.** The lesson page read the
 dictionary's own examples and mapped them to `e.et`, so the English was thrown out before the

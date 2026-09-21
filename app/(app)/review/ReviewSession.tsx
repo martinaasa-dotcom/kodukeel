@@ -1673,12 +1673,19 @@ export function ReviewSession({
                    and a learner who cannot read that sentence has no context
                    for the answer, only its isolated gloss. */
                 <div className="flex flex-col items-center gap-2">
-                  <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
-                    {card.front.split(BLANK)[0]}
-                    <span data-answer style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
-                    {card.front.split(BLANK)[1]}
+                  {/* The speaker sits at the end of the sentence rather than
+                      under it, which is where every other sentence in the app
+                      puts it (`EstonianSentence`, `GlossedSentence`): a line
+                      of its own reads as a second thing on the card, and what
+                      goes under the sentence is what it means. */}
+                  <p lang="et" className="flex flex-wrap items-center justify-center gap-2 text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
+                    <span>
+                      {card.front.split(BLANK)[0]}
+                      <span data-answer style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
+                      {card.front.split(BLANK)[1]}
+                    </span>
+                    <Speak text={card.front.replace(BLANK, card.back)} label="Hear the whole sentence" autoplay />
                   </p>
-                  <Speak text={card.front.replace(BLANK, card.back)} label="Hear the whole sentence" autoplay />
                   <SentenceTranslation
                     key={card.front}
                     lexemeId={card.lexemeId}
@@ -1711,7 +1718,16 @@ export function ReviewSession({
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>{SAME_SPELLING}</p>
               )}
 
-              {card.hint && <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>}
+              {/* And not on a gap reveal, where the sentence and its English
+                  have just said the whole of it. `üks, one` under
+                  `Olen Rootsis käinud vaid ühe korra.` is the cue from the
+                  question printed again under the answer it was a cue for,
+                  which was reported off exactly that card. Every other card
+                  keeps it: there the hint is the form's own name, which is
+                  the naming rule rather than a repeat. */}
+              {card.hint && !isGap(card) && (
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{card.hint}</p>
+              )}
             </>
           )}
 
