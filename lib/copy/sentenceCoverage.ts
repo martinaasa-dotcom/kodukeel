@@ -66,14 +66,17 @@ export const SENTENCE_WITHOUT_ENGLISH: Readonly<Record<string, string>> = {
 
   "app/(app)/learn/checkpoint/[level]/CheckpointSession.tsx":
     "The level checkpoint, which is a measurement for the same reason as the paper " +
-    "above: the sentence is the question. Its feedback names the case and explains " +
-    "the form through `explainGap` once an answer is in, which is the honest place " +
-    "for an explanation on a screen that scores.",
+    "above: the sentence is the question. `explainGap` puts the sentence back, says " +
+    "what it means and says which form was wanted, once an answer is in, which is the " +
+    "honest place for both on a screen that scores.",
 
   "components/assessment/Question.tsx":
     "The placement check's question, and the placement check decides a learner's " +
     "level (ADR-020). A gap in a sentence whose English sits under it is not a " +
-    "reading question, and the level it produces is what the whole plan is built on.",
+    "reading question, and the level it produces is what the whole plan is built on. " +
+    "The English is in `item.because` instead, which this screen draws once the answer " +
+    "is in and the mark is taken: that is where it explains the form rather than " +
+    "handing it over.",
 
   "app/(app)/review/cloze/ClozeSession.tsx":
     "The learner's own pasted passage, which this app decodes and drops and never " +

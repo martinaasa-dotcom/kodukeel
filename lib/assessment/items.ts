@@ -2,8 +2,8 @@ import { CASES } from "@/lib/estonian/cases";
 import { buildCloze, ESTONIAN_WORD, mentions, naturalSentence, nominalOpener } from "@/lib/estonian/cloze";
 import { caseAnswer, stemsFrom } from "@/lib/estonian/derive";
 import { dictationWords } from "@/lib/estonian/dictation";
-import { CASE_NOTES } from "@/lib/estonian/grammar";
-import { formName } from "@/lib/estonian/morph";
+import { caseFromMorphCode, morphCodeOf } from "@/lib/estonian/morph";
+import { plainAsk } from "@/lib/estonian/plainAsk";
 import type { CaseKey } from "@/lib/estonian/types";
 import { unitIntroducing } from "@/lib/collections/syllabus";
 import { shuffle } from "@/lib/random/shuffle";
@@ -187,6 +187,19 @@ export interface Gap {
   text: string;
   /** The whole sentence, restored, which is the explanation afterwards. */
   full: string;
+  /**
+   * What the sentence means, where the dictionary already holds it.
+   *
+   * The English is the honest answer to "why that form", and on a syncretic
+   * spelling it is the only one: `laulu` is three cases at once and no rule in
+   * this app can parse which, so a learner told the sentence decides is told
+   * nothing they can act on. Put the sentence back in English and the role the
+   * ending is playing is visible. It ships, so this costs no call and no key
+   * (`lib/dict/exampleEnglish.ts`), and it is read *after* an answer is in:
+   * `Question.tsx` prints the gap alone, which is why the placement check is
+   * on `SENTENCE_WITHOUT_ENGLISH`.
+   */
+  en: string | null;
   /** The form that was taken out, spelled exactly as the sentence spelled it. */
   answer: string;
   /** Other forms of the same word, none of them standing in the sentence. */
@@ -299,41 +312,55 @@ export function gapFrom(word: WordRow): Gap | null {
     const pool = written.length >= 3 ? written : siblings;
     if (pool.length < 3) continue;
 
-    return { text: cloze.text, full: cloze.full, answer: cloze.answer, siblings: pool };
+    const en = example.en?.trim();
+    return {
+      text: cloze.text, full: cloze.full, answer: cloze.answer,
+      en: en || null, siblings: pool,
+    };
   }
   return null;
 }
 
 /**
- * What to call the form that was taken out, and what that form is for.
+ * What the form in the gap is for, in the words somebody would say out loud.
  *
- * Read off the dictionary first, because a stored form knows its own slot, and
- * only then off the derivation, because a form the app computed is named by
- * the case that computed it. Returns null where neither can say, which is the
- * honest answer for a participle nobody stored, and is why the explanation
- * below is written to work without it.
+ * THE NAME IS NOT THE EXPLANATION, WHICH IS WHAT THIS REPLACED. The version
+ * before it read "The gap takes laulu, which is laul in the omastav (of
+ * what?), the osastav (what? (some of it)) or the sisseütlev (into what? where
+ * to?). The sentence decides which." Every clause of that is true. It was
+ * reported off the level check as too wordy to read, and the reader was right
+ * twice over: three names and three bracketed questions is a paragraph of
+ * grammar vocabulary at somebody who has just answered a question, and not one
+ * of them says why `laulu` and not `laul`. A name is a thing you look up, and
+ * a learner mid-check has neither the room nor the reason.
+ *
+ * `lib/estonian/plainAsk.ts` is the layer under the name and was built for
+ * exactly this complaint one screen over: a clause a person who has never
+ * opened a grammar book can act on, keyed on the slot rather than written
+ * again here, so the flash card and this cannot say two different things about
+ * one ending. Nothing about CLAUDE.md's rule on the Estonian names is reversed
+ * by it: the grammar reference, the dictionary entry and every screen that
+ * *names* a case still lead with `seesütlev`, and this screen names none.
+ *
+ * Null wherever the app would have to guess, which is most of the interesting
+ * spellings. Estonian syncretism means `laulu` is the omastav, the osastav and
+ * the short sisseütlev at once, `tuba` is the nimetav and the osastav, and
+ * which one a sentence is using is a parse this app does not have and must not
+ * pretend to. The old copy answered that by listing all three; this answers it
+ * by saying nothing and letting the sentence and its English do the work, which
+ * is the one honest explanation available for a form the dictionary cannot
+ * place.
  */
-function nameForm(word: WordRow, value: string): FormName | null {
+function clauseFor(word: WordRow, value: string): string | null {
   const lower = value.toLowerCase();
+  const stored = word.forms.filter((f) => f.value.toLowerCase() === lower);
 
-  /*
-    Estonian syncretism means one spelling is often two cases: `trammi` is both
-    the omastav and the osastav, `tuba` is both the nimetav and the osastav,
-    and `kaarti` is the osastav and the short sisseütlev. Naming whichever the
-    dictionary happens to list first would state the wrong one about half the
-    time, in the sentence the learner is being told is the explanation.
-
-    So both are named and neither is claimed. The version before this returned
-    null for the pair and the explanation read "a form of kaart", which is the
-    least a sentence can say: a learner who wants to know why `kaarti` and not
-    `kaardi` is told that `kaarti` is a form, which they could see. Two names
-    and the sentence deciding between them is the honest answer and the useful
-    one, and it is the thing a class says about these words anyway.
-  */
   const claimed = new Set<CaseKey>();
-  for (const form of word.forms) {
-    if (form.value.toLowerCase() !== lower) continue;
-    const key = CASE_BY_FORM_TYPE[form.formType];
+  for (const form of stored) {
+    // The principal parts name their own slot; a retrieved form carries
+    // Ekilex's code, which `caseFromMorphCode` reads. Both, because a plural
+    // oblique is stored and is reached by neither of the other two.
+    const key = CASE_BY_FORM_TYPE[form.formType] ?? caseFromMorphCode(morphCodeOf(form));
     if (key) claimed.add(key);
   }
   const stems = stemsFrom(word.forms);
@@ -341,59 +368,16 @@ function nameForm(word: WordRow, value: string): FormName | null {
     const answer = caseAnswer(stems, spec.key);
     if (answer?.accepted.some((f) => f.toLowerCase() === lower)) claimed.add(spec.key);
   }
+  if (claimed.size > 0) return claimed.size === 1 ? plainAsk([...claimed][0]!) : null;
 
-  // A verb form is not a case and cannot be syncretic with one, so the stored
-  // slot names it outright: `aidata` is the da-tegevusnimi and nothing else.
-  const stored = word.forms.find((f) => f.value.toLowerCase() === lower);
-  if (stored && !CASE_BY_FORM_TYPE[stored.formType] && claimed.size === 0) {
-    const named = formName(stored);
-    if (named) return { names: [named] };
-  }
-
-  const specs = CASES.filter((c) => claimed.has(c.key));
-  if (specs.length === 0) return null;
-
-  // The plural slots name a case the app has no plural derivation for, so the
-  // stored name is the precise one where there is one: "mitmuse osastav". It
-  // can only stand in for a single claim, since one stored form names one slot.
-  const precise = specs.length === 1 && stored ? formName(stored) : null;
   /*
-    THE NAME IN BRACKETS IS WHAT THE CASE ASKS, NOT WHAT AN ENGLISH GRAMMAR
-    CALLS IT.
-
-    This read "the nimetav (nominative)" to somebody who has just been marked
-    wrong, which names the form twice in two languages they have met neither
-    of: the Latin name is a translation of a translation and the question is
-    the thing their own teacher says. A stored plural slot keeps its English
-    name, since "mitmuse osastav" is not a case with a question word of its
-    own and "partitive plural" is the true thing to say about it.
+    Not a case at all, so a verb form: `aidata` is the da-tegevusnimi and
+    nothing else, and a verb slot cannot be syncretic with a case. Two stored
+    codes on one spelling is the same ambiguity as two cases and gets the same
+    silence.
   */
-  const names = specs.map((spec) => ({
-    et: precise?.et ?? spec.et,
-    en: precise?.en ?? spec.asksEn,
-  }));
-  return {
-    names,
-    // Only where the form is one case. Two summaries is the explanation
-    // arguing with itself about which case the learner is looking at.
-    ...(specs.length === 1
-      ? { summary: CASE_NOTES.find((n) => n.key === specs[0]!.key)?.summary }
-      : {}),
-  };
-}
-
-/** What a form is called, and what that case is for where it is only one case. */
-interface FormName {
-  /** One name, or every name the spelling could be. Never a guess between them. */
-  names: readonly { et: string; en: string }[];
-  summary?: string;
-}
-
-/** "the nimetav (nominative)", or "the osastav (partitive) or the sisseütlev". */
-function nameList(names: readonly { et: string; en: string }[]): string {
-  const written = names.map((n) => `the ${n.et} (${n.en})`);
-  const last = written.pop()!;
-  return written.length === 0 ? last : `${written.join(", ")} or ${last}`;
+  const codes = new Set(stored.map(morphCodeOf).filter((c): c is string => !!c));
+  return codes.size === 1 ? plainAsk([...codes][0]!) : null;
 }
 
 /** The stored slots that are a case, so the case's own note can explain them. */
@@ -407,73 +391,35 @@ const CASE_BY_FORM_TYPE: Record<string, CaseKey | undefined> = {
  * Why that word and not one of the others.
  *
  * The sentence leads, because the sentence is the reason: put the word back
- * and a learner can see what the ending is doing. Then the form is named the
- * way a class names it, and `CASE_NOTES` says in one line what the case is
- * for and what the nearest English habit is. That table is the grammar
- * reference's own, so the explanation here and the page somebody opens next
- * cannot say two different things.
+ * and the ending is doing something a learner can see. What it means comes
+ * next, where the dictionary holds it, and that is the half this screen was
+ * missing: `Väljast kostab lindude laulu.` explains nothing to somebody who
+ * cannot read it, and "Birdsong can be heard outside." explains the form
+ * without naming a single case. Then one line saying which word was wanted,
+ * and, only where the dictionary can place the spelling without guessing, the
+ * plain clause `lib/estonian/plainAsk.ts` holds for that slot.
  *
- * **What it may not do is lead with the label.** The version this replaces
- * read "Here kõhn is in the nimetav, the nominative. The dictionary form. The
- * subject of a sentence, and what you point at.": three sentences of grammar
- * vocabulary at somebody who has just been told they were wrong, none of them
- * about the sentence in front of them. A learner reading feedback wants to
- * know what the gap was asking for, so the form comes first and its name comes
- * after it as the cross-reference it is. The Estonian name still leads the
- * English one, because that is the name a class and the state examination use
- * and an English label alone leaves a learner unable to follow their own
- * teacher.
- *
- * And it stops there. `CASE_NOTES` also carries an `englishHook` ("of the
- * book", "the book's cover") which was tried here and made the nominative read
- * "The dictionary form. The subject of a sentence, and what you point at.
- * Closest to plain English word order: the thing doing the verb.", which is
- * the same claim three times at somebody who wanted one line. The grammar
- * reference is where a learner goes for more, and the summary already says
- * what the case is for in the register a class uses.
- *
- * Where the form cannot be named the sentence stands alone, which is still an
- * answer.
- */
-/**
- * The same explanation, without the sentence in front of it.
- *
- * Split out for a caller that has already shown the sentence some other way,
- * with the form marked inside it, and would otherwise print it twice: the
- * learn ladder's gap rung reveals the sentence bolded on the form before this
- * is read, and prepending it a second time is the exact fault the comment on
- * `explainGap` describes about a syncretic form printed twice and explaining
- * nothing.
+ * **What it may not do is lead with the label, or reach for one at all.** Two
+ * versions of this have now been reported as unreadable, and both were the
+ * same fault at different lengths: "Here kõhn is in the nimetav, the
+ * nominative. The dictionary form. The subject of a sentence, and what you
+ * point at.", and then three names with three bracketed questions after it.
+ * The grammar reference is where a learner goes to be told what a case is
+ * called; a screen marking an answer is not.
  */
 export function explainForm(word: WordRow, answer: string): string {
-  const named = nameForm(word, answer);
-  const plain = answer.toLowerCase() === word.lemma.toLowerCase();
-
-  /*
-    The gap is named before the case is, and it is named even when the case
-    cannot be. Estonian syncretism means `kivi` is the nimetav, the omastav and
-    the osastav all at once, and `nameForm` correctly refuses to pick one; the
-    version this replaced returned the sentence on its own in that case, which
-    on the writing screen printed the sentence twice and explained nothing.
-    "The gap takes kivi exactly as the dictionary spells it" is short and is
-    the useful half, and the label is added on top wherever there is one to
-    add.
-  */
-  const where = named ? nameList(named.names) : null;
-  const decides = named && named.names.length > 1 ? " The sentence decides which." : "";
-  const takes = plain
-    ? where
-      ? `The gap takes ${word.lemma} unchanged, in ${where}.`
-      : `The gap takes ${word.lemma} unchanged.`
-    : where
-      ? `The gap takes ${answer}, which is ${word.lemma} in ${where}.`
-      : `The gap takes ${answer}, a form of ${word.lemma}.`;
-
-  return [takes + decides, named?.summary].filter(Boolean).join(" ");
+  if (answer.toLowerCase() === word.lemma.toLowerCase()) {
+    // The clause here would be "as the plain dictionary word", which is the
+    // sentence above it again.
+    return `The gap takes ${word.lemma} exactly as the dictionary spells it.`;
+  }
+  const takes = `The gap takes ${answer} rather than ${word.lemma}.`;
+  const clause = clauseFor(word, answer);
+  return clause ? `${takes} That is the form you use ${clause}.` : takes;
 }
 
 export function explainGap(word: WordRow, gap: Gap): string {
-  return [gap.full, explainForm(word, gap.answer)].filter(Boolean).join(" ");
+  return [gap.full, gap.en, explainForm(word, gap.answer)].filter(Boolean).join(" ");
 }
 
 // ── Reading ──────────────────────────────────────────────────────────────────

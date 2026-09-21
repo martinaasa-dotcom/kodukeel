@@ -457,29 +457,39 @@ describe("a writing gap never prints the answer above the box", () => {
 });
 
 describe("the explanation after a gap", () => {
-  it("leads with the sentence and the word, not with the label", () => {
-    const items = writingItems(WORDS, mulberry32(3));
-    const explained = items.find((i) => i.because.length > 0);
+  it("leads with the sentence and what it means, not with a label", () => {
+    // `tuba` with the one sentence the shipped dictionary holds an English
+    // line for, since that line is what this is about.
+    const tuba: WordRow = {
+      ...WORDS.find((w) => w.lemma === "tuba")!,
+      examples: [{ et: "Ma olen praegu toas.", en: "I am in the room right now." }],
+    };
+    const explained = writingItems([tuba], mulberry32(3)).find((i) => i.because.length > 0);
     expect(explained, "no written gap was built").toBeDefined();
     /*
-      The version this replaced opened "Here toas is in the seesütlev, the
-      inessive.", which is grammar vocabulary at somebody who has just been
-      told they were wrong. The sentence comes first, then the gap, then the
-      name as the cross-reference it is.
+      Two versions of this have been reported as unreadable and both were the
+      same fault at different lengths: "Here toas is in the seesütlev, the
+      inessive.", and then a form named as three cases with three bracketed
+      questions after it. The sentence comes first, then what it means, which
+      is the half that was missing and is the honest answer to "why that form".
     */
     expect(explained!.because.startsWith(explained!.full)).toBe(true);
-    expect(explained!.because).toContain("The gap takes");
+    expect(explained!.because).toContain("I am in the room right now.");
+    expect(explained!.because).toContain("The gap takes toas rather than tuba.");
+    // And the clause `lib/estonian/plainAsk.ts` holds for the slot, which is
+    // what a person would say out loud rather than what a class calls it.
+    expect(explained!.because).toContain("when something is inside it");
   });
 
-  it("names both cases when one spelling is two, and claims neither", () => {
+  it("says nothing about the slot when one spelling is two cases", () => {
     /*
-      `tuba` is the nimetav and the osastav; `kaarti` is the osastav and the
-      short sisseütlev. This used to return "a form of kaart", which tells a
-      learner what they could already see. Naming both and saying the sentence
-      decides is honest and is what a class says about these words.
+      `kaarti` is the osastav and the short sisseütlev; `laulu` is three cases
+      at once, which is what a learner reported this off. Which one a sentence
+      is using is a parse this app does not have. The version before this
+      listed all three and let the learner sort it out, which is a paragraph of
+      grammar vocabulary that answers nothing; the sentence is the explanation
+      here and the line above it stops at the form.
     */
-    // kaart, copied from the seeded dictionary: PART_SG and ILL_SG_SHORT are
-    // both `kaarti`, which is why `nameForm` may not pick one of them.
     const kaart: WordRow = {
       id: "kaart", lemma: "kaart", translation: "map, card", pos: "NOUN", cefr: "A2", government: null,
       forms: [
@@ -492,29 +502,36 @@ describe("the explanation after a gap", () => {
       ],
       examples: [{ et: "Õpilased uurisid tunnis Euroopa kaarti." }],
     };
-    const both = writingItems([kaart], mulberry32(3))
-      .map((i) => i.because)
-      .find((b) => b.includes(" or the "));
-    expect(both, "no syncretic form turned up").toBeDefined();
-    expect(both).toContain("The sentence decides which.");
-    // And no summary, because two summaries is the explanation arguing with
-    // itself about which case the learner is looking at.
-    expect(both!.endsWith("The sentence decides which.")).toBe(true);
+    const because = writingItems([kaart], mulberry32(3)).map((i) => i.because);
+    expect(because.length, "no syncretic form turned up").toBeGreaterThan(0);
+    for (const line of because) {
+      expect(line).toContain("The gap takes kaarti rather than kaart.");
+      expect(line.endsWith("The gap takes kaarti rather than kaart.")).toBe(true);
+    }
   });
 
-  it("names the form in Estonian first and says what it asks after it", () => {
-    // CLAUDE.md's rule, which the plainer wording may not quietly reverse: a
-    // learner in a class hears the Estonian name and needs it to lead. What
-    // follows it in brackets is what the case is asking rather than the Latin
-    // name, which is a translation of a translation to somebody who has met
-    // neither: see `lib/estonian/cases.ts`.
-    const withCase = writingItems(WORDS, mulberry32(3))
-      .map((i) => i.because)
-      .find((b) => /\b(seesütlev|nimetav|omastav|osastav)\b \(/.test(b));
-    expect(withCase, "no case was named at all").toBeDefined();
-    expect(withCase).toMatch(/\((who\?|what\?|whose\?|of what\?|whom\?|in whom\?)/);
-    expect(withCase, "the Latin name is back in the brackets")
-      .not.toMatch(/\(inessive\)|\(nominative\)|\(genitive\)|\(partitive\)/);
+  it("never names a case, in Estonian or in Latin", () => {
+    /*
+      The rule this screen is held to, reported off the level check: a name is
+      a thing you look up, and a learner who has just answered a question has
+      neither the room nor the reason. CLAUDE.md's rule about the Estonian
+      names leading is not reversed by it, since this screen names none: the
+      grammar reference, the dictionary entry and every screen that does name a
+      case still lead with `seesütlev`.
+    */
+    const explained = [
+      ...writingItems(WORDS, mulberry32(3)).map((i) => i.because),
+      ...readingItems(WORDS, mulberry32(3)).map((i) => i.because),
+    ].filter((b) => b.includes("The gap takes"));
+    expect(explained.length, "no gap explanation was built at all").toBeGreaterThan(0);
+    for (const line of explained) {
+      for (const spec of CASES) {
+        expect(line.toLowerCase(), `the explanation names the ${spec.et}`)
+          .not.toContain(spec.et.toLowerCase());
+        expect(line.toLowerCase(), `the Latin name is back: ${spec.en}`)
+          .not.toContain(`(${spec.en.toLowerCase()})`);
+      }
+    }
   });
 });
 

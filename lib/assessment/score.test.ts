@@ -19,7 +19,9 @@ const write: WriteItem = {
   question: "Write tuba in the form this sentence needs.", translation: "room",
   sentence: "Ma olen praegu ____.", full: "Ma olen praegu toas.",
   targetForm: "toas", otherForms: ["toa", "tuppa", "toast"], source: "usage",
-  because: "Ma olen praegu toas. The gap takes toas, which is tuba in the seesütlev (inessive).",
+  because:
+    "Ma olen praegu toas. I am in the room right now. The gap takes toas rather than tuba. " +
+    "That is the form you use when something is inside it.",
 };
 
 const answer = (over: Partial<Response>): Response =>
