@@ -702,6 +702,9 @@ export async function letterInputFor(
         ladder: {
           target,
           pct: ladder.pct,
+          /* The credited half of that percentage, so the letter can name it.
+             Read off the same two fields the card on Today subtracts. */
+          assumed: ladder.credited - ladder.verified,
           /*
             THE NEXT STOP'S OWN DISTANCE, NOT THE WHOLE CLIMB'S.
 

@@ -5071,6 +5071,33 @@ confidence the hand-off warning exists to catch, drawn as a picture. The band is
 own, so a word learned outside the course counts toward the level it belongs to, and each level is
 clamped to what the ladder asks for rather than summed raw.
 
+**And a level behind the one somebody stands at is counted without being checked, because the rule
+above on its own described the review log rather than the learner.** A B1 speaker opened Today on
+their first morning and read "6% through A1", over a course that had correctly started them at
+B1.1, and reported the card as disconnected from reality. It was: every figure on it was true about
+this app's scheduler, none of it was true about somebody who has been speaking Estonian for a year,
+and the app was holding two answers to where they are and drawing the less informed one. So
+`ladderProgress` takes a `standing` and the levels below it are **credited**: `assumed` is its own
+stop state, the bar is two bands, and the split is printed rather than smoothed over, 46 checked
+beside 688 assumed. Nothing is stored for it (ADR-014), since the standing is one read and the
+arithmetic is pure.
+
+**An assumption may never pass for a measurement, and three things hold that.** `assumed` is not
+`passed`, which matters one module over: `lib/email/letters/milestone.ts` fires on a level the
+scheduler graduated and carries a high-water mark, so folding the two together would post a
+congratulation for a band somebody ticked in a dropdown and burn the real one on the way past.
+`arrived` stays verified only, because the sentence it turns says the learner knows every word the
+level asks for and an assumption cannot say that about anybody, so a learner standing above their
+own target has a full bar and has not arrived. And every screen drawing the credited figure draws
+the checked one beside it, asserted, since `pct` is the credited share now and a card reading it
+alone would publish an estimate in a measurement's clothes. **The credit converts rather than
+sitting there**: each assumed stop carries its own checked count, `30 of 493 checked so far`, which
+is nought on the first morning and climbs on its own, and at full it becomes `passed` like any
+other. `here` is the first stop that is neither passed nor credited rather than the first with a
+hole in it, or the weekly letter would name A1 as the next stop to somebody working through B1.
+`courseStandingFor` is the one reader, beside `courseLevelFor` and sharing its `pre-A1` rule, so
+the bar and the evening under it cannot disagree about which band somebody is on.
+
 **And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
 four questions does not want a home page, they want to be told what to do tonight. The last screen
 names the part they open on, how long an evening takes and what tonight holds, shows the whole
