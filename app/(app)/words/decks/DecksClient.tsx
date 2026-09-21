@@ -205,7 +205,11 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
         ) : (
           <span className="flex items-center gap-1">
             {deck.wordCount > 0 && (
-              <ButtonLink href={`/review/deck/${deck.id}`} variant="primary" size="sm">
+              // `size="sm"` alone leaves this under the 44px floor: the
+              // coarse-pointer rule in app/globals.css reaches `button` and
+              // `a.pill`, not a bare `ButtonLink` anchor, so a thumb-sized
+              // minimum has to be asked for explicitly here.
+              <ButtonLink href={`/review/deck/${deck.id}`} variant="primary" size="sm" className="min-h-11">
                 <Play size={13} aria-hidden /> Practice
               </ButtonLink>
             )}

@@ -5,6 +5,7 @@ import { glossLanguageFrom } from "@/lib/collections/glossLanguage";
 import { readSetting, SETTING_KEYS } from "@/lib/settings/store";
 import { shuffle } from "@/lib/random/shuffle";
 import { leastPractisedSlot } from "@/lib/srs/mastery";
+import { LADDER_CARD_TYPE, LADDER_STATES } from "@/lib/learn/ladder";
 import { deckLexemeIds, deckName } from "@/lib/progress/decks";
 import { ButtonLink } from "@/components/Button";
 import { Empty, Page } from "@/components/ui";
@@ -71,19 +72,57 @@ export default async function DeckRoundPage({ params }: {
   const picked = leastPractisedSlot(cards, new Set(lexemeIds)).slice(0, ROUND);
 
   if (picked.length === 0) {
+    /*
+      A WORD ON THE SHELF THAT HAS NEVER BEEN MET IS THE COMMON CASE, AND THE
+      OLD MESSAGE SENT SOMEBODY BACK TO THE SAME EMPTY SCREEN.
+      `notOnLadder` above correctly withholds a word whose own recognition
+      card is still New or Learning, because meeting a word is Learn's job
+      and not this round's (`lib/learn/ladder.ts`): a deck filed straight from
+      the dictionary is exactly this shape, every word unmet, and the round
+      had nothing to say but "open your decks", which is where the learner
+      already was. So this asks which of the two emptied it and sends them to
+      the one place that actually helps: `/learn`, the same door Tähed opens
+      onto for the identical reason.
+    */
+    const unmet = lexemeIds.length === 0 ? 0 : await prisma.card.count({
+      where: {
+        ownerId, lexemeId: { in: lexemeIds },
+        cardType: LADDER_CARD_TYPE, state: { in: [...LADDER_STATES] },
+      },
+    });
     return (
       <Page title={name} lead="Asked in a different form each time, until they stick.">
         <div className="flex flex-col gap-4">
           <Empty
-            title={lexemeIds.length === 0 ? "Nothing on this shelf yet" : "Nothing to ask right now"}
+            title={
+              lexemeIds.length === 0 ? "Nothing on this shelf yet"
+                : unmet > 0 ? "Not met yet"
+                : "Nothing to ask right now"
+            }
             body={
               lexemeIds.length === 0
                 ? "Add a word to this deck from its dictionary entry, or file one you already have."
-                : "Every word here is either still settling into your ladder or has no form left to ask for."
+                : unmet > 0
+                  ? (unmet === 1
+                    ? "This word has not been met yet. Meet it on the learning path, and it will show up here."
+                    : "These words have not been met yet. Meet them on the learning path, and they will show up here.")
+                  : "Every word here has already been asked in every way this round can ask it."
             }
-            action={<ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>}
+            action={
+              unmet > 0
+                ? <ButtonLink href="/learn" variant="primary">{unmet === 1 ? "Meet it" : "Meet them"}</ButtonLink>
+                : <ButtonLink href="/words/decks" variant="primary">Open your decks</ButtonLink>
+            }
           />
-          <SuggestFix category="BROKEN" trigger={`/review/deck/${deckId} had no cards to ask`} />
+          {/*
+            Withheld where a word on the shelf simply has not been met yet:
+            that is not broken, it is the ordinary state of a deck built
+            straight from the dictionary, and the button above already says
+            what to do about it. Kept for the state nothing here explains.
+          */}
+          {unmet === 0 && (
+            <SuggestFix category="BROKEN" trigger={`/review/deck/${deckId} had no cards to ask`} />
+          )}
         </div>
       </Page>
     );
