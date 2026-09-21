@@ -696,7 +696,21 @@ check("every rate is the one clip stretched in one place, and every clip is prep
   );
   const player = code("lib/audio/clip.ts");
   assert.match(player, /stretch\(decodeWav\(/, "the player stopped stretching the clip it plays");
-  assert.match(player, /request\.slow\) return pace\.slow/, "the slow play stopped reading the learner's own slow rate");
+  /*
+    The slow rate used to be `pace.slow` outright — a fraction of the raw
+    pace, ignoring any ceiling the caller asked for. That made the slow
+    button barely distinguishable from the everyday play wherever a screen's
+    own rate ceiling (dictation's LEARNING_RATE) already bound the everyday
+    rate below the raw pace: reported as sounding identical. The slow rate is
+    a fraction of `base`, which is the ceiling-capped rate this request
+    actually plays at, so the button is always a real step down from what was
+    just heard.
+  */
+  assert.match(
+    player,
+    /request\.slow\) return Math\.max\(SLOWEST, base \* SLOW_OF_NORMAL\)/,
+    "the slow play stopped stepping down from the rate this request actually plays at",
+  );
   assert.match(player, /pace = request\.pace \?\? DEFAULT_PACE/, "the everyday play stopped reading the learner's own pace");
   assert.match(player, /stretchedClip\(request, rateFor\(request\)\)/, "playClip plays a clip at a rate it did not work out through rateFor");
   const browserStretch = ["app", "lib", "components"]
