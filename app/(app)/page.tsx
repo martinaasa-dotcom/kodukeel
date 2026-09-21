@@ -324,11 +324,23 @@ export default async function TodayPage() {
     unit is a button, which is the honest next thing on a day the learner has
     earned.
   */
+  /*
+    THE ONE THING THE LEAD ABOVE DOES NOT ALREADY SAY.
+
+    This was a green `Note` reading "You are caught up. Reviewing early does
+    not help you remember more, so now is a good time to learn something new",
+    drawn under a hero whose own line reads "Nothing due right now. A good time
+    to meet some new words." Two thirds of it was the sentence directly above
+    it in a coloured box, and the third that was not is the only part a learner
+    could not have worked out: that coming back early buys nothing. So the
+    reason is what is left, in the app's own voice rather than in a panel,
+    because a neutral fact painted mint reads as a reward for having done
+    nothing.
+  */
   const caughtUpNote = (
-    <Note tone="good">
-      You are caught up. Reviewing early does not help you remember more, so now is a
-      good time to learn something new.
-    </Note>
+    <p className="text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
+      Reviewing early does not help you remember more.
+    </p>
   );
   const actions = learnFirst ? (
     <>
@@ -355,9 +367,6 @@ export default async function TodayPage() {
     </>
   ) : (
     <>
-      {/* The note sits beside the button where there are figures to fill the
-          other half, and takes that half itself where there are none. */}
-      {figures && caughtUpNote}
       {nextUnit ? (
         <ButtonLink href={`/learn/${nextUnit.unit.id}/lesson`} variant="secondary" className="w-full justify-center">
           Meet {uiText(placement, nextUnit.unit.title, nextUnit.unit.subtitle)} <ArrowRight size={16} aria-hidden />
@@ -707,7 +716,9 @@ export default async function TodayPage() {
   */
   const questCard = questDay ? (
     <Card tone="accent">
-      <SectionTitle hint="two minutes">Daily quest</SectionTitle>
+      {/* No "two minutes" hint: the line under this says it, and a figure
+          printed twice on one card is a figure nobody is checking. */}
+      <SectionTitle>Daily quest</SectionTitle>
       <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {weakest ? (
           <>
@@ -823,9 +834,9 @@ export default async function TodayPage() {
       <SectionTitle hint={WEEKDAY_LONG[weekdayOf(summary.dayKey)]}>
         {featuredMode ? "Today's game" : "Today's conversation"}
       </SectionTitle>
-      <p className="mt-1 text-lg font-semibold" style={{ color: "var(--ink)" }}>
-        {featuredName}
-      </p>
+      {/* The name once, on the button that opens it. It used to be a heading
+          of its own as well, so a card of four lines spent two of them saying
+          the same word. */}
       <p className="mt-1 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>
         {featured.why}
       </p>

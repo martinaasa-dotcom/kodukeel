@@ -218,6 +218,18 @@ export interface RetentionReading {
   target: number;
   verdict: "unknown" | "on-target" | "above" | "below";
   headline: string;
+  /**
+   * What to do about it, and **not** what the figure is.
+   *
+   * Every one of these opened by reading the percentage and the target back
+   * out ("You are remembering 82% of your long-term cards, and the schedule is
+   * built for 90%"), on a card that draws the percentage in a 78px ring, puts
+   * it in the ring's own label, and prints the recalled-of-reviews count and
+   * the target on the line underneath. The same two numbers, four times, in
+   * one panel. Advice is the half none of that can carry, so advice is what is
+   * left: the figures are the card's to print and this is the sentence saying
+   * what to change.
+   */
   advice: string;
 }
 
@@ -238,7 +250,9 @@ export function retentionReading(
       target,
       verdict: "unknown",
       headline: "Not enough long-term reviews yet",
-      advice: `This compares how often you recall a card the scheduler thought you knew against the ${target}% it aims for. It needs about ${minimum} such reviews to mean anything, you have ${count}.`,
+      // The one branch whose figures are not on the card already, because the
+      // ring has nothing to draw and prints a dash.
+      advice: `It takes about ${minimum} reviews of cards the scheduler thought you knew. You have ${count}.`,
     };
   }
 
@@ -252,7 +266,7 @@ export function retentionReading(
       reviews: count, recalled, retention, target,
       verdict: "above",
       headline: "You are remembering more than expected",
-      advice: `You are getting ${retention}% of your long-term cards right, and the schedule is built for ${target}%. That is comfortable rather than wrong. It usually means there is room for more new words each day, so raise the daily goal in Settings before adding another mode.`,
+      advice: "Comfortable rather than wrong. There is room for more new words each day, so raise the daily goal in Settings.",
     };
   }
 
@@ -261,7 +275,7 @@ export function retentionReading(
       reviews: count, recalled, retention, target,
       verdict: "below",
       headline: "You are forgetting more than expected",
-      advice: `You are remembering ${retention}% of your long-term cards, and the schedule is built for ${target}%. Usually that means too many new cards at once, or cards added before the grammar behind them made sense. Ease off new words for a week, and read up on whichever case the list below keeps flagging.`,
+      advice: "Usually too many new cards at once. Ease off new words for a week, and read up on whichever case the list below keeps flagging.",
     };
   }
 
@@ -269,6 +283,6 @@ export function retentionReading(
     reviews: count, recalled, retention, target,
     verdict: "on-target",
     headline: "The schedule is working",
-    advice: `You are remembering ${retention}% of your long-term cards, against a target of ${target}%. That is exactly where it should be. Nothing to change.`,
+    advice: "Exactly where it should be. Nothing to change.",
   };
 }

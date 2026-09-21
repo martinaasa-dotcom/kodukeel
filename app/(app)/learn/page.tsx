@@ -99,7 +99,10 @@ export default async function LearnPage() {
       */}
       <LearnCard waiting={counts.waiting} started={counts.started} phrases={counts.phrases} />
 
-      <SectionTitle hint={`A1 to C1 · working at ${placement}`}>The course</SectionTitle>
+      {/* The level is on the card three lines below, so the hint says the span
+          and stops. It read "A1 to C1 · working at B1" over "You are working at
+          B1", which is the same fact twice inside one screenful. */}
+      <SectionTitle hint="A1 to C1">The course</SectionTitle>
       {/*
         Stacked on a phone, one row above it. `flex-wrap` alone looked right and
         was not: at 390px the ring and the button both stayed on the row and
@@ -196,6 +199,9 @@ export default async function LearnPage() {
                         height={7}
                       />
                     </span>
+                    {/* The counts stay: the `Meter` beside this draws a bar and
+                        carries its figures in an `aria-label`, so this line is
+                        the only place a sighted reader sees them. */}
                     <span className="tnum text-xs" style={{ color: "var(--ink-3)" }}>
                       {rows.length} units · {known}/{words} words
                     </span>
