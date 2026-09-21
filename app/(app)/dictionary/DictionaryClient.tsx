@@ -3,7 +3,7 @@
 import { equivalentIn, type GlossLanguage } from "@/lib/collections/glossLanguage";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Camera, Check, Plus, ScissorsLineDashed, Search, Star, TrendingUp } from "lucide-react";
 import { addToDeck } from "@/app/actions";
 import { DeckChoiceList, useDeckChoice } from "@/components/DeckChoice";
@@ -609,7 +609,20 @@ function Entry({ entry, tutorReady, glossLanguage }: {
 
   return (
     <Card className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+      {/*
+        `relative` so `AddToDeck`'s open panel can anchor `right-0` to this
+        header's own right edge rather than to wherever its trigger happens
+        to sit once the row below wraps. Anchoring to the trigger's own
+        collapsed slot was tried first and was wrong for the reason this
+        whole fix exists: on a narrow screen a long gloss pushes the title
+        to fill the row, the button group drops to its own line and
+        left-aligns instead of hugging the right edge, and `right-0` from
+        that point pushes the panel further left, off the edge of the
+        screen. The header's own box does not move regardless of how its
+        children wrap, so anchoring there is anchoring is guaranteed rather
+        than incidental.
+      */}
+      <header className="relative flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
             <h2 lang="et" className="text-3xl font-bold leading-none" style={{ color: "var(--ink)" }}>
@@ -1009,6 +1022,35 @@ function AddToDeck({ entry }: { entry: EntryView }) {
     the button and not the question.
   */
   const choice = useDeckChoice(entry.id, open);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  /*
+    CLOSES ON ESCAPE AND ON A CLICK OUTSIDE, LIKE ANY OTHER FLOATING PANEL.
+
+    This became an overlay that sits on top of the rest of the page rather
+    than a block in the document's own flow (see the anchoring comment
+    below), and an overlay with no way out but its own Cancel button is a
+    trap for a keyboard user and a surprise for a mouse user who clicks past
+    it expecting it to behave like the rest of this app's inline content.
+    `mousedown` rather than `click` so a drag that starts inside the panel
+    and is released outside it (selecting the panel's own text) does not
+    close it out from under the selection.
+  */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("mousedown", onClick);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("mousedown", onClick);
+    };
+  }, [open]);
 
   const submit = () => {
     start(async () => {
@@ -1034,53 +1076,71 @@ function AddToDeck({ entry }: { entry: EntryView }) {
   }
 
   /*
-    ANCHORED TO ITS OWN TRIGGER RATHER THAN LAID OUT AS A FLEX SIBLING.
+    ANCHORED TO THE HEADER'S OWN RIGHT EDGE, NEVER TO THE TRIGGER'S SLOT.
 
     This used to be an ordinary child of the header's button row, sized
     `w-full md:w-80`. A long gloss (a word spelled two ways, several senses)
     leaves that row too little space for the panel to sit beside Star and
     Edit, and `flex-wrap` on the header answers by dropping the whole thing
     onto its own line below the word, full width, which is not "beside the
-    other buttons" and reads as broken. `absolute` takes it out of that flow
-    entirely, so nothing it does can move the star, the edit button or the
-    title above it, at any width or gloss length.
+    other buttons" and reads as broken.
+
+    Anchoring `right-0` to a wrapper around just this trigger was tried
+    first and is wrong the same way: that wrapper only sits at the card's
+    right edge because `justify-between` puts it there when everything fits
+    on one line. The moment the row wraps, that group left-aligns instead,
+    so `right-0` from the trigger's own collapsed slot pushes a 320px panel
+    further left and off the edge of a phone screen, which is the same
+    failure this fix exists to remove, one anchor point further in. The
+    header carries `relative` instead, so `right-0` here is the header's
+    own right edge, which does not move no matter how its children wrap.
+
+    The width is bounded by that same box rather than by a guess about the
+    viewport: `w-full` on an absolutely positioned element is a percentage
+    of its containing block, which is the header, so it can never exceed
+    the card's own content width. `max-w-[20rem]` is the cap on top of
+    that for a wide card, where the header is far wider than a checkbox
+    list needs. `calc(100vw - 2.5rem)` was tried first and measured a
+    pixel too wide on a real phone, because it assumes the header sits
+    exactly 1.25rem from the viewport edge, which is the card's own
+    padding on one side and whatever the page around it does on the
+    other; the header's real width has no such assumption to get wrong.
   */
   return (
-    <div className="relative">
-      <div
-        className="absolute right-0 top-full z-40 mt-2 w-[min(20rem,calc(100vw-2.5rem))] rounded-[var(--r-lg)] p-5 shadow-lg"
-        style={{ background: "var(--raised)" }}
-      >
-        <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards?</p>
-        <div className="flex flex-col gap-2">
-          {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
-            <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
-              <input
-                type="checkbox"
-                checked={selected.includes(t.type)}
-                onChange={(e) =>
-                  setSelected((s) => (e.target.checked ? [...s, t.type] : s.filter((x) => x !== t.type)))
-                }
-                className="mt-0.5"
-              />
-              <span>
-                <span style={{ color: "var(--ink)" }}>{t.label}</span>
-                <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t.description}</span>
-              </span>
-            </label>
-          ))}
+    <div
+      ref={panelRef}
+      className="absolute right-0 top-full z-40 mt-2 w-full max-w-[20rem] rounded-[var(--r-lg)] p-5"
+      style={{ background: "var(--raised)", boxShadow: "var(--shadow-lg)" }}
+    >
+      <p className="label-xs mb-3" style={{ color: "var(--ink-3)" }}>Which cards?</p>
+      <div className="flex flex-col gap-2">
+        {CARD_TYPES.filter((t) => available.includes(t.type)).map((t) => (
+          <label key={t.type} className="flex cursor-pointer items-start gap-2.5 text-sm" style={{ color: "var(--ink-2)" }}>
+            <input
+              type="checkbox"
+              checked={selected.includes(t.type)}
+              onChange={(e) =>
+                setSelected((s) => (e.target.checked ? [...s, t.type] : s.filter((x) => x !== t.type)))
+              }
+              className="mt-0.5"
+            />
+            <span>
+              <span style={{ color: "var(--ink)" }}>{t.label}</span>
+              <span className="block text-xs" style={{ color: "var(--ink-3)" }}>{t.description}</span>
+            </span>
+          </label>
+        ))}
+      </div>
+      {choice.asks && choice.decks && (
+        <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
+          <DeckChoiceList decks={choice.decks} deckIds={choice.deckIds} toggle={choice.toggle} />
         </div>
-        {choice.asks && choice.decks && (
-          <div className="mt-4 border-t pt-4" style={{ borderColor: "var(--rule)" }}>
-            <DeckChoiceList decks={choice.decks} deckIds={choice.deckIds} toggle={choice.toggle} />
-          </div>
-        )}
-        <div className="mt-4 flex gap-2">
-          <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-          <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">
-            {pending ? "Adding…" : "Add"}
-          </Button>
-        </div>
+      )}
+      <div className="mt-4 flex gap-2">
+        <Button variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button variant="primary" onClick={submit} disabled={pending || selected.length === 0} className="flex-1">
+          {pending ? "Adding…" : "Add"}
+        </Button>
       </div>
     </div>
   );
