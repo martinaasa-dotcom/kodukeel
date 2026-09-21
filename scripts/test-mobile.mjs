@@ -40,7 +40,18 @@ const browser = await launchChromium();
   65 rather than 62: a conversation is started on a phone and asked where it
   opened, which is three checks and the one width that can fail them.
 */
-const { check, done } = suite("The phone", { floor: 71 });
+/*
+  +2: the primary `lg` button (Button.tsx) steps its size with the window,
+  compact by default and full size from `2xl` (1536px) up, and nothing had
+  ever asked whether that step actually happens. It nearly shipped broken
+  twice: two earlier attempts at its 44px floor used a `min-h-*` Tailwind
+  utility that a higher-specificity rule in globals.css was silently
+  overriding, so the class was present in the source and in the DOM and did
+  nothing at all. A class sitting inert in markup is invisible to every check
+  that only reads the source, which is what made it worth measuring here
+  instead.
+*/
+const { check, done } = suite("The phone", { floor: 73 });
 
 async function open(width, height, path) {
   const ctx = await browser.newContext({
@@ -589,6 +600,60 @@ for (const [width, height] of [[390, 664], [360, 640]]) {
     /in place/.test(text) && /in the word, elsewhere/.test(text) && /not in the word/.test(text),
     text.slice(0, 80).replace(/\n+/g, " "));
   await ctx.close();
+}
+
+/*
+  The `lg` button, at a laptop width and at a window wide enough to be the
+  `2xl` step. Found by its class rather than by its text or its screen,
+  because the button reads differently by the day the demo data lands on
+  ("Start tonight", "Learn 5 new words", "Start reviewing") and the marker
+  that says "this is an `lg` primary button" has to survive that: every
+  breakpoint's utility classes are always present in the rendered `class`
+  attribute, whether or not their media query currently applies, so
+  `2xl:text-base` is a stable, load-bearing fingerprint of the size rather
+  than of any one day's copy.
+*/
+{
+  /*
+    Font-size and horizontal padding, not height. `py-3.5` is deliberately the
+    same at both steps (Button.tsx's own comment says why: it is what already
+    clears 44px on its own, so the responsive step does not need to touch it),
+    and a first version of this check asked for the height to grow by more
+    than 8px and failed against the real, correct rendering: 52.84px at 1280
+    against 55.5px at 1536, a few pixels of it coming from the 1px taller
+    line-height `text-base` carries over `text-sm`. That was this check
+    inventing a number rather than measuring one, the exact mistake it exists
+    to catch elsewhere. What `SIZES.lg` actually declares stepping is the
+    font-size (16px to 17px) and the left/right padding (20px to 24px), so
+    those are what is asked for.
+  */
+  const measureAt = async (width) => {
+    const { ctx, page } = await open(width, 900, "/");
+    const m = await page.evaluate(() => {
+      const el = [...document.querySelectorAll("a,button")]
+        .find((e) => e.className.includes("2xl:text-base"));
+      if (!el) return null;
+      const s = getComputedStyle(el);
+      return { fontSize: parseFloat(s.fontSize), paddingLeft: parseFloat(s.paddingLeft), height: el.getBoundingClientRect().height };
+    });
+    await ctx.close();
+    return m;
+  };
+  const compact = await measureAt(1280);
+  const wide = await measureAt(1536);
+  check("the lg button clears 44px at a laptop width", compact !== null && compact.height >= 44, JSON.stringify(compact));
+  /*
+    Bigger rather than merely "not clamped down to it": two earlier attempts
+    at this button's floor used a `min-h-*` Tailwind utility that a
+    higher-specificity rule in globals.css was silently overriding, so the
+    class was present in the source and in the DOM and did nothing at all. A
+    check that only asked "still >= 44?" would have passed against that
+    exact bug, both times.
+  */
+  check("and its text and horizontal padding grow at the 2xl step",
+    compact !== null && wide !== null
+      && wide.fontSize > compact.fontSize && wide.paddingLeft > compact.paddingLeft,
+    `${JSON.stringify(compact)} at 1280, ${JSON.stringify(wide)} at 1536`);
 }
 
 await browser.close();
