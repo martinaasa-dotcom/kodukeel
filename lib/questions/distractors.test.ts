@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   caseNearness, differentMeaning, differentSentence, differentText,
   formNearness, glossNearness, glossOption, pickOptions, sameMeaning, sameSentence,
-  sentenceNearness, sentenceOption, type GlossOption,
+  sentenceNamesTheAnswer, sentenceNearness, sentenceOption, type GlossOption,
 } from "./distractors";
 import { CASES, caseByKey } from "@/lib/estonian/cases";
 import { mulberry32 } from "@/lib/assessment/items";
@@ -99,6 +99,35 @@ describe("what counts as the same answer", () => {
     const overlapping = sentenceOption("The room is cold today.");
     const unrelated = sentenceOption("He sold his bicycle to a neighbor last year.");
     expect(sentenceNearness(overlapping, answer)).toBeGreaterThan(sentenceNearness(unrelated, answer));
+  });
+
+  it("never lets a question stand out among three statements, or the reverse", () => {
+    const answer = sentenceOption("Why do you always have to recite a poem to get a present?");
+    // Shares no vocabulary and is a much shorter statement, and still has to
+    // outrank a question that shares nothing else either, because the shape
+    // of the line is read before either sentence is.
+    const wrongShapeButClose = sentenceOption("You always have to sing a poem.");
+    const rightShapeButFar = sentenceOption("Did the peas germinate after being soaked in water?");
+    expect(sentenceNearness(rightShapeButFar, answer)).toBeGreaterThan(sentenceNearness(wrongShapeButClose, answer));
+  });
+
+  it("refuses a sentence a name gives away, whatever the distractors turn out to be", () => {
+    expect(sentenceNamesTheAnswer(
+      "Martin tahab juhatajaga palga suhtes läbi rääkida.",
+      "Martin wants to negotiate his salary with the manager.",
+    )).toBe(true);
+    expect(sentenceNamesTheAnswer(
+      "Tallinnas sadas terve päeva lund.",
+      "It snowed all day in Tallinn.",
+    )).toBe(true);
+  });
+
+  it("does not read an ordinary sentence-initial capital as a name", () => {
+    expect(sentenceNamesTheAnswer("Lapsed mängivad õues.", "Children are playing outside.")).toBe(false);
+    expect(sentenceNamesTheAnswer(
+      "Auto tagumine põrkeraud oli pisut katki.",
+      "The car's rear bumper was a bit broken.",
+    )).toBe(false);
   });
 });
 
