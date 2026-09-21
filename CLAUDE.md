@@ -9905,12 +9905,9 @@ answered "why that form" with "the seesütlev answers milles? kus?", which is th
 
 So every one of those is a gap now, in a sentence a lexicographer recorded, with forms of one word
 to choose between or to type. `lib/estonian/cloze.ts` was already hiding words out of sentences for
-the mock exam and both callers use it rather than keeping a copy. The Estonian names still appear in
-the **explanation** after an answer, where they are the cross-reference `lib/estonian/terms.ts`
-exists for, alongside `CASE_NOTES`'s one line on what the case is *for*, which is the half that was
-missing. A form that is two cases at once is named as neither: `ajalugu` is the nimetav and the
-osastav, and the version that named whichever the dictionary listed first called a partitive object
-"the subject of a sentence". An invariant fails on a case name in a question, and
+the mock exam and both callers use it rather than keeping a copy. And the **explanation** after an
+answer names no case either, which is the paragraph below. An invariant fails on a case name in a
+question, and
 `scripts/test-assess.mjs` asks the same thing of the rendered screen, because a source check cannot
 see a name arriving through an interpolated option.
 
@@ -9925,19 +9922,33 @@ it leaves the section unmeasured rather than failed. Leaving a box empty and pre
 still allowed and is honest, because it marks nothing wrong that was not. The one skip left in
 first run is the *goal* screen, whose answers only feed the plan.
 
-**Feedback explains the sentence, it does not label it.** A gap's explanation read "Here kõhn is in
-the nimetav, the nominative. The dictionary form. The subject of a sentence, and what you point
-at.": three sentences of grammar vocabulary at somebody who has just been told they were wrong, and
-none of them about the sentence in front of them. `explainGap` leads with the sentence put back
-together, then says what the gap took and names the form as the cross-reference it is, then gives
-`CASE_NOTES`'s one line on what the case is *for* and its `englishHook`, which is the half that was
-missing entirely: "of the book", "the book's cover" lands in a glance where "possession, and the
-stem eleven other cases are built on" is a fact to be learned before it can be used. The Estonian
-name still leads the English one, because that is the rule above and a class uses the Estonian.
-**The typed version of the task prints the same string**, from the same function: the writing
-section used to answer "why that form" with the whole sentence and nothing else, which tells a
-learner what the answer was rather than why, and `WriteItem.because` is now `explainGap`'s own
-output so the two shapes of one task cannot say different things.
+**Feedback explains the sentence, it does not name a case, and it took two goes to stop.** The
+first version read "Here kõhn is in the nimetav, the nominative. The dictionary form. The subject
+of a sentence, and what you point at.", which is three sentences of grammar vocabulary at somebody
+who has just been told they were wrong. What replaced it led with the sentence and then named the
+form the way a class does, which is the rule above and is right on a screen whose subject is the
+name. It was reported off the level check anyway, and the reader was right: `Väljast kostab lindude
+laulu. The gap takes laulu, which is laul in the omastav (of what?), the osastav (what? (some of
+it)) or the sisseütlev (into what? where to?). The sentence decides which.` Every clause of it is
+true, and not one says why `laulu` rather than `laul`. **A name is a thing you look up**, and a
+learner mid-check has neither the room nor the reason, which is the argument
+`lib/estonian/plainAsk.ts` already makes about a flash card headed `lihtminevik · ma`.
+
+So the explanation is the sentence, what the sentence means, and one line saying which form was
+wanted. **The English is the half that was missing and is the honest answer to "why that form"**:
+it ships (`lib/dict/exampleEnglish.ts`), so it costs no call and no key, and it is read after the
+answer is in, which is why the placement check is still on `SENTENCE_WITHOUT_ENGLISH` for its
+*question*. Where the dictionary can place the spelling without guessing, `plainAsk`'s own clause
+follows it, so the flash card and this cannot say two different things about one ending: `Ma olen
+praegu toas. I am in the room right now. The gap takes toas rather than tuba. That is the form you
+use when something is inside it.` **Where it cannot, nothing is said**, and that is most of the
+interesting spellings: `laulu` is three cases at once and which one a sentence is using is a parse
+this app does not have and may not pretend to, so the old copy's answer of listing all three is
+replaced by the sentence doing the work. Nothing about the rule above is reversed, since this
+screen names no case at all: the grammar reference, the dictionary entry and every screen that
+*names* one still lead with the Estonian. **The typed version of the task prints the same string**,
+from the same function, so the two shapes of one task cannot say different things, and the learn
+ladder keeps `explainForm` alone because it has already drawn the sentence and its English itself.
 
 **Speaking is asked, not recorded.** The check played a native rendering, recorded the learner, and
 asked them to rate the comparison. Nothing scored it (ADR-018), so what the microphone bought was a
