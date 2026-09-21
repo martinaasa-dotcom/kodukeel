@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { ladderProgress, ladderWordsAt, wordsLeftAt } from "./milestones";
+import {
+  everyMilestoneTold,
+  ladderProgress,
+  ladderWordsAt,
+  milestoneMark,
+  milestoneOwed,
+  milestonesTold,
+  stopState,
+  wordsLeftAt,
+} from "./milestones";
 
 const titles = (level: string) => ({ title: level, arrival: `arriving at ${level}` });
 const stop = (progress: ReturnType<typeof ladderProgress>, level: string) =>
@@ -138,5 +147,104 @@ describe("a learner standing above the target they picked", () => {
     expect(climb.pct).toBe(100);
     expect(climb.arrived).toBe(false);
     expect(climb.here).toBeUndefined();
+  });
+});
+
+/*
+  WHAT HAS ALREADY BEEN SAID, AND THE LEVEL A HIGH-WATER MARK USED TO SWALLOW.
+
+  The milestone letter is the one thing in this app about somebody's memory
+  rather than their attendance, and there is no second chance at a level
+  somebody passes once. Crediting the levels behind where they stand is what
+  makes finishing out of order ordinary, so the mark has to survive it.
+*/
+describe("remembering which levels have been announced", () => {
+  const passedThrough = (...levels: string[]) =>
+    ladderProgress("B1", Object.fromEntries(
+      levels.map((l) => [l, ladderWordsAt(l)]),
+    ), titles, null).milestones;
+
+  it("reads an old single-level mark as everything under it", () => {
+    expect([...milestonesTold("A2")]).toEqual(["A1", "A2"]);
+    expect([...milestonesTold("")]).toEqual([]);
+    expect([...milestonesTold(null)]).toEqual([]);
+  });
+
+  it("reads a list as itself, since a level left out is one nobody was told", () => {
+    expect([...milestonesTold("A2,B1")]).toEqual(["A2", "B1"]);
+  });
+
+  it("ignores a value nothing wrote", () => {
+    expect([...milestonesTold("nonsense")]).toEqual([]);
+    expect([...milestonesTold("A1,nonsense")]).toEqual(["A1"]);
+  });
+
+  it("owes the lowest passed level nobody has been told about", () => {
+    const both = passedThrough("A1", "A2");
+    expect(milestoneOwed(both, "")?.level).toBe("A1");
+    expect(milestoneOwed(both, "A1")?.level).toBe("A2");
+    expect(milestoneOwed(both, "A2")).toBe(null);
+  });
+
+  it("still owes a level finished after a higher one", () => {
+    // The fault: A2 graduates first, its letter goes, and under a high-water
+    // mark A1's letter could never be sent afterwards.
+    const mark = milestoneMark("", "A2");
+    expect(milestoneOwed(passedThrough("A2"), mark)).toBe(null);
+    expect(milestoneOwed(passedThrough("A1", "A2"), mark)?.level).toBe("A1");
+  });
+
+  it("never announces a level twice", () => {
+    let mark = "";
+    const said: string[] = [];
+    for (let run = 0; run < 5; run += 1) {
+      const owed = milestoneOwed(passedThrough("A1", "A2"), mark);
+      if (!owed) break;
+      said.push(owed.level);
+      mark = milestoneMark(mark, owed.level);
+    }
+    expect(said).toEqual(["A1", "A2"]);
+  });
+
+  it("knows when the whole climb has been announced", () => {
+    expect(everyMilestoneTold("B1", "A2")).toBe(false);
+    expect(everyMilestoneTold("B1", "B1")).toBe(true);
+    expect(everyMilestoneTold("B1", "A1,B1")).toBe(false);
+  });
+});
+
+describe("a level the ladder teaches no words for", () => {
+  it("is not a level anybody passed", () => {
+    // No data reaches this, which is why it is driven on the rule: a level
+    // with no words has no share of itself to have finished, and reading that
+    // as done would post a congratulation for a band nobody has touched.
+    expect(stopState(0, 100, false)).toBe("ahead");
+    expect(stopState(0, 100, true)).toBe("assumed");
+    expect(stopState(0, 0, false)).toBe("ahead");
+  });
+
+  it("leaves every level the ladder really has alone", () => {
+    expect(stopState(493, 100, false)).toBe("passed");
+    expect(stopState(493, 100, true)).toBe("passed");
+    expect(stopState(493, 99, true)).toBe("assumed");
+    expect(stopState(493, 99, false)).toBe("ahead");
+    for (const stop of ladderProgress("C1", {}, titles, null).milestones) {
+      expect(stop.words).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("a mark this module wrote", () => {
+  it("is never read back as the old high-water one", () => {
+    // The trap the leading separator exists for: a list of one level.
+    const one = milestoneMark("", "A2");
+    expect([...milestonesTold(one)]).toEqual(["A2"]);
+    expect(milestonesTold(one).has("A1")).toBe(false);
+  });
+
+  it("round-trips whatever it is handed", () => {
+    let mark = milestoneMark("", "B1");
+    mark = milestoneMark(mark, "A1");
+    expect([...milestonesTold(mark)]).toEqual(["A1", "B1"]);
   });
 });

@@ -64,6 +64,27 @@ const WORDS_AT: Record<string, number> = (() => {
 
 export const ladderWordsAt = (level: string): number => WORDS_AT[level] ?? 0;
 
+/** Two decimals, which is as fine as a percentage width on a phone can be. */
+const round2 = (n: number): number => Math.round(n * 100) / 100;
+
+/**
+ * WHICH OF THE FOUR A STOP IS IN, OUT HERE SO A TEST CAN DRIVE IT.
+ *
+ * The one branch worth the extra function is the empty level. `pct` is a share
+ * of a level's own words, so a level the ladder teaches none of has no share,
+ * and reading that as a hundred would make the stop `passed`: that feeds
+ * `arrived` and is what `lib/email/letters/milestone.ts` fires on, so it would
+ * post a congratulation for a band nobody has done anything about and spend
+ * the one mark that level will ever have. Nothing reaches it today, since all
+ * five levels carry words and `targetFrom` cannot return a sixth, which is
+ * exactly why the rule is testable here rather than a branch no fixture can
+ * drive: it fails in the flattering direction and it would fail silently.
+ */
+export function stopState(words: number, pct: number, behind: boolean): MilestoneState {
+  if (words > 0 && pct >= 100) return "passed";
+  return behind ? "assumed" : "ahead";
+}
+
 /** Every level up to and including a target, in order. */
 export function levelsTo(target: Level): Level[] {
   return LEVELS.filter((l) => levelIndex(l) <= levelIndex(target));
@@ -155,6 +176,16 @@ export interface LadderProgress {
   verified: number;
   /** Those, plus every word of the levels behind where they stand. */
   credited: number;
+  /**
+   * The credited words nobody has checked, which is `credited` less `verified`.
+   *
+   * Carried rather than left to the caller because two callers were each
+   * subtracting it, the card and the weekly letter, which is the two-readings
+   * shape this repository keeps finding: the one that drifts is the one nobody
+   * is looking at, and a letter and a screen disagreeing about how much of a
+   * bar is taken on trust is a bug nobody can see from inside the app.
+   */
+  assumed: number;
   /** Words the whole climb asks for. */
   total: number;
   /** 0 to 100 of the way to the target, counting what is credited. The headline. */
@@ -203,14 +234,16 @@ export function ladderProgress(
   const milestones: Milestone[] = levels.map((level) => {
     const words = ladderWordsAt(level);
     const verified = Math.min(words, Math.max(0, verifiedAt[level] ?? 0));
-    const pct = words === 0 ? 100 : Math.round((verified / words) * 100);
+    const pct = words === 0 ? 0 : Math.round((verified / words) * 100);
     const behind = standing !== null && levelIndex(level) < levelIndex(standing.level);
     return {
       level,
       ...levelTitle(level),
-      share: total === 0 ? 100 / levels.length : (words / total) * 100,
+      /* Rounded, because this is a CSS width and an unrounded ratio writes
+         `34.47552447552448%` into the markup for a row that is 328px wide. */
+      share: round2(total === 0 ? 100 / levels.length : (words / total) * 100),
       pct,
-      state: (pct >= 100 ? "passed" : behind ? "assumed" : "ahead") as MilestoneState,
+      state: stopState(words, pct, behind),
       parts: PARTS.filter((p) => p.level === level).length,
       words,
       verified,
@@ -240,6 +273,7 @@ export function ladderProgress(
     standing,
     verified,
     credited,
+    assumed: credited - verified,
     total,
     pct: pctOf(credited),
     verifiedPct: pctOf(verified),
@@ -247,4 +281,91 @@ export function ladderProgress(
     here,
     arrived: milestones.every((m) => m.state === "passed"),
   };
+}
+
+/*
+  WHICH LEVELS A LEARNER HAS ALREADY BEEN CONGRATULATED ON.
+
+  `lib/email/letters/milestone.ts` fires on a level the scheduler graduated,
+  which is the one figure in this app about somebody's memory rather than their
+  attendance, and there is no second chance at a level somebody passes once. So
+  what has been said has to be remembered, and it was remembered as a high-water
+  mark: one level, with a later one read as covering every level under it.
+
+  That is only true while levels are finished in order, and crediting the levels
+  behind where somebody stands is exactly what stops them being. A B1 learner
+  works at B1 while A1 and A2 fill in behind them at whatever rate the evenings
+  happen to take, so A2 finishing first is ordinary rather than freakish, and
+  under a high-water mark A2's letter set the mark past A1 and A1's letter could
+  never be sent. The level was silently spent.
+
+  A set says what a mark cannot, and the old rows keep their meaning: a stored
+  value with no separator in it is one level and means what it always meant,
+  every level up to and including it, so nobody is congratulated twice for a
+  band they were already told about.
+*/
+const MARK_SEPARATOR = ",";
+
+export function milestonesTold(stored: string | null | undefined): Set<Level> {
+  const raw = (stored ?? "").trim();
+  if (raw === "") return new Set();
+
+  const known = raw
+    .split(MARK_SEPARATOR)
+    .map((p) => p.trim())
+    .filter((p): p is Level => (LEVELS as readonly string[]).includes(p));
+  if (known.length === 0) return new Set();
+
+  /*
+    A BARE LEVEL IS THE OLD MARK AND A SEPARATOR IS WHAT SAYS OTHERWISE.
+
+    Read on the count of what parsed instead, a list holding one level would be
+    indistinguishable from the old mark and would quietly claim every level
+    under it as told: the very level the set exists to stop losing. So a mark
+    this module wrote always carries the separator, which is what `milestoneMark`
+    guarantees, and a value with none is a row written before any of this.
+  */
+  if (!raw.includes(MARK_SEPARATOR)) {
+    const top = known[0]!;
+    return new Set(LEVELS.filter((l) => levelIndex(l) <= levelIndex(top)));
+  }
+  return new Set(known);
+}
+
+/**
+ * The next level worth a letter, which is the LOWEST passed one nobody has been
+ * told about rather than the highest.
+ *
+ * Lowest, because the letters are then in the order the learner climbed and a
+ * morning that finishes two levels at once sends one and leaves the other for
+ * tomorrow rather than swallowing it.
+ */
+export function milestoneOwed(
+  milestones: readonly Milestone[], stored: string | null | undefined,
+): Milestone | null {
+  const told = milestonesTold(stored);
+  return milestones.find((m) => m.state === "passed" && !told.has(m.level)) ?? null;
+}
+
+/**
+ * What to store once that letter has gone, which is what was told plus it.
+ *
+ * Always written with a leading separator, so a mark naming one level cannot be
+ * read back as the old high-water mark meaning that level and everything under
+ * it. That is not a detail: the first version of this returned a bare `A2`
+ * after A2's letter, `milestonesTold` read it as A1 and A2, and A1's letter was
+ * lost exactly as it had been before.
+ */
+export function milestoneMark(stored: string | null | undefined, level: Level): string {
+  const told = milestonesTold(stored);
+  told.add(level);
+  return MARK_SEPARATOR + LEVELS.filter((l) => told.has(l)).join(MARK_SEPARATOR);
+}
+
+/** Whether every level up to the target has already been announced. */
+export function everyMilestoneTold(
+  target: Level, stored: string | null | undefined,
+): boolean {
+  const told = milestonesTold(stored);
+  return levelsTo(target).every((l) => told.has(l));
 }

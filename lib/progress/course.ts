@@ -563,10 +563,18 @@ export async function ladderReading(
  * of A1. `courseStandingFor` is the same answer the course opens at, so the
  * bar and the evening cannot disagree about which band somebody is on. It is
  * two memoised reads on a screen that has already asked for both.
+ *
+ * MEMOISED, BECAUSE THE NIGHTLY RUN ASKS FOR IT TWICE PER LEARNER. `candidateFor`
+ * reads it to find out whether a milestone letter is owed and `letterInputFor`
+ * reads it again to build whichever letter that decided on, which is ten
+ * counts and two standing reads where five and one will do, once for every
+ * learner on the deployment. It is the rule this file already applies to
+ * `ticksFor` and `moduleReached`: a fact about one learner that is wanted
+ * twice in one pass is held for that pass.
  */
-export async function ladderPosition(
+export const ladderPosition = cache(async (
   ownerId: string, target: Level,
-): Promise<LadderProgress> {
+): Promise<LadderProgress> => {
   const bands = levelsTo(target);
 
   /*
@@ -593,7 +601,7 @@ export async function ladderPosition(
     (level) => ({ title: LEVEL_INFO[level].title, arrival: LEVEL_INFO[level].arrival }),
     standing,
   );
-}
+});
 
 /** The band a learner said they were aiming at, or the top of the ladder. */
 export function targetFrom(stored: string | null | undefined): Level {

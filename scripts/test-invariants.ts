@@ -1887,9 +1887,13 @@ check("a lesson at A1 asks only about words the course has taught", () => {
 */
 check("a level counted from where somebody stands is never counted as passed", () => {
   const mailout = code("lib/progress/mailout.ts");
+  /* The letter fires on a level the scheduler graduated, which is decided in
+     `milestoneOwed` rather than at the call site: the rule moved out when the
+     mark became a set, and a check reading only the caller would pass on a
+     rule that had quietly started answering about `assumed` instead. */
   assert.match(
-    mailout,
-    /state === "passed"/,
+    between(code("lib/course/milestones.ts"), "export function milestoneOwed"),
+    /m\.state === "passed"/,
     "the milestone letter stopped firing on a level the scheduler graduated",
   );
   assert.doesNotMatch(
@@ -1951,6 +1955,30 @@ check("a level counted from where somebody stands is never counted as passed", (
     code("lib/course/milestones.ts"),
     /standing: LadderStanding \| null,/,
     "the standing became optional, so a caller can forget it and draw a beginner",
+  );
+
+  /*
+    AND WHAT HAS BEEN ANNOUNCED IS A SET RATHER THAN A HIGH-WATER MARK.
+
+    There is no second chance at a level somebody passes once, and a mark
+    naming one level can only say "this and everything under it", which is true
+    while levels are finished in order and is exactly what crediting stops
+    being: a B1 learner fills A1 and A2 in behind them at whatever rate the
+    evenings take, so A2 first is ordinary, and under a mark its letter spent
+    A1's. Both sites read one rule, and `milestoneOwed` takes the lowest passed
+    level nobody has been told about, so a morning finishing two sends one and
+    leaves the other for tomorrow rather than swallowing it.
+  */
+  for (const call of ["milestoneOwed(", "milestoneMark(", "everyMilestoneTold("]) {
+    assert.ok(
+      mailout.includes(call),
+      `the milestone letter stopped reading ${call.slice(0, -1)}, so a level passed out of order is lost`,
+    );
+  }
+  assert.doesNotMatch(
+    mailout,
+    /milestoneToldFor\][\s\S]{0,80}>=/,
+    "the milestone mark is compared as a high-water mark again",
   );
 });
 
@@ -18735,8 +18763,16 @@ check("the ladder warns about the next part and never blocks it", () => {
 */
 check("the milestone bar is filled by the scheduler rather than by attendance", () => {
   const half = code("lib/progress/course.ts");
-  const position = half.slice(half.indexOf("export async function ladderPosition"));
-  assert.ok(position.length > 0, "ladderPosition is gone");
+  /* Anchored on the name rather than on `export async function`, which is how
+     this went blind once: the read is memoised now, so the declaration is a
+     `const` and the slice came back empty while every assertion under it
+     passed on nothing. */
+  const at = half.indexOf("export const ladderPosition");
+  /* `slice(-1)` on a miss is one character, which is truthy: the floor under
+     this check has to be the anchor being found rather than the slice being
+     non-empty, or a rename leaves every assertion below reading nothing. */
+  assert.ok(at >= 0, "ladderPosition is gone");
+  const position = half.slice(at);
   assert.match(
     position.slice(0, 1400), /state: 2/,
     "the bar stopped counting graduated cards. Anything else is attendance drawn as attainment",

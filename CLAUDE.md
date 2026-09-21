@@ -5122,6 +5122,25 @@ that is not an omission**: a tooltip is a hover, this app is measured on a phone
 the strip could say on one is either printed under it or in the list below, which is what a screen
 reader gets, since the strip is `aria-hidden`.
 
+**And what has already been congratulated is a set rather than a high-water mark.** The milestone
+letter fires on a level the scheduler graduated, which is the one figure in this app about
+somebody's memory rather than their attendance, and there is no second chance at a level somebody
+passes once, so it remembers what it has said. It remembered one level, with a later one read as
+covering everything under it, which is true only while levels are finished in order and is exactly
+what crediting stops being: a B1 learner fills A1 and A2 in behind them at whatever rate the
+evenings take, so A2 first is ordinary rather than freakish, and under a mark A2's letter spent
+A1's. `milestoneOwed` takes the **lowest** passed level nobody has been told about, so a morning
+that finishes two sends one and leaves the other for tomorrow; `milestoneMark` writes the union and
+**always carries the separator**, because a list naming one level and the old mark are the same
+string otherwise and the first version of this lost A1 exactly as before. A stored value with no
+separator in it is a row written before any of this and keeps the meaning it had. **And a level the
+ladder teaches no words for is not a level anybody passed**: `stopState` is out where a test can
+drive it for that reason, since no data reaches the branch, it fails in the flattering direction,
+and what it would do is post a congratulation for a band nobody has touched and spend the one mark
+that level will ever have. `assumed` is carried on `LadderProgress` rather than subtracted by each
+of the two callers, and `ladderPosition` is memoised, because the nightly run asks for it twice per
+learner, once to decide whether a letter is owed and once to build it.
+
 **And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
 four questions does not want a home page, they want to be told what to do tonight. The last screen
 names the part they open on, how long an evening takes and what tonight holds, shows the whole

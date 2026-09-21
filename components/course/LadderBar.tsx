@@ -90,16 +90,8 @@ export function LadderBar({ progress, partLabel, learnerLevel }: {
    */
   learnerLevel: Level;
 }) {
-  const { milestones, pct, target, verified, credited, total, here, arrived, standing } = progress;
+  const { milestones, pct, target, verified, credited, assumed, total, here, arrived, standing } = progress;
   const wantsEnglish = uiWantsEnglish(learnerLevel);
-  /*
-    Words counted from where they stand and not yet checked, which is the one
-    figure that makes the two bands legible: the rest of the bar is theirs by
-    the scheduler's own verdict. Derived here rather than carried, because it
-    is a subtraction of two fields that already travel together and a third
-    field is a third thing to keep in step.
-  */
-  const assumed = credited - verified;
   const assumedLevels = milestones.filter((m) => m.state === "assumed").map((m) => m.level);
   /* Where the row begins, which is the bottom of the ladder rather than a
      level anybody picked, and is read off the stops so the sentence and the

@@ -38,7 +38,9 @@ import { EVIDENCE_NOTE } from "@/lib/exam/readiness";
 import type { ExamLevel } from "@/lib/exam/spec";
 import { cohortKind, withoutMember } from "@/lib/classroom/cohort";
 import { classRoster, workplaceRoster } from "@/lib/classroom/roster";
-import { ladderWordsAt, wordsLeftAt } from "@/lib/course/milestones";
+import {
+  everyMilestoneTold, ladderWordsAt, milestoneMark, milestoneOwed, wordsLeftAt,
+} from "@/lib/course/milestones";
 
 import { wordOfDay } from "@/lib/progress/wordOfDay";
 import { outThere } from "@/lib/progress/outThere";
@@ -417,19 +419,19 @@ export async function candidateFor(ownerId: string, now: Date): Promise<Candidat
           AND A LEVEL WHOSE WORDS ARE ALL GRADUATED, WHICH IS FIVE COUNTS AND
           IS WHY IT IS ASKED ONLY ONCE THE MARK LEAVES ROOM FOR AN ANSWER.
 
-          Somebody already told about the top of their own climb can never have
-          news again, so the ladder is not read for them at all.
+          Somebody already told about every level of their own climb can never
+          have news again, so the ladder is not read for them at all.
         */
         const target = targetFrom(marks[SETTING_KEYS.cefrGoal]);
-        const told = marks[SETTING_KEYS.milestoneToldFor] ?? "";
-        if (told >= target) return { shieldSpent, milestoneReached: null };
+        const told = marks[SETTING_KEYS.milestoneToldFor];
+        if (everyMilestoneTold(target, told)) {
+          return { shieldSpent, milestoneReached: null };
+        }
 
         const ladder = await ladderPosition(ownerId, target);
-        const passed = ladder.milestones.filter((m) => m.state === "passed");
-        const highest = passed.at(-1)?.level ?? null;
         return {
           shieldSpent,
-          milestoneReached: highest !== null && highest > told ? highest : null,
+          milestoneReached: milestoneOwed(ladder.milestones, told)?.level ?? null,
         };
       })()
     : null;
@@ -703,8 +705,9 @@ export async function letterInputFor(
           target,
           pct: ladder.pct,
           /* The credited half of that percentage, so the letter can name it.
-             Read off the same two fields the card on Today subtracts. */
-          assumed: ladder.credited - ladder.verified,
+             The same field the card on Today reads, rather than a second
+             subtraction that could drift from it. */
+          assumed: ladder.assumed,
           /*
             THE NEXT STOP'S OWN DISTANCE, NOT THE WHOLE CLIMB'S.
 
@@ -749,7 +752,15 @@ export async function letterInputFor(
     if (kind === "milestone") {
       const target = targetFrom(marks[SETTING_KEYS.cefrGoal]);
       const ladder = await ladderPosition(ownerId, target);
-      const reached = ladder.milestones.filter((m) => m.state === "passed").at(-1);
+      /*
+        The same level `candidateFor` decided was owed, read through the same
+        rule rather than worked out again: the lowest passed one nobody has
+        been told about. Written as "the highest passed one" here it would
+        announce a level the scheduler is about to remember as a different
+        one, which is a letter about A2 whose mark says A1.
+      */
+      const told = marks[SETTING_KEYS.milestoneToldFor];
+      const reached = milestoneOwed(ladder.milestones, told);
       if (!reached) return null;
 
       const here = ladder.milestones.find((m) => m.state === "here");
@@ -779,7 +790,12 @@ export async function letterInputFor(
           target,
           next: here ? { level: here.level, wordsAway: wordsLeftAt(here) } : null,
         },
-        remember: { key: SETTING_KEYS.milestoneToldFor, value: reached.level },
+        /* What was told plus this one, so a level finished out of order still
+           gets its own letter on a later morning. */
+        remember: {
+          key: SETTING_KEYS.milestoneToldFor,
+          value: milestoneMark(told, reached.level),
+        },
       };
     }
 
