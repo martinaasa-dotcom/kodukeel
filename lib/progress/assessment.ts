@@ -3,6 +3,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/db";
 import { parseExamples, usableExamples } from "@/lib/dict/examples";
 import { heardMeanings, lemmaCountsByLevel } from "@/lib/dict/facts";
+import { wordsAtLevel } from "@/lib/collections/syllabus";
 import { buildPaper, type Paper, type WordRow } from "@/lib/assessment/items";
 import { normaliseGoals, type Goals } from "@/lib/assessment/goals";
 import { BANDS, type Band, type Level, type Placement, type SkillResult } from "@/lib/assessment/types";
@@ -99,16 +100,37 @@ export async function paperFor(ownerId: string, seed: number): Promise<Paper> {
   const totals = BANDS.map((band) => byLevel.get(band) ?? 0);
   const window = PER_BAND * 2;
 
+  const SELECT_ROW = {
+    id: true, lemma: true, translation: true, pos: true, cefr: true,
+    government: true, examples: true,
+    forms: { select: { formType: true, value: true, morphCode: true } },
+  } as const;
+
+  /*
+    A band picked alphabetically off the whole dictionary reaches straight
+    into the Wiktionary tail: `linnus`, "fortified settlement", is a real B2
+    entry and not a word anybody needs to recognise to hold a conversation.
+    The course's own vocabulary is the words this app already chose to teach,
+    at the level it teaches them, so it is asked first and the general
+    dictionary is the fallback for a band the course does not fill.
+  */
   const perBand = await Promise.all(
-    BANDS.map((band, i) => {
+    BANDS.map(async (band, i) => {
       const total = totals[i] ?? 0;
+      const taughtLemmas = [...new Set(wordsAtLevel(band).map((w) => w.lemma))].sort();
+      if (taughtLemmas.length >= MIN_UNOWNED) {
+        const taught = await prisma.lexeme.findMany({
+          where: { cefr: band, lemma: { in: taughtLemmas } },
+          select: SELECT_ROW,
+          orderBy: [{ lemma: "asc" }, { id: "asc" }],
+          skip: taughtLemmas.length > window ? seed % (taughtLemmas.length - window) : 0,
+          take: window,
+        });
+        if (taught.length >= MIN_UNOWNED) return taught;
+      }
       return prisma.lexeme.findMany({
         where: { cefr: band },
-        select: {
-          id: true, lemma: true, translation: true, pos: true, cefr: true,
-          government: true, examples: true,
-          forms: { select: { formType: true, value: true, morphCode: true } },
-        },
+        select: SELECT_ROW,
         orderBy: [{ lemma: "asc" }, { id: "asc" }],
         skip: total > window ? seed % (total - window) : 0,
         take: window,
