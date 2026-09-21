@@ -84741,12 +84741,12 @@
  {
   "lemma": "mustikas",
   "pos": "NOUN",
-  "translation": "blueberry",
+  "translation": "bilberry, European blueberry",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": null,
+  "notes": "bilberrying",
   "examples": [
    {
     "et": "Korjasime mustikaid.",
@@ -107074,12 +107074,12 @@
  {
   "lemma": "vahe",
   "pos": "NOUN",
-  "translation": "gap",
+  "translation": "difference",
   "cefr": "B1",
   "gradation": "NONE",
   "gradationNote": null,
   "government": null,
-  "notes": "difference; distance",
+  "notes": "distance; gap; space, slot",
   "examples": [
    {
     "et": "Tasemevahe.",
