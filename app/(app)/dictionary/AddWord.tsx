@@ -96,7 +96,8 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
-  const fields = pos === "VERB" ? VERB_FIELDS : pos === "PHRASE" ? [] : NOUN_FIELDS;
+  const fields =
+    pos === "VERB" ? VERB_FIELDS : pos === "PHRASE" || pos === "ADVERB" ? [] : NOUN_FIELDS;
 
   const field = { borderColor: "var(--rule)", background: "var(--surface)", color: "var(--ink)" } as const;
 
@@ -197,6 +198,7 @@ export function AddWord({ initialLemma = "", edit }: { initialLemma?: string; ed
             <option value="VERB">Verb</option>
             <option value="PRONOUN">Pronoun</option>
             <option value="ADJECTIVE">Adjective</option>
+            <option value="ADVERB">Adverb</option>
             <option value="PHRASE">Phrase</option>
             <option value="OTHER">Other</option>
           </select>
