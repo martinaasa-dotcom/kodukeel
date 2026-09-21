@@ -2832,6 +2832,19 @@ dictionary's index from `lib/dict/facts.ts`, where it is a fact about the shared
 rest. `npm run audit:questions` asks the same question of every `heard` item it builds, which it
 had excluded from the "is the answer shown" question and was therefore checking with nothing.
 
+**And the sentence question learned that and the word question did not.** The rule above is about
+what else was in the *recording*, and the listening section asks three things, one of which plays a
+single word. A word played alone is still a spelling, and a spelling can belong to two entries:
+`mina` is stored with the genitive plural `meie`, which is the entry `meie` in its own right, so
+"listen, then pick what it means" was asked of that spelling with "I, me" standing among the wrong
+answers, and a learner who heard the plural of `mina` was marked wrong for hearing it. What
+`meaningTest` reasons about alone is a second entry under the same *lemma*, which is `hall` the
+frost beside `hall` the colour and cannot see a *form* shared across two lemmas. Both questions ask
+`meaningsHeard` now, of the sentence and of the lemma. It was reported by `npm run audit:questions`
+and it was there before the run that reported it: the audit builds a whole paper off one seeded
+generator, so a change anywhere above the listening section moves the draw, and a latent fault
+surfaces on the commit that shifted the stream rather than on the one that made it.
+
 **A question nobody can get wrong is worse in a measurement than on a card.** Thirty entries in the
 shipped dictionary are spelled the same in both languages, and the level check's meaning question
 put the Estonian word up with its English gloss among the options: `moment` against "moment". On a
@@ -10563,6 +10576,17 @@ a page that rendered nothing and a page that was still rendering read identicall
 And the local runner now unsets the provider keys, because this box carries three and CI carries
 none: a suite measured with `EKILEX_API_KEY` exported is a suite measured on a different app, which
 is the fault `PROVIDER_KEY_ENV` exists for one layer down.
+
+**And typing into a box is not the same as the page hearing it.** `test-flash.mjs` filled `#answer`
+and clicked "Check it" in the next statement, and that button is disabled while the box is empty. A
+controlled React input is the server's HTML until the page hydrates, so a fill that lands first
+sits in the DOM with nobody listening, hydration renders the controlled empty string over it, and
+the button is disabled for the rest of the run: one shard lost, reported as
+`locator.click: Timeout 30000ms exceeded` against a `<button disabled>` on a card that was working
+perfectly, on a commit that touches no screen in that round. `question()` one function up already
+waits for the question rather than for `main`, for its own version of this reason, and the fill did
+not. It types until the button the typing is supposed to enable is enabled, with a budget, and a
+page that genuinely never enables it reaches the click and fails saying what it found.
 
 **A suite that writes to the shared dictionary invents the word it writes.** `Lexeme` is unique on
 `[lemma, pos]` rather than on the lemma, deliberately, because `hall` is a noun meaning frost and an
