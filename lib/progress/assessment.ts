@@ -46,6 +46,14 @@ const PER_BAND = 100;
  * measurement than one that asks about a word the learner happens to own.
  */
 const MIN_UNOWNED = 30;
+/**
+ * Below this, a band's own taught vocabulary is too thin to build a paper
+ * from on its own, so the general dictionary answers instead. Same value as
+ * `MIN_UNOWNED`, on the same reasoning, but a different question: that one
+ * asks whether enough of a band's words are unowned, this one asks whether
+ * enough of a band's words are the course's own.
+ */
+const MIN_TAUGHT = 30;
 
 function toRow(lexeme: {
   id: string; lemma: string; translation: string; pos: string; cefr: string | null;
@@ -113,20 +121,35 @@ export async function paperFor(ownerId: string, seed: number): Promise<Paper> {
     The course's own vocabulary is the words this app already chose to teach,
     at the level it teaches them, so it is asked first and the general
     dictionary is the fallback for a band the course does not fill.
+
+    Matched on lemma *and* part of speech, never the lemma alone: `Lexeme` is
+    unique on `(lemma, pos)` because Estonian has real homonyms across word
+    classes (`hall` is a noun meaning frost and an adjective meaning gray), so
+    a lemma-only match could pull in a homonym the course never taught, just
+    because it happens to share both the spelling and the band. The lemma list
+    still narrows the query, which stays on the indexed column; the pair is
+    checked in the read.
+
+    No skip and no window here, unlike the general fallback below: a course
+    band is at most a few hundred words, the whole of it costs nothing to
+    read, and slicing it beforehand would leave the seeded shuffle in
+    `buildPaper` less to choose from for no reason. A window matters for the
+    general dictionary because that pool is the whole of the rest of it.
   */
   const perBand = await Promise.all(
     BANDS.map(async (band, i) => {
       const total = totals[i] ?? 0;
-      const taughtLemmas = [...new Set(wordsAtLevel(band).map((w) => w.lemma))].sort();
-      if (taughtLemmas.length >= MIN_UNOWNED) {
-        const taught = await prisma.lexeme.findMany({
+      const bandWords = wordsAtLevel(band);
+      const taughtLemmas = [...new Set(bandWords.map((w) => w.lemma))];
+      if (taughtLemmas.length >= MIN_TAUGHT) {
+        const taughtPairs = new Set(bandWords.map((w) => `${w.lemma.toLowerCase()}|${w.pos}`));
+        const rows = await prisma.lexeme.findMany({
           where: { cefr: band, lemma: { in: taughtLemmas } },
           select: SELECT_ROW,
           orderBy: [{ lemma: "asc" }, { id: "asc" }],
-          skip: taughtLemmas.length > window ? seed % (taughtLemmas.length - window) : 0,
-          take: window,
         });
-        if (taught.length >= MIN_UNOWNED) return taught;
+        const taught = rows.filter((r) => taughtPairs.has(`${r.lemma.toLowerCase()}|${r.pos}`));
+        if (taught.length >= MIN_TAUGHT) return taught;
       }
       return prisma.lexeme.findMany({
         where: { cefr: band },
