@@ -10,6 +10,7 @@
  *
  * Pure and framework-free, like the rest of `lib/estonian/`.
  */
+import { PARTS } from "@/lib/copy/values";
 
 /**
  * Letters, plus the marks that live inside an Estonian word.
@@ -35,6 +36,36 @@ export interface Cloze {
 export const BLANK = "____";
 
 /**
+ * THE ONE FORM A GAP CARD'S SENTENCE IS REBUILT WITH.
+ *
+ * A card's back holds every spelling the marker accepts, joined on `PARTS`,
+ * because what a screen shows and what a marker takes are one string: a case
+ * card for `tuba` carries `tuppa / toasse` and both are Estonian. A *sentence*
+ * holds one word. Every reveal that puts the answer back where it came from
+ * was splicing the whole back in, so a learner read
+ * `Olen Rootsis käinud vaid ühe / üht korra.` on screen, heard the slash read
+ * out, and the reconstructed line matched no recorded sentence, so the English
+ * under it came back empty and the screen asked a model for a translation of a
+ * sentence nobody wrote. `QuestSession`'s flip branch had worked this out for
+ * itself three lines from the gap branch that had not, and `sizedBlank` below
+ * had a third copy of the separator typed out.
+ *
+ * The first is the primary, which is the rule everywhere else this pair is
+ * read: Ekilex lists it first, `shownForms` prints it first, and
+ * `lib/srs/cards.ts` builds the back as `[answer, ...also]`. The pair is still
+ * what the card accepts and what a screen naming the *form* prints; this is
+ * only what goes inside the sentence.
+ */
+export function primaryAnswer(back: string): string {
+  return back.split(PARTS)[0]?.trim() || back;
+}
+
+/** A gap card's sentence with its answer put back. See `primaryAnswer`. */
+export function filledSentence(front: string, back: string): string {
+  return front.replace(BLANK, primaryAnswer(back));
+}
+
+/**
  * A blank sized to the answer it stands for, rather than a fixed run of four
  * underscores whatever the word's own length: a two-letter answer and a
  * seven-letter one used to leave the same gap. Display only, and only for a
@@ -48,8 +79,7 @@ export const BLANK = "____";
  */
 export function sizedBlank(textWithBlank: string, answer: string): string {
   if (!textWithBlank.includes(BLANK)) return textWithBlank;
-  const primary = answer.split(" / ")[0]?.trim() || answer;
-  const len = Math.max(primary.length, 1);
+  const len = Math.max(primaryAnswer(answer).length, 1);
   return textWithBlank.replace(BLANK, "_".repeat(len));
 }
 

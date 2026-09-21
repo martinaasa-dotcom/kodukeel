@@ -3,8 +3,8 @@ import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { SprintSession, type SprintCard } from "./SprintSession";
-import { parseExamples, translationOf } from "@/lib/dict/examples";
-import { BLANK } from "@/lib/estonian/cloze";
+import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
+import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -98,12 +98,12 @@ export default async function SprintPage({
       A gap-fronted card is a whole recorded sentence with one word taken out,
       and sprint draws whatever is due, so the fastest round in the app was
       also one of the places a sentence went past with nothing to say what it
-      meant. Offered rather than fetched here (`ask="onRequest"` on the
-      session), because forty cards in a minute is forty calls against the
-      deployment's own daily cap for a reader who is racing past them.
+      meant. The shipped line and no call here (`ask="never"` on the session),
+      because forty cards in a minute is forty calls against the deployment's
+      own daily cap for a reader who is racing past them.
     */
     sentenceEn: c.front.includes(BLANK) && c.lexeme
-      ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
+      ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
       : null,
     // Not drawn, and read: it is how `gapMeaning` knows which word of the
     // English sentence is the one the gap is asking for.

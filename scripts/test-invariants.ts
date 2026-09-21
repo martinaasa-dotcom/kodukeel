@@ -19911,6 +19911,48 @@ check("a sentence's English is never printed where it would be the answer", () =
   trap `code()` exists for and which several checks here were made to fall into
   once.
 */
+/*
+  AND A GAP CARD'S SENTENCE IS PUT BACK TOGETHER WITH ONE FORM.
+
+  `lib/srs/cards.ts` builds a case or conjugation back as
+  `[answer, ...also].join(PARTS)`, because what a screen shows and what a
+  marker takes are one string, so the illative of `tuba` arrives as
+  `tuppa / toasse`. A *sentence* holds one word. Five readers spliced the whole
+  back into the blank, so a learner read a slash mid-sentence, heard it read
+  out, and the reconstructed line matched no recorded sentence: the English
+  under it came back empty and a model was asked for a translation of a
+  sentence nobody wrote, which is the reported fault a second time, one cause
+  over.
+
+  A sweep rather than a list, because the fault is one line long and reads as
+  the obvious thing to write. `filledSentence` is the one rule and it lives in
+  the module that owns the blank.
+*/
+check("a gap card's sentence is rebuilt with one form, never with every accepted one", () => {
+  const splices = [...ALL, ...sourceFiles("scripts")].filter(
+    (f) => f !== "lib/estonian/cloze.ts" && /replace\(\s*BLANK\s*,[^)]*\.back\b/.test(code(f)),
+  );
+  assert.deepEqual(
+    splices, [],
+    "a gap card's whole back is spliced into its own sentence, so a card whose answer has a second "
+    + "accepted spelling prints `tuppa / toasse` mid-sentence, reads the slash aloud and matches no "
+    + "recorded sentence. `filledSentence` in lib/estonian/cloze.ts is the one rule",
+  );
+  /*
+    And the separator is read off `PARTS` rather than typed, which is the rule
+    this repository already states about that constant and had four more
+    copies of, one of them three lines from the gap branch that needed it.
+  */
+  const typed = [...ALL, ...sourceFiles("scripts"), ...sourceFiles("prisma")].filter(
+    (f) => f !== "lib/copy/values.ts" && /\.split\("\s\/\s"\)/.test(code(f)),
+  );
+  assert.deepEqual(
+    typed, [],
+    "somebody typed the answer separator out again rather than reading PARTS. A character apart, "
+    + "the two readings disagree about where an answer ends and nothing on screen says so",
+  );
+});
+
 check("every gap question says what its sentence means, one rule and one drawing", () => {
   /*
     A SWEEP AND NOT A LIST, WHICH IS THE DURABLE HALF OF THIS.
@@ -20101,6 +20143,23 @@ check("the English of a shipped sentence is built once and read in one place", (
         an exemption with a reason beside it is the thing the list is for.
       */
       "scripts/test-invariants.ts",
+      /*
+        And the one runtime reader, which is a *screen's* read of a fact the
+        column cannot carry. `translationOf` answers off one entry's own
+        examples, and `lib/dict/borrow.ts` lends a sentence recorded under one
+        headword to a card built for another, so a borrowed sentence matched
+        nothing and a learner read it with no English under it and then an
+        error naming this app's own storage. An English line is a fact about
+        the sentence, which is why this table is keyed on the sentence, so
+        `sentenceEnglish` asks the entry first and this behind it. It is the
+        cheap answer and it was measured against the dear one: the borrowed
+        pool costs a full read of the heaviest column in the dictionary,
+        1.46 MB and 360ms per cache fill on the hottest read in the app, and
+        covers 11,126 of 11,223 borrowable sentences against this one's
+        11,125. A refusal is respected wherever it can be seen, since an entry
+        that holds the sentence answers for it and this is never asked.
+      */
+      "lib/dict/examples.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +
@@ -21186,31 +21245,48 @@ check("a translation a reviewer refused is never filled in again", () => {
   );
 
   /*
-    AND THE LEARNER IS NOT TOLD ABOUT IT. `SentenceTranslation` asks on
-    arrival, so a refusal returned as an ordinary error draws a line about a
-    reviewer's decision under somebody's card, mid-round, about a thing they
-    had no part in and can do nothing about. Both halves, because either alone
-    passes on the broken shape: the action has to say so, and the screen has
-    to read it and draw nothing, which is what it already does where the
-    deployment has no model at all.
+    AND THE LEARNER IS NOT TOLD ABOUT IT, WHICH IS NOW TRUE OF EVERY WAY THIS
+    CAN FAIL RATHER THAN OF THE REFUSAL ALONE. `SentenceTranslation` asks on
+    arrival and draws one thing: the English, once there is one. A refusal, a
+    sentence the entry does not hold, a spent allowance and a provider having
+    a bad minute are none of them news a learner can act on, and the second of
+    those was reported off a gap reveal as "That sentence is not on this
+    word.", which is a sentence about this app's own storage printed under
+    somebody's card. So the action still says `refused` for the reason above,
+    and the component may draw no failure at all.
   */
   assert.match(
     code("app/actions.ts"),
     /translateExample[\s\S]{0,1800}?refused: true/,
-    "translateExample returns a refused line as an ordinary error, so the reviewer's sentence is "
-      + "printed under a learner's card",
+    "translateExample returns a refused line as an ordinary error, so a caller that does draw one "
+      + "prints the reviewer's decision under a learner's card",
   );
   const translation = code("components/SentenceTranslation.tsx");
   assert.match(
     translation,
-    /"refused" in result/,
-    "SentenceTranslation reads a refusal as an error, so it draws one under the sentence",
+    /if \(!result\.ok\) \{\s*UNANSWERED\.add\(et\);\s*return;/,
+    "SentenceTranslation reads a failed translation as something to say, so a reviewer's decision or "
+      + "a sentence borrowed from another entry is drawn as an error under somebody's card",
   );
+  /*
+    AND IT ASKS ONCE. Nothing is drawn when a call comes back empty, which is
+    what makes the silence safe to read and what makes it expensive to leave
+    unguarded: a reveal is a fresh mount, so a deployment with no key, a spent
+    allowance or a sentence this entry does not hold spends a server action, a
+    reservation and a release on every card, for ever, with nothing on screen
+    to say so. The failure a learner cannot see is the one nobody turns off.
+  */
   assert.match(
     translation,
-    /\|\| refused\) return null/,
-    "SentenceTranslation goes on offering the button for a line a reviewer took off, so the learner "
-      + "presses it and is told about a decision that is not theirs",
+    /UNANSWERED\.has\(et\)\) return;/,
+    "SentenceTranslation asks again for a sentence this sitting already got nothing for, so a "
+      + "keyless deployment books a call on every card reveal and draws nothing for any of them",
+  );
+  assert.doesNotMatch(
+    translation,
+    /role="alert"|<button/,
+    "SentenceTranslation draws a control or an error again. It is a line and never either: the button "
+      + "asked a learner to press for the one thing that makes the sentence above it readable",
   );
 });
 

@@ -1,8 +1,29 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
-import { Languages, Loader2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { translateExample } from "@/app/actions";
+
+/**
+ * SENTENCES THIS SESSION HAS ALREADY ASKED ABOUT AND GOT NOTHING FOR.
+ *
+ * Nothing is drawn when a call comes back empty, which is the rule above and
+ * is what makes the silence safe to read: it is also what makes it expensive
+ * to leave unguarded. A reveal is a fresh mount, so a card met three times in
+ * a session asked three times, and on a deployment with no key, a spent daily
+ * allowance or a sentence this entry does not hold, every one of those is a
+ * server action, a ledger reservation and a release, for ever, with nothing on
+ * screen to say so. The failure a learner cannot see is the one nobody turns
+ * off.
+ *
+ * Per tab rather than stored: a sentence with no line today may have one after
+ * the next `npm run translate:examples` or once the operator adds a key, and a
+ * reload is a low enough price to ask for that. Keyed on the sentence, because
+ * the answer is a fact about the sentence rather than about the card that drew
+ * it (`prisma/data/example-english.json` is keyed the same way), so a word that
+ * borrows a line from another entry asks once across every screen that shows
+ * it.
+ */
+const UNANSWERED = new Set<string>();
 
 /**
  * THE WHOLE SENTENCE IN ENGLISH, WHEREVER AN ATTESTED SENTENCE IS SHOWN AS THE
@@ -15,58 +36,42 @@ import { translateExample } from "@/app/actions";
  * one word being asked about. One component rather than a second copy per
  * screen, for the reason `WordIntro` already gives about itself.
  *
- * Asked for on arrival, once per sentence per deployment: `translateExample`
- * stores what comes back on the lexeme's own example, so the next learner to
- * meet this sentence anywhere reads it for free. A deployment with no model
- * is offered nothing rather than promised something (`canTranslate`).
+ * IT IS A LINE AND NEVER A CONTROL. This used to draw a button reading "Say
+ * the whole thing in English", with a spinner and an error line under it, and
+ * all three were reported off one gap reveal: the button asks a learner to
+ * press for the one thing that makes the sentence above it readable, and the
+ * error under it ("That sentence is not on this word.") is a sentence about
+ * this app's own storage, drawn under somebody's card, mid-round, about
+ * something they had no part in and can do nothing about. A failure may not
+ * misname its cause and this one could not name a cause a learner has. So
+ * there is one outcome on screen: the English, once there is one. A call that
+ * comes back with nothing leaves the screen exactly as it was before this
+ * existed, which is what it already did for a deployment with no model and for
+ * a line a reviewer took off as wrong.
  *
  * `ask` IS THE ONE THING A CALLER DECIDES, and there are two honest answers
  * rather than one. A screen showing a learner one sentence, which is every
  * round and every first meeting, asks on arrival: the English is the point of
- * showing it and a button between a beginner and the meaning of the line in
- * front of them is a button most of them will not press. A screen showing a
- * word's whole shelf of sentences, which is the dictionary entry, asks on
- * request: eight sentences is eight calls against the deployment's own daily
- * cap, spent on seven a reader did not stop at. Both offer it, which is the
- * rule; when it is spent is the caller's.
+ * showing it. A screen showing a word's whole shelf of sentences, which is the
+ * dictionary entry, and one dealing forty cards a minute, which is the sprint,
+ * ask for none: eight sentences is eight calls against the deployment's own
+ * daily cap, spent on seven a reader did not stop at. Both print the line the
+ * dictionary already holds, which is nearly every sentence in the app, since
+ * `npm run translate:examples` ships 16,175 of them; what "never" costs is a
+ * call, never a line somebody would otherwise have read.
  */
 export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onArrival", onTranslated }: {
   lexemeId: string | null;
   et: string;
   en: string | null;
   canTranslate: boolean;
-  /** When the call is spent. See the note above; "onArrival" is the default. */
-  ask?: "onArrival" | "onRequest";
+  /** Whether a call may be spent on this sentence. See the note above. */
+  ask?: "onArrival" | "never";
   /** Told what came back, for a caller keeping its own copy of the sentence. */
   onTranslated?: (en: string) => void;
 }) {
   const [got, setGot] = useState<string | null>(en);
-  const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
   const asked = useRef(false);
-  /** A reviewer took this line off as wrong, so there is nothing on offer. */
-  const [refused, setRefused] = useState(false);
-
-  const translate = () => {
-    if (!lexemeId) return;
-    setError(null);
-    start(async () => {
-      const result = await translateExample(lexemeId, et);
-      if (result.ok) {
-        setGot(result.en);
-        onTranslated?.(result.en);
-      } else if ("refused" in result && result.refused) {
-        /*
-          Somebody read this sentence's English and said it was wrong, so
-          there is nothing to offer and nothing to say about it: the button
-          goes, exactly as it does where the deployment has no model at all.
-          An error here would put a reviewer's decision under a learner's card
-          mid-round, about something they can do nothing about.
-        */
-        setRefused(true);
-      } else setError(result.error);
-    });
-  };
 
   /*
     Every caller mounts this keyed on the sentence itself, the way `WordIntro`
@@ -75,38 +80,33 @@ export function SentenceTranslation({ lexemeId, et, en, canTranslate, ask = "onA
     last one's English.
   */
   useEffect(() => {
-    if (ask === "onRequest" || got || !canTranslate || !lexemeId || asked.current) return;
+    if (ask === "never" || got || !canTranslate || !lexemeId || asked.current) return;
+    if (UNANSWERED.has(et)) return;
     asked.current = true;
-    translate();
+    let live = true;
+    void (async () => {
+      const result = await translateExample(lexemeId, et);
+      // A refusal, a sentence this entry does not hold, a spent allowance: none
+      // of those is news a learner can act on, so none of them is drawn, and
+      // none of them is asked about twice in one sitting.
+      if (!result.ok) {
+        UNANSWERED.add(et);
+        return;
+      }
+      if (live) setGot(result.en);
+      onTranslated?.(result.en);
+    })();
+    return () => { live = false; };
     // Once per sentence: the ref is the guard, and the sentence is the key
     // the parent mounts this on.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (got) {
-    return (
-      <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
-        {got}
-      </p>
-    );
-  }
-
-  if (!canTranslate || !lexemeId || refused) return null;
+  if (!got) return null;
 
   return (
-    <>
-      <button
-        type="button"
-        disabled={pending}
-        onClick={translate}
-        className="tap-tint mt-1.5 inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs font-semibold disabled:opacity-50"
-        style={{ color: "var(--accent-deep)" }}
-      >
-        {pending
-          ? <><Loader2 size={12} className="animate-spin" aria-hidden /> Putting it into English…</>
-          : <><Languages size={12} aria-hidden /> Say the whole thing in English</>}
-      </button>
-      {error && <p role="alert" className="mt-1 text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
-    </>
+    <p className="mt-1.5 flex flex-wrap items-center gap-2 text-sm" style={{ color: "var(--ink-2)" }}>
+      {got}
+    </p>
   );
 }

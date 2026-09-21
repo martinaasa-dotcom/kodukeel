@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CASES } from "@/lib/estonian/cases";
 import { LETTER_CHEER_EVENT } from "@/lib/ux/letterMotion";
 import { ArrowRight } from "lucide-react";
+import { PARTS } from "@/lib/copy/values";
 
 /**
  * How long each word stays up while the card walks itself, in milliseconds.
@@ -379,7 +380,7 @@ function WithEnding({ form, et }: { form: string | null; et: string }) {
     Lighting the joined string would underline the last three letters of the
     pair and say nothing about the first.
   */
-  const parts = form.split(" / ");
+  const parts = form.split(PARTS);
   return (
     <>
       {parts.map((part, n) => (

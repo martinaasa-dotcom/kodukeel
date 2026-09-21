@@ -13,7 +13,7 @@ import { gapCue, gapMeaning } from "@/lib/copy/gapMeaning";
 import { useFeedbackSound } from "@/components/AudioPrefs";
 import type { QuestCard } from "@/lib/progress/quest";
 import { acceptedAnswers } from "@/lib/estonian/answer";
-import { BLANK } from "@/lib/estonian/cloze";
+import { BLANK, filledSentence, primaryAnswer } from "@/lib/estonian/cloze";
 import { OPTION_CLASS, VERDICT_CLASS, optionState } from "@/lib/ux/verdict";
 import { HintLadder } from "@/components/round/HintLadder";
 import { useHints } from "@/components/round/useHints";
@@ -469,19 +469,31 @@ export function QuestSession({
                    word underneath it and nothing to say the two belong
                    together. The sentence is what the answer is an answer to. */
                 <div className="flex flex-col items-center gap-2" role="status">
-                  <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
-                    {card.front.split(BLANK)[0]}
-                    <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>{card.back}</span>
-                    {card.front.split(BLANK)[1]}
-                  </p>
-                  <Speak text={card.front.replace(BLANK, card.back)} autoplay />
+                  {/* Speaker beside the sentence rather than under it, and
+                      `lang="et"` on the sentence rather than on the row, for
+                      the two reasons `ReviewSession`'s own gap reveal gives. */}
+                  <div className="flex w-full items-start justify-center gap-2">
+                    <p lang="et" className="text-xl leading-snug md:text-2xl" style={{ color: "var(--ink)" }}>
+                      {card.front.split(BLANK)[0]}
+                      <span style={{ color: "var(--accent-deep)", fontWeight: 600 }}>
+                        {primaryAnswer(card.back)}
+                      </span>
+                      {card.front.split(BLANK)[1]}
+                    </p>
+                    <Speak
+                      text={filledSentence(card.front, card.back)}
+                      label="Hear the whole sentence"
+                      autoplay
+                      className="press inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-[var(--raised)]"
+                    />
+                  </div>
                   {/* And what the whole line says. The review card has done
                       this since a gap card became a sentence; this round drew
                       the sentence and left a beginner to work it out. */}
                   <SentenceTranslation
                     key={card.front}
                     lexemeId={card.lexemeId}
-                    et={card.front.replace(BLANK, card.back)}
+                    et={filledSentence(card.front, card.back)}
                     en={card.sentenceEn}
                     canTranslate={card.canTranslate}
                   />
@@ -494,7 +506,7 @@ export function QuestSession({
                   {/* The answer, read aloud as it appears, the same rule
                       ReviewSession's own flip reveal states for itself: the
                       word you were trying to recall, said properly. */}
-                  <Speak text={card.back.split(" / ")[0]!.trim()} autoplay />
+                  <Speak text={primaryAnswer(card.back)} autoplay />
                 </div>
               )}
               <div className="mt-2 grid w-full max-w-sm grid-cols-2 gap-2">
