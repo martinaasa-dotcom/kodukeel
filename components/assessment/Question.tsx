@@ -97,6 +97,40 @@ export function EstonianPrompt({ text }: { text: string }) {
   );
 }
 
+/**
+ * The full sentence with the wanted form picked out, so the one thing a wrong
+ * answer needs to teach does not sit lost in a run of plain black text.
+ *
+ * The blank the learner typed into was drawn in the accent (`EstonianPrompt`
+ * above); the word that actually filled it wears the same accent now, in the
+ * same slot, so the eye lands on it without having to read the whole sentence
+ * again. `answer` is the exact spelling `buildCloze` took out, so it is always
+ * in `full` once, at the position it left it (ADR-005: nothing here writes or
+ * changes a character of it, it only marks where one already is).
+ */
+function FullSentence({ full, answer }: { full: string; answer: string }) {
+  const index = full.indexOf(answer);
+  if (index === -1) {
+    return (
+      <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
+        {full}
+      </p>
+    );
+  }
+  return (
+    <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
+      {full.slice(0, index)}
+      <span
+        className="rounded-[var(--r-sm)] px-1.5"
+        style={{ background: "var(--accent-soft)", color: "var(--accent-deep)" }}
+      >
+        {answer}
+      </span>
+      {full.slice(index + answer.length)}
+    </p>
+  );
+}
+
 export function Provenance({ source }: { source: Item["source"] }) {
   return (
     <p className="mt-4 text-xs" style={{ color: "var(--ink-3)" }}>
@@ -415,9 +449,7 @@ export function WriteQuestion({ item, onAnswer }: { item: WriteItem; onAnswer: (
             explanation the multiple choice version of this task prints, from
             the same function, so the two cannot say different things.
           */}
-          <p lang="et" className="mt-4 text-xl font-bold leading-snug" style={{ color: "var(--ink)" }}>
-            {item.full}
-          </p>
+          <FullSentence full={item.full} answer={item.targetForm} />
           {mark.credit < 1 && (
             <p className="mt-3 text-base leading-relaxed" style={{ color: "var(--ink-2)" }}>{item.because}</p>
           )}
