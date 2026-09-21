@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
-import { assemble, BLUEPRINT, buildPaper, listeningItems, mulberry32, readingItems, speakingItems, writingItems, type WordRow } from "./items";
+import { assemble, BLUEPRINT, buildPaper, explainForm, listeningItems, mulberry32, readingItems, speakingItems, writingItems, type WordRow } from "./items";
 import { heardIndex, meaningsHeard } from "./heard";
 import { BLANK } from "@/lib/estonian/cloze";
 import { BANDS, type ChoiceItem, type Item } from "./types";
@@ -510,6 +510,87 @@ describe("the explanation after a gap", () => {
     }
   });
 
+  it("never describes a plural as the singular's slot", () => {
+    /*
+      `CASE_BY_FORM_TYPE` used to translate a principal part into a case and
+      throw the number away, mapping `NOM_PL`, `GEN_PL` and `PART_PL` onto the
+      singular keys. 828 of the gaps the shipped dictionary builds took the
+      singular's clause because of it, and the nominative plural was the one
+      that was outright false: `sõbrad` was explained as "the form you use as
+      the plain dictionary word", about a word whose dictionary form is
+      `sõber` and is printed three words earlier in the same sentence.
+    */
+    const sober: WordRow = {
+      id: "sober", lemma: "sõber", translation: "friend", pos: "NOUN", cefr: "A1", government: null,
+      forms: [
+        { formType: "NOM_SG", value: "sõber" },
+        { formType: "GEN_SG", value: "sõbra" },
+        { formType: "PART_SG", value: "sõpra" },
+        { formType: "NOM_PL", value: "sõbrad" },
+        { formType: "GEN_PL", value: "sõprade" },
+        { formType: "EKILEX:PlAll", value: "sõpradele" },
+      ],
+      examples: [
+        { et: "Minu sõbrad tulevad homme." },
+        { et: "Ma kirjutasin sõpradele kirja." },
+      ],
+    };
+    const lines = [
+      ...writingItems([sober], mulberry32(3)).map((i) => i.because),
+      ...readingItems([sober], mulberry32(3)).map((i) => i.because),
+    ];
+    const nominative = lines.filter((l) => l.includes("takes sõbrad"));
+    expect(nominative.length, "no nominative plural gap was built").toBeGreaterThan(0);
+    for (const line of nominative) {
+      expect(line).toContain("That is the plural.");
+      expect(line, "the plural is described as the dictionary word")
+        .not.toContain("as the plain dictionary word");
+    }
+    /*
+      And an oblique keeps its clause, since a plural allative is still the
+      form something goes to. What it gains is the word "plural". Asked of
+      `explainForm` rather than through a gap, because a word carries one gap
+      per builder and which of its forms that gap wants is the sentence's
+      choice rather than this test's.
+    */
+    const allative = explainForm(sober, "sõpradele");
+    expect(allative).toContain("That is the plural, and the form you use");
+    expect(allative).toContain("is given to somebody");
+    expect(explainForm(sober, "sõprade")).toContain("That is the plural, and the form you use");
+  });
+
+  it("says what a verb form is asking, off a seeded principal part", () => {
+    /*
+      `plainAsk` is keyed on Ekilex's codes and every seeded verb carries
+      `INF_DA`, `PART_TUD`, `PRES_1SG` or `PAST_1SG`, so the clause was null
+      on every one of the 249 verb gaps the shipped dictionary builds and the
+      explanation stopped at the form. `slotCodeOf` is the one reading of
+      which slot a row is in, whichever way the row spells it.
+    */
+    const sooma: WordRow = {
+      id: "sooma", lemma: "sööma", translation: "to eat", pos: "VERB", cefr: "A1", government: null,
+      forms: [
+        { formType: "INF_MA", value: "sööma" },
+        { formType: "INF_DA", value: "süüa" },
+        { formType: "PRES_1SG", value: "söön" },
+        { formType: "PAST_1SG", value: "sõin" },
+      ],
+      examples: [
+        { et: "Ma tahan süüa." },
+        { et: "Ma söön hommikust." },
+      ],
+    };
+    const lines = [
+      ...writingItems([sooma], mulberry32(3)).map((i) => i.because),
+      ...readingItems([sooma], mulberry32(3)).map((i) => i.because),
+    ];
+    const infinitive = lines.filter((l) => l.includes("takes süüa"));
+    expect(infinitive.length, "no da-infinitive gap was built").toBeGreaterThan(0);
+    for (const line of infinitive) expect(line).toContain("when you mean");
+    expect(explainForm(sooma, "söön")).toContain("about yourself, happening now");
+    expect(explainForm(sooma, "sõin")).toContain("about yourself, already happened");
+  });
+
   it("never names a case, in Estonian or in Latin", () => {
     /*
       The rule this screen is held to, reported off the level check: a name is
@@ -634,6 +715,31 @@ describe("a wrong answer may be tricky and may not be true", () => {
       const item = paper.items.find((i): i is ChoiceItem => i.id === "l-use-isa");
       if (!item) continue;
       expect(item.options).not.toContain("mother");
+    }
+  });
+
+  /*
+    Real rows. `mina` is stored with the genitive plural `meie`, which is the
+    entry `meie` in its own right, so the spelling played by the word-alone
+    question belongs to two entries and both meanings are true of it. Found by
+    `npm run audit:questions`, which reported `check items heard meie` showing
+    "meie" and offering "I, me".
+  */
+  const PRONOUNS: WordRow[] = [
+    { id: "meie", lemma: "meie", translation: "we, us", pos: "PRONOUN", cefr: "A1", government: null,
+      forms: [{ formType: "NOM_SG", value: "meie" }, { formType: "GEN_SG", value: "meie" }, { formType: "PART_SG", value: "meid" }], examples: [] },
+    { id: "mina", lemma: "mina", translation: "I, me", pos: "PRONOUN", cefr: "A1", government: null,
+      forms: [{ formType: "NOM_SG", value: "mina" }, { formType: "GEN_SG", value: "minu" }, { formType: "PART_SG", value: "mind" }, { formType: "GEN_PL", value: "meie" }], examples: [] },
+  ];
+
+  it("never offers the meaning of another entry the played spelling belongs to", () => {
+    const pool = [...PRONOUNS, ...FAMILY, ...NEIGHBOURS];
+    for (let seed = 1; seed < 40; seed++) {
+      const item = listeningItems(pool, mulberry32(seed)).find((i): i is ChoiceItem => i.id === "l-word-meie");
+      expect(item, `seed ${seed} asked nothing about meie`).toBeDefined();
+      expect(item!.et).toBe("meie");
+      expect(item!.options).toContain("we, us");
+      expect(item!.options).not.toContain("I, me");
     }
   });
 });

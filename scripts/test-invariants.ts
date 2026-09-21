@@ -19856,7 +19856,7 @@ check("the English of a shipped sentence is built once and read in one place", (
     `ALL` alone first, which found no readers at all and passed the day the
     seed stopped joining.
   */
-  const readers = [...ALL, ...sourceFiles("prisma")]
+  const readers = [...ALL, ...sourceFiles("prisma"), ...sourceFiles("scripts")]
     .filter((f) => f !== "lib/dict/exampleEnglish.ts" && /from "[^"]*\/exampleEnglish"/.test(code(f)));
   assert.deepEqual(
     readers.sort(),
@@ -19877,6 +19877,25 @@ check("the English of a shipped sentence is built once and read in one place", (
         tested against nothing.
       */
       "lib/progress/grammarExamples.test.ts",
+      /*
+        And the adapter every audit reads the shipped dictionary through,
+        which is a joiner rather than a screen and was the one place the join
+        was missing. It built each entry's sentences as `({ et, en: null })`
+        under a comment reasoning correctly that no *entry* file carries an
+        English column and wrongly that there was therefore nothing to join,
+        so every audit was measuring a dictionary whose every sentence was
+        bare. The seed joins on both its paths; so does this, or a check about
+        what a learner reads beside a sentence is checking a deployment nobody
+        has.
+      */
+      "scripts/lib/dictionary.ts",
+      /*
+        And this file, which reads the table to assert that it can be read
+        back at all and that what is in it is English. Swept because the
+        sweep now covers `scripts/`, and listed rather than excluded, because
+        an exemption with a reason beside it is the thing the list is for.
+      */
+      "scripts/test-invariants.ts",
     ].sort(),
     "somebody else reads the shipped translations. lib/dict/exampleEnglish.ts is the one table and " +
     "there are four places a sentence is written down: the two halves of the seed, the repair that " +
