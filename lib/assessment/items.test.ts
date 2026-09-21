@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CASES } from "@/lib/estonian/cases";
-import { assemble, BLUEPRINT, buildPaper, listeningItems, mulberry32, readingItems, speakingItems, writingItems, type WordRow } from "./items";
+import { assemble, BLUEPRINT, buildPaper, explainGap, explainWrittenGap, gapFrom, listeningItems, mulberry32, readingItems, speakingItems, writingItems, type WordRow } from "./items";
 import { heardIndex, meaningsHeard } from "./heard";
 import { BLANK } from "@/lib/estonian/cloze";
 import { BANDS, type ChoiceItem, type Item } from "./types";
@@ -459,18 +459,48 @@ describe("the explanation after a gap", () => {
     const explained = writingItems([tuba], mulberry32(3)).find((i) => i.because.length > 0);
     expect(explained, "no written gap was built").toBeDefined();
     /*
-      Two versions of this have been reported as unreadable and both were the
-      same fault at different lengths: "Here toas is in the seesütlev, the
-      inessive.", and then a form named as three cases with three bracketed
-      questions after it. The sentence comes first, then what it means, which
-      is the half that was missing and is the honest answer to "why that form".
+      Three versions of this have been reported as unreadable. The first two
+      were the same fault at different lengths: "Here toas is in the seesütlev,
+      the inessive.", and then a form named as three cases with three bracketed
+      questions after it. The third was this paragraph opening with the whole
+      sentence, on a screen that draws that same sentence in bold directly
+      above it with the wanted form picked out in the accent: the sentence
+      three times and the answer three times on one card.
+
+      So the typed shape gets `explainWrittenGap`, which is what is left once
+      the drawing above has had its say: what the sentence means, and which
+      form it wanted. The multiple choice shape is still showing a blanked line
+      when it marks, so `explainGap` keeps the sentence for it.
     */
-    expect(explained!.because.startsWith(explained!.full)).toBe(true);
+    expect(explained!.because.startsWith(explained!.full)).toBe(false);
     expect(explained!.because).toContain("I am in the room right now.");
     expect(explained!.because).toContain("The gap takes toas rather than tuba.");
     // And the clause `lib/estonian/plainAsk.ts` holds for the slot, which is
     // what a person would say out loud rather than what a class calls it.
     expect(explained!.because).toContain("when something is inside it");
+  });
+
+  it("keeps the sentence for the shape that is still showing a blank", () => {
+    /*
+      The two shapes of one task, and the whole reason there are two functions.
+      A reading gap marks while the blanked line is still on screen, so its
+      explanation has to put the sentence back together; the typed gap draws
+      the sentence itself. Asserted in both directions, because a caller
+      wiring the wrong one produces a screen that reads fine until you notice
+      the sentence is on it twice.
+    */
+    const tuba: WordRow = {
+      ...WORDS.find((w) => w.lemma === "tuba")!,
+      examples: [{ et: "Ma olen praegu toas.", en: "I am in the room right now." }],
+    };
+    const gap = gapFrom(tuba);
+    expect(gap, "no gap was built").not.toBeNull();
+    expect(explainGap(tuba, gap!).startsWith(gap!.full)).toBe(true);
+    expect(explainWrittenGap(tuba, gap!).startsWith(gap!.full)).toBe(false);
+    // Neither loses the reason, which is the half a drawing cannot carry.
+    for (const text of [explainGap(tuba, gap!), explainWrittenGap(tuba, gap!)]) {
+      expect(text).toContain("The gap takes toas rather than tuba.");
+    }
   });
 
   it("says nothing about the slot when one spelling is two cases", () => {

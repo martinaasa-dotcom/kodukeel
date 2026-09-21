@@ -138,16 +138,11 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
             en={word.example.en ?? null}
             canTranslate={canTranslate}
           />
-          {/*
-            Where the sentence came from, said out loud. Every Estonian sentence
-            in this app is one a lexicographer recorded, and a page that shows
-            them without saying so is asking to be trusted rather than checked.
-          */}
-          {/* `text-2xs` is the floor for tracked uppercase micro-labels, not for
-              lowercase running text on a pastel card read in the evening. */}
-          <figcaption className="mt-1.5 text-xs" style={{ color: "var(--ink-3)" }}>
-            {SENTENCE_SOURCE[word.example.source] ?? UNSTAMPED}
-          </figcaption>
+          {/* No provenance caption. It said "Recorded sentence" under every
+              sentence this card has ever drawn, which is the disclaimer that
+              came off the level check and every round: a claim worth making
+              once, where somebody is deciding whether to trust this, and not
+              under each individual sentence. */}
         </figure>
       )}
 
@@ -175,18 +170,3 @@ export function WordOfDayCard({ word, collection, canTranslate, className }: {
   );
 }
 
-/**
- * Where the sentence came from, in words.
- *
- * The fallback is the one that matters, because the built expansion writes its
- * sentences without stamping a source on them and they are the majority of what
- * this card will ever show. What every branch of this says is the same claim,
- * which is the claim ADR-005 exists to make: nobody here wrote it.
- */
-const SENTENCE_SOURCE: Record<string, string> = {
-  EKILEX: "Recorded sentence",
-  SEED: "Sentence from the built-in dictionary",
-  USER: "Sentence added by a learner here",
-};
-
-const UNSTAMPED = "Sentence from the dictionary, not written here";

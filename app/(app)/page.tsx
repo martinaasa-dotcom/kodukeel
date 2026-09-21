@@ -24,7 +24,7 @@ import { orderTodayCards, todayOrderFrom } from "@/lib/ux/todayOrder";
 import { modeAt } from "@/lib/ux/modes";
 import { ButtonLink } from "@/components/Button";
 import { icon } from "@/components/icons";
-import { Card, Columns, Empty, Meter, Note, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
+import { Card, Columns, Empty, Meter, Page, Ring, SectionTitle, Stack, StatTile } from "@/components/ui";
 import { LocalDate } from "@/components/LocalDate";
 import { dateLine } from "@/lib/time/estonianDate";
 import type { TaskView } from "@/components/TaskRow";

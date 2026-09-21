@@ -205,22 +205,18 @@ export function SayItToday({ errand, answered, conversations, days, unitTitle }:
           every other card on Today holds a level or a count, so "A bus stop, a
           corridor" was a caption belonging to nothing.
         */}
+        {/*
+          The place and where the words are. "Nobody will slow down for you,
+          and that is the practice" came off it: a learner about to go and
+          speak Estonian to a stranger does not need the app to tell them that
+          strangers are hard, and a moral at the end of a two-line card is the
+          shape `docs/18-voice.md` calls a sentence doing no work.
+        */}
         <p className="mt-1 text-xs" style={{ color: "var(--ink-3)" }}>
           {errandPlaces(errand)}. The words are in{" "}
           <Link href={`/learn/${errand.unit}`} className="underline">{unitTitle}</Link>.
-          {" "}Nobody will slow down for you, and that is the practice.
+          {scene && <> Or <Link href={`/situations/${scene.id}`} className="underline">rehearse it first</Link>.</>}
         </p>
-        {/*
-          The rehearsal, where the course has one. Situations plays this
-          same encounter on somebody with an agenda of their own, and for a
-          while the two never pointed at each other: the errand sent people
-          to a word list and the scene ended in "have it again".
-        */}
-        {scene && (
-          <p className="mt-2 text-xs" style={{ color: "var(--ink-3)" }}>
-            Not sure of the words? <Link href={`/situations/${scene.id}`} className="underline">Rehearse it first</Link>, then go.
-          </p>
-        )}
       </Card>
     );
   }

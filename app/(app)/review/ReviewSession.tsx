@@ -1353,6 +1353,22 @@ export function ReviewSession({
         </span>
       </div>
 
+      {/*
+        WHAT NARROWED THIS SESSION, ONCE, RATHER THAN ON EVERY CARD OF IT.
+
+        These two were chips in the card header, beside the card's own type and
+        its "New word": four pills across the top of a 360px card, of which two
+        were a fact about the *session* reprinted on all thirty of its cards. A
+        session-scope fact belongs on the session, which is this row.
+      */}
+      {(drillCase || drillScan) && (
+        <p className="-mt-4 mb-7 text-sm" style={{ color: "var(--ink-3)" }}>
+          {drillCase
+            ? <>Drilling the <span lang="et">{drillCase.toLowerCase()}</span>.</>
+            : <>From {drillScan!.title}.</>}
+        </p>
+      )}
+
       {/* A look back stands in the round's place rather than over it: the card
           underneath must not be answerable while somebody is reading an older
           one, and one screen at a time is what every other step here does. */}
@@ -1364,10 +1380,10 @@ export function ReviewSession({
         style={{ borderColor: "var(--rule)", background: "var(--surface)", boxShadow: "var(--shadow-lg)" }}
       >
         <div className="flex flex-wrap items-center gap-2 border-b px-6 py-3" style={{ borderColor: "var(--rule-soft)" }}>
+          {/* Two chips at the most, and both about this card. What narrowed the
+              session is said once, above, rather than on every card of it. */}
           <Chip tone="accent">{TYPE_LABEL[card.cardType] ?? card.cardType}</Chip>
           {card.isNew && <Chip tone="good">{card.intro?.isPhrase ? "New phrase" : "New word"}</Chip>}
-          {drillCase && <Chip tone="hard">{drillCase.toLowerCase()} drill</Chip>}
-          {drillScan && <Chip tone="sky">{drillScan.title}</Chip>}
           <div className="ml-auto flex items-center gap-1">
             {card.lemma && (
               <FullEntry lemma={card.lemma} />

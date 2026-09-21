@@ -18,8 +18,10 @@ const write: WriteItem = {
   question: "Write tuba in the form this sentence needs.", translation: "room",
   sentence: "Ma olen praegu ____.", full: "Ma olen praegu toas.",
   targetForm: "toas", otherForms: ["toa", "tuppa", "toast"],
+  // `explainWrittenGap`'s shape: what the sentence means and which form it
+  // wanted, and not the sentence, which `FullSentence` draws above this.
   because:
-    "Ma olen praegu toas. I am in the room right now. The gap takes toas rather than tuba. " +
+    "I am in the room right now. The gap takes toas rather than tuba. " +
     "That is the form you use when something is inside it.",
 };
 
@@ -54,13 +56,34 @@ describe("marking", () => {
     expect(gradeWrite(write, "raamat").credit).toBe(0);
   });
 
-  it("calls a different form of the right word a near miss, and says which", () => {
+  it("calls a different form of the right word a near miss", () => {
     // The mistake the task exists to find: the word is known, the sentence is not.
     const near = gradeWrite(write, "tuppa");
     expect(near.credit).toBeGreaterThan(0);
     expect(near.credit).toBeLessThan(1);
     expect(near.usedAnotherForm).toBe(true);
-    expect(near.note).toContain("toas");
+    expect(near.note).toContain("tuba");
+    // And it does not name the wanted form. `FullSentence` draws the sentence
+    // under this with that form picked out in the accent, so naming it here is
+    // the same word twice in two inches.
+    expect(near.note).not.toContain("toas");
+  });
+
+  it("does not tell somebody the dictionary form is a form of itself", () => {
+    /*
+      The commonest wrong answer on this task is the lemma, because the screen
+      prints it in bold above the box. Written as one line for the whole branch
+      that read "kolmkümmend is a real form of kolmkümmend, but this sentence
+      wants kolmekümne", which is a tautology in front of somebody who has just
+      been marked wrong.
+    */
+    // `gapFrom` builds `otherForms` out of every vouched form bar the answer,
+    // so the lemma really is in there on a live item; the shared fixture above
+    // happens to leave it out.
+    const withLemma: WriteItem = { ...write, otherForms: [...write.otherForms, "tuba"] };
+    const typedLemma = gradeWrite(withLemma, "tuba");
+    expect(typedLemma.usedAnotherForm).toBe(true);
+    expect(typedLemma.note).toBe("That is the dictionary form. This sentence needs it in another one.");
   });
 
   it("does not fail somebody for a keyboard without Estonian letters", () => {
