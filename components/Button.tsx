@@ -28,7 +28,28 @@ const STYLES: Record<Variant, CSSProperties & { className?: string }> = {
 const SIZES: Record<Size, string> = {
   sm: "px-3 py-1.5 text-xs",
   md: "px-4 py-2.5 text-sm",
-  lg: "px-6 py-3.5 text-base",
+  /*
+    `lg` is a hero action — the one loud button on a screen like Today's
+    module card — and it was one fixed size for every window: px-6/py-3.5 at
+    text-base (17px), about 56px tall, whatever the viewport. That is the
+    right size for a phone held at arm's length and too much on an ordinary
+    laptop tab, where it read as oversized next to everything around it.
+
+    So it steps up with the window rather than sitting at one size: compact
+    by default, the same size as `md` in effect, and only reaches its full
+    size at `2xl` (1536px), which is roughly where a maximized window on a
+    larger laptop display sits rather than a 13-inch one. A narrower window —
+    most laptops, most of the time — gets the smaller, calmer button; a wide
+    one gets the size the hero card was designed at.
+
+    `min-h-11` (44px) is not part of that step: a `ButtonLink` renders an
+    `<a>`, which the coarse-pointer tap-target floor in globals.css does not
+    reach (that selector list is `button`, `[role="button"]`, `a.pill`,
+    an icon-only `a[aria-label]`), so nothing else was holding this control to
+    the floor at the compact size. Stated once here rather than left to
+    whichever screen's padding happened to clear it.
+  */
+  lg: "min-h-11 px-5 py-3 text-sm 2xl:px-6 2xl:py-3.5 2xl:text-base",
 };
 
 const base =
