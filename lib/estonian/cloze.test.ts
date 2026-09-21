@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BLANK, buildCloze, isBuildable, naturalSentence, sentenceMatches, sentenceTiles, sizedBlank, mentions } from "./cloze";
+import { BLANK, buildCloze, filledSentence, isBuildable, naturalSentence, primaryAnswer, sentenceMatches, sentenceTiles, sizedBlank, mentions } from "./cloze";
 
 describe("a blank sized to the answer it stands for", () => {
   it("matches the answer's own length", () => {
@@ -191,5 +191,49 @@ describe("naturalSentence", () => {
   it("keeps a verb in front of a comma, which is an ordinary main clause", () => {
     // No predicate is handed in for a verb headword, so nothing is rejected.
     expect(naturalSentence("Usun, et ta ei valeta.")).toBe(true);
+  });
+});
+
+/*
+  A GAP CARD'S BACK HOLDS EVERY SPELLING THE MARKER TAKES; ITS SENTENCE HOLDS
+  ONE WORD.
+
+  `lib/srs/cards.ts` builds a case and conjugation back as
+  `[answer, ...also].join(PARTS)`, so the illative of `tuba` arrives as
+  `tuppa / toasse`. Every reveal spliced the whole back into the sentence: the
+  learner read a slash mid-sentence, heard it read aloud, and the
+  reconstructed line matched no recorded sentence, so the English under it
+  came back empty and a model was asked to translate a sentence nobody wrote.
+*/
+describe("primaryAnswer", () => {
+  it("takes the first of a pair the marker accepts", () => {
+    expect(primaryAnswer("tuppa / toasse")).toBe("tuppa");
+  });
+
+  it("leaves a single answer alone", () => {
+    expect(primaryAnswer("ühe")).toBe("ühe");
+  });
+
+  it("never returns nothing, whatever it is handed", () => {
+    // A back that is only the separator is not a card anybody builds, and a
+    // blank spliced into a sentence would be worse than the separator was.
+    expect(primaryAnswer(" / ")).toBe(" / ");
+    expect(primaryAnswer("")).toBe("");
+  });
+});
+
+describe("filledSentence", () => {
+  it("puts one form back where the blank was", () => {
+    expect(filledSentence("Olen Rootsis käinud vaid ____ korra.", "ühe"))
+      .toBe("Olen Rootsis käinud vaid ühe korra.");
+  });
+
+  it("puts the primary back where the card accepts two", () => {
+    // The slash never reaches the sentence, the speaker or the lookup.
+    expect(filledSentence("Ma lähen ____.", "tuppa / toasse")).toBe("Ma lähen tuppa.");
+  });
+
+  it("leaves a sentence with no blank in it exactly as it is", () => {
+    expect(filledSentence("Ma lähen tuppa.", "tuppa")).toBe("Ma lähen tuppa.");
   });
 });

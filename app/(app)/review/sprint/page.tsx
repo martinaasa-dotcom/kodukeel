@@ -3,9 +3,8 @@ import { plainPhrase } from "@/lib/copy/values";
 import { requireUserId } from "@/lib/auth/session";
 import { starredAmong } from "@/lib/progress/stars";
 import { SprintSession, type SprintCard } from "./SprintSession";
-import { parseExamples, translationOf, type Example } from "@/lib/dict/examples";
-import { borrowedSentences } from "@/lib/dict/facts";
-import { BLANK } from "@/lib/estonian/cloze";
+import { parseExamples, sentenceEnglish } from "@/lib/dict/examples";
+import { BLANK, filledSentence } from "@/lib/estonian/cloze";
 import { resolveProvider } from "@/lib/tutor/provider";
 import { shuffle } from "@/lib/random/shuffle";
 import { numberSetting, readSettings, SETTING_KEYS } from "@/lib/settings/store";
@@ -87,16 +86,6 @@ export default async function SprintPage({
   const starred = await starredAmong(
     ownerId, shuffled.map((c) => c.lexemeId).filter((id): id is string => !!id),
   );
-  /*
-    And the sentences this word borrowed from other entries, because a card
-    cut from one carries its English there rather than on the word the card is
-    about: see `withBorrowedEnglish` in `app/(app)/review/cards.ts` for the
-    learner who read a borrowed sentence with nothing under it. Read only
-    where a gap card is in the pool, since the map is the whole dictionary's.
-  */
-  const borrowed = shuffled.some((c) => c.lexemeId && c.front.includes(BLANK))
-    ? await borrowedSentences()
-    : new Map<string, Example[]>();
   const sprintCards: SprintCard[] = shuffled.map((c) => ({
     id: c.id,
     front: c.front,
@@ -114,10 +103,7 @@ export default async function SprintPage({
       own daily cap for a reader who is racing past them.
     */
     sentenceEn: c.front.includes(BLANK) && c.lexeme
-      ? translationOf(parseExamples(c.lexeme.examples), c.front.replace(BLANK, c.back))
-        ?? (c.lexemeId
-          ? translationOf(borrowed.get(c.lexemeId) ?? [], c.front.replace(BLANK, c.back))
-          : null)
+      ? sentenceEnglish(parseExamples(c.lexeme.examples), filledSentence(c.front, c.back))
       : null,
     // Not drawn, and read: it is how `gapMeaning` knows which word of the
     // English sentence is the one the gap is asking for.

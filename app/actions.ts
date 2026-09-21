@@ -565,10 +565,13 @@ export async function translateExample(lexemeId: string, sentence: string) {
     meets. `SentenceTranslation` asks on arrival, so an error here is a line
     about a reviewer's decision drawn under somebody's card, in a round they
     are in the middle of, about a thing they had no part in and can do nothing
-    about. `refused` is what the screen reads to draw nothing at all, which is
-    what it already does for a deployment with no model configured: offered
-    nothing rather than promised something. The sentence itself is untouched
-    and still on screen; what is gone is the offer to explain it.
+    about. `refused` says so rather than leaving it to a caller to guess. What
+    a learner sees is the same for every way this can fail, since the screen
+    draws one thing, the English once there is one, and it remembers a
+    sentence that came back empty rather than asking again on the next reveal:
+    the strings below reach no screen and are there for a caller that is not
+    one. The sentence itself is untouched and still on screen; what is gone is
+    the offer to explain it.
   */
   if (target.enRefused) {
     return { ok: false as const, refused: true as const, error: "" };

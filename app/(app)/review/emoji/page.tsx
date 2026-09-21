@@ -15,6 +15,7 @@ import { Empty, Page } from "@/components/ui";
 import { EmojiSession } from "./EmojiSession";
 import { boardLead, type EmojiPair } from "@/lib/games/emojiBoard";
 import { caseWithin, lemmaFilter, moduleScopeFrom } from "@/lib/course/scope";
+import { primaryAnswer } from "@/lib/estonian/cloze";
 
 export const metadata = { title: "Picture match" };
 
@@ -198,7 +199,7 @@ export default async function EmojiPage({
       lemma,
       // The card's own back, which is the form the dictionary vouches for and
       // may be a pair (`tuppa / toasse`). The first is the one to print.
-      form: card.back.split(" / ")[0]!.trim(),
+      form: primaryAnswer(card.back),
       question: caseQuestionFor(spec, subjectOf(card.lexeme!)),
       caseEt: grammarTerm(spec.key)?.et ?? spec.et,
       caseKey: spec.key,

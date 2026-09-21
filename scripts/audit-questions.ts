@@ -64,6 +64,7 @@ import { differentMeaning } from "../lib/questions/distractors";
 import { EXAM_LEVELS } from "../lib/exam/spec";
 import { clueClashes, clueFrom, clueKey } from "../lib/games/clue";
 import { mentions } from "../lib/estonian/cloze";
+import { PARTS } from "../lib/copy/values";
 import { SCENES } from "../lib/collections/scenes";
 import { emojiFor } from "../lib/collections/emoji";
 import { ASKABLE_CASES, taskFor, type SceneWord } from "../lib/games/describe";
@@ -285,7 +286,7 @@ function ask(where: string, shown: string, answer: string): void {
   }
   // A case card's back is every accepted spelling, joined. Any one of them
   // showing is enough to make the card free.
-  for (const one of wanted.split(" / ")) {
+  for (const one of wanted.split(PARTS)) {
     if (mentions(shown, one)) { faults.push({ where, shown, answer: one }); return; }
   }
 }
