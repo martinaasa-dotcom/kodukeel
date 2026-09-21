@@ -42,6 +42,22 @@ jobs:
       - uses: actions/setup-node@v7
         with: { node-version: "20", cache: npm }
       - run: npm ci
+      # `prisma generate` and nothing else, which is the one step this job was
+      # missing and the reason it had never run.
+      #
+      # `prisma/expanded.ts` imports `Prisma` as a value, so loading the audit
+      # loads `.prisma/client`, which is generated rather than installed:
+      # package.json has no `postinstall`, so `npm ci` does not write it, and
+      # every job in ci.yml runs this line for that reason. Without it the run
+      # died in 29 seconds on `Cannot find module '.prisma/client/default'`,
+      # weekly, since the workflow landed. A check nobody has watched fail is a
+      # check nobody knows the state of, and this one had never passed either.
+      #
+      # It needs no database: generating writes the client and connects to
+      # nothing, and the audit instantiates no client of its own. It reads
+      # prisma/data/expanded.json and asks Wiktionary, which is what keeps this
+      # the one drift check that can run unattended.
+      - run: npx prisma generate
       # Carried between weeks, because a whole pass does not fit in one run.
       #
       # Wiktionary starts refusing part way through five thousand pages however

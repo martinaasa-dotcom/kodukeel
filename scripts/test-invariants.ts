@@ -10390,6 +10390,65 @@ check("every script a workflow runs is a script that exists", () => {
   assert.deepEqual(absent, [], `a workflow runs a script file that is not there: ${absent.join(", ")}`);
 });
 
+check("a job that runs an audit generates the Prisma client first", () => {
+  /*
+    `.github/workflows/drift.yml` fired every Monday for weeks and died in
+    twenty-nine seconds each time, on `Cannot find module
+    '.prisma/client/default'`. The job ran `npm ci` and went straight to
+    `npm run audit:glosses`; every audit reads the shipped dictionary through
+    `prisma/expanded.ts` or `scripts/lib/dictionary.ts`, both of which import
+    `Prisma` as a value, and the client is generated rather than installed,
+    since package.json has no `postinstall`. So the one drift check that needs
+    no credential had never once run, and nothing said so, because a scheduled
+    job nobody watches is red in a tab nobody opens.
+
+    Per job rather than per file, because ci.yml holds eleven of them and a
+    twelfth added without this line would sit behind the ten that have it.
+    `npm run build` counts, since that script generates before it does anything
+    else, and that is asserted here rather than remembered.
+  */
+  const build = (JSON.parse(read("package.json")) as { scripts: Record<string, string> }).scripts
+    .build;
+  assert.ok(
+    build?.includes("prisma generate"),
+    "npm run build no longer generates the client, so it cannot stand in for the step below",
+  );
+
+  const offenders: string[] = [];
+  for (const file of sourceFiles(".github/workflows", /\.ya?ml$/)) {
+    /*
+      Comments stripped first, which is this repository's oldest recurring
+      mistake made once more: the paragraph in drift.yml explaining why the
+      step is there names the step, so the first version of this passed with
+      the step deleted. A check reads code, never the prose beside it.
+    */
+    const body = read(file)
+      .split("\n")
+      .map((line) => line.replace(/(^|\s)#.*$/, ""))
+      .join("\n");
+    const jobsAt = body.indexOf("\njobs:");
+    if (jobsAt < 0) continue;
+    /*
+      A job is a two-space key under `jobs:`, so the next one starts the next
+      job and everything between belongs to this one. Splitting on the key is
+      enough here and needs no parser, which this repository has no dependency
+      on.
+    */
+    const jobs = body.slice(jobsAt).split(/\n {2}(?=[A-Za-z][\w-]*:\n)/).slice(1);
+    for (const job of jobs) {
+      const name = job.slice(0, job.indexOf(":"));
+      if (!/npm run (?:-{1,2}[a-z][\w-]*\s+)*audit:/.test(job)) continue;
+      if (job.includes("prisma generate") || /npm run build\b/.test(job)) continue;
+      offenders.push(`${file}:${name}`);
+    }
+  }
+  assert.deepEqual(
+    offenders,
+    [],
+    `a workflow job runs an audit without generating the Prisma client: ${offenders.join(", ")}`,
+  );
+});
+
 // ── A deck is counted by building it, and built in a bounded number of queries ─
 
 /*
