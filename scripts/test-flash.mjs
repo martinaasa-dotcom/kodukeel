@@ -138,10 +138,35 @@ function marksSentence(text) {
   return /write a sentence/i.test(text);
 }
 
-/** Answers whatever is on screen and returns what the marking said. */
+/**
+ * Answers whatever is on screen and returns what the marking said.
+ *
+ * FILLING THE BOX AND THE PAGE HEARING IT ARE TWO THINGS.
+ *
+ * `Check it` is disabled while the box is empty, and the box is a controlled
+ * React input: the server sends the card, this suite reads it and types into
+ * it, and if that lands before the page has hydrated the value sits in the DOM
+ * with nobody listening, hydration then renders the controlled empty string
+ * over it, and the button is disabled for the rest of the run. It cost a whole
+ * shard once, reported as `locator.click: Timeout 30000ms exceeded` against a
+ * `<button disabled>` on a card that was working perfectly.
+ *
+ * So the wait is the thing about to be asserted, the way `mainText` waits for
+ * the question rather than for `main`: type, and keep typing until the button
+ * the typing is supposed to enable is enabled. A page that genuinely never
+ * enables it runs the budget out and reaches the click, which then fails
+ * saying what it found.
+ */
 async function answer(typed) {
-  await page.fill("#answer", typed);
-  await page.getByRole("button", { name: /Check it/ }).click();
+  const box = page.locator("#answer");
+  const check = page.getByRole("button", { name: /Check it/ });
+  const until = Date.now() + 15_000;
+  do {
+    await box.fill(typed);
+    if (await check.isEnabled().catch(() => false)) break;
+    await page.waitForTimeout(200);
+  } while (Date.now() < until);
+  await check.click();
   // Three verdicts now rather than two: the panel says "Nearly" for the right
   // word in the wrong ending, which is a near miss and not a blank.
   await page.waitForSelector("main >> text=/That is it|Nearly|Not this time/", { timeout: 10_000 });

@@ -26,6 +26,7 @@ import { ADJECTIVES, PHRASES } from "../../prisma/data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "../../prisma/data/advanced";
 import { HARVESTED } from "../../prisma/data/harvested";
 import expandedRaw from "../../prisma/data/expanded.json";
+import { englishFor } from "../../lib/dict/exampleEnglish";
 import { classifyGradation, classifyVerbGradation, gradates } from "../../lib/estonian/gradation";
 import { courseWords } from "../../lib/collections/syllabus/index";
 import { isRefusedSentence } from "../../lib/dict/refused";
@@ -308,12 +309,17 @@ export function dictionaryRows(): DictionaryRow[] {
         ...e.extraForms.map((f) => ({ formType: `EKILEX:${f.code}`, value: f.value })),
       ],
       /*
-        Every stored example's English is null: measured over the whole
-        expansion, 0 of 12,172 carry one, because Ekilex records a usage and
-        not a translation of it. So `ShippedEntry` dropping the column costs
-        nothing here, and a row that grows one would have to be carried.
+        `englishFor`, because the seed joins it on both of its two paths and a
+        row without it is a row no deployment has. The reason this said `null`
+        was true about the wrong thing: no *entry* file carries an English
+        column, because a translation is a fact about the sentence and lives
+        in `prisma/data/example-english.json` keyed on it. So the audits were
+        reading a dictionary whose every sentence was bare, which is what any
+        check about what a learner is shown alongside one would have been
+        measuring. 3,363 of the 3,392 gap items the placement check builds
+        carry a line, and before this every one of them read as none.
       */
-      examples: e.usages.map((et) => ({ et, en: null })),
+      examples: e.usages.map((et) => ({ et, en: englishFor(et) })),
       government: e.government,
       gradation: g.type,
       gradationNote: g.note ?? null,

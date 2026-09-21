@@ -81,6 +81,23 @@ const CLAUSES: Record<string, string> = {
   KndPrSg1: "about yourself, as something you would do",
   ImpPrSg2: "telling one person you know to do it",
   ImpPrPl2: "telling somebody politely, or a group, to do it",
+
+  /*
+    The infinitive and the participles, which are the verb forms a gap-fill
+    actually asks for: 210 of the 249 verb gaps the shipped dictionary builds
+    want one of these three, because a sentence a lexicographer wrote is far
+    likelier to hold an infinitive or a participle than a first person.
+
+    Said as what the form means rather than as what it is built out of. There
+    is no way to name the da-infinitive apart from the ma-infinitive in plain
+    English without naming the Estonian verbs it follows, which this module may
+    not do, so the clause says the half that is always true and the name under
+    it on the card is where the rest lives.
+  */
+  Inf: "when you mean “to do it”",
+  PtsPtPs: "when somebody has already done it",
+  PtsPtIps: "when it has been done and nobody is named as doing it",
+  PtsPrPs: "when you mean the one doing it",
 };
 
 /**

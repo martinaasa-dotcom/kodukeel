@@ -2832,6 +2832,19 @@ dictionary's index from `lib/dict/facts.ts`, where it is a fact about the shared
 rest. `npm run audit:questions` asks the same question of every `heard` item it builds, which it
 had excluded from the "is the answer shown" question and was therefore checking with nothing.
 
+**And the sentence question learned that and the word question did not.** The rule above is about
+what else was in the *recording*, and the listening section asks three things, one of which plays a
+single word. A word played alone is still a spelling, and a spelling can belong to two entries:
+`mina` is stored with the genitive plural `meie`, which is the entry `meie` in its own right, so
+"listen, then pick what it means" was asked of that spelling with "I, me" standing among the wrong
+answers, and a learner who heard the plural of `mina` was marked wrong for hearing it. What
+`meaningTest` reasons about alone is a second entry under the same *lemma*, which is `hall` the
+frost beside `hall` the colour and cannot see a *form* shared across two lemmas. Both questions ask
+`meaningsHeard` now, of the sentence and of the lemma. It was reported by `npm run audit:questions`
+and it was there before the run that reported it: the audit builds a whole paper off one seeded
+generator, so a change anywhere above the listening section moves the draw, and a latent fault
+surfaces on the commit that shifted the stream rather than on the one that made it.
+
 **A question nobody can get wrong is worse in a measurement than on a card.** Thirty entries in the
 shipped dictionary are spelled the same in both languages, and the level check's meaning question
 put the Estonian word up with its English gloss among the options: `moment` against "moment". On a
@@ -9950,6 +9963,38 @@ screen names no case at all: the grammar reference, the dictionary entry and eve
 from the same function, so the two shapes of one task cannot say different things, and the learn
 ladder keeps `explainForm` alone because it has already drawn the sentence and its English itself.
 
+**And two of the three things that clause could say were about a form the learner was not looking
+at.** The rule above is right and the reading under it was wrong twice, in a way no screenshot
+shows, because a wrong clause reads exactly like a right one. `plainAsk` is keyed on the case
+names for a nominal and on Ekilex's own codes for a verb, and the placement check kept a private
+table translating the seed's principal parts into the first of those and nothing at all into the
+second. So **the number was thrown away**: `NOM_PL`, `GEN_PL` and `PART_PL` were mapped onto the
+singular keys, and 828 of the 3,392 gaps the shipped dictionary builds described a plural with the
+singular's clause, `sõbrad` reading "the form you use as the plain dictionary word" about a word
+whose dictionary form is `sõber` and is printed three words earlier in the same sentence. And
+**every seeded verb fell through**, because a principal part carries no Ekilex code and
+`PRES_1SG` is not `IndPrSg1`: the clause was null on all 249 verb gaps, so the one part of speech
+where the ending is hardest to reason out was the one part of speech the screen said nothing
+about. `slotCodeOf` in `lib/estonian/morph.ts` is the one reading of which slot a row is in,
+whichever way the row spells it, and the pairs in it are checked by driving both spellings through
+`formName`: a wrong pair names two different forms, which is the only way a table like that fails
+and the only way it fails loudly. The clauses the verbs needed are the infinitive and the two
+participles, which is 210 of the 249, because a sentence a lexicographer wrote is far likelier to
+hold one of those than a first person. **The plural is said before the clause and instead of it
+once**, on the nominative, where every other clause stays true of a plural and "as the plain
+dictionary word" is a claim about that exact spelling that a plural makes false.
+
+**And every audit was reading a dictionary whose every sentence was bare.** `scripts/lib/dictionary.ts`
+is the adapter the audits assemble the shipped dictionary through, and it built each entry's
+sentences as `({ et, en: null })` under a comment that was true about the wrong thing: no *entry*
+file carries an English column, because a translation is a fact about the sentence and lives in
+`prisma/data/example-english.json` keyed on it, which the seed joins on both of its paths. So any
+measurement of what a learner reads beside a sentence was a measurement of a deployment nobody
+has, and the first run of one here reported that no gap in the level check carries an English line
+where 3,363 of 3,392 do. The closed reader list on `lib/dict/exampleEnglish.ts` swept `app/`,
+`lib/`, `components/` and `prisma/`, which is where a *screen* lives and is not where this is; it
+sweeps `scripts/` too, so the fifth answer to what a sentence means cannot appear unwatched.
+
 **Speaking is asked, not recorded.** The check played a native rendering, recorded the learner, and
 asked them to rate the comparison. Nothing scored it (ADR-018), so what the microphone bought was a
 permission prompt and a clip in exchange for a rating that was going to be the learner's own
@@ -10382,7 +10427,7 @@ after any merge that touched its files. `NO_VALUE`, `formatHour`,
 `answerTimeReading`, `confusions`, `formatAnswerTime`, `NotAutomatic`, `scriptedFor`, `scriptable`,
 `TODAY_CARDS`, `weakestCase`, `roundCard`, `orderTodayCards`, `todayOrderFrom`,
 `lacksFiniteVerb`, `answerForms`, `groupEndings`, `endingStrip`, `plainAsk`, `plainAskFor`,
-`conjugationSlotFromFront`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
+`conjugationSlotFromFront`, `slotCodeOf`, `VERDICT_CLASS`, `OPTION_CLASS`, `optionState`, `glossTokens`,
 `glossSentences`, `GlossedSentence`, `leafNeeds`, `caseForm`, `counterBeat`, `cardInPlay`,
 `addsEvidence`, `satisfiedBy`, `nearlySpelled`, `personSlip`, `recast`, `knowing`, `isAnswer`, `coachFor`, `substitutesFrom`, `sensesOf`, `substituted`, `stoodIn`, `compoundOf`, `englishFor`, `readingOf`, `reachedNote`, `choiceOf`, `CHOICE_WORD`, `isSpokenEstonian`, `ASK_ENGLISH`, `wantsEnglish`, `hidesWords`, `hidesGoal`, `sceneProviders`, `NUDGE_AFTER`, `meanwhile`, `asideFor`, `asideOwed`, `answerBeatId`, `awaits`, `contextFromRows`, `nearlyInflected`, `foldedOnly`, `composeNote`, `wantsFreshLine`, `gateFor`,
 `switchesRegisterAt`, `switchesRegister`, `reviewOf`, `caseOfForm`, `diagnose`, `Hunch`, `reachedCase`, `LOST`, `isLost`, `offerFor`, `caughtSomething`, `courseForms`, `isEstonian`, `repairCaseFronts`, `unsentencedCaseCards`, `isBareCaseFront`, `hasSentence`, `borrowSentences`,
@@ -10549,6 +10594,17 @@ a page that rendered nothing and a page that was still rendering read identicall
 And the local runner now unsets the provider keys, because this box carries three and CI carries
 none: a suite measured with `EKILEX_API_KEY` exported is a suite measured on a different app, which
 is the fault `PROVIDER_KEY_ENV` exists for one layer down.
+
+**And typing into a box is not the same as the page hearing it.** `test-flash.mjs` filled `#answer`
+and clicked "Check it" in the next statement, and that button is disabled while the box is empty. A
+controlled React input is the server's HTML until the page hydrates, so a fill that lands first
+sits in the DOM with nobody listening, hydration renders the controlled empty string over it, and
+the button is disabled for the rest of the run: one shard lost, reported as
+`locator.click: Timeout 30000ms exceeded` against a `<button disabled>` on a card that was working
+perfectly, on a commit that touches no screen in that round. `question()` one function up already
+waits for the question rather than for `main`, for its own version of this reason, and the fill did
+not. It types until the button the typing is supposed to enable is enabled, with a budget, and a
+page that genuinely never enables it reaches the click and fails saying what it found.
 
 **A suite that writes to the shared dictionary invents the word it writes.** `Lexeme` is unique on
 `[lemma, pos]` rather than on the lemma, deliberately, because `hall` is a noun meaning frost and an
