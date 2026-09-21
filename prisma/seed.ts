@@ -6,7 +6,7 @@ import { ADJECTIVES, PHRASES } from "./data/other";
 import { ADVANCED_ADJECTIVES, ADVANCED_NOUNS, ADVANCED_VERBS } from "./data/advanced";
 import { HARVESTED } from "./data/harvested";
 import { LEXEME_COLUMNS, type SeedEntry } from "./columns";
-import { applyPosCorrections, writeExpanded } from "./expanded";
+import { applyGlossCorrections, applyPosCorrections, writeExpanded } from "./expanded";
 import { writeWordlist } from "./wordlist";
 import {
   fillExampleEnglish,
@@ -60,6 +60,19 @@ async function main() {
   const relabelled = await applyPosCorrections(prisma);
   if (relabelled > 0) {
     console.log(`Corrected the part of speech on ${relabelled} entries.`);
+  }
+
+  /*
+    Same reasoning, same placement, and a gentler write: a gloss correction
+    touches neither half of the conflict key, so there is no row to repoint
+    onto, only `translation` and `notes` to move on the row that is already
+    there. `expanded.json` loads with ON CONFLICT DO NOTHING, so a database
+    seeded before `npm run audit:glosses --write` fixed a wrong gloss keeps
+    teaching the wrong one for ever unless something reaches back for it.
+  */
+  const reglossed = await applyGlossCorrections(prisma);
+  if (reglossed > 0) {
+    console.log(`Corrected the gloss on ${reglossed} entries.`);
   }
 
   /*
