@@ -759,6 +759,12 @@ export function ReviewSession({
     keeps its cue whole, since there is no sentence to have taken its place.
   */
   const cue = card ? gapCue({ hint: card.hint, lemma: card.lemma, marked: meaning?.marked ?? false }) : null;
+  /*
+    And the reveal prints the same hint through the same reading, resolved here
+    rather than in the markup: a hint stored before the sentence rule names its
+    case in Latin as well, and that name is the only English on the reveal.
+  */
+  const revealedHint = card ? readableHint(card.hint) : null;
 
   // Draining the queue is the provider's job, not this screen's — it has to keep
   // happening on pages that are not a review session. Here we only report it.
@@ -1712,11 +1718,8 @@ export function ReviewSession({
                 <p className="text-xs" style={{ color: "var(--ink-3)" }}>{SAME_SPELLING}</p>
               )}
 
-              {/* The same reading the cue above goes through: a hint stored
-                  before the sentence rule names its case in Latin as well, and
-                  that name is the only English on the reveal. */}
-              {readableHint(card.hint) && (
-                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{readableHint(card.hint)}</p>
+              {revealedHint && (
+                <p className="text-xs" style={{ color: "var(--ink-3)" }}>{revealedHint}</p>
               )}
             </>
           )}

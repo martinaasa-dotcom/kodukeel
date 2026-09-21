@@ -237,10 +237,18 @@ export function gapMeaning(
   if (eachAnswer(answer).some((one) => mentions(line, one))) return null;
 
   const plain: GapMeaning = { runs: [{ text: line, asked: false }], marked: false };
-  if (!cue?.trim()) return plain;
+  /*
+    The cue is read the way `gapCue` reads it, so the two halves of this module
+    are handed one string rather than two. Nothing in the dictionary reaches
+    this with a Latin case name in it today, since a card carrying one is a
+    bare case card and has no sentence to translate, and one reading is still
+    what stops the pair drifting the day something does.
+  */
+  const read = readableHint(cue)?.trim();
+  if (!read) return plain;
   const answers = eachAnswer(answer);
 
-  for (const word of candidates(cue, lemma)) {
+  for (const word of candidates(read, lemma)) {
     const at = whereWhole(line, word);
     if (!at) continue;
     const found = line.slice(at.index, at.index + at.length);
