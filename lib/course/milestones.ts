@@ -101,8 +101,16 @@ export interface Milestone {
   title: string;
   /** One line on what arriving there means, about the learner. */
   arrival: string;
-  /** Where along the whole climb this stop sits, 0 to 100. */
-  at: number;
+  /**
+   * How much of the whole climb this one level is, 0 to 100.
+   *
+   * A share rather than the point the stop sits at, because the strip draws
+   * the levels as blocks: the picture a learner asked for is how far they have
+   * come from the start of A1, and five proportional blocks say that where
+   * five dots on a rail said only that there were five of something. A1 really
+   * is a third of the way to C1 and the widths are how that is said.
+   */
+  share: number;
   /** How far through this level's own words the scheduler has verified, 0 to 100. */
   pct: number;
   /** Reached, credited from where they stand, being worked on now, or ahead. */
@@ -192,17 +200,15 @@ export function ladderProgress(
   const levels = levelsTo(target);
   const total = levels.reduce((n, l) => n + ladderWordsAt(l), 0);
 
-  let before = 0;
   const milestones: Milestone[] = levels.map((level) => {
     const words = ladderWordsAt(level);
     const verified = Math.min(words, Math.max(0, verifiedAt[level] ?? 0));
     const pct = words === 0 ? 100 : Math.round((verified / words) * 100);
     const behind = standing !== null && levelIndex(level) < levelIndex(standing.level);
-    before += words;
     return {
       level,
       ...levelTitle(level),
-      at: total === 0 ? 100 : Math.round((before / total) * 100),
+      share: total === 0 ? 100 / levels.length : (words / total) * 100,
       pct,
       state: (pct >= 100 ? "passed" : behind ? "assumed" : "ahead") as MilestoneState,
       parts: PARTS.filter((p) => p.level === level).length,
@@ -227,7 +233,7 @@ export function ladderProgress(
   const credited = milestones.reduce(
     (n, m) => n + (m.state === "assumed" ? m.words : m.verified), 0,
   );
-  const share = (n: number) => (total === 0 ? 0 : Math.round((n / total) * 100));
+  const pctOf = (n: number) => (total === 0 ? 0 : Math.round((n / total) * 100));
 
   return {
     target,
@@ -235,8 +241,8 @@ export function ladderProgress(
     verified,
     credited,
     total,
-    pct: share(credited),
-    verifiedPct: share(verified),
+    pct: pctOf(credited),
+    verifiedPct: pctOf(verified),
     milestones,
     here,
     arrived: milestones.every((m) => m.state === "passed"),

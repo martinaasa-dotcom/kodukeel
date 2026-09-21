@@ -5096,7 +5096,31 @@ is nought on the first morning and climbs on its own, and at full it becomes `pa
 other. `here` is the first stop that is neither passed nor credited rather than the first with a
 hole in it, or the weekly letter would name A1 as the next stop to somebody working through B1.
 `courseStandingFor` is the one reader, beside `courseLevelFor` and sharing its `pre-A1` rule, so
-the bar and the evening under it cannot disagree about which band somebody is on.
+the bar and the evening under it cannot disagree about which band somebody is on. And **the letter
+about a level the scheduler graduated prints the scheduler's own figure**, `verifiedPct` rather
+than `pct`: that letter draws the percentage as a meter under a sentence saying the number is what
+a card earned by coming back days later, so the credited share there would be an estimate in a
+measurement's clothes in the one place this app speaks to somebody who is not looking at the screen
+that explains it.
+
+**And the levels are blocks rather than dots, because five unlabelled circles on a rail were
+reported in one word: vague.** Nothing on the strip said which level any of them was, so it was a
+picture of the list underneath without the list's own words, and the question somebody glances at
+this to answer, how far along am I, was the one thing it could not say, since a dot at the end of
+A1 looks exactly like a dot anywhere else. Each level is a block as wide as its own share of the
+climb now (`Milestone.share`, which replaced the point the stop sat at), with its name under it,
+and the row reads from the start of A1 to the target: **the widths are the argument**, since A1
+really is a third of the way to C1 and half the way to B1, and five equal fifths would say
+something false about the shape of the course. **What fills a block is its own words**, so a level
+is a progress bar in its own right and the evening spent on one A2 word moves the A2 block, which
+is what a single fill across the whole climb hides. **And the two kinds of fill are two materials
+rather than two hues**: solid is graduated and hatched is credited, because the first version drew
+that second band in `--accent-soft` on a `--raised` track, which in the light theme is two percent
+of lightness apart, so the half of the bar the whole feature is about was invisible. That is the
+fault `components/Choice.tsx` has a paragraph about, one component over. **There is no hover and
+that is not an omission**: a tooltip is a hover, this app is measured on a phone, and everything
+the strip could say on one is either printed under it or in the list below, which is what a screen
+reader gets, since the strip is `aria-hidden`.
 
 **And first run ends on the evening rather than on a dashboard.** A stranger who has just answered
 four questions does not want a home page, they want to be told what to do tonight. The last screen

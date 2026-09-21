@@ -97,6 +97,30 @@ describe("a learner who did not start at the bottom", () => {
   });
 });
 
+/*
+  THE WIDTHS ARE THE PICTURE, SO THEY ARE HELD HERE.
+
+  The strip draws one block per level as wide as `share`, which is what lets it
+  answer how far somebody has come from the start of A1 rather than only how
+  many stops are left. Five equal fifths would say something false about the
+  shape of the course, and a share that did not add up would draw a row with a
+  gap in it that no reader could account for.
+*/
+describe("how wide a level is", () => {
+  it("is that level's own portion of the climb", () => {
+    const climb = ladderProgress("B1", {}, titles, null);
+    const total = climb.milestones.reduce((n, m) => n + m.share, 0);
+    expect(Math.round(total)).toBe(100);
+    expect(stop(climb, "A1").share).toBeGreaterThan(stop(climb, "B1").share);
+  });
+
+  it("is a fact about the climb rather than about the learner", () => {
+    const empty = ladderProgress("C1", {}, titles, null);
+    const placed = ladderProgress("C1", { A1: 100 }, titles, { level: "B1", kind: "measured" });
+    expect(placed.milestones.map((m) => m.share)).toEqual(empty.milestones.map((m) => m.share));
+  });
+});
+
 describe("a learner nobody has placed", () => {
   it("credits nothing, which is what the bar did before any of this", () => {
     const climb = ladderProgress("B1", { A1: 12 }, titles, null);

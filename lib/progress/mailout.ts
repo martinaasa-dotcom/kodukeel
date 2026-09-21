@@ -764,7 +764,18 @@ export async function letterInputFor(
             arrival: reached.arrival,
             words: ladderWordsAt(reached.level),
           },
-          pct: ladder.pct,
+          /*
+            THE CHECKED SHARE, AND NOT THE CREDITED ONE.
+
+            `pct` counts the levels behind where somebody stands, which is
+            right on a screen that prints the split beside it and wrong in
+            this letter, whose whole argument is that the figure is what the
+            scheduler decided you keep rather than what you have met. An
+            estimate drawn as a meter under that sentence, in a letter read
+            away from anything that could explain it, is the one thing the
+            card on Today is careful not to do.
+          */
+          pct: ladder.verifiedPct,
           target,
           next: here ? { level: here.level, wordsAway: wordsLeftAt(here) } : null,
         },

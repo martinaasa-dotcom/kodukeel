@@ -1908,7 +1908,7 @@ check("a level counted from where somebody stands is never counted as passed", (
     on screen together, however the card is laid out.
   */
   const bar = code("components/course/LadderBar.tsx");
-  for (const field of ["credited", "verified", "verifiedPct", "standing"]) {
+  for (const field of ["credited", "verified", "standing"]) {
     assert.match(
       bar,
       new RegExp(`\\b${field}\\b`),
@@ -1916,6 +1916,22 @@ check("a level counted from where somebody stands is never counted as passed", (
     );
   }
   assert.match(bar, /\bassumed\b/, "the climb stopped naming the words it takes on trust");
+
+  /*
+    AND THE LETTER ABOUT A LEVEL THE SCHEDULER GRADUATED PRINTS THE SCHEDULER'S
+    OWN FIGURE.
+
+    `lib/email/letters/milestone.ts` draws that percentage as a meter under a
+    sentence saying the number is what a card earned by coming back days later
+    and being right. `pct` is the credited share, so handed that the letter
+    would put an estimate in a measurement's clothes, in the one place this app
+    speaks to somebody who is not looking at the screen that explains it.
+  */
+  assert.match(
+    between(mailout, 'if (kind === "milestone")'),
+    /pct: ladder\.verifiedPct/,
+    "the milestone letter draws the credited share, which counts a band nobody checked",
+  );
 
   /*
     AND WHERE SOMEBODY STANDS IS RESOLVED ONCE, BY THE READER.
