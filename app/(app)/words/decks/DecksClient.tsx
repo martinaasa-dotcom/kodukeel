@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, ChevronUp, Plus, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Play, Plus, Trash2, X } from "lucide-react";
 import { PrefetchLink as Link } from "@/components/PrefetchLink";
-import { Button } from "@/components/Button";
+import { Button, ButtonLink } from "@/components/Button";
 import { Card, Empty, Stack } from "@/components/ui";
 import {
   createMyDeck, deleteMyDeck, fileMyWord, listMyDeckWords, myWordsToFile,
@@ -203,14 +203,21 @@ function DeckRow({ deck, onRenamed, onDeleted, onWordRemoved, onWordFiled }: {
             <Button variant="ghost" size="sm" onClick={() => setConfirming(false)}>Cancel</Button>
           </span>
         ) : (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
-            style={{ color: "var(--ink-3)" }}
-          >
-            <Trash2 size={13} aria-hidden /> Remove
-          </button>
+          <span className="flex items-center gap-1">
+            {deck.wordCount > 0 && (
+              <ButtonLink href={`/review/deck/${deck.id}`} variant="primary" size="sm">
+                <Play size={13} aria-hidden /> Practice
+              </ButtonLink>
+            )}
+            <button
+              type="button"
+              onClick={() => setConfirming(true)}
+              className="tap-tint inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-xs"
+              style={{ color: "var(--ink-3)" }}
+            >
+              <Trash2 size={13} aria-hidden /> Remove
+            </button>
+          </span>
         )}
         {error && <p role="alert" className="w-full text-xs" style={{ color: "var(--again-ink)" }}>{error}</p>}
       </div>
